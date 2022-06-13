@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 272AD5489BA
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B37D15498EB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385602AbiFMOpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59002 "EHLO
+        id S1380980AbiFMOHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:07:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386212AbiFMOop (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:44:45 -0400
+        with ESMTP id S1381202AbiFMOEM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:04:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A0C1B717D;
-        Mon, 13 Jun 2022 04:51:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B6509155B;
+        Mon, 13 Jun 2022 04:38:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E11861486;
-        Mon, 13 Jun 2022 11:50:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A294C3411B;
-        Mon, 13 Jun 2022 11:50:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1353B60B6E;
+        Mon, 13 Jun 2022 11:38:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2496AC34114;
+        Mon, 13 Jun 2022 11:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121058;
-        bh=sh2G4X4wFqnK2Zl2sU5zgIcGPX5ExeSw9GC5WbGyQy0=;
+        s=korg; t=1655120330;
+        bh=Srf1cCaajTI4Ocw83msU6nuxMRhe1iUnjgiGvE1VwVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MrusuCMNeLBSXYeT0wU0h1hyZyIbtx55sLR/niLd7QsRNcleFMEjQAoKw/HuW65qA
-         FgxUIbBljK34LR+xzzYoV2cPRYJCSXjqxsOoBI3dh8ZaGGM08qCbeo0OySlrmm9Sx9
-         4+3gFVd8Wqpw7XDj+GuDvu5/7+jUJ8Gu9ed16Rcs=
+        b=tg/S6MUtmBYIsOgR8IQ6gHTJB3Z2mfSZnqfU+w4xsH85oGnplNk3fqNfjQrkrtszY
+         LWsY3wY7rHUd67n5qHiS6b428FLFSYs1i8T548bb8h9lnjV7qwgvpGdwVSlMDb3F4Z
+         i883Rn9/oYKplhuIiwhU4JS7rvcvx0I3MMpNrk8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        =?UTF-8?q?Andr=C3=A9=20Kapelrud?= <a.kapelrud@gmail.com>
-Subject: [PATCH 5.17 257/298] ALSA: usb-audio: Skip generic sync EP parse for secondary EP
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.18 326/339] powerpc: Dont select HAVE_IRQ_EXIT_ON_IRQ_STACK
 Date:   Mon, 13 Jun 2022 12:12:31 +0200
-Message-Id: <20220613094932.871986274@linuxfoundation.org>
+Message-Id: <20220613094936.633413037@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit efb75df105e82f076a85b9f2d81410428bcb55fc upstream.
+commit 1346d00e1bdfd4067f92bc14e8a6131a01de4190 upstream.
 
-When ep_idx is already non-zero, it means usually a capture stream
-that is set up explicity by a fixed-format quirk, and applying the
-check for generic (non-implicit-fb) sync EPs might hit incorrectly,
-resulting in a bogus sync endpoint for the capture stream.
+The HAVE_IRQ_EXIT_ON_IRQ_STACK option tells generic code that irq_exit()
+is called while still running on the hard irq stack (hardirq_ctx[] in
+the powerpc code).
 
-This patch adds a check for the ep_idx and skip if it's a secondary
-endpoint.  It's a part of the fixes for regressions on Saffire 6.
+Selecting the option means the generic code will *not* switch to the
+softirq stack before running softirqs, because the code is already
+running on the (mostly empty) hard irq stack.
 
-Fixes: 7b0efea4baf0 ("ALSA: usb-audio: Add missing ep_idx in fixed EP quirks")
-Reported-and-tested-by: André Kapelrud <a.kapelrud@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220606160910.6926-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+But since commit 1b1b6a6f4cc0 ("powerpc: handle irq_enter/irq_exit in
+interrupt handler wrappers"), irq_exit() is now called on the regular task
+stack, not the hard irq stack.
+
+That's because previously irq_exit() was called in __do_irq() which is
+run on the hard irq stack, but now it is called in
+interrupt_async_exit_prepare() which is called from do_irq() constructed
+by the wrapper macro, which is after the switch back to the task stack.
+
+So drop HAVE_IRQ_EXIT_ON_IRQ_STACK from the Kconfig. This will mean an
+extra stack switch when processing some interrupts, but should
+significantly reduce the likelihood of stack overflow.
+
+It also means the softirq stack will be used for running softirqs from
+other interrupts that don't use the hard irq stack, eg. timer interrupts.
+
+Fixes: 1b1b6a6f4cc0 ("powerpc: handle irq_enter/irq_exit in interrupt handler wrappers")
+Cc: stable@vger.kernel.org # v5.12+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220525032639.1947280-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/pcm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -304,7 +304,7 @@ int snd_usb_audioformat_set_sync_ep(stru
- 	 * Generic sync EP handling
- 	 */
- 
--	if (altsd->bNumEndpoints < 2)
-+	if (fmt->ep_idx > 0 || altsd->bNumEndpoints < 2)
- 		return 0;
- 
- 	is_playback = !(get_endpoint(alts, 0)->bEndpointAddress & USB_DIR_IN);
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -218,7 +218,6 @@ config PPC
+ 	select HAVE_HARDLOCKUP_DETECTOR_PERF	if PERF_EVENTS && HAVE_PERF_EVENTS_NMI && !HAVE_HARDLOCKUP_DETECTOR_ARCH
+ 	select HAVE_HW_BREAKPOINT		if PERF_EVENTS && (PPC_BOOK3S || PPC_8xx)
+ 	select HAVE_IOREMAP_PROT
+-	select HAVE_IRQ_EXIT_ON_IRQ_STACK
+ 	select HAVE_IRQ_TIME_ACCOUNTING
+ 	select HAVE_KERNEL_GZIP
+ 	select HAVE_KERNEL_LZMA			if DEFAULT_UIMAGE
 
 
