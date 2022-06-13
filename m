@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D360548C06
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B06548C6D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383687AbiFMO1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:27:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49934 "EHLO
+        id S238918AbiFMMla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:41:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384065AbiFMOYm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:42 -0400
+        with ESMTP id S1355421AbiFMMjI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:39:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE06F48316;
-        Mon, 13 Jun 2022 04:46:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5129A33881;
+        Mon, 13 Jun 2022 04:08:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E3E51612AC;
-        Mon, 13 Jun 2022 11:46:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBAA8C34114;
-        Mon, 13 Jun 2022 11:46:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1EFB6062B;
+        Mon, 13 Jun 2022 11:08:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F321AC34114;
+        Mon, 13 Jun 2022 11:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120799;
-        bh=D30LyP4x5zEhrVjuQDj45JBU4eQu6819dhg1fmv8l+w=;
+        s=korg; t=1655118538;
+        bh=WanT25jlSxEd+8KaNIKchPADk9tb+27J3bIDNrN2/tg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5cPVGI/JgKPmvRIkrtS+v5E0ftANcfz/xSsQKMLSn83E7L0eIQGK479jN0P4VpF/
-         aLlZKIKTnKzvcO6AtnBQEOII+hJqx2pYGwYAJfl4pmus/qltl0yexKIzt1xpPI/mvv
-         kSa9mirodzh1HKjtsaiopgOTaguoXSwyum45TSY0=
+        b=VfAGeV+AN7iSSahWytcgOrDdpsAZKxPMu+i1+nsCdtlRn1taG7JBnOWeitqz/pbON
+         7OjbU1XGOvbz22Tx7wB/8H3SG0lThi8fseEg388NxDuIgAAlPn2URzUKa0tKNmxScP
+         lFiPUYOfHDmcR73VKvzwkawWiD05XwkImYPUtLBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 161/298] powerpc/kasan: Force thread size increase with KASAN
+Subject: [PATCH 5.10 095/172] ata: pata_octeon_cf: Fix refcount leak in octeon_cf_probe
 Date:   Mon, 13 Jun 2022 12:10:55 +0200
-Message-Id: <20220613094929.818510517@linuxfoundation.org>
+Message-Id: <20220613094913.227443086@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 3e8635fb2e072672cbc650989ffedf8300ad67fb ]
+[ Upstream commit 10d6bdf532902be1d8aa5900b3c03c5671612aa2 ]
 
-KASAN causes increased stack usage, which can lead to stack overflows.
+of_find_device_by_node() takes reference, we should use put_device()
+to release it when not need anymore.
+Add missing put_device() to avoid refcount leak.
 
-The logic in Kconfig to suggest a larger default doesn't work if a user
-has CONFIG_EXPERT enabled and has an existing .config with a smaller
-value.
-
-Follow the lead of x86 and arm64, and force the thread size to be
-increased when KASAN is enabled.
-
-That also has the effect of enlarging the stack for 64-bit KASAN builds,
-which is also desirable.
-
-Fixes: edbadaf06710 ("powerpc/kasan: Fix stack overflow by increasing THREAD_SHIFT")
-Reported-by: Erhard Furtner <erhard_f@mailbox.org>
-Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Use MIN_THREAD_SHIFT as suggested by Christophe]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220601143114.133524-1-mpe@ellerman.id.au
+Fixes: 43f01da0f279 ("MIPS/OCTEON/ata: Convert pata_octeon_cf.c to use device tree.")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Kconfig                   |  1 -
- arch/powerpc/include/asm/thread_info.h | 10 ++++++++--
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/ata/pata_octeon_cf.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index b779603978e1..574e4ba13959 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -764,7 +764,6 @@ config THREAD_SHIFT
- 	range 13 15
- 	default "15" if PPC_256K_PAGES
- 	default "14" if PPC64
--	default "14" if KASAN
- 	default "13"
- 	help
- 	  Used to define the stack size. The default is almost always what you
-diff --git a/arch/powerpc/include/asm/thread_info.h b/arch/powerpc/include/asm/thread_info.h
-index d6e649b3c70b..bc3e1de9d08b 100644
---- a/arch/powerpc/include/asm/thread_info.h
-+++ b/arch/powerpc/include/asm/thread_info.h
-@@ -14,10 +14,16 @@
- 
- #ifdef __KERNEL__
- 
--#if defined(CONFIG_VMAP_STACK) && CONFIG_THREAD_SHIFT < PAGE_SHIFT
-+#ifdef CONFIG_KASAN
-+#define MIN_THREAD_SHIFT	(CONFIG_THREAD_SHIFT + 1)
-+#else
-+#define MIN_THREAD_SHIFT	CONFIG_THREAD_SHIFT
-+#endif
-+
-+#if defined(CONFIG_VMAP_STACK) && MIN_THREAD_SHIFT < PAGE_SHIFT
- #define THREAD_SHIFT		PAGE_SHIFT
- #else
--#define THREAD_SHIFT		CONFIG_THREAD_SHIFT
-+#define THREAD_SHIFT		MIN_THREAD_SHIFT
- #endif
- 
- #define THREAD_SIZE		(1 << THREAD_SHIFT)
+diff --git a/drivers/ata/pata_octeon_cf.c b/drivers/ata/pata_octeon_cf.c
+index b5a3f710d76d..4cc8a1027888 100644
+--- a/drivers/ata/pata_octeon_cf.c
++++ b/drivers/ata/pata_octeon_cf.c
+@@ -888,12 +888,14 @@ static int octeon_cf_probe(struct platform_device *pdev)
+ 				int i;
+ 				res_dma = platform_get_resource(dma_dev, IORESOURCE_MEM, 0);
+ 				if (!res_dma) {
++					put_device(&dma_dev->dev);
+ 					of_node_put(dma_node);
+ 					return -EINVAL;
+ 				}
+ 				cf_port->dma_base = (u64)devm_ioremap(&pdev->dev, res_dma->start,
+ 									 resource_size(res_dma));
+ 				if (!cf_port->dma_base) {
++					put_device(&dma_dev->dev);
+ 					of_node_put(dma_node);
+ 					return -EINVAL;
+ 				}
+@@ -903,6 +905,7 @@ static int octeon_cf_probe(struct platform_device *pdev)
+ 					irq = i;
+ 					irq_handler = octeon_cf_interrupt;
+ 				}
++				put_device(&dma_dev->dev);
+ 			}
+ 			of_node_put(dma_node);
+ 		}
 -- 
 2.35.1
 
