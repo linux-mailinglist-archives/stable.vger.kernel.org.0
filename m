@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 954CE548DD4
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B4CD5498A7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358486AbiFMMGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:06:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54300 "EHLO
+        id S1355377AbiFMLez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:34:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359043AbiFMMFL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7DE5BD3;
-        Mon, 13 Jun 2022 03:58:43 -0700 (PDT)
+        with ESMTP id S1354480AbiFMLcu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:32:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44A0ABF64;
+        Mon, 13 Jun 2022 03:47:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7075E61346;
-        Mon, 13 Jun 2022 10:58:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E431C34114;
-        Mon, 13 Jun 2022 10:58:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1FBDB80D3C;
+        Mon, 13 Jun 2022 10:47:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14DEBC34114;
+        Mon, 13 Jun 2022 10:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117922;
-        bh=XEYdQj+nG/p83wdweF1uBpntbavIDU+Y+1Fsi+0wt+Y=;
+        s=korg; t=1655117240;
+        bh=JLpxzX6Ra9Gwh88TaUwLoR3OG6uxLuu6Y7TrfmKyxU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hukt7/vkorriNRjIiSFX3IkzR/Uht1cN0uzplrBteM30kgv2eZtMsUscoUmlONT+d
-         VJtEzBFnkpUZ/NbHKUQ6/KFqqP/6EfQCdglub7+knpGlkCU681TySzwXcbXCpKQ9Xj
-         o+PZpzSSC8CtVlWnqPJd/F/avPIFgofmBJwwqMCw=
+        b=QgVvARS1As51bXtFtz/icsfggc7hslCsj49wI9PaNga/3meXdPCj/y1KAjwULDTAH
+         Kzn42u+LRM4h8jZPKjCiNP5Fu+MXZPdzFXo6Pj4sSzFMpD/4VM+iXbJS8GxgbB5jNg
+         /4Q0ZlOTO/OxavUfNSDfyEl+b/m21XhAP5ow+28E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Subject: [PATCH 4.19 179/287] gma500: fix an incorrect NULL check on list iterator
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 330/411] net/mlx5: Dont use already freed action pointer
 Date:   Mon, 13 Jun 2022 12:10:03 +0200
-Message-Id: <20220613094929.297466623@linuxfoundation.org>
+Message-Id: <20220613094938.621794979@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit bdef417d84536715145f6dc9cc3275c46f26295a upstream.
+[ Upstream commit 80b2bd737d0e833e6a2b77e482e5a714a79c86a4 ]
 
-The bug is here:
-	return crtc;
+The call to mlx5dr_action_destroy() releases "action" memory. That
+pointer is set to miss_action later and generates the following smatch
+error:
 
-The list iterator value 'crtc' will *always* be set and non-NULL by
-list_for_each_entry(), so it is incorrect to assume that the iterator
-value will be NULL if the list is empty or no element is found.
+ drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c:53 set_miss_action()
+ warn: 'action' was already freed.
 
-To fix the bug, return 'crtc' when found, otherwise return NULL.
+Make sure that the pointer is always valid by setting NULL after destroy.
 
-Cc: stable@vger.kernel.org
-fixes: 89c78134cc54d ("gma500: Add Poulsbo support")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220327052028.2013-1-xiam0nd.tong@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6a48faeeca10 ("net/mlx5: Add direct rule fs_cmd implementation")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/psb_intel_display.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/gma500/psb_intel_display.c
-+++ b/drivers/gpu/drm/gma500/psb_intel_display.c
-@@ -543,14 +543,15 @@ void psb_intel_crtc_init(struct drm_devi
- 
- struct drm_crtc *psb_intel_get_crtc_from_pipe(struct drm_device *dev, int pipe)
- {
--	struct drm_crtc *crtc = NULL;
-+	struct drm_crtc *crtc;
- 
- 	list_for_each_entry(crtc, &dev->mode_config.crtc_list, head) {
- 		struct gma_crtc *gma_crtc = to_gma_crtc(crtc);
-+
- 		if (gma_crtc->pipe == pipe)
--			break;
-+			return crtc;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
+index 348f02e336f6..d64368506754 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
+@@ -43,11 +43,10 @@ static int set_miss_action(struct mlx5_flow_root_namespace *ns,
+ 	err = mlx5dr_table_set_miss_action(ft->fs_dr_table.dr_table, action);
+ 	if (err && action) {
+ 		err = mlx5dr_action_destroy(action);
+-		if (err) {
+-			action = NULL;
+-			mlx5_core_err(ns->dev, "Failed to destroy action (%d)\n",
+-				      err);
+-		}
++		if (err)
++			mlx5_core_err(ns->dev,
++				      "Failed to destroy action (%d)\n", err);
++		action = NULL;
  	}
--	return crtc;
-+	return NULL;
- }
- 
- int gma_connector_clones(struct drm_device *dev, int type_mask)
+ 	ft->fs_dr_table.miss_action = action;
+ 	if (old_miss_action) {
+-- 
+2.35.1
+
 
 
