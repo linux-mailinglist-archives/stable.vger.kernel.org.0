@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4BB65487B1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E4A3548858
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377593AbiFMNdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:33:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52374 "EHLO
+        id S1356075AbiFMLsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:48:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378335AbiFMNbV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:31:21 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48C2E70345;
-        Mon, 13 Jun 2022 04:25:58 -0700 (PDT)
+        with ESMTP id S1357411AbiFMLqG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:46:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62FEA4B42C;
+        Mon, 13 Jun 2022 03:52:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B6C6FCE1184;
-        Mon, 13 Jun 2022 11:25:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF1DFC3411E;
-        Mon, 13 Jun 2022 11:25:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 673B761346;
+        Mon, 13 Jun 2022 10:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 749D4C34114;
+        Mon, 13 Jun 2022 10:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119554;
-        bh=1okDpxG+2HAeH3YlR9vj5KO6UWz/SMYp93/ULZFDgus=;
+        s=korg; t=1655117535;
+        bh=c/sh0ADfc8YO6RjUcVirxMAJQkJ6AkcflF2WlJjEjmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iyBXpyPh4Ob2CIHFLACGvYDm/52WJsXHxdvYPtZj7NSuhgo7pU+CTvWhJamjQ453p
-         B/N0O0M+QH3SR4xDag7lzbBhVd/KrlcnlB4reZKOuYF38xfoyDSo845iENV/vrT1yn
-         7eSp3HVEQiSZZfGcY4wfDb0EUq7DV6xYRMtawzXs=
+        b=rUr8HLB+Yu96A2B2WkI49S8g0OhnhBEXqmOHuVH/QDBejtjmroCdnYfFd452lxRGT
+         cXbwHEeqb0it/R6/12nUHH9IrMOBjEtwJ2f4CYYOtrbxx7UlWwEheW/f/MIbvo284B
+         NKzHIsLGY49ZtfAUn25j6tVbFcs2FmZOW/aFuxtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Li Jun <jun.li@nxp.com>, Chanwoo Choi <cw00.choi@samsung.com>,
+        Douglas Miller <doug.miller@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 055/339] extcon: ptn5150: Add queue work sync before driver release
+Subject: [PATCH 4.19 056/287] RDMA/hfi1: Prevent panic when SDMA is disabled
 Date:   Mon, 13 Jun 2022 12:08:00 +0200
-Message-Id: <20220613094928.191538668@linuxfoundation.org>
+Message-Id: <20220613094925.566240775@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Douglas Miller <doug.miller@cornelisnetworks.com>
 
-[ Upstream commit 782cd939cbe0f569197cd1c9b0477ee213167f04 ]
+[ Upstream commit 629e052d0c98e46dde9f0824f0aa437f678d9b8f ]
 
-Add device managed action to sync pending queue work, otherwise
-the queued work may run after the work is destroyed.
+If the hfi1 module is loaded with HFI1_CAP_SDMA off, a call to
+hfi1_write_iter() will dereference a NULL pointer and panic. A typical
+stack frame is:
 
-Fixes: 4ed754de2d66 ("extcon: Add support for ptn5150 extcon driver")
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+  sdma_select_user_engine [hfi1]
+  hfi1_user_sdma_process_request [hfi1]
+  hfi1_write_iter [hfi1]
+  do_iter_readv_writev
+  do_iter_write
+  vfs_writev
+  do_writev
+  do_syscall_64
+
+The fix is to test for SDMA in hfi1_write_iter() and fail the I/O with
+EINVAL.
+
+Link: https://lore.kernel.org/r/20220520183706.48973.79803.stgit@awfm-01.cornelisnetworks.com
+Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-ptn5150.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/infiniband/hw/hfi1/file_ops.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/extcon/extcon-ptn5150.c b/drivers/extcon/extcon-ptn5150.c
-index 5b9a3cf8df26..2a7874108df8 100644
---- a/drivers/extcon/extcon-ptn5150.c
-+++ b/drivers/extcon/extcon-ptn5150.c
-@@ -194,6 +194,13 @@ static int ptn5150_init_dev_type(struct ptn5150_info *info)
- 	return 0;
- }
+diff --git a/drivers/infiniband/hw/hfi1/file_ops.c b/drivers/infiniband/hw/hfi1/file_ops.c
+index adeb259458de..64ee11542a56 100644
+--- a/drivers/infiniband/hw/hfi1/file_ops.c
++++ b/drivers/infiniband/hw/hfi1/file_ops.c
+@@ -308,6 +308,8 @@ static ssize_t hfi1_write_iter(struct kiocb *kiocb, struct iov_iter *from)
+ 	unsigned long dim = from->nr_segs;
+ 	int idx;
  
-+static void ptn5150_work_sync_and_put(void *data)
-+{
-+	struct ptn5150_info *info = data;
-+
-+	cancel_work_sync(&info->irq_work);
-+}
-+
- static int ptn5150_i2c_probe(struct i2c_client *i2c)
- {
- 	struct device *dev = &i2c->dev;
-@@ -284,6 +291,10 @@ static int ptn5150_i2c_probe(struct i2c_client *i2c)
- 	if (ret)
- 		return -EINVAL;
- 
-+	ret = devm_add_action_or_reset(dev, ptn5150_work_sync_and_put, info);
-+	if (ret)
-+		return ret;
-+
- 	/*
- 	 * Update current extcon state if for example OTG connection was there
- 	 * before the probe
++	if (!HFI1_CAP_IS_KSET(SDMA))
++		return -EINVAL;
+ 	idx = srcu_read_lock(&fd->pq_srcu);
+ 	pq = srcu_dereference(fd->pq, &fd->pq_srcu);
+ 	if (!cq || !pq) {
 -- 
 2.35.1
 
