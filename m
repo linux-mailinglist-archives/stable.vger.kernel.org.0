@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C3CE548E08
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 070C1548A59
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377080AbiFMNZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:25:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43368 "EHLO
+        id S1355418AbiFMLk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:40:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377119AbiFMNYY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:24:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 488206BFDC;
-        Mon, 13 Jun 2022 04:24:02 -0700 (PDT)
+        with ESMTP id S1355631AbiFMLjV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FD929FC7;
+        Mon, 13 Jun 2022 03:49:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B1B860FA3;
-        Mon, 13 Jun 2022 11:24:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A265C34114;
-        Mon, 13 Jun 2022 11:24:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E0A9361260;
+        Mon, 13 Jun 2022 10:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1FEEC34114;
+        Mon, 13 Jun 2022 10:49:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119440;
-        bh=s398Cp7zEvqbBmtiyhUOl25lcGQe79LIm4J2yWQtLYA=;
+        s=korg; t=1655117361;
+        bh=aLylDdqT0NTqM4D2n1JKqFVOODdcHs+kgtWOg5yMgK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NoiOgMN2kjIlyB3I0I0ZiSNuupIMYZ5K6VXukLFcftkG7ILCEdKwTVtdjfHWX/Jv8
-         MgIRrQAItbRnTgTPuTMisBNpvqzADx9uAmI+fDEPKS7re8LXtFpTmLPR6DXcoIC3Hi
-         jvkwHqjw5Q9k9cEKBLuDnZAUfzaSOxEe0+QIJv0E=
+        b=YdHJLRN2vvZ4HyHG3uLgo1H/ULdJD3/KfWg56cPEQHWibdxtyBXV8mkdBNXaZVQql
+         WocfHlLhwefI3cZ0IhGNsn2g+F9+pG5nDwSG3dMMkxPft/YAwXVdeAptisUVVbNNAX
+         OIjRQq6xKIlajNaOjsjWuEEYDOx0Pb1lb6frUtdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Michael Straube <straube.linux@gmail.com>,
+        stable@vger.kernel.org,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 016/339] staging: r8188eu: fix struct rt_firmware_hdr
-Date:   Mon, 13 Jun 2022 12:07:21 +0200
-Message-Id: <20220613094927.001744128@linuxfoundation.org>
+Subject: [PATCH 4.19 018/287] drm/amd/pm: fix double free in si_parse_power_table()
+Date:   Mon, 13 Jun 2022 12:07:22 +0200
+Message-Id: <20220613094924.410127188@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,110 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Straube <straube.linux@gmail.com>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-[ Upstream commit fbfdc1b6f80abc40cb1f7bac68248b899754d8be ]
+[ Upstream commit f3fa2becf2fc25b6ac7cf8d8b1a2e4a86b3b72bd ]
 
-The size of struct rt_firmware_hdr is 36 bytes.
+In function si_parse_power_table(), array adev->pm.dpm.ps and its member
+is allocated. If the allocation of each member fails, the array itself
+is freed and returned with an error code. However, the array is later
+freed again in si_dpm_fini() function which is called when the function
+returns an error.
 
-$ pahole -C rt_firmware_hdr drivers/staging/r8188eu/r8188eu.o
-struct rt_firmware_hdr {
-        __le16                     Signature;            /*     0     2 */
-        u8                         Category;             /*     2     1 */
-        u8                         Function;             /*     3     1 */
-        __le16                     Version;              /*     4     2 */
-        u8                         Subversion;           /*     6     1 */
+This leads to potential double free of the array adev->pm.dpm.ps, as
+well as leak of its array members, since the members are not freed in
+the allocation function and the array is not nulled when freed.
+In addition adev->pm.dpm.num_ps, which keeps track of the allocated
+array member, is not updated until the member allocation is
+successfully finished, this could also lead to either use after free,
+or uninitialized variable access in si_dpm_fini().
 
-        /* XXX 1 byte hole, try to pack */
+Fix this by postponing the free of the array until si_dpm_fini() and
+increment adev->pm.dpm.num_ps everytime the array member is allocated.
 
-        u16                        Rsvd1;                /*     8     2 */
-        u8                         Month;                /*    10     1 */
-        u8                         Date;                 /*    11     1 */
-        u8                         Hour;                 /*    12     1 */
-        u8                         Minute;               /*    13     1 */
-        __le16                     RamCodeSize;          /*    14     2 */
-        u8                         Foundry;              /*    16     1 */
-        u8                         Rsvd2;                /*    17     1 */
-
-        /* XXX 2 bytes hole, try to pack */
-
-        __le32                     SvnIdx;               /*    20     4 */
-        u32                        Rsvd3;                /*    24     4 */
-        u32                        Rsvd4;                /*    28     4 */
-        u32                        Rsvd5;                /*    32     4 */
-
-        /* size: 36, cachelines: 1, members: 17 */
-        /* sum members: 33, holes: 2, sum holes: 3 */
-        /* last cacheline: 36 bytes */
-};
-
-But the header in the firmware file is only 32 bytes long.
-
-The hexdump of rtl8188eufw.bin shows that the field Rsvd1 should be u8
-instead of __le16.
-
-OFFSET      rtl8188eufw.bin
------------------------------------------------------------
-0x00000000  E1 88 10 00 0B 00 01 00 01 21 11 27 30 36 00 00
-0x00000010  2D 07 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0x00000000  E1 88 10 00 0B 00 01  00     01     21    11    27 30 36 00 00
-                              ^   ^      ^      ^     ^     ^
-                     Subversion   Rsvd1  Month  Date  Hour  Minute
-
-With the change of field Rsvd1 from __le16 to u8 the structure has the
-correct size 32.
-
-$ pahole -C rt_firmware_hdr drivers/staging/r8188eu/r8188eu.o
-struct rt_firmware_hdr {
-        __le16                     Signature;            /*     0     2 */
-        u8                         Category;             /*     2     1 */
-        u8                         Function;             /*     3     1 */
-        __le16                     Version;              /*     4     2 */
-        u8                         Subversion;           /*     6     1 */
-        u8                         Rsvd1;                /*     7     1 */
-        u8                         Month;                /*     8     1 */
-        u8                         Date;                 /*     9     1 */
-        u8                         Hour;                 /*    10     1 */
-        u8                         Minute;               /*    11     1 */
-        __le16                     RamCodeSize;          /*    12     2 */
-        u8                         Foundry;              /*    14     1 */
-        u8                         Rsvd2;                /*    15     1 */
-        __le32                     SvnIdx;               /*    16     4 */
-        u32                        Rsvd3;                /*    20     4 */
-        u32                        Rsvd4;                /*    24     4 */
-        u32                        Rsvd5;                /*    28     4 */
-
-        /* size: 32, cachelines: 1, members: 17 */
-        /* last cacheline: 32 bytes */
-
-The wrong size had no effect because the header size is hardcoded to
-32 where it is used in the code and the fields after Subversion are
-not used.
-
-Fixes: 7884fc0a1473 ("staging: r8188eu: introduce new include dir for RTL8188eu driver")
-Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Michael Straube <straube.linux@gmail.com>
-Link: https://lore.kernel.org/r/20220417175441.13830-2-straube.linux@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/r8188eu/core/rtw_fw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/si_dpm.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/r8188eu/core/rtw_fw.c b/drivers/staging/r8188eu/core/rtw_fw.c
-index 625d186c3647..ce431d8ffea0 100644
---- a/drivers/staging/r8188eu/core/rtw_fw.c
-+++ b/drivers/staging/r8188eu/core/rtw_fw.c
-@@ -29,7 +29,7 @@ struct rt_firmware_hdr {
- 					 *  FW for different conditions */
- 	__le16		Version;	/*  FW Version */
- 	u8		Subversion;	/*  FW Subversion, default 0x00 */
--	u16		Rsvd1;
-+	u8		Rsvd1;
+diff --git a/drivers/gpu/drm/amd/amdgpu/si_dpm.c b/drivers/gpu/drm/amd/amdgpu/si_dpm.c
+index 1de96995e690..9f811051ceb0 100644
+--- a/drivers/gpu/drm/amd/amdgpu/si_dpm.c
++++ b/drivers/gpu/drm/amd/amdgpu/si_dpm.c
+@@ -7247,17 +7247,15 @@ static int si_parse_power_table(struct amdgpu_device *adev)
+ 	if (!adev->pm.dpm.ps)
+ 		return -ENOMEM;
+ 	power_state_offset = (u8 *)state_array->states;
+-	for (i = 0; i < state_array->ucNumEntries; i++) {
++	for (adev->pm.dpm.num_ps = 0, i = 0; i < state_array->ucNumEntries; i++) {
+ 		u8 *idx;
+ 		power_state = (union pplib_power_state *)power_state_offset;
+ 		non_clock_array_index = power_state->v2.nonClockInfoIndex;
+ 		non_clock_info = (struct _ATOM_PPLIB_NONCLOCK_INFO *)
+ 			&non_clock_info_array->nonClockInfo[non_clock_array_index];
+ 		ps = kzalloc(sizeof(struct  si_ps), GFP_KERNEL);
+-		if (ps == NULL) {
+-			kfree(adev->pm.dpm.ps);
++		if (ps == NULL)
+ 			return -ENOMEM;
+-		}
+ 		adev->pm.dpm.ps[i].ps_priv = ps;
+ 		si_parse_pplib_non_clock_info(adev, &adev->pm.dpm.ps[i],
+ 					      non_clock_info,
+@@ -7279,8 +7277,8 @@ static int si_parse_power_table(struct amdgpu_device *adev)
+ 			k++;
+ 		}
+ 		power_state_offset += 2 + power_state->v2.ucNumDPMLevels;
++		adev->pm.dpm.num_ps++;
+ 	}
+-	adev->pm.dpm.num_ps = state_array->ucNumEntries;
  
- 	/*  LONG WORD 1 ---- */
- 	u8		Month;	/*  Release time Month field */
+ 	/* fill in the vce power states */
+ 	for (i = 0; i < adev->pm.dpm.num_of_vce_states; i++) {
 -- 
 2.35.1
 
