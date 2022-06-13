@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51095548D85
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0928549774
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352537AbiFMLSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:18:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46648 "EHLO
+        id S1355371AbiFMLkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:40:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353665AbiFMLQK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:10 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B9C013CCE
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 03:38:49 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id s37so2695286pfg.11
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 03:38:49 -0700 (PDT)
+        with ESMTP id S1355651AbiFMLjW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:22 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6009C2C64D
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 03:49:31 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id z14so506064pjb.4
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 03:49:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=sdwXbrss5Dn43d4iD4KbZHlmkjEcs0NbkNFusXPoIcM=;
-        b=dRdQHs4yCGe0wryQotRHqRpJJWB7JmQPmDNOVoa7Mcg+Ec8KG3mlVxLH+/3HuOxhRk
-         H9fLXs+kdnGkEa2JB3SHT0U9zMI0viUtN7JAvfwIA1Pe3v3Y0P/13Mb33NIb0wTm4erd
-         RAvv+0v+2Y1+RbOaWyKDXW9xPInHX5app9LCMWjqeTa23l0QydQNNRVIrQXvnk7qyPU+
-         TafmYasX7efFslgoKsql+MPIlhl60MFGmAlQMnnCTdWCDAf56DCSqfYruCS4KW6RZBTQ
-         33mhJ/6pQKP+x6/ona7OvaL8A3U5blG021RUztz0Ne285RgsiiHCS8Poob4seCY0/69F
-         F8pA==
+        bh=VMMNcoMCZ8+r9m23ocjWmhU2Cq+S+MMUkad4aXGGawE=;
+        b=nA9AKXN70I/PrGb7zPKOJh75+mtZtE1birj9l5Rg6ddfUaUD6soFaYLxKmppuahgYS
+         J0LIyvXjNSRhscnngM+pDmYlwihk88LEhgbDo2hLqPG9MLE8OlxDCFqdcsmGfFhGEwn+
+         oDsLJA4KNY1zB998aFiJVJRTXFsZ6wZ7TuZTkH1zX1HXEkveQsTTrT4IYzO40YMLKMTn
+         kwnpBETwxJ0Di4AIHynnobiKqsk67q+/g1D8VpwYNI1hwO7jRlSX0L6Z6tq8o+9OgffC
+         rT4sQDBNYDNbCNCB2m8ieVsJiehC20ML0OASENpxL1C3oj64qoYE1s8IKntnfWWZeGZO
+         45Bw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=sdwXbrss5Dn43d4iD4KbZHlmkjEcs0NbkNFusXPoIcM=;
-        b=drw4w9P336h6Ic+AKP9/qFzIVBZ7nxUWBjyqJl15wJUlrC3JPb5rUTMKUy6Me/tdUp
-         2jdSY4ju/HNxZcACJjVyvHPkag4KuoNyPiqD0kO2X2/Lcmo54DYoxR0h5vVPekS2+IOO
-         Dd3a3M4aLKhNDUBVGX3Y6feEFiGddl112JoeAC/8CItYh/Re829vS+ImUyxyNumIws1n
-         ZGxYGVsQVxyzevCPmfVrKwWlGpXT7KzBCrPMxO1Rzp7vbR0IEkkFU5m871qs9eIL8XKf
-         Nt+1FDK9Ckth3VQeA/vCB01YA5FAF0P99GJjPqRg9VHR8tlMxnCDpNrGRwvxbzr8/Z1C
-         7+mA==
-X-Gm-Message-State: AOAM532BveNCifwc6W8UkluPDWJ6zpTYgxLcy1LxtZiIv4x+Folk2bb6
-        qtO//sfSm9gnaHeSfrpplgzGz0t/4p70Z9axEak=
-X-Google-Smtp-Source: ABdhPJyMNgljRUrzS4gvK0JJwVoQPhDBBUtgfFU1mChHMM6dV84LD5QcyaG/ma60+GSwOuM39hc4uw==
-X-Received: by 2002:a05:6a00:10d4:b0:522:8c31:ec23 with SMTP id d20-20020a056a0010d400b005228c31ec23mr1553313pfu.67.1655116727423;
-        Mon, 13 Jun 2022 03:38:47 -0700 (PDT)
+        bh=VMMNcoMCZ8+r9m23ocjWmhU2Cq+S+MMUkad4aXGGawE=;
+        b=fbWjbKg4pnnF8D9Au/UZP1tud0zQVloRnD3iFLtPV5bTAuo7DmE1st8zYGk90jl41w
+         /iwgdbM8m2Mt+yKOU6GRV54FUIR45kZJw0MIqXZgmcMj969oKLgTSBl2vZVnYkh+CXtn
+         Cr8h3Ukg4LEa1yvhqGLOOU+9iLYN7JkbWaE6zlxK8gigsqoq7v1t/tZXh7Q6Yml5ZP6C
+         PJ5JvBg12XOrnGqlnUcLKBJzOkf1orq9cbqAnxLILDZR224WvYHtCGLCuYizQGrxphcd
+         228JSryB8M/vuyD8+j+WGGIhwJCux/vKfPV3lp4TjNUAU5bMN3QujL//awnLyLzGlaI3
+         Jheg==
+X-Gm-Message-State: AOAM5305WIG7TUPHN4gTqr5GbG3kcmWQQhCx0FgC4JoV+yKfRtW8/ghC
+        EWvqmAUKR3uHIMP44IttwNbaAC8VV8e65DNe1ec=
+X-Google-Smtp-Source: ABdhPJy4a9ZVe2TKzPrXzzqj91mWMRRyxI4qyoaUbFCZ20lsgsfhCRzZoDzXG7bSp8mgI0kXOhE6Jg==
+X-Received: by 2002:a17:902:ccd0:b0:168:db72:15e with SMTP id z16-20020a170902ccd000b00168db72015emr5769853ple.63.1655117369469;
+        Mon, 13 Jun 2022 03:49:29 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y17-20020a170902d65100b00168a651316csm4730522plh.270.2022.06.13.03.38.46
+        by smtp.gmail.com with ESMTPSA id h11-20020a170902f2cb00b00163aba9a2a5sm4764959plc.106.2022.06.13.03.49.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jun 2022 03:38:47 -0700 (PDT)
-Message-ID: <62a713b7.1c69fb81.df592.5776@mx.google.com>
-Date:   Mon, 13 Jun 2022 03:38:47 -0700 (PDT)
+        Mon, 13 Jun 2022 03:49:29 -0700 (PDT)
+Message-ID: <62a71639.1c69fb81.fb823.56fc@mx.google.com>
+Date:   Mon, 13 Jun 2022 03:49:29 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v5.15.45-911-ge74187a013383
-X-Kernelci-Branch: queue/5.15
+X-Kernelci-Kernel: v5.18.2-1217-gb6d3927fce460
+X-Kernelci-Branch: queue/5.18
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 build: 180 builds: 4 failed, 176 passed,
- 14 errors, 321 warnings (v5.15.45-911-ge74187a013383)
+Subject: stable-rc/queue/5.18 build: 175 builds: 3 failed, 172 passed, 8 errors,
+ 334 warnings (v5.18.2-1217-gb6d3927fce460)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,16 +70,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 build: 180 builds: 4 failed, 176 passed, 14 errors, 32=
-1 warnings (v5.15.45-911-ge74187a013383)
+stable-rc/queue/5.18 build: 175 builds: 3 failed, 172 passed, 8 errors, 334=
+ warnings (v5.18.2-1217-gb6d3927fce460)
 
 Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-5/kernel/v5.15.45-911-ge74187a013383/
+8/kernel/v5.18.2-1217-gb6d3927fce460/
 
 Tree: stable-rc
-Branch: queue/5.15
-Git Describe: v5.15.45-911-ge74187a013383
-Git Commit: e74187a013383b26f79173808c7965869933b7df
+Branch: queue/5.18
+Git Describe: v5.18.2-1217-gb6d3927fce460
+Git Commit: b6d3927fce4608940f5959377a788b1615e5d5a8
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -89,10 +89,11 @@ Build Failures Detected:
 arm:
     rpc_defconfig: (gcc-10) FAIL
 
+i386:
+    i386_defconfig: (gcc-10) FAIL
+
 mips:
     decstation_64_defconfig: (gcc-10) FAIL
-    ip27_defconfig: (gcc-10) FAIL
-    ip28_defconfig: (gcc-10) FAIL
 
 Errors and Warnings Detected:
 
@@ -105,7 +106,7 @@ arc:
     hsdk_defconfig (gcc-10): 2 warnings
     nsimosci_hs_defconfig (gcc-10): 2 warnings
     nsimosci_hs_smp_defconfig (gcc-10): 2 warnings
-    tinyconfig (gcc-10): 3 warnings
+    tinyconfig (gcc-10): 2 warnings
     vdk_hs38_defconfig (gcc-10): 2 warnings
     vdk_hs38_smp_defconfig (gcc-10): 2 warnings
 
@@ -121,7 +122,7 @@ arm:
     badge4_defconfig (gcc-10): 2 warnings
     bcm2835_defconfig (gcc-10): 2 warnings
     cerfcube_defconfig (gcc-10): 2 warnings
-    cm_x300_defconfig (gcc-10): 2 warnings
+    cm_x300_defconfig (gcc-10): 3 warnings
     colibri_pxa270_defconfig (gcc-10): 2 warnings
     colibri_pxa300_defconfig (gcc-10): 2 warnings
     collie_defconfig (gcc-10): 2 warnings
@@ -131,14 +132,13 @@ arm:
     ep93xx_defconfig (gcc-10): 2 warnings
     eseries_pxa_defconfig (gcc-10): 2 warnings
     exynos_defconfig (gcc-10): 2 warnings
-    ezx_defconfig (gcc-10): 2 warnings
+    ezx_defconfig (gcc-10): 3 warnings
     footbridge_defconfig (gcc-10): 2 warnings
     gemini_defconfig (gcc-10): 2 warnings
     h3600_defconfig (gcc-10): 2 warnings
     h5000_defconfig (gcc-10): 2 warnings
     hackkit_defconfig (gcc-10): 2 warnings
     hisi_defconfig (gcc-10): 2 warnings
-    imote2_defconfig (gcc-10): 2 warnings
     imx_v4_v5_defconfig (gcc-10): 2 warnings
     imx_v6_v7_defconfig (gcc-10): 2 warnings
     integrator_defconfig (gcc-10): 2 warnings
@@ -166,7 +166,7 @@ arm:
     mxs_defconfig (gcc-10): 2 warnings
     neponset_defconfig (gcc-10): 2 warnings
     netwinder_defconfig (gcc-10): 2 warnings
-    nhk8815_defconfig (gcc-10): 2 warnings
+    nhk8815_defconfig (gcc-10): 3 warnings
     omap1_defconfig (gcc-10): 2 warnings
     omap2plus_defconfig (gcc-10): 2 warnings
     orion5x_defconfig (gcc-10): 2 warnings
@@ -178,11 +178,11 @@ arm:
     pxa255-idp_defconfig (gcc-10): 2 warnings
     pxa3xx_defconfig (gcc-10): 2 warnings
     pxa910_defconfig (gcc-10): 2 warnings
-    pxa_defconfig (gcc-10): 2 warnings
-    qcom_defconfig (gcc-10): 2 warnings
+    pxa_defconfig (gcc-10): 3 warnings
+    qcom_defconfig (gcc-10): 3 warnings
     realview_defconfig (gcc-10): 2 warnings
-    rpc_defconfig (gcc-10): 4 errors
-    s3c2410_defconfig (gcc-10): 2 warnings
+    rpc_defconfig (gcc-10): 2 errors
+    s3c2410_defconfig (gcc-10): 3 warnings
     s3c6400_defconfig (gcc-10): 2 warnings
     s5pv210_defconfig (gcc-10): 2 warnings
     sama5_defconfig (gcc-10): 2 warnings
@@ -199,7 +199,7 @@ arm:
     sunxi_defconfig (gcc-10): 2 warnings
     tct_hammer_defconfig (gcc-10): 2 warnings
     tegra_defconfig (gcc-10): 2 warnings
-    trizeps4_defconfig (gcc-10): 2 warnings
+    trizeps4_defconfig (gcc-10): 3 warnings
     u8500_defconfig (gcc-10): 2 warnings
     versatile_defconfig (gcc-10): 2 warnings
     vexpress_defconfig (gcc-10): 2 warnings
@@ -211,7 +211,7 @@ arm:
 
 i386:
     allnoconfig (gcc-10): 2 warnings
-    i386_defconfig (gcc-10): 2 warnings
+    i386_defconfig (gcc-10): 2 errors, 1 warning
     tinyconfig (gcc-10): 2 warnings
 
 mips:
@@ -221,53 +221,46 @@ mips:
     ath79_defconfig (gcc-10): 2 warnings
     bcm47xx_defconfig (gcc-10): 2 warnings
     bcm63xx_defconfig (gcc-10): 2 warnings
-    bigsur_defconfig (gcc-10): 1 error
-    bmips_be_defconfig (gcc-10): 2 warnings
-    bmips_stb_defconfig (gcc-10): 2 warnings
+    bmips_be_defconfig (gcc-10): 3 warnings
+    bmips_stb_defconfig (gcc-10): 3 warnings
     capcella_defconfig (gcc-10): 2 warnings
-    cavium_octeon_defconfig (gcc-10): 1 error
     ci20_defconfig (gcc-10): 2 warnings
     cobalt_defconfig (gcc-10): 2 warnings
     cu1000-neo_defconfig (gcc-10): 2 warnings
     cu1830-neo_defconfig (gcc-10): 2 warnings
     db1xxx_defconfig (gcc-10): 2 warnings
-    decstation_64_defconfig (gcc-10): 1 error
     decstation_defconfig (gcc-10): 2 warnings
     decstation_r4k_defconfig (gcc-10): 2 warnings
     e55_defconfig (gcc-10): 2 warnings
-    fuloong2e_defconfig (gcc-10): 1 error
+    fuloong2e_defconfig (gcc-10): 1 error, 1 warning
     gcw0_defconfig (gcc-10): 2 warnings
     gpr_defconfig (gcc-10): 2 warnings
-    ip22_defconfig (gcc-10): 2 warnings
-    ip32_defconfig (gcc-10): 1 error
-    jazz_defconfig (gcc-10): 2 warnings
-    jmr3927_defconfig (gcc-10): 2 warnings
+    ip22_defconfig (gcc-10): 3 warnings
+    ip32_defconfig (gcc-10): 1 warning
+    jazz_defconfig (gcc-10): 3 warnings
     lemote2f_defconfig (gcc-10): 1 error, 1 warning
     loongson1b_defconfig (gcc-10): 2 warnings
     loongson1c_defconfig (gcc-10): 2 warnings
     loongson2k_defconfig (gcc-10): 1 error, 1 warning
-    loongson3_defconfig (gcc-10): 1 error
+    loongson3_defconfig (gcc-10): 1 error, 1 warning
     malta_defconfig (gcc-10): 2 warnings
     malta_kvm_defconfig (gcc-10): 2 warnings
-    malta_qemu_32r6_defconfig (gcc-10): 2 warnings
-    maltaaprp_defconfig (gcc-10): 2 warnings
-    maltasmvp_defconfig (gcc-10): 2 warnings
-    maltasmvp_eva_defconfig (gcc-10): 2 warnings
-    maltaup_defconfig (gcc-10): 2 warnings
+    malta_qemu_32r6_defconfig (gcc-10): 3 warnings
+    maltaaprp_defconfig (gcc-10): 3 warnings
+    maltasmvp_defconfig (gcc-10): 3 warnings
+    maltasmvp_eva_defconfig (gcc-10): 3 warnings
+    maltaup_defconfig (gcc-10): 3 warnings
     maltaup_xpa_defconfig (gcc-10): 2 warnings
     mpc30x_defconfig (gcc-10): 2 warnings
-    mtx1_defconfig (gcc-10): 2 warnings
-    nlm_xlp_defconfig (gcc-10): 1 error
-    nlm_xlr_defconfig (gcc-10): 2 warnings
+    mtx1_defconfig (gcc-10): 3 warnings
     omega2p_defconfig (gcc-10): 2 warnings
     pic32mzda_defconfig (gcc-10): 2 warnings
     qi_lb60_defconfig (gcc-10): 2 warnings
-    rb532_defconfig (gcc-10): 2 warnings
+    rb532_defconfig (gcc-10): 3 warnings
     rbtx49xx_defconfig (gcc-10): 2 warnings
     rm200_defconfig (gcc-10): 3 warnings
     rs90_defconfig (gcc-10): 2 warnings
     rt305x_defconfig (gcc-10): 2 warnings
-    sb1250_swarm_defconfig (gcc-10): 1 error
     tb0219_defconfig (gcc-10): 2 warnings
     tb0226_defconfig (gcc-10): 2 warnings
     tb0287_defconfig (gcc-10): 2 warnings
@@ -281,24 +274,28 @@ x86_64:
 
 Errors summary:
 
-    10   expr: syntax error: unexpected argument =E2=80=980xffffffff8000000=
-0=E2=80=99
-    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
-h=3D=E2=80=99
+    4    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=
+=80=98-mhard-float=E2=80=99
+    2    include/linux/minmax.h:20:28: error: comparison of distinct pointe=
+r types lacks a cast [-Werror]
+    1    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r7,=
+=3D0x'
+    1    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r3,=
+=3D0x'
 
 Warnings summary:
 
-    316  include/linux/minmax.h:20:28: warning: comparison of distinct poin=
+    308  include/linux/minmax.h:20:28: warning: comparison of distinct poin=
 ter types lacks a cast
-    2    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes =
-is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    23   fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=
+=E2=80=99 [-Wunused-variable]
+    1    cc1: warning: result of =E2=80=98-117440512 << 16=E2=80=99 require=
+s 44 bits to represent, but =E2=80=98int=E2=80=99 only has 32 bits [-Wshift=
+-overflow=3D]
+    1    cc1: all warnings being treated as errors
     1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
 e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
 ted "0,0"
-    1    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' i=
-s unknown, fallback to ''
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -323,11 +320,6 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
 mismatches
 
@@ -336,6 +328,11 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -515,19 +512,17 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sect=
-ion mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 s=
 ection mismatches
 
 Warnings:
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
@@ -535,10 +530,12 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 =
 section mismatches
 
 Warnings:
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
@@ -557,12 +554,8 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings,=
- 0 section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -588,7 +581,7 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sec=
 tion mismatches
 
 Warnings:
@@ -596,6 +589,8 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -698,12 +693,8 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
- 0 section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings=
+, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -799,7 +790,7 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
  mismatches
 
 Warnings:
@@ -807,6 +798,8 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -821,12 +814,16 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
-ection mismatches
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 se=
+ction mismatches
 
 Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
+=98-mhard-float=E2=80=99
+
+Warnings:
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -940,25 +937,17 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
-on mismatches
+i386_defconfig (i386, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/minmax.h:20:28: error: comparison of distinct pointer typ=
+es lacks a cast [-Werror]
+    include/linux/minmax.h:20:28: error: comparison of distinct pointer typ=
+es lacks a cast [-Werror]
 
 Warnings:
-    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
-ypes lacks a cast
-    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
-ypes lacks a cast
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
-ion mismatches
-
-Warnings:
-    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
-ypes lacks a cast
-    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
-ypes lacks a cast
+    cc1: all warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
@@ -1006,7 +995,7 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
 on mismatches
 
 Warnings:
@@ -1014,25 +1003,27 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+ip27_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+ip28_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sectio=
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+Warnings:
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1047,7 +1038,7 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
 on mismatches
 
 Warnings:
@@ -1055,17 +1046,8 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
-ction mismatches
-
-Warnings:
-    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
-ypes lacks a cast
-    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
-ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1106,12 +1088,12 @@ lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
+=98-mhard-float=E2=80=99
 
 Warnings:
-    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes is la=
-rger than 1024 bytes [-Wframe-larger-than=3D]
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1141,21 +1123,25 @@ loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
+=98-mhard-float=E2=80=99
 
 Warnings:
-    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes is la=
-rger than 1024 bytes [-Wframe-larger-than=3D]
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
-ection mismatches
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 se=
+ction mismatches
 
 Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
+=98-mhard-float=E2=80=99
+
+Warnings:
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1247,7 +1233,7 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnin=
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnin=
 gs, 0 section mismatches
 
 Warnings:
@@ -1255,10 +1241,12 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 =
 section mismatches
 
 Warnings:
@@ -1266,10 +1254,12 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 =
 section mismatches
 
 Warnings:
@@ -1277,10 +1267,12 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings=
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings=
 , 0 section mismatches
 
 Warnings:
@@ -1288,10 +1280,12 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 se=
 ction mismatches
 
 Warnings:
@@ -1299,6 +1293,8 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1379,7 +1375,7 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
 on mismatches
 
 Warnings:
@@ -1387,6 +1383,8 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1478,7 +1476,7 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sec=
 tion mismatches
 
 Warnings:
@@ -1486,26 +1484,8 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
-ction mismatches
-
-Warnings:
-    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
-ypes lacks a cast
-    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
-ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1684,7 +1664,7 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
  mismatches
 
 Warnings:
@@ -1692,10 +1672,12 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sectio=
 n mismatches
 
 Warnings:
@@ -1703,6 +1685,8 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1717,10 +1701,13 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sect=
 ion mismatches
 
 Warnings:
+    cc1: warning: result of =E2=80=98-117440512 << 16=E2=80=99 requires 44 =
+bits to represent, but =E2=80=98int=E2=80=99 only has 32 bits [-Wshift-over=
+flow=3D]
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
@@ -1758,20 +1745,17 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
-    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section=
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
  mismatches
 
 Errors:
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
-=E2=80=99
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
-=E2=80=99
+    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r7,=3D0x'
+    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r3,=3D0x'
 
 ---------------------------------------------------------------------------=
 -----
@@ -1808,7 +1792,7 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sec=
 tion mismatches
 
 Warnings:
@@ -1816,6 +1800,8 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1863,12 +1849,8 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, =
-0 section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -2037,11 +2019,6 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
 tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
 ismatches
 
@@ -2053,12 +2030,15 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section mi=
 smatches
 
 Warnings:
-    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' is unk=
-nown, fallback to ''
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
@@ -2066,7 +2046,7 @@ ypes lacks a cast
 
 ---------------------------------------------------------------------------=
 -----
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 se=
 ction mismatches
 
 Warnings:
@@ -2074,6 +2054,8 @@ Warnings:
 ypes lacks a cast
     include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
 ypes lacks a cast
+    fs/cifs/connect.c:3426:7: warning: unused variable =E2=80=98nodfs=E2=80=
+=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
