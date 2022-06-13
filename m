@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62E28548F2F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F41595493D2
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353327AbiFMMP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:15:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47910 "EHLO
+        id S1380009AbiFMN5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:57:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358488AbiFMMOL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:14:11 -0400
+        with ESMTP id S1380322AbiFMNyG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:54:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C58454182;
-        Mon, 13 Jun 2022 04:01:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FA8A42A38;
+        Mon, 13 Jun 2022 04:34:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3B69B80EB2;
-        Mon, 13 Jun 2022 11:01:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55249C34114;
-        Mon, 13 Jun 2022 11:01:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B701B80EC6;
+        Mon, 13 Jun 2022 11:34:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB973C34114;
+        Mon, 13 Jun 2022 11:34:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118101;
-        bh=6poQA8HptYF9vPIgarkR6mmoUzdWP/wv3YOZWLj7vEM=;
+        s=korg; t=1655120085;
+        bh=jCgpnnoSkDT54evi1luL+K6mgNflbygqRCA4lF4dyvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vk9f9FaXDZnVuTxRgMj/8ft4B+q6L9MyckFJAOQxUniPE2u0MbpPGn/6sEbzlGk1/
-         YkB/JzHRFQk0m/MNUyN3TB9OApbLbekr7Sc0ZeNdTM59LVWSNkDoGVUntemYUyQj0I
-         d9YNj3YPR0Bpnop7yAxHoceHDifqdWAdytIsCZSI=
+        b=tOUyzZTSV0L6KsnofJFkxe4zBS7B/oHcMeV9LbKgr4PKLOfcnXqILUUhFxdnr2D7/
+         xmmvYuhNHJSg6kA/szPQGh0A5yy25z97Fha1+HSbo5TdAe4JINgmA3QgBZSvXF+TvX
+         17I2SRa27TdEYcZDVBMwDr+21he2e3TdjKy9rQYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lucas Tanure <tanureal@opensource.cirrus.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 230/287] i2c: cadence: Increase timeout per message if necessary
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 229/339] drivers: staging: rtl8192eu: Fix deadlock in rtw_joinbss_event_prehandle
 Date:   Mon, 13 Jun 2022 12:10:54 +0200
-Message-Id: <20220613094930.990342960@linuxfoundation.org>
+Message-Id: <20220613094933.605536236@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Tanure <tanureal@opensource.cirrus.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 96789dce043f5bff8b7d62aa28d52a7c59403a84 ]
+[ Upstream commit 0fcddf9c7c10202946d5b19409efbdff744fba88 ]
 
-Timeout as 1 second sets an upper limit on the length
-of the transfer executed, but there is no maximum length
-of a write or read message set in i2c_adapter_quirks for
-this controller.
+There is a deadlock in rtw_joinbss_event_prehandle(), which is shown below:
 
-This upper limit affects devices that require sending
-large firmware blobs over I2C.
+   (Thread 1)                |      (Thread 2)
+                             | _set_timer()
+rtw_joinbss_event_prehandle()|  mod_timer()
+ spin_lock_bh() //(1)        |  (wait a time)
+ ...                         | rtw_join_timeout_handler()
+                             |  _rtw_join_timeout_handler()
+ del_timer_sync()            |   spin_lock_bh() //(2)
+ (wait timer to stop)        |   ...
 
-To remove that limitation, calculate the minimal time
-necessary, plus some wiggle room, for every message and
-use it instead of the default one second, if more than
-one second.
+We hold pmlmepriv->lock in position (1) of thread 1 and
+use del_timer_sync() to wait timer to stop, but timer handler
+also need pmlmepriv->lock in position (2) of thread 2.
+As a result, rtw_joinbss_event_prehandle() will block forever.
 
-Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+This patch extracts del_timer_sync() from the protection of
+spin_lock_bh(), which could let timer handler to obtain
+the needed lock. What`s more, we change spin_lock_bh() to
+spin_lock_irq() in _rtw_join_timeout_handler() in order to
+prevent deadlock.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220409072135.74248-1-duoming@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-cadence.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/staging/r8188eu/core/rtw_mlme.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index c5475bb4fae6..2150afdcc083 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -511,7 +511,7 @@ static void cdns_i2c_master_reset(struct i2c_adapter *adap)
- static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 		struct i2c_adapter *adap)
- {
--	unsigned long time_left;
-+	unsigned long time_left, msg_timeout;
- 	u32 reg;
+diff --git a/drivers/staging/r8188eu/core/rtw_mlme.c b/drivers/staging/r8188eu/core/rtw_mlme.c
+index 6f0bff186477..76cf6a69bf0f 100644
+--- a/drivers/staging/r8188eu/core/rtw_mlme.c
++++ b/drivers/staging/r8188eu/core/rtw_mlme.c
+@@ -1071,8 +1071,10 @@ void rtw_joinbss_event_prehandle(struct adapter *adapter, u8 *pbuf)
+ 				rtw_indicate_connect(adapter);
+ 			}
  
- 	id->p_msg = msg;
-@@ -536,8 +536,16 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 	else
- 		cdns_i2c_msend(id);
++			spin_unlock_bh(&pmlmepriv->lock);
+ 			/* s5. Cancel assoc_timer */
+ 			del_timer_sync(&pmlmepriv->assoc_timer);
++			spin_lock_bh(&pmlmepriv->lock);
+ 		} else {
+ 			spin_unlock_bh(&pmlmepriv->scanned_queue.lock);
+ 			goto ignore_joinbss_callback;
+@@ -1310,7 +1312,7 @@ void _rtw_join_timeout_handler (struct adapter *adapter)
+ 	if (adapter->bDriverStopped || adapter->bSurpriseRemoved)
+ 		return;
  
-+	/* Minimal time to execute this message */
-+	msg_timeout = msecs_to_jiffies((1000 * msg->len * BITS_PER_BYTE) / id->i2c_clk);
-+	/* Plus some wiggle room */
-+	msg_timeout += msecs_to_jiffies(500);
-+
-+	if (msg_timeout < adap->timeout)
-+		msg_timeout = adap->timeout;
-+
- 	/* Wait for the signal of completion */
--	time_left = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
-+	time_left = wait_for_completion_timeout(&id->xfer_done, msg_timeout);
- 	if (time_left == 0) {
- 		cdns_i2c_master_reset(adap);
- 		dev_err(id->adap.dev.parent,
+-	spin_lock_bh(&pmlmepriv->lock);
++	spin_lock_irq(&pmlmepriv->lock);
+ 
+ 	if (rtw_to_roaming(adapter) > 0) { /* join timeout caused by roaming */
+ 		while (1) {
+@@ -1329,7 +1331,7 @@ void _rtw_join_timeout_handler (struct adapter *adapter)
+ 		rtw_indicate_disconnect(adapter);
+ 		free_scanqueue(pmlmepriv);/*  */
+ 	}
+-	spin_unlock_bh(&pmlmepriv->lock);
++	spin_unlock_irq(&pmlmepriv->lock);
+ 
+ }
+ 
 -- 
 2.35.1
 
