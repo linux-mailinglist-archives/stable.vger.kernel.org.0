@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1595E5496BC
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD8D454929D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352285AbiFMLbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:31:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56038 "EHLO
+        id S1355245AbiFMM42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:56:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354606AbiFML3q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:46 -0400
+        with ESMTP id S1358206AbiFMMzG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91650237F4;
-        Mon, 13 Jun 2022 03:45:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CA0D3586E;
+        Mon, 13 Jun 2022 04:14:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7EDDB80D3A;
-        Mon, 13 Jun 2022 10:45:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40A83C3411C;
-        Mon, 13 Jun 2022 10:45:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44C7FB80D31;
+        Mon, 13 Jun 2022 11:14:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8ACDC34114;
+        Mon, 13 Jun 2022 11:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117110;
-        bh=Z/c5ehen+zYhgQII4zdwzgh9isLY5OYpgCPNrI4qs8c=;
+        s=korg; t=1655118879;
+        bh=eLctX8eHUcChWaLRtJGU7lck7K7zOeKgJQ65eAtaEQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QLubCmG+mF033XsPXYCZKLcRH9KneVX0BIzNtvDQECI4s7z6wlC3G1vSXg4guSqd4
-         2dKAccjE79hE0oFmTFnKJNN2Qh0SnIZn4/rcNVRgR3Mw4588br2SpPJ2LtC5JY34xW
-         khuu2ddaUvHo4E6ENC1csjxJ8XtUbgEozzhsiQY4=
+        b=BcVkya3cVD4a/tNQQo/Plm41VFNuOfmuxRNwWoYwZyGREpB0+t4UEkhyl5EQP8cIR
+         pXeiLYI7qkm4GxVoMLrCQKNZWzdAMusTZeorvyeR2OU+MuQK01hv3XJzKSG0Gcf+NB
+         DqAtV5tEhklpqYCIJn61UA/wqJ2TeC01j2W9lYBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@st.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 290/411] usb: musb: Fix missing of_node_put() in omap2430_probe
+Subject: [PATCH 5.15 061/247] serial: stm32-usart: Correct CSIZE, bits, and parity
 Date:   Mon, 13 Jun 2022 12:09:23 +0200
-Message-Id: <20220613094937.454885506@linuxfoundation.org>
+Message-Id: <20220613094924.807444363@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 424bef51fa530389b0b9008c9e144e40c10e8458 ]
+[ Upstream commit 1deeda8d2877c18bc2b9eeee10dd6d2628852848 ]
 
-The device_node pointer is returned by of_parse_phandle() with refcount
-incremented. We should use of_node_put() on it when done.
+Add CSIZE sanitization for unsupported CSIZE configurations. In
+addition, if parity is asked for but CSx was unsupported, the sensible
+result is CS8+parity which requires setting USART_CR1_M0 like with 9
+bits.
 
-Fixes: 8934d3e4d0e7 ("usb: musb: omap2430: Don't use omap_get_control_dev()")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220309111033.24487-1-linmq006@gmail.com
+Incorrect CSIZE results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
+
+Fixes: c8a9d043947b (serial: stm32: fix word length configuration)
+Cc: Erwan Le Ray <erwan.leray@st.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-9-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/omap2430.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/stm32-usart.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/musb/omap2430.c b/drivers/usb/musb/omap2430.c
-index 5c93226e0e20..8def19fc5025 100644
---- a/drivers/usb/musb/omap2430.c
-+++ b/drivers/usb/musb/omap2430.c
-@@ -433,6 +433,7 @@ static int omap2430_probe(struct platform_device *pdev)
- 	control_node = of_parse_phandle(np, "ctrl-module", 0);
- 	if (control_node) {
- 		control_pdev = of_find_device_by_node(control_node);
-+		of_node_put(control_node);
- 		if (!control_pdev) {
- 			dev_err(&pdev->dev, "Failed to get control device\n");
- 			ret = -EINVAL;
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 810a1b0b6520..10e9f983de62 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -807,13 +807,22 @@ static void stm32_usart_set_termios(struct uart_port *port,
+ 	 * CS8 or (CS7 + parity), 8 bits word aka [M1:M0] = 0b00
+ 	 * M0 and M1 already cleared by cr1 initialization.
+ 	 */
+-	if (bits == 9)
++	if (bits == 9) {
+ 		cr1 |= USART_CR1_M0;
+-	else if ((bits == 7) && cfg->has_7bits_data)
++	} else if ((bits == 7) && cfg->has_7bits_data) {
+ 		cr1 |= USART_CR1_M1;
+-	else if (bits != 8)
++	} else if (bits != 8) {
+ 		dev_dbg(port->dev, "Unsupported data bits config: %u bits\n"
+ 			, bits);
++		cflag &= ~CSIZE;
++		cflag |= CS8;
++		termios->c_cflag = cflag;
++		bits = 8;
++		if (cflag & PARENB) {
++			bits++;
++			cr1 |= USART_CR1_M0;
++		}
++	}
+ 
+ 	if (ofs->rtor != UNDEF_REG && (stm32_port->rx_ch ||
+ 				       (stm32_port->fifoen &&
 -- 
 2.35.1
 
