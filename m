@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A13205487C6
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5F27548778
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349581AbiFMLGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:06:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45112 "EHLO
+        id S1351641AbiFMLJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:09:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351841AbiFMLFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:05:08 -0400
+        with ESMTP id S1351734AbiFMLIB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:08:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E1A127FC1;
-        Mon, 13 Jun 2022 03:34:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29A64338A8;
+        Mon, 13 Jun 2022 03:35:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB7A2B80E5C;
-        Mon, 13 Jun 2022 10:34:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5901CC34114;
-        Mon, 13 Jun 2022 10:34:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36A24B80EA7;
+        Mon, 13 Jun 2022 10:35:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D74DC36AFF;
+        Mon, 13 Jun 2022 10:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116453;
-        bh=4MhuP+PzGuPC0rV50BO8x+3UT4LdGj2SK5oU1LoYP6E=;
+        s=korg; t=1655116506;
+        bh=JsZE5AxHTbW00VZnJgu/U+JfgGO6KlUPjLQsTZoemWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fWSz6cHBVRnC2a7V9uU/140LvThNMpy92ADM+/VHmUt8eZNSMIX6sET2+yTItbTWf
-         vWC6WDyaLDkQArlvLGh38aVeU6024qLORvHzRA/GzV/1cjslreXwgRAS3VKfD4SoFy
-         eRKNCvV8x+XorcFSovjClWQI6omM0B/p5cJZCsEI=
+        b=DRAzjsfuakEGwXNF8g26bCy7cRS52tt4OO71l3bz9i8sCXtMyvOvBABX1pWcjCvgH
+         /fvACpHzlu5nxZCIcbw4LDPVjlcQS1DXTsEGjHQ6y8UuBiDW0RXw8pbzhfzQAxU1z2
+         TBGszImSeY0OmYCOeW8LhTnj6jhECPhMlCrwGBzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 089/411] drm/vc4: txp: Force alpha to be 0xff if its disabled
-Date:   Mon, 13 Jun 2022 12:06:02 +0200
-Message-Id: <20220613094931.350002662@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 098/411] HID: hid-led: fix maximum brightness for Dream Cheeky
+Date:   Mon, 13 Jun 2022 12:06:11 +0200
+Message-Id: <20220613094931.619142292@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -54,45 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Jonathan Teh <jonathan.teh@outlook.com>
 
-[ Upstream commit 5453343a88ede8b12812fced81ecd24cb888ccc3 ]
+[ Upstream commit 116c3f4a78ebe478d5ad5a038baf931e93e7d748 ]
 
-If we use a format that has padding instead of the alpha component (such
-as XRGB8888), it appears that the Transposer will fill the padding to 0,
-disregarding what was stored in the input buffer padding.
+Increase maximum brightness for Dream Cheeky to 63. Emperically
+determined based on testing in kernel 4.4 on this device:
 
-This leads to issues with IGT, since it will set the padding to 0xff,
-but will then compare the CRC of the two frames which will thus fail.
-Another nice side effect is that it is now possible to just use the
-buffer as ARGB.
+Bus 003 Device 002: ID 1d34:0004 Dream Cheeky Webmail Notifier
 
-Fixes: 008095e065a8 ("drm/vc4: Add support for the transposer block")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://lore.kernel.org/r/20220328153659.2382206-4-maxime@cerno.tech
+Fixes: 6c7ad07e9e05 ("HID: migrate USB LED driver from usb misc to hid")
+Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_txp.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/hid/hid-led.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_txp.c b/drivers/gpu/drm/vc4/vc4_txp.c
-index 2342b49c16dd..0d9263f65d95 100644
---- a/drivers/gpu/drm/vc4/vc4_txp.c
-+++ b/drivers/gpu/drm/vc4/vc4_txp.c
-@@ -291,6 +291,12 @@ static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
- 
- 	if (fb->format->has_alpha)
- 		ctrl |= TXP_ALPHA_ENABLE;
-+	else
-+		/*
-+		 * If TXP_ALPHA_ENABLE isn't set and TXP_ALPHA_INVERT is, the
-+		 * hardware will force the output padding to be 0xff.
-+		 */
-+		ctrl |= TXP_ALPHA_INVERT;
- 
- 	gem = drm_fb_cma_get_gem_obj(fb, 0);
- 	TXP_WRITE(TXP_DST_PTR, gem->paddr + fb->offsets[0]);
+diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
+index c2c66ceca132..7d82f8d426bb 100644
+--- a/drivers/hid/hid-led.c
++++ b/drivers/hid/hid-led.c
+@@ -366,7 +366,7 @@ static const struct hidled_config hidled_configs[] = {
+ 		.type = DREAM_CHEEKY,
+ 		.name = "Dream Cheeky Webmail Notifier",
+ 		.short_name = "dream_cheeky",
+-		.max_brightness = 31,
++		.max_brightness = 63,
+ 		.num_leds = 1,
+ 		.report_size = 9,
+ 		.report_type = RAW_REQUEST,
 -- 
 2.35.1
 
