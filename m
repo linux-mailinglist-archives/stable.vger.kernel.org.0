@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F2D5498D1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 591285490F4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239501AbiFMNAH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:00:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49962 "EHLO
+        id S1351349AbiFMK7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:59:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357318AbiFMM6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:58:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D55BA2BEB;
-        Mon, 13 Jun 2022 04:17:45 -0700 (PDT)
+        with ESMTP id S1349243AbiFMK5C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:57:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6244255A4;
+        Mon, 13 Jun 2022 03:32:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66A3160B60;
-        Mon, 13 Jun 2022 11:17:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B905C3411C;
-        Mon, 13 Jun 2022 11:17:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0CEA2B80E95;
+        Mon, 13 Jun 2022 10:32:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6696DC385A5;
+        Mon, 13 Jun 2022 10:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119064;
-        bh=Lz1feZx4k0vGpdzPrMBkSjZPNGG86nxQQ3odhQoYv9U=;
+        s=korg; t=1655116328;
+        bh=/h6cBU8QbiQoc47uzdPgeaoCFoAxZe7i4+1F5I3Diko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hkw2D7cXAUldvTjQ8SyZgkY61LmujZyAXIjmVGCrhuPthnQIKdYs+yLIOwhYgYS9Y
-         yVYvWXkFdk0/59C8+O8un2sUvfeZVu6/EYcZSfx9kIknwcJthgI7QLSHkkUMp5skP6
-         qxSIdZQ9dtXYcxjR51QeAXkXivLJ0Ln7jxAEU5Ps=
+        b=pXiAP01dUNjBY9z45I4I55b6UwgPd17XO2QryK7VyvTCmOSZtOWuE/9AtwW0C9QF2
+         rI5QCwgfLnK6DVN4oGELirErhx61cf5yLtXsvy2nHcDVFkizLBlv/qBpt8asIpCj/E
+         80YVhL/+EI3JCMD+L+CXdLG8QjImJmR7mbTimxCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 127/247] m68knommu: fix undefined reference to `mach_get_rtc_pll
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 171/218] video: fbdev: pxa3xx-gcu: release the resources correctly in pxa3xx_gcu_probe/remove()
 Date:   Mon, 13 Jun 2022 12:10:29 +0200
-Message-Id: <20220613094926.812341729@linuxfoundation.org>
+Message-Id: <20220613094925.791144604@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,89 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Ungerer <gerg@linux-m68k.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 1300eec9e51f23c34c4487d2b06f58ca22e1ad3d ]
+[ Upstream commit d87ad457f7e1b8d2492ca5b1531eb35030a1cc8f ]
 
-Configuring for a nommu classic m68k target and enabling the generic rtc
-driver (CONFIG_RTC_DRV_GENERIC) will result in the following compile
-error:
+In pxa3xx_gcu_probe(), the sequence of error lable is wrong, it will
+leads some resource leaked, so adjust the sequence to handle the error
+correctly, and if pxa3xx_gcu_add_buffer() fails, pxa3xx_gcu_free_buffers()
+need be called.
+In pxa3xx_gcu_remove(), add missing clk_disable_unpreprare().
 
-   m68k-linux-ld: arch/m68k/kernel/time.o: in function `rtc_ioctl':
-   time.c:(.text+0x82): undefined reference to `mach_get_rtc_pll'
-   m68k-linux-ld: time.c:(.text+0xbc): undefined reference to `mach_set_rtc_pll'
-   m68k-linux-ld: time.c:(.text+0xf4): undefined reference to `mach_set_rtc_pll'
-
-There are no definitions of "mach_set_rtc_pll" and "mach_get_rtc_pll" in the
-nommu code paths. Move these definitions and the associated "mach_hwclk",
-so that they are around their use case in time.c. This means they will
-always be defined on the builds that require them, and not on those that
-cannot use them - such as ColdFire (both with and without MMU enabled).
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/kernel/setup_mm.c | 7 -------
- arch/m68k/kernel/setup_no.c | 1 -
- arch/m68k/kernel/time.c     | 9 +++++++++
- 3 files changed, 9 insertions(+), 8 deletions(-)
+ drivers/video/fbdev/pxa3xx-gcu.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/arch/m68k/kernel/setup_mm.c b/arch/m68k/kernel/setup_mm.c
-index 4b51bfd38e5f..f24410a54dcb 100644
---- a/arch/m68k/kernel/setup_mm.c
-+++ b/arch/m68k/kernel/setup_mm.c
-@@ -87,15 +87,8 @@ void (*mach_sched_init) (void) __initdata = NULL;
- void (*mach_init_IRQ) (void) __initdata = NULL;
- void (*mach_get_model) (char *model);
- void (*mach_get_hardware_list) (struct seq_file *m);
--/* machine dependent timer functions */
--int (*mach_hwclk) (int, struct rtc_time*);
--EXPORT_SYMBOL(mach_hwclk);
- unsigned int (*mach_get_ss)(void);
--int (*mach_get_rtc_pll)(struct rtc_pll_info *);
--int (*mach_set_rtc_pll)(struct rtc_pll_info *);
- EXPORT_SYMBOL(mach_get_ss);
--EXPORT_SYMBOL(mach_get_rtc_pll);
--EXPORT_SYMBOL(mach_set_rtc_pll);
- void (*mach_reset)( void );
- void (*mach_halt)( void );
- void (*mach_power_off)( void );
-diff --git a/arch/m68k/kernel/setup_no.c b/arch/m68k/kernel/setup_no.c
-index 5e4104f07a44..19eea73d3c17 100644
---- a/arch/m68k/kernel/setup_no.c
-+++ b/arch/m68k/kernel/setup_no.c
-@@ -50,7 +50,6 @@ char __initdata command_line[COMMAND_LINE_SIZE];
+diff --git a/drivers/video/fbdev/pxa3xx-gcu.c b/drivers/video/fbdev/pxa3xx-gcu.c
+index 933619da1a94..4febbe21b9b5 100644
+--- a/drivers/video/fbdev/pxa3xx-gcu.c
++++ b/drivers/video/fbdev/pxa3xx-gcu.c
+@@ -662,6 +662,7 @@ static int pxa3xx_gcu_probe(struct platform_device *pdev)
+ 	for (i = 0; i < 8; i++) {
+ 		ret = pxa3xx_gcu_add_buffer(dev, priv);
+ 		if (ret) {
++			pxa3xx_gcu_free_buffers(dev, priv);
+ 			dev_err(dev, "failed to allocate DMA memory\n");
+ 			goto err_disable_clk;
+ 		}
+@@ -677,15 +678,15 @@ static int pxa3xx_gcu_probe(struct platform_device *pdev)
+ 			SHARED_SIZE, irq);
+ 	return 0;
  
- /* machine dependent timer functions */
- void (*mach_sched_init)(void) __initdata = NULL;
--int (*mach_hwclk) (int, struct rtc_time*);
+-err_free_dma:
+-	dma_free_coherent(dev, SHARED_SIZE,
+-			priv->shared, priv->shared_phys);
++err_disable_clk:
++	clk_disable_unprepare(priv->clk);
  
- /* machine dependent reboot functions */
- void (*mach_reset)(void);
-diff --git a/arch/m68k/kernel/time.c b/arch/m68k/kernel/time.c
-index 340ffeea0a9d..a97600b2af50 100644
---- a/arch/m68k/kernel/time.c
-+++ b/arch/m68k/kernel/time.c
-@@ -63,6 +63,15 @@ void timer_heartbeat(void)
- #endif /* CONFIG_HEARTBEAT */
+ err_misc_deregister:
+ 	misc_deregister(&priv->misc_dev);
  
- #ifdef CONFIG_M68KCLASSIC
-+/* machine dependent timer functions */
-+int (*mach_hwclk) (int, struct rtc_time*);
-+EXPORT_SYMBOL(mach_hwclk);
-+
-+int (*mach_get_rtc_pll)(struct rtc_pll_info *);
-+int (*mach_set_rtc_pll)(struct rtc_pll_info *);
-+EXPORT_SYMBOL(mach_get_rtc_pll);
-+EXPORT_SYMBOL(mach_set_rtc_pll);
-+
- #if !IS_BUILTIN(CONFIG_RTC_DRV_GENERIC)
- void read_persistent_clock64(struct timespec64 *ts)
- {
+-err_disable_clk:
+-	clk_disable_unprepare(priv->clk);
++err_free_dma:
++	dma_free_coherent(dev, SHARED_SIZE,
++			  priv->shared, priv->shared_phys);
+ 
+ 	return ret;
+ }
+@@ -698,6 +699,7 @@ static int pxa3xx_gcu_remove(struct platform_device *pdev)
+ 	pxa3xx_gcu_wait_idle(priv);
+ 	misc_deregister(&priv->misc_dev);
+ 	dma_free_coherent(dev, SHARED_SIZE, priv->shared, priv->shared_phys);
++	clk_disable_unprepare(priv->clk);
+ 	pxa3xx_gcu_free_buffers(dev, priv);
+ 
+ 	return 0;
 -- 
 2.35.1
 
