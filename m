@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 905CD54982D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D557154953D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359288AbiFMNMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:12:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42498 "EHLO
+        id S1351895AbiFMMfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:35:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359242AbiFMNJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5CDD38D9F;
-        Mon, 13 Jun 2022 04:19:38 -0700 (PDT)
+        with ESMTP id S1356806AbiFMMeO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:34:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AEEA1A81D;
+        Mon, 13 Jun 2022 04:07:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57D1660EAE;
-        Mon, 13 Jun 2022 11:19:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67574C34114;
-        Mon, 13 Jun 2022 11:19:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12641B80D31;
+        Mon, 13 Jun 2022 11:07:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77E50C36B0A;
+        Mon, 13 Jun 2022 11:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119177;
-        bh=4oxHm1p9md4OCeao8DceTL8n6o67+unER+HdBMgk2n8=;
+        s=korg; t=1655118460;
+        bh=EmEjY/2oupTS6JKEbxG775P6fh8XyKSAcBZ6LBmEp34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CfABduFJgM4RGCTakR26/ijHcnL61kPWSOVTxlasP1XyTVZn31Mm+L04xnAmeyvqh
-         mpIleytIu1EG7opMlccmThy0XF/YGQoTMH7KPZUQP4wZ0cSSTFCjXixrHwqHqU4z7h
-         kJDiU/RV/4E0K0y8X3sxanMIx01TCdtjNN3Q1IEk=
+        b=KU51/LO0hDL5PFlZHm2ENVxPsTnSznWNB4V3tPAJ9HO9EhO8K9pYhw6CpCEnc8gIZ
+         LlF1R6gvHLAg/Y8UgXE8kAafGh8jpkSHQ6fVlRwKtw6V7wfgkw+8x4ZJm14C3fKqgp
+         a+64xGkGZWnmjEg2WzbPDSmznZskzbhkJV6TCsnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
+        stable@vger.kernel.org, Hugh Dickens <hughd@google.com>,
+        Greg Ungerer <gerg@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 142/247] xen: unexport __init-annotated xen_xlate_map_ballooned_pages()
+Subject: [PATCH 5.10 084/172] m68knommu: set ZERO_PAGE() to the allocated zeroed page
 Date:   Mon, 13 Jun 2022 12:10:44 +0200
-Message-Id: <20220613094927.261176974@linuxfoundation.org>
+Message-Id: <20220613094910.594510780@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,53 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Greg Ungerer <gerg@linux-m68k.org>
 
-[ Upstream commit dbac14a5a05ff8e1ce7c0da0e1f520ce39ec62ea ]
+[ Upstream commit dc068f46217970d9516f16cd37972a01d50dc055 ]
 
-EXPORT_SYMBOL and __init is a bad combination because the .init.text
-section is freed up after the initialization. Hence, modules cannot
-use symbols annotated __init. The access to a freed symbol may end up
-with kernel panic.
+The non-MMU m68k pagetable ZERO_PAGE() macro is being set to the
+somewhat non-sensical value of "virt_to_page(0)". The zeroth page
+is not in any way guaranteed to be a page full of "0". So the result
+is that ZERO_PAGE() will almost certainly contain random values.
 
-modpost used to detect it, but it has been broken for a decade.
+We already allocate a real "empty_zero_page" in the mm setup code shared
+between MMU m68k and non-MMU m68k. It is just not hooked up to the
+ZERO_PAGE() macro for the non-MMU m68k case.
 
-Recently, I fixed modpost so it started to warn it again, then this
-showed up in linux-next builds.
+Fix ZERO_PAGE() to use the allocated "empty_zero_page" pointer.
 
-There are two ways to fix it:
+I am not aware of any specific issues caused by the old code.
 
-  - Remove __init
-  - Remove EXPORT_SYMBOL
-
-I chose the latter for this case because none of the in-tree call-sites
-(arch/arm/xen/enlighten.c, arch/x86/xen/grant-table.c) is compiled as
-modular.
-
-Fixes: 243848fc018c ("xen/grant-table: Move xlated_setup_gnttab_pages to common place")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Acked-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20220606045920.4161881-1-masahiroy@kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/linux-m68k/2a462b23-5b8e-bbf4-ec7d-778434a3b9d7@google.com/T/#t
+Reported-by: Hugh Dickens <hughd@google.com>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xlate_mmu.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/m68k/include/asm/pgtable_no.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/xen/xlate_mmu.c b/drivers/xen/xlate_mmu.c
-index 34742c6e189e..f17c4c03db30 100644
---- a/drivers/xen/xlate_mmu.c
-+++ b/drivers/xen/xlate_mmu.c
-@@ -261,7 +261,6 @@ int __init xen_xlate_map_ballooned_pages(xen_pfn_t **gfns, void **virt,
+diff --git a/arch/m68k/include/asm/pgtable_no.h b/arch/m68k/include/asm/pgtable_no.h
+index 87151d67d91e..bce5ca56c388 100644
+--- a/arch/m68k/include/asm/pgtable_no.h
++++ b/arch/m68k/include/asm/pgtable_no.h
+@@ -42,7 +42,8 @@ extern void paging_init(void);
+  * ZERO_PAGE is a global shared page that is always zero: used
+  * for zero-mapped memory areas etc..
+  */
+-#define ZERO_PAGE(vaddr)	(virt_to_page(0))
++extern void *empty_zero_page;
++#define ZERO_PAGE(vaddr)	(virt_to_page(empty_zero_page))
  
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(xen_xlate_map_ballooned_pages);
- 
- struct remap_pfn {
- 	struct mm_struct *mm;
+ /*
+  * All 32bit addresses are effectively valid for vmalloc...
 -- 
 2.35.1
 
