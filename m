@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 065DC5492ED
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A568E5496C0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351993AbiFMLVR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:21:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
+        id S1352256AbiFMLVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:21:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353577AbiFMLTu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD59A3B2B3;
-        Mon, 13 Jun 2022 03:41:25 -0700 (PDT)
+        with ESMTP id S1353621AbiFMLTw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB9553B3D6;
+        Mon, 13 Jun 2022 03:41:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 430CA611B3;
-        Mon, 13 Jun 2022 10:41:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B199C3411C;
-        Mon, 13 Jun 2022 10:41:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 934F6B80E94;
+        Mon, 13 Jun 2022 10:41:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09661C34114;
+        Mon, 13 Jun 2022 10:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116884;
-        bh=4wRWzy3p19GdBvnR9eGQdts8dH82lsq8gegBhMb89GA=;
+        s=korg; t=1655116887;
+        bh=wAhg2U6CNy0Mpkc80YsKQgqtqYii1IYarrHobHnC1SY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w6bl8TP/prpKLRig2CRctlyf9gF37uPihIF4Cg1dhDjIaivm96tZluXHcykBl/MGC
-         aVfe7GNgbUGAQK1IHNU+NA/6AB/ADGxCE86ct38ekPiZ74RK2/LGmwkd1mjW2dWSkh
-         787Xy1v3sgnZy1vJLwwiTiqIhtrW05PJf02l6/Rw=
+        b=uJkceZiP7+GnIVZUrVZ6DMqwVWfTpPirRnZIjFz8QCaBNdoD5Woo9Y2el1cYP6jEz
+         agd5E3Bo/qBrgUy0/sY3fxNLvX1jD5DpIqHwwSdltVnl2zYD/lCMVtL0g15RdlXKNr
+         9NFB3FzBM6GDmMZO8DMjT3MivCg4AIYCwLErggZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
         Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 220/411] bfq: Update cgroup information before merging bio
-Date:   Mon, 13 Jun 2022 12:08:13 +0200
-Message-Id: <20220613094935.247341990@linuxfoundation.org>
+Subject: [PATCH 5.4 221/411] bfq: Track whether bfq_group is still online
+Date:   Mon, 13 Jun 2022 12:08:14 +0200
+Message-Id: <20220613094935.276799397@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -56,49 +56,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-commit ea591cd4eb270393810e7be01feb8fde6a34fbbe upstream.
+commit 09f871868080c33992cd6a9b72a5ca49582578fa upstream.
 
-When the process is migrated to a different cgroup (or in case of
-writeback just starts submitting bios associated with a different
-cgroup) bfq_merge_bio() can operate with stale cgroup information in
-bic. Thus the bio can be merged to a request from a different cgroup or
-it can result in merging of bfqqs for different cgroups or bfqqs of
-already dead cgroups and causing possible use-after-free issues. Fix the
-problem by updating cgroup information in bfq_merge_bio().
+Track whether bfq_group is still online. We cannot rely on
+blkcg_gq->online because that gets cleared only after all policies are
+offlined and we need something that gets updated already under
+bfqd->lock when we are cleaning up our bfq_group to be able to guarantee
+that when we see online bfq_group, it will stay online while we are
+holding bfqd->lock lock.
 
 CC: stable@vger.kernel.org
-Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
 Tested-by: "yukuai (C)" <yukuai3@huawei.com>
 Signed-off-by: Jan Kara <jack@suse.cz>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-4-jack@suse.cz
+Link: https://lore.kernel.org/r/20220401102752.8599-7-jack@suse.cz
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ block/bfq-cgroup.c  |    3 ++-
+ block/bfq-iosched.h |    2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2227,10 +2227,17 @@ static bool bfq_bio_merge(struct request
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -536,6 +536,7 @@ static void bfq_pd_init(struct blkg_poli
+ 				   */
+ 	bfqg->bfqd = bfqd;
+ 	bfqg->active_entities = 0;
++	bfqg->online = true;
+ 	bfqg->rq_pos_tree = RB_ROOT;
+ }
  
- 	spin_lock_irq(&bfqd->lock);
+@@ -582,7 +583,6 @@ struct bfq_group *bfq_find_set_group(str
+ 	struct bfq_entity *entity;
  
--	if (bic)
-+	if (bic) {
-+		/*
-+		 * Make sure cgroup info is uptodate for current process before
-+		 * considering the merge.
-+		 */
-+		bfq_bic_update_cgroup(bic, bio);
-+
- 		bfqd->bio_bfqq = bic_to_bfqq(bic, op_is_sync(bio->bi_opf));
--	else
-+	} else {
- 		bfqd->bio_bfqq = NULL;
-+	}
- 	bfqd->bio_bic = bic;
+ 	bfqg = bfq_lookup_bfqg(bfqd, blkcg);
+-
+ 	if (unlikely(!bfqg))
+ 		return NULL;
  
- 	ret = blk_mq_sched_try_merge(q, bio, nr_segs, &free);
+@@ -944,6 +944,7 @@ static void bfq_pd_offline(struct blkg_p
+ 
+ put_async_queues:
+ 	bfq_put_async_queues(bfqd, bfqg);
++	bfqg->online = false;
+ 
+ 	spin_unlock_irqrestore(&bfqd->lock, flags);
+ 	/*
+--- a/block/bfq-iosched.h
++++ b/block/bfq-iosched.h
+@@ -896,6 +896,8 @@ struct bfq_group {
+ 
+ 	/* reference counter (see comments in bfq_bic_update_cgroup) */
+ 	int ref;
++	/* Is bfq_group still online? */
++	bool online;
+ 
+ 	struct bfq_entity entity;
+ 	struct bfq_sched_data sched_data;
 
 
