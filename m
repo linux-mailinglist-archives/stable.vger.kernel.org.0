@@ -2,51 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 921A15495CE
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF717548C5B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385057AbiFMOpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59008 "EHLO
+        id S1376339AbiFMNVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:21:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385787AbiFMOnu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:43:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9E43B2EB9;
-        Mon, 13 Jun 2022 04:50:56 -0700 (PDT)
+        with ESMTP id S1377262AbiFMNUL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889DA6A061;
+        Mon, 13 Jun 2022 04:23:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EE5C6149D;
-        Mon, 13 Jun 2022 11:50:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8EBAC34114;
-        Mon, 13 Jun 2022 11:50:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60907B80EB8;
+        Mon, 13 Jun 2022 11:23:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8402C34114;
+        Mon, 13 Jun 2022 11:23:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121042;
-        bh=wZu47sFcC5jdshOGv1kURpbz0zahA5vFVM3Yk9qTv2c=;
+        s=korg; t=1655119386;
+        bh=Q/l9RUy8/3G1e0MU6hLwrSAVG3LKKEcXIVUIMr1113c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BmNV/JF7c9zghipra9TmHgwVml99/0xWvwlVFQD2BFMjA2wxdaUPB4oFpm034XDHE
-         LKY3qRfs2Q2aMB6zEMuPwft+Up83cpf3b0qu7hvTbtra8bPF1wgqoMzxIGPCuBigNJ
-         1k78A5EkBTbJfJ6cg3oi25QAaKN7qQIgEG2PdnD4=
+        b=qdeYB1m0VhFCU4iFspC75CANONz+wQk8JdM/ePaJghAJDgn1+7Wu3ZGCQ52pkU3Uf
+         I226fcyOxPAhDgwOyaKPtPWEpf1E1hrkywY2UpjyVp3devRzyM2Hkj3K29C/Lt66qf
+         GwJBpw+Lzqm+1mKPS6m2uJXLNFz2LHvhrHjiBDPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe de Dinechin <dinechin@redhat.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 251/298] nodemask: Fix return values to be unsigned
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 243/247] random: account for arch randomness in bits
 Date:   Mon, 13 Jun 2022 12:12:25 +0200
-Message-Id: <20220613094932.695226623@linuxfoundation.org>
+Message-Id: <20220613094930.316545625@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,186 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 0dfe54071d7c828a02917b595456bfde1afdddc9 ]
+commit 77fc95f8c0dc9e1f8e620ec14d2fb65028fb7adc upstream.
 
-The nodemask routines had mixed return values that provided potentially
-signed return values that could never happen. This was leading to the
-compiler getting confusing about the range of possible return values
-(it was thinking things could be negative where they could not be). Fix
-all the nodemask routines that should be returning unsigned
-(or bool) values. Silences:
+Rather than accounting in bytes and multiplying (shifting), we can just
+account in bits and avoid the shift. The main motivation for this is
+there are other patches in flux that expand this code a bit, and
+avoiding the duplication of "* 8" everywhere makes things a bit clearer.
 
- mm/swapfile.c: In function ‘setup_swap_info’:
- mm/swapfile.c:2291:47: error: array subscript -1 is below array bounds of ‘struct plist_node[]’ [-Werror=array-bounds]
-  2291 |                                 p->avail_lists[i].prio = 1;
-       |                                 ~~~~~~~~~~~~~~^~~
- In file included from mm/swapfile.c:16:
- ./include/linux/swap.h:292:27: note: while referencing ‘avail_lists’
-   292 |         struct plist_node avail_lists[]; /*
-       |                           ^~~~~~~~~~~
-
-Reported-by: Christophe de Dinechin <dinechin@redhat.com>
-Link: https://lore.kernel.org/lkml/20220414150855.2407137-3-dinechin@redhat.com/
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 12e45a2a6308 ("random: credit architectural init the exact amount")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/nodemask.h | 38 +++++++++++++++++++-------------------
- lib/nodemask.c           |  4 ++--
- 2 files changed, 21 insertions(+), 21 deletions(-)
+ drivers/char/random.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/nodemask.h b/include/linux/nodemask.h
-index c6199dbe2591..0f233b76c9ce 100644
---- a/include/linux/nodemask.h
-+++ b/include/linux/nodemask.h
-@@ -42,11 +42,11 @@
-  * void nodes_shift_right(dst, src, n)	Shift right
-  * void nodes_shift_left(dst, src, n)	Shift left
-  *
-- * int first_node(mask)			Number lowest set bit, or MAX_NUMNODES
-- * int next_node(node, mask)		Next node past 'node', or MAX_NUMNODES
-- * int next_node_in(node, mask)		Next node past 'node', or wrap to first,
-+ * unsigned int first_node(mask)	Number lowest set bit, or MAX_NUMNODES
-+ * unsigend int next_node(node, mask)	Next node past 'node', or MAX_NUMNODES
-+ * unsigned int next_node_in(node, mask) Next node past 'node', or wrap to first,
-  *					or MAX_NUMNODES
-- * int first_unset_node(mask)		First node not set in mask, or 
-+ * unsigned int first_unset_node(mask)	First node not set in mask, or
-  *					MAX_NUMNODES
-  *
-  * nodemask_t nodemask_of_node(node)	Return nodemask with bit 'node' set
-@@ -153,7 +153,7 @@ static inline void __nodes_clear(nodemask_t *dstp, unsigned int nbits)
- 
- #define node_test_and_set(node, nodemask) \
- 			__node_test_and_set((node), &(nodemask))
--static inline int __node_test_and_set(int node, nodemask_t *addr)
-+static inline bool __node_test_and_set(int node, nodemask_t *addr)
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -813,7 +813,7 @@ early_param("random.trust_bootloader", p
+ int __init random_init(const char *command_line)
  {
- 	return test_and_set_bit(node, addr->bits);
+ 	ktime_t now = ktime_get_real();
+-	unsigned int i, arch_bytes;
++	unsigned int i, arch_bits;
+ 	unsigned long entropy;
+ 
+ #if defined(LATENT_ENTROPY_PLUGIN)
+@@ -821,12 +821,12 @@ int __init random_init(const char *comma
+ 	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
+ #endif
+ 
+-	for (i = 0, arch_bytes = BLAKE2S_BLOCK_SIZE;
++	for (i = 0, arch_bits = BLAKE2S_BLOCK_SIZE * 8;
+ 	     i < BLAKE2S_BLOCK_SIZE; i += sizeof(entropy)) {
+ 		if (!arch_get_random_seed_long_early(&entropy) &&
+ 		    !arch_get_random_long_early(&entropy)) {
+ 			entropy = random_get_entropy();
+-			arch_bytes -= sizeof(entropy);
++			arch_bits -= sizeof(entropy) * 8;
+ 		}
+ 		_mix_pool_bytes(&entropy, sizeof(entropy));
+ 	}
+@@ -838,7 +838,7 @@ int __init random_init(const char *comma
+ 	if (crng_ready())
+ 		crng_reseed();
+ 	else if (trust_cpu)
+-		_credit_init_bits(arch_bytes * 8);
++		_credit_init_bits(arch_bits);
+ 
+ 	return 0;
  }
-@@ -200,7 +200,7 @@ static inline void __nodes_complement(nodemask_t *dstp,
- 
- #define nodes_equal(src1, src2) \
- 			__nodes_equal(&(src1), &(src2), MAX_NUMNODES)
--static inline int __nodes_equal(const nodemask_t *src1p,
-+static inline bool __nodes_equal(const nodemask_t *src1p,
- 					const nodemask_t *src2p, unsigned int nbits)
- {
- 	return bitmap_equal(src1p->bits, src2p->bits, nbits);
-@@ -208,7 +208,7 @@ static inline int __nodes_equal(const nodemask_t *src1p,
- 
- #define nodes_intersects(src1, src2) \
- 			__nodes_intersects(&(src1), &(src2), MAX_NUMNODES)
--static inline int __nodes_intersects(const nodemask_t *src1p,
-+static inline bool __nodes_intersects(const nodemask_t *src1p,
- 					const nodemask_t *src2p, unsigned int nbits)
- {
- 	return bitmap_intersects(src1p->bits, src2p->bits, nbits);
-@@ -216,20 +216,20 @@ static inline int __nodes_intersects(const nodemask_t *src1p,
- 
- #define nodes_subset(src1, src2) \
- 			__nodes_subset(&(src1), &(src2), MAX_NUMNODES)
--static inline int __nodes_subset(const nodemask_t *src1p,
-+static inline bool __nodes_subset(const nodemask_t *src1p,
- 					const nodemask_t *src2p, unsigned int nbits)
- {
- 	return bitmap_subset(src1p->bits, src2p->bits, nbits);
- }
- 
- #define nodes_empty(src) __nodes_empty(&(src), MAX_NUMNODES)
--static inline int __nodes_empty(const nodemask_t *srcp, unsigned int nbits)
-+static inline bool __nodes_empty(const nodemask_t *srcp, unsigned int nbits)
- {
- 	return bitmap_empty(srcp->bits, nbits);
- }
- 
- #define nodes_full(nodemask) __nodes_full(&(nodemask), MAX_NUMNODES)
--static inline int __nodes_full(const nodemask_t *srcp, unsigned int nbits)
-+static inline bool __nodes_full(const nodemask_t *srcp, unsigned int nbits)
- {
- 	return bitmap_full(srcp->bits, nbits);
- }
-@@ -260,15 +260,15 @@ static inline void __nodes_shift_left(nodemask_t *dstp,
-           > MAX_NUMNODES, then the silly min_ts could be dropped. */
- 
- #define first_node(src) __first_node(&(src))
--static inline int __first_node(const nodemask_t *srcp)
-+static inline unsigned int __first_node(const nodemask_t *srcp)
- {
--	return min_t(int, MAX_NUMNODES, find_first_bit(srcp->bits, MAX_NUMNODES));
-+	return min_t(unsigned int, MAX_NUMNODES, find_first_bit(srcp->bits, MAX_NUMNODES));
- }
- 
- #define next_node(n, src) __next_node((n), &(src))
--static inline int __next_node(int n, const nodemask_t *srcp)
-+static inline unsigned int __next_node(int n, const nodemask_t *srcp)
- {
--	return min_t(int,MAX_NUMNODES,find_next_bit(srcp->bits, MAX_NUMNODES, n+1));
-+	return min_t(unsigned int, MAX_NUMNODES, find_next_bit(srcp->bits, MAX_NUMNODES, n+1));
- }
- 
- /*
-@@ -276,7 +276,7 @@ static inline int __next_node(int n, const nodemask_t *srcp)
-  * the first node in src if needed.  Returns MAX_NUMNODES if src is empty.
-  */
- #define next_node_in(n, src) __next_node_in((n), &(src))
--int __next_node_in(int node, const nodemask_t *srcp);
-+unsigned int __next_node_in(int node, const nodemask_t *srcp);
- 
- static inline void init_nodemask_of_node(nodemask_t *mask, int node)
- {
-@@ -296,9 +296,9 @@ static inline void init_nodemask_of_node(nodemask_t *mask, int node)
- })
- 
- #define first_unset_node(mask) __first_unset_node(&(mask))
--static inline int __first_unset_node(const nodemask_t *maskp)
-+static inline unsigned int __first_unset_node(const nodemask_t *maskp)
- {
--	return min_t(int,MAX_NUMNODES,
-+	return min_t(unsigned int, MAX_NUMNODES,
- 			find_first_zero_bit(maskp->bits, MAX_NUMNODES));
- }
- 
-@@ -435,11 +435,11 @@ static inline int num_node_state(enum node_states state)
- 
- #define first_online_node	first_node(node_states[N_ONLINE])
- #define first_memory_node	first_node(node_states[N_MEMORY])
--static inline int next_online_node(int nid)
-+static inline unsigned int next_online_node(int nid)
- {
- 	return next_node(nid, node_states[N_ONLINE]);
- }
--static inline int next_memory_node(int nid)
-+static inline unsigned int next_memory_node(int nid)
- {
- 	return next_node(nid, node_states[N_MEMORY]);
- }
-diff --git a/lib/nodemask.c b/lib/nodemask.c
-index 3aa454c54c0d..e22647f5181b 100644
---- a/lib/nodemask.c
-+++ b/lib/nodemask.c
-@@ -3,9 +3,9 @@
- #include <linux/module.h>
- #include <linux/random.h>
- 
--int __next_node_in(int node, const nodemask_t *srcp)
-+unsigned int __next_node_in(int node, const nodemask_t *srcp)
- {
--	int ret = __next_node(node, srcp);
-+	unsigned int ret = __next_node(node, srcp);
- 
- 	if (ret == MAX_NUMNODES)
- 		ret = __first_node(srcp);
--- 
-2.35.1
-
 
 
