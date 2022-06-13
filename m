@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7122549027
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A77CE5496C1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241089AbiFMKfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:35:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51334 "EHLO
+        id S1355842AbiFMLrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:47:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345560AbiFMKeM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:34:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BFE286DD;
-        Mon, 13 Jun 2022 03:22:09 -0700 (PDT)
+        with ESMTP id S1357095AbiFMLpj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:45:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C3649B5F;
+        Mon, 13 Jun 2022 03:51:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADC31B80E90;
-        Mon, 13 Jun 2022 10:22:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B2BC36B00;
-        Mon, 13 Jun 2022 10:22:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F532611B3;
+        Mon, 13 Jun 2022 10:51:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BE1AC3411C;
+        Mon, 13 Jun 2022 10:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115726;
-        bh=NJTsCSvbaroNPzY6n9FAOh1SfXKvDmF8OxDYtzQ27VI=;
+        s=korg; t=1655117499;
+        bh=+UxC2I6cB/bAVSQFDihDHHxSOIrE2QoFweh2yYezpEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fp64nC+fzB7usmixLk4E/NNc2welLw33j2EHEHglkoyo1bKRYmCVkXkP8ntead/vb
-         F8wwPCovJEMHFtwWETjfvM/I6mEyJiv/7+D1PNi/JGkqhcgFPPjBR0P5ldz+rUIdau
-         TTS3l5Rk/iV8KycY0Rg8ros8CpESBw1i/QKmZbQU=
+        b=DlFZiEDVd+Z2YOIb9rczYVXtAKt70h6sDbw04234OoGWeR+NZ8X9t9B6uL2s1fJoH
+         f3R63LSPy2O7GT50uOlt66KDMPAHwoB1lmT4VLhGhWF/RAACudhTePZeI1zxbWWupQ
+         sosWc8E6uamk4QOroh5Va6e/8cm28zLj3pT1pEmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Luca=20B=C3=A9la=20Palkovics?= 
-        <luca.bela.palkovics@gmail.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 007/218] btrfs: repair super block num_devices automatically
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 041/287] hwmon: Make chip parameter for with_info API mandatory
 Date:   Mon, 13 Jun 2022 12:07:45 +0200
-Message-Id: <20220613094910.034197898@linuxfoundation.org>
+Message-Id: <20220613094925.111840882@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,91 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit d201238ccd2f30b9bfcfadaeae0972e3a486a176 upstream.
+[ Upstream commit ddaefa209c4ac791c1262e97c9b2d0440c8ef1d5 ]
 
-[BUG]
-There is a report that a btrfs has a bad super block num devices.
+Various attempts were made recently to "convert" the old
+hwmon_device_register() API to devm_hwmon_device_register_with_info()
+by just changing the function name without actually converting the
+driver. Prevent this from happening by making the 'chip' parameter of
+devm_hwmon_device_register_with_info() mandatory.
 
-This makes btrfs to reject the fs completely.
-
-  BTRFS error (device sdd3): super_num_devices 3 mismatch with num_devices 2 found here
-  BTRFS error (device sdd3): failed to read chunk tree: -22
-  BTRFS error (device sdd3): open_ctree failed
-
-[CAUSE]
-During btrfs device removal, chunk tree and super block num devs are
-updated in two different transactions:
-
-  btrfs_rm_device()
-  |- btrfs_rm_dev_item(device)
-  |  |- trans = btrfs_start_transaction()
-  |  |  Now we got transaction X
-  |  |
-  |  |- btrfs_del_item()
-  |  |  Now device item is removed from chunk tree
-  |  |
-  |  |- btrfs_commit_transaction()
-  |     Transaction X got committed, super num devs untouched,
-  |     but device item removed from chunk tree.
-  |     (AKA, super num devs is already incorrect)
-  |
-  |- cur_devices->num_devices--;
-  |- cur_devices->total_devices--;
-  |- btrfs_set_super_num_devices()
-     All those operations are not in transaction X, thus it will
-     only be written back to disk in next transaction.
-
-So after the transaction X in btrfs_rm_dev_item() committed, but before
-transaction X+1 (which can be minutes away), a power loss happen, then
-we got the super num mismatch.
-
-This has been fixed by commit bbac58698a55 ("btrfs: remove device item
-and update super block in the same transaction").
-
-[FIX]
-Make the super_num_devices check less strict, converting it from a hard
-error to a warning, and reset the value to a correct one for the current
-or next transaction commit.
-
-As the number of device items is the critical information where the
-super block num_devices is only a cached value (and also useful for
-cross checking), it's safe to automatically update it. Other device
-related problems like missing device are handled after that and may
-require other means to resolve, like degraded mount. With this fix,
-potentially affected filesystems won't fail mount and require the manual
-repair by btrfs check.
-
-Reported-by: Luca Béla Palkovics <luca.bela.palkovics@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/CA+8xDSpvdm_U0QLBAnrH=zqDq_cWCOH5TiV46CKmp3igr44okQ@mail.gmail.com/
-CC: stable@vger.kernel.org # 4.14+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Documentation/hwmon/hwmon-kernel-api.txt |  2 +-
+ drivers/hwmon/hwmon.c                    | 16 +++++++---------
+ 2 files changed, 8 insertions(+), 10 deletions(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -6975,12 +6975,12 @@ int btrfs_read_chunk_tree(struct btrfs_f
- 	 * do another round of validation checks.
- 	 */
- 	if (total_dev != fs_info->fs_devices->total_devices) {
--		btrfs_err(fs_info,
--	   "super_num_devices %llu mismatch with num_devices %llu found here",
-+		btrfs_warn(fs_info,
-+"super block num_devices %llu mismatch with DEV_ITEM count %llu, will be repaired on next transaction commit",
- 			  btrfs_super_num_devices(fs_info->super_copy),
- 			  total_dev);
--		ret = -EINVAL;
--		goto error;
-+		fs_info->fs_devices->total_devices = total_dev;
-+		btrfs_set_super_num_devices(fs_info->super_copy, total_dev);
- 	}
- 	if (btrfs_super_total_bytes(fs_info->super_copy) <
- 	    fs_info->fs_devices->total_rw_bytes) {
+diff --git a/Documentation/hwmon/hwmon-kernel-api.txt b/Documentation/hwmon/hwmon-kernel-api.txt
+index eb7a78aebb38..4981df157b04 100644
+--- a/Documentation/hwmon/hwmon-kernel-api.txt
++++ b/Documentation/hwmon/hwmon-kernel-api.txt
+@@ -71,7 +71,7 @@ hwmon_device_register_with_info is the most comprehensive and preferred means
+ to register a hardware monitoring device. It creates the standard sysfs
+ attributes in the hardware monitoring core, letting the driver focus on reading
+ from and writing to the chip instead of having to bother with sysfs attributes.
+-The parent device parameter cannot be NULL with non-NULL chip info. Its
++The parent device parameter as well as the chip parameter must not be NULL. Its
+ parameters are described in more detail below.
+ 
+ devm_hwmon_device_register_with_info is similar to
+diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
+index c4051a3e63c2..fb82d8ee0dd6 100644
+--- a/drivers/hwmon/hwmon.c
++++ b/drivers/hwmon/hwmon.c
+@@ -695,11 +695,12 @@ EXPORT_SYMBOL_GPL(hwmon_device_register_with_groups);
+ 
+ /**
+  * hwmon_device_register_with_info - register w/ hwmon
+- * @dev: the parent device
+- * @name: hwmon name attribute
+- * @drvdata: driver data to attach to created device
+- * @chip: pointer to hwmon chip information
++ * @dev: the parent device (mandatory)
++ * @name: hwmon name attribute (mandatory)
++ * @drvdata: driver data to attach to created device (optional)
++ * @chip: pointer to hwmon chip information (mandatory)
+  * @extra_groups: pointer to list of additional non-standard attribute groups
++ *	(optional)
+  *
+  * hwmon_device_unregister() must be called when the device is no
+  * longer needed.
+@@ -712,13 +713,10 @@ hwmon_device_register_with_info(struct device *dev, const char *name,
+ 				const struct hwmon_chip_info *chip,
+ 				const struct attribute_group **extra_groups)
+ {
+-	if (!name)
+-		return ERR_PTR(-EINVAL);
+-
+-	if (chip && (!chip->ops || !chip->ops->is_visible || !chip->info))
++	if (!dev || !name || !chip)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	if (chip && !dev)
++	if (!chip->ops || !chip->ops->is_visible || !chip->info)
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	return __hwmon_device_register(dev, name, drvdata, chip, extra_groups);
+-- 
+2.35.1
+
 
 
