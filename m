@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 302585493EA
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C45415488EC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348596AbiFMMbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:31:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41802 "EHLO
+        id S1354580AbiFMLd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:33:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355440AbiFMMaW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:30:22 -0400
+        with ESMTP id S1353694AbiFMLbq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:31:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BDCA5B889;
-        Mon, 13 Jun 2022 04:07:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FC941FAB;
+        Mon, 13 Jun 2022 03:47:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8AE060F9A;
-        Mon, 13 Jun 2022 11:06:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 931A1C34114;
-        Mon, 13 Jun 2022 11:06:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15723611B3;
+        Mon, 13 Jun 2022 10:47:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 009D1C34114;
+        Mon, 13 Jun 2022 10:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118419;
-        bh=i4UrdNh/w1HqKxEbhvH7EbnVz3Tuhaih/X1iFaZXl0E=;
+        s=korg; t=1655117221;
+        bh=XJEKntJsWdGeRLMBNp8CqnDEY+dEhaQhjvZ6W9P+YZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3+ohHfRn8Pj3VDYeBfSYGNKeDkAld5rAQtyrGptphioBC9mstKmZCkV1OnGvDD15
-         3VYPAEIEKpS71riP7HMzZULDTVSCw52DigS/V3KZ7HkQodKjl4Qkoxv/VnQlKgLtuX
-         Oey74g0dNEW5rh/yfspo86S7e185Ms8chhyWwsKU=
+        b=o7mD2WCWTvhHlEXONHKzonsRBmId4xwhUXFvA3Wl8hyl5HH+mcHzGhzdLdcdTtjaf
+         eYxec3Iz/+EDKsTav0zDmiIkbvbHs0CjfbPq8qcoDDYJwAQMGcJWMGa2jLnPu2MSvC
+         Ggqf6MJFdBj+m0WINKm03QecY2h39uynQpE1FkMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Ray <vray@kalrayinc.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Gong Yuanjun <ruc_gongyuanjun@163.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 050/172] net: sched: fixed barrier to prevent skbuff sticking in qdisc backlog
+Subject: [PATCH 5.4 337/411] mips: cpc: Fix refcount leak in mips_cpc_default_phys_base
 Date:   Mon, 13 Jun 2022 12:10:10 +0200
-Message-Id: <20220613094902.444603190@linuxfoundation.org>
+Message-Id: <20220613094938.823277184@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,138 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Ray <vray@kalrayinc.com>
+From: Gong Yuanjun <ruc_gongyuanjun@163.com>
 
-[ Upstream commit a54ce3703613e41fe1d98060b62ec09a3984dc28 ]
+[ Upstream commit 4107fa700f314592850e2c64608f6ede4c077476 ]
 
-In qdisc_run_begin(), smp_mb__before_atomic() used before test_bit()
-does not provide any ordering guarantee as test_bit() is not an atomic
-operation. This, added to the fact that the spin_trylock() call at
-the beginning of qdisc_run_begin() does not guarantee acquire
-semantics if it does not grab the lock, makes it possible for the
-following statement :
+Add the missing of_node_put() to release the refcount incremented
+by of_find_compatible_node().
 
-if (test_bit(__QDISC_STATE_MISSED, &qdisc->state))
-
-to be executed before an enqueue operation called before
-qdisc_run_begin().
-
-As a result the following race can happen :
-
-           CPU 1                             CPU 2
-
-      qdisc_run_begin()               qdisc_run_begin() /* true */
-        set(MISSED)                            .
-      /* returns false */                      .
-          .                            /* sees MISSED = 1 */
-          .                            /* so qdisc not empty */
-          .                            __qdisc_run()
-          .                                    .
-          .                              pfifo_fast_dequeue()
- ----> /* may be done here */                  .
-|         .                                clear(MISSED)
-|         .                                    .
-|         .                                smp_mb __after_atomic();
-|         .                                    .
-|         .                                /* recheck the queue */
-|         .                                /* nothing => exit   */
-|   enqueue(skb1)
-|         .
-|   qdisc_run_begin()
-|         .
-|     spin_trylock() /* fail */
-|         .
-|     smp_mb__before_atomic() /* not enough */
-|         .
- ---- if (test_bit(MISSED))
-        return false;   /* exit */
-
-In the above scenario, CPU 1 and CPU 2 both try to grab the
-qdisc->seqlock at the same time. Only CPU 2 succeeds and enters the
-bypass code path, where it emits its skb then calls __qdisc_run().
-
-CPU1 fails, sets MISSED and goes down the traditionnal enqueue() +
-dequeue() code path. But when executing qdisc_run_begin() for the
-second time, after enqueuing its skbuff, it sees the MISSED bit still
-set (by itself) and consequently chooses to exit early without setting
-it again nor trying to grab the spinlock again.
-
-Meanwhile CPU2 has seen MISSED = 1, cleared it, checked the queue
-and found it empty, so it returned.
-
-At the end of the sequence, we end up with skb1 enqueued in the
-backlog, both CPUs out of __dev_xmit_skb(), the MISSED bit not set,
-and no __netif_schedule() called made. skb1 will now linger in the
-qdisc until somebody later performs a full __qdisc_run(). Associated
-to the bypass capacity of the qdisc, and the ability of the TCP layer
-to avoid resending packets which it knows are still in the qdisc, this
-can lead to serious traffic "holes" in a TCP connection.
-
-We fix this by replacing the smp_mb__before_atomic() / test_bit() /
-set_bit() / smp_mb__after_atomic() sequence inside qdisc_run_begin()
-by a single test_and_set_bit() call, which is more concise and
-enforces the needed memory barriers.
-
-Fixes: 89837eb4b246 ("net: sched: add barrier to ensure correct ordering for lockless qdisc")
-Signed-off-by: Vincent Ray <vray@kalrayinc.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220526001746.2437669-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Gong Yuanjun <ruc_gongyuanjun@163.com>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sch_generic.h | 36 ++++++++----------------------------
- 1 file changed, 8 insertions(+), 28 deletions(-)
+ arch/mips/kernel/mips-cpc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index 1042c449e7db..769764bda7a8 100644
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -163,37 +163,17 @@ static inline bool qdisc_run_begin(struct Qdisc *qdisc)
- 		if (spin_trylock(&qdisc->seqlock))
- 			goto nolock_empty;
- 
--		/* Paired with smp_mb__after_atomic() to make sure
--		 * STATE_MISSED checking is synchronized with clearing
--		 * in pfifo_fast_dequeue().
-+		/* No need to insist if the MISSED flag was already set.
-+		 * Note that test_and_set_bit() also gives us memory ordering
-+		 * guarantees wrt potential earlier enqueue() and below
-+		 * spin_trylock(), both of which are necessary to prevent races
- 		 */
--		smp_mb__before_atomic();
--
--		/* If the MISSED flag is set, it means other thread has
--		 * set the MISSED flag before second spin_trylock(), so
--		 * we can return false here to avoid multi cpus doing
--		 * the set_bit() and second spin_trylock() concurrently.
--		 */
--		if (test_bit(__QDISC_STATE_MISSED, &qdisc->state))
-+		if (test_and_set_bit(__QDISC_STATE_MISSED, &qdisc->state))
- 			return false;
- 
--		/* Set the MISSED flag before the second spin_trylock(),
--		 * if the second spin_trylock() return false, it means
--		 * other cpu holding the lock will do dequeuing for us
--		 * or it will see the MISSED flag set after releasing
--		 * lock and reschedule the net_tx_action() to do the
--		 * dequeuing.
--		 */
--		set_bit(__QDISC_STATE_MISSED, &qdisc->state);
--
--		/* spin_trylock() only has load-acquire semantic, so use
--		 * smp_mb__after_atomic() to ensure STATE_MISSED is set
--		 * before doing the second spin_trylock().
--		 */
--		smp_mb__after_atomic();
--
--		/* Retry again in case other CPU may not see the new flag
--		 * after it releases the lock at the end of qdisc_run_end().
-+		/* Try to take the lock again to make sure that we will either
-+		 * grab it or the CPU that still has it will see MISSED set
-+		 * when testing it in qdisc_run_end()
- 		 */
- 		if (!spin_trylock(&qdisc->seqlock))
- 			return false;
+diff --git a/arch/mips/kernel/mips-cpc.c b/arch/mips/kernel/mips-cpc.c
+index 69e3e0b556bf..1b0d4bb617a9 100644
+--- a/arch/mips/kernel/mips-cpc.c
++++ b/arch/mips/kernel/mips-cpc.c
+@@ -27,6 +27,7 @@ phys_addr_t __weak mips_cpc_default_phys_base(void)
+ 	cpc_node = of_find_compatible_node(of_root, NULL, "mti,mips-cpc");
+ 	if (cpc_node) {
+ 		err = of_address_to_resource(cpc_node, 0, &res);
++		of_node_put(cpc_node);
+ 		if (!err)
+ 			return res.start;
+ 	}
 -- 
 2.35.1
 
