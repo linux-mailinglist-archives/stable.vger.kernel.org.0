@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B40C2548745
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0831354886A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347165AbiFMKzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:55:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43734 "EHLO
+        id S1357058AbiFMM61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:58:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350174AbiFMKyo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:44 -0400
+        with ESMTP id S1354154AbiFMMzh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3580CE1B;
-        Mon, 13 Jun 2022 03:29:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 116B3E0F7;
+        Mon, 13 Jun 2022 04:16:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B7B8B80E94;
-        Mon, 13 Jun 2022 10:29:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFE7BC34114;
-        Mon, 13 Jun 2022 10:29:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C76CEB80D31;
+        Mon, 13 Jun 2022 11:16:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F59CC34114;
+        Mon, 13 Jun 2022 11:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116190;
-        bh=96ceQgJASxyzZfSQvr0juwSMRmN1lL3Esf2pvX28VOk=;
+        s=korg; t=1655118978;
+        bh=X6kkzVYVdB8A2ze+kclGHClxaeC5m6GxAOdQxN8LbtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=URykTnEE1IqZGcMHZCwLp+VIkX/wivHEJ2khv6wh9SapA8sulsUEEHrA6Bht+aMm7
-         5LLdmq0SdPWia6C++UU8L49XjCDETRmbGvBUYJlG2qUR4ShxU/ZDo7CLurWMJFI6J7
-         M1Oj2dkzOm/hEkxuKczY38P1qrasjQn8Tgro3EyA=
+        b=BSnJysYhI2p0e1UpV0C7WLFqT1lmD7weRQ4AYqoOmHn0d7nxE+Kyv7Cfc4lRdLK0b
+         6n8r68e+TV8E/tL7QnCpOcVixKawN0uDUaFeXeThzfyZLLdLlRPjM8A+tdYexEdljw
+         19D5uaBKL+V4WvrxHHGtNvQ0Ahd4Rn/VfeZcPzZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Stephen Zhang <starzhangzsd@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 4.14 138/218] MIPS: IP27: Remove incorrect `cpu_has_fpu override
-Date:   Mon, 13 Jun 2022 12:09:56 +0200
-Message-Id: <20220613094924.771143010@linuxfoundation.org>
+        stable@vger.kernel.org, Changcheng Liu <jerrliu@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 096/247] net/mlx5: correct ECE offset in query qp output
+Date:   Mon, 13 Jun 2022 12:09:58 +0200
+Message-Id: <20220613094925.868599930@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Changcheng Liu <jerrliu@nvidia.com>
 
-commit 424c3781dd1cb401857585331eaaa425a13f2429 upstream.
+[ Upstream commit 3fc2a9e89b3508a5cc0c324f26d7b4740ba8c456 ]
 
-Remove unsupported forcing of `cpu_has_fpu' to 1, which makes the `nofpu'
-kernel parameter non-functional, and also causes a link error:
+ECE field should be after opt_param_mask in query qp output.
 
-ld: arch/mips/kernel/traps.o: in function `trap_init':
-./arch/mips/include/asm/msa.h:(.init.text+0x348): undefined reference to `handle_fpe'
-ld: ./arch/mips/include/asm/msa.h:(.init.text+0x354): undefined reference to `handle_fpe'
-ld: ./arch/mips/include/asm/msa.h:(.init.text+0x360): undefined reference to `handle_fpe'
-
-where the CONFIG_MIPS_FP_SUPPORT configuration option has been disabled.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Reported-by: Stephen Zhang <starzhangzsd@gmail.com>
-Fixes: 0ebb2f4159af ("MIPS: IP27: Update/restructure CPU overrides")
-Cc: stable@vger.kernel.org # v4.2+
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6b646a7e4af6 ("net/mlx5: Add ability to read and write ECE options")
+Signed-off-by: Changcheng Liu <jerrliu@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/mach-ip27/cpu-feature-overrides.h |    1 -
- 1 file changed, 1 deletion(-)
+ include/linux/mlx5/mlx5_ifc.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/arch/mips/include/asm/mach-ip27/cpu-feature-overrides.h
-+++ b/arch/mips/include/asm/mach-ip27/cpu-feature-overrides.h
-@@ -28,7 +28,6 @@
- #define cpu_has_6k_cache		0
- #define cpu_has_8k_cache		0
- #define cpu_has_tx39_cache		0
--#define cpu_has_fpu			1
- #define cpu_has_nofpuex			0
- #define cpu_has_32fpr			1
- #define cpu_has_counter			1
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index fdf4589ab4d4..cd9d1c95129e 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -5028,12 +5028,11 @@ struct mlx5_ifc_query_qp_out_bits {
+ 
+ 	u8         syndrome[0x20];
+ 
+-	u8         reserved_at_40[0x20];
+-	u8         ece[0x20];
++	u8         reserved_at_40[0x40];
+ 
+ 	u8         opt_param_mask[0x20];
+ 
+-	u8         reserved_at_a0[0x20];
++	u8         ece[0x20];
+ 
+ 	struct mlx5_ifc_qpc_bits qpc;
+ 
+-- 
+2.35.1
+
 
 
