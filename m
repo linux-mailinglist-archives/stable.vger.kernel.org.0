@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A88A25493FB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BA59549136
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352966AbiFMM5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:57:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50350 "EHLO
+        id S1349438AbiFMK5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:57:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355041AbiFMMzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:54 -0400
+        with ESMTP id S1347305AbiFMKxL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:53:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FA5212636;
-        Mon, 13 Jun 2022 04:16:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BB1A245B6;
+        Mon, 13 Jun 2022 03:27:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 378B360F13;
-        Mon, 13 Jun 2022 11:16:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E275C341C6;
-        Mon, 13 Jun 2022 11:16:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F45D60EF5;
+        Mon, 13 Jun 2022 10:27:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75511C34114;
+        Mon, 13 Jun 2022 10:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119006;
-        bh=PIq0iMDkyOuqn5UBg8dHGy9onZqPkf3M2Gno9psiCIg=;
+        s=korg; t=1655116058;
+        bh=bNxTvQwfvlCQhLBV5XP5eB24HHOeNW7RiIDKe2u+9rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BAmsiwnygBFjKemXsZxIvTmpY7Wjn94FjZmkpl0E62XGkVqtdKyxaAVWNcIsraNAr
-         xqZSebSVtR8W9av6a/a7iAWKVwDtnunY7s/sxfc1FnDuxkQRxC1jrtpEtLNOrjUdvb
-         uRKbN498WaxGKVXFMIy3KsJdTkEspd/BqlI4Ci84=
+        b=2QXMygEJuw4+TWmV0t9fooRIDB34VI3DLEEV9QrCr+u6S/nq3/+6TC1MAvL9AS5Uf
+         fW9S2V62lMOiB4wiYP48e5I/3m7CW/JYSnsqdsvaW0Mr9OwDh5FhJXCDRo8JGLnGcc
+         siepVYCOsP433tZeYLe6mDvfhj9GRwlQ7Q6TSAiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 080/247] selftests/bpf: fix selftest after random: Urandom_read tracepoint removal
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.14 124/218] um: Fix out-of-bounds read in LDT setup
 Date:   Mon, 13 Jun 2022 12:09:42 +0200
-Message-Id: <20220613094925.382391320@linuxfoundation.org>
+Message-Id: <20220613094924.334329649@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 99dea2c664d7bc7e4f6f6947182d0d365165a998 ]
+commit 2a4a62a14be1947fa945c5c11ebf67326381a568 upstream.
 
-14c174633f34 ("random: remove unused tracepoints") removed all the
-tracepoints from drivers/char/random.c, one of which,
-random:urandom_read, was used by stacktrace_build_id selftest to trigger
-stack trace capture.
+syscall_stub_data() expects the data_count parameter to be the number of
+longs, not bytes.
 
-Fix breakage by switching to kprobing urandom_read() function.
+ ==================================================================
+ BUG: KASAN: stack-out-of-bounds in syscall_stub_data+0x70/0xe0
+ Read of size 128 at addr 000000006411f6f0 by task swapper/1
 
-Suggested-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20220325225643.2606-1-andrii@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ CPU: 0 PID: 1 Comm: swapper Not tainted 5.18.0+ #18
+ Call Trace:
+  show_stack.cold+0x166/0x2a7
+  __dump_stack+0x3a/0x43
+  dump_stack_lvl+0x1f/0x27
+  print_report.cold+0xdb/0xf81
+  kasan_report+0x119/0x1f0
+  kasan_check_range+0x3a3/0x440
+  memcpy+0x52/0x140
+  syscall_stub_data+0x70/0xe0
+  write_ldt_entry+0xac/0x190
+  init_new_ldt+0x515/0x960
+  init_new_context+0x2c4/0x4d0
+  mm_init.constprop.0+0x5ed/0x760
+  mm_alloc+0x118/0x170
+  0x60033f48
+  do_one_initcall+0x1d7/0x860
+  0x60003e7b
+  kernel_init+0x6e/0x3d4
+  new_thread_handler+0x1e7/0x2c0
+
+ The buggy address belongs to stack of task swapper/1
+  and is located at offset 64 in frame:
+  init_new_ldt+0x0/0x960
+
+ This frame has 2 objects:
+  [32, 40) 'addr'
+  [64, 80) 'desc'
+ ==================================================================
+
+Fixes: 858259cf7d1c443c83 ("uml: maintain own LDT entries")
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../selftests/bpf/progs/test_stacktrace_build_id.c   | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ arch/x86/um/ldt.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c b/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c
-index 0cf0134631b4..08aee18d9ded 100644
---- a/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c
-+++ b/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c
-@@ -39,16 +39,8 @@ struct {
- 	__type(value, stack_trace_t);
- } stack_amap SEC(".maps");
- 
--/* taken from /sys/kernel/debug/tracing/events/random/urandom_read/format */
--struct random_urandom_args {
--	unsigned long long pad;
--	int got_bits;
--	int pool_left;
--	int input_left;
--};
--
--SEC("tracepoint/random/urandom_read")
--int oncpu(struct random_urandom_args *args)
-+SEC("kprobe/urandom_read")
-+int oncpu(struct pt_regs *args)
+--- a/arch/x86/um/ldt.c
++++ b/arch/x86/um/ldt.c
+@@ -23,9 +23,11 @@ static long write_ldt_entry(struct mm_id
  {
- 	__u32 max_len = sizeof(struct bpf_stack_build_id)
- 			* PERF_MAX_STACK_DEPTH;
--- 
-2.35.1
-
+ 	long res;
+ 	void *stub_addr;
++
++	BUILD_BUG_ON(sizeof(*desc) % sizeof(long));
++
+ 	res = syscall_stub_data(mm_idp, (unsigned long *)desc,
+-				(sizeof(*desc) + sizeof(long) - 1) &
+-				    ~(sizeof(long) - 1),
++				sizeof(*desc) / sizeof(long),
+ 				addr, &stub_addr);
+ 	if (!res) {
+ 		unsigned long args[] = { func,
 
 
