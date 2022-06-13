@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D6DF5489B3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 090D0548D5A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355722AbiFMLqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:46:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43116 "EHLO
+        id S1377350AbiFMNct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:32:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356488AbiFMLoh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:44:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83A14754A;
-        Mon, 13 Jun 2022 03:50:50 -0700 (PDT)
+        with ESMTP id S1377964AbiFMNam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:30:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8EC66EB27;
+        Mon, 13 Jun 2022 04:25:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 037E1B80E07;
-        Mon, 13 Jun 2022 10:50:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 652F2C34114;
-        Mon, 13 Jun 2022 10:50:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C63261221;
+        Mon, 13 Jun 2022 11:25:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C76C34114;
+        Mon, 13 Jun 2022 11:25:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117446;
-        bh=btq8rGeFsERr+agkyBJfvYQq6qyKxnfz/CGUWhG9Irs=;
+        s=korg; t=1655119518;
+        bh=NnYNH6IYy9RIKjB57M8bXB1He/zInldRkDkUMteEkPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BG++FChPprwsg2Rg1vZSTW6oT4HsKdezxkkdcI7U4gUemRpbqjQpYn11q9vJ86Id3
-         qGezZetoaT1XbyUJh6yUc8WPb+oWqnT1TKdaD60aD7JJ6fgbIhiJgoFGm+h8u0zFoP
-         hZS6UrN6Ns63An4CNP4BrTR+ajzUFBGAzpxOzuF0=
+        b=V+rjMh7U0fDKNYAP6H3rFmAOhFDqEc99DYNZ+Oz1SaKvhAAf6vB5On1kyz1c2Xd4s
+         wmGFPOmA+T7kF/TR5OkVjCkTgNeE6Ys5D/Unu4E/5PbRziEk8iV8ciwb+l7tw0s5He
+         eE4NwH2rN10pzwdKi1aawKnLh2mCyI4VEb+ln08M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 042/287] rxrpc: Return an error to sendmsg if call failed
+Subject: [PATCH 5.18 041/339] power: supply: core: Initialize struct to zero
 Date:   Mon, 13 Jun 2022 12:07:46 +0200
-Message-Id: <20220613094925.142301521@linuxfoundation.org>
+Message-Id: <20220613094927.765614010@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 4ba68c5192554876bd8c3afd904e3064d2915341 ]
+[ Upstream commit e56a4be2843c95c08cf8421dc1f8e880cafbaf91 ]
 
-If at the end of rxrpc sendmsg() or rxrpc_kernel_send_data() the call that
-was being given data was aborted remotely or otherwise failed, return an
-error rather than returning the amount of data buffered for transmission.
+As we rely on pointers in the battery info to be zero-initialized
+such as in the helper function power_supply_supports_vbat2ri()
+we certainly need to allocate the struct power_supply_battery_info
+with kzalloc() as well. Else this happens:
 
-The call (presumably) did not complete, so there's not much point
-continuing with it.  AF_RXRPC considers it "complete" and so will be
-unwilling to do anything else with it - and won't send a notification for
-it, deeming the return from sendmsg sufficient.
+Unable to handle kernel paging request at virtual address 00280000
+(...)
+PC is at power_supply_vbat2ri+0x50/0x12c
+LR is at ab8500_fg_battery_resistance+0x34/0x108
 
-Not returning an error causes afs to incorrectly handle a StoreData
-operation that gets interrupted by a change of address due to NAT
-reconfiguration.
-
-This doesn't normally affect most operations since their request parameters
-tend to fit into a single UDP packet and afs_make_call() returns before the
-server responds; StoreData is different as it involves transmission of a
-lot of data.
-
-This can be triggered on a client by doing something like:
-
-	dd if=/dev/zero of=/afs/example.com/foo bs=1M count=512
-
-at one prompt, and then changing the network address at another prompt,
-e.g.:
-
-	ifconfig enp6s0 inet 192.168.6.2 && route add 192.168.6.1 dev enp6s0
-
-Tracing packets on an Auristor fileserver looks something like:
-
-192.168.6.1 -> 192.168.6.3  RX 107 ACK Idle  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-192.168.6.3 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(64538) (64538)
-192.168.6.3 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(64538) (64538)
-192.168.6.1 -> 192.168.6.3  RX 107 ACK Idle  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-<ARP exchange for 192.168.6.2>
-192.168.6.2 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(0) (0)
-192.168.6.2 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(0) (0)
-192.168.6.1 -> 192.168.6.2  RX 107 ACK Exceeds Window  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-192.168.6.1 -> 192.168.6.2  RX 74 ABORT  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-192.168.6.1 -> 192.168.6.2  RX 74 ABORT  Seq: 29321  Call: 4  Source Port: 7000  Destination Port: 7001
-
-The Auristor fileserver logs code -453 (RXGEN_SS_UNMARSHAL), but the abort
-code received by kafs is -5 (RX_PROTOCOL_ERROR) as the rx layer sees the
-condition and generates an abort first and the unmarshal error is a
-consequence of that at the application layer.
-
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: linux-afs@lists.infradead.org
-Link: http://lists.infradead.org/pipermail/linux-afs/2021-December/004810.html # v1
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e9e7d165b4b0 ("power: supply: Support VBAT-to-Ri lookup tables")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/sendmsg.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/power/supply/power_supply_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
-index edd76c41765f..0220a2935002 100644
---- a/net/rxrpc/sendmsg.c
-+++ b/net/rxrpc/sendmsg.c
-@@ -440,6 +440,12 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
+diff --git a/drivers/power/supply/power_supply_core.c b/drivers/power/supply/power_supply_core.c
+index d925cb137e12..fad5890c899e 100644
+--- a/drivers/power/supply/power_supply_core.c
++++ b/drivers/power/supply/power_supply_core.c
+@@ -616,7 +616,7 @@ int power_supply_get_battery_info(struct power_supply *psy,
+ 		goto out_put_node;
+ 	}
  
- success:
- 	ret = copied;
-+	if (READ_ONCE(call->state) == RXRPC_CALL_COMPLETE) {
-+		read_lock_bh(&call->state_lock);
-+		if (call->error < 0)
-+			ret = call->error;
-+		read_unlock_bh(&call->state_lock);
-+	}
- out:
- 	call->tx_pending = skb;
- 	_leave(" = %d", ret);
+-	info = devm_kmalloc(&psy->dev, sizeof(*info), GFP_KERNEL);
++	info = devm_kzalloc(&psy->dev, sizeof(*info), GFP_KERNEL);
+ 	if (!info) {
+ 		err = -ENOMEM;
+ 		goto out_put_node;
 -- 
 2.35.1
 
