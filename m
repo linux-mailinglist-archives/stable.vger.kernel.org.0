@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E0E554922C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBE38548FD5
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383763AbiFMO1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:27:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52182 "EHLO
+        id S1351644AbiFMLJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:09:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384127AbiFMOYx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:53 -0400
+        with ESMTP id S1352118AbiFMLJX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:09:23 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EEC54832A;
-        Mon, 13 Jun 2022 04:46:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFEAD33EB7;
+        Mon, 13 Jun 2022 03:35:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51826B80EB2;
-        Mon, 13 Jun 2022 11:46:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD8AAC36B0A;
-        Mon, 13 Jun 2022 11:46:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 173AEB80EB1;
+        Mon, 13 Jun 2022 10:35:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D79EC34114;
+        Mon, 13 Jun 2022 10:35:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120802;
-        bh=bFOZl1c9xmgdlvh+sQk2E6uWOw4KyEixfTX6tBQkcWU=;
+        s=korg; t=1655116527;
+        bh=3StrEeXF8qKQ4qZZKKBEVe7p3su1uFzC+xShw9AKJ2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0tAjvIeBsG8onGNIii/4KE4cKc8wYPjSvBgTuxstBv6akP5bvB0y/rIo0yHjjUSg
-         INcHC6IEnS9KEZMnQhojVmoJOGI6T5cGRlD5kKPAIfxLhB3MbQjrGsXECEkwL40Nfy
-         VaKnZSc4btK4cAR+GxL5vKFVkenGCDUA/cQEr8v0=
+        b=qkspgdOvm2dTe8kfLMWPLos27vk80BbjZkbmmQ3zOPYelr/9y6kV5Ns8I2kv+1k9p
+         QKk3mevkTxwuiUghw+olHw2QQDjPcvNcG2eW41bpXWoLzbHN3KNQJkSIxpwcvip/cY
+         kz3JvMzrke7f4RlJBIwMr9bQMe40UPcgjDIVMDmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 162/298] SUNRPC: Trap RDMA segment overflows
+Subject: [PATCH 4.14 198/218] Revert "net: af_key: add check for pfkey_broadcast in function pfkey_process"
 Date:   Mon, 13 Jun 2022 12:10:56 +0200
-Message-Id: <20220613094929.847724426@linuxfoundation.org>
+Message-Id: <20220613094926.627315543@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Michal Kubecek <mkubecek@suse.cz>
 
-[ Upstream commit f012e95b377c73c0283f009823c633104dedb337 ]
+[ Upstream commit 9c90c9b3e50e16d03c7f87d63e9db373974781e0 ]
 
-Prevent svc_rdma_build_writes() from walking off the end of a Write
-chunk's segment array. Caught with KASAN.
+This reverts commit 4dc2a5a8f6754492180741facf2a8787f2c415d7.
 
-The test that this fix replaces is invalid, and might have been left
-over from an earlier prototype of the PCL work.
+A non-zero return value from pfkey_broadcast() does not necessarily mean
+an error occurred as this function returns -ESRCH when no registered
+listener received the message. In particular, a call with
+BROADCAST_PROMISC_ONLY flag and null one_sk argument can never return
+zero so that this commit in fact prevents processing any PF_KEY message.
+One visible effect is that racoon daemon fails to find encryption
+algorithms like aes and refuses to start.
 
-Fixes: 7a1cbfa18059 ("svcrdma: Use parsed chunk lists to construct RDMA Writes")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Excluding -ESRCH return value would fix this but it's not obvious that
+we really want to bail out here and most other callers of
+pfkey_broadcast() also ignore the return value. Also, as pointed out by
+Steffen Klassert, PF_KEY is kind of deprecated and newer userspace code
+should use netlink instead so that we should only disturb the code for
+really important fixes.
+
+v2: add a comment explaining why is the return value ignored
+
+Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/svc_rdma_rw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/key/af_key.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/net/sunrpc/xprtrdma/svc_rdma_rw.c b/net/sunrpc/xprtrdma/svc_rdma_rw.c
-index 5f0155fdefc7..11cf7c646644 100644
---- a/net/sunrpc/xprtrdma/svc_rdma_rw.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_rw.c
-@@ -478,10 +478,10 @@ svc_rdma_build_writes(struct svc_rdma_write_info *info,
- 		unsigned int write_len;
- 		u64 offset;
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 990de0702b79..035123bf7259 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2834,10 +2834,12 @@ static int pfkey_process(struct sock *sk, struct sk_buff *skb, const struct sadb
+ 	void *ext_hdrs[SADB_EXT_MAX];
+ 	int err;
  
--		seg = &info->wi_chunk->ch_segments[info->wi_seg_no];
--		if (!seg)
-+		if (info->wi_seg_no >= info->wi_chunk->ch_segcount)
- 			goto out_overflow;
+-	err = pfkey_broadcast(skb_clone(skb, GFP_KERNEL), GFP_KERNEL,
+-			      BROADCAST_PROMISC_ONLY, NULL, sock_net(sk));
+-	if (err)
+-		return err;
++	/* Non-zero return value of pfkey_broadcast() does not always signal
++	 * an error and even on an actual error we may still want to process
++	 * the message so rather ignore the return value.
++	 */
++	pfkey_broadcast(skb_clone(skb, GFP_KERNEL), GFP_KERNEL,
++			BROADCAST_PROMISC_ONLY, NULL, sock_net(sk));
  
-+		seg = &info->wi_chunk->ch_segments[info->wi_seg_no];
- 		write_len = min(remaining, seg->rs_length - info->wi_seg_off);
- 		if (!write_len)
- 			goto out_overflow;
+ 	memset(ext_hdrs, 0, sizeof(ext_hdrs));
+ 	err = parse_exthdrs(skb, hdr, ext_hdrs);
 -- 
 2.35.1
 
