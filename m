@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A6A5496EF
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91604549674
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358877AbiFMNMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:12:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43516 "EHLO
+        id S1351737AbiFMMUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:20:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359466AbiFMNJ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A423339B8F;
-        Mon, 13 Jun 2022 04:20:46 -0700 (PDT)
+        with ESMTP id S1358412AbiFMMTb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:19:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B047756B36;
+        Mon, 13 Jun 2022 04:03:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E79C760EF1;
-        Mon, 13 Jun 2022 11:20:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02C52C34114;
-        Mon, 13 Jun 2022 11:20:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95276B80EA7;
+        Mon, 13 Jun 2022 11:02:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC41DC34114;
+        Mon, 13 Jun 2022 11:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119245;
-        bh=4aYV3+qesPToYmG7/6BMlAecFB2vSBxvku6tOzoYkcc=;
+        s=korg; t=1655118178;
+        bh=t+St0Pk2AC2R0+BnigYqFdbjAKksUu1/qNvnLzMwKmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f24Y6FeBBMG8cwml0XaKECbY0+6k38GDT9NLFb3I76XFLmWy3ZCH7X+bqSfrOMVem
-         muM933FkIC/urfm8wu0iiIwHOLEoHd5MTl5PfE+Q1IOoHAAq/YXh2KdV32EPsVWhEM
-         DLuvReEtUf6vXUvEj13UDs0vti/gciON+i8oTK3o=
+        b=BZCD/ZeddLsip9D7j8TbVQkHbBFA2Y6DgWrq9ux9qLINCOhsZgnXJoYC9yjZ1NUEh
+         YXPnF/aS2QnAKf75l3DUOJLlHG3rluofJmIQEHV9B/bsFJsj+war93aXXCxClqZH4m
+         qgCelOPMrRmMmSaO8E0qnb6bAMuG1TKe0lZhGgM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Xinpeng <liuxp11@chinatelecom.cn>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 192/247] watchdog: wdat_wdt: Stop watchdog when rebooting the system
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Yu Kuai <yukuai3@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 270/287] nbd: call genl_unregister_family() first in nbd_cleanup()
 Date:   Mon, 13 Jun 2022 12:11:34 +0200
-Message-Id: <20220613094928.774915549@linuxfoundation.org>
+Message-Id: <20220613094932.187882529@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,44 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Xinpeng <liuxp11@chinatelecom.cn>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 27fdf84510a1374748904db43f6755f912736d92 ]
+[ Upstream commit 06c4da89c24e7023ea448cadf8e9daf06a0aae6e ]
 
-Executing reboot command several times on the machine "Dell
-PowerEdge R740", UEFI security detection stopped machine
-with the following prompt:
+Otherwise there may be race between module removal and the handling of
+netlink command, which can lead to the oops as shown below:
 
-UEFI0082: The system was reset due to a timeout from the watchdog
-timer. Check the System Event Log (SEL) or crash dumps from
-Operating Sysstem to identify the source that triggered the
-watchdog timer reset. Update the firmware or driver for the
-identified device.
+  BUG: kernel NULL pointer dereference, address: 0000000000000098
+  Oops: 0002 [#1] SMP PTI
+  CPU: 1 PID: 31299 Comm: nbd-client Tainted: G            E     5.14.0-rc4
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+  RIP: 0010:down_write+0x1a/0x50
+  Call Trace:
+   start_creating+0x89/0x130
+   debugfs_create_dir+0x1b/0x130
+   nbd_start_device+0x13d/0x390 [nbd]
+   nbd_genl_connect+0x42f/0x748 [nbd]
+   genl_family_rcv_msg_doit.isra.0+0xec/0x150
+   genl_rcv_msg+0xe5/0x1e0
+   netlink_rcv_skb+0x55/0x100
+   genl_rcv+0x29/0x40
+   netlink_unicast+0x1a8/0x250
+   netlink_sendmsg+0x21b/0x430
+   ____sys_sendmsg+0x2a4/0x2d0
+   ___sys_sendmsg+0x81/0xc0
+   __sys_sendmsg+0x62/0xb0
+   __x64_sys_sendmsg+0x1f/0x30
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  Modules linked in: nbd(E-)
 
-iDRAC has warning event: "The watchdog timer reset the system".
-
-This patch fixes this issue by adding the reboot notifier.
-
-Signed-off-by: Liu Xinpeng <liuxp11@chinatelecom.cn>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/1650984810-6247-3-git-send-email-liuxp11@chinatelecom.cn
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220521073749.3146892-2-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/wdat_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/block/nbd.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-index 195c8c004b69..4fac8148a8e6 100644
---- a/drivers/watchdog/wdat_wdt.c
-+++ b/drivers/watchdog/wdat_wdt.c
-@@ -462,6 +462,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
- 		return ret;
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 81b955670b12..29bed6397173 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -2337,6 +2337,12 @@ static void __exit nbd_cleanup(void)
+ 	struct nbd_device *nbd;
+ 	LIST_HEAD(del_list);
  
- 	watchdog_set_nowayout(&wdat->wdd, nowayout);
-+	watchdog_stop_on_reboot(&wdat->wdd);
- 	return devm_watchdog_register_device(dev, &wdat->wdd);
++	/*
++	 * Unregister netlink interface prior to waiting
++	 * for the completion of netlink commands.
++	 */
++	genl_unregister_family(&nbd_genl_family);
++
+ 	nbd_dbg_close();
+ 
+ 	mutex_lock(&nbd_index_mutex);
+@@ -2352,7 +2358,6 @@ static void __exit nbd_cleanup(void)
+ 	}
+ 
+ 	idr_destroy(&nbd_index_idr);
+-	genl_unregister_family(&nbd_genl_family);
+ 	unregister_blkdev(NBD_MAJOR, "nbd");
  }
  
 -- 
