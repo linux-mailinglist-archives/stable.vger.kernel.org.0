@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 152E7548E06
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D57B754938D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378727AbiFMNmd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:42:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35902 "EHLO
+        id S1353867AbiFMM5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:57:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379261AbiFMNkJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2354E201B8;
-        Mon, 13 Jun 2022 04:31:05 -0700 (PDT)
+        with ESMTP id S1358373AbiFMMzT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA297CE26;
+        Mon, 13 Jun 2022 04:15:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B7A43B80D3A;
-        Mon, 13 Jun 2022 11:31:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EAB0C34114;
-        Mon, 13 Jun 2022 11:31:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4960460B6C;
+        Mon, 13 Jun 2022 11:15:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E3DCC34114;
+        Mon, 13 Jun 2022 11:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119862;
-        bh=gJVpB7T37wyoUJOyInE1sOTyR+6HawgA6LXykwcBDEg=;
+        s=korg; t=1655118953;
+        bh=ObCTs0xkg7XNnYFq31uEHAWVf5xq+3r0Y5NMqivMLp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NJrxWNvP1GRFA0lT8ISbKmPGfQc6LnAVd0Ovy7IymIsUoeeM1FKAPcOlu1QFgdQ98
-         YTFt6bH1u9vntH6O2TTb87iTpDX2GqWW+aMwuKS1/SHx7WfIdAt2Tol2Kg1B8RkgbW
-         Nk00coEGk6BeiSDLZaWuPm/R43QO7YTqxmQ5Nx0k=
+        b=jo5mfMYr7ZiCvxcS+HF4W9A+yaQgjuIe57nX24+TY+ejvGFkWhu28N3uBgHL2pUno
+         rZYTC2Omb63r4DETP37IwLFKPsTTYhiUK/+q/88JMF7HS4Dc9+hqmbqfzkDx7Ru4nQ
+         V3SX8Vlibtjn9XtcgAij0uZPfGHcu3fZfGhYrrK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lucas Tanure <tanureal@opensource.cirrus.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 165/339] i2c: cadence: Increase timeout per message if necessary
+        stable@vger.kernel.org, Tianhao Zhao <tizhao@redhat.com>,
+        Martin Habets <habetsm.xilinx@gmail.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 088/247] sfc: fix considering that all channels have TX queues
 Date:   Mon, 13 Jun 2022 12:09:50 +0200
-Message-Id: <20220613094931.686510988@linuxfoundation.org>
+Message-Id: <20220613094925.625485735@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Tanure <tanureal@opensource.cirrus.com>
+From: Martin Habets <habetsm.xilinx@gmail.com>
 
-[ Upstream commit 96789dce043f5bff8b7d62aa28d52a7c59403a84 ]
+[ Upstream commit 2e102b53f8a778f872dc137f4c7ac548705817aa ]
 
-Timeout as 1 second sets an upper limit on the length
-of the transfer executed, but there is no maximum length
-of a write or read message set in i2c_adapter_quirks for
-this controller.
+Normally, all channels have RX and TX queues, but this is not true if
+modparam efx_separate_tx_channels=1 is used. In that cases, some
+channels only have RX queues and others only TX queues (or more
+preciselly, they have them allocated, but not initialized).
 
-This upper limit affects devices that require sending
-large firmware blobs over I2C.
+Fix efx_channel_has_tx_queues to return the correct value for this case
+too.
 
-To remove that limitation, calculate the minimal time
-necessary, plus some wiggle room, for every message and
-use it instead of the default one second, if more than
-one second.
+Messages shown at probe time before the fix:
+ sfc 0000:03:00.0 ens6f0np0: MC command 0x82 inlen 544 failed rc=-22 (raw=0) arg=0
+ ------------[ cut here ]------------
+ netdevice: ens6f0np0: failed to initialise TXQ -1
+ WARNING: CPU: 1 PID: 626 at drivers/net/ethernet/sfc/ef10.c:2393 efx_ef10_tx_init+0x201/0x300 [sfc]
+ [...] stripped
+ RIP: 0010:efx_ef10_tx_init+0x201/0x300 [sfc]
+ [...] stripped
+ Call Trace:
+  efx_init_tx_queue+0xaa/0xf0 [sfc]
+  efx_start_channels+0x49/0x120 [sfc]
+  efx_start_all+0x1f8/0x430 [sfc]
+  efx_net_open+0x5a/0xe0 [sfc]
+  __dev_open+0xd0/0x190
+  __dev_change_flags+0x1b3/0x220
+  dev_change_flags+0x21/0x60
+ [...] stripped
 
-Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Messages shown at remove time before the fix:
+ sfc 0000:03:00.0 ens6f0np0: failed to flush 10 queues
+ sfc 0000:03:00.0 ens6f0np0: failed to flush queues
+
+Fixes: 8700aff08984 ("sfc: fix channel allocation with brute force")
+Reported-by: Tianhao Zhao <tizhao@redhat.com>
+Signed-off-by: Martin Habets <habetsm.xilinx@gmail.com>
+Tested-by: Íñigo Huguet <ihuguet@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-cadence.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/sfc/net_driver.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 805c77143a0f..b4c1ad19cdae 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -760,7 +760,7 @@ static void cdns_i2c_master_reset(struct i2c_adapter *adap)
- static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 		struct i2c_adapter *adap)
+diff --git a/drivers/net/ethernet/sfc/net_driver.h b/drivers/net/ethernet/sfc/net_driver.h
+index f6981810039d..bf097264d8fb 100644
+--- a/drivers/net/ethernet/sfc/net_driver.h
++++ b/drivers/net/ethernet/sfc/net_driver.h
+@@ -1533,7 +1533,7 @@ static inline bool efx_channel_is_xdp_tx(struct efx_channel *channel)
+ 
+ static inline bool efx_channel_has_tx_queues(struct efx_channel *channel)
  {
--	unsigned long time_left;
-+	unsigned long time_left, msg_timeout;
- 	u32 reg;
+-	return true;
++	return channel && channel->channel >= channel->efx->tx_channel_offset;
+ }
  
- 	id->p_msg = msg;
-@@ -785,8 +785,16 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 	else
- 		cdns_i2c_msend(id);
- 
-+	/* Minimal time to execute this message */
-+	msg_timeout = msecs_to_jiffies((1000 * msg->len * BITS_PER_BYTE) / id->i2c_clk);
-+	/* Plus some wiggle room */
-+	msg_timeout += msecs_to_jiffies(500);
-+
-+	if (msg_timeout < adap->timeout)
-+		msg_timeout = adap->timeout;
-+
- 	/* Wait for the signal of completion */
--	time_left = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
-+	time_left = wait_for_completion_timeout(&id->xfer_done, msg_timeout);
- 	if (time_left == 0) {
- 		cdns_i2c_master_reset(adap);
- 		dev_err(id->adap.dev.parent,
+ static inline unsigned int efx_channel_num_tx_queues(struct efx_channel *channel)
 -- 
 2.35.1
 
