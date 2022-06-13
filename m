@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47BF1549966
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:59:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69AB8548A55
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241622AbiFMQ7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 12:59:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47346 "EHLO
+        id S1380240AbiFMOBl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:01:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241628AbiFMQ6Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 12:58:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECD1ABA565;
-        Mon, 13 Jun 2022 04:51:53 -0700 (PDT)
+        with ESMTP id S1380286AbiFMOAC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:00:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FC858D6BA;
+        Mon, 13 Jun 2022 04:38:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD1A1613F9;
-        Mon, 13 Jun 2022 11:51:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4281C34114;
-        Mon, 13 Jun 2022 11:51:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D7B7B80ECD;
+        Mon, 13 Jun 2022 11:38:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D1D0C34114;
+        Mon, 13 Jun 2022 11:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121094;
-        bh=VTvq0DoklwJ8cuV8EuXnfHoOTTTgZ4Wt5bHyoeuOH9w=;
+        s=korg; t=1655120278;
+        bh=va27Whq9MlqmSQeciQ1mgy6bmhWVQAuq24GMVFNoUUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/SLKc0Kr4jRd/3Pmc5rmDD0pjHkox4vKz3l2DiBOyHBv2ujOw+7iwVK2LmzPWtGL
-         Bh3D8l3x+LRh2w1cJXsiOCto6joUrScqTVgVOrqgQo2b+goqZQw9XojNXmH5IlLIF7
-         BDU4rqS+ClidnpFgl+gnIgLx3M/ZNQ2MbZZxj3ZE=
+        b=JmB7736erJ7Ed5bGWwxeQSuLDL8iSNjFmOlJvjbS8y7w/jjvH3+KUkKLub3Zp05KO
+         i7r3oNZv2El1dRwtkH4w8L2JzD6RX9TTg5FMJKQ44gfmvCD0rbtD/bWgG+ECYNLSAc
+         5HzYFS6gA3YwkFQxx+0p1OGwaYCDb5WWuF5QsfFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cyril Brulebois <kibi@debian.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 246/298] Revert "PCI: brcmstb: Add mechanism to turn on subdev regulators"
+        stable@vger.kernel.org,
+        Frode Nordahl <frode.nordahl@canonical.com>,
+        Ilya Maximets <i.maximets@ovn.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 315/339] net: openvswitch: fix misuse of the cached connection on tuple changes
 Date:   Mon, 13 Jun 2022 12:12:20 +0200
-Message-Id: <20220613094932.546549310@linuxfoundation.org>
+Message-Id: <20220613094936.303552729@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,146 +55,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Ilya Maximets <i.maximets@ovn.org>
 
-[ Upstream commit 420be2f7ebe60c9ba3e332f5290017cd168e2bf8 ]
+commit 2061ecfdf2350994e5b61c43e50e98a7a70e95ee upstream.
 
-This reverts commit 67211aadcb4b968d0fdc57bc27240fa71500c2d4.
+If packet headers changed, the cached nfct is no longer relevant
+for the packet and attempt to re-use it leads to the incorrect packet
+classification.
 
-This is part of a revert of the following commits:
+This issue is causing broken connectivity in OpenStack deployments
+with OVS/OVN due to hairpin traffic being unexpectedly dropped.
 
-  11ed8b8624b8 ("PCI: brcmstb: Do not turn off WOL regulators on suspend")
-  93e41f3fca3d ("PCI: brcmstb: Add control of subdevice voltage regulators")
-  67211aadcb4b ("PCI: brcmstb: Add mechanism to turn on subdev regulators")
-  830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup() into two funcs")
+The setup has datapath flows with several conntrack actions and tuple
+changes between them:
 
-Cyril reported that 830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup()
-into two funcs"), which appeared in v5.17-rc1, broke booting on the
-Raspberry Pi Compute Module 4.  Apparently 830aa6f29f07 panics with an
-Asynchronous SError Interrupt, and after further commits here is a black
-screen on HDMI and no output on the serial console.
+  actions:ct(commit,zone=8,mark=0/0x1,nat(src)),
+          set(eth(src=00:00:00:00:00:01,dst=00:00:00:00:00:06)),
+          set(ipv4(src=172.18.2.10,dst=192.168.100.6,ttl=62)),
+          ct(zone=8),recirc(0x4)
 
-This does not seem to affect the Raspberry Pi 4 B.
+After the first ct() action the packet headers are almost fully
+re-written.  The next ct() tries to re-use the existing nfct entry
+and marks the packet as invalid, so it gets dropped later in the
+pipeline.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215925
-Link: https://lore.kernel.org/r/20220511201856.808690-4-helgaas@kernel.org
-Reported-by: Cyril Brulebois <kibi@debian.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Clearing the cached conntrack entry whenever packet tuple is changed
+to avoid the issue.
+
+The flow key should not be cleared though, because we should still
+be able to match on the ct_state if the recirculation happens after
+the tuple change but before the next ct() action.
+
+Cc: stable@vger.kernel.org
+Fixes: 7f8a436eaa2c ("openvswitch: Add conntrack action")
+Reported-by: Frode Nordahl <frode.nordahl@canonical.com>
+Link: https://mail.openvswitch.org/pipermail/ovs-discuss/2022-May/051829.html
+Link: https://bugs.launchpad.net/ubuntu/+source/ovn/+bug/1967856
+Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
+Link: https://lore.kernel.org/r/20220606221140.488984-1-i.maximets@ovn.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pcie-brcmstb.c | 76 ---------------------------
- 1 file changed, 76 deletions(-)
+ net/openvswitch/actions.c   |    6 ++++++
+ net/openvswitch/conntrack.c |    4 +++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pcie-brcmstb.c b/drivers/pci/controller/pcie-brcmstb.c
-index fd464d38fecb..0e8346114a8d 100644
---- a/drivers/pci/controller/pcie-brcmstb.c
-+++ b/drivers/pci/controller/pcie-brcmstb.c
-@@ -24,7 +24,6 @@
- #include <linux/pci.h>
- #include <linux/pci-ecam.h>
- #include <linux/printk.h>
--#include <linux/regulator/consumer.h>
- #include <linux/reset.h>
- #include <linux/sizes.h>
- #include <linux/slab.h>
-@@ -284,14 +283,6 @@ static const struct pcie_cfg_data bcm2711_cfg = {
- 	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_generic,
- };
- 
--struct subdev_regulators {
--	unsigned int num_supplies;
--	struct regulator_bulk_data supplies[];
--};
--
--static int pci_subdev_regulators_add_bus(struct pci_bus *bus);
--static void pci_subdev_regulators_remove_bus(struct pci_bus *bus);
--
- struct brcm_msi {
- 	struct device		*dev;
- 	void __iomem		*base;
-@@ -445,71 +436,6 @@ static int brcm_pcie_set_ssc(struct brcm_pcie *pcie)
- 	return ssc && pll ? 0 : -EIO;
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -373,6 +373,7 @@ static void set_ip_addr(struct sk_buff *
+ 	update_ip_l4_checksum(skb, nh, *addr, new_addr);
+ 	csum_replace4(&nh->check, *addr, new_addr);
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
+ 	*addr = new_addr;
  }
  
--static void *alloc_subdev_regulators(struct device *dev)
--{
--	static const char * const supplies[] = {
--		"vpcie3v3",
--		"vpcie3v3aux",
--		"vpcie12v",
--	};
--	const size_t size = sizeof(struct subdev_regulators)
--		+ sizeof(struct regulator_bulk_data) * ARRAY_SIZE(supplies);
--	struct subdev_regulators *sr;
--	int i;
--
--	sr = devm_kzalloc(dev, size, GFP_KERNEL);
--	if (sr) {
--		sr->num_supplies = ARRAY_SIZE(supplies);
--		for (i = 0; i < ARRAY_SIZE(supplies); i++)
--			sr->supplies[i].supply = supplies[i];
--	}
--
--	return sr;
--}
--
--static int pci_subdev_regulators_add_bus(struct pci_bus *bus)
--{
--	struct device *dev = &bus->dev;
--	struct subdev_regulators *sr;
--	int ret;
--
--	if (!dev->of_node || !bus->parent || !pci_is_root_bus(bus->parent))
--		return 0;
--
--	if (dev->driver_data)
--		dev_err(dev, "dev.driver_data unexpectedly non-NULL\n");
--
--	sr = alloc_subdev_regulators(dev);
--	if (!sr)
--		return -ENOMEM;
--
--	dev->driver_data = sr;
--	ret = regulator_bulk_get(dev, sr->num_supplies, sr->supplies);
--	if (ret)
--		return ret;
--
--	ret = regulator_bulk_enable(sr->num_supplies, sr->supplies);
--	if (ret) {
--		dev_err(dev, "failed to enable regulators for downstream device\n");
--		return ret;
--	}
--
--	return 0;
--}
--
--static void pci_subdev_regulators_remove_bus(struct pci_bus *bus)
--{
--	struct device *dev = &bus->dev;
--	struct subdev_regulators *sr = dev->driver_data;
--
--	if (!sr || !bus->parent || !pci_is_root_bus(bus->parent))
--		return;
--
--	if (regulator_bulk_disable(sr->num_supplies, sr->supplies))
--		dev_err(dev, "failed to disable regulators for downstream device\n");
--	dev->driver_data = NULL;
--}
--
- /* Limits operation to a specific generation (1, 2, or 3) */
- static void brcm_pcie_set_gen(struct brcm_pcie *pcie, int gen)
- {
-@@ -853,8 +779,6 @@ static struct pci_ops brcm_pcie_ops = {
- 	.map_bus = brcm_pcie_map_conf,
- 	.read = pci_generic_config_read,
- 	.write = pci_generic_config_write,
--	.add_bus = pci_subdev_regulators_add_bus,
--	.remove_bus = pci_subdev_regulators_remove_bus,
- };
+@@ -420,6 +421,7 @@ static void set_ipv6_addr(struct sk_buff
+ 		update_ipv6_checksum(skb, l4_proto, addr, new_addr);
  
- static struct pci_ops brcm_pcie_ops32 = {
--- 
-2.35.1
-
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
+ 	memcpy(addr, new_addr, sizeof(__be32[4]));
+ }
+ 
+@@ -660,6 +662,7 @@ static int set_nsh(struct sk_buff *skb,
+ static void set_tp_port(struct sk_buff *skb, __be16 *port,
+ 			__be16 new_port, __sum16 *check)
+ {
++	ovs_ct_clear(skb, NULL);
+ 	inet_proto_csum_replace2(check, skb, *port, new_port, false);
+ 	*port = new_port;
+ }
+@@ -699,6 +702,7 @@ static int set_udp(struct sk_buff *skb,
+ 		uh->dest = dst;
+ 		flow_key->tp.src = src;
+ 		flow_key->tp.dst = dst;
++		ovs_ct_clear(skb, NULL);
+ 	}
+ 
+ 	skb_clear_hash(skb);
+@@ -761,6 +765,8 @@ static int set_sctp(struct sk_buff *skb,
+ 	sh->checksum = old_csum ^ old_correct_csum ^ new_csum;
+ 
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
++
+ 	flow_key->tp.src = sh->source;
+ 	flow_key->tp.dst = sh->dest;
+ 
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -1342,7 +1342,9 @@ int ovs_ct_clear(struct sk_buff *skb, st
+ 
+ 	nf_ct_put(ct);
+ 	nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
+-	ovs_ct_fill_key(skb, key, false);
++
++	if (key)
++		ovs_ct_fill_key(skb, key, false);
+ 
+ 	return 0;
+ }
 
 
