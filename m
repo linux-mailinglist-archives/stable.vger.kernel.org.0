@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C055549160
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:28:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E53945489C7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:06:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348587AbiFMMUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:20:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49064 "EHLO
+        id S1380264AbiFMN6h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:58:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357121AbiFMMTV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:19:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2976E562DB;
-        Mon, 13 Jun 2022 04:02:50 -0700 (PDT)
+        with ESMTP id S1380364AbiFMNyK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:54:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20C00433A5;
+        Mon, 13 Jun 2022 04:34:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 957EDB80D31;
-        Mon, 13 Jun 2022 11:02:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012C8C3411C;
-        Mon, 13 Jun 2022 11:02:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 958A5B80EC7;
+        Mon, 13 Jun 2022 11:34:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1CB7C34114;
+        Mon, 13 Jun 2022 11:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118167;
-        bh=cO+MlwZPZfzLK6MD1rKEn5/lcgTLQLFpZ1PoZlE/mYg=;
+        s=korg; t=1655120096;
+        bh=RYGlt8XO8N6wGU/CPy6VpyAOXZydS1xA2/rRn4qKMHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZTDZY4IcJvk5r+eMbcMu7prnT8SlONqceg92rnfGQ9ZEsKAzebYdorcn4uwsKR10
-         46sn8v4G2ICguoxcyokCDIJrf+/AkP1Mjjcx4+ks6GMmz9X31Inhh1Ylb3Xt3ladSW
-         H/jb1OdC9RZ9kRry1hRIIlO/rEkwSqkwk4TEsYY4=
+        b=MLTS4IpNDtV+U+4ooDeG+vC0V2Xxr0ybhaF21+zC1W2F1v9y1FgEoPPjyug4n+/aH
+         mC147Rdv72KI3Sy1lHplqXopAQU6ti2s/TDAsU0Yb4MuytnyBg/M62EzMxPwF5cwOg
+         swXh/6FB3Qx4Vt8Ekc1AEXt6lbjH1J0RIsmwk7Mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Zheyu Ma <zheyuma97@gmail.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 250/287] tty: synclink_gt: Fix null-pointer-dereference in slgt_clean()
+        stable@vger.kernel.org,
+        syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Wang Cheng <wanngchenng@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 249/339] staging: rtl8712: fix uninit-value in usb_read8() and friends
 Date:   Mon, 13 Jun 2022 12:11:14 +0200
-Message-Id: <20220613094931.595883256@linuxfoundation.org>
+Message-Id: <20220613094934.205392608@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +56,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Wang Cheng <wanngchenng@gmail.com>
 
-[ Upstream commit 689ca31c542687709ba21ec2195c1fbce34fd029 ]
+[ Upstream commit d1b57669732d09da7e13ef86d058dab0cd57f6e0 ]
 
-When the driver fails at alloc_hdlcdev(), and then we remove the driver
-module, we will get the following splat:
+When r8712_usbctrl_vendorreq() returns negative, 'data' in
+usb_read{8,16,32} will not be initialized.
 
-[   25.065966] general protection fault, probably for non-canonical address 0xdffffc0000000182: 0000 [#1] PREEMPT SMP KASAN PTI
-[   25.066914] KASAN: null-ptr-deref in range [0x0000000000000c10-0x0000000000000c17]
-[   25.069262] RIP: 0010:detach_hdlc_protocol+0x2a/0x3e0
-[   25.077709] Call Trace:
-[   25.077924]  <TASK>
-[   25.078108]  unregister_hdlc_device+0x16/0x30
-[   25.078481]  slgt_cleanup+0x157/0x9f0 [synclink_gt]
+BUG: KMSAN: uninit-value in string_nocheck lib/vsprintf.c:643 [inline]
+BUG: KMSAN: uninit-value in string+0x4ec/0x6f0 lib/vsprintf.c:725
+ string_nocheck lib/vsprintf.c:643 [inline]
+ string+0x4ec/0x6f0 lib/vsprintf.c:725
+ vsnprintf+0x2222/0x3650 lib/vsprintf.c:2806
+ va_format lib/vsprintf.c:1704 [inline]
+ pointer+0x18e6/0x1f70 lib/vsprintf.c:2443
+ vsnprintf+0x1a9b/0x3650 lib/vsprintf.c:2810
+ vprintk_store+0x537/0x2150 kernel/printk/printk.c:2158
+ vprintk_emit+0x28b/0xab0 kernel/printk/printk.c:2256
+ dev_vprintk_emit+0x5ef/0x6d0 drivers/base/core.c:4604
+ dev_printk_emit+0x1dd/0x21f drivers/base/core.c:4615
+ __dev_printk+0x3be/0x440 drivers/base/core.c:4627
+ _dev_info+0x1ea/0x22f drivers/base/core.c:4673
+ r871xu_drv_init+0x1929/0x3070 drivers/staging/rtl8712/usb_intf.c:401
+ usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
+ really_probe+0x6c7/0x1350 drivers/base/dd.c:621
+ __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
+ driver_probe_device drivers/base/dd.c:782 [inline]
+ __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
+ bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
+ __device_attach+0x593/0x8e0 drivers/base/dd.c:970
+ device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
+ bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
+ device_add+0x1fff/0x26e0 drivers/base/core.c:3405
+ usb_set_configuration+0x37e9/0x3ed0 drivers/usb/core/message.c:2170
+ usb_generic_driver_probe+0x13c/0x300 drivers/usb/core/generic.c:238
+ usb_probe_device+0x309/0x570 drivers/usb/core/driver.c:293
+ really_probe+0x6c7/0x1350 drivers/base/dd.c:621
+ __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
+ driver_probe_device drivers/base/dd.c:782 [inline]
+ __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
+ bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
+ __device_attach+0x593/0x8e0 drivers/base/dd.c:970
+ device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
+ bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
+ device_add+0x1fff/0x26e0 drivers/base/core.c:3405
+ usb_new_device+0x1b91/0x2950 drivers/usb/core/hub.c:2566
+ hub_port_connect drivers/usb/core/hub.c:5363 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5507 [inline]
+ port_event drivers/usb/core/hub.c:5665 [inline]
+ hub_event+0x58e3/0x89e0 drivers/usb/core/hub.c:5747
+ process_one_work+0xdb6/0x1820 kernel/workqueue.c:2289
+ worker_thread+0x10d0/0x2240 kernel/workqueue.c:2436
+ kthread+0x3c7/0x500 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30
 
-Fix this by checking whether the 'info->netdev' is a null pointer first.
+Local variable data created at:
+ usb_read8+0x5d/0x130 drivers/staging/rtl8712/usb_ops.c:33
+ r8712_read8+0xa5/0xd0 drivers/staging/rtl8712/rtl8712_io.c:29
 
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/20220410114814.3920474-1-zheyuma97@gmail.com
+KMSAN: uninit-value in r871xu_drv_init
+https://syzkaller.appspot.com/bug?id=3cd92b1d85428b128503bfa7a250294c9ae00bd8
+
+Reported-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
+Tested-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
+Link: https://lore.kernel.org/r/b9b7a6ee02c02aa28054f5cf16129977775f3cd9.1652618244.git.wanngchenng@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/synclink_gt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/rtl8712/usb_ops.c | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
-index afe34beec720..11c62fcd67f2 100644
---- a/drivers/tty/synclink_gt.c
-+++ b/drivers/tty/synclink_gt.c
-@@ -1753,6 +1753,8 @@ static int hdlcdev_init(struct slgt_info *info)
-  */
- static void hdlcdev_exit(struct slgt_info *info)
- {
-+	if (!info->netdev)
-+		return;
- 	unregister_hdlc_device(info->netdev);
- 	free_netdev(info->netdev);
- 	info->netdev = NULL;
+diff --git a/drivers/staging/rtl8712/usb_ops.c b/drivers/staging/rtl8712/usb_ops.c
+index e64845e6adf3..af9966d03979 100644
+--- a/drivers/staging/rtl8712/usb_ops.c
++++ b/drivers/staging/rtl8712/usb_ops.c
+@@ -29,7 +29,8 @@ static u8 usb_read8(struct intf_hdl *intfhdl, u32 addr)
+ 	u16 wvalue;
+ 	u16 index;
+ 	u16 len;
+-	__le32 data;
++	int status;
++	__le32 data = 0;
+ 	struct intf_priv *intfpriv = intfhdl->pintfpriv;
+ 
+ 	request = 0x05;
+@@ -37,8 +38,10 @@ static u8 usb_read8(struct intf_hdl *intfhdl, u32 addr)
+ 	index = 0;
+ 	wvalue = (u16)(addr & 0x0000ffff);
+ 	len = 1;
+-	r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index, &data, len,
+-				requesttype);
++	status = r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index,
++					 &data, len, requesttype);
++	if (status < 0)
++		return 0;
+ 	return (u8)(le32_to_cpu(data) & 0x0ff);
+ }
+ 
+@@ -49,7 +52,8 @@ static u16 usb_read16(struct intf_hdl *intfhdl, u32 addr)
+ 	u16 wvalue;
+ 	u16 index;
+ 	u16 len;
+-	__le32 data;
++	int status;
++	__le32 data = 0;
+ 	struct intf_priv *intfpriv = intfhdl->pintfpriv;
+ 
+ 	request = 0x05;
+@@ -57,8 +61,10 @@ static u16 usb_read16(struct intf_hdl *intfhdl, u32 addr)
+ 	index = 0;
+ 	wvalue = (u16)(addr & 0x0000ffff);
+ 	len = 2;
+-	r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index, &data, len,
+-				requesttype);
++	status = r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index,
++					 &data, len, requesttype);
++	if (status < 0)
++		return 0;
+ 	return (u16)(le32_to_cpu(data) & 0xffff);
+ }
+ 
+@@ -69,7 +75,8 @@ static u32 usb_read32(struct intf_hdl *intfhdl, u32 addr)
+ 	u16 wvalue;
+ 	u16 index;
+ 	u16 len;
+-	__le32 data;
++	int status;
++	__le32 data = 0;
+ 	struct intf_priv *intfpriv = intfhdl->pintfpriv;
+ 
+ 	request = 0x05;
+@@ -77,8 +84,10 @@ static u32 usb_read32(struct intf_hdl *intfhdl, u32 addr)
+ 	index = 0;
+ 	wvalue = (u16)(addr & 0x0000ffff);
+ 	len = 4;
+-	r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index, &data, len,
+-				requesttype);
++	status = r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index,
++					 &data, len, requesttype);
++	if (status < 0)
++		return 0;
+ 	return le32_to_cpu(data);
+ }
+ 
 -- 
 2.35.1
 
