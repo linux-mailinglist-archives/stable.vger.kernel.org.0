@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D7254984E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2109E548BD7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353749AbiFMMuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:50:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43716 "EHLO
+        id S1380332AbiFMN6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:58:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354159AbiFMMtp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:49:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C54D263397;
-        Mon, 13 Jun 2022 04:12:08 -0700 (PDT)
+        with ESMTP id S1381565AbiFMN45 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:56:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16DCA8B086;
+        Mon, 13 Jun 2022 04:37:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D25BB80E93;
-        Mon, 13 Jun 2022 11:11:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99570C34114;
-        Mon, 13 Jun 2022 11:11:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C38AB80EC7;
+        Mon, 13 Jun 2022 11:37:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8B96C34114;
+        Mon, 13 Jun 2022 11:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118714;
-        bh=pbz9DlEqA5TwTXAkZWWpEn6u8/MCy1hJFPIoVEmfs4U=;
+        s=korg; t=1655120232;
+        bh=2Bnq75o17SAeC1aGnsuLEf+b1BM26FPk/fvf4u8So08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yh4BFeEOO7Rq+J3v+LiQ6HUFZcCZNncfpe+TlYmMcp1QuobzW/haCkTpuemO3anMk
-         NiHV+OxNnJzl96OGyuexwCtMuMDLjMuaN6baIyF3NWaBlvAdSO1KSOVGQ8DHf3yRw5
-         Ah5kww9SmBBZ/XnyrqcI83OFDZZFCRYE7ih/eGrs=
+        b=tJRothVroaUtAjcpoeMa/wrjyRxhSysyPk8cGZHfpbpzUDeSBXpJOvsSX7eAyjcOD
+         mTfvy2hN5ia+zSgjORLbPruQwJ/hh6+16LoYh+SIZJYqhsWN5b2BVKmmLwdYROHPpK
+         lokKwNF14Ye13VKbxmsWzBllI80iQuPwNlpCJndA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 163/172] Input: bcm5974 - set missing URB_NO_TRANSFER_DMA_MAP urb flag
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        Enzo Matsumiya <ematsumiya@suse.de>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.18 298/339] cifs: return errors during session setup during reconnects
 Date:   Mon, 13 Jun 2022 12:12:03 +0200
-Message-Id: <20220613094923.210969564@linuxfoundation.org>
+Message-Id: <20220613094935.803460548@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-commit c42e65664390be7c1ef3838cd84956d3a2739d60 upstream.
+commit 8ea21823aa584b55ba4b861307093b78054b0c1b upstream.
 
-The bcm5974 driver does the allocation and dma mapping of the usb urb
-data buffer, but driver does not set the URB_NO_TRANSFER_DMA_MAP flag
-to let usb core know the buffer is already mapped.
+During reconnects, we check the return value from
+cifs_negotiate_protocol, and have handlers for both success
+and failures. But if that passes, and cifs_setup_session
+returns any errors other than -EACCES, we do not handle
+that. This fix adds a handler for that, so that we don't
+go ahead and try a tree_connect on a failed session.
 
-usb core tries to map the already mapped buffer, causing a warning:
-"xhci_hcd 0000:00:14.0: rejecting DMA map of vmalloc memory"
-
-Fix this by setting the URB_NO_TRANSFER_DMA_MAP, letting usb core
-know buffer is already mapped by bcm5974 driver
-
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Enzo Matsumiya <ematsumiya@suse.de>
 Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215890
-Link: https://lore.kernel.org/r/20220606113636.588955-1-mathias.nyman@linux.intel.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/mouse/bcm5974.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/cifs/smb2pdu.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -942,17 +942,22 @@ static int bcm5974_probe(struct usb_inte
- 	if (!dev->tp_data)
- 		goto err_free_bt_buffer;
- 
--	if (dev->bt_urb)
-+	if (dev->bt_urb) {
- 		usb_fill_int_urb(dev->bt_urb, udev,
- 				 usb_rcvintpipe(udev, cfg->bt_ep),
- 				 dev->bt_data, dev->cfg.bt_datalen,
- 				 bcm5974_irq_button, dev, 1);
- 
-+		dev->bt_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-+	}
-+
- 	usb_fill_int_urb(dev->tp_urb, udev,
- 			 usb_rcvintpipe(udev, cfg->tp_ep),
- 			 dev->tp_data, dev->cfg.tp_datalen,
- 			 bcm5974_irq_trackpad, dev, 1);
- 
-+	dev->tp_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-+
- 	/* create bcm5974 device */
- 	usb_make_path(udev, dev->phys, sizeof(dev->phys));
- 	strlcat(dev->phys, "/input0", sizeof(dev->phys));
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -288,6 +288,9 @@ smb2_reconnect(__le16 smb2_command, stru
+ 			mutex_unlock(&ses->session_mutex);
+ 			rc = -EHOSTDOWN;
+ 			goto failed;
++		} else if (rc) {
++			mutex_unlock(&ses->session_mutex);
++			goto out;
+ 		}
+ 	} else {
+ 		mutex_unlock(&ses->session_mutex);
 
 
