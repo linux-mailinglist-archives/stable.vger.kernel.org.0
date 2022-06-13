@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 841B4548EE7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2580548E25
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378559AbiFMNls (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:41:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57186 "EHLO
+        id S1358245AbiFMMGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:06:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379210AbiFMNkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FF72B4A7;
-        Mon, 13 Jun 2022 04:30:03 -0700 (PDT)
+        with ESMTP id S1358656AbiFMMEb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:04:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AB64FC7E;
+        Mon, 13 Jun 2022 03:57:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFDDF61236;
-        Mon, 13 Jun 2022 11:30:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB2FCC34114;
-        Mon, 13 Jun 2022 11:30:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 514C9B80E5E;
+        Mon, 13 Jun 2022 10:57:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7433C34114;
+        Mon, 13 Jun 2022 10:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119802;
-        bh=8FwBDfYhettJ1LzaDvTKnMnazp4mrmKa5FRrQbl3aNk=;
+        s=korg; t=1655117860;
+        bh=OwXxyTvLpXylbZFQ6nGc0TqyMyCdzgZkcAHPcYlKQdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1shSv/EIFlDk9JUgFxgdAzkk998sb7+OvyC5Z51FubRrwSyljl8RFKLexQaWewiF
-         TrlpnPGqxuEA7b7GdnG+1Kr8J3xX1H7Z6odiHn3PO4yG6BxP7N4pzwArVg/cHbS8PW
-         JM6YmJF2wun+8MefZiykBR0k8Z6SM2fY0Zpb4YZk=
+        b=eVJt5KUKqequJnbB9l9bUoO6jpKQx6u6vkea095vGfp5HCWJH5Skp23iHl73yAoSi
+         uxk7U6GkN3nHTDR+8QZehXbo7NNsbaeOjegGfbXx+7Un9pKBXQZET6fcgEXqJlcNli
+         M5xQgw27pIp8TeIgeNgWsrudQIk/fgv0A2T3b2LQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e820fdc8ce362f2dea51@syzkaller.appspotmail.com,
-        Jon Maloy <jmaloy@redhat.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 145/339] tipc: check attribute length for bearer name
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Ajay Kaher <akaher@vmware.com>,
+        Aaron Adams <edg-e@nccgroup.com>
+Subject: [PATCH 4.19 146/287] netfilter: nf_tables: disallow non-stateful expression in sets earlier
 Date:   Mon, 13 Jun 2022 12:09:30 +0200
-Message-Id: <20220613094931.081079291@linuxfoundation.org>
+Message-Id: <20220613094928.304080687@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,58 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 7f36f798f89bf32c0164049cb0e3fd1af613d0bb ]
+commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
 
-syzbot reported uninit-value:
-=====================================================
-BUG: KMSAN: uninit-value in string_nocheck lib/vsprintf.c:644 [inline]
-BUG: KMSAN: uninit-value in string+0x4f9/0x6f0 lib/vsprintf.c:725
- string_nocheck lib/vsprintf.c:644 [inline]
- string+0x4f9/0x6f0 lib/vsprintf.c:725
- vsnprintf+0x2222/0x3650 lib/vsprintf.c:2806
- vprintk_store+0x537/0x2150 kernel/printk/printk.c:2158
- vprintk_emit+0x28b/0xab0 kernel/printk/printk.c:2256
- vprintk_default+0x86/0xa0 kernel/printk/printk.c:2283
- vprintk+0x15f/0x180 kernel/printk/printk_safe.c:50
- _printk+0x18d/0x1cf kernel/printk/printk.c:2293
- tipc_enable_bearer net/tipc/bearer.c:371 [inline]
- __tipc_nl_bearer_enable+0x2022/0x22a0 net/tipc/bearer.c:1033
- tipc_nl_bearer_enable+0x6c/0xb0 net/tipc/bearer.c:1042
- genl_family_rcv_msg_doit net/netlink/genetlink.c:731 [inline]
+Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
+instantiation"), it is possible to attach stateful expressions to set
+elements.
 
-- Do sanity check the attribute length for TIPC_NLA_BEARER_NAME.
-- Do not use 'illegal name' in printing message.
+cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
+and destroy phase") introduces conditional destruction on the object to
+accomodate transaction semantics.
 
-Reported-by: syzbot+e820fdc8ce362f2dea51@syzkaller.appspotmail.com
-Fixes: cb30a63384bc ("tipc: refactor function tipc_enable_bearer()")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Link: https://lore.kernel.org/r/20220602063053.5892-1-hoang.h.le@dektech.com.au
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+nft_expr_init() calls expr->ops->init() first, then check for
+NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
+lookup expressions which points to a set, which might lead to UAF since
+the set is not properly detached from the set->binding for this case.
+Anyway, this combination is non-sense from nf_tables perspective.
+
+This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
+expr->ops->init() is called.
+
+The reporter provides a KASAN splat and a poc reproducer (similar to
+those autogenerated by syzbot to report use-after-free errors). It is
+unknown to me if they are using syzbot or if they use similar automated
+tool to locate the bug that they are reporting.
+
+For the record, this is the KASAN splat.
+
+[   85.431824] ==================================================================
+[   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
+[   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
+[   85.434756]
+[   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
+[   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+
+Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
+Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+[Ajay: Regenerated the patch for v4.19.y]
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/bearer.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c |   16 ++++++++++------
+ net/netfilter/nft_dynset.c    |    3 ---
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/net/tipc/bearer.c b/net/tipc/bearer.c
-index 6d39ca05f249..932c87b98eca 100644
---- a/net/tipc/bearer.c
-+++ b/net/tipc/bearer.c
-@@ -259,9 +259,8 @@ static int tipc_enable_bearer(struct net *net, const char *name,
- 	u32 i;
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2167,27 +2167,31 @@ struct nft_expr *nft_expr_init(const str
  
- 	if (!bearer_name_validate(name, &b_names)) {
--		errstr = "illegal name";
- 		NL_SET_ERR_MSG(extack, "Illegal name");
--		goto rejected;
-+		return res;
- 	}
+ 	err = nf_tables_expr_parse(ctx, nla, &info);
+ 	if (err < 0)
+-		goto err1;
++		goto err_expr_parse;
++
++	err = -EOPNOTSUPP;
++	if (!(info.ops->type->flags & NFT_EXPR_STATEFUL))
++		goto err_expr_stateful;
  
- 	if (prio > TIPC_MAX_LINK_PRI && prio != TIPC_MEDIA_LINK_PRI) {
--- 
-2.35.1
-
+ 	err = -ENOMEM;
+ 	expr = kzalloc(info.ops->size, GFP_KERNEL);
+ 	if (expr == NULL)
+-		goto err2;
++		goto err_expr_stateful;
+ 
+ 	err = nf_tables_newexpr(ctx, &info, expr);
+ 	if (err < 0)
+-		goto err3;
++		goto err_expr_new;
+ 
+ 	return expr;
+-err3:
++err_expr_new:
+ 	kfree(expr);
+-err2:
++err_expr_stateful:
+ 	owner = info.ops->type->owner;
+ 	if (info.ops->type->release_ops)
+ 		info.ops->type->release_ops(info.ops);
+ 
+ 	module_put(owner);
+-err1:
++err_expr_parse:
+ 	return ERR_PTR(err);
+ }
+ 
+--- a/net/netfilter/nft_dynset.c
++++ b/net/netfilter/nft_dynset.c
+@@ -193,9 +193,6 @@ static int nft_dynset_init(const struct
+ 			return PTR_ERR(priv->expr);
+ 
+ 		err = -EOPNOTSUPP;
+-		if (!(priv->expr->ops->type->flags & NFT_EXPR_STATEFUL))
+-			goto err1;
+-
+ 		if (priv->expr->ops->type->flags & NFT_EXPR_GC) {
+ 			if (set->flags & NFT_SET_TIMEOUT)
+ 				goto err1;
 
 
