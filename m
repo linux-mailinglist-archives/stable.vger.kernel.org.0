@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 937F254979A
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8A2A549727
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359298AbiFMN2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:28:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43862 "EHLO
+        id S1352579AbiFMLSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:18:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358927AbiFMN0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:26:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BECFF6CAB0;
-        Mon, 13 Jun 2022 04:24:32 -0700 (PDT)
+        with ESMTP id S1353701AbiFMLQO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 122DC13DF5;
+        Mon, 13 Jun 2022 03:39:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E578A60B6E;
-        Mon, 13 Jun 2022 11:24:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F019FC34114;
-        Mon, 13 Jun 2022 11:24:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFF21B80E94;
+        Mon, 13 Jun 2022 10:39:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15792C34114;
+        Mon, 13 Jun 2022 10:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119471;
-        bh=Mi4RI/owKtfMDeXHYwCoLe6+6tQevtazNezpbDFRK8Q=;
+        s=korg; t=1655116752;
+        bh=wZ6bpjLFFWsrDbNeK7eH9VtgXKAFIb/EwJS2dgwHWtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3CgH6eUMGlTzeGWQlEj2Q0tDDby3d1TDkiZe/IMJS18aQLTzteI6jAWFro1uhwO4
-         flzvAPocgoj7/hKUln61FN7LxFBkHYZuOQEplp+041FDz1CgIWBW/L6axOnaJ5Bf4r
-         PMcpjO7QZ8J8LMSmBTgRoq+vyaLb344s9NwyxRN8=
+        b=mQ9M6VKB2ftQ87hs5Gc4iHAjJX/LMQn3cqGZVsMm9hIbN07guy2aIIJCFEUNO/yKv
+         meX1980vqN/xlPRFmtQUaFNR+nDGsaYKEpOxxtBYXU96cnningfWU3nnnRk6OBFJ9+
+         z7GEnY0oXLvMSU0QOtSptSdqLL/M+gLphAGRVyEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Wang Weiyang <wangweiyang2@huawei.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 009/339] tty: goldfish: Use tty_port_destroy() to destroy port
+Subject: [PATCH 5.4 161/411] PCI: rockchip: Fix find_first_zero_bit() limit
 Date:   Mon, 13 Jun 2022 12:07:14 +0200
-Message-Id: <20220613094926.790572781@linuxfoundation.org>
+Message-Id: <20220613094933.489513865@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Weiyang <wangweiyang2@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 507b05063d1b7a1fcb9f7d7c47586fc4f3508f98 ]
+[ Upstream commit 096950e230b8d83645c7cf408b9f399f58c08b96 ]
 
-In goldfish_tty_probe(), the port initialized through tty_port_init()
-should be destroyed in error paths.In goldfish_tty_remove(), qtty->port
-also should be destroyed or else might leak resources.
+The ep->ob_region_map bitmap is a long and it has BITS_PER_LONG bits.
 
-Fix the above by calling tty_port_destroy().
-
-Fixes: 666b7793d4bf ("goldfish: tty driver")
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
-Link: https://lore.kernel.org/r/20220328115844.86032-1-wangweiyang2@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220315065944.GB13572@kili
+Fixes: cf590b078391 ("PCI: rockchip: Add EP driver for Rockchip PCIe controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/goldfish.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/controller/pcie-rockchip-ep.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
-index 9e8ccb8ed6d6..c7968aecd870 100644
---- a/drivers/tty/goldfish.c
-+++ b/drivers/tty/goldfish.c
-@@ -405,6 +405,7 @@ static int goldfish_tty_probe(struct platform_device *pdev)
- err_tty_register_device_failed:
- 	free_irq(irq, qtty);
- err_dec_line_count:
-+	tty_port_destroy(&qtty->port);
- 	goldfish_tty_current_line_count--;
- 	if (goldfish_tty_current_line_count == 0)
- 		goldfish_tty_delete_driver();
-@@ -426,6 +427,7 @@ static int goldfish_tty_remove(struct platform_device *pdev)
- 	iounmap(qtty->base);
- 	qtty->base = NULL;
- 	free_irq(qtty->irq, pdev);
-+	tty_port_destroy(&qtty->port);
- 	goldfish_tty_current_line_count--;
- 	if (goldfish_tty_current_line_count == 0)
- 		goldfish_tty_delete_driver();
+diff --git a/drivers/pci/controller/pcie-rockchip-ep.c b/drivers/pci/controller/pcie-rockchip-ep.c
+index d743b0a48988..b82edefffd15 100644
+--- a/drivers/pci/controller/pcie-rockchip-ep.c
++++ b/drivers/pci/controller/pcie-rockchip-ep.c
+@@ -263,8 +263,7 @@ static int rockchip_pcie_ep_map_addr(struct pci_epc *epc, u8 fn,
+ 	struct rockchip_pcie *pcie = &ep->rockchip;
+ 	u32 r;
+ 
+-	r = find_first_zero_bit(&ep->ob_region_map,
+-				sizeof(ep->ob_region_map) * BITS_PER_LONG);
++	r = find_first_zero_bit(&ep->ob_region_map, BITS_PER_LONG);
+ 	/*
+ 	 * Region 0 is reserved for configuration space and shouldn't
+ 	 * be used elsewhere per TRM, so leave it out.
 -- 
 2.35.1
 
