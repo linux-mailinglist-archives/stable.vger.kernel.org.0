@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB285496B9
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1AE2548BBC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359336AbiFMN0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:26:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43864 "EHLO
+        id S1355277AbiFMLkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:40:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376296AbiFMNYx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:24:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FAC06C0EF;
-        Mon, 13 Jun 2022 04:24:20 -0700 (PDT)
+        with ESMTP id S1355491AbiFMLjB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C022C110;
+        Mon, 13 Jun 2022 03:48:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3F12B80EA7;
-        Mon, 13 Jun 2022 11:24:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C955C3411C;
-        Mon, 13 Jun 2022 11:24:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 722C9B80D41;
+        Mon, 13 Jun 2022 10:48:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF838C3411E;
+        Mon, 13 Jun 2022 10:48:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119457;
-        bh=fHAlRLI+3/lCqgz04xoSRTbSR4DvNtUqD7RhPAfiWzY=;
+        s=korg; t=1655117320;
+        bh=v7/epXFF8LQcY4QYLR+XievSCnhEzjfF5wdlYFjgeJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M53QXyH8Iq8UPB/qB0KlOeEMZYilbz9LegKIoNWm7Se4Ol/S3vgn7k1OLuESAyESy
-         p9LG09qmG5JmuOAi8Ky+K/cRuU8abCJbcYq3T8N9P+wYfvaPixBNxv3mtLol9q/s9X
-         WucX//sU0PSSNrJNA4vdF5FN0D8PHYePM2e+C+BY=
+        b=tPSWiOoF75CEgTzzzBLodpKVWi3nScW1ObkwdPkPzFs1aLWZIRkrf0T1ojAQpsAQ0
+         LfnebOJjU11SCQ07KdYv8X+DVfSIh32izJYLRq1BBra1utm57hYbFLMOSwYgW377Gc
+         LjjHCDWJTg57+MLTArUWydOAYiMUJxjaZAXPNVKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 004/339] soundwire: qcom: fix an error message in swrm_wait_for_frame_gen_enabled()
-Date:   Mon, 13 Jun 2022 12:07:09 +0200
-Message-Id: <20220613094926.638046148@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Kees Cook <keescook@chromium.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 4.19 006/287] ptrace: Reimplement PTRACE_KILL by always sending SIGKILL
+Date:   Mon, 13 Jun 2022 12:07:10 +0200
+Message-Id: <20220613094924.037819497@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit d146de3430d2b21054f6dc8a890f84062515f4d2 ]
+commit 6a2d90ba027adba528509ffa27097cffd3879257 upstream.
 
-The logical AND && is supposed to be bitwise AND & so it will sometimes
-print "connected" instead of "disconnected".
+The current implementation of PTRACE_KILL is buggy and has been for
+many years as it assumes it's target has stopped in ptrace_stop.  At a
+quick skim it looks like this assumption has existed since ptrace
+support was added in linux v1.0.
 
-Fixes: 74e79da9fd46 ("soundwire: qcom: add runtime pm support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20220307125814.GD16710@kili
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+While PTRACE_KILL has been deprecated we can not remove it as
+a quick search with google code search reveals many existing
+programs calling it.
+
+When the ptracee is not stopped at ptrace_stop some fields would be
+set that are ignored except in ptrace_stop.  Making the userspace
+visible behavior of PTRACE_KILL a noop in those case.
+
+As the usual rules are not obeyed it is not clear what the
+consequences are of calling PTRACE_KILL on a running process.
+Presumably userspace does not do this as it achieves nothing.
+
+Replace the implementation of PTRACE_KILL with a simple
+send_sig_info(SIGKILL) followed by a return 0.  This changes the
+observable user space behavior only in that PTRACE_KILL on a process
+not stopped in ptrace_stop will also kill it.  As that has always
+been the intent of the code this seems like a reasonable change.
+
+Cc: stable@vger.kernel.org
+Reported-by: Al Viro <viro@zeniv.linux.org.uk>
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Tested-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
+Link: https://lkml.kernel.org/r/20220505182645.497868-7-ebiederm@xmission.com
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soundwire/qcom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/step.c |    3 +--
+ kernel/ptrace.c        |    5 ++---
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
-index da1ad7ebb1aa..dd9f67f895b2 100644
---- a/drivers/soundwire/qcom.c
-+++ b/drivers/soundwire/qcom.c
-@@ -1452,7 +1452,7 @@ static bool swrm_wait_for_frame_gen_enabled(struct qcom_swrm_ctrl *swrm)
- 	} while (retry--);
+--- a/arch/x86/kernel/step.c
++++ b/arch/x86/kernel/step.c
+@@ -175,8 +175,7 @@ void set_task_blockstep(struct task_stru
+ 	 *
+ 	 * NOTE: this means that set/clear TIF_BLOCKSTEP is only safe if
+ 	 * task is current or it can't be running, otherwise we can race
+-	 * with __switch_to_xtra(). We rely on ptrace_freeze_traced() but
+-	 * PTRACE_KILL is not safe.
++	 * with __switch_to_xtra(). We rely on ptrace_freeze_traced().
+ 	 */
+ 	local_irq_disable();
+ 	debugctl = get_debugctlmsr();
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -1121,9 +1121,8 @@ int ptrace_request(struct task_struct *c
+ 		return ptrace_resume(child, request, data);
  
- 	dev_err(swrm->dev, "%s: link status not %s\n", __func__,
--		comp_sts && SWRM_FRM_GEN_ENABLED ? "connected" : "disconnected");
-+		comp_sts & SWRM_FRM_GEN_ENABLED ? "connected" : "disconnected");
+ 	case PTRACE_KILL:
+-		if (child->exit_state)	/* already dead */
+-			return 0;
+-		return ptrace_resume(child, request, SIGKILL);
++		send_sig_info(SIGKILL, SEND_SIG_NOINFO, child);
++		return 0;
  
- 	return false;
- }
--- 
-2.35.1
-
+ #ifdef CONFIG_HAVE_ARCH_TRACEHOOK
+ 	case PTRACE_GETREGSET:
 
 
