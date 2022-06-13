@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F14A54955F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE2E54917A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:28:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241917AbiFMKRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:17:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60260 "EHLO
+        id S1377604AbiFMNel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:34:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241918AbiFMKQj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:16:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 141E6E03B;
-        Mon, 13 Jun 2022 03:15:18 -0700 (PDT)
+        with ESMTP id S1377599AbiFMNdh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:33:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1A2172E0B;
+        Mon, 13 Jun 2022 04:26:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 466D26144E;
-        Mon, 13 Jun 2022 10:15:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D551C34114;
-        Mon, 13 Jun 2022 10:15:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4671560B6E;
+        Mon, 13 Jun 2022 11:26:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F4ACC341C4;
+        Mon, 13 Jun 2022 11:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115313;
-        bh=lvbxb7mAlb7/kG5niCqFw2s1N/0n9eUI4WHhmjAKwLs=;
+        s=korg; t=1655119617;
+        bh=BW0XEuoI8m9tE28jNunQyhVQ0FFH+oAiHIpWbkAgEyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1AnoGc+I7YHR2yElw+GwwKt5BeN985BoMmT/wqzzl2dQyGm9FPm8FHhMMtV/qeyy
-         VPq0QHAxC/7ZvwXE8VqBZakQJ1hmj2jPKkTMkobzsK/CrVQOhrosnYIF+f+kRaWwn3
-         jFvk92Hv+3T37Q/BFon15CKqS9FypaCsr+fj65RE=
+        b=KVqXIIacN3lS/+/QQ8zDfizxTLvof/n6yQEp7zU7MAq/2HFpwW7+/EpyORjN0g1tb
+         aqT/x/WJo1seSyOmZRLkYEsIYytoH2FxCD/MchRV2tOY3YCvvKC70qEAtILHL8vVIy
+         cMvTGkcxyHEEk6quFi/i4cxMJ7eMvsP5LsCc/9eA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        qianfan <qianfanguijin@163.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Zhang Wensheng <zhangwensheng5@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 029/167] fat: add ratelimit to fat*_ent_bread()
+Subject: [PATCH 5.18 078/339] driver core: fix deadlock in __device_attach
 Date:   Mon, 13 Jun 2022 12:08:23 +0200
-Message-Id: <20220613094847.640455968@linuxfoundation.org>
+Message-Id: <20220613094928.885407235@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Zhang Wensheng <zhangwensheng5@huawei.com>
 
-[ Upstream commit 183c3237c928109d2008c0456dff508baf692b20 ]
+[ Upstream commit b232b02bf3c205b13a26dcec08e53baddd8e59ed ]
 
-fat*_ent_bread() can be the cause of too many report on I/O error path.
-So use fat_msg_ratelimit() instead.
+In __device_attach function, The lock holding logic is as follows:
+...
+__device_attach
+device_lock(dev)      // get lock dev
+  async_schedule_dev(__device_attach_async_helper, dev); // func
+    async_schedule_node
+      async_schedule_node_domain(func)
+        entry = kzalloc(sizeof(struct async_entry), GFP_ATOMIC);
+	/* when fail or work limit, sync to execute func, but
+	   __device_attach_async_helper will get lock dev as
+	   well, which will lead to A-A deadlock.  */
+	if (!entry || atomic_read(&entry_count) > MAX_WORK) {
+	  func;
+	else
+	  queue_work_node(node, system_unbound_wq, &entry->work)
+  device_unlock(dev)
 
-Link: https://lkml.kernel.org/r/87bkxogfeq.fsf@mail.parknet.co.jp
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Reported-by: qianfan <qianfanguijin@163.com>
-Tested-by: qianfan <qianfanguijin@163.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+As shown above, when it is allowed to do async probes, because of
+out of memory or work limit, async work is not allowed, to do
+sync execute instead. it will lead to A-A deadlock because of
+__device_attach_async_helper getting lock dev.
+
+To fix the deadlock, move the async_schedule_dev outside device_lock,
+as we can see, in async_schedule_node_domain, the parameter of
+queue_work_node is system_unbound_wq, so it can accept concurrent
+operations. which will also not change the code logic, and will
+not lead to deadlock.
+
+Fixes: 765230b5f084 ("driver-core: add asynchronous probing support for drivers")
+Signed-off-by: Zhang Wensheng <zhangwensheng5@huawei.com>
+Link: https://lore.kernel.org/r/20220518074516.1225580-1-zhangwensheng5@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fat/fatent.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/base/dd.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/fat/fatent.c b/fs/fat/fatent.c
-index 0129d4d07a54..b0b1a71c07b7 100644
---- a/fs/fat/fatent.c
-+++ b/fs/fat/fatent.c
-@@ -92,7 +92,8 @@ static int fat12_ent_bread(struct super_block *sb, struct fat_entry *fatent,
- err_brelse:
- 	brelse(bhs[0]);
- err:
--	fat_msg(sb, KERN_ERR, "FAT read failed (blocknr %llu)", (llu)blocknr);
-+	fat_msg_ratelimit(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
-+			  (llu)blocknr);
- 	return -EIO;
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 3fc3b5940bb3..ed02a529a896 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -941,6 +941,7 @@ static void __device_attach_async_helper(void *_dev, async_cookie_t cookie)
+ static int __device_attach(struct device *dev, bool allow_async)
+ {
+ 	int ret = 0;
++	bool async = false;
+ 
+ 	device_lock(dev);
+ 	if (dev->p->dead) {
+@@ -979,7 +980,7 @@ static int __device_attach(struct device *dev, bool allow_async)
+ 			 */
+ 			dev_dbg(dev, "scheduling asynchronous probe\n");
+ 			get_device(dev);
+-			async_schedule_dev(__device_attach_async_helper, dev);
++			async = true;
+ 		} else {
+ 			pm_request_idle(dev);
+ 		}
+@@ -989,6 +990,8 @@ static int __device_attach(struct device *dev, bool allow_async)
+ 	}
+ out_unlock:
+ 	device_unlock(dev);
++	if (async)
++		async_schedule_dev(__device_attach_async_helper, dev);
+ 	return ret;
  }
  
-@@ -105,8 +106,8 @@ static int fat_ent_bread(struct super_block *sb, struct fat_entry *fatent,
- 	fatent->fat_inode = MSDOS_SB(sb)->fat_inode;
- 	fatent->bhs[0] = sb_bread(sb, blocknr);
- 	if (!fatent->bhs[0]) {
--		fat_msg(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
--		       (llu)blocknr);
-+		fat_msg_ratelimit(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
-+				  (llu)blocknr);
- 		return -EIO;
- 	}
- 	fatent->nr_bhs = 1;
 -- 
 2.35.1
 
