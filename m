@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E090549896
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BA5754888A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355018AbiFMLkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:40:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
+        id S1350891AbiFMLFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:05:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355583AbiFMLjQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AFC62408B;
-        Mon, 13 Jun 2022 03:49:03 -0700 (PDT)
+        with ESMTP id S1351726AbiFMLE4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:04:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF19727CC2;
+        Mon, 13 Jun 2022 03:33:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BABF46112A;
-        Mon, 13 Jun 2022 10:49:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CADEAC34114;
-        Mon, 13 Jun 2022 10:49:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50D3D60FFD;
+        Mon, 13 Jun 2022 10:33:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6067AC34114;
+        Mon, 13 Jun 2022 10:33:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117342;
-        bh=kFi8FSqGoOk15KA+28maHSnPzFxrYRhoHR+leMFLd8k=;
+        s=korg; t=1655116431;
+        bh=7v32VIHi+bnTgyc1ohffWIDjBE4jlxBrlnNUcO/jBT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xDtu1VyknV/7ACFD4dQxcRsw4ghjV2DojPElh28adrZdOdS9ei58wbq5X1FlZcEpo
-         kG0A2Kcr6LhTj0Mo/7RMxnjb7oZ2bTaF++EgmXhtDodXy67K/F0ajkK63nGAkJD8nF
-         ngRKdSS3EWhTNW2DcVjwpsT1WLTJ3ejgkxFV9ZKA=
+        b=OYBj2Xmsd3zF0T/+l2aueY2zI7MgEsB4V1iLhmB15OE0Ppji+d0HdIgD+TfGTKI4v
+         Sv9IOTL48DNFZofwlL3qvdJrUi4ngf/EHOf5npEKGzCHEJywNBHo5CqwiQerq5xO0O
+         5hAXB7aUoLv4VVi5HHSmXdweJMt1XvFdEsMAkcNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 359/411] net: ipv6: unexport __init-annotated seg6_hmac_init()
+Subject: [PATCH 4.14 174/218] net/mlx4_en: Fix wrong return value on ioctl EEPROM query failure
 Date:   Mon, 13 Jun 2022 12:10:32 +0200
-Message-Id: <20220613094939.459486488@linuxfoundation.org>
+Message-Id: <20220613094925.882868378@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Gal Pressman <gal@nvidia.com>
 
-[ Upstream commit 5801f064e35181c71857a80ff18af4dbec3c5f5c ]
+[ Upstream commit f5826c8c9d57210a17031af5527056eefdc2b7eb ]
 
-EXPORT_SYMBOL and __init is a bad combination because the .init.text
-section is freed up after the initialization. Hence, modules cannot
-use symbols annotated __init. The access to a freed symbol may end up
-with kernel panic.
+The ioctl EEPROM query wrongly returns success on read failures, fix
+that by returning the appropriate error code.
 
-modpost used to detect it, but it has been broken for a decade.
-
-Recently, I fixed modpost so it started to warn it again, then this
-showed up in linux-next builds.
-
-There are two ways to fix it:
-
-  - Remove __init
-  - Remove EXPORT_SYMBOL
-
-I chose the latter for this case because the caller (net/ipv6/seg6.c)
-and the callee (net/ipv6/seg6_hmac.c) belong to the same module.
-It seems an internal function call in ipv6.ko.
-
-Fixes: bf355b8d2c30 ("ipv6: sr: add core files for SR HMAC support")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: 7202da8b7f71 ("ethtool, net/mlx4_en: Cable info, get_module_info/eeprom ethtool support")
+Signed-off-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Link: https://lore.kernel.org/r/20220606115718.14233-1-tariqt@nvidia.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/seg6_hmac.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/en_ethtool.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/seg6_hmac.c b/net/ipv6/seg6_hmac.c
-index ffcfcd2b128f..a4cad71c4204 100644
---- a/net/ipv6/seg6_hmac.c
-+++ b/net/ipv6/seg6_hmac.c
-@@ -401,7 +401,6 @@ int __init seg6_hmac_init(void)
- {
- 	return seg6_hmac_init_algo();
- }
--EXPORT_SYMBOL(seg6_hmac_init);
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+index 565e1ac241aa..cca7aaf03777 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+@@ -2055,7 +2055,7 @@ static int mlx4_en_get_module_eeprom(struct net_device *dev,
+ 			en_err(priv,
+ 			       "mlx4_get_module_info i(%d) offset(%d) bytes_to_read(%d) - FAILED (0x%x)\n",
+ 			       i, offset, ee->len - i, ret);
+-			return 0;
++			return ret;
+ 		}
  
- int __net_init seg6_hmac_net_init(struct net *net)
- {
+ 		i += ret;
 -- 
 2.35.1
 
