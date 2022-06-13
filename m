@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 335DB5486BA
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C20D5486AB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236074AbiFMKTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:19:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58356 "EHLO
+        id S1378561AbiFMNlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:41:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243045AbiFMKTA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:19:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7497D132;
-        Mon, 13 Jun 2022 03:16:42 -0700 (PDT)
+        with ESMTP id S1379192AbiFMNkB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:01 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CABA2737;
+        Mon, 13 Jun 2022 04:29:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75FD36066C;
-        Mon, 13 Jun 2022 10:16:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 827A1C34114;
-        Mon, 13 Jun 2022 10:16:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 910A6CE116E;
+        Mon, 13 Jun 2022 11:29:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EF61C34114;
+        Mon, 13 Jun 2022 11:29:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115401;
-        bh=b9fvL+Aln/GyyXZsWK12ZQBLHcA2LKsCkHVZHZoRrhg=;
+        s=korg; t=1655119783;
+        bh=Peq5gzmdgmG8DJ+CvcqQLnVGG1RKzHTqlFTjY4iQTVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0KG/S13ePBoDh3AwFwIIL4j1ov+aDEALnaCS5ube2sNJ1r1fJXPM7i9cT1TVRaRRb
-         Yg8Wqvd9cD+d005fiP9t1dKLdxFo3QmuZon1Ttn5W1K/U5pdDlaNa+VPF9Ip+Jcopw
-         nmtxpN+PCn/HhN5uJGK9MJJSLd6c12RwAwdGfOMs=
+        b=secNZcA+u4QapCBnaM3KvohPgvWAHmA+FjQ8Y1w4rBgz96YT1aX1FFQkoXTJUkZlA
+         yl0dZuoWqOc3dZIZD6WVhQNq4HhX+cQboPVCtVSMlBBINv2+UmXEESI37SPBsFkKCp
+         JdApHyWjaTo6JGlzoBpwcvZgpg/O4T+53ymFw0ys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Vlad Yasevich <vyasevich@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Heinrich Schuchardt <heinrich.schuchardt@canonical.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 059/167] sctp: read sk->sk_bound_dev_if once in sctp_rcv()
+Subject: [PATCH 5.18 108/339] riscv: read-only pages should not be writable
 Date:   Mon, 13 Jun 2022 12:08:53 +0200
-Message-Id: <20220613094854.726968989@linuxfoundation.org>
+Message-Id: <20220613094929.786589730@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,47 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
 
-[ Upstream commit a20ea298071f46effa3aaf965bf9bb34c901db3f ]
+[ Upstream commit 630f972d76d6460235e84e1aa034ee06f9c8c3a9 ]
 
-sctp_rcv() reads sk->sk_bound_dev_if twice while the socket
-is not locked. Another cpu could change this field under us.
+If EFI pages are marked as read-only,
+we should remove the _PAGE_WRITE flag.
 
-Fixes: 0fd9a65a76e8 ("[SCTP] Support SO_BINDTODEVICE socket option on incoming packets.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>
-Cc: Vlad Yasevich <vyasevich@gmail.com>
-Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The current code overwrites an unused value.
+
+Fixes: b91540d52a08b ("RISC-V: Add EFI runtime services")
+Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+Link: https://lore.kernel.org/r/20220528014132.91052-1-heinrich.schuchardt@canonical.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/input.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/riscv/kernel/efi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sctp/input.c b/net/sctp/input.c
-index 9c1670b4a687..ed3a8a66a00b 100644
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -103,6 +103,7 @@ int sctp_rcv(struct sk_buff *skb)
- 	struct sctp_chunk *chunk;
- 	union sctp_addr src;
- 	union sctp_addr dest;
-+	int bound_dev_if;
- 	int family;
- 	struct sctp_af *af;
- 	struct net *net = dev_net(skb->dev);
-@@ -180,7 +181,8 @@ int sctp_rcv(struct sk_buff *skb)
- 	 * If a frame arrives on an interface and the receiving socket is
- 	 * bound to another interface, via SO_BINDTODEVICE, treat it as OOTB
- 	 */
--	if (sk->sk_bound_dev_if && (sk->sk_bound_dev_if != af->skb_iif(skb))) {
-+	bound_dev_if = READ_ONCE(sk->sk_bound_dev_if);
-+	if (bound_dev_if && (bound_dev_if != af->skb_iif(skb))) {
- 		if (transport) {
- 			sctp_transport_put(transport);
- 			asoc = NULL;
+diff --git a/arch/riscv/kernel/efi.c b/arch/riscv/kernel/efi.c
+index 024159298231..1aa540350abd 100644
+--- a/arch/riscv/kernel/efi.c
++++ b/arch/riscv/kernel/efi.c
+@@ -65,7 +65,7 @@ static int __init set_permissions(pte_t *ptep, unsigned long addr, void *data)
+ 
+ 	if (md->attribute & EFI_MEMORY_RO) {
+ 		val = pte_val(pte) & ~_PAGE_WRITE;
+-		val = pte_val(pte) | _PAGE_READ;
++		val |= _PAGE_READ;
+ 		pte = __pte(val);
+ 	}
+ 	if (md->attribute & EFI_MEMORY_XP) {
 -- 
 2.35.1
 
