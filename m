@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB55B548E59
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:18:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5DC549797
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343795AbiFMKe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:34:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42486 "EHLO
+        id S1352657AbiFMLSs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:18:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345721AbiFMKeP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:34:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F044C286E3;
-        Mon, 13 Jun 2022 03:22:12 -0700 (PDT)
+        with ESMTP id S1352627AbiFMLQ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9472C38BF9;
+        Mon, 13 Jun 2022 03:40:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D7FFACE110D;
-        Mon, 13 Jun 2022 10:22:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3710C34114;
-        Mon, 13 Jun 2022 10:22:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0B15B80EA3;
+        Mon, 13 Jun 2022 10:40:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D5A9C3411C;
+        Mon, 13 Jun 2022 10:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115729;
-        bh=RQluPmYHOV3fRYT/7l8Wo+g7owSWwDJ1SpMivkcpJYI=;
+        s=korg; t=1655116810;
+        bh=MU2+vNNvD/C4Et7c0mjGwxnPA8RogRxCydOV6Jl+oY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGSrUarTPYx18Nk2RDakTkEczmuYdaDbVcoZgSAVRrlMcR1r0H4i31QFC82gsLI36
-         QRSfgUHCPboScfyJTAexS110dAdyGJYYZrBD7lW4fTwwHYoP7S6ThEsU4kmq05xnCw
-         VUwdkj+Y5697LQAVgGGObwOx28RbeuKTaNxupfgA=
+        b=Eg+nkekb1nHCLOXXkwF8QtLMN9fNmw1nL4wy1tRinVKsjxbGrx2CzIFgPxfEBFzgU
+         vesG1VR7E0rnemEhk3RV4zErCo/TAAbwXkXx9NheNV7RkWHkGqUs+6dvApd2cSPlr/
+         Z2plP+ySpd8FOKqVVp3i2D2GLnAjwH3bq8Pyu8gI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Zixian <liuzixian4@huawei.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B6rn=20Ard=C3=B6?= <bjorn.ardo@axis.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 008/218] drm/virtio: fix NULL pointer dereference in virtio_gpu_conn_get_modes
+Subject: [PATCH 5.4 193/411] mailbox: forward the hrtimer if not queued and under a lock
 Date:   Mon, 13 Jun 2022 12:07:46 +0200
-Message-Id: <20220613094910.321048817@linuxfoundation.org>
+Message-Id: <20220613094934.448101736@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,86 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Zixian <liuzixian4@huawei.com>
+From: Björn Ardö <bjorn.ardo@axis.com>
 
-[ Upstream commit 194d250cdc4a40ccbd179afd522a9e9846957402 ]
+[ Upstream commit bca1a1004615efe141fd78f360ecc48c60bc4ad5 ]
 
-drm_cvt_mode may return NULL and we should check it.
+This reverts commit c7dacf5b0f32957b24ef29df1207dc2cd8307743,
+"mailbox: avoid timer start from callback"
 
-This bug is found by syzkaller:
+The previous commit was reverted since it lead to a race that
+caused the hrtimer to not be started at all. The check for
+hrtimer_active() in msg_submit() will return true if the
+callback function txdone_hrtimer() is currently running. This
+function could return HRTIMER_NORESTART and then the timer
+will not be restarted, and also msg_submit() will not start
+the timer. This will lead to a message actually being submitted
+but no timer will start to check for its compleation.
 
-FAULT_INJECTION stacktrace:
-[  168.567394] FAULT_INJECTION: forcing a failure.
-name failslab, interval 1, probability 0, space 0, times 1
-[  168.567403] CPU: 1 PID: 6425 Comm: syz Kdump: loaded Not tainted 4.19.90-vhulk2201.1.0.h1035.kasan.eulerosv2r10.aarch64 #1
-[  168.567406] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
-[  168.567408] Call trace:
-[  168.567414]  dump_backtrace+0x0/0x310
-[  168.567418]  show_stack+0x28/0x38
-[  168.567423]  dump_stack+0xec/0x15c
-[  168.567427]  should_fail+0x3ac/0x3d0
-[  168.567437]  __should_failslab+0xb8/0x120
-[  168.567441]  should_failslab+0x28/0xc0
-[  168.567445]  kmem_cache_alloc_trace+0x50/0x640
-[  168.567454]  drm_mode_create+0x40/0x90
-[  168.567458]  drm_cvt_mode+0x48/0xc78
-[  168.567477]  virtio_gpu_conn_get_modes+0xa8/0x140 [virtio_gpu]
-[  168.567485]  drm_helper_probe_single_connector_modes+0x3a4/0xd80
-[  168.567492]  drm_mode_getconnector+0x2e0/0xa70
-[  168.567496]  drm_ioctl_kernel+0x11c/0x1d8
-[  168.567514]  drm_ioctl+0x558/0x6d0
-[  168.567522]  do_vfs_ioctl+0x160/0xf30
-[  168.567525]  ksys_ioctl+0x98/0xd8
-[  168.567530]  __arm64_sys_ioctl+0x50/0xc8
-[  168.567536]  el0_svc_common+0xc8/0x320
-[  168.567540]  el0_svc_handler+0xf8/0x160
-[  168.567544]  el0_svc+0x10/0x218
+The original fix that added checking hrtimer_active() was added to
+avoid a warning with hrtimer_forward. Looking in the kernel
+another solution to avoid this warning is to check hrtimer_is_queued()
+before calling hrtimer_forward_now() instead. This however requires a
+lock so the timer is not started by msg_submit() inbetween this check
+and the hrtimer_forward() call.
 
-KASAN stacktrace:
-[  168.567561] BUG: KASAN: null-ptr-deref in virtio_gpu_conn_get_modes+0xb4/0x140 [virtio_gpu]
-[  168.567565] Read of size 4 at addr 0000000000000054 by task syz/6425
-[  168.567566]
-[  168.567571] CPU: 1 PID: 6425 Comm: syz Kdump: loaded Not tainted 4.19.90-vhulk2201.1.0.h1035.kasan.eulerosv2r10.aarch64 #1
-[  168.567573] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
-[  168.567575] Call trace:
-[  168.567578]  dump_backtrace+0x0/0x310
-[  168.567582]  show_stack+0x28/0x38
-[  168.567586]  dump_stack+0xec/0x15c
-[  168.567591]  kasan_report+0x244/0x2f0
-[  168.567594]  __asan_load4+0x58/0xb0
-[  168.567607]  virtio_gpu_conn_get_modes+0xb4/0x140 [virtio_gpu]
-[  168.567612]  drm_helper_probe_single_connector_modes+0x3a4/0xd80
-[  168.567617]  drm_mode_getconnector+0x2e0/0xa70
-[  168.567621]  drm_ioctl_kernel+0x11c/0x1d8
-[  168.567624]  drm_ioctl+0x558/0x6d0
-[  168.567628]  do_vfs_ioctl+0x160/0xf30
-[  168.567632]  ksys_ioctl+0x98/0xd8
-[  168.567636]  __arm64_sys_ioctl+0x50/0xc8
-[  168.567641]  el0_svc_common+0xc8/0x320
-[  168.567645]  el0_svc_handler+0xf8/0x160
-[  168.567649]  el0_svc+0x10/0x218
-
-Signed-off-by: Liu Zixian <liuzixian4@huawei.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220322091730.1653-1-liuzixian4@huawei.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Fixes: c7dacf5b0f32 ("mailbox: avoid timer start from callback")
+Signed-off-by: Björn Ardö <bjorn.ardo@axis.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_display.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mailbox/mailbox.c          | 19 +++++++++++++------
+ include/linux/mailbox_controller.h |  1 +
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index b6d52055a11f..3a5f73bc2a37 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -187,6 +187,8 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
- 		DRM_DEBUG("add mode: %dx%d\n", width, height);
- 		mode = drm_cvt_mode(connector->dev, width, height, 60,
- 				    false, false, false);
-+		if (!mode)
-+			return count;
- 		mode->type |= DRM_MODE_TYPE_PREFERRED;
- 		drm_mode_probed_add(connector, mode);
- 		count++;
+diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
+index 3e7d4b20ab34..4229b9b5da98 100644
+--- a/drivers/mailbox/mailbox.c
++++ b/drivers/mailbox/mailbox.c
+@@ -82,11 +82,11 @@ static void msg_submit(struct mbox_chan *chan)
+ exit:
+ 	spin_unlock_irqrestore(&chan->lock, flags);
+ 
+-	/* kick start the timer immediately to avoid delays */
+ 	if (!err && (chan->txdone_method & TXDONE_BY_POLL)) {
+-		/* but only if not already active */
+-		if (!hrtimer_active(&chan->mbox->poll_hrt))
+-			hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
++		/* kick start the timer immediately to avoid delays */
++		spin_lock_irqsave(&chan->mbox->poll_hrt_lock, flags);
++		hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
++		spin_unlock_irqrestore(&chan->mbox->poll_hrt_lock, flags);
+ 	}
+ }
+ 
+@@ -120,20 +120,26 @@ static enum hrtimer_restart txdone_hrtimer(struct hrtimer *hrtimer)
+ 		container_of(hrtimer, struct mbox_controller, poll_hrt);
+ 	bool txdone, resched = false;
+ 	int i;
++	unsigned long flags;
+ 
+ 	for (i = 0; i < mbox->num_chans; i++) {
+ 		struct mbox_chan *chan = &mbox->chans[i];
+ 
+ 		if (chan->active_req && chan->cl) {
+-			resched = true;
+ 			txdone = chan->mbox->ops->last_tx_done(chan);
+ 			if (txdone)
+ 				tx_tick(chan, 0);
++			else
++				resched = true;
+ 		}
+ 	}
+ 
+ 	if (resched) {
+-		hrtimer_forward_now(hrtimer, ms_to_ktime(mbox->txpoll_period));
++		spin_lock_irqsave(&mbox->poll_hrt_lock, flags);
++		if (!hrtimer_is_queued(hrtimer))
++			hrtimer_forward_now(hrtimer, ms_to_ktime(mbox->txpoll_period));
++		spin_unlock_irqrestore(&mbox->poll_hrt_lock, flags);
++
+ 		return HRTIMER_RESTART;
+ 	}
+ 	return HRTIMER_NORESTART;
+@@ -500,6 +506,7 @@ int mbox_controller_register(struct mbox_controller *mbox)
+ 		hrtimer_init(&mbox->poll_hrt, CLOCK_MONOTONIC,
+ 			     HRTIMER_MODE_REL);
+ 		mbox->poll_hrt.function = txdone_hrtimer;
++		spin_lock_init(&mbox->poll_hrt_lock);
+ 	}
+ 
+ 	for (i = 0; i < mbox->num_chans; i++) {
+diff --git a/include/linux/mailbox_controller.h b/include/linux/mailbox_controller.h
+index 36d6ce673503..6fee33cb52f5 100644
+--- a/include/linux/mailbox_controller.h
++++ b/include/linux/mailbox_controller.h
+@@ -83,6 +83,7 @@ struct mbox_controller {
+ 				      const struct of_phandle_args *sp);
+ 	/* Internal to API */
+ 	struct hrtimer poll_hrt;
++	spinlock_t poll_hrt_lock;
+ 	struct list_head node;
+ };
+ 
 -- 
 2.35.1
 
