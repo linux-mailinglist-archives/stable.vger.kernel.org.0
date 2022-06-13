@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28640548BF2
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0112548BDC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357015AbiFMLzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:55:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57128 "EHLO
+        id S1381287AbiFMOIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357043AbiFMLwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:52:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7ABF220C1;
-        Mon, 13 Jun 2022 03:55:27 -0700 (PDT)
+        with ESMTP id S1382367AbiFMOFr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94186939D7;
+        Mon, 13 Jun 2022 04:40:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82CB5B80EAA;
-        Mon, 13 Jun 2022 10:55:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA102C34114;
-        Mon, 13 Jun 2022 10:55:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6690E612E9;
+        Mon, 13 Jun 2022 11:40:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73C8FC34114;
+        Mon, 13 Jun 2022 11:40:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117725;
-        bh=b322/1BkvgbHz4jnXSytj74Ne1OwGJ8tk3k1Vru9dvs=;
+        s=korg; t=1655120423;
+        bh=/TBjeYpkzCFVk4aqwV047MV/124Kf0KH7y124ulAzEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qCPwaN+UG+AJd/W9Fil/+4ErfixOAgpeFZmI9zr0FO45kGU13y3tHe2C5ZU0S4nGK
-         lfkgHCsnA4bxlh766wJoKucp1BqSDq8vuq6XV+ovlyOm6+n9PoGKQ5uba5Qym7wJzx
-         4BkFzPaPPGaQLpdl+zqciYVnqFDrA+ATjaAQ+tTc=
+        b=E+PO5n0+8yFnh7L+mTlHjd041h/JJziJAKNKYrenZfQZrZHAGx2waXcTLZMzxDX5A
+         itV/K/518bP7qM6oz+TS8qw8lrNZTPbwpQHzH5Ze+ifRAiMrwbLP6uSIqcOTceaXpf
+         +FY3sIGQhypj/GsS/NnHhVB/JueC88O92DT0bwbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 097/287] media: exynos4-is: Change clk_disable to clk_disable_unprepare
-Date:   Mon, 13 Jun 2022 12:08:41 +0200
-Message-Id: <20220613094926.820919370@linuxfoundation.org>
+Subject: [PATCH 5.17 028/298] rpmsg: virtio: Fix possible double free in rpmsg_virtio_add_ctrl_dev()
+Date:   Mon, 13 Jun 2022 12:08:42 +0200
+Message-Id: <20220613094925.784011360@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 9fadab72a6916c7507d7fedcd644859eef995078 ]
+[ Upstream commit 1680939e9ecf7764fba8689cfb3429c2fe2bb23c ]
 
-The corresponding API for clk_prepare_enable is clk_disable_unprepare,
-other than clk_disable.
+vch will be free in virtio_rpmsg_release_device() when
+rpmsg_ctrldev_register_device() fails. There is no need to call
+kfree() again.
 
-Fix this by changing clk_disable to clk_disable_unprepare.
-
-Fixes: b4155d7d5b2c ("[media] exynos4-is: Ensure fimc-is clocks are not enabled until properly configured")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: c486682ae1e2 ("rpmsg: virtio: Register the rpmsg_char device")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Tested-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
+Link: https://lore.kernel.org/r/20220426060536.15594-3-hbh25y@gmail.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-is.c | 2 +-
+ drivers/rpmsg/virtio_rpmsg_bus.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
-index 0fe9be93fabe..0f3f82bd4d20 100644
---- a/drivers/media/platform/exynos4-is/fimc-is.c
-+++ b/drivers/media/platform/exynos4-is/fimc-is.c
-@@ -144,7 +144,7 @@ static int fimc_is_enable_clocks(struct fimc_is *is)
- 			dev_err(&is->pdev->dev, "clock %s enable failed\n",
- 				fimc_is_clocks[i]);
- 			for (--i; i >= 0; i--)
--				clk_disable(is->clocks[i]);
-+				clk_disable_unprepare(is->clocks[i]);
- 			return ret;
- 		}
- 		pr_debug("enabled clock: %s\n", fimc_is_clocks[i]);
+diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+index 1c39e9c4fa02..99e0de65733a 100644
+--- a/drivers/rpmsg/virtio_rpmsg_bus.c
++++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+@@ -851,7 +851,7 @@ static struct rpmsg_device *rpmsg_virtio_add_ctrl_dev(struct virtio_device *vdev
+ 
+ 	err = rpmsg_chrdev_register_device(rpdev_ctrl);
+ 	if (err) {
+-		kfree(vch);
++		/* vch will be free in virtio_rpmsg_release_device() */
+ 		return ERR_PTR(err);
+ 	}
+ 
 -- 
 2.35.1
 
