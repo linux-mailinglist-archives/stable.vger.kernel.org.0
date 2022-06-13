@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B906548B86
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9792054976C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383805AbiFMO1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:27:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56886 "EHLO
+        id S1353380AbiFMML5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:11:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384313AbiFMOZO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:25:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA402120A8;
-        Mon, 13 Jun 2022 04:46:56 -0700 (PDT)
+        with ESMTP id S1353816AbiFMMJz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:09:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97997532CE;
+        Mon, 13 Jun 2022 04:00:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF33A612A8;
-        Mon, 13 Jun 2022 11:46:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E112C36AFF;
-        Mon, 13 Jun 2022 11:46:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65F41B80EA7;
+        Mon, 13 Jun 2022 11:00:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B61A3C3411C;
+        Mon, 13 Jun 2022 11:00:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120815;
-        bh=MHenFnE2pLPUBKWsyxRWbIrZeJe3kvJNDY7XN5fGMQE=;
+        s=korg; t=1655118039;
+        bh=am04AjD6owRvnb+LGNB0GWp0pAqfo+ZlLBOerBB7Xe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jqrE1mEIV85swuDjPS1Vu710bm/APFMeQiLvEdnDnuLqLrY7wE5mFKlz9FybX1Nt9
-         OkiWezpri3xj9HPkjk2gi9UrhnF6ZipwWx8hM2NcwWPK+vwp7bOWmDdH6QKA/hRKF+
-         wjFP93umPpjjF99e0t3LiBXJcrrgwHXjU/4HuztM=
+        b=KW0hIOWHec03gc3rHIvevK/IwGzafCPBTk18NnviEXeg+goVBcXnLbNCQZyHAKRKm
+         DHP2HbERMQsDXqT5rtpYlUK4ZWFuqhjxF2OgjFjOiEitEKKGrpQsqI8hJdThxdj/Ck
+         44DldnC+ijbgw5KlpU/vuV4ToDA5xve5r1Ewi6dY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+763ae12a2ede1d99d4dc@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Romain Naour <romain.naour@smile.fr>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 143/298] f2fs: remove WARN_ON in f2fs_is_valid_blkaddr
+Subject: [PATCH 4.19 213/287] bus: ti-sysc: Fix warnings for unbind for serial
 Date:   Mon, 13 Jun 2022 12:10:37 +0200
-Message-Id: <20220613094929.278447752@linuxfoundation.org>
+Message-Id: <20220613094930.321973001@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit dc2f78e2d4cc844a1458653d57ce1b54d4a29f21 ]
+[ Upstream commit c337125b8834f9719dfda0e40b25eaa266f1b8cf ]
 
-Syzbot triggers two WARNs in f2fs_is_valid_blkaddr and
-__is_bitmap_valid. For example, in f2fs_is_valid_blkaddr,
-if type is DATA_GENERIC_ENHANCE or DATA_GENERIC_ENHANCE_READ,
-it invokes WARN_ON if blkaddr is not in the right range.
-The call trace is as follows:
+We can get "failed to disable" clock_unprepare warnings on unbind at least
+for the serial console device if the unbind is done before the device has
+been idled.
 
- f2fs_get_node_info+0x45f/0x1070
- read_node_page+0x577/0x1190
- __get_node_page.part.0+0x9e/0x10e0
- __get_node_page
- f2fs_get_node_page+0x109/0x180
- do_read_inode
- f2fs_iget+0x2a5/0x58b0
- f2fs_fill_super+0x3b39/0x7ca0
+As some devices are using deferred idle, we must check the status for
+pending idle work to idle the device.
 
-Fix these two WARNs by replacing WARN_ON with dump_stack.
-
-Reported-by: syzbot+763ae12a2ede1d99d4dc@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 76f0f772e469 ("bus: ti-sysc: Improve handling for no-reset-on-init and no-idle-on-init")
+Cc: Romain Naour <romain.naour@smile.fr>
+Reviewed-by: Romain Naour <romain.naour@smile.fr>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20220512053021.61650-1-tony@atomide.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/bus/ti-sysc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index bf3ba85cf325..1438ae53c73c 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -151,7 +151,7 @@ static bool __is_bitmap_valid(struct f2fs_sb_info *sbi, block_t blkaddr,
- 		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
- 			 blkaddr, exist);
- 		set_sbi_flag(sbi, SBI_NEED_FSCK);
--		WARN_ON(1);
-+		dump_stack();
- 	}
- 	return exist;
- }
-@@ -189,7 +189,7 @@ bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
- 			f2fs_warn(sbi, "access invalid blkaddr:%u",
- 				  blkaddr);
- 			set_sbi_flag(sbi, SBI_NEED_FSCK);
--			WARN_ON(1);
-+			dump_stack();
- 			return false;
- 		} else {
- 			return __is_bitmap_valid(sbi, blkaddr, type);
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index b6a278183d82..bc274ddb9767 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -1801,7 +1801,9 @@ static int sysc_remove(struct platform_device *pdev)
+ 	struct sysc *ddata = platform_get_drvdata(pdev);
+ 	int error;
+ 
+-	cancel_delayed_work_sync(&ddata->idle_work);
++	/* Device can still be enabled, see deferred idle quirk in probe */
++	if (cancel_delayed_work_sync(&ddata->idle_work))
++		ti_sysc_idle(&ddata->idle_work.work);
+ 
+ 	error = pm_runtime_get_sync(ddata->dev);
+ 	if (error < 0) {
 -- 
 2.35.1
 
