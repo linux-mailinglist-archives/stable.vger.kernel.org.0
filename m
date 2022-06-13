@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24F8654927B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 531E3549895
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351967AbiFMMaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:30:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41716 "EHLO
+        id S1378833AbiFMNnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:43:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357543AbiFMM3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:29:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D0CD5A0AF;
-        Mon, 13 Jun 2022 04:06:30 -0700 (PDT)
+        with ESMTP id S1378507AbiFMNlp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:41:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C7E237F2;
+        Mon, 13 Jun 2022 04:31:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04C48614C2;
-        Mon, 13 Jun 2022 11:06:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11B42C34114;
-        Mon, 13 Jun 2022 11:06:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A2B4B80EA7;
+        Mon, 13 Jun 2022 11:31:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9101FC34114;
+        Mon, 13 Jun 2022 11:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118372;
-        bh=mL6C1DX/Ktb08hsDba1q4maU6PL1heSR9WrgZwONHAM=;
+        s=korg; t=1655119875;
+        bh=yDpd7oAWsynJGccSydOf6o7OH6T+QbeLge5NLgiCdfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bV6KhMfWpe+iTkfkPZqJ1XclWbGGPHg0yzHUjfjPO0g25SXXUTNeafC2gTfBs4/co
-         sQ65iE6utNf6XMSe/vgqoZHxioYZmZt9QEg61GHOyuVnfA0b27r5w5MlQByj3i5eV0
-         v807hk46PN8d4m/yVnGP5yKRgn2veZi6rVh75IKk=
+        b=ZGWfkDQo+mykqO8dT+B63hxJ/+u+6tzBHp8K2cF6mSjmR3gjf4ReI8P4HDzI9QmUP
+         Wa2OJxjePEomYwpDyYizGjAFt4GjrgyM9yvBoynl7xNTo1bTlvdhZpHrLQXsOiEYK2
+         r/6tjdU/WjjiKTsb0iSMPwNETh3Uc0eTIs0HaW6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manivannan Sadhasivam <mani@kernel.org>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        stable@vger.kernel.org,
+        Saurabh Sengar <ssengar@linux.microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>, Helge Deller <deller@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/172] serial: rda-uart: Dont allow CS5-6
+Subject: [PATCH 5.18 170/339] video: fbdev: hyperv_fb: Allow resolutions with size > 64 MB for Gen1
 Date:   Mon, 13 Jun 2022 12:09:55 +0200
-Message-Id: <20220613094858.833671250@linuxfoundation.org>
+Message-Id: <20220613094931.835421989@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Saurabh Sengar <ssengar@linux.microsoft.com>
 
-[ Upstream commit 098333a9c7d12bb3ce44c82f08b4d810c44d31b0 ]
+[ Upstream commit c4b4d7047f16a8d138ce76da65faefb7165736f2 ]
 
-Only CS7 and CS8 are supported but CSIZE is not sanitized after
-fallthrough from CS5 or CS6 to CS7.
+This patch fixes a bug where GEN1 VMs doesn't allow resolutions greater
+than 64 MB size (eg 7680x4320). Unnecessary PCI check limits Gen1 VRAM
+to legacy PCI BAR size only (ie 64MB). Thus any, resolution requesting
+greater then 64MB (eg 7680x4320) would fail. MMIO region assigning this
+memory shouldn't be limited by PCI bar size.
 
-Set CSIZE correctly so that userspace knows the effective value.
-Incorrect CSIZE also results in miscalculation of the frame bits in
-tty_get_char_size() or in its predecessor where the roughly the same
-code is directly within uart_update_timeout().
-
-Fixes: c10b13325ced (tty: serial: Add RDA8810PL UART driver)
-Cc: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220519081808.3776-4-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/rda-uart.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/video/fbdev/hyperv_fb.c | 19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
 
-diff --git a/drivers/tty/serial/rda-uart.c b/drivers/tty/serial/rda-uart.c
-index 85366e059258..a45069e7ebea 100644
---- a/drivers/tty/serial/rda-uart.c
-+++ b/drivers/tty/serial/rda-uart.c
-@@ -262,6 +262,8 @@ static void rda_uart_set_termios(struct uart_port *port,
- 		fallthrough;
- 	case CS7:
- 		ctrl &= ~RDA_UART_DBITS_8;
-+		termios->c_cflag &= ~CSIZE;
-+		termios->c_cflag |= CS7;
- 		break;
- 	default:
- 		ctrl |= RDA_UART_DBITS_8;
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index c8e0ea27caf1..58c304a3b7c4 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -1009,7 +1009,6 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 	struct pci_dev *pdev  = NULL;
+ 	void __iomem *fb_virt;
+ 	int gen2vm = efi_enabled(EFI_BOOT);
+-	resource_size_t pot_start, pot_end;
+ 	phys_addr_t paddr;
+ 	int ret;
+ 
+@@ -1060,23 +1059,7 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 	dio_fb_size =
+ 		screen_width * screen_height * screen_depth / 8;
+ 
+-	if (gen2vm) {
+-		pot_start = 0;
+-		pot_end = -1;
+-	} else {
+-		if (!(pci_resource_flags(pdev, 0) & IORESOURCE_MEM) ||
+-		    pci_resource_len(pdev, 0) < screen_fb_size) {
+-			pr_err("Resource not available or (0x%lx < 0x%lx)\n",
+-			       (unsigned long) pci_resource_len(pdev, 0),
+-			       (unsigned long) screen_fb_size);
+-			goto err1;
+-		}
+-
+-		pot_end = pci_resource_end(pdev, 0);
+-		pot_start = pot_end - screen_fb_size + 1;
+-	}
+-
+-	ret = vmbus_allocate_mmio(&par->mem, hdev, pot_start, pot_end,
++	ret = vmbus_allocate_mmio(&par->mem, hdev, 0, -1,
+ 				  screen_fb_size, 0x100000, true);
+ 	if (ret != 0) {
+ 		pr_err("Unable to allocate framebuffer memory\n");
 -- 
 2.35.1
 
