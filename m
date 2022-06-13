@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B04549269
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA49D549646
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241281AbiFMNAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:00:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49936 "EHLO
+        id S1349231AbiFMK5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:57:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356193AbiFMM4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:56:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F4113D08;
-        Mon, 13 Jun 2022 04:17:11 -0700 (PDT)
+        with ESMTP id S1350332AbiFMKyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B016316;
+        Mon, 13 Jun 2022 03:30:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0825FB80D31;
-        Mon, 13 Jun 2022 11:17:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3375AC36AFE;
-        Mon, 13 Jun 2022 11:17:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1CBA60FB1;
+        Mon, 13 Jun 2022 10:30:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00BDDC34114;
+        Mon, 13 Jun 2022 10:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119028;
-        bh=krgTrEnmGtku2UsuLCKD1KWXr3Zj+p5LhNcEzz+llsI=;
+        s=korg; t=1655116256;
+        bh=tS0gZGUQObh3dApJFd9/h5kZz3OdFeiVaU0oFY6zZLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gEB0KW8Jgbj5PAoowTnJxr4IHBEQBSEQzLHkwZDaBpnkrN4ohdea+WSSMZw/YRXuB
-         H8pk5GTYMJH7UtL+Ah7L22cMj85B0U8qjpfTn8MlDcTgb+mxRrFPWtx9ftKTYaaBwu
-         rAbZcgUINz2/G0QY1MrfuYTmvgN0s00iAdlVP0Ss=
+        b=ZuDx6BHzrgZW//wYRgeL0NNkiqb87jcMfkfYhleF9UK4ESTdI0OtDqOXB0NUA9NdJ
+         4QEOYr0xYBiMglAm2ZVl7D2o1ozQwg/yBdBugZ3y0YHlDYN4z193J9H6egn7uGvnsI
+         EZF8mmePx/7//3WwTBmk+RgCORwKek/YqhIyrt+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 115/247] tracing: Avoid adding tracer option before update_tracer_options
+Subject: [PATCH 4.14 159/218] net: dsa: mv88e6xxx: Fix refcount leak in mv88e6xxx_mdios_register
 Date:   Mon, 13 Jun 2022 12:10:17 +0200
-Message-Id: <20220613094926.451660654@linuxfoundation.org>
+Message-Id: <20220613094925.418443295@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit ef9188bcc6ca1d8a2ad83e826b548e6820721061 ]
+[ Upstream commit 02ded5a173619b11728b8bf75a3fd995a2c1ff28 ]
 
-To prepare for support asynchronous tracer_init_tracefs initcall,
-avoid calling create_trace_option_files before __update_tracer_options.
-Otherwise, create_trace_option_files will show warning because
-some tracers in trace_types list are already in tr->topts.
+of_get_child_by_name() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
 
-For example, hwlat_tracer call register_tracer in late_initcall,
-and global_trace.dir is already created in tracing_init_dentry,
-hwlat_tracer will be put into tr->topts.
-Then if the __update_tracer_options is executed after hwlat_tracer
-registered, create_trace_option_files find that hwlat_tracer is
-already in tr->topts.
+mv88e6xxx_mdio_register() pass the device node to of_mdiobus_register().
+We don't need the device node after it.
 
-Link: https://lkml.kernel.org/r/20220426122407.17042-2-mark-pk.tsai@mediatek.com
+Add missing of_node_put() to avoid refcount leak.
 
-Link: https://lore.kernel.org/lkml/20220322133339.GA32582@xsang-OptiPlex-9020/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: a3c53be55c95 ("net: dsa: mv88e6xxx: Support multiple MDIO busses")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/dsa/mv88e6xxx/chip.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 98b06d3ce164..518ce39a878d 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -6320,12 +6320,18 @@ static void tracing_set_nop(struct trace_array *tr)
- 	tr->current_trace = &nop_trace;
- }
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 7ab4cc0962ac..ef016c9f7c74 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -2317,6 +2317,7 @@ static int mv88e6xxx_mdios_register(struct mv88e6xxx_chip *chip,
+ 	 */
+ 	child = of_get_child_by_name(np, "mdio");
+ 	err = mv88e6xxx_mdio_register(chip, child, false);
++	of_node_put(child);
+ 	if (err)
+ 		return err;
  
-+static bool tracer_options_updated;
-+
- static void add_tracer_options(struct trace_array *tr, struct tracer *t)
- {
- 	/* Only enable if the directory has been created already. */
- 	if (!tr->dir)
- 		return;
- 
-+	/* Only create trace option files after update_tracer_options finish */
-+	if (!tracer_options_updated)
-+		return;
-+
- 	create_trace_option_files(tr, t);
- }
- 
-@@ -9146,6 +9152,7 @@ static void __update_tracer_options(struct trace_array *tr)
- static void update_tracer_options(struct trace_array *tr)
- {
- 	mutex_lock(&trace_types_lock);
-+	tracer_options_updated = true;
- 	__update_tracer_options(tr);
- 	mutex_unlock(&trace_types_lock);
- }
 -- 
 2.35.1
 
