@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE67A548F2D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B47C549308
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380601AbiFMN7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:59:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33698 "EHLO
+        id S1383601AbiFMObo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:31:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380574AbiFMNyp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:54:45 -0400
+        with ESMTP id S1384972AbiFMOa2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:30:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6514580216;
-        Mon, 13 Jun 2022 04:35:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 914E32B249;
+        Mon, 13 Jun 2022 04:48:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9EB9B80ECB;
-        Mon, 13 Jun 2022 11:35:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C7F7C341CB;
-        Mon, 13 Jun 2022 11:35:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 161A8B80D3A;
+        Mon, 13 Jun 2022 11:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C983C34114;
+        Mon, 13 Jun 2022 11:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120118;
-        bh=1NDrccUNSF/6uv2W+MpiyQ8aIC7EHlmxH2OYdzZod1U=;
+        s=korg; t=1655120872;
+        bh=MPZ2kt6IJpKMf0EU6+R/THNMtkJr2jpdHAH+dhp2Y8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rI83ekBOrZxIOrQuczEpVz3tzCogeC5Ewb0mHKBPuzjEFHNwdTI0j83Sfy7kVe0kk
-         ClzMTWgpqC2vcb9Q8XKGbanRyXoYC/Obt+GrL3vSkqvhBm/6cucupErVQ4ZAqCN+Yd
-         8rEbAwqp3nGZJ/bbSGxqEHx/fO9gKWhazBHZeicU=
+        b=I69pj31qr/PAPEXuNpwA13YKMXB0maS1sk8DMlKDB7/QJXAphB4Pe+tXg9U2RKdLQ
+         duaK3sbsxbY2I5JPlAzC8E+WTaRgD7ZtpFQFr7DZSte+dSD2FDUAi1QClm6Umy48eX
+         aw5sd4C9JlqbysqnDP8BGEcsF/K28nNFhOkEcgdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Hannes Reinecke <hare@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Mark Bloch <mbloch@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 257/339] scsi: myrb: Fix up null pointer access on myrb_cleanup()
+Subject: [PATCH 5.17 188/298] net/mlx5: fs, fail conflicting actions
 Date:   Mon, 13 Jun 2022 12:11:22 +0200
-Message-Id: <20220613094934.447935328@linuxfoundation.org>
+Message-Id: <20220613094930.807260019@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Mark Bloch <mbloch@nvidia.com>
 
-[ Upstream commit f9f0a46141e2e39bedb4779c88380d1b5f018c14 ]
+[ Upstream commit 8fa5e7b20e01042b14f8cd684d2da9b638460c74 ]
 
-When myrb_probe() fails the callback might not be set, so we need to
-validate the 'disable_intr' callback in myrb_cleanup() to not cause a null
-pointer exception. And while at it do not call myrb_cleanup() if we cannot
-enable the PCI device at all.
+When combining two steering rules into one check
+not only do they share the same actions but those
+actions are also the same. This resolves an issue where
+when creating two different rules with the same match
+the actions are overwritten and one of the rules is deleted
+a FW syndrome can be seen in dmesg.
 
-Link: https://lore.kernel.org/r/20220523120244.99515-1-hare@suse.de
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Tested-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+mlx5_core 0000:03:00.0: mlx5_cmd_check:819:(pid 2105): DEALLOC_MODIFY_HEADER_CONTEXT(0x941) op_mod(0x0) failed, status bad resource state(0x9), syndrome (0x1ab444)
+
+Fixes: 0d235c3fabb7 ("net/mlx5: Add hash table to search FTEs in a flow-group")
+Signed-off-by: Mark Bloch <mbloch@nvidia.com>
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/myrb.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/fs_core.c | 35 +++++++++++++++++--
+ 1 file changed, 32 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/myrb.c b/drivers/scsi/myrb.c
-index 71585528e8db..e885c1dbf61f 100644
---- a/drivers/scsi/myrb.c
-+++ b/drivers/scsi/myrb.c
-@@ -1239,7 +1239,8 @@ static void myrb_cleanup(struct myrb_hba *cb)
- 	myrb_unmap(cb);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+index bd52b0b4eefa..add55195335c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -1560,9 +1560,22 @@ static struct mlx5_flow_rule *find_flow_rule(struct fs_fte *fte,
+ 	return NULL;
+ }
  
- 	if (cb->mmio_base) {
--		cb->disable_intr(cb->io_base);
-+		if (cb->disable_intr)
-+			cb->disable_intr(cb->io_base);
- 		iounmap(cb->mmio_base);
- 	}
- 	if (cb->irq)
-@@ -3413,9 +3414,13 @@ static struct myrb_hba *myrb_detect(struct pci_dev *pdev,
- 	mutex_init(&cb->dcmd_mutex);
- 	mutex_init(&cb->dma_mutex);
- 	cb->pdev = pdev;
-+	cb->host = shost;
+-static bool check_conflicting_actions(u32 action1, u32 action2)
++static bool check_conflicting_actions_vlan(const struct mlx5_fs_vlan *vlan0,
++					   const struct mlx5_fs_vlan *vlan1)
+ {
+-	u32 xored_actions = action1 ^ action2;
++	return vlan0->ethtype != vlan1->ethtype ||
++	       vlan0->vid != vlan1->vid ||
++	       vlan0->prio != vlan1->prio;
++}
++
++static bool check_conflicting_actions(const struct mlx5_flow_act *act1,
++				      const struct mlx5_flow_act *act2)
++{
++	u32 action1 = act1->action;
++	u32 action2 = act2->action;
++	u32 xored_actions;
++
++	xored_actions = action1 ^ action2;
  
--	if (pci_enable_device(pdev))
--		goto failure;
-+	if (pci_enable_device(pdev)) {
-+		dev_err(&pdev->dev, "Failed to enable PCI device\n");
-+		scsi_host_put(shost);
-+		return NULL;
-+	}
+ 	/* if one rule only wants to count, it's ok */
+ 	if (action1 == MLX5_FLOW_CONTEXT_ACTION_COUNT ||
+@@ -1579,6 +1592,22 @@ static bool check_conflicting_actions(u32 action1, u32 action2)
+ 			     MLX5_FLOW_CONTEXT_ACTION_VLAN_PUSH_2))
+ 		return true;
  
- 	if (privdata->hw_init == DAC960_PD_hw_init ||
- 	    privdata->hw_init == DAC960_P_hw_init) {
++	if (action1 & MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT &&
++	    act1->pkt_reformat != act2->pkt_reformat)
++		return true;
++
++	if (action1 & MLX5_FLOW_CONTEXT_ACTION_MOD_HDR &&
++	    act1->modify_hdr != act2->modify_hdr)
++		return true;
++
++	if (action1 & MLX5_FLOW_CONTEXT_ACTION_VLAN_PUSH &&
++	    check_conflicting_actions_vlan(&act1->vlan[0], &act2->vlan[0]))
++		return true;
++
++	if (action1 & MLX5_FLOW_CONTEXT_ACTION_VLAN_PUSH_2 &&
++	    check_conflicting_actions_vlan(&act1->vlan[1], &act2->vlan[1]))
++		return true;
++
+ 	return false;
+ }
+ 
+@@ -1586,7 +1615,7 @@ static int check_conflicting_ftes(struct fs_fte *fte,
+ 				  const struct mlx5_flow_context *flow_context,
+ 				  const struct mlx5_flow_act *flow_act)
+ {
+-	if (check_conflicting_actions(flow_act->action, fte->action.action)) {
++	if (check_conflicting_actions(flow_act, &fte->action)) {
+ 		mlx5_core_warn(get_dev(&fte->node),
+ 			       "Found two FTEs with conflicting actions\n");
+ 		return -EEXIST;
 -- 
 2.35.1
 
