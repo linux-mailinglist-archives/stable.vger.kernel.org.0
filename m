@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E494E54955D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C7B8549097
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379845AbiFMN5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:57:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36608 "EHLO
+        id S1351873AbiFMMVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:21:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380806AbiFMNzI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:55:08 -0400
+        with ESMTP id S1359391AbiFMMUB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:20:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5055C8199B;
-        Mon, 13 Jun 2022 04:35:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 631D457145;
+        Mon, 13 Jun 2022 04:03:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 115FC612D0;
-        Mon, 13 Jun 2022 11:35:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E1C2C34114;
-        Mon, 13 Jun 2022 11:35:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DE5961435;
+        Mon, 13 Jun 2022 11:03:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76BB4C34114;
+        Mon, 13 Jun 2022 11:03:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120152;
-        bh=IsJ3NMnoAFJ7wjN7A21WKBIHAnKxNuqqCDed6n0bc3Y=;
+        s=korg; t=1655118194;
+        bh=HAA+wDlDwSyHnAcz4UOAa4YXGGh7T+kkXmmZObcUYQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NaSovLv8v47duwjp3V0SffVX4uei+cxErNNmL7QtMVnt6kCK5Nszb4ohc0Z0VDrmh
-         nSJoxpuBHZFKZKYbR0eczYt1sYg6Gx4NqRVlOEx/BSGZF9GmP9asO0gNOEJT1kNRq4
-         dVMc3I+0TWwgavKW6l1nGisVh4+TjJMbJ6/UCPx4=
+        b=yc8TMN6wMJ8ChLaGr5PoaiSHSnhEltnWDslJiRrP0sb48cZyLpXMG93KyiBSfnxKT
+         ERmjXZaR2p2dialw91EjGipVkzbrn8/bCFTewrXlSw8ZrUG3XNIm+6eeIxZZ7ijXV2
+         gqCEUDG1lvL2k13DbnGWDzNdWjGz52WJAltyU4Q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org,
+        syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Wang Cheng <wanngchenng@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 261/339] ceph: flush the mdlog for filesystem sync
+Subject: [PATCH 4.19 262/287] staging: rtl8712: fix uninit-value in r871xu_drv_init()
 Date:   Mon, 13 Jun 2022 12:11:26 +0200
-Message-Id: <20220613094934.568016028@linuxfoundation.org>
+Message-Id: <20220613094931.951515830@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,111 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Wang Cheng <wanngchenng@gmail.com>
 
-[ Upstream commit 1b2ba3c5616e17ff951359e25c658a1c3f146f1e ]
+[ Upstream commit 0458e5428e5e959d201a40ffe71d762a79ecedc4 ]
 
-Before waiting for a request's safe reply, we will send the mdlog flush
-request to the relevant MDS. And this will also flush the mdlog for all
-the other unsafe requests in the same session, so we can record the last
-session and no need to flush mdlog again in the next loop. But there
-still have cases that it may send the mdlog flush requst twice or more,
-but that should be not often.
+When 'tmpU1b' returns from r8712_read8(padapter, EE_9346CR) is 0,
+'mac[6]' will not be initialized.
 
-Rename wait_unsafe_requests() to
-flush_mdlog_and_wait_mdsc_unsafe_requests() to make it more
-descriptive.
+BUG: KMSAN: uninit-value in r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
+ r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
+ usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
+ really_probe+0x653/0x14b0 drivers/base/dd.c:596
+ __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
+ driver_probe_device drivers/base/dd.c:782 [inline]
+ __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
+ bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
+ __device_attach+0x593/0x8e0 drivers/base/dd.c:970
+ device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
+ bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
+ device_add+0x1fff/0x26e0 drivers/base/core.c:3405
+ usb_set_configuration+0x37e9/0x3ed0 drivers/usb/core/message.c:2170
+ usb_generic_driver_probe+0x13c/0x300 drivers/usb/core/generic.c:238
+ usb_probe_device+0x309/0x570 drivers/usb/core/driver.c:293
+ really_probe+0x653/0x14b0 drivers/base/dd.c:596
+ __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
+ driver_probe_device drivers/base/dd.c:782 [inline]
+ __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
+ bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
+ __device_attach+0x593/0x8e0 drivers/base/dd.c:970
+ device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
+ bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
+ device_add+0x1fff/0x26e0 drivers/base/core.c:3405
+ usb_new_device+0x1b8e/0x2950 drivers/usb/core/hub.c:2566
+ hub_port_connect drivers/usb/core/hub.c:5358 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5502 [inline]
+ port_event drivers/usb/core/hub.c:5660 [inline]
+ hub_event+0x58e3/0x89e0 drivers/usb/core/hub.c:5742
+ process_one_work+0xdb6/0x1820 kernel/workqueue.c:2307
+ worker_thread+0x10b3/0x21e0 kernel/workqueue.c:2454
+ kthread+0x3c7/0x500 kernel/kthread.c:377
+ ret_from_fork+0x1f/0x30
 
-[xiubli: fold in MDS request refcount leak fix from Jeff]
+Local variable mac created at:
+ r871xu_drv_init+0x1771/0x3070 drivers/staging/rtl8712/usb_intf.c:394
+ usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
 
-URL: https://tracker.ceph.com/issues/55284
-URL: https://tracker.ceph.com/issues/55411
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+KMSAN: uninit-value in r871xu_drv_init
+https://syzkaller.appspot.com/bug?id=3cd92b1d85428b128503bfa7a250294c9ae00bd8
+
+Reported-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
+Tested-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
+Link: https://lore.kernel.org/r/14c3886173dfa4597f0704547c414cfdbcd11d16.1652618244.git.wanngchenng@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/mds_client.c | 33 +++++++++++++++++++++++++++------
- 1 file changed, 27 insertions(+), 6 deletions(-)
+ drivers/staging/rtl8712/usb_intf.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-index 1bd3e1bb0fdf..8c249511344d 100644
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -4700,15 +4700,17 @@ void ceph_mdsc_pre_umount(struct ceph_mds_client *mdsc)
- }
- 
- /*
-- * wait for all write mds requests to flush.
-+ * flush the mdlog and wait for all write mds requests to flush.
-  */
--static void wait_unsafe_requests(struct ceph_mds_client *mdsc, u64 want_tid)
-+static void flush_mdlog_and_wait_mdsc_unsafe_requests(struct ceph_mds_client *mdsc,
-+						 u64 want_tid)
- {
- 	struct ceph_mds_request *req = NULL, *nextreq;
-+	struct ceph_mds_session *last_session = NULL;
- 	struct rb_node *n;
- 
- 	mutex_lock(&mdsc->mutex);
--	dout("wait_unsafe_requests want %lld\n", want_tid);
-+	dout("%s want %lld\n", __func__, want_tid);
- restart:
- 	req = __get_oldest_req(mdsc);
- 	while (req && req->r_tid <= want_tid) {
-@@ -4720,14 +4722,32 @@ static void wait_unsafe_requests(struct ceph_mds_client *mdsc, u64 want_tid)
- 			nextreq = NULL;
- 		if (req->r_op != CEPH_MDS_OP_SETFILELOCK &&
- 		    (req->r_op & CEPH_MDS_OP_WRITE)) {
-+			struct ceph_mds_session *s = req->r_session;
-+
-+			if (!s) {
-+				req = nextreq;
-+				continue;
-+			}
-+
- 			/* write op */
- 			ceph_mdsc_get_request(req);
- 			if (nextreq)
- 				ceph_mdsc_get_request(nextreq);
-+			s = ceph_get_mds_session(s);
- 			mutex_unlock(&mdsc->mutex);
--			dout("wait_unsafe_requests  wait on %llu (want %llu)\n",
-+
-+			/* send flush mdlog request to MDS */
-+			if (last_session != s) {
-+				send_flush_mdlog(s);
-+				ceph_put_mds_session(last_session);
-+				last_session = s;
-+			} else {
-+				ceph_put_mds_session(s);
-+			}
-+			dout("%s wait on %llu (want %llu)\n", __func__,
- 			     req->r_tid, want_tid);
- 			wait_for_completion(&req->r_safe_completion);
-+
- 			mutex_lock(&mdsc->mutex);
- 			ceph_mdsc_put_request(req);
- 			if (!nextreq)
-@@ -4742,7 +4762,8 @@ static void wait_unsafe_requests(struct ceph_mds_client *mdsc, u64 want_tid)
- 		req = nextreq;
- 	}
- 	mutex_unlock(&mdsc->mutex);
--	dout("wait_unsafe_requests done\n");
-+	ceph_put_mds_session(last_session);
-+	dout("%s done\n", __func__);
- }
- 
- void ceph_mdsc_sync(struct ceph_mds_client *mdsc)
-@@ -4771,7 +4792,7 @@ void ceph_mdsc_sync(struct ceph_mds_client *mdsc)
- 	dout("sync want tid %lld flush_seq %lld\n",
- 	     want_tid, want_flush);
- 
--	wait_unsafe_requests(mdsc, want_tid);
-+	flush_mdlog_and_wait_mdsc_unsafe_requests(mdsc, want_tid);
- 	wait_caps_flush(mdsc, want_flush);
- }
- 
+diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
+index 5e2cdc25401b..2b1ff63913af 100644
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -569,13 +569,13 @@ static int r871xu_drv_init(struct usb_interface *pusb_intf,
+ 		} else {
+ 			AutoloadFail = false;
+ 		}
+-		if (((mac[0] == 0xff) && (mac[1] == 0xff) &&
++		if ((!AutoloadFail) ||
++		    ((mac[0] == 0xff) && (mac[1] == 0xff) &&
+ 		     (mac[2] == 0xff) && (mac[3] == 0xff) &&
+ 		     (mac[4] == 0xff) && (mac[5] == 0xff)) ||
+ 		    ((mac[0] == 0x00) && (mac[1] == 0x00) &&
+ 		     (mac[2] == 0x00) && (mac[3] == 0x00) &&
+-		     (mac[4] == 0x00) && (mac[5] == 0x00)) ||
+-		     (!AutoloadFail)) {
++		     (mac[4] == 0x00) && (mac[5] == 0x00))) {
+ 			mac[0] = 0x00;
+ 			mac[1] = 0xe0;
+ 			mac[2] = 0x4c;
 -- 
 2.35.1
 
