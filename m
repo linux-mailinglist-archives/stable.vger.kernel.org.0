@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8C1548967
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F18548B95
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378666AbiFMNmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:42:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35942 "EHLO
+        id S1349340AbiFMMYf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:24:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379197AbiFMNkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FDFE388E;
-        Mon, 13 Jun 2022 04:29:49 -0700 (PDT)
+        with ESMTP id S1354975AbiFMMXw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 067C83151D;
+        Mon, 13 Jun 2022 04:04:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12F0A61046;
-        Mon, 13 Jun 2022 11:29:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 248AEC3411E;
-        Mon, 13 Jun 2022 11:29:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9617B80E42;
+        Mon, 13 Jun 2022 11:04:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20588C34114;
+        Mon, 13 Jun 2022 11:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119788;
-        bh=Ua2pOqxFic8s1/hHtX7ElNiaJNpH7dmOCcAyvxB0wAE=;
+        s=korg; t=1655118244;
+        bh=I03ac2NJcEbGtpUE8jS2oF0PFu0WvuO+rSmaxZhVtHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CID9E5299N79XKcxmHvhYfpf0lkpI2yXnI3wl1KvLVGaeCO4HrGvhWr96CLWmjHYf
-         03hQT2Sd1h7DGZGX2kwCxOXhvN3d/w0XGjq+Vl383M+1yUERKvuglSwDNv60yUix9w
-         u6TyFpZOOYftsDy/ypLLcL7JF4np+VPcj1j9agy0=
+        b=g4a/bhfO1TvTIOBbVsQ09CY3zJSLpCfxpW6PuBbYYKIvy9tTom911WJ7nfPMoQXgv
+         lGlcsgtWIfGLv1nJdnuSO6gV3MB5M/Iwd5lH/CHYO/g1NT6mp2LQTvMh0SiOvXSx7T
+         v4RnMW9/u7JUCfKJ1OW6+CPUglcUS3xi1HFCsFVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 140/339] afs: Fix infinite loop found by xfstest generic/676
-Date:   Mon, 13 Jun 2022 12:09:25 +0200
-Message-Id: <20220613094930.930897521@linuxfoundation.org>
+Subject: [PATCH 5.10 006/172] tty: serial: owl: Fix missing clk_disable_unprepare() in owl_uart_probe
+Date:   Mon, 13 Jun 2022 12:09:26 +0200
+Message-Id: <20220613094851.899955491@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 17eabd42560f4636648ad65ba5b20228071e2363 ]
+[ Upstream commit bcea0f547ec1a2ee44d429aaf0334633e386e67c ]
 
-In AFS, a directory is handled as a file that the client downloads and
-parses locally for the purposes of performing lookup and getdents
-operations.  The in-kernel afs filesystem has a number of functions that
-do this.
+Fix the missing clk_disable_unprepare() before return
+from owl_uart_probe() in the error handling case.
 
-A directory file is arranged as a series of 2K blocks divided into
-32-byte slots, where a directory entry occupies one or more slots, plus
-each block starts with one or more metadata blocks.
-
-When parsing a block, if the last slots are occupied by a dirent that
-occupies more than a single slot and the file position points at a slot
-that's not the initial one, the logic in afs_dir_iterate_block() that
-skips over it won't advance the file pointer to the end of it.  This
-will cause an infinite loop in getdents() as it will keep retrying that
-block and failing to advance beyond the final entry.
-
-Fix this by advancing the file pointer if the next entry will be beyond
-it when we skip a block.
-
-This was found by the generic/676 xfstest but can also be triggered with
-something like:
-
-	~/xfstests-dev/src/t_readdir_3 /xfstest.test/z 4000 1
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: http://lore.kernel.org/r/165391973497.110268.2939296942213894166.stgit@warthog.procyon.org.uk/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: abf42d2f333b ("tty: serial: owl: add "much needed" clk_prepare_enable()")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220307105135.11698-1-linmq006@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/dir.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/tty/serial/owl-uart.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/afs/dir.c b/fs/afs/dir.c
-index 932e61e28e5d..bdac73554e6e 100644
---- a/fs/afs/dir.c
-+++ b/fs/afs/dir.c
-@@ -463,8 +463,11 @@ static int afs_dir_iterate_block(struct afs_vnode *dvnode,
- 		}
- 
- 		/* skip if starts before the current position */
--		if (offset < curr)
-+		if (offset < curr) {
-+			if (next > curr)
-+				ctx->pos = blkoff + next * sizeof(union afs_xdr_dirent);
- 			continue;
-+		}
- 
- 		/* found the next entry */
- 		if (!dir_emit(ctx, dire->u.name, nlen,
+diff --git a/drivers/tty/serial/owl-uart.c b/drivers/tty/serial/owl-uart.c
+index c149f8c30007..a0d4bffe70bd 100644
+--- a/drivers/tty/serial/owl-uart.c
++++ b/drivers/tty/serial/owl-uart.c
+@@ -695,6 +695,7 @@ static int owl_uart_probe(struct platform_device *pdev)
+ 	owl_port->port.uartclk = clk_get_rate(owl_port->clk);
+ 	if (owl_port->port.uartclk == 0) {
+ 		dev_err(&pdev->dev, "clock rate is zero\n");
++		clk_disable_unprepare(owl_port->clk);
+ 		return -EINVAL;
+ 	}
+ 	owl_port->port.flags = UPF_BOOT_AUTOCONF | UPF_IOREMAP | UPF_LOW_LATENCY;
 -- 
 2.35.1
 
