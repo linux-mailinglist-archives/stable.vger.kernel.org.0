@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DE2054936B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFD10549319
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348233AbiFMK4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:56:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39572 "EHLO
+        id S1383877AbiFMO1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:27:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350223AbiFMKyq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:46 -0400
+        with ESMTP id S1383894AbiFMOYQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E5855B8;
-        Mon, 13 Jun 2022 03:30:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1CE64739B;
+        Mon, 13 Jun 2022 04:45:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9863560F09;
-        Mon, 13 Jun 2022 10:30:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC393C34114;
-        Mon, 13 Jun 2022 10:30:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C919613CA;
+        Mon, 13 Jun 2022 11:45:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85096C34114;
+        Mon, 13 Jun 2022 11:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116226;
-        bh=t5HIl67g2jwSScHPwn9iUau0Gi2bGRH/gEUJaM81zWk=;
+        s=korg; t=1655120744;
+        bh=K5oy88MNnXZLvRi7kD0q2ll6e8fK9uVKVb+SELR6S2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ynqDCNVZmwT/zGMAoPbyJ0jG/jKXDoqnMduquzyQ88cwVP0WhklISwbnNmZDY/3sa
-         O92y45eX661UiHpCNrkQAjYDa10hxZ9eNu5UJMa5qeqFvt3fR/Q/5Gq4yGE6VaXCeT
-         /EMFZ7w8eRDP2ld6TN4b8194BgFfVxcpjGuVPSTs=
+        b=YROmxDVxvYtwdkzNyDHl60DHnSJgH/Pd2/l4NjDCDYktukBbiwis2I/G5DHpJmDQE
+         Dh/r8r+rgM/5uEphbxYPE0/NznYmQg7JOraLuZarnymfm6QVyHSJx5W5EYihlep91c
+         D3GH5RkpLG3Qt6Z5RD2QNOw2Zg1xCb/CXMC+wOmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        syzbot+d0e94b65ac259c29ce7a@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 154/218] serial: sh-sci: Dont allow CS5-6
+Subject: [PATCH 5.17 118/298] macsec: fix UAF bug for real_dev
 Date:   Mon, 13 Jun 2022 12:10:12 +0200
-Message-Id: <20220613094925.264540003@linuxfoundation.org>
+Message-Id: <20220613094928.522805735@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +56,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 9b87162de8be26bf3156460b37deee6399fd0fcb ]
+[ Upstream commit 196a888ca6571deb344468e1d7138e3273206335 ]
 
-Only CS7 and CS8 seem supported but CSIZE is not sanitized from
-CS5 or CS6 to CS8.
+Create a new macsec device but not get reference to real_dev. That can
+not ensure that real_dev is freed after macsec. That will trigger the
+UAF bug for real_dev as following:
 
-Set CSIZE correctly so that userspace knows the effective value.
-Incorrect CSIZE also results in miscalculation of the frame bits in
-tty_get_char_size() or in its predecessor where the roughly the same
-code is directly within uart_update_timeout().
+==================================================================
+BUG: KASAN: use-after-free in macsec_get_iflink+0x5f/0x70 drivers/net/macsec.c:3662
+Call Trace:
+ ...
+ macsec_get_iflink+0x5f/0x70 drivers/net/macsec.c:3662
+ dev_get_iflink+0x73/0xe0 net/core/dev.c:637
+ default_operstate net/core/link_watch.c:42 [inline]
+ rfc2863_policy+0x233/0x2d0 net/core/link_watch.c:54
+ linkwatch_do_dev+0x2a/0x150 net/core/link_watch.c:161
 
-Fixes: 1da177e4c3f4 (Linux-2.6.12-rc2)
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220519081808.3776-6-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Allocated by task 22209:
+ ...
+ alloc_netdev_mqs+0x98/0x1100 net/core/dev.c:10549
+ rtnl_create_link+0x9d7/0xc00 net/core/rtnetlink.c:3235
+ veth_newlink+0x20e/0xa90 drivers/net/veth.c:1748
+
+Freed by task 8:
+ ...
+ kfree+0xd6/0x4d0 mm/slub.c:4552
+ kvfree+0x42/0x50 mm/util.c:615
+ device_release+0x9f/0x240 drivers/base/core.c:2229
+ kobject_cleanup lib/kobject.c:673 [inline]
+ kobject_release lib/kobject.c:704 [inline]
+ kref_put include/linux/kref.h:65 [inline]
+ kobject_put+0x1c8/0x540 lib/kobject.c:721
+ netdev_run_todo+0x72e/0x10b0 net/core/dev.c:10327
+
+After commit faab39f63c1f ("net: allow out-of-order netdev unregistration")
+and commit e5f80fcf869a ("ipv6: give an IPv6 dev to blackhole_netdev"), we
+can add dev_hold_track() in macsec_dev_init() and dev_put_track() in
+macsec_free_netdev() to fix the problem.
+
+Fixes: 2bce1ebed17d ("macsec: fix refcnt leak in module exit routine")
+Reported-by: syzbot+d0e94b65ac259c29ce7a@syzkaller.appspotmail.com
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Link: https://lore.kernel.org/r/20220531074500.1272846-1-william.xuanziyang@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sh-sci.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/macsec.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index 21f81dc08139..f7dd843a3eff 100644
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -2267,8 +2267,12 @@ static void sci_set_termios(struct uart_port *port, struct ktermios *termios,
- 	unsigned long max_freq = 0;
- 	int best_clk = -1;
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index 3d0874331763..b901acca098b 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -99,6 +99,7 @@ struct pcpu_secy_stats {
+  * struct macsec_dev - private data
+  * @secy: SecY config
+  * @real_dev: pointer to underlying netdevice
++ * @dev_tracker: refcount tracker for @real_dev reference
+  * @stats: MACsec device stats
+  * @secys: linked list of SecY's on the underlying device
+  * @gro_cells: pointer to the Generic Receive Offload cell
+@@ -107,6 +108,7 @@ struct pcpu_secy_stats {
+ struct macsec_dev {
+ 	struct macsec_secy secy;
+ 	struct net_device *real_dev;
++	netdevice_tracker dev_tracker;
+ 	struct pcpu_secy_stats __percpu *stats;
+ 	struct list_head secys;
+ 	struct gro_cells gro_cells;
+@@ -3459,6 +3461,9 @@ static int macsec_dev_init(struct net_device *dev)
+ 	if (is_zero_ether_addr(dev->broadcast))
+ 		memcpy(dev->broadcast, real_dev->broadcast, dev->addr_len);
  
--	if ((termios->c_cflag & CSIZE) == CS7)
-+	if ((termios->c_cflag & CSIZE) == CS7) {
- 		smr_val |= SCSMR_CHR;
-+	} else {
-+		termios->c_cflag &= ~CSIZE;
-+		termios->c_cflag |= CS8;
-+	}
- 	if (termios->c_cflag & PARENB)
- 		smr_val |= SCSMR_PE;
- 	if (termios->c_cflag & PARODD)
++	/* Get macsec's reference to real_dev */
++	dev_hold_track(real_dev, &macsec->dev_tracker, GFP_KERNEL);
++
+ 	return 0;
+ }
+ 
+@@ -3704,6 +3709,8 @@ static void macsec_free_netdev(struct net_device *dev)
+ 	free_percpu(macsec->stats);
+ 	free_percpu(macsec->secy.tx_sc.stats);
+ 
++	/* Get rid of the macsec's reference to real_dev */
++	dev_put_track(macsec->real_dev, &macsec->dev_tracker);
+ }
+ 
+ static void macsec_setup(struct net_device *dev)
 -- 
 2.35.1
 
