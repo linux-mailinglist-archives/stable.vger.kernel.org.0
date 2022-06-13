@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 608345494CE
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B995495E9
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241554AbiFMOrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:47:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36036 "EHLO
+        id S233663AbiFMOty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:49:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386552AbiFMOph (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:45:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03731BCE9E;
-        Mon, 13 Jun 2022 04:52:15 -0700 (PDT)
+        with ESMTP id S1386022AbiFMOqh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:46:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DE32BF8BB;
+        Mon, 13 Jun 2022 04:52:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C77D7B80EE0;
-        Mon, 13 Jun 2022 11:52:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DBE3C3411B;
-        Mon, 13 Jun 2022 11:52:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A091614A0;
+        Mon, 13 Jun 2022 11:52:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A4C5C34114;
+        Mon, 13 Jun 2022 11:52:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121132;
-        bh=E4rQH1VFVcVFFMQSB2xDZNS++oZ3MPwR5If0rkwwWrM=;
+        s=korg; t=1655121138;
+        bh=i5fKpp80z6wDEA2rNJ1KQb7U1RDqRijDRcCP4XwkONk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TWManL8q9ZtSSNwTbIm+wTO4xUCl/f1D2sQ+9nq5930xGZnFe5mAzJgWGjbOOSL/l
-         wgaXAp8conIwnB/zQPOB/92oa3m+Uy6WFYXQEcLspMbLF8FvZcFzVYX2ZwU1j3Ul1A
-         pDnetmj0MdBJNxWd1lHaTzubX1wPhN+PFUf25pPc=
+        b=GpmBsNz2e1D481fPmSRZuxxD3fyD4+bZQx/4jokp+ZgYeJXYQKpz2bXWP/3yh+ngI
+         nFx4aucT0Yv8yywrzoUM6t/8h47SDc6abQf2Mq/21XByhrL18X3kteIL06LhtTNNIz
+         JTKkRLcQ5HW2JCddspY+7huWf+AYMDIKskPOjWm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH 5.17 284/298] drm/bridge: analogix_dp: Support PSR-exit to disable transition
-Date:   Mon, 13 Jun 2022 12:12:58 +0200
-Message-Id: <20220613094933.695638063@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mohammad Zafar Ziya <Mohammadzafar.ziya@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.17 286/298] drm/amdgpu/jpeg2: Add jpeg vmid update under IB submit
+Date:   Mon, 13 Jun 2022 12:13:00 +0200
+Message-Id: <20220613094933.754913324@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
 References: <20220613094924.913340374@linuxfoundation.org>
@@ -54,109 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Mohammad Zafar Ziya <Mohammadzafar.ziya@amd.com>
 
-commit ca871659ec1606d33b1e76de8d4cf924cf627e34 upstream.
+commit 578eb31776df57c81307fb3f96ef0781332c3c7c upstream.
 
-Most eDP panel functions only work correctly when the panel is not in
-self-refresh. In particular, analogix_dp_bridge_disable() tends to hit
-AUX channel errors if the panel is in self-refresh.
+Add jpeg vmid update under IB submit
 
-Given the above, it appears that so far, this driver assumes that we are
-never in self-refresh when it comes time to fully disable the bridge.
-Prior to commit 846c7dfc1193 ("drm/atomic: Try to preserve the crtc
-enabled state in drm_atomic_remove_fb, v2."), this tended to be true,
-because we would automatically disable the pipe when framebuffers were
-removed, and so we'd typically disable the bridge shortly after the last
-display activity.
-
-However, that is not guaranteed: an idle (self-refresh) display pipe may
-be disabled, e.g., when switching CRTCs. We need to exit PSR first.
-
-Stable notes: this is definitely a bugfix, and the bug has likely
-existed in some form for quite a while. It may predate the "PSR helpers"
-refactor, but the code looked very different before that, and it's
-probably not worth rewriting the fix.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 6c836d965bad ("drm/rockchip: Use the helpers for PSR")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Sean Paul <seanpaul@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220228122522.v2.1.I161904be17ba14526f78536ccd78b85818449b51@changeid
+Signed-off-by: Mohammad Zafar Ziya <Mohammadzafar.ziya@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   42 +++++++++++++++++++--
- 1 file changed, 38 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c |    6 +++++-
+ drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.h |    1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -1269,6 +1269,25 @@ static int analogix_dp_bridge_attach(str
- }
- 
- static
-+struct drm_crtc *analogix_dp_get_old_crtc(struct analogix_dp_device *dp,
-+					  struct drm_atomic_state *state)
-+{
-+	struct drm_encoder *encoder = dp->encoder;
-+	struct drm_connector *connector;
-+	struct drm_connector_state *conn_state;
-+
-+	connector = drm_atomic_get_old_connector_for_encoder(state, encoder);
-+	if (!connector)
-+		return NULL;
-+
-+	conn_state = drm_atomic_get_old_connector_state(state, connector);
-+	if (!conn_state)
-+		return NULL;
-+
-+	return conn_state->crtc;
-+}
-+
-+static
- struct drm_crtc *analogix_dp_get_new_crtc(struct analogix_dp_device *dp,
- 					  struct drm_atomic_state *state)
+--- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c
+@@ -535,6 +535,10 @@ void jpeg_v2_0_dec_ring_emit_ib(struct a
  {
-@@ -1448,14 +1467,16 @@ analogix_dp_bridge_atomic_disable(struct
- {
- 	struct drm_atomic_state *old_state = old_bridge_state->base.state;
- 	struct analogix_dp_device *dp = bridge->driver_private;
--	struct drm_crtc *crtc;
-+	struct drm_crtc *old_crtc, *new_crtc;
-+	struct drm_crtc_state *old_crtc_state = NULL;
- 	struct drm_crtc_state *new_crtc_state = NULL;
-+	int ret;
+ 	unsigned vmid = AMDGPU_JOB_GET_VMID(job);
  
--	crtc = analogix_dp_get_new_crtc(dp, old_state);
--	if (!crtc)
-+	new_crtc = analogix_dp_get_new_crtc(dp, old_state);
-+	if (!new_crtc)
- 		goto out;
- 
--	new_crtc_state = drm_atomic_get_new_crtc_state(old_state, crtc);
-+	new_crtc_state = drm_atomic_get_new_crtc_state(old_state, new_crtc);
- 	if (!new_crtc_state)
- 		goto out;
- 
-@@ -1464,6 +1485,19 @@ analogix_dp_bridge_atomic_disable(struct
- 		return;
- 
- out:
-+	old_crtc = analogix_dp_get_old_crtc(dp, old_state);
-+	if (old_crtc) {
-+		old_crtc_state = drm_atomic_get_old_crtc_state(old_state,
-+							       old_crtc);
++	amdgpu_ring_write(ring,	PACKETJ(mmUVD_JPEG_IH_CTRL_INTERNAL_OFFSET,
++		0, 0, PACKETJ_TYPE0));
++	amdgpu_ring_write(ring, (vmid << JPEG_IH_CTRL__IH_VMID__SHIFT));
 +
-+		/* When moving from PSR to fully disabled, exit PSR first. */
-+		if (old_crtc_state && old_crtc_state->self_refresh_active) {
-+			ret = analogix_dp_disable_psr(dp);
-+			if (ret)
-+				DRM_ERROR("Failed to disable psr (%d)\n", ret);
-+		}
-+	}
-+
- 	analogix_dp_bridge_disable(bridge);
- }
+ 	amdgpu_ring_write(ring, PACKETJ(mmUVD_LMI_JRBC_IB_VMID_INTERNAL_OFFSET,
+ 		0, 0, PACKETJ_TYPE0));
+ 	amdgpu_ring_write(ring, (vmid | (vmid << 4)));
+@@ -768,7 +772,7 @@ static const struct amdgpu_ring_funcs jp
+ 		8 + /* jpeg_v2_0_dec_ring_emit_vm_flush */
+ 		18 + 18 + /* jpeg_v2_0_dec_ring_emit_fence x2 vm fence */
+ 		8 + 16,
+-	.emit_ib_size = 22, /* jpeg_v2_0_dec_ring_emit_ib */
++	.emit_ib_size = 24, /* jpeg_v2_0_dec_ring_emit_ib */
+ 	.emit_ib = jpeg_v2_0_dec_ring_emit_ib,
+ 	.emit_fence = jpeg_v2_0_dec_ring_emit_fence,
+ 	.emit_vm_flush = jpeg_v2_0_dec_ring_emit_vm_flush,
+--- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.h
++++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.h
+@@ -41,6 +41,7 @@
+ #define mmUVD_JRBC_RB_REF_DATA_INTERNAL_OFFSET				0x4084
+ #define mmUVD_JRBC_STATUS_INTERNAL_OFFSET				0x4089
+ #define mmUVD_JPEG_PITCH_INTERNAL_OFFSET				0x401f
++#define mmUVD_JPEG_IH_CTRL_INTERNAL_OFFSET				0x4149
+ 
+ #define JRBC_DEC_EXTERNAL_REG_WRITE_ADDR				0x18000
  
 
 
