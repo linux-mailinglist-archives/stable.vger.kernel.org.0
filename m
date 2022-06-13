@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88AC85487AE
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83B165487B4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354125AbiFMMZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:25:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54926 "EHLO
+        id S1354682AbiFMMZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:25:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355304AbiFMMXz (ORCPT
+        with ESMTP id S1355336AbiFMMXz (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DAB527B12;
-        Mon, 13 Jun 2022 04:04:44 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1568027B14;
+        Mon, 13 Jun 2022 04:04:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14B94B80D3A;
-        Mon, 13 Jun 2022 11:04:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74774C34114;
-        Mon, 13 Jun 2022 11:04:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD2F4B80D31;
+        Mon, 13 Jun 2022 11:04:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EB27C34114;
+        Mon, 13 Jun 2022 11:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118281;
-        bh=8mtN3anWwR0t9OOXSmK7tgK7gDj14Vm34K4/3nQ4tAg=;
+        s=korg; t=1655118284;
+        bh=p2xRm+9G+qjCSlFGrHTFKeqMTugLPxbgRQ/rMbsfVyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUNxjvtfMLFJNGp8TEYMnjBClC1/IkPE3MVIjt0+jtCGbaHi6Qraw6X+TZVe4K20d
-         AF0M3fKRLOEQXS619JmRzHhSibjqGIFmizXO/6vsw45Lh2wNTEGmLl+OofPGtp/MRP
-         HJpusEsxP3w42UZ7ap1mrESgdXD4O5Vrfxd6YxR4=
+        b=kmBJH8yaxO3STzWwm3bWYOw842Q7X62RaMc2+uIfuWrKcG6zjkh+6Om9AKBpjxsD6
+         NKHO+yyTYRUfiRZhS0XMjRDEUOAVOpmE3KWWGPpNBjljQAfeIjMJRhep2rtmF0YlEU
+         DAW5/ESDIKFQOJr3NH2vCqIhDIoGkUD9BrB7GaFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Philippe Schenker <philippe.schenker@toradex.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 019/172] usb: typec: mux: Check dev_set_name() return value
-Date:   Mon, 13 Jun 2022 12:09:39 +0200
-Message-Id: <20220613094854.998200769@linuxfoundation.org>
+Subject: [PATCH 5.10 020/172] iio: adc: stmpe-adc: Fix wait_for_completion_timeout return value check
+Date:   Mon, 13 Jun 2022 12:09:40 +0200
+Message-Id: <20220613094855.223678523@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
 References: <20220613094850.166931805@linuxfoundation.org>
@@ -57,56 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit b9fa0292490db39d6542f514117333d366ec0011 ]
+[ Upstream commit d345b23200bcdbd2bd3582213d738c258b77718f ]
 
-It's possible that dev_set_name() returns -ENOMEM, catch and handle this.
+wait_for_completion_timeout() returns unsigned long not long.
+it returns 0 if timed out, and positive if completed.
+The check for <= 0 is ambiguous and should be == 0 here
+indicating timeout which is the only error case
 
-Fixes: 3370db35193b ("usb: typec: Registering real device entries for the muxes")
-Reported-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220422222351.1297276-4-bjorn.andersson@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e813dde6f833 ("iio: stmpe-adc: Use wait_for_completion_timeout")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Philippe Schenker <philippe.schenker@toradex.com>
+Link: https://lore.kernel.org/r/20220412065150.14486-1-linmq006@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/mux.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/iio/adc/stmpe-adc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/typec/mux.c b/drivers/usb/typec/mux.c
-index b9035c3407b5..a6e5028105d4 100644
---- a/drivers/usb/typec/mux.c
-+++ b/drivers/usb/typec/mux.c
-@@ -127,8 +127,11 @@ typec_switch_register(struct device *parent,
- 	sw->dev.class = &typec_mux_class;
- 	sw->dev.type = &typec_switch_dev_type;
- 	sw->dev.driver_data = desc->drvdata;
--	dev_set_name(&sw->dev, "%s-switch",
--		     desc->name ? desc->name : dev_name(parent));
-+	ret = dev_set_name(&sw->dev, "%s-switch", desc->name ? desc->name : dev_name(parent));
-+	if (ret) {
-+		put_device(&sw->dev);
-+		return ERR_PTR(ret);
-+	}
+diff --git a/drivers/iio/adc/stmpe-adc.c b/drivers/iio/adc/stmpe-adc.c
+index fba659bfdb40..64305d9fa560 100644
+--- a/drivers/iio/adc/stmpe-adc.c
++++ b/drivers/iio/adc/stmpe-adc.c
+@@ -61,7 +61,7 @@ struct stmpe_adc {
+ static int stmpe_read_voltage(struct stmpe_adc *info,
+ 		struct iio_chan_spec const *chan, int *val)
+ {
+-	long ret;
++	unsigned long ret;
  
- 	ret = device_add(&sw->dev);
- 	if (ret) {
-@@ -331,8 +334,11 @@ typec_mux_register(struct device *parent, const struct typec_mux_desc *desc)
- 	mux->dev.class = &typec_mux_class;
- 	mux->dev.type = &typec_mux_dev_type;
- 	mux->dev.driver_data = desc->drvdata;
--	dev_set_name(&mux->dev, "%s-mux",
--		     desc->name ? desc->name : dev_name(parent));
-+	ret = dev_set_name(&mux->dev, "%s-mux", desc->name ? desc->name : dev_name(parent));
-+	if (ret) {
-+		put_device(&mux->dev);
-+		return ERR_PTR(ret);
-+	}
+ 	mutex_lock(&info->lock);
  
- 	ret = device_add(&mux->dev);
- 	if (ret) {
+@@ -79,7 +79,7 @@ static int stmpe_read_voltage(struct stmpe_adc *info,
+ 
+ 	ret = wait_for_completion_timeout(&info->completion, STMPE_ADC_TIMEOUT);
+ 
+-	if (ret <= 0) {
++	if (ret == 0) {
+ 		stmpe_reg_write(info->stmpe, STMPE_REG_ADC_INT_STA,
+ 				STMPE_ADC_CH(info->channel));
+ 		mutex_unlock(&info->lock);
+@@ -96,7 +96,7 @@ static int stmpe_read_voltage(struct stmpe_adc *info,
+ static int stmpe_read_temp(struct stmpe_adc *info,
+ 		struct iio_chan_spec const *chan, int *val)
+ {
+-	long ret;
++	unsigned long ret;
+ 
+ 	mutex_lock(&info->lock);
+ 
+@@ -114,7 +114,7 @@ static int stmpe_read_temp(struct stmpe_adc *info,
+ 
+ 	ret = wait_for_completion_timeout(&info->completion, STMPE_ADC_TIMEOUT);
+ 
+-	if (ret <= 0) {
++	if (ret == 0) {
+ 		mutex_unlock(&info->lock);
+ 		return -ETIMEDOUT;
+ 	}
 -- 
 2.35.1
 
