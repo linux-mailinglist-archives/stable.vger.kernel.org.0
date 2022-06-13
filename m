@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB958548BD9
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EC17548A00
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:06:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349177AbiFMK47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:56:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44368 "EHLO
+        id S1383573AbiFMO0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:26:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350425AbiFMKyw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:52 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 812901FA52;
-        Mon, 13 Jun 2022 03:31:27 -0700 (PDT)
+        with ESMTP id S1383910AbiFMOYR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FDEA473A7;
+        Mon, 13 Jun 2022 04:45:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EE17ACE1171;
-        Mon, 13 Jun 2022 10:31:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9729C34114;
-        Mon, 13 Jun 2022 10:31:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED849B80E2C;
+        Mon, 13 Jun 2022 11:45:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56BBCC34114;
+        Mon, 13 Jun 2022 11:45:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116284;
-        bh=h4DIRPIkd+t7iQudHWhOEiQWDM93GOEVD1Vy7LOVC1E=;
+        s=korg; t=1655120747;
+        bh=BuxRG/7fYp65qFsQi/Rtgm9CLhilBmxDsHrjTk0IRDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HrT+aOdKj3jVa8v5Dq//OyQpj/szBcr0LdJqGHyUWzcKOg+ilwdn0Ov7JOjAEiPHR
-         ShjB77/oO0Lhlt7XVfnwM8s7dSbJ61Wnt19rFAKnIjBZnXZrb1BeaZsYxjnJ5HChPp
-         Yg/t4k17/jUXdmYsnGt74BA7XdtHLPcUZF0dhOik=
+        b=WpbxQG+31s+f7LqrOFQ3+rgy7mi8aDHabZXmjIQ6XPe7MlElsY1w7IgMw18tGb/OK
+         e1JLLShUVYYGq+h9/TQbl/xRJhXKOItZVVbUOiZXOXyTgHV6k+h5R9fdx35rG2I130
+         CB3utJSPpkIaekxdwTINq9wKeKhPcajDB05gbBpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@st.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 155/218] serial: st-asc: Sanitize CSIZE and correct PARENB for CS7
+Subject: [PATCH 5.17 119/298] s390/mcck: isolate SIE instruction when setting CIF_MCCK_GUEST flag
 Date:   Mon, 13 Jun 2022 12:10:13 +0200
-Message-Id: <20220613094925.295221300@linuxfoundation.org>
+Message-Id: <20220613094928.553164975@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit 52bb1cb7118564166b04d52387bd8403632f5190 ]
+[ Upstream commit 29ccaa4b35ea874ddd50518e5c2c746b9238a792 ]
 
-Only CS7 and CS8 seem supported but CSIZE is not sanitized from CS5 or
-CS6 to CS8. In addition, ASC_CTL_MODE_7BIT_PAR suggests that CS7 has
-to have parity, thus add PARENB.
+Commit d768bd892fc8 ("s390: add options to change branch prediction
+behaviour for the kernel") introduced .Lsie_exit label - supposedly
+to fence off SIE instruction. However, the corresponding address
+range length .Lsie_crit_mcck_length was not updated, which led to
+BPON code potentionally marked with CIF_MCCK_GUEST flag.
 
-Incorrect CSIZE results in miscalculation of the frame bits in
-tty_get_char_size() or in its predecessor where the roughly the same
-code is directly within uart_update_timeout().
+Both .Lsie_exit and .Lsie_crit_mcck_length were removed with commit
+0b0ed657fe00 ("s390: remove critical section cleanup from entry.S"),
+but the issue persisted - currently BPOFF and BPENTER macros might
+get wrongly considered by the machine check handler as a guest.
 
-Fixes: c4b058560762 (serial:st-asc: Add ST ASC driver.)
-Cc: Srinivas Kandagatla <srinivas.kandagatla@st.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220519081808.3776-8-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d768bd892fc8 ("s390: add options to change branch prediction behaviour for the kernel")
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/st-asc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/s390/kernel/entry.S | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/st-asc.c b/drivers/tty/serial/st-asc.c
-index b313a792b149..44d52c087c56 100644
---- a/drivers/tty/serial/st-asc.c
-+++ b/drivers/tty/serial/st-asc.c
-@@ -545,10 +545,14 @@ static void asc_set_termios(struct uart_port *port, struct ktermios *termios,
- 	/* set character length */
- 	if ((cflag & CSIZE) == CS7) {
- 		ctrl_val |= ASC_CTL_MODE_7BIT_PAR;
-+		cflag |= PARENB;
- 	} else {
- 		ctrl_val |= (cflag & PARENB) ?  ASC_CTL_MODE_8BIT_PAR :
- 						ASC_CTL_MODE_8BIT;
-+		cflag &= ~CSIZE;
-+		cflag |= CS8;
- 	}
-+	termios->c_cflag = cflag;
- 
- 	/* set stop bit */
- 	ctrl_val |= (cflag & CSTOPB) ? ASC_CTL_STOP_2BIT : ASC_CTL_STOP_1BIT;
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index 01bae1d51113..3bf8aeeec96f 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -264,6 +264,10 @@ ENTRY(sie64a)
+ 	BPEXIT	__SF_SIE_FLAGS(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
+ .Lsie_entry:
+ 	sie	0(%r14)
++# Let the next instruction be NOP to avoid triggering a machine check
++# and handling it in a guest as result of the instruction execution.
++	nopr	7
++.Lsie_leave:
+ 	BPOFF
+ 	BPENTER	__SF_SIE_FLAGS(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
+ .Lsie_skip:
+@@ -563,7 +567,7 @@ ENTRY(mcck_int_handler)
+ 	jno	.Lmcck_panic
+ #if IS_ENABLED(CONFIG_KVM)
+ 	OUTSIDE	%r9,.Lsie_gmap,.Lsie_done,6f
+-	OUTSIDE	%r9,.Lsie_entry,.Lsie_skip,4f
++	OUTSIDE	%r9,.Lsie_entry,.Lsie_leave,4f
+ 	oi	__LC_CPU_FLAGS+7, _CIF_MCCK_GUEST
+ 	j	5f
+ 4:	CHKSTG	.Lmcck_panic
 -- 
 2.35.1
 
