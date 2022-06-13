@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9885487CD
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3DCC548852
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343745AbiFMKpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:45:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47856 "EHLO
+        id S1381582AbiFMOIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348575AbiFMKoU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:44:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 455042AE0A;
-        Mon, 13 Jun 2022 03:25:25 -0700 (PDT)
+        with ESMTP id S1382676AbiFMOGL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:06:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E655972AE;
+        Mon, 13 Jun 2022 04:41:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D97E860AEB;
-        Mon, 13 Jun 2022 10:25:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C42C34114;
-        Mon, 13 Jun 2022 10:25:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5793AB80ECE;
+        Mon, 13 Jun 2022 11:41:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3CB5C34114;
+        Mon, 13 Jun 2022 11:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115924;
-        bh=2K6xS69a1O0c1hgyMqhKR4fdZ2nI3D2CJCG+LfSCa2Q=;
+        s=korg; t=1655120469;
+        bh=DWggWnX2xNbDWS0Nu1a/WLOOSmvEs+6Jfo+l1xZDVc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pgb+9TEPymAS03gmNREYxgPOc9THjlcqouZtEgzvIoUV+I2w4pbX4nlUWUJHbUqCu
-         Kkbgd05+mJjvDwNzly3Mp5TvI3dZdWrTERdrMLKILkuwRJnDZNuc0QX42733ftwm/b
-         3MlufhRCVjWQ1Y7XyAi8zjpE+sD+eWkGyHb69N7I=
+        b=0FK4LbjPEMMPr8iR8Oxnwj0HLrt1j9XjiqZ5DIjHXQJE1c/vbVAeFFUFXNc2/7Vl/
+         IluMeUrWgcG9ZMgrFZeukoYkMSDxuY3JGT14zitCiLcZeuARe8EQ/eeUT7/31gBLbU
+         CPHEs7Sy4gYTDvcHCWHJbzigQVxRFIgqi251Qi3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 080/218] rxrpc: Dont try to resend the request if were receiving the reply
+Subject: [PATCH 5.17 044/298] watchdog: rzg2l_wdt: Fix reset control imbalance
 Date:   Mon, 13 Jun 2022 12:08:58 +0200
-Message-Id: <20220613094922.915929240@linuxfoundation.org>
+Message-Id: <20220613094926.280675937@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit 114af61f88fbe34d641b13922d098ffec4c1be1b ]
+[ Upstream commit 33d04d0fdba9fae18c7d58364643d2c606a43dba ]
 
-rxrpc has a timer to trigger resending of unacked data packets in a call.
-This is not cancelled when a client call switches to the receive phase on
-the basis that most calls don't last long enough for it to ever expire.
-However, if it *does* expire after we've started to receive the reply, we
-shouldn't then go into trying to retransmit or pinging the server to find
-out if an ack got lost.
+Both rzg2l_wdt_probe() and rzg2l_wdt_start() calls reset_control_
+deassert() which results in a reset control imbalance.
 
-Fix this by skipping the resend code if we're into receiving the reply to a
-client call.
+This patch fixes reset control imbalance by removing reset_control_
+deassert() from rzg2l_wdt_start() and replaces reset_control_assert with
+reset_control_reset in rzg2l_wdt_stop() as watchdog module can be stopped
+only by a module reset. This change will allow us to restart WDT after
+stop() by configuring WDT timeout and enable registers.
 
-Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: linux-afs@lists.infradead.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2cbc5cd0b55fa2 ("watchdog: Add Watchdog Timer driver for RZ/G2L")
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220225175320.11041-5-biju.das.jz@bp.renesas.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/call_event.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/watchdog/rzg2l_wdt.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
-index 7a77844aab16..7444290b228a 100644
---- a/net/rxrpc/call_event.c
-+++ b/net/rxrpc/call_event.c
-@@ -403,7 +403,8 @@ void rxrpc_process_call(struct work_struct *work)
- 		goto recheck_state;
- 	}
+diff --git a/drivers/watchdog/rzg2l_wdt.c b/drivers/watchdog/rzg2l_wdt.c
+index 48dfe6e5e64f..88274704b260 100644
+--- a/drivers/watchdog/rzg2l_wdt.c
++++ b/drivers/watchdog/rzg2l_wdt.c
+@@ -88,7 +88,6 @@ static int rzg2l_wdt_start(struct watchdog_device *wdev)
+ {
+ 	struct rzg2l_wdt_priv *priv = watchdog_get_drvdata(wdev);
  
--	if (test_and_clear_bit(RXRPC_CALL_EV_RESEND, &call->events)) {
-+	if (test_and_clear_bit(RXRPC_CALL_EV_RESEND, &call->events) &&
-+	    call->state != RXRPC_CALL_CLIENT_RECV_REPLY) {
- 		rxrpc_resend(call, now);
- 		goto recheck_state;
- 	}
+-	reset_control_deassert(priv->rstc);
+ 	pm_runtime_get_sync(wdev->parent);
+ 
+ 	/* Initialize time out */
+@@ -108,7 +107,7 @@ static int rzg2l_wdt_stop(struct watchdog_device *wdev)
+ 	struct rzg2l_wdt_priv *priv = watchdog_get_drvdata(wdev);
+ 
+ 	pm_runtime_put(wdev->parent);
+-	reset_control_assert(priv->rstc);
++	reset_control_reset(priv->rstc);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
