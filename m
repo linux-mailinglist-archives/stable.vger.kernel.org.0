@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42E2D549079
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7957A548C11
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357092AbiFMLwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:52:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57128 "EHLO
+        id S1380318AbiFMN6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:58:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356558AbiFMLup (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC1E42657B;
-        Mon, 13 Jun 2022 03:54:22 -0700 (PDT)
+        with ESMTP id S1380666AbiFMNyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:54:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 967D8813CB;
+        Mon, 13 Jun 2022 04:35:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8814960F9A;
-        Mon, 13 Jun 2022 10:54:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91361C34114;
-        Mon, 13 Jun 2022 10:54:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDA016124E;
+        Mon, 13 Jun 2022 11:35:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA153C3411C;
+        Mon, 13 Jun 2022 11:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117661;
-        bh=ix45NMYnhPTdqswFILcqFEMM4VRwxKhmL4d0TY9LdVY=;
+        s=korg; t=1655120127;
+        bh=3TszrS3lAtEjZ2rupo4rzyU9qtS2/kAgbkhSgz7ytFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRn+ZeCBIhSvB4IuRiH/JA51OCI1j5Uxal4UpZbFIRKqTI/6TPwtXzmYm9PfLjFpH
-         hwQAdSCGZ88CA2PF6rjaTOGcjLnx3ovKWgz8G81dzC5HE/GlbJavXT5UtcLIHPwbb3
-         aLLBrXyBCwMnntSxFH7qpyO+EsH1/H2Myd/jlbYM=
+        b=e4tlTXFi9MuJSQWnnNKhqtlNyT3T1OfZE2L1j/bluptiOZjtp7yZlgtZGL2IHNitU
+         SEispDf855ng3xyukgAnQA+Ptb8NzAhAOcIUPPmOgaywJMoiaWiv6Jjp13lkykWSSn
+         8O7opjDfCwqEeHtDggjw6Oj/zMTCNh5ZuhOYvAME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Pascal Hambourg <pascal@plouf.fr.eu.org>,
-        Song Liu <song@kernel.org>
-Subject: [PATCH 5.4 410/411] md/raid0: Ignore RAID0 layout if the second zone has only one device
-Date:   Mon, 13 Jun 2022 12:11:23 +0200
-Message-Id: <20220613094941.114865346@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 259/339] Revert "net: af_key: add check for pfkey_broadcast in function pfkey_process"
+Date:   Mon, 13 Jun 2022 12:11:24 +0200
+Message-Id: <20220613094934.508223261@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pascal Hambourg <pascal@plouf.fr.eu.org>
+From: Michal Kubecek <mkubecek@suse.cz>
 
-commit ea23994edc4169bd90d7a9b5908c6ccefd82fa40 upstream.
+[ Upstream commit 9c90c9b3e50e16d03c7f87d63e9db373974781e0 ]
 
-The RAID0 layout is irrelevant if all members have the same size so the
-array has only one zone. It is *also* irrelevant if the array has two
-zones and the second zone has only one device, for example if the array
-has two members of different sizes.
+This reverts commit 4dc2a5a8f6754492180741facf2a8787f2c415d7.
 
-So in that case it makes sense to allow assembly even when the layout is
-undefined, like what is done when the array has only one zone.
+A non-zero return value from pfkey_broadcast() does not necessarily mean
+an error occurred as this function returns -ESRCH when no registered
+listener received the message. In particular, a call with
+BROADCAST_PROMISC_ONLY flag and null one_sk argument can never return
+zero so that this commit in fact prevents processing any PF_KEY message.
+One visible effect is that racoon daemon fails to find encryption
+algorithms like aes and refuses to start.
 
-Reviewed-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Pascal Hambourg <pascal@plouf.fr.eu.org>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Excluding -ESRCH return value would fix this but it's not obvious that
+we really want to bail out here and most other callers of
+pfkey_broadcast() also ignore the return value. Also, as pointed out by
+Steffen Klassert, PF_KEY is kind of deprecated and newer userspace code
+should use netlink instead so that we should only disturb the code for
+really important fixes.
+
+v2: add a comment explaining why is the return value ignored
+
+Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid0.c |   31 ++++++++++++++++---------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ net/key/af_key.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -143,21 +143,6 @@ static int create_strip_zones(struct mdd
- 	pr_debug("md/raid0:%s: FINAL %d zones\n",
- 		 mdname(mddev), conf->nr_strip_zones);
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 339d95df19d3..d93bde657359 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2826,10 +2826,12 @@ static int pfkey_process(struct sock *sk, struct sk_buff *skb, const struct sadb
+ 	void *ext_hdrs[SADB_EXT_MAX];
+ 	int err;
  
--	if (conf->nr_strip_zones == 1) {
--		conf->layout = RAID0_ORIG_LAYOUT;
--	} else if (mddev->layout == RAID0_ORIG_LAYOUT ||
--		   mddev->layout == RAID0_ALT_MULTIZONE_LAYOUT) {
--		conf->layout = mddev->layout;
--	} else if (default_layout == RAID0_ORIG_LAYOUT ||
--		   default_layout == RAID0_ALT_MULTIZONE_LAYOUT) {
--		conf->layout = default_layout;
--	} else {
--		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
--		       mdname(mddev));
--		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
--		err = -ENOTSUPP;
--		goto abort;
--	}
- 	/*
- 	 * now since we have the hard sector sizes, we can make sure
- 	 * chunk size is a multiple of that sector size
-@@ -288,6 +273,22 @@ static int create_strip_zones(struct mdd
- 			 (unsigned long long)smallest->sectors);
- 	}
+-	err = pfkey_broadcast(skb_clone(skb, GFP_KERNEL), GFP_KERNEL,
+-			      BROADCAST_PROMISC_ONLY, NULL, sock_net(sk));
+-	if (err)
+-		return err;
++	/* Non-zero return value of pfkey_broadcast() does not always signal
++	 * an error and even on an actual error we may still want to process
++	 * the message so rather ignore the return value.
++	 */
++	pfkey_broadcast(skb_clone(skb, GFP_KERNEL), GFP_KERNEL,
++			BROADCAST_PROMISC_ONLY, NULL, sock_net(sk));
  
-+	if (conf->nr_strip_zones == 1 || conf->strip_zone[1].nb_dev == 1) {
-+		conf->layout = RAID0_ORIG_LAYOUT;
-+	} else if (mddev->layout == RAID0_ORIG_LAYOUT ||
-+		   mddev->layout == RAID0_ALT_MULTIZONE_LAYOUT) {
-+		conf->layout = mddev->layout;
-+	} else if (default_layout == RAID0_ORIG_LAYOUT ||
-+		   default_layout == RAID0_ALT_MULTIZONE_LAYOUT) {
-+		conf->layout = default_layout;
-+	} else {
-+		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
-+		       mdname(mddev));
-+		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
-+		err = -EOPNOTSUPP;
-+		goto abort;
-+	}
-+
- 	pr_debug("md/raid0:%s: done.\n", mdname(mddev));
- 	*private_conf = conf;
- 
+ 	memset(ext_hdrs, 0, sizeof(ext_hdrs));
+ 	err = parse_exthdrs(skb, hdr, ext_hdrs);
+-- 
+2.35.1
+
 
 
