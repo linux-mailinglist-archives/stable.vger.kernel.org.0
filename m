@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DAF2548EDF
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA470548A21
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352383AbiFMLRY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:17:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46524 "EHLO
+        id S1352521AbiFMLRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:17:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353490AbiFMLPq (ORCPT
+        with ESMTP id S1353497AbiFMLPq (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:15:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A2712AEA;
-        Mon, 13 Jun 2022 03:38:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEEB8381A9;
+        Mon, 13 Jun 2022 03:38:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C486CB80EA3;
-        Mon, 13 Jun 2022 10:38:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 295F7C34114;
-        Mon, 13 Jun 2022 10:38:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F18DB80EA3;
+        Mon, 13 Jun 2022 10:38:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA6B6C3411E;
+        Mon, 13 Jun 2022 10:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116691;
-        bh=YngYTHK74SKNAyonVQCJQkkE3lJBYdQpvoJt6HV+BM4=;
+        s=korg; t=1655116694;
+        bh=SGx7+q0pR03ozeCJd////y0KHdb2pEnaoGfENwzN3H0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ecrgyerLwtM9NrUpMZScrOKFi9QfRVAkXejSRRtW1UICcphtGEV1stuni0zlXW/i2
-         tnJBk9Ck3vR45orrivRrmCftcXBSI+jv2eB/9U+Ir3DfDpt59e0tUDNHIgbo4SYikY
-         UD2ncimJSTD7/BG/X6AzGFxy/78akJR3shD5DgDc=
+        b=Z+LmL7QX/lnay1BF+IK/L4GSmQD24EX+Vksvl1evd8arKxMPGKo9yRDGjwKersu9R
+         pM5Sa1p8cyrM2W1X0yBfr5RL3iVzf1iB0C8ksgyN9s4z9lE7Q2glyOel0SEEt7oL7i
+         TNDPA+4mt0ri4yncJmoNmCtOp4fZkHRBc6MO3iQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         linux-afs@lists.infradead.org,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 150/411] rxrpc: Fix listen() setting the bar too high for the prealloc rings
-Date:   Mon, 13 Jun 2022 12:07:03 +0200
-Message-Id: <20220613094933.164140991@linuxfoundation.org>
+Subject: [PATCH 5.4 151/411] rxrpc: Dont try to resend the request if were receiving the reply
+Date:   Mon, 13 Jun 2022 12:07:04 +0200
+Message-Id: <20220613094933.193565678@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -58,70 +57,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 88e22159750b0d55793302eeed8ee603f5c1a95c ]
+[ Upstream commit 114af61f88fbe34d641b13922d098ffec4c1be1b ]
 
-AF_RXRPC's listen() handler lets you set the backlog up to 32 (if you bump
-up the sysctl), but whilst the preallocation circular buffers have 32 slots
-in them, one of them has to be a dead slot because we're using CIRC_CNT().
+rxrpc has a timer to trigger resending of unacked data packets in a call.
+This is not cancelled when a client call switches to the receive phase on
+the basis that most calls don't last long enough for it to ever expire.
+However, if it *does* expire after we've started to receive the reply, we
+shouldn't then go into trying to retransmit or pinging the server to find
+out if an ack got lost.
 
-This means that listen(rxrpc_sock, 32) will cause an oops when the socket
-is closed because rxrpc_service_prealloc_one() allocated one too many calls
-and rxrpc_discard_prealloc() won't then be able to get rid of them because
-it'll think the ring is empty.  rxrpc_release_calls_on_socket() then tries
-to abort them, but oopses because call->peer isn't yet set.
+Fix this by skipping the resend code if we're into receiving the reply to a
+client call.
 
-Fix this by setting the maximum backlog to RXRPC_BACKLOG_MAX - 1 to match
-the ring capacity.
-
- BUG: kernel NULL pointer dereference, address: 0000000000000086
- ...
- RIP: 0010:rxrpc_send_abort_packet+0x73/0x240 [rxrpc]
- Call Trace:
-  <TASK>
-  ? __wake_up_common_lock+0x7a/0x90
-  ? rxrpc_notify_socket+0x8e/0x140 [rxrpc]
-  ? rxrpc_abort_call+0x4c/0x60 [rxrpc]
-  rxrpc_release_calls_on_socket+0x107/0x1a0 [rxrpc]
-  rxrpc_release+0xc9/0x1c0 [rxrpc]
-  __sock_release+0x37/0xa0
-  sock_close+0x11/0x20
-  __fput+0x89/0x240
-  task_work_run+0x59/0x90
-  do_exit+0x319/0xaa0
-
-Fixes: 00e907127e6f ("rxrpc: Preallocate peers, conns and calls for incoming service requests")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
 Signed-off-by: David Howells <dhowells@redhat.com>
 cc: linux-afs@lists.infradead.org
-Link: https://lists.infradead.org/pipermail/linux-afs/2022-March/005079.html
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/sysctl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/rxrpc/call_event.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/rxrpc/sysctl.c b/net/rxrpc/sysctl.c
-index 18dade4e6f9a..8fc419072505 100644
---- a/net/rxrpc/sysctl.c
-+++ b/net/rxrpc/sysctl.c
-@@ -12,7 +12,7 @@
+diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
+index 80e15310f1b2..8574e7066d94 100644
+--- a/net/rxrpc/call_event.c
++++ b/net/rxrpc/call_event.c
+@@ -407,7 +407,8 @@ void rxrpc_process_call(struct work_struct *work)
+ 		goto recheck_state;
+ 	}
  
- static struct ctl_table_header *rxrpc_sysctl_reg_table;
- static const unsigned int four = 4;
--static const unsigned int thirtytwo = 32;
-+static const unsigned int max_backlog = RXRPC_BACKLOG_MAX - 1;
- static const unsigned int n_65535 = 65535;
- static const unsigned int n_max_acks = RXRPC_RXTX_BUFF_SIZE - 1;
- static const unsigned long one_jiffy = 1;
-@@ -97,7 +97,7 @@ static struct ctl_table rxrpc_sysctl_table[] = {
- 		.mode		= 0644,
- 		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= (void *)&four,
--		.extra2		= (void *)&thirtytwo,
-+		.extra2		= (void *)&max_backlog,
- 	},
- 	{
- 		.procname	= "rx_window_size",
+-	if (test_and_clear_bit(RXRPC_CALL_EV_RESEND, &call->events)) {
++	if (test_and_clear_bit(RXRPC_CALL_EV_RESEND, &call->events) &&
++	    call->state != RXRPC_CALL_CLIENT_RECV_REPLY) {
+ 		rxrpc_resend(call, now);
+ 		goto recheck_state;
+ 	}
 -- 
 2.35.1
 
