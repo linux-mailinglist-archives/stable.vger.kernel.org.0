@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 469C0548C9B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:13:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCF75548F19
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346350AbiFMKj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:39:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51148 "EHLO
+        id S1357042AbiFMLwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:52:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346444AbiFMKiO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:38:14 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12F6713E00;
-        Mon, 13 Jun 2022 03:22:59 -0700 (PDT)
+        with ESMTP id S1356497AbiFMLuh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D864E248C3;
+        Mon, 13 Jun 2022 03:54:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D3F8DCE1161;
-        Mon, 13 Jun 2022 10:22:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9F9BC3411E;
-        Mon, 13 Jun 2022 10:22:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7357C60F9A;
+        Mon, 13 Jun 2022 10:54:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88F48C34114;
+        Mon, 13 Jun 2022 10:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115776;
-        bh=262NN7HEnh2igmL4l1gAU+SUwZl24FoHE7oXfKo85Lc=;
+        s=korg; t=1655117653;
+        bh=ijCvAG5D6KxVV9sw1XIyTUNpxJ2pxD5vlmvuuYWonXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OHqsMym+6e6UMVvCCy04eMaV9WYLcvjqn97A1F1NFirzFy1mRf16X3LRi9W8PnmFW
-         0ZPIlWUPEfJq0bOPcOXwLnOSjMZISkcgqnOn4D/t3QC6aXMUlS9SNCm7eMHdbwIdDX
-         Ab8+u1bdpf7KQ6qw60cZYYyS4dlm+AfNQTm/Ae8g=
+        b=vhL01MZthQ37ukemkhxycMigsUQNiu++Njnp3ThYwT4lcT5rUe6ejCYjuZrvnP0Hb
+         ewsXULSOjr9j9H26TJp2sFv6L90BZd4CZfyV9SAbB0+uDWGAq58n9+Ws6kMaKzG82k
+         Yb2y2wyBb/cYF+zSNkCvJdDSA7wyQAPiwIo+P/Qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 037/218] ARM: OMAP1: clock: Fix UART rate reporting algorithm
+        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 071/287] HID: hid-led: fix maximum brightness for Dream Cheeky
 Date:   Mon, 13 Jun 2022 12:08:15 +0200
-Message-Id: <20220613094917.103514268@linuxfoundation.org>
+Message-Id: <20220613094926.022985988@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+From: Jonathan Teh <jonathan.teh@outlook.com>
 
-[ Upstream commit 338d5d476cde853dfd97378d20496baabc2ce3c0 ]
+[ Upstream commit 116c3f4a78ebe478d5ad5a038baf931e93e7d748 ]
 
-Since its introduction to the mainline kernel, omap1_uart_recalc() helper
-makes incorrect use of clk->enable_bit as a ready to use bitmap mask while
-it only provides the bit number.  Fix it.
+Increase maximum brightness for Dream Cheeky to 63. Emperically
+determined based on testing in kernel 4.4 on this device:
 
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Bus 003 Device 002: ID 1d34:0004 Dream Cheeky Webmail Notifier
+
+Fixes: 6c7ad07e9e05 ("HID: migrate USB LED driver from usb misc to hid")
+Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap1/clock.c | 2 +-
+ drivers/hid/hid-led.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap1/clock.c b/arch/arm/mach-omap1/clock.c
-index fa512413a471..b277409f303a 100644
---- a/arch/arm/mach-omap1/clock.c
-+++ b/arch/arm/mach-omap1/clock.c
-@@ -44,7 +44,7 @@ static DEFINE_SPINLOCK(clockfw_lock);
- unsigned long omap1_uart_recalc(struct clk *clk)
- {
- 	unsigned int val = __raw_readl(clk->enable_reg);
--	return val & clk->enable_bit ? 48000000 : 12000000;
-+	return val & 1 << clk->enable_bit ? 48000000 : 12000000;
- }
- 
- unsigned long omap1_sossi_recalc(struct clk *clk)
+diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
+index d3e1ab162f7c..7fc5982a0ca4 100644
+--- a/drivers/hid/hid-led.c
++++ b/drivers/hid/hid-led.c
+@@ -369,7 +369,7 @@ static const struct hidled_config hidled_configs[] = {
+ 		.type = DREAM_CHEEKY,
+ 		.name = "Dream Cheeky Webmail Notifier",
+ 		.short_name = "dream_cheeky",
+-		.max_brightness = 31,
++		.max_brightness = 63,
+ 		.num_leds = 1,
+ 		.report_size = 9,
+ 		.report_type = RAW_REQUEST,
 -- 
 2.35.1
 
