@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6EAB548633
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:56:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB65548637
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:56:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377972AbiFMNmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:42:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33362 "EHLO
+        id S1344680AbiFMKuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379218AbiFMNkD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A6BCE0E;
-        Mon, 13 Jun 2022 04:30:17 -0700 (PDT)
+        with ESMTP id S1346682AbiFMKsq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:48:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E52012CDD7;
+        Mon, 13 Jun 2022 03:26:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C695661236;
-        Mon, 13 Jun 2022 11:30:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7DACC34114;
-        Mon, 13 Jun 2022 11:30:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED74A60F09;
+        Mon, 13 Jun 2022 10:26:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2482C34114;
+        Mon, 13 Jun 2022 10:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119816;
-        bh=dPSEXvNIfdoSYenegAt9waDDwo12zSYYNWw8b2UUi+A=;
+        s=korg; t=1655115976;
+        bh=+7lMIGEEM0SyYdAaiK7TVCobrDsuPE+uowxjx/D62q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qmCBpFTs4XldbQTqIecywMl7r3rpnxr5QDqyDOgIJBs/PYO5+R0BKWhlLu6c8MN6W
-         JNNqqumjtnnn1bxq3kyoR9naiESs2gp9wqlLH5HP/hXyDYM2FGIxyCTVtR9VLewbhl
-         ZhSfXIX3AP9GsPS/gKgw1im5EoAVPk3G7BipE6Og=
+        b=Pw1wBax8YHbsqp87kfWf3FGS3vc085dCJ9TKIqiv0Uix3+xCL6RvqF+SMuffwzwuC
+         D0qmj3hadZXhTyLayFgz15FJ8Pk4xKu1zHCzNQ4xIB2Vqn4NJfEz0XIa3CzNp/wERQ
+         c6KpIRU2o+fYJc6p4EqIzm6P6j2cXSH2YUECaEi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 132/339] vdpa: ifcvf: set pci driver data in probe
-Date:   Mon, 13 Jun 2022 12:09:17 +0200
-Message-Id: <20220613094930.514023351@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 4.14 102/218] wifi: mac80211: fix use-after-free in chanctx code
+Date:   Mon, 13 Jun 2022 12:09:20 +0200
+Message-Id: <20220613094923.647168349@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit bd8bb9aed56b1814784a975e2dfea12a9adcee92 ]
+commit 2965c4cdf7ad9ce0796fac5e57debb9519ea721e upstream.
 
-We should set the pci driver data in probe instead of the vdpa device
-adding callback. Otherwise if no vDPA device is created we will lose
-the pointer to the management device.
+In ieee80211_vif_use_reserved_context(), when we have an
+old context and the new context's replace_state is set to
+IEEE80211_CHANCTX_REPLACE_NONE, we free the old context
+in ieee80211_vif_use_reserved_reassign(). Therefore, we
+cannot check the old_ctx anymore, so we should set it to
+NULL after this point.
 
-Fixes: 6b5df347c6482 ("vDPA/ifcvf: implement management netlink framework for ifcvf")
-Tested-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Message-Id: <20220524055557.1938-1-jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, since the new_ctx replace state is clearly not
+IEEE80211_CHANCTX_REPLACES_OTHER, we're not going to do
+anything else in this function and can just return to
+avoid accessing the freed old_ctx.
+
+Cc: stable@vger.kernel.org
+Fixes: 5bcae31d9cb1 ("mac80211: implement multi-vif in-place reservations")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220601091926.df419d91b165.I17a9b3894ff0b8323ce2afdb153b101124c821e5@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vdpa/ifcvf/ifcvf_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/mac80211/chan.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index 4366320fb68d..197d52e7b801 100644
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -765,7 +765,6 @@ static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+--- a/net/mac80211/chan.c
++++ b/net/mac80211/chan.c
+@@ -1638,12 +1638,9 @@ int ieee80211_vif_use_reserved_context(s
+ 
+ 	if (new_ctx->replace_state == IEEE80211_CHANCTX_REPLACE_NONE) {
+ 		if (old_ctx)
+-			err = ieee80211_vif_use_reserved_reassign(sdata);
+-		else
+-			err = ieee80211_vif_use_reserved_assign(sdata);
++			return ieee80211_vif_use_reserved_reassign(sdata);
+ 
+-		if (err)
+-			return err;
++		return ieee80211_vif_use_reserved_assign(sdata);
  	}
  
- 	ifcvf_mgmt_dev->adapter = adapter;
--	pci_set_drvdata(pdev, ifcvf_mgmt_dev);
- 
- 	vf = &adapter->vf;
- 	vf->dev_type = get_dev_type(pdev);
-@@ -880,6 +879,8 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		goto err;
- 	}
- 
-+	pci_set_drvdata(pdev, ifcvf_mgmt_dev);
-+
- 	return 0;
- 
- err:
--- 
-2.35.1
-
+ 	/*
 
 
