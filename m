@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5615D549251
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B0E548F9F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380588AbiFMN7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:59:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54762 "EHLO
+        id S1353524AbiFMMQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:16:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380302AbiFMNyE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:54:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF5A42ECD;
-        Mon, 13 Jun 2022 04:34:35 -0700 (PDT)
+        with ESMTP id S1358822AbiFMMOV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:14:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92FB3546B0;
+        Mon, 13 Jun 2022 04:02:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E91086124E;
-        Mon, 13 Jun 2022 11:34:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F09EEC34114;
-        Mon, 13 Jun 2022 11:34:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C25EB80E92;
+        Mon, 13 Jun 2022 11:01:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52870C3411E;
+        Mon, 13 Jun 2022 11:01:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120074;
-        bh=dWtkSMzKDscygiG+tJ3tu1ikyvw0VFXcLcT5fAOsbOc=;
+        s=korg; t=1655118117;
+        bh=y4dxNvfBgN8CDJsPUeuxYlvnpmcSkQH6CHAIB8bTut0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vlf3tkOg9+hf+t9Vbcvx4rtIJUMcCmZ3810gP/c55ns0alGEVFNBXPlgh4bCkwfrQ
-         2+082Y4LsM3ba7Wr5XNKnRoClD0UA96gknx8q5NDsAmZMRfuf8hsSQcIJhFFXTbz/D
-         mNGO+usTb5Yb7Db1xhEDe++GUUlMc92ky2GOBvFE=
+        b=f1D5LdzjrQ+g0OlBcwL+CdAKac65pYF5LmHoxGRsxiWmqt/GhUv+X8oEIqxL8nYbv
+         WO5PbA0eXiTGDZDWgBDDSikWEj/zzYvkrJxy1AaRUXUEoelz6Egk45XtifUidsvCXC
+         6Hab/V4Kqob456IhlbQwCXkB2VnettYyEtoZBvOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
-        Denis Ciocca <denis.ciocca@st.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Joe Mario <jmario@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 225/339] iio: st_sensors: Add a local lock for protecting odr
+Subject: [PATCH 4.19 226/287] perf c2c: Fix sorting in percent_rmt_hitm_cmp()
 Date:   Mon, 13 Jun 2022 12:10:50 +0200
-Message-Id: <20220613094933.483226034@linuxfoundation.org>
+Message-Id: <20220613094930.868032308@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,121 +60,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 474010127e2505fc463236470908e1ff5ddb3578 ]
+[ Upstream commit b24192a17337abbf3f44aaa75e15df14a2d0016e ]
 
-Right now the (framework) mlock lock is (ab)used for multiple purposes:
-1- protecting concurrent accesses over the odr local cache
-2- avoid changing samplig frequency whilst buffer is running
+The function percent_rmt_hitm_cmp() wrongly uses local HITMs for
+sorting remote HITMs.
 
-Let's start by handling situation #1 with a local lock.
+Since this function is to sort cache lines for remote HITMs, this patch
+changes to use 'rmt_hitm' field for correct sorting.
 
-Suggested-by: Jonathan Cameron <jic23@kernel.org>
-Cc: Denis Ciocca <denis.ciocca@st.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/r/20220207143840.707510-7-miquel.raynal@bootlin.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 9cb3500afc0980c5 ("perf c2c report: Add hitm/store percent related sort keys")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Joe Mario <jmario@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220530084253.750190-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../iio/common/st_sensors/st_sensors_core.c   | 24 ++++++++++++++-----
- include/linux/iio/common/st_sensors.h         |  3 +++
- 2 files changed, 21 insertions(+), 6 deletions(-)
+ tools/perf/builtin-c2c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/common/st_sensors/st_sensors_core.c b/drivers/iio/common/st_sensors/st_sensors_core.c
-index fa9bcdf0d190..b92de90a125c 100644
---- a/drivers/iio/common/st_sensors/st_sensors_core.c
-+++ b/drivers/iio/common/st_sensors/st_sensors_core.c
-@@ -71,16 +71,18 @@ static int st_sensors_match_odr(struct st_sensor_settings *sensor_settings,
+diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
+index fb875e365db1..f3c142bd1a11 100644
+--- a/tools/perf/builtin-c2c.c
++++ b/tools/perf/builtin-c2c.c
+@@ -944,8 +944,8 @@ percent_rmt_hitm_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
+ 	double per_left;
+ 	double per_right;
  
- int st_sensors_set_odr(struct iio_dev *indio_dev, unsigned int odr)
- {
--	int err;
-+	int err = 0;
- 	struct st_sensor_odr_avl odr_out = {0, 0};
- 	struct st_sensor_data *sdata = iio_priv(indio_dev);
+-	per_left  = PERCENT(left, lcl_hitm);
+-	per_right = PERCENT(right, lcl_hitm);
++	per_left  = PERCENT(left, rmt_hitm);
++	per_right = PERCENT(right, rmt_hitm);
  
-+	mutex_lock(&sdata->odr_lock);
-+
- 	if (!sdata->sensor_settings->odr.mask)
--		return 0;
-+		goto unlock_mutex;
- 
- 	err = st_sensors_match_odr(sdata->sensor_settings, odr, &odr_out);
- 	if (err < 0)
--		goto st_sensors_match_odr_error;
-+		goto unlock_mutex;
- 
- 	if ((sdata->sensor_settings->odr.addr ==
- 					sdata->sensor_settings->pw.addr) &&
-@@ -103,7 +105,9 @@ int st_sensors_set_odr(struct iio_dev *indio_dev, unsigned int odr)
- 	if (err >= 0)
- 		sdata->odr = odr_out.hz;
- 
--st_sensors_match_odr_error:
-+unlock_mutex:
-+	mutex_unlock(&sdata->odr_lock);
-+
- 	return err;
+ 	return per_left - per_right;
  }
- EXPORT_SYMBOL_NS(st_sensors_set_odr, IIO_ST_SENSORS);
-@@ -361,6 +365,8 @@ int st_sensors_init_sensor(struct iio_dev *indio_dev,
- 	struct st_sensors_platform_data *of_pdata;
- 	int err = 0;
- 
-+	mutex_init(&sdata->odr_lock);
-+
- 	/* If OF/DT pdata exists, it will take precedence of anything else */
- 	of_pdata = st_sensors_dev_probe(indio_dev->dev.parent, pdata);
- 	if (IS_ERR(of_pdata))
-@@ -554,18 +560,24 @@ int st_sensors_read_info_raw(struct iio_dev *indio_dev,
- 		err = -EBUSY;
- 		goto out;
- 	} else {
-+		mutex_lock(&sdata->odr_lock);
- 		err = st_sensors_set_enable(indio_dev, true);
--		if (err < 0)
-+		if (err < 0) {
-+			mutex_unlock(&sdata->odr_lock);
- 			goto out;
-+		}
- 
- 		msleep((sdata->sensor_settings->bootime * 1000) / sdata->odr);
- 		err = st_sensors_read_axis_data(indio_dev, ch, val);
--		if (err < 0)
-+		if (err < 0) {
-+			mutex_unlock(&sdata->odr_lock);
- 			goto out;
-+		}
- 
- 		*val = *val >> ch->scan_type.shift;
- 
- 		err = st_sensors_set_enable(indio_dev, false);
-+		mutex_unlock(&sdata->odr_lock);
- 	}
- out:
- 	mutex_unlock(&indio_dev->mlock);
-diff --git a/include/linux/iio/common/st_sensors.h b/include/linux/iio/common/st_sensors.h
-index 22f67845cdd3..db4a1b260348 100644
---- a/include/linux/iio/common/st_sensors.h
-+++ b/include/linux/iio/common/st_sensors.h
-@@ -237,6 +237,7 @@ struct st_sensor_settings {
-  * @hw_irq_trigger: if we're using the hardware interrupt on the sensor.
-  * @hw_timestamp: Latest timestamp from the interrupt handler, when in use.
-  * @buffer_data: Data used by buffer part.
-+ * @odr_lock: Local lock for preventing concurrent ODR accesses/changes
-  */
- struct st_sensor_data {
- 	struct iio_trigger *trig;
-@@ -261,6 +262,8 @@ struct st_sensor_data {
- 	s64 hw_timestamp;
- 
- 	char buffer_data[ST_SENSORS_MAX_BUFFER_SIZE] ____cacheline_aligned;
-+
-+	struct mutex odr_lock;
- };
- 
- #ifdef CONFIG_IIO_BUFFER
 -- 
 2.35.1
 
