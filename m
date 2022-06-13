@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 157665492DE
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F14C5498C4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351015AbiFMLFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:05:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42510 "EHLO
+        id S1351526AbiFMLG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:06:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351752AbiFMLE7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:04:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76B3A32EE8;
-        Mon, 13 Jun 2022 03:33:56 -0700 (PDT)
+        with ESMTP id S1351882AbiFMLFL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:05:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29138272;
+        Mon, 13 Jun 2022 03:34:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C0D160FC9;
-        Mon, 13 Jun 2022 10:33:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CFDBC34114;
-        Mon, 13 Jun 2022 10:33:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9E8960F9A;
+        Mon, 13 Jun 2022 10:34:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CACE2C34114;
+        Mon, 13 Jun 2022 10:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116434;
-        bh=EAB0sFpBWApDmm/5hoRD6cLlg+kbsbnjhf66J8G8h6g=;
+        s=korg; t=1655116470;
+        bh=JzLTZvIxI/bUbu0r41iCl9hj9nz0AwpHT9/b+qTUprg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0aWv868ZVwCodcmFJOG0rsJdAA4IlmbGTQkIcN9H3INrvBqYUHAnvaX5jA0iIjNu+
-         OE11qaha1Pb6l+1+jCxuHBLgMhXrEgoasIvO7gcquTKgd7LDzATviZyEzpNSSbcI4a
-         Rx9GiCBq8Lq3X0LK7xcRPa7dEsLdR3baWisGUOng=
+        b=KHy7DKnj4cfLGEED/a1dqnAfNW8qqTYu4Nz5AeEwuuDAYFYViYTy6WfTKa4LGemIw
+         w4A1o5HbYF13QuD5/hcDjWy0sa3td18cqO5lVkW8nE5GLtv96iHsku+VC3laMhInh4
+         t7Ky3XngSUrXkPqKzsgzApSZb90pNO/kwdZaj1eM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 082/411] drm/edid: fix invalid EDID extension block filtering
-Date:   Mon, 13 Jun 2022 12:05:55 +0200
-Message-Id: <20220613094931.140199973@linuxfoundation.org>
+Subject: [PATCH 5.4 083/411] drm/bridge: adv7511: clean up CEC adapter when probe fails
+Date:   Mon, 13 Jun 2022 12:05:56 +0200
+Message-Id: <20220613094931.170533764@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -56,53 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 3aefc722ff52076407203b6af9713de567993adf ]
+[ Upstream commit 7ed2b0dabf7a22874cb30f8878df239ef638eb53 ]
 
-The invalid EDID block filtering uses the number of valid EDID
-extensions instead of all EDID extensions for looping the extensions in
-the copy. This is fine, by coincidence, if all the invalid blocks are at
-the end of the EDID. However, it's completely broken if there are
-invalid extensions in the middle; the invalid blocks are included and
-valid blocks are excluded.
+When the probe routine fails we also need to clean up the
+CEC adapter registered in adv7511_cec_init().
 
-Fix it by modifying the base block after, not before, the copy.
-
-Fixes: 14544d0937bf ("drm/edid: Only print the bad edid when aborting")
-Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220330170426.349248-1-jani.nikula@intel.com
+Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220321104705.2804423-1-l.stach@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index aeeab1b57aad..2dc6dd6230d7 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -1702,9 +1702,6 @@ struct edid *drm_do_get_edid(struct drm_connector *connector,
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index 9e13e466e72c..e7bf32f234d7 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -1225,6 +1225,7 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
+ 	return 0;
  
- 		connector_bad_edid(connector, edid, edid[0x7e] + 1);
- 
--		edid[EDID_LENGTH-1] += edid[0x7e] - valid_extensions;
--		edid[0x7e] = valid_extensions;
--
- 		new = kmalloc_array(valid_extensions + 1, EDID_LENGTH,
- 				    GFP_KERNEL);
- 		if (!new)
-@@ -1721,6 +1718,9 @@ struct edid *drm_do_get_edid(struct drm_connector *connector,
- 			base += EDID_LENGTH;
- 		}
- 
-+		new[EDID_LENGTH - 1] += new[0x7e] - valid_extensions;
-+		new[0x7e] = valid_extensions;
-+
- 		kfree(edid);
- 		edid = new;
- 	}
+ err_unregister_cec:
++	cec_unregister_adapter(adv7511->cec_adap);
+ 	i2c_unregister_device(adv7511->i2c_cec);
+ 	if (adv7511->cec_clk)
+ 		clk_disable_unprepare(adv7511->cec_clk);
 -- 
 2.35.1
 
