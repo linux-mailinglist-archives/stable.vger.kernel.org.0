@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA5C1548D5E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D293549394
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241222AbiFMM6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:58:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49898 "EHLO
+        id S1358515AbiFMMGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:06:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354293AbiFMMzj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:39 -0400
+        with ESMTP id S1359030AbiFMMFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41A8D11146;
-        Mon, 13 Jun 2022 04:16:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971C625C55;
+        Mon, 13 Jun 2022 03:58:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DB6160B60;
-        Mon, 13 Jun 2022 11:16:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACBDFC3411C;
-        Mon, 13 Jun 2022 11:16:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE8A461257;
+        Mon, 13 Jun 2022 10:58:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBBBAC34114;
+        Mon, 13 Jun 2022 10:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118987;
-        bh=uS4yQiy6l5prXpMsSbHprTqB0Erj5eGU8B8u2yfkB7Y=;
+        s=korg; t=1655117917;
+        bh=IFL+ra9dCTVwdOrXgane0wMJwEGfhky5g1UMWUvXbXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gLVn9Ow8A1ZvnMy6uK2ktYA/xS+oeLbjMfpUBTiaEnFhpKOoZ0oRrf6FKL8QbLz70
-         OTtO7Tcin2uxkgXS+vgA4fBelZ3AFLa8lEGPICtmRUpxjmhrPQA1WqqCG4lLytTixz
-         7eP4j0ZzP8OaR9EACxSYpD8Utnaf6emxr834uIOw=
+        b=ZCJnP81NJ0px+LijMQeTiXFMveybhPNMgQBBT1t7V69KxFzi2OYJffcqO8QpsKcg1
+         rwkhY/FosdUsd7j2TBYniqJuw+sbl6kbiu+x8Vjop/UHW+sIj1KdSFeQOo8p8y3pPr
+         F1IZak0zAAhkCln37N4V6Zpzo45L8grO0KpidNTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Laurent Fasnacht <laurent.fasnacht@proton.ch>,
-        Neal Cardwell <ncardwell@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 099/247] tcp: tcp_rtx_synack() can be called from process context
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 177/287] ASoC: rt5514: Fix event generation for "DSP Voice Wake Up" control
 Date:   Mon, 13 Jun 2022 12:10:01 +0200
-Message-Id: <20220613094925.958134702@linuxfoundation.org>
+Message-Id: <20220613094929.238289721@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,92 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 0a375c822497ed6ad6b5da0792a12a6f1af10c0b ]
+commit 4213ff556740bb45e2d9ff0f50d056c4e7dd0921 upstream.
 
-Laurent reported the enclosed report [1]
+The driver has a custom put function for "DSP Voice Wake Up" which does
+not generate event notifications on change, instead returning 0. Since we
+already exit early in the case that there is no change this can be fixed
+by unconditionally returning 1 at the end of the function.
 
-This bug triggers with following coditions:
-
-0) Kernel built with CONFIG_DEBUG_PREEMPT=y
-
-1) A new passive FastOpen TCP socket is created.
-   This FO socket waits for an ACK coming from client to be a complete
-   ESTABLISHED one.
-2) A socket operation on this socket goes through lock_sock()
-   release_sock() dance.
-3) While the socket is owned by the user in step 2),
-   a retransmit of the SYN is received and stored in socket backlog.
-4) At release_sock() time, the socket backlog is processed while
-   in process context.
-5) A SYNACK packet is cooked in response of the SYN retransmit.
-6) -> tcp_rtx_synack() is called in process context.
-
-Before blamed commit, tcp_rtx_synack() was always called from BH handler,
-from a timer handler.
-
-Fix this by using TCP_INC_STATS() & NET_INC_STATS()
-which do not assume caller is in non preemptible context.
-
-[1]
-BUG: using __this_cpu_add() in preemptible [00000000] code: epollpep/2180
-caller is tcp_rtx_synack.part.0+0x36/0xc0
-CPU: 10 PID: 2180 Comm: epollpep Tainted: G           OE     5.16.0-0.bpo.4-amd64 #1  Debian 5.16.12-1~bpo11+1
-Hardware name: Supermicro SYS-5039MC-H8TRF/X11SCD-F, BIOS 1.7 11/23/2021
-Call Trace:
- <TASK>
- dump_stack_lvl+0x48/0x5e
- check_preemption_disabled+0xde/0xe0
- tcp_rtx_synack.part.0+0x36/0xc0
- tcp_rtx_synack+0x8d/0xa0
- ? kmem_cache_alloc+0x2e0/0x3e0
- ? apparmor_file_alloc_security+0x3b/0x1f0
- inet_rtx_syn_ack+0x16/0x30
- tcp_check_req+0x367/0x610
- tcp_rcv_state_process+0x91/0xf60
- ? get_nohz_timer_target+0x18/0x1a0
- ? lock_timer_base+0x61/0x80
- ? preempt_count_add+0x68/0xa0
- tcp_v4_do_rcv+0xbd/0x270
- __release_sock+0x6d/0xb0
- release_sock+0x2b/0x90
- sock_setsockopt+0x138/0x1140
- ? __sys_getsockname+0x7e/0xc0
- ? aa_sk_perm+0x3e/0x1a0
- __sys_setsockopt+0x198/0x1e0
- __x64_sys_setsockopt+0x21/0x30
- do_syscall_64+0x38/0xc0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: 168a8f58059a ("tcp: TCP Fast Open Server - main code path")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Laurent Fasnacht <laurent.fasnacht@proton.ch>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Link: https://lore.kernel.org/r/20220530213713.601888-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220428162444.3883147-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_output.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/rt5514.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index ed7125a47ce0..dc3b4668fcde 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -4116,8 +4116,8 @@ int tcp_rtx_synack(const struct sock *sk, struct request_sock *req)
- 	res = af_ops->send_synack(sk, NULL, &fl, req, NULL, TCP_SYNACK_NORMAL,
- 				  NULL);
- 	if (!res) {
--		__TCP_INC_STATS(sock_net(sk), TCP_MIB_RETRANSSEGS);
--		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPSYNRETRANS);
-+		TCP_INC_STATS(sock_net(sk), TCP_MIB_RETRANSSEGS);
-+		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPSYNRETRANS);
- 		if (unlikely(tcp_passive_fastopen(sk)))
- 			tcp_sk(sk)->total_retrans++;
- 		trace_tcp_retransmit_synack(sk, req);
--- 
-2.35.1
-
+--- a/sound/soc/codecs/rt5514.c
++++ b/sound/soc/codecs/rt5514.c
+@@ -422,7 +422,7 @@ static int rt5514_dsp_voice_wake_up_put(
+ 		}
+ 	}
+ 
+-	return 0;
++	return 1;
+ }
+ 
+ static const struct snd_kcontrol_new rt5514_snd_controls[] = {
 
 
