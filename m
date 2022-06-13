@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 343F954909E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DB3C548875
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382035AbiFMOQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:16:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59724 "EHLO
+        id S1378196AbiFMNkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:40:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382289AbiFMON4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:13:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B31A9AE49;
-        Mon, 13 Jun 2022 04:42:16 -0700 (PDT)
+        with ESMTP id S1378860AbiFMNjX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56FF17937A;
+        Mon, 13 Jun 2022 04:28:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E842B613F9;
-        Mon, 13 Jun 2022 11:42:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01816C34114;
-        Mon, 13 Jun 2022 11:42:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C853E6114A;
+        Mon, 13 Jun 2022 11:28:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7C44C34114;
+        Mon, 13 Jun 2022 11:28:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120535;
-        bh=XHXZMpOCvpB+hVo3r4vGG0BGyFr/7psW/iBEtN1fhuo=;
+        s=korg; t=1655119686;
+        bh=AWG9gvMcYACCQztBZWgs0FhjmGr5NkuGSG93WBuDqX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zGgJDeIwq8gOD4StGYMUC6NBIMJ85hHoJErDtBhjezYW+DN9E+xAtjOlx3e6aPZbW
-         /VbJaYEYvJtoJIpoUnrc3JKX9/ezfgHRnYqH9SvZ6EoOQ+D8MdyUZgEMSMUjbynvAq
-         6LV09rjx7Xs6txBr62f0zaiNPFZQNK9Zo2WAjrcY=
+        b=vSPKZZyETxh8CWR9KMqGeaFYMQAhR0Cyz//y5oacxXDu8g2RgOoodqICl8tnBzqDr
+         UWd/6OHqRldU86Z21jkV1pHsXpOJWjVBuh1DV1mrKBURkNiuaIsENZa82zXBBapIwH
+         oCYJXw/+9vsD2SxpXtz989T2z7ZAG/ze0XOXALWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Mykola Lysenko <mykolal@fb.com>,
+        Song Liu <song@kernel.org>, David Vernet <void@manifault.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 034/298] rpmsg: qcom_smd: Fix returning 0 if irq_of_parse_and_map() fails
+Subject: [PATCH 5.18 103/339] selftests/bpf: fix stacktrace_build_id with missing kprobe/urandom_read
 Date:   Mon, 13 Jun 2022 12:08:48 +0200
-Message-Id: <20220613094925.966586535@linuxfoundation.org>
+Message-Id: <20220613094929.637161973@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Song Liu <song@kernel.org>
 
-[ Upstream commit 59d6f72f6f9c92fec8757d9e29527da828e9281f ]
+[ Upstream commit 59ed76fe2f981bccde37bdddb465f260a96a2404 ]
 
-irq_of_parse_and_map() returns 0 on failure, so this should not be
-passed further as error return code.
+Kernel function urandom_read is replaced with urandom_read_iter.
+Therefore, kprobe on urandom_read is not working any more:
 
-Fixes: 1a358d350664 ("rpmsg: qcom_smd: Fix irq_of_parse_and_map() return value")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220423093932.32136-1-krzysztof.kozlowski@linaro.org
+[root@eth50-1 bpf]# ./test_progs -n 161
+test_stacktrace_build_id:PASS:skel_open_and_load 0 nsec
+libbpf: kprobe perf_event_open() failed: No such file or directory
+libbpf: prog 'oncpu': failed to create kprobe 'urandom_read+0x0' \
+        perf event: No such file or directory
+libbpf: prog 'oncpu': failed to auto-attach: -2
+test_stacktrace_build_id:FAIL:attach_tp err -2
+161     stacktrace_build_id:FAIL
+
+Fix this by replacing urandom_read with urandom_read_iter in the test.
+
+Fixes: 1b388e7765f2 ("random: convert to using fops->read_iter()")
+Reported-by: Mykola Lysenko <mykolal@fb.com>
+Signed-off-by: Song Liu <song@kernel.org>
+Acked-by: David Vernet <void@manifault.com>
+Link: https://lore.kernel.org/r/20220526191608.2364049-1-song@kernel.org
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rpmsg/qcom_smd.c | 2 +-
+ tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
-index d4b54eebe15d..4ad90945518f 100644
---- a/drivers/rpmsg/qcom_smd.c
-+++ b/drivers/rpmsg/qcom_smd.c
-@@ -1406,7 +1406,7 @@ static int qcom_smd_parse_edge(struct device *dev,
- 	irq = irq_of_parse_and_map(node, 0);
- 	if (!irq) {
- 		dev_err(dev, "required smd interrupt missing\n");
--		ret = irq;
-+		ret = -EINVAL;
- 		goto put_node;
- 	}
+diff --git a/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c b/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c
+index 6c62bfb8bb6f..0c4426592a26 100644
+--- a/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c
++++ b/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c
+@@ -39,7 +39,7 @@ struct {
+ 	__type(value, stack_trace_t);
+ } stack_amap SEC(".maps");
  
+-SEC("kprobe/urandom_read")
++SEC("kprobe/urandom_read_iter")
+ int oncpu(struct pt_regs *args)
+ {
+ 	__u32 max_len = sizeof(struct bpf_stack_build_id)
 -- 
 2.35.1
 
