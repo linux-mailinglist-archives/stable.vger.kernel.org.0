@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D662F549113
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 853F1549494
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354852AbiFMLhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:37:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43610 "EHLO
+        id S1377082AbiFMNZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:25:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354876AbiFMLgK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:36:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AACA2BB28;
-        Mon, 13 Jun 2022 03:48:11 -0700 (PDT)
+        with ESMTP id S1377124AbiFMNYZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:24:25 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BF506BFDA;
+        Mon, 13 Jun 2022 04:24:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D4B860AEB;
-        Mon, 13 Jun 2022 10:48:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE4FAC34114;
-        Mon, 13 Jun 2022 10:48:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3949ECE116E;
+        Mon, 13 Jun 2022 11:23:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24A78C34114;
+        Mon, 13 Jun 2022 11:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117290;
-        bh=nCcNByXWT/diSi/kX4pWjohsR1ESAZBLN/o8dTNP/Qo=;
+        s=korg; t=1655119435;
+        bh=jdGwrjvobpzMm2qGCl2OlF4BwcuG1X9pQUn5LjqBk/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bOPPDuzN/kg3Hp2FQ3yFf4YcYp04Wa6UXeNlKUxivYiB26LXQHOzvXc448jvLkI4D
-         mcFwru2Q4zcppx8N67nE8at0F2VfMsfQ0b7LzEA4mCGV5XiEwFVa+IHGigtQXbIyfE
-         yvYoDyEX7T/yrEjXT+9WvsPlSdvkr5GgJaAOp71s=
+        b=PQ1r622lHzPDeHYh6d/OTQKoo6UIr02vtaSV4dTc+c6ZbVl/BfD2ibKUlI3e+IB9f
+         WzmJ3Mz8h9av/Kb1HjH7UHbuBMXBIp7d132uSfJRdXI3vTGLYvMXJ2dZyPb/9gp/GS
+         EswMBjQ/sfEsvKRi3pxJnSJ9Bm+7r1j5qDXe5ySs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>, Du Cheng <ducheng2@gmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Claudio Suarez <cssk@net-c.es>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 015/287] fbcon: Consistently protect deferred_takeover with console_lock()
+Subject: [PATCH 5.18 014/339] remoteproc: imx_rproc: Ignore create mem entry for resource table
 Date:   Mon, 13 Jun 2022 12:07:19 +0200
-Message-Id: <20220613094924.317288764@linuxfoundation.org>
+Message-Id: <20220613094926.940654722@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,52 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 43553559121ca90965b572cf8a1d6d0fd618b449 ]
+[ Upstream commit 58b7c856519fe946620ee68dd0c37bd3c695484a ]
 
-This shouldn't be a problem in practice since until we've actually
-taken over the console there's nothing we've registered with the
-console/vt subsystem, so the exit/unbind path that check this can't
-do the wrong thing. But it's confusing, so fix it by moving it a tad
-later.
+Resource table is used by Linux to get information published by
+remote processor. It should be not be used for memory allocation, so
+not create rproc mem entry.
 
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Du Cheng <ducheng2@gmail.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: Claudio Suarez <cssk@net-c.es>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220405210335.3434130-14-daniel.vetter@ffwll.ch
+Fixes: b29b4249f8f0 ("remoteproc: imx_rproc: add i.MX specific parse fw hook")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lore.kernel.org/r/20220415025737.1561976-1-peng.fan@oss.nxp.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcon.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/remoteproc/imx_rproc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index bf7959fdf9f4..7c2582892eab 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -3314,6 +3314,9 @@ static void fbcon_register_existing_fbs(struct work_struct *work)
+diff --git a/drivers/remoteproc/imx_rproc.c b/drivers/remoteproc/imx_rproc.c
+index 7a096f1891e6..91eb037089ef 100644
+--- a/drivers/remoteproc/imx_rproc.c
++++ b/drivers/remoteproc/imx_rproc.c
+@@ -423,6 +423,9 @@ static int imx_rproc_prepare(struct rproc *rproc)
+ 		if (!strcmp(it.node->name, "vdev0buffer"))
+ 			continue;
  
- 	console_lock();
- 
-+	deferred_takeover = false;
-+	logo_shown = FBCON_LOGO_DONTSHOW;
++		if (!strcmp(it.node->name, "rsc-table"))
++			continue;
 +
- 	for_each_registered_fb(i)
- 		fbcon_fb_registered(registered_fb[i]);
- 
-@@ -3331,8 +3334,6 @@ static int fbcon_output_notifier(struct notifier_block *nb,
- 	pr_info("fbcon: Taking over console\n");
- 
- 	dummycon_unregister_output_notifier(&fbcon_output_nb);
--	deferred_takeover = false;
--	logo_shown = FBCON_LOGO_DONTSHOW;
- 
- 	/* We may get called in atomic context */
- 	schedule_work(&fbcon_deferred_takeover_work);
+ 		rmem = of_reserved_mem_lookup(it.node);
+ 		if (!rmem) {
+ 			dev_err(priv->dev, "unable to acquire memory-region\n");
 -- 
 2.35.1
 
