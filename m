@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A77CE5496C1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D6DF5489B3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355842AbiFMLrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:47:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
+        id S1355722AbiFMLqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:46:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357095AbiFMLpj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:45:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C3649B5F;
-        Mon, 13 Jun 2022 03:51:40 -0700 (PDT)
+        with ESMTP id S1356488AbiFMLoh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:44:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83A14754A;
+        Mon, 13 Jun 2022 03:50:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F532611B3;
-        Mon, 13 Jun 2022 10:51:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BE1AC3411C;
-        Mon, 13 Jun 2022 10:51:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 037E1B80E07;
+        Mon, 13 Jun 2022 10:50:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 652F2C34114;
+        Mon, 13 Jun 2022 10:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117499;
-        bh=+UxC2I6cB/bAVSQFDihDHHxSOIrE2QoFweh2yYezpEY=;
+        s=korg; t=1655117446;
+        bh=btq8rGeFsERr+agkyBJfvYQq6qyKxnfz/CGUWhG9Irs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DlFZiEDVd+Z2YOIb9rczYVXtAKt70h6sDbw04234OoGWeR+NZ8X9t9B6uL2s1fJoH
-         f3R63LSPy2O7GT50uOlt66KDMPAHwoB1lmT4VLhGhWF/RAACudhTePZeI1zxbWWupQ
-         sosWc8E6uamk4QOroh5Va6e/8cm28zLj3pT1pEmA=
+        b=BG++FChPprwsg2Rg1vZSTW6oT4HsKdezxkkdcI7U4gUemRpbqjQpYn11q9vJ86Id3
+         qGezZetoaT1XbyUJh6yUc8WPb+oWqnT1TKdaD60aD7JJ6fgbIhiJgoFGm+h8u0zFoP
+         hZS6UrN6Ns63An4CNP4BrTR+ajzUFBGAzpxOzuF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        linux-afs@lists.infradead.org,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 041/287] hwmon: Make chip parameter for with_info API mandatory
-Date:   Mon, 13 Jun 2022 12:07:45 +0200
-Message-Id: <20220613094925.111840882@linuxfoundation.org>
+Subject: [PATCH 4.19 042/287] rxrpc: Return an error to sendmsg if call failed
+Date:   Mon, 13 Jun 2022 12:07:46 +0200
+Message-Id: <20220613094925.142301521@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
 References: <20220613094923.832156175@linuxfoundation.org>
@@ -53,73 +56,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit ddaefa209c4ac791c1262e97c9b2d0440c8ef1d5 ]
+[ Upstream commit 4ba68c5192554876bd8c3afd904e3064d2915341 ]
 
-Various attempts were made recently to "convert" the old
-hwmon_device_register() API to devm_hwmon_device_register_with_info()
-by just changing the function name without actually converting the
-driver. Prevent this from happening by making the 'chip' parameter of
-devm_hwmon_device_register_with_info() mandatory.
+If at the end of rxrpc sendmsg() or rxrpc_kernel_send_data() the call that
+was being given data was aborted remotely or otherwise failed, return an
+error rather than returning the amount of data buffered for transmission.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+The call (presumably) did not complete, so there's not much point
+continuing with it.  AF_RXRPC considers it "complete" and so will be
+unwilling to do anything else with it - and won't send a notification for
+it, deeming the return from sendmsg sufficient.
+
+Not returning an error causes afs to incorrectly handle a StoreData
+operation that gets interrupted by a change of address due to NAT
+reconfiguration.
+
+This doesn't normally affect most operations since their request parameters
+tend to fit into a single UDP packet and afs_make_call() returns before the
+server responds; StoreData is different as it involves transmission of a
+lot of data.
+
+This can be triggered on a client by doing something like:
+
+	dd if=/dev/zero of=/afs/example.com/foo bs=1M count=512
+
+at one prompt, and then changing the network address at another prompt,
+e.g.:
+
+	ifconfig enp6s0 inet 192.168.6.2 && route add 192.168.6.1 dev enp6s0
+
+Tracing packets on an Auristor fileserver looks something like:
+
+192.168.6.1 -> 192.168.6.3  RX 107 ACK Idle  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
+192.168.6.3 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(64538) (64538)
+192.168.6.3 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(64538) (64538)
+192.168.6.1 -> 192.168.6.3  RX 107 ACK Idle  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
+<ARP exchange for 192.168.6.2>
+192.168.6.2 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(0) (0)
+192.168.6.2 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(0) (0)
+192.168.6.1 -> 192.168.6.2  RX 107 ACK Exceeds Window  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
+192.168.6.1 -> 192.168.6.2  RX 74 ABORT  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
+192.168.6.1 -> 192.168.6.2  RX 74 ABORT  Seq: 29321  Call: 4  Source Port: 7000  Destination Port: 7001
+
+The Auristor fileserver logs code -453 (RXGEN_SS_UNMARSHAL), but the abort
+code received by kafs is -5 (RX_PROTOCOL_ERROR) as the rx layer sees the
+condition and generates an abort first and the unmarshal error is a
+consequence of that at the application layer.
+
+Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: linux-afs@lists.infradead.org
+Link: http://lists.infradead.org/pipermail/linux-afs/2021-December/004810.html # v1
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/hwmon/hwmon-kernel-api.txt |  2 +-
- drivers/hwmon/hwmon.c                    | 16 +++++++---------
- 2 files changed, 8 insertions(+), 10 deletions(-)
+ net/rxrpc/sendmsg.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/hwmon/hwmon-kernel-api.txt b/Documentation/hwmon/hwmon-kernel-api.txt
-index eb7a78aebb38..4981df157b04 100644
---- a/Documentation/hwmon/hwmon-kernel-api.txt
-+++ b/Documentation/hwmon/hwmon-kernel-api.txt
-@@ -71,7 +71,7 @@ hwmon_device_register_with_info is the most comprehensive and preferred means
- to register a hardware monitoring device. It creates the standard sysfs
- attributes in the hardware monitoring core, letting the driver focus on reading
- from and writing to the chip instead of having to bother with sysfs attributes.
--The parent device parameter cannot be NULL with non-NULL chip info. Its
-+The parent device parameter as well as the chip parameter must not be NULL. Its
- parameters are described in more detail below.
+diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
+index edd76c41765f..0220a2935002 100644
+--- a/net/rxrpc/sendmsg.c
++++ b/net/rxrpc/sendmsg.c
+@@ -440,6 +440,12 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
  
- devm_hwmon_device_register_with_info is similar to
-diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
-index c4051a3e63c2..fb82d8ee0dd6 100644
---- a/drivers/hwmon/hwmon.c
-+++ b/drivers/hwmon/hwmon.c
-@@ -695,11 +695,12 @@ EXPORT_SYMBOL_GPL(hwmon_device_register_with_groups);
- 
- /**
-  * hwmon_device_register_with_info - register w/ hwmon
-- * @dev: the parent device
-- * @name: hwmon name attribute
-- * @drvdata: driver data to attach to created device
-- * @chip: pointer to hwmon chip information
-+ * @dev: the parent device (mandatory)
-+ * @name: hwmon name attribute (mandatory)
-+ * @drvdata: driver data to attach to created device (optional)
-+ * @chip: pointer to hwmon chip information (mandatory)
-  * @extra_groups: pointer to list of additional non-standard attribute groups
-+ *	(optional)
-  *
-  * hwmon_device_unregister() must be called when the device is no
-  * longer needed.
-@@ -712,13 +713,10 @@ hwmon_device_register_with_info(struct device *dev, const char *name,
- 				const struct hwmon_chip_info *chip,
- 				const struct attribute_group **extra_groups)
- {
--	if (!name)
--		return ERR_PTR(-EINVAL);
--
--	if (chip && (!chip->ops || !chip->ops->is_visible || !chip->info))
-+	if (!dev || !name || !chip)
- 		return ERR_PTR(-EINVAL);
- 
--	if (chip && !dev)
-+	if (!chip->ops || !chip->ops->is_visible || !chip->info)
- 		return ERR_PTR(-EINVAL);
- 
- 	return __hwmon_device_register(dev, name, drvdata, chip, extra_groups);
+ success:
+ 	ret = copied;
++	if (READ_ONCE(call->state) == RXRPC_CALL_COMPLETE) {
++		read_lock_bh(&call->state_lock);
++		if (call->error < 0)
++			ret = call->error;
++		read_unlock_bh(&call->state_lock);
++	}
+ out:
+ 	call->tx_pending = skb;
+ 	_leave(" = %d", ret);
 -- 
 2.35.1
 
