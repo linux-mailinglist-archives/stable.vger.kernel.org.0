@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70468549491
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F627548C6B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380434AbiFMN65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:58:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36630 "EHLO
+        id S1384080AbiFMOcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:32:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380823AbiFMNzK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:55:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D11F7819A3;
-        Mon, 13 Jun 2022 04:36:00 -0700 (PDT)
+        with ESMTP id S1385524AbiFMObQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:31:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D0F0ABE79;
+        Mon, 13 Jun 2022 04:49:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EBBFB80EC8;
-        Mon, 13 Jun 2022 11:35:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4FE6C34114;
-        Mon, 13 Jun 2022 11:35:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB9B06146E;
+        Mon, 13 Jun 2022 11:48:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C962AC34114;
+        Mon, 13 Jun 2022 11:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120158;
-        bh=hfRMViOCfvBLVUHj4KYsbjEGrRKSChZANtWUT50oN6c=;
+        s=korg; t=1655120908;
+        bh=EbHpsNQsZRgTMF45CSYfLlirVAaStJQ+cyuj+aVwgLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rq2XSbZbf5TM0ALxio+1pAsZv/VJaaHug6iTItBeN0Rn2New7dOT9NbeOMIDy4o8z
-         VkFucI4srRHbvIE7DhXGWf6imduCcY+Unw5hJ6u/awUBZ2zYpurTCYx9WEPk+SlIwB
-         eGOVeqVn+LJTvN6F1OR0Ch2IVtiAgGgzLlQ1VTaA=
+        b=oCfSKxPyxaugF3b5ZrA7sc4IAxGNZonHXce24RJBygyZGCt4b8AOaOQsK47XGaPv4
+         ylnG09uGm5u9n6fKwuCwQhdOv/A66XaTnC5cbsRYcmdLAUZV81/5S22sm+blNLDjBk
+         b/VaLuRpSJh7xroiKuqEsLSb/kh4p7Odq+m+Akvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 271/339] modpost: fix undefined behavior of is_arm_mapping_symbol()
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Zheyu Ma <zheyuma97@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 202/298] tty: synclink_gt: Fix null-pointer-dereference in slgt_clean()
 Date:   Mon, 13 Jun 2022 12:11:36 +0200
-Message-Id: <20220613094934.863595158@linuxfoundation.org>
+Message-Id: <20220613094931.231510430@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit d6b732666a1bae0df3c3ae06925043bba34502b1 ]
+[ Upstream commit 689ca31c542687709ba21ec2195c1fbce34fd029 ]
 
-The return value of is_arm_mapping_symbol() is unpredictable when "$"
-is passed in.
+When the driver fails at alloc_hdlcdev(), and then we remove the driver
+module, we will get the following splat:
 
-strchr(3) says:
-  The strchr() and strrchr() functions return a pointer to the matched
-  character or NULL if the character is not found. The terminating null
-  byte is considered part of the string, so that if c is specified as
-  '\0', these functions return a pointer to the terminator.
+[   25.065966] general protection fault, probably for non-canonical address 0xdffffc0000000182: 0000 [#1] PREEMPT SMP KASAN PTI
+[   25.066914] KASAN: null-ptr-deref in range [0x0000000000000c10-0x0000000000000c17]
+[   25.069262] RIP: 0010:detach_hdlc_protocol+0x2a/0x3e0
+[   25.077709] Call Trace:
+[   25.077924]  <TASK>
+[   25.078108]  unregister_hdlc_device+0x16/0x30
+[   25.078481]  slgt_cleanup+0x157/0x9f0 [synclink_gt]
 
-When str[1] is '\0', strchr("axtd", str[1]) is not NULL, and str[2] is
-referenced (i.e. buffer overrun).
+Fix this by checking whether the 'info->netdev' is a null pointer first.
 
-Test code
----------
-
-  char str1[] = "abc";
-  char str2[] = "ab";
-
-  strcpy(str1, "$");
-  strcpy(str2, "$");
-
-  printf("test1: %d\n", is_arm_mapping_symbol(str1));
-  printf("test2: %d\n", is_arm_mapping_symbol(str2));
-
-Result
-------
-
-  test1: 0
-  test2: 1
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220410114814.3920474-1-zheyuma97@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/mod/modpost.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/synclink_gt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index d81019db9da4..b28344fd7408 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -1267,7 +1267,8 @@ static int secref_whitelist(const struct sectioncheck *mismatch,
- 
- static inline int is_arm_mapping_symbol(const char *str)
+diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
+index 25c558e65ece..9bc2a9265277 100644
+--- a/drivers/tty/synclink_gt.c
++++ b/drivers/tty/synclink_gt.c
+@@ -1746,6 +1746,8 @@ static int hdlcdev_init(struct slgt_info *info)
+  */
+ static void hdlcdev_exit(struct slgt_info *info)
  {
--	return str[0] == '$' && strchr("axtd", str[1])
-+	return str[0] == '$' &&
-+	       (str[1] == 'a' || str[1] == 'd' || str[1] == 't' || str[1] == 'x')
- 	       && (str[2] == '\0' || str[2] == '.');
- }
- 
++	if (!info->netdev)
++		return;
+ 	unregister_hdlc_device(info->netdev);
+ 	free_netdev(info->netdev);
+ 	info->netdev = NULL;
 -- 
 2.35.1
 
