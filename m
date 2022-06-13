@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B64CF548EEE
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE2E2549527
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383472AbiFMO0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:26:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49926 "EHLO
+        id S245327AbiFMKaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:30:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383681AbiFMOXq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:23:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B73DA2E6A0;
-        Mon, 13 Jun 2022 04:44:50 -0700 (PDT)
+        with ESMTP id S1344692AbiFMK3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:29:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 171E82559A;
+        Mon, 13 Jun 2022 03:20:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 540DA612A8;
-        Mon, 13 Jun 2022 11:44:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E27DC34114;
-        Mon, 13 Jun 2022 11:44:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6379CB80E5E;
+        Mon, 13 Jun 2022 10:20:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0E6AC34114;
+        Mon, 13 Jun 2022 10:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120689;
-        bh=E3eQsWqo+oeKPDTgSdbGSmsVmraEOtwmrlowGmSCaqs=;
+        s=korg; t=1655115619;
+        bh=YfQvhTNtRCQoxAKmCzCkkxrzlP3GHt4D3FPbvmkZ/vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPol168qGCz8d89CwZQFMXdH7uzpUHshV6w7z/liETWrkNTlV7hg4405szknWkS6u
-         AkU3bkVpM3M2HoA6+E2dukom4VNoj9dsnpO2TBqm8w9UXpL0hjtRIBEabHRwtvpUTK
-         GzdGkwqkaQGJhhGVML8ZDFLW7VO8JwZUBiSadOLc=
+        b=uzqvWyG8HMhMCceuJkJp6kjyHYqZMiFoTPgF9iF5JxitxkXjcAMuuABafa209+Zx9
+         ubLFx3vzfhGYR+y+MldqR0jWZF08pXZs09UGaegcvBvg2QHpi9wcC6KlqbhA/FIedy
+         91/EqN5E951aKMTahrpKcxQ3AQ5e72jMatdQzRHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 122/298] afs: Fix infinite loop found by xfstest generic/676
+Subject: [PATCH 4.9 142/167] drivers: staging: rtl8192e: Fix deadlock in rtllib_beacons_stop()
 Date:   Mon, 13 Jun 2022 12:10:16 +0200
-Message-Id: <20220613094928.642942854@linuxfoundation.org>
+Message-Id: <20220613094914.154052567@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 17eabd42560f4636648ad65ba5b20228071e2363 ]
+[ Upstream commit 9b6bdbd9337de3917945847bde262a34a87a6303 ]
 
-In AFS, a directory is handled as a file that the client downloads and
-parses locally for the purposes of performing lookup and getdents
-operations.  The in-kernel afs filesystem has a number of functions that
-do this.
+There is a deadlock in rtllib_beacons_stop(), which is shown
+below:
 
-A directory file is arranged as a series of 2K blocks divided into
-32-byte slots, where a directory entry occupies one or more slots, plus
-each block starts with one or more metadata blocks.
+   (Thread 1)              |      (Thread 2)
+                           | rtllib_send_beacon()
+rtllib_beacons_stop()      |  mod_timer()
+ spin_lock_irqsave() //(1) |  (wait a time)
+ ...                       | rtllib_send_beacon_cb()
+ del_timer_sync()          |  spin_lock_irqsave() //(2)
+ (wait timer to stop)      |  ...
 
-When parsing a block, if the last slots are occupied by a dirent that
-occupies more than a single slot and the file position points at a slot
-that's not the initial one, the logic in afs_dir_iterate_block() that
-skips over it won't advance the file pointer to the end of it.  This
-will cause an infinite loop in getdents() as it will keep retrying that
-block and failing to advance beyond the final entry.
+We hold ieee->beacon_lock in position (1) of thread 1 and
+use del_timer_sync() to wait timer to stop, but timer handler
+also need ieee->beacon_lock in position (2) of thread 2.
+As a result, rtllib_beacons_stop() will block forever.
 
-Fix this by advancing the file pointer if the next entry will be beyond
-it when we skip a block.
+This patch extracts del_timer_sync() from the protection of
+spin_lock_irqsave(), which could let timer handler to obtain
+the needed lock.
 
-This was found by the generic/676 xfstest but can also be triggered with
-something like:
-
-	~/xfstests-dev/src/t_readdir_3 /xfstest.test/z 4000 1
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: http://lore.kernel.org/r/165391973497.110268.2939296942213894166.stgit@warthog.procyon.org.uk/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220417141641.124388-1-duoming@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/dir.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8192e/rtllib_softmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/afs/dir.c b/fs/afs/dir.c
-index da9b4f8577a1..7f1cb3b73874 100644
---- a/fs/afs/dir.c
-+++ b/fs/afs/dir.c
-@@ -462,8 +462,11 @@ static int afs_dir_iterate_block(struct afs_vnode *dvnode,
- 		}
+diff --git a/drivers/staging/rtl8192e/rtllib_softmac.c b/drivers/staging/rtl8192e/rtllib_softmac.c
+index da74dc49b95e..f46def63967b 100644
+--- a/drivers/staging/rtl8192e/rtllib_softmac.c
++++ b/drivers/staging/rtl8192e/rtllib_softmac.c
+@@ -655,9 +655,9 @@ static void rtllib_beacons_stop(struct rtllib_device *ieee)
+ 	spin_lock_irqsave(&ieee->beacon_lock, flags);
  
- 		/* skip if starts before the current position */
--		if (offset < curr)
-+		if (offset < curr) {
-+			if (next > curr)
-+				ctx->pos = blkoff + next * sizeof(union afs_xdr_dirent);
- 			continue;
-+		}
+ 	ieee->beacon_txing = 0;
+-	del_timer_sync(&ieee->beacon_timer);
  
- 		/* found the next entry */
- 		if (!dir_emit(ctx, dire->u.name, nlen,
+ 	spin_unlock_irqrestore(&ieee->beacon_lock, flags);
++	del_timer_sync(&ieee->beacon_timer);
+ 
+ }
+ 
 -- 
 2.35.1
 
