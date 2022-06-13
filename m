@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE63B5486C7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D549E548754
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352455AbiFMML7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:11:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59994 "EHLO
+        id S237310AbiFMKch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:32:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354377AbiFMMJ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:09:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CD7B532FA;
-        Mon, 13 Jun 2022 04:00:54 -0700 (PDT)
+        with ESMTP id S1345873AbiFMKaL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:30:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 557AC13F6C;
+        Mon, 13 Jun 2022 03:21:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CDAB61469;
-        Mon, 13 Jun 2022 11:00:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34875C34114;
-        Mon, 13 Jun 2022 11:00:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9146E60AE8;
+        Mon, 13 Jun 2022 10:21:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A42C34114;
+        Mon, 13 Jun 2022 10:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118052;
-        bh=oMk0Ft44FqbK0peOx4FqfoOomQEWe7BHGqVBQiA0TKU=;
+        s=korg; t=1655115663;
+        bh=yl3jrND5U1Or25BPXn+pHgU7me4egZGSZ+x487ubYJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eVxwMdZ/BQpib8SkdTsnqWpcioncg0vr3//BKCyASYakddMwKeSL9D2R0WPehAh8M
-         E/cqI5lFp3KJaM/pawY3b30q64HxZ7t72lxp/q173IVoJHi7G2v8TZ+I+I3ZXscOqX
-         ZuqNlHv9dr/gRpJIMcYKac8Pt6p1sZ44+apd9Jg0=
+        b=jFNOqeCrnbnFKegdepNtug03QkcFLMj1Vnfh8dYTkmUSFh2txD9rK04vz3Ki+96Xs
+         Cm+JN/D7gI/u9xwcj8HDKG8blDTkPgkjCL9cvG0zP6szAUW8TWTnojIXeKTm4oecfl
+         Ywh775w4jquDlYmWsG2YWGT7Lu9zofKqPhQqOndc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 214/287] clocksource/drivers/oxnas-rps: Fix irq_of_parse_and_map() return value
+        stable@vger.kernel.org, Ariel Miculas <ariel.miculas@belden.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 164/167] powerpc/32: Fix overread/overwrite of thread_struct via ptrace
 Date:   Mon, 13 Jun 2022 12:10:38 +0200
-Message-Id: <20220613094930.351836885@linuxfoundation.org>
+Message-Id: <20220613094919.437056428@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +54,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 9c04a8ff03def4df3f81219ffbe1ec9b44ff5348 ]
+commit 8e1278444446fc97778a5e5c99bca1ce0bbc5ec9 upstream.
 
-The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
+The ptrace PEEKUSR/POKEUSR (aka PEEKUSER/POKEUSER) API allows a process
+to read/write registers of another process.
 
-Fixes: 89355274e1f7 ("clocksource/drivers/oxnas-rps: Add Oxford Semiconductor RPS Dual Timer")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220422104101.55754-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To get/set a register, the API takes an index into an imaginary address
+space called the "USER area", where the registers of the process are
+laid out in some fashion.
+
+The kernel then maps that index to a particular register in its own data
+structures and gets/sets the value.
+
+The API only allows a single machine-word to be read/written at a time.
+So 4 bytes on 32-bit kernels and 8 bytes on 64-bit kernels.
+
+The way floating point registers (FPRs) are addressed is somewhat
+complicated, because double precision float values are 64-bit even on
+32-bit CPUs. That means on 32-bit kernels each FPR occupies two
+word-sized locations in the USER area. On 64-bit kernels each FPR
+occupies one word-sized location in the USER area.
+
+Internally the kernel stores the FPRs in an array of u64s, or if VSX is
+enabled, an array of pairs of u64s where one half of each pair stores
+the FPR. Which half of the pair stores the FPR depends on the kernel's
+endianness.
+
+To handle the different layouts of the FPRs depending on VSX/no-VSX and
+big/little endian, the TS_FPR() macro was introduced.
+
+Unfortunately the TS_FPR() macro does not take into account the fact
+that the addressing of each FPR differs between 32-bit and 64-bit
+kernels. It just takes the index into the "USER area" passed from
+userspace and indexes into the fp_state.fpr array.
+
+On 32-bit there are 64 indexes that address FPRs, but only 32 entries in
+the fp_state.fpr array, meaning the user can read/write 256 bytes past
+the end of the array. Because the fp_state sits in the middle of the
+thread_struct there are various fields than can be overwritten,
+including some pointers. As such it may be exploitable.
+
+It has also been observed to cause systems to hang or otherwise
+misbehave when using gdbserver, and is probably the root cause of this
+report which could not be easily reproduced:
+  https://lore.kernel.org/linuxppc-dev/dc38afe9-6b78-f3f5-666b-986939e40fc6@keymile.com/
+
+Rather than trying to make the TS_FPR() macro even more complicated to
+fix the bug, or add more macros, instead add a special-case for 32-bit
+kernels. This is more obvious and hopefully avoids a similar bug
+happening again in future.
+
+Note that because 32-bit kernels never have VSX enabled the code doesn't
+need to consider TS_FPRWIDTH/OFFSET at all. Add a BUILD_BUG_ON() to
+ensure that 32-bit && VSX is never enabled.
+
+Fixes: 87fec0514f61 ("powerpc: PTRACE_PEEKUSR/PTRACE_POKEUSER of FPR registers in little endian builds")
+Cc: stable@vger.kernel.org # v3.13+
+Reported-by: Ariel Miculas <ariel.miculas@belden.com>
+Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220609133245.573565-1-mpe@ellerman.id.au
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/timer-oxnas-rps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/ptrace.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clocksource/timer-oxnas-rps.c b/drivers/clocksource/timer-oxnas-rps.c
-index 30c6f4ce672b..cfcd54e66c57 100644
---- a/drivers/clocksource/timer-oxnas-rps.c
-+++ b/drivers/clocksource/timer-oxnas-rps.c
-@@ -247,7 +247,7 @@ static int __init oxnas_rps_timer_init(struct device_node *np)
- 	}
+--- a/arch/powerpc/kernel/ptrace.c
++++ b/arch/powerpc/kernel/ptrace.c
+@@ -2938,8 +2938,13 @@ long arch_ptrace(struct task_struct *chi
  
- 	rps->irq = irq_of_parse_and_map(np, 0);
--	if (rps->irq < 0) {
-+	if (!rps->irq) {
- 		ret = -EINVAL;
- 		goto err_iomap;
- 	}
--- 
-2.35.1
-
+ 			flush_fp_to_thread(child);
+ 			if (fpidx < (PT_FPSCR - PT_FPR0))
+-				memcpy(&tmp, &child->thread.TS_FPR(fpidx),
+-				       sizeof(long));
++				if (IS_ENABLED(CONFIG_PPC32)) {
++					// On 32-bit the index we are passed refers to 32-bit words
++					tmp = ((u32 *)child->thread.fp_state.fpr)[fpidx];
++				} else {
++					memcpy(&tmp, &child->thread.TS_FPR(fpidx),
++					       sizeof(long));
++				}
+ 			else
+ 				tmp = child->thread.fp_state.fpscr;
+ 		}
+@@ -2971,8 +2976,13 @@ long arch_ptrace(struct task_struct *chi
+ 
+ 			flush_fp_to_thread(child);
+ 			if (fpidx < (PT_FPSCR - PT_FPR0))
+-				memcpy(&child->thread.TS_FPR(fpidx), &data,
+-				       sizeof(long));
++				if (IS_ENABLED(CONFIG_PPC32)) {
++					// On 32-bit the index we are passed refers to 32-bit words
++					((u32 *)child->thread.fp_state.fpr)[fpidx] = data;
++				} else {
++					memcpy(&child->thread.TS_FPR(fpidx), &data,
++					       sizeof(long));
++				}
+ 			else
+ 				child->thread.fp_state.fpscr = data;
+ 			ret = 0;
 
 
