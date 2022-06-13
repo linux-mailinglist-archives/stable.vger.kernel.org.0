@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB32A548E48
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 702D9548C25
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356833AbiFMLw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:52:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53798 "EHLO
+        id S244824AbiFMKo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:44:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356621AbiFMLur (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AC4022B27;
-        Mon, 13 Jun 2022 03:54:39 -0700 (PDT)
+        with ESMTP id S237635AbiFMKnT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:43:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84EB92AC6A;
+        Mon, 13 Jun 2022 03:24:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26CF160F00;
-        Mon, 13 Jun 2022 10:54:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38F2BC34114;
-        Mon, 13 Jun 2022 10:54:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2454860F03;
+        Mon, 13 Jun 2022 10:24:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36522C34114;
+        Mon, 13 Jun 2022 10:24:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117678;
-        bh=aumf9yAoZ5XHJ9DWTFSBRcccitJ4jRF/Eo0ETcWmvzQ=;
+        s=korg; t=1655115858;
+        bh=ae6omjMIf6MoErsJEh4Uefr1x4tAYvABToyamDT53fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XOOOXAFs+qyCRocM6qwGi//r7Duzawsmq8SZtNiBOl/whZQcG1+9uHWWVUYD347sW
-         28fMfKXdsfWrFOjx6Ec1cKwELD7wDNG5UOIL8AVPEqXlAoe05v8HeHBicAAdPEtgDj
-         T3CCSGcLwOxAaPGWhJkPZXDYp8xG/uWyXrSRj9KE=
+        b=vh9rkFfujfY1dkbfMo6oTX07dQhVqZlb2e8QHtwzVsJxEAATsqOkBUVRgoNvZPbF+
+         vVSrt6zc3m30+xzsVA+GdE5rvOwWZB7AjmrNVjQqpahu1hyByHnPesG8s//2Qk7U4n
+         aVd/WgV+bo+cDIvf1BIlzN+cCR5x9WQEIDNFW+vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@amd.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 092/287] perf/amd/ibs: Use interrupt regs ip for stack unwinding
+Subject: [PATCH 4.14 058/218] ath9k_htc: fix potential out of bounds access with invalid rxstatus->rs_keyix
 Date:   Mon, 13 Jun 2022 12:08:36 +0200
-Message-Id: <20220613094926.668894523@linuxfoundation.org>
+Message-Id: <20220613094921.289060082@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ravi Bangoria <ravi.bangoria@amd.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 3d47083b9ff46863e8374ad3bb5edb5e464c75f8 ]
+[ Upstream commit 2dc509305cf956381532792cb8dceef2b1504765 ]
 
-IbsOpRip is recorded when IBS interrupt is triggered. But there is
-a skid from the time IBS interrupt gets triggered to the time the
-interrupt is presented to the core. Meanwhile processor would have
-moved ahead and thus IbsOpRip will be inconsistent with rsp and rbp
-recorded as part of the interrupt regs. This causes issues while
-unwinding stack using the ORC unwinder as it needs consistent rip,
-rsp and rbp. Fix this by using rip from interrupt regs instead of
-IbsOpRip for stack unwinding.
+The "rxstatus->rs_keyix" eventually gets passed to test_bit() so we need to
+ensure that it is within the bitmap.
 
-Fixes: ee9f8fce99640 ("x86/unwind: Add the ORC unwinder")
-Reported-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220429051441.14251-1-ravi.bangoria@amd.com
+drivers/net/wireless/ath/ath9k/common.c:46 ath9k_cmn_rx_accept()
+error: passing untrusted data 'rx_stats->rs_keyix' to 'test_bit()'
+
+Fixes: 4ed1a8d4a257 ("ath9k_htc: use ath9k_cmn_rx_accept")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220409061225.GA5447@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/ibs.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
-index 2d9e1372b070..d157d0adef06 100644
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -324,6 +324,16 @@ static int perf_ibs_init(struct perf_event *event)
- 	hwc->config_base = perf_ibs->msr;
- 	hwc->config = config;
- 
-+	/*
-+	 * rip recorded by IbsOpRip will not be consistent with rsp and rbp
-+	 * recorded as part of interrupt regs. Thus we need to use rip from
-+	 * interrupt regs while unwinding call stack. Setting _EARLY flag
-+	 * makes sure we unwind call-stack before perf sample rip is set to
-+	 * IbsOpRip.
-+	 */
-+	if (event->attr.sample_type & PERF_SAMPLE_CALLCHAIN)
-+		event->attr.sample_type |= __PERF_SAMPLE_CALLCHAIN_EARLY;
-+
- 	return 0;
- }
- 
-@@ -693,6 +703,14 @@ static int perf_ibs_handle_irq(struct perf_ibs *perf_ibs, struct pt_regs *iregs)
- 		data.raw = &raw;
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+index 6782c3d0c333..e62ed7f42281 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+@@ -1005,6 +1005,14 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
+ 		goto rx_next;
  	}
  
-+	/*
-+	 * rip recorded by IbsOpRip will not be consistent with rsp and rbp
-+	 * recorded as part of interrupt regs. Thus we need to use rip from
-+	 * interrupt regs while unwinding call stack.
-+	 */
-+	if (event->attr.sample_type & PERF_SAMPLE_CALLCHAIN)
-+		data.callchain = perf_callchain(event, iregs);
++	if (rxstatus->rs_keyix >= ATH_KEYMAX &&
++	    rxstatus->rs_keyix != ATH9K_RXKEYIX_INVALID) {
++		ath_dbg(common, ANY,
++			"Invalid keyix, dropping (keyix: %d)\n",
++			rxstatus->rs_keyix);
++		goto rx_next;
++	}
 +
- 	throttle = perf_event_overflow(event, &data, &regs);
- out:
- 	if (throttle) {
+ 	/* Get the RX status information */
+ 
+ 	memset(rx_status, 0, sizeof(struct ieee80211_rx_status));
 -- 
 2.35.1
 
