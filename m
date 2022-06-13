@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7265A548C31
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3718D5493B8
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385515AbiFMOpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58752 "EHLO
+        id S1385665AbiFMOp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:45:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386068AbiFMOo2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:44:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B0C7B5797;
-        Mon, 13 Jun 2022 04:51:15 -0700 (PDT)
+        with ESMTP id S1385692AbiFMOnl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:43:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22853B2E9E;
+        Mon, 13 Jun 2022 04:50:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0E57B80EDD;
-        Mon, 13 Jun 2022 11:50:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22905C34114;
-        Mon, 13 Jun 2022 11:50:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C652B80D31;
+        Mon, 13 Jun 2022 11:50:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D935FC34114;
+        Mon, 13 Jun 2022 11:50:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121050;
-        bh=k+/pVrIT8QfqIWbATLK3wlWEq5hh0GwRx7H7a3D01Zw=;
+        s=korg; t=1655121053;
+        bh=cik2UWmz0PBmx+Cme4rzLA38B3Rv2FNtIkAKFF7lmls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2qJKPbi2sd55ww31qqX5xUI8c5guD7y4dKXQzxEOxe+lWwSD1/oQrY7alrMTqBSEf
-         nX4FEoTA7Dm9D9zC0Cv1Pmi9pxPocfUEGucSEn7VvIXIU5/3pSVZJJ990ADzeKcUFz
-         XFPpXyoQ53ZimJZKojJF24Ck3i5O2QIoVlgvE7qA=
+        b=FXtNXjteSmjDubuuEOaEXgD8OQ6jukV/TPrGZ59/Q9ev4W4zz1KrXPaTZALNRUO4l
+         wM+jwebksioC8rO6E3RSud3QQt2KsBfdWeuY45RyD7TPoFaryq5OG7EBKNETS5XrsP
+         n1T2C/21kPq7CmDzBbvTBRyGkS2RGTDugDewaT+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, Jorge Lopez <jorge.lopez2@hp.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 254/298] scripts/gdb: change kernel config dumping method
-Date:   Mon, 13 Jun 2022 12:12:28 +0200
-Message-Id: <20220613094932.783737782@linuxfoundation.org>
+Subject: [PATCH 5.17 255/298] platform/x86: hp-wmi: Fix hp_wmi_read_int() reporting error (0x05)
+Date:   Mon, 13 Jun 2022 12:12:29 +0200
+Message-Id: <20220613094932.812347505@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
 References: <20220613094924.913340374@linuxfoundation.org>
@@ -54,41 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+From: Jorge Lopez <jorge.lopez2@hp.com>
 
-[ Upstream commit 1f7a6cf6b07c74a17343c2559cd5f5018a245961 ]
+[ Upstream commit 12b19f14a21a2ee6348825d95b642ef2cd16794f ]
 
-MAGIC_START("IKCFG_ST") and MAGIC_END("IKCFG_ED") are moved out
-from the kernel_config_data variable.
+The purpose of this patch is to introduce a fix to hp_wmi_read_int()
+and eliminate failure error (0x05). Several WMI queries leverage
+hp_wmi_read_int() to read their data and were failing with error 0x05.
 
-Thus, we parse kernel_config_data directly instead of considering
-offset of MAGIC_START and MAGIC_END.
+HPWMI_DISPLAY_QUERY
+HPWMI_HDDTEMP_QUERY
+HPWMI_ALS_QUERY
+HPWMI_HARDWARE_QUERY
+HPWMI_WIRELESS_QUERY
+HPWMI_POSTCODEERROR_QUERY
 
-Fixes: 13610aa908dc ("kernel/configs: use .incbin directive to embed config_data.gz")
-Signed-off-by: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+The failure occurs because hp_wmi_read_int() calls
+hp_wmi_perform_query() with input parameter of size greater than zero.
+Invoking those WMI commands with an input buffer size greater than
+zero causes the command to be rejected and error 0x05 be returned.
+
+All changes were validated on a HP ZBook Workstation notebook,
+HP EliteBook x360, and HP EliteBook 850 G8.
+
+Signed-off-by: Jorge Lopez <jorge.lopez2@hp.com>
+Link: https://lore.kernel.org/r/20220310210853.28367-2-jorge.lopez2@hp.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gdb/linux/config.py | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/platform/x86/hp-wmi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/gdb/linux/config.py b/scripts/gdb/linux/config.py
-index 90e1565b1967..8843ab3cbadd 100644
---- a/scripts/gdb/linux/config.py
-+++ b/scripts/gdb/linux/config.py
-@@ -24,9 +24,9 @@ class LxConfigDump(gdb.Command):
-             filename = arg
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index 88f0bfd6ecf1..29ae35d15a41 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -347,7 +347,7 @@ static int hp_wmi_read_int(int query)
+ 	int val = 0, ret;
  
-         try:
--            py_config_ptr = gdb.parse_and_eval("kernel_config_data + 8")
--            py_config_size = gdb.parse_and_eval(
--                    "sizeof(kernel_config_data) - 1 - 8 * 2")
-+            py_config_ptr = gdb.parse_and_eval("&kernel_config_data")
-+            py_config_ptr_end = gdb.parse_and_eval("&kernel_config_data_end")
-+            py_config_size = py_config_ptr_end - py_config_ptr
-         except gdb.error as e:
-             raise gdb.GdbError("Can't find config, enable CONFIG_IKCONFIG?")
+ 	ret = hp_wmi_perform_query(query, HPWMI_READ, &val,
+-				   sizeof(val), sizeof(val));
++				   0, sizeof(val));
  
+ 	if (ret)
+ 		return ret < 0 ? ret : -EINVAL;
 -- 
 2.35.1
 
