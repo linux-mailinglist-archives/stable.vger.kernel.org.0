@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE4A0548707
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A86FA548750
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356215AbiFMM4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:56:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50412 "EHLO
+        id S1352896AbiFMLbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:31:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358061AbiFMMzC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F57D7654;
-        Mon, 13 Jun 2022 04:14:15 -0700 (PDT)
+        with ESMTP id S1354365AbiFML3X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A433AD129;
+        Mon, 13 Jun 2022 03:43:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA07E608C3;
-        Mon, 13 Jun 2022 11:14:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7AA7C34114;
-        Mon, 13 Jun 2022 11:14:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62554B80D3F;
+        Mon, 13 Jun 2022 10:43:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3748C34114;
+        Mon, 13 Jun 2022 10:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118854;
-        bh=Nyc7+4kSyLIRmZeoBpvTr7OYTrPEJP86sSagwb0Vm3E=;
+        s=korg; t=1655117012;
+        bh=5sG71ck5ZMmLjVZK8aDhf006yDRneYMHdW7nGNQM4cI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kzzWkBdlH0fn0gR8UhTWbIEP2Kt6yJGFx6TZN4veK8TRVJzjxiCeV/CzfOSXWZ9TH
-         83NQEOhlnzNTWdx5bHdUFOQHoccl0gTPnXFOWTGqhNlfmgzprkCqt5jJhim76CJQHJ
-         MXuvKzo50tg7bRo7yElEV6qg4l2/FjgM0HD0eOFI=
+        b=BuXYrUywCXV9i+BxziE1T6wBSLil8RQixZMLpDFXAX1sGG8Tm5G9CBYTXBeYzl8yY
+         v/D/VGdFSMtrI4CMJZ51p8/hbaO2p3Upk0MWVNyJMOjaLYKCO6te92qErjz3HVw+wf
+         Eelt4z8tTDphGiQjx39riZSdd+ZGxL1DMsB4egWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 025/247] rpmsg: virtio: Fix possible double free in rpmsg_probe()
-Date:   Mon, 13 Jun 2022 12:08:47 +0200
-Message-Id: <20220613094923.697010265@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.4 255/411] iommu/msm: Fix an incorrect NULL check on list iterator
+Date:   Mon, 13 Jun 2022 12:08:48 +0200
+Message-Id: <20220613094936.413353270@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit c2eecefec5df1306eafce28ccdf1ca159a552ecc ]
+commit 8b9ad480bd1dd25f4ff4854af5685fa334a2f57a upstream.
 
-vch will be free in virtio_rpmsg_release_device() when
-rpmsg_ns_register_device() fails. There is no need to call kfree() again.
+The bug is here:
+	if (!iommu || iommu->dev->of_node != spec->np) {
 
-Fix this by changing error path from free_vch to free_ctrldev.
+The list iterator value 'iommu' will *always* be set and non-NULL by
+list_for_each_entry(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element is found (in fact,
+it will point to a invalid structure object containing HEAD).
 
-Fixes: c486682ae1e2 ("rpmsg: virtio: Register the rpmsg_char device")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Tested-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
-Link: https://lore.kernel.org/r/20220426060536.15594-2-hbh25y@gmail.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To fix the bug, use a new value 'iter' as the list iterator, while use
+the old value 'iommu' as a dedicated variable to point to the found one,
+and remove the unneeded check for 'iommu->dev->of_node != spec->np'
+outside the loop.
+
+Cc: stable@vger.kernel.org
+Fixes: f78ebca8ff3d6 ("iommu/msm: Add support for generic master bindings")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220501132823.12714-1-xiam0nd.tong@gmail.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rpmsg/virtio_rpmsg_bus.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/iommu/msm_iommu.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-index 8e49a3bacfc7..834a0811e371 100644
---- a/drivers/rpmsg/virtio_rpmsg_bus.c
-+++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-@@ -964,7 +964,8 @@ static int rpmsg_probe(struct virtio_device *vdev)
+--- a/drivers/iommu/msm_iommu.c
++++ b/drivers/iommu/msm_iommu.c
+@@ -636,16 +636,19 @@ static void insert_iommu_master(struct d
+ static int qcom_iommu_of_xlate(struct device *dev,
+ 			       struct of_phandle_args *spec)
+ {
+-	struct msm_iommu_dev *iommu;
++	struct msm_iommu_dev *iommu = NULL, *iter;
+ 	unsigned long flags;
+ 	int ret = 0;
  
- 		err = rpmsg_ns_register_device(rpdev_ns);
- 		if (err)
--			goto free_vch;
-+			/* vch will be free in virtio_rpmsg_release_device() */
-+			goto free_ctrldev;
+ 	spin_lock_irqsave(&msm_iommu_lock, flags);
+-	list_for_each_entry(iommu, &qcom_iommu_devices, dev_node)
+-		if (iommu->dev->of_node == spec->np)
++	list_for_each_entry(iter, &qcom_iommu_devices, dev_node) {
++		if (iter->dev->of_node == spec->np) {
++			iommu = iter;
+ 			break;
++		}
++	}
+ 
+-	if (!iommu || iommu->dev->of_node != spec->np) {
++	if (!iommu) {
+ 		ret = -ENODEV;
+ 		goto fail;
  	}
- 
- 	/*
-@@ -988,8 +989,6 @@ static int rpmsg_probe(struct virtio_device *vdev)
- 
- 	return 0;
- 
--free_vch:
--	kfree(vch);
- free_ctrldev:
- 	rpmsg_virtio_del_ctrl_dev(rpdev_ctrl);
- free_coherent:
--- 
-2.35.1
-
 
 
