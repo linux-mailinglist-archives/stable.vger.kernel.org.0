@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 661925491BD
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C078548C5D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357151AbiFMLxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:53:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53930 "EHLO
+        id S1381648AbiFMOIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356647AbiFMLux (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE519DFD3;
-        Mon, 13 Jun 2022 03:54:54 -0700 (PDT)
+        with ESMTP id S1382502AbiFMOF5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A1295A31;
+        Mon, 13 Jun 2022 04:40:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B7CAB80E07;
-        Mon, 13 Jun 2022 10:54:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7951C34114;
-        Mon, 13 Jun 2022 10:54:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5192C6124E;
+        Mon, 13 Jun 2022 11:40:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62948C34114;
+        Mon, 13 Jun 2022 11:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117692;
-        bh=5TNc4ZbAJXAM1YCLzp5XFl+IgrgDjicMDcvNj+TSYfI=;
+        s=korg; t=1655120452;
+        bh=T7zgCZdrnSI9zOst5mi3apWNt045/z6rDMsSMmV8L38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kt1FFq8pti752uPSoj3rs920gRmaz5cDJwQJRWK1mMKRQW8uCD9YKVjEMeNR7U7P1
-         FqkzF2NeNxuyKD7brMlE4sotjR8LqA7zzoIxMIsUbt8dkYTrt6ksnlO330ukIdBIgF
-         mTw39+Je5hZYUL19XBbW99f3X8+gM4GBCMhs7ZD0=
+        b=WIFL5RQFCFCnkGdiMCY5jyvJ8uvUqBZZ5RIwirN6bN4i33Ukr3W1+V/3lU/rZxDb7
+         g1xlyTZRis7D4+vfWV1MdCwjLzKgdkQSrwj3yTjUAOmpP8ypZAacDfHYngOvOVeUc2
+         5bnqYzcFpZ46K0JoJOPvL67ZqCkgcDyKG6QC9Y7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 085/287] x86: Fix return value of __setup handlers
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Lin Ma <linma@zju.edu.cn>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 015/298] USB: storage: karma: fix rio_karma_init return
 Date:   Mon, 13 Jun 2022 12:08:29 +0200
-Message-Id: <20220613094926.455524614@linuxfoundation.org>
+Message-Id: <20220613094925.388939519@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 12441ccdf5e2f5a01a46e344976cbbd3d46845c9 ]
+[ Upstream commit b92ffb1eddd9a66a90defc556dcbf65a43c196c7 ]
 
-__setup() handlers should return 1 to obsolete_checksetup() in
-init/main.c to indicate that the boot option has been handled. A return
-of 0 causes the boot option/value to be listed as an Unknown kernel
-parameter and added to init's (limited) argument (no '=') or environment
-(with '=') strings. So return 1 from these x86 __setup handlers.
+The function rio_karam_init() should return -ENOMEM instead of
+value 0 (USB_STOR_TRANSPORT_GOOD) when allocation fails.
 
-Examples:
+Similarly, it should return -EIO when rio_karma_send_command() fails.
 
-  Unknown kernel command line parameters "apicpmtimer
-    BOOT_IMAGE=/boot/bzImage-517rc8 vdso=1 ring3mwait=disable", will be
-    passed to user space.
-
-  Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-     apicpmtimer
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc8
-     vdso=1
-     ring3mwait=disable
-
-Fixes: 2aae950b21e4 ("x86_64: Add vDSO for x86-64 with gettimeofday/clock_gettime/getcpu")
-Fixes: 77b52b4c5c66 ("x86: add "debugpat" boot option")
-Fixes: e16fd002afe2 ("x86/cpufeature: Enable RING3MWAIT for Knights Landing")
-Fixes: b8ce33590687 ("x86_64: convert to clock events")
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Link: https://lore.kernel.org/r/20220314012725.26661-1-rdunlap@infradead.org
+Fixes: dfe0d3ba20e8 ("USB Storage: add rio karma eject support")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220412144359.28447-1-linma@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/vdso/vma.c   | 2 +-
- arch/x86/kernel/apic/apic.c | 2 +-
- arch/x86/kernel/cpu/intel.c | 2 +-
- arch/x86/mm/pat.c           | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/storage/karma.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/entry/vdso/vma.c b/arch/x86/entry/vdso/vma.c
-index 46caca4d9141..a1c31bb23170 100644
---- a/arch/x86/entry/vdso/vma.c
-+++ b/arch/x86/entry/vdso/vma.c
-@@ -329,7 +329,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
- static __init int vdso_setup(char *s)
- {
- 	vdso64_enabled = simple_strtoul(s, NULL, 0);
--	return 0;
-+	return 1;
- }
- __setup("vdso=", vdso_setup);
- #endif
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 9791828f3fcd..926939978c1c 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -166,7 +166,7 @@ static __init int setup_apicpmtimer(char *s)
- {
- 	apic_calibrate_pmtmr = 1;
- 	notsc_setup(NULL);
--	return 0;
-+	return 1;
- }
- __setup("apicpmtimer", setup_apicpmtimer);
- #endif
-diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
-index a5287b18a63f..76692590eff8 100644
---- a/arch/x86/kernel/cpu/intel.c
-+++ b/arch/x86/kernel/cpu/intel.c
-@@ -71,7 +71,7 @@ static bool ring3mwait_disabled __read_mostly;
- static int __init ring3mwait_disable(char *__unused)
- {
- 	ring3mwait_disabled = true;
--	return 0;
-+	return 1;
- }
- __setup("ring3mwait=disable", ring3mwait_disable);
+diff --git a/drivers/usb/storage/karma.c b/drivers/usb/storage/karma.c
+index 05cec81dcd3f..38ddfedef629 100644
+--- a/drivers/usb/storage/karma.c
++++ b/drivers/usb/storage/karma.c
+@@ -174,24 +174,25 @@ static void rio_karma_destructor(void *extra)
  
-diff --git a/arch/x86/mm/pat.c b/arch/x86/mm/pat.c
-index 324e26d0607b..b33304c0042a 100644
---- a/arch/x86/mm/pat.c
-+++ b/arch/x86/mm/pat.c
-@@ -74,7 +74,7 @@ int pat_debug_enable;
- static int __init pat_debug_setup(char *str)
+ static int rio_karma_init(struct us_data *us)
  {
- 	pat_debug_enable = 1;
--	return 0;
-+	return 1;
- }
- __setup("debugpat", pat_debug_setup);
+-	int ret = 0;
+ 	struct karma_data *data = kzalloc(sizeof(struct karma_data), GFP_NOIO);
  
+ 	if (!data)
+-		goto out;
++		return -ENOMEM;
+ 
+ 	data->recv = kmalloc(RIO_RECV_LEN, GFP_NOIO);
+ 	if (!data->recv) {
+ 		kfree(data);
+-		goto out;
++		return -ENOMEM;
+ 	}
+ 
+ 	us->extra = data;
+ 	us->extra_destructor = rio_karma_destructor;
+-	ret = rio_karma_send_command(RIO_ENTER_STORAGE, us);
+-	data->in_storage = (ret == 0);
+-out:
+-	return ret;
++	if (rio_karma_send_command(RIO_ENTER_STORAGE, us))
++		return -EIO;
++
++	data->in_storage = 1;
++
++	return 0;
+ }
+ 
+ static struct scsi_host_template karma_host_template;
 -- 
 2.35.1
 
