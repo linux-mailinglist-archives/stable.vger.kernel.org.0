@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45483548CC1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 386E6548DA6
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354592AbiFMM5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:57:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49960 "EHLO
+        id S243072AbiFMKZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:25:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354162AbiFMMzx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:53 -0400
+        with ESMTP id S245252AbiFMKY2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:24:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEAFF120B1;
-        Mon, 13 Jun 2022 04:16:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88C4823BD5;
+        Mon, 13 Jun 2022 03:18:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6431160B60;
-        Mon, 13 Jun 2022 11:16:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74558C34114;
-        Mon, 13 Jun 2022 11:16:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FD8C60AE7;
+        Mon, 13 Jun 2022 10:18:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15BFAC34114;
+        Mon, 13 Jun 2022 10:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119003;
-        bh=4uPzDoDtm+L7EnFXiMH8EH9hH4YgpoC0Sl0c04Rut6E=;
+        s=korg; t=1655115522;
+        bh=yCAleXJDktB66sB5iU+I8JfPVZVS2tZjE0AbN1XaUk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pzbx9rx5MOG5FGvzrUPgJDwW1v85hZGFkrcCykqfTcIahgNkoLnuQqb0pnWyZWnYs
-         SoBX+5+J2zNnaAOIS0xTe04L5acR9QWWxxKbxDnmn2IXt58dgk1SdP921GTxHKdpZJ
-         lusdGxQJwxKkmx5NIN+vnGN8LjeI9+aXzpKBPB4g=
+        b=aT0rDf/5AlOhTIn1hliLu4aG1GVuuO+emkNjgL810hX/2PZGlq/fQ1upyk574GIjY
+         /2sTkftirwqxpiGr2lkGm0hJIwezKdEid63iubfAER2L4IPJiFdyFhGI+5OafIwmXU
+         vTi34cdWntDZ0KoWC20ECvJbWy7Asntpl4sFwZb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 079/247] ubi: ubi_create_volume: Fix use-after-free when volume creation failed
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Ajay Kaher <akaher@vmware.com>,
+        Aaron Adams <edg-e@nccgroup.com>
+Subject: [PATCH 4.9 107/167] netfilter: nf_tables: disallow non-stateful expression in sets earlier
 Date:   Mon, 13 Jun 2022 12:09:41 +0200
-Message-Id: <20220613094925.353057682@linuxfoundation.org>
+Message-Id: <20220613094905.883707696@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 8c03a1c21d72210f81cb369cc528e3fde4b45411 ]
+commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
 
-There is an use-after-free problem for 'eba_tbl' in ubi_create_volume()'s
-error handling path:
+Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
+instantiation"), it is possible to attach stateful expressions to set
+elements.
 
-  ubi_eba_replace_table(vol, eba_tbl)
-    vol->eba_tbl = tbl
-out_mapping:
-  ubi_eba_destroy_table(eba_tbl)   // Free 'eba_tbl'
-out_unlock:
-  put_device(&vol->dev)
-    vol_release
-      kfree(tbl->entries)	  // UAF
+cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
+and destroy phase") introduces conditional destruction on the object to
+accomodate transaction semantics.
 
-Fix it by removing redundant 'eba_tbl' releasing.
-Fetch a reproducer in [Link].
+nft_expr_init() calls expr->ops->init() first, then check for
+NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
+lookup expressions which points to a set, which might lead to UAF since
+the set is not properly detached from the set->binding for this case.
+Anyway, this combination is non-sense from nf_tables perspective.
 
-Fixes: 493cfaeaa0c9b ("mtd: utilize new cdev_device_add helper function")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215965
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
+expr->ops->init() is called.
+
+The reporter provides a KASAN splat and a poc reproducer (similar to
+those autogenerated by syzbot to report use-after-free errors). It is
+unknown to me if they are using syzbot or if they use similar automated
+tool to locate the bug that they are reporting.
+
+For the record, this is the KASAN splat.
+
+[   85.431824] ==================================================================
+[   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
+[   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
+[   85.434756]
+[   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
+[   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+
+Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
+Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+[Ajay: Regenerated the patch for v4.9.y]
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/ubi/vmt.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/netfilter/nf_tables_api.c |   16 ++++++++++------
+ net/netfilter/nft_dynset.c    |    3 ---
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
-index 1bc7b3a05604..6ea95ade4ca6 100644
---- a/drivers/mtd/ubi/vmt.c
-+++ b/drivers/mtd/ubi/vmt.c
-@@ -309,7 +309,6 @@ int ubi_create_volume(struct ubi_device *ubi, struct ubi_mkvol_req *req)
- 	ubi->volumes[vol_id] = NULL;
- 	ubi->vol_count -= 1;
- 	spin_unlock(&ubi->volumes_lock);
--	ubi_eba_destroy_table(eba_tbl);
- out_acc:
- 	spin_lock(&ubi->volumes_lock);
- 	ubi->rsvd_pebs -= vol->reserved_pebs;
--- 
-2.35.1
-
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -1756,23 +1756,27 @@ struct nft_expr *nft_expr_init(const str
+ 
+ 	err = nf_tables_expr_parse(ctx, nla, &info);
+ 	if (err < 0)
+-		goto err1;
++		goto err_expr_parse;
++
++	err = -EOPNOTSUPP;
++	if (!(info.ops->type->flags & NFT_EXPR_STATEFUL))
++		goto err_expr_stateful;
+ 
+ 	err = -ENOMEM;
+ 	expr = kzalloc(info.ops->size, GFP_KERNEL);
+ 	if (expr == NULL)
+-		goto err2;
++		goto err_expr_stateful;
+ 
+ 	err = nf_tables_newexpr(ctx, &info, expr);
+ 	if (err < 0)
+-		goto err3;
++		goto err_expr_new;
+ 
+ 	return expr;
+-err3:
++err_expr_new:
+ 	kfree(expr);
+-err2:
++err_expr_stateful:
+ 	module_put(info.ops->type->owner);
+-err1:
++err_expr_parse:
+ 	return ERR_PTR(err);
+ }
+ 
+--- a/net/netfilter/nft_dynset.c
++++ b/net/netfilter/nft_dynset.c
+@@ -196,9 +196,6 @@ static int nft_dynset_init(const struct
+ 		if (IS_ERR(priv->expr))
+ 			return PTR_ERR(priv->expr);
+ 
+-		err = -EOPNOTSUPP;
+-		if (!(priv->expr->ops->type->flags & NFT_EXPR_STATEFUL))
+-			goto err1;
+ 	} else if (set->flags & NFT_SET_EVAL)
+ 		return -EINVAL;
+ 
 
 
