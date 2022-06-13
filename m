@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51911548B3C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C364D54928B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238061AbiFMLtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:49:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60772 "EHLO
+        id S1352216AbiFMLLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:11:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357564AbiFMLqW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:46:22 -0400
+        with ESMTP id S1351665AbiFMLJy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:09:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 572F713E34;
-        Mon, 13 Jun 2022 03:52:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D95A34644;
+        Mon, 13 Jun 2022 03:35:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D1C9B80E07;
-        Mon, 13 Jun 2022 10:52:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54CD0C34114;
-        Mon, 13 Jun 2022 10:52:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 687C3B80EA7;
+        Mon, 13 Jun 2022 10:35:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5BAFC34114;
+        Mon, 13 Jun 2022 10:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117563;
-        bh=iOWAUwyyvrzfGJbaBmB51/gkHgcEDeZ5PMPX+ZtyQpA=;
+        s=korg; t=1655116544;
+        bh=DAYQ0OroB66563gRhhqeAiJCMl89W3TJBKmM10sxpcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uMOpzlgQ7W7SOb3zEKzph/DossKSOO5JyEl3l+8gfQgc/Nr7GqvtlNHXS/F0eeaNO
-         BUf1wvcPoKuOPiIXpsqmNKkF/JWTLvCu16XZYkYPjQk7p18uYpa2JQkqYvakfZXs8s
-         Lx9FEJXKO1vsPfCaquNEUFMpZprimJLPAA1sSEPM=
+        b=fATL98HFVL3Udq42KzqDhvyKKn+98S5fH+jCzGeofiWgTZUCnfsJ6h3SWhlVT7h9H
+         TGkH/aKEswD2uv3xw/Xy6kchR+0iWgdcz5Xy/mnC36n9kI7h1h3qoGlQNvXvwvAH8N
+         c0C634Q9IFDh0Z9CxIUR6mHpsvp4pIWcJGNBhcH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Donald Buczek <buczek@molgen.mpg.de>,
-        Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 385/411] md: protect md_unregister_thread from reentrancy
-Date:   Mon, 13 Jun 2022 12:10:58 +0200
-Message-Id: <20220613094940.212356869@linuxfoundation.org>
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Yu Kuai <yukuai3@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 201/218] nbd: call genl_unregister_family() first in nbd_cleanup()
+Date:   Mon, 13 Jun 2022 12:10:59 +0200
+Message-Id: <20220613094926.719036746@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 1e267742283a4b5a8ca65755c44166be27e9aa0f ]
+[ Upstream commit 06c4da89c24e7023ea448cadf8e9daf06a0aae6e ]
 
-Generally, the md_unregister_thread is called with reconfig_mutex, but
-raid_message in dm-raid doesn't hold reconfig_mutex to unregister thread,
-so md_unregister_thread can be called simulitaneously from two call sites
-in theory.
+Otherwise there may be race between module removal and the handling of
+netlink command, which can lead to the oops as shown below:
 
-Then after previous commit which remove the protection of reconfig_mutex
-for md_unregister_thread completely, the potential issue could be worse
-than before.
+  BUG: kernel NULL pointer dereference, address: 0000000000000098
+  Oops: 0002 [#1] SMP PTI
+  CPU: 1 PID: 31299 Comm: nbd-client Tainted: G            E     5.14.0-rc4
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+  RIP: 0010:down_write+0x1a/0x50
+  Call Trace:
+   start_creating+0x89/0x130
+   debugfs_create_dir+0x1b/0x130
+   nbd_start_device+0x13d/0x390 [nbd]
+   nbd_genl_connect+0x42f/0x748 [nbd]
+   genl_family_rcv_msg_doit.isra.0+0xec/0x150
+   genl_rcv_msg+0xe5/0x1e0
+   netlink_rcv_skb+0x55/0x100
+   genl_rcv+0x29/0x40
+   netlink_unicast+0x1a8/0x250
+   netlink_sendmsg+0x21b/0x430
+   ____sys_sendmsg+0x2a4/0x2d0
+   ___sys_sendmsg+0x81/0xc0
+   __sys_sendmsg+0x62/0xb0
+   __x64_sys_sendmsg+0x1f/0x30
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  Modules linked in: nbd(E-)
 
-Let's take pers_lock at the beginning of function to ensure reentrancy.
-
-Reported-by: Donald Buczek <buczek@molgen.mpg.de>
-Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220521073749.3146892-2-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/block/nbd.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 4d1ef470f2fa..11fd3b32b562 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -7777,17 +7777,22 @@ EXPORT_SYMBOL(md_register_thread);
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 826b3877a157..1c9f866d9338 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -2319,6 +2319,12 @@ static void __exit nbd_cleanup(void)
+ 	struct nbd_device *nbd;
+ 	LIST_HEAD(del_list);
  
- void md_unregister_thread(struct md_thread **threadp)
- {
--	struct md_thread *thread = *threadp;
--	if (!thread)
--		return;
--	pr_debug("interrupting MD-thread pid %d\n", task_pid_nr(thread->tsk));
--	/* Locking ensures that mddev_unlock does not wake_up a
-+	struct md_thread *thread;
-+
 +	/*
-+	 * Locking ensures that mddev_unlock does not wake_up a
- 	 * non-existent thread
- 	 */
- 	spin_lock(&pers_lock);
-+	thread = *threadp;
-+	if (!thread) {
-+		spin_unlock(&pers_lock);
-+		return;
-+	}
- 	*threadp = NULL;
- 	spin_unlock(&pers_lock);
++	 * Unregister netlink interface prior to waiting
++	 * for the completion of netlink commands.
++	 */
++	genl_unregister_family(&nbd_genl_family);
++
+ 	nbd_dbg_close();
  
-+	pr_debug("interrupting MD-thread pid %d\n", task_pid_nr(thread->tsk));
- 	kthread_stop(thread->tsk);
- 	kfree(thread);
+ 	mutex_lock(&nbd_index_mutex);
+@@ -2334,7 +2340,6 @@ static void __exit nbd_cleanup(void)
+ 	}
+ 
+ 	idr_destroy(&nbd_index_idr);
+-	genl_unregister_family(&nbd_genl_family);
+ 	unregister_blkdev(NBD_MAJOR, "nbd");
  }
+ 
 -- 
 2.35.1
 
