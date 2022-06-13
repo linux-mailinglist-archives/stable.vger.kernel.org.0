@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 699D5548EFB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B8FE548A92
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354229AbiFMLbx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:31:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43336 "EHLO
+        id S244711AbiFMKoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:44:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353865AbiFML1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:27:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6F693E0C9;
-        Mon, 13 Jun 2022 03:42:53 -0700 (PDT)
+        with ESMTP id S1343723AbiFMKnB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:43:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B8DB1D8;
+        Mon, 13 Jun 2022 03:24:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69B3760FDB;
-        Mon, 13 Jun 2022 10:42:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78B32C34114;
-        Mon, 13 Jun 2022 10:42:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70DC7B80E90;
+        Mon, 13 Jun 2022 10:24:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97938C34114;
+        Mon, 13 Jun 2022 10:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116972;
-        bh=MLkY1OvX2VTXtWkd4B2hKU9SxPB0F0RJYdX5ADWhvgw=;
+        s=korg; t=1655115853;
+        bh=ijCvAG5D6KxVV9sw1XIyTUNpxJ2pxD5vlmvuuYWonXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ceCpAMcYVBLKlJJQ82aBzje9hjSXy1/y8JtvNiJ1iExB6tcK1jfbJw2a4j1K12qfe
-         FvyMncfYfzqJ37iJohBuKnusZ3ShOJegd+VjjiGhjojVlcSwDNmw9UY5qFZs/AaUrb
-         r7gHJorpEAqbks0lXczRTROQrXUZzb5ne8p46e2w=
+        b=Cq2/ehSjfbJraIcA91GQVX5NOBcShtmN9nRd2bPrV96BtasyGJEEjOIf30pwQnekN
+         Jobut57PCQnfSRWwJpUDCjGmydO//CQmpenANz1NjQG50Zed2fRR54JcNJ2ailPPkp
+         9mIwOgJW8GNNnR3fDX4LN2a3z8yzIrvy0rSqar0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.4 241/411] drm/nouveau/clk: Fix an incorrect NULL check on list iterator
+        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 056/218] HID: hid-led: fix maximum brightness for Dream Cheeky
 Date:   Mon, 13 Jun 2022 12:08:34 +0200
-Message-Id: <20220613094936.006726428@linuxfoundation.org>
+Message-Id: <20220613094921.138390756@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Jonathan Teh <jonathan.teh@outlook.com>
 
-commit 1c3b2a27def609473ed13b1cd668cb10deab49b4 upstream.
+[ Upstream commit 116c3f4a78ebe478d5ad5a038baf931e93e7d748 ]
 
-The bug is here:
-	if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
-		return cstate;
+Increase maximum brightness for Dream Cheeky to 63. Emperically
+determined based on testing in kernel 4.4 on this device:
 
-The list iterator value 'cstate' will *always* be set and non-NULL
-by list_for_each_entry_from_reverse(), so it is incorrect to assume
-that the iterator value will be unchanged if the list is empty or no
-element is found (In fact, it will be a bogus pointer to an invalid
-structure object containing the HEAD). Also it missed a NULL check
-at callsite and may lead to invalid memory access after that.
+Bus 003 Device 002: ID 1d34:0004 Dream Cheeky Webmail Notifier
 
-To fix this bug, just return 'encoder' when found, otherwise return
-NULL. And add the NULL check.
-
-Cc: stable@vger.kernel.org
-Fixes: 1f7f3d91ad38a ("drm/nouveau/clk: Respect voltage limits in nvkm_cstate_prog")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220327075824.11806-1-xiam0nd.tong@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6c7ad07e9e05 ("HID: migrate USB LED driver from usb misc to hid")
+Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/hid/hid-led.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
-@@ -135,10 +135,10 @@ nvkm_cstate_find_best(struct nvkm_clk *c
- 
- 	list_for_each_entry_from_reverse(cstate, &pstate->list, head) {
- 		if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
--			break;
-+			return cstate;
- 	}
- 
--	return cstate;
-+	return NULL;
- }
- 
- static struct nvkm_cstate *
-@@ -169,6 +169,8 @@ nvkm_cstate_prog(struct nvkm_clk *clk, s
- 	if (!list_empty(&pstate->list)) {
- 		cstate = nvkm_cstate_get(clk, pstate, cstatei);
- 		cstate = nvkm_cstate_find_best(clk, pstate, cstate);
-+		if (!cstate)
-+			return -EINVAL;
- 	} else {
- 		cstate = &pstate->base;
- 	}
+diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
+index d3e1ab162f7c..7fc5982a0ca4 100644
+--- a/drivers/hid/hid-led.c
++++ b/drivers/hid/hid-led.c
+@@ -369,7 +369,7 @@ static const struct hidled_config hidled_configs[] = {
+ 		.type = DREAM_CHEEKY,
+ 		.name = "Dream Cheeky Webmail Notifier",
+ 		.short_name = "dream_cheeky",
+-		.max_brightness = 31,
++		.max_brightness = 63,
+ 		.num_leds = 1,
+ 		.report_size = 9,
+ 		.report_type = RAW_REQUEST,
+-- 
+2.35.1
+
 
 
