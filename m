@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCF75548F19
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A839548D0C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357042AbiFMLwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:52:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57058 "EHLO
+        id S1354027AbiFML1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:27:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356497AbiFMLuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D864E248C3;
-        Mon, 13 Jun 2022 03:54:14 -0700 (PDT)
+        with ESMTP id S1353847AbiFMLZg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:25:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9816366B3;
+        Mon, 13 Jun 2022 03:42:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7357C60F9A;
-        Mon, 13 Jun 2022 10:54:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88F48C34114;
-        Mon, 13 Jun 2022 10:54:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A82EB80EB0;
+        Mon, 13 Jun 2022 10:42:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCF74C34114;
+        Mon, 13 Jun 2022 10:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117653;
-        bh=ijCvAG5D6KxVV9sw1XIyTUNpxJ2pxD5vlmvuuYWonXA=;
+        s=korg; t=1655116945;
+        bh=29fvOx1BpldyPHpNr++3cI0NtJkOscyQmWiEVh3pRqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhL01MZthQ37ukemkhxycMigsUQNiu++Njnp3ThYwT4lcT5rUe6ejCYjuZrvnP0Hb
-         ewsXULSOjr9j9H26TJp2sFv6L90BZd4CZfyV9SAbB0+uDWGAq58n9+Ws6kMaKzG82k
-         Yb2y2wyBb/cYF+zSNkCvJdDSA7wyQAPiwIo+P/Qg=
+        b=ayIhcRZmD+VEEgWEbCUqBVKs7NlFAQu2+vhenrwrZZrpPwpZKdcoL0UUdrfk4KUVV
+         J0wgSisvLM69RHk0SgLcY7sTHum9g9s9PqRLHWNEqmDJxZpyeyK9GgTsRuijCHhvpO
+         ffnNQOMQFMIs1ZEjM5G9dpjhq55Ls2hZBL9gm3y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 071/287] HID: hid-led: fix maximum brightness for Dream Cheeky
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Ajay Kaher <akaher@vmware.com>,
+        Aaron Adams <edg-e@nccgroup.com>
+Subject: [PATCH 5.4 222/411] netfilter: nf_tables: disallow non-stateful expression in sets earlier
 Date:   Mon, 13 Jun 2022 12:08:15 +0200
-Message-Id: <20220613094926.022985988@linuxfoundation.org>
+Message-Id: <20220613094935.305988335@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Teh <jonathan.teh@outlook.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 116c3f4a78ebe478d5ad5a038baf931e93e7d748 ]
+commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
 
-Increase maximum brightness for Dream Cheeky to 63. Emperically
-determined based on testing in kernel 4.4 on this device:
+Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
+instantiation"), it is possible to attach stateful expressions to set
+elements.
 
-Bus 003 Device 002: ID 1d34:0004 Dream Cheeky Webmail Notifier
+cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
+and destroy phase") introduces conditional destruction on the object to
+accomodate transaction semantics.
 
-Fixes: 6c7ad07e9e05 ("HID: migrate USB LED driver from usb misc to hid")
-Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+nft_expr_init() calls expr->ops->init() first, then check for
+NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
+lookup expressions which points to a set, which might lead to UAF since
+the set is not properly detached from the set->binding for this case.
+Anyway, this combination is non-sense from nf_tables perspective.
+
+This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
+expr->ops->init() is called.
+
+The reporter provides a KASAN splat and a poc reproducer (similar to
+those autogenerated by syzbot to report use-after-free errors). It is
+unknown to me if they are using syzbot or if they use similar automated
+tool to locate the bug that they are reporting.
+
+For the record, this is the KASAN splat.
+
+[   85.431824] ==================================================================
+[   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
+[   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
+[   85.434756]
+[   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
+[   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+
+Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
+Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+[Ajay: Regenerated the patch for v5.4.y]
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-led.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c |   16 ++++++++++------
+ net/netfilter/nft_dynset.c    |    3 ---
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
-index d3e1ab162f7c..7fc5982a0ca4 100644
---- a/drivers/hid/hid-led.c
-+++ b/drivers/hid/hid-led.c
-@@ -369,7 +369,7 @@ static const struct hidled_config hidled_configs[] = {
- 		.type = DREAM_CHEEKY,
- 		.name = "Dream Cheeky Webmail Notifier",
- 		.short_name = "dream_cheeky",
--		.max_brightness = 31,
-+		.max_brightness = 63,
- 		.num_leds = 1,
- 		.report_size = 9,
- 		.report_type = RAW_REQUEST,
--- 
-2.35.1
-
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2267,27 +2267,31 @@ struct nft_expr *nft_expr_init(const str
+ 
+ 	err = nf_tables_expr_parse(ctx, nla, &info);
+ 	if (err < 0)
+-		goto err1;
++		goto err_expr_parse;
++
++	err = -EOPNOTSUPP;
++	if (!(info.ops->type->flags & NFT_EXPR_STATEFUL))
++		goto err_expr_stateful;
+ 
+ 	err = -ENOMEM;
+ 	expr = kzalloc(info.ops->size, GFP_KERNEL);
+ 	if (expr == NULL)
+-		goto err2;
++		goto err_expr_stateful;
+ 
+ 	err = nf_tables_newexpr(ctx, &info, expr);
+ 	if (err < 0)
+-		goto err3;
++		goto err_expr_new;
+ 
+ 	return expr;
+-err3:
++err_expr_new:
+ 	kfree(expr);
+-err2:
++err_expr_stateful:
+ 	owner = info.ops->type->owner;
+ 	if (info.ops->type->release_ops)
+ 		info.ops->type->release_ops(info.ops);
+ 
+ 	module_put(owner);
+-err1:
++err_expr_parse:
+ 	return ERR_PTR(err);
+ }
+ 
+--- a/net/netfilter/nft_dynset.c
++++ b/net/netfilter/nft_dynset.c
+@@ -204,9 +204,6 @@ static int nft_dynset_init(const struct
+ 			return PTR_ERR(priv->expr);
+ 
+ 		err = -EOPNOTSUPP;
+-		if (!(priv->expr->ops->type->flags & NFT_EXPR_STATEFUL))
+-			goto err1;
+-
+ 		if (priv->expr->ops->type->flags & NFT_EXPR_GC) {
+ 			if (set->flags & NFT_SET_TIMEOUT)
+ 				goto err1;
 
 
