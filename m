@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 903F154898B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AD62548AFD
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356414AbiFMM6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:58:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49926 "EHLO
+        id S1349005AbiFMK4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:56:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354745AbiFMMzq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2AC111807;
-        Mon, 13 Jun 2022 04:16:37 -0700 (PDT)
+        with ESMTP id S1350248AbiFMKyq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B90FDFFC;
+        Mon, 13 Jun 2022 03:30:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 858D5B80EA8;
-        Mon, 13 Jun 2022 11:16:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6491C34114;
-        Mon, 13 Jun 2022 11:16:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 274F760EF5;
+        Mon, 13 Jun 2022 10:30:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3198AC34114;
+        Mon, 13 Jun 2022 10:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118995;
-        bh=6ZdnYJ8rf0Ij1VeTv832SGgZbKN5b0dfE5OP1OorB9I=;
+        s=korg; t=1655116231;
+        bh=RbjE5QatI+ejZkz/KePngFLzoLyuc6tNPxKNv6r96tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OsmL0VzDMra+asSGoSJtcMoJXskk7dMmnVTmGdC2wTnd1tU0+yXb45jHRmTBqlc5m
-         uGXSfJGGuCF7mpXkXJPQUp0/tDA9cVptxK+upmcwYvoxJs/93nG64jGfRMfhpfSQus
-         vO0tuXmJoysnxp6hra8haQI+TvWCQFiuKX7qSqt4=
+        b=mC9smSNlvy3D+yAPHVvrs9PcGivui3K6FtKGso/X+xTfWErND4q0awEQX6PZoT6vf
+         49dwRLAP5Y3968MB6DGwtVcK6uzAHwdqLMRYu8ZdjRo4m6lih2mpyNKEBaeVCopfks
+         sBWFDpxahs2gc1ZktXsVrvj4BNAotb5LMvAj7btA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 102/247] s390/mcck: isolate SIE instruction when setting CIF_MCCK_GUEST flag
+Subject: [PATCH 4.14 146/218] pwm: lp3943: Fix duty calculation in case period was clamped
 Date:   Mon, 13 Jun 2022 12:10:04 +0200
-Message-Id: <20220613094926.049928025@linuxfoundation.org>
+Message-Id: <20220613094925.018223304@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,55 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 29ccaa4b35ea874ddd50518e5c2c746b9238a792 ]
+[ Upstream commit 5e3b07ca5cc78cd4a987e78446849e41288d87cb ]
 
-Commit d768bd892fc8 ("s390: add options to change branch prediction
-behaviour for the kernel") introduced .Lsie_exit label - supposedly
-to fence off SIE instruction. However, the corresponding address
-range length .Lsie_crit_mcck_length was not updated, which led to
-BPON code potentionally marked with CIF_MCCK_GUEST flag.
+The hardware only supports periods <= 1.6 ms and if a bigger period is
+requested it is clamped to 1.6 ms. In this case duty_cycle might be bigger
+than 1.6 ms and then the duty cycle register is written with a value
+bigger than LP3943_MAX_DUTY. So clamp duty_cycle accordingly.
 
-Both .Lsie_exit and .Lsie_crit_mcck_length were removed with commit
-0b0ed657fe00 ("s390: remove critical section cleanup from entry.S"),
-but the issue persisted - currently BPOFF and BPENTER macros might
-get wrongly considered by the machine check handler as a guest.
-
-Fixes: d768bd892fc8 ("s390: add options to change branch prediction behaviour for the kernel")
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: af66b3c0934e ("pwm: Add LP3943 PWM driver")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/entry.S | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/pwm/pwm-lp3943.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 4c9b967290ae..d530eb4dc413 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -248,6 +248,10 @@ ENTRY(sie64a)
- 	BPEXIT	__SF_SIE_FLAGS(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
- .Lsie_entry:
- 	sie	0(%r14)
-+# Let the next instruction be NOP to avoid triggering a machine check
-+# and handling it in a guest as result of the instruction execution.
-+	nopr	7
-+.Lsie_leave:
- 	BPOFF
- 	BPENTER	__SF_SIE_FLAGS(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
- .Lsie_skip:
-@@ -536,7 +540,7 @@ ENTRY(mcck_int_handler)
- 	jno	.Lmcck_panic
- #if IS_ENABLED(CONFIG_KVM)
- 	OUTSIDE	%r9,.Lsie_gmap,.Lsie_done,6f
--	OUTSIDE	%r9,.Lsie_entry,.Lsie_skip,4f
-+	OUTSIDE	%r9,.Lsie_entry,.Lsie_leave,4f
- 	oi	__LC_CPU_FLAGS+7, _CIF_MCCK_GUEST
- 	j	5f
- 4:	CHKSTG	.Lmcck_panic
+diff --git a/drivers/pwm/pwm-lp3943.c b/drivers/pwm/pwm-lp3943.c
+index fc446d5c19f9..34151fc4cd51 100644
+--- a/drivers/pwm/pwm-lp3943.c
++++ b/drivers/pwm/pwm-lp3943.c
+@@ -128,6 +128,7 @@ static int lp3943_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	if (err)
+ 		return err;
+ 
++	duty_ns = min(duty_ns, period_ns);
+ 	val = (u8)(duty_ns * LP3943_MAX_DUTY / period_ns);
+ 
+ 	return lp3943_write_byte(lp3943, reg_duty, val);
 -- 
 2.35.1
 
