@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16DBA549283
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5C1548D5E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243766AbiFMKZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:25:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45604 "EHLO
+        id S241222AbiFMM6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:58:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343494AbiFMKYt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:24:49 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B364B20F43;
-        Mon, 13 Jun 2022 03:19:19 -0700 (PDT)
+        with ESMTP id S1354293AbiFMMzj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41A8D11146;
+        Mon, 13 Jun 2022 04:16:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EE4CACE110D;
-        Mon, 13 Jun 2022 10:19:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6795C34114;
-        Mon, 13 Jun 2022 10:19:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DB6160B60;
+        Mon, 13 Jun 2022 11:16:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACBDFC3411C;
+        Mon, 13 Jun 2022 11:16:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115556;
-        bh=E/NzQvfMjelh0nBtqGcmvxugr6b9kNcti+XJ+jpUSu4=;
+        s=korg; t=1655118987;
+        bh=uS4yQiy6l5prXpMsSbHprTqB0Erj5eGU8B8u2yfkB7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1VgYHuex2MAaOYtBFEJkpePsSHsH7fhGQG/C38H31D3e/Vnllb9Qe4ryt4t+6jHOe
-         5WF9R6UdT1b0UspaCYh45CGhw5IQf6kUuDiTmuVelj1xbNtI5GGDq7FNM1SRvzeBVv
-         DS9LhGwscKvljr6GTkKaGfy0WWufWN28c8JzoHzM=
+        b=gLVn9Ow8A1ZvnMy6uK2ktYA/xS+oeLbjMfpUBTiaEnFhpKOoZ0oRrf6FKL8QbLz70
+         OTtO7Tcin2uxkgXS+vgA4fBelZ3AFLa8lEGPICtmRUpxjmhrPQA1WqqCG4lLytTixz
+         7eP4j0ZzP8OaR9EACxSYpD8Utnaf6emxr834uIOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Laurent Fasnacht <laurent.fasnacht@proton.ch>,
+        Neal Cardwell <ncardwell@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 127/167] tracing: Avoid adding tracer option before update_tracer_options
+Subject: [PATCH 5.15 099/247] tcp: tcp_rtx_synack() can be called from process context
 Date:   Mon, 13 Jun 2022 12:10:01 +0200
-Message-Id: <20220613094910.635432736@linuxfoundation.org>
+Message-Id: <20220613094925.958134702@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ef9188bcc6ca1d8a2ad83e826b548e6820721061 ]
+[ Upstream commit 0a375c822497ed6ad6b5da0792a12a6f1af10c0b ]
 
-To prepare for support asynchronous tracer_init_tracefs initcall,
-avoid calling create_trace_option_files before __update_tracer_options.
-Otherwise, create_trace_option_files will show warning because
-some tracers in trace_types list are already in tr->topts.
+Laurent reported the enclosed report [1]
 
-For example, hwlat_tracer call register_tracer in late_initcall,
-and global_trace.dir is already created in tracing_init_dentry,
-hwlat_tracer will be put into tr->topts.
-Then if the __update_tracer_options is executed after hwlat_tracer
-registered, create_trace_option_files find that hwlat_tracer is
-already in tr->topts.
+This bug triggers with following coditions:
 
-Link: https://lkml.kernel.org/r/20220426122407.17042-2-mark-pk.tsai@mediatek.com
+0) Kernel built with CONFIG_DEBUG_PREEMPT=y
 
-Link: https://lore.kernel.org/lkml/20220322133339.GA32582@xsang-OptiPlex-9020/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+1) A new passive FastOpen TCP socket is created.
+   This FO socket waits for an ACK coming from client to be a complete
+   ESTABLISHED one.
+2) A socket operation on this socket goes through lock_sock()
+   release_sock() dance.
+3) While the socket is owned by the user in step 2),
+   a retransmit of the SYN is received and stored in socket backlog.
+4) At release_sock() time, the socket backlog is processed while
+   in process context.
+5) A SYNACK packet is cooked in response of the SYN retransmit.
+6) -> tcp_rtx_synack() is called in process context.
+
+Before blamed commit, tcp_rtx_synack() was always called from BH handler,
+from a timer handler.
+
+Fix this by using TCP_INC_STATS() & NET_INC_STATS()
+which do not assume caller is in non preemptible context.
+
+[1]
+BUG: using __this_cpu_add() in preemptible [00000000] code: epollpep/2180
+caller is tcp_rtx_synack.part.0+0x36/0xc0
+CPU: 10 PID: 2180 Comm: epollpep Tainted: G           OE     5.16.0-0.bpo.4-amd64 #1  Debian 5.16.12-1~bpo11+1
+Hardware name: Supermicro SYS-5039MC-H8TRF/X11SCD-F, BIOS 1.7 11/23/2021
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x48/0x5e
+ check_preemption_disabled+0xde/0xe0
+ tcp_rtx_synack.part.0+0x36/0xc0
+ tcp_rtx_synack+0x8d/0xa0
+ ? kmem_cache_alloc+0x2e0/0x3e0
+ ? apparmor_file_alloc_security+0x3b/0x1f0
+ inet_rtx_syn_ack+0x16/0x30
+ tcp_check_req+0x367/0x610
+ tcp_rcv_state_process+0x91/0xf60
+ ? get_nohz_timer_target+0x18/0x1a0
+ ? lock_timer_base+0x61/0x80
+ ? preempt_count_add+0x68/0xa0
+ tcp_v4_do_rcv+0xbd/0x270
+ __release_sock+0x6d/0xb0
+ release_sock+0x2b/0x90
+ sock_setsockopt+0x138/0x1140
+ ? __sys_getsockname+0x7e/0xc0
+ ? aa_sk_perm+0x3e/0x1a0
+ __sys_setsockopt+0x198/0x1e0
+ __x64_sys_setsockopt+0x21/0x30
+ do_syscall_64+0x38/0xc0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 168a8f58059a ("tcp: TCP Fast Open Server - main code path")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Laurent Fasnacht <laurent.fasnacht@proton.ch>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Link: https://lore.kernel.org/r/20220530213713.601888-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/ipv4/tcp_output.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 90e0fd5621da..de1638df2b09 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -4798,12 +4798,18 @@ static void tracing_set_nop(struct trace_array *tr)
- 	tr->current_trace = &nop_trace;
- }
- 
-+static bool tracer_options_updated;
-+
- static void add_tracer_options(struct trace_array *tr, struct tracer *t)
- {
- 	/* Only enable if the directory has been created already. */
- 	if (!tr->dir)
- 		return;
- 
-+	/* Only create trace option files after update_tracer_options finish */
-+	if (!tracer_options_updated)
-+		return;
-+
- 	create_trace_option_files(tr, t);
- }
- 
-@@ -7082,6 +7088,7 @@ static void __update_tracer_options(struct trace_array *tr)
- static void update_tracer_options(struct trace_array *tr)
- {
- 	mutex_lock(&trace_types_lock);
-+	tracer_options_updated = true;
- 	__update_tracer_options(tr);
- 	mutex_unlock(&trace_types_lock);
- }
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index ed7125a47ce0..dc3b4668fcde 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -4116,8 +4116,8 @@ int tcp_rtx_synack(const struct sock *sk, struct request_sock *req)
+ 	res = af_ops->send_synack(sk, NULL, &fl, req, NULL, TCP_SYNACK_NORMAL,
+ 				  NULL);
+ 	if (!res) {
+-		__TCP_INC_STATS(sock_net(sk), TCP_MIB_RETRANSSEGS);
+-		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPSYNRETRANS);
++		TCP_INC_STATS(sock_net(sk), TCP_MIB_RETRANSSEGS);
++		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPSYNRETRANS);
+ 		if (unlikely(tcp_passive_fastopen(sk)))
+ 			tcp_sk(sk)->total_retrans++;
+ 		trace_tcp_retransmit_synack(sk, req);
 -- 
 2.35.1
 
