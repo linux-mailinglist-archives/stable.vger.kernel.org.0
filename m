@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54E53548C55
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8313F548BD8
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241756AbiFMKQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:16:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60976 "EHLO
+        id S1345190AbiFMKmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:42:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241855AbiFMKQS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:16:18 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33649DFE1;
-        Mon, 13 Jun 2022 03:15:12 -0700 (PDT)
+        with ESMTP id S1344742AbiFMKkz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:40:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1603E22533;
+        Mon, 13 Jun 2022 03:23:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 284E6CE116E;
-        Mon, 13 Jun 2022 10:15:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33506C3411C;
-        Mon, 13 Jun 2022 10:15:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6C8660AEA;
+        Mon, 13 Jun 2022 10:23:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5C6DC34114;
+        Mon, 13 Jun 2022 10:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115305;
-        bh=nenEibBJQkf8B+U53841xOeYfUma/aYeU1WO7LivkSI=;
+        s=korg; t=1655115820;
+        bh=l+ydTVCoI/F/gcw+1njuIFQl4UOoJOs9shlOSimZeMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHORgVgNAaeemZCGt820jIgI5ogTnG60neiYbGHsajAETS5PKLwHp5RbgZzrkdmrO
-         ldxzlMpTyErDFJjwBoig0/60PLl7QxhtmlF3naafrL/Jr2MgLxSKN5m9Ke1CFGk4xu
-         svf0DEYlr4W5i2mTUIGUHsyG+Y12Nlxb+Vz5qDgE=
+        b=Vvbre5QCO9t6x3469ZmpACJSxB6y1zQZcIPGcgCwCzfrJwS1yma5Lp/cZZvsYgDzu
+         W9/4OS77HKknywQ0dhYdgGa2Y3ZrHOUMfObcNW57Tbd+17sitcCQByzKBhQERWTyYx
+         ccODLzqe+JSxUrbvw7TnNIIcEErfAXOJivkc/zbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 026/167] eth: tg3: silence the GCC 12 array-bounds warning
+        stable@vger.kernel.org, Yicong Yang <yangyicong@hisilicon.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Jay Zhou <jianjay.zhou@huawei.com>
+Subject: [PATCH 4.14 042/218] PCI: Avoid pci_dev_lock() AB/BA deadlock with sriov_numvfs_store()
 Date:   Mon, 13 Jun 2022 12:08:20 +0200
-Message-Id: <20220613094846.913893676@linuxfoundation.org>
+Message-Id: <20220613094918.347214938@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-[ Upstream commit 9dec850fd7c210a04b4707df8e6c95bfafdd6a4b ]
+[ Upstream commit a91ee0e9fca9d7501286cfbced9b30a33e52740a ]
 
-GCC 12 currently generates a rather inconsistent warning:
+The sysfs sriov_numvfs_store() path acquires the device lock before the
+config space access lock:
 
-drivers/net/ethernet/broadcom/tg3.c:17795:51: warning: array subscript 5 is above array bounds of ‘struct tg3_napi[5]’ [-Warray-bounds]
-17795 |                 struct tg3_napi *tnapi = &tp->napi[i];
-      |                                           ~~~~~~~~^~~
+  sriov_numvfs_store
+    device_lock                 # A (1) acquire device lock
+    sriov_configure
+      vfio_pci_sriov_configure  # (for example)
+        vfio_pci_core_sriov_configure
+          pci_disable_sriov
+            sriov_disable
+              pci_cfg_access_lock
+                pci_wait_cfg    # B (4) wait for dev->block_cfg_access == 0
 
-i is guaranteed < tp->irq_max which in turn is either 1 or 5.
-There are more loops like this one in the driver, but strangely
-GCC 12 dislikes only this single one.
+Previously, pci_dev_lock() acquired the config space access lock before the
+device lock:
 
-Silence this silliness for now.
+  pci_dev_lock
+    pci_cfg_access_lock
+      dev->block_cfg_access = 1 # B (2) set dev->block_cfg_access = 1
+    device_lock                 # A (3) wait for device lock
 
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Any path that uses pci_dev_lock(), e.g., pci_reset_function(), may
+deadlock with sriov_numvfs_store() if the operations occur in the sequence
+(1) (2) (3) (4).
+
+Avoid the deadlock by reversing the order in pci_dev_lock() so it acquires
+the device lock before the config space access lock, the same as the
+sriov_numvfs_store() path.
+
+[bhelgaas: combined and adapted commit log from Jay Zhou's independent
+subsequent posting:
+https://lore.kernel.org/r/20220404062539.1710-1-jianjay.zhou@huawei.com]
+Link: https://lore.kernel.org/linux-pci/1583489997-17156-1-git-send-email-yangyicong@hisilicon.com/
+Also-posted-by: Jay Zhou <jianjay.zhou@huawei.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/Makefile | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/pci/pci.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/Makefile b/drivers/net/ethernet/broadcom/Makefile
-index 79f2372c66ec..4211c6cd6b35 100644
---- a/drivers/net/ethernet/broadcom/Makefile
-+++ b/drivers/net/ethernet/broadcom/Makefile
-@@ -15,3 +15,8 @@ obj-$(CONFIG_BGMAC_BCMA) += bgmac-bcma.o bgmac-bcma-mdio.o
- obj-$(CONFIG_BGMAC_PLATFORM) += bgmac-platform.o
- obj-$(CONFIG_SYSTEMPORT) += bcmsysport.o
- obj-$(CONFIG_BNXT) += bnxt/
-+
-+# FIXME: temporarily silence -Warray-bounds on non W=1+ builds
-+ifndef KBUILD_EXTRA_WARN
-+CFLAGS_tg3.o += -Wno-array-bounds
-+endif
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 4ff7f2575d28..efcd06064953 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -4153,18 +4153,18 @@ static int pci_dev_reset_slot_function(struct pci_dev *dev, int probe)
+ 
+ static void pci_dev_lock(struct pci_dev *dev)
+ {
+-	pci_cfg_access_lock(dev);
+ 	/* block PM suspend, driver probe, etc. */
+ 	device_lock(&dev->dev);
++	pci_cfg_access_lock(dev);
+ }
+ 
+ /* Return 1 on successful lock, 0 on contention */
+ static int pci_dev_trylock(struct pci_dev *dev)
+ {
+-	if (pci_cfg_access_trylock(dev)) {
+-		if (device_trylock(&dev->dev))
++	if (device_trylock(&dev->dev)) {
++		if (pci_cfg_access_trylock(dev))
+ 			return 1;
+-		pci_cfg_access_unlock(dev);
++		device_unlock(&dev->dev);
+ 	}
+ 
+ 	return 0;
+@@ -4172,8 +4172,8 @@ static int pci_dev_trylock(struct pci_dev *dev)
+ 
+ static void pci_dev_unlock(struct pci_dev *dev)
+ {
+-	device_unlock(&dev->dev);
+ 	pci_cfg_access_unlock(dev);
++	device_unlock(&dev->dev);
+ }
+ 
+ static void pci_dev_save_and_disable(struct pci_dev *dev)
 -- 
 2.35.1
 
