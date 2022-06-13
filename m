@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 650BF548D18
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E38954962F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352746AbiFMLUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:20:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46596 "EHLO
+        id S1346562AbiFMKhu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:37:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352942AbiFMLTD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CDC239813;
-        Mon, 13 Jun 2022 03:40:50 -0700 (PDT)
+        with ESMTP id S1344821AbiFMKhF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:37:05 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9310411C1C;
+        Mon, 13 Jun 2022 03:22:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A20466119F;
-        Mon, 13 Jun 2022 10:40:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82F23C34114;
-        Mon, 13 Jun 2022 10:40:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EC002CE0EEB;
+        Mon, 13 Jun 2022 10:22:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDF3BC34114;
+        Mon, 13 Jun 2022 10:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116849;
-        bh=rQngU7XuB251ksCvFq5Iyl+z4aQBcZu4OCXwzw3ji9Y=;
+        s=korg; t=1655115762;
+        bh=MxBRfXlXQLUT75soDSKGi1x1t5WHTACug5T0lRzTfbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tATab3k6bjA6NHdq7UKBSuAOCtanoUE3XtPARBufJ5MBCJM7lYXzdkgxjiDaz/Bc8
-         HOurg/nC9e0rZtihxd6NQozgq0qAacbdWppqU4mKQ2LtjZfoe/47++KRQXRHDPfAkI
-         fh0WBO641uV8MwALY88DU2cS8qDg7G6lf0rs0U+Q=
+        b=m02GtW5MSKNYLNFYHhaUkmyrV/MerVlTPxvmXtUwE3+YaQ5hVYw2iNruDblEB2UCD
+         +yjM9Fx9fp0IyZKQTKaubSlrUbQVCW5AScme2+cKC2fVFXQrTQGhW5M92hSSxPyzg5
+         TGjnGOo2KWm+35+5COThyHiXKhVclHo0DnsTbCgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Mario <jmario@redhat.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, jianghaoran <jianghaoran@kylinos.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 207/411] perf c2c: Use stdio interface if slang is not supported
+Subject: [PATCH 4.14 022/218] ipv6: Dont send rs packets to the interface of ARPHRD_TUNNEL
 Date:   Mon, 13 Jun 2022 12:08:00 +0200
-Message-Id: <20220613094934.864362392@linuxfoundation.org>
+Message-Id: <20220613094913.563479624@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,80 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: jianghaoran <jianghaoran@kylinos.cn>
 
-[ Upstream commit c4040212bc97d16040712a410335f93bc94d2262 ]
+[ Upstream commit b52e1cce31ca721e937d517411179f9196ee6135 ]
 
-If the slang lib is not installed on the system, perf c2c tool disables TUI
-mode and roll back to use stdio mode;  but the flag 'c2c.use_stdio' is
-missed to set true and thus it wrongly applies UI quirks in the function
-ui_quirks().
+ARPHRD_TUNNEL interface can't process rs packets
+and will generate TX errors
 
-This commit forces to use stdio interface if slang is not supported, and
-it can avoid to apply the UI quirks and show the correct metric header.
+ex:
+ip tunnel add ethn mode ipip local 192.168.1.1 remote 192.168.1.2
+ifconfig ethn x.x.x.x
 
-Before:
+ethn: flags=209<UP,POINTOPOINT,RUNNING,NOARP>  mtu 1480
+	inet x.x.x.x  netmask 255.255.255.255  destination x.x.x.x
+	inet6 fe80::5efe:ac1e:3cdb  prefixlen 64  scopeid 0x20<link>
+	tunnel   txqueuelen 1000  (IPIP Tunnel)
+	RX packets 0  bytes 0 (0.0 B)
+	RX errors 0  dropped 0  overruns 0  frame 0
+	TX packets 0  bytes 0 (0.0 B)
+	TX errors 3  dropped 0 overruns 0  carrier 0  collisions 0
 
-=================================================
-      Shared Cache Line Distribution Pareto
-=================================================
-  -------------------------------------------------------------------------------
-      0        0        0       99        0        0        0      0xaaaac17d6000
-  -------------------------------------------------------------------------------
-    0.00%    0.00%    6.06%    0.00%    0.00%    0.00%   0x20   N/A       0      0xaaaac17c25ac         0         0        43       375    18469         2  [.] 0x00000000000025ac  memstress         memstress[25ac]   0
-    0.00%    0.00%   93.94%    0.00%    0.00%    0.00%   0x29   N/A       0      0xaaaac17c3e88         0         0       173       180      135         2  [.] 0x0000000000003e88  memstress         memstress[3e88]   0
-
-After:
-
-=================================================
-      Shared Cache Line Distribution Pareto
-=================================================
-  -------------------------------------------------------------------------------
-      0        0        0       99        0        0        0      0xaaaac17d6000
-  -------------------------------------------------------------------------------
-           0.00%    0.00%    6.06%    0.00%    0.00%    0.00%                0x20   N/A       0      0xaaaac17c25ac         0         0        43       375    18469         2  [.] 0x00000000000025ac  memstress         memstress[25ac]   0
-           0.00%    0.00%   93.94%    0.00%    0.00%    0.00%                0x29   N/A       0      0xaaaac17c3e88         0         0       173       180      135         2  [.] 0x0000000000003e88  memstress         memstress[3e88]   0
-
-Fixes: 5a1a99cd2e4e1557 ("perf c2c report: Add main TUI browser")
-Reported-by: Joe Mario <jmario@redhat.com>
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20220526145400.611249-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: jianghaoran <jianghaoran@kylinos.cn>
+Link: https://lore.kernel.org/r/20220429053802.246681-1-jianghaoran@kylinos.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-c2c.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/ipv6/addrconf.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
-index f2e9d2b1b913..d3e0ea06d78d 100644
---- a/tools/perf/builtin-c2c.c
-+++ b/tools/perf/builtin-c2c.c
-@@ -2733,9 +2733,7 @@ static int perf_c2c__report(int argc, const char **argv)
- 		   "the input file to process"),
- 	OPT_INCR('N', "node-info", &c2c.node_info,
- 		 "show extra node info in report (repeat for more info)"),
--#ifdef HAVE_SLANG_SUPPORT
- 	OPT_BOOLEAN(0, "stdio", &c2c.use_stdio, "Use the stdio interface"),
--#endif
- 	OPT_BOOLEAN(0, "stats", &c2c.stats_only,
- 		    "Display only statistic tables (implies --stdio)"),
- 	OPT_BOOLEAN(0, "full-symbols", &c2c.symbol_full,
-@@ -2762,6 +2760,10 @@ static int perf_c2c__report(int argc, const char **argv)
- 	if (argc)
- 		usage_with_options(report_c2c_usage, options);
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 09807202bd1c..0d3e76b160a5 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -4058,7 +4058,8 @@ static void addrconf_dad_completed(struct inet6_ifaddr *ifp, bool bump_id,
+ 	send_rs = send_mld &&
+ 		  ipv6_accept_ra(ifp->idev) &&
+ 		  ifp->idev->cnf.rtr_solicits != 0 &&
+-		  (dev->flags&IFF_LOOPBACK) == 0;
++		  (dev->flags & IFF_LOOPBACK) == 0 &&
++		  (dev->type != ARPHRD_TUNNEL);
+ 	read_unlock_bh(&ifp->idev->lock);
  
-+#ifndef HAVE_SLANG_SUPPORT
-+	c2c.use_stdio = true;
-+#endif
-+
- 	if (c2c.stats_only)
- 		c2c.use_stdio = true;
- 
+ 	/* While dad is in progress mld report's source address is in6_addrany.
 -- 
 2.35.1
 
