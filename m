@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7E7D548D47
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D01154962D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358330AbiFMMGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:06:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49858 "EHLO
+        id S1354240AbiFMLby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:31:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358870AbiFMMEz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:04:55 -0400
+        with ESMTP id S1355064AbiFMLa2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8141450467;
-        Mon, 13 Jun 2022 03:58:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5FAA2B240;
+        Mon, 13 Jun 2022 03:46:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B123461257;
-        Mon, 13 Jun 2022 10:57:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFBB1C34114;
-        Mon, 13 Jun 2022 10:57:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F77360FDB;
+        Mon, 13 Jun 2022 10:46:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B4F4C34114;
+        Mon, 13 Jun 2022 10:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117879;
-        bh=yw+995S1gaIxVOh/n+ucL7VVwDzcFxIfBBiYfybKnW0=;
+        s=korg; t=1655117184;
+        bh=aAA6hQIpGv3F1Y6sJQtvDmCD4JxsSlbLtBI+wfx5otg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tyjyfN03kGRfNytRrzMzyafGhizDeGwpvFxTpT3MeB/WkrRlrIVfBSPf4jAUta4yc
-         1S1mWf16F6IQ7jVZMO6bSjriuN6FLaQqdHdBM2/UWEAZ67CQpatvrrQclu8M6bkWkK
-         P4BuQ24dbVfkMa3+jMvxYl3+io4iFnsQX+gyuKno=
+        b=QnOsbDk67zSnPWlBM8PzKgwQiEn/S26OC24TecK/F7IsTGWPqqcXsyl4qRaC+ZMLl
+         yjkYOE7Vpj1AZjpvMMREicFMKtK56sIowSs0m0Gil5LobDHxR6/Xjzd7J4iMBgkxKY
+         Q9QSrlMLuv0LSKm7tNeDFJXuQffpEL6DReZzj4ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        Pascal Speck <kernel@iktek.de>,
-        Fabio Estevam <festevam@denx.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.19 165/287] media: coda: Fix reported H264 profile
+        stable@vger.kernel.org, Romain Naour <romain.naour@smile.fr>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 316/411] bus: ti-sysc: Fix warnings for unbind for serial
 Date:   Mon, 13 Jun 2022 12:09:49 +0200
-Message-Id: <20220613094928.879822908@linuxfoundation.org>
+Message-Id: <20220613094938.216549236@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,56 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 7110c08ea71953a7fc342f0b76046f72442cf26c upstream.
+[ Upstream commit c337125b8834f9719dfda0e40b25eaa266f1b8cf ]
 
-The CODA960 manual states that ASO/FMO features of baseline are not
-supported, so for this reason this driver should only report
-constrained baseline support.
+We can get "failed to disable" clock_unprepare warnings on unbind at least
+for the serial console device if the unbind is done before the device has
+been idled.
 
-This fixes negotiation issue with constrained baseline content
-on GStreamer 1.17.1.
+As some devices are using deferred idle, we must check the status for
+pending idle work to idle the device.
 
-ASO/FMO features are unsupported for the encoder and untested for the
-decoder because there is currently no userspace support. Neither GStreamer
-parsers nor FFMPEG parsers support ASO/FMO.
-
-Cc: stable@vger.kernel.org
-Fixes: 42a68012e67c2 ("media: coda: add read-only h.264 decoder profile/level controls")
-Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Tested-by: Pascal Speck <kernel@iktek.de>
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 76f0f772e469 ("bus: ti-sysc: Improve handling for no-reset-on-init and no-idle-on-init")
+Cc: Romain Naour <romain.naour@smile.fr>
+Reviewed-by: Romain Naour <romain.naour@smile.fr>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20220512053021.61650-1-tony@atomide.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-common.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/bus/ti-sysc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/media/platform/coda/coda-common.c
-+++ b/drivers/media/platform/coda/coda-common.c
-@@ -1894,8 +1894,8 @@ static void coda_encode_ctrls(struct cod
- 		0x0, V4L2_MPEG_VIDEO_H264_LOOP_FILTER_MODE_ENABLED);
- 	v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
- 		V4L2_CID_MPEG_VIDEO_H264_PROFILE,
--		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE, 0x0,
--		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE);
-+		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE, 0x0,
-+		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE);
- 	if (ctx->dev->devtype->product == CODA_HX4 ||
- 	    ctx->dev->devtype->product == CODA_7541) {
- 		v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
-@@ -1977,7 +1977,7 @@ static void coda_decode_ctrls(struct cod
- 	ctx->h264_profile_ctrl = v4l2_ctrl_new_std_menu(&ctx->ctrls,
- 		&coda_ctrl_ops, V4L2_CID_MPEG_VIDEO_H264_PROFILE,
- 		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH,
--		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE) |
-+		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE) |
- 		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_MAIN) |
- 		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_HIGH)),
- 		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH);
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 469ca73de4ce..44aeceaccfa4 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -2724,7 +2724,9 @@ static int sysc_remove(struct platform_device *pdev)
+ 	struct sysc *ddata = platform_get_drvdata(pdev);
+ 	int error;
+ 
+-	cancel_delayed_work_sync(&ddata->idle_work);
++	/* Device can still be enabled, see deferred idle quirk in probe */
++	if (cancel_delayed_work_sync(&ddata->idle_work))
++		ti_sysc_idle(&ddata->idle_work.work);
+ 
+ 	error = pm_runtime_get_sync(ddata->dev);
+ 	if (error < 0) {
+-- 
+2.35.1
+
 
 
