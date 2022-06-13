@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F37154980F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A90548B7F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239735AbiFMM52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:57:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50432 "EHLO
+        id S1358503AbiFMMGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:06:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355492AbiFMM4E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:56:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40E7D12D0D;
-        Mon, 13 Jun 2022 04:17:04 -0700 (PDT)
+        with ESMTP id S1358897AbiFMME5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:04:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888A4506F9;
+        Mon, 13 Jun 2022 03:58:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B79A260B60;
-        Mon, 13 Jun 2022 11:17:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5DADC34114;
-        Mon, 13 Jun 2022 11:17:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3882AB80E93;
+        Mon, 13 Jun 2022 10:58:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE9CC34114;
+        Mon, 13 Jun 2022 10:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119023;
-        bh=EFH/jpz6Y7HbXvroxBQ+an5CCn0BgHUFSg7kxrGjx/s=;
+        s=korg; t=1655117890;
+        bh=U8LQa6wfLg8oa/eSS6e4ejT7/fpc/kO3+1GrXW02XnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VSZyhebbLLKQ59ZhT0eFMw/ptpAJgdvH2JxmaF72eF3tghJQfhyMsQEtlO560Iw06
-         w5j48UeFqUxA56CUE5YPXAJ9xrn1ACbe9Tl10M1mqU6pWFdHawJONsiusq5Os6eyzr
-         bDJNEbglAt0hZnOqqiPucglUi+J9WWqJrFqyYitM=
+        b=gKUu4slso/nLtpPEjr5luIX5CBEIamPheXRefLGxEXbIGDWjftFZn7YbIXndbw//b
+         cBDsr3O6GtXgeZFE5acL1UK3yOxSqRHWYBg2Y6cyJ03vZeUZ5jk4fnCbdWTBaF/yII
+         vFGbiatBGQkWbQ0KTBa2CLAqK7UOBbNmFOHO2SQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 076/247] modpost: fix removing numeric suffixes
-Date:   Mon, 13 Jun 2022 12:09:38 +0200
-Message-Id: <20220613094925.262644048@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 4.19 155/287] dlm: fix plock invalid read
+Date:   Mon, 13 Jun 2022 12:09:39 +0200
+Message-Id: <20220613094928.580546998@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +54,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit b5beffa20d83c4e15306c991ffd00de0d8628338 ]
+commit 42252d0d2aa9b94d168241710a761588b3959019 upstream.
 
-With the `-z unique-symbol` linker flag or any similar mechanism,
-it is possible to trigger the following:
+This patch fixes an invalid read showed by KASAN. A unlock will allocate a
+"struct plock_op" and a followed send_op() will append it to a global
+send_list data structure. In some cases a followed dev_read() moves it
+to recv_list and dev_write() will cast it to "struct plock_xop" and access
+fields which are only available in those structures. At this point an
+invalid read happens by accessing those fields.
 
-ERROR: modpost: "param_set_uint.0" [vmlinux] is a static EXPORT_SYMBOL
+To fix this issue the "callback" field is moved to "struct plock_op" to
+indicate that a cast to "plock_xop" is allowed and does the additional
+"plock_xop" handling if set.
 
-The reason is that for now the condition from remove_dot():
+Example of the KASAN output which showed the invalid read:
 
-if (m && (s[n + m] == '.' || s[n + m] == 0))
+[ 2064.296453] ==================================================================
+[ 2064.304852] BUG: KASAN: slab-out-of-bounds in dev_write+0x52b/0x5a0 [dlm]
+[ 2064.306491] Read of size 8 at addr ffff88800ef227d8 by task dlm_controld/7484
+[ 2064.308168]
+[ 2064.308575] CPU: 0 PID: 7484 Comm: dlm_controld Kdump: loaded Not tainted 5.14.0+ #9
+[ 2064.310292] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[ 2064.311618] Call Trace:
+[ 2064.312218]  dump_stack_lvl+0x56/0x7b
+[ 2064.313150]  print_address_description.constprop.8+0x21/0x150
+[ 2064.314578]  ? dev_write+0x52b/0x5a0 [dlm]
+[ 2064.315610]  ? dev_write+0x52b/0x5a0 [dlm]
+[ 2064.316595]  kasan_report.cold.14+0x7f/0x11b
+[ 2064.317674]  ? dev_write+0x52b/0x5a0 [dlm]
+[ 2064.318687]  dev_write+0x52b/0x5a0 [dlm]
+[ 2064.319629]  ? dev_read+0x4a0/0x4a0 [dlm]
+[ 2064.320713]  ? bpf_lsm_kernfs_init_security+0x10/0x10
+[ 2064.321926]  vfs_write+0x17e/0x930
+[ 2064.322769]  ? __fget_light+0x1aa/0x220
+[ 2064.323753]  ksys_write+0xf1/0x1c0
+[ 2064.324548]  ? __ia32_sys_read+0xb0/0xb0
+[ 2064.325464]  do_syscall_64+0x3a/0x80
+[ 2064.326387]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 2064.327606] RIP: 0033:0x7f807e4ba96f
+[ 2064.328470] Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 39 87 f8 ff 48 8b 54 24 18 48 8b 74 24 10 41 89 c0 8b 7c 24 08 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 31 44 89 c7 48 89 44 24 08 e8 7c 87 f8 ff 48
+[ 2064.332902] RSP: 002b:00007ffd50cfe6e0 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
+[ 2064.334658] RAX: ffffffffffffffda RBX: 000055cc3886eb30 RCX: 00007f807e4ba96f
+[ 2064.336275] RDX: 0000000000000040 RSI: 00007ffd50cfe7e0 RDI: 0000000000000010
+[ 2064.337980] RBP: 00007ffd50cfe7e0 R08: 0000000000000000 R09: 0000000000000001
+[ 2064.339560] R10: 000055cc3886eb30 R11: 0000000000000293 R12: 000055cc3886eb80
+[ 2064.341237] R13: 000055cc3886eb00 R14: 000055cc3886f590 R15: 0000000000000001
+[ 2064.342857]
+[ 2064.343226] Allocated by task 12438:
+[ 2064.344057]  kasan_save_stack+0x1c/0x40
+[ 2064.345079]  __kasan_kmalloc+0x84/0xa0
+[ 2064.345933]  kmem_cache_alloc_trace+0x13b/0x220
+[ 2064.346953]  dlm_posix_unlock+0xec/0x720 [dlm]
+[ 2064.348811]  do_lock_file_wait.part.32+0xca/0x1d0
+[ 2064.351070]  fcntl_setlk+0x281/0xbc0
+[ 2064.352879]  do_fcntl+0x5e4/0xfe0
+[ 2064.354657]  __x64_sys_fcntl+0x11f/0x170
+[ 2064.356550]  do_syscall_64+0x3a/0x80
+[ 2064.358259]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 2064.360745]
+[ 2064.361511] Last potentially related work creation:
+[ 2064.363957]  kasan_save_stack+0x1c/0x40
+[ 2064.365811]  __kasan_record_aux_stack+0xaf/0xc0
+[ 2064.368100]  call_rcu+0x11b/0xf70
+[ 2064.369785]  dlm_process_incoming_buffer+0x47d/0xfd0 [dlm]
+[ 2064.372404]  receive_from_sock+0x290/0x770 [dlm]
+[ 2064.374607]  process_recv_sockets+0x32/0x40 [dlm]
+[ 2064.377290]  process_one_work+0x9a8/0x16e0
+[ 2064.379357]  worker_thread+0x87/0xbf0
+[ 2064.381188]  kthread+0x3ac/0x490
+[ 2064.383460]  ret_from_fork+0x22/0x30
+[ 2064.385588]
+[ 2064.386518] Second to last potentially related work creation:
+[ 2064.389219]  kasan_save_stack+0x1c/0x40
+[ 2064.391043]  __kasan_record_aux_stack+0xaf/0xc0
+[ 2064.393303]  call_rcu+0x11b/0xf70
+[ 2064.394885]  dlm_process_incoming_buffer+0x47d/0xfd0 [dlm]
+[ 2064.397694]  receive_from_sock+0x290/0x770 [dlm]
+[ 2064.399932]  process_recv_sockets+0x32/0x40 [dlm]
+[ 2064.402180]  process_one_work+0x9a8/0x16e0
+[ 2064.404388]  worker_thread+0x87/0xbf0
+[ 2064.406124]  kthread+0x3ac/0x490
+[ 2064.408021]  ret_from_fork+0x22/0x30
+[ 2064.409834]
+[ 2064.410599] The buggy address belongs to the object at ffff88800ef22780
+[ 2064.410599]  which belongs to the cache kmalloc-96 of size 96
+[ 2064.416495] The buggy address is located 88 bytes inside of
+[ 2064.416495]  96-byte region [ffff88800ef22780, ffff88800ef227e0)
+[ 2064.422045] The buggy address belongs to the page:
+[ 2064.424635] page:00000000b6bef8bc refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0xef22
+[ 2064.428970] flags: 0xfffffc0000200(slab|node=0|zone=1|lastcpupid=0x1fffff)
+[ 2064.432515] raw: 000fffffc0000200 ffffea0000d68b80 0000001400000014 ffff888001041780
+[ 2064.436110] raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
+[ 2064.439813] page dumped because: kasan: bad access detected
+[ 2064.442548]
+[ 2064.443310] Memory state around the buggy address:
+[ 2064.445988]  ffff88800ef22680: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
+[ 2064.449444]  ffff88800ef22700: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
+[ 2064.452941] >ffff88800ef22780: 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc fc
+[ 2064.456383]                                                     ^
+[ 2064.459386]  ffff88800ef22800: 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc
+[ 2064.462788]  ffff88800ef22880: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
+[ 2064.466239] ==================================================================
 
-which was designed to test if it's a dot or a '\0' after the suffix
-is never satisfied.
-This is due to that `s[n + m]` always points to the last digit of a
-numeric suffix, not on the symbol next to it (from a custom debug
-print added to modpost):
+reproducer in python:
 
-param_set_uint.0, s[n + m] is '0', s[n + m + 1] is '\0'
+import argparse
+import struct
+import fcntl
+import os
 
-So it's off-by-one and was like that since 2014.
+parser = argparse.ArgumentParser()
 
-Fix this for the sake of any potential upcoming features, but don't
-bother stable-backporting, as it's well hidden -- apart from that
-LD flag, it can be triggered only with GCC LTO which never landed
-upstream.
+parser.add_argument('-f', '--file',
+		    help='file to use fcntl, must be on dlm lock filesystem e.g. gfs2')
 
-Fixes: fcd38ed0ff26 ("scripts: modpost: fix compilation warning")
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+args = parser.parse_args()
+
+f = open(args.file, 'wb+')
+
+lockdata = struct.pack('hhllhh', fcntl.F_WRLCK,0,0,0,0,0)
+fcntl.fcntl(f, fcntl.F_SETLK, lockdata)
+lockdata = struct.pack('hhllhh', fcntl.F_UNLCK,0,0,0,0,0)
+fcntl.fcntl(f, fcntl.F_SETLK, lockdata)
+
+Fixes: 586759f03e2e ("gfs2: nfs lock support for gfs2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/mod/modpost.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/dlm/plock.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index ca491aa2b376..7a5bddb8913e 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -1971,7 +1971,7 @@ static char *remove_dot(char *s)
+--- a/fs/dlm/plock.c
++++ b/fs/dlm/plock.c
+@@ -26,11 +26,11 @@ struct plock_op {
+ 	struct list_head list;
+ 	int done;
+ 	struct dlm_plock_info info;
++	int (*callback)(struct file_lock *fl, int result);
+ };
  
- 	if (n && s[n]) {
- 		size_t m = strspn(s + n + 1, "0123456789");
--		if (m && (s[n + m] == '.' || s[n + m] == 0))
-+		if (m && (s[n + m + 1] == '.' || s[n + m + 1] == 0))
- 			s[n] = 0;
+ struct plock_xop {
+ 	struct plock_op xop;
+-	int (*callback)(struct file_lock *fl, int result);
+ 	void *fl;
+ 	void *file;
+ 	struct file_lock flc;
+@@ -132,19 +132,18 @@ int dlm_posix_lock(dlm_lockspace_t *lock
+ 		/* fl_owner is lockd which doesn't distinguish
+ 		   processes on the nfs client */
+ 		op->info.owner	= (__u64) fl->fl_pid;
+-		xop->callback	= fl->fl_lmops->lm_grant;
++		op->callback	= fl->fl_lmops->lm_grant;
+ 		locks_init_lock(&xop->flc);
+ 		locks_copy_lock(&xop->flc, fl);
+ 		xop->fl		= fl;
+ 		xop->file	= file;
+ 	} else {
+ 		op->info.owner	= (__u64)(long) fl->fl_owner;
+-		xop->callback	= NULL;
+ 	}
  
- 		/* strip trailing .lto */
--- 
-2.35.1
-
+ 	send_op(op);
+ 
+-	if (xop->callback == NULL) {
++	if (!op->callback) {
+ 		rv = wait_event_interruptible(recv_wq, (op->done != 0));
+ 		if (rv == -ERESTARTSYS) {
+ 			log_debug(ls, "dlm_posix_lock: wait killed %llx",
+@@ -206,7 +205,7 @@ static int dlm_plock_callback(struct plo
+ 	file = xop->file;
+ 	flc = &xop->flc;
+ 	fl = xop->fl;
+-	notify = xop->callback;
++	notify = op->callback;
+ 
+ 	if (op->info.rv) {
+ 		notify(fl, op->info.rv);
+@@ -439,10 +438,9 @@ static ssize_t dev_write(struct file *fi
+ 		if (op->info.fsid == info.fsid &&
+ 		    op->info.number == info.number &&
+ 		    op->info.owner == info.owner) {
+-			struct plock_xop *xop = (struct plock_xop *)op;
+ 			list_del_init(&op->list);
+ 			memcpy(&op->info, &info, sizeof(info));
+-			if (xop->callback)
++			if (op->callback)
+ 				do_callback = 1;
+ 			else
+ 				op->done = 1;
 
 
