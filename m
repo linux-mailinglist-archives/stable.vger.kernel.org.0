@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81D8F548475
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 12:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70BCF548477
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 12:16:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241542AbiFMKQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:16:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58132 "EHLO
+        id S241662AbiFMKQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:16:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241426AbiFMKPs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:15:48 -0400
+        with ESMTP id S241859AbiFMKPw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:15:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E08ADEED;
-        Mon, 13 Jun 2022 03:14:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79D3EDF49;
+        Mon, 13 Jun 2022 03:15:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1498A614A8;
-        Mon, 13 Jun 2022 10:14:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26D99C36AFE;
-        Mon, 13 Jun 2022 10:14:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 911BB61481;
+        Mon, 13 Jun 2022 10:15:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98021C36B08;
+        Mon, 13 Jun 2022 10:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115294;
-        bh=RuUJURyxugcuc59iK03LZ8W2uZus1jLgTQH7goDPaHQ=;
+        s=korg; t=1655115300;
+        bh=Web0D2RT+WjSuITvbC651iGdO+wK1BU0c4P35f/fpqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xn5DRr2CsVCbWVpBhktDHdzOHStxGrd34cOj1GxXXuw8XQ6XzDp5En93+bXRwsZZx
-         sVWAO/n5jHGNXxO7X30RnakeFu4IGkAgNXH6RXSkZlw/wxWK3hieq80geJa0tlVVVa
-         zZNAFRxATEbU1bNTSdD2xnzO6oLwm4AWa1m2Sypk=
+        b=edBSdwb+BLfGeMy5C8U3S0k+QXizo6UCJmKpmxu/XlD8Hiel+v1ocWpZ9xSgj1LWK
+         Mjz1RGGnP0b3i0jPIDx+0dA3vmrFtEyOfSYfFX7OnaHP+hUIC/ACzr/b5PWGSzFaKe
+         TRkzeSdaNUUfA6VhfBCrlHobt2VIlaUdgDZBH2lE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Kwanghoon Son <k.son@samsung.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 024/167] media: exynos4-is: Fix compile warning
-Date:   Mon, 13 Jun 2022 12:08:18 +0200
-Message-Id: <20220613094846.463500476@linuxfoundation.org>
+Subject: [PATCH 4.9 034/167] powerpc/xics: fix refcount leak in icp_opal_init()
+Date:   Mon, 13 Jun 2022 12:08:28 +0200
+Message-Id: <20220613094848.827284651@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
 References: <20220613094840.720778945@linuxfoundation.org>
@@ -56,37 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kwanghoon Son <k.son@samsung.com>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit e080f5c1f2b6d02c02ee5d674e0e392ccf63bbaf ]
+[ Upstream commit 5dd9e27ea4a39f7edd4bf81e9e70208e7ac0b7c9 ]
 
-Declare static on function 'fimc_isp_video_device_unregister'.
+The of_find_compatible_node() function returns a node pointer with
+refcount incremented, use of_node_put() on it when done.
 
-When VIDEO_EXYNOS4_ISP_DMA_CAPTURE=n, compiler warns about
-warning: no previous prototype for function [-Wmissing-prototypes]
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Kwanghoon Son <k.son@samsung.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220402013419.2410298-1-lv.ruyi@zte.com.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-isp-video.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/sysdev/xics/icp-opal.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-isp-video.h b/drivers/media/platform/exynos4-is/fimc-isp-video.h
-index f79a1b348aa6..67ef85249912 100644
---- a/drivers/media/platform/exynos4-is/fimc-isp-video.h
-+++ b/drivers/media/platform/exynos4-is/fimc-isp-video.h
-@@ -35,7 +35,7 @@ static inline int fimc_isp_video_device_register(struct fimc_isp *isp,
+diff --git a/arch/powerpc/sysdev/xics/icp-opal.c b/arch/powerpc/sysdev/xics/icp-opal.c
+index b53f80f0b4d8..80a4fa6dcc55 100644
+--- a/arch/powerpc/sysdev/xics/icp-opal.c
++++ b/arch/powerpc/sysdev/xics/icp-opal.c
+@@ -199,6 +199,7 @@ int icp_opal_init(void)
+ 
+ 	printk("XICS: Using OPAL ICP fallbacks\n");
+ 
++	of_node_put(np);
  	return 0;
  }
  
--void fimc_isp_video_device_unregister(struct fimc_isp *isp,
-+static inline void fimc_isp_video_device_unregister(struct fimc_isp *isp,
- 				enum v4l2_buf_type type)
- {
- }
 -- 
 2.35.1
 
