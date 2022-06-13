@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A2A549727
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 808405489B0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352579AbiFMLSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:18:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46688 "EHLO
+        id S1376563AbiFMNWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:22:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353701AbiFMLQO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 122DC13DF5;
-        Mon, 13 Jun 2022 03:39:15 -0700 (PDT)
+        with ESMTP id S1377487AbiFMNUk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35DD96B09A;
+        Mon, 13 Jun 2022 04:23:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFF21B80E94;
-        Mon, 13 Jun 2022 10:39:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15792C34114;
-        Mon, 13 Jun 2022 10:39:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDB6460FA3;
+        Mon, 13 Jun 2022 11:23:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF918C34114;
+        Mon, 13 Jun 2022 11:23:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116752;
-        bh=wZ6bpjLFFWsrDbNeK7eH9VtgXKAFIb/EwJS2dgwHWtI=;
+        s=korg; t=1655119424;
+        bh=LRovTWNrJCsTLIXvYoeSPRHPW26HvLCkuW3gGLLxCWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQ9M6VKB2ftQ87hs5Gc4iHAjJX/LMQn3cqGZVsMm9hIbN07guy2aIIJCFEUNO/yKv
-         meX1980vqN/xlPRFmtQUaFNR+nDGsaYKEpOxxtBYXU96cnningfWU3nnnRk6OBFJ9+
-         z7GEnY0oXLvMSU0QOtSptSdqLL/M+gLphAGRVyEI=
+        b=dKK1kFGkJpPXT48/prSFHdb3nykFejOYwd5yamrBXkWYqFoofBN+8NQ26UbO1GiNy
+         GHvXV8Sc2aS0z6tTTvvkHzNBlVbS9NzXvVchZSmkZhV5RYFR3Rt2MUSocyJk1UT3qV
+         r2hb+2YJT9h7RDs44/A4YzCujYp64572rtiCBm/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 161/411] PCI: rockchip: Fix find_first_zero_bit() limit
-Date:   Mon, 13 Jun 2022 12:07:14 +0200
-Message-Id: <20220613094933.489513865@linuxfoundation.org>
+Subject: [PATCH 5.18 010/339] tty: serial: owl: Fix missing clk_disable_unprepare() in owl_uart_probe
+Date:   Mon, 13 Jun 2022 12:07:15 +0200
+Message-Id: <20220613094926.821767274@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 096950e230b8d83645c7cf408b9f399f58c08b96 ]
+[ Upstream commit bcea0f547ec1a2ee44d429aaf0334633e386e67c ]
 
-The ep->ob_region_map bitmap is a long and it has BITS_PER_LONG bits.
+Fix the missing clk_disable_unprepare() before return
+from owl_uart_probe() in the error handling case.
 
-Link: https://lore.kernel.org/r/20220315065944.GB13572@kili
-Fixes: cf590b078391 ("PCI: rockchip: Add EP driver for Rockchip PCIe controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Fixes: abf42d2f333b ("tty: serial: owl: add "much needed" clk_prepare_enable()")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220307105135.11698-1-linmq006@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-rockchip-ep.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/tty/serial/owl-uart.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/controller/pcie-rockchip-ep.c b/drivers/pci/controller/pcie-rockchip-ep.c
-index d743b0a48988..b82edefffd15 100644
---- a/drivers/pci/controller/pcie-rockchip-ep.c
-+++ b/drivers/pci/controller/pcie-rockchip-ep.c
-@@ -263,8 +263,7 @@ static int rockchip_pcie_ep_map_addr(struct pci_epc *epc, u8 fn,
- 	struct rockchip_pcie *pcie = &ep->rockchip;
- 	u32 r;
- 
--	r = find_first_zero_bit(&ep->ob_region_map,
--				sizeof(ep->ob_region_map) * BITS_PER_LONG);
-+	r = find_first_zero_bit(&ep->ob_region_map, BITS_PER_LONG);
- 	/*
- 	 * Region 0 is reserved for configuration space and shouldn't
- 	 * be used elsewhere per TRM, so leave it out.
+diff --git a/drivers/tty/serial/owl-uart.c b/drivers/tty/serial/owl-uart.c
+index 5250bd7d390a..0866d749a9f4 100644
+--- a/drivers/tty/serial/owl-uart.c
++++ b/drivers/tty/serial/owl-uart.c
+@@ -731,6 +731,7 @@ static int owl_uart_probe(struct platform_device *pdev)
+ 	owl_port->port.uartclk = clk_get_rate(owl_port->clk);
+ 	if (owl_port->port.uartclk == 0) {
+ 		dev_err(&pdev->dev, "clock rate is zero\n");
++		clk_disable_unprepare(owl_port->clk);
+ 		return -EINVAL;
+ 	}
+ 	owl_port->port.flags = UPF_BOOT_AUTOCONF | UPF_IOREMAP | UPF_LOW_LATENCY;
 -- 
 2.35.1
 
