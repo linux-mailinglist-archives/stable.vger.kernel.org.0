@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09A72549642
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB17B54974D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378740AbiFMNmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:42:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58260 "EHLO
+        id S1356774AbiFMM5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:57:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379229AbiFMNkE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF879DE9C;
-        Mon, 13 Jun 2022 04:30:53 -0700 (PDT)
+        with ESMTP id S1355427AbiFMM4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:56:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DEDA12ACB;
+        Mon, 13 Jun 2022 04:17:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 734ABB80D3A;
-        Mon, 13 Jun 2022 11:30:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3898C34114;
-        Mon, 13 Jun 2022 11:30:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE901B80E93;
+        Mon, 13 Jun 2022 11:16:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D116C34114;
+        Mon, 13 Jun 2022 11:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119851;
-        bh=siH52ZOErEXaKkc+zCZh5cGKWahnj55KtXa/SZyoXvg=;
+        s=korg; t=1655119017;
+        bh=Peq5gzmdgmG8DJ+CvcqQLnVGG1RKzHTqlFTjY4iQTVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z3xK5D+UUiGz/vOuh6ZZVMvV881rgOLjcecK9J8zF5C3XPduIvX3xe1mo/gFCwFAd
-         0P9+pxI9TpFZsorojl46njpv+yklyYD2y99/PPnK7kDdtwzZILxSIzXSbHFOTG+HZG
-         2etzzcGHYFT+IHFG2o/F6QLFnYJu/Ceer9QgmsA0=
+        b=XZC+L1QglFpbmynsfG+035DCdtRM7Msr3n/Vdt4vHad5RACIhwlkLVWJLb/+9HXAY
+         484KHdMD05B9GZJUFdvNq8QsIxIWLRkFBQ2J7Yo2JOZUBUcfamAtqpY99SFUQ6ad7N
+         iej5zFAGP1XHB8yCH+ysklN9SCy2cck/HrGzcEC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 161/339] iommu/arm-smmu: fix possible null-ptr-deref in arm_smmu_device_probe()
+        stable@vger.kernel.org,
+        Heinrich Schuchardt <heinrich.schuchardt@canonical.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 084/247] riscv: read-only pages should not be writable
 Date:   Mon, 13 Jun 2022 12:09:46 +0200
-Message-Id: <20220613094931.566885226@linuxfoundation.org>
+Message-Id: <20220613094925.503755819@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
 
-[ Upstream commit d9ed8af1dee37f181096631fb03729ece98ba816 ]
+[ Upstream commit 630f972d76d6460235e84e1aa034ee06f9c8c3a9 ]
 
-It will cause null-ptr-deref when using 'res', if platform_get_resource()
-returns NULL, so move using 'res' after devm_ioremap_resource() that
-will check it to avoid null-ptr-deref.
-And use devm_platform_get_and_ioremap_resource() to simplify code.
+If EFI pages are marked as read-only,
+we should remove the _PAGE_WRITE flag.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220425114136.2649310-1-yangyingliang@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+The current code overwrites an unused value.
+
+Fixes: b91540d52a08b ("RISC-V: Add EFI runtime services")
+Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+Link: https://lore.kernel.org/r/20220528014132.91052-1-heinrich.schuchardt@canonical.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm/arm-smmu/arm-smmu.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/riscv/kernel/efi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-index 568cce590ccc..52b71f6aee3f 100644
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-@@ -2092,11 +2092,10 @@ static int arm_smmu_device_probe(struct platform_device *pdev)
- 	if (err)
- 		return err;
+diff --git a/arch/riscv/kernel/efi.c b/arch/riscv/kernel/efi.c
+index 024159298231..1aa540350abd 100644
+--- a/arch/riscv/kernel/efi.c
++++ b/arch/riscv/kernel/efi.c
+@@ -65,7 +65,7 @@ static int __init set_permissions(pte_t *ptep, unsigned long addr, void *data)
  
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	ioaddr = res->start;
--	smmu->base = devm_ioremap_resource(dev, res);
-+	smmu->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
- 	if (IS_ERR(smmu->base))
- 		return PTR_ERR(smmu->base);
-+	ioaddr = res->start;
- 	/*
- 	 * The resource size should effectively match the value of SMMU_TOP;
- 	 * stash that temporarily until we know PAGESIZE to validate it with.
+ 	if (md->attribute & EFI_MEMORY_RO) {
+ 		val = pte_val(pte) & ~_PAGE_WRITE;
+-		val = pte_val(pte) | _PAGE_READ;
++		val |= _PAGE_READ;
+ 		pte = __pte(val);
+ 	}
+ 	if (md->attribute & EFI_MEMORY_XP) {
 -- 
 2.35.1
 
