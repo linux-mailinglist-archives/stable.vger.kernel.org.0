@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8B04548BC2
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6A5E549859
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379093AbiFMNuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:50:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52068 "EHLO
+        id S1347912AbiFMMiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:38:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379750AbiFMNtk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:49:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76CE029363;
-        Mon, 13 Jun 2022 04:33:08 -0700 (PDT)
+        with ESMTP id S1345759AbiFMMh5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:37:57 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AE5D5C653;
+        Mon, 13 Jun 2022 04:08:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8DB660F18;
-        Mon, 13 Jun 2022 11:33:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B30CFC34114;
-        Mon, 13 Jun 2022 11:33:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 48176CE118D;
+        Mon, 13 Jun 2022 11:08:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50833C34114;
+        Mon, 13 Jun 2022 11:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119987;
-        bh=0asebVjgueC9i/0aBvrOuyOj9TbcNR0gf/Zjvh4eevo=;
+        s=korg; t=1655118485;
+        bh=V4bABrb+ZtJl1IDsg1Yfzab/S1dFMaKP+IxS4m5bOiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y57GTUYf/aY/7hHtXXerE6qmyVfBj5pOjlINk8vEL2fVNAzA7neAU+61UstLxTncZ
-         nIiW9ftxj4spCYyOuZsTw9XIo5dPx5TU3n/Wt6802F3pr6XkD10DDYs2nPJk2huUKZ
-         XOyVbnDaf/PUhfJskcKn5Tnon53FMt9j08njbJ1Y=
+        b=udp8wTiOf02asOPxUjHXgxFdSEBJOb7KGBNZPxWC6oko3VlR0Y+VRHBzfnhRfsK8H
+         MHLU78U5ezu7ufgh90uVo2cKZkIq+PniQsJxGWPTjp+FFVcs752ZuRtz5bkkJQVdfj
+         YUQzRbzC1aAdQxlvHmMHdEPLU1lxUGUNjzIhJjQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Bloch <mbloch@nvidia.com>,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 210/339] net/mlx5: Lag, filter non compatible devices
+        stable@vger.kernel.org, Ben Walker <benjamin.walker@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 075/172] dmaengine: idxd: set DMA_INTERRUPT cap bit
 Date:   Mon, 13 Jun 2022 12:10:35 +0200
-Message-Id: <20220613094933.034037521@linuxfoundation.org>
+Message-Id: <20220613094908.416938429@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,150 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Bloch <mbloch@nvidia.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit bc4c2f2e017949646b43fdcad005a03462d437c6 ]
+[ Upstream commit 4e5a4eb20393b851590b4465f1197a8041c2076b ]
 
-When search for a peer lag device we can filter based on that
-device's capabilities.
+Even though idxd driver has always supported interrupt, it never actually
+set the DMA_INTERRUPT cap bit. Rectify this mistake so the interrupt
+capability is advertised.
 
-Downstream patch will be less strict when filtering compatible devices
-and remove the limitation where we require exact MLX5_MAX_PORTS and
-change it to a range.
-
-Signed-off-by: Mark Bloch <mbloch@nvidia.com>
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Reported-by: Ben Walker <benjamin.walker@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/164971497859.2201379.17925303210723708961.stgit@djiang5-desk3.ch.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/dev.c | 48 +++++++++++++++----
- .../net/ethernet/mellanox/mlx5/core/lag/lag.c | 12 ++---
- .../ethernet/mellanox/mlx5/core/mlx5_core.h   |  1 +
- 3 files changed, 47 insertions(+), 14 deletions(-)
+ drivers/dma/idxd/dma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/dev.c b/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-index ba6dad97e308..3e750b827a19 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-@@ -555,12 +555,9 @@ static u32 mlx5_gen_pci_id(const struct mlx5_core_dev *dev)
- 		     PCI_SLOT(dev->pdev->devfn));
- }
+diff --git a/drivers/dma/idxd/dma.c b/drivers/dma/idxd/dma.c
+index aa7435555de9..d53ce22b4b8f 100644
+--- a/drivers/dma/idxd/dma.c
++++ b/drivers/dma/idxd/dma.c
+@@ -188,6 +188,7 @@ int idxd_register_dma_device(struct idxd_device *idxd)
+ 	INIT_LIST_HEAD(&dma->channels);
+ 	dma->dev = dev;
  
--static int next_phys_dev(struct device *dev, const void *data)
-+static int _next_phys_dev(struct mlx5_core_dev *mdev,
-+			  const struct mlx5_core_dev *curr)
- {
--	struct mlx5_adev *madev = container_of(dev, struct mlx5_adev, adev.dev);
--	struct mlx5_core_dev *mdev = madev->mdev;
--	const struct mlx5_core_dev *curr = data;
--
- 	if (!mlx5_core_is_pf(mdev))
- 		return 0;
- 
-@@ -574,8 +571,29 @@ static int next_phys_dev(struct device *dev, const void *data)
- 	return 1;
- }
- 
--/* Must be called with intf_mutex held */
--struct mlx5_core_dev *mlx5_get_next_phys_dev(struct mlx5_core_dev *dev)
-+static int next_phys_dev(struct device *dev, const void *data)
-+{
-+	struct mlx5_adev *madev = container_of(dev, struct mlx5_adev, adev.dev);
-+	struct mlx5_core_dev *mdev = madev->mdev;
-+
-+	return _next_phys_dev(mdev, data);
-+}
-+
-+static int next_phys_dev_lag(struct device *dev, const void *data)
-+{
-+	struct mlx5_adev *madev = container_of(dev, struct mlx5_adev, adev.dev);
-+	struct mlx5_core_dev *mdev = madev->mdev;
-+
-+	if (!MLX5_CAP_GEN(mdev, vport_group_manager) ||
-+	    !MLX5_CAP_GEN(mdev, lag_master) ||
-+	    MLX5_CAP_GEN(mdev, num_lag_ports) != MLX5_MAX_PORTS)
-+		return 0;
-+
-+	return _next_phys_dev(mdev, data);
-+}
-+
-+static struct mlx5_core_dev *mlx5_get_next_dev(struct mlx5_core_dev *dev,
-+					       int (*match)(struct device *dev, const void *data))
- {
- 	struct auxiliary_device *adev;
- 	struct mlx5_adev *madev;
-@@ -583,7 +601,7 @@ struct mlx5_core_dev *mlx5_get_next_phys_dev(struct mlx5_core_dev *dev)
- 	if (!mlx5_core_is_pf(dev))
- 		return NULL;
- 
--	adev = auxiliary_find_device(NULL, dev, &next_phys_dev);
-+	adev = auxiliary_find_device(NULL, dev, match);
- 	if (!adev)
- 		return NULL;
- 
-@@ -592,6 +610,20 @@ struct mlx5_core_dev *mlx5_get_next_phys_dev(struct mlx5_core_dev *dev)
- 	return madev->mdev;
- }
- 
-+/* Must be called with intf_mutex held */
-+struct mlx5_core_dev *mlx5_get_next_phys_dev(struct mlx5_core_dev *dev)
-+{
-+	lockdep_assert_held(&mlx5_intf_mutex);
-+	return mlx5_get_next_dev(dev, &next_phys_dev);
-+}
-+
-+/* Must be called with intf_mutex held */
-+struct mlx5_core_dev *mlx5_get_next_phys_dev_lag(struct mlx5_core_dev *dev)
-+{
-+	lockdep_assert_held(&mlx5_intf_mutex);
-+	return mlx5_get_next_dev(dev, &next_phys_dev_lag);
-+}
-+
- void mlx5_dev_list_lock(void)
- {
- 	mutex_lock(&mlx5_intf_mutex);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-index 6cad3b72c133..a8b98242edb1 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-@@ -924,12 +924,7 @@ static int __mlx5_lag_dev_add_mdev(struct mlx5_core_dev *dev)
- 	struct mlx5_lag *ldev = NULL;
- 	struct mlx5_core_dev *tmp_dev;
- 
--	if (!MLX5_CAP_GEN(dev, vport_group_manager) ||
--	    !MLX5_CAP_GEN(dev, lag_master) ||
--	    MLX5_CAP_GEN(dev, num_lag_ports) != MLX5_MAX_PORTS)
--		return 0;
--
--	tmp_dev = mlx5_get_next_phys_dev(dev);
-+	tmp_dev = mlx5_get_next_phys_dev_lag(dev);
- 	if (tmp_dev)
- 		ldev = tmp_dev->priv.lag;
- 
-@@ -974,6 +969,11 @@ void mlx5_lag_add_mdev(struct mlx5_core_dev *dev)
- {
- 	int err;
- 
-+	if (!MLX5_CAP_GEN(dev, vport_group_manager) ||
-+	    !MLX5_CAP_GEN(dev, lag_master) ||
-+	    MLX5_CAP_GEN(dev, num_lag_ports) != MLX5_MAX_PORTS)
-+		return;
-+
- recheck:
- 	mlx5_dev_list_lock();
- 	err = __mlx5_lag_dev_add_mdev(dev);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-index 9026be1d6223..484cb1e4fc7f 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-@@ -210,6 +210,7 @@ void mlx5_detach_device(struct mlx5_core_dev *dev);
- int mlx5_register_device(struct mlx5_core_dev *dev);
- void mlx5_unregister_device(struct mlx5_core_dev *dev);
- struct mlx5_core_dev *mlx5_get_next_phys_dev(struct mlx5_core_dev *dev);
-+struct mlx5_core_dev *mlx5_get_next_phys_dev_lag(struct mlx5_core_dev *dev);
- void mlx5_dev_list_lock(void);
- void mlx5_dev_list_unlock(void);
- int mlx5_dev_list_trylock(void);
++	dma_cap_set(DMA_INTERRUPT, dma->cap_mask);
+ 	dma_cap_set(DMA_PRIVATE, dma->cap_mask);
+ 	dma_cap_set(DMA_COMPLETION_NO_ORDER, dma->cap_mask);
+ 	dma->device_release = idxd_dma_release;
 -- 
 2.35.1
 
