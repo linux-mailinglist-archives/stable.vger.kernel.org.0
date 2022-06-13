@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8FBE548614
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CC7054867E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352414AbiFMLRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:17:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47360 "EHLO
+        id S1352417AbiFMLRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:17:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353682AbiFMLQL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F86613D53;
-        Mon, 13 Jun 2022 03:38:59 -0700 (PDT)
+        with ESMTP id S1353690AbiFMLQN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B71713DDB;
+        Mon, 13 Jun 2022 03:39:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E16AE60AE6;
-        Mon, 13 Jun 2022 10:38:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0164DC34114;
-        Mon, 13 Jun 2022 10:38:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32F22B80EAB;
+        Mon, 13 Jun 2022 10:39:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7460BC34114;
+        Mon, 13 Jun 2022 10:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116738;
-        bh=L/MEZxvAKSUaoK7ru1wLW2kZXpTBU08Z9+MoWcemPh8=;
+        s=korg; t=1655116743;
+        bh=NXDvmeUjI8YOcc86cl3vE5LM+I7LcMcMYGdUZdTDduQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFhXdviwF1+szeu85vmQyfU8ep2jpHV6KIJvPrmqaSRK5R4qGmSIIiShaekxwdrzM
-         m4sI19EvC3+t0YK/dMjkckX63R6hKTxrk/mwEQPK3UaDoyA9z9oFddQpBm0lLZuD7m
-         APXnjPAn0XcFrnDvCkXXvLj6vq6dtqum/M0FgvW8=
+        b=QPxrQLfHdP1neFKQW97lrZp6OHCGK+2dN3a77NRbX00HVuAJKPjAQGU3MFjyVNMRk
+         0maH5uHSwAAgaAG0YMyX4FrsvEqcaTAmD6ESD8O7GcDcZ5DNYzgdoaFqabS/Bj8Rf7
+         q5X06xO/aD0rz6GU+e+QksaiyMTQRy5usjeyn1ZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 156/411] arm64: dts: rockchip: Move drive-impedance-ohm to emmc phy on rk3399
-Date:   Mon, 13 Jun 2022 12:07:09 +0200
-Message-Id: <20220613094933.340582744@linuxfoundation.org>
+Subject: [PATCH 5.4 158/411] soc: qcom: smp2p: Fix missing of_node_put() in smp2p_parse_ipc
+Date:   Mon, 13 Jun 2022 12:07:11 +0200
+Message-Id: <20220613094933.399862054@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -54,41 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Lin <shawn.lin@rock-chips.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 4246d0bab2a8685e3d4aec2cb0ef8c526689ce96 ]
+[ Upstream commit 8fd3f18ea31a398ecce4a6d3804433658678b0a3 ]
 
-drive-impedance-ohm is introduced for emmc phy instead of pcie phy.
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-Fixes: fb8b7460c995 ("arm64: dts: rockchip: Define drive-impedance-ohm for RK3399's emmc-phy.")
-Signed-off-by: Shawn Lin <shawn.lin@rock-chips.com>
-Link: https://lore.kernel.org/r/1647336426-154797-1-git-send-email-shawn.lin@rock-chips.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: 50e99641413e ("soc: qcom: smp2p: Qualcomm Shared Memory Point to Point")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220308071942.22942-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/qcom/smp2p.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index 95942d917de5..4496f7e1c68f 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -1447,6 +1447,7 @@
- 			reg = <0xf780 0x24>;
- 			clocks = <&sdhci>;
- 			clock-names = "emmcclk";
-+			drive-impedance-ohm = <50>;
- 			#phy-cells = <0>;
- 			status = "disabled";
- 		};
-@@ -1457,7 +1458,6 @@
- 			clock-names = "refclk";
- 			#phy-cells = <1>;
- 			resets = <&cru SRST_PCIEPHY>;
--			drive-impedance-ohm = <50>;
- 			reset-names = "phy";
- 			status = "disabled";
- 		};
+diff --git a/drivers/soc/qcom/smp2p.c b/drivers/soc/qcom/smp2p.c
+index 42e0b8f647ae..d42bcca3b98e 100644
+--- a/drivers/soc/qcom/smp2p.c
++++ b/drivers/soc/qcom/smp2p.c
+@@ -420,6 +420,7 @@ static int smp2p_parse_ipc(struct qcom_smp2p *smp2p)
+ 	}
+ 
+ 	smp2p->ipc_regmap = syscon_node_to_regmap(syscon);
++	of_node_put(syscon);
+ 	if (IS_ERR(smp2p->ipc_regmap))
+ 		return PTR_ERR(smp2p->ipc_regmap);
+ 
 -- 
 2.35.1
 
