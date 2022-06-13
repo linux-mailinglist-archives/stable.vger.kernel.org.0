@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56C31548C51
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B0DE54960C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351631AbiFMMk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:40:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56200 "EHLO
+        id S1383989AbiFMOcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:32:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357851AbiFMMkE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:40:04 -0400
+        with ESMTP id S1385473AbiFMObN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:31:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC0A45E756;
-        Mon, 13 Jun 2022 04:10:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45758ABE56;
+        Mon, 13 Jun 2022 04:48:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE1CF60B92;
-        Mon, 13 Jun 2022 11:10:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C57F1C3411E;
-        Mon, 13 Jun 2022 11:10:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8538F612A8;
+        Mon, 13 Jun 2022 11:48:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92CB6C34114;
+        Mon, 13 Jun 2022 11:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118613;
-        bh=JzGW/PIlJA/cMyZJ3ANK0AFOuDKSu3Alt53e/wLXUWo=;
+        s=korg; t=1655120918;
+        bh=iBHXIOeiRVVBCYsNK7bbGrVtLssRBgvab2AS9555VOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xNRueHF3mU9JbqehN23m4VQ93D38b4sw/0qhcJei5a2EgozElcu0FFmR+ZqnZ6Z3K
-         fkgBp6+AXDnvJHnkmOOR7IJ2R4wpPhmDW6AIlHQg4WUsGDjV252BLqf583td5/E33C
-         EScPxYLwYsXqq1rJE3O3vbrlYUCe5j53MvQSin9U=
+        b=aRSJ7d3dcgChPdsrC+BNhNQFJvYlp+TGivVm17kUYQkBYvMffd3zeNvF3CpdkSqNW
+         ViOcpPi1pE4OVuG5o0m17TvcnWBERL6C1MvM5dI5OVcQTvtJ9THw2NKbDbmG5jSZ9x
+         CDW6f8ZWRTXtn3sYRjG98I6oO3eNSHqp4VNte13M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gong Yuanjun <ruc_gongyuanjun@163.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 139/172] drm/radeon: fix a possible null pointer dereference
-Date:   Mon, 13 Jun 2022 12:11:39 +0200
-Message-Id: <20220613094921.850711695@linuxfoundation.org>
+Subject: [PATCH 5.17 206/298] drivers: staging: rtl8192e: Fix deadlock in rtllib_beacons_stop()
+Date:   Mon, 13 Jun 2022 12:11:40 +0200
+Message-Id: <20220613094931.354223199@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gong Yuanjun <ruc_gongyuanjun@163.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit a2b28708b645c5632dc93669ab06e97874c8244f ]
+[ Upstream commit 9b6bdbd9337de3917945847bde262a34a87a6303 ]
 
-In radeon_fp_native_mode(), the return value of drm_mode_duplicate()
-is assigned to mode, which will lead to a NULL pointer dereference
-on failure of drm_mode_duplicate(). Add a check to avoid npd.
+There is a deadlock in rtllib_beacons_stop(), which is shown
+below:
 
-The failure status of drm_cvt_mode() on the other path is checked too.
+   (Thread 1)              |      (Thread 2)
+                           | rtllib_send_beacon()
+rtllib_beacons_stop()      |  mod_timer()
+ spin_lock_irqsave() //(1) |  (wait a time)
+ ...                       | rtllib_send_beacon_cb()
+ del_timer_sync()          |  spin_lock_irqsave() //(2)
+ (wait timer to stop)      |  ...
 
-Signed-off-by: Gong Yuanjun <ruc_gongyuanjun@163.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+We hold ieee->beacon_lock in position (1) of thread 1 and
+use del_timer_sync() to wait timer to stop, but timer handler
+also need ieee->beacon_lock in position (2) of thread 2.
+As a result, rtllib_beacons_stop() will block forever.
+
+This patch extracts del_timer_sync() from the protection of
+spin_lock_irqsave(), which could let timer handler to obtain
+the needed lock.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220417141641.124388-1-duoming@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_connectors.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/staging/rtl8192e/rtllib_softmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_connectors.c b/drivers/gpu/drm/radeon/radeon_connectors.c
-index e30834434442..ef111d460be2 100644
---- a/drivers/gpu/drm/radeon/radeon_connectors.c
-+++ b/drivers/gpu/drm/radeon/radeon_connectors.c
-@@ -473,6 +473,8 @@ static struct drm_display_mode *radeon_fp_native_mode(struct drm_encoder *encode
- 	    native_mode->vdisplay != 0 &&
- 	    native_mode->clock != 0) {
- 		mode = drm_mode_duplicate(dev, native_mode);
-+		if (!mode)
-+			return NULL;
- 		mode->type = DRM_MODE_TYPE_PREFERRED | DRM_MODE_TYPE_DRIVER;
- 		drm_mode_set_name(mode);
+diff --git a/drivers/staging/rtl8192e/rtllib_softmac.c b/drivers/staging/rtl8192e/rtllib_softmac.c
+index 4b6c2295a3cf..b5a38f0a8d79 100644
+--- a/drivers/staging/rtl8192e/rtllib_softmac.c
++++ b/drivers/staging/rtl8192e/rtllib_softmac.c
+@@ -651,9 +651,9 @@ static void rtllib_beacons_stop(struct rtllib_device *ieee)
+ 	spin_lock_irqsave(&ieee->beacon_lock, flags);
  
-@@ -487,6 +489,8 @@ static struct drm_display_mode *radeon_fp_native_mode(struct drm_encoder *encode
- 		 * simpler.
- 		 */
- 		mode = drm_cvt_mode(dev, native_mode->hdisplay, native_mode->vdisplay, 60, true, false, false);
-+		if (!mode)
-+			return NULL;
- 		mode->type = DRM_MODE_TYPE_PREFERRED | DRM_MODE_TYPE_DRIVER;
- 		DRM_DEBUG_KMS("Adding cvt approximation of native panel mode %s\n", mode->name);
- 	}
+ 	ieee->beacon_txing = 0;
+-	del_timer_sync(&ieee->beacon_timer);
+ 
+ 	spin_unlock_irqrestore(&ieee->beacon_lock, flags);
++	del_timer_sync(&ieee->beacon_timer);
+ 
+ }
+ 
 -- 
 2.35.1
 
