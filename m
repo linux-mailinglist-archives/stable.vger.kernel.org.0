@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12BB65493F1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C33595498A1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378397AbiFMNlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:41:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35872 "EHLO
+        id S1356989AbiFMLzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:55:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378956AbiFMNja (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 570B37937B;
-        Mon, 13 Jun 2022 04:28:04 -0700 (PDT)
+        with ESMTP id S1357158AbiFMLxC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:53:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2A72EA37;
+        Mon, 13 Jun 2022 03:55:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C805460F18;
-        Mon, 13 Jun 2022 11:28:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5C52C34114;
-        Mon, 13 Jun 2022 11:28:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E945560EFE;
+        Mon, 13 Jun 2022 10:55:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06706C34114;
+        Mon, 13 Jun 2022 10:55:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119683;
-        bh=4uPzDoDtm+L7EnFXiMH8EH9hH4YgpoC0Sl0c04Rut6E=;
+        s=korg; t=1655117741;
+        bh=7B6Q9xxBeao43cVsBV0jSdgwxpsYwSK1CIoCX6P4GGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lEbbh7VAzaLjrWaw8moXdvKr6ylYOTZCPddI/x+uraCFCEosoGx+Y9Hmq1yWj+mBK
-         w4d1LmjofKdkDeR3TIxjhD1JsN8L7QlTrkNQ83sbYYH6IGTIrlmrTXYO55ugESu9O9
-         1C0YxbSSebfjTUuFAcz3iFVS6V7qcg9szBNqdNkQ=
+        b=i5hQwDJK+lk4ldJepnP5AqFc/ZlcAaOz3i8JT2Eow0r0HCUIra/h5vRWilXMmAZbn
+         cP7kQVvHuun42KHG5q+jsrLQwqC9D44XUWXWeHCCFgWeFp7NQc9X2JVkmkuzsj3QHt
+         FP70AEHNRnBU+7KTWO3TooOaIL+Auju4bNgsgQHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Lukas Czerner <lczerner@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 102/339] ubi: ubi_create_volume: Fix use-after-free when volume creation failed
+Subject: [PATCH 4.19 103/287] ext4: reject the commit option on ext2 filesystems
 Date:   Mon, 13 Jun 2022 12:08:47 +0200
-Message-Id: <20220613094929.606095549@linuxfoundation.org>
+Message-Id: <20220613094927.002780450@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 8c03a1c21d72210f81cb369cc528e3fde4b45411 ]
+[ Upstream commit cb8435dc8ba33bcafa41cf2aa253794320a3b8df ]
 
-There is an use-after-free problem for 'eba_tbl' in ubi_create_volume()'s
-error handling path:
+The 'commit' option is only applicable for ext3 and ext4 filesystems,
+and has never been accepted by the ext2 filesystem driver, so the ext4
+driver shouldn't allow it on ext2 filesystems.
 
-  ubi_eba_replace_table(vol, eba_tbl)
-    vol->eba_tbl = tbl
-out_mapping:
-  ubi_eba_destroy_table(eba_tbl)   // Free 'eba_tbl'
-out_unlock:
-  put_device(&vol->dev)
-    vol_release
-      kfree(tbl->entries)	  // UAF
+This fixes a failure in xfstest ext4/053.
 
-Fix it by removing redundant 'eba_tbl' releasing.
-Fetch a reproducer in [Link].
-
-Fixes: 493cfaeaa0c9b ("mtd: utilize new cdev_device_add helper function")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215965
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 8dc0aa8cf0f7 ("ext4: check incompatible mount options while mounting ext2/3")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Link: https://lore.kernel.org/r/20220510183232.172615-1-ebiggers@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/vmt.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/ext4/super.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
-index 1bc7b3a05604..6ea95ade4ca6 100644
---- a/drivers/mtd/ubi/vmt.c
-+++ b/drivers/mtd/ubi/vmt.c
-@@ -309,7 +309,6 @@ int ubi_create_volume(struct ubi_device *ubi, struct ubi_mkvol_req *req)
- 	ubi->volumes[vol_id] = NULL;
- 	ubi->vol_count -= 1;
- 	spin_unlock(&ubi->volumes_lock);
--	ubi_eba_destroy_table(eba_tbl);
- out_acc:
- 	spin_lock(&ubi->volumes_lock);
- 	ubi->rsvd_pebs -= vol->reserved_pebs;
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 6893b87c7354..bf120842a307 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1688,6 +1688,7 @@ static const struct mount_opts {
+ 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
+ 	{Opt_warn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_SET},
+ 	{Opt_nowarn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_CLEAR},
++	{Opt_commit, 0, MOPT_NO_EXT2},
+ 	{Opt_nojournal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
+ 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
+ 	{Opt_journal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
 -- 
 2.35.1
 
