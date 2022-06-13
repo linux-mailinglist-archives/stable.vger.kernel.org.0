@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27A3D548082
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:27:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 904D2548092
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238850AbiFMH1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 03:27:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57472 "EHLO
+        id S236458AbiFMH2L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 03:28:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234895AbiFMH1n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:27:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A601B796
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:27:42 -0700 (PDT)
+        with ESMTP id S237385AbiFMH2F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:28:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F39CE19FA5
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:28:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1245660F8A
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:27:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B44BC34114;
-        Mon, 13 Jun 2022 07:27:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB280B80D74
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:27:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A143C34114;
+        Mon, 13 Jun 2022 07:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655105261;
-        bh=UOT1oXjg73VoIO+lEJjy+/1mZVMQXCd7jVFt6TlSam4=;
+        s=korg; t=1655105278;
+        bh=jjZDpyaM9oQlieDM11cDwvk9inXpttojiqds9JdEmN0=;
         h=Subject:To:Cc:From:Date:From;
-        b=rYvs10OZ6z8bDlBjWYZnp0fgCSJFp8KHDSpuCOaeGpd7M6ApKQFOiEUynNp4EuraW
-         QldYtHxGvaRb/9CvWIdp/q8xixgzkaaDHetnO4qEH0XAzcZZ0CIa2/oT0SPGRGAwej
-         XhInnzp9zxbsZDrFdbkiFzIkliDEe6Q7FO/qOG9k=
-Subject: FAILED: patch "[PATCH] net: phy: dp83867: retrigger SGMII AN when link change" failed to apply to 4.9-stable tree
-To:     tee.min.tan@linux.intel.com, andrew@lunn.ch, kuba@kernel.org,
-        michael.wei.hong.sit@intel.com, stable@vger.kernel.org,
-        weifeng.voon@intel.com
+        b=oMag5nkGZZrBvCsVO0iBYolzctSdLa9EFIJ8n6xj35m+98KoOv8Tj04foLRCWD0SH
+         nEt148UREt1GCrE63oXpBbUXON+5NmTXq92NoB9wcwLSZRyXos282YGW/sRYyiRKEK
+         fMGj4lGAZIe9nrfV1aVZqHwGw1AkBZpUIY4LGyxY=
+Subject: FAILED: patch "[PATCH] net: openvswitch: fix misuse of the cached connection on" failed to apply to 5.10-stable tree
+To:     i.maximets@ovn.org, frode.nordahl@canonical.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Jun 2022 09:27:28 +0200
-Message-ID: <16551052489151@kroah.com>
+Date:   Mon, 13 Jun 2022 09:27:56 +0200
+Message-ID: <165510527686220@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,87 +59,106 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c76acfb7e19dcc3a0964e0563770b1d11b8d4540 Mon Sep 17 00:00:00 2001
-From: Tan Tee Min <tee.min.tan@linux.intel.com>
-Date: Thu, 26 May 2022 17:03:47 +0800
-Subject: [PATCH] net: phy: dp83867: retrigger SGMII AN when link change
+From 2061ecfdf2350994e5b61c43e50e98a7a70e95ee Mon Sep 17 00:00:00 2001
+From: Ilya Maximets <i.maximets@ovn.org>
+Date: Tue, 7 Jun 2022 00:11:40 +0200
+Subject: [PATCH] net: openvswitch: fix misuse of the cached connection on
+ tuple changes
 
-There is a limitation in TI DP83867 PHY device where SGMII AN is only
-triggered once after the device is booted up. Even after the PHY TPI is
-down and up again, SGMII AN is not triggered and hence no new in-band
-message from PHY to MAC side SGMII.
+If packet headers changed, the cached nfct is no longer relevant
+for the packet and attempt to re-use it leads to the incorrect packet
+classification.
 
-This could cause an issue during power up, when PHY is up prior to MAC.
-At this condition, once MAC side SGMII is up, MAC side SGMII wouldn`t
-receive new in-band message from TI PHY with correct link status, speed
-and duplex info.
+This issue is causing broken connectivity in OpenStack deployments
+with OVS/OVN due to hairpin traffic being unexpectedly dropped.
 
-As suggested by TI, implemented a SW solution here to retrigger SGMII
-Auto-Neg whenever there is a link change.
+The setup has datapath flows with several conntrack actions and tuple
+changes between them:
 
-v2: Add Fixes tag in commit message.
+  actions:ct(commit,zone=8,mark=0/0x1,nat(src)),
+          set(eth(src=00:00:00:00:00:01,dst=00:00:00:00:00:06)),
+          set(ipv4(src=172.18.2.10,dst=192.168.100.6,ttl=62)),
+          ct(zone=8),recirc(0x4)
 
-Fixes: 2a10154abcb7 ("net: phy: dp83867: Add TI dp83867 phy")
-Cc: <stable@vger.kernel.org> # 5.4.x
-Signed-off-by: Sit, Michael Wei Hong <michael.wei.hong.sit@intel.com>
-Reviewed-by: Voon Weifeng <weifeng.voon@intel.com>
-Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220526090347.128742-1-tee.min.tan@linux.intel.com
+After the first ct() action the packet headers are almost fully
+re-written.  The next ct() tries to re-use the existing nfct entry
+and marks the packet as invalid, so it gets dropped later in the
+pipeline.
+
+Clearing the cached conntrack entry whenever packet tuple is changed
+to avoid the issue.
+
+The flow key should not be cleared though, because we should still
+be able to match on the ct_state if the recirculation happens after
+the tuple change but before the next ct() action.
+
+Cc: stable@vger.kernel.org
+Fixes: 7f8a436eaa2c ("openvswitch: Add conntrack action")
+Reported-by: Frode Nordahl <frode.nordahl@canonical.com>
+Link: https://mail.openvswitch.org/pipermail/ovs-discuss/2022-May/051829.html
+Link: https://bugs.launchpad.net/ubuntu/+source/ovn/+bug/1967856
+Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
+Link: https://lore.kernel.org/r/20220606221140.488984-1-i.maximets@ovn.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 8561f2d4443b..13dafe7a29bd 100644
---- a/drivers/net/phy/dp83867.c
-+++ b/drivers/net/phy/dp83867.c
-@@ -137,6 +137,7 @@
- #define DP83867_DOWNSHIFT_2_COUNT	2
- #define DP83867_DOWNSHIFT_4_COUNT	4
- #define DP83867_DOWNSHIFT_8_COUNT	8
-+#define DP83867_SGMII_AUTONEG_EN	BIT(7)
- 
- /* CFG3 bits */
- #define DP83867_CFG3_INT_OE			BIT(7)
-@@ -855,6 +856,32 @@ static int dp83867_phy_reset(struct phy_device *phydev)
- 			 DP83867_PHYCR_FORCE_LINK_GOOD, 0);
+diff --git a/net/openvswitch/actions.c b/net/openvswitch/actions.c
+index 1b5d73079dc9..868db4669a29 100644
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -373,6 +373,7 @@ static void set_ip_addr(struct sk_buff *skb, struct iphdr *nh,
+ 	update_ip_l4_checksum(skb, nh, *addr, new_addr);
+ 	csum_replace4(&nh->check, *addr, new_addr);
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
+ 	*addr = new_addr;
  }
  
-+static void dp83867_link_change_notify(struct phy_device *phydev)
-+{
-+	/* There is a limitation in DP83867 PHY device where SGMII AN is
-+	 * only triggered once after the device is booted up. Even after the
-+	 * PHY TPI is down and up again, SGMII AN is not triggered and
-+	 * hence no new in-band message from PHY to MAC side SGMII.
-+	 * This could cause an issue during power up, when PHY is up prior
-+	 * to MAC. At this condition, once MAC side SGMII is up, MAC side
-+	 * SGMII wouldn`t receive new in-band message from TI PHY with
-+	 * correct link status, speed and duplex info.
-+	 * Thus, implemented a SW solution here to retrigger SGMII Auto-Neg
-+	 * whenever there is a link change.
-+	 */
-+	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
-+		int val = 0;
-+
-+		val = phy_clear_bits(phydev, DP83867_CFG2,
-+				     DP83867_SGMII_AUTONEG_EN);
-+		if (val < 0)
-+			return;
-+
-+		phy_set_bits(phydev, DP83867_CFG2,
-+			     DP83867_SGMII_AUTONEG_EN);
-+	}
-+}
-+
- static struct phy_driver dp83867_driver[] = {
- 	{
- 		.phy_id		= DP83867_PHY_ID,
-@@ -879,6 +906,8 @@ static struct phy_driver dp83867_driver[] = {
+@@ -420,6 +421,7 @@ static void set_ipv6_addr(struct sk_buff *skb, u8 l4_proto,
+ 		update_ipv6_checksum(skb, l4_proto, addr, new_addr);
  
- 		.suspend	= genphy_suspend,
- 		.resume		= genphy_resume,
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
+ 	memcpy(addr, new_addr, sizeof(__be32[4]));
+ }
+ 
+@@ -660,6 +662,7 @@ static int set_nsh(struct sk_buff *skb, struct sw_flow_key *flow_key,
+ static void set_tp_port(struct sk_buff *skb, __be16 *port,
+ 			__be16 new_port, __sum16 *check)
+ {
++	ovs_ct_clear(skb, NULL);
+ 	inet_proto_csum_replace2(check, skb, *port, new_port, false);
+ 	*port = new_port;
+ }
+@@ -699,6 +702,7 @@ static int set_udp(struct sk_buff *skb, struct sw_flow_key *flow_key,
+ 		uh->dest = dst;
+ 		flow_key->tp.src = src;
+ 		flow_key->tp.dst = dst;
++		ovs_ct_clear(skb, NULL);
+ 	}
+ 
+ 	skb_clear_hash(skb);
+@@ -761,6 +765,8 @@ static int set_sctp(struct sk_buff *skb, struct sw_flow_key *flow_key,
+ 	sh->checksum = old_csum ^ old_correct_csum ^ new_csum;
+ 
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
 +
-+		.link_change_notify = dp83867_link_change_notify,
- 	},
- };
- module_phy_driver(dp83867_driver);
+ 	flow_key->tp.src = sh->source;
+ 	flow_key->tp.dst = sh->dest;
+ 
+diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
+index 4a947c13c813..4e70df91d0f2 100644
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -1342,7 +1342,9 @@ int ovs_ct_clear(struct sk_buff *skb, struct sw_flow_key *key)
+ 
+ 	nf_ct_put(ct);
+ 	nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
+-	ovs_ct_fill_key(skb, key, false);
++
++	if (key)
++		ovs_ct_fill_key(skb, key, false);
+ 
+ 	return 0;
+ }
 
