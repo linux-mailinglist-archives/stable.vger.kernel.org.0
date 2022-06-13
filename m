@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17982549284
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 168985496C4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354264AbiFMLcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:32:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56180 "EHLO
+        id S1357018AbiFMLzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:55:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354308AbiFML3T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:19 -0400
+        with ESMTP id S1357049AbiFMLwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:52:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E8A63EF16;
-        Mon, 13 Jun 2022 03:43:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DF71220CE;
+        Mon, 13 Jun 2022 03:55:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEE8D60F9A;
-        Mon, 13 Jun 2022 10:43:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE5CBC34114;
-        Mon, 13 Jun 2022 10:43:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7472260EFE;
+        Mon, 13 Jun 2022 10:55:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8884CC34114;
+        Mon, 13 Jun 2022 10:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116995;
-        bh=rxf+5mUCLVk1ZPGMwJN0/U1Zl7xVwG3EKf9U5j4w30s=;
+        s=korg; t=1655117727;
+        bh=sELfsL7R04gHFsBTxos23N12m385pyivDoZwxC2LLS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XZrB/CA3LBeRKQfYF0irUlJv4e1L++cKEoknE0j4z3jGwcWnAleNGYrgDs1B/w3zD
-         TUixXk67Zz7Q49KxR+reXUeEx/n4ozQ4mzCrQqj+tKFYgmGpjYYkPgmBtTQV3M2xgv
-         LxlRM8T4NrE0n1X0nZcVHOmRDJGh5kmXH208qj2I=
+        b=x8/+wDH8G5Kr5xvfwhJ2/L0OLEjaC7MTL2addS0Y0hgQSva0Ol60XTzVc62zdQg4h
+         ojsPpXrXuMXH4W7/6saN/zV1adA+M3hmE3LQxpnpHwGWDHtv09K21cmP8+IBZu/flZ
+         jHf2mLXIWE6yILdG7gl7Geuvc90vKs4/mdVBXm6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.4 249/411] RDMA/hfi1: Fix potential integer multiplication overflow errors
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+1a247e36149ffd709a9b@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 098/287] media: pvrusb2: fix array-index-out-of-bounds in pvr2_i2c_core_init
 Date:   Mon, 13 Jun 2022 12:08:42 +0200
-Message-Id: <20220613094936.238950151@linuxfoundation.org>
+Message-Id: <20220613094926.851868115@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit f93e91a0372c922c20d5bee260b0f43b4b8a1bee upstream.
+[ Upstream commit 471bec68457aaf981add77b4f590d65dd7da1059 ]
 
-When multiplying of different types, an overflow is possible even when
-storing the result in a larger type. This is because the conversion is
-done after the multiplication. So arithmetic overflow and thus in
-incorrect value is possible.
+Syzbot reported that -1 is used as array index. The problem was in
+missing validation check.
 
-Correct an instance of this in the inter packet delay calculation.  Fix by
-ensuring one of the operands is u64 which will promote the other to u64 as
-well ensuring no overflow.
+hdw->unit_number is initialized with -1 and then if init table walk fails
+this value remains unchanged. Since code blindly uses this member for
+array indexing adding sanity check is the easiest fix for that.
 
-Cc: stable@vger.kernel.org
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Link: https://lore.kernel.org/r/20220520183712.48973.29855.stgit@awfm-01.cornelisnetworks.com
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+hdw->workpoll initialization moved upper to prevent warning in
+__flush_work.
+
+Reported-and-tested-by: syzbot+1a247e36149ffd709a9b@syzkaller.appspotmail.com
+
+Fixes: d855497edbfb ("V4L/DVB (4228a): pvrusb2 to kernel 2.6.18")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/init.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/init.c
-+++ b/drivers/infiniband/hw/hfi1/init.c
-@@ -543,7 +543,7 @@ void set_link_ipg(struct hfi1_pportdata
- 	u16 shift, mult;
- 	u64 src;
- 	u32 current_egress_rate; /* Mbits /sec */
--	u32 max_pkt_time;
-+	u64 max_pkt_time;
- 	/*
- 	 * max_pkt_time is the maximum packet egress time in units
- 	 * of the fabric clock period 1/(805 MHz).
+diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+index 21ccbbd70dce..bbb5ff16abd6 100644
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -2561,6 +2561,11 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
+ 	} while (0);
+ 	mutex_unlock(&pvr2_unit_mtx);
+ 
++	INIT_WORK(&hdw->workpoll, pvr2_hdw_worker_poll);
++
++	if (hdw->unit_number == -1)
++		goto fail;
++
+ 	cnt1 = 0;
+ 	cnt2 = scnprintf(hdw->name+cnt1,sizeof(hdw->name)-cnt1,"pvrusb2");
+ 	cnt1 += cnt2;
+@@ -2572,8 +2577,6 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
+ 	if (cnt1 >= sizeof(hdw->name)) cnt1 = sizeof(hdw->name)-1;
+ 	hdw->name[cnt1] = 0;
+ 
+-	INIT_WORK(&hdw->workpoll,pvr2_hdw_worker_poll);
+-
+ 	pvr2_trace(PVR2_TRACE_INIT,"Driver unit number is %d, name is %s",
+ 		   hdw->unit_number,hdw->name);
+ 
+-- 
+2.35.1
+
 
 
