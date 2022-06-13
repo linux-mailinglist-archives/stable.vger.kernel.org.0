@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD8FA54808F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:34:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0942854809E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:36:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230132AbiFMH3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 03:29:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33180 "EHLO
+        id S229875AbiFMHeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 03:34:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239329AbiFMH26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:28:58 -0400
+        with ESMTP id S230329AbiFMHef (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:34:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE825193E1
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:28:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339EE767A
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:34:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 584CFB80D70
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:28:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C700BC34114;
-        Mon, 13 Jun 2022 07:28:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D15B9B80D21
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:34:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23BF6C3411C;
+        Mon, 13 Jun 2022 07:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655105335;
-        bh=eCoMuQTHAD4Dylu4cQg5/qZSFs3aRNjL+k8/Cp7pkds=;
+        s=korg; t=1655105671;
+        bh=e5eW4GYJNQCz1l50l0yb/vFTd02oVSssmrDdguyiqQk=;
         h=Subject:To:Cc:From:Date:From;
-        b=evSPeyoIgCUSDunQiNUyr45/RqIRkj5l9j4nuFeEHbCfhp+ZG3CZBj+gdXwD/d41X
-         GHjuDHziLpdjwi4XRmKKcHXXoz1N75Fb2ZzZfQxqxs30lA1DOrMp89HUo0owCoFDXt
-         byBa6RmXzyjiw+hGkqSvPo7McEdYWNrHHjYaL9+k=
-Subject: FAILED: patch "[PATCH] writeback: Fix inode->i_io_list not be protected by" failed to apply to 4.14-stable tree
-To:     sunjunchao2870@gmail.com, jack@suse.cz
+        b=YltctwqHRc2d+HEvvoDFqEd29/kPLNX+xo0ejEbc2ZosZU9nL27eZYJen4TgP8wrx
+         d/uOUrxZ5Q1de/qMjRjs5b69/kIZWZMUgOsxArdJU5+RFFwo5QL3tUi2lgxDdLS+0l
+         FinTtxEXT7I8Jlr75OR1dLaqAzmbleh6FNQ9/GFg=
+Subject: FAILED: patch "[PATCH] nfc: st21nfca: fix incorrect sizing calculations in" failed to apply to 5.4-stable tree
+To:     mfaltesek@google.com, groeck@chromium.org,
+        krzysztof.kozlowski@linaro.org, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Jun 2022 09:28:37 +0200
-Message-ID: <165510531785221@kroah.com>
+Date:   Mon, 13 Jun 2022 09:34:28 +0200
+Message-ID: <165510566839171@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,162 +60,129 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 10e14073107dd0b6d97d9516a02845a8e501c2c9 Mon Sep 17 00:00:00 2001
-From: Jchao Sun <sunjunchao2870@gmail.com>
-Date: Tue, 24 May 2022 08:05:40 -0700
-Subject: [PATCH] writeback: Fix inode->i_io_list not be protected by
- inode->i_lock error
+From f2e19b36593caed4c977c2f55aeba7408aeb2132 Mon Sep 17 00:00:00 2001
+From: Martin Faltesek <mfaltesek@google.com>
+Date: Mon, 6 Jun 2022 21:57:29 -0500
+Subject: [PATCH] nfc: st21nfca: fix incorrect sizing calculations in
+ EVT_TRANSACTION
 
-Commit b35250c0816c ("writeback: Protect inode->i_io_list with
-inode->i_lock") made inode->i_io_list not only protected by
-wb->list_lock but also inode->i_lock, but inode_io_list_move_locked()
-was missed. Add lock there and also update comment describing
-things protected by inode->i_lock. This also fixes a race where
-__mark_inode_dirty() could move inode under flush worker's hands
-and thus sync(2) could miss writing some inodes.
+The transaction buffer is allocated by using the size of the packet buf,
+and subtracting two which seem intended to remove the two tags which are
+not present in the target structure. This calculation leads to under
+counting memory because of differences between the packet contents and the
+target structure. The aid_len field is a u8 in the packet, but a u32 in
+the structure, resulting in at least 3 bytes always being under counted.
+Further, the aid data is a variable length field in the packet, but fixed
+in the structure, so if this field is less than the max, the difference is
+added to the under counting.
 
-Fixes: b35250c0816c ("writeback: Protect inode->i_io_list with inode->i_lock")
-Link: https://lore.kernel.org/r/20220524150540.12552-1-sunjunchao2870@gmail.com
-CC: stable@vger.kernel.org
-Signed-off-by: Jchao Sun <sunjunchao2870@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+The last validation check for transaction->params_len is also incorrect
+since it employs the same accounting error.
 
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index a21d8f1a56d1..05221366a16d 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -120,6 +120,7 @@ static bool inode_io_list_move_locked(struct inode *inode,
- 				      struct list_head *head)
- {
- 	assert_spin_locked(&wb->list_lock);
-+	assert_spin_locked(&inode->i_lock);
+To fix, perform validation checks progressively to safely reach the
+next field, to determine the size of both buffers and verify both tags.
+Once all validation checks pass, allocate the buffer and copy the data.
+This eliminates freeing memory on the error path, as those checks are
+moved ahead of memory allocation.
+
+Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
+Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
+Cc: stable@vger.kernel.org
+Signed-off-by: Martin Faltesek <mfaltesek@google.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/drivers/nfc/st21nfca/se.c b/drivers/nfc/st21nfca/se.c
+index 8e1113ce139b..df8d27cf2956 100644
+--- a/drivers/nfc/st21nfca/se.c
++++ b/drivers/nfc/st21nfca/se.c
+@@ -300,6 +300,8 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
+ 	int r = 0;
+ 	struct device *dev = &hdev->ndev->dev;
+ 	struct nfc_evt_transaction *transaction;
++	u32 aid_len;
++	u8 params_len;
  
- 	list_move(&inode->i_io_list, head);
+ 	pr_debug("connectivity gate event: %x\n", event);
  
-@@ -1365,9 +1366,9 @@ static int move_expired_inodes(struct list_head *delaying_queue,
- 		inode = wb_inode(delaying_queue->prev);
- 		if (inode_dirtied_after(inode, dirtied_before))
- 			break;
-+		spin_lock(&inode->i_lock);
- 		list_move(&inode->i_io_list, &tmp);
- 		moved++;
--		spin_lock(&inode->i_lock);
- 		inode->i_state |= I_SYNC_QUEUED;
- 		spin_unlock(&inode->i_lock);
- 		if (sb_is_blkdev_sb(inode->i_sb))
-@@ -1383,7 +1384,12 @@ static int move_expired_inodes(struct list_head *delaying_queue,
- 		goto out;
- 	}
- 
--	/* Move inodes from one superblock together */
-+	/*
-+	 * Although inode's i_io_list is moved from 'tmp' to 'dispatch_queue',
-+	 * we don't take inode->i_lock here because it is just a pointless overhead.
-+	 * Inode is already marked as I_SYNC_QUEUED so writeback list handling is
-+	 * fully under our control.
-+	 */
- 	while (!list_empty(&tmp)) {
- 		sb = wb_inode(tmp.prev)->i_sb;
- 		list_for_each_prev_safe(pos, node, &tmp) {
-@@ -1826,8 +1832,8 @@ static long writeback_sb_inodes(struct super_block *sb,
- 			 * We'll have another go at writing back this inode
- 			 * when we completed a full scan of b_io.
- 			 */
--			spin_unlock(&inode->i_lock);
- 			requeue_io(inode, wb);
-+			spin_unlock(&inode->i_lock);
- 			trace_writeback_sb_inodes_requeue(inode);
- 			continue;
- 		}
-@@ -2358,6 +2364,7 @@ void __mark_inode_dirty(struct inode *inode, int flags)
- {
- 	struct super_block *sb = inode->i_sb;
- 	int dirtytime = 0;
-+	struct bdi_writeback *wb = NULL;
- 
- 	trace_writeback_mark_inode_dirty(inode, flags);
- 
-@@ -2409,6 +2416,17 @@ void __mark_inode_dirty(struct inode *inode, int flags)
- 			inode->i_state &= ~I_DIRTY_TIME;
- 		inode->i_state |= flags;
- 
-+		/*
-+		 * Grab inode's wb early because it requires dropping i_lock and we
-+		 * need to make sure following checks happen atomically with dirty
-+		 * list handling so that we don't move inodes under flush worker's
-+		 * hands.
-+		 */
-+		if (!was_dirty) {
-+			wb = locked_inode_to_wb_and_lock_list(inode);
-+			spin_lock(&inode->i_lock);
-+		}
-+
- 		/*
- 		 * If the inode is queued for writeback by flush worker, just
- 		 * update its dirty state. Once the flush worker is done with
-@@ -2416,7 +2434,7 @@ void __mark_inode_dirty(struct inode *inode, int flags)
- 		 * list, based upon its state.
+@@ -308,50 +310,48 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
+ 		r = nfc_se_connectivity(hdev->ndev, host);
+ 	break;
+ 	case ST21NFCA_EVT_TRANSACTION:
+-		/*
+-		 * According to specification etsi 102 622
++		/* According to specification etsi 102 622
+ 		 * 11.2.2.4 EVT_TRANSACTION Table 52
+ 		 * Description	Tag	Length
+ 		 * AID		81	5 to 16
+ 		 * PARAMETERS	82	0 to 255
++		 *
++		 * The key differences are aid storage length is variably sized
++		 * in the packet, but fixed in nfc_evt_transaction, and that the aid_len
++		 * is u8 in the packet, but u32 in the structure, and the tags in
++		 * the packet are not included in nfc_evt_transaction.
++		 *
++		 * size in bytes: 1          1       5-16 1             1           0-255
++		 * offset:        0          1       2    aid_len + 2   aid_len + 3 aid_len + 4
++		 * member name:   aid_tag(M) aid_len aid  params_tag(M) params_len  params
++		 * example:       0x81       5-16    X    0x82 0-255    X
  		 */
- 		if (inode->i_state & I_SYNC_QUEUED)
--			goto out_unlock_inode;
-+			goto out_unlock;
+-		if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
+-		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
++		if (skb->len < 2 || skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
+ 			return -EPROTO;
  
- 		/*
- 		 * Only add valid (hashed) inodes to the superblock's
-@@ -2424,22 +2442,19 @@ void __mark_inode_dirty(struct inode *inode, int flags)
- 		 */
- 		if (!S_ISBLK(inode->i_mode)) {
- 			if (inode_unhashed(inode))
--				goto out_unlock_inode;
-+				goto out_unlock;
- 		}
- 		if (inode->i_state & I_FREEING)
--			goto out_unlock_inode;
-+			goto out_unlock;
- 
- 		/*
- 		 * If the inode was already on b_dirty/b_io/b_more_io, don't
- 		 * reposition it (that would break b_dirty time-ordering).
- 		 */
- 		if (!was_dirty) {
--			struct bdi_writeback *wb;
- 			struct list_head *dirty_list;
- 			bool wakeup_bdi = false;
- 
--			wb = locked_inode_to_wb_and_lock_list(inode);
+-		transaction = devm_kzalloc(dev, skb->len - 2, GFP_KERNEL);
+-		if (!transaction)
+-			return -ENOMEM;
 -
- 			inode->dirtied_when = jiffies;
- 			if (dirtytime)
- 				inode->dirtied_time_when = jiffies;
-@@ -2453,6 +2468,7 @@ void __mark_inode_dirty(struct inode *inode, int flags)
- 							       dirty_list);
+-		transaction->aid_len = skb->data[1];
++		aid_len = skb->data[1];
  
- 			spin_unlock(&wb->list_lock);
-+			spin_unlock(&inode->i_lock);
- 			trace_writeback_dirty_inode_enqueue(inode);
+-		/* Checking if the length of the AID is valid */
+-		if (transaction->aid_len > sizeof(transaction->aid)) {
+-			devm_kfree(dev, transaction);
+-			return -EINVAL;
+-		}
++		if (skb->len < aid_len + 4 || aid_len > sizeof(transaction->aid))
++			return -EPROTO;
  
- 			/*
-@@ -2467,6 +2483,9 @@ void __mark_inode_dirty(struct inode *inode, int flags)
- 			return;
- 		}
- 	}
-+out_unlock:
-+	if (wb)
-+		spin_unlock(&wb->list_lock);
- out_unlock_inode:
- 	spin_unlock(&inode->i_lock);
- }
-diff --git a/fs/inode.c b/fs/inode.c
-index 9d9b422504d1..bd4da9c5207e 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -27,7 +27,7 @@
-  * Inode locking rules:
-  *
-  * inode->i_lock protects:
-- *   inode->i_state, inode->i_hash, __iget()
-+ *   inode->i_state, inode->i_hash, __iget(), inode->i_io_list
-  * Inode LRU list locks protect:
-  *   inode->i_sb->s_inode_lru, inode->i_lru
-  * inode->i_sb->s_inode_list_lock protects:
+-		memcpy(transaction->aid, &skb->data[2],
+-		       transaction->aid_len);
++		params_len = skb->data[aid_len + 3];
+ 
+-		/* Check next byte is PARAMETERS tag (82) */
+-		if (skb->data[transaction->aid_len + 2] !=
+-		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
+-			devm_kfree(dev, transaction);
++		/* Verify PARAMETERS tag is (82), and final check that there is enough
++		 * space in the packet to read everything.
++		 */
++		if ((skb->data[aid_len + 2] != NFC_EVT_TRANSACTION_PARAMS_TAG) ||
++		    (skb->len < aid_len + 4 + params_len))
+ 			return -EPROTO;
+-		}
+ 
+-		transaction->params_len = skb->data[transaction->aid_len + 3];
++		transaction = devm_kzalloc(dev, sizeof(*transaction) + params_len, GFP_KERNEL);
++		if (!transaction)
++			return -ENOMEM;
+ 
+-		/* Total size is allocated (skb->len - 2) minus fixed array members */
+-		if (transaction->params_len > ((skb->len - 2) -
+-		    sizeof(struct nfc_evt_transaction))) {
+-			devm_kfree(dev, transaction);
+-			return -EINVAL;
+-		}
++		transaction->aid_len = aid_len;
++		transaction->params_len = params_len;
+ 
+-		memcpy(transaction->params, skb->data +
+-		       transaction->aid_len + 4, transaction->params_len);
++		memcpy(transaction->aid, &skb->data[2], aid_len);
++		memcpy(transaction->params, &skb->data[aid_len + 4], params_len);
+ 
+ 		r = nfc_se_transaction(hdev->ndev, host, transaction);
+ 	break;
 
