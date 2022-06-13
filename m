@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E152549241
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E2E9548D03
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236294AbiFMKZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:25:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45620 "EHLO
+        id S1354759AbiFMMZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:25:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245361AbiFMKYe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:24:34 -0400
+        with ESMTP id S1355458AbiFMMX4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38727205FB;
-        Mon, 13 Jun 2022 03:18:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D06131539;
+        Mon, 13 Jun 2022 04:04:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CBFAC6066C;
-        Mon, 13 Jun 2022 10:18:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE67C34114;
-        Mon, 13 Jun 2022 10:18:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE2B561435;
+        Mon, 13 Jun 2022 11:04:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBAE5C34114;
+        Mon, 13 Jun 2022 11:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115534;
-        bh=agnz51hOJwQlbz3bP/HVXLEFh+xK1woCpBP81eDI+uE=;
+        s=korg; t=1655118298;
+        bh=IhebxJ8vLQHB+MvIrD20QJoz2NfHUxkg+wA2gpF3CwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDH48Fb6YQzX7aS3ktZJwdzkyfzNW6VVm+MboPC6BvIZUukVgn4dxKkd1LLrHPRl/
-         S6scg5gkMuuAO05IDGMdz/qsXDMFc4Kp9PnJx4K2TkpRJB/yYbPUa6huGLNwq90TNd
-         AkR5Cy/d9kmnDdP8NIAfgH+A2nUOCmFalEbOp3rU=
+        b=n/R7fJ5ecWCTNRy8jSlv4v24YhNT2LGnN4pZ+ZwymsmBMO8SfBZiOQ/tmlqrm3z9u
+         QHsSh/2oLidmcKJDrcjMTqTIw07rMCG6YPOwYs4minkw77EHkKhmfB5Cs6tIFeANed
+         9FazOIigjCR4GLSWm1WTkYi/Cm8AFmoMONqy0S3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        Niels Dossche <dossche.niels@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 111/167] usb: usbip: add missing device lock on tweak configuration cmd
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 025/172] phy: qcom-qmp: fix pipe-clock imbalance on power-on failure
 Date:   Mon, 13 Jun 2022 12:09:45 +0200
-Message-Id: <20220613094906.856505720@linuxfoundation.org>
+Message-Id: <20220613094856.463782806@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit d088fabace2ca337b275d1d4b36db4fe7771e44f ]
+[ Upstream commit 5e73b2d9867998278479ccc065a8a8227a5513ef ]
 
-The function documentation of usb_set_configuration says that its
-callers should hold the device lock. This lock is held for all
-callsites except tweak_set_configuration_cmd. The code path can be
-executed for example when attaching a remote USB device.
-The solution is to surround the call by the device lock.
+Make sure to disable the pipe clock also if ufs-reset deassertion fails
+during power on.
 
-This bug was found using my experimental own-developed static analysis
-tool, which reported the missing lock on v5.17.2. I manually verified
-this bug report by doing code review as well. I runtime checked that
-the required lock is not held. I compiled and runtime tested this on
-x86_64 with a USB mouse. After applying this patch, my analyser no
-longer reports this potential bug.
+Note that the ufs-reset is asserted in qcom_qmp_phy_com_exit().
 
-Fixes: 2c8c98158946 ("staging: usbip: let client choose device configuration")
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Link: https://lore.kernel.org/r/20220412165055.257113-1-dossche.niels@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c9b589791fc1 ("phy: qcom: Utilize UFS reset controller")
+Cc: Evan Green <evgreen@chromium.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220502133130.4125-2-johan+linaro@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/stub_rx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/phy/qualcomm/phy-qcom-qmp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/usbip/stub_rx.c b/drivers/usb/usbip/stub_rx.c
-index d47176f9c310..dd6228a51d0d 100644
---- a/drivers/usb/usbip/stub_rx.c
-+++ b/drivers/usb/usbip/stub_rx.c
-@@ -151,7 +151,9 @@ static int tweak_set_configuration_cmd(struct urb *urb)
- 	req = (struct usb_ctrlrequest *) urb->setup_packet;
- 	config = le16_to_cpu(req->wValue);
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
+index ea46950c5d2a..afcc82ab3202 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+@@ -3141,7 +3141,7 @@ static int qcom_qmp_phy_power_on(struct phy *phy)
  
-+	usb_lock_device(sdev->udev);
- 	err = usb_set_configuration(sdev->udev, config);
-+	usb_unlock_device(sdev->udev);
- 	if (err && err != -ENODEV)
- 		dev_err(&sdev->udev->dev, "can't set config #%d, error %d\n",
- 			config, err);
+ 	ret = reset_control_deassert(qmp->ufs_reset);
+ 	if (ret)
+-		goto err_lane_rst;
++		goto err_pcs_ready;
+ 
+ 	qcom_qmp_phy_configure(pcs_misc, cfg->regs, cfg->pcs_misc_tbl,
+ 			       cfg->pcs_misc_tbl_num);
 -- 
 2.35.1
 
