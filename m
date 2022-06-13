@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3802549597
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0988B5497AA
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242766AbiFMKVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:21:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43982 "EHLO
+        id S240152AbiFMNld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:41:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243299AbiFMKUw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:20:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58CAA21E33;
-        Mon, 13 Jun 2022 03:17:40 -0700 (PDT)
+        with ESMTP id S1379136AbiFMNjx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD85A3DA52;
+        Mon, 13 Jun 2022 04:28:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF2C660AE9;
-        Mon, 13 Jun 2022 10:17:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA288C34114;
-        Mon, 13 Jun 2022 10:17:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58FBD61046;
+        Mon, 13 Jun 2022 11:28:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66DEEC34114;
+        Mon, 13 Jun 2022 11:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115459;
-        bh=vEakHVdDgpfUSjSTWKxHanMQiLZNkprbwVPkuLf3bQA=;
+        s=korg; t=1655119732;
+        bh=2hyf1cQmfW94cWq/If7w064AVZti1g8GtemsxPSoOSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TGss/aXY9hXYS3dXGZOFQ/bR4Nuk4mkR279JsXx8+zoSzdfu5RaHpt+GQTx++0Uyg
-         JNh9UvIUChSfVX17X03NxtIS5eXyXj9YfMg4EiDvsMy19eKXnwDigSOCPN5ZOQFrYd
-         rXsP+Kl5BiEfIoDdVTJlzaMEPd6Bnna6yJXEiQrg=
+        b=UCpJvRD56ke+Lvt3g7BYtIn00YIRrtbHZG8CMn0AKl9dQ2WceJaO8P5Z4aMNCEyaB
+         Mes6h6vghuwG81OmikHGzt184vIgr+/bHK9yaA/deWYkUmH8l08uUFT+4DIE2I4n8x
+         ZUU54HBHf81S18YXMlK6YDh9LE55Li/d+PSRSxmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qi Zheng <zhengqi.arch@bytedance.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Akinobu Mita <akinobu.mita@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Li Liang <liali@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 071/167] tty: fix deadlock caused by calling printk() under tty_port->lock
+Subject: [PATCH 5.18 120/339] bonding: show NS IPv6 targets in proc master info
 Date:   Mon, 13 Jun 2022 12:09:05 +0200
-Message-Id: <20220613094857.539356764@linuxfoundation.org>
+Message-Id: <20220613094930.148189277@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,141 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qi Zheng <zhengqi.arch@bytedance.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 6b9dbedbe3499fef862c4dff5217cf91f34e43b3 ]
+[ Upstream commit 4a1f14df55d1e9ecdfa797a87a80131207cbd66f ]
 
-pty_write() invokes kmalloc() which may invoke a normal printk() to print
-failure message.  This can cause a deadlock in the scenario reported by
-syz-bot below:
+When adding bond new parameter ns_targets. I forgot to print this
+in bond master proc info. After updating, the bond master info will look
+like:
 
-       CPU0              CPU1                    CPU2
-       ----              ----                    ----
-                         lock(console_owner);
-                                                 lock(&port_lock_key);
-  lock(&port->lock);
-                         lock(&port_lock_key);
-                                                 lock(&port->lock);
-  lock(console_owner);
+ARP IP target/s (n.n.n.n form): 192.168.1.254
+NS IPv6 target/s (XX::XX form): 2022::1, 2022::2
 
-As commit dbdda842fe96 ("printk: Add console owner and waiter logic to
-load balance console writes") said, such deadlock can be prevented by
-using printk_deferred() in kmalloc() (which is invoked in the section
-guarded by the port->lock).  But there are too many printk() on the
-kmalloc() path, and kmalloc() can be called from anywhere, so changing
-printk() to printk_deferred() is too complicated and inelegant.
-
-Therefore, this patch chooses to specify __GFP_NOWARN to kmalloc(), so
-that printk() will not be called, and this deadlock problem can be
-avoided.
-
-Syzbot reported the following lockdep error:
-
-======================================================
-WARNING: possible circular locking dependency detected
-5.4.143-00237-g08ccc19a-dirty #10 Not tainted
-------------------------------------------------------
-syz-executor.4/29420 is trying to acquire lock:
-ffffffff8aedb2a0 (console_owner){....}-{0:0}, at: console_trylock_spinning kernel/printk/printk.c:1752 [inline]
-ffffffff8aedb2a0 (console_owner){....}-{0:0}, at: vprintk_emit+0x2ca/0x470 kernel/printk/printk.c:2023
-
-but task is already holding lock:
-ffff8880119c9158 (&port->lock){-.-.}-{2:2}, at: pty_write+0xf4/0x1f0 drivers/tty/pty.c:120
-
-which lock already depends on the new lock.
-
-the existing dependency chain (in reverse order) is:
-
--> #2 (&port->lock){-.-.}-{2:2}:
-       __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
-       _raw_spin_lock_irqsave+0x35/0x50 kernel/locking/spinlock.c:159
-       tty_port_tty_get drivers/tty/tty_port.c:288 [inline]          		<-- lock(&port->lock);
-       tty_port_default_wakeup+0x1d/0xb0 drivers/tty/tty_port.c:47
-       serial8250_tx_chars+0x530/0xa80 drivers/tty/serial/8250/8250_port.c:1767
-       serial8250_handle_irq.part.0+0x31f/0x3d0 drivers/tty/serial/8250/8250_port.c:1854
-       serial8250_handle_irq drivers/tty/serial/8250/8250_port.c:1827 [inline] 	<-- lock(&port_lock_key);
-       serial8250_default_handle_irq+0xb2/0x220 drivers/tty/serial/8250/8250_port.c:1870
-       serial8250_interrupt+0xfd/0x200 drivers/tty/serial/8250/8250_core.c:126
-       __handle_irq_event_percpu+0x109/0xa50 kernel/irq/handle.c:156
-       [...]
-
--> #1 (&port_lock_key){-.-.}-{2:2}:
-       __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
-       _raw_spin_lock_irqsave+0x35/0x50 kernel/locking/spinlock.c:159
-       serial8250_console_write+0x184/0xa40 drivers/tty/serial/8250/8250_port.c:3198
-										<-- lock(&port_lock_key);
-       call_console_drivers kernel/printk/printk.c:1819 [inline]
-       console_unlock+0x8cb/0xd00 kernel/printk/printk.c:2504
-       vprintk_emit+0x1b5/0x470 kernel/printk/printk.c:2024			<-- lock(console_owner);
-       vprintk_func+0x8d/0x250 kernel/printk/printk_safe.c:394
-       printk+0xba/0xed kernel/printk/printk.c:2084
-       register_console+0x8b3/0xc10 kernel/printk/printk.c:2829
-       univ8250_console_init+0x3a/0x46 drivers/tty/serial/8250/8250_core.c:681
-       console_init+0x49d/0x6d3 kernel/printk/printk.c:2915
-       start_kernel+0x5e9/0x879 init/main.c:713
-       secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:241
-
--> #0 (console_owner){....}-{0:0}:
-       [...]
-       lock_acquire+0x127/0x340 kernel/locking/lockdep.c:4734
-       console_trylock_spinning kernel/printk/printk.c:1773 [inline]		<-- lock(console_owner);
-       vprintk_emit+0x307/0x470 kernel/printk/printk.c:2023
-       vprintk_func+0x8d/0x250 kernel/printk/printk_safe.c:394
-       printk+0xba/0xed kernel/printk/printk.c:2084
-       fail_dump lib/fault-inject.c:45 [inline]
-       should_fail+0x67b/0x7c0 lib/fault-inject.c:144
-       __should_failslab+0x152/0x1c0 mm/failslab.c:33
-       should_failslab+0x5/0x10 mm/slab_common.c:1224
-       slab_pre_alloc_hook mm/slab.h:468 [inline]
-       slab_alloc_node mm/slub.c:2723 [inline]
-       slab_alloc mm/slub.c:2807 [inline]
-       __kmalloc+0x72/0x300 mm/slub.c:3871
-       kmalloc include/linux/slab.h:582 [inline]
-       tty_buffer_alloc+0x23f/0x2a0 drivers/tty/tty_buffer.c:175
-       __tty_buffer_request_room+0x156/0x2a0 drivers/tty/tty_buffer.c:273
-       tty_insert_flip_string_fixed_flag+0x93/0x250 drivers/tty/tty_buffer.c:318
-       tty_insert_flip_string include/linux/tty_flip.h:37 [inline]
-       pty_write+0x126/0x1f0 drivers/tty/pty.c:122				<-- lock(&port->lock);
-       n_tty_write+0xa7a/0xfc0 drivers/tty/n_tty.c:2356
-       do_tty_write drivers/tty/tty_io.c:961 [inline]
-       tty_write+0x512/0x930 drivers/tty/tty_io.c:1045
-       __vfs_write+0x76/0x100 fs/read_write.c:494
-       [...]
-
-other info that might help us debug this:
-
-Chain exists of:
-  console_owner --> &port_lock_key --> &port->lock
-
-Link: https://lkml.kernel.org/r/20220511061951.1114-2-zhengqi.arch@bytedance.com
-Link: https://lkml.kernel.org/r/20220510113809.80626-2-zhengqi.arch@bytedance.com
-Fixes: b6da31b2c07c ("tty: Fix data race in tty_insert_flip_string_fixed_flag")
-Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-Acked-by: Jiri Slaby <jirislaby@kernel.org>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 4e24be018eb9 ("bonding: add new parameter ns_targets")
+Reported-by: Li Liang <liali@redhat.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Link: https://lore.kernel.org/r/20220530062639.37179-1-liuhangbin@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_buffer.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/bonding/bond_procfs.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
-index dfccc102c1dd..e65faa98146e 100644
---- a/drivers/tty/tty_buffer.c
-+++ b/drivers/tty/tty_buffer.c
-@@ -166,7 +166,8 @@ static struct tty_buffer *tty_buffer_alloc(struct tty_port *port, size_t size)
- 	   have queued and recycle that ? */
- 	if (atomic_read(&port->buf.mem_used) > port->buf.mem_limit)
- 		return NULL;
--	p = kmalloc(sizeof(struct tty_buffer) + 2 * size, GFP_ATOMIC);
-+	p = kmalloc(sizeof(struct tty_buffer) + 2 * size,
-+		    GFP_ATOMIC | __GFP_NOWARN);
- 	if (p == NULL)
- 		return NULL;
+diff --git a/drivers/net/bonding/bond_procfs.c b/drivers/net/bonding/bond_procfs.c
+index cfe37be42be4..43be458422b3 100644
+--- a/drivers/net/bonding/bond_procfs.c
++++ b/drivers/net/bonding/bond_procfs.c
+@@ -129,6 +129,21 @@ static void bond_info_show_master(struct seq_file *seq)
+ 			printed = 1;
+ 		}
+ 		seq_printf(seq, "\n");
++
++#if IS_ENABLED(CONFIG_IPV6)
++		printed = 0;
++		seq_printf(seq, "NS IPv6 target/s (xx::xx form):");
++
++		for (i = 0; (i < BOND_MAX_NS_TARGETS); i++) {
++			if (ipv6_addr_any(&bond->params.ns_targets[i]))
++				break;
++			if (printed)
++				seq_printf(seq, ",");
++			seq_printf(seq, " %pI6c", &bond->params.ns_targets[i]);
++			printed = 1;
++		}
++		seq_printf(seq, "\n");
++#endif
+ 	}
  
+ 	if (BOND_MODE(bond) == BOND_MODE_8023AD) {
 -- 
 2.35.1
 
