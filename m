@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5715496A7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EC8F548E9A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240125AbiFMNce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:32:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47742 "EHLO
+        id S1352908AbiFMLUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:20:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377355AbiFMN2X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:28:23 -0400
+        with ESMTP id S1352659AbiFMLQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27A806D1A2;
-        Mon, 13 Jun 2022 04:24:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C87D038D8A;
+        Mon, 13 Jun 2022 03:40:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7712DB80E59;
-        Mon, 13 Jun 2022 11:24:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1C04C34114;
-        Mon, 13 Jun 2022 11:24:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF615B80EAC;
+        Mon, 13 Jun 2022 10:40:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D2BC34114;
+        Mon, 13 Jun 2022 10:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119480;
-        bh=mEwbqgWojyxtkqgxEaRPGMELVaiZS+FLu/4v3N6gpOg=;
+        s=korg; t=1655116813;
+        bh=jbPHclukVovYqcjdvFI+HXUslo5TjyCHenAKCIjMEsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LVhJ8GRPjs5QP+rwzQd4UqrKCK67pZCUvYbfJNiHbM0/ByVzBeYSPO392CB/WmpgL
-         XsK36YAYif7LGlIMq9jvyMWv3+tBwCdpEg9aN0ZunDmMRPEdmrioLpDS5Jdf7Ec7A7
-         BiY4vZfZBZBmZQJqG3mlb2xumSM09N3wM8PildrQ=
+        b=U+2ct6BXJaJTpFdMr00tvy/go1cSSTRHd9I69hXU9xbqWjN0ySTf5wTCOTplzCzfm
+         x4x0+Scee6Ub6gWMYqvtHKzMOoZmCodafT7JAfDzIK3jV8mS7bdcIxF3scJAxJA4Ch
+         GJ8utM+5QbBKPQTOZTIH1mJQVzAWTnihObFhsTo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
+        hui li <juanfengpy@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 030/339] usb: typec: mux: Check dev_set_name() return value
+Subject: [PATCH 5.4 182/411] proc: fix dentry/inode overinstantiating under /proc/${pid}/net
 Date:   Mon, 13 Jun 2022 12:07:35 +0200
-Message-Id: <20220613094927.427575927@linuxfoundation.org>
+Message-Id: <20220613094934.116938638@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,56 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-[ Upstream commit b9fa0292490db39d6542f514117333d366ec0011 ]
+[ Upstream commit 7055197705709c59b8ab77e6a5c7d46d61edd96e ]
 
-It's possible that dev_set_name() returns -ENOMEM, catch and handle this.
+When a process exits, /proc/${pid}, and /proc/${pid}/net dentries are
+flushed.  However some leaf dentries like /proc/${pid}/net/arp_cache
+aren't.  That's because respective PDEs have proc_misc_d_revalidate() hook
+which returns 1 and leaves dentries/inodes in the LRU.
 
-Fixes: 3370db35193b ("usb: typec: Registering real device entries for the muxes")
-Reported-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220422222351.1297276-4-bjorn.andersson@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Force revalidation/lookup on everything under /proc/${pid}/net by
+inheriting proc_net_dentry_ops.
+
+[akpm@linux-foundation.org: coding-style cleanups]
+Link: https://lkml.kernel.org/r/YjdVHgildbWO7diJ@localhost.localdomain
+Fixes: c6c75deda813 ("proc: fix lookup in /proc/net subdirectories after setns(2)")
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Reported-by: hui li <juanfengpy@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/mux.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ fs/proc/generic.c  | 3 +++
+ fs/proc/proc_net.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/usb/typec/mux.c b/drivers/usb/typec/mux.c
-index c8340de0ed49..d2aaf294b649 100644
---- a/drivers/usb/typec/mux.c
-+++ b/drivers/usb/typec/mux.c
-@@ -131,8 +131,11 @@ typec_switch_register(struct device *parent,
- 	sw->dev.class = &typec_mux_class;
- 	sw->dev.type = &typec_switch_dev_type;
- 	sw->dev.driver_data = desc->drvdata;
--	dev_set_name(&sw->dev, "%s-switch",
--		     desc->name ? desc->name : dev_name(parent));
-+	ret = dev_set_name(&sw->dev, "%s-switch", desc->name ? desc->name : dev_name(parent));
-+	if (ret) {
-+		put_device(&sw->dev);
-+		return ERR_PTR(ret);
-+	}
+diff --git a/fs/proc/generic.c b/fs/proc/generic.c
+index 8c3dbe13e647..372b4dad4863 100644
+--- a/fs/proc/generic.c
++++ b/fs/proc/generic.c
+@@ -446,6 +446,9 @@ static struct proc_dir_entry *__proc_create(struct proc_dir_entry **parent,
+ 	proc_set_user(ent, (*parent)->uid, (*parent)->gid);
  
- 	ret = device_add(&sw->dev);
- 	if (ret) {
-@@ -338,8 +341,11 @@ typec_mux_register(struct device *parent, const struct typec_mux_desc *desc)
- 	mux->dev.class = &typec_mux_class;
- 	mux->dev.type = &typec_mux_dev_type;
- 	mux->dev.driver_data = desc->drvdata;
--	dev_set_name(&mux->dev, "%s-mux",
--		     desc->name ? desc->name : dev_name(parent));
-+	ret = dev_set_name(&mux->dev, "%s-mux", desc->name ? desc->name : dev_name(parent));
-+	if (ret) {
-+		put_device(&mux->dev);
-+		return ERR_PTR(ret);
-+	}
+ 	ent->proc_dops = &proc_misc_dentry_ops;
++	/* Revalidate everything under /proc/${pid}/net */
++	if ((*parent)->proc_dops == &proc_net_dentry_ops)
++		pde_force_lookup(ent);
  
- 	ret = device_add(&mux->dev);
- 	if (ret) {
+ out:
+ 	return ent;
+diff --git a/fs/proc/proc_net.c b/fs/proc/proc_net.c
+index 313b7c751867..9cd5b47199cb 100644
+--- a/fs/proc/proc_net.c
++++ b/fs/proc/proc_net.c
+@@ -343,6 +343,9 @@ static __net_init int proc_net_ns_init(struct net *net)
+ 
+ 	proc_set_user(netd, uid, gid);
+ 
++	/* Seed dentry revalidation for /proc/${pid}/net */
++	pde_force_lookup(netd);
++
+ 	err = -EEXIST;
+ 	net_statd = proc_net_mkdir(net, "stat", netd);
+ 	if (!net_statd)
 -- 
 2.35.1
 
