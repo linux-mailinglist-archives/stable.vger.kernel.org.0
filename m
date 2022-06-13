@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13E5454931C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B4D854958A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355658AbiFMLqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:46:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41196 "EHLO
+        id S1358852AbiFMNLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:11:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357065AbiFMLp3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:45:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91F39B63;
-        Mon, 13 Jun 2022 03:51:39 -0700 (PDT)
+        with ESMTP id S1357448AbiFMNHl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:07:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9534C381BD;
+        Mon, 13 Jun 2022 04:18:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 059A7B80E07;
-        Mon, 13 Jun 2022 10:51:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63B48C34114;
-        Mon, 13 Jun 2022 10:51:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75525B80EB1;
+        Mon, 13 Jun 2022 11:18:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7BD8C34114;
+        Mon, 13 Jun 2022 11:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117496;
-        bh=jMZXmEP/+RK0uQl0NLibbp+SHDtq/RGALhCcm54ehP8=;
+        s=korg; t=1655119122;
+        bh=sEV7WN5gvPYHUR2+AlgrOnDLO7J8h7aP7imPvjQ0UJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q58wUsw/QOIDN3URvAwdPhSa/1MJRXy4fETA5uyh8K5IOsjdcSA1AQUCBROtvbEgK
-         lSDjhrDSfpfl4dCCuo4qrKsqiAaZe4mySAQ5yA8loAKcvxJ+bqgndvdsR2EegV79Rt
-         ypjDJsNCqPfTrQSLnBmxyrf9jB4foJzEi1wMybuo=
+        b=mtZQAd3VX+XjxFWIWZ2l4kERedIi+tNEaDxNOebs61qMS+m2/w3WpC2b5/Bg6UhWZ
+         sNmELhkGrMycbbgum39Yn0Y+ZqM/DGVsiRnozQo6baSvhdxHpnCL8NbUK4wnZXge7n
+         0a24iQwGZSacEdKm2lJrakfOGhOpVy6TikImI4dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, bumwoo lee <bw365.lee@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 378/411] extcon: Modify extcon device to be created after driver data is set
+Subject: [PATCH 5.15 149/247] xsk: Fix handling of invalid descriptors in XSK TX batching API
 Date:   Mon, 13 Jun 2022 12:10:51 +0200
-Message-Id: <20220613094940.006563268@linuxfoundation.org>
+Message-Id: <20220613094927.474546705@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,98 +56,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: bumwoo lee <bw365.lee@samsung.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit 5dcc2afe716d69f5112ce035cb14f007461ff189 ]
+[ Upstream commit d678cbd2f867a564a3c5b276c454e873f43f02f8 ]
 
-Currently, someone can invoke the sysfs such as state_show()
-intermittently before dev_set_drvdata() is done.
-And it can be a cause of kernel Oops because of edev is Null at that time.
-So modified the driver registration to after setting drviver data.
+xdpxceiver run on a AF_XDP ZC enabled driver revealed a problem with XSK
+Tx batching API. There is a test that checks how invalid Tx descriptors
+are handled by AF_XDP. Each valid descriptor is followed by invalid one
+on Tx side whereas the Rx side expects only to receive a set of valid
+descriptors.
 
-- Oops's backtrace.
+In current xsk_tx_peek_release_desc_batch() function, the amount of
+available descriptors is hidden inside xskq_cons_peek_desc_batch(). This
+can be problematic in cases where invalid descriptors are present due to
+the fact that xskq_cons_peek_desc_batch() returns only a count of valid
+descriptors. This means that it is impossible to properly update XSK
+ring state when calling xskq_cons_release_n().
 
-Backtrace:
-[<c067865c>] (state_show) from [<c05222e8>] (dev_attr_show)
-[<c05222c0>] (dev_attr_show) from [<c02c66e0>] (sysfs_kf_seq_show)
-[<c02c6648>] (sysfs_kf_seq_show) from [<c02c496c>] (kernfs_seq_show)
-[<c02c4938>] (kernfs_seq_show) from [<c025e2a0>] (seq_read)
-[<c025e11c>] (seq_read) from [<c02c50a0>] (kernfs_fop_read)
-[<c02c5064>] (kernfs_fop_read) from [<c0231cac>] (__vfs_read)
-[<c0231c5c>] (__vfs_read) from [<c0231ee0>] (vfs_read)
-[<c0231e34>] (vfs_read) from [<c0232464>] (ksys_read)
-[<c02323f0>] (ksys_read) from [<c02324fc>] (sys_read)
-[<c02324e4>] (sys_read) from [<c00091d0>] (__sys_trace_return)
+To address this issue, pull out the contents of
+xskq_cons_peek_desc_batch() so that callers (currently only
+xsk_tx_peek_release_desc_batch()) will always be able to update the
+state of ring properly, as total count of entries is now available and
+use this value as an argument in xskq_cons_release_n(). By
+doing so, xskq_cons_peek_desc_batch() can be dropped altogether.
 
-Signed-off-by: bumwoo lee <bw365.lee@samsung.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Fixes: 9349eb3a9d2a ("xsk: Introduce batched Tx descriptor interfaces")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Link: https://lore.kernel.org/bpf/20220607142200.576735-1-maciej.fijalkowski@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon.c | 29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ net/xdp/xsk.c       | 5 +++--
+ net/xdp/xsk_queue.h | 8 --------
+ 2 files changed, 3 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/extcon/extcon.c b/drivers/extcon/extcon.c
-index 5c9e156cd086..6b905c3d30f4 100644
---- a/drivers/extcon/extcon.c
-+++ b/drivers/extcon/extcon.c
-@@ -1230,19 +1230,14 @@ int extcon_dev_register(struct extcon_dev *edev)
- 		edev->dev.type = &edev->extcon_dev_type;
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index 404cbfde2f84..b9e70931c794 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -388,7 +388,8 @@ u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
+ 		goto out;
  	}
  
--	ret = device_register(&edev->dev);
--	if (ret) {
--		put_device(&edev->dev);
--		goto err_dev;
--	}
+-	nb_pkts = xskq_cons_peek_desc_batch(xs->tx, pool, max_entries);
++	max_entries = xskq_cons_nb_entries(xs->tx, max_entries);
++	nb_pkts = xskq_cons_read_desc_batch(xs->tx, pool, max_entries);
+ 	if (!nb_pkts) {
+ 		xs->tx->queue_empty_descs++;
+ 		goto out;
+@@ -404,7 +405,7 @@ u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
+ 	if (!nb_pkts)
+ 		goto out;
+ 
+-	xskq_cons_release_n(xs->tx, nb_pkts);
++	xskq_cons_release_n(xs->tx, max_entries);
+ 	__xskq_cons_release(xs->tx);
+ 	xs->sk.sk_write_space(&xs->sk);
+ 
+diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
+index b721795fe50c..491a18c1f786 100644
+--- a/net/xdp/xsk_queue.h
++++ b/net/xdp/xsk_queue.h
+@@ -278,14 +278,6 @@ static inline bool xskq_cons_peek_desc(struct xsk_queue *q,
+ 	return xskq_cons_read_desc(q, desc, pool);
+ }
+ 
+-static inline u32 xskq_cons_peek_desc_batch(struct xsk_queue *q, struct xsk_buff_pool *pool,
+-					    u32 max)
+-{
+-	u32 entries = xskq_cons_nb_entries(q, max);
 -
- 	spin_lock_init(&edev->lock);
--	edev->nh = devm_kcalloc(&edev->dev, edev->max_supported,
--				sizeof(*edev->nh), GFP_KERNEL);
--	if (!edev->nh) {
--		ret = -ENOMEM;
--		device_unregister(&edev->dev);
--		goto err_dev;
-+	if (edev->max_supported) {
-+		edev->nh = kcalloc(edev->max_supported, sizeof(*edev->nh),
-+				GFP_KERNEL);
-+		if (!edev->nh) {
-+			ret = -ENOMEM;
-+			goto err_alloc_nh;
-+		}
- 	}
- 
- 	for (index = 0; index < edev->max_supported; index++)
-@@ -1253,6 +1248,12 @@ int extcon_dev_register(struct extcon_dev *edev)
- 	dev_set_drvdata(&edev->dev, edev);
- 	edev->state = 0;
- 
-+	ret = device_register(&edev->dev);
-+	if (ret) {
-+		put_device(&edev->dev);
-+		goto err_dev;
-+	}
-+
- 	mutex_lock(&extcon_dev_list_lock);
- 	list_add(&edev->entry, &extcon_dev_list);
- 	mutex_unlock(&extcon_dev_list_lock);
-@@ -1260,6 +1261,9 @@ int extcon_dev_register(struct extcon_dev *edev)
- 	return 0;
- 
- err_dev:
-+	if (edev->max_supported)
-+		kfree(edev->nh);
-+err_alloc_nh:
- 	if (edev->max_supported)
- 		kfree(edev->extcon_dev_type.groups);
- err_alloc_groups:
-@@ -1320,6 +1324,7 @@ void extcon_dev_unregister(struct extcon_dev *edev)
- 	if (edev->max_supported) {
- 		kfree(edev->extcon_dev_type.groups);
- 		kfree(edev->cables);
-+		kfree(edev->nh);
- 	}
- 
- 	put_device(&edev->dev);
+-	return xskq_cons_read_desc_batch(q, pool, entries);
+-}
+-
+ /* To improve performance in the xskq_cons_release functions, only update local state here.
+  * Reflect this to global state when we get new entries from the ring in
+  * xskq_cons_get_entries() and whenever Rx or Tx processing are completed in the NAPI loop.
 -- 
 2.35.1
 
