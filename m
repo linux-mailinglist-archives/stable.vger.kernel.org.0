@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1105E548B76
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 249E0549374
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357169AbiFMLxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:53:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55950 "EHLO
+        id S242147AbiFMKTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:19:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356672AbiFMLuy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63520E083;
-        Mon, 13 Jun 2022 03:55:11 -0700 (PDT)
+        with ESMTP id S242906AbiFMKSx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:18:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DFC520F48;
+        Mon, 13 Jun 2022 03:16:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAC93B80E07;
-        Mon, 13 Jun 2022 10:55:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51E35C34114;
-        Mon, 13 Jun 2022 10:55:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1A9D2CE1173;
+        Mon, 13 Jun 2022 10:16:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06659C34114;
+        Mon, 13 Jun 2022 10:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117708;
-        bh=nrVeHpIgn7J3nKIpieEQnJ34POixDE+cOV4Gfi9TLDA=;
+        s=korg; t=1655115385;
+        bh=F2yAfrnatgMjdwrZbg2V8vHGdPEi+gb8YFtfCAaM1uA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6Ky5qksAqWUmp7EJfEc7wlZEZNcTxNu/OT5GfEyqcbec6ECaDPrP/RbBiY150DNc
-         3NPfnUzxVUUwrrVvADQq761CpsquuXVl46DJT+NLEdGFcgjw8F/ogQXgmXIkmEwtSI
-         vOwvviDSekNnxoLJAwLW+KyBXpsia1yJqfmsPxYY=
+        b=WAOfOockpp7QUei5PYAhKzznU503MGkcgL/MLVd4Xx0fQlmggoCMqqrbU6yHvheTJ
+         Bm2d43+nJY5BLDIgKWGqJrZ+7UAv62Yl+YVb401Or0K2P9O/2NWjcBqieMbpU4R2CI
+         lvWARU9zPLrv07Lc9VPEh7VeZqY6MCqgyWQD6PDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kaiwan N Billimoria <kaiwan.billimoria@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 095/287] scripts/faddr2line: Fix overlapping text section failures
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 045/167] inotify: show inotify mask flags in proc fdinfo
 Date:   Mon, 13 Jun 2022 12:08:39 +0200
-Message-Id: <20220613094926.759497486@linuxfoundation.org>
+Message-Id: <20220613094851.500091359@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,269 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Amir Goldstein <amir73il@gmail.com>
 
-[ Upstream commit 1d1a0e7c5100d332583e20b40aa8c0a8ed3d7849 ]
+[ Upstream commit a32e697cda27679a0327ae2cafdad8c7170f548f ]
 
-There have been some recent reports of faddr2line failures:
+The inotify mask flags IN_ONESHOT and IN_EXCL_UNLINK are not "internal
+to kernel" and should be exposed in procfs fdinfo so CRIU can restore
+them.
 
-  $ scripts/faddr2line sound/soundcore.ko sound_devnode+0x5/0x35
-  bad symbol size: base: 0x0000000000000000 end: 0x0000000000000000
-
-  $ ./scripts/faddr2line vmlinux.o enter_from_user_mode+0x24
-  bad symbol size: base: 0x0000000000005fe0 end: 0x0000000000005fe0
-
-The problem is that faddr2line is based on 'nm', which has a major
-limitation: it doesn't know how to distinguish between different text
-sections.  So if an offset exists in multiple text sections in the
-object, it may fail.
-
-Rewrite faddr2line to be section-aware, by basing it on readelf.
-
-Fixes: 67326666e2d4 ("scripts: add script for translating stack dump function offsets")
-Reported-by: Kaiwan N Billimoria <kaiwan.billimoria@gmail.com>
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Link: https://lore.kernel.org/r/29ff99f86e3da965b6e46c1cc2d72ce6528c17c3.1652382321.git.jpoimboe@kernel.org
+Fixes: 6933599697c9 ("inotify: hide internal kernel bits from fdinfo")
+Link: https://lore.kernel.org/r/20220422120327.3459282-2-amir73il@gmail.com
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/faddr2line | 150 +++++++++++++++++++++++++++++----------------
- 1 file changed, 97 insertions(+), 53 deletions(-)
+ fs/notify/fdinfo.c               | 11 ++---------
+ fs/notify/inotify/inotify.h      | 12 ++++++++++++
+ fs/notify/inotify/inotify_user.c |  2 +-
+ 3 files changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/scripts/faddr2line b/scripts/faddr2line
-index a0149db00be7..226c3f559dc5 100755
---- a/scripts/faddr2line
-+++ b/scripts/faddr2line
-@@ -44,17 +44,6 @@
- set -o errexit
- set -o nounset
- 
--READELF="${CROSS_COMPILE:-}readelf"
--ADDR2LINE="${CROSS_COMPILE:-}addr2line"
--SIZE="${CROSS_COMPILE:-}size"
--NM="${CROSS_COMPILE:-}nm"
--
--command -v awk >/dev/null 2>&1 || die "awk isn't installed"
--command -v ${READELF} >/dev/null 2>&1 || die "readelf isn't installed"
--command -v ${ADDR2LINE} >/dev/null 2>&1 || die "addr2line isn't installed"
--command -v ${SIZE} >/dev/null 2>&1 || die "size isn't installed"
--command -v ${NM} >/dev/null 2>&1 || die "nm isn't installed"
--
- usage() {
- 	echo "usage: faddr2line [--list] <object file> <func+offset> <func+offset>..." >&2
- 	exit 1
-@@ -69,6 +58,14 @@ die() {
- 	exit 1
+diff --git a/fs/notify/fdinfo.c b/fs/notify/fdinfo.c
+index fd98e5100cab..317b7e7eb2e7 100644
+--- a/fs/notify/fdinfo.c
++++ b/fs/notify/fdinfo.c
+@@ -83,16 +83,9 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
+ 	inode_mark = container_of(mark, struct inotify_inode_mark, fsn_mark);
+ 	inode = igrab(mark->inode);
+ 	if (inode) {
+-		/*
+-		 * IN_ALL_EVENTS represents all of the mask bits
+-		 * that we expose to userspace.  There is at
+-		 * least one bit (FS_EVENT_ON_CHILD) which is
+-		 * used only internally to the kernel.
+-		 */
+-		u32 mask = mark->mask & IN_ALL_EVENTS;
+-		seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:%x ",
++		seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:0 ",
+ 			   inode_mark->wd, inode->i_ino, inode->i_sb->s_dev,
+-			   mask, mark->ignored_mask);
++			   inotify_mark_user_mask(mark));
+ 		show_mark_fhandle(m, inode);
+ 		seq_putc(m, '\n');
+ 		iput(inode);
+diff --git a/fs/notify/inotify/inotify.h b/fs/notify/inotify/inotify.h
+index ed855ef6f077..b0440287d7dd 100644
+--- a/fs/notify/inotify/inotify.h
++++ b/fs/notify/inotify/inotify.h
+@@ -20,6 +20,18 @@ static inline struct inotify_event_info *INOTIFY_E(struct fsnotify_event *fse)
+ 	return container_of(fse, struct inotify_event_info, fse);
  }
  
-+READELF="${CROSS_COMPILE:-}readelf"
-+ADDR2LINE="${CROSS_COMPILE:-}addr2line"
-+AWK="awk"
++/*
++ * INOTIFY_USER_FLAGS represents all of the mask bits that we expose to
++ * userspace.  There is at least one bit (FS_EVENT_ON_CHILD) which is
++ * used only internally to the kernel.
++ */
++#define INOTIFY_USER_MASK (IN_ALL_EVENTS | IN_ONESHOT | IN_EXCL_UNLINK)
 +
-+command -v ${AWK} >/dev/null 2>&1 || die "${AWK} isn't installed"
-+command -v ${READELF} >/dev/null 2>&1 || die "${READELF} isn't installed"
-+command -v ${ADDR2LINE} >/dev/null 2>&1 || die "${ADDR2LINE} isn't installed"
++static inline __u32 inotify_mark_user_mask(struct fsnotify_mark *fsn_mark)
++{
++	return fsn_mark->mask & INOTIFY_USER_MASK;
++}
 +
- # Try to figure out the source directory prefix so we can remove it from the
- # addr2line output.  HACK ALERT: This assumes that start_kernel() is in
- # kernel/init.c!  This only works for vmlinux.  Otherwise it falls back to
-@@ -76,7 +73,7 @@ die() {
- find_dir_prefix() {
- 	local objfile=$1
+ extern void inotify_ignored_and_remove_idr(struct fsnotify_mark *fsn_mark,
+ 					   struct fsnotify_group *group);
+ extern int inotify_handle_event(struct fsnotify_group *group,
+diff --git a/fs/notify/inotify/inotify_user.c b/fs/notify/inotify/inotify_user.c
+index 69d1ea3d292a..bb60bf1527e4 100644
+--- a/fs/notify/inotify/inotify_user.c
++++ b/fs/notify/inotify/inotify_user.c
+@@ -97,7 +97,7 @@ static inline __u32 inotify_arg_to_mask(u32 arg)
+ 	mask = (FS_IN_IGNORED | FS_EVENT_ON_CHILD | FS_UNMOUNT);
  
--	local start_kernel_addr=$(${READELF} -sW $objfile | awk '$8 == "start_kernel" {printf "0x%s", $2}')
-+	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | ${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
- 	[[ -z $start_kernel_addr ]] && return
+ 	/* mask off the flags used to open the fd */
+-	mask |= (arg & (IN_ALL_EVENTS | IN_ONESHOT | IN_EXCL_UNLINK));
++	mask |= (arg & INOTIFY_USER_MASK);
  
- 	local file_line=$(${ADDR2LINE} -e $objfile $start_kernel_addr)
-@@ -97,86 +94,133 @@ __faddr2line() {
- 	local dir_prefix=$3
- 	local print_warnings=$4
- 
--	local func=${func_addr%+*}
-+	local sym_name=${func_addr%+*}
- 	local offset=${func_addr#*+}
- 	offset=${offset%/*}
--	local size=
--	[[ $func_addr =~ "/" ]] && size=${func_addr#*/}
-+	local user_size=
-+	[[ $func_addr =~ "/" ]] && user_size=${func_addr#*/}
- 
--	if [[ -z $func ]] || [[ -z $offset ]] || [[ $func = $func_addr ]]; then
-+	if [[ -z $sym_name ]] || [[ -z $offset ]] || [[ $sym_name = $func_addr ]]; then
- 		warn "bad func+offset $func_addr"
- 		DONE=1
- 		return
- 	fi
- 
- 	# Go through each of the object's symbols which match the func name.
--	# In rare cases there might be duplicates.
--	file_end=$(${SIZE} -Ax $objfile | awk '$1 == ".text" {print $2}')
--	while read symbol; do
--		local fields=($symbol)
--		local sym_base=0x${fields[0]}
--		local sym_type=${fields[1]}
--		local sym_end=${fields[3]}
--
--		# calculate the size
--		local sym_size=$(($sym_end - $sym_base))
-+	# In rare cases there might be duplicates, in which case we print all
-+	# matches.
-+	while read line; do
-+		local fields=($line)
-+		local sym_addr=0x${fields[1]}
-+		local sym_elf_size=${fields[2]}
-+		local sym_sec=${fields[6]}
-+
-+		# Get the section size:
-+		local sec_size=$(${READELF} --section-headers --wide $objfile |
-+			sed 's/\[ /\[/' |
-+			${AWK} -v sec=$sym_sec '$1 == "[" sec "]" { print "0x" $6; exit }')
-+
-+		if [[ -z $sec_size ]]; then
-+			warn "bad section size: section: $sym_sec"
-+			DONE=1
-+			return
-+		fi
-+
-+		# Calculate the symbol size.
-+		#
-+		# Unfortunately we can't use the ELF size, because kallsyms
-+		# also includes the padding bytes in its size calculation.  For
-+		# kallsyms, the size calculation is the distance between the
-+		# symbol and the next symbol in a sorted list.
-+		local sym_size
-+		local cur_sym_addr
-+		local found=0
-+		while read line; do
-+			local fields=($line)
-+			cur_sym_addr=0x${fields[1]}
-+			local cur_sym_elf_size=${fields[2]}
-+			local cur_sym_name=${fields[7]:-}
-+
-+			if [[ $cur_sym_addr = $sym_addr ]] &&
-+			   [[ $cur_sym_elf_size = $sym_elf_size ]] &&
-+			   [[ $cur_sym_name = $sym_name ]]; then
-+				found=1
-+				continue
-+			fi
-+
-+			if [[ $found = 1 ]]; then
-+				sym_size=$(($cur_sym_addr - $sym_addr))
-+				[[ $sym_size -lt $sym_elf_size ]] && continue;
-+				found=2
-+				break
-+			fi
-+		done < <(${READELF} --symbols --wide $objfile | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
-+
-+		if [[ $found = 0 ]]; then
-+			warn "can't find symbol: sym_name: $sym_name sym_sec: $sym_sec sym_addr: $sym_addr sym_elf_size: $sym_elf_size"
-+			DONE=1
-+			return
-+		fi
-+
-+		# If nothing was found after the symbol, assume it's the last
-+		# symbol in the section.
-+		[[ $found = 1 ]] && sym_size=$(($sec_size - $sym_addr))
-+
- 		if [[ -z $sym_size ]] || [[ $sym_size -le 0 ]]; then
--			warn "bad symbol size: base: $sym_base end: $sym_end"
-+			warn "bad symbol size: sym_addr: $sym_addr cur_sym_addr: $cur_sym_addr"
- 			DONE=1
- 			return
- 		fi
-+
- 		sym_size=0x$(printf %x $sym_size)
- 
--		# calculate the address
--		local addr=$(($sym_base + $offset))
-+		# Calculate the section address from user-supplied offset:
-+		local addr=$(($sym_addr + $offset))
- 		if [[ -z $addr ]] || [[ $addr = 0 ]]; then
--			warn "bad address: $sym_base + $offset"
-+			warn "bad address: $sym_addr + $offset"
- 			DONE=1
- 			return
- 		fi
- 		addr=0x$(printf %x $addr)
- 
--		# weed out non-function symbols
--		if [[ $sym_type != t ]] && [[ $sym_type != T ]]; then
--			[[ $print_warnings = 1 ]] &&
--				echo "skipping $func address at $addr due to non-function symbol of type '$sym_type'"
--			continue
--		fi
--
--		# if the user provided a size, make sure it matches the symbol's size
--		if [[ -n $size ]] && [[ $size -ne $sym_size ]]; then
-+		# If the user provided a size, make sure it matches the symbol's size:
-+		if [[ -n $user_size ]] && [[ $user_size -ne $sym_size ]]; then
- 			[[ $print_warnings = 1 ]] &&
--				echo "skipping $func address at $addr due to size mismatch ($size != $sym_size)"
-+				echo "skipping $sym_name address at $addr due to size mismatch ($user_size != $sym_size)"
- 			continue;
- 		fi
- 
--		# make sure the provided offset is within the symbol's range
-+		# Make sure the provided offset is within the symbol's range:
- 		if [[ $offset -gt $sym_size ]]; then
- 			[[ $print_warnings = 1 ]] &&
--				echo "skipping $func address at $addr due to size mismatch ($offset > $sym_size)"
-+				echo "skipping $sym_name address at $addr due to size mismatch ($offset > $sym_size)"
- 			continue
- 		fi
- 
--		# separate multiple entries with a blank line
-+		# In case of duplicates or multiple addresses specified on the
-+		# cmdline, separate multiple entries with a blank line:
- 		[[ $FIRST = 0 ]] && echo
- 		FIRST=0
- 
--		# pass real address to addr2line
--		echo "$func+$offset/$sym_size:"
--		local file_lines=$(${ADDR2LINE} -fpie $objfile $addr | sed "s; $dir_prefix\(\./\)*; ;")
--		[[ -z $file_lines ]] && return
-+		echo "$sym_name+$offset/$sym_size:"
- 
-+		# Pass section address to addr2line and strip absolute paths
-+		# from the output:
-+		local output=$(${ADDR2LINE} -fpie $objfile $addr | sed "s; $dir_prefix\(\./\)*; ;")
-+		[[ -z $output ]] && continue
-+
-+		# Default output (non --list):
- 		if [[ $LIST = 0 ]]; then
--			echo "$file_lines" | while read -r line
-+			echo "$output" | while read -r line
- 			do
- 				echo $line
- 			done
- 			DONE=1;
--			return
-+			continue
- 		fi
- 
--		# show each line with context
--		echo "$file_lines" | while read -r line
-+		# For --list, show each line with its corresponding source code:
-+		echo "$output" | while read -r line
- 		do
- 			echo
- 			echo $line
-@@ -184,12 +228,12 @@ __faddr2line() {
- 			n1=$[$n-5]
- 			n2=$[$n+5]
- 			f=$(echo $line | sed 's/.*at \(.\+\):.*/\1/g')
--			awk 'NR>=strtonum("'$n1'") && NR<=strtonum("'$n2'") { if (NR=='$n') printf(">%d<", NR); else printf(" %d ", NR); printf("\t%s\n", $0)}' $f
-+			${AWK} 'NR>=strtonum("'$n1'") && NR<=strtonum("'$n2'") { if (NR=='$n') printf(">%d<", NR); else printf(" %d ", NR); printf("\t%s\n", $0)}' $f
- 		done
- 
- 		DONE=1
- 
--	done < <(${NM} -n $objfile | awk -v fn=$func -v end=$file_end '$3 == fn { found=1; line=$0; start=$1; next } found == 1 { found=0; print line, "0x"$1 } END {if (found == 1) print line, end; }')
-+	done < <(${READELF} --symbols --wide $objfile | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
+ 	return mask;
  }
- 
- [[ $# -lt 2 ]] && usage
 -- 
 2.35.1
 
