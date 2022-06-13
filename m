@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FB9C548769
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 349A05487E3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380460AbiFMN67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:58:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54786 "EHLO
+        id S1358004AbiFMNAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:00:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380007AbiFMNwO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:52:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DAC321B5;
-        Mon, 13 Jun 2022 04:33:33 -0700 (PDT)
+        with ESMTP id S1357316AbiFMM6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:58:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D47AA2BC8;
+        Mon, 13 Jun 2022 04:17:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8004B6124B;
-        Mon, 13 Jun 2022 11:33:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64875C34114;
-        Mon, 13 Jun 2022 11:33:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 417E2B80EBA;
+        Mon, 13 Jun 2022 11:17:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1266C3411E;
+        Mon, 13 Jun 2022 11:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120011;
-        bh=oxGTbtwvaj7U3xe6gnO0r+B1urpG/4/B1Kwal/S4P40=;
+        s=korg; t=1655119051;
+        bh=7I9oYHps1lENRulcu3V187OBZAP6GOvuuPAqjStWvXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vuQKBbbRnJwfghtd3zOoj9Ht6UixeFqyIj6LtrMZdSwoFTnaAELUGhHmJG3dGDniB
-         DwEYqIeaTWJ+oSLBQ4GmIGuxRLmlZX3aR6OqDexkg2ou26O5LWgsaYJVkQg6zQh/Cu
-         56598q2WL7uyHAzGMhX08dzTCIt77nSvWZiATACM=
+        b=atY4NaN2lYRQXSgn4P6CpgNCDHgKBCtN4/VJSvqqZRDcdh6M7N7PzLUYtYCHhC2Q0
+         MCH5D6TugwYwJrnUuoPm143dYiMA25Js2ooGSJAuwNQtBK9ncALAVKwnDqyMRCKzq2
+         Lmd+oIG7ICoZz2iTD3rZOt7FxHa7CLCVpBcZdXxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 199/339] x86: drop bogus "cc" clobber from __try_cmpxchg_user_asm()
-Date:   Mon, 13 Jun 2022 12:10:24 +0200
-Message-Id: <20220613094932.701407264@linuxfoundation.org>
+Subject: [PATCH 5.15 123/247] NFSv4: Dont hold the layoutget locks across multiple RPC calls
+Date:   Mon, 13 Jun 2022 12:10:25 +0200
+Message-Id: <20220613094926.693030283@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 1df931d95f4dc1c11db1123e85d4e08156e46ef9 ]
+[ Upstream commit 6949493884fe88500de4af182588e071cf1544ee ]
 
-As noted (and fixed) a couple of times in the past, "=@cc<cond>" outputs
-and clobbering of "cc" don't work well together. The compiler appears to
-mean to reject such, but doesn't - in its upstream form - quite manage
-to yet for "cc". Furthermore two similar macros don't clobber "cc", and
-clobbering "cc" is pointless in asm()-s for x86 anyway - the compiler
-always assumes status flags to be clobbered there.
+When doing layoutget as part of the open() compound, we have to be
+careful to release the layout locks before we can call any further RPC
+calls, such as setattr(). The reason is that those calls could trigger
+a recall, which could deadlock.
 
-Fixes: 989b5db215a2 ("x86/uaccess: Implement macros for CMPXCHG on user addresses")
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Message-Id: <485c0c0b-a3a7-0b7c-5264-7d00c01de032@suse.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/uaccess.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
-index 35f222aa66bf..913e593a3b45 100644
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -439,7 +439,7 @@ do {									\
- 		       [ptr] "+m" (*_ptr),				\
- 		       [old] "+a" (__old)				\
- 		     : [new] ltype (__new)				\
--		     : "memory", "cc");					\
-+		     : "memory");					\
- 	if (unlikely(__err))						\
- 		goto label;						\
- 	if (unlikely(!success))						\
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 4bed3bb75ad5..cbb39aff8182 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -3108,6 +3108,10 @@ static int _nfs4_open_and_get_state(struct nfs4_opendata *opendata,
+ 	}
+ 
+ out:
++	if (opendata->lgp) {
++		nfs4_lgopen_release(opendata->lgp);
++		opendata->lgp = NULL;
++	}
+ 	if (!opendata->cancelled)
+ 		nfs4_sequence_free_slot(&opendata->o_res.seq_res);
+ 	return ret;
 -- 
 2.35.1
 
