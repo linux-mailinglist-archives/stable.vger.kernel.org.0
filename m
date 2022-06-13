@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A86654932A
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30CAD5495C7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358593AbiFMMHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:07:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57194 "EHLO
+        id S1351461AbiFMMYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:24:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358523AbiFMMEO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:04:14 -0400
+        with ESMTP id S1354965AbiFMMXv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35D6210B7;
-        Mon, 13 Jun 2022 03:57:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B0BA31511;
+        Mon, 13 Jun 2022 04:04:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 679F3B80E5E;
-        Mon, 13 Jun 2022 10:57:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C7DC34114;
-        Mon, 13 Jun 2022 10:57:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EA7DB80E92;
+        Mon, 13 Jun 2022 11:04:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D4C5C34114;
+        Mon, 13 Jun 2022 11:04:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117846;
-        bh=6kX7lQ3SI7tLqVTe2jkdJTUIYjwZCLNYfm1aGQ1vbEs=;
+        s=korg; t=1655118241;
+        bh=go+bLNCXMVhWeT4gE5HjpGEJBCskRbxmxK2/0B/cnJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRjGoRNLipBcIXKfUhFyAevd2hoFJw6Qp0uAVGB+apTYyGrvKsVlrKs1SSX+/oN+m
-         cbmaTCItc55PWkROYf/mEMG5Y2HaLpqum5MW32U3TDI97bHDYuNJ9CCmS5BtDGKYbN
-         TX8LRM9NHZnjNUMlUqfK745MbNLcLzq6EjbqFIyQ=
+        b=LiHJ7ArFuE4Pg64EWkv+rBo+4YXiASsUIBxym//enqt16lI0BUlleOytLM2CIeRwd
+         Wdwjas4BChUZCPvPY9lJkx5zQllJSmTrKKfIRFR4T8vLETcM6LuENoF0dMx3ihSWXA
+         yMeZyzlVJpG/QOU2g6Dmwty4I1g4QynXlMzyuu18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Wang Weiyang <wangweiyang2@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 141/287] perf jevents: Fix event syntax error caused by ExtSel
+Subject: [PATCH 5.10 005/172] tty: goldfish: Use tty_port_destroy() to destroy port
 Date:   Mon, 13 Jun 2022 12:09:25 +0200
-Message-Id: <20220613094928.152252119@linuxfoundation.org>
+Message-Id: <20220613094851.624021318@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,57 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+From: Wang Weiyang <wangweiyang2@huawei.com>
 
-[ Upstream commit f4df0dbbe62ee8e4405a57b27ccd54393971c773 ]
+[ Upstream commit 507b05063d1b7a1fcb9f7d7c47586fc4f3508f98 ]
 
-In the origin code, when "ExtSel" is 1, the eventcode will change to
-"eventcode |= 1 << 21”. For event “UNC_Q_RxL_CREDITS_CONSUMED_VN0.DRS",
-its "ExtSel" is "1", its eventcode will change from 0x1E to 0x20001E,
-but in fact the eventcode should <=0x1FF, so this will cause the parse
-fail:
+In goldfish_tty_probe(), the port initialized through tty_port_init()
+should be destroyed in error paths.In goldfish_tty_remove(), qtty->port
+also should be destroyed or else might leak resources.
 
-  # perf stat -e "UNC_Q_RxL_CREDITS_CONSUMED_VN0.DRS" -a sleep 0.1
-  event syntax error: '.._RxL_CREDITS_CONSUMED_VN0.DRS'
-                                    \___ value too big for format, maximum is 511
+Fix the above by calling tty_port_destroy().
 
-On the perf kernel side, the kernel assumes the valid bits are continuous.
-It will adjust the 0x100 (bit 8 for perf tool) to bit 21 in HW.
-
-DEFINE_UNCORE_FORMAT_ATTR(event_ext, event, "config:0-7,21");
-
-So the perf tool follows the kernel side and just set bit8 other than bit21.
-
-Fixes: fedb2b518239cbc0 ("perf jevents: Add support for parsing uncore json files")
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Xing Zhengjun <zhengjun.xing@linux.intel.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220525140410.1706851-1-zhengjun.xing@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 666b7793d4bf ("goldfish: tty driver")
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
+Link: https://lore.kernel.org/r/20220328115844.86032-1-wangweiyang2@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/pmu-events/jevents.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/goldfish.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
-index 31331c42b0e3..0f5a63026d21 100644
---- a/tools/perf/pmu-events/jevents.c
-+++ b/tools/perf/pmu-events/jevents.c
-@@ -563,7 +563,7 @@ int json_events(const char *fn,
- 			} else if (json_streq(map, field, "ExtSel")) {
- 				char *code = NULL;
- 				addfield(map, &code, "", "", val);
--				eventcode |= strtoul(code, NULL, 0) << 21;
-+				eventcode |= strtoul(code, NULL, 0) << 8;
- 				free(code);
- 			} else if (json_streq(map, field, "EventName")) {
- 				addfield(map, &name, "", "", val);
+diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
+index c8c5cdfc5e19..abc84d84f638 100644
+--- a/drivers/tty/goldfish.c
++++ b/drivers/tty/goldfish.c
+@@ -407,6 +407,7 @@ static int goldfish_tty_probe(struct platform_device *pdev)
+ err_tty_register_device_failed:
+ 	free_irq(irq, qtty);
+ err_dec_line_count:
++	tty_port_destroy(&qtty->port);
+ 	goldfish_tty_current_line_count--;
+ 	if (goldfish_tty_current_line_count == 0)
+ 		goldfish_tty_delete_driver();
+@@ -428,6 +429,7 @@ static int goldfish_tty_remove(struct platform_device *pdev)
+ 	iounmap(qtty->base);
+ 	qtty->base = NULL;
+ 	free_irq(qtty->irq, pdev);
++	tty_port_destroy(&qtty->port);
+ 	goldfish_tty_current_line_count--;
+ 	if (goldfish_tty_current_line_count == 0)
+ 		goldfish_tty_delete_driver();
 -- 
 2.35.1
 
