@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C525F548DAD
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FB4A548B94
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356017AbiFMLtu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:49:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53932 "EHLO
+        id S1377970AbiFMNki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:40:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356172AbiFMLsZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:48:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75E5C20BC6;
-        Mon, 13 Jun 2022 03:52:55 -0700 (PDT)
+        with ESMTP id S1378634AbiFMNjG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC6767891A;
+        Mon, 13 Jun 2022 04:27:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4471B61257;
-        Mon, 13 Jun 2022 10:52:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 589B0C34114;
-        Mon, 13 Jun 2022 10:52:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55FB3B80EA8;
+        Mon, 13 Jun 2022 11:27:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7C4AC3411C;
+        Mon, 13 Jun 2022 11:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117574;
-        bh=zfVYQZExyk2+PW74rnQ2CE7NuMP51ZzEX49QRBSfEM8=;
+        s=korg; t=1655119664;
+        bh=5KK2CwmryHRpgwOVonR+RYx+OZFduKmyzbH94Fe4iJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ruTQOPRu867ES8fErIdRdDBo8qbLPjqzHiCEWX+kxQovx++z7hPeJ89BwZYn++rRP
-         +1DwpHFfkCA6pFzo5mCJa7Xsr4ISKr81yTMBxX1IqUUuOvFQlrxH0WBV+gyLPu1Ksr
-         dYlweQCfH9yW3LNT2oAcgMRA50xGjUuHTjWix9pk=
+        b=bAnGkDh0Q+X4C4Rbd/+Eb8HJCjnSR/bhvupe3KLfHlln8ABbU75kd67/m7tF5WHqo
+         ZHX8oKdmVuUmgTtSjDdnziShuoxLv4ujgWKEhAdTtETRurENJZCtRJNjuqIyEQy2mN
+         DXgCGihDVN8bQSVmMw+EP5uT9EvvhdfIonQfVj24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
+        stable@vger.kernel.org,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Zhiqiang Lin <zhiqiang.lin@mediatek.com>,
-        CK Hu <ck.hu@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        "kernelci.org bot" <bot@kernelci.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 064/287] drm/mediatek: Fix mtk_cec_mask()
-Date:   Mon, 13 Jun 2022 12:08:08 +0200
-Message-Id: <20220613094925.811122915@linuxfoundation.org>
+Subject: [PATCH 5.18 064/339] Revert "serial: 8250_mtk: Make sure to select the right FEATURE_SEL"
+Date:   Mon, 13 Jun 2022 12:08:09 +0200
+Message-Id: <20220613094928.464950203@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,43 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miles Chen <miles.chen@mediatek.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 2c5d69b0a141e1e98febe3111e6f4fd8420493a5 ]
+[ Upstream commit f0136f65285bcfb7e8f90d1013723076a35acd51 ]
 
-In current implementation, mtk_cec_mask() writes val into target register
-and ignores the mask. After talking to our hdmi experts, mtk_cec_mask()
-should read a register, clean only mask bits, and update (val | mask) bits
-to the register.
+It was found that some MediaTek SoCs are incompatible with this
+change. Also, this register was mistakenly understood as it was
+related to the 16550A register layout selection but, at least
+on some IPs, if not all, it's related to something else unknown.
 
-Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20220315232301.2434-1-miles.chen@mediatek.com/
-Fixes: 8f83f26891e1 ("drm/mediatek: Add HDMI support")
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Zhiqiang Lin <zhiqiang.lin@mediatek.com>
-Cc: CK Hu <ck.hu@mediatek.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+This reverts commit 6f81fdded0d024c7d4084d434764f30bca1cd6b1.
+
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Fixes: 6f81fdded0d0 ("serial: 8250_mtk: Make sure to select the right FEATURE_SEL")
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Link: https://lore.kernel.org/r/20220510122620.150342-1-angelogioacchino.delregno@collabora.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_cec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_mtk.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_cec.c b/drivers/gpu/drm/mediatek/mtk_cec.c
-index 5ce84d0dbf81..acbf878083d7 100644
---- a/drivers/gpu/drm/mediatek/mtk_cec.c
-+++ b/drivers/gpu/drm/mediatek/mtk_cec.c
-@@ -92,7 +92,7 @@ static void mtk_cec_mask(struct mtk_cec *cec, unsigned int offset,
- 	u32 tmp = readl(cec->regs + offset) & ~mask;
+diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
+index 21053db93ff1..54051ec7b499 100644
+--- a/drivers/tty/serial/8250/8250_mtk.c
++++ b/drivers/tty/serial/8250/8250_mtk.c
+@@ -54,9 +54,6 @@
+ #define MTK_UART_TX_TRIGGER	1
+ #define MTK_UART_RX_TRIGGER	MTK_UART_RX_SIZE
  
- 	tmp |= val & mask;
--	writel(val, cec->regs + offset);
-+	writel(tmp, cec->regs + offset);
- }
+-#define MTK_UART_FEATURE_SEL	39	/* Feature Selection register */
+-#define MTK_UART_FEAT_NEWRMAP	BIT(0)	/* Use new register map */
+-
+ #define MTK_UART_XON1		40	/* I/O: Xon character 1 */
+ #define MTK_UART_XOFF1		42	/* I/O: Xoff character 1 */
  
- void mtk_cec_set_hpd_event(struct device *dev,
+@@ -575,10 +572,6 @@ static int mtk8250_probe(struct platform_device *pdev)
+ 		uart.dma = data->dma;
+ #endif
+ 
+-	/* Set AP UART new register map */
+-	writel(MTK_UART_FEAT_NEWRMAP, uart.port.membase +
+-	       (MTK_UART_FEATURE_SEL << uart.port.regshift));
+-
+ 	/* Disable Rate Fix function */
+ 	writel(0x0, uart.port.membase +
+ 			(MTK_UART_RATE_FIX << uart.port.regshift));
 -- 
 2.35.1
 
