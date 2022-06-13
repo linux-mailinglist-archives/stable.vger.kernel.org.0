@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36BCE548B3F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26F475495F3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241387AbiFMMtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:49:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34394 "EHLO
+        id S1351517AbiFMMYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:24:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356301AbiFMMsp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:48:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E3566223C;
-        Mon, 13 Jun 2022 04:11:44 -0700 (PDT)
+        with ESMTP id S1355084AbiFMMXx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70ACD313A1;
+        Mon, 13 Jun 2022 04:04:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F751608C3;
-        Mon, 13 Jun 2022 11:11:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5884EC34114;
-        Mon, 13 Jun 2022 11:11:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E0A5CCE1176;
+        Mon, 13 Jun 2022 11:04:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDFF4C34114;
+        Mon, 13 Jun 2022 11:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118686;
-        bh=IhUtz9jVbqvCOmOqsUmTRlRO4beTo/ueWOj5DeHBtek=;
+        s=korg; t=1655118247;
+        bh=X2GlBPW4FLORKb18K+0SK7mzNqyfqz6KrvGsXzJTf5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VZxJAJ6gOu3jw4JwQLd1iY9Ll/Fv7d4bVCPdFtxSipkK0wKPqaKfysInZFSeISouQ
-         GitLNHFTEJCtj2Jd+fJYK4aA03TqLo3B0lfKDBb6ZlxKwrMH4JYkHl9UY+IEsCMDCq
-         +Twzvfs1sRqiQhOkaLqhdMsvIxUZKH3rH77r0ffY=
+        b=caoi3ynOsjQ2odTRgIbFleqZDCsA564bA4++6kThmxrn3TbAQU3ypRnWyakxPVW7k
+         0zg5zc+qp+03UyXpDy+O8frpO7MyadRhbSkWCu1uVQI7cOf+7tstBfVLg4t2WLtpmI
+         WR1TfZXKxWOAo+lRv9FNpX2vfKpJQl1DPRDeutqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 142/172] jump_label,noinstr: Avoid instrumentation for JUMP_LABEL=n builds
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 278/287] mmc: block: Fix CQE recovery reset success
 Date:   Mon, 13 Jun 2022 12:11:42 +0200
-Message-Id: <20220613094922.100865784@linuxfoundation.org>
+Message-Id: <20220613094932.426223832@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 656d054e0a15ec327bd82801ccd58201e59f6896 ]
+commit a051246b786af7e4a9d9219cc7038a6e8a411531 upstream.
 
-When building x86_64 with JUMP_LABEL=n it's possible for
-instrumentation to sneak into noinstr:
+The intention of the use of mmc_blk_reset_success() in
+mmc_blk_cqe_recovery() was to prevent repeated resets when retrying and
+getting the same error. However, that may not be the case - any amount
+of time and I/O may pass before another recovery is needed, in which
+case there would be no reason to deny it the opportunity to recover via
+a reset if necessary. CQE recovery is expected seldom and failure to
+recover (if the clear tasks command fails), even more seldom, so it is
+better to allow the reset always, which can be done by calling
+mmc_blk_reset_success() always.
 
-vmlinux.o: warning: objtool: exit_to_user_mode+0x14: call to static_key_count.constprop.0() leaves .noinstr.text section
-vmlinux.o: warning: objtool: syscall_exit_to_user_mode+0x2d: call to static_key_count.constprop.0() leaves .noinstr.text section
-vmlinux.o: warning: objtool: irqentry_exit_to_user_mode+0x1b: call to static_key_count.constprop.0() leaves .noinstr.text section
-
-Switch to arch_ prefixed atomic to avoid the explicit instrumentation.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1e8e55b67030c6 ("mmc: block: Add CQE support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20220531171922.76080-1-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/jump_label.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/core/block.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/include/linux/jump_label.h b/include/linux/jump_label.h
-index 32809624d422..e67ee4d7318f 100644
---- a/include/linux/jump_label.h
-+++ b/include/linux/jump_label.h
-@@ -249,9 +249,9 @@ extern void static_key_disable_cpuslocked(struct static_key *key);
- #include <linux/atomic.h>
- #include <linux/bug.h>
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -1499,8 +1499,7 @@ void mmc_blk_cqe_recovery(struct mmc_que
+ 	err = mmc_cqe_recovery(host);
+ 	if (err)
+ 		mmc_blk_reset(mq->blkdata, host, MMC_BLK_CQE_RECOVERY);
+-	else
+-		mmc_blk_reset_success(mq->blkdata, MMC_BLK_CQE_RECOVERY);
++	mmc_blk_reset_success(mq->blkdata, MMC_BLK_CQE_RECOVERY);
  
--static inline int static_key_count(struct static_key *key)
-+static __always_inline int static_key_count(struct static_key *key)
- {
--	return atomic_read(&key->enabled);
-+	return arch_atomic_read(&key->enabled);
+ 	pr_debug("%s: CQE recovery done\n", mmc_hostname(host));
  }
- 
- static __always_inline void jump_label_init(void)
--- 
-2.35.1
-
 
 
