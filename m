@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD27A5494D3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C83C549960
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386467AbiFMOti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:49:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42894 "EHLO
+        id S229808AbiFMQ7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 12:59:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385823AbiFMOsm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:48:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95FEAC0472;
-        Mon, 13 Jun 2022 04:52:57 -0700 (PDT)
+        with ESMTP id S241643AbiFMQ61 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 12:58:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CC6CBA98E;
+        Mon, 13 Jun 2022 04:51:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5703B61499;
-        Mon, 13 Jun 2022 11:52:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8896C34114;
-        Mon, 13 Jun 2022 11:52:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8BD5EB80D31;
+        Mon, 13 Jun 2022 11:51:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 049D4C34114;
+        Mon, 13 Jun 2022 11:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121176;
-        bh=G0vA+oHO6Pf/NwOimi2XtgklJgsVBvKZSqkj2BqgjLQ=;
+        s=korg; t=1655121113;
+        bh=HE9pJc3MBTefg0BQ/7370zg4d3v6Fos68pQ6N+Ze2nE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u5y836JwH7Yo4aKFTe7zemqJ/LQtrmSDCtEUZjxgtcNY5YknVWKxXU9/hReL9oXx/
-         PhszAcAbOFojZMzSDfehvIPVFHRY9ISQZkWjDSfwgj5cfvTZ096WgC7QjTyf87IWAl
-         OTjZStEAogY/B+6wZqvwvxHZPBxuK5kucHLzu8oo=
+        b=nIOC1lFRPug7FX8wb+3357PTKqlBQw5lbOZUDnRg+utD8eXINkJKgydhUkf6ftpc9
+         Xc2sHFo5Lyz36KUH5xDQui3dwVrQZCuv8grtlAlMSL0Z7p783MHtFtDAO+P42QcSnz
+         2Ikjyld7XlMJbt/xLcr29VF8Q68PdUptEjjuujQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Faltesek <mfaltesek@google.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.17 276/298] nfc: st21nfca: fix incorrect sizing calculations in EVT_TRANSACTION
-Date:   Mon, 13 Jun 2022 12:12:50 +0200
-Message-Id: <20220613094933.449084975@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Olivier Matz <olivier.matz@6wind.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.17 277/298] ixgbe: fix bcast packets Rx on VF after promisc removal
+Date:   Mon, 13 Jun 2022 12:12:51 +0200
+Message-Id: <20220613094933.480815324@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
 References: <20220613094924.913340374@linuxfoundation.org>
@@ -55,131 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Faltesek <mfaltesek@google.com>
+From: Olivier Matz <olivier.matz@6wind.com>
 
-commit f2e19b36593caed4c977c2f55aeba7408aeb2132 upstream.
+commit 803e9895ea2b0fe80bc85980ae2d7a7e44037914 upstream.
 
-The transaction buffer is allocated by using the size of the packet buf,
-and subtracting two which seem intended to remove the two tags which are
-not present in the target structure. This calculation leads to under
-counting memory because of differences between the packet contents and the
-target structure. The aid_len field is a u8 in the packet, but a u32 in
-the structure, resulting in at least 3 bytes always being under counted.
-Further, the aid data is a variable length field in the packet, but fixed
-in the structure, so if this field is less than the max, the difference is
-added to the under counting.
+After a VF requested to remove the promiscuous flag on an interface, the
+broadcast packets are not received anymore. This breaks some protocols
+like ARP.
 
-The last validation check for transaction->params_len is also incorrect
-since it employs the same accounting error.
+In ixgbe_update_vf_xcast_mode(), we should keep the IXGBE_VMOLR_BAM
+bit (Broadcast Accept) on promiscuous removal.
 
-To fix, perform validation checks progressively to safely reach the
-next field, to determine the size of both buffers and verify both tags.
-Once all validation checks pass, allocate the buffer and copy the data.
-This eliminates freeing memory on the error path, as those checks are
-moved ahead of memory allocation.
+This flag is already set by default in ixgbe_set_vmolr() on VF reset.
 
-Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
-Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
+Fixes: 8443c1a4b192 ("ixgbe, ixgbevf: Add new mbox API xcast mode")
 Cc: stable@vger.kernel.org
-Signed-off-by: Martin Faltesek <mfaltesek@google.com>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: Olivier Matz <olivier.matz@6wind.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/st21nfca/se.c |   62 +++++++++++++++++++++++-----------------------
- 1 file changed, 31 insertions(+), 31 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/nfc/st21nfca/se.c
-+++ b/drivers/nfc/st21nfca/se.c
-@@ -300,6 +300,8 @@ int st21nfca_connectivity_event_received
- 	int r = 0;
- 	struct device *dev = &hdev->ndev->dev;
- 	struct nfc_evt_transaction *transaction;
-+	u32 aid_len;
-+	u8 params_len;
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+@@ -1157,9 +1157,9 @@ static int ixgbe_update_vf_xcast_mode(st
  
- 	pr_debug("connectivity gate event: %x\n", event);
- 
-@@ -308,50 +310,48 @@ int st21nfca_connectivity_event_received
- 		r = nfc_se_connectivity(hdev->ndev, host);
- 	break;
- 	case ST21NFCA_EVT_TRANSACTION:
--		/*
--		 * According to specification etsi 102 622
-+		/* According to specification etsi 102 622
- 		 * 11.2.2.4 EVT_TRANSACTION Table 52
- 		 * Description	Tag	Length
- 		 * AID		81	5 to 16
- 		 * PARAMETERS	82	0 to 255
-+		 *
-+		 * The key differences are aid storage length is variably sized
-+		 * in the packet, but fixed in nfc_evt_transaction, and that the aid_len
-+		 * is u8 in the packet, but u32 in the structure, and the tags in
-+		 * the packet are not included in nfc_evt_transaction.
-+		 *
-+		 * size in bytes: 1          1       5-16 1             1           0-255
-+		 * offset:        0          1       2    aid_len + 2   aid_len + 3 aid_len + 4
-+		 * member name:   aid_tag(M) aid_len aid  params_tag(M) params_len  params
-+		 * example:       0x81       5-16    X    0x82 0-255    X
- 		 */
--		if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
--		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
-+		if (skb->len < 2 || skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
- 			return -EPROTO;
- 
--		transaction = devm_kzalloc(dev, skb->len - 2, GFP_KERNEL);
--		if (!transaction)
--			return -ENOMEM;
-+		aid_len = skb->data[1];
-+
-+		if (skb->len < aid_len + 4 || aid_len > sizeof(transaction->aid))
-+			return -EPROTO;
- 
--		transaction->aid_len = skb->data[1];
-+		params_len = skb->data[aid_len + 3];
- 
--		/* Checking if the length of the AID is valid */
--		if (transaction->aid_len > sizeof(transaction->aid)) {
--			devm_kfree(dev, transaction);
--			return -EINVAL;
--		}
--
--		memcpy(transaction->aid, &skb->data[2],
--		       transaction->aid_len);
--
--		/* Check next byte is PARAMETERS tag (82) */
--		if (skb->data[transaction->aid_len + 2] !=
--		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
--			devm_kfree(dev, transaction);
-+		/* Verify PARAMETERS tag is (82), and final check that there is enough
-+		 * space in the packet to read everything.
-+		 */
-+		if ((skb->data[aid_len + 2] != NFC_EVT_TRANSACTION_PARAMS_TAG) ||
-+		    (skb->len < aid_len + 4 + params_len))
- 			return -EPROTO;
--		}
- 
--		transaction->params_len = skb->data[transaction->aid_len + 3];
-+		transaction = devm_kzalloc(dev, sizeof(*transaction) + params_len, GFP_KERNEL);
-+		if (!transaction)
-+			return -ENOMEM;
- 
--		/* Total size is allocated (skb->len - 2) minus fixed array members */
--		if (transaction->params_len > ((skb->len - 2) -
--		    sizeof(struct nfc_evt_transaction))) {
--			devm_kfree(dev, transaction);
--			return -EINVAL;
--		}
-+		transaction->aid_len = aid_len;
-+		transaction->params_len = params_len;
- 
--		memcpy(transaction->params, skb->data +
--		       transaction->aid_len + 4, transaction->params_len);
-+		memcpy(transaction->aid, &skb->data[2], aid_len);
-+		memcpy(transaction->params, &skb->data[aid_len + 4], params_len);
- 
- 		r = nfc_se_transaction(hdev->ndev, host, transaction);
- 	break;
+ 	switch (xcast_mode) {
+ 	case IXGBEVF_XCAST_MODE_NONE:
+-		disable = IXGBE_VMOLR_BAM | IXGBE_VMOLR_ROMPE |
++		disable = IXGBE_VMOLR_ROMPE |
+ 			  IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE | IXGBE_VMOLR_VPE;
+-		enable = 0;
++		enable = IXGBE_VMOLR_BAM;
+ 		break;
+ 	case IXGBEVF_XCAST_MODE_MULTI:
+ 		disable = IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE | IXGBE_VMOLR_VPE;
 
 
