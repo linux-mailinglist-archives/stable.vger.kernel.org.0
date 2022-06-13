@@ -2,57 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE791548998
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 973A3549558
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357700AbiFMMF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:05:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59576 "EHLO
+        id S1351381AbiFMM0E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:26:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359151AbiFMMFT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E1F512AAC;
-        Mon, 13 Jun 2022 03:59:03 -0700 (PDT)
+        with ESMTP id S1351110AbiFMMYe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:24:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A67B32070;
+        Mon, 13 Jun 2022 04:05:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEBE760F9A;
-        Mon, 13 Jun 2022 10:59:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4412C34114;
-        Mon, 13 Jun 2022 10:59:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F80AB80EA7;
+        Mon, 13 Jun 2022 11:05:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 872B6C3411E;
+        Mon, 13 Jun 2022 11:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117942;
-        bh=1deBv8pWO4EhlblSV+d3qc0OS1zA34siQuYQ1ppkR98=;
+        s=korg; t=1655118333;
+        bh=LsfXx9mj6vCQyFQbdjoO7ySg3vDqSm8HORCOo3hBCxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M2SjwOqiUcxy/EUEZd8gACipjIGZ1h7DeYBvPpaPyh5kewhp6xsPW10kqscjygUP7
-         nWUAlIup+YhRlWnbJXIw51J6LDPsoBO0ghcg/7N0Y6HNB08lr253pLqFYMgUDjqQft
-         xdOb9QYh1hwqEwxWbTAUf9tLDXEkfaygmlIUIvq0=
+        b=dQTPlAa7H7qN/e7nBwgsfaGwKIVGB14JSCC4k0dCAgD8AI+0VhgbJ2pRveyZqkP6u
+         UXT9UDg1h1NFkB4cVbneHTnMGl/l9uTKP9PZAEiLpY9f+444eYYY98VwBCFFlEqVoN
+         WyRZcdrIQwiQE9Mnn7DS+75xc8kdBEubOkyVjx8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe de Dinechin <christophe@dinechin.org>,
-        Christophe de Dinechin <dinechin@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ben Segall <bsegall@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 4.19 174/287] nodemask.h: fix compilation error with GCC12
+        stable@vger.kernel.org, Paul Walmsley <paul.walmsley@sifive.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 038/172] serial: sifive: Sanitize CSIZE and c_iflag
 Date:   Mon, 13 Jun 2022 12:09:58 +0200
-Message-Id: <20220613094929.147608458@linuxfoundation.org>
+Message-Id: <20220613094859.510264149@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,92 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe de Dinechin <dinechin@redhat.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 37462a920392cb86541650a6f4121155f11f1199 upstream.
+[ Upstream commit c069d2756c01ed36121fae6a42c14fdf1325c71d ]
 
-With gcc version 12.0.1 20220401 (Red Hat 12.0.1-0), building with
-defconfig results in the following compilation error:
+Only CS8 is supported but CSIZE was not sanitized to CS8.
 
-|   CC      mm/swapfile.o
-| mm/swapfile.c: In function `setup_swap_info':
-| mm/swapfile.c:2291:47: error: array subscript -1 is below array bounds
-|  of `struct plist_node[]' [-Werror=array-bounds]
-|  2291 |                                 p->avail_lists[i].prio = 1;
-|       |                                 ~~~~~~~~~~~~~~^~~
-| In file included from mm/swapfile.c:16:
-| ./include/linux/swap.h:292:27: note: while referencing `avail_lists'
-|   292 |         struct plist_node avail_lists[]; /*
-|       |                           ^~~~~~~~~~~
+Set CSIZE correctly so that userspace knows the effective value.
+Incorrect CSIZE also results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
 
-This is due to the compiler detecting that the mask in
-node_states[__state] could theoretically be zero, which would lead to
-first_node() returning -1 through find_first_bit.
+Similarly, INPCK, PARMRK, and BRKINT are reported textually unsupported
+but were not cleared in termios c_iflag which is the machine-readable
+format.
 
-I believe that the warning/error is legitimate.  I first tried adding a
-test to check that the node mask is not emtpy, since a similar test exists
-in the case where MAX_NUMNODES == 1.
-
-However, adding the if statement causes other warnings to appear in
-for_each_cpu_node_but, because it introduces a dangling else ambiguity.
-And unfortunately, GCC is not smart enough to detect that the added test
-makes the case where (node) == -1 impossible, so it still complains with
-the same message.
-
-This is why I settled on replacing that with a harmless, but relatively
-useless (node) >= 0 test.  Based on the warning for the dangling else, I
-also decided to fix the case where MAX_NUMNODES == 1 by moving the
-condition inside the for loop.  It will still only be tested once.  This
-ensures that the meaning of an else following for_each_node_mask or
-derivatives would not silently have a different meaning depending on the
-configuration.
-
-Link: https://lkml.kernel.org/r/20220414150855.2407137-3-dinechin@redhat.com
-Signed-off-by: Christophe de Dinechin <christophe@dinechin.org>
-Signed-off-by: Christophe de Dinechin <dinechin@redhat.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Zhen Lei <thunder.leizhen@huawei.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 45c054d0815b (tty: serial: add driver for the SiFive UART)
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-7-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/nodemask.h |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/tty/serial/sifive.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/include/linux/nodemask.h
-+++ b/include/linux/nodemask.h
-@@ -375,14 +375,13 @@ static inline void __nodes_fold(nodemask
- }
+diff --git a/drivers/tty/serial/sifive.c b/drivers/tty/serial/sifive.c
+index 24036a02a424..91952be01074 100644
+--- a/drivers/tty/serial/sifive.c
++++ b/drivers/tty/serial/sifive.c
+@@ -667,12 +667,16 @@ static void sifive_serial_set_termios(struct uart_port *port,
+ 	int rate;
+ 	char nstop;
  
- #if MAX_NUMNODES > 1
--#define for_each_node_mask(node, mask)			\
--	for ((node) = first_node(mask);			\
--		(node) < MAX_NUMNODES;			\
--		(node) = next_node((node), (mask)))
-+#define for_each_node_mask(node, mask)				    \
-+	for ((node) = first_node(mask);				    \
-+	     (node >= 0) && (node) < MAX_NUMNODES;		    \
-+	     (node) = next_node((node), (mask)))
- #else /* MAX_NUMNODES == 1 */
--#define for_each_node_mask(node, mask)			\
--	if (!nodes_empty(mask))				\
--		for ((node) = 0; (node) < 1; (node)++)
-+#define for_each_node_mask(node, mask)                                  \
-+	for ((node) = 0; (node) < 1 && !nodes_empty(mask); (node)++)
- #endif /* MAX_NUMNODES */
+-	if ((termios->c_cflag & CSIZE) != CS8)
++	if ((termios->c_cflag & CSIZE) != CS8) {
+ 		dev_err_once(ssp->port.dev, "only 8-bit words supported\n");
++		termios->c_cflag &= ~CSIZE;
++		termios->c_cflag |= CS8;
++	}
+ 	if (termios->c_iflag & (INPCK | PARMRK))
+ 		dev_err_once(ssp->port.dev, "parity checking not supported\n");
+ 	if (termios->c_iflag & BRKINT)
+ 		dev_err_once(ssp->port.dev, "BREAK detection not supported\n");
++	termios->c_iflag &= ~(INPCK|PARMRK|BRKINT);
  
- /*
+ 	/* Set number of stop bits */
+ 	nstop = (termios->c_cflag & CSTOPB) ? 2 : 1;
+-- 
+2.35.1
+
 
 
