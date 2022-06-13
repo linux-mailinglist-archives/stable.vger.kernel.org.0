@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D61E354986E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 649DE548DF2
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377522AbiFMNdH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:33:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51936 "EHLO
+        id S1352760AbiFMLVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:21:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378311AbiFMNbU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:31:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AE716FD2C;
-        Mon, 13 Jun 2022 04:25:54 -0700 (PDT)
+        with ESMTP id S1352896AbiFMLTB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF77C39833;
+        Mon, 13 Jun 2022 03:40:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97175B80EA7;
-        Mon, 13 Jun 2022 11:25:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0964BC34114;
-        Mon, 13 Jun 2022 11:25:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDD98610A0;
+        Mon, 13 Jun 2022 10:40:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDEBBC34114;
+        Mon, 13 Jun 2022 10:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119551;
-        bh=dHrpiGBjW9rbIO3xNAUzBvjMwbqUsruwtApSEy5CXQc=;
+        s=korg; t=1655116846;
+        bh=YxJ7oQOItiFqndzNT7SS3Vf+Ghx4qKzyaMSvq5xiiC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mvVJn+MbdjDJplpZevE1DzRDvI3S4Ch1gHt2izLeL97SIGpZs8oy6JUl1ECFOF30p
-         MRnkpBn70/AWVfANQa2Xwcf9VMvdSY3g8G+9SFCRjbqKLEA5wzQIg9kb82z+uTids7
-         29GdSFoY9SdR1XdmEKUNapALbBF6Ic0HIHtMo1E4=
+        b=Xr4Mfh3RoqG1JDIHXoPPi8dUU0WlCDpfkOy6ANfwypQMNb5QOyB5oO4FjWPAieJ6o
+         Mhe5/WSl//3i83cKg7/i1E56/n9bOyR1xvZA3YVGwfqGV6e9sW592R+ZbDQSAhX2Zv
+         RkMIUnsRrUAzRkrvMenaqAGEjDtcQqCiZFkKExrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 054/339] ksmbd: fix reference count leak in smb_check_perm_dacl()
+        stable@vger.kernel.org, "D. Ziegfeld" <dzigg@posteo.de>,
+        =?UTF-8?q?J=C3=B6rg-Volker=20Peetz?= <jvpeetz@web.de>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 206/411] iommu/amd: Increase timeout waiting for GA log enablement
 Date:   Mon, 13 Jun 2022 12:07:59 +0200
-Message-Id: <20220613094928.161742164@linuxfoundation.org>
+Message-Id: <20220613094934.834339349@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit d21a580dafc69aa04f46e6099616146a536b0724 ]
+[ Upstream commit 42bb5aa043382f09bef2cc33b8431be867c70f8e ]
 
-The issue happens in a specific path in smb_check_perm_dacl(). When
-"id" and "uid" have the same value, the function simply jumps out of
-the loop without decrementing the reference count of the object
-"posix_acls", which is increased by get_acl() earlier. This may
-result in memory leaks.
+On some systems it can take a long time for the hardware to enable the
+GA log of the AMD IOMMU. The current wait time is only 0.1ms, but
+testing showed that it can take up to 14ms for the GA log to enter
+running state after it has been enabled.
 
-Fix it by decreasing the reference count of "posix_acls" before
-jumping to label "check_access_bits".
+Sometimes the long delay happens when booting the system, sometimes
+only on resume. Adjust the timeout accordingly to not print a warning
+when hardware takes a longer than usual.
 
-Fixes: 777cad1604d6 ("ksmbd: remove select FS_POSIX_ACL in Kconfig")
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+There has already been an attempt to fix this with commit
+
+	9b45a7738eec ("iommu/amd: Fix loop timeout issue in iommu_ga_log_enable()")
+
+But that commit was based on some wrong math and did not fix the issue
+in all cases.
+
+Cc: "D. Ziegfeld" <dzigg@posteo.de>
+Cc: Jörg-Volker Peetz <jvpeetz@web.de>
+Fixes: 8bda0cfbdc1a ("iommu/amd: Detect and initialize guest vAPIC log")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lore.kernel.org/r/20220520102214.12563-1-joro@8bytes.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smbacl.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iommu/amd_iommu_init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ksmbd/smbacl.c b/fs/ksmbd/smbacl.c
-index 6ecf55ea1fed..38f23bf981ac 100644
---- a/fs/ksmbd/smbacl.c
-+++ b/fs/ksmbd/smbacl.c
-@@ -1261,6 +1261,7 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
- 					if (!access_bits)
- 						access_bits =
- 							SET_MINIMUM_RIGHTS;
-+					posix_acl_release(posix_acls);
- 					goto check_access_bits;
- 				}
- 			}
+diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
+index 7502fa84e253..82d008310418 100644
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -83,7 +83,7 @@
+ #define ACPI_DEVFLAG_LINT1              0x80
+ #define ACPI_DEVFLAG_ATSDIS             0x10000000
+ 
+-#define LOOP_TIMEOUT	100000
++#define LOOP_TIMEOUT	2000000
+ /*
+  * ACPI table definitions
+  *
 -- 
 2.35.1
 
