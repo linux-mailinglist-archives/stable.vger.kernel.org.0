@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D65654924D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDF2B548B69
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241979AbiFMKRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:17:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58352 "EHLO
+        id S1381260AbiFMOIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241974AbiFMKRn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:17:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 739EDCE2A;
-        Mon, 13 Jun 2022 03:15:42 -0700 (PDT)
+        with ESMTP id S1382598AbiFMOGG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:06:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 666F695DED;
+        Mon, 13 Jun 2022 04:41:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65954B80E5C;
-        Mon, 13 Jun 2022 10:15:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB5E4C34114;
-        Mon, 13 Jun 2022 10:15:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8060AB80D31;
+        Mon, 13 Jun 2022 11:40:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6759C34114;
+        Mon, 13 Jun 2022 11:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115330;
-        bh=XCrqjfc7I0Avaka7xzYkfiK9KH0nx9ROGhToQyIvzI0=;
+        s=korg; t=1655120458;
+        bh=28hVbwrBlTsfQv2+VKD9WOmazeddOyy/E8ouUEiCXM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWhXGrToMfm4IeDcs6YAUDLjkGlt1VNvoK3k0jyZ+Kb0cf3QpnJf557rvwWWv0Hd/
-         P404vSujyFcIWNtG493HSskjS22LPqQVRtvrJOXLvIe6rBooMW2Le9YZf7FqOysOxd
-         4LfFrRArT46D+Fco367o4QVHZ/WBJ7WF46T7dE7s=
+        b=EdrUK/DfVPSvIoc+43Sxwpo/btJT0LsxbGDGafhP8yVWeu5lemA6K13iIzSKpQwN1
+         LCC/7mG2plleM1ASQSgYBnjyOWU4XM2SzCScXx7+u1aJnq5K9Yi6dkQvvXNfDopgn6
+         +VpNamEKVUlaXzvARfM2uItaecH5rqP0753oZdB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 037/167] ASoC: mediatek: Fix error handling in mt8173_max98090_dev_probe
+Subject: [PATCH 5.17 017/298] staging: fieldbus: Fix the error handling path in anybuss_host_common_probe()
 Date:   Mon, 13 Jun 2022 12:08:31 +0200
-Message-Id: <20220613094849.570315113@linuxfoundation.org>
+Message-Id: <20220613094925.451631622@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 4f4e0454e226de3bf4efd7e7924d1edc571c52d5 ]
+[ Upstream commit 7079b3483a17be2cfba64cbd4feb1b7ae07f1ea7 ]
 
-Call of_node_put(platform_node) to avoid refcount leak in
-the error path.
+If device_register() fails, device_unregister() should not be called
+because it will free some resources that are not allocated.
+put_device() should be used instead.
 
-Fixes: 94319ba10eca ("ASoC: mediatek: Use platform_of_node for machine drivers")
-Fixes: 493433785df0 ("ASoC: mediatek: mt8173: fix device_node leak")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220404092903.26725-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 308ee87a2f1e ("staging: fieldbus: anybus-s: support HMS Anybus-S bus")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/5401a519608d6e1a4e7435c20f4f20b0c5c36c23.1650610082.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-max98090.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/fieldbus/anybuss/host.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-max98090.c b/sound/soc/mediatek/mt8173/mt8173-max98090.c
-index cab30cb48366..85bf9eafda49 100644
---- a/sound/soc/mediatek/mt8173/mt8173-max98090.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-max98090.c
-@@ -170,7 +170,8 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
- 	if (!codec_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_platform_node;
- 	}
- 	for (i = 0; i < card->num_links; i++) {
- 		if (mt8173_max98090_dais[i].codec_name)
-@@ -185,6 +186,8 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
- 			__func__, ret);
- 
- 	of_node_put(codec_node);
-+
-+put_platform_node:
- 	of_node_put(platform_node);
- 	return ret;
- }
+diff --git a/drivers/staging/fieldbus/anybuss/host.c b/drivers/staging/fieldbus/anybuss/host.c
+index a344410e48fe..cd86b9c9e345 100644
+--- a/drivers/staging/fieldbus/anybuss/host.c
++++ b/drivers/staging/fieldbus/anybuss/host.c
+@@ -1384,7 +1384,7 @@ anybuss_host_common_probe(struct device *dev,
+ 		goto err_device;
+ 	return cd;
+ err_device:
+-	device_unregister(&cd->client->dev);
++	put_device(&cd->client->dev);
+ err_kthread:
+ 	kthread_stop(cd->qthread);
+ err_reset:
 -- 
 2.35.1
 
