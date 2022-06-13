@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 531E3549895
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92608549036
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378833AbiFMNnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:43:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36284 "EHLO
+        id S1346963AbiFMKzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:55:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378507AbiFMNlp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:41:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C7E237F2;
-        Mon, 13 Jun 2022 04:31:18 -0700 (PDT)
+        with ESMTP id S1350169AbiFMKyo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129D0CE27;
+        Mon, 13 Jun 2022 03:29:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A2B4B80EA7;
-        Mon, 13 Jun 2022 11:31:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9101FC34114;
-        Mon, 13 Jun 2022 11:31:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B347BB80E95;
+        Mon, 13 Jun 2022 10:29:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 308E8C34114;
+        Mon, 13 Jun 2022 10:29:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119875;
-        bh=yDpd7oAWsynJGccSydOf6o7OH6T+QbeLge5NLgiCdfA=;
+        s=korg; t=1655116184;
+        bh=zLNYGnhl3HROVhvLdtptN+k7B+4om0XZMN1MPs90rtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGWfkDQo+mykqO8dT+B63hxJ/+u+6tzBHp8K2cF6mSjmR3gjf4ReI8P4HDzI9QmUP
-         Wa2OJxjePEomYwpDyYizGjAFt4GjrgyM9yvBoynl7xNTo1bTlvdhZpHrLQXsOiEYK2
-         r/6tjdU/WjjiKTsb0iSMPwNETh3Uc0eTIs0HaW6c=
+        b=cezxAUu1Hy7rjA7rfa7zZ45rKnlrnrP3qrobQF6snOR0Oqe0uuPcSJBeyhHYzguL/
+         SmzXzzvTufTUQn5RkddcGUiT8OaREKfAwrLDVUKSIasSc+1nOMLqdbTag1zB8NHfIR
+         BplKq38ZlaYV/igqrj4BQG7AODigvW2uUgAETM6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Saurabh Sengar <ssengar@linux.microsoft.com>,
-        Dexuan Cui <decui@microsoft.com>, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 170/339] video: fbdev: hyperv_fb: Allow resolutions with size > 64 MB for Gen1
+        stable@vger.kernel.org, Xiao Yang <yangx.jy@fujitsu.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 4.14 137/218] RDMA/rxe: Generate a completion for unsupported/invalid opcode
 Date:   Mon, 13 Jun 2022 12:09:55 +0200
-Message-Id: <20220613094931.835421989@linuxfoundation.org>
+Message-Id: <20220613094924.740783571@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurabh Sengar <ssengar@linux.microsoft.com>
+From: Xiao Yang <yangx.jy@fujitsu.com>
 
-[ Upstream commit c4b4d7047f16a8d138ce76da65faefb7165736f2 ]
+commit 2f917af777011c88e977b9b9a5d00b280d3a59ce upstream.
 
-This patch fixes a bug where GEN1 VMs doesn't allow resolutions greater
-than 64 MB size (eg 7680x4320). Unnecessary PCI check limits Gen1 VRAM
-to legacy PCI BAR size only (ie 64MB). Thus any, resolution requesting
-greater then 64MB (eg 7680x4320) would fail. MMIO region assigning this
-memory shouldn't be limited by PCI bar size.
+Current rxe_requester() doesn't generate a completion when processing an
+unsupported/invalid opcode. If rxe driver doesn't support a new opcode
+(e.g. RDMA Atomic Write) and RDMA library supports it, an application
+using the new opcode can reproduce this issue. Fix the issue by calling
+"goto err;".
 
-Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-Reviewed-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20220410113513.27537-1-yangx.jy@fujitsu.com
+Signed-off-by: Xiao Yang <yangx.jy@fujitsu.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/hyperv_fb.c | 19 +------------------
- 1 file changed, 1 insertion(+), 18 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_req.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
-index c8e0ea27caf1..58c304a3b7c4 100644
---- a/drivers/video/fbdev/hyperv_fb.c
-+++ b/drivers/video/fbdev/hyperv_fb.c
-@@ -1009,7 +1009,6 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
- 	struct pci_dev *pdev  = NULL;
- 	void __iomem *fb_virt;
- 	int gen2vm = efi_enabled(EFI_BOOT);
--	resource_size_t pot_start, pot_end;
- 	phys_addr_t paddr;
- 	int ret;
+--- a/drivers/infiniband/sw/rxe/rxe_req.c
++++ b/drivers/infiniband/sw/rxe/rxe_req.c
+@@ -680,7 +680,7 @@ next_wqe:
+ 	opcode = next_opcode(qp, wqe, wqe->wr.opcode);
+ 	if (unlikely(opcode < 0)) {
+ 		wqe->status = IB_WC_LOC_QP_OP_ERR;
+-		goto exit;
++		goto err;
+ 	}
  
-@@ -1060,23 +1059,7 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
- 	dio_fb_size =
- 		screen_width * screen_height * screen_depth / 8;
- 
--	if (gen2vm) {
--		pot_start = 0;
--		pot_end = -1;
--	} else {
--		if (!(pci_resource_flags(pdev, 0) & IORESOURCE_MEM) ||
--		    pci_resource_len(pdev, 0) < screen_fb_size) {
--			pr_err("Resource not available or (0x%lx < 0x%lx)\n",
--			       (unsigned long) pci_resource_len(pdev, 0),
--			       (unsigned long) screen_fb_size);
--			goto err1;
--		}
--
--		pot_end = pci_resource_end(pdev, 0);
--		pot_start = pot_end - screen_fb_size + 1;
--	}
--
--	ret = vmbus_allocate_mmio(&par->mem, hdev, pot_start, pot_end,
-+	ret = vmbus_allocate_mmio(&par->mem, hdev, 0, -1,
- 				  screen_fb_size, 0x100000, true);
- 	if (ret != 0) {
- 		pr_err("Unable to allocate framebuffer memory\n");
--- 
-2.35.1
-
+ 	mask = rxe_opcode[opcode].mask;
 
 
