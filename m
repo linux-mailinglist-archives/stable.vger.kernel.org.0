@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6D015497D8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 520D85490FE
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354768AbiFMLhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:37:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43076 "EHLO
+        id S1348981AbiFMK4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:56:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354766AbiFMLfn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:35:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23D2544762;
-        Mon, 13 Jun 2022 03:48:02 -0700 (PDT)
+        with ESMTP id S1350446AbiFMKyx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BDE41FCC5;
+        Mon, 13 Jun 2022 03:31:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 544F1612C4;
-        Mon, 13 Jun 2022 10:48:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65103C34114;
-        Mon, 13 Jun 2022 10:48:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E982B80E95;
+        Mon, 13 Jun 2022 10:31:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B3A4C34114;
+        Mon, 13 Jun 2022 10:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117281;
-        bh=IL8GKhdc3Wo8si//BsdbnCBSVkgPlm8kJ4ZPIEMR9HI=;
+        s=korg; t=1655116286;
+        bh=WJKezceScWpwuogH7Ln9ygnL5mdPWPe/wM/EUdXItTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvV+/L/Ya6w+D5OlqztKr355tI1pepFa/wKGKo1eyBGq5BUWxhxYkOf0qC8PjA/CR
-         mUSU1rhWJk8wnt55mHR8byeNnza9HoNPv+J9XpNAMdjcpxyTQ1nVzVPe0SLoSjQ14x
-         IdSysnBQABFb7ow6GaiFA4VNqsq9dDi9+Ws7YJ4s=
+        b=eKEGb8l/n6hlZJ0njH3q/hYTmiAz6lXacrGYwIhZWewPG1jq2fs+y6aJUsEgkbjKr
+         YXKLKPxnqCK/qJ2HTfFWd8/qmMyZY3TpVvnGwcvnLm9orgirckpTprkSj7lg995Czz
+         3UYl9e52Qsb0mxpvR869pSEb6Le2SS1l/N/BFsG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Joe Mario <jmario@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 348/411] netfilter: nat: really support inet nat without l3 address
-Date:   Mon, 13 Jun 2022 12:10:21 +0200
-Message-Id: <20220613094939.142947044@linuxfoundation.org>
+Subject: [PATCH 4.14 164/218] perf c2c: Fix sorting in percent_rmt_hitm_cmp()
+Date:   Mon, 13 Jun 2022 12:10:22 +0200
+Message-Id: <20220613094925.573296379@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +60,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 282e5f8fe907dc3f2fbf9f2103b0e62ffc3a68a5 ]
+[ Upstream commit b24192a17337abbf3f44aaa75e15df14a2d0016e ]
 
-When no l3 address is given, priv->family is set to NFPROTO_INET and
-the evaluation function isn't called.
+The function percent_rmt_hitm_cmp() wrongly uses local HITMs for
+sorting remote HITMs.
 
-Call it too so l4-only rewrite can work.
-Also add a test case for this.
+Since this function is to sort cache lines for remote HITMs, this patch
+changes to use 'rmt_hitm' field for correct sorting.
 
-Fixes: a33f387ecd5aa ("netfilter: nft_nat: allow to specify layer 4 protocol NAT only")
-Reported-by: Yi Chen <yiche@redhat.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 9cb3500afc0980c5 ("perf c2c report: Add hitm/store percent related sort keys")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Joe Mario <jmario@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220530084253.750190-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_nat.c                      |  3 +-
- tools/testing/selftests/netfilter/nft_nat.sh | 43 ++++++++++++++++++++
- 2 files changed, 45 insertions(+), 1 deletion(-)
+ tools/perf/builtin-c2c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_nat.c b/net/netfilter/nft_nat.c
-index 17c0f75dfcdb..0c5bc3c37ecf 100644
---- a/net/netfilter/nft_nat.c
-+++ b/net/netfilter/nft_nat.c
-@@ -283,7 +283,8 @@ static void nft_nat_inet_eval(const struct nft_expr *expr,
- {
- 	const struct nft_nat *priv = nft_expr_priv(expr);
+diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
+index 9cbd8b0d5b77..729e5f137963 100644
+--- a/tools/perf/builtin-c2c.c
++++ b/tools/perf/builtin-c2c.c
+@@ -886,8 +886,8 @@ percent_rmt_hitm_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
+ 	double per_left;
+ 	double per_right;
  
--	if (priv->family == nft_pf(pkt))
-+	if (priv->family == nft_pf(pkt) ||
-+	    priv->family == NFPROTO_INET)
- 		nft_nat_eval(expr, regs, pkt);
+-	per_left  = PERCENT(left, lcl_hitm);
+-	per_right = PERCENT(right, lcl_hitm);
++	per_left  = PERCENT(left, rmt_hitm);
++	per_right = PERCENT(right, rmt_hitm);
+ 
+ 	return per_left - per_right;
  }
- 
-diff --git a/tools/testing/selftests/netfilter/nft_nat.sh b/tools/testing/selftests/netfilter/nft_nat.sh
-index d7e07f4c3d7f..4e15e8167310 100755
---- a/tools/testing/selftests/netfilter/nft_nat.sh
-+++ b/tools/testing/selftests/netfilter/nft_nat.sh
-@@ -374,6 +374,45 @@ EOF
- 	return $lret
- }
- 
-+test_local_dnat_portonly()
-+{
-+	local family=$1
-+	local daddr=$2
-+	local lret=0
-+	local sr_s
-+	local sr_r
-+
-+ip netns exec "$ns0" nft -f /dev/stdin <<EOF
-+table $family nat {
-+	chain output {
-+		type nat hook output priority 0; policy accept;
-+		meta l4proto tcp dnat to :2000
-+
-+	}
-+}
-+EOF
-+	if [ $? -ne 0 ]; then
-+		if [ $family = "inet" ];then
-+			echo "SKIP: inet port test"
-+			test_inet_nat=false
-+			return
-+		fi
-+		echo "SKIP: Could not add $family dnat hook"
-+		return
-+	fi
-+
-+	echo SERVER-$family | ip netns exec "$ns1" timeout 5 socat -u STDIN TCP-LISTEN:2000 &
-+	sc_s=$!
-+
-+	result=$(ip netns exec "$ns0" timeout 1 socat TCP:$daddr:2000 STDOUT)
-+
-+	if [ "$result" = "SERVER-inet" ];then
-+		echo "PASS: inet port rewrite without l3 address"
-+	else
-+		echo "ERROR: inet port rewrite"
-+		ret=1
-+	fi
-+}
- 
- test_masquerade6()
- {
-@@ -841,6 +880,10 @@ fi
- reset_counters
- test_local_dnat ip
- test_local_dnat6 ip6
-+
-+reset_counters
-+test_local_dnat_portonly inet 10.0.1.99
-+
- reset_counters
- $test_inet_nat && test_local_dnat inet
- $test_inet_nat && test_local_dnat6 inet
 -- 
 2.35.1
 
