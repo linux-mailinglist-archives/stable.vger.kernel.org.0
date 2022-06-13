@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 281A2549604
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46D96548E4A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:18:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381247AbiFMOIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:08:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43276 "EHLO
+        id S1384900AbiFMOle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:41:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381074AbiFMODp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:03:45 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70B2790CE9;
-        Mon, 13 Jun 2022 04:38:37 -0700 (PDT)
+        with ESMTP id S1385615AbiFMOka (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:40:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61B5CAFAEF;
+        Mon, 13 Jun 2022 04:50:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CECD2CE1174;
-        Mon, 13 Jun 2022 11:38:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7891C34114;
-        Mon, 13 Jun 2022 11:38:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3DA4B80EC8;
+        Mon, 13 Jun 2022 11:50:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA651C34114;
+        Mon, 13 Jun 2022 11:50:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120314;
-        bh=sXhm+oMCrui/y0I0+QBtmpIK+POYQhAS48jgfA/2Ycw=;
+        s=korg; t=1655121012;
+        bh=QNxyg8a/EeMSToOh3j6ZgqqKkIM/59Fix+XBI1emb1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nKRK+DqZuP+QUyrxRbz5ACpcf2kEAMtYMXN7Pj03Ql6kIoo370ndhmE3QrfOZ1pW8
-         +emRuoRJIa8PSkapsjiuGvT0c8se38oyRcF3nkoIAwN7ApLC2t0CbxggEd0f/Zp/Es
-         cIbW9LM7erHTRm8Uh4SlhHOkKVfY+cqqMfuORTBw=
+        b=qtL9EsBRdgpvuYnw/9Ykn0SVsqQv6Sze/s0RszbzJcoL6TJSWo6rtuIrreTxKLeQ9
+         Ppjag1myR/fLJMdp/3ShYiilp+v1MLiyzm5BYAv4sAO6ic5NTguUVZ6/6wtAMe861h
+         uI9WZQkXxPViyl36Wbmken7TDxOgoCy66hH88iIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Safford <david.safford@gmail.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.18 308/339] KEYS: trusted: tpm2: Fix migratable logic
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 239/298] x86/cpu: Elide KCSAN for cpu_has() and friends
 Date:   Mon, 13 Jun 2022 12:12:13 +0200
-Message-Id: <20220613094936.097972286@linuxfoundation.org>
+Message-Id: <20220613094932.337292827@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Safford <david.safford@gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit dda5384313a40ecbaafd8a9a80f47483255e4c4d upstream.
+[ Upstream commit a6a5eb269f6f3a2fe392f725a8d9052190c731e2 ]
 
-When creating (sealing) a new trusted key, migratable
-trusted keys have the FIXED_TPM and FIXED_PARENT attributes
-set, and non-migratable keys don't. This is backwards, and
-also causes creation to fail when creating a migratable key
-under a migratable parent. (The TPM thinks you are trying to
-seal a non-migratable blob under a migratable parent.)
+As x86 uses the <asm-generic/bitops/instrumented-*.h> headers, the
+regular forms of all bitops are instrumented with explicit calls to
+KASAN and KCSAN checks. As these are explicit calls, these are not
+suppressed by the noinstr function attribute.
 
-The following simple patch fixes the logic, and has been
-tested for all four combinations of migratable and non-migratable
-trusted keys and parent storage keys. With this logic, you will
-get a proper failure if you try to create a non-migratable
-trusted key under a migratable parent storage key, and all other
-combinations work correctly.
+This can result in calls to those check functions in noinstr code, which
+objtool warns about:
 
-Cc: stable@vger.kernel.org # v5.13+
-Fixes: e5fb5d2c5a03 ("security: keys: trusted: Make sealed key properly interoperable")
-Signed-off-by: David Safford <david.safford@gmail.com>
-Reviewed-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+vmlinux.o: warning: objtool: enter_from_user_mode+0x24: call to __kcsan_check_access() leaves .noinstr.text section
+vmlinux.o: warning: objtool: syscall_enter_from_user_mode+0x28: call to __kcsan_check_access() leaves .noinstr.text section
+vmlinux.o: warning: objtool: syscall_enter_from_user_mode_prepare+0x24: call to __kcsan_check_access() leaves .noinstr.text section
+vmlinux.o: warning: objtool: irqentry_enter_from_user_mode+0x24: call to __kcsan_check_access() leaves .noinstr.text section
+
+Prevent this by using the arch_*() bitops, which are the underlying
+bitops without explciit instrumentation.
+
+[null: Changelog]
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220502111216.290518605@infradead.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/keys/trusted-keys/trusted_tpm2.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/cpufeature.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/keys/trusted-keys/trusted_tpm2.c
-+++ b/security/keys/trusted-keys/trusted_tpm2.c
-@@ -283,8 +283,8 @@ int tpm2_seal_trusted(struct tpm_chip *c
- 	/* key properties */
- 	flags = 0;
- 	flags |= options->policydigest_len ? 0 : TPM2_OA_USER_WITH_AUTH;
--	flags |= payload->migratable ? (TPM2_OA_FIXED_TPM |
--					TPM2_OA_FIXED_PARENT) : 0;
-+	flags |= payload->migratable ? 0 : (TPM2_OA_FIXED_TPM |
-+					    TPM2_OA_FIXED_PARENT);
- 	tpm_buf_append_u32(&buf, flags);
+diff --git a/arch/x86/include/asm/cpufeature.h b/arch/x86/include/asm/cpufeature.h
+index 1261842d006c..49a3b122279e 100644
+--- a/arch/x86/include/asm/cpufeature.h
++++ b/arch/x86/include/asm/cpufeature.h
+@@ -51,7 +51,7 @@ extern const char * const x86_power_flags[32];
+ extern const char * const x86_bug_flags[NBUGINTS*32];
  
- 	/* policy */
+ #define test_cpu_cap(c, bit)						\
+-	 test_bit(bit, (unsigned long *)((c)->x86_capability))
++	 arch_test_bit(bit, (unsigned long *)((c)->x86_capability))
+ 
+ /*
+  * There are 32 bits/features in each mask word.  The high bits
+-- 
+2.35.1
+
 
 
