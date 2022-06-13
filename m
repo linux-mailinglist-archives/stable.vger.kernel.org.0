@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A136A548BD0
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA4C454888F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385588AbiFMOrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:47:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37934 "EHLO
+        id S1385778AbiFMOqO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:46:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386508AbiFMOpX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:45:23 -0400
+        with ESMTP id S1386503AbiFMOpW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:45:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4D02BC6ED;
-        Mon, 13 Jun 2022 04:52:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4F7BCE80;
+        Mon, 13 Jun 2022 04:52:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B7C8B80EA7;
-        Mon, 13 Jun 2022 11:52:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A22BEC34114;
-        Mon, 13 Jun 2022 11:52:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED9D6B80EDF;
+        Mon, 13 Jun 2022 11:52:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C6E0C34114;
+        Mon, 13 Jun 2022 11:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121127;
-        bh=1UixyvoLN2QSYpYfK0BK4OCi/4U+aVgFQL0tX8f+yag=;
+        s=korg; t=1655121129;
+        bh=LudaSicy4OVyJG6CHKbBAEisNx6AAPDGofTlDKfw0xE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q6vBvU5Va20qriFZCJ+0o8/AwIvJ27V544IFFFdfZ0qrtZ3cjRyU4EzSn55+zqtKB
-         mMpfJsGX9IEjuKL++FRskNAhAd04YVWWmZsvGVWPxKnx5vYST4IWntaFp9yKWe21x0
-         OJY+LR/5HWGiGEJMAju7dWI+RoN7bbg8qYHTSxr0=
+        b=zFoBokGttxWAeO17CeOwTBr8fVNTVDDDoYNTwC50LqKsxmdgj685oXHalVnD9Iljr
+         MzlRwh1v+v5VrFwr+PmOzO1QTZiMRCjF5XMjaT2iQs1KTTJ+qRkVfofjSbOdm6GmyH
+         55FpEfFkvTLVxxP27tg52ZQgxuZgFfh8ty8waCKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9e27a75a8c24f3fe75c1@syzkaller.appspotmail.com,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: [PATCH 5.17 282/298] mm/huge_memory: Fix xarray node memory leak
-Date:   Mon, 13 Jun 2022 12:12:56 +0200
-Message-Id: <20220613094933.634623237@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.17 283/298] powerpc: Dont select HAVE_IRQ_EXIT_ON_IRQ_STACK
+Date:   Mon, 13 Jun 2022 12:12:57 +0200
+Message-Id: <20220613094933.665209395@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
 References: <20220613094924.913340374@linuxfoundation.org>
@@ -54,64 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 69a37a8ba1b408a1c7616494aa7018e4b3844cbe upstream.
+commit 1346d00e1bdfd4067f92bc14e8a6131a01de4190 upstream.
 
-If xas_split_alloc() fails to allocate the necessary nodes to complete the
-xarray entry split, it sets the xa_state to -ENOMEM, which xas_nomem()
-then interprets as "Please allocate more memory", not as "Please free
-any unnecessary memory" (which was the intended outcome).  It's confusing
-to use xas_nomem() to free memory in this context, so call xas_destroy()
-instead.
+The HAVE_IRQ_EXIT_ON_IRQ_STACK option tells generic code that irq_exit()
+is called while still running on the hard irq stack (hardirq_ctx[] in
+the powerpc code).
 
-Reported-by: syzbot+9e27a75a8c24f3fe75c1@syzkaller.appspotmail.com
-Fixes: 6b24ca4a1a8d ("mm: Use multi-index entries in the page cache")
-Cc: stable@vger.kernel.org
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Selecting the option means the generic code will *not* switch to the
+softirq stack before running softirqs, because the code is already
+running on the (mostly empty) hard irq stack.
+
+But since commit 1b1b6a6f4cc0 ("powerpc: handle irq_enter/irq_exit in
+interrupt handler wrappers"), irq_exit() is now called on the regular task
+stack, not the hard irq stack.
+
+That's because previously irq_exit() was called in __do_irq() which is
+run on the hard irq stack, but now it is called in
+interrupt_async_exit_prepare() which is called from do_irq() constructed
+by the wrapper macro, which is after the switch back to the task stack.
+
+So drop HAVE_IRQ_EXIT_ON_IRQ_STACK from the Kconfig. This will mean an
+extra stack switch when processing some interrupts, but should
+significantly reduce the likelihood of stack overflow.
+
+It also means the softirq stack will be used for running softirqs from
+other interrupts that don't use the hard irq stack, eg. timer interrupts.
+
+Fixes: 1b1b6a6f4cc0 ("powerpc: handle irq_enter/irq_exit in interrupt handler wrappers")
+Cc: stable@vger.kernel.org # v5.12+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220525032639.1947280-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/xarray.h |    1 +
- lib/xarray.c           |    5 +++--
- mm/huge_memory.c       |    3 +--
- 3 files changed, 5 insertions(+), 4 deletions(-)
+ arch/powerpc/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/include/linux/xarray.h
-+++ b/include/linux/xarray.h
-@@ -1506,6 +1506,7 @@ void *xas_find_marked(struct xa_state *,
- void xas_init_marks(const struct xa_state *);
- 
- bool xas_nomem(struct xa_state *, gfp_t);
-+void xas_destroy(struct xa_state *);
- void xas_pause(struct xa_state *);
- 
- void xas_create_range(struct xa_state *);
---- a/lib/xarray.c
-+++ b/lib/xarray.c
-@@ -264,9 +264,10 @@ static void xa_node_free(struct xa_node
-  * xas_destroy() - Free any resources allocated during the XArray operation.
-  * @xas: XArray operation state.
-  *
-- * This function is now internal-only.
-+ * Most users will not need to call this function; it is called for you
-+ * by xas_nomem().
-  */
--static void xas_destroy(struct xa_state *xas)
-+void xas_destroy(struct xa_state *xas)
- {
- 	struct xa_node *next, *node = xas->xa_alloc;
- 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2736,8 +2736,7 @@ out_unlock:
- 	if (mapping)
- 		i_mmap_unlock_read(mapping);
- out:
--	/* Free any memory we didn't use */
--	xas_nomem(&xas, 0);
-+	xas_destroy(&xas);
- 	count_vm_event(!ret ? THP_SPLIT_PAGE : THP_SPLIT_PAGE_FAILED);
- 	return ret;
- }
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -211,7 +211,6 @@ config PPC
+ 	select HAVE_HARDLOCKUP_DETECTOR_PERF	if PERF_EVENTS && HAVE_PERF_EVENTS_NMI && !HAVE_HARDLOCKUP_DETECTOR_ARCH
+ 	select HAVE_HW_BREAKPOINT		if PERF_EVENTS && (PPC_BOOK3S || PPC_8xx)
+ 	select HAVE_IOREMAP_PROT
+-	select HAVE_IRQ_EXIT_ON_IRQ_STACK
+ 	select HAVE_IRQ_TIME_ACCOUNTING
+ 	select HAVE_KERNEL_GZIP
+ 	select HAVE_KERNEL_LZMA			if DEFAULT_UIMAGE
 
 
