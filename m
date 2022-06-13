@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39390548094
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAD7754808A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229961AbiFMH3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232119AbiFMH3U (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 13 Jun 2022 03:29:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32792 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239460AbiFMH2j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:28:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 347BA193E1
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:28:39 -0700 (PDT)
+        with ESMTP id S238805AbiFMH2x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:28:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53520193E1
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:28:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C40B660F95
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:28:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE424C34114;
-        Mon, 13 Jun 2022 07:28:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 069E6B80D70
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:28:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53884C34114;
+        Mon, 13 Jun 2022 07:28:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655105318;
-        bh=3pspz8e72lyCPiRPommZQ/kN4PmR7bSIgkLAhk9PVZo=;
+        s=korg; t=1655105329;
+        bh=LP37JLc4BnCnSsbDrzdRqlOxgrXhqnjLXfRAqAgPkYs=;
         h=Subject:To:Cc:From:Date:From;
-        b=YAnXU5dU7BIP5qSXW/MgGWYMd6bnLOX1eJuANQsEc/SmhwtjRDh4XoICmzOBekJzT
-         fAydqFgJLGKqSA+s1Nz3rtnpSgXcT8/ALkce+u1x4yfG28ojNT/M+yWWhvJk2quaue
-         Xd/9CB6dNKV3axYhSTtuFWNBHnBPYihEkfy6mHdM=
-Subject: FAILED: patch "[PATCH] writeback: Fix inode->i_io_list not be protected by" failed to apply to 5.10-stable tree
+        b=2oKT6khlUbGTrrKfo+p3HHzpag4LR0sWmUiIu0JGWB5favAbGvMrn6McL6Ih4+8AV
+         CRXj96bJCNw5sPei3olFeEmZVORf8IN1e4H7dXWPfZXyBzTWqvhiS/eqii3+w+/1xi
+         p9nYbN739fuEmafwM9OJlY2vIByld+uY57Ahr1+c=
+Subject: FAILED: patch "[PATCH] writeback: Fix inode->i_io_list not be protected by" failed to apply to 5.4-stable tree
 To:     sunjunchao2870@gmail.com, jack@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Jun 2022 09:28:35 +0200
-Message-ID: <165510531520530@kroah.com>
+Date:   Mon, 13 Jun 2022 09:28:36 +0200
+Message-ID: <16551053168211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
