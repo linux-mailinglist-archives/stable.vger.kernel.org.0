@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 547CC548EF0
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E01549066
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352462AbiFMLQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:16:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43240 "EHLO
+        id S1351328AbiFMMm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:42:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352664AbiFMLOK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:14:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D605B366B0;
-        Mon, 13 Jun 2022 03:36:40 -0700 (PDT)
+        with ESMTP id S1355778AbiFMMjR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:39:17 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BD6033890;
+        Mon, 13 Jun 2022 04:09:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0FA6610AB;
-        Mon, 13 Jun 2022 10:36:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B78F0C385A5;
-        Mon, 13 Jun 2022 10:36:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7FD34CE1171;
+        Mon, 13 Jun 2022 11:09:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91110C34114;
+        Mon, 13 Jun 2022 11:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116599;
-        bh=VLAUu/pBbU0WbMGamu1ApVdJKC+8dNefuYHs3rDbbgo=;
+        s=korg; t=1655118568;
+        bh=icyfI8Yx907IkhsOmmzicj4spu+VAF7EmjddPir0bXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jU4nROSlNmV04WICNuK1p73iwjCy7fTLwpVDXkbo7jiyF9Pe9/F8EpFWc76cb0Mte
-         vXUzvCG/HPZNKhYlq4658UUvVz2L/Zyf0El/qkdtKdBzJ3UAoK0BaNkhnAPYBm2kVr
-         V5lzQKZPo+SUQt/hC9TzxBUHVsd/hDyFJwfpbANE=
+        b=NcuXUNefjH+KvRSKPLPKxd2LBdLhpCc7EKPxb39U/JnfIdjVbvfK84rpw6bm8JSVk
+         HDDALxK4szLcfe007eCm0janJEiETr8V6R02YA3SMtDggfR/v/eaMbf/RL3/5rr0Bd
+         PrJ5IqJLnkhjWmxALHM+IA8q/7wrVeoI/7MFeDfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Faltesek <mfaltesek@google.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 210/218] nfc: st21nfca: fix memory leaks in EVT_TRANSACTION handling
+        stable@vger.kernel.org, Feras Daoud <ferasda@nvidia.com>,
+        Roy Novich <royno@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 108/172] net/mlx5: Rearm the FW tracer after each tracer event
 Date:   Mon, 13 Jun 2022 12:11:08 +0200
-Message-Id: <20220613094926.993839081@linuxfoundation.org>
+Message-Id: <20220613094916.230224893@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Faltesek <mfaltesek@google.com>
+From: Feras Daoud <ferasda@nvidia.com>
 
-commit 996419e0594abb311fb958553809f24f38e7abbe upstream.
+[ Upstream commit 8bf94e6414c9481bfa28269022688ab445d0081d ]
 
-Error paths do not free previously allocated memory. Add devm_kfree() to
-those failure paths.
+The current design does not arm the tracer if traces are available before
+the tracer string database is fully loaded, leading to an unfunctional tracer.
+This fix will rearm the tracer every time the FW triggers tracer event
+regardless of the tracer strings database status.
 
-Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
-Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
-Cc: stable@vger.kernel.org
-Signed-off-by: Martin Faltesek <mfaltesek@google.com>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c71ad41ccb0c ("net/mlx5: FW tracer, events handling")
+Signed-off-by: Feras Daoud <ferasda@nvidia.com>
+Signed-off-by: Roy Novich <royno@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st21nfca/se.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/nfc/st21nfca/se.c
-+++ b/drivers/nfc/st21nfca/se.c
-@@ -332,22 +332,29 @@ int st21nfca_connectivity_event_received
- 		transaction->aid_len = skb->data[1];
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+index 857be86b4a11..e8a4adccd2b2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+@@ -675,6 +675,9 @@ static void mlx5_fw_tracer_handle_traces(struct work_struct *work)
+ 	if (!tracer->owner)
+ 		return;
  
- 		/* Checking if the length of the AID is valid */
--		if (transaction->aid_len > sizeof(transaction->aid))
-+		if (transaction->aid_len > sizeof(transaction->aid)) {
-+			devm_kfree(dev, transaction);
- 			return -EINVAL;
-+		}
++	if (unlikely(!tracer->str_db.loaded))
++		goto arm;
++
+ 	block_count = tracer->buff.size / TRACER_BLOCK_SIZE_BYTE;
+ 	start_offset = tracer->buff.consumer_index * TRACER_BLOCK_SIZE_BYTE;
  
- 		memcpy(transaction->aid, &skb->data[2],
- 		       transaction->aid_len);
+@@ -732,6 +735,7 @@ static void mlx5_fw_tracer_handle_traces(struct work_struct *work)
+ 						      &tmp_trace_block[TRACES_PER_BLOCK - 1]);
+ 	}
  
- 		/* Check next byte is PARAMETERS tag (82) */
- 		if (skb->data[transaction->aid_len + 2] !=
--		    NFC_EVT_TRANSACTION_PARAMS_TAG)
-+		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
-+			devm_kfree(dev, transaction);
- 			return -EPROTO;
-+		}
++arm:
+ 	mlx5_fw_tracer_arm(dev);
+ }
  
- 		transaction->params_len = skb->data[transaction->aid_len + 3];
- 
- 		/* Total size is allocated (skb->len - 2) minus fixed array members */
--		if (transaction->params_len > ((skb->len - 2) - sizeof(struct nfc_evt_transaction)))
-+		if (transaction->params_len > ((skb->len - 2) -
-+		    sizeof(struct nfc_evt_transaction))) {
-+			devm_kfree(dev, transaction);
- 			return -EINVAL;
-+		}
- 
- 		memcpy(transaction->params, skb->data +
- 		       transaction->aid_len + 4, transaction->params_len);
+@@ -1138,8 +1142,7 @@ static int fw_tracer_event(struct notifier_block *nb, unsigned long action, void
+ 			queue_work(tracer->work_queue, &tracer->ownership_change_work);
+ 		break;
+ 	case MLX5_TRACER_SUBTYPE_TRACES_AVAILABLE:
+-		if (likely(tracer->str_db.loaded))
+-			queue_work(tracer->work_queue, &tracer->handle_traces_work);
++		queue_work(tracer->work_queue, &tracer->handle_traces_work);
+ 		break;
+ 	default:
+ 		mlx5_core_dbg(dev, "FWTracer: Event with unrecognized subtype: sub_type %d\n",
+-- 
+2.35.1
+
 
 
