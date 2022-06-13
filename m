@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3B28549759
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95AF25496B0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238607AbiFMNLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:11:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37018 "EHLO
+        id S1380116AbiFMN5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:57:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359257AbiFMNJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:44 -0400
+        with ESMTP id S1380683AbiFMNy5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:54:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF5E28E04;
-        Mon, 13 Jun 2022 04:19:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE29813E7;
+        Mon, 13 Jun 2022 04:35:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C13860F2B;
-        Mon, 13 Jun 2022 11:19:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2422FC34114;
-        Mon, 13 Jun 2022 11:19:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FCCD612A8;
+        Mon, 13 Jun 2022 11:35:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94BB4C34114;
+        Mon, 13 Jun 2022 11:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119186;
-        bh=VDEMdKayyI9mHvjQiuo3UP5gP86R8hGnkAqeLT6SQmc=;
+        s=korg; t=1655120129;
+        bh=Z8ey3TR9HSAz7Jk3DAJWQVnOD8FtyqL33tzMAuZs4Lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUphnpHkeiwAoEJ/p8vT5D+KX5PuNdMmyVw1T+WW0YoYkAXoe5UIYO25XR/O4RCFk
-         BOZwRoTreLZlx2xJ9Uee8lxlos9w3aqtMCDVsk32al/tAXuasg6YNqOvmA9bgnY9vP
-         VEXuy3v+N5DK0qzYmsGcagcnkPOnSi2+1nd5wzQU=
+        b=colhRk9iaeqkx4gIBrT1DSyCW0qK/TCvqIKUCScGTlXoaBvj2HnHxUImLS0o6K/hF
+         Xv+r6zTjm6sIkLN9m1waQAG41nI9tQb8+Ej+p9ll17b+gQ3KsDEZOv6C2tceNQf+3H
+         TH3gomxciFbkcP2LfYD5/2A1Rvu8Hp35TQqrZGYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        David Howells <dhowells@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Mike Marshall <hubcap@omnibond.com>,
-        Gao Xiang <xiang@kernel.org>, linux-afs@lists.infradead.org,
-        v9fs-developer@lists.sourceforge.net, devel@lists.orangefs.org,
-        linux-erofs@lists.ozlabs.org, linux-cachefs@redhat.com,
-        linux-fsdevel@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 164/247] iov_iter: Fix iter_xarray_get_pages{,_alloc}()
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 241/339] usb: dwc2: gadget: dont reset gadgets driver->bus
 Date:   Mon, 13 Jun 2022 12:11:06 +0200
-Message-Id: <20220613094927.932137292@linuxfoundation.org>
+Message-Id: <20220613094933.964928182@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,97 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 6c77676645ad42993e0a8bdb8dafa517851a352a ]
+[ Upstream commit 3120aac6d0ecd9accf56894aeac0e265f74d3d5a ]
 
-The maths at the end of iter_xarray_get_pages() to calculate the actual
-size doesn't work under some circumstances, such as when it's been asked to
-extract a partial single page.  Various terms of the equation cancel out
-and you end up with actual == offset.  The same issue exists in
-iter_xarray_get_pages_alloc().
+UDC driver should not touch gadget's driver internals, especially it
+should not reset driver->bus. This wasn't harmful so far, but since
+commit fc274c1e9973 ("USB: gadget: Add a new bus for gadgets") gadget
+subsystem got it's own bus and messing with ->bus triggers the
+following NULL pointer dereference:
 
-Fix these to just use min() to select the lesser amount from between the
-amount of page content transcribed into the buffer, minus the offset, and
-the size limit specified.
+dwc2 12480000.hsotg: bound driver g_ether
+8<--- cut here ---
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+[00000000] *pgd=00000000
+Internal error: Oops: 5 [#1] SMP ARM
+Modules linked in: ...
+CPU: 0 PID: 620 Comm: modprobe Not tainted 5.18.0-rc5-next-20220504 #11862
+Hardware name: Samsung Exynos (Flattened Device Tree)
+PC is at module_add_driver+0x44/0xe8
+LR is at sysfs_do_create_link_sd+0x84/0xe0
+...
+Process modprobe (pid: 620, stack limit = 0x(ptrval))
+...
+ module_add_driver from bus_add_driver+0xf4/0x1e4
+ bus_add_driver from driver_register+0x78/0x10c
+ driver_register from usb_gadget_register_driver_owner+0x40/0xb4
+ usb_gadget_register_driver_owner from do_one_initcall+0x44/0x1e0
+ do_one_initcall from do_init_module+0x44/0x1c8
+ do_init_module from load_module+0x19b8/0x1b9c
+ load_module from sys_finit_module+0xdc/0xfc
+ sys_finit_module from ret_fast_syscall+0x0/0x54
+Exception stack(0xf1771fa8 to 0xf1771ff0)
+...
+dwc2 12480000.hsotg: new device is high-speed
+---[ end trace 0000000000000000 ]---
 
-This doesn't appear to have caused a problem yet upstream because network
-filesystems aren't getting the pages from an xarray iterator, but rather
-passing it directly to the socket, which just iterates over it.  Cachefiles
-*does* do DIO from one to/from ext4/xfs/btrfs/etc. but it always asks for
-whole pages to be written or read.
+Fix this by removing driver->bus entry reset.
 
-Fixes: 7ff5062079ef ("iov_iter: Add ITER_XARRAY")
-Reported-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Alexander Viro <viro@zeniv.linux.org.uk>
-cc: Dominique Martinet <asmadeus@codewreck.org>
-cc: Mike Marshall <hubcap@omnibond.com>
-cc: Gao Xiang <xiang@kernel.org>
-cc: linux-afs@lists.infradead.org
-cc: v9fs-developer@lists.sourceforge.net
-cc: devel@lists.orangefs.org
-cc: linux-erofs@lists.ozlabs.org
-cc: linux-cachefs@redhat.com
-cc: linux-fsdevel@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20220505104618.22729-1-m.szyprowski@samsung.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/iov_iter.c | 20 ++++----------------
- 1 file changed, 4 insertions(+), 16 deletions(-)
+ drivers/usb/dwc2/gadget.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/lib/iov_iter.c b/lib/iov_iter.c
-index 6d146f77601d..be07eb24ab2f 100644
---- a/lib/iov_iter.c
-+++ b/lib/iov_iter.c
-@@ -1436,7 +1436,7 @@ static ssize_t iter_xarray_get_pages(struct iov_iter *i,
- {
- 	unsigned nr, offset;
- 	pgoff_t index, count;
--	size_t size = maxsize, actual;
-+	size_t size = maxsize;
- 	loff_t pos;
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index eee3504397e6..fe2a58c75861 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -4544,7 +4544,6 @@ static int dwc2_hsotg_udc_start(struct usb_gadget *gadget,
  
- 	if (!size || !maxpages)
-@@ -1463,13 +1463,7 @@ static ssize_t iter_xarray_get_pages(struct iov_iter *i,
- 	if (nr == 0)
- 		return 0;
+ 	WARN_ON(hsotg->driver);
  
--	actual = PAGE_SIZE * nr;
--	actual -= offset;
--	if (nr == count && size > 0) {
--		unsigned last_offset = (nr > 1) ? 0 : offset;
--		actual -= PAGE_SIZE - (last_offset + size);
--	}
--	return actual;
-+	return min(nr * PAGE_SIZE - offset, maxsize);
- }
- 
- /* must be done on non-empty ITER_IOVEC one */
-@@ -1604,7 +1598,7 @@ static ssize_t iter_xarray_get_pages_alloc(struct iov_iter *i,
- 	struct page **p;
- 	unsigned nr, offset;
- 	pgoff_t index, count;
--	size_t size = maxsize, actual;
-+	size_t size = maxsize;
- 	loff_t pos;
- 
- 	if (!size)
-@@ -1633,13 +1627,7 @@ static ssize_t iter_xarray_get_pages_alloc(struct iov_iter *i,
- 	if (nr == 0)
- 		return 0;
- 
--	actual = PAGE_SIZE * nr;
--	actual -= offset;
--	if (nr == count && size > 0) {
--		unsigned last_offset = (nr > 1) ? 0 : offset;
--		actual -= PAGE_SIZE - (last_offset + size);
--	}
--	return actual;
-+	return min(nr * PAGE_SIZE - offset, maxsize);
- }
- 
- ssize_t iov_iter_get_pages_alloc(struct iov_iter *i,
+-	driver->driver.bus = NULL;
+ 	hsotg->driver = driver;
+ 	hsotg->gadget.dev.of_node = hsotg->dev->of_node;
+ 	hsotg->gadget.speed = USB_SPEED_UNKNOWN;
 -- 
 2.35.1
 
