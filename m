@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B98DA549075
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BDA0549508
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242483AbiFMKV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:21:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45746 "EHLO
+        id S1356622AbiFMMAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:00:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242893AbiFMKUl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:20:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54A371EC69;
-        Mon, 13 Jun 2022 03:17:14 -0700 (PDT)
+        with ESMTP id S1358126AbiFML7c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:59:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEBAB4E3A8;
+        Mon, 13 Jun 2022 03:56:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7652B80E2D;
-        Mon, 13 Jun 2022 10:17:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B1E0C34114;
-        Mon, 13 Jun 2022 10:17:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3BA861257;
+        Mon, 13 Jun 2022 10:56:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D0CEC36B00;
+        Mon, 13 Jun 2022 10:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115431;
-        bh=4CnfZTVIakF7H6BgXbf61/Vv64C1smXXvBhssH3OVKs=;
+        s=korg; t=1655117788;
+        bh=Ir1rYjo3alo8qSTxL/ehnAekfnmDw3mCZWfS6ECO2Ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rh0BFQlEReYcOKkJmTtMBzpw2oiQZftU4Ae6QUNrWckSykhAnRPS1gw/5djvc13wc
-         06FIxG6llEyS10r7Ibq5q+A3yTr2gopeVGOYceLU8J/zplYhRSQTkwz3Bd7N/K7SNg
-         pv3BfarjLVwNHSWgQPmFAQzHH+mI6hsOUkjph3Hg=
+        b=0F0CiGK+8l4UWRjRC8TQmeCx8E2Bg/Hlh+TEuu56Aq/IXvC67ab465tF6DFF/eaFI
+         2I+VWDXPWfMPQ0WyPeBWkzNT4Hgbgp5QFJhrBJadISaIrz2ZTiyHOiv8v2W9dTyBZP
+         y4KDXTrgBSPYMX5l7X7P8kTbhx31STRUktESNf+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>
-Subject: [PATCH 4.9 082/167] dlm: fix missing lkb refcount handling
+        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 132/287] f2fs: fix dereference of stale list iterator after loop body
 Date:   Mon, 13 Jun 2022 12:09:16 +0200
-Message-Id: <20220613094900.120461254@linuxfoundation.org>
+Message-Id: <20220613094927.881449853@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Jakob Koschel <jakobkoschel@gmail.com>
 
-commit 1689c169134f4b5a39156122d799b7dca76d8ddb upstream.
+[ Upstream commit 2aaf51dd39afb6d01d13f1e6fe20b684733b37d5 ]
 
-We always call hold_lkb(lkb) if we increment lkb->lkb_wait_count.
-So, we always need to call unhold_lkb(lkb) if we decrement
-lkb->lkb_wait_count. This patch will add missing unhold_lkb(lkb) if we
-decrement lkb->lkb_wait_count. In case of setting lkb->lkb_wait_count to
-zero we need to countdown until reaching zero and call unhold_lkb(lkb).
-The waiters list unhold_lkb(lkb) can be removed because it's done for
-the last lkb_wait_count decrement iteration as it's done in
-_remove_from_waiters().
+The list iterator variable will be a bogus pointer if no break was hit.
+Dereferencing it (cur->page in this case) could load an out-of-bounds/undefined
+value making it unsafe to use that in the comparision to determine if the
+specific element was found.
 
-This issue was discovered by a dlm gfs2 test case which use excessively
-dlm_unlock(LKF_CANCEL) feature. Probably the lkb->lkb_wait_count value
-never reached above 1 if this feature isn't used and so it was not
-discovered before.
+Since 'cur->page' *can* be out-ouf-bounds it cannot be guaranteed that
+by chance (or intention of an attacker) it matches the value of 'page'
+even though the correct element was not found.
 
-The testcase ended in a rsb on the rsb keep data structure with a
-refcount of 1 but no lkb was associated with it, which is itself
-an invalid behaviour. A side effect of that was a condition in which
-the dlm was sending remove messages in a looping behaviour. With this
-patch that has not been reproduced.
+This is fixed by using a separate list iterator variable for the loop
+and only setting the original variable if a suitable element was found.
+Then determing if the element was found is simply checking if the
+variable is set.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8c242db9b8c0 ("f2fs: fix stale ATOMIC_WRITTEN_PAGE private pointer")
+Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lock.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ fs/f2fs/segment.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/dlm/lock.c
-+++ b/fs/dlm/lock.c
-@@ -1555,6 +1555,7 @@ static int _remove_from_waiters(struct d
- 		lkb->lkb_wait_type = 0;
- 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_CANCEL;
- 		lkb->lkb_wait_count--;
-+		unhold_lkb(lkb);
- 		goto out_del;
- 	}
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 0e3e590a250f..6fbf0471323e 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -354,16 +354,19 @@ void f2fs_drop_inmem_page(struct inode *inode, struct page *page)
+ 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+ 	struct list_head *head = &fi->inmem_pages;
+ 	struct inmem_pages *cur = NULL;
++	struct inmem_pages *tmp;
  
-@@ -1581,6 +1582,7 @@ static int _remove_from_waiters(struct d
- 		log_error(ls, "remwait error %x reply %d wait_type %d overlap",
- 			  lkb->lkb_id, mstype, lkb->lkb_wait_type);
- 		lkb->lkb_wait_count--;
-+		unhold_lkb(lkb);
- 		lkb->lkb_wait_type = 0;
- 	}
+ 	f2fs_bug_on(sbi, !IS_ATOMIC_WRITTEN_PAGE(page));
  
-@@ -5314,11 +5316,16 @@ int dlm_recover_waiters_post(struct dlm_
- 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_UNLOCK;
- 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_CANCEL;
- 		lkb->lkb_wait_type = 0;
--		lkb->lkb_wait_count = 0;
-+		/* drop all wait_count references we still
-+		 * hold a reference for this iteration.
-+		 */
-+		while (lkb->lkb_wait_count) {
-+			lkb->lkb_wait_count--;
-+			unhold_lkb(lkb);
+ 	mutex_lock(&fi->inmem_lock);
+-	list_for_each_entry(cur, head, list) {
+-		if (cur->page == page)
++	list_for_each_entry(tmp, head, list) {
++		if (tmp->page == page) {
++			cur = tmp;
+ 			break;
 +		}
- 		mutex_lock(&ls->ls_waiters_mutex);
- 		list_del_init(&lkb->lkb_wait_reply);
- 		mutex_unlock(&ls->ls_waiters_mutex);
--		unhold_lkb(lkb); /* for waiters list */
+ 	}
  
- 		if (oc || ou) {
- 			/* do an unlock or cancel instead of resending */
+-	f2fs_bug_on(sbi, list_empty(head) || cur->page != page);
++	f2fs_bug_on(sbi, !cur);
+ 	list_del(&cur->list);
+ 	mutex_unlock(&fi->inmem_lock);
+ 
+-- 
+2.35.1
+
 
 
