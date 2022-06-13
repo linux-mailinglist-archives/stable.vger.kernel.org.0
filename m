@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2EAA548B50
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBEB6548EA0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351220AbiFMMe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:34:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41846 "EHLO
+        id S1383372AbiFMO2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:28:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355745AbiFMMd7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:33:59 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83558AE68;
-        Mon, 13 Jun 2022 04:07:37 -0700 (PDT)
+        with ESMTP id S1384437AbiFMOZ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:25:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0526149C9D;
+        Mon, 13 Jun 2022 04:47:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BC24BCE1185;
-        Mon, 13 Jun 2022 11:07:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F688C34114;
-        Mon, 13 Jun 2022 11:07:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5685F613F9;
+        Mon, 13 Jun 2022 11:47:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63DDAC34114;
+        Mon, 13 Jun 2022 11:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118449;
-        bh=fxDFLdWs+q0mc8JN6tg+agJWCbc3hTnLQ0RnJsz8/Tc=;
+        s=korg; t=1655120823;
+        bh=tbsBjKqvCokBZRsF7bu0vr3QAcJFbcOcF4t0Z/UWIyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uNW2gWBaJqW4XK0SMb9TOPAnavvKzq3Pyo6KbUf0+dsXfxc/49gjhyFsbBwA4TBAx
-         6vq7fqAV8+QwblhATPyMhkXDCk818YRMsQOlYjVXBvXZ8i44rgnQfcus5CkBoIJbYQ
-         c4y7KYm+k35VrrTurOZrFyr7rfKtEptZz1y2HWqo=
+        b=jqWs7AtXC++y8pqrrkT3g9hZ8ZOcNdcdqmfhKfb1Z7MzujUArf9qR33J/mMuH4FI1
+         kI/TsxddmiF0cFLgSFn/JTWNZFNvcdCZzA5fpu1AOhGwwMmpcVdtC7CWYDpEiOqsbs
+         ykiYmwafSY9OoiwY0OPVmJJ4cG5lx3o1zj6+yfb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 080/172] iommu/arm-smmu: fix possible null-ptr-deref in arm_smmu_device_probe()
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 146/298] m68knommu: fix undefined reference to `_init_sp
 Date:   Mon, 13 Jun 2022 12:10:40 +0200
-Message-Id: <20220613094909.630360897@linuxfoundation.org>
+Message-Id: <20220613094929.367481398@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Greg Ungerer <gerg@linux-m68k.org>
 
-[ Upstream commit d9ed8af1dee37f181096631fb03729ece98ba816 ]
+[ Upstream commit a71b9e66fee47c59b3ec34e652b5c23bc6550794 ]
 
-It will cause null-ptr-deref when using 'res', if platform_get_resource()
-returns NULL, so move using 'res' after devm_ioremap_resource() that
-will check it to avoid null-ptr-deref.
-And use devm_platform_get_and_ioremap_resource() to simplify code.
+When configuring a nommu classic m68k system enabling the uboot parameter
+passing support (CONFIG_UBOOT) will produce the following compile error:
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220425114136.2649310-1-yangyingliang@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+   m68k-linux-ld: arch/m68k/kernel/uboot.o: in function `process_uboot_commandline':
+   uboot.c:(.init.text+0x32): undefined reference to `_init_sp'
+
+The logic to support this option is only used on ColdFire based platforms
+(in its head.S startup code). So make the selection of this option
+depend on building for a ColdFire based platform.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm/arm-smmu/arm-smmu.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/m68k/Kconfig.machine | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-index df24bbe3ea4f..6b41fe229a05 100644
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-@@ -2123,11 +2123,10 @@ static int arm_smmu_device_probe(struct platform_device *pdev)
- 	if (err)
- 		return err;
+diff --git a/arch/m68k/Kconfig.machine b/arch/m68k/Kconfig.machine
+index eeab4f3e6c19..946853a08502 100644
+--- a/arch/m68k/Kconfig.machine
++++ b/arch/m68k/Kconfig.machine
+@@ -335,6 +335,7 @@ comment "Machine Options"
  
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	ioaddr = res->start;
--	smmu->base = devm_ioremap_resource(dev, res);
-+	smmu->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
- 	if (IS_ERR(smmu->base))
- 		return PTR_ERR(smmu->base);
-+	ioaddr = res->start;
- 	/*
- 	 * The resource size should effectively match the value of SMMU_TOP;
- 	 * stash that temporarily until we know PAGESIZE to validate it with.
+ config UBOOT
+ 	bool "Support for U-Boot command line parameters"
++	depends on COLDFIRE
+ 	help
+ 	  If you say Y here kernel will try to collect command
+ 	  line parameters from the initial u-boot stack.
 -- 
 2.35.1
 
