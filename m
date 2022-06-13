@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A44154901E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FE8E54964D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381990AbiFMOZe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:25:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52860 "EHLO
+        id S242420AbiFMKZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:25:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383409AbiFMOWm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:22:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0F50A26E0;
-        Mon, 13 Jun 2022 04:44:07 -0700 (PDT)
+        with ESMTP id S245318AbiFMKYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:24:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44007205EF;
+        Mon, 13 Jun 2022 03:18:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45E12B80E2C;
-        Mon, 13 Jun 2022 11:44:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A79D1C34114;
-        Mon, 13 Jun 2022 11:44:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5B82B80E5C;
+        Mon, 13 Jun 2022 10:18:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAAC6C34114;
+        Mon, 13 Jun 2022 10:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120645;
-        bh=uG0I/gJsRKxBuo++ROArv2w/vHAcrZRr6c1u6N1YxZ8=;
+        s=korg; t=1655115525;
+        bh=pOFYgfee5iVtMFAxZz46DsyhKPKQrBcJoxcFBBfq19w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gqBDzvw+trlm1XrQp7jWWAYCCLLcEnHH+3wJIMkM02vdgaCmp+ck2kkclD1Pzc/gf
-         1vTldbAQMU3WpEUNS0DaKJTU9pAfW9Jsw4o4Q4NhDSO1eS0ihuY7spUQ97Jgg2+g6i
-         +LwNzjCRVvdzl/j7Jy8IiohirE85o/d9GKlRx1xk=
+        b=SC9S0+Ml1O7uT4bOS4VvlIHkVAHpNyZgmV2WEQiQOq1MnbP71XTGCf+yPphixYVMo
+         ZOmGAIoaBpBOvudqVoGOARJpT5+sP9m0hspmZyQVkE4oi6bOOe2LNREZHYQah8uNoc
+         zfVfdfrCJb+/jckW269od1hvb2nHgS0JjSBZzgP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Genjian Zhang <zhanggenjian@kylinos.cn>,
-        Alexander Sverdlin <alexander.sverdlin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 088/298] ep93xx: clock: Do not return the address of the freed memory
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips@vger.kernel.org, Manuel Lauss <manuel.lauss@gmail.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 108/167] pcmcia: db1xxx_ss: restrict to MIPS_DB1XXX boards
 Date:   Mon, 13 Jun 2022 12:09:42 +0200
-Message-Id: <20220613094927.618030909@linuxfoundation.org>
+Message-Id: <20220613094906.130102114@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +60,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Genjian Zhang <zhanggenjian123@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 8a7322a3a05f75e8a4902bdf8129aecd37d54fe9 ]
+[ Upstream commit 3928cf08334ed895a31458cbebd8d4ec6d84c080 ]
 
-Avoid return freed memory addresses,Modified to the actual error
-return value of clk_register().
+When the MIPS_ALCHEMY board selection is MIPS_XXS1500 instead of
+MIPS_DB1XXX, the PCMCIA driver 'db1xxx_ss' has build errors due
+to missing DB1XXX symbols. The PCMCIA driver should be restricted
+to MIPS_DB1XXX instead of MIPS_ALCHEMY to fix this build error.
 
-Fixes: 9645ccc7bd7a ("ep93xx: clock: convert in-place to COMMON_CLK")
-Signed-off-by: Genjian Zhang <zhanggenjian@kylinos.cn>
-Acked-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+ERROR: modpost: "bcsr_read" [drivers/pcmcia/db1xxx_ss.ko] undefined!
+ERROR: modpost: "bcsr_mod" [drivers/pcmcia/db1xxx_ss.ko] undefined!
+
+Fixes: 42a4f17dc356 ("MIPS: Alchemy: remove SOC_AU1X00 in favor of MIPS_ALCHEMY")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
+Acked-by: Manuel Lauss <manuel.lauss@gmail.com>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-ep93xx/clock.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/pcmcia/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-ep93xx/clock.c b/arch/arm/mach-ep93xx/clock.c
-index 28e0ae6e890e..00c2db101ce5 100644
---- a/arch/arm/mach-ep93xx/clock.c
-+++ b/arch/arm/mach-ep93xx/clock.c
-@@ -345,9 +345,10 @@ static struct clk_hw *clk_hw_register_ddiv(const char *name,
- 	psc->hw.init = &init;
+diff --git a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
+index d3c378b4db6c..20d85d564b80 100644
+--- a/drivers/pcmcia/Kconfig
++++ b/drivers/pcmcia/Kconfig
+@@ -146,7 +146,7 @@ config TCIC
  
- 	clk = clk_register(NULL, &psc->hw);
--	if (IS_ERR(clk))
-+	if (IS_ERR(clk)) {
- 		kfree(psc);
--
-+		return ERR_CAST(clk);
-+	}
- 	return &psc->hw;
- }
- 
-@@ -452,9 +453,10 @@ static struct clk_hw *clk_hw_register_div(const char *name,
- 	psc->hw.init = &init;
- 
- 	clk = clk_register(NULL, &psc->hw);
--	if (IS_ERR(clk))
-+	if (IS_ERR(clk)) {
- 		kfree(psc);
--
-+		return ERR_CAST(clk);
-+	}
- 	return &psc->hw;
- }
- 
+ config PCMCIA_ALCHEMY_DEVBOARD
+ 	tristate "Alchemy Db/Pb1xxx PCMCIA socket services"
+-	depends on MIPS_ALCHEMY && PCMCIA
++	depends on MIPS_DB1XXX && PCMCIA
+ 	help
+ 	  Enable this driver of you want PCMCIA support on your Alchemy
+ 	  Db1000, Db/Pb1100, Db/Pb1500, Db/Pb1550, Db/Pb1200, DB1300
 -- 
 2.35.1
 
