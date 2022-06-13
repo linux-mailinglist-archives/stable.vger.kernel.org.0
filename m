@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 697DA5498A6
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D7BA5490D9
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377496AbiFMNkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:40:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57186 "EHLO
+        id S1354310AbiFMLcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:32:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378087AbiFMNhS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:37:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D1E83630D;
-        Mon, 13 Jun 2022 04:27:23 -0700 (PDT)
+        with ESMTP id S1353830AbiFML1E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:27:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03F3F3DA72;
+        Mon, 13 Jun 2022 03:42:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACE5761225;
-        Mon, 13 Jun 2022 11:27:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9CB4C3411C;
-        Mon, 13 Jun 2022 11:27:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E09B3B80D3C;
+        Mon, 13 Jun 2022 10:42:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B582C34114;
+        Mon, 13 Jun 2022 10:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119642;
-        bh=uo0lwWJaTQsbH8CNcVD3Nc5hC4tDjxOrZxt2j38czqY=;
+        s=korg; t=1655116964;
+        bh=sU4af+R8hY2Xsfo+mlNUVQheGOnnT4hlS2Cs6ZXmbzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QKGIA348tCBdukOZO2D20sOQ1Qb3HSARkDKzhO4iRbOgq+zxkNjQL3IZWJjZo+EsQ
-         vdtr8ZFSGegbuh+EqLqZk2dCFT9OIZekFmtfxD/8wn3x3zh39DetmZ6fnmY40UBmtR
-         S9vBbUFnvVCikY5Kdv/tGncpXeFNNTCER5kDQzHw=
+        b=r/D4xiZwbTd0Yf0R95Vb+YBZll6oThN0jJM1coVMq/s7QXhQ2lDP2tdwAt03KZkJ9
+         dQ+wJPI9ZQkSjsJAFbnY8qSTCkD3D/AN1uBTl+u/bBsa0C1cSWKKMPwr2hrHo9BqxT
+         BmWFzQz7tG/PU50DYgH0drWcBTlBsqbh0flDR3bk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 086/339] amt: fix return value of amt_update_handler()
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 238/411] scsi: ufs: qcom: Add a readl() to make sure ref_clk gets enabled
 Date:   Mon, 13 Jun 2022 12:08:31 +0200
-Message-Id: <20220613094929.125482154@linuxfoundation.org>
+Message-Id: <20220613094935.918367748@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit ac1dbf55981b88d64312858ea06e3e63001f085d ]
+commit 8eecddfca30e1651dc1c74531ed5eef21dcce7e3 upstream.
 
-If a relay receives an update message, it lookup a tunnel.
-and if there is no tunnel for that message, it should be treated
-as an error, not a success.
-But amt_update_handler() returns false, which means success.
+In ufs_qcom_dev_ref_clk_ctrl(), it was noted that the ref_clk needs to be
+stable for at least 1us. Even though there is wmb() to make sure the write
+gets "completed", there is no guarantee that the write actually reached the
+UFS device. There is a good chance that the write could be stored in a
+Write Buffer (WB). In that case, even though the CPU waits for 1us, the
+ref_clk might not be stable for that period.
 
-Fixes: cbc21dc1cfe9 ("amt: add data plane of amt interface")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So lets do a readl() to make sure that the previous write has reached the
+UFS device before udelay().
+
+Also, the wmb() after writel_relaxed() is not really needed. Both writel()
+and readl() are ordered on all architectures and the CPU won't speculate
+instructions after readl() due to the in-built control dependency with read
+value on weakly ordered architectures. So it can be safely removed.
+
+Link: https://lore.kernel.org/r/20220504084212.11605-4-manivannan.sadhasivam@linaro.org
+Fixes: f06fcc7155dc ("scsi: ufs-qcom: add QUniPro hardware support and power optimizations")
+Cc: stable@vger.kernel.org
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/amt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufs-qcom.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/amt.c b/drivers/net/amt.c
-index de4ea518c793..d376ed89f836 100644
---- a/drivers/net/amt.c
-+++ b/drivers/net/amt.c
-@@ -2423,7 +2423,7 @@ static bool amt_update_handler(struct amt_dev *amt, struct sk_buff *skb)
- 		}
- 	}
+--- a/drivers/scsi/ufs/ufs-qcom.c
++++ b/drivers/scsi/ufs/ufs-qcom.c
+@@ -781,8 +781,11 @@ static void ufs_qcom_dev_ref_clk_ctrl(st
  
--	return false;
-+	return true;
+ 		writel_relaxed(temp, host->dev_ref_clk_ctrl_mmio);
  
- report:
- 	iph = ip_hdr(skb);
--- 
-2.35.1
-
+-		/* ensure that ref_clk is enabled/disabled before we return */
+-		wmb();
++		/*
++		 * Make sure the write to ref_clk reaches the destination and
++		 * not stored in a Write Buffer (WB).
++		 */
++		readl(host->dev_ref_clk_ctrl_mmio);
+ 
+ 		/*
+ 		 * If we call hibern8 exit after this, we need to make sure that
 
 
