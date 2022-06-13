@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74A6D549486
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22A4754935B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352515AbiFMLQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1353780AbiFMLQv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 13 Jun 2022 07:16:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46554 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352799AbiFMLOX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:14:23 -0400
+        with ESMTP id S1352808AbiFMLOY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:14:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8BC6B487;
-        Mon, 13 Jun 2022 03:37:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A51ECB1C5;
+        Mon, 13 Jun 2022 03:37:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92230B80E5C;
-        Mon, 13 Jun 2022 10:36:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05942C34114;
-        Mon, 13 Jun 2022 10:36:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 567FDB80EAA;
+        Mon, 13 Jun 2022 10:37:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1AEFC34114;
+        Mon, 13 Jun 2022 10:37:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116618;
-        bh=yiNOSIgG1rAI1xTaElFhimm4IQ3iGvnoBLt15HG6IWU=;
+        s=korg; t=1655116621;
+        bh=qgNF03BzyydHEE+eN1RbZV5OqonJAYMYPAyXTwdOkG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rA8btv0fJm6wBV2npC2IoiUY9LEeImGhpQetQcMZm8dUFy54HuHQXULS3PfL/zx4y
-         gES25IkcV1zd91p7Q7tNKzriLpQoUfg9yh2cfL323F1Ua9YGLZeBUc/OyyEKcjf3Ja
-         7viX72NhfdfFlWa3Ki9QIRFrtHOw1PK+tjwLQPV8=
+        b=jy1L7AwfcZKFKnMu+tJgH/9fKg8+FarZZ5KnxRu3rrEtKbZKyjk1l1nmu5V/zovOq
+         aDYZ4h/WUarR0WgDW9V8Aw+G01TVTrNTcMn84F+DQ1+0iuTqNwoQfcgvNDaooekunH
+         Lkl6TunahfOZnveLOnwfjVoIP6C0LPkx1phen9yY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Rob Clark <robdclark@gmail.com>,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 124/411] drm/msm/mdp5: Return error code in mdp5_pipe_release when deadlock is detected
-Date:   Mon, 13 Jun 2022 12:06:37 +0200
-Message-Id: <20220613094932.391571366@linuxfoundation.org>
+Subject: [PATCH 5.4 125/411] drm/msm/mdp5: Return error code in mdp5_mixer_release when deadlock is detected
+Date:   Mon, 13 Jun 2022 12:06:38 +0200
+Message-Id: <20220613094932.421802287@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -58,129 +58,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jessica Zhang <quic_jesszhan@quicinc.com>
 
-[ Upstream commit d59be579fa932c46b908f37509f319cbd4ca9a68 ]
+[ Upstream commit ca75f6f7c6f89365e40f10f641b15981b1f07c31 ]
 
-mdp5_get_global_state runs the risk of hitting a -EDEADLK when acquiring
-the modeset lock, but currently mdp5_pipe_release doesn't check for if
-an error is returned. Because of this, there is a possibility of
-mdp5_pipe_release hitting a NULL dereference error.
+There is a possibility for mdp5_get_global_state to return
+-EDEADLK when acquiring the modeset lock, but currently global_state in
+mdp5_mixer_release doesn't check for if an error is returned.
 
-To avoid this, let's have mdp5_pipe_release check if
-mdp5_get_global_state returns an error and propogate that error.
-
-Changes since v1:
-- Separated declaration and initialization of *new_state to avoid
-  compiler warning
-- Fixed some spelling mistakes in commit message
-
-Changes since v2:
-- Return 0 in case where hwpipe is NULL as this is considered normal
-  behavior
-- Added 2nd patch in series to fix a similar NULL dereference issue in
-  mdp5_mixer_release
+To avoid a NULL dereference error, let's have mdp5_mixer_release
+check if an error is returned and propagate that error.
 
 Reported-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
 Signed-off-by: Jessica Zhang <quic_jesszhan@quicinc.com>
 Fixes: 7907a0d77cb4 ("drm/msm/mdp5: Use the new private_obj state")
 Reviewed-by: Rob Clark <robdclark@gmail.com>
 Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/485179/
-Link: https://lore.kernel.org/r/20220505214051.155-1-quic_jesszhan@quicinc.com
+Patchwork: https://patchwork.freedesktop.org/patch/485181/
+Link: https://lore.kernel.org/r/20220505214051.155-2-quic_jesszhan@quicinc.com
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c  | 15 +++++++++++----
- drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h  |  2 +-
- drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c | 20 ++++++++++++++++----
- 3 files changed, 28 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c  | 10 ++++++++--
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.c | 15 +++++++++++----
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.h |  4 ++--
+ 3 files changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
-index ba6695963aa6..a4f5cb90f3e8 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
-@@ -119,18 +119,23 @@ int mdp5_pipe_assign(struct drm_atomic_state *s, struct drm_plane *plane,
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
+index 395146884a22..9afbce3cb87b 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
+@@ -534,9 +534,15 @@ int mdp5_crtc_setup_pipeline(struct drm_crtc *crtc,
+ 		if (ret)
+ 			return ret;
+ 
+-		mdp5_mixer_release(new_crtc_state->state, old_mixer);
++		ret = mdp5_mixer_release(new_crtc_state->state, old_mixer);
++		if (ret)
++			return ret;
++
+ 		if (old_r_mixer) {
+-			mdp5_mixer_release(new_crtc_state->state, old_r_mixer);
++			ret = mdp5_mixer_release(new_crtc_state->state, old_r_mixer);
++			if (ret)
++				return ret;
++
+ 			if (!need_right_mixer)
+ 				pipeline->r_mixer = NULL;
+ 		}
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.c
+index 954db683ae44..2536def2a000 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.c
+@@ -116,21 +116,28 @@ int mdp5_mixer_assign(struct drm_atomic_state *s, struct drm_crtc *crtc,
  	return 0;
  }
  
--void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
-+int mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
+-void mdp5_mixer_release(struct drm_atomic_state *s, struct mdp5_hw_mixer *mixer)
++int mdp5_mixer_release(struct drm_atomic_state *s, struct mdp5_hw_mixer *mixer)
  {
- 	struct msm_drm_private *priv = s->dev->dev_private;
- 	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(priv->kms));
- 	struct mdp5_global_state *state = mdp5_get_global_state(s);
--	struct mdp5_hw_pipe_state *new_state = &state->hwpipe;
-+	struct mdp5_hw_pipe_state *new_state;
+ 	struct mdp5_global_state *global_state = mdp5_get_global_state(s);
+-	struct mdp5_hw_mixer_state *new_state = &global_state->hwmixer;
++	struct mdp5_hw_mixer_state *new_state;
  
- 	if (!hwpipe)
+ 	if (!mixer)
 -		return;
 +		return 0;
 +
-+	if (IS_ERR(state))
-+		return PTR_ERR(state);
++	if (IS_ERR(global_state))
++		return PTR_ERR(global_state);
 +
-+	new_state = &state->hwpipe;
++	new_state = &global_state->hwmixer;
  
- 	if (WARN_ON(!new_state->hwpipe_to_plane[hwpipe->idx]))
+ 	if (WARN_ON(!new_state->hwmixer_to_crtc[mixer->idx]))
 -		return;
 +		return -EINVAL;
  
- 	DBG("%s: release from plane %s", hwpipe->name,
- 		new_state->hwpipe_to_plane[hwpipe->idx]->name);
-@@ -141,6 +146,8 @@ void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
- 	}
+ 	DBG("%s: release from crtc %s", mixer->name,
+ 	    new_state->hwmixer_to_crtc[mixer->idx]->name);
  
- 	new_state->hwpipe_to_plane[hwpipe->idx] = NULL;
+ 	new_state->hwmixer_to_crtc[mixer->idx] = NULL;
 +
 +	return 0;
  }
  
- void mdp5_pipe_destroy(struct mdp5_hw_pipe *hwpipe)
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
-index 9b26d0761bd4..cca67938cab2 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
-@@ -37,7 +37,7 @@ int mdp5_pipe_assign(struct drm_atomic_state *s, struct drm_plane *plane,
- 		     uint32_t caps, uint32_t blkcfg,
- 		     struct mdp5_hw_pipe **hwpipe,
- 		     struct mdp5_hw_pipe **r_hwpipe);
--void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe);
-+int mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe);
+ void mdp5_mixer_destroy(struct mdp5_hw_mixer *mixer)
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.h b/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.h
+index 43c9ba43ce18..545ee223b9d7 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.h
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.h
+@@ -30,7 +30,7 @@ void mdp5_mixer_destroy(struct mdp5_hw_mixer *lm);
+ int mdp5_mixer_assign(struct drm_atomic_state *s, struct drm_crtc *crtc,
+ 		      uint32_t caps, struct mdp5_hw_mixer **mixer,
+ 		      struct mdp5_hw_mixer **r_mixer);
+-void mdp5_mixer_release(struct drm_atomic_state *s,
+-			struct mdp5_hw_mixer *mixer);
++int mdp5_mixer_release(struct drm_atomic_state *s,
++		       struct mdp5_hw_mixer *mixer);
  
- struct mdp5_hw_pipe *mdp5_pipe_init(enum mdp5_pipe pipe,
- 		uint32_t reg_offset, uint32_t caps);
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
-index da0799333970..0dc23c86747e 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
-@@ -393,12 +393,24 @@ static int mdp5_plane_atomic_check_with_state(struct drm_crtc_state *crtc_state,
- 				mdp5_state->r_hwpipe = NULL;
- 
- 
--			mdp5_pipe_release(state->state, old_hwpipe);
--			mdp5_pipe_release(state->state, old_right_hwpipe);
-+			ret = mdp5_pipe_release(state->state, old_hwpipe);
-+			if (ret)
-+				return ret;
-+
-+			ret = mdp5_pipe_release(state->state, old_right_hwpipe);
-+			if (ret)
-+				return ret;
-+
- 		}
- 	} else {
--		mdp5_pipe_release(state->state, mdp5_state->hwpipe);
--		mdp5_pipe_release(state->state, mdp5_state->r_hwpipe);
-+		ret = mdp5_pipe_release(state->state, mdp5_state->hwpipe);
-+		if (ret)
-+			return ret;
-+
-+		ret = mdp5_pipe_release(state->state, mdp5_state->r_hwpipe);
-+		if (ret)
-+			return ret;
-+
- 		mdp5_state->hwpipe = mdp5_state->r_hwpipe = NULL;
- 	}
- 
+ #endif /* __MDP5_LM_H__ */
 -- 
 2.35.1
 
