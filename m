@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6D2F548E36
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7E7D548D47
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348741AbiFMK4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:56:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59546 "EHLO
+        id S1358330AbiFMMGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:06:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349565AbiFMKyY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 158CD2F661;
-        Mon, 13 Jun 2022 03:28:16 -0700 (PDT)
+        with ESMTP id S1358870AbiFMMEz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:04:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8141450467;
+        Mon, 13 Jun 2022 03:58:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35BFEB80EA7;
-        Mon, 13 Jun 2022 10:28:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A52F0C34114;
-        Mon, 13 Jun 2022 10:28:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B123461257;
+        Mon, 13 Jun 2022 10:57:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFBB1C34114;
+        Mon, 13 Jun 2022 10:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116094;
-        bh=XEYdQj+nG/p83wdweF1uBpntbavIDU+Y+1Fsi+0wt+Y=;
+        s=korg; t=1655117879;
+        bh=yw+995S1gaIxVOh/n+ucL7VVwDzcFxIfBBiYfybKnW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=feE+B11hLeynWEzvLHV5ROLvXO1s0y12Oh3ta6cwtLFJIIe84RMZqqOCjsY6RvVlf
-         qIteigUGsFa5Sw0JDwXrj0SmmuIfIu+KzZCG83C1bwMKI9RmsvwzSpFRQaJzG8jV7/
-         U02aYgA0L7RiJCJ5PAgNJW3zPZ3dUWgOPBQPSHQw=
+        b=tyjyfN03kGRfNytRrzMzyafGhizDeGwpvFxTpT3MeB/WkrRlrIVfBSPf4jAUta4yc
+         1S1mWf16F6IQ7jVZMO6bSjriuN6FLaQqdHdBM2/UWEAZ67CQpatvrrQclu8M6bkWkK
+         P4BuQ24dbVfkMa3+jMvxYl3+io4iFnsQX+gyuKno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Subject: [PATCH 4.14 131/218] gma500: fix an incorrect NULL check on list iterator
+        stable@vger.kernel.org,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Pascal Speck <kernel@iktek.de>,
+        Fabio Estevam <festevam@denx.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 4.19 165/287] media: coda: Fix reported H264 profile
 Date:   Mon, 13 Jun 2022 12:09:49 +0200
-Message-Id: <20220613094924.553713522@linuxfoundation.org>
+Message-Id: <20220613094928.879822908@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +59,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-commit bdef417d84536715145f6dc9cc3275c46f26295a upstream.
+commit 7110c08ea71953a7fc342f0b76046f72442cf26c upstream.
 
-The bug is here:
-	return crtc;
+The CODA960 manual states that ASO/FMO features of baseline are not
+supported, so for this reason this driver should only report
+constrained baseline support.
 
-The list iterator value 'crtc' will *always* be set and non-NULL by
-list_for_each_entry(), so it is incorrect to assume that the iterator
-value will be NULL if the list is empty or no element is found.
+This fixes negotiation issue with constrained baseline content
+on GStreamer 1.17.1.
 
-To fix the bug, return 'crtc' when found, otherwise return NULL.
+ASO/FMO features are unsupported for the encoder and untested for the
+decoder because there is currently no userspace support. Neither GStreamer
+parsers nor FFMPEG parsers support ASO/FMO.
 
 Cc: stable@vger.kernel.org
-fixes: 89c78134cc54d ("gma500: Add Poulsbo support")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220327052028.2013-1-xiam0nd.tong@gmail.com
+Fixes: 42a68012e67c2 ("media: coda: add read-only h.264 decoder profile/level controls")
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Tested-by: Pascal Speck <kernel@iktek.de>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/gma500/psb_intel_display.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/media/platform/coda/coda-common.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/gma500/psb_intel_display.c
-+++ b/drivers/gpu/drm/gma500/psb_intel_display.c
-@@ -543,14 +543,15 @@ void psb_intel_crtc_init(struct drm_devi
- 
- struct drm_crtc *psb_intel_get_crtc_from_pipe(struct drm_device *dev, int pipe)
- {
--	struct drm_crtc *crtc = NULL;
-+	struct drm_crtc *crtc;
- 
- 	list_for_each_entry(crtc, &dev->mode_config.crtc_list, head) {
- 		struct gma_crtc *gma_crtc = to_gma_crtc(crtc);
-+
- 		if (gma_crtc->pipe == pipe)
--			break;
-+			return crtc;
- 	}
--	return crtc;
-+	return NULL;
- }
- 
- int gma_connector_clones(struct drm_device *dev, int type_mask)
+--- a/drivers/media/platform/coda/coda-common.c
++++ b/drivers/media/platform/coda/coda-common.c
+@@ -1894,8 +1894,8 @@ static void coda_encode_ctrls(struct cod
+ 		0x0, V4L2_MPEG_VIDEO_H264_LOOP_FILTER_MODE_ENABLED);
+ 	v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
+ 		V4L2_CID_MPEG_VIDEO_H264_PROFILE,
+-		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE, 0x0,
+-		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE);
++		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE, 0x0,
++		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE);
+ 	if (ctx->dev->devtype->product == CODA_HX4 ||
+ 	    ctx->dev->devtype->product == CODA_7541) {
+ 		v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
+@@ -1977,7 +1977,7 @@ static void coda_decode_ctrls(struct cod
+ 	ctx->h264_profile_ctrl = v4l2_ctrl_new_std_menu(&ctx->ctrls,
+ 		&coda_ctrl_ops, V4L2_CID_MPEG_VIDEO_H264_PROFILE,
+ 		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH,
+-		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE) |
++		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE) |
+ 		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_MAIN) |
+ 		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_HIGH)),
+ 		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH);
 
 
