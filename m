@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BB65548637
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:56:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03FBE5486FA
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344680AbiFMKuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:50:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59050 "EHLO
+        id S1353847AbiFMLc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:32:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346682AbiFMKsq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:48:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E52012CDD7;
-        Mon, 13 Jun 2022 03:26:17 -0700 (PDT)
+        with ESMTP id S1354712AbiFML35 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D63F3EF28;
+        Mon, 13 Jun 2022 03:45:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED74A60F09;
-        Mon, 13 Jun 2022 10:26:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2482C34114;
-        Mon, 13 Jun 2022 10:26:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 390B060FDB;
+        Mon, 13 Jun 2022 10:45:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B087C34114;
+        Mon, 13 Jun 2022 10:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115976;
-        bh=+7lMIGEEM0SyYdAaiK7TVCobrDsuPE+uowxjx/D62q8=;
+        s=korg; t=1655117129;
+        bh=xZMuTpWursdJJdYloy8uMjAmfjbR/M9GPbci0Jb3eq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pw1wBax8YHbsqp87kfWf3FGS3vc085dCJ9TKIqiv0Uix3+xCL6RvqF+SMuffwzwuC
-         D0qmj3hadZXhTyLayFgz15FJ8Pk4xKu1zHCzNQ4xIB2Vqn4NJfEz0XIa3CzNp/wERQ
-         c6KpIRU2o+fYJc6p4EqIzm6P6j2cXSH2YUECaEi0=
+        b=wWYipV5lEXr+Jogpj/xkfOCTCOdWVpbMNG2OJwGv2Ctq5gRtoK2+PnkcR9Kn3iLJt
+         zQJLPJXGac++87Tv3lmPQg4VGeuHe+p9dXdCG2K9CvTdB+IoQYWYXWO6jO+nf+tPwG
+         2Qu3zlhrsFCGTyeZciowIY/X9VPhS1tO4pN99Idw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.14 102/218] wifi: mac80211: fix use-after-free in chanctx code
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Hangyu Hua <hbh25y@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 287/411] usb: usbip: fix a refcount leak in stub_probe()
 Date:   Mon, 13 Jun 2022 12:09:20 +0200
-Message-Id: <20220613094923.647168349@linuxfoundation.org>
+Message-Id: <20220613094937.364806969@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-commit 2965c4cdf7ad9ce0796fac5e57debb9519ea721e upstream.
+[ Upstream commit 9ec4cbf1cc55d126759051acfe328d489c5d6e60 ]
 
-In ieee80211_vif_use_reserved_context(), when we have an
-old context and the new context's replace_state is set to
-IEEE80211_CHANCTX_REPLACE_NONE, we free the old context
-in ieee80211_vif_use_reserved_reassign(). Therefore, we
-cannot check the old_ctx anymore, so we should set it to
-NULL after this point.
+usb_get_dev() is called in stub_device_alloc(). When stub_probe() fails
+after that, usb_put_dev() needs to be called to release the reference.
 
-However, since the new_ctx replace state is clearly not
-IEEE80211_CHANCTX_REPLACES_OTHER, we're not going to do
-anything else in this function and can just return to
-avoid accessing the freed old_ctx.
+Fix this by moving usb_put_dev() to sdev_free error path handling.
 
-Cc: stable@vger.kernel.org
-Fixes: 5bcae31d9cb1 ("mac80211: implement multi-vif in-place reservations")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220601091926.df419d91b165.I17a9b3894ff0b8323ce2afdb153b101124c821e5@changeid
+Find this by code review.
+
+Fixes: 3ff67445750a ("usbip: fix error handling in stub_probe()")
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lore.kernel.org/r/20220412020257.9767-1-hbh25y@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/chan.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/usb/usbip/stub_dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mac80211/chan.c
-+++ b/net/mac80211/chan.c
-@@ -1638,12 +1638,9 @@ int ieee80211_vif_use_reserved_context(s
+diff --git a/drivers/usb/usbip/stub_dev.c b/drivers/usb/usbip/stub_dev.c
+index d8d3892e5a69..3c6d452e3bf4 100644
+--- a/drivers/usb/usbip/stub_dev.c
++++ b/drivers/usb/usbip/stub_dev.c
+@@ -393,7 +393,6 @@ static int stub_probe(struct usb_device *udev)
  
- 	if (new_ctx->replace_state == IEEE80211_CHANCTX_REPLACE_NONE) {
- 		if (old_ctx)
--			err = ieee80211_vif_use_reserved_reassign(sdata);
--		else
--			err = ieee80211_vif_use_reserved_assign(sdata);
-+			return ieee80211_vif_use_reserved_reassign(sdata);
+ err_port:
+ 	dev_set_drvdata(&udev->dev, NULL);
+-	usb_put_dev(udev);
  
--		if (err)
--			return err;
-+		return ieee80211_vif_use_reserved_assign(sdata);
- 	}
+ 	/* we already have busid_priv, just lock busid_lock */
+ 	spin_lock(&busid_priv->busid_lock);
+@@ -408,6 +407,7 @@ static int stub_probe(struct usb_device *udev)
+ 	put_busid_priv(busid_priv);
  
- 	/*
+ sdev_free:
++	usb_put_dev(udev);
+ 	stub_device_free(sdev);
+ 
+ 	return rc;
+-- 
+2.35.1
+
 
 
