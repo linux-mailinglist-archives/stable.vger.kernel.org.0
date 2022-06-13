@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 590565481E5
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 10:28:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EB70548180
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 10:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234853AbiFMIJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 04:09:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35116 "EHLO
+        id S233322AbiFMIJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 04:09:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239550AbiFMIJJ (ORCPT
+        with ESMTP id S239553AbiFMIJJ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 04:09:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B61611E3CB
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 01:09:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 363891E3CC
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 01:09:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64E81B8015B
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 08:09:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFBBEC34114;
-        Mon, 13 Jun 2022 08:09:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3ADAB80D9B
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 08:09:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7873BC34114;
+        Mon, 13 Jun 2022 08:09:04 +0000 (UTC)
 Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="hJF2vZ2G"
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="K7naIEW2"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1655107741;
+        t=1655107743;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=CL1DkLt7vvLL4sh4xec0xh7SoeyRLxVPKVqMe8OnuHM=;
-        b=hJF2vZ2GFGd5g2tchcpssYr2DXTVQIr//q+D62KuX1RLQ/h5UuckQ+U+yl9wGSdJN+Qqjb
-        oR/ggXLnj+pwLSGCrZ3E0phjykCaq+nlYJq2m7zFy4S3LQWFNloQ+WQyWMLiIEPhZjrnk5
-        kBz3SrFPoFfRB8+cSHfRNUarD9ZhW9Y=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 582e643b (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Mon, 13 Jun 2022 08:09:01 +0000 (UTC)
+        bh=PkHDkh5htAaPjOIzAT54jwJt+Fef7oNi00rZklkuNrc=;
+        b=K7naIEW2qHkzQCdBeTHMznKloQmSqGMAfpCYMSnUanIStjMut+4K+bUbg7xzvcodjec+jP
+        aB4VPQ/Scto8QRCoEYxKuSPIEpZofsqCfCWb+S9Gg8GUARak6+zxVsGRRyE6yLnEsY6nCv
+        pXrpNAYGCmEV+Ydom0ClNXmg6uS5u+c=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 7bba6be0 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Mon, 13 Jun 2022 08:09:03 +0000 (UTC)
 From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
 To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Subject: [PATCH stable 5.18 5.17 5.15 5.10 2/3] random: mark bootloader randomness code as __init
-Date:   Mon, 13 Jun 2022 10:07:48 +0200
-Message-Id: <20220613080749.153222-3-Jason@zx2c4.com>
+Subject: [PATCH stable 5.18 5.17 5.15 5.10 3/3] random: account for arch randomness in bits
+Date:   Mon, 13 Jun 2022 10:07:49 +0200
+Message-Id: <20220613080749.153222-4-Jason@zx2c4.com>
 In-Reply-To: <20220613080749.153222-1-Jason@zx2c4.com>
 References: <20220613080749.153222-1-Jason@zx2c4.com>
 MIME-Version: 1.0
@@ -54,64 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 39e0f991a62ed5efabd20711a7b6e7da92603170 upstream.
+commit 77fc95f8c0dc9e1f8e620ec14d2fb65028fb7adc upstream.
 
-add_bootloader_randomness() and the variables it touches are only used
-during __init and not after, so mark these as __init. At the same time,
-unexport this, since it's only called by other __init code that's
-built-in.
+Rather than accounting in bytes and multiplying (shifting), we can just
+account in bits and avoid the shift. The main motivation for this is
+there are other patches in flux that expand this code a bit, and
+avoiding the duplication of "* 8" everywhere makes things a bit clearer.
 
 Cc: stable@vger.kernel.org
-Fixes: 428826f5358c ("fdt: add support for rng-seed")
+Fixes: 12e45a2a6308 ("random: credit architectural init the exact amount")
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
- drivers/char/random.c  | 7 +++----
- include/linux/random.h | 2 +-
- 2 files changed, 4 insertions(+), 5 deletions(-)
+ drivers/char/random.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 9972259809db..d09e78e6f24b 100644
+index d09e78e6f24b..82f9ee440406 100644
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -785,8 +785,8 @@ static void __cold _credit_init_bits(size_t bits)
-  *
-  **********************************************************************/
+@@ -809,7 +809,7 @@ early_param("random.trust_bootloader", parse_trust_bootloader);
+ int __init random_init(const char *command_line)
+ {
+ 	ktime_t now = ktime_get_real();
+-	unsigned int i, arch_bytes;
++	unsigned int i, arch_bits;
+ 	unsigned long entropy;
  
--static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
--static bool trust_bootloader __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
-+static bool trust_cpu __initdata = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
-+static bool trust_bootloader __initdata = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
- static int __init parse_trust_cpu(char *arg)
- {
- 	return kstrtobool(arg, &trust_cpu);
-@@ -882,13 +882,12 @@ EXPORT_SYMBOL_GPL(add_hwgenerator_randomness);
-  * Handle random seed passed by bootloader, and credit it if
-  * CONFIG_RANDOM_TRUST_BOOTLOADER is set.
-  */
--void __cold add_bootloader_randomness(const void *buf, size_t len)
-+void __init add_bootloader_randomness(const void *buf, size_t len)
- {
- 	mix_pool_bytes(buf, len);
- 	if (trust_bootloader)
- 		credit_init_bits(len * 8);
+ #if defined(LATENT_ENTROPY_PLUGIN)
+@@ -817,12 +817,12 @@ int __init random_init(const char *command_line)
+ 	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
+ #endif
+ 
+-	for (i = 0, arch_bytes = BLAKE2S_BLOCK_SIZE;
++	for (i = 0, arch_bits = BLAKE2S_BLOCK_SIZE * 8;
+ 	     i < BLAKE2S_BLOCK_SIZE; i += sizeof(entropy)) {
+ 		if (!arch_get_random_seed_long_early(&entropy) &&
+ 		    !arch_get_random_long_early(&entropy)) {
+ 			entropy = random_get_entropy();
+-			arch_bytes -= sizeof(entropy);
++			arch_bits -= sizeof(entropy) * 8;
+ 		}
+ 		_mix_pool_bytes(&entropy, sizeof(entropy));
+ 	}
+@@ -834,7 +834,7 @@ int __init random_init(const char *command_line)
+ 	if (crng_ready())
+ 		crng_reseed();
+ 	else if (trust_cpu)
+-		_credit_init_bits(arch_bytes * 8);
++		_credit_init_bits(arch_bits);
+ 
+ 	return 0;
  }
--EXPORT_SYMBOL_GPL(add_bootloader_randomness);
- 
- struct fast_pool {
- 	struct work_struct mix;
-diff --git a/include/linux/random.h b/include/linux/random.h
-index 917470c4490a..3feafab498ad 100644
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -13,7 +13,7 @@
- struct notifier_block;
- 
- void add_device_randomness(const void *buf, size_t len);
--void add_bootloader_randomness(const void *buf, size_t len);
-+void __init add_bootloader_randomness(const void *buf, size_t len);
- void add_input_randomness(unsigned int type, unsigned int code,
- 			  unsigned int value) __latent_entropy;
- void add_interrupt_randomness(int irq) __latent_entropy;
 -- 
 2.35.1
 
