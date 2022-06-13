@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EA62548C0E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A6D549486
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352279AbiFMLRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:17:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46526 "EHLO
+        id S1352515AbiFMLQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:16:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352781AbiFMLOV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:14:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC0B536B7F;
-        Mon, 13 Jun 2022 03:36:56 -0700 (PDT)
+        with ESMTP id S1352799AbiFMLOX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:14:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8BC6B487;
+        Mon, 13 Jun 2022 03:37:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5542E60F9A;
-        Mon, 13 Jun 2022 10:36:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62670C34114;
-        Mon, 13 Jun 2022 10:36:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92230B80E5C;
+        Mon, 13 Jun 2022 10:36:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05942C34114;
+        Mon, 13 Jun 2022 10:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116615;
-        bh=d8eam/u8TJsIPVLctjeBRpQRVqTMZyKu5ccKRJ1qFQc=;
+        s=korg; t=1655116618;
+        bh=yiNOSIgG1rAI1xTaElFhimm4IQ3iGvnoBLt15HG6IWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gEl/5tILDfLNE6tpHl9Q9gMH4vnsuutP28yIt3E1f2BrMWhYJ7mzarC1tmcopMF3d
-         f2X6PoLv0QQo5tf3/7faXO/XOVtje5UROyJIjxkJ+FmkdoxuMfzaRIx6SIhIlL9rel
-         luu/jAUg293D7cfXWn2+4frO9gYjB+HZ6QUp8LAk=
+        b=rA8btv0fJm6wBV2npC2IoiUY9LEeImGhpQetQcMZm8dUFy54HuHQXULS3PfL/zx4y
+         gES25IkcV1zd91p7Q7tNKzriLpQoUfg9yh2cfL323F1Ua9YGLZeBUc/OyyEKcjf3Ja
+         7viX72NhfdfFlWa3Ki9QIRFrtHOw1PK+tjwLQPV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Jessica Zhang <quic_jesszhan@quicinc.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 123/411] regulator: core: Fix enable_count imbalance with EXCLUSIVE_GET
-Date:   Mon, 13 Jun 2022 12:06:36 +0200
-Message-Id: <20220613094932.362497137@linuxfoundation.org>
+Subject: [PATCH 5.4 124/411] drm/msm/mdp5: Return error code in mdp5_pipe_release when deadlock is detected
+Date:   Mon, 13 Jun 2022 12:06:37 +0200
+Message-Id: <20220613094932.391571366@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -54,50 +56,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zev Weiss <zev@bewilderbeest.net>
+From: Jessica Zhang <quic_jesszhan@quicinc.com>
 
-[ Upstream commit c3e3ca05dae37f8f74bb80358efd540911cbc2c8 ]
+[ Upstream commit d59be579fa932c46b908f37509f319cbd4ca9a68 ]
 
-Since the introduction of regulator->enable_count, a driver that did
-an exclusive get on an already-enabled regulator would end up with
-enable_count initialized to 0 but rdev->use_count initialized to 1.
-With that starting point the regulator is effectively stuck enabled,
-because if the driver attempted to disable it it would fail the
-enable_count underflow check in _regulator_handle_consumer_disable().
+mdp5_get_global_state runs the risk of hitting a -EDEADLK when acquiring
+the modeset lock, but currently mdp5_pipe_release doesn't check for if
+an error is returned. Because of this, there is a possibility of
+mdp5_pipe_release hitting a NULL dereference error.
 
-The EXCLUSIVE_GET path in _regulator_get() now initializes
-enable_count along with rdev->use_count so that the regulator can be
-disabled without underflowing the former.
+To avoid this, let's have mdp5_pipe_release check if
+mdp5_get_global_state returns an error and propogate that error.
 
-Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
-Fixes: 5451781dadf85 ("regulator: core: Only count load for enabled consumers")
-Link: https://lore.kernel.org/r/20220505043152.12933-1-zev@bewilderbeest.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Changes since v1:
+- Separated declaration and initialization of *new_state to avoid
+  compiler warning
+- Fixed some spelling mistakes in commit message
+
+Changes since v2:
+- Return 0 in case where hwpipe is NULL as this is considered normal
+  behavior
+- Added 2nd patch in series to fix a similar NULL dereference issue in
+  mdp5_mixer_release
+
+Reported-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Signed-off-by: Jessica Zhang <quic_jesszhan@quicinc.com>
+Fixes: 7907a0d77cb4 ("drm/msm/mdp5: Use the new private_obj state")
+Reviewed-by: Rob Clark <robdclark@gmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/485179/
+Link: https://lore.kernel.org/r/20220505214051.155-1-quic_jesszhan@quicinc.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c  | 15 +++++++++++----
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h  |  2 +-
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c | 20 ++++++++++++++++----
+ 3 files changed, 28 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 7fd793d8536c..ae2addadb36f 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1988,10 +1988,13 @@ struct regulator *_regulator_get(struct device *dev, const char *id,
- 		rdev->exclusive = 1;
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
+index ba6695963aa6..a4f5cb90f3e8 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
+@@ -119,18 +119,23 @@ int mdp5_pipe_assign(struct drm_atomic_state *s, struct drm_plane *plane,
+ 	return 0;
+ }
  
- 		ret = _regulator_is_enabled(rdev);
--		if (ret > 0)
-+		if (ret > 0) {
- 			rdev->use_count = 1;
--		else
-+			regulator->enable_count = 1;
-+		} else {
- 			rdev->use_count = 0;
-+			regulator->enable_count = 0;
-+		}
+-void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
++int mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
+ {
+ 	struct msm_drm_private *priv = s->dev->dev_private;
+ 	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(priv->kms));
+ 	struct mdp5_global_state *state = mdp5_get_global_state(s);
+-	struct mdp5_hw_pipe_state *new_state = &state->hwpipe;
++	struct mdp5_hw_pipe_state *new_state;
+ 
+ 	if (!hwpipe)
+-		return;
++		return 0;
++
++	if (IS_ERR(state))
++		return PTR_ERR(state);
++
++	new_state = &state->hwpipe;
+ 
+ 	if (WARN_ON(!new_state->hwpipe_to_plane[hwpipe->idx]))
+-		return;
++		return -EINVAL;
+ 
+ 	DBG("%s: release from plane %s", hwpipe->name,
+ 		new_state->hwpipe_to_plane[hwpipe->idx]->name);
+@@ -141,6 +146,8 @@ void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
  	}
  
- 	device_link_add(dev, &rdev->dev, DL_FLAG_STATELESS);
+ 	new_state->hwpipe_to_plane[hwpipe->idx] = NULL;
++
++	return 0;
+ }
+ 
+ void mdp5_pipe_destroy(struct mdp5_hw_pipe *hwpipe)
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
+index 9b26d0761bd4..cca67938cab2 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
+@@ -37,7 +37,7 @@ int mdp5_pipe_assign(struct drm_atomic_state *s, struct drm_plane *plane,
+ 		     uint32_t caps, uint32_t blkcfg,
+ 		     struct mdp5_hw_pipe **hwpipe,
+ 		     struct mdp5_hw_pipe **r_hwpipe);
+-void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe);
++int mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe);
+ 
+ struct mdp5_hw_pipe *mdp5_pipe_init(enum mdp5_pipe pipe,
+ 		uint32_t reg_offset, uint32_t caps);
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+index da0799333970..0dc23c86747e 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+@@ -393,12 +393,24 @@ static int mdp5_plane_atomic_check_with_state(struct drm_crtc_state *crtc_state,
+ 				mdp5_state->r_hwpipe = NULL;
+ 
+ 
+-			mdp5_pipe_release(state->state, old_hwpipe);
+-			mdp5_pipe_release(state->state, old_right_hwpipe);
++			ret = mdp5_pipe_release(state->state, old_hwpipe);
++			if (ret)
++				return ret;
++
++			ret = mdp5_pipe_release(state->state, old_right_hwpipe);
++			if (ret)
++				return ret;
++
+ 		}
+ 	} else {
+-		mdp5_pipe_release(state->state, mdp5_state->hwpipe);
+-		mdp5_pipe_release(state->state, mdp5_state->r_hwpipe);
++		ret = mdp5_pipe_release(state->state, mdp5_state->hwpipe);
++		if (ret)
++			return ret;
++
++		ret = mdp5_pipe_release(state->state, mdp5_state->r_hwpipe);
++		if (ret)
++			return ret;
++
+ 		mdp5_state->hwpipe = mdp5_state->r_hwpipe = NULL;
+ 	}
+ 
 -- 
 2.35.1
 
