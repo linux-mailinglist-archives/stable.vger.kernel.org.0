@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FAA05487A1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7090F54880F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:00:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355093AbiFMNNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:13:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37456 "EHLO
+        id S1355973AbiFMLrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:47:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358659AbiFMNHN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:07:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55192381A0;
-        Mon, 13 Jun 2022 04:18:46 -0700 (PDT)
+        with ESMTP id S1356716AbiFMLo6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:44:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF2F948883;
+        Mon, 13 Jun 2022 03:51:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E8B960B6E;
-        Mon, 13 Jun 2022 11:18:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD97EC34114;
-        Mon, 13 Jun 2022 11:18:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4E37B80E07;
+        Mon, 13 Jun 2022 10:51:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5363BC34114;
+        Mon, 13 Jun 2022 10:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119125;
-        bh=XGML3YZdCB8pHt7L9TOGhy/gKBjQ+AGJw/xGujIi+wg=;
+        s=korg; t=1655117465;
+        bh=OeYBXK7Vd8Z7875GdHc2vCw+10nPHVIVgJicLuUH/T0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vYA9cRavKcKzSQcUYeR+ozJ4hPZVWhotmZgTwrpZsOnE5JW0gjBv445a2A1oEbGm3
-         902IvonmeaQ5lhzb/XPrK8rx9rH395LentV5RSH0ZB8ebz2vXYmyNmwORmoXAuKWYV
-         xYSY1n57qxWo4jmqbFt7HtdE74OBryarTydO/QQQ=
+        b=0/PH84VfejeX27z0lZp4bWxkT3u4Aos+aZ9Srl8Rcaf3eWno5D/Tdj3KKJgD3mqTY
+         XBWpXXAwNiuamh4IE7RT1DbcEMNVFcBOCOh0l18U0ebFCj8UJ6L+GD2zMMNkdUS/XT
+         On9wM+8+XN4MM+XpMEVHL3YCvZNdayzS6N6UzY0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        NeilBrown <neilb@suse.de>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Petr Mladek <pmladek@suse.com>,
+        John Ogness <john.ogness@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 150/247] SUNRPC: Fix the calculation of xdr->end in xdr_get_next_encode_buffer()
-Date:   Mon, 13 Jun 2022 12:10:52 +0200
-Message-Id: <20220613094927.504464728@linuxfoundation.org>
+Subject: [PATCH 5.4 382/411] serial: msm_serial: disable interrupts in __msm_console_write()
+Date:   Mon, 13 Jun 2022 12:10:55 +0200
+Message-Id: <20220613094940.121008282@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: John Ogness <john.ogness@linutronix.de>
 
-[ Upstream commit 6c254bf3b637dd4ef4f78eb78c7447419c0161d7 ]
+[ Upstream commit aabdbb1b7a5819e18c403334a31fb0cc2c06ad41 ]
 
-I found that NFSD's new NFSv3 READDIRPLUS XDR encoder was screwing up
-right at the end of the page array. xdr_get_next_encode_buffer() does
-not compute the value of xdr->end correctly:
+__msm_console_write() assumes that interrupts are disabled, but
+with threaded console printers it is possible that the write()
+callback of the console is called with interrupts enabled.
 
- * The check to see if we're on the final available page in xdr->buf
-   needs to account for the space consumed by @nbytes.
+Explicitly disable interrupts using local_irq_save() to preserve
+the assumed context.
 
- * The new xdr->end value needs to account for the portion of @nbytes
-   that is to be encoded into the previous buffer.
-
-Fixes: 2825a7f90753 ("nfsd4: allow encoding across page boundaries")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Reviewed-by: NeilBrown <neilb@suse.de>
-Reviewed-by: J. Bruce Fields <bfields@fieldses.org>
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Link: https://lore.kernel.org/r/20220506213324.470461-1-john.ogness@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xdr.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/tty/serial/msm_serial.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
-index ca10ba2626f2..85473264cccf 100644
---- a/net/sunrpc/xdr.c
-+++ b/net/sunrpc/xdr.c
-@@ -979,7 +979,11 @@ static __be32 *xdr_get_next_encode_buffer(struct xdr_stream *xdr,
- 	 */
- 	xdr->p = (void *)p + frag2bytes;
- 	space_left = xdr->buf->buflen - xdr->buf->len;
--	xdr->end = (void *)p + min_t(int, space_left, PAGE_SIZE);
-+	if (space_left - nbytes >= PAGE_SIZE)
-+		xdr->end = (void *)p + PAGE_SIZE;
-+	else
-+		xdr->end = (void *)p + space_left - frag1bytes;
+diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
+index 5129c2dfbe07..aac96659694d 100644
+--- a/drivers/tty/serial/msm_serial.c
++++ b/drivers/tty/serial/msm_serial.c
+@@ -1579,6 +1579,7 @@ static inline struct uart_port *msm_get_port_from_line(unsigned int line)
+ static void __msm_console_write(struct uart_port *port, const char *s,
+ 				unsigned int count, bool is_uartdm)
+ {
++	unsigned long flags;
+ 	int i;
+ 	int num_newlines = 0;
+ 	bool replaced = false;
+@@ -1596,6 +1597,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
+ 			num_newlines++;
+ 	count += num_newlines;
+ 
++	local_irq_save(flags);
 +
- 	xdr->buf->page_len += frag2bytes;
- 	xdr->buf->len += nbytes;
- 	return p;
+ 	if (port->sysrq)
+ 		locked = 0;
+ 	else if (oops_in_progress)
+@@ -1641,6 +1644,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
+ 
+ 	if (locked)
+ 		spin_unlock(&port->lock);
++
++	local_irq_restore(flags);
+ }
+ 
+ static void msm_console_write(struct console *co, const char *s,
 -- 
 2.35.1
 
