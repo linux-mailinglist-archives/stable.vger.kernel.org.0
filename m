@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BE73548CCD
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7ADB548CAF
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359781AbiFMNVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:21:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55064 "EHLO
+        id S1380446AbiFMOCS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:02:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377389AbiFMNUU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D8226AA48;
-        Mon, 13 Jun 2022 04:23:32 -0700 (PDT)
+        with ESMTP id S1380456AbiFMOAQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:00:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1F678DDDF;
+        Mon, 13 Jun 2022 04:38:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 840FBB80EB4;
-        Mon, 13 Jun 2022 11:22:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB442C34114;
-        Mon, 13 Jun 2022 11:22:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2D7C61046;
+        Mon, 13 Jun 2022 11:38:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F41C5C34114;
+        Mon, 13 Jun 2022 11:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119374;
-        bh=f9w0RMtTN7/ak4qcChXR91LxINoxcn46kANf2Z88ZOc=;
+        s=korg; t=1655120284;
+        bh=N3SENHFWNvF/jyYFxBVQBKZjFCo8OA2evfTi+Khb1nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lrP1+tRdMJ8eV+PZsOnAKqNW+mbS8qa7myZ/UaPL+Ujc76zTiOAQt5ODZwzNwBygP
-         lmSU6ChwI8OhWgoI44tmPVX3Yhuo4DxD3I4iTylLIyRe3CWBZmI44HMMUSJN36yPHz
-         I8AGBijVulsFFwENR+nGw4GvnKtIcveA7AXQqdIs=
+        b=x4E+93kWCUyWfr+Pcv4rfOeMgov8j/pARBsvSYgMUPg5ItL9e8940+FnVGgiOhazI
+         05grT9ULoMncGQAICWzH48nlHdw24V//joq3MZPklzNmAsNFoj0AnZ/dc/VnIqprcE
+         iAGBINeYlIP36NUAiv6diDjvFCfOYQstDKWoLWJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 5.15 240/247] drm/ast: Create threshold values for AST2600
+        stable@vger.kernel.org, Martin Faltesek <mfaltesek@google.com>,
+        Guenter Roeck <groeck@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 317/339] nfc: st21nfca: fix incorrect validating logic in EVT_TRANSACTION
 Date:   Mon, 13 Jun 2022 12:12:22 +0200
-Message-Id: <20220613094930.226878454@linuxfoundation.org>
+Message-Id: <20220613094936.364808994@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
+From: Martin Faltesek <mfaltesek@google.com>
 
-commit bcc77411e8a65929655cef7b63a36000724cdc4b upstream.
+commit 77e5fe8f176a525523ae091d6fd0fbb8834c156d upstream.
 
-The threshold value is used for AST2600 only.
+The first validation check for EVT_TRANSACTION has two different checks
+tied together with logical AND. One is a check for minimum packet length,
+and the other is for a valid aid_tag. If either condition is true (fails),
+then an error should be triggered.  The fix is to change && to ||.
 
-Signed-off-by: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220117083643.41493-1-kuohsiang_chou@aspeedtech.com
+Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Martin Faltesek <mfaltesek@google.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/ast/ast_mode.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/nfc/st21nfca/se.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/ast/ast_mode.c
-+++ b/drivers/gpu/drm/ast/ast_mode.c
-@@ -474,7 +474,10 @@ static void ast_set_color_reg(struct ast
- static void ast_set_crtthd_reg(struct ast_private *ast)
- {
- 	/* Set Threshold */
--	if (ast->chip == AST2300 || ast->chip == AST2400 ||
-+	if (ast->chip == AST2600) {
-+		ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa7, 0xe0);
-+		ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa6, 0xa0);
-+	} else if (ast->chip == AST2300 || ast->chip == AST2400 ||
- 	    ast->chip == AST2500) {
- 		ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa7, 0x78);
- 		ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa6, 0x60);
+--- a/drivers/nfc/st21nfca/se.c
++++ b/drivers/nfc/st21nfca/se.c
+@@ -315,7 +315,7 @@ int st21nfca_connectivity_event_received
+ 		 * AID		81	5 to 16
+ 		 * PARAMETERS	82	0 to 255
+ 		 */
+-		if (skb->len < NFC_MIN_AID_LENGTH + 2 &&
++		if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
+ 		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
+ 			return -EPROTO;
+ 
 
 
