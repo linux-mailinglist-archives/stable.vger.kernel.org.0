@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DB3254943F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 821EB549091
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378723AbiFMNmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:42:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58516 "EHLO
+        id S1383333AbiFMO0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:26:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379251AbiFMNkG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:06 -0400
+        with ESMTP id S1383661AbiFMOXo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:23:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E88F8DF75;
-        Mon, 13 Jun 2022 04:31:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CF1346C87;
+        Mon, 13 Jun 2022 04:44:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1151B80E59;
-        Mon, 13 Jun 2022 11:31:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1148BC34114;
-        Mon, 13 Jun 2022 11:30:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FE73B80E2C;
+        Mon, 13 Jun 2022 11:44:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E687C34114;
+        Mon, 13 Jun 2022 11:44:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119859;
-        bh=leC3eE8u+iyMLrzJwFcGqxOL5qAIl0tqHNTwpH8JPH8=;
+        s=korg; t=1655120681;
+        bh=y/xU9oOplUtcQEcsuZanE4P5PA5XL3lSbfOYopghJCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oy+DuZuIon5vB7NSgV+fLODA20ALFL5iay1lypPT8ZypZvrYPj7XMa2VT7BeSCx2J
-         apotR6Z+Gwk5YCv7MJ+RGQoTxd/u1VdWXdWbfwxUbgH1K3t2qzoiD9yWP8pJCasqmW
-         3Y9twWTkI11GeTwWskEg3yWKkJy8M1pZFZ+sDvwI=
+        b=2lX3lTO1CtcMNv/PrJ2OruD81LT+C6+BIwA9vG9V1NH+DjqTdeUzTTtgqpr1gfA7v
+         3h9FyHpsmltG26eas2krSWghst1uA9ccmZRopKMvoa6wSVIwdiqxKnsPxIWStVezzm
+         hVeJUBgUSrHcdlI3XjlWojGeDO1nyBIBpBC4Pspk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 164/339] f2fs: avoid infinite loop to flush node pages
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 095/298] block: take destination bvec offsets into account in bio_copy_data_iter
 Date:   Mon, 13 Jun 2022 12:09:49 +0200
-Message-Id: <20220613094931.656832573@linuxfoundation.org>
+Message-Id: <20220613094927.831704807@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,177 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit a7b8618aa2f0f926ce85f2486ac835a85c753ca7 ]
+[ Upstream commit 403d50341cce6b5481a92eb481e6df60b1f49b55 ]
 
-xfstests/generic/475 can give EIO all the time which give an infinite loop
-to flush node page like below. Let's avoid it.
+Appartly bcache can copy into bios that do not just contain fresh
+pages but can have offsets into the bio_vecs.  Restore support for tht
+in bio_copy_data_iter.
 
-[16418.518551] Call Trace:
-[16418.518553]  ? dm_submit_bio+0x48/0x400
-[16418.518574]  ? submit_bio_checks+0x1ac/0x5a0
-[16418.525207]  __submit_bio+0x1a9/0x230
-[16418.525210]  ? kmem_cache_alloc+0x29e/0x3c0
-[16418.525223]  submit_bio_noacct+0xa8/0x2b0
-[16418.525226]  submit_bio+0x4d/0x130
-[16418.525238]  __submit_bio+0x49/0x310 [f2fs]
-[16418.525339]  ? bio_add_page+0x6a/0x90
-[16418.525344]  f2fs_submit_page_bio+0x134/0x1f0 [f2fs]
-[16418.525365]  read_node_page+0x125/0x1b0 [f2fs]
-[16418.525388]  __get_node_page.part.0+0x58/0x3f0 [f2fs]
-[16418.525409]  __get_node_page+0x2f/0x60 [f2fs]
-[16418.525431]  f2fs_get_dnode_of_data+0x423/0x860 [f2fs]
-[16418.525452]  ? asm_sysvec_apic_timer_interrupt+0x12/0x20
-[16418.525458]  ? __mod_memcg_state.part.0+0x2a/0x30
-[16418.525465]  ? __mod_memcg_lruvec_state+0x27/0x40
-[16418.525467]  ? __xa_set_mark+0x57/0x70
-[16418.525472]  f2fs_do_write_data_page+0x10e/0x7b0 [f2fs]
-[16418.525493]  f2fs_write_single_data_page+0x555/0x830 [f2fs]
-[16418.525514]  ? sysvec_apic_timer_interrupt+0x4e/0x90
-[16418.525518]  ? asm_sysvec_apic_timer_interrupt+0x12/0x20
-[16418.525523]  f2fs_write_cache_pages+0x303/0x880 [f2fs]
-[16418.525545]  ? blk_flush_plug_list+0x47/0x100
-[16418.525548]  f2fs_write_data_pages+0xfd/0x320 [f2fs]
-[16418.525569]  do_writepages+0xd5/0x210
-[16418.525648]  filemap_fdatawrite_wbc+0x7d/0xc0
-[16418.525655]  filemap_fdatawrite+0x50/0x70
-[16418.525658]  f2fs_sync_dirty_inodes+0xa4/0x230 [f2fs]
-[16418.525679]  f2fs_write_checkpoint+0x16d/0x1720 [f2fs]
-[16418.525699]  ? ttwu_do_wakeup+0x1c/0x160
-[16418.525709]  ? ttwu_do_activate+0x6d/0xd0
-[16418.525711]  ? __wait_for_common+0x11d/0x150
-[16418.525715]  kill_f2fs_super+0xca/0x100 [f2fs]
-[16418.525733]  deactivate_locked_super+0x3b/0xb0
-[16418.525739]  deactivate_super+0x40/0x50
-[16418.525741]  cleanup_mnt+0x139/0x190
-[16418.525747]  __cleanup_mnt+0x12/0x20
-[16418.525749]  task_work_run+0x6d/0xa0
-[16418.525765]  exit_to_user_mode_prepare+0x1ad/0x1b0
-[16418.525771]  syscall_exit_to_user_mode+0x27/0x50
-[16418.525774]  do_syscall_64+0x48/0xc0
-[16418.525776]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: f8b679a070c5 ("block: rewrite bio_copy_data_iter to use bvec_kmap_local and memcpy_to_bvec")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220524143919.1155501-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c |  8 +-------
- fs/f2fs/f2fs.h       | 23 +++++++++++++++++++----
- fs/f2fs/node.c       | 23 ++++++++++++-----------
- 3 files changed, 32 insertions(+), 22 deletions(-)
+ block/bio.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index 71b1e93cbe0c..beceac9885c3 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -98,13 +98,7 @@ static struct page *__get_meta_page(struct f2fs_sb_info *sbi, pgoff_t index,
- 	}
+diff --git a/block/bio.c b/block/bio.c
+index 342b1cf5d713..738fea03edbf 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -1308,10 +1308,12 @@ void bio_copy_data_iter(struct bio *dst, struct bvec_iter *dst_iter,
+ 		struct bio_vec src_bv = bio_iter_iovec(src, *src_iter);
+ 		struct bio_vec dst_bv = bio_iter_iovec(dst, *dst_iter);
+ 		unsigned int bytes = min(src_bv.bv_len, dst_bv.bv_len);
+-		void *src_buf;
++		void *src_buf = bvec_kmap_local(&src_bv);
++		void *dst_buf = bvec_kmap_local(&dst_bv);
  
- 	if (unlikely(!PageUptodate(page))) {
--		if (page->index == sbi->metapage_eio_ofs) {
--			if (sbi->metapage_eio_cnt++ == MAX_RETRY_META_PAGE_EIO)
--				set_ckpt_flags(sbi, CP_ERROR_FLAG);
--		} else {
--			sbi->metapage_eio_ofs = page->index;
--			sbi->metapage_eio_cnt = 0;
--		}
-+		f2fs_handle_page_eio(sbi, page->index, META);
- 		f2fs_put_page(page, 1);
- 		return ERR_PTR(-EIO);
- 	}
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 6ec8c6d4711f..9b89f26af1f3 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -578,8 +578,8 @@ enum {
- /* maximum retry quota flush count */
- #define DEFAULT_RETRY_QUOTA_FLUSH_COUNT		8
- 
--/* maximum retry of EIO'ed meta page */
--#define MAX_RETRY_META_PAGE_EIO			100
-+/* maximum retry of EIO'ed page */
-+#define MAX_RETRY_PAGE_EIO			100
- 
- #define F2FS_LINK_MAX	0xffffffff	/* maximum link count per file */
- 
-@@ -1614,8 +1614,8 @@ struct f2fs_sb_info {
- 	/* keep migration IO order for LFS mode */
- 	struct f2fs_rwsem io_order_lock;
- 	mempool_t *write_io_dummy;		/* Dummy pages */
--	pgoff_t metapage_eio_ofs;		/* EIO page offset */
--	int metapage_eio_cnt;			/* EIO count */
-+	pgoff_t page_eio_ofs[NR_PAGE_TYPE];	/* EIO page offset */
-+	int page_eio_cnt[NR_PAGE_TYPE];		/* EIO count */
- 
- 	/* for checkpoint */
- 	struct f2fs_checkpoint *ckpt;		/* raw checkpoint pointer */
-@@ -4541,6 +4541,21 @@ static inline void f2fs_io_schedule_timeout(long timeout)
- 	io_schedule_timeout(timeout);
- }
- 
-+static inline void f2fs_handle_page_eio(struct f2fs_sb_info *sbi, pgoff_t ofs,
-+					enum page_type type)
-+{
-+	if (unlikely(f2fs_cp_error(sbi)))
-+		return;
+-		src_buf = bvec_kmap_local(&src_bv);
+-		memcpy_to_bvec(&dst_bv, src_buf);
++		memcpy(dst_buf, src_buf, bytes);
 +
-+	if (ofs == sbi->page_eio_ofs[type]) {
-+		if (sbi->page_eio_cnt[type]++ == MAX_RETRY_PAGE_EIO)
-+			set_ckpt_flags(sbi, CP_ERROR_FLAG);
-+	} else {
-+		sbi->page_eio_ofs[type] = ofs;
-+		sbi->page_eio_cnt[type] = 0;
-+	}
-+}
-+
- #define EFSBADCRC	EBADMSG		/* Bad CRC detected */
- #define EFSCORRUPTED	EUCLEAN		/* Filesystem is corrupted */
++		kunmap_local(dst_buf);
+ 		kunmap_local(src_buf);
  
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index c45d341dcf6e..a8d0fa2731cb 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -1416,8 +1416,7 @@ static struct page *__get_node_page(struct f2fs_sb_info *sbi, pgoff_t nid,
- 
- 	err = read_node_page(page, 0);
- 	if (err < 0) {
--		f2fs_put_page(page, 1);
--		return ERR_PTR(err);
-+		goto out_put_err;
- 	} else if (err == LOCKED_PAGE) {
- 		err = 0;
- 		goto page_hit;
-@@ -1443,19 +1442,21 @@ static struct page *__get_node_page(struct f2fs_sb_info *sbi, pgoff_t nid,
- 		goto out_err;
- 	}
- page_hit:
--	if (unlikely(nid != nid_of_node(page))) {
--		f2fs_warn(sbi, "inconsistent node block, nid:%lu, node_footer[nid:%u,ino:%u,ofs:%u,cpver:%llu,blkaddr:%u]",
-+	if (likely(nid == nid_of_node(page)))
-+		return page;
-+
-+	f2fs_warn(sbi, "inconsistent node block, nid:%lu, node_footer[nid:%u,ino:%u,ofs:%u,cpver:%llu,blkaddr:%u]",
- 			  nid, nid_of_node(page), ino_of_node(page),
- 			  ofs_of_node(page), cpver_of_node(page),
- 			  next_blkaddr_of_node(page));
--		set_sbi_flag(sbi, SBI_NEED_FSCK);
--		err = -EINVAL;
-+	set_sbi_flag(sbi, SBI_NEED_FSCK);
-+	err = -EINVAL;
- out_err:
--		ClearPageUptodate(page);
--		f2fs_put_page(page, 1);
--		return ERR_PTR(err);
--	}
--	return page;
-+	ClearPageUptodate(page);
-+out_put_err:
-+	f2fs_handle_page_eio(sbi, page->index, NODE);
-+	f2fs_put_page(page, 1);
-+	return ERR_PTR(err);
- }
- 
- struct page *f2fs_get_node_page(struct f2fs_sb_info *sbi, pgoff_t nid)
+ 		bio_advance_iter_single(src, src_iter, bytes);
 -- 
 2.35.1
 
