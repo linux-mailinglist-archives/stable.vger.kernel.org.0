@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25FD25492DA
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA423548A85
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380362AbiFMOCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:02:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43520 "EHLO
+        id S1385702AbiFMOqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:46:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380388AbiFMOAI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:00:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2F678DDC5;
-        Mon, 13 Jun 2022 04:38:02 -0700 (PDT)
+        with ESMTP id S1386364AbiFMOpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:45:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4322CB8BC5;
+        Mon, 13 Jun 2022 04:51:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CD06612A8;
-        Mon, 13 Jun 2022 11:38:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E2D8C34114;
-        Mon, 13 Jun 2022 11:38:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 203D8B80ECD;
+        Mon, 13 Jun 2022 11:51:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A46CC34114;
+        Mon, 13 Jun 2022 11:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120281;
-        bh=YLhttcZMZGaOIF9jhTmY3/sTXVBFMSJCqpPCbEzUyKY=;
+        s=korg; t=1655121099;
+        bh=reSh3o33ZqNq0NqYioUu+8w+hd6FEd7K/Cf3BqMB9N8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFWws8Sk4JtYr6poOnB6poq04MMDVLikGkdMjDSjbsZhhTIvNVOtZJCCtrS/mH5nB
-         rth6QSgaFesRi/ltjht6yx5CiZEw/IdxafwHo/zZ/YvoFajgdpeObaeRv/rm7LaAc/
-         wa5U7Qx6Aj2yyyJ2bBfYshMmO4bkaHMK4qyOJSNg=
+        b=qNaANn0IBF0BhuFAmeF3dWMMZCyoY9WPzNLRd7LqqEhgpQYUDKiV/14OVZyOvoE6b
+         zzsl12Isqoaa+5BiyioirVrdlCSgj39I9QSkmanT8lHUIvWZNzEPbqaUNPZ814kAvl
+         nCpQxrscWb9m92g/CXvBIMt5tXrAKSPOjjLxLtfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jchao Sun <sunjunchao2870@gmail.com>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.18 316/339] writeback: Fix inode->i_io_list not be protected by inode->i_lock error
-Date:   Mon, 13 Jun 2022 12:12:21 +0200
-Message-Id: <20220613094936.332889957@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 248/298] s390/gmap: voluntarily schedule during key setting
+Date:   Mon, 13 Jun 2022 12:12:22 +0200
+Message-Id: <20220613094932.605487383@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,161 +57,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jchao Sun <sunjunchao2870@gmail.com>
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-commit 10e14073107dd0b6d97d9516a02845a8e501c2c9 upstream.
+[ Upstream commit 6d5946274df1fff539a7eece458a43be733d1db8 ]
 
-Commit b35250c0816c ("writeback: Protect inode->i_io_list with
-inode->i_lock") made inode->i_io_list not only protected by
-wb->list_lock but also inode->i_lock, but inode_io_list_move_locked()
-was missed. Add lock there and also update comment describing
-things protected by inode->i_lock. This also fixes a race where
-__mark_inode_dirty() could move inode under flush worker's hands
-and thus sync(2) could miss writing some inodes.
+With large and many guest with storage keys it is possible to create
+large latencies or stalls during initial key setting:
 
-Fixes: b35250c0816c ("writeback: Protect inode->i_io_list with inode->i_lock")
-Link: https://lore.kernel.org/r/20220524150540.12552-1-sunjunchao2870@gmail.com
-CC: stable@vger.kernel.org
-Signed-off-by: Jchao Sun <sunjunchao2870@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+rcu: INFO: rcu_sched self-detected stall on CPU
+rcu:   18-....: (2099 ticks this GP) idle=54e/1/0x4000000000000002 softirq=35598716/35598716 fqs=998
+       (t=2100 jiffies g=155867385 q=20879)
+Task dump for CPU 18:
+CPU 1/KVM       R  running task        0 1030947 256019 0x06000004
+Call Trace:
+sched_show_task
+rcu_dump_cpu_stacks
+rcu_sched_clock_irq
+update_process_times
+tick_sched_handle
+tick_sched_timer
+__hrtimer_run_queues
+hrtimer_interrupt
+do_IRQ
+ext_int_handler
+ptep_zap_key
+
+The mmap lock is held during the page walking but since this is a
+semaphore scheduling is still possible. Same for the kvm srcu.
+To minimize overhead do this on every segment table entry or large page.
+
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220530092706.11637-2-borntraeger@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fs-writeback.c |   37 ++++++++++++++++++++++++++++---------
- fs/inode.c        |    2 +-
- 2 files changed, 29 insertions(+), 10 deletions(-)
+ arch/s390/mm/gmap.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -120,6 +120,7 @@ static bool inode_io_list_move_locked(st
- 				      struct list_head *head)
- {
- 	assert_spin_locked(&wb->list_lock);
-+	assert_spin_locked(&inode->i_lock);
- 
- 	list_move(&inode->i_io_list, head);
- 
-@@ -1365,9 +1366,9 @@ static int move_expired_inodes(struct li
- 		inode = wb_inode(delaying_queue->prev);
- 		if (inode_dirtied_after(inode, dirtied_before))
- 			break;
-+		spin_lock(&inode->i_lock);
- 		list_move(&inode->i_io_list, &tmp);
- 		moved++;
--		spin_lock(&inode->i_lock);
- 		inode->i_state |= I_SYNC_QUEUED;
- 		spin_unlock(&inode->i_lock);
- 		if (sb_is_blkdev_sb(inode->i_sb))
-@@ -1383,7 +1384,12 @@ static int move_expired_inodes(struct li
- 		goto out;
- 	}
- 
--	/* Move inodes from one superblock together */
-+	/*
-+	 * Although inode's i_io_list is moved from 'tmp' to 'dispatch_queue',
-+	 * we don't take inode->i_lock here because it is just a pointless overhead.
-+	 * Inode is already marked as I_SYNC_QUEUED so writeback list handling is
-+	 * fully under our control.
-+	 */
- 	while (!list_empty(&tmp)) {
- 		sb = wb_inode(tmp.prev)->i_sb;
- 		list_for_each_prev_safe(pos, node, &tmp) {
-@@ -1826,8 +1832,8 @@ static long writeback_sb_inodes(struct s
- 			 * We'll have another go at writing back this inode
- 			 * when we completed a full scan of b_io.
- 			 */
--			spin_unlock(&inode->i_lock);
- 			requeue_io(inode, wb);
-+			spin_unlock(&inode->i_lock);
- 			trace_writeback_sb_inodes_requeue(inode);
- 			continue;
- 		}
-@@ -2358,6 +2364,7 @@ void __mark_inode_dirty(struct inode *in
- {
- 	struct super_block *sb = inode->i_sb;
- 	int dirtytime = 0;
-+	struct bdi_writeback *wb = NULL;
- 
- 	trace_writeback_mark_inode_dirty(inode, flags);
- 
-@@ -2410,13 +2417,24 @@ void __mark_inode_dirty(struct inode *in
- 		inode->i_state |= flags;
- 
- 		/*
-+		 * Grab inode's wb early because it requires dropping i_lock and we
-+		 * need to make sure following checks happen atomically with dirty
-+		 * list handling so that we don't move inodes under flush worker's
-+		 * hands.
-+		 */
-+		if (!was_dirty) {
-+			wb = locked_inode_to_wb_and_lock_list(inode);
-+			spin_lock(&inode->i_lock);
-+		}
-+
-+		/*
- 		 * If the inode is queued for writeback by flush worker, just
- 		 * update its dirty state. Once the flush worker is done with
- 		 * the inode it will place it on the appropriate superblock
- 		 * list, based upon its state.
- 		 */
- 		if (inode->i_state & I_SYNC_QUEUED)
--			goto out_unlock_inode;
-+			goto out_unlock;
- 
- 		/*
- 		 * Only add valid (hashed) inodes to the superblock's
-@@ -2424,22 +2442,19 @@ void __mark_inode_dirty(struct inode *in
- 		 */
- 		if (!S_ISBLK(inode->i_mode)) {
- 			if (inode_unhashed(inode))
--				goto out_unlock_inode;
-+				goto out_unlock;
- 		}
- 		if (inode->i_state & I_FREEING)
--			goto out_unlock_inode;
-+			goto out_unlock;
- 
- 		/*
- 		 * If the inode was already on b_dirty/b_io/b_more_io, don't
- 		 * reposition it (that would break b_dirty time-ordering).
- 		 */
- 		if (!was_dirty) {
--			struct bdi_writeback *wb;
- 			struct list_head *dirty_list;
- 			bool wakeup_bdi = false;
- 
--			wb = locked_inode_to_wb_and_lock_list(inode);
--
- 			inode->dirtied_when = jiffies;
- 			if (dirtytime)
- 				inode->dirtied_time_when = jiffies;
-@@ -2453,6 +2468,7 @@ void __mark_inode_dirty(struct inode *in
- 							       dirty_list);
- 
- 			spin_unlock(&wb->list_lock);
-+			spin_unlock(&inode->i_lock);
- 			trace_writeback_dirty_inode_enqueue(inode);
- 
- 			/*
-@@ -2467,6 +2483,9 @@ void __mark_inode_dirty(struct inode *in
- 			return;
- 		}
- 	}
-+out_unlock:
-+	if (wb)
-+		spin_unlock(&wb->list_lock);
- out_unlock_inode:
- 	spin_unlock(&inode->i_lock);
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index dfee0ebb2fac..88f6d923ee45 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2601,6 +2601,18 @@ static int __s390_enable_skey_pte(pte_t *pte, unsigned long addr,
+ 	return 0;
  }
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -27,7 +27,7 @@
-  * Inode locking rules:
-  *
-  * inode->i_lock protects:
-- *   inode->i_state, inode->i_hash, __iget()
-+ *   inode->i_state, inode->i_hash, __iget(), inode->i_io_list
-  * Inode LRU list locks protect:
-  *   inode->i_sb->s_inode_lru, inode->i_lru
-  * inode->i_sb->s_inode_list_lock protects:
+ 
++/*
++ * Give a chance to schedule after setting a key to 256 pages.
++ * We only hold the mm lock, which is a rwsem and the kvm srcu.
++ * Both can sleep.
++ */
++static int __s390_enable_skey_pmd(pmd_t *pmd, unsigned long addr,
++				  unsigned long next, struct mm_walk *walk)
++{
++	cond_resched();
++	return 0;
++}
++
+ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ 				      unsigned long hmask, unsigned long next,
+ 				      struct mm_walk *walk)
+@@ -2623,12 +2635,14 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ 	end = start + HPAGE_SIZE - 1;
+ 	__storage_key_init_range(start, end);
+ 	set_bit(PG_arch_1, &page->flags);
++	cond_resched();
+ 	return 0;
+ }
+ 
+ static const struct mm_walk_ops enable_skey_walk_ops = {
+ 	.hugetlb_entry		= __s390_enable_skey_hugetlb,
+ 	.pte_entry		= __s390_enable_skey_pte,
++	.pmd_entry		= __s390_enable_skey_pmd,
+ };
+ 
+ int s390_enable_skey(void)
+-- 
+2.35.1
+
 
 
