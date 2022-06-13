@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BAC8548C3E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05931548D42
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351240AbiFMLFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:05:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44986 "EHLO
+        id S234843AbiFMMlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:41:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351807AbiFMLFF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:05:05 -0400
+        with ESMTP id S1355145AbiFMMjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:39:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E27E21E3A;
-        Mon, 13 Jun 2022 03:34:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BD6F5DD02;
+        Mon, 13 Jun 2022 04:08:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 213CD60F9A;
-        Mon, 13 Jun 2022 10:34:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E127C34114;
-        Mon, 13 Jun 2022 10:34:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB7C96062B;
+        Mon, 13 Jun 2022 11:08:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB8E0C34114;
+        Mon, 13 Jun 2022 11:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116445;
-        bh=W1rxrgY1omqOAcJgHBorCOi3gQNKyeOhyyumCTZCslQ=;
+        s=korg; t=1655118524;
+        bh=c2OJ11D3xmrT4o/HryZPy13gLRSwfwgVtCso28A74sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=esnDaE9SJqOVWUpqpNHdWXd5gg/o3ELHFsBSK7twaGF201NRYzwZZoQRiO+NRSlVe
-         I2Lg08WlPNbZJCa1YlCyBaN2ZGzGe4wXah/LUc6FtvARq/7URuNaaUkJO4GM+psVQq
-         2MyWn5KOrIpu0tQm1aDad+oOuj30raQYn/vod8Bg=
+        b=N3GlWb7TL88feHDQd21Ej1+Whe6i1Z2ytw8dpudy0/+GlltT9szH5oVrNyWTV2K0z
+         gmxJjlFTvq/vbw3XgzxbTDnlij+io4Y70T19dqwXh+5GgL7szWyQwhuMNCIF/LQk64
+         ELjaJmawRdyMVMhrqPZHjkGljyA9Qht0QOvP4hhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, bumwoo lee <bw365.lee@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org, Kinglong Mee <kinglongmee@gmail.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 192/218] extcon: Modify extcon device to be created after driver data is set
+Subject: [PATCH 5.10 090/172] xprtrdma: treat all calls not a bcall when bc_serv is NULL
 Date:   Mon, 13 Jun 2022 12:10:50 +0200
-Message-Id: <20220613094926.441352876@linuxfoundation.org>
+Message-Id: <20220613094912.013528051@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,98 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: bumwoo lee <bw365.lee@samsung.com>
+From: Kinglong Mee <kinglongmee@gmail.com>
 
-[ Upstream commit 5dcc2afe716d69f5112ce035cb14f007461ff189 ]
+[ Upstream commit 11270e7ca268e8d61b5d9e5c3a54bd1550642c9c ]
 
-Currently, someone can invoke the sysfs such as state_show()
-intermittently before dev_set_drvdata() is done.
-And it can be a cause of kernel Oops because of edev is Null at that time.
-So modified the driver registration to after setting drviver data.
+When a rdma server returns a fault format reply, nfs v3 client may
+treats it as a bcall when bc service is not exist.
 
-- Oops's backtrace.
+The debug message at rpcrdma_bc_receive_call are,
 
-Backtrace:
-[<c067865c>] (state_show) from [<c05222e8>] (dev_attr_show)
-[<c05222c0>] (dev_attr_show) from [<c02c66e0>] (sysfs_kf_seq_show)
-[<c02c6648>] (sysfs_kf_seq_show) from [<c02c496c>] (kernfs_seq_show)
-[<c02c4938>] (kernfs_seq_show) from [<c025e2a0>] (seq_read)
-[<c025e11c>] (seq_read) from [<c02c50a0>] (kernfs_fop_read)
-[<c02c5064>] (kernfs_fop_read) from [<c0231cac>] (__vfs_read)
-[<c0231c5c>] (__vfs_read) from [<c0231ee0>] (vfs_read)
-[<c0231e34>] (vfs_read) from [<c0232464>] (ksys_read)
-[<c02323f0>] (ksys_read) from [<c02324fc>] (sys_read)
-[<c02324e4>] (sys_read) from [<c00091d0>] (__sys_trace_return)
+[56579.837169] RPC:       rpcrdma_bc_receive_call: callback XID
+00000001, length=20
+[56579.837174] RPC:       rpcrdma_bc_receive_call: 00 00 00 01 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 04
 
-Signed-off-by: bumwoo lee <bw365.lee@samsung.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+After that, rpcrdma_bc_receive_call will meets NULL pointer as,
+
+[  226.057890] BUG: unable to handle kernel NULL pointer dereference at
+00000000000000c8
+...
+[  226.058704] RIP: 0010:_raw_spin_lock+0xc/0x20
+...
+[  226.059732] Call Trace:
+[  226.059878]  rpcrdma_bc_receive_call+0x138/0x327 [rpcrdma]
+[  226.060011]  __ib_process_cq+0x89/0x170 [ib_core]
+[  226.060092]  ib_cq_poll_work+0x26/0x80 [ib_core]
+[  226.060257]  process_one_work+0x1a7/0x360
+[  226.060367]  ? create_worker+0x1a0/0x1a0
+[  226.060440]  worker_thread+0x30/0x390
+[  226.060500]  ? create_worker+0x1a0/0x1a0
+[  226.060574]  kthread+0x116/0x130
+[  226.060661]  ? kthread_flush_work_fn+0x10/0x10
+[  226.060724]  ret_from_fork+0x35/0x40
+...
+
+Signed-off-by: Kinglong Mee <kinglongmee@gmail.com>
+Reviewed-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon.c | 29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ net/sunrpc/xprtrdma/rpc_rdma.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/extcon/extcon.c b/drivers/extcon/extcon.c
-index e9fe3e3bac2b..81a552654cc7 100644
---- a/drivers/extcon/extcon.c
-+++ b/drivers/extcon/extcon.c
-@@ -1241,19 +1241,14 @@ int extcon_dev_register(struct extcon_dev *edev)
- 		edev->dev.type = &edev->extcon_dev_type;
- 	}
+diff --git a/net/sunrpc/xprtrdma/rpc_rdma.c b/net/sunrpc/xprtrdma/rpc_rdma.c
+index ca267a855a12..b8174c77dfe1 100644
+--- a/net/sunrpc/xprtrdma/rpc_rdma.c
++++ b/net/sunrpc/xprtrdma/rpc_rdma.c
+@@ -1137,6 +1137,7 @@ static bool
+ rpcrdma_is_bcall(struct rpcrdma_xprt *r_xprt, struct rpcrdma_rep *rep)
+ #if defined(CONFIG_SUNRPC_BACKCHANNEL)
+ {
++	struct rpc_xprt *xprt = &r_xprt->rx_xprt;
+ 	struct xdr_stream *xdr = &rep->rr_stream;
+ 	__be32 *p;
  
--	ret = device_register(&edev->dev);
--	if (ret) {
--		put_device(&edev->dev);
--		goto err_dev;
--	}
--
- 	spin_lock_init(&edev->lock);
--	edev->nh = devm_kcalloc(&edev->dev, edev->max_supported,
--				sizeof(*edev->nh), GFP_KERNEL);
--	if (!edev->nh) {
--		ret = -ENOMEM;
--		device_unregister(&edev->dev);
--		goto err_dev;
-+	if (edev->max_supported) {
-+		edev->nh = kcalloc(edev->max_supported, sizeof(*edev->nh),
-+				GFP_KERNEL);
-+		if (!edev->nh) {
-+			ret = -ENOMEM;
-+			goto err_alloc_nh;
-+		}
- 	}
+@@ -1160,6 +1161,10 @@ rpcrdma_is_bcall(struct rpcrdma_xprt *r_xprt, struct rpcrdma_rep *rep)
+ 	if (*p != cpu_to_be32(RPC_CALL))
+ 		return false;
  
- 	for (index = 0; index < edev->max_supported; index++)
-@@ -1264,6 +1259,12 @@ int extcon_dev_register(struct extcon_dev *edev)
- 	dev_set_drvdata(&edev->dev, edev);
- 	edev->state = 0;
- 
-+	ret = device_register(&edev->dev);
-+	if (ret) {
-+		put_device(&edev->dev);
-+		goto err_dev;
-+	}
++	/* No bc service. */
++	if (xprt->bc_serv == NULL)
++		return false;
 +
- 	mutex_lock(&extcon_dev_list_lock);
- 	list_add(&edev->entry, &extcon_dev_list);
- 	mutex_unlock(&extcon_dev_list_lock);
-@@ -1271,6 +1272,9 @@ int extcon_dev_register(struct extcon_dev *edev)
- 	return 0;
- 
- err_dev:
-+	if (edev->max_supported)
-+		kfree(edev->nh);
-+err_alloc_nh:
- 	if (edev->max_supported)
- 		kfree(edev->extcon_dev_type.groups);
- err_alloc_groups:
-@@ -1331,6 +1335,7 @@ void extcon_dev_unregister(struct extcon_dev *edev)
- 	if (edev->max_supported) {
- 		kfree(edev->extcon_dev_type.groups);
- 		kfree(edev->cables);
-+		kfree(edev->nh);
- 	}
- 
- 	put_device(&edev->dev);
+ 	/* Now that we are sure this is a backchannel call,
+ 	 * advance to the RPC header.
+ 	 */
 -- 
 2.35.1
 
