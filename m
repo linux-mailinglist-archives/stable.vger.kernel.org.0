@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81EEC548D3C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 592C5549879
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354372AbiFMLfE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:35:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56876 "EHLO
+        id S1382620AbiFMOXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:23:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354915AbiFMLeO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:34:14 -0400
+        with ESMTP id S1383380AbiFMOWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:22:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 214BE42EC5;
-        Mon, 13 Jun 2022 03:47:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF86EA2070;
+        Mon, 13 Jun 2022 04:44:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 145F461248;
-        Mon, 13 Jun 2022 10:47:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 260E7C34114;
-        Mon, 13 Jun 2022 10:47:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 570466124E;
+        Mon, 13 Jun 2022 11:44:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 645F1C34114;
+        Mon, 13 Jun 2022 11:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117259;
-        bh=rsQc2zKqXf8WtKtn+1YiwY05OhnHiZyEWBRvfO60Qqc=;
+        s=korg; t=1655120647;
+        bh=/Bg4g8vHBekmMYy2+0twhuYuS6JwS1fBZWxGWAKG2ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qBwwfOJHe1fXLGGmCzZ/4JssaWfoPs0ht93AdXirJwHLS0lu5GAKjUEs0QVALF6yj
-         n6yHq/Femdl/EQXY9KFl0DbfFtiQCfa/WQDcHMnyLuo2Aq6F1v3MlOImpNN03zM/ld
-         2Ngh+WYyfJ0pGmWYzqvDY3jSW3m/4W6CcMJzMOGQ=
+        b=H3+yVdEHD4K1oXig/lBV8xR4aA/iFqAUevGuOEHUcN/P1ZeVJywt/7Xs8weFt47ss
+         pu7nN7nB1PjeA+KgoM1BF+IIS0HGFh6SIt++IdgXv8g69rCSjbI/4KXCaeLaHoTrtp
+         l7wJLZEeKxGCfbIUzsZvwVWZs3ktMzWRwPHEyk9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Si-Wei Liu <si-wei.liu@oracle.com>,
+        Jason Wang <jasowang@redhat.com>, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 327/411] jffs2: fix memory leak in jffs2_do_fill_super
+Subject: [PATCH 5.17 106/298] vdpa: Fix error logic in vdpa_nl_cmd_dev_get_doit
 Date:   Mon, 13 Jun 2022 12:10:00 +0200
-Message-Id: <20220613094938.534084623@linuxfoundation.org>
+Message-Id: <20220613094928.164597971@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit c14adb1cf70a984ed081c67e9d27bc3caad9537c ]
+[ Upstream commit 7a6691f1f89784f775fa0c54be57533445726068 ]
 
-If jffs2_iget() or d_make_root() in jffs2_do_fill_super() returns
-an error, we can observe the following kmemleak report:
+In vdpa_nl_cmd_dev_get_doit(), if the call to genlmsg_reply() fails we
+must not call nlmsg_free() since this is done inside genlmsg_reply().
 
---------------------------------------------
-unreferenced object 0xffff888105a65340 (size 64):
-  comm "mount", pid 710, jiffies 4302851558 (age 58.239s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff859c45e5>] kmem_cache_alloc_trace+0x475/0x8a0
-    [<ffffffff86160146>] jffs2_sum_init+0x96/0x1a0
-    [<ffffffff86140e25>] jffs2_do_mount_fs+0x745/0x2120
-    [<ffffffff86149fec>] jffs2_do_fill_super+0x35c/0x810
-    [<ffffffff8614aae9>] jffs2_fill_super+0x2b9/0x3b0
-    [...]
-unreferenced object 0xffff8881bd7f0000 (size 65536):
-  comm "mount", pid 710, jiffies 4302851558 (age 58.239s)
-  hex dump (first 32 bytes):
-    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
-    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
-  backtrace:
-    [<ffffffff858579ba>] kmalloc_order+0xda/0x110
-    [<ffffffff85857a11>] kmalloc_order_trace+0x21/0x130
-    [<ffffffff859c2ed1>] __kmalloc+0x711/0x8a0
-    [<ffffffff86160189>] jffs2_sum_init+0xd9/0x1a0
-    [<ffffffff86140e25>] jffs2_do_mount_fs+0x745/0x2120
-    [<ffffffff86149fec>] jffs2_do_fill_super+0x35c/0x810
-    [<ffffffff8614aae9>] jffs2_fill_super+0x2b9/0x3b0
-    [...]
---------------------------------------------
+Fix it.
 
-This is because the resources allocated in jffs2_sum_init() are not
-released. Call jffs2_sum_exit() to release these resources to solve
-the problem.
-
-Fixes: e631ddba5887 ("[JFFS2] Add erase block summary support (mount time improvement)")
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: bc0d90ee021f ("vdpa: Enable user to query vdpa device info")
+Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Message-Id: <20220518133804.1075129-2-elic@nvidia.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jffs2/fs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/vdpa/vdpa.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/fs/jffs2/fs.c b/fs/jffs2/fs.c
-index ad1eba809e7e..ee2282b8c7a7 100644
---- a/fs/jffs2/fs.c
-+++ b/fs/jffs2/fs.c
-@@ -603,6 +603,7 @@ int jffs2_do_fill_super(struct super_block *sb, struct fs_context *fc)
- 	jffs2_free_raw_node_refs(c);
- 	kvfree(c->blocks);
- 	jffs2_clear_xattr_subsystem(c);
-+	jffs2_sum_exit(c);
-  out_inohash:
- 	kfree(c->inocache_list);
-  out_wbuf:
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index 1ea525433a5c..4e7351110e43 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -756,14 +756,19 @@ static int vdpa_nl_cmd_dev_get_doit(struct sk_buff *skb, struct genl_info *info)
+ 		goto mdev_err;
+ 	}
+ 	err = vdpa_dev_fill(vdev, msg, info->snd_portid, info->snd_seq, 0, info->extack);
+-	if (!err)
+-		err = genlmsg_reply(msg, info);
++	if (err)
++		goto mdev_err;
++
++	err = genlmsg_reply(msg, info);
++	put_device(dev);
++	mutex_unlock(&vdpa_dev_mutex);
++	return err;
++
+ mdev_err:
+ 	put_device(dev);
+ err:
+ 	mutex_unlock(&vdpa_dev_mutex);
+-	if (err)
+-		nlmsg_free(msg);
++	nlmsg_free(msg);
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
