@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7933547FA8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 08:44:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5980547FA5
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 08:44:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233132AbiFMGoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 02:44:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52546 "EHLO
+        id S233322AbiFMGoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 02:44:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233989AbiFMGoL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 02:44:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A1C1FD34
-        for <stable@vger.kernel.org>; Sun, 12 Jun 2022 23:44:11 -0700 (PDT)
+        with ESMTP id S233989AbiFMGo2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 02:44:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F787FD34
+        for <stable@vger.kernel.org>; Sun, 12 Jun 2022 23:44:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B61760DBD
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 06:44:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A79A8C34114;
-        Mon, 13 Jun 2022 06:44:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4C28B80D1D
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 06:44:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41B0FC34114;
+        Mon, 13 Jun 2022 06:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655102650;
-        bh=+vCaaanYtt+xKD0WyzWvyn0JRg+TuOj5pJfEDJtOpC0=;
+        s=korg; t=1655102664;
+        bh=QhVqH3ZypvZlYsHMUgqQ9dbbh0Y7kCWR9LSZWxOiAhI=;
         h=Subject:To:Cc:From:Date:From;
-        b=DcvRvbc7Bl2ZyfPAJN3QY7jheYTsLvol55mdY/XD6IjugbakEQ4gXZUC2JnBHY/eq
-         CpMs+z85crO0W4cFfeN4oEgkx3tx9qh80HzTr2rJmll0TCA6Z3A08vXsImUYFCYDPC
-         KaIRtt8SrbwqJVhd4wv9Syl8c+c8HWfx6wNHSrUo=
-Subject: FAILED: patch "[PATCH] random: mark bootloader randomness code as __init" failed to apply to 5.10-stable tree
-To:     Jason@zx2c4.com
+        b=JyROvoJ/6ONTb3L47nxLlVB4NcW134gaIO1mmNsQy7Rw/tfLLTuSCONoBImX3fjNY
+         sz7YRyuQ7OGX/9LST/mlJV7RU8kCIHGdeKT+rGycHmyCIMEnLic6AwKCak7U+o5+Lz
+         o41gmiaj0/kwHhqjx169qVTKLudE7M4AO/ngr1zQ=
+Subject: FAILED: patch "[PATCH] random: avoid checking crng_ready() twice in random_init()" failed to apply to 5.18-stable tree
+To:     Jason@zx2c4.com, linux@dominikbrodowski.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Jun 2022 08:44:03 +0200
-Message-ID: <165510264216557@kroah.com>
+Date:   Mon, 13 Jun 2022 08:44:22 +0200
+Message-ID: <165510266219254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,61 +59,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 39e0f991a62ed5efabd20711a7b6e7da92603170 Mon Sep 17 00:00:00 2001
+From 9b29b6b20376ab64e1b043df6301d8a92378e631 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Tue, 7 Jun 2022 17:00:16 +0200
-Subject: [PATCH] random: mark bootloader randomness code as __init
+Date: Tue, 7 Jun 2022 09:44:07 +0200
+Subject: [PATCH] random: avoid checking crng_ready() twice in random_init()
 
-add_bootloader_randomness() and the variables it touches are only used
-during __init and not after, so mark these as __init. At the same time,
-unexport this, since it's only called by other __init code that's
-built-in.
+The current flow expands to:
 
+    if (crng_ready())
+       ...
+    else if (...)
+        if (!crng_ready())
+            ...
+
+The second crng_ready() call is redundant, but can't so easily be
+optimized out by the compiler.
+
+This commit simplifies that to:
+
+    if (crng_ready()
+        ...
+    else if (...)
+        ...
+
+Fixes: 560181c27b58 ("random: move initialization functions out of hot pages")
 Cc: stable@vger.kernel.org
-Fixes: 428826f5358c ("fdt: add support for rng-seed")
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 
 diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 4862d4d3ec49..0d6fb3eaf609 100644
+index b691b9d59503..4862d4d3ec49 100644
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -725,8 +725,8 @@ static void __cold _credit_init_bits(size_t bits)
-  **********************************************************************/
+@@ -801,7 +801,7 @@ int __init random_init(const char *command_line)
+ 	if (crng_ready())
+ 		crng_reseed();
+ 	else if (trust_cpu)
+-		credit_init_bits(arch_bytes * 8);
++		_credit_init_bits(arch_bytes * 8);
+ 	used_arch_random = arch_bytes * 8 >= POOL_READY_BITS;
  
- static bool used_arch_random;
--static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
--static bool trust_bootloader __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
-+static bool trust_cpu __initdata = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
-+static bool trust_bootloader __initdata = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
- static int __init parse_trust_cpu(char *arg)
- {
- 	return kstrtobool(arg, &trust_cpu);
-@@ -865,13 +865,12 @@ EXPORT_SYMBOL_GPL(add_hwgenerator_randomness);
-  * Handle random seed passed by bootloader, and credit it if
-  * CONFIG_RANDOM_TRUST_BOOTLOADER is set.
-  */
--void __cold add_bootloader_randomness(const void *buf, size_t len)
-+void __init add_bootloader_randomness(const void *buf, size_t len)
- {
- 	mix_pool_bytes(buf, len);
- 	if (trust_bootloader)
- 		credit_init_bits(len * 8);
- }
--EXPORT_SYMBOL_GPL(add_bootloader_randomness);
- 
- #if IS_ENABLED(CONFIG_VMGENID)
- static BLOCKING_NOTIFIER_HEAD(vmfork_chain);
-diff --git a/include/linux/random.h b/include/linux/random.h
-index fae0c84027fd..223b4bd584e7 100644
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -13,7 +13,7 @@
- struct notifier_block;
- 
- void add_device_randomness(const void *buf, size_t len);
--void add_bootloader_randomness(const void *buf, size_t len);
-+void __init add_bootloader_randomness(const void *buf, size_t len);
- void add_input_randomness(unsigned int type, unsigned int code,
- 			  unsigned int value) __latent_entropy;
- void add_interrupt_randomness(int irq) __latent_entropy;
+ 	WARN_ON(register_pm_notifier(&pm_notifier));
 
