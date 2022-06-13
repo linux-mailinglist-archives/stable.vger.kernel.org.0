@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C45FE548EEB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01B5054934B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359512AbiFMNNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:13:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41992 "EHLO
+        id S1353193AbiFMMmk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:42:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359350AbiFMNJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:49 -0400
+        with ESMTP id S1358927AbiFMMkj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:40:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 362F93916D;
-        Mon, 13 Jun 2022 04:20:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E43835F8FD;
+        Mon, 13 Jun 2022 04:10:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F8CD60F16;
-        Mon, 13 Jun 2022 11:20:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61D18C3411F;
-        Mon, 13 Jun 2022 11:20:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C39E60B6E;
+        Mon, 13 Jun 2022 11:10:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 371F8C3411E;
+        Mon, 13 Jun 2022 11:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119225;
-        bh=mMnzVq9sOLnEiZr3KwVE3vQbEh4GHtFSt5x1NKgBfO4=;
+        s=korg; t=1655118626;
+        bh=uR7CQe4V55FxsHzDZ0qleDY1nvIx7lIoX7D3hsclkWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOp4i34xBC3nvnFUPP4IqUvfkwp6a5FxKUOWIktf3nh5nTgxlkwAkVyaS2Z9VXMZ4
-         /QQq/5/M7eVwVWwVX9RbclARMYY8uEfBU5MdJ9xUDikixjmwIwo2L/E29mGYpPuStB
-         oN7Y9l0q0EmOeRefyMcVtVGdagDnn70u5oEk9BgY=
+        b=l7DnexXb9FUUeNeAhkbJncb9t2X7p1au+lRly8WmTz99B55ITiNsxhfnctQhOCXwZ
+         kO+m5i8ep3XXu7p4A6TNv0Vbk/3ojnn0VloMEcS7SBc8UsqrfU9Y956jT+DCmWEoDS
+         glWW8p+Hv+waGZC+iFYkH42bhaRsGcjx111Ziex8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 185/247] extcon: Fix extcon_get_extcon_dev() error handling
+Subject: [PATCH 5.10 127/172] misc: rtsx: set NULL intfdata when probe fails
 Date:   Mon, 13 Jun 2022 12:11:27 +0200
-Message-Id: <20220613094928.563855990@linuxfoundation.org>
+Message-Id: <20220613094920.820490073@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,228 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 58e4a2d27d3255e4e8c507fdc13734dccc9fc4c7 ]
+[ Upstream commit f861d36e021e1ac4a0a2a1f6411d623809975d63 ]
 
-The extcon_get_extcon_dev() function returns error pointers on error,
-NULL when it's a -EPROBE_DEFER defer situation, and ERR_PTR(-ENODEV)
-when the CONFIG_EXTCON option is disabled.  This is very complicated for
-the callers to handle and a number of them had bugs that would lead to
-an Oops.
+rtsx_usb_probe() doesn't call usb_set_intfdata() to null out the
+interface pointer when probe fails. This leaves a stale pointer.
+Noticed the missing usb_set_intfdata() while debugging an unrelated
+invalid DMA mapping problem.
 
-In real life, there are two things which prevented crashes.  First,
-error pointers would only be returned if there was bug in the caller
-where they passed a NULL "extcon_name" and none of them do that.
-Second, only two out of the eight drivers will build when CONFIG_EXTCON
-is disabled.
+Fix it with a call to usb_set_intfdata(..., NULL).
 
-The normal way to write this would be to return -EPROBE_DEFER directly
-when appropriate and return NULL when CONFIG_EXTCON is disabled.  Then
-the error handling is simple and just looks like:
-
-	dev->edev = extcon_get_extcon_dev(acpi_dev_name(adev));
-	if (IS_ERR(dev->edev))
-		return PTR_ERR(dev->edev);
-
-For the two drivers which can build with CONFIG_EXTCON disabled, then
-extcon_get_extcon_dev() will now return NULL which is not treated as an
-error and the probe will continue successfully.  Those two drivers are
-"typec_fusb302" and "max8997-battery".  In the original code, the
-typec_fusb302 driver had an 800ms hang in tcpm_get_current_limit() but
-now that function is a no-op.  For the max8997-battery driver everything
-should continue working as is.
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220429210913.46804-1-skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-axp288.c         |  4 ++--
- drivers/extcon/extcon.c                |  4 +++-
- drivers/power/supply/axp288_charger.c  | 17 ++++++++++-------
- drivers/power/supply/charger-manager.c |  7 ++-----
- drivers/power/supply/max8997_charger.c |  8 ++++----
- drivers/usb/dwc3/drd.c                 |  9 ++-------
- drivers/usb/phy/phy-omap-otg.c         |  4 ++--
- drivers/usb/typec/tcpm/fusb302.c       |  4 ++--
- include/linux/extcon.h                 |  2 +-
- 9 files changed, 28 insertions(+), 31 deletions(-)
+ drivers/misc/cardreader/rtsx_usb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/extcon/extcon-axp288.c b/drivers/extcon/extcon-axp288.c
-index fdb31954cf2b..8073bc7d3e61 100644
---- a/drivers/extcon/extcon-axp288.c
-+++ b/drivers/extcon/extcon-axp288.c
-@@ -375,8 +375,8 @@ static int axp288_extcon_probe(struct platform_device *pdev)
- 		if (adev) {
- 			info->id_extcon = extcon_get_extcon_dev(acpi_dev_name(adev));
- 			put_device(&adev->dev);
--			if (!info->id_extcon)
--				return -EPROBE_DEFER;
-+			if (IS_ERR(info->id_extcon))
-+				return PTR_ERR(info->id_extcon);
+diff --git a/drivers/misc/cardreader/rtsx_usb.c b/drivers/misc/cardreader/rtsx_usb.c
+index 59eda55d92a3..1ef9b61077c4 100644
+--- a/drivers/misc/cardreader/rtsx_usb.c
++++ b/drivers/misc/cardreader/rtsx_usb.c
+@@ -667,6 +667,7 @@ static int rtsx_usb_probe(struct usb_interface *intf,
+ 	return 0;
  
- 			dev_info(dev, "controlling USB role\n");
- 		} else {
-diff --git a/drivers/extcon/extcon.c b/drivers/extcon/extcon.c
-index e7a9561a826d..9eb92997f3ae 100644
---- a/drivers/extcon/extcon.c
-+++ b/drivers/extcon/extcon.c
-@@ -863,6 +863,8 @@ EXPORT_SYMBOL_GPL(extcon_set_property_capability);
-  * @extcon_name:	the extcon name provided with extcon_dev_register()
-  *
-  * Return the pointer of extcon device if success or ERR_PTR(err) if fail.
-+ * NOTE: This function returns -EPROBE_DEFER so it may only be called from
-+ * probe() functions.
-  */
- struct extcon_dev *extcon_get_extcon_dev(const char *extcon_name)
- {
-@@ -876,7 +878,7 @@ struct extcon_dev *extcon_get_extcon_dev(const char *extcon_name)
- 		if (!strcmp(sd->name, extcon_name))
- 			goto out;
- 	}
--	sd = NULL;
-+	sd = ERR_PTR(-EPROBE_DEFER);
- out:
- 	mutex_unlock(&extcon_dev_list_lock);
- 	return sd;
-diff --git a/drivers/power/supply/axp288_charger.c b/drivers/power/supply/axp288_charger.c
-index fb9db7f43895..22378dad4d9f 100644
---- a/drivers/power/supply/axp288_charger.c
-+++ b/drivers/power/supply/axp288_charger.c
-@@ -832,17 +832,20 @@ static int axp288_charger_probe(struct platform_device *pdev)
- 	info->regmap_irqc = axp20x->regmap_irqc;
- 
- 	info->cable.edev = extcon_get_extcon_dev(AXP288_EXTCON_DEV_NAME);
--	if (info->cable.edev == NULL) {
--		dev_dbg(dev, "%s is not ready, probe deferred\n",
--			AXP288_EXTCON_DEV_NAME);
--		return -EPROBE_DEFER;
-+	if (IS_ERR(info->cable.edev)) {
-+		dev_err_probe(dev, PTR_ERR(info->cable.edev),
-+			      "extcon_get_extcon_dev(%s) failed\n",
-+			      AXP288_EXTCON_DEV_NAME);
-+		return PTR_ERR(info->cable.edev);
- 	}
- 
- 	if (acpi_dev_present(USB_HOST_EXTCON_HID, NULL, -1)) {
- 		info->otg.cable = extcon_get_extcon_dev(USB_HOST_EXTCON_NAME);
--		if (info->otg.cable == NULL) {
--			dev_dbg(dev, "EXTCON_USB_HOST is not ready, probe deferred\n");
--			return -EPROBE_DEFER;
-+		if (IS_ERR(info->otg.cable)) {
-+			dev_err_probe(dev, PTR_ERR(info->otg.cable),
-+				      "extcon_get_extcon_dev(%s) failed\n",
-+				      USB_HOST_EXTCON_NAME);
-+			return PTR_ERR(info->otg.cable);
- 		}
- 		dev_info(dev, "Using " USB_HOST_EXTCON_HID " extcon for usb-id\n");
- 	}
-diff --git a/drivers/power/supply/charger-manager.c b/drivers/power/supply/charger-manager.c
-index d67edb760c94..92db79400a6a 100644
---- a/drivers/power/supply/charger-manager.c
-+++ b/drivers/power/supply/charger-manager.c
-@@ -985,13 +985,10 @@ static int charger_extcon_init(struct charger_manager *cm,
- 	cable->nb.notifier_call = charger_extcon_notifier;
- 
- 	cable->extcon_dev = extcon_get_extcon_dev(cable->extcon_name);
--	if (IS_ERR_OR_NULL(cable->extcon_dev)) {
-+	if (IS_ERR(cable->extcon_dev)) {
- 		pr_err("Cannot find extcon_dev for %s (cable: %s)\n",
- 			cable->extcon_name, cable->name);
--		if (cable->extcon_dev == NULL)
--			return -EPROBE_DEFER;
--		else
--			return PTR_ERR(cable->extcon_dev);
-+		return PTR_ERR(cable->extcon_dev);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(extcon_mapping); i++) {
-diff --git a/drivers/power/supply/max8997_charger.c b/drivers/power/supply/max8997_charger.c
-index 25207fe2aa68..bfa7a576523d 100644
---- a/drivers/power/supply/max8997_charger.c
-+++ b/drivers/power/supply/max8997_charger.c
-@@ -248,10 +248,10 @@ static int max8997_battery_probe(struct platform_device *pdev)
- 		dev_info(&pdev->dev, "couldn't get charger regulator\n");
- 	}
- 	charger->edev = extcon_get_extcon_dev("max8997-muic");
--	if (IS_ERR_OR_NULL(charger->edev)) {
--		if (!charger->edev)
--			return -EPROBE_DEFER;
--		dev_info(charger->dev, "couldn't get extcon device\n");
-+	if (IS_ERR(charger->edev)) {
-+		dev_err_probe(charger->dev, PTR_ERR(charger->edev),
-+			      "couldn't get extcon device: max8997-muic\n");
-+		return PTR_ERR(charger->edev);
- 	}
- 
- 	if (!IS_ERR(charger->reg) && !IS_ERR_OR_NULL(charger->edev)) {
-diff --git a/drivers/usb/dwc3/drd.c b/drivers/usb/dwc3/drd.c
-index f148b0370f82..81ff21bd405a 100644
---- a/drivers/usb/dwc3/drd.c
-+++ b/drivers/usb/dwc3/drd.c
-@@ -454,13 +454,8 @@ static struct extcon_dev *dwc3_get_extcon(struct dwc3 *dwc)
- 	 * This device property is for kernel internal use only and
- 	 * is expected to be set by the glue code.
- 	 */
--	if (device_property_read_string(dev, "linux,extcon-name", &name) == 0) {
--		edev = extcon_get_extcon_dev(name);
--		if (!edev)
--			return ERR_PTR(-EPROBE_DEFER);
--
--		return edev;
--	}
-+	if (device_property_read_string(dev, "linux,extcon-name", &name) == 0)
-+		return extcon_get_extcon_dev(name);
- 
- 	/*
- 	 * Try to get an extcon device from the USB PHY controller's "port"
-diff --git a/drivers/usb/phy/phy-omap-otg.c b/drivers/usb/phy/phy-omap-otg.c
-index ee0863c6553e..6e6ef8c0bc7e 100644
---- a/drivers/usb/phy/phy-omap-otg.c
-+++ b/drivers/usb/phy/phy-omap-otg.c
-@@ -95,8 +95,8 @@ static int omap_otg_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 
- 	extcon = extcon_get_extcon_dev(config->extcon);
--	if (!extcon)
--		return -EPROBE_DEFER;
-+	if (IS_ERR(extcon))
-+		return PTR_ERR(extcon);
- 
- 	otg_dev = devm_kzalloc(&pdev->dev, sizeof(*otg_dev), GFP_KERNEL);
- 	if (!otg_dev)
-diff --git a/drivers/usb/typec/tcpm/fusb302.c b/drivers/usb/typec/tcpm/fusb302.c
-index 72f9001b0792..96c55eaf3f80 100644
---- a/drivers/usb/typec/tcpm/fusb302.c
-+++ b/drivers/usb/typec/tcpm/fusb302.c
-@@ -1708,8 +1708,8 @@ static int fusb302_probe(struct i2c_client *client,
- 	 */
- 	if (device_property_read_string(dev, "linux,extcon-name", &name) == 0) {
- 		chip->extcon = extcon_get_extcon_dev(name);
--		if (!chip->extcon)
--			return -EPROBE_DEFER;
-+		if (IS_ERR(chip->extcon))
-+			return PTR_ERR(chip->extcon);
- 	}
- 
- 	chip->vbus = devm_regulator_get(chip->dev, "vbus");
-diff --git a/include/linux/extcon.h b/include/linux/extcon.h
-index 0c19010da77f..685401d94d39 100644
---- a/include/linux/extcon.h
-+++ b/include/linux/extcon.h
-@@ -296,7 +296,7 @@ static inline void devm_extcon_unregister_notifier_all(struct device *dev,
- 
- static inline struct extcon_dev *extcon_get_extcon_dev(const char *extcon_name)
- {
--	return ERR_PTR(-ENODEV);
-+	return NULL;
- }
- 
- static inline struct extcon_dev *extcon_find_edev_by_node(struct device_node *node)
+ out_init_fail:
++	usb_set_intfdata(ucr->pusb_intf, NULL);
+ 	usb_free_coherent(ucr->pusb_dev, IOBUF_SIZE, ucr->iobuf,
+ 			ucr->iobuf_dma);
+ 	return ret;
 -- 
 2.35.1
 
