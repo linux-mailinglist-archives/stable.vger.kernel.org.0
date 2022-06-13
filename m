@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 223C7548E03
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 153A55495D3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356112AbiFMM4I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:56:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50410 "EHLO
+        id S244697AbiFMKpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:45:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358059AbiFMMzB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:01 -0400
+        with ESMTP id S1346621AbiFMKno (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:43:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC1BD3586A;
-        Mon, 13 Jun 2022 04:14:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC2232737;
+        Mon, 13 Jun 2022 03:24:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3ED6E608C3;
-        Mon, 13 Jun 2022 11:14:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BDA5C34114;
-        Mon, 13 Jun 2022 11:14:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 47EB460EF5;
+        Mon, 13 Jun 2022 10:24:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50A89C34114;
+        Mon, 13 Jun 2022 10:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118848;
-        bh=DVuoSLpXFYn0xvPXOjmci7OKoKFd0NEQdP8HpaluuNQ=;
+        s=korg; t=1655115891;
+        bh=9AWYvwpbknsiS/4G3LdwateIgFBMMn2KK4bA6s5Ljp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wASjNLDlhfjFe5zpt6u8kMrpEjujxd24L9eAjT4y5Bt5UVq8Gx0kj2A7bgpFjTf3/
-         Zqg9hzQEiCY0a0r9UfekeCvZQQnNMD22aRdm/MC0NcFac3x7FUYzOq94o1MrC7cVXa
-         EHWJeN3wUiQdN11FWvBNuZ6/17AmL6Dav6qPwksk=
+        b=rWWEI/jbgAyVLx48L94lfMmf1DtqmPCP2hGPK1eeonkD0KZCencrtn4RIsIE97DLB
+         Ib74X0fe0RsC0V8HAY96vpRzr1GZ40FrswpPkbOJySfkS141HUQjBnhWlcRp+nLvzA
+         Fk91z6qxZRwKx7sF3pzOXPYWuRJu0fA24soY1m1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 023/247] firmware: stratix10-svc: fix a missing check on list iterator
-Date:   Mon, 13 Jun 2022 12:08:45 +0200
-Message-Id: <20220613094923.635875579@linuxfoundation.org>
+Subject: [PATCH 4.14 068/218] drm/msm: return an error pointer in msm_gem_prime_get_sg_table()
+Date:   Mon, 13 Jun 2022 12:08:46 +0200
+Message-Id: <20220613094922.108755881@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5a0793ac66ac0e254d292f129a4d6c526f9f2aff ]
+[ Upstream commit cf575e31611eb6dccf08fad02e57e35b2187704d ]
 
-The bug is here:
-	pmem->vaddr = NULL;
+The msm_gem_prime_get_sg_table() needs to return error pointers on
+error.  This is called from drm_gem_map_dma_buf() and returning a
+NULL will lead to a crash in that function.
 
-The list iterator 'pmem' will point to a bogus position containing
-HEAD if the list is empty or no element is found. This case must
-be checked before any use of the iterator, otherwise it will
-lead to a invalid memory access.
-
-To fix this bug, just gen_pool_free/set NULL/list_del() and return
-when found, otherwise list_del HEAD and return;
-
-Fixes: 7ca5ce896524f ("firmware: add Intel Stratix10 service layer driver")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Link: https://lore.kernel.org/r/20220414035609.2239-1-xiam0nd.tong@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ac45146733b0 ("drm/msm: fix msm_gem_prime_get_sg_table()")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/485023/
+Link: https://lore.kernel.org/r/YnOmtS5tfENywR9m@kili
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/stratix10-svc.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/msm/msm_gem_prime.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
-index 53c7e3f8cfde..7dd0ac1a0cfc 100644
---- a/drivers/firmware/stratix10-svc.c
-+++ b/drivers/firmware/stratix10-svc.c
-@@ -941,17 +941,17 @@ EXPORT_SYMBOL_GPL(stratix10_svc_allocate_memory);
- void stratix10_svc_free_memory(struct stratix10_svc_chan *chan, void *kaddr)
- {
- 	struct stratix10_svc_data_mem *pmem;
--	size_t size = 0;
+diff --git a/drivers/gpu/drm/msm/msm_gem_prime.c b/drivers/gpu/drm/msm/msm_gem_prime.c
+index 13403c6da6c7..7e4664968106 100644
+--- a/drivers/gpu/drm/msm/msm_gem_prime.c
++++ b/drivers/gpu/drm/msm/msm_gem_prime.c
+@@ -26,7 +26,7 @@ struct sg_table *msm_gem_prime_get_sg_table(struct drm_gem_object *obj)
+ 	int npages = obj->size >> PAGE_SHIFT;
  
- 	list_for_each_entry(pmem, &svc_data_mem, node)
- 		if (pmem->vaddr == kaddr) {
--			size = pmem->size;
--			break;
-+			gen_pool_free(chan->ctrl->genpool,
-+				       (unsigned long)kaddr, pmem->size);
-+			pmem->vaddr = NULL;
-+			list_del(&pmem->node);
-+			return;
- 		}
+ 	if (WARN_ON(!msm_obj->pages))  /* should have already pinned! */
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
  
--	gen_pool_free(chan->ctrl->genpool, (unsigned long)kaddr, size);
--	pmem->vaddr = NULL;
--	list_del(&pmem->node);
-+	list_del(&svc_data_mem);
+ 	return drm_prime_pages_to_sg(msm_obj->pages, npages);
  }
- EXPORT_SYMBOL_GPL(stratix10_svc_free_memory);
- 
 -- 
 2.35.1
 
