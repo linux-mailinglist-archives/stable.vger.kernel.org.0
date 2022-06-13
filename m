@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9250054919F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:28:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 298C9548EA9
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237774AbiFMMYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:24:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34312 "EHLO
+        id S1354048AbiFMLbf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:31:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355432AbiFMMX4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AA56275C7;
-        Mon, 13 Jun 2022 04:04:58 -0700 (PDT)
+        with ESMTP id S1354779AbiFMLaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 693BB3F895;
+        Mon, 13 Jun 2022 03:45:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0FF2B80E92;
-        Mon, 13 Jun 2022 11:04:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27448C34114;
-        Mon, 13 Jun 2022 11:04:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06B0A6125B;
+        Mon, 13 Jun 2022 10:45:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7614C341C5;
+        Mon, 13 Jun 2022 10:45:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118295;
-        bh=mXb3EGnlfsQbZ7x/ORnIuJun0U/yrAkEu/I6uQIYaIM=;
+        s=korg; t=1655117140;
+        bh=tMHChbYYjVBJpTD7YytOaNZeLSoCVoyzRz2g8h/goQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zU+ArAswCEzuhQqGml31dENu3sOciSAKfFbayeik+AN5kkkeVRE8s0QAnSHX9lu3n
-         ADo/8sja8zOph/irkxkFoiuwcYGQxWZPxNuSdrLL/O3IwtVYMr2kCPb+SHajtic9/8
-         oubHqz1pq4oPZ337NYiOt2cb3CgvGnyrw+zzXz3Q=
+        b=jQckH0LouPtDvmIWSSpUIbuleZXYpdV3FKRRsC7ZchQe6jkI5u2WCTyZ6rUFlxmqx
+         apuo33UG4qwC7XvOlrJlqLY8jsQ+1Wv5C0VzVtdhfC153eXAuXARVx6uNjYNh7mUfC
+         rSnJHnVhOT0N9J20fffDsFAbikjcS6yrhP39EXpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/172] rpmsg: qcom_smd: Fix returning 0 if irq_of_parse_and_map() fails
+Subject: [PATCH 5.4 311/411] serial: sh-sci: Dont allow CS5-6
 Date:   Mon, 13 Jun 2022 12:09:44 +0200
-Message-Id: <20220613094856.233497791@linuxfoundation.org>
+Message-Id: <20220613094938.072987533@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 59d6f72f6f9c92fec8757d9e29527da828e9281f ]
+[ Upstream commit 9b87162de8be26bf3156460b37deee6399fd0fcb ]
 
-irq_of_parse_and_map() returns 0 on failure, so this should not be
-passed further as error return code.
+Only CS7 and CS8 seem supported but CSIZE is not sanitized from
+CS5 or CS6 to CS8.
 
-Fixes: 1a358d350664 ("rpmsg: qcom_smd: Fix irq_of_parse_and_map() return value")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220423093932.32136-1-krzysztof.kozlowski@linaro.org
+Set CSIZE correctly so that userspace knows the effective value.
+Incorrect CSIZE also results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
+
+Fixes: 1da177e4c3f4 (Linux-2.6.12-rc2)
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-6-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rpmsg/qcom_smd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/sh-sci.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
-index db5f6009fb49..a4db9f6100d2 100644
---- a/drivers/rpmsg/qcom_smd.c
-+++ b/drivers/rpmsg/qcom_smd.c
-@@ -1390,7 +1390,7 @@ static int qcom_smd_parse_edge(struct device *dev,
- 	irq = irq_of_parse_and_map(node, 0);
- 	if (!irq) {
- 		dev_err(dev, "required smd interrupt missing\n");
--		ret = irq;
-+		ret = -EINVAL;
- 		goto put_node;
- 	}
+diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
+index ecff9b208808..c066bb7f07b0 100644
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -2395,8 +2395,12 @@ static void sci_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	int best_clk = -1;
+ 	unsigned long flags;
  
+-	if ((termios->c_cflag & CSIZE) == CS7)
++	if ((termios->c_cflag & CSIZE) == CS7) {
+ 		smr_val |= SCSMR_CHR;
++	} else {
++		termios->c_cflag &= ~CSIZE;
++		termios->c_cflag |= CS8;
++	}
+ 	if (termios->c_cflag & PARENB)
+ 		smr_val |= SCSMR_PE;
+ 	if (termios->c_cflag & PARODD)
 -- 
 2.35.1
 
