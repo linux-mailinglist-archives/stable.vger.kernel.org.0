@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 527965496E8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44C1354887A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381641AbiFMOIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:08:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52990 "EHLO
+        id S1352530AbiFMMwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:52:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382614AbiFMOGH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:06:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23CFA95DF9;
-        Mon, 13 Jun 2022 04:41:03 -0700 (PDT)
+        with ESMTP id S1355359AbiFMMu1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:50:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F99C633BA;
+        Mon, 13 Jun 2022 04:12:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 867AD612E9;
-        Mon, 13 Jun 2022 11:41:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94DCDC34114;
-        Mon, 13 Jun 2022 11:41:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA6CA608C3;
+        Mon, 13 Jun 2022 11:12:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D52C36AFF;
+        Mon, 13 Jun 2022 11:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120461;
-        bh=EO27XRrZvZM3OEMGUga+8QfaUgSMH/01Y5OujwF83w4=;
+        s=korg; t=1655118733;
+        bh=ZCUTqRz7IFjMLmE0HtszpJPuvsXC2mGDJlhmF6y6hP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/zRiCXYxs3KZC4SNjFlT+acXQkmcKJrgX6vMJmGSo3Y1p7LWXuXd+nkBRYvgG12C
-         Wuo2CJlRpLl/LcpDGnSEz5+r19DwksGf0VaTJ/t46kIo968R6KF+rgZfNvjhumoyOP
-         Bb6ysF+bJaZWQo1ZV59ffFZAWokpt9FeKy4OTJqA=
+        b=d1SCA2PYXpHxKrrO+Dni7m68UoOcuo9NJsNwlHMDIzhLCF5f7tX0NKI7RfO5Nb9X9
+         y1PseaJtLFcxdLifjus7b5+1Hr7M54Tbm0F1ig+t2ekaXaSxr9vme0nBOIyMPdiyaG
+         G1Y97YExercKeoz1tlMF3R4S6GR+HIyT2BYuXcw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 018/298] pwm: lp3943: Fix duty calculation in case period was clamped
+Subject: [PATCH 5.15 010/247] tty: serial: fsl_lpuart: fix potential bug when using both of_alias_get_id and ida_simple_get
 Date:   Mon, 13 Jun 2022 12:08:32 +0200
-Message-Id: <20220613094925.482223210@linuxfoundation.org>
+Message-Id: <20220613094923.233237547@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +53,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 5e3b07ca5cc78cd4a987e78446849e41288d87cb ]
+[ Upstream commit f398e0aa325c61fa20903833a5b534ecb8e6e418 ]
 
-The hardware only supports periods <= 1.6 ms and if a bigger period is
-requested it is clamped to 1.6 ms. In this case duty_cycle might be bigger
-than 1.6 ms and then the duty cycle register is written with a value
-bigger than LP3943_MAX_DUTY. So clamp duty_cycle accordingly.
+Now fsl_lpuart driver use both of_alias_get_id() and ida_simple_get() in
+.probe(), which has the potential bug. For example, when remove the
+lpuart7 alias in dts, of_alias_get_id() will return error, then call
+ida_simple_get() to allocate the id 0 for lpuart7, this may confilct
+with the lpuart4 which has alias 0.
 
-Fixes: af66b3c0934e ("pwm: Add LP3943 PWM driver")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+    aliases {
+	...
+        serial0 = &lpuart4;
+        serial1 = &lpuart5;
+        serial2 = &lpuart6;
+        serial3 = &lpuart7;
+    }
+
+So remove the ida_simple_get() in .probe(), return an error directly
+when calling of_alias_get_id() fails, which is consistent with other
+uart drivers behavior.
+
+Fixes: 3bc3206e1c0f ("serial: fsl_lpuart: Remove the alias node dependence")
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20220321112211.8895-1-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lp3943.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/fsl_lpuart.c | 24 ++++--------------------
+ 1 file changed, 4 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/pwm/pwm-lp3943.c b/drivers/pwm/pwm-lp3943.c
-index ea17d446a627..2bd04ecb508c 100644
---- a/drivers/pwm/pwm-lp3943.c
-+++ b/drivers/pwm/pwm-lp3943.c
-@@ -125,6 +125,7 @@ static int lp3943_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
- 	if (err)
- 		return err;
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 33e5eba6ff04..481107fdd69b 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -239,8 +239,6 @@
+ /* IMX lpuart has four extra unused regs located at the beginning */
+ #define IMX_REG_OFF	0x10
  
-+	duty_ns = min(duty_ns, period_ns);
- 	val = (u8)(duty_ns * LP3943_MAX_DUTY / period_ns);
+-static DEFINE_IDA(fsl_lpuart_ida);
+-
+ enum lpuart_type {
+ 	VF610_LPUART,
+ 	LS1021A_LPUART,
+@@ -275,7 +273,6 @@ struct lpuart_port {
+ 	int			rx_dma_rng_buf_len;
+ 	unsigned int		dma_tx_nents;
+ 	wait_queue_head_t	dma_wait;
+-	bool			id_allocated;
+ };
  
- 	return lp3943_write_byte(lp3943, reg_duty, val);
+ struct lpuart_soc_data {
+@@ -2703,23 +2700,18 @@ static int lpuart_probe(struct platform_device *pdev)
+ 
+ 	ret = of_alias_get_id(np, "serial");
+ 	if (ret < 0) {
+-		ret = ida_simple_get(&fsl_lpuart_ida, 0, UART_NR, GFP_KERNEL);
+-		if (ret < 0) {
+-			dev_err(&pdev->dev, "port line is full, add device failed\n");
+-			return ret;
+-		}
+-		sport->id_allocated = true;
++		dev_err(&pdev->dev, "failed to get alias id, errno %d\n", ret);
++		return ret;
+ 	}
+ 	if (ret >= ARRAY_SIZE(lpuart_ports)) {
+ 		dev_err(&pdev->dev, "serial%d out of range\n", ret);
+-		ret = -EINVAL;
+-		goto failed_out_of_range;
++		return -EINVAL;
+ 	}
+ 	sport->port.line = ret;
+ 
+ 	ret = lpuart_enable_clks(sport);
+ 	if (ret)
+-		goto failed_clock_enable;
++		return ret;
+ 	sport->port.uartclk = lpuart_get_baud_clk_rate(sport);
+ 
+ 	lpuart_ports[sport->port.line] = sport;
+@@ -2767,10 +2759,6 @@ static int lpuart_probe(struct platform_device *pdev)
+ 	uart_remove_one_port(&lpuart_reg, &sport->port);
+ failed_attach_port:
+ 	lpuart_disable_clks(sport);
+-failed_clock_enable:
+-failed_out_of_range:
+-	if (sport->id_allocated)
+-		ida_simple_remove(&fsl_lpuart_ida, sport->port.line);
+ 	return ret;
+ }
+ 
+@@ -2780,9 +2768,6 @@ static int lpuart_remove(struct platform_device *pdev)
+ 
+ 	uart_remove_one_port(&lpuart_reg, &sport->port);
+ 
+-	if (sport->id_allocated)
+-		ida_simple_remove(&fsl_lpuart_ida, sport->port.line);
+-
+ 	lpuart_disable_clks(sport);
+ 
+ 	if (sport->dma_tx_chan)
+@@ -2912,7 +2897,6 @@ static int __init lpuart_serial_init(void)
+ 
+ static void __exit lpuart_serial_exit(void)
+ {
+-	ida_destroy(&fsl_lpuart_ida);
+ 	platform_driver_unregister(&lpuart_driver);
+ 	uart_unregister_driver(&lpuart_reg);
+ }
 -- 
 2.35.1
 
