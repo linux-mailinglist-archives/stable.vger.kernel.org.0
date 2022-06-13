@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99D84549063
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48D9E548CE7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380909AbiFMOHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:07:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45104 "EHLO
+        id S1377514AbiFMNeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:34:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381676AbiFMOEk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:04:40 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA182C64D;
-        Mon, 13 Jun 2022 04:39:54 -0700 (PDT)
+        with ESMTP id S1377515AbiFMNc7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:32:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2733272E01;
+        Mon, 13 Jun 2022 04:26:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7E7B4CE1174;
-        Mon, 13 Jun 2022 11:39:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 680E3C34114;
-        Mon, 13 Jun 2022 11:39:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77F3E61154;
+        Mon, 13 Jun 2022 11:26:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89F12C34114;
+        Mon, 13 Jun 2022 11:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120390;
-        bh=bDrYDOHNgYhO6FPo+JxBPzduYAj0DNlg6EhLq6ri5ys=;
+        s=korg; t=1655119614;
+        bh=uocWnAIGDj1N1SgxSfZcGZiwjslXY7sezSgDHKrzoow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oAf7YoHlzKnlfKj50yuFYG0iqyPgkfmLRYm8Znf/rHxw9zEjwvshiQh8YoATIP128
-         whaqdzWAfIaMJzRQMkgq95aWQiWHOnYBEFtRuZwE/hgtD/Ir0hTgvmRJYY37EJ74Gq
-         V9gvq/FhE18LUg6o4wBSRl9BWQMJ/rpR8rnKd8BU=
+        b=qX8o1cNPidfKQs+uWMO5f1q4MPpCnlQ7Ds2R7CYWS4PHwNNEKaL5p+GPUVo9KPzIw
+         rPWhlTFycNfPgbRPT4uavsf+MA+sh/O1X6d7VvRga4HoKDvZ2W1EckLGcIA8c8tcwW
+         HyHRLcLa+MJu5w3FJUG8CkAlNSYqBw2mijNzi0Ag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Hurley <peter@hurleysoftware.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Daniel Gibson <daniel@gibson.sh>,
+        stable@vger.kernel.org, Schspa Shi <schspa@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 008/298] tty: n_tty: Restore EOF push handling behavior
+Subject: [PATCH 5.18 077/339] driver: base: fix UAF when driver_attach failed
 Date:   Mon, 13 Jun 2022 12:08:22 +0200
-Message-Id: <20220613094925.174585656@linuxfoundation.org>
+Message-Id: <20220613094928.855379902@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,121 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Gibson <daniel@gibson.sh>
+From: Schspa Shi <schspa@gmail.com>
 
-[ Upstream commit 65a8b287023da68c4550deab5c764e6891cf1caf ]
+[ Upstream commit 310862e574001a97ad02272bac0fd13f75f42a27 ]
 
-TTYs in ICANON mode have a special case that allows "pushing" a line
-without a regular EOL character (like newline), by using EOF (the EOT
-character - ASCII 0x4) as a pseudo-EOL. It is silently discarded, so
-the reader of the PTS will receive the line *without* EOF or any other
-terminating character.
+When driver_attach(drv); failed, the driver_private will be freed.
+But it has been added to the bus, which caused a UAF.
 
-This special case has an edge case: What happens if the readers buffer
-is the same size as the line (without EOF)? Will they be able to tell
-if the whole line is received, i.e. if the next read() will return more
-of the same line or the next line?
+To fix it, we need to delete it from the bus when failed.
 
-There are two possibilities,  that both have (dis)advantages:
-
-1. The next read() returns 0. FreeBSD (13.0) and OSX (10.11) do this.
-   Advantage: The reader can interpret this as "the line is over".
-   Disadvantage: read() returning 0 means EOF, the reader could also
-   interpret it as "there's no more data" and stop reading or even
-   close the PT.
-
-2. The next read() returns the next line, the EOF is silently discarded.
-   Solaris (or at least OpenIndiana 2021.10) does this, Linux has done
-   do this since commit 40d5e0905a03 ("n_tty: Fix EOF push handling");
-   this behavior was recently broken by commit 359303076163 ("tty:
-   n_tty: do not look ahead for EOL character past the end of the buffer").
-   Advantage: read() won't return 0 (EOF), reader less likely to be
-   confused (and things like `while(read(..)>0)` don't break)
-   Disadvantage: The reader can't really know if the read() continues
-   the last line (that filled the whole read buffer) or starts a
-   new line.
-
-As both options are defensible (and are used by other Unix-likes), it's
-best to stick to the "old" behavior since "n_tty: Fix EOF push handling"
-of 2013, i.e. silently discard that EOF.
-
-This patch - that I actually got from Linus for testing and only
-modified slightly - restores that behavior by skipping an EOF
-character if it's the next character after reading is done.
-
-Based on a patch from Linus Torvalds.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215611
-Fixes: 359303076163 ("tty: n_tty: do not look ahead for EOL character past the end of the buffer")
-Cc: Peter Hurley <peter@hurleysoftware.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Reviewed-and-tested-by: Daniel Gibson <daniel@gibson.sh>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Daniel Gibson <daniel@gibson.sh>
-Link: https://lore.kernel.org/r/20220329235810.452513-2-daniel@gibson.sh
+Fixes: 190888ac01d0 ("driver core: fix possible missing of device probe")
+Signed-off-by: Schspa Shi <schspa@gmail.com>
+Link: https://lore.kernel.org/r/20220513112444.45112-1-schspa@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_tty.c | 38 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 37 insertions(+), 1 deletion(-)
+ drivers/base/bus.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/n_tty.c b/drivers/tty/n_tty.c
-index efc72104c840..bdc314aeab88 100644
---- a/drivers/tty/n_tty.c
-+++ b/drivers/tty/n_tty.c
-@@ -1975,6 +1975,35 @@ static bool canon_copy_from_read_buf(struct tty_struct *tty,
- 	return ldata->read_tail != canon_head;
- }
+diff --git a/drivers/base/bus.c b/drivers/base/bus.c
+index 97936ec49bde..7ca47e5b3c1f 100644
+--- a/drivers/base/bus.c
++++ b/drivers/base/bus.c
+@@ -617,7 +617,7 @@ int bus_add_driver(struct device_driver *drv)
+ 	if (drv->bus->p->drivers_autoprobe) {
+ 		error = driver_attach(drv);
+ 		if (error)
+-			goto out_unregister;
++			goto out_del_list;
+ 	}
+ 	module_add_driver(drv->owner, drv);
  
-+/*
-+ * If we finished a read at the exact location of an
-+ * EOF (special EOL character that's a __DISABLED_CHAR)
-+ * in the stream, silently eat the EOF.
-+ */
-+static void canon_skip_eof(struct tty_struct *tty)
-+{
-+	struct n_tty_data *ldata = tty->disc_data;
-+	size_t tail, canon_head;
-+
-+	canon_head = smp_load_acquire(&ldata->canon_head);
-+	tail = ldata->read_tail;
-+
-+	// No data?
-+	if (tail == canon_head)
-+		return;
-+
-+	// See if the tail position is EOF in the circular buffer
-+	tail &= (N_TTY_BUF_SIZE - 1);
-+	if (!test_bit(tail, ldata->read_flags))
-+		return;
-+	if (read_buf(ldata, tail) != __DISABLED_CHAR)
-+		return;
-+
-+	// Clear the EOL bit, skip the EOF char.
-+	clear_bit(tail, ldata->read_flags);
-+	smp_store_release(&ldata->read_tail, ldata->read_tail + 1);
-+}
-+
- /**
-  * job_control		-	check job control
-  * @tty: tty
-@@ -2045,7 +2074,14 @@ static ssize_t n_tty_read(struct tty_struct *tty, struct file *file,
- 	 */
- 	if (*cookie) {
- 		if (ldata->icanon && !L_EXTPROC(tty)) {
--			if (canon_copy_from_read_buf(tty, &kb, &nr))
-+			/*
-+			 * If we have filled the user buffer, see
-+			 * if we should skip an EOF character before
-+			 * releasing the lock and returning done.
-+			 */
-+			if (!nr)
-+				canon_skip_eof(tty);
-+			else if (canon_copy_from_read_buf(tty, &kb, &nr))
- 				return kb - kbuf;
- 		} else {
- 			if (copy_from_read_buf(tty, &kb, &nr))
+@@ -644,6 +644,8 @@ int bus_add_driver(struct device_driver *drv)
+ 
+ 	return 0;
+ 
++out_del_list:
++	klist_del(&priv->knode_bus);
+ out_unregister:
+ 	kobject_put(&priv->kobj);
+ 	/* drv->p is freed in driver_release()  */
 -- 
 2.35.1
 
