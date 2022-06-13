@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 254D7548FCB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AABC8549463
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352490AbiFMMax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:30:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41424 "EHLO
+        id S1354430AbiFMLfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:35:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357565AbiFMM3S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:29:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CBDB5A0AE;
-        Mon, 13 Jun 2022 04:06:30 -0700 (PDT)
+        with ESMTP id S1355136AbiFMLel (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:34:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E36B434B3;
+        Mon, 13 Jun 2022 03:47:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB4B6B80D3A;
-        Mon, 13 Jun 2022 11:06:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 451D5C34114;
-        Mon, 13 Jun 2022 11:06:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B14461248;
+        Mon, 13 Jun 2022 10:47:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 609BDC34114;
+        Mon, 13 Jun 2022 10:47:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118388;
-        bh=hRtCWbJIiky/IJSgSMEZ2RkjSFGQID5cKf6r0rRfTxA=;
+        s=korg; t=1655117267;
+        bh=xtjsKvZys24tV3+kGdskfHL2KBHqGA1fm76Zsp7xHDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZa7ZAouaoyzIqk3N8C0YOtLUtB4lmJ0gBqQzdsivolF2mJDcTVV2TPBDA1w5qbj6
-         /UQDRJQaRLfodMXJMIkW1VBNxmsk0ZR4b0jeTTLnS3mlaq2kN9Lq9Lg9/yO+yOVLXE
-         7xFX8duHlqaGabIG9vbzMNObC5GDJgbaBAvzQQSc=
+        b=hXfBGZR8/I4TxJG6N0w5jFXrwzscB02eioNTJKlBO5X7MzR2az38mHMUY549ljX/Y
+         INT7fXF7LbJiB+LZcahDG9/vaffrybkhRiu5NSlgk9TWYgvhTo+N51MPdssIdEYTz+
+         Pb6E6A4TMjKbiz6dMfWZ8Y8qUu262Y2h3a4sKdWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Menglong Dong <imagedong@tencent.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiang Biao <benbjiang@tencent.com>,
-        Hao Peng <flyingpeng@tencent.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 058/172] bpf: Fix probe read error in ___bpf_prog_run()
+Subject: [PATCH 5.4 345/411] NFSv4: Dont hold the layoutget locks across multiple RPC calls
 Date:   Mon, 13 Jun 2022 12:10:18 +0200
-Message-Id: <20220613094904.276782386@linuxfoundation.org>
+Message-Id: <20220613094939.053365113@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,93 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Menglong Dong <imagedong@tencent.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit caff1fa4118cec4dfd4336521ebd22a6408a1e3e ]
+[ Upstream commit 6949493884fe88500de4af182588e071cf1544ee ]
 
-I think there is something wrong with BPF_PROBE_MEM in ___bpf_prog_run()
-in big-endian machine. Let's make a test and see what will happen if we
-want to load a 'u16' with BPF_PROBE_MEM.
+When doing layoutget as part of the open() compound, we have to be
+careful to release the layout locks before we can call any further RPC
+calls, such as setattr(). The reason is that those calls could trigger
+a recall, which could deadlock.
 
-Let's make the src value '0x0001', the value of dest register will become
-0x0001000000000000, as the value will be loaded to the first 2 byte of
-DST with following code:
-
-  bpf_probe_read_kernel(&DST, SIZE, (const void *)(long) (SRC + insn->off));
-
-Obviously, the value in DST is not correct. In fact, we can compare
-BPF_PROBE_MEM with LDX_MEM_H:
-
-  DST = *(SIZE *)(unsigned long) (SRC + insn->off);
-
-If the memory load is done by LDX_MEM_H, the value in DST will be 0x1 now.
-
-And I think this error results in the test case 'test_bpf_sk_storage_map'
-failing:
-
-  test_bpf_sk_storage_map:PASS:bpf_iter_bpf_sk_storage_map__open_and_load 0 nsec
-  test_bpf_sk_storage_map:PASS:socket 0 nsec
-  test_bpf_sk_storage_map:PASS:map_update 0 nsec
-  test_bpf_sk_storage_map:PASS:socket 0 nsec
-  test_bpf_sk_storage_map:PASS:map_update 0 nsec
-  test_bpf_sk_storage_map:PASS:socket 0 nsec
-  test_bpf_sk_storage_map:PASS:map_update 0 nsec
-  test_bpf_sk_storage_map:PASS:attach_iter 0 nsec
-  test_bpf_sk_storage_map:PASS:create_iter 0 nsec
-  test_bpf_sk_storage_map:PASS:read 0 nsec
-  test_bpf_sk_storage_map:FAIL:ipv6_sk_count got 0 expected 3
-  $10/26 bpf_iter/bpf_sk_storage_map:FAIL
-
-The code of the test case is simply, it will load sk->sk_family to the
-register with BPF_PROBE_MEM and check if it is AF_INET6. With this patch,
-now the test case 'bpf_iter' can pass:
-
-  $10  bpf_iter:OK
-
-Fixes: 2a02759ef5f8 ("bpf: Add support for BTF pointers to interpreter")
-Signed-off-by: Menglong Dong <imagedong@tencent.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jiang Biao <benbjiang@tencent.com>
-Reviewed-by: Hao Peng <flyingpeng@tencent.com>
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>
-Link: https://lore.kernel.org/bpf/20220524021228.533216-1-imagedong@tencent.com
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/core.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ fs/nfs/nfs4proc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index d3a1f25f8ec2..845a4c052433 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -1653,6 +1653,11 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
- 		CONT;							\
- 	LDX_MEM_##SIZEOP:						\
- 		DST = *(SIZE *)(unsigned long) (SRC + insn->off);	\
-+		CONT;							\
-+	LDX_PROBE_MEM_##SIZEOP:						\
-+		bpf_probe_read_kernel(&DST, sizeof(SIZE),		\
-+				      (const void *)(long) (SRC + insn->off));	\
-+		DST = *((SIZE *)&DST);					\
- 		CONT;
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index cf3b00751ff6..ba4a03a69fbf 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -3041,6 +3041,10 @@ static int _nfs4_open_and_get_state(struct nfs4_opendata *opendata,
+ 	}
  
- 	LDST(B,   u8)
-@@ -1660,15 +1665,6 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
- 	LDST(W,  u32)
- 	LDST(DW, u64)
- #undef LDST
--#define LDX_PROBE(SIZEOP, SIZE)							\
--	LDX_PROBE_MEM_##SIZEOP:							\
--		bpf_probe_read_kernel(&DST, SIZE, (const void *)(long) (SRC + insn->off));	\
--		CONT;
--	LDX_PROBE(B,  1)
--	LDX_PROBE(H,  2)
--	LDX_PROBE(W,  4)
--	LDX_PROBE(DW, 8)
--#undef LDX_PROBE
- 
- 	STX_XADD_W: /* lock xadd *(u32 *)(dst_reg + off16) += src_reg */
- 		atomic_add((u32) SRC, (atomic_t *)(unsigned long)
+ out:
++	if (opendata->lgp) {
++		nfs4_lgopen_release(opendata->lgp);
++		opendata->lgp = NULL;
++	}
+ 	if (!opendata->cancelled)
+ 		nfs4_sequence_free_slot(&opendata->o_res.seq_res);
+ 	return ret;
 -- 
 2.35.1
 
