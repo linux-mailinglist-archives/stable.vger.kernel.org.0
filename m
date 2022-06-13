@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9039548C36
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A680548C96
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378175AbiFMNmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:42:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36046 "EHLO
+        id S241855AbiFMKZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:25:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379219AbiFMNkD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98D13CE1A;
-        Mon, 13 Jun 2022 04:30:22 -0700 (PDT)
+        with ESMTP id S244157AbiFMKXt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:23:49 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECD5423174;
+        Mon, 13 Jun 2022 03:18:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3611F61037;
-        Mon, 13 Jun 2022 11:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 459DBC34114;
-        Mon, 13 Jun 2022 11:30:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 28F6FCE1167;
+        Mon, 13 Jun 2022 10:18:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4260EC34114;
+        Mon, 13 Jun 2022 10:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119821;
-        bh=iEiLZMAi4r23IEn/jxT1qzEzPzoZvPtxWJI0p2hAUP4=;
+        s=korg; t=1655115486;
+        bh=RH0MNiGREynDBBlITDYxTVlqFv6UzXOCXc80+4sWsmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O4feMX9mu3Pj0ROzlD2J75oG2VmH9okh5idkHfKtmyFC7j6ZRASi5jYS68Xpr1kzP
-         SZeCWuk/718DSvAlpQmsV8ofkq2jdXPgWti5yvBCITY6D6lsfdncs7ELxd5VvPggy6
-         RE0nty4aSuowzDJjHFtXvH4XqL8TfcfH2ChuTItg=
+        b=CRBn0z3uNyUFcT0WI0Cvi4B8Wwk17gj+difVf2PhV/qb8DX5tW3MIh/c9/19vIHR2
+         06khTFL59W/DUAR0dmH24kBeP1FgjDJ5F0cWUpuE/+TjFbzCvwTMb+KOvSAaOy6SjF
+         TID/pF5MwQraDUdG20n8mI6ip8HJWmsZj8vHqh7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Jonathan Toppins <jtoppins@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 133/339] bonding: guard ns_targets by CONFIG_IPV6
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.9 084/167] scsi: dc395x: Fix a missing check on list iterator
 Date:   Mon, 13 Jun 2022 12:09:18 +0200
-Message-Id: <20220613094930.543814055@linuxfoundation.org>
+Message-Id: <20220613094900.583799913@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,135 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit c4caa500ffebf64795d1c0f6f9d6f179b502c6b7 ]
+commit 036a45aa587a10fa2abbd50fbd0f6c4cfc44f69f upstream.
 
-Guard ns_targets in struct bond_params by CONFIG_IPV6, which could save
-256 bytes if IPv6 not configed. Also add this protection for function
-bond_is_ip6_target_ok() and bond_get_targets_ip6().
+The bug is here:
 
-Remove the IS_ENABLED() check for bond_opts[] as this will make
-BOND_OPT_NS_TARGETS uninitialized if CONFIG_IPV6 not enabled. Add
-a dummy bond_option_ns_ip6_targets_set() for this situation.
+	p->target_id, p->target_lun);
 
-Fixes: 4e24be018eb9 ("bonding: add new parameter ns_targets")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Acked-by: Jonathan Toppins <jtoppins@redhat.com>
-Link: https://lore.kernel.org/r/20220531063727.224043-1-liuhangbin@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The list iterator 'p' will point to a bogus position containing HEAD if the
+list is empty or no element is found. This case must be checked before any
+use of the iterator, otherwise it will lead to an invalid memory access.
+
+To fix this bug, add a check. Use a new variable 'iter' as the list
+iterator, and use the original variable 'p' as a dedicated pointer to point
+to the found element.
+
+Link: https://lore.kernel.org/r/20220414040231.2662-1-xiam0nd.tong@gmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_main.c    |  2 ++
- drivers/net/bonding/bond_options.c | 10 ++++++----
- include/net/bonding.h              |  6 ++++++
- 3 files changed, 14 insertions(+), 4 deletions(-)
+ drivers/scsi/dc395x.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index b5c5196e03ee..26a6573adf0f 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -6159,7 +6159,9 @@ static int bond_check_params(struct bond_params *params)
- 		strscpy_pad(params->primary, primary, sizeof(params->primary));
- 
- 	memcpy(params->arp_targets, arp_target, sizeof(arp_target));
-+#if IS_ENABLED(CONFIG_IPV6)
- 	memset(params->ns_targets, 0, sizeof(struct in6_addr) * BOND_MAX_NS_TARGETS);
-+#endif
- 
- 	return 0;
- }
-diff --git a/drivers/net/bonding/bond_options.c b/drivers/net/bonding/bond_options.c
-index 64f7db2627ce..1f8323ad5282 100644
---- a/drivers/net/bonding/bond_options.c
-+++ b/drivers/net/bonding/bond_options.c
-@@ -34,10 +34,8 @@ static int bond_option_arp_ip_target_add(struct bonding *bond, __be32 target);
- static int bond_option_arp_ip_target_rem(struct bonding *bond, __be32 target);
- static int bond_option_arp_ip_targets_set(struct bonding *bond,
- 					  const struct bond_opt_value *newval);
--#if IS_ENABLED(CONFIG_IPV6)
- static int bond_option_ns_ip6_targets_set(struct bonding *bond,
- 					  const struct bond_opt_value *newval);
--#endif
- static int bond_option_arp_validate_set(struct bonding *bond,
- 					const struct bond_opt_value *newval);
- static int bond_option_arp_all_targets_set(struct bonding *bond,
-@@ -299,7 +297,6 @@ static const struct bond_option bond_opts[BOND_OPT_LAST] = {
- 		.flags = BOND_OPTFLAG_RAWVAL,
- 		.set = bond_option_arp_ip_targets_set
- 	},
--#if IS_ENABLED(CONFIG_IPV6)
- 	[BOND_OPT_NS_TARGETS] = {
- 		.id = BOND_OPT_NS_TARGETS,
- 		.name = "ns_ip6_target",
-@@ -307,7 +304,6 @@ static const struct bond_option bond_opts[BOND_OPT_LAST] = {
- 		.flags = BOND_OPTFLAG_RAWVAL,
- 		.set = bond_option_ns_ip6_targets_set
- 	},
--#endif
- 	[BOND_OPT_DOWNDELAY] = {
- 		.id = BOND_OPT_DOWNDELAY,
- 		.name = "downdelay",
-@@ -1254,6 +1250,12 @@ static int bond_option_ns_ip6_targets_set(struct bonding *bond,
- 
- 	return 0;
- }
-+#else
-+static int bond_option_ns_ip6_targets_set(struct bonding *bond,
-+					  const struct bond_opt_value *newval)
-+{
-+	return -EPERM;
-+}
+--- a/drivers/scsi/dc395x.c
++++ b/drivers/scsi/dc395x.c
+@@ -3775,10 +3775,19 @@ static struct DeviceCtlBlk *device_alloc
  #endif
- 
- static int bond_option_arp_validate_set(struct bonding *bond,
-diff --git a/include/net/bonding.h b/include/net/bonding.h
-index b14f4c0b4e9e..cb904d356e31 100644
---- a/include/net/bonding.h
-+++ b/include/net/bonding.h
-@@ -149,7 +149,9 @@ struct bond_params {
- 	struct reciprocal_value reciprocal_packets_per_slave;
- 	u16 ad_actor_sys_prio;
- 	u16 ad_user_port_key;
-+#if IS_ENABLED(CONFIG_IPV6)
- 	struct in6_addr ns_targets[BOND_MAX_NS_TARGETS];
-+#endif
- 
- 	/* 2 bytes of padding : see ether_addr_equal_64bits() */
- 	u8 ad_actor_system[ETH_ALEN + 2];
-@@ -503,12 +505,14 @@ static inline int bond_is_ip_target_ok(__be32 addr)
- 	return !ipv4_is_lbcast(addr) && !ipv4_is_zeronet(addr);
- }
- 
-+#if IS_ENABLED(CONFIG_IPV6)
- static inline int bond_is_ip6_target_ok(struct in6_addr *addr)
- {
- 	return !ipv6_addr_any(addr) &&
- 	       !ipv6_addr_loopback(addr) &&
- 	       !ipv6_addr_is_multicast(addr);
- }
-+#endif
- 
- /* Get the oldest arp which we've received on this slave for bond's
-  * arp_targets.
-@@ -746,6 +750,7 @@ static inline int bond_get_targets_ip(__be32 *targets, __be32 ip)
- 	return -1;
- }
- 
-+#if IS_ENABLED(CONFIG_IPV6)
- static inline int bond_get_targets_ip6(struct in6_addr *targets, struct in6_addr *ip)
- {
- 	int i;
-@@ -758,6 +763,7 @@ static inline int bond_get_targets_ip6(struct in6_addr *targets, struct in6_addr
- 
- 	return -1;
- }
-+#endif
- 
- /* exported from bond_main.c */
- extern unsigned int bond_net_id;
--- 
-2.35.1
-
+ 	if (dcb->target_lun != 0) {
+ 		/* Copy settings */
+-		struct DeviceCtlBlk *p;
+-		list_for_each_entry(p, &acb->dcb_list, list)
+-			if (p->target_id == dcb->target_id)
++		struct DeviceCtlBlk *p = NULL, *iter;
++
++		list_for_each_entry(iter, &acb->dcb_list, list)
++			if (iter->target_id == dcb->target_id) {
++				p = iter;
+ 				break;
++			}
++
++		if (!p) {
++			kfree(dcb);
++			return NULL;
++		}
++
+ 		dprintkdbg(DBG_1, 
+ 		       "device_alloc: <%02i-%i> copy from <%02i-%i>\n",
+ 		       dcb->target_id, dcb->target_lun,
 
 
