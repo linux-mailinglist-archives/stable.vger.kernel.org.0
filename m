@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB815494CA
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 269CD5489AE
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232579AbiFMMzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:55:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45306 "EHLO
+        id S1354392AbiFMLc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:32:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357862AbiFMMyr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:54:47 -0400
+        with ESMTP id S1354395AbiFML31 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37B1D66697;
-        Mon, 13 Jun 2022 04:13:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F6E9BF7E;
+        Mon, 13 Jun 2022 03:44:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C589460B60;
-        Mon, 13 Jun 2022 11:13:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6BE1C3411E;
-        Mon, 13 Jun 2022 11:13:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E6DC61016;
+        Mon, 13 Jun 2022 10:44:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F3AC34114;
+        Mon, 13 Jun 2022 10:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118810;
-        bh=x0Y131J8nnxXns7YvxxNrHgT0d8tKBuoMIC9D2JTZec=;
+        s=korg; t=1655117042;
+        bh=2GxNHxTzYTOuyt9YaLzB4zVVZgJb0OBNOJq0mhVsJ8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iBVn0jWssTpk9Tv1dcl3SmbIM/nzmzNMMZM3BVbtf1czS9HSmxrwXOhyedFI/95RG
-         /Bf7KYg63rIdJfb5FFK8CclwQ0Io17vgZQH6ZlpyX/OqThTwbuHW37IwIEXdNTKW17
-         NlwQUAoI2+8T0/nFc3TMSPFbbqxBuAjzQX2+drKc=
+        b=xOhRpwCHJ0IncWS1No8eZukBjIjeqV1Z4DfGvg875Du67oBb4ZVPcKmQTdOH5qqGs
+         cczAoijvpdvtcerH75jk/ghFNsRnkQaDZOPNxcEttyveBH+3coZ/F2BHbgiPmhZCC+
+         9E2B1g8yoVoomoiJ2XXeb8Z6PCUKjtLwY0h5QW0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 036/247] power: supply: axp288_fuel_gauge: Drop BIOS version check from "T3 MRD" DMI quirk
+        stable@vger.kernel.org, Vivek Gautam <vivek.gautam@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 265/411] phy: qcom-qmp: fix struct clk leak on probe errors
 Date:   Mon, 13 Jun 2022 12:08:58 +0200
-Message-Id: <20220613094924.034734391@linuxfoundation.org>
+Message-Id: <20220613094936.706573038@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit f61509a6f0b70f5bedea34efaf8065621689bd7a ]
+commit f0a4bc38a12f5a0cc5ad68670d9480e91e6a94df upstream.
 
-Some "T3 MRD" mini-PCs / HDMI-sticks without a battery use a different
-value then "5.11" for their DMI BIOS version field.
+Make sure to release the pipe clock reference in case of a late probe
+error (e.g. probe deferral).
 
-Drop the BIOS version check so that the no-battery "T3 MRD" DMI quirk
-applies to these too.
-
-Fixes: 3a06b912a5ce ("power: supply: axp288_fuel_gauge: Make "T3 MRD" no_battery_list DMI entry more generic")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
+Cc: stable@vger.kernel.org      # 4.12
+Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220427063243.32576-2-johan+linaro@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/supply/axp288_fuel_gauge.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/phy/qualcomm/phy-qcom-qmp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
-index c1da217fdb0e..97e8663c08df 100644
---- a/drivers/power/supply/axp288_fuel_gauge.c
-+++ b/drivers/power/supply/axp288_fuel_gauge.c
-@@ -605,7 +605,6 @@ static const struct dmi_system_id axp288_no_battery_list[] = {
- 			DMI_MATCH(DMI_BOARD_NAME, "T3 MRD"),
- 			DMI_MATCH(DMI_CHASSIS_TYPE, "3"),
- 			DMI_MATCH(DMI_BIOS_VENDOR, "American Megatrends Inc."),
--			DMI_MATCH(DMI_BIOS_VERSION, "5.11"),
- 		},
- 	},
- 	{}
--- 
-2.35.1
-
+--- a/drivers/phy/qualcomm/phy-qcom-qmp.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+@@ -1929,7 +1929,7 @@ int qcom_qmp_phy_create(struct device *d
+ 	 * all phys that don't need this.
+ 	 */
+ 	snprintf(prop_name, sizeof(prop_name), "pipe%d", id);
+-	qphy->pipe_clk = of_clk_get_by_name(np, prop_name);
++	qphy->pipe_clk = devm_get_clk_from_child(dev, np, prop_name);
+ 	if (IS_ERR(qphy->pipe_clk)) {
+ 		if (qmp->cfg->type == PHY_TYPE_PCIE ||
+ 		    qmp->cfg->type == PHY_TYPE_USB3) {
 
 
