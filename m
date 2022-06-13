@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C211548F0F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAF47548CF2
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351924AbiFMMUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:20:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49030 "EHLO
+        id S1380337AbiFMN6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:58:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358698AbiFMMTf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:19:35 -0400
+        with ESMTP id S1380826AbiFMNzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:55:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F4F5676E;
-        Mon, 13 Jun 2022 04:03:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0907C819A4;
+        Mon, 13 Jun 2022 04:36:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EF9861418;
-        Mon, 13 Jun 2022 11:03:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AB93C34114;
-        Mon, 13 Jun 2022 11:03:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AD24612AB;
+        Mon, 13 Jun 2022 11:36:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 980FAC34114;
+        Mon, 13 Jun 2022 11:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118183;
-        bh=V3fH9J0mevCJ3egzyqYgydtbgl5UqPCbPeBmhj65bfw=;
+        s=korg; t=1655120161;
+        bh=ITQrcrc0jCXcYROcscW1HJKRxPDlx/31nD1+KTlyugk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HG9axFY/JQxFNnU0ycdw3RCrNmAFmG1PV2vEnmYFp70JK9B+LfZ4rDjxQyFbdOQ0k
-         fqQ0lQW/yRTDKpWpRLhannYtkbBhC6blUG2XI4H4TaIAP1ebICwS2D83Y18btt4zv7
-         ncH8BU6P2eZw/IOvHj71LSeCQROPzVStq9xrbRfI=
+        b=PwaOPJtAnbinJp3CcJ9HU2phL6VdXOM/6I0OKBk21RPByDy4qWY7cK3pRZy6ZS1ne
+         CivzB4HT8Z5rBI9mStW12K3WrPI86fhj8nZ6OL18EDnwGiSBf61ll2UpMQlnLXd6Nd
+         IGvq1wq9zWfIilc+/U/75Y5HmT3BX9FXIZMNnFYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 272/287] nbd: fix io hung while disconnecting device
-Date:   Mon, 13 Jun 2022 12:11:36 +0200
-Message-Id: <20220613094932.247340979@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 272/339] objtool: Mark __ubsan_handle_builtin_unreachable() as noreturn
+Date:   Mon, 13 Jun 2022 12:11:37 +0200
+Message-Id: <20220613094934.892798516@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 09dadb5985023e27d4740ebd17e6fea4640110e5 ]
+[ Upstream commit 385bd430c011a8cb8278e61c32d602d11e06f414 ]
 
-In our tests, "qemu-nbd" triggers a io hung:
+  fs/ntfs3/ntfs3.prelink.o: warning: objtool: ni_read_frame() falls through to next function ni_readpage_cmpr.cold()
 
-INFO: task qemu-nbd:11445 blocked for more than 368 seconds.
-      Not tainted 5.18.0-rc3-next-20220422-00003-g2176915513ca #884
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:qemu-nbd        state:D stack:    0 pid:11445 ppid:     1 flags:0x00000000
-Call Trace:
- <TASK>
- __schedule+0x480/0x1050
- ? _raw_spin_lock_irqsave+0x3e/0xb0
- schedule+0x9c/0x1b0
- blk_mq_freeze_queue_wait+0x9d/0xf0
- ? ipi_rseq+0x70/0x70
- blk_mq_freeze_queue+0x2b/0x40
- nbd_add_socket+0x6b/0x270 [nbd]
- nbd_ioctl+0x383/0x510 [nbd]
- blkdev_ioctl+0x18e/0x3e0
- __x64_sys_ioctl+0xac/0x120
- do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7fd8ff706577
-RSP: 002b:00007fd8fcdfebf8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000040000000 RCX: 00007fd8ff706577
-RDX: 000000000000000d RSI: 000000000000ab00 RDI: 000000000000000f
-RBP: 000000000000000f R08: 000000000000fbe8 R09: 000055fe497c62b0
-R10: 00000002aff20000 R11: 0000000000000246 R12: 000000000000006d
-R13: 0000000000000000 R14: 00007ffe82dc5e70 R15: 00007fd8fcdff9c0
+That is in fact:
 
-"qemu-ndb -d" will call ioctl 'NBD_DISCONNECT' first, however, following
-message was found:
+000000000000124a <ni_read_frame.cold>:
+    124a:       44 89 e0                mov    %r12d,%eax
+    124d:       0f b6 55 98             movzbl -0x68(%rbp),%edx
+    1251:       48 c7 c7 00 00 00 00    mov    $0x0,%rdi        1254: R_X86_64_32S      .data+0x1380
+    1258:       48 89 c6                mov    %rax,%rsi
+    125b:       e8 00 00 00 00          call   1260 <ni_read_frame.cold+0x16>   125c: R_X86_64_PLT32    __ubsan_handle_shift_out_of_bounds-0x4
+    1260:       48 8d 7d cc             lea    -0x34(%rbp),%rdi
+    1264:       e8 00 00 00 00          call   1269 <ni_read_frame.cold+0x1f>   1265: R_X86_64_PLT32    __tsan_read4-0x4
+    1269:       8b 45 cc                mov    -0x34(%rbp),%eax
+    126c:       e9 00 00 00 00          jmp    1271 <ni_read_frame.cold+0x27>   126d: R_X86_64_PC32     .text+0x19109
+    1271:       48 8b 75 a0             mov    -0x60(%rbp),%rsi
+    1275:       48 63 d0                movslq %eax,%rdx
+    1278:       48 c7 c7 00 00 00 00    mov    $0x0,%rdi        127b: R_X86_64_32S      .data+0x13a0
+    127f:       89 45 88                mov    %eax,-0x78(%rbp)
+    1282:       e8 00 00 00 00          call   1287 <ni_read_frame.cold+0x3d>   1283: R_X86_64_PLT32    __ubsan_handle_shift_out_of_bounds-0x4
+    1287:       8b 45 88                mov    -0x78(%rbp),%eax
+    128a:       e9 00 00 00 00          jmp    128f <ni_read_frame.cold+0x45>   128b: R_X86_64_PC32     .text+0x19098
+    128f:       48 c7 c7 00 00 00 00    mov    $0x0,%rdi        1292: R_X86_64_32S      .data+0x11f0
+    1296:       e8 00 00 00 00          call   129b <ni_readpage_cmpr.cold>     1297: R_X86_64_PLT32    __ubsan_handle_builtin_unreachable-0x4
 
-block nbd0: Send disconnect failed -32
+000000000000129b <ni_readpage_cmpr.cold>:
 
-Which indicate that something is wrong with the server. Then,
-"qemu-nbd -d" will call ioctl 'NBD_CLEAR_SOCK', however ioctl can't clear
-requests after commit 2516ab1543fd("nbd: only clear the queue on device
-teardown"). And in the meantime, request can't complete through timeout
-because nbd_xmit_timeout() will always return 'BLK_EH_RESET_TIMER', which
-means such request will never be completed in this situation.
+Tell objtool that __ubsan_handle_builtin_unreachable() is a noreturn.
 
-Now that the flag 'NBD_CMD_INFLIGHT' can make sure requests won't
-complete multiple times, switch back to call nbd_clear_sock() in
-nbd_clear_sock_ioctl(), so that inflight requests can be cleared.
-
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220521073749.3146892-5-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220502091514.GB479834@worktop.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/objtool/check.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index f48553979b85..2ef7eec6461c 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1288,7 +1288,7 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
- static void nbd_clear_sock_ioctl(struct nbd_device *nbd,
- 				 struct block_device *bdev)
- {
--	sock_shutdown(nbd);
-+	nbd_clear_sock(nbd);
- 	__invalidate_device(bdev, true);
- 	nbd_bdev_reset(bdev);
- 	if (test_and_clear_bit(NBD_HAS_CONFIG_REF,
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 8a0971a620f0..f66e4ac0af94 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -185,7 +185,8 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
+ 		"do_group_exit",
+ 		"stop_this_cpu",
+ 		"__invalid_creds",
+-               "cpu_startup_entry",
++		"cpu_startup_entry",
++		"__ubsan_handle_builtin_unreachable",
+ 	};
+ 
+ 	if (!func)
 -- 
 2.35.1
 
