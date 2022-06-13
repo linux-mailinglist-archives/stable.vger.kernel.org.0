@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19CCA549776
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93095548FB3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357506AbiFMMYW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:24:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54886 "EHLO
+        id S1358637AbiFMNLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:11:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353670AbiFMMVQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:21:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E15757178;
-        Mon, 13 Jun 2022 04:03:24 -0700 (PDT)
+        with ESMTP id S1359409AbiFMNJv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02E9A393F3;
+        Mon, 13 Jun 2022 04:20:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97FF361418;
-        Mon, 13 Jun 2022 11:03:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9A35C3411C;
-        Mon, 13 Jun 2022 11:03:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C02FB80EB2;
+        Mon, 13 Jun 2022 11:20:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 044BCC3411C;
+        Mon, 13 Jun 2022 11:20:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118203;
-        bh=cqmom01I3tsHXHHusRjhr/6ybj1tXktqqPCIqyVl7qo=;
+        s=korg; t=1655119231;
+        bh=wH7/90BcNZzwB2bJOgzMEcaResWqJwE5uqhLmPT9ENA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZ+LgCAr8z2DAANx9rmeieTV3yh3mZeu37uZPWddE+3MwtuvLlzWVweqS9Fs4bXol
-         O5/keH44dkL10uyZfES0uT/4Ef4Uzl1oEALdmj5nDsEQqmpy03/7cn7C09RMAV4bVG
-         Z/znCSeuWWKhV1x1bVogemAGjwitYCyYtt0DGLeU=
+        b=lW7uNYlKySbElYrCFsRat3mZsZZT+RQlLuZdm7cn2LecTxdis8Rk37BHWRduJlM7w
+         GFLDoVHUC9QMk86JuPzhycfnSD/LLigfKy5z+CJNDfttrO2F8wT6k7aCFkLPsv3/rp
+         O3LByZWCD6s4rF73kbOYaXBafu7Xm/b+C8hPz+5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Donald Buczek <buczek@molgen.mpg.de>,
-        Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 265/287] md: protect md_unregister_thread from reentrancy
+        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 187/247] clocksource/drivers/sp804: Avoid error on multiple instances
 Date:   Mon, 13 Jun 2022 12:11:29 +0200
-Message-Id: <20220613094932.040077660@linuxfoundation.org>
+Message-Id: <20220613094928.624784138@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,61 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit 1e267742283a4b5a8ca65755c44166be27e9aa0f ]
+[ Upstream commit a98399cbc1e05f7b977419f03905501d566cf54e ]
 
-Generally, the md_unregister_thread is called with reconfig_mutex, but
-raid_message in dm-raid doesn't hold reconfig_mutex to unregister thread,
-so md_unregister_thread can be called simulitaneously from two call sites
-in theory.
+When a machine sports more than one SP804 timer instance, we only bring
+up the first one, since multiple timers of the same kind are not useful
+to Linux. As this is intentional behaviour, we should not return an
+error message, as we do today:
+===============
+[    0.000800] Failed to initialize '/bus@8000000/motherboard-bus@8000000/iofpga-bus@300000000/timer@120000': -22
+===============
 
-Then after previous commit which remove the protection of reconfig_mutex
-for md_unregister_thread completely, the potential issue could be worse
-than before.
+Replace the -EINVAL return with a debug message and return 0 instead.
 
-Let's take pers_lock at the beginning of function to ensure reentrancy.
+Also we do not reach the init function anymore if the DT node is
+disabled (as this is now handled by OF_DECLARE), so remove the explicit
+check for that case.
 
-Reported-by: Donald Buczek <buczek@molgen.mpg.de>
-Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Signed-off-by: Song Liu <song@kernel.org>
+This fixes a long standing bogus error when booting ARM's fastmodels.
+
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/20220506162522.3675399-1-andre.przywara@arm.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/clocksource/timer-sp804.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 502556345570..4594a1ee88b9 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -7620,17 +7620,22 @@ EXPORT_SYMBOL(md_register_thread);
+diff --git a/drivers/clocksource/timer-sp804.c b/drivers/clocksource/timer-sp804.c
+index 401d592e85f5..e6a87f4af2b5 100644
+--- a/drivers/clocksource/timer-sp804.c
++++ b/drivers/clocksource/timer-sp804.c
+@@ -259,6 +259,11 @@ static int __init sp804_of_init(struct device_node *np, struct sp804_timer *time
+ 	struct clk *clk1, *clk2;
+ 	const char *name = of_get_property(np, "compatible", NULL);
  
- void md_unregister_thread(struct md_thread **threadp)
- {
--	struct md_thread *thread = *threadp;
--	if (!thread)
--		return;
--	pr_debug("interrupting MD-thread pid %d\n", task_pid_nr(thread->tsk));
--	/* Locking ensures that mddev_unlock does not wake_up a
-+	struct md_thread *thread;
-+
-+	/*
-+	 * Locking ensures that mddev_unlock does not wake_up a
- 	 * non-existent thread
- 	 */
- 	spin_lock(&pers_lock);
-+	thread = *threadp;
-+	if (!thread) {
-+		spin_unlock(&pers_lock);
-+		return;
++	if (initialized) {
++		pr_debug("%pOF: skipping further SP804 timer device\n", np);
++		return 0;
 +	}
- 	*threadp = NULL;
- 	spin_unlock(&pers_lock);
++
+ 	base = of_iomap(np, 0);
+ 	if (!base)
+ 		return -ENXIO;
+@@ -270,11 +275,6 @@ static int __init sp804_of_init(struct device_node *np, struct sp804_timer *time
+ 	writel(0, timer1_base + timer->ctrl);
+ 	writel(0, timer2_base + timer->ctrl);
  
-+	pr_debug("interrupting MD-thread pid %d\n", task_pid_nr(thread->tsk));
- 	kthread_stop(thread->tsk);
- 	kfree(thread);
- }
+-	if (initialized || !of_device_is_available(np)) {
+-		ret = -EINVAL;
+-		goto err;
+-	}
+-
+ 	clk1 = of_clk_get(np, 0);
+ 	if (IS_ERR(clk1))
+ 		clk1 = NULL;
 -- 
 2.35.1
 
