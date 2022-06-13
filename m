@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A96E5486C9
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C59475487B0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379041AbiFMNqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:46:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42692 "EHLO
+        id S1343689AbiFMKaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:30:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379494AbiFMNoX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:44:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99DF440915;
-        Mon, 13 Jun 2022 04:32:13 -0700 (PDT)
+        with ESMTP id S1344926AbiFMK3U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:29:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D67125C62;
+        Mon, 13 Jun 2022 03:20:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A17AB80EAB;
-        Mon, 13 Jun 2022 11:32:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF86DC34114;
-        Mon, 13 Jun 2022 11:32:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C975560C5B;
+        Mon, 13 Jun 2022 10:20:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D540AC34114;
+        Mon, 13 Jun 2022 10:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119931;
-        bh=cICZfXuWBegFT9C23BBXWNmLToDXlanou/jSAvxFKI4=;
+        s=korg; t=1655115630;
+        bh=x3KhVWC0ll/qL0hqYrVnjfMXp95Ww5ZMIt+AkkTdFUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjtl2YJknzLIun3yOVltAGe7aktmJd8tqQtBebHEOyK5qwDuhbA8cJmqYBK4+9c7D
-         dITIB2QkJILUcGOrYkjTl5rIVJeCjJimpypalSdUlsbLEoSRSldvs6PRcJoMrg3YdA
-         tbKBbjw3V+JvsZ7Bub42rMsaoap2N+LHTkVjn0H0=
+        b=tQhjKnmM1IaxxqE1S65zO138h7QMwu+ewagLP4ABhLJ0r6wGCPyJatpEMPFsB5yle
+         W+qfO2KvkgUwtLrda5tFq/7UKAuVjz7KfaWqQmQiS4P2YTUBL/IVoBRtWyXZEmd037
+         eOha7KgaNnLGhWFxiaLIcthPQjvGl7q3LHl0JDBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 190/339] netfilter: nf_tables: bail out early if hardware offload is not supported
-Date:   Mon, 13 Jun 2022 12:10:15 +0200
-Message-Id: <20220613094932.434752865@linuxfoundation.org>
+Subject: [PATCH 4.9 144/167] drivers: tty: serial: Fix deadlock in sa1100_set_termios()
+Date:   Mon, 13 Jun 2022 12:10:18 +0200
+Message-Id: <20220613094914.656704097@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,119 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 3a41c64d9c1185a2f3a184015e2a9b78bfc99c71 ]
+[ Upstream commit 62b2caef400c1738b6d22f636c628d9f85cd4c4c ]
 
-If user requests for NFT_CHAIN_HW_OFFLOAD, then check if either device
-provides the .ndo_setup_tc interface or there is an indirect flow block
-that has been registered. Otherwise, bail out early from the preparation
-phase. Moreover, validate that family == NFPROTO_NETDEV and hook is
-NF_NETDEV_INGRESS.
+There is a deadlock in sa1100_set_termios(), which is shown
+below:
 
-Fixes: c9626a2cbdb2 ("netfilter: nf_tables: add hardware offload support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+   (Thread 1)              |      (Thread 2)
+                           | sa1100_enable_ms()
+sa1100_set_termios()       |  mod_timer()
+ spin_lock_irqsave() //(1) |  (wait a time)
+ ...                       | sa1100_timeout()
+ del_timer_sync()          |  spin_lock_irqsave() //(2)
+ (wait timer to stop)      |  ...
+
+We hold sport->port.lock in position (1) of thread 1 and
+use del_timer_sync() to wait timer to stop, but timer handler
+also need sport->port.lock in position (2) of thread 2. As a result,
+sa1100_set_termios() will block forever.
+
+This patch moves del_timer_sync() before spin_lock_irqsave()
+in order to prevent the deadlock.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220417111626.7802-1-duoming@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/flow_offload.h                |  1 +
- include/net/netfilter/nf_tables_offload.h |  2 +-
- net/core/flow_offload.c                   |  6 ++++++
- net/netfilter/nf_tables_api.c             |  2 +-
- net/netfilter/nf_tables_offload.c         | 23 ++++++++++++++++++++++-
- 5 files changed, 31 insertions(+), 3 deletions(-)
+ drivers/tty/serial/sa1100.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
-index 021778a7e1af..6484095a8c01 100644
---- a/include/net/flow_offload.h
-+++ b/include/net/flow_offload.h
-@@ -612,5 +612,6 @@ int flow_indr_dev_setup_offload(struct net_device *dev, struct Qdisc *sch,
- 				enum tc_setup_type type, void *data,
- 				struct flow_block_offload *bo,
- 				void (*cleanup)(struct flow_block_cb *block_cb));
-+bool flow_indr_dev_exists(void);
+diff --git a/drivers/tty/serial/sa1100.c b/drivers/tty/serial/sa1100.c
+index fd3d1329d48c..68eb1c9faa29 100644
+--- a/drivers/tty/serial/sa1100.c
++++ b/drivers/tty/serial/sa1100.c
+@@ -452,6 +452,8 @@ sa1100_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16); 
+ 	quot = uart_get_divisor(port, baud);
  
- #endif /* _NET_FLOW_OFFLOAD_H */
-diff --git a/include/net/netfilter/nf_tables_offload.h b/include/net/netfilter/nf_tables_offload.h
-index 797147843958..3568b6a2f5f0 100644
---- a/include/net/netfilter/nf_tables_offload.h
-+++ b/include/net/netfilter/nf_tables_offload.h
-@@ -92,7 +92,7 @@ int nft_flow_rule_offload_commit(struct net *net);
- 	NFT_OFFLOAD_MATCH(__key, __base, __field, __len, __reg)		\
- 	memset(&(__reg)->mask, 0xff, (__reg)->len);
++	del_timer_sync(&sport->timer);
++
+ 	spin_lock_irqsave(&sport->port.lock, flags);
  
--int nft_chain_offload_priority(struct nft_base_chain *basechain);
-+bool nft_chain_offload_support(const struct nft_base_chain *basechain);
+ 	sport->port.read_status_mask &= UTSR0_TO_SM(UTSR0_TFS);
+@@ -482,8 +484,6 @@ sa1100_set_termios(struct uart_port *port, struct ktermios *termios,
+ 				UTSR1_TO_SM(UTSR1_ROR);
+ 	}
  
- int nft_offload_init(void);
- void nft_offload_exit(void);
-diff --git a/net/core/flow_offload.c b/net/core/flow_offload.c
-index 73f68d4625f3..929f6379a279 100644
---- a/net/core/flow_offload.c
-+++ b/net/core/flow_offload.c
-@@ -595,3 +595,9 @@ int flow_indr_dev_setup_offload(struct net_device *dev,	struct Qdisc *sch,
- 	return (bo && list_empty(&bo->cb_list)) ? -EOPNOTSUPP : count;
- }
- EXPORT_SYMBOL(flow_indr_dev_setup_offload);
-+
-+bool flow_indr_dev_exists(void)
-+{
-+	return !list_empty(&flow_block_indr_dev_list);
-+}
-+EXPORT_SYMBOL(flow_indr_dev_exists);
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index bce7da870bce..81243c834abb 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -2166,7 +2166,7 @@ static int nft_basechain_init(struct nft_base_chain *basechain, u8 family,
- 	chain->flags |= NFT_CHAIN_BASE | flags;
- 	basechain->policy = NF_ACCEPT;
- 	if (chain->flags & NFT_CHAIN_HW_OFFLOAD &&
--	    nft_chain_offload_priority(basechain) < 0)
-+	    !nft_chain_offload_support(basechain))
- 		return -EOPNOTSUPP;
- 
- 	flow_block_init(&basechain->flow_block);
-diff --git a/net/netfilter/nf_tables_offload.c b/net/netfilter/nf_tables_offload.c
-index 2d36952b1392..910ef881c3b8 100644
---- a/net/netfilter/nf_tables_offload.c
-+++ b/net/netfilter/nf_tables_offload.c
-@@ -208,7 +208,7 @@ static int nft_setup_cb_call(enum tc_setup_type type, void *type_data,
- 	return 0;
- }
- 
--int nft_chain_offload_priority(struct nft_base_chain *basechain)
-+static int nft_chain_offload_priority(const struct nft_base_chain *basechain)
- {
- 	if (basechain->ops.priority <= 0 ||
- 	    basechain->ops.priority > USHRT_MAX)
-@@ -217,6 +217,27 @@ int nft_chain_offload_priority(struct nft_base_chain *basechain)
- 	return 0;
- }
- 
-+bool nft_chain_offload_support(const struct nft_base_chain *basechain)
-+{
-+	struct net_device *dev;
-+	struct nft_hook *hook;
-+
-+	if (nft_chain_offload_priority(basechain) < 0)
-+		return false;
-+
-+	list_for_each_entry(hook, &basechain->hook_list, list) {
-+		if (hook->ops.pf != NFPROTO_NETDEV ||
-+		    hook->ops.hooknum != NF_NETDEV_INGRESS)
-+			return false;
-+
-+		dev = hook->ops.dev;
-+		if (!dev->netdev_ops->ndo_setup_tc && !flow_indr_dev_exists())
-+			return false;
-+	}
-+
-+	return true;
-+}
-+
- static void nft_flow_cls_offload_setup(struct flow_cls_offload *cls_flow,
- 				       const struct nft_base_chain *basechain,
- 				       const struct nft_rule *rule,
+-	del_timer_sync(&sport->timer);
+-
+ 	/*
+ 	 * Update the per-port timeout.
+ 	 */
 -- 
 2.35.1
 
