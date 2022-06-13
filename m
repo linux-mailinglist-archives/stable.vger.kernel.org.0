@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8D85495A6
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6CE5548AB3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376435AbiFMNVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:21:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60460 "EHLO
+        id S1376303AbiFMNXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:23:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377456AbiFMNUf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E63B6B01C;
-        Mon, 13 Jun 2022 04:23:36 -0700 (PDT)
+        with ESMTP id S1376298AbiFMNVO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:21:14 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E26E6B035;
+        Mon, 13 Jun 2022 04:23:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F379861121;
-        Mon, 13 Jun 2022 11:23:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E3D9C34114;
-        Mon, 13 Jun 2022 11:23:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EB4F4CE116E;
+        Mon, 13 Jun 2022 11:23:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0983C34114;
+        Mon, 13 Jun 2022 11:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119413;
-        bh=HE9pJc3MBTefg0BQ/7370zg4d3v6Fos68pQ6N+Ze2nE=;
+        s=korg; t=1655119416;
+        bh=2kdVZxq7QhwiMhHg48ux5Jq1HvMBVruEQH6DiUTxjWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WhA+RiQHRAcNu5tz/3o6GUFsThVsonTykseDqRciwJhV7u6yGv1lWhNp6OIEVpasm
-         BSfOj8QKTWIOZ/wCooDspBtoGIxwYmWabq5bA2qmVGx79LRmNIe9ExeolHviuTJzJR
-         Dbu1EN7o/msByfGSSxj3H5a3OxqKNVmmGpr5l4/4=
+        b=L3q7P9/mzssLMznn+O2Fnm0Igy5ZwoI46Mayh6es4A3CQDwB5X5O1j4GnTwX6iewL
+         o6EIA3gtJYmi6rm1iE7BdYUtq2P9utnU4YmbD3FEHvfUI4Uf3exB87JPlbBX9/+NP7
+         3NQPzMC1vwLVdJmO2bu5+spaO7qS6gODGTMh0jyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Olivier Matz <olivier.matz@6wind.com>,
         Konrad Jankowski <konrad0.jankowski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.15 230/247] ixgbe: fix bcast packets Rx on VF after promisc removal
-Date:   Mon, 13 Jun 2022 12:12:12 +0200
-Message-Id: <20220613094929.920752468@linuxfoundation.org>
+Subject: [PATCH 5.15 231/247] ixgbe: fix unexpected VLAN Rx in promisc mode on VF
+Date:   Mon, 13 Jun 2022 12:12:13 +0200
+Message-Id: <20220613094929.951843152@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
 References: <20220613094922.843438024@linuxfoundation.org>
@@ -58,16 +58,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Olivier Matz <olivier.matz@6wind.com>
 
-commit 803e9895ea2b0fe80bc85980ae2d7a7e44037914 upstream.
+commit 7bb0fb7c63df95d6027dc50d6af3bc3bbbc25483 upstream.
 
-After a VF requested to remove the promiscuous flag on an interface, the
-broadcast packets are not received anymore. This breaks some protocols
-like ARP.
+When the promiscuous mode is enabled on a VF, the IXGBE_VMOLR_VPE
+bit (VLAN Promiscuous Enable) is set. This means that the VF will
+receive packets whose VLAN is not the same than the VLAN of the VF.
 
-In ixgbe_update_vf_xcast_mode(), we should keep the IXGBE_VMOLR_BAM
-bit (Broadcast Accept) on promiscuous removal.
+For instance, in this situation:
 
-This flag is already set by default in ixgbe_set_vmolr() on VF reset.
+┌────────┐    ┌────────┐    ┌────────┐
+│        │    │        │    │        │
+│        │    │        │    │        │
+│     VF0├────┤VF1  VF2├────┤VF3     │
+│        │    │        │    │        │
+└────────┘    └────────┘    └────────┘
+   VM1           VM2           VM3
+
+vf 0:  vlan 1000
+vf 1:  vlan 1000
+vf 2:  vlan 1001
+vf 3:  vlan 1001
+
+If we tcpdump on VF3, we see all the packets, even those transmitted
+on vlan 1000.
+
+This behavior prevents to bridge VF1 and VF2 in VM2, because it will
+create a loop: packets transmitted on VF1 will be received by VF2 and
+vice-versa, and bridged again through the software bridge.
+
+This patch remove the activation of VLAN Promiscuous when a VF enables
+the promiscuous mode. However, the IXGBE_VMOLR_UPE bit (Unicast
+Promiscuous) is kept, so that a VF receives all packets that has the
+same VLAN, whatever the destination MAC address.
 
 Fixes: 8443c1a4b192 ("ixgbe, ixgbevf: Add new mbox API xcast mode")
 Cc: stable@vger.kernel.org
@@ -82,17 +104,17 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
 +++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-@@ -1157,9 +1157,9 @@ static int ixgbe_update_vf_xcast_mode(st
+@@ -1181,9 +1181,9 @@ static int ixgbe_update_vf_xcast_mode(st
+ 			return -EPERM;
+ 		}
  
- 	switch (xcast_mode) {
- 	case IXGBEVF_XCAST_MODE_NONE:
--		disable = IXGBE_VMOLR_BAM | IXGBE_VMOLR_ROMPE |
-+		disable = IXGBE_VMOLR_ROMPE |
- 			  IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE | IXGBE_VMOLR_VPE;
--		enable = 0;
-+		enable = IXGBE_VMOLR_BAM;
+-		disable = 0;
++		disable = IXGBE_VMOLR_VPE;
+ 		enable = IXGBE_VMOLR_BAM | IXGBE_VMOLR_ROMPE |
+-			 IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE | IXGBE_VMOLR_VPE;
++			 IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE;
  		break;
- 	case IXGBEVF_XCAST_MODE_MULTI:
- 		disable = IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE | IXGBE_VMOLR_VPE;
+ 	default:
+ 		return -EOPNOTSUPP;
 
 
