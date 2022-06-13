@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD434549147
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00568548F92
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:23:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359019AbiFMNMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:12:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37404 "EHLO
+        id S1352402AbiFMLQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:16:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359272AbiFMNJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7AF2222AF;
-        Mon, 13 Jun 2022 04:19:51 -0700 (PDT)
+        with ESMTP id S1352551AbiFMLN7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:13:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F4D36161;
+        Mon, 13 Jun 2022 03:36:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DCF2B80E59;
-        Mon, 13 Jun 2022 11:19:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F38E1C3411C;
-        Mon, 13 Jun 2022 11:19:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCF0DB80E93;
+        Mon, 13 Jun 2022 10:36:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EAFFC34114;
+        Mon, 13 Jun 2022 10:36:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119189;
-        bh=1hJPOJGNIcXFSa9CLjtVS0gJeJaw4SwglJArfgbQavk=;
+        s=korg; t=1655116585;
+        bh=gJV/Dd5leOXeTUIaJ5WEAtiBjlOWMbXoC66IahCIXf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eIZ5jgEQcRVnBbReHZVDZcZ8ZtUdZt9tlsoQEwBfIOA2kNg7f4h4cxMrJPUD1ZtNd
-         fT/X4vAtwViOEiSOwsY3c99eLeHvE7ocndNpCubHjDxWCRYBei2sgqZ6ZOfF4NEzOy
-         eGvkxHVDSHCvVDoWYV9/pPxh6cUQ6keJ03xFKEAk=
+        b=FdQrBXYMMycVrKG7NVHWbc1uvy7lmNCIo1/K6j6OreRalkU0Qfe68C8NjuOv7YPs1
+         /Lta6i/CEJ9fJIMKBG3nC1jH1TWXs7AqATPRj42ljv1C2oQIU25GM7wph1QdnXm9Em
+         FikE+LN8ibP7Ds5P5R9zhCAmH3lDMyS/XFlzIByA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brad Campbell <lists2009@fnarfbargle.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 173/247] thunderbolt: Use different lane for second DisplayPort tunnel
+        stable@vger.kernel.org, Tokunori Ikegami <ikegami.t@gmail.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.14 217/218] mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
 Date:   Mon, 13 Jun 2022 12:11:15 +0200
-Message-Id: <20220613094928.204365827@linuxfoundation.org>
+Message-Id: <20220613094927.210294807@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,218 +54,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Tokunori Ikegami <ikegami.t@gmail.com>
 
-[ Upstream commit 9d2d0a5cf0ca063f417681cc33e767ce52615286 ]
+commit 0a8e98305f63deaf0a799d5cf5532cc83af035d1 upstream.
 
-Brad reported that on Apple hardware with Light Ridge or Falcon Ridge
-controller, plugging in a chain of Thunderbolt displays (Light Ridge
-based controllers) causes all kinds of tearing and flickering. The
-reason for this is that on Thunderbolt 1 hardware there is no lane
-bonding so we have two independent 10 Gb/s lanes, and currently Linux
-tunnels both displays through the lane 1. This makes the displays to
-share the 10 Gb/s bandwidth which may not be enough for higher
-resolutions.
+Since commit dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to
+check correct value") buffered writes fail on S29GL064N. This is
+because, on S29GL064N, reads return 0xFF at the end of DQ polling for
+write completion, where as, chip_good() check expects actual data
+written to the last location to be returned post DQ polling completion.
+Fix is to revert to using chip_good() for S29GL064N which only checks
+for DQ lines to settle down to determine write completion.
 
-For this reason make the second tunnel go through the lane 0 instead.
-This seems to match what the macOS connection manager is also doing.
-
-Reported-by: Brad Campbell <lists2009@fnarfbargle.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Tested-by: Brad Campbell <lists2009@fnarfbargle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
+Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-3-ikegami.t@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/tb.c     | 19 +++++++++++++++++--
- drivers/thunderbolt/test.c   | 16 ++++++++--------
- drivers/thunderbolt/tunnel.c | 11 ++++++-----
- drivers/thunderbolt/tunnel.h |  4 ++--
- 4 files changed, 33 insertions(+), 17 deletions(-)
+ drivers/mtd/chips/cfi_cmdset_0002.c |   42 +++++++++++++++++++++++++++++-------
+ include/linux/mtd/cfi.h             |    1 
+ 2 files changed, 35 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/thunderbolt/tb.c b/drivers/thunderbolt/tb.c
-index 2897a77d44c3..b805b6939794 100644
---- a/drivers/thunderbolt/tb.c
-+++ b/drivers/thunderbolt/tb.c
-@@ -851,7 +851,7 @@ static struct tb_port *tb_find_dp_out(struct tb *tb, struct tb_port *in)
+--- a/drivers/mtd/chips/cfi_cmdset_0002.c
++++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+@@ -49,6 +49,10 @@
+ #define SST49LF008A		0x005a
+ #define AT49BV6416		0x00d6
  
- static void tb_tunnel_dp(struct tb *tb)
- {
--	int available_up, available_down, ret;
-+	int available_up, available_down, ret, link_nr;
- 	struct tb_cm *tcm = tb_priv(tb);
- 	struct tb_port *port, *in, *out;
- 	struct tb_tunnel *tunnel;
-@@ -896,6 +896,20 @@ static void tb_tunnel_dp(struct tb *tb)
- 		return;
- 	}
- 
-+	/*
-+	 * This is only applicable to links that are not bonded (so
-+	 * when Thunderbolt 1 hardware is involved somewhere in the
-+	 * topology). For these try to share the DP bandwidth between
-+	 * the two lanes.
-+	 */
-+	link_nr = 1;
-+	list_for_each_entry(tunnel, &tcm->tunnel_list, list) {
-+		if (tb_tunnel_is_dp(tunnel)) {
-+			link_nr = 0;
-+			break;
-+		}
-+	}
++enum cfi_quirks {
++	CFI_QUIRK_DQ_TRUE_DATA = BIT(0),
++};
 +
- 	/*
- 	 * DP stream needs the domain to be active so runtime resume
- 	 * both ends of the tunnel.
-@@ -927,7 +941,8 @@ static void tb_tunnel_dp(struct tb *tb)
- 	tb_dbg(tb, "available bandwidth for new DP tunnel %u/%u Mb/s\n",
- 	       available_up, available_down);
+ static int cfi_amdstd_read (struct mtd_info *, loff_t, size_t, size_t *, u_char *);
+ static int cfi_amdstd_write_words(struct mtd_info *, loff_t, size_t, size_t *, const u_char *);
+ static int cfi_amdstd_write_buffers(struct mtd_info *, loff_t, size_t, size_t *, const u_char *);
+@@ -365,6 +369,15 @@ static void fixup_s29ns512p_sectors(stru
+ 		mtd->name);
+ }
  
--	tunnel = tb_tunnel_alloc_dp(tb, in, out, available_up, available_down);
-+	tunnel = tb_tunnel_alloc_dp(tb, in, out, link_nr, available_up,
-+				    available_down);
- 	if (!tunnel) {
- 		tb_port_dbg(out, "could not allocate DP tunnel\n");
- 		goto err_reclaim;
-diff --git a/drivers/thunderbolt/test.c b/drivers/thunderbolt/test.c
-index 1f69bab236ee..66b6e665e96f 100644
---- a/drivers/thunderbolt/test.c
-+++ b/drivers/thunderbolt/test.c
-@@ -1348,7 +1348,7 @@ static void tb_test_tunnel_dp(struct kunit *test)
- 	in = &host->ports[5];
- 	out = &dev->ports[13];
++static void fixup_quirks(struct mtd_info *mtd)
++{
++	struct map_info *map = mtd->priv;
++	struct cfi_private *cfi = map->fldrv_priv;
++
++	if (cfi->mfr == CFI_MFR_AMD && cfi->id == 0x0c01)
++		cfi->quirks |= CFI_QUIRK_DQ_TRUE_DATA;
++}
++
+ /* Used to fix CFI-Tables of chips without Extended Query Tables */
+ static struct cfi_fixup cfi_nopri_fixup_table[] = {
+ 	{ CFI_MFR_SST, 0x234a, fixup_sst39vf }, /* SST39VF1602 */
+@@ -403,6 +416,7 @@ static struct cfi_fixup cfi_fixup_table[
+ #if !FORCE_WORD_WRITE
+ 	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_use_write_buffers },
+ #endif
++	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_quirks },
+ 	{ 0, 0, NULL }
+ };
+ static struct cfi_fixup jedec_fixup_table[] = {
+@@ -760,6 +774,18 @@ static int __xipram chip_ready(struct ma
+ 	return map_word_equal(map, t, *expected);
+ }
  
--	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
-+	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
- 	KUNIT_ASSERT_TRUE(test, tunnel != NULL);
- 	KUNIT_EXPECT_EQ(test, tunnel->type, TB_TUNNEL_DP);
- 	KUNIT_EXPECT_PTR_EQ(test, tunnel->src_port, in);
-@@ -1394,7 +1394,7 @@ static void tb_test_tunnel_dp_chain(struct kunit *test)
- 	in = &host->ports[5];
- 	out = &dev4->ports[14];
- 
--	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
-+	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
- 	KUNIT_ASSERT_TRUE(test, tunnel != NULL);
- 	KUNIT_EXPECT_EQ(test, tunnel->type, TB_TUNNEL_DP);
- 	KUNIT_EXPECT_PTR_EQ(test, tunnel->src_port, in);
-@@ -1444,7 +1444,7 @@ static void tb_test_tunnel_dp_tree(struct kunit *test)
- 	in = &dev2->ports[13];
- 	out = &dev5->ports[13];
- 
--	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
-+	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
- 	KUNIT_ASSERT_TRUE(test, tunnel != NULL);
- 	KUNIT_EXPECT_EQ(test, tunnel->type, TB_TUNNEL_DP);
- 	KUNIT_EXPECT_PTR_EQ(test, tunnel->src_port, in);
-@@ -1509,7 +1509,7 @@ static void tb_test_tunnel_dp_max_length(struct kunit *test)
- 	in = &dev6->ports[13];
- 	out = &dev12->ports[13];
- 
--	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
-+	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
- 	KUNIT_ASSERT_TRUE(test, tunnel != NULL);
- 	KUNIT_EXPECT_EQ(test, tunnel->type, TB_TUNNEL_DP);
- 	KUNIT_EXPECT_PTR_EQ(test, tunnel->src_port, in);
-@@ -1627,7 +1627,7 @@ static void tb_test_tunnel_port_on_path(struct kunit *test)
- 	in = &dev2->ports[13];
- 	out = &dev5->ports[13];
- 
--	dp_tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
-+	dp_tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
- 	KUNIT_ASSERT_TRUE(test, dp_tunnel != NULL);
- 
- 	KUNIT_EXPECT_TRUE(test, tb_tunnel_port_on_path(dp_tunnel, in));
-@@ -2009,7 +2009,7 @@ static void tb_test_credit_alloc_dp(struct kunit *test)
- 	in = &host->ports[5];
- 	out = &dev->ports[14];
- 
--	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
-+	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
- 	KUNIT_ASSERT_TRUE(test, tunnel != NULL);
- 	KUNIT_ASSERT_EQ(test, tunnel->npaths, (size_t)3);
- 
-@@ -2245,7 +2245,7 @@ static struct tb_tunnel *TB_TEST_DP_TUNNEL1(struct kunit *test,
- 
- 	in = &host->ports[5];
- 	out = &dev->ports[13];
--	dp_tunnel1 = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
-+	dp_tunnel1 = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
- 	KUNIT_ASSERT_TRUE(test, dp_tunnel1 != NULL);
- 	KUNIT_ASSERT_EQ(test, dp_tunnel1->npaths, (size_t)3);
- 
-@@ -2282,7 +2282,7 @@ static struct tb_tunnel *TB_TEST_DP_TUNNEL2(struct kunit *test,
- 
- 	in = &host->ports[6];
- 	out = &dev->ports[14];
--	dp_tunnel2 = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
-+	dp_tunnel2 = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
- 	KUNIT_ASSERT_TRUE(test, dp_tunnel2 != NULL);
- 	KUNIT_ASSERT_EQ(test, dp_tunnel2->npaths, (size_t)3);
- 
-diff --git a/drivers/thunderbolt/tunnel.c b/drivers/thunderbolt/tunnel.c
-index bb5cc480fc9a..bd98c719bf55 100644
---- a/drivers/thunderbolt/tunnel.c
-+++ b/drivers/thunderbolt/tunnel.c
-@@ -843,6 +843,7 @@ struct tb_tunnel *tb_tunnel_discover_dp(struct tb *tb, struct tb_port *in)
-  * @tb: Pointer to the domain structure
-  * @in: DP in adapter port
-  * @out: DP out adapter port
-+ * @link_nr: Preferred lane adapter when the link is not bonded
-  * @max_up: Maximum available upstream bandwidth for the DP tunnel (%0
-  *	    if not limited)
-  * @max_down: Maximum available downstream bandwidth for the DP tunnel
-@@ -854,8 +855,8 @@ struct tb_tunnel *tb_tunnel_discover_dp(struct tb *tb, struct tb_port *in)
-  * Return: Returns a tb_tunnel on success or NULL on failure.
-  */
- struct tb_tunnel *tb_tunnel_alloc_dp(struct tb *tb, struct tb_port *in,
--				     struct tb_port *out, int max_up,
--				     int max_down)
-+				     struct tb_port *out, int link_nr,
-+				     int max_up, int max_down)
++static int __xipram chip_good(struct map_info *map, unsigned long addr,
++			      map_word *expected)
++{
++	struct cfi_private *cfi = map->fldrv_priv;
++	map_word *datum = expected;
++
++	if (cfi->quirks & CFI_QUIRK_DQ_TRUE_DATA)
++		datum = NULL;
++
++	return chip_ready(map, addr, datum);
++}
++
+ static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
  {
- 	struct tb_tunnel *tunnel;
- 	struct tb_path **paths;
-@@ -879,21 +880,21 @@ struct tb_tunnel *tb_tunnel_alloc_dp(struct tb *tb, struct tb_port *in,
- 	paths = tunnel->paths;
+ 	DECLARE_WAITQUEUE(wait, current);
+@@ -1612,11 +1638,11 @@ static int __xipram do_write_oneword(str
+ 		}
  
- 	path = tb_path_alloc(tb, in, TB_DP_VIDEO_HOPID, out, TB_DP_VIDEO_HOPID,
--			     1, "Video");
-+			     link_nr, "Video");
- 	if (!path)
- 		goto err_free;
- 	tb_dp_init_video_path(path);
- 	paths[TB_DP_VIDEO_PATH_OUT] = path;
+ 		/*
+-		 * We check "time_after" and "!chip_ready" before checking
+-		 * "chip_ready" to avoid the failure due to scheduling.
++		 * We check "time_after" and "!chip_good" before checking
++		 * "chip_good" to avoid the failure due to scheduling.
+ 		 */
+ 		if (time_after(jiffies, timeo) &&
+-		    !chip_ready(map, adr, &datum)) {
++		    !chip_good(map, adr, &datum)) {
+ 			xip_enable(map, chip, adr);
+ 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
+ 			xip_disable(map, chip, adr);
+@@ -1624,7 +1650,7 @@ static int __xipram do_write_oneword(str
+ 			break;
+ 		}
  
- 	path = tb_path_alloc(tb, in, TB_DP_AUX_TX_HOPID, out,
--			     TB_DP_AUX_TX_HOPID, 1, "AUX TX");
-+			     TB_DP_AUX_TX_HOPID, link_nr, "AUX TX");
- 	if (!path)
- 		goto err_free;
- 	tb_dp_init_aux_path(path);
- 	paths[TB_DP_AUX_PATH_OUT] = path;
+-		if (chip_ready(map, adr, &datum))
++		if (chip_good(map, adr, &datum))
+ 			break;
  
- 	path = tb_path_alloc(tb, out, TB_DP_AUX_RX_HOPID, in,
--			     TB_DP_AUX_RX_HOPID, 1, "AUX RX");
-+			     TB_DP_AUX_RX_HOPID, link_nr, "AUX RX");
- 	if (!path)
- 		goto err_free;
- 	tb_dp_init_aux_path(path);
-diff --git a/drivers/thunderbolt/tunnel.h b/drivers/thunderbolt/tunnel.h
-index eea14e24f7e0..a92027431697 100644
---- a/drivers/thunderbolt/tunnel.h
-+++ b/drivers/thunderbolt/tunnel.h
-@@ -69,8 +69,8 @@ struct tb_tunnel *tb_tunnel_alloc_pci(struct tb *tb, struct tb_port *up,
- 				      struct tb_port *down);
- struct tb_tunnel *tb_tunnel_discover_dp(struct tb *tb, struct tb_port *in);
- struct tb_tunnel *tb_tunnel_alloc_dp(struct tb *tb, struct tb_port *in,
--				     struct tb_port *out, int max_up,
--				     int max_down);
-+				     struct tb_port *out, int link_nr,
-+				     int max_up, int max_down);
- struct tb_tunnel *tb_tunnel_alloc_dma(struct tb *tb, struct tb_port *nhi,
- 				      struct tb_port *dst, int transmit_path,
- 				      int transmit_ring, int receive_path,
--- 
-2.35.1
-
+ 		/* Latency issues. Drop the lock, wait a while and retry */
+@@ -1868,13 +1894,13 @@ static int __xipram do_write_buffer(stru
+ 		}
+ 
+ 		/*
+-		 * We check "time_after" and "!chip_ready" before checking
+-		 * "chip_ready" to avoid the failure due to scheduling.
++		 * We check "time_after" and "!chip_good" before checking
++		 * "chip_good" to avoid the failure due to scheduling.
+ 		 */
+-		if (time_after(jiffies, timeo) && !chip_ready(map, adr, &datum))
++		if (time_after(jiffies, timeo) && !chip_good(map, adr, &datum))
+ 			break;
+ 
+-		if (chip_ready(map, adr, &datum)) {
++		if (chip_good(map, adr, &datum)) {
+ 			xip_enable(map, chip, adr);
+ 			goto op_done;
+ 		}
+--- a/include/linux/mtd/cfi.h
++++ b/include/linux/mtd/cfi.h
+@@ -293,6 +293,7 @@ struct cfi_private {
+ 	map_word sector_erase_cmd;
+ 	unsigned long chipshift; /* Because they're of the same type */
+ 	const char *im_name;	 /* inter_module name for cmdset_setup */
++	unsigned long quirks;
+ 	struct flchip chips[0];  /* per-chip data structure for each chip */
+ };
+ 
 
 
