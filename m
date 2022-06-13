@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2FEA548CAC
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 343B6548DC2
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384103AbiFMOcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:32:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39928 "EHLO
+        id S1353199AbiFMMmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:42:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385521AbiFMObQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:31:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E320ABE6F;
-        Mon, 13 Jun 2022 04:48:59 -0700 (PDT)
+        with ESMTP id S1349225AbiFMMkk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:40:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 116465F8DB;
+        Mon, 13 Jun 2022 04:10:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 129C8B80ECC;
-        Mon, 13 Jun 2022 11:48:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D33DC3411B;
-        Mon, 13 Jun 2022 11:48:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 159C4B80EAA;
+        Mon, 13 Jun 2022 11:10:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71047C34114;
+        Mon, 13 Jun 2022 11:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120929;
-        bh=fOGyiO/Q/y/xv0Yi8FkPvSRMF+bUyYruvb+2AB7CZhw=;
+        s=korg; t=1655118623;
+        bh=h7UYClL8BFxTUfuluO+uWklEN6MlHrRRXDG3XZPPlLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QEtIS6AljOlnoaEZ46j/rTc6PxuNFgrURP7SJFnSmF8r7tIGHshBKoYdGBfY+ctfu
-         G9814difbwUdJVzfREUXnJdkjYDhSIGwIYhiym4qRJWJqNEA7TGt1OWMERr06fCTpX
-         y19cJYb0q1VYa0Hr2FACE900DpN78lBgojh6V9ls=
+        b=XbuNVNyGT9tVTtsaYrup+vNbC4dEsDw9AsbdelHKgtneX9U3zH5t6Hyiijk5/3Km+
+         SK2e+/rrtzPssNzEhYncs0FCMlRC7ixmV/Xk+HNIdX2kOLBVN6TEP9QKlAPPa/91GB
+         Xcai77/Rxd61Bs35msL0Klme6YT4AF/YYx1BWxsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 192/298] tcp: use alloc_large_system_hash() to allocate table_perturb
+Subject: [PATCH 5.10 126/172] usb: dwc2: gadget: dont reset gadgets driver->bus
 Date:   Mon, 13 Jun 2022 12:11:26 +0200
-Message-Id: <20220613094930.929532082@linuxfoundation.org>
+Message-Id: <20220613094920.690334884@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit e67b72b90b7e19a4be4d9c29f3feea6f58ab43f8 ]
+[ Upstream commit 3120aac6d0ecd9accf56894aeac0e265f74d3d5a ]
 
-In our server, there may be no high order (>= 6) memory since we reserve
-lots of HugeTLB pages when booting.  Then the system panic.  So use
-alloc_large_system_hash() to allocate table_perturb.
+UDC driver should not touch gadget's driver internals, especially it
+should not reset driver->bus. This wasn't harmful so far, but since
+commit fc274c1e9973 ("USB: gadget: Add a new bus for gadgets") gadget
+subsystem got it's own bus and messing with ->bus triggers the
+following NULL pointer dereference:
 
-Fixes: e9261476184b ("tcp: dynamically allocate the perturb table used by source ports")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220607070214.94443-1-songmuchun@bytedance.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+dwc2 12480000.hsotg: bound driver g_ether
+8<--- cut here ---
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+[00000000] *pgd=00000000
+Internal error: Oops: 5 [#1] SMP ARM
+Modules linked in: ...
+CPU: 0 PID: 620 Comm: modprobe Not tainted 5.18.0-rc5-next-20220504 #11862
+Hardware name: Samsung Exynos (Flattened Device Tree)
+PC is at module_add_driver+0x44/0xe8
+LR is at sysfs_do_create_link_sd+0x84/0xe0
+...
+Process modprobe (pid: 620, stack limit = 0x(ptrval))
+...
+ module_add_driver from bus_add_driver+0xf4/0x1e4
+ bus_add_driver from driver_register+0x78/0x10c
+ driver_register from usb_gadget_register_driver_owner+0x40/0xb4
+ usb_gadget_register_driver_owner from do_one_initcall+0x44/0x1e0
+ do_one_initcall from do_init_module+0x44/0x1c8
+ do_init_module from load_module+0x19b8/0x1b9c
+ load_module from sys_finit_module+0xdc/0xfc
+ sys_finit_module from ret_fast_syscall+0x0/0x54
+Exception stack(0xf1771fa8 to 0xf1771ff0)
+...
+dwc2 12480000.hsotg: new device is high-speed
+---[ end trace 0000000000000000 ]---
+
+Fix this by removing driver->bus entry reset.
+
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20220505104618.22729-1-m.szyprowski@samsung.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_hashtables.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/usb/dwc2/gadget.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index a5d57fa679ca..55654e335d43 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -917,10 +917,12 @@ void __init inet_hashinfo2_init(struct inet_hashinfo *h, const char *name,
- 	init_hashinfo_lhash2(h);
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index ec54971063f8..64485f82dc5b 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -4518,7 +4518,6 @@ static int dwc2_hsotg_udc_start(struct usb_gadget *gadget,
  
- 	/* this one is used for source ports of outgoing connections */
--	table_perturb = kmalloc_array(INET_TABLE_PERTURB_SIZE,
--				      sizeof(*table_perturb), GFP_KERNEL);
--	if (!table_perturb)
--		panic("TCP: failed to alloc table_perturb");
-+	table_perturb = alloc_large_system_hash("Table-perturb",
-+						sizeof(*table_perturb),
-+						INET_TABLE_PERTURB_SIZE,
-+						0, 0, NULL, NULL,
-+						INET_TABLE_PERTURB_SIZE,
-+						INET_TABLE_PERTURB_SIZE);
- }
+ 	WARN_ON(hsotg->driver);
  
- int inet_hashinfo2_init_mod(struct inet_hashinfo *h)
+-	driver->driver.bus = NULL;
+ 	hsotg->driver = driver;
+ 	hsotg->gadget.dev.of_node = hsotg->dev->of_node;
+ 	hsotg->gadget.speed = USB_SPEED_UNKNOWN;
 -- 
 2.35.1
 
