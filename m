@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 122565494D8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E65A548F40
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385576AbiFMOpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35554 "EHLO
+        id S1380637AbiFMOBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:01:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386208AbiFMOop (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:44:45 -0400
+        with ESMTP id S1380006AbiFMN7t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:59:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37C02B715E;
-        Mon, 13 Jun 2022 04:51:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3210D8D683;
+        Mon, 13 Jun 2022 04:37:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 760866133B;
-        Mon, 13 Jun 2022 11:51:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F3ACC34114;
-        Mon, 13 Jun 2022 11:51:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D82C61323;
+        Mon, 13 Jun 2022 11:37:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D16DC34114;
+        Mon, 13 Jun 2022 11:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121088;
-        bh=NdoOI/mdof+A4Uy4fR9Q85uef2kWgrggo63N4r2XOrk=;
+        s=korg; t=1655120273;
+        bh=9uKvnoG4B7uUYhEFbCpI+laNOBVB1oTWCNAqi04Sf4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yH/0UdbY/xUpzUPG8aYtqdk0OdKThzyKghMVuVNxDeueOEeTcDEwyXTid8in3Fqa0
-         7VDDtcMFq5TrgAh2dsNCTJesrcyXRw68/bddA1VEzsHhCazyDmvbORWBbRVCm58oOv
-         Ewn1hPg43b9xsAM8e902IJWoXYt9G9hi+QTbLNME=
+        b=iEdfJF5k8YxPFU7UMPAa0AMpKwbCKXaJKXvI/KHLd/+oqgB9EBmwMWlFSkxusmoY/
+         tkTw9wq9zUJnVK5HdOrXqaEHGhWO1g5kkgLp4TLtuVoFSRLqgAfthjkO/ChttktHke
+         6206laWORg1MeLM2gI8mR35GgZ5YmD5xGun2N12M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cyril Brulebois <kibi@debian.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 244/298] Revert "PCI: brcmstb: Do not turn off WOL regulators on suspend"
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.18 313/339] mmc: block: Fix CQE recovery reset success
 Date:   Mon, 13 Jun 2022 12:12:18 +0200
-Message-Id: <20220613094932.486775523@linuxfoundation.org>
+Message-Id: <20220613094936.244498816@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,126 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 7894025c783ca36394d3afe49c8cfb4c830b82fe ]
+commit a051246b786af7e4a9d9219cc7038a6e8a411531 upstream.
 
-This reverts commit 11ed8b8624b8085f706864b4addcd304b1e4fc38.
+The intention of the use of mmc_blk_reset_success() in
+mmc_blk_cqe_recovery() was to prevent repeated resets when retrying and
+getting the same error. However, that may not be the case - any amount
+of time and I/O may pass before another recovery is needed, in which
+case there would be no reason to deny it the opportunity to recover via
+a reset if necessary. CQE recovery is expected seldom and failure to
+recover (if the clear tasks command fails), even more seldom, so it is
+better to allow the reset always, which can be done by calling
+mmc_blk_reset_success() always.
 
-This is part of a revert of the following commits:
-
-  11ed8b8624b8 ("PCI: brcmstb: Do not turn off WOL regulators on suspend")
-  93e41f3fca3d ("PCI: brcmstb: Add control of subdevice voltage regulators")
-  67211aadcb4b ("PCI: brcmstb: Add mechanism to turn on subdev regulators")
-  830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup() into two funcs")
-
-Cyril reported that 830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup()
-into two funcs"), which appeared in v5.17-rc1, broke booting on the
-Raspberry Pi Compute Module 4.  Apparently 830aa6f29f07 panics with an
-Asynchronous SError Interrupt, and after further commits here is a black
-screen on HDMI and no output on the serial console.
-
-This does not seem to affect the Raspberry Pi 4 B.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215925
-Link: https://lore.kernel.org/r/20220511201856.808690-2-helgaas@kernel.org
-Reported-by: Cyril Brulebois <kibi@debian.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1e8e55b67030c6 ("mmc: block: Add CQE support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20220531171922.76080-1-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pcie-brcmstb.c | 53 +++++----------------------
- 1 file changed, 9 insertions(+), 44 deletions(-)
+ drivers/mmc/core/block.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-brcmstb.c b/drivers/pci/controller/pcie-brcmstb.c
-index 375c0c40bbf8..3edd63735948 100644
---- a/drivers/pci/controller/pcie-brcmstb.c
-+++ b/drivers/pci/controller/pcie-brcmstb.c
-@@ -333,7 +333,6 @@ struct brcm_pcie {
- 	void			(*bridge_sw_init_set)(struct brcm_pcie *pcie, u32 val);
- 	bool			refusal_mode;
- 	struct subdev_regulators *sr;
--	bool			ep_wakeup_capable;
- };
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -1482,8 +1482,7 @@ void mmc_blk_cqe_recovery(struct mmc_que
+ 	err = mmc_cqe_recovery(host);
+ 	if (err)
+ 		mmc_blk_reset(mq->blkdata, host, MMC_BLK_CQE_RECOVERY);
+-	else
+-		mmc_blk_reset_success(mq->blkdata, MMC_BLK_CQE_RECOVERY);
++	mmc_blk_reset_success(mq->blkdata, MMC_BLK_CQE_RECOVERY);
  
- static inline bool is_bmips(const struct brcm_pcie *pcie)
-@@ -1351,21 +1350,9 @@ static void brcm_pcie_turn_off(struct brcm_pcie *pcie)
- 	pcie->bridge_sw_init_set(pcie, 1);
+ 	pr_debug("%s: CQE recovery done\n", mmc_hostname(host));
  }
- 
--static int pci_dev_may_wakeup(struct pci_dev *dev, void *data)
--{
--	bool *ret = data;
--
--	if (device_may_wakeup(&dev->dev)) {
--		*ret = true;
--		dev_info(&dev->dev, "disable cancelled for wake-up device\n");
--	}
--	return (int) *ret;
--}
--
- static int brcm_pcie_suspend(struct device *dev)
- {
- 	struct brcm_pcie *pcie = dev_get_drvdata(dev);
--	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(pcie);
- 	int ret;
- 
- 	brcm_pcie_turn_off(pcie);
-@@ -1384,22 +1371,11 @@ static int brcm_pcie_suspend(struct device *dev)
- 	}
- 
- 	if (pcie->sr) {
--		/*
--		 * Now turn off the regulators, but if at least one
--		 * downstream device is enabled as a wake-up source, do not
--		 * turn off regulators.
--		 */
--		pcie->ep_wakeup_capable = false;
--		pci_walk_bus(bridge->bus, pci_dev_may_wakeup,
--			     &pcie->ep_wakeup_capable);
--		if (!pcie->ep_wakeup_capable) {
--			ret = regulator_bulk_disable(pcie->sr->num_supplies,
--						     pcie->sr->supplies);
--			if (ret) {
--				dev_err(dev, "Could not turn off regulators\n");
--				reset_control_reset(pcie->rescal);
--				return ret;
--			}
-+		ret = regulator_bulk_disable(pcie->sr->num_supplies, pcie->sr->supplies);
-+		if (ret) {
-+			dev_err(dev, "Could not turn off regulators\n");
-+			reset_control_reset(pcie->rescal);
-+			return ret;
- 		}
- 	}
- 	clk_disable_unprepare(pcie->clk);
-@@ -1420,21 +1396,10 @@ static int brcm_pcie_resume(struct device *dev)
- 		return ret;
- 
- 	if (pcie->sr) {
--		if (pcie->ep_wakeup_capable) {
--			/*
--			 * We are resuming from a suspend.  In the suspend we
--			 * did not disable the power supplies, so there is
--			 * no need to enable them (and falsely increase their
--			 * usage count).
--			 */
--			pcie->ep_wakeup_capable = false;
--		} else {
--			ret = regulator_bulk_enable(pcie->sr->num_supplies,
--						    pcie->sr->supplies);
--			if (ret) {
--				dev_err(dev, "Could not turn on regulators\n");
--				goto err_disable_clk;
--			}
-+		ret = regulator_bulk_enable(pcie->sr->num_supplies, pcie->sr->supplies);
-+		if (ret) {
-+			dev_err(dev, "Could not turn on regulators\n");
-+			goto err_disable_clk;
- 		}
- 	}
- 
--- 
-2.35.1
-
 
 
