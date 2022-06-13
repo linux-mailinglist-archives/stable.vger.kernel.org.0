@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D549E548754
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573EC54873C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237310AbiFMKch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:32:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35692 "EHLO
+        id S1379667AbiFMNuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:50:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345873AbiFMKaL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:30:11 -0400
+        with ESMTP id S1379985AbiFMNtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:49:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 557AC13F6C;
-        Mon, 13 Jun 2022 03:21:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01D4B2A25C;
+        Mon, 13 Jun 2022 04:33:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9146E60AE8;
-        Mon, 13 Jun 2022 10:21:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A42C34114;
-        Mon, 13 Jun 2022 10:21:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FD6960F18;
+        Mon, 13 Jun 2022 11:33:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D992C34114;
+        Mon, 13 Jun 2022 11:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115663;
-        bh=yl3jrND5U1Or25BPXn+pHgU7me4egZGSZ+x487ubYJo=;
+        s=korg; t=1655119998;
+        bh=R5fTyruJ7o+D4aXdC87l++XcxSa5NYHlcx8nry6x5OA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jFNOqeCrnbnFKegdepNtug03QkcFLMj1Vnfh8dYTkmUSFh2txD9rK04vz3Ki+96Xs
-         Cm+JN/D7gI/u9xwcj8HDKG8blDTkPgkjCL9cvG0zP6szAUW8TWTnojIXeKTm4oecfl
-         Ywh775w4jquDlYmWsG2YWGT7Lu9zofKqPhQqOndc=
+        b=OLDsgaCNmwjfBKutvXIwYwwvzQ5jId0Dr/cQPXj/ZCmUd2BHh3aAcLcUhaVYBoU4n
+         ug3RDcAI9Z4UilazHBg5KnuT1xIUaVyqbpactp+11rW373GIXeLpnkjMam8J5NP7Bb
+         EEyXkEVeoizsTDFHhjVBsNtMq8aUXRiyu4j5LOrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ariel Miculas <ariel.miculas@belden.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 164/167] powerpc/32: Fix overread/overwrite of thread_struct via ptrace
-Date:   Mon, 13 Jun 2022 12:10:38 +0200
-Message-Id: <20220613094919.437056428@linuxfoundation.org>
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 214/339] ip_gre: test csum_start instead of transport header
+Date:   Mon, 13 Jun 2022 12:10:39 +0200
+Message-Id: <20220613094933.153662453@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,106 +57,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Willem de Bruijn <willemb@google.com>
 
-commit 8e1278444446fc97778a5e5c99bca1ce0bbc5ec9 upstream.
+[ Upstream commit 8d21e9963bec1aad2280cdd034c8993033ef2948 ]
 
-The ptrace PEEKUSR/POKEUSR (aka PEEKUSER/POKEUSER) API allows a process
-to read/write registers of another process.
+GRE with TUNNEL_CSUM will apply local checksum offload on
+CHECKSUM_PARTIAL packets.
 
-To get/set a register, the API takes an index into an imaginary address
-space called the "USER area", where the registers of the process are
-laid out in some fashion.
+ipgre_xmit must validate csum_start after an optional skb_pull,
+else lco_csum may trigger an overflow. The original check was
 
-The kernel then maps that index to a particular register in its own data
-structures and gets/sets the value.
+	if (csum && skb_checksum_start(skb) < skb->data)
+		return -EINVAL;
 
-The API only allows a single machine-word to be read/written at a time.
-So 4 bytes on 32-bit kernels and 8 bytes on 64-bit kernels.
+This had false positives when skb_checksum_start is undefined:
+when ip_summed is not CHECKSUM_PARTIAL. A discussed refinement
+was straightforward
 
-The way floating point registers (FPRs) are addressed is somewhat
-complicated, because double precision float values are 64-bit even on
-32-bit CPUs. That means on 32-bit kernels each FPR occupies two
-word-sized locations in the USER area. On 64-bit kernels each FPR
-occupies one word-sized location in the USER area.
+	if (csum && skb->ip_summed == CHECKSUM_PARTIAL &&
+	    skb_checksum_start(skb) < skb->data)
+		return -EINVAL;
 
-Internally the kernel stores the FPRs in an array of u64s, or if VSX is
-enabled, an array of pairs of u64s where one half of each pair stores
-the FPR. Which half of the pair stores the FPR depends on the kernel's
-endianness.
+But was eventually revised more thoroughly:
+- restrict the check to the only branch where needed, in an
+  uncommon GRE path that uses header_ops and calls skb_pull.
+- test skb_transport_header, which is set along with csum_start
+  in skb_partial_csum_set in the normal header_ops datapath.
 
-To handle the different layouts of the FPRs depending on VSX/no-VSX and
-big/little endian, the TS_FPR() macro was introduced.
+Turns out skbs can arrive in this branch without the transport
+header set, e.g., through BPF redirection.
 
-Unfortunately the TS_FPR() macro does not take into account the fact
-that the addressing of each FPR differs between 32-bit and 64-bit
-kernels. It just takes the index into the "USER area" passed from
-userspace and indexes into the fp_state.fpr array.
+Revise the check back to check csum_start directly, and only if
+CHECKSUM_PARTIAL. Do leave the check in the updated location.
+Check field regardless of whether TUNNEL_CSUM is configured.
 
-On 32-bit there are 64 indexes that address FPRs, but only 32 entries in
-the fp_state.fpr array, meaning the user can read/write 256 bytes past
-the end of the array. Because the fp_state sits in the middle of the
-thread_struct there are various fields than can be overwritten,
-including some pointers. As such it may be exploitable.
-
-It has also been observed to cause systems to hang or otherwise
-misbehave when using gdbserver, and is probably the root cause of this
-report which could not be easily reproduced:
-  https://lore.kernel.org/linuxppc-dev/dc38afe9-6b78-f3f5-666b-986939e40fc6@keymile.com/
-
-Rather than trying to make the TS_FPR() macro even more complicated to
-fix the bug, or add more macros, instead add a special-case for 32-bit
-kernels. This is more obvious and hopefully avoids a similar bug
-happening again in future.
-
-Note that because 32-bit kernels never have VSX enabled the code doesn't
-need to consider TS_FPRWIDTH/OFFSET at all. Add a BUILD_BUG_ON() to
-ensure that 32-bit && VSX is never enabled.
-
-Fixes: 87fec0514f61 ("powerpc: PTRACE_PEEKUSR/PTRACE_POKEUSER of FPR registers in little endian builds")
-Cc: stable@vger.kernel.org # v3.13+
-Reported-by: Ariel Miculas <ariel.miculas@belden.com>
-Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220609133245.573565-1-mpe@ellerman.id.au
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/netdev/YS+h%2FtqCJJiQei+W@shredder/
+Link: https://lore.kernel.org/all/20210902193447.94039-2-willemdebruijn.kernel@gmail.com/T/#u
+Fixes: 8a0ed250f911 ("ip_gre: validate csum_start only on pull")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Link: https://lore.kernel.org/r/20220606132107.3582565-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/ptrace.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ net/ipv4/ip_gre.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/arch/powerpc/kernel/ptrace.c
-+++ b/arch/powerpc/kernel/ptrace.c
-@@ -2938,8 +2938,13 @@ long arch_ptrace(struct task_struct *chi
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index aacee9dd771b..bc8dfdf1c48a 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -629,21 +629,20 @@ static netdev_tx_t ipgre_xmit(struct sk_buff *skb,
+ 	}
  
- 			flush_fp_to_thread(child);
- 			if (fpidx < (PT_FPSCR - PT_FPR0))
--				memcpy(&tmp, &child->thread.TS_FPR(fpidx),
--				       sizeof(long));
-+				if (IS_ENABLED(CONFIG_PPC32)) {
-+					// On 32-bit the index we are passed refers to 32-bit words
-+					tmp = ((u32 *)child->thread.fp_state.fpr)[fpidx];
-+				} else {
-+					memcpy(&tmp, &child->thread.TS_FPR(fpidx),
-+					       sizeof(long));
-+				}
- 			else
- 				tmp = child->thread.fp_state.fpscr;
- 		}
-@@ -2971,8 +2976,13 @@ long arch_ptrace(struct task_struct *chi
+ 	if (dev->header_ops) {
+-		const int pull_len = tunnel->hlen + sizeof(struct iphdr);
+-
+ 		if (skb_cow_head(skb, 0))
+ 			goto free_skb;
  
- 			flush_fp_to_thread(child);
- 			if (fpidx < (PT_FPSCR - PT_FPR0))
--				memcpy(&child->thread.TS_FPR(fpidx), &data,
--				       sizeof(long));
-+				if (IS_ENABLED(CONFIG_PPC32)) {
-+					// On 32-bit the index we are passed refers to 32-bit words
-+					((u32 *)child->thread.fp_state.fpr)[fpidx] = data;
-+				} else {
-+					memcpy(&child->thread.TS_FPR(fpidx), &data,
-+					       sizeof(long));
-+				}
- 			else
- 				child->thread.fp_state.fpscr = data;
- 			ret = 0;
+ 		tnl_params = (const struct iphdr *)skb->data;
+ 
+-		if (pull_len > skb_transport_offset(skb))
+-			goto free_skb;
+-
+ 		/* Pull skb since ip_tunnel_xmit() needs skb->data pointing
+ 		 * to gre header.
+ 		 */
+-		skb_pull(skb, pull_len);
++		skb_pull(skb, tunnel->hlen + sizeof(struct iphdr));
+ 		skb_reset_mac_header(skb);
++
++		if (skb->ip_summed == CHECKSUM_PARTIAL &&
++		    skb_checksum_start(skb) < skb->data)
++			goto free_skb;
+ 	} else {
+ 		if (skb_cow_head(skb, dev->needed_headroom))
+ 			goto free_skb;
+-- 
+2.35.1
+
 
 
