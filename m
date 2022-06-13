@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF717548C5B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 780A2548A2F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376339AbiFMNVc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:21:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60658 "EHLO
+        id S1376468AbiFMNVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:21:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377262AbiFMNUL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889DA6A061;
-        Mon, 13 Jun 2022 04:23:22 -0700 (PDT)
+        with ESMTP id S1377464AbiFMNUf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E6746B01D;
+        Mon, 13 Jun 2022 04:23:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60907B80EB8;
-        Mon, 13 Jun 2022 11:23:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8402C34114;
-        Mon, 13 Jun 2022 11:23:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8042260EAD;
+        Mon, 13 Jun 2022 11:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B346C34114;
+        Mon, 13 Jun 2022 11:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119386;
-        bh=Q/l9RUy8/3G1e0MU6hLwrSAVG3LKKEcXIVUIMr1113c=;
+        s=korg; t=1655119388;
+        bh=r5UkIx9IQWDvAj1alAKl7AX+3z3IEBhN+N1fO7ohM8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdeYB1m0VhFCU4iFspC75CANONz+wQk8JdM/ePaJghAJDgn1+7Wu3ZGCQ52pkU3Uf
-         I226fcyOxPAhDgwOyaKPtPWEpf1E1hrkywY2UpjyVp3devRzyM2Hkj3K29C/Lt66qf
-         GwJBpw+Lzqm+1mKPS6m2uJXLNFz2LHvhrHjiBDPE=
+        b=TdE8mF0mquQF00wiXlXWeZ071zrgR9mnR6YUX/uPJj2uXPCsUI7b+AN9W1VEyiCN3
+         bt6gC/ZyMkPURyZMQuq6uoblJTwZPxGSAQ0WxH0NVfn8nHxl66KQgff3/uPV5LhHwh
+         4ilxutRPsf27jOve8hIswd6UC7aXcbHoLbXYXYR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 243/247] random: account for arch randomness in bits
-Date:   Mon, 13 Jun 2022 12:12:25 +0200
-Message-Id: <20220613094930.316545625@linuxfoundation.org>
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Pascal Hambourg <pascal@plouf.fr.eu.org>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 5.15 244/247] md/raid0: Ignore RAID0 layout if the second zone has only one device
+Date:   Mon, 13 Jun 2022 12:12:26 +0200
+Message-Id: <20220613094930.345510045@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
 References: <20220613094922.843438024@linuxfoundation.org>
@@ -52,57 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Pascal Hambourg <pascal@plouf.fr.eu.org>
 
-commit 77fc95f8c0dc9e1f8e620ec14d2fb65028fb7adc upstream.
+commit ea23994edc4169bd90d7a9b5908c6ccefd82fa40 upstream.
 
-Rather than accounting in bytes and multiplying (shifting), we can just
-account in bits and avoid the shift. The main motivation for this is
-there are other patches in flux that expand this code a bit, and
-avoiding the duplication of "* 8" everywhere makes things a bit clearer.
+The RAID0 layout is irrelevant if all members have the same size so the
+array has only one zone. It is *also* irrelevant if the array has two
+zones and the second zone has only one device, for example if the array
+has two members of different sizes.
 
-Cc: stable@vger.kernel.org
-Fixes: 12e45a2a6308 ("random: credit architectural init the exact amount")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+So in that case it makes sense to allow assembly even when the layout is
+undefined, like what is done when the array has only one zone.
+
+Reviewed-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Pascal Hambourg <pascal@plouf.fr.eu.org>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/md/raid0.c |   31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -813,7 +813,7 @@ early_param("random.trust_bootloader", p
- int __init random_init(const char *command_line)
- {
- 	ktime_t now = ktime_get_real();
--	unsigned int i, arch_bytes;
-+	unsigned int i, arch_bits;
- 	unsigned long entropy;
+--- a/drivers/md/raid0.c
++++ b/drivers/md/raid0.c
+@@ -128,21 +128,6 @@ static int create_strip_zones(struct mdd
+ 	pr_debug("md/raid0:%s: FINAL %d zones\n",
+ 		 mdname(mddev), conf->nr_strip_zones);
  
- #if defined(LATENT_ENTROPY_PLUGIN)
-@@ -821,12 +821,12 @@ int __init random_init(const char *comma
- 	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
- #endif
- 
--	for (i = 0, arch_bytes = BLAKE2S_BLOCK_SIZE;
-+	for (i = 0, arch_bits = BLAKE2S_BLOCK_SIZE * 8;
- 	     i < BLAKE2S_BLOCK_SIZE; i += sizeof(entropy)) {
- 		if (!arch_get_random_seed_long_early(&entropy) &&
- 		    !arch_get_random_long_early(&entropy)) {
- 			entropy = random_get_entropy();
--			arch_bytes -= sizeof(entropy);
-+			arch_bits -= sizeof(entropy) * 8;
- 		}
- 		_mix_pool_bytes(&entropy, sizeof(entropy));
+-	if (conf->nr_strip_zones == 1) {
+-		conf->layout = RAID0_ORIG_LAYOUT;
+-	} else if (mddev->layout == RAID0_ORIG_LAYOUT ||
+-		   mddev->layout == RAID0_ALT_MULTIZONE_LAYOUT) {
+-		conf->layout = mddev->layout;
+-	} else if (default_layout == RAID0_ORIG_LAYOUT ||
+-		   default_layout == RAID0_ALT_MULTIZONE_LAYOUT) {
+-		conf->layout = default_layout;
+-	} else {
+-		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
+-		       mdname(mddev));
+-		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
+-		err = -ENOTSUPP;
+-		goto abort;
+-	}
+ 	/*
+ 	 * now since we have the hard sector sizes, we can make sure
+ 	 * chunk size is a multiple of that sector size
+@@ -273,6 +258,22 @@ static int create_strip_zones(struct mdd
+ 			 (unsigned long long)smallest->sectors);
  	}
-@@ -838,7 +838,7 @@ int __init random_init(const char *comma
- 	if (crng_ready())
- 		crng_reseed();
- 	else if (trust_cpu)
--		_credit_init_bits(arch_bytes * 8);
-+		_credit_init_bits(arch_bits);
  
- 	return 0;
- }
++	if (conf->nr_strip_zones == 1 || conf->strip_zone[1].nb_dev == 1) {
++		conf->layout = RAID0_ORIG_LAYOUT;
++	} else if (mddev->layout == RAID0_ORIG_LAYOUT ||
++		   mddev->layout == RAID0_ALT_MULTIZONE_LAYOUT) {
++		conf->layout = mddev->layout;
++	} else if (default_layout == RAID0_ORIG_LAYOUT ||
++		   default_layout == RAID0_ALT_MULTIZONE_LAYOUT) {
++		conf->layout = default_layout;
++	} else {
++		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
++		       mdname(mddev));
++		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
++		err = -EOPNOTSUPP;
++		goto abort;
++	}
++
+ 	pr_debug("md/raid0:%s: done.\n", mdname(mddev));
+ 	*private_conf = conf;
+ 
 
 
