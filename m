@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF59D5493D0
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B910D54971C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354474AbiFMMZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:25:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34296 "EHLO
+        id S1354477AbiFMLcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:32:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355359AbiFMMXz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8D331535;
-        Mon, 13 Jun 2022 04:04:48 -0700 (PDT)
+        with ESMTP id S1354920AbiFMLaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 244ED403D9;
+        Mon, 13 Jun 2022 03:46:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB0F060F9A;
-        Mon, 13 Jun 2022 11:04:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0264FC34114;
-        Mon, 13 Jun 2022 11:04:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD4EEB80D41;
+        Mon, 13 Jun 2022 10:46:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D377C3411C;
+        Mon, 13 Jun 2022 10:46:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118287;
-        bh=ILuenawKbjOrDwWqNqVUBtwfgO7eeVeZ+H1tzJT7j/Y=;
+        s=korg; t=1655117162;
+        bh=feGV6UqE0Uz4bq22NKfBxFKgpShCtuwbopW1MYiZROI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/O5jiJ3P/wFwzRJjQl6jf052HHn/NqVoYpCPeTYH6UEeDeNPtljUeRLvpRhU5WHN
-         CZXngK77zeU5FkyMMgG68Jui6RuZWjWGil62ChMZyT6Awwb1ukF69YZ0k92qU7W8Bu
-         3lxMMz/UDKLAJKd9YH4D2cIcSC9PV4/RsxIGm5iY=
+        b=V78pbB+1k6iAjcQL+CjmjG7fWXcOVigufB8tCi0kXMcZ0x05Fv6j37AwJx9/7HKYA
+         l4qjz2tDYFaxaE0YY9mke+1PtU+olBlIWTlHHyCG5lWZsIvNNzylcjPstt9O4Ng4ai
+         fUr4Qxgn3+v98VmPTZOaExt4x/ReSdJ3SNWEDXf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 021/172] iio: proximity: vl53l0x: Fix return value check of wait_for_completion_timeout
+Subject: [PATCH 5.4 308/411] serial: digicolor-usart: Dont allow CS5-6
 Date:   Mon, 13 Jun 2022 12:09:41 +0200
-Message-Id: <20220613094855.460626895@linuxfoundation.org>
+Message-Id: <20220613094937.986016491@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 50f2959113cb6756ffd73c4fedc712cf2661f711 ]
+[ Upstream commit fd63031b8c0763addcecdefe0e0c59d49646204e ]
 
-wait_for_completion_timeout() returns unsigned long not int.
-It returns 0 if timed out, and positive if completed.
-The check for <= 0 is ambiguous and should be == 0 here
-indicating timeout which is the only error case.
+Only CS7 and CS8 seem supported but CSIZE is not sanitized to CS8 in
+the default: block.
 
-Fixes: 3cef2e31b54b ("iio: proximity: vl53l0x: Add IRQ support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220412064210.10734-1-linmq006@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Set CSIZE correctly so that userspace knows the effective value.
+Incorrect CSIZE also results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
+
+Fixes: 5930cb3511df (serial: driver for Conexant Digicolor USART)
+Acked-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-3-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/proximity/vl53l0x-i2c.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/tty/serial/digicolor-usart.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iio/proximity/vl53l0x-i2c.c b/drivers/iio/proximity/vl53l0x-i2c.c
-index 235e125aeb3a..3d3ab86423ee 100644
---- a/drivers/iio/proximity/vl53l0x-i2c.c
-+++ b/drivers/iio/proximity/vl53l0x-i2c.c
-@@ -104,6 +104,7 @@ static int vl53l0x_read_proximity(struct vl53l0x_data *data,
- 	u16 tries = 20;
- 	u8 buffer[12];
- 	int ret;
-+	unsigned long time_left;
+diff --git a/drivers/tty/serial/digicolor-usart.c b/drivers/tty/serial/digicolor-usart.c
+index 4446c13629b1..e06967ca62fa 100644
+--- a/drivers/tty/serial/digicolor-usart.c
++++ b/drivers/tty/serial/digicolor-usart.c
+@@ -309,6 +309,8 @@ static void digicolor_uart_set_termios(struct uart_port *port,
+ 	case CS8:
+ 	default:
+ 		config |= UA_CONFIG_CHAR_LEN;
++		termios->c_cflag &= ~CSIZE;
++		termios->c_cflag |= CS8;
+ 		break;
+ 	}
  
- 	ret = i2c_smbus_write_byte_data(client, VL_REG_SYSRANGE_START, 1);
- 	if (ret < 0)
-@@ -112,10 +113,8 @@ static int vl53l0x_read_proximity(struct vl53l0x_data *data,
- 	if (data->client->irq) {
- 		reinit_completion(&data->completion);
- 
--		ret = wait_for_completion_timeout(&data->completion, HZ/10);
--		if (ret < 0)
--			return ret;
--		else if (ret == 0)
-+		time_left = wait_for_completion_timeout(&data->completion, HZ/10);
-+		if (time_left == 0)
- 			return -ETIMEDOUT;
- 
- 		vl53l0x_clear_irq(data);
 -- 
 2.35.1
 
