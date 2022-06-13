@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 244FD548F80
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:23:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1105E548B76
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343565AbiFMKpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:45:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47390 "EHLO
+        id S1357169AbiFMLxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:53:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345141AbiFMKn1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:43:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61E6ED118;
-        Mon, 13 Jun 2022 03:24:29 -0700 (PDT)
+        with ESMTP id S1356672AbiFMLuy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63520E083;
+        Mon, 13 Jun 2022 03:55:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23C32B80E90;
-        Mon, 13 Jun 2022 10:24:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8709BC34114;
-        Mon, 13 Jun 2022 10:24:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EAC93B80E07;
+        Mon, 13 Jun 2022 10:55:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51E35C34114;
+        Mon, 13 Jun 2022 10:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115866;
-        bh=1sqiWTJifetRqjEHZwqLt561cgaDMu9t5D9GEacKu30=;
+        s=korg; t=1655117708;
+        bh=nrVeHpIgn7J3nKIpieEQnJ34POixDE+cOV4Gfi9TLDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STLa8VDa3UxIsRyd7kQzVE1buoYEfUZ3kokXiXeqEgVhyKARMVnr6faxZMm1M/fr+
-         OzFoOltApTBTAY7XO40RcMMwKKPfarzqfBjEHBsrfC0zx8SGhunxXHzFjAbR5Q8o7p
-         /nkmRGYlbRxsVnn0RGtioiynHYlNWKdEw+TozrGY=
+        b=f6Ky5qksAqWUmp7EJfEc7wlZEZNcTxNu/OT5GfEyqcbec6ECaDPrP/RbBiY150DNc
+         3NPfnUzxVUUwrrVvADQq761CpsquuXVl46DJT+NLEdGFcgjw8F/ogQXgmXIkmEwtSI
+         vOwvviDSekNnxoLJAwLW+KyBXpsia1yJqfmsPxYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Borislav Petkov <bp@suse.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Kaiwan N Billimoria <kaiwan.billimoria@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 061/218] x86/pm: Fix false positive kmemleak report in msr_build_context()
+Subject: [PATCH 4.19 095/287] scripts/faddr2line: Fix overlapping text section failures
 Date:   Mon, 13 Jun 2022 12:08:39 +0200
-Message-Id: <20220613094921.544812087@linuxfoundation.org>
+Message-Id: <20220613094926.759497486@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,159 +56,269 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-[ Upstream commit b0b592cf08367719e1d1ef07c9f136e8c17f7ec3 ]
+[ Upstream commit 1d1a0e7c5100d332583e20b40aa8c0a8ed3d7849 ]
 
-Since
+There have been some recent reports of faddr2line failures:
 
-  e2a1256b17b1 ("x86/speculation: Restore speculation related MSRs during S3 resume")
+  $ scripts/faddr2line sound/soundcore.ko sound_devnode+0x5/0x35
+  bad symbol size: base: 0x0000000000000000 end: 0x0000000000000000
 
-kmemleak reports this issue:
+  $ ./scripts/faddr2line vmlinux.o enter_from_user_mode+0x24
+  bad symbol size: base: 0x0000000000005fe0 end: 0x0000000000005fe0
 
-  unreferenced object 0xffff888009cedc00 (size 256):
-    comm "swapper/0", pid 1, jiffies 4294693823 (age 73.764s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 48 00 00 00 00 00 00 00  ........H.......
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      msr_build_context (include/linux/slab.h:621)
-      pm_check_save_msr (arch/x86/power/cpu.c:520)
-      do_one_initcall (init/main.c:1298)
-      kernel_init_freeable (init/main.c:1370)
-      kernel_init (init/main.c:1504)
-      ret_from_fork (arch/x86/entry/entry_64.S:304)
+The problem is that faddr2line is based on 'nm', which has a major
+limitation: it doesn't know how to distinguish between different text
+sections.  So if an offset exists in multiple text sections in the
+object, it may fail.
 
-Reproducer:
+Rewrite faddr2line to be section-aware, by basing it on readelf.
 
-  - boot the VM with a debug kernel config (see
-    https://github.com/multipath-tcp/mptcp_net-next/issues/268)
-  - wait ~1 minute
-  - start a kmemleak scan
-
-The root cause here is alignment within the packed struct saved_context
-(from suspend_64.h). Kmemleak only searches for pointers that are
-aligned (see how pointers are scanned in kmemleak.c), but pahole shows
-that the saved_msrs struct member and all members after it in the
-structure are unaligned:
-
-  struct saved_context {
-    struct pt_regs             regs;                 /*     0   168 */
-    /* --- cacheline 2 boundary (128 bytes) was 40 bytes ago --- */
-    u16                        ds;                   /*   168     2 */
-
-    ...
-
-    u64                        misc_enable;          /*   232     8 */
-    bool                       misc_enable_saved;    /*   240     1 */
-
-   /* Note below odd offset values for the remainder of this struct */
-
-    struct saved_msrs          saved_msrs;           /*   241    16 */
-    /* --- cacheline 4 boundary (256 bytes) was 1 bytes ago --- */
-    long unsigned int          efer;                 /*   257     8 */
-    u16                        gdt_pad;              /*   265     2 */
-    struct desc_ptr            gdt_desc;             /*   267    10 */
-    u16                        idt_pad;              /*   277     2 */
-    struct desc_ptr            idt;                  /*   279    10 */
-    u16                        ldt;                  /*   289     2 */
-    u16                        tss;                  /*   291     2 */
-    long unsigned int          tr;                   /*   293     8 */
-    long unsigned int          safety;               /*   301     8 */
-    long unsigned int          return_address;       /*   309     8 */
-
-    /* size: 317, cachelines: 5, members: 25 */
-    /* last cacheline: 61 bytes */
-  } __attribute__((__packed__));
-
-Move misc_enable_saved to the end of the struct declaration so that
-saved_msrs fits in before the cacheline 4 boundary.
-
-The comment above the saved_context declaration says to fix wakeup_64.S
-file and __save/__restore_processor_state() if the struct is modified:
-it looks like all the accesses in wakeup_64.S are done through offsets
-which are computed at build-time. Update that comment accordingly.
-
-At the end, the false positive kmemleak report is due to a limitation
-from kmemleak but it is always good to avoid unaligned members for
-optimisation purposes.
-
-Please note that it looks like this issue is not new, e.g.
-
-  https://lore.kernel.org/all/9f1bb619-c4ee-21c4-a251-870bd4db04fa@lwfinger.net/
-  https://lore.kernel.org/all/94e48fcd-1dbd-ebd2-4c91-f39941735909@molgen.mpg.de/
-
-  [ bp: Massage + cleanup commit message. ]
-
-Fixes: 7a9c2dd08ead ("x86/pm: Introduce quirk framework to save/restore extra MSR registers around suspend/resume")
-Suggested-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Link: https://lore.kernel.org/r/20220426202138.498310-1-matthieu.baerts@tessares.net
+Fixes: 67326666e2d4 ("scripts: add script for translating stack dump function offsets")
+Reported-by: Kaiwan N Billimoria <kaiwan.billimoria@gmail.com>
+Reported-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Link: https://lore.kernel.org/r/29ff99f86e3da965b6e46c1cc2d72ce6528c17c3.1652382321.git.jpoimboe@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/suspend_32.h |  2 +-
- arch/x86/include/asm/suspend_64.h | 12 ++++++++----
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ scripts/faddr2line | 150 +++++++++++++++++++++++++++++----------------
+ 1 file changed, 97 insertions(+), 53 deletions(-)
 
-diff --git a/arch/x86/include/asm/suspend_32.h b/arch/x86/include/asm/suspend_32.h
-index 8be6afb58471..32662cbaa27e 100644
---- a/arch/x86/include/asm/suspend_32.h
-+++ b/arch/x86/include/asm/suspend_32.h
-@@ -21,7 +21,6 @@ struct saved_context {
- #endif
- 	unsigned long cr0, cr2, cr3, cr4;
- 	u64 misc_enable;
--	bool misc_enable_saved;
- 	struct saved_msrs saved_msrs;
- 	struct desc_ptr gdt_desc;
- 	struct desc_ptr idt;
-@@ -30,6 +29,7 @@ struct saved_context {
- 	unsigned long tr;
- 	unsigned long safety;
- 	unsigned long return_address;
-+	bool misc_enable_saved;
- } __attribute__((packed));
+diff --git a/scripts/faddr2line b/scripts/faddr2line
+index a0149db00be7..226c3f559dc5 100755
+--- a/scripts/faddr2line
++++ b/scripts/faddr2line
+@@ -44,17 +44,6 @@
+ set -o errexit
+ set -o nounset
  
- #endif /* _ASM_X86_SUSPEND_32_H */
-diff --git a/arch/x86/include/asm/suspend_64.h b/arch/x86/include/asm/suspend_64.h
-index a7af9f53c0cb..b2861400c6a2 100644
---- a/arch/x86/include/asm/suspend_64.h
-+++ b/arch/x86/include/asm/suspend_64.h
-@@ -14,9 +14,13 @@
-  * Image of the saved processor state, used by the low level ACPI suspend to
-  * RAM code and by the low level hibernation code.
-  *
-- * If you modify it, fix arch/x86/kernel/acpi/wakeup_64.S and make sure that
-- * __save/__restore_processor_state(), defined in arch/x86/kernel/suspend_64.c,
-- * still work as required.
-+ * If you modify it, check how it is used in arch/x86/kernel/acpi/wakeup_64.S
-+ * and make sure that __save/__restore_processor_state(), defined in
-+ * arch/x86/power/cpu.c, still work as required.
-+ *
-+ * Because the structure is packed, make sure to avoid unaligned members. For
-+ * optimisation purposes but also because tools like kmemleak only search for
-+ * pointers that are aligned.
-  */
- struct saved_context {
- 	struct pt_regs regs;
-@@ -36,7 +40,6 @@ struct saved_context {
+-READELF="${CROSS_COMPILE:-}readelf"
+-ADDR2LINE="${CROSS_COMPILE:-}addr2line"
+-SIZE="${CROSS_COMPILE:-}size"
+-NM="${CROSS_COMPILE:-}nm"
+-
+-command -v awk >/dev/null 2>&1 || die "awk isn't installed"
+-command -v ${READELF} >/dev/null 2>&1 || die "readelf isn't installed"
+-command -v ${ADDR2LINE} >/dev/null 2>&1 || die "addr2line isn't installed"
+-command -v ${SIZE} >/dev/null 2>&1 || die "size isn't installed"
+-command -v ${NM} >/dev/null 2>&1 || die "nm isn't installed"
+-
+ usage() {
+ 	echo "usage: faddr2line [--list] <object file> <func+offset> <func+offset>..." >&2
+ 	exit 1
+@@ -69,6 +58,14 @@ die() {
+ 	exit 1
+ }
  
- 	unsigned long cr0, cr2, cr3, cr4, cr8;
- 	u64 misc_enable;
--	bool misc_enable_saved;
- 	struct saved_msrs saved_msrs;
- 	unsigned long efer;
- 	u16 gdt_pad; /* Unused */
-@@ -48,6 +51,7 @@ struct saved_context {
- 	unsigned long tr;
- 	unsigned long safety;
- 	unsigned long return_address;
-+	bool misc_enable_saved;
- } __attribute__((packed));
++READELF="${CROSS_COMPILE:-}readelf"
++ADDR2LINE="${CROSS_COMPILE:-}addr2line"
++AWK="awk"
++
++command -v ${AWK} >/dev/null 2>&1 || die "${AWK} isn't installed"
++command -v ${READELF} >/dev/null 2>&1 || die "${READELF} isn't installed"
++command -v ${ADDR2LINE} >/dev/null 2>&1 || die "${ADDR2LINE} isn't installed"
++
+ # Try to figure out the source directory prefix so we can remove it from the
+ # addr2line output.  HACK ALERT: This assumes that start_kernel() is in
+ # kernel/init.c!  This only works for vmlinux.  Otherwise it falls back to
+@@ -76,7 +73,7 @@ die() {
+ find_dir_prefix() {
+ 	local objfile=$1
  
- #define loaddebug(thread,register) \
+-	local start_kernel_addr=$(${READELF} -sW $objfile | awk '$8 == "start_kernel" {printf "0x%s", $2}')
++	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | ${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
+ 	[[ -z $start_kernel_addr ]] && return
+ 
+ 	local file_line=$(${ADDR2LINE} -e $objfile $start_kernel_addr)
+@@ -97,86 +94,133 @@ __faddr2line() {
+ 	local dir_prefix=$3
+ 	local print_warnings=$4
+ 
+-	local func=${func_addr%+*}
++	local sym_name=${func_addr%+*}
+ 	local offset=${func_addr#*+}
+ 	offset=${offset%/*}
+-	local size=
+-	[[ $func_addr =~ "/" ]] && size=${func_addr#*/}
++	local user_size=
++	[[ $func_addr =~ "/" ]] && user_size=${func_addr#*/}
+ 
+-	if [[ -z $func ]] || [[ -z $offset ]] || [[ $func = $func_addr ]]; then
++	if [[ -z $sym_name ]] || [[ -z $offset ]] || [[ $sym_name = $func_addr ]]; then
+ 		warn "bad func+offset $func_addr"
+ 		DONE=1
+ 		return
+ 	fi
+ 
+ 	# Go through each of the object's symbols which match the func name.
+-	# In rare cases there might be duplicates.
+-	file_end=$(${SIZE} -Ax $objfile | awk '$1 == ".text" {print $2}')
+-	while read symbol; do
+-		local fields=($symbol)
+-		local sym_base=0x${fields[0]}
+-		local sym_type=${fields[1]}
+-		local sym_end=${fields[3]}
+-
+-		# calculate the size
+-		local sym_size=$(($sym_end - $sym_base))
++	# In rare cases there might be duplicates, in which case we print all
++	# matches.
++	while read line; do
++		local fields=($line)
++		local sym_addr=0x${fields[1]}
++		local sym_elf_size=${fields[2]}
++		local sym_sec=${fields[6]}
++
++		# Get the section size:
++		local sec_size=$(${READELF} --section-headers --wide $objfile |
++			sed 's/\[ /\[/' |
++			${AWK} -v sec=$sym_sec '$1 == "[" sec "]" { print "0x" $6; exit }')
++
++		if [[ -z $sec_size ]]; then
++			warn "bad section size: section: $sym_sec"
++			DONE=1
++			return
++		fi
++
++		# Calculate the symbol size.
++		#
++		# Unfortunately we can't use the ELF size, because kallsyms
++		# also includes the padding bytes in its size calculation.  For
++		# kallsyms, the size calculation is the distance between the
++		# symbol and the next symbol in a sorted list.
++		local sym_size
++		local cur_sym_addr
++		local found=0
++		while read line; do
++			local fields=($line)
++			cur_sym_addr=0x${fields[1]}
++			local cur_sym_elf_size=${fields[2]}
++			local cur_sym_name=${fields[7]:-}
++
++			if [[ $cur_sym_addr = $sym_addr ]] &&
++			   [[ $cur_sym_elf_size = $sym_elf_size ]] &&
++			   [[ $cur_sym_name = $sym_name ]]; then
++				found=1
++				continue
++			fi
++
++			if [[ $found = 1 ]]; then
++				sym_size=$(($cur_sym_addr - $sym_addr))
++				[[ $sym_size -lt $sym_elf_size ]] && continue;
++				found=2
++				break
++			fi
++		done < <(${READELF} --symbols --wide $objfile | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
++
++		if [[ $found = 0 ]]; then
++			warn "can't find symbol: sym_name: $sym_name sym_sec: $sym_sec sym_addr: $sym_addr sym_elf_size: $sym_elf_size"
++			DONE=1
++			return
++		fi
++
++		# If nothing was found after the symbol, assume it's the last
++		# symbol in the section.
++		[[ $found = 1 ]] && sym_size=$(($sec_size - $sym_addr))
++
+ 		if [[ -z $sym_size ]] || [[ $sym_size -le 0 ]]; then
+-			warn "bad symbol size: base: $sym_base end: $sym_end"
++			warn "bad symbol size: sym_addr: $sym_addr cur_sym_addr: $cur_sym_addr"
+ 			DONE=1
+ 			return
+ 		fi
++
+ 		sym_size=0x$(printf %x $sym_size)
+ 
+-		# calculate the address
+-		local addr=$(($sym_base + $offset))
++		# Calculate the section address from user-supplied offset:
++		local addr=$(($sym_addr + $offset))
+ 		if [[ -z $addr ]] || [[ $addr = 0 ]]; then
+-			warn "bad address: $sym_base + $offset"
++			warn "bad address: $sym_addr + $offset"
+ 			DONE=1
+ 			return
+ 		fi
+ 		addr=0x$(printf %x $addr)
+ 
+-		# weed out non-function symbols
+-		if [[ $sym_type != t ]] && [[ $sym_type != T ]]; then
+-			[[ $print_warnings = 1 ]] &&
+-				echo "skipping $func address at $addr due to non-function symbol of type '$sym_type'"
+-			continue
+-		fi
+-
+-		# if the user provided a size, make sure it matches the symbol's size
+-		if [[ -n $size ]] && [[ $size -ne $sym_size ]]; then
++		# If the user provided a size, make sure it matches the symbol's size:
++		if [[ -n $user_size ]] && [[ $user_size -ne $sym_size ]]; then
+ 			[[ $print_warnings = 1 ]] &&
+-				echo "skipping $func address at $addr due to size mismatch ($size != $sym_size)"
++				echo "skipping $sym_name address at $addr due to size mismatch ($user_size != $sym_size)"
+ 			continue;
+ 		fi
+ 
+-		# make sure the provided offset is within the symbol's range
++		# Make sure the provided offset is within the symbol's range:
+ 		if [[ $offset -gt $sym_size ]]; then
+ 			[[ $print_warnings = 1 ]] &&
+-				echo "skipping $func address at $addr due to size mismatch ($offset > $sym_size)"
++				echo "skipping $sym_name address at $addr due to size mismatch ($offset > $sym_size)"
+ 			continue
+ 		fi
+ 
+-		# separate multiple entries with a blank line
++		# In case of duplicates or multiple addresses specified on the
++		# cmdline, separate multiple entries with a blank line:
+ 		[[ $FIRST = 0 ]] && echo
+ 		FIRST=0
+ 
+-		# pass real address to addr2line
+-		echo "$func+$offset/$sym_size:"
+-		local file_lines=$(${ADDR2LINE} -fpie $objfile $addr | sed "s; $dir_prefix\(\./\)*; ;")
+-		[[ -z $file_lines ]] && return
++		echo "$sym_name+$offset/$sym_size:"
+ 
++		# Pass section address to addr2line and strip absolute paths
++		# from the output:
++		local output=$(${ADDR2LINE} -fpie $objfile $addr | sed "s; $dir_prefix\(\./\)*; ;")
++		[[ -z $output ]] && continue
++
++		# Default output (non --list):
+ 		if [[ $LIST = 0 ]]; then
+-			echo "$file_lines" | while read -r line
++			echo "$output" | while read -r line
+ 			do
+ 				echo $line
+ 			done
+ 			DONE=1;
+-			return
++			continue
+ 		fi
+ 
+-		# show each line with context
+-		echo "$file_lines" | while read -r line
++		# For --list, show each line with its corresponding source code:
++		echo "$output" | while read -r line
+ 		do
+ 			echo
+ 			echo $line
+@@ -184,12 +228,12 @@ __faddr2line() {
+ 			n1=$[$n-5]
+ 			n2=$[$n+5]
+ 			f=$(echo $line | sed 's/.*at \(.\+\):.*/\1/g')
+-			awk 'NR>=strtonum("'$n1'") && NR<=strtonum("'$n2'") { if (NR=='$n') printf(">%d<", NR); else printf(" %d ", NR); printf("\t%s\n", $0)}' $f
++			${AWK} 'NR>=strtonum("'$n1'") && NR<=strtonum("'$n2'") { if (NR=='$n') printf(">%d<", NR); else printf(" %d ", NR); printf("\t%s\n", $0)}' $f
+ 		done
+ 
+ 		DONE=1
+ 
+-	done < <(${NM} -n $objfile | awk -v fn=$func -v end=$file_end '$3 == fn { found=1; line=$0; start=$1; next } found == 1 { found=0; print line, "0x"$1 } END {if (found == 1) print line, end; }')
++	done < <(${READELF} --symbols --wide $objfile | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
+ }
+ 
+ [[ $# -lt 2 ]] && usage
 -- 
 2.35.1
 
