@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9DF45480DB
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBEA5480D9
 	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234334AbiFMHtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 03:49:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60652 "EHLO
+        id S231434AbiFMHtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 03:49:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231434AbiFMHta (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:49:30 -0400
+        with ESMTP id S238318AbiFMHtg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:49:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5A89B1DA
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:49:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70768B1DA
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:49:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 731B460FA3
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:49:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76119C34114;
-        Mon, 13 Jun 2022 07:49:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E30260FEB
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:49:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 147A3C34114;
+        Mon, 13 Jun 2022 07:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655106568;
-        bh=E5TTjhy+W4gus0wE1+vhcPxps0QQWLH9DhYjWGyb/7E=;
+        s=korg; t=1655106574;
+        bh=j012rQ44SToSTKvpYSPm9T+buBWA6SH2P784abImuwE=;
         h=Subject:To:Cc:From:Date:From;
-        b=v20Cy+3b6NjExYoD5FYiDBTlBCHrX9XzPDGnlb7rwl2XDrEa12B3Pgi/ds89VQ6FD
-         prnlcJqsJEApNO5V5yu+fbbTOT5tETKNjCvm7ok0aELqOu1AVkUjKz4+g9PfnB7yqS
-         D5xoqtGXN1el86MlGUOVhRESkjSucdqDaQuu2v9Q=
-Subject: FAILED: patch "[PATCH] drm/amdkfd: Fix partial migration bugs" failed to apply to 5.17-stable tree
+        b=L/wja8DQcuC6Rm7M52fkX6dCcdI3iEZfTJnwgrT/omalPMcLThsfDUASaIxvVi5YL
+         T0Jae1U8EaJmPIT1b5YqjXXJbNWVd3/0sTvjDG4nuoM4en1v1ALt47oX6Lwjf6eQb4
+         4iYSMo70Kos8C5pn3PL8GU3weocb95UFNvSjqNjI=
+Subject: FAILED: patch "[PATCH] drm/amdkfd: Fix partial migration bugs" failed to apply to 5.18-stable tree
 To:     Philip.Yang@amd.com, Felix.Kuehling@amd.com,
         alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Jun 2022 09:49:26 +0200
-Message-ID: <165510656660244@kroah.com>
+Date:   Mon, 13 Jun 2022 09:49:31 +0200
+Message-ID: <165510657156160@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
