@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2574A54947B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A28D1548960
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353894AbiFMMJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:09:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59960 "EHLO
+        id S1348636AbiFMK5n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:57:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359382AbiFMMJ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:09:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43A6152B01;
-        Mon, 13 Jun 2022 04:00:35 -0700 (PDT)
+        with ESMTP id S1346280AbiFMKzP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:55:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CDA925298;
+        Mon, 13 Jun 2022 03:32:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BF0AB80EA3;
-        Mon, 13 Jun 2022 11:00:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CBB0C34114;
-        Mon, 13 Jun 2022 11:00:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE00660AE6;
+        Mon, 13 Jun 2022 10:32:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F145AC34114;
+        Mon, 13 Jun 2022 10:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118030;
-        bh=HsZcmkg6963w6+CWvPSwchal4G13F0zd1gvDD7VJV8c=;
+        s=korg; t=1655116323;
+        bh=tLQniskwC4HxyoDCXtqkn6E88GnH2rlxub6ocwGk+54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PH7OUMH+32COC+JjmmD1qTVUqgLLDjrCtv/IJF0Qj9JcXUxm4n3MSQM4WM1JNROXx
-         QZ/jH7ii0IAcd3FWmI29YFgofYGf7TtKIPazHEjCLn3DLdlt3vrmlwlky1Ejdd0HBu
-         uQ+/+JI3iebUbHjgKldrrYHrJphmV1oeu3dO52D0=
+        b=Z3mOVbp6FnY+t7DFtAay4zgAh45ZbXd5M3aYUW+SS0xCooPGdIrvIQaIVGovDbasM
+         q9KojBrOgHDU9151jmDLRh3dKW4WTD+/ZHu1Euyk2bqqBqDjxPHjpOK6H7R4F7qHTi
+         IF+wrYb1UBjHjIUV9iy9DbE7Ciy5IJj786eExz0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 204/287] rtc: mt6397: check return value after calling platform_get_resource()
+Subject: [PATCH 4.14 170/218] m68knommu: fix undefined reference to `_init_sp
 Date:   Mon, 13 Jun 2022 12:10:28 +0200
-Message-Id: <20220613094930.048494926@linuxfoundation.org>
+Message-Id: <20220613094925.760533226@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Greg Ungerer <gerg@linux-m68k.org>
 
-[ Upstream commit d3b43eb505bffb8e4cdf6800c15660c001553fe6 ]
+[ Upstream commit a71b9e66fee47c59b3ec34e652b5c23bc6550794 ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+When configuring a nommu classic m68k system enabling the uboot parameter
+passing support (CONFIG_UBOOT) will produce the following compile error:
 
-Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220505125043.1594771-1-yangyingliang@huawei.com
+   m68k-linux-ld: arch/m68k/kernel/uboot.o: in function `process_uboot_commandline':
+   uboot.c:(.init.text+0x32): undefined reference to `_init_sp'
+
+The logic to support this option is only used on ColdFire based platforms
+(in its head.S startup code). So make the selection of this option
+depend on building for a ColdFire based platform.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-mt6397.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/m68k/Kconfig.machine | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 964ed91416e1..671b6d275da3 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -339,6 +339,8 @@ static int mtk_rtc_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+diff --git a/arch/m68k/Kconfig.machine b/arch/m68k/Kconfig.machine
+index 4a1697fa9a37..1054c5400671 100644
+--- a/arch/m68k/Kconfig.machine
++++ b/arch/m68k/Kconfig.machine
+@@ -309,6 +309,7 @@ comment "Machine Options"
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res)
-+		return -EINVAL;
- 	rtc->addr_base = res->start;
- 
- 	rtc->irq = platform_get_irq(pdev, 0);
+ config UBOOT
+ 	bool "Support for U-Boot command line parameters"
++	depends on COLDFIRE
+ 	help
+ 	  If you say Y here kernel will try to collect command
+ 	  line parameters from the initial u-boot stack.
 -- 
 2.35.1
 
