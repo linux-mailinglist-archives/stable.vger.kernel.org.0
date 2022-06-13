@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 150A3548A31
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B78FB548CCC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244168AbiFMKex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:34:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42460 "EHLO
+        id S1352795AbiFMLVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:21:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345046AbiFMKdy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:33:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F6B927FD2;
-        Mon, 13 Jun 2022 03:21:58 -0700 (PDT)
+        with ESMTP id S1352573AbiFMLSQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:18:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 785B5393C8;
+        Mon, 13 Jun 2022 03:40:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 001BACE1161;
-        Mon, 13 Jun 2022 10:21:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD2A5C34114;
-        Mon, 13 Jun 2022 10:21:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5C35610A0;
+        Mon, 13 Jun 2022 10:40:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F151C34114;
+        Mon, 13 Jun 2022 10:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115715;
-        bh=f4Sar/WvzR2BqS9FayKm4bduJaQEzWXxAM2xpEH8zkw=;
+        s=korg; t=1655116830;
+        bh=slrudWxAuh1fLW0htW8NsiYcuiCfkfg8Ra9j9/LrVrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enSajT1KuwlOw9g8DaemDQjXsapOhCBI6MAuPQOBM1N50++QB4M/G1BXOnY2SNkG4
-         ObRCLnNIqlNyoJEhuaGjeqptxEEjoZr7dAA7c9gPGHqIPgBqBk7JE7llf8GxHaLzmh
-         38gTJ79Mi/SnSG2IJI44jMHkuLlTlrwIMpxQSo1Y=
+        b=lpVYYorXM8fCxPNMY0fuNzc36WXrVmk+9t6luABdlRD4rN3vJMBwhGkW2c9UH8yqI
+         +nr9gKf0vCKcI11IN3S6KrV/ousjcbVZ/ZvE9ZIfb24UNUmjy8/4wPCct+nzMqAiUK
+         MpvVUg4LG9VdJEzoRakDmbsvI4em5/dw+xE7aaC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Monish Kumar R <monish.kumar.r@intel.com>
-Subject: [PATCH 4.14 003/218] USB: new quirk for Dell Gen 2 devices
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 188/411] powerpc/64: Only WARN if __pa()/__va() called with bad addresses
 Date:   Mon, 13 Jun 2022 12:07:41 +0200
-Message-Id: <20220613094909.135439307@linuxfoundation.org>
+Message-Id: <20220613094934.297852226@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Monish Kumar R <monish.kumar.r@intel.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 97fa5887cf283bb75ffff5f6b2c0e71794c02400 upstream.
+[ Upstream commit c4bce84d0bd3f396f702d69be2e92bbd8af97583 ]
 
-Add USB_QUIRK_NO_LPM and USB_QUIRK_RESET_RESUME quirks for Dell usb gen
-2 device to not fail during enumeration.
+We added checks to __pa() / __va() to ensure they're only called with
+appropriate addresses. But using BUG_ON() is too strong, it means
+virt_addr_valid() will BUG when DEBUG_VIRTUAL is enabled.
 
-Found this bug on own testing
+Instead switch them to warnings, arm64 does the same.
 
-Signed-off-by: Monish Kumar R <monish.kumar.r@intel.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220520130044.17303-1-monish.kumar.r@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4dd7554a6456 ("powerpc/64: Add VIRTUAL_BUG_ON checks for __va and __pa addresses")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220406145802.538416-5-mpe@ellerman.id.au
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/include/asm/page.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -328,6 +328,9 @@ static const struct usb_device_id usb_qu
- 	/* DJI CineSSD */
- 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
- 
-+	/* DELL USB GEN2 */
-+	{ USB_DEVICE(0x413c, 0xb062), .driver_info = USB_QUIRK_NO_LPM | USB_QUIRK_RESET_RESUME },
+diff --git a/arch/powerpc/include/asm/page.h b/arch/powerpc/include/asm/page.h
+index 0d8f9246ce15..d92353a96f81 100644
+--- a/arch/powerpc/include/asm/page.h
++++ b/arch/powerpc/include/asm/page.h
+@@ -216,6 +216,9 @@ static inline bool pfn_valid(unsigned long pfn)
+ #define __pa(x) ((unsigned long)(x) - VIRT_PHYS_OFFSET)
+ #else
+ #ifdef CONFIG_PPC64
 +
- 	/* VCOM device */
- 	{ USB_DEVICE(0x4296, 0x7570), .driver_info = USB_QUIRK_CONFIG_INTF_STRINGS },
++#define VIRTUAL_WARN_ON(x)	WARN_ON(IS_ENABLED(CONFIG_DEBUG_VIRTUAL) && (x))
++
+ /*
+  * gcc miscompiles (unsigned long)(&static_var) - PAGE_OFFSET
+  * with -mcmodel=medium, so we use & and | instead of - and + on 64-bit.
+@@ -223,13 +226,13 @@ static inline bool pfn_valid(unsigned long pfn)
+  */
+ #define __va(x)								\
+ ({									\
+-	VIRTUAL_BUG_ON((unsigned long)(x) >= PAGE_OFFSET);		\
++	VIRTUAL_WARN_ON((unsigned long)(x) >= PAGE_OFFSET);		\
+ 	(void *)(unsigned long)((phys_addr_t)(x) | PAGE_OFFSET);	\
+ })
  
+ #define __pa(x)								\
+ ({									\
+-	VIRTUAL_BUG_ON((unsigned long)(x) < PAGE_OFFSET);		\
++	VIRTUAL_WARN_ON((unsigned long)(x) < PAGE_OFFSET);		\
+ 	(unsigned long)(x) & 0x0fffffffffffffffUL;			\
+ })
+ 
+-- 
+2.35.1
+
 
 
