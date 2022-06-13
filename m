@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06994548F1D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07EF8549971
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 19:01:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381190AbiFMOIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:08:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43244 "EHLO
+        id S241876AbiFMRBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 13:01:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381258AbiFMOEO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:04:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5835745530;
-        Mon, 13 Jun 2022 04:39:05 -0700 (PDT)
+        with ESMTP id S239560AbiFMRAz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 13:00:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F366C038C;
+        Mon, 13 Jun 2022 04:52:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA37B60B6E;
-        Mon, 13 Jun 2022 11:39:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0750CC34114;
-        Mon, 13 Jun 2022 11:39:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A75C1B80EDE;
+        Mon, 13 Jun 2022 11:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10285C34114;
+        Mon, 13 Jun 2022 11:52:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120344;
-        bh=bSu8yqGY2DwAqxb0viMrKj2He+cGqtk0DtJOpvFsoEg=;
+        s=korg; t=1655121162;
+        bh=9y3ubL8G56M9GNII/l+BHiIuPm1Ni1Xym+8v3tSfm2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tCXrZst1w6auvGGvSA8BZfK0M1ENnwlsfYPkOSC4ijqVR+Ft3jB2lpEwFAG/+nuJi
-         OuwZ6jzLNSSoogiH7umoqjHkjoNie125yIQwVm3y5TnHMDaRlQLiTIg8PihPbg25vx
-         pXc4HIz6Vz3wWjXcJ+O95QPHLUbRZ4StDZiUXpzc=
+        b=uEDWFz339Mf7YgkC/B4+Fms1q8TwW/k/46NfrmcFaGSDPC5qMm6KnAZDx7BqPH3+Y
+         sWX5HwaWO4U7CugtDwhCnXeUVhvCFSDDWl3I511mE5nNbjydXf1HW9L5+9HJJc5rmt
+         LDvvx69VDvL9N5WEFndR+Y4kkfJBZNhHKPtAZj+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Subject: [PATCH 5.18 339/339] zonefs: fix handling of explicit_open option on mount
-Date:   Mon, 13 Jun 2022 12:12:44 +0200
-Message-Id: <20220613094937.011398916@linuxfoundation.org>
+        "Sit, Michael Wei Hong" <michael.wei.hong.sit@intel.com>,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        Tan Tee Min <tee.min.tan@linux.intel.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        Sit@vger.kernel.org
+Subject: [PATCH 5.17 271/298] net: phy: dp83867: retrigger SGMII AN when link change
+Date:   Mon, 13 Jun 2022 12:12:45 +0200
+Message-Id: <20220613094933.290074644@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +57,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Tan Tee Min <tee.min.tan@linux.intel.com>
 
-commit a2a513be7139b279f1b5b2cee59c6c4950c34346 upstream.
+commit c76acfb7e19dcc3a0964e0563770b1d11b8d4540 upstream.
 
-Ignoring the explicit_open mount option on mount for devices that do not
-have a limit on the number of open zones must be done after the mount
-options are parsed and set in s_mount_opts. Move the check to ignore
-the explicit_open option after the call to zonefs_parse_options() in
-zonefs_fill_super().
+There is a limitation in TI DP83867 PHY device where SGMII AN is only
+triggered once after the device is booted up. Even after the PHY TPI is
+down and up again, SGMII AN is not triggered and hence no new in-band
+message from PHY to MAC side SGMII.
 
-Fixes: b5c00e975779 ("zonefs: open/close zone on file open/close")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+This could cause an issue during power up, when PHY is up prior to MAC.
+At this condition, once MAC side SGMII is up, MAC side SGMII wouldn`t
+receive new in-band message from TI PHY with correct link status, speed
+and duplex info.
+
+As suggested by TI, implemented a SW solution here to retrigger SGMII
+Auto-Neg whenever there is a link change.
+
+v2: Add Fixes tag in commit message.
+
+Fixes: 2a10154abcb7 ("net: phy: dp83867: Add TI dp83867 phy")
+Cc: <stable@vger.kernel.org> # 5.4.x
+Signed-off-by: Sit, Michael Wei Hong <michael.wei.hong.sit@intel.com>
+Reviewed-by: Voon Weifeng <weifeng.voon@intel.com>
+Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220526090347.128742-1-tee.min.tan@linux.intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/zonefs/super.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/phy/dp83867.c |   29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
---- a/fs/zonefs/super.c
-+++ b/fs/zonefs/super.c
-@@ -1690,11 +1690,6 @@ static int zonefs_fill_super(struct supe
- 	sbi->s_mount_opts = ZONEFS_MNTOPT_ERRORS_RO;
- 	sbi->s_max_open_zones = bdev_max_open_zones(sb->s_bdev);
- 	atomic_set(&sbi->s_open_zones, 0);
--	if (!sbi->s_max_open_zones &&
--	    sbi->s_mount_opts & ZONEFS_MNTOPT_EXPLICIT_OPEN) {
--		zonefs_info(sb, "No open zones limit. Ignoring explicit_open mount option\n");
--		sbi->s_mount_opts &= ~ZONEFS_MNTOPT_EXPLICIT_OPEN;
--	}
+--- a/drivers/net/phy/dp83867.c
++++ b/drivers/net/phy/dp83867.c
+@@ -137,6 +137,7 @@
+ #define DP83867_DOWNSHIFT_2_COUNT	2
+ #define DP83867_DOWNSHIFT_4_COUNT	4
+ #define DP83867_DOWNSHIFT_8_COUNT	8
++#define DP83867_SGMII_AUTONEG_EN	BIT(7)
  
- 	ret = zonefs_read_super(sb);
- 	if (ret)
-@@ -1713,6 +1708,12 @@ static int zonefs_fill_super(struct supe
- 	zonefs_info(sb, "Mounting %u zones",
- 		    blkdev_nr_zones(sb->s_bdev->bd_disk));
+ /* CFG3 bits */
+ #define DP83867_CFG3_INT_OE			BIT(7)
+@@ -855,6 +856,32 @@ static int dp83867_phy_reset(struct phy_
+ 			 DP83867_PHYCR_FORCE_LINK_GOOD, 0);
+ }
  
-+	if (!sbi->s_max_open_zones &&
-+	    sbi->s_mount_opts & ZONEFS_MNTOPT_EXPLICIT_OPEN) {
-+		zonefs_info(sb, "No open zones limit. Ignoring explicit_open mount option\n");
-+		sbi->s_mount_opts &= ~ZONEFS_MNTOPT_EXPLICIT_OPEN;
-+	}
++static void dp83867_link_change_notify(struct phy_device *phydev)
++{
++	/* There is a limitation in DP83867 PHY device where SGMII AN is
++	 * only triggered once after the device is booted up. Even after the
++	 * PHY TPI is down and up again, SGMII AN is not triggered and
++	 * hence no new in-band message from PHY to MAC side SGMII.
++	 * This could cause an issue during power up, when PHY is up prior
++	 * to MAC. At this condition, once MAC side SGMII is up, MAC side
++	 * SGMII wouldn`t receive new in-band message from TI PHY with
++	 * correct link status, speed and duplex info.
++	 * Thus, implemented a SW solution here to retrigger SGMII Auto-Neg
++	 * whenever there is a link change.
++	 */
++	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
++		int val = 0;
 +
- 	/* Create root directory inode */
- 	ret = -ENOMEM;
- 	inode = new_inode(sb);
++		val = phy_clear_bits(phydev, DP83867_CFG2,
++				     DP83867_SGMII_AUTONEG_EN);
++		if (val < 0)
++			return;
++
++		phy_set_bits(phydev, DP83867_CFG2,
++			     DP83867_SGMII_AUTONEG_EN);
++	}
++}
++
+ static struct phy_driver dp83867_driver[] = {
+ 	{
+ 		.phy_id		= DP83867_PHY_ID,
+@@ -879,6 +906,8 @@ static struct phy_driver dp83867_driver[
+ 
+ 		.suspend	= genphy_suspend,
+ 		.resume		= genphy_resume,
++
++		.link_change_notify = dp83867_link_change_notify,
+ 	},
+ };
+ module_phy_driver(dp83867_driver);
 
 
