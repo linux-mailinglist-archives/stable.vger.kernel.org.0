@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0101549805
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12588548E72
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356624AbiFMLur (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:50:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53800 "EHLO
+        id S1377534AbiFMNdO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:33:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356888AbiFMLtl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:49:41 -0400
+        with ESMTP id S1378481AbiFMNbm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:31:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F27514D6A8;
-        Mon, 13 Jun 2022 03:53:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAF0470909;
+        Mon, 13 Jun 2022 04:26:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CD656135E;
-        Mon, 13 Jun 2022 10:53:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75E57C34114;
-        Mon, 13 Jun 2022 10:53:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3ED0E61036;
+        Mon, 13 Jun 2022 11:26:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E6C7C34114;
+        Mon, 13 Jun 2022 11:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117615;
-        bh=NuJ00ZTTNaLSXkr9xl6V0Dq1TVSE7hiBhjNyJjtUJG0=;
+        s=korg; t=1655119570;
+        bh=bt6icHp1z5mM4XKs4r2Z8SPOXr02Stt78U4Pdt+zBZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h+dP+f+O2whjb0FcODXD7S1CFZLq2nc/1zfJducDpT7kJHzojE8SNewFMxMdF/xj7
-         Z/xLxkA6s7dZUxLG1ypQI3uYdV/JpJn1kLXwHWe2/rNLrTf+LHYBpCc7nkSk7EOmD2
-         LgiwreyBAEcDLNaoav+VbU47Q0K1vo1Zw8F07vdM=
+        b=bGJsmiIoigqoY8d4+9OYXRSgWgwWb8nc8RwapyNFYZYWTFMkYiIxt+Yzw6bAW/M5k
+         BQsbrV0g6WbuuZRV8A/UJdOCRT/bIcLXm4M7/SNPhmEmwseRAXeJ+/EWoSDFiOh/rz
+         CY5AQBH2iwpmt8UUmf/YYh7D9GDX9jMTqvnR+0QM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 062/287] ASoC: mediatek: Fix missing of_node_put in mt2701_wm8960_machine_probe
+Subject: [PATCH 5.18 061/339] rtc: ftrtc010: Fix error handling in ftrtc010_rtc_probe
 Date:   Mon, 13 Jun 2022 12:08:06 +0200
-Message-Id: <20220613094925.750630104@linuxfoundation.org>
+Message-Id: <20220613094928.373207440@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,55 +57,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 05654431a18fe24e5e46a375d98904134628a102 ]
+[ Upstream commit b520cbe5be37b1b9b401c0b6ecbdae32575273db ]
 
-This node pointer is returned by of_parse_phandle() with
-refcount incremented in this function.
-Calling of_node_put() to avoid the refcount leak.
+In the error handling path, the clk_prepare_enable() function
+call should be balanced by a corresponding 'clk_disable_unprepare()'
+call , as already done in the remove function.
 
-Fixes: 8625c1dbd876 ("ASoC: mediatek: Add mt2701-wm8960 machine driver")
+clk_disable_unprepare calls clk_disable() and clk_unprepare().
+They will use IS_ERR_OR_NULL to check the argument.
+
+Fixes: ac05fba39cc5 ("rtc: gemini: Add optional clock handling")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220404093526.30004-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20220403054912.31739-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt2701/mt2701-wm8960.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-ftrtc010.c | 34 ++++++++++++++++++++++++----------
+ 1 file changed, 24 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt2701/mt2701-wm8960.c b/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-index 89f34efd9747..a5ede216b795 100644
---- a/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-+++ b/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-@@ -118,7 +118,8 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 	if (!codec_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_platform_node;
+diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
+index 53bb08fe1cd4..25c6e7d9570f 100644
+--- a/drivers/rtc/rtc-ftrtc010.c
++++ b/drivers/rtc/rtc-ftrtc010.c
+@@ -137,26 +137,34 @@ static int ftrtc010_rtc_probe(struct platform_device *pdev)
+ 		ret = clk_prepare_enable(rtc->extclk);
+ 		if (ret) {
+ 			dev_err(dev, "failed to enable EXTCLK\n");
+-			return ret;
++			goto err_disable_pclk;
+ 		}
  	}
- 	for (i = 0; i < card->num_links; i++) {
- 		if (mt2701_wm8960_dai_links[i].codec_name)
-@@ -129,7 +130,7 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 	ret = snd_soc_of_parse_audio_routing(card, "audio-routing");
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to parse audio-routing: %d\n", ret);
+ 
+ 	rtc->rtc_irq = platform_get_irq(pdev, 0);
+-	if (rtc->rtc_irq < 0)
+-		return rtc->rtc_irq;
++	if (rtc->rtc_irq < 0) {
++		ret = rtc->rtc_irq;
++		goto err_disable_extclk;
++	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res)
+-		return -ENODEV;
++	if (!res) {
++		ret = -ENODEV;
++		goto err_disable_extclk;
++	}
+ 
+ 	rtc->rtc_base = devm_ioremap(dev, res->start,
+ 				     resource_size(res));
+-	if (!rtc->rtc_base)
+-		return -ENOMEM;
++	if (!rtc->rtc_base) {
++		ret = -ENOMEM;
++		goto err_disable_extclk;
++	}
+ 
+ 	rtc->rtc_dev = devm_rtc_allocate_device(dev);
+-	if (IS_ERR(rtc->rtc_dev))
+-		return PTR_ERR(rtc->rtc_dev);
++	if (IS_ERR(rtc->rtc_dev)) {
++		ret = PTR_ERR(rtc->rtc_dev);
++		goto err_disable_extclk;
++	}
+ 
+ 	rtc->rtc_dev->ops = &ftrtc010_rtc_ops;
+ 
+@@ -172,9 +180,15 @@ static int ftrtc010_rtc_probe(struct platform_device *pdev)
+ 	ret = devm_request_irq(dev, rtc->rtc_irq, ftrtc010_rtc_interrupt,
+ 			       IRQF_SHARED, pdev->name, dev);
+ 	if (unlikely(ret))
 -		return ret;
-+		goto put_codec_node;
- 	}
++		goto err_disable_extclk;
  
- 	ret = devm_snd_soc_register_card(&pdev->dev, card);
-@@ -137,6 +138,10 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
- 
-+put_codec_node:
-+	of_node_put(codec_node);
-+put_platform_node:
-+	of_node_put(platform_node);
- 	return ret;
+ 	return devm_rtc_register_device(rtc->rtc_dev);
++
++err_disable_extclk:
++	clk_disable_unprepare(rtc->extclk);
++err_disable_pclk:
++	clk_disable_unprepare(rtc->pclk);
++	return ret;
  }
  
+ static int ftrtc010_rtc_remove(struct platform_device *pdev)
 -- 
 2.35.1
 
