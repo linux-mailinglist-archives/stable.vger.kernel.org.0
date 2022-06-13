@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A8E954889B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9691548FAC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237504AbiFMKwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:52:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59058 "EHLO
+        id S1378926AbiFMNnX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:43:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346017AbiFMKvA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:51:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C5312AC5;
-        Mon, 13 Jun 2022 03:27:20 -0700 (PDT)
+        with ESMTP id S1378217AbiFMNmO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:42:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9F8B2A72F;
+        Mon, 13 Jun 2022 04:31:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62A20B80E92;
-        Mon, 13 Jun 2022 10:27:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAFBDC34114;
-        Mon, 13 Jun 2022 10:27:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A39361037;
+        Mon, 13 Jun 2022 11:31:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A56BC34114;
+        Mon, 13 Jun 2022 11:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116037;
-        bh=d/SWcZsKRuUThfJskQZqSWuF1lVzytQ9GkjT0tAl9hU=;
+        s=korg; t=1655119886;
+        bh=5UwgwA5uk3m1yjQ3cSjIclyEbz390K7LIh5k5M5FNEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zId1ibw6OWcL8pvguZqkZ0tE20GIUmlED9TeQGsAfa2OpnWWcJcUW1Q4UtJGFnP42
-         F35Z/sS9eS2BAN222AlPkf80le+aS7tXJh06XphPz5Hye5QFOYWcLUPRQkimszqIVB
-         eKc7lAIpuYTE3335rTpKU4ucq6oM/GlQ+lM5YL2I=
+        b=lEY+l748/kNDAMEzKGnWYVP/b8eSv+u8WOUKxXZBKOHcV8YfhB73XjmUPA5ytQGUe
+         8cA4thF4FqblVjImiduVW6T/UpAK/8tUEveKb+IOBohkVTaZd2djvWcajIy/BE5aGJ
+         MPIRhhxauAptMS+MP7LKuQCenDAZo1hkWWqFuk/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 4.14 121/218] irqchip: irq-xtensa-mx: fix initial IRQ affinity
+        stable@vger.kernel.org, Ben Walker <benjamin.walker@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 154/339] dmaengine: idxd: set DMA_INTERRUPT cap bit
 Date:   Mon, 13 Jun 2022 12:09:39 +0200
-Message-Id: <20220613094924.241281586@linuxfoundation.org>
+Message-Id: <20220613094931.354949193@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,62 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-commit a255ee29252066d621df5d6b420bf534c6ba5bc0 upstream.
+[ Upstream commit 4e5a4eb20393b851590b4465f1197a8041c2076b ]
 
-When irq-xtensa-mx chip is used in non-SMP configuration its
-irq_set_affinity callback is not called leaving IRQ affinity set empty.
-As a result IRQ delivery does not work in that configuration.
-Initialize IRQ affinity of the xtensa MX interrupt distributor to CPU 0
-for all external IRQ lines.
+Even though idxd driver has always supported interrupt, it never actually
+set the DMA_INTERRUPT cap bit. Rectify this mistake so the interrupt
+capability is advertised.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Ben Walker <benjamin.walker@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/164971497859.2201379.17925303210723708961.stgit@djiang5-desk3.ch.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-xtensa-mx.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/dma/idxd/dma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/irqchip/irq-xtensa-mx.c
-+++ b/drivers/irqchip/irq-xtensa-mx.c
-@@ -143,14 +143,25 @@ static struct irq_chip xtensa_mx_irq_chi
- 	.irq_set_affinity = xtensa_mx_irq_set_affinity,
- };
+diff --git a/drivers/dma/idxd/dma.c b/drivers/dma/idxd/dma.c
+index bfff59617d04..13e061944db9 100644
+--- a/drivers/dma/idxd/dma.c
++++ b/drivers/dma/idxd/dma.c
+@@ -193,6 +193,7 @@ int idxd_register_dma_device(struct idxd_device *idxd)
+ 	INIT_LIST_HEAD(&dma->channels);
+ 	dma->dev = dev;
  
-+static void __init xtensa_mx_init_common(struct irq_domain *root_domain)
-+{
-+	unsigned int i;
-+
-+	irq_set_default_host(root_domain);
-+	secondary_init_irq();
-+
-+	/* Initialize default IRQ routing to CPU 0 */
-+	for (i = 0; i < XCHAL_NUM_EXTINTERRUPTS; ++i)
-+		set_er(1, MIROUT(i));
-+}
-+
- int __init xtensa_mx_init_legacy(struct device_node *interrupt_parent)
- {
- 	struct irq_domain *root_domain =
- 		irq_domain_add_legacy(NULL, NR_IRQS - 1, 1, 0,
- 				&xtensa_mx_irq_domain_ops,
- 				&xtensa_mx_irq_chip);
--	irq_set_default_host(root_domain);
--	secondary_init_irq();
-+	xtensa_mx_init_common(root_domain);
- 	return 0;
- }
- 
-@@ -160,8 +171,7 @@ static int __init xtensa_mx_init(struct
- 	struct irq_domain *root_domain =
- 		irq_domain_add_linear(np, NR_IRQS, &xtensa_mx_irq_domain_ops,
- 				&xtensa_mx_irq_chip);
--	irq_set_default_host(root_domain);
--	secondary_init_irq();
-+	xtensa_mx_init_common(root_domain);
- 	return 0;
- }
- IRQCHIP_DECLARE(xtensa_mx_irq_chip, "cdns,xtensa-mx", xtensa_mx_init);
++	dma_cap_set(DMA_INTERRUPT, dma->cap_mask);
+ 	dma_cap_set(DMA_PRIVATE, dma->cap_mask);
+ 	dma_cap_set(DMA_COMPLETION_NO_ORDER, dma->cap_mask);
+ 	dma->device_release = idxd_dma_release;
+-- 
+2.35.1
+
 
 
