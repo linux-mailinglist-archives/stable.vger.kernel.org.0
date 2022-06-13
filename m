@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB18548E5E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8DB9548A78
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383504AbiFMO0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:26:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52164 "EHLO
+        id S1355254AbiFMLkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:40:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383780AbiFMOX7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:23:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FCA52E9D0;
-        Mon, 13 Jun 2022 04:45:17 -0700 (PDT)
+        with ESMTP id S1355615AbiFMLjU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 333A92408D;
+        Mon, 13 Jun 2022 03:49:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEB33B80D3A;
-        Mon, 13 Jun 2022 11:45:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5C4FC34114;
-        Mon, 13 Jun 2022 11:45:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C565A6112A;
+        Mon, 13 Jun 2022 10:49:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7A63C34114;
+        Mon, 13 Jun 2022 10:49:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120714;
-        bh=pG2ZCI8IMWbULbLnAuhxBBoXLb+Ba5+Jhao+Kviu55E=;
+        s=korg; t=1655117353;
+        bh=umwNkXTx7sDT3ai+IsIbt1bhi7bdx1N7XGvJqxUXjCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p9UbHQbTjhNpcxhQoDTAAxvporKVVvjpOtd5zOA2MJ+42uyenuWeX4JZd6EKy+oP9
-         XdCKWCg+jGee9OFIdBJchZ9eczo62Yf7oWYg2l7JkWQqXkxLqrRV0+CVKBgMYzAQyR
-         y05XPakCo96dr4UwDfBpt8CKl6VqDH5YgUiys9aE=
+        b=UJfI4HPSMyI3CCSgrOYE/TEmcjONfMO7JZbkAzYS68uwLXuWuoeL/tOFLn73bR/O0
+         pTQdW+jianpnw1nVBWMOYdhh02A6bUZZzSGsGfTYwQ2qV+UBDHIwKImQgrygxi1wca
+         Ad0e+JLzk62R/tooWssoNyQLlLhD1b3vRMMheEMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Joe Mario <jmario@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 131/298] perf c2c: Fix sorting in percent_rmt_hitm_cmp()
+Subject: [PATCH 5.4 352/411] af_unix: Fix a data-race in unix_dgram_peer_wake_me().
 Date:   Mon, 13 Jun 2022 12:10:25 +0200
-Message-Id: <20220613094928.916413459@linuxfoundation.org>
+Message-Id: <20220613094939.258047663@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,47 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit b24192a17337abbf3f44aaa75e15df14a2d0016e ]
+[ Upstream commit 662a80946ce13633ae90a55379f1346c10f0c432 ]
 
-The function percent_rmt_hitm_cmp() wrongly uses local HITMs for
-sorting remote HITMs.
+unix_dgram_poll() calls unix_dgram_peer_wake_me() without `other`'s
+lock held and check if its receive queue is full.  Here we need to
+use unix_recvq_full_lockless() instead of unix_recvq_full(), otherwise
+KCSAN will report a data-race.
 
-Since this function is to sort cache lines for remote HITMs, this patch
-changes to use 'rmt_hitm' field for correct sorting.
-
-Fixes: 9cb3500afc0980c5 ("perf c2c report: Add hitm/store percent related sort keys")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Joe Mario <jmario@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220530084253.750190-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 7d267278a9ec ("unix: avoid use-after-free in ep_remove_wait_queue")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Link: https://lore.kernel.org/r/20220605232325.11804-1-kuniyu@amazon.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-c2c.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/unix/af_unix.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
-index d8ec683b06a5..4e0c385427a4 100644
---- a/tools/perf/builtin-c2c.c
-+++ b/tools/perf/builtin-c2c.c
-@@ -924,8 +924,8 @@ percent_rmt_hitm_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
- 	double per_left;
- 	double per_right;
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 05470ca91bd9..f33e90bd0683 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -440,7 +440,7 @@ static int unix_dgram_peer_wake_me(struct sock *sk, struct sock *other)
+ 	 * -ECONNREFUSED. Otherwise, if we haven't queued any skbs
+ 	 * to other and its full, we will hang waiting for POLLOUT.
+ 	 */
+-	if (unix_recvq_full(other) && !sock_flag(other, SOCK_DEAD))
++	if (unix_recvq_full_lockless(other) && !sock_flag(other, SOCK_DEAD))
+ 		return 1;
  
--	per_left  = PERCENT(left, lcl_hitm);
--	per_right = PERCENT(right, lcl_hitm);
-+	per_left  = PERCENT(left, rmt_hitm);
-+	per_right = PERCENT(right, rmt_hitm);
- 
- 	return per_left - per_right;
- }
+ 	if (connected)
 -- 
 2.35.1
 
