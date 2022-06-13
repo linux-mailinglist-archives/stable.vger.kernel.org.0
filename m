@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1735548692
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B45548805
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378345AbiFMNlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:41:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58446 "EHLO
+        id S1354013AbiFMLb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:31:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379041AbiFMNjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED3237981D;
-        Mon, 13 Jun 2022 04:28:31 -0700 (PDT)
+        with ESMTP id S1354373AbiFML3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD6E223153;
+        Mon, 13 Jun 2022 03:43:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 736F361036;
-        Mon, 13 Jun 2022 11:28:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8039AC34114;
-        Mon, 13 Jun 2022 11:28:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B41760F9A;
+        Mon, 13 Jun 2022 10:43:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53EBCC34114;
+        Mon, 13 Jun 2022 10:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119710;
-        bh=qHJWRt6JAniE3k7YYbpJB8AFjQEVSMDk2DDe4PaqYYM=;
+        s=korg; t=1655117017;
+        bh=dfNYdgBpZfYzu5zIz9q4NlwM5NGdOZ6ZTsDDghJDNgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jaeLHhQen8INvEPQqHiAAxeBLIR6xHQ/Ja483zIu64hk6YjQqMlkZDOKPMK4A7X27
-         1mZ31eFsbEvBn5vFgdDwUVg8TZRpFzQ/fcsfboJPDPdMf1lB978qTlL2ODlFc36JT+
-         3qkwOCs8lCi4Ayb+kPLuS3fiZP1hJPjhxkmMppkk=
+        b=CHP6D5mDVe2SRUB++Gqro3m0XBfGnKm7HAut4sLOx0JXAhzn4In+4htlktMV/O1Hu
+         L+WwXhslV4vkKVWjpIJvmj8AKVUcAtih4U9JHMWswdeXZmzS6Dn3hN0mvwtXQ7fA3y
+         QLnc9qIsQ8RF3KB+uZ2ovIR3mPddRaE1JqyAoGy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Ray <vray@kalrayinc.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 093/339] net: sched: fixed barrier to prevent skbuff sticking in qdisc backlog
-Date:   Mon, 13 Jun 2022 12:08:38 +0200
-Message-Id: <20220613094929.334981825@linuxfoundation.org>
+        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Fabio Estevam <festevam@denx.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.4 247/411] media: coda: Add more H264 levels for CODA960
+Date:   Mon, 13 Jun 2022 12:08:40 +0200
+Message-Id: <20220613094936.180708561@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,140 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Ray <vray@kalrayinc.com>
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-[ Upstream commit a54ce3703613e41fe1d98060b62ec09a3984dc28 ]
+commit eb2fd187abc878a2dfad46902becb74963473c7d upstream.
 
-In qdisc_run_begin(), smp_mb__before_atomic() used before test_bit()
-does not provide any ordering guarantee as test_bit() is not an atomic
-operation. This, added to the fact that the spin_trylock() call at
-the beginning of qdisc_run_begin() does not guarantee acquire
-semantics if it does not grab the lock, makes it possible for the
-following statement :
+Add H264 level 1.0, 4.1, 4.2 to the list of supported formats.
+While the hardware does not fully support these levels, it does support
+most of them. The constraints on frame size and pixel formats already
+cover the limitation.
 
-if (test_bit(__QDISC_STATE_MISSED, &qdisc->state))
+This fixes negotiation of level on GStreamer 1.17.1.
 
-to be executed before an enqueue operation called before
-qdisc_run_begin().
-
-As a result the following race can happen :
-
-           CPU 1                             CPU 2
-
-      qdisc_run_begin()               qdisc_run_begin() /* true */
-        set(MISSED)                            .
-      /* returns false */                      .
-          .                            /* sees MISSED = 1 */
-          .                            /* so qdisc not empty */
-          .                            __qdisc_run()
-          .                                    .
-          .                              pfifo_fast_dequeue()
- ----> /* may be done here */                  .
-|         .                                clear(MISSED)
-|         .                                    .
-|         .                                smp_mb __after_atomic();
-|         .                                    .
-|         .                                /* recheck the queue */
-|         .                                /* nothing => exit   */
-|   enqueue(skb1)
-|         .
-|   qdisc_run_begin()
-|         .
-|     spin_trylock() /* fail */
-|         .
-|     smp_mb__before_atomic() /* not enough */
-|         .
- ---- if (test_bit(MISSED))
-        return false;   /* exit */
-
-In the above scenario, CPU 1 and CPU 2 both try to grab the
-qdisc->seqlock at the same time. Only CPU 2 succeeds and enters the
-bypass code path, where it emits its skb then calls __qdisc_run().
-
-CPU1 fails, sets MISSED and goes down the traditionnal enqueue() +
-dequeue() code path. But when executing qdisc_run_begin() for the
-second time, after enqueuing its skbuff, it sees the MISSED bit still
-set (by itself) and consequently chooses to exit early without setting
-it again nor trying to grab the spinlock again.
-
-Meanwhile CPU2 has seen MISSED = 1, cleared it, checked the queue
-and found it empty, so it returned.
-
-At the end of the sequence, we end up with skb1 enqueued in the
-backlog, both CPUs out of __dev_xmit_skb(), the MISSED bit not set,
-and no __netif_schedule() called made. skb1 will now linger in the
-qdisc until somebody later performs a full __qdisc_run(). Associated
-to the bypass capacity of the qdisc, and the ability of the TCP layer
-to avoid resending packets which it knows are still in the qdisc, this
-can lead to serious traffic "holes" in a TCP connection.
-
-We fix this by replacing the smp_mb__before_atomic() / test_bit() /
-set_bit() / smp_mb__after_atomic() sequence inside qdisc_run_begin()
-by a single test_and_set_bit() call, which is more concise and
-enforces the needed memory barriers.
-
-Fixes: 89837eb4b246 ("net: sched: add barrier to ensure correct ordering for lockless qdisc")
-Signed-off-by: Vincent Ray <vray@kalrayinc.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220526001746.2437669-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 42a68012e67c2 ("media: coda: add read-only h.264 decoder profile/level controls")
+Suggested-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sch_generic.h | 36 ++++++++----------------------------
- 1 file changed, 8 insertions(+), 28 deletions(-)
+ drivers/media/platform/coda/coda-common.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index 9bab396c1f3b..80973ce820f3 100644
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -187,37 +187,17 @@ static inline bool qdisc_run_begin(struct Qdisc *qdisc)
- 		if (spin_trylock(&qdisc->seqlock))
- 			return true;
- 
--		/* Paired with smp_mb__after_atomic() to make sure
--		 * STATE_MISSED checking is synchronized with clearing
--		 * in pfifo_fast_dequeue().
-+		/* No need to insist if the MISSED flag was already set.
-+		 * Note that test_and_set_bit() also gives us memory ordering
-+		 * guarantees wrt potential earlier enqueue() and below
-+		 * spin_trylock(), both of which are necessary to prevent races
- 		 */
--		smp_mb__before_atomic();
--
--		/* If the MISSED flag is set, it means other thread has
--		 * set the MISSED flag before second spin_trylock(), so
--		 * we can return false here to avoid multi cpus doing
--		 * the set_bit() and second spin_trylock() concurrently.
--		 */
--		if (test_bit(__QDISC_STATE_MISSED, &qdisc->state))
-+		if (test_and_set_bit(__QDISC_STATE_MISSED, &qdisc->state))
- 			return false;
- 
--		/* Set the MISSED flag before the second spin_trylock(),
--		 * if the second spin_trylock() return false, it means
--		 * other cpu holding the lock will do dequeuing for us
--		 * or it will see the MISSED flag set after releasing
--		 * lock and reschedule the net_tx_action() to do the
--		 * dequeuing.
--		 */
--		set_bit(__QDISC_STATE_MISSED, &qdisc->state);
--
--		/* spin_trylock() only has load-acquire semantic, so use
--		 * smp_mb__after_atomic() to ensure STATE_MISSED is set
--		 * before doing the second spin_trylock().
--		 */
--		smp_mb__after_atomic();
--
--		/* Retry again in case other CPU may not see the new flag
--		 * after it releases the lock at the end of qdisc_run_end().
-+		/* Try to take the lock again to make sure that we will either
-+		 * grab it or the CPU that still has it will see MISSED set
-+		 * when testing it in qdisc_run_end()
- 		 */
- 		return spin_trylock(&qdisc->seqlock);
+--- a/drivers/media/platform/coda/coda-common.c
++++ b/drivers/media/platform/coda/coda-common.c
+@@ -2187,12 +2187,15 @@ static void coda_encode_ctrls(struct cod
+ 	if (ctx->dev->devtype->product == CODA_960) {
+ 		v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
+ 			V4L2_CID_MPEG_VIDEO_H264_LEVEL,
+-			V4L2_MPEG_VIDEO_H264_LEVEL_4_0,
+-			~((1 << V4L2_MPEG_VIDEO_H264_LEVEL_2_0) |
++			V4L2_MPEG_VIDEO_H264_LEVEL_4_2,
++			~((1 << V4L2_MPEG_VIDEO_H264_LEVEL_1_0) |
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_2_0) |
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_0) |
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_1) |
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_2) |
+-			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0)),
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0) |
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_1) |
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_2)),
+ 			V4L2_MPEG_VIDEO_H264_LEVEL_4_0);
  	}
--- 
-2.35.1
-
+ 	v4l2_ctrl_new_std(&ctx->ctrls, &coda_ctrl_ops,
 
 
