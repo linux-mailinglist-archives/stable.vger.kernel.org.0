@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B0A548DDC
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB87548E7A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354214AbiFMLcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:32:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46066 "EHLO
+        id S244294AbiFMKpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:45:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354307AbiFML3T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62D4A3EF13;
-        Mon, 13 Jun 2022 03:43:15 -0700 (PDT)
+        with ESMTP id S1346080AbiFMKnb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:43:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8C56DECA;
+        Mon, 13 Jun 2022 03:24:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3403B80D3B;
-        Mon, 13 Jun 2022 10:43:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 285EFC3411C;
-        Mon, 13 Jun 2022 10:43:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C47EB80E90;
+        Mon, 13 Jun 2022 10:24:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A76F2C34114;
+        Mon, 13 Jun 2022 10:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116992;
-        bh=NSpYyGGJXBbVhvCEmdzTJ3lzz03ll/lczQXkZqe5C3Y=;
+        s=korg; t=1655115878;
+        bh=rQ5Q1vZuUz/XgLIvT3oShsL4hfqQwG5DHqAKjtJrHHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W9JGmzPV2YOn05OdJTpOfKmcFKigZ3heiljsPGe/9YRsUmHQV9WR0wvO5S2kpiVU8
-         004JdaYOmP73AjBhNFVR9B4a4IXyM47Fo8+9vHaINlrVZcp55fKRtrJaHMujrJfxSD
-         SU1LnZR7yzaYdo+Wiax7FiMLyvzIgWCHkmAFQjNw=
+        b=ClJenaYbvRtMaToZ5Bv6CczLkpEh2Fdk/fqW7I06DwvwkWmhaIpZtXBkvR5srSTas
+         UXRNjJBTH3uBwkus5rkKW51cQP3MrLTLbmEYGVOUx1lTnXgcEuR2++1J8bFzJJEheE
+         WLovnkIlao/EVUgWyzCaycWbhwm9GxgllrtB38As=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 259/411] ASoC: rt5514: Fix event generation for "DSP Voice Wake Up" control
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+1a247e36149ffd709a9b@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 074/218] media: pvrusb2: fix array-index-out-of-bounds in pvr2_i2c_core_init
 Date:   Mon, 13 Jun 2022 12:08:52 +0200
-Message-Id: <20220613094936.531337696@linuxfoundation.org>
+Message-Id: <20220613094922.592722459@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 4213ff556740bb45e2d9ff0f50d056c4e7dd0921 upstream.
+[ Upstream commit 471bec68457aaf981add77b4f590d65dd7da1059 ]
 
-The driver has a custom put function for "DSP Voice Wake Up" which does
-not generate event notifications on change, instead returning 0. Since we
-already exit early in the case that there is no change this can be fixed
-by unconditionally returning 1 at the end of the function.
+Syzbot reported that -1 is used as array index. The problem was in
+missing validation check.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220428162444.3883147-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+hdw->unit_number is initialized with -1 and then if init table walk fails
+this value remains unchanged. Since code blindly uses this member for
+array indexing adding sanity check is the easiest fix for that.
+
+hdw->workpoll initialization moved upper to prevent warning in
+__flush_work.
+
+Reported-and-tested-by: syzbot+1a247e36149ffd709a9b@syzkaller.appspotmail.com
+
+Fixes: d855497edbfb ("V4L/DVB (4228a): pvrusb2 to kernel 2.6.18")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5514.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/sound/soc/codecs/rt5514.c
-+++ b/sound/soc/codecs/rt5514.c
-@@ -419,7 +419,7 @@ static int rt5514_dsp_voice_wake_up_put(
- 		}
- 	}
+diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+index 4ca7e1fad08b..4b0d44e25396 100644
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -2563,6 +2563,11 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
+ 	} while (0);
+ 	mutex_unlock(&pvr2_unit_mtx);
  
--	return 0;
-+	return 1;
- }
++	INIT_WORK(&hdw->workpoll, pvr2_hdw_worker_poll);
++
++	if (hdw->unit_number == -1)
++		goto fail;
++
+ 	cnt1 = 0;
+ 	cnt2 = scnprintf(hdw->name+cnt1,sizeof(hdw->name)-cnt1,"pvrusb2");
+ 	cnt1 += cnt2;
+@@ -2574,8 +2579,6 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
+ 	if (cnt1 >= sizeof(hdw->name)) cnt1 = sizeof(hdw->name)-1;
+ 	hdw->name[cnt1] = 0;
  
- static const struct snd_kcontrol_new rt5514_snd_controls[] = {
+-	INIT_WORK(&hdw->workpoll,pvr2_hdw_worker_poll);
+-
+ 	pvr2_trace(PVR2_TRACE_INIT,"Driver unit number is %d, name is %s",
+ 		   hdw->unit_number,hdw->name);
+ 
+-- 
+2.35.1
+
 
 
