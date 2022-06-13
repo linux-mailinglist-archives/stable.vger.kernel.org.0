@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AFC6548D68
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B67EF548EF6
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346244AbiFMK5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:57:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36986 "EHLO
+        id S1356791AbiFMM5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:57:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350043AbiFMKyj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3880DFB8;
-        Mon, 13 Jun 2022 03:28:43 -0700 (PDT)
+        with ESMTP id S1355421AbiFMM4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:56:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8358412AA3;
+        Mon, 13 Jun 2022 04:16:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65D87B80E90;
-        Mon, 13 Jun 2022 10:28:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B52B9C34114;
-        Mon, 13 Jun 2022 10:28:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 341FDB80EA7;
+        Mon, 13 Jun 2022 11:16:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 917CEC3411C;
+        Mon, 13 Jun 2022 11:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116121;
-        bh=HBg/U462XO0GEQkKUAxLoJKOElZL0qi7ivJM+jX5lzE=;
+        s=korg; t=1655119015;
+        bh=cG+LYyyqTXdLp8xKOZRZfji8RxNcDMGKguzynXlIy/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQ9brzMsOnaqRmAJz+Ill5tIMjVm43MVawQzF6chBt7w6u+ESezzHFtFF+U0TgJBF
-         bVI8C9O/cydGUA1lvKEjLsFtzWx/+Fi0PyqB2RKNyOQtaCwxv5DLafCLe3QhNYkc7d
-         Evi1R2xd1eytvU4sXI501C3COAvvf6q/oYsovSfw=
+        b=0fz7lVMccvVlDLX1Vg7GOCU2RbEJi4mVVrjwdUowypx5Anz1iYRJzu7p6P1I3bBW7
+         2rD3DRTK7LSVb4gP45LysVuix5t4sjR+AVXtNFhnoO7yPC6ytBq72xklhOscvzvVe9
+         CuPVwu5m4JYCFWvRseUqcFHodAgP+qSdWaezIvFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 127/218] hugetlb: fix huge_pmd_unshare address update
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 083/247] block: take destination bvec offsets into account in bio_copy_data_iter
 Date:   Mon, 13 Jun 2022 12:09:45 +0200
-Message-Id: <20220613094924.427329322@linuxfoundation.org>
+Message-Id: <20220613094925.473831846@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 48381273f8734d28ef56a5bdf1966dd8530111bc upstream.
+[ Upstream commit 403d50341cce6b5481a92eb481e6df60b1f49b55 ]
 
-The routine huge_pmd_unshare() is passed a pointer to an address
-associated with an area which may be unshared.  If unshare is successful
-this address is updated to 'optimize' callers iterating over huge page
-addresses.  For the optimization to work correctly, address should be
-updated to the last huge page in the unmapped/unshared area.  However, in
-the common case where the passed address is PUD_SIZE aligned, the address
-is incorrectly updated to the address of the preceding huge page.  That
-wastes CPU cycles as the unmapped/unshared range is scanned twice.
+Appartly bcache can copy into bios that do not just contain fresh
+pages but can have offsets into the bio_vecs.  Restore support for tht
+in bio_copy_data_iter.
 
-Link: https://lkml.kernel.org/r/20220524205003.126184-1-mike.kravetz@oracle.com
-Fixes: 39dde65c9940 ("shared page table for hugetlb page")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f8b679a070c5 ("block: rewrite bio_copy_data_iter to use bvec_kmap_local and memcpy_to_bvec")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220524143919.1155501-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ block/bio.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4798,7 +4798,14 @@ int huge_pmd_unshare(struct mm_struct *m
- 	pud_clear(pud);
- 	put_page(virt_to_page(ptep));
- 	mm_dec_nr_pmds(mm);
--	*addr = ALIGN(*addr, HPAGE_SIZE * PTRS_PER_PTE) - HPAGE_SIZE;
-+	/*
-+	 * This update of passed address optimizes loops sequentially
-+	 * processing addresses in increments of huge page size (PMD_SIZE
-+	 * in this case).  By clearing the pud, a PUD_SIZE area is unmapped.
-+	 * Update address to the 'last page' in the cleared area so that
-+	 * calling loop can move to first page past this area.
-+	 */
-+	*addr |= PUD_SIZE - PMD_SIZE;
- 	return 1;
- }
- #define want_pmd_share()	(1)
+diff --git a/block/bio.c b/block/bio.c
+index 8906c9856a7d..9b28381412d2 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -1289,10 +1289,12 @@ void bio_copy_data_iter(struct bio *dst, struct bvec_iter *dst_iter,
+ 		struct bio_vec src_bv = bio_iter_iovec(src, *src_iter);
+ 		struct bio_vec dst_bv = bio_iter_iovec(dst, *dst_iter);
+ 		unsigned int bytes = min(src_bv.bv_len, dst_bv.bv_len);
+-		void *src_buf;
++		void *src_buf = bvec_kmap_local(&src_bv);
++		void *dst_buf = bvec_kmap_local(&dst_bv);
+ 
+-		src_buf = bvec_kmap_local(&src_bv);
+-		memcpy_to_bvec(&dst_bv, src_buf);
++		memcpy(dst_buf, src_buf, bytes);
++
++		kunmap_local(dst_buf);
+ 		kunmap_local(src_buf);
+ 
+ 		bio_advance_iter_single(src, src_iter, bytes);
+-- 
+2.35.1
+
 
 
