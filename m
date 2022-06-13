@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A613D548A36
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8221B54957A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356606AbiFML5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:57:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40180 "EHLO
+        id S244281AbiFMKpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:45:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356163AbiFMLzk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:55:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E45422FFEB;
-        Mon, 13 Jun 2022 03:56:08 -0700 (PDT)
+        with ESMTP id S1348367AbiFMKoQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:44:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FE623BD7;
+        Mon, 13 Jun 2022 03:25:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DBDBB80E59;
-        Mon, 13 Jun 2022 10:56:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C976CC3411C;
-        Mon, 13 Jun 2022 10:56:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44863B80E90;
+        Mon, 13 Jun 2022 10:25:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BE74C3411C;
+        Mon, 13 Jun 2022 10:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117766;
-        bh=+LkKsYq5Rh7vvyyFH6jG3nFgPpABXyDtRauFwE1mXhc=;
+        s=korg; t=1655115918;
+        bh=hj2J+v5j3ZFbQEu6MDUIKw3/kjjkro8X6Gww229V7K4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6alSWbEwue4LiLGmq1ojDggZpzni2FyRZMNzB0AdYez9RYXM9MNrhgBMrEgU0Grk
-         vq1EQ9KMP23uyCehKRa/kI8dFIM9rKsSG8oZnULCcP91zPKa30nF+PN2W4OvO0dUxV
-         EjnFkZ+eGUDDm/DmPezdAxWU73naIYKG8rDvOew4=
+        b=s+mFsPDzQyzZ40CNszwg5kmWI+kx0xqRc29uzfY7nzBprrl2MCUuX53+5z4y7btD9
+         TNsXHpm4+hAv5BoJJmxPbc9p5mca76/kh9Q8lG+jl9QNKg4RK8E9P2WvR0W7eAse86
+         Em4pagAcRPnlwp6CQfjQ+KLMoC9Rws7+8UJ36OnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 112/287] PCI: rockchip: Fix find_first_zero_bit() limit
+Subject: [PATCH 4.14 078/218] ASoC: wm2000: fix missing clk_disable_unprepare() on error in wm2000_anc_transition()
 Date:   Mon, 13 Jun 2022 12:08:56 +0200
-Message-Id: <20220613094927.273947643@linuxfoundation.org>
+Message-Id: <20220613094922.823991808@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 096950e230b8d83645c7cf408b9f399f58c08b96 ]
+[ Upstream commit be2af740e2a9c7134f2d8ab4f104006e110b13de ]
 
-The ep->ob_region_map bitmap is a long and it has BITS_PER_LONG bits.
+Fix the missing clk_disable_unprepare() before return
+from wm2000_anc_transition() in the error handling case.
 
-Link: https://lore.kernel.org/r/20220315065944.GB13572@kili
-Fixes: cf590b078391 ("PCI: rockchip: Add EP driver for Rockchip PCIe controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Fixes: 514cfd6dd725 ("ASoC: wm2000: Integrate with clock API")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220514091053.686416-1-yangyingliang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-rockchip-ep.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/soc/codecs/wm2000.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-rockchip-ep.c b/drivers/pci/controller/pcie-rockchip-ep.c
-index caf34661d38d..06dd2ab73b6e 100644
---- a/drivers/pci/controller/pcie-rockchip-ep.c
-+++ b/drivers/pci/controller/pcie-rockchip-ep.c
-@@ -263,8 +263,7 @@ static int rockchip_pcie_ep_map_addr(struct pci_epc *epc, u8 fn,
- 	struct rockchip_pcie *pcie = &ep->rockchip;
- 	u32 r;
+diff --git a/sound/soc/codecs/wm2000.c b/sound/soc/codecs/wm2000.c
+index 23cde3a0dc11..73cda3c2a861 100644
+--- a/sound/soc/codecs/wm2000.c
++++ b/sound/soc/codecs/wm2000.c
+@@ -545,7 +545,7 @@ static int wm2000_anc_transition(struct wm2000_priv *wm2000,
+ {
+ 	struct i2c_client *i2c = wm2000->i2c;
+ 	int i, j;
+-	int ret;
++	int ret = 0;
  
--	r = find_first_zero_bit(&ep->ob_region_map,
--				sizeof(ep->ob_region_map) * BITS_PER_LONG);
-+	r = find_first_zero_bit(&ep->ob_region_map, BITS_PER_LONG);
- 	/*
- 	 * Region 0 is reserved for configuration space and shouldn't
- 	 * be used elsewhere per TRM, so leave it out.
+ 	if (wm2000->anc_mode == mode)
+ 		return 0;
+@@ -575,13 +575,13 @@ static int wm2000_anc_transition(struct wm2000_priv *wm2000,
+ 		ret = anc_transitions[i].step[j](i2c,
+ 						 anc_transitions[i].analogue);
+ 		if (ret != 0)
+-			return ret;
++			break;
+ 	}
+ 
+ 	if (anc_transitions[i].dest == ANC_OFF)
+ 		clk_disable_unprepare(wm2000->mclk);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int wm2000_anc_set_mode(struct wm2000_priv *wm2000)
 -- 
 2.35.1
 
