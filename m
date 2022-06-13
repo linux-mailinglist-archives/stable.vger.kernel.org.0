@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE6BB548918
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4B2054945D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354664AbiFMLiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:38:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
+        id S1355113AbiFMMbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:31:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355060AbiFMLhI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:37:08 -0400
+        with ESMTP id S1358461AbiFMM3m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:29:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7EC945064;
-        Mon, 13 Jun 2022 03:48:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 097215A2E5;
+        Mon, 13 Jun 2022 04:06:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E82860FDB;
-        Mon, 13 Jun 2022 10:48:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D39CC34114;
-        Mon, 13 Jun 2022 10:48:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2513614A5;
+        Mon, 13 Jun 2022 11:06:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE4B2C385A9;
+        Mon, 13 Jun 2022 11:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117295;
-        bh=6kkjtfCyfPoYBDHlyShtWXsEIIe4ji9MKuIrYfI44CM=;
+        s=korg; t=1655118402;
+        bh=ujqa69PlYLhlbA5HRuL7vg58c8MZKjA7sq0ItS05Eg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnS37yOBHeDzU4vqAM77QCifXmtc5GsOMJzkkuGZL9tAx+RrGMtAna4VPpfTmC4fK
-         CGUsahPLZjir+yBnSSSyTtIn//RUOkFfZ5roqSi9JUe4ksGdArydrvAqRbAIF++GHd
-         KNYuDSWIwdMQ6ypU2wwzcY9SeTOQyhvcvFpeV+FU=
+        b=Fg2O84OFt7hAinIz0/1oyAVvHnDw7i3FRoh6dsDgT9QZWjRW6UPE6fkBsyzfzWrlh
+         ST6W0L+e8W32B47yb9Qci+TfGflyjWHe/uQHI4FrMNAbi681Ce1aiHCvqiKC/6PMab
+         djGVT7Y0gkCw/6f53j3reBpUXdQrjGCuX84IAW2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Tianhao Zhao <tizhao@redhat.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 350/411] netfilter: nf_tables: memleak flow rule from commit path
+Subject: [PATCH 5.10 063/172] sfc: fix wrong tx channel offset with efx_separate_tx_channels
 Date:   Mon, 13 Jun 2022 12:10:23 +0200
-Message-Id: <20220613094939.199850634@linuxfoundation.org>
+Message-Id: <20220613094905.560176189@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit 9dd732e0bdf538b1b76dc7c157e2b5e560ff30d3 ]
+[ Upstream commit c308dfd1b43ef0d4c3e57b741bb3462eb7a7f4a2 ]
 
-Abort path release flow rule object, however, commit path does not.
-Update code to destroy these objects before releasing the transaction.
+tx_channel_offset is calculated in efx_allocate_msix_channels, but it is
+also calculated again in efx_set_channels because it was originally done
+there, and when efx_allocate_msix_channels was introduced it was
+forgotten to be removed from efx_set_channels.
 
-Fixes: c9626a2cbdb2 ("netfilter: nf_tables: add hardware offload support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Moreover, the old calculation is wrong when using
+efx_separate_tx_channels because now we can have XDP channels after the
+TX channels, so n_channels - n_tx_channels doesn't point to the first TX
+channel.
+
+Remove the old calculation from efx_set_channels, and add the
+initialization of this variable if MSI or legacy interrupts are used,
+next to the initialization of the rest of the related variables, where
+it was missing.
+
+Fixes: 3990a8fffbda ("sfc: allocate channels for XDP tx queues")
+Reported-by: Tianhao Zhao <tizhao@redhat.com>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/sfc/efx_channels.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index b51c192105fc..58a7d89719b1 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -6570,6 +6570,9 @@ static void nft_commit_release(struct nft_trans *trans)
- 		nf_tables_chain_destroy(&trans->ctx);
- 		break;
- 	case NFT_MSG_DELRULE:
-+		if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
-+			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
-+
- 		nf_tables_rule_destroy(&trans->ctx, nft_trans_rule(trans));
- 		break;
- 	case NFT_MSG_DELSET:
-@@ -6891,6 +6894,9 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
- 			nf_tables_rule_notify(&trans->ctx,
- 					      nft_trans_rule(trans),
- 					      NFT_MSG_NEWRULE);
-+			if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
-+				nft_flow_rule_destroy(nft_trans_flow_rule(trans));
-+
- 			nft_trans_destroy(trans);
- 			break;
- 		case NFT_MSG_DELRULE:
+diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
+index 2ab8571ef1cc..d0f1b2dc7dff 100644
+--- a/drivers/net/ethernet/sfc/efx_channels.c
++++ b/drivers/net/ethernet/sfc/efx_channels.c
+@@ -287,6 +287,7 @@ int efx_probe_interrupts(struct efx_nic *efx)
+ 		efx->n_channels = 1;
+ 		efx->n_rx_channels = 1;
+ 		efx->n_tx_channels = 1;
++		efx->tx_channel_offset = 0;
+ 		efx->n_xdp_channels = 0;
+ 		efx->xdp_channel_offset = efx->n_channels;
+ 		rc = pci_enable_msi(efx->pci_dev);
+@@ -307,6 +308,7 @@ int efx_probe_interrupts(struct efx_nic *efx)
+ 		efx->n_channels = 1 + (efx_separate_tx_channels ? 1 : 0);
+ 		efx->n_rx_channels = 1;
+ 		efx->n_tx_channels = 1;
++		efx->tx_channel_offset = 1;
+ 		efx->n_xdp_channels = 0;
+ 		efx->xdp_channel_offset = efx->n_channels;
+ 		efx->legacy_irq = efx->pci_dev->irq;
+@@ -858,10 +860,6 @@ int efx_set_channels(struct efx_nic *efx)
+ 	int xdp_queue_number;
+ 	int rc;
+ 
+-	efx->tx_channel_offset =
+-		efx_separate_tx_channels ?
+-		efx->n_channels - efx->n_tx_channels : 0;
+-
+ 	if (efx->xdp_tx_queue_count) {
+ 		EFX_WARN_ON_PARANOID(efx->xdp_tx_queues);
+ 
 -- 
 2.35.1
 
