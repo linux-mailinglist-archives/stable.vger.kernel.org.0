@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED893548A80
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F3A548888
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242201AbiFMKTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:19:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59694 "EHLO
+        id S1354456AbiFMLcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:32:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242979AbiFMKS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:18:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D243620F5F;
-        Mon, 13 Jun 2022 03:16:36 -0700 (PDT)
+        with ESMTP id S1354418AbiFML32 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 123E4CE25;
+        Mon, 13 Jun 2022 03:44:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 42864CE110D;
-        Mon, 13 Jun 2022 10:16:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3495EC34114;
-        Mon, 13 Jun 2022 10:16:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 962C66119F;
+        Mon, 13 Jun 2022 10:44:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2171C34114;
+        Mon, 13 Jun 2022 10:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115393;
-        bh=peTvhdEzEREWGvN7fEzb5RhKDEU525Wx9WM1YuLPjVc=;
+        s=korg; t=1655117053;
+        bh=zBxdjIJNFinDoagvfKo+rJu/dLTbAsnPqHGYT9/pRJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBdyl72mCQuRtLUSzDIgX0YsEXhzWfS5rJqww/AnUmwcR0vQMMLfjW0PNxNZdqwXJ
-         td8hhDqpUM0raPkRi2sUFIGcxmqQPwqBuO+fob6petTY9VKK5zJYf2OGyvLSAeSo5v
-         T7Ob1pM/GevUcV5zSMqScl/z/VNAdHNc9cGBhM38=
+        b=R70JLOWorlkpdwf8Axv+dN1sUAl/OAYfZG9kFmWAUgGd/57WmRXPSgIA1Q9sqYJdr
+         ihRj0IH9iWW0SGR2u4Oiw7CHrQUMNmYIB1NdJPuO3kAr/OAozTws5SNyCc/q3R1uzb
+         DjcliYUzYUqH9x0yFfJjrwOlmVYkUbCYfXrI0ITU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 068/167] powerpc/8xx: export cpm_setbrg for modules
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Liu Bo <bo.liu@linux.alibaba.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 269/411] blk-iolatency: Fix inflight count imbalances and IO hangs on offline
 Date:   Mon, 13 Jun 2022 12:09:02 +0200
-Message-Id: <20220613094856.850318584@linuxfoundation.org>
+Message-Id: <20220613094936.825299179@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +54,323 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit 22f8e625ebabd7ed3185b82b44b4f12fc0402113 ]
+commit 8a177a36da6c54c98b8685d4f914cb3637d53c0d upstream.
 
-Fix missing export for a loadable module build:
+iolatency needs to track the number of inflight IOs per cgroup. As this
+tracking can be expensive, it is disabled when no cgroup has iolatency
+configured for the device. To ensure that the inflight counters stay
+balanced, iolatency_set_limit() freezes the request_queue while manipulating
+the enabled counter, which ensures that no IO is in flight and thus all
+counters are zero.
 
-ERROR: modpost: "cpm_setbrg" [drivers/tty/serial/cpm_uart/cpm_uart.ko] undefined!
+Unfortunately, iolatency_set_limit() isn't the only place where the enabled
+counter is manipulated. iolatency_pd_offline() can also dec the counter and
+trigger disabling. As this disabling happens without freezing the q, this
+can easily happen while some IOs are in flight and thus leak the counts.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-[chleroy: Changed Fixes: tag]
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210122010819.30986-1-rdunlap@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This can be easily demonstrated by turning on iolatency on an one empty
+cgroup while IOs are in flight in other cgroups and then removing the
+cgroup. Note that iolatency shouldn't have been enabled elsewhere in the
+system to ensure that removing the cgroup disables iolatency for the whole
+device.
+
+The following keeps flipping on and off iolatency on sda:
+
+  echo +io > /sys/fs/cgroup/cgroup.subtree_control
+  while true; do
+      mkdir -p /sys/fs/cgroup/test
+      echo '8:0 target=100000' > /sys/fs/cgroup/test/io.latency
+      sleep 1
+      rmdir /sys/fs/cgroup/test
+      sleep 1
+  done
+
+and there's concurrent fio generating direct rand reads:
+
+  fio --name test --filename=/dev/sda --direct=1 --rw=randread \
+      --runtime=600 --time_based --iodepth=256 --numjobs=4 --bs=4k
+
+while monitoring with the following drgn script:
+
+  while True:
+    for css in css_for_each_descendant_pre(prog['blkcg_root'].css.address_of_()):
+        for pos in hlist_for_each(container_of(css, 'struct blkcg', 'css').blkg_list):
+            blkg = container_of(pos, 'struct blkcg_gq', 'blkcg_node')
+            pd = blkg.pd[prog['blkcg_policy_iolatency'].plid]
+            if pd.value_() == 0:
+                continue
+            iolat = container_of(pd, 'struct iolatency_grp', 'pd')
+            inflight = iolat.rq_wait.inflight.counter.value_()
+            if inflight:
+                print(f'inflight={inflight} {disk_name(blkg.q.disk).decode("utf-8")} '
+                      f'{cgroup_path(css.cgroup).decode("utf-8")}')
+    time.sleep(1)
+
+The monitoring output looks like the following:
+
+  inflight=1 sda /user.slice
+  inflight=1 sda /user.slice
+  ...
+  inflight=14 sda /user.slice
+  inflight=13 sda /user.slice
+  inflight=17 sda /user.slice
+  inflight=15 sda /user.slice
+  inflight=18 sda /user.slice
+  inflight=17 sda /user.slice
+  inflight=20 sda /user.slice
+  inflight=19 sda /user.slice <- fio stopped, inflight stuck at 19
+  inflight=19 sda /user.slice
+  inflight=19 sda /user.slice
+
+If a cgroup with stuck inflight ends up getting throttled, the throttled IOs
+will never get issued as there's no completion event to wake it up leading
+to an indefinite hang.
+
+This patch fixes the bug by unifying enable handling into a work item which
+is automatically kicked off from iolatency_set_min_lat_nsec() which is
+called from both iolatency_set_limit() and iolatency_pd_offline() paths.
+Punting to a work item is necessary as iolatency_pd_offline() is called
+under spinlocks while freezing a request_queue requires a sleepable context.
+
+This also simplifies the code reducing LOC sans the comments and avoids the
+unnecessary freezes which were happening whenever a cgroup's latency target
+is newly set or cleared.
+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: Josef Bacik <josef@toxicpanda.com>
+Cc: Liu Bo <bo.liu@linux.alibaba.com>
+Fixes: 8c772a9bfc7c ("blk-iolatency: fix IO hang due to negative inflight counter")
+Cc: stable@vger.kernel.org # v5.0+
+Link: https://lore.kernel.org/r/Yn9ScX6Nx2qIiQQi@slm.duckdns.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/sysdev/cpm1.c | 1 +
- 1 file changed, 1 insertion(+)
+ block/blk-iolatency.c |  122 ++++++++++++++++++++++++++------------------------
+ 1 file changed, 64 insertions(+), 58 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/cpm1.c b/arch/powerpc/sysdev/cpm1.c
-index 986cd111d4df..8f2dc4ea9376 100644
---- a/arch/powerpc/sysdev/cpm1.c
-+++ b/arch/powerpc/sysdev/cpm1.c
-@@ -290,6 +290,7 @@ cpm_setbrg(uint brg, uint rate)
- 		out_be32(bp, (((BRG_UART_CLK_DIV16 / rate) - 1) << 1) |
- 			      CPM_BRG_EN | CPM_BRG_DIV16);
- }
-+EXPORT_SYMBOL(cpm_setbrg);
+--- a/block/blk-iolatency.c
++++ b/block/blk-iolatency.c
+@@ -86,7 +86,17 @@ struct iolatency_grp;
+ struct blk_iolatency {
+ 	struct rq_qos rqos;
+ 	struct timer_list timer;
+-	atomic_t enabled;
++
++	/*
++	 * ->enabled is the master enable switch gating the throttling logic and
++	 * inflight tracking. The number of cgroups which have iolat enabled is
++	 * tracked in ->enable_cnt, and ->enable is flipped on/off accordingly
++	 * from ->enable_work with the request_queue frozen. For details, See
++	 * blkiolatency_enable_work_fn().
++	 */
++	bool enabled;
++	atomic_t enable_cnt;
++	struct work_struct enable_work;
+ };
  
- struct cpm_ioport16 {
- 	__be16 dir, par, odr_sor, dat, intr;
--- 
-2.35.1
-
+ static inline struct blk_iolatency *BLKIOLATENCY(struct rq_qos *rqos)
+@@ -94,11 +104,6 @@ static inline struct blk_iolatency *BLKI
+ 	return container_of(rqos, struct blk_iolatency, rqos);
+ }
+ 
+-static inline bool blk_iolatency_enabled(struct blk_iolatency *blkiolat)
+-{
+-	return atomic_read(&blkiolat->enabled) > 0;
+-}
+-
+ struct child_latency_info {
+ 	spinlock_t lock;
+ 
+@@ -463,7 +468,7 @@ static void blkcg_iolatency_throttle(str
+ 	struct blkcg_gq *blkg = bio->bi_blkg;
+ 	bool issue_as_root = bio_issue_as_root_blkg(bio);
+ 
+-	if (!blk_iolatency_enabled(blkiolat))
++	if (!blkiolat->enabled)
+ 		return;
+ 
+ 	while (blkg && blkg->parent) {
+@@ -593,7 +598,6 @@ static void blkcg_iolatency_done_bio(str
+ 	u64 window_start;
+ 	u64 now = ktime_to_ns(ktime_get());
+ 	bool issue_as_root = bio_issue_as_root_blkg(bio);
+-	bool enabled = false;
+ 	int inflight = 0;
+ 
+ 	blkg = bio->bi_blkg;
+@@ -604,8 +608,7 @@ static void blkcg_iolatency_done_bio(str
+ 	if (!iolat)
+ 		return;
+ 
+-	enabled = blk_iolatency_enabled(iolat->blkiolat);
+-	if (!enabled)
++	if (!iolat->blkiolat->enabled)
+ 		return;
+ 
+ 	while (blkg && blkg->parent) {
+@@ -643,6 +646,7 @@ static void blkcg_iolatency_exit(struct
+ 	struct blk_iolatency *blkiolat = BLKIOLATENCY(rqos);
+ 
+ 	del_timer_sync(&blkiolat->timer);
++	flush_work(&blkiolat->enable_work);
+ 	blkcg_deactivate_policy(rqos->q, &blkcg_policy_iolatency);
+ 	kfree(blkiolat);
+ }
+@@ -714,6 +718,44 @@ next:
+ 	rcu_read_unlock();
+ }
+ 
++/**
++ * blkiolatency_enable_work_fn - Enable or disable iolatency on the device
++ * @work: enable_work of the blk_iolatency of interest
++ *
++ * iolatency needs to keep track of the number of in-flight IOs per cgroup. This
++ * is relatively expensive as it involves walking up the hierarchy twice for
++ * every IO. Thus, if iolatency is not enabled in any cgroup for the device, we
++ * want to disable the in-flight tracking.
++ *
++ * We have to make sure that the counting is balanced - we don't want to leak
++ * the in-flight counts by disabling accounting in the completion path while IOs
++ * are in flight. This is achieved by ensuring that no IO is in flight by
++ * freezing the queue while flipping ->enabled. As this requires a sleepable
++ * context, ->enabled flipping is punted to this work function.
++ */
++static void blkiolatency_enable_work_fn(struct work_struct *work)
++{
++	struct blk_iolatency *blkiolat = container_of(work, struct blk_iolatency,
++						      enable_work);
++	bool enabled;
++
++	/*
++	 * There can only be one instance of this function running for @blkiolat
++	 * and it's guaranteed to be executed at least once after the latest
++	 * ->enabled_cnt modification. Acting on the latest ->enable_cnt is
++	 * sufficient.
++	 *
++	 * Also, we know @blkiolat is safe to access as ->enable_work is flushed
++	 * in blkcg_iolatency_exit().
++	 */
++	enabled = atomic_read(&blkiolat->enable_cnt);
++	if (enabled != blkiolat->enabled) {
++		blk_mq_freeze_queue(blkiolat->rqos.q);
++		blkiolat->enabled = enabled;
++		blk_mq_unfreeze_queue(blkiolat->rqos.q);
++	}
++}
++
+ int blk_iolatency_init(struct request_queue *q)
+ {
+ 	struct blk_iolatency *blkiolat;
+@@ -739,17 +781,15 @@ int blk_iolatency_init(struct request_qu
+ 	}
+ 
+ 	timer_setup(&blkiolat->timer, blkiolatency_timer_fn, 0);
++	INIT_WORK(&blkiolat->enable_work, blkiolatency_enable_work_fn);
+ 
+ 	return 0;
+ }
+ 
+-/*
+- * return 1 for enabling iolatency, return -1 for disabling iolatency, otherwise
+- * return 0.
+- */
+-static int iolatency_set_min_lat_nsec(struct blkcg_gq *blkg, u64 val)
++static void iolatency_set_min_lat_nsec(struct blkcg_gq *blkg, u64 val)
+ {
+ 	struct iolatency_grp *iolat = blkg_to_lat(blkg);
++	struct blk_iolatency *blkiolat = iolat->blkiolat;
+ 	u64 oldval = iolat->min_lat_nsec;
+ 
+ 	iolat->min_lat_nsec = val;
+@@ -757,13 +797,15 @@ static int iolatency_set_min_lat_nsec(st
+ 	iolat->cur_win_nsec = min_t(u64, iolat->cur_win_nsec,
+ 				    BLKIOLATENCY_MAX_WIN_SIZE);
+ 
+-	if (!oldval && val)
+-		return 1;
++	if (!oldval && val) {
++		if (atomic_inc_return(&blkiolat->enable_cnt) == 1)
++			schedule_work(&blkiolat->enable_work);
++	}
+ 	if (oldval && !val) {
+ 		blkcg_clear_delay(blkg);
+-		return -1;
++		if (atomic_dec_return(&blkiolat->enable_cnt) == 0)
++			schedule_work(&blkiolat->enable_work);
+ 	}
+-	return 0;
+ }
+ 
+ static void iolatency_clear_scaling(struct blkcg_gq *blkg)
+@@ -795,7 +837,6 @@ static ssize_t iolatency_set_limit(struc
+ 	u64 lat_val = 0;
+ 	u64 oldval;
+ 	int ret;
+-	int enable = 0;
+ 
+ 	ret = blkg_conf_prep(blkcg, &blkcg_policy_iolatency, buf, &ctx);
+ 	if (ret)
+@@ -830,41 +871,12 @@ static ssize_t iolatency_set_limit(struc
+ 	blkg = ctx.blkg;
+ 	oldval = iolat->min_lat_nsec;
+ 
+-	enable = iolatency_set_min_lat_nsec(blkg, lat_val);
+-	if (enable) {
+-		if (!blk_get_queue(blkg->q)) {
+-			ret = -ENODEV;
+-			goto out;
+-		}
+-
+-		blkg_get(blkg);
+-	}
+-
+-	if (oldval != iolat->min_lat_nsec) {
++	iolatency_set_min_lat_nsec(blkg, lat_val);
++	if (oldval != iolat->min_lat_nsec)
+ 		iolatency_clear_scaling(blkg);
+-	}
+-
+ 	ret = 0;
+ out:
+ 	blkg_conf_finish(&ctx);
+-	if (ret == 0 && enable) {
+-		struct iolatency_grp *tmp = blkg_to_lat(blkg);
+-		struct blk_iolatency *blkiolat = tmp->blkiolat;
+-
+-		blk_mq_freeze_queue(blkg->q);
+-
+-		if (enable == 1)
+-			atomic_inc(&blkiolat->enabled);
+-		else if (enable == -1)
+-			atomic_dec(&blkiolat->enabled);
+-		else
+-			WARN_ON_ONCE(1);
+-
+-		blk_mq_unfreeze_queue(blkg->q);
+-
+-		blkg_put(blkg);
+-		blk_put_queue(blkg->q);
+-	}
+ 	return ret ?: nbytes;
+ }
+ 
+@@ -1005,14 +1017,8 @@ static void iolatency_pd_offline(struct
+ {
+ 	struct iolatency_grp *iolat = pd_to_lat(pd);
+ 	struct blkcg_gq *blkg = lat_to_blkg(iolat);
+-	struct blk_iolatency *blkiolat = iolat->blkiolat;
+-	int ret;
+ 
+-	ret = iolatency_set_min_lat_nsec(blkg, 0);
+-	if (ret == 1)
+-		atomic_inc(&blkiolat->enabled);
+-	if (ret == -1)
+-		atomic_dec(&blkiolat->enabled);
++	iolatency_set_min_lat_nsec(blkg, 0);
+ 	iolatency_clear_scaling(blkg);
+ }
+ 
 
 
