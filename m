@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A22C4549017
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3E4549019
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352875AbiFMLUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:20:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56362 "EHLO
+        id S1356679AbiFMLuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:50:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353678AbiFMLTy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B413C3B3F1;
-        Mon, 13 Jun 2022 03:41:33 -0700 (PDT)
+        with ESMTP id S1356899AbiFMLtl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:49:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909CF4D688;
+        Mon, 13 Jun 2022 03:53:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 516E3611B3;
-        Mon, 13 Jun 2022 10:41:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62B4FC34114;
-        Mon, 13 Jun 2022 10:41:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0726A61361;
+        Mon, 13 Jun 2022 10:53:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11132C34114;
+        Mon, 13 Jun 2022 10:53:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116892;
-        bh=rgVxTnLkDdcvOcGhrzoXOqmn2+X/fUZ/xUwqtzskTKw=;
+        s=korg; t=1655117610;
+        bh=2eEQkWOHcUlRS4z5PvTRLC5Y3/yTlasXSKzSjFQVwzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OCTOsOCwb7KSmA/0mr18ocWGsKIVhSG1GyaETCmwEFyN8fjN4SaxUiTxzaPKFu5nI
-         UvEx+rX5YOrDFiMoLMD6aZ0LycruhR15eKXQq/KT7mZ56AZehv0PO6f5X8BIUtetCH
-         GMcrmuGCvZWiWe4Tdj4NGyUTScUMtwaFKnAgZV8E=
+        b=NlgaNRGI3zJ80R5UYl++H6x0A2+ali8DNpRiiS887sQVNRpOED4LQV1k90pVj4nag
+         x+bmtR4w9aZNSmS5kZjPUw9F9SEKEy58YFrCzlkw0GdAn1Z6/9uZW1XhEjQwkgeuIq
+         H/eFN0lUkaZklcvt0WVms4OXt/2NaoiTj+8dYjwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
-        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4 211/411] f2fs: fix to clear dirty inode in f2fs_evict_inode()
-Date:   Mon, 13 Jun 2022 12:08:04 +0200
-Message-Id: <20220613094934.983435379@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 061/287] ASoC: mediatek: Fix error handling in mt8173_max98090_dev_probe
+Date:   Mon, 13 Jun 2022 12:08:05 +0200
+Message-Id: <20220613094925.719503061@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit f2db71053dc0409fae785096ad19cce4c8a95af7 upstream.
+[ Upstream commit 4f4e0454e226de3bf4efd7e7924d1edc571c52d5 ]
 
-As Yanming reported in bugzilla:
+Call of_node_put(platform_node) to avoid refcount leak in
+the error path.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215904
-
-The kernel message is shown below:
-
-kernel BUG at fs/f2fs/inode.c:825!
-Call Trace:
- evict+0x282/0x4e0
- __dentry_kill+0x2b2/0x4d0
- shrink_dentry_list+0x17c/0x4f0
- shrink_dcache_parent+0x143/0x1e0
- do_one_tree+0x9/0x30
- shrink_dcache_for_umount+0x51/0x120
- generic_shutdown_super+0x5c/0x3a0
- kill_block_super+0x90/0xd0
- kill_f2fs_super+0x225/0x310
- deactivate_locked_super+0x78/0xc0
- cleanup_mnt+0x2b7/0x480
- task_work_run+0xc8/0x150
- exit_to_user_mode_prepare+0x14a/0x150
- syscall_exit_to_user_mode+0x1d/0x40
- do_syscall_64+0x48/0x90
-
-The root cause is: inode node and dnode node share the same nid,
-so during f2fs_evict_inode(), dnode node truncation will invalidate
-its NAT entry, so when truncating inode node, it fails due to
-invalid NAT entry, result in inode is still marked as dirty, fix
-this issue by clearing dirty for inode and setting SBI_NEED_FSCK
-flag in filesystem.
-
-output from dump.f2fs:
-[print_node_info: 354] Node ID [0xf:15] is inode
-i_nid[0]                      		[0x       f : 15]
-
-Cc: stable@vger.kernel.org
-Reported-by: Ming Yan <yanming@tju.edu.cn>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 94319ba10eca ("ASoC: mediatek: Use platform_of_node for machine drivers")
+Fixes: 493433785df0 ("ASoC: mediatek: mt8173: fix device_node leak")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220404092903.26725-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/inode.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ sound/soc/mediatek/mt8173/mt8173-max98090.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -689,8 +689,22 @@ retry:
- 		f2fs_lock_op(sbi);
- 		err = f2fs_remove_inode_page(inode);
- 		f2fs_unlock_op(sbi);
--		if (err == -ENOENT)
-+		if (err == -ENOENT) {
- 			err = 0;
-+
-+			/*
-+			 * in fuzzed image, another node may has the same
-+			 * block address as inode's, if it was truncated
-+			 * previously, truncation of inode node will fail.
-+			 */
-+			if (is_inode_flag_set(inode, FI_DIRTY_INODE)) {
-+				f2fs_warn(F2FS_I_SB(inode),
-+					"f2fs_evict_inode: inconsistent node id, ino:%lu",
-+					inode->i_ino);
-+				f2fs_inode_synced(inode);
-+				set_sbi_flag(sbi, SBI_NEED_FSCK);
-+			}
-+		}
+diff --git a/sound/soc/mediatek/mt8173/mt8173-max98090.c b/sound/soc/mediatek/mt8173/mt8173-max98090.c
+index 431ba3db1759..c9fc719c2af9 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-max98090.c
++++ b/sound/soc/mediatek/mt8173/mt8173-max98090.c
+@@ -156,7 +156,8 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
+ 	if (!codec_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_platform_node;
  	}
+ 	for (i = 0; i < card->num_links; i++) {
+ 		if (mt8173_max98090_dais[i].codec_name)
+@@ -171,6 +172,8 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
+ 			__func__, ret);
  
- 	/* give more chances, if ENOMEM case */
+ 	of_node_put(codec_node);
++
++put_platform_node:
+ 	of_node_put(platform_node);
+ 	return ret;
+ }
+-- 
+2.35.1
+
 
 
