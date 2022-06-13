@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6A5E549859
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 156AF5492DD
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347912AbiFMMiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:38:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50160 "EHLO
+        id S1355976AbiFMLrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:47:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345759AbiFMMh5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:37:57 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AE5D5C653;
-        Mon, 13 Jun 2022 04:08:10 -0700 (PDT)
+        with ESMTP id S1356422AbiFMLoc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:44:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CF0847390;
+        Mon, 13 Jun 2022 03:50:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 48176CE118D;
-        Mon, 13 Jun 2022 11:08:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50833C34114;
-        Mon, 13 Jun 2022 11:08:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C98EC612C3;
+        Mon, 13 Jun 2022 10:50:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7252C34114;
+        Mon, 13 Jun 2022 10:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118485;
-        bh=V4bABrb+ZtJl1IDsg1Yfzab/S1dFMaKP+IxS4m5bOiE=;
+        s=korg; t=1655117441;
+        bh=LJmzHcixTLkjbrAgFRg2mswhGCvjL00914fgwHRRpSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=udp8wTiOf02asOPxUjHXgxFdSEBJOb7KGBNZPxWC6oko3VlR0Y+VRHBzfnhRfsK8H
-         MHLU78U5ezu7ufgh90uVo2cKZkIq+PniQsJxGWPTjp+FFVcs752ZuRtz5bkkJQVdfj
-         YUQzRbzC1aAdQxlvHmMHdEPLU1lxUGUNjzIhJjQg=
+        b=1fy0/sCo7ER+hCWcrKtjs1zZvUTkPg+kv389XkRnMdSnzQCpNukC4wjX76rpONbFN
+         Y1JOQdnf7nF2NjhC2AiCsxItmnHwTtKsHKklpLN2HWL8nKNymOvLX1UrLdrA4XPNQ4
+         Zx1f2nA8veXD3wCVCudlsoQka/KTHYtYHYmnypNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Walker <benjamin.walker@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 075/172] dmaengine: idxd: set DMA_INTERRUPT cap bit
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 362/411] ip_gre: test csum_start instead of transport header
 Date:   Mon, 13 Jun 2022 12:10:35 +0200
-Message-Id: <20220613094908.416938429@linuxfoundation.org>
+Message-Id: <20220613094939.546289711@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +57,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 4e5a4eb20393b851590b4465f1197a8041c2076b ]
+[ Upstream commit 8d21e9963bec1aad2280cdd034c8993033ef2948 ]
 
-Even though idxd driver has always supported interrupt, it never actually
-set the DMA_INTERRUPT cap bit. Rectify this mistake so the interrupt
-capability is advertised.
+GRE with TUNNEL_CSUM will apply local checksum offload on
+CHECKSUM_PARTIAL packets.
 
-Reported-by: Ben Walker <benjamin.walker@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/164971497859.2201379.17925303210723708961.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+ipgre_xmit must validate csum_start after an optional skb_pull,
+else lco_csum may trigger an overflow. The original check was
+
+	if (csum && skb_checksum_start(skb) < skb->data)
+		return -EINVAL;
+
+This had false positives when skb_checksum_start is undefined:
+when ip_summed is not CHECKSUM_PARTIAL. A discussed refinement
+was straightforward
+
+	if (csum && skb->ip_summed == CHECKSUM_PARTIAL &&
+	    skb_checksum_start(skb) < skb->data)
+		return -EINVAL;
+
+But was eventually revised more thoroughly:
+- restrict the check to the only branch where needed, in an
+  uncommon GRE path that uses header_ops and calls skb_pull.
+- test skb_transport_header, which is set along with csum_start
+  in skb_partial_csum_set in the normal header_ops datapath.
+
+Turns out skbs can arrive in this branch without the transport
+header set, e.g., through BPF redirection.
+
+Revise the check back to check csum_start directly, and only if
+CHECKSUM_PARTIAL. Do leave the check in the updated location.
+Check field regardless of whether TUNNEL_CSUM is configured.
+
+Link: https://lore.kernel.org/netdev/YS+h%2FtqCJJiQei+W@shredder/
+Link: https://lore.kernel.org/all/20210902193447.94039-2-willemdebruijn.kernel@gmail.com/T/#u
+Fixes: 8a0ed250f911 ("ip_gre: validate csum_start only on pull")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Link: https://lore.kernel.org/r/20220606132107.3582565-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/dma.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/ip_gre.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/dma/idxd/dma.c b/drivers/dma/idxd/dma.c
-index aa7435555de9..d53ce22b4b8f 100644
---- a/drivers/dma/idxd/dma.c
-+++ b/drivers/dma/idxd/dma.c
-@@ -188,6 +188,7 @@ int idxd_register_dma_device(struct idxd_device *idxd)
- 	INIT_LIST_HEAD(&dma->channels);
- 	dma->dev = dev;
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index 5b38d03f6d79..614410a6db44 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -602,21 +602,20 @@ static netdev_tx_t ipgre_xmit(struct sk_buff *skb,
+ 	}
  
-+	dma_cap_set(DMA_INTERRUPT, dma->cap_mask);
- 	dma_cap_set(DMA_PRIVATE, dma->cap_mask);
- 	dma_cap_set(DMA_COMPLETION_NO_ORDER, dma->cap_mask);
- 	dma->device_release = idxd_dma_release;
+ 	if (dev->header_ops) {
+-		const int pull_len = tunnel->hlen + sizeof(struct iphdr);
+-
+ 		if (skb_cow_head(skb, 0))
+ 			goto free_skb;
+ 
+ 		tnl_params = (const struct iphdr *)skb->data;
+ 
+-		if (pull_len > skb_transport_offset(skb))
+-			goto free_skb;
+-
+ 		/* Pull skb since ip_tunnel_xmit() needs skb->data pointing
+ 		 * to gre header.
+ 		 */
+-		skb_pull(skb, pull_len);
++		skb_pull(skb, tunnel->hlen + sizeof(struct iphdr));
+ 		skb_reset_mac_header(skb);
++
++		if (skb->ip_summed == CHECKSUM_PARTIAL &&
++		    skb_checksum_start(skb) < skb->data)
++			goto free_skb;
+ 	} else {
+ 		if (skb_cow_head(skb, dev->needed_headroom))
+ 			goto free_skb;
 -- 
 2.35.1
 
