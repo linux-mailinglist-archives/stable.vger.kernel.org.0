@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55035548CD3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A2DA548EAB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354421AbiFMMtq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:49:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34278 "EHLO
+        id S1380987AbiFMOHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:07:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357733AbiFMMtL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:49:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B43462BD6;
-        Mon, 13 Jun 2022 04:11:54 -0700 (PDT)
+        with ESMTP id S1381022AbiFMODZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:03:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E70E4550C;
+        Mon, 13 Jun 2022 04:38:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DDCBE60EAB;
-        Mon, 13 Jun 2022 11:11:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED3F3C34114;
-        Mon, 13 Jun 2022 11:11:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7F56B80ECD;
+        Mon, 13 Jun 2022 11:38:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65DCCC34114;
+        Mon, 13 Jun 2022 11:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118700;
-        bh=WFGQ7ZAPxUpvCEKv1vpG6rEPqrzyXIIXezFbT/tLKgw=;
+        s=korg; t=1655120308;
+        bh=gbB36lepBkbWC774q08+PNylmooVNJXDF/maPQEkFZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zw4weku2nsKIXem6YmvUmLvDRfzb77iri9z/S93NZiy3YxNW9QGm3N7EOW/xvjh4v
-         QuvuGTaXhc4HPGTzmmCpl+pPt1SEKNI26PmViw27EJ0crRV3BMnsWDSSsKwZKTl2h/
-         DNcaTZeCJexS0J6X/kHeXMcweitD9SCR4Az0Ve58=
+        b=QPex+6N7BkGrKLLiGsHbn1k3BS/eVRjaFE2bw9SP4hEJzurBGHfm+RGIys++RjsME
+         jjRVA5jU9MSqoQOvfuxy1RxSACbWTQavzTeICYUgLNPPjIfJdSuylpvxdWkpBY3vCP
+         yt3cqko0EwtbOc8ZR245s5G1BdscW8dkq+13RN/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.10 171/172] PCI: qcom: Fix pipe clock imbalance
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.18 306/339] KVM: SVM: fix tsc scaling cache logic
 Date:   Mon, 13 Jun 2022 12:12:11 +0200
-Message-Id: <20220613094923.461428580@linuxfoundation.org>
+Message-Id: <20220613094936.039355710@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +53,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit fdf6a2f533115ec5d4d9629178f8196331f1ac50 upstream.
+commit 11d39e8cc43e1c6737af19ca9372e590061b5ad2 upstream.
 
-Fix a clock imbalance introduced by ed8cc3b1fc84 ("PCI: qcom: Add support
-for SDM845 PCIe controller"), which enables the pipe clock both in init()
-and in post_init() but only disables in post_deinit().
+SVM uses a per-cpu variable to cache the current value of the
+tsc scaling multiplier msr on each cpu.
 
-Note that the pipe clock was also never disabled in the init() error
-paths and that enabling the clock before powering up the PHY looks
-questionable.
+Commit 1ab9287add5e2
+("KVM: X86: Add vendor callbacks for writing the TSC multiplier")
+broke this caching logic.
 
-Link: https://lore.kernel.org/r/20220401133351.10113-1-johan+linaro@kernel.org
-Fixes: ed8cc3b1fc84 ("PCI: qcom: Add support for SDM845 PCIe controller")
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: stable@vger.kernel.org      # 5.6
+Refactor the code so that all TSC scaling multiplier writes go through
+a single function which checks and updates the cache.
+
+This fixes the following scenario:
+
+1. A CPU runs a guest with some tsc scaling ratio.
+
+2. New guest with different tsc scaling ratio starts on this CPU
+   and terminates almost immediately.
+
+   This ensures that the short running guest had set the tsc scaling ratio just
+   once when it was set via KVM_SET_TSC_KHZ. Due to the bug,
+   the per-cpu cache is not updated.
+
+3. The original guest continues to run, it doesn't restore the msr
+   value back to its own value, because the cache matches,
+   and thus continues to run with a wrong tsc scaling ratio.
+
+Fixes: 1ab9287add5e2 ("KVM: X86: Add vendor callbacks for writing the TSC multiplier")
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220606181149.103072-1-mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/dwc/pcie-qcom.c |    6 ------
- 1 file changed, 6 deletions(-)
+ arch/x86/kvm/svm/nested.c |    4 ++--
+ arch/x86/kvm/svm/svm.c    |   32 ++++++++++++++++++++------------
+ arch/x86/kvm/svm/svm.h    |    2 +-
+ 3 files changed, 23 insertions(+), 15 deletions(-)
 
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -1192,12 +1192,6 @@ static int qcom_pcie_init_2_7_0(struct q
- 		goto err_disable_clocks;
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -896,7 +896,7 @@ int nested_svm_vmexit(struct vcpu_svm *s
+ 	if (svm->tsc_ratio_msr != kvm_default_tsc_scaling_ratio) {
+ 		WARN_ON(!svm->tsc_scaling_enabled);
+ 		vcpu->arch.tsc_scaling_ratio = vcpu->arch.l1_tsc_scaling_ratio;
+-		svm_write_tsc_multiplier(vcpu, vcpu->arch.tsc_scaling_ratio);
++		__svm_write_tsc_multiplier(vcpu->arch.tsc_scaling_ratio);
  	}
  
--	ret = clk_prepare_enable(res->pipe_clk);
--	if (ret) {
--		dev_err(dev, "cannot prepare/enable pipe clock\n");
--		goto err_disable_clocks;
--	}
--
- 	/* configure PCIe to RC mode */
- 	writel(DEVICE_TYPE_RC, pcie->parf + PCIE20_PARF_DEVICE_TYPE);
+ 	svm->nested.ctl.nested_cr3 = 0;
+@@ -1293,7 +1293,7 @@ void nested_svm_update_tsc_ratio_msr(str
+ 	vcpu->arch.tsc_scaling_ratio =
+ 		kvm_calc_nested_tsc_multiplier(vcpu->arch.l1_tsc_scaling_ratio,
+ 					       svm->tsc_ratio_msr);
+-	svm_write_tsc_multiplier(vcpu, vcpu->arch.tsc_scaling_ratio);
++	__svm_write_tsc_multiplier(vcpu->arch.tsc_scaling_ratio);
+ }
  
+ /* Inverse operation of nested_copy_vmcb_control_to_cache(). asid is copied too. */
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -463,11 +463,24 @@ static int has_svm(void)
+ 	return 1;
+ }
+ 
++void __svm_write_tsc_multiplier(u64 multiplier)
++{
++	preempt_disable();
++
++	if (multiplier == __this_cpu_read(current_tsc_ratio))
++		goto out;
++
++	wrmsrl(MSR_AMD64_TSC_RATIO, multiplier);
++	__this_cpu_write(current_tsc_ratio, multiplier);
++out:
++	preempt_enable();
++}
++
+ static void svm_hardware_disable(void)
+ {
+ 	/* Make sure we clean up behind us */
+ 	if (tsc_scaling)
+-		wrmsrl(MSR_AMD64_TSC_RATIO, SVM_TSC_RATIO_DEFAULT);
++		__svm_write_tsc_multiplier(SVM_TSC_RATIO_DEFAULT);
+ 
+ 	cpu_svm_disable();
+ 
+@@ -513,8 +526,7 @@ static int svm_hardware_enable(void)
+ 		 * Set the default value, even if we don't use TSC scaling
+ 		 * to avoid having stale value in the msr
+ 		 */
+-		wrmsrl(MSR_AMD64_TSC_RATIO, SVM_TSC_RATIO_DEFAULT);
+-		__this_cpu_write(current_tsc_ratio, SVM_TSC_RATIO_DEFAULT);
++		__svm_write_tsc_multiplier(SVM_TSC_RATIO_DEFAULT);
+ 	}
+ 
+ 
+@@ -915,11 +927,12 @@ static void svm_write_tsc_offset(struct
+ 	vmcb_mark_dirty(svm->vmcb, VMCB_INTERCEPTS);
+ }
+ 
+-void svm_write_tsc_multiplier(struct kvm_vcpu *vcpu, u64 multiplier)
++static void svm_write_tsc_multiplier(struct kvm_vcpu *vcpu, u64 multiplier)
+ {
+-	wrmsrl(MSR_AMD64_TSC_RATIO, multiplier);
++	__svm_write_tsc_multiplier(multiplier);
+ }
+ 
++
+ /* Evaluate instruction intercepts that depend on guest CPUID features. */
+ static void svm_recalc_instruction_intercepts(struct kvm_vcpu *vcpu,
+ 					      struct vcpu_svm *svm)
+@@ -1276,13 +1289,8 @@ static void svm_prepare_switch_to_guest(
+ 		sev_es_prepare_switch_to_guest(hostsa);
+ 	}
+ 
+-	if (tsc_scaling) {
+-		u64 tsc_ratio = vcpu->arch.tsc_scaling_ratio;
+-		if (tsc_ratio != __this_cpu_read(current_tsc_ratio)) {
+-			__this_cpu_write(current_tsc_ratio, tsc_ratio);
+-			wrmsrl(MSR_AMD64_TSC_RATIO, tsc_ratio);
+-		}
+-	}
++	if (tsc_scaling)
++		__svm_write_tsc_multiplier(vcpu->arch.tsc_scaling_ratio);
+ 
+ 	if (likely(tsc_aux_uret_slot >= 0))
+ 		kvm_set_user_return_msr(tsc_aux_uret_slot, svm->tsc_aux, -1ull);
+--- a/arch/x86/kvm/svm/svm.h
++++ b/arch/x86/kvm/svm/svm.h
+@@ -558,7 +558,7 @@ int nested_svm_check_exception(struct vc
+ 			       bool has_error_code, u32 error_code);
+ int nested_svm_exit_special(struct vcpu_svm *svm);
+ void nested_svm_update_tsc_ratio_msr(struct kvm_vcpu *vcpu);
+-void svm_write_tsc_multiplier(struct kvm_vcpu *vcpu, u64 multiplier);
++void __svm_write_tsc_multiplier(u64 multiplier);
+ void nested_copy_vmcb_control_to_cache(struct vcpu_svm *svm,
+ 				       struct vmcb_control_area *control);
+ void nested_copy_vmcb_save_to_cache(struct vcpu_svm *svm,
 
 
