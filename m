@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03FBE5486FA
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7B0B54873E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353847AbiFMLc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:32:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45786 "EHLO
+        id S243094AbiFMKXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:23:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354712AbiFML35 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D63F3EF28;
-        Mon, 13 Jun 2022 03:45:30 -0700 (PDT)
+        with ESMTP id S243000AbiFMKV4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:21:56 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8790722284;
+        Mon, 13 Jun 2022 03:17:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 390B060FDB;
-        Mon, 13 Jun 2022 10:45:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B087C34114;
-        Mon, 13 Jun 2022 10:45:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DC456CE1167;
+        Mon, 13 Jun 2022 10:17:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02738C3411E;
+        Mon, 13 Jun 2022 10:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117129;
-        bh=xZMuTpWursdJJdYloy8uMjAmfjbR/M9GPbci0Jb3eq4=;
+        s=korg; t=1655115467;
+        bh=4zIDa8Jt57FN8UcnNyEjVkF+lIqAgViE30R+au2FGwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wWYipV5lEXr+Jogpj/xkfOCTCOdWVpbMNG2OJwGv2Ctq5gRtoK2+PnkcR9Kn3iLJt
-         zQJLPJXGac++87Tv3lmPQg4VGeuHe+p9dXdCG2K9CvTdB+IoQYWYXWO6jO+nf+tPwG
-         2Qu3zlhrsFCGTyeZciowIY/X9VPhS1tO4pN99Idw=
+        b=u+ne+RChe47wqKV1Dk4cNWj9cHWbk35Vb7fTz8BPsC1GlUXeJtnnua3T4wTQ2Z4rp
+         if49gO32kshzA1TqPjpUfcmIYh3lj8r7iLk/jbWyv47i+NlELH8f1BBQEFHzC3pTzt
+         ddgMeZiY1Gqg8dcqVa93JQ4IkMppw11f3HWlbny4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        Hangyu Hua <hbh25y@gmail.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 287/411] usb: usbip: fix a refcount leak in stub_probe()
-Date:   Mon, 13 Jun 2022 12:09:20 +0200
-Message-Id: <20220613094937.364806969@linuxfoundation.org>
+        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 4.9 087/167] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
+Date:   Mon, 13 Jun 2022 12:09:21 +0200
+Message-Id: <20220613094901.299964819@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 9ec4cbf1cc55d126759051acfe328d489c5d6e60 ]
+commit 8fb6c44fe8468f92ac7b8bbfcca4404a4e88645f upstream.
 
-usb_get_dev() is called in stub_device_alloc(). When stub_probe() fails
-after that, usb_put_dev() needs to be called to release the reference.
+If the display is not enable()d, then we aren't holding a runtime PM
+reference here. Thus, it's easy to accidentally cause a hang, if user
+space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
 
-Fix this by moving usb_put_dev() to sdev_free error path handling.
+Let's get a runtime PM reference, and check that we "see" the panel.
+Don't force any panel power-up, etc., because that can be intrusive, and
+that's not what other drivers do (see
+drivers/gpu/drm/bridge/ti-sn65dsi86.c and
+drivers/gpu/drm/bridge/parade-ps8640.c.)
 
-Find this by code review.
-
-Fixes: 3ff67445750a ("usbip: fix error handling in stub_probe()")
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220412020257.9767-1-hbh25y@gmail.com
+Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
+Cc: <stable@vger.kernel.org>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220301181107.v4.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/stub_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/usbip/stub_dev.c b/drivers/usb/usbip/stub_dev.c
-index d8d3892e5a69..3c6d452e3bf4 100644
---- a/drivers/usb/usbip/stub_dev.c
-+++ b/drivers/usb/usbip/stub_dev.c
-@@ -393,7 +393,6 @@ static int stub_probe(struct usb_device *udev)
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -1275,8 +1275,19 @@ static ssize_t analogix_dpaux_transfer(s
+ 				       struct drm_dp_aux_msg *msg)
+ {
+ 	struct analogix_dp_device *dp = to_dp(aux);
++	int ret;
  
- err_port:
- 	dev_set_drvdata(&udev->dev, NULL);
--	usb_put_dev(udev);
+-	return analogix_dp_transfer(dp, msg);
++	pm_runtime_get_sync(dp->dev);
++
++	ret = analogix_dp_detect_hpd(dp);
++	if (ret)
++		goto out;
++
++	ret = analogix_dp_transfer(dp, msg);
++out:
++	pm_runtime_put(dp->dev);
++
++	return ret;
+ }
  
- 	/* we already have busid_priv, just lock busid_lock */
- 	spin_lock(&busid_priv->busid_lock);
-@@ -408,6 +407,7 @@ static int stub_probe(struct usb_device *udev)
- 	put_busid_priv(busid_priv);
- 
- sdev_free:
-+	usb_put_dev(udev);
- 	stub_device_free(sdev);
- 
- 	return rc;
--- 
-2.35.1
-
+ int analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
 
 
