@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0BC2548C98
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:13:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C4905489F4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:06:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381220AbiFMOKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:10:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59858 "EHLO
+        id S243610AbiFMKrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:47:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381868AbiFMOJr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:09:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC4CD98770;
-        Mon, 13 Jun 2022 04:41:41 -0700 (PDT)
+        with ESMTP id S245124AbiFMKpf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:45:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F10272BB00;
+        Mon, 13 Jun 2022 03:25:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 513B5B80D31;
-        Mon, 13 Jun 2022 11:41:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B347AC34114;
-        Mon, 13 Jun 2022 11:41:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9AE860F0B;
+        Mon, 13 Jun 2022 10:25:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7765C3411F;
+        Mon, 13 Jun 2022 10:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120499;
-        bh=bt6icHp1z5mM4XKs4r2Z8SPOXr02Stt78U4Pdt+zBZ4=;
+        s=korg; t=1655115943;
+        bh=36Zrg68NAiHkWfHvcxxtjEKPT6SjuU9L+QXdBxVKI2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mM5cbIlrecpYBOK7jDQRiLSw4oPewbG+8U51LiNoxL8ihjKLV27ws21jTfgZtpSKh
-         EAbrvx8mkoXGa+saX4ETSqZG0Z7z/HP6QmyiHrVt5URsE6LWzCy1PZZON60ILMzBdh
-         IHxBIiEIS+7htCtr3OAJNItU54j2uOuthd3Z9T1A=
+        b=iOt/t6VR1eD6REegm/b1Ehmb3C2dkFH/M3jibeQC+ULeU0szPLFCptlEc2Zo34P88
+         0JgdgZI6U7Acj3oKxlVHVAYdSJ8MauvdHDvxigtsR6kqiJZT5aS/hc/+uo3Sv0hNgz
+         zn3XiDMAUm7Naq7L3j7/ROLIhK2CkIcZ2Fza302U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Igor Zhbanov <izh1979@gmail.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 054/298] rtc: ftrtc010: Fix error handling in ftrtc010_rtc_probe
+Subject: [PATCH 4.14 090/218] powerpc/idle: Fix return value of __setup() handler
 Date:   Mon, 13 Jun 2022 12:09:08 +0200
-Message-Id: <20220613094926.588393981@linuxfoundation.org>
+Message-Id: <20220613094923.268682066@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,92 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit b520cbe5be37b1b9b401c0b6ecbdae32575273db ]
+[ Upstream commit b793a01000122d2bd133ba451a76cc135b5e162c ]
 
-In the error handling path, the clk_prepare_enable() function
-call should be balanced by a corresponding 'clk_disable_unprepare()'
-call , as already done in the remove function.
+__setup() handlers should return 1 to obsolete_checksetup() in
+init/main.c to indicate that the boot option has been handled.
 
-clk_disable_unprepare calls clk_disable() and clk_unprepare().
-They will use IS_ERR_OR_NULL to check the argument.
+A return of 0 causes the boot option/value to be listed as an Unknown
+kernel parameter and added to init's (limited) argument or environment
+strings.
 
-Fixes: ac05fba39cc5 ("rtc: gemini: Add optional clock handling")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220403054912.31739-1-linmq006@gmail.com
+Also, error return codes don't mean anything to obsolete_checksetup() --
+only non-zero (usually 1) or zero. So return 1 from powersave_off().
+
+Fixes: 302eca184fb8 ("[POWERPC] cell: use ppc_md->power_save instead of cbe_idle_loop")
+Reported-by: Igor Zhbanov <izh1979@gmail.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220502192925.19954-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-ftrtc010.c | 34 ++++++++++++++++++++++++----------
- 1 file changed, 24 insertions(+), 10 deletions(-)
+ arch/powerpc/kernel/idle.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
-index 53bb08fe1cd4..25c6e7d9570f 100644
---- a/drivers/rtc/rtc-ftrtc010.c
-+++ b/drivers/rtc/rtc-ftrtc010.c
-@@ -137,26 +137,34 @@ static int ftrtc010_rtc_probe(struct platform_device *pdev)
- 		ret = clk_prepare_enable(rtc->extclk);
- 		if (ret) {
- 			dev_err(dev, "failed to enable EXTCLK\n");
--			return ret;
-+			goto err_disable_pclk;
- 		}
- 	}
- 
- 	rtc->rtc_irq = platform_get_irq(pdev, 0);
--	if (rtc->rtc_irq < 0)
--		return rtc->rtc_irq;
-+	if (rtc->rtc_irq < 0) {
-+		ret = rtc->rtc_irq;
-+		goto err_disable_extclk;
-+	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (!res)
--		return -ENODEV;
-+	if (!res) {
-+		ret = -ENODEV;
-+		goto err_disable_extclk;
-+	}
- 
- 	rtc->rtc_base = devm_ioremap(dev, res->start,
- 				     resource_size(res));
--	if (!rtc->rtc_base)
--		return -ENOMEM;
-+	if (!rtc->rtc_base) {
-+		ret = -ENOMEM;
-+		goto err_disable_extclk;
-+	}
- 
- 	rtc->rtc_dev = devm_rtc_allocate_device(dev);
--	if (IS_ERR(rtc->rtc_dev))
--		return PTR_ERR(rtc->rtc_dev);
-+	if (IS_ERR(rtc->rtc_dev)) {
-+		ret = PTR_ERR(rtc->rtc_dev);
-+		goto err_disable_extclk;
-+	}
- 
- 	rtc->rtc_dev->ops = &ftrtc010_rtc_ops;
- 
-@@ -172,9 +180,15 @@ static int ftrtc010_rtc_probe(struct platform_device *pdev)
- 	ret = devm_request_irq(dev, rtc->rtc_irq, ftrtc010_rtc_interrupt,
- 			       IRQF_SHARED, pdev->name, dev);
- 	if (unlikely(ret))
--		return ret;
-+		goto err_disable_extclk;
- 
- 	return devm_rtc_register_device(rtc->rtc_dev);
-+
-+err_disable_extclk:
-+	clk_disable_unprepare(rtc->extclk);
-+err_disable_pclk:
-+	clk_disable_unprepare(rtc->pclk);
-+	return ret;
+diff --git a/arch/powerpc/kernel/idle.c b/arch/powerpc/kernel/idle.c
+index d7216c9abda1..ca79aacfeda2 100644
+--- a/arch/powerpc/kernel/idle.c
++++ b/arch/powerpc/kernel/idle.c
+@@ -41,7 +41,7 @@ static int __init powersave_off(char *arg)
+ {
+ 	ppc_md.power_save = NULL;
+ 	cpuidle_disable = IDLE_POWERSAVE_OFF;
+-	return 0;
++	return 1;
  }
+ __setup("powersave=off", powersave_off);
  
- static int ftrtc010_rtc_remove(struct platform_device *pdev)
 -- 
 2.35.1
 
