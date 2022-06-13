@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0923548B31
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D06548C63
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380356AbiFMN6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:58:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35480 "EHLO
+        id S1352928AbiFMMYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:24:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381025AbiFMNzr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:55:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54F744474D;
-        Mon, 13 Jun 2022 04:36:28 -0700 (PDT)
+        with ESMTP id S1355139AbiFMMXx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9A6231523;
+        Mon, 13 Jun 2022 04:04:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1F4C0CE1234;
-        Mon, 13 Jun 2022 11:36:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05A8DC34114;
-        Mon, 13 Jun 2022 11:36:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D9EEB80E92;
+        Mon, 13 Jun 2022 11:04:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CEA0C34114;
+        Mon, 13 Jun 2022 11:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120185;
-        bh=VTvq0DoklwJ8cuV8EuXnfHoOTTTgZ4Wt5bHyoeuOH9w=;
+        s=korg; t=1655118255;
+        bh=n/iPcz26bENoyDWoH2+vnvVXO744lC1fOnnEkkhZjGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G6XxLWn8nSqVv+oINbw8fdVoDWgdjzHSdxSG5BysABAJLNB7GLRPblTnGbiHkRrji
-         e5zIgS2UPNf5JqEARDHn0yA65n9mJXd8udgoyHy8fn0mwGHfC/pqzUZHNsDeOC8EEB
-         iriMUC6vm65qrf85oxGgsMuEuvTlqFYl70MFWiGk=
+        b=uCFcTqEamuIq4YsBEyweCegWNQonKkZ68998vz3A80baRMmhT9DJct654g6vOZHRb
+         4sm4iuxTGoQp8R0vXFAHkr9Tq/XvUVFDJaYqCj1kRY2SLsv9nOYQTnej+h+EEPXCeH
+         BAVtWuJbHaklscjRZ/mJ6/FpUk4peQ+af6SgX3JY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cyril Brulebois <kibi@debian.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 280/339] Revert "PCI: brcmstb: Add mechanism to turn on subdev regulators"
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Olivier Matz <olivier.matz@6wind.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 4.19 281/287] ixgbe: fix bcast packets Rx on VF after promisc removal
 Date:   Mon, 13 Jun 2022 12:11:45 +0200
-Message-Id: <20220613094935.127956985@linuxfoundation.org>
+Message-Id: <20220613094932.516094910@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,146 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Olivier Matz <olivier.matz@6wind.com>
 
-[ Upstream commit 420be2f7ebe60c9ba3e332f5290017cd168e2bf8 ]
+commit 803e9895ea2b0fe80bc85980ae2d7a7e44037914 upstream.
 
-This reverts commit 67211aadcb4b968d0fdc57bc27240fa71500c2d4.
+After a VF requested to remove the promiscuous flag on an interface, the
+broadcast packets are not received anymore. This breaks some protocols
+like ARP.
 
-This is part of a revert of the following commits:
+In ixgbe_update_vf_xcast_mode(), we should keep the IXGBE_VMOLR_BAM
+bit (Broadcast Accept) on promiscuous removal.
 
-  11ed8b8624b8 ("PCI: brcmstb: Do not turn off WOL regulators on suspend")
-  93e41f3fca3d ("PCI: brcmstb: Add control of subdevice voltage regulators")
-  67211aadcb4b ("PCI: brcmstb: Add mechanism to turn on subdev regulators")
-  830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup() into two funcs")
+This flag is already set by default in ixgbe_set_vmolr() on VF reset.
 
-Cyril reported that 830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup()
-into two funcs"), which appeared in v5.17-rc1, broke booting on the
-Raspberry Pi Compute Module 4.  Apparently 830aa6f29f07 panics with an
-Asynchronous SError Interrupt, and after further commits here is a black
-screen on HDMI and no output on the serial console.
-
-This does not seem to affect the Raspberry Pi 4 B.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215925
-Link: https://lore.kernel.org/r/20220511201856.808690-4-helgaas@kernel.org
-Reported-by: Cyril Brulebois <kibi@debian.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8443c1a4b192 ("ixgbe, ixgbevf: Add new mbox API xcast mode")
+Cc: stable@vger.kernel.org
+Cc: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: Olivier Matz <olivier.matz@6wind.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pcie-brcmstb.c | 76 ---------------------------
- 1 file changed, 76 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-brcmstb.c b/drivers/pci/controller/pcie-brcmstb.c
-index fd464d38fecb..0e8346114a8d 100644
---- a/drivers/pci/controller/pcie-brcmstb.c
-+++ b/drivers/pci/controller/pcie-brcmstb.c
-@@ -24,7 +24,6 @@
- #include <linux/pci.h>
- #include <linux/pci-ecam.h>
- #include <linux/printk.h>
--#include <linux/regulator/consumer.h>
- #include <linux/reset.h>
- #include <linux/sizes.h>
- #include <linux/slab.h>
-@@ -284,14 +283,6 @@ static const struct pcie_cfg_data bcm2711_cfg = {
- 	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_generic,
- };
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+@@ -1148,9 +1148,9 @@ static int ixgbe_update_vf_xcast_mode(st
  
--struct subdev_regulators {
--	unsigned int num_supplies;
--	struct regulator_bulk_data supplies[];
--};
--
--static int pci_subdev_regulators_add_bus(struct pci_bus *bus);
--static void pci_subdev_regulators_remove_bus(struct pci_bus *bus);
--
- struct brcm_msi {
- 	struct device		*dev;
- 	void __iomem		*base;
-@@ -445,71 +436,6 @@ static int brcm_pcie_set_ssc(struct brcm_pcie *pcie)
- 	return ssc && pll ? 0 : -EIO;
- }
- 
--static void *alloc_subdev_regulators(struct device *dev)
--{
--	static const char * const supplies[] = {
--		"vpcie3v3",
--		"vpcie3v3aux",
--		"vpcie12v",
--	};
--	const size_t size = sizeof(struct subdev_regulators)
--		+ sizeof(struct regulator_bulk_data) * ARRAY_SIZE(supplies);
--	struct subdev_regulators *sr;
--	int i;
--
--	sr = devm_kzalloc(dev, size, GFP_KERNEL);
--	if (sr) {
--		sr->num_supplies = ARRAY_SIZE(supplies);
--		for (i = 0; i < ARRAY_SIZE(supplies); i++)
--			sr->supplies[i].supply = supplies[i];
--	}
--
--	return sr;
--}
--
--static int pci_subdev_regulators_add_bus(struct pci_bus *bus)
--{
--	struct device *dev = &bus->dev;
--	struct subdev_regulators *sr;
--	int ret;
--
--	if (!dev->of_node || !bus->parent || !pci_is_root_bus(bus->parent))
--		return 0;
--
--	if (dev->driver_data)
--		dev_err(dev, "dev.driver_data unexpectedly non-NULL\n");
--
--	sr = alloc_subdev_regulators(dev);
--	if (!sr)
--		return -ENOMEM;
--
--	dev->driver_data = sr;
--	ret = regulator_bulk_get(dev, sr->num_supplies, sr->supplies);
--	if (ret)
--		return ret;
--
--	ret = regulator_bulk_enable(sr->num_supplies, sr->supplies);
--	if (ret) {
--		dev_err(dev, "failed to enable regulators for downstream device\n");
--		return ret;
--	}
--
--	return 0;
--}
--
--static void pci_subdev_regulators_remove_bus(struct pci_bus *bus)
--{
--	struct device *dev = &bus->dev;
--	struct subdev_regulators *sr = dev->driver_data;
--
--	if (!sr || !bus->parent || !pci_is_root_bus(bus->parent))
--		return;
--
--	if (regulator_bulk_disable(sr->num_supplies, sr->supplies))
--		dev_err(dev, "failed to disable regulators for downstream device\n");
--	dev->driver_data = NULL;
--}
--
- /* Limits operation to a specific generation (1, 2, or 3) */
- static void brcm_pcie_set_gen(struct brcm_pcie *pcie, int gen)
- {
-@@ -853,8 +779,6 @@ static struct pci_ops brcm_pcie_ops = {
- 	.map_bus = brcm_pcie_map_conf,
- 	.read = pci_generic_config_read,
- 	.write = pci_generic_config_write,
--	.add_bus = pci_subdev_regulators_add_bus,
--	.remove_bus = pci_subdev_regulators_remove_bus,
- };
- 
- static struct pci_ops brcm_pcie_ops32 = {
--- 
-2.35.1
-
+ 	switch (xcast_mode) {
+ 	case IXGBEVF_XCAST_MODE_NONE:
+-		disable = IXGBE_VMOLR_BAM | IXGBE_VMOLR_ROMPE |
++		disable = IXGBE_VMOLR_ROMPE |
+ 			  IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE | IXGBE_VMOLR_VPE;
+-		enable = 0;
++		enable = IXGBE_VMOLR_BAM;
+ 		break;
+ 	case IXGBEVF_XCAST_MODE_MULTI:
+ 		disable = IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE | IXGBE_VMOLR_VPE;
 
 
