@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECC1A549683
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F158F54893C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354275AbiFMLcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:32:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50896 "EHLO
+        id S1355423AbiFMM4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:56:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354426AbiFML33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154A8DE99;
-        Mon, 13 Jun 2022 03:44:25 -0700 (PDT)
+        with ESMTP id S1358140AbiFMMzF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A076763B7;
+        Mon, 13 Jun 2022 04:14:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A89046112A;
-        Mon, 13 Jun 2022 10:44:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B305EC34114;
-        Mon, 13 Jun 2022 10:44:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A773B80EA8;
+        Mon, 13 Jun 2022 11:14:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B53B0C34114;
+        Mon, 13 Jun 2022 11:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117064;
-        bh=IAVbfGTRA6I43BJFnxsN8vzB8Joruj/IdTtsLWXc08Q=;
+        s=korg; t=1655118865;
+        bh=PCCk4JNQgklISFIHqCeoOkSALeamK3gJwPOwyQM9VkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Q0PJO2Henn1hYRd1rU1twCLXVx6Brh0uPkqdI/k49eoqoYQhlPiO09iUMZyE5NIa
-         VJgIplcHSsRYyypmYONTyxlKdCVSEyN1SEY0xjS3EghRvqDKJ8j6WHdqkMX3DtEN2i
-         wTqPLkRGkbfh9rjv7nVqZD+KcEB4Zc3+YzBMlE48=
+        b=XwYm9EYipDjYyIsJt0FFrGWkrjkBFqieDlkWbNw3zmDew6/nMeiJeJXdegdexs3Ey
+         9hdjhecTHtxpvwauta/WsjT7vsnxjljRmhiK+XpklAlJ+6uD/0WilfP4/3szEUfH3G
+         iUUX7cfJuJuFGW6eFrtJrrUFYO/0i1FLklzU/Yw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Manivannan Sadhasivam <mani@kernel.org>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 285/411] tty: serial: owl: Fix missing clk_disable_unprepare() in owl_uart_probe
+Subject: [PATCH 5.15 056/247] serial: rda-uart: Dont allow CS5-6
 Date:   Mon, 13 Jun 2022 12:09:18 +0200
-Message-Id: <20220613094937.304784853@linuxfoundation.org>
+Message-Id: <20220613094924.655940983@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit bcea0f547ec1a2ee44d429aaf0334633e386e67c ]
+[ Upstream commit 098333a9c7d12bb3ce44c82f08b4d810c44d31b0 ]
 
-Fix the missing clk_disable_unprepare() before return
-from owl_uart_probe() in the error handling case.
+Only CS7 and CS8 are supported but CSIZE is not sanitized after
+fallthrough from CS5 or CS6 to CS7.
 
-Fixes: abf42d2f333b ("tty: serial: owl: add "much needed" clk_prepare_enable()")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220307105135.11698-1-linmq006@gmail.com
+Set CSIZE correctly so that userspace knows the effective value.
+Incorrect CSIZE also results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
+
+Fixes: c10b13325ced (tty: serial: Add RDA8810PL UART driver)
+Cc: Manivannan Sadhasivam <mani@kernel.org>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-4-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/owl-uart.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/rda-uart.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/owl-uart.c b/drivers/tty/serial/owl-uart.c
-index c55c8507713c..e87953f8a768 100644
---- a/drivers/tty/serial/owl-uart.c
-+++ b/drivers/tty/serial/owl-uart.c
-@@ -695,6 +695,7 @@ static int owl_uart_probe(struct platform_device *pdev)
- 	owl_port->port.uartclk = clk_get_rate(owl_port->clk);
- 	if (owl_port->port.uartclk == 0) {
- 		dev_err(&pdev->dev, "clock rate is zero\n");
-+		clk_disable_unprepare(owl_port->clk);
- 		return -EINVAL;
- 	}
- 	owl_port->port.flags = UPF_BOOT_AUTOCONF | UPF_IOREMAP | UPF_LOW_LATENCY;
+diff --git a/drivers/tty/serial/rda-uart.c b/drivers/tty/serial/rda-uart.c
+index d550d8fa2fab..a8fe1c3ebcd9 100644
+--- a/drivers/tty/serial/rda-uart.c
++++ b/drivers/tty/serial/rda-uart.c
+@@ -262,6 +262,8 @@ static void rda_uart_set_termios(struct uart_port *port,
+ 		fallthrough;
+ 	case CS7:
+ 		ctrl &= ~RDA_UART_DBITS_8;
++		termios->c_cflag &= ~CSIZE;
++		termios->c_cflag |= CS7;
+ 		break;
+ 	default:
+ 		ctrl |= RDA_UART_DBITS_8;
 -- 
 2.35.1
 
