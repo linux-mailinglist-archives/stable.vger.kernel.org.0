@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 698675494AD
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 634E354940D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242081AbiFMKTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:19:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36422 "EHLO
+        id S1354010AbiFMLbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:31:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242509AbiFMKSW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:18:22 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2195920BC6;
-        Mon, 13 Jun 2022 03:16:12 -0700 (PDT)
+        with ESMTP id S1354321AbiFML3U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8866329C88;
+        Mon, 13 Jun 2022 03:43:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6E379CE110D;
-        Mon, 13 Jun 2022 10:16:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55EDAC34114;
-        Mon, 13 Jun 2022 10:16:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B434660FDB;
+        Mon, 13 Jun 2022 10:43:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F16C34114;
+        Mon, 13 Jun 2022 10:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115368;
-        bh=p7du8vzhJexxq60p15CXrqmwEkWIhGGbk5mD8cJHH/c=;
+        s=korg; t=1655116998;
+        bh=2p8gEQy7N4nmmIhZpnKGXvMKWI0J2oK3wHed5skNLhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=goIvO0zV2M0g8OjL5Gc3I5reEBPrPG5WBMJsRkZe7MCppJWWmUIERtDGtao9K8Y2b
-         KxuV24MngXWHuE1nB2vxiPNOI99PVca4iQWf+BAsaM8xN4EwIwZXgQ4yRwOWAl+qCw
-         zXTYhr4uqcdw8+rff6ypK+ykWVTAzH6BM/MjgbGQ=
+        b=y56UK8KBcYNlOaL/jPEgvOhICcvWsOJNR4F11psL5DR5bmijDRPkcEyml3ZztO0rM
+         bLeu6MkKR7v8DlFT+hGq0Jg2ycWR+3e7j4WSlV11+8iAl3isfJf67N9gIK+hZkllI9
+         ys2N77qA/cWetTs9cos60BVOC5QA+n/u8DA3MT6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 049/167] drm/rockchip: vop: fix possible null-ptr-deref in vop_bind()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 250/411] irqchip/armada-370-xp: Do not touch Performance Counter Overflow on A375, A38x, A39x
 Date:   Mon, 13 Jun 2022 12:08:43 +0200
-Message-Id: <20220613094852.476636780@linuxfoundation.org>
+Message-Id: <20220613094936.267589883@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit f8c242908ad15bbd604d3bcb54961b7d454c43f8 ]
+commit a3d66a76348daf559873f19afc912a2a7c2ccdaf upstream.
 
-It will cause null-ptr-deref in resource_size(), if platform_get_resource()
-returns NULL, move calling resource_size() after devm_ioremap_resource() that
-will check 'res' to avoid null-ptr-deref.
+Register ARMADA_370_XP_INT_FABRIC_MASK_OFFS is Armada 370 and XP specific
+and on new Armada platforms it has different meaning. It does not configure
+Performance Counter Overflow interrupt masking. So do not touch this
+register on non-A370/XP platforms (A375, A38x and A39x).
 
-Fixes: 2048e3286f34 ("drm: rockchip: Add basic drm driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220422032854.2995175-1-yangyingliang@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 28da06dfd9e4 ("irqchip: armada-370-xp: Enable the PMU interrupts")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220425113706.29310-1-pali@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-armada-370-xp.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-index 5bed63eee5f0..050f9a59ed54 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-@@ -1524,10 +1524,10 @@ static int vop_bind(struct device *dev, struct device *master, void *data)
- 	vop_win_init(vop);
+--- a/drivers/irqchip/irq-armada-370-xp.c
++++ b/drivers/irqchip/irq-armada-370-xp.c
+@@ -392,7 +392,16 @@ static void armada_xp_mpic_smp_cpu_init(
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	vop->len = resource_size(res);
- 	vop->regs = devm_ioremap_resource(dev, res);
- 	if (IS_ERR(vop->regs))
- 		return PTR_ERR(vop->regs);
-+	vop->len = resource_size(res);
+ static void armada_xp_mpic_perf_init(void)
+ {
+-	unsigned long cpuid = cpu_logical_map(smp_processor_id());
++	unsigned long cpuid;
++
++	/*
++	 * This Performance Counter Overflow interrupt is specific for
++	 * Armada 370 and XP. It is not available on Armada 375, 38x and 39x.
++	 */
++	if (!of_machine_is_compatible("marvell,armada-370-xp"))
++		return;
++
++	cpuid = cpu_logical_map(smp_processor_id());
  
- 	vop->regsbak = devm_kzalloc(dev, vop->len, GFP_KERNEL);
- 	if (!vop->regsbak)
--- 
-2.35.1
-
+ 	/* Enable Performance Counter Overflow interrupts */
+ 	writel(ARMADA_370_XP_INT_CAUSE_PERF(cpuid),
 
 
