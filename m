@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B3B548948
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8584254900F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240990AbiFMN6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:58:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36666 "EHLO
+        id S241546AbiFMOpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:45:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381406AbiFMN4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:56:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86B04880D8;
-        Mon, 13 Jun 2022 04:36:59 -0700 (PDT)
+        with ESMTP id S1385603AbiFMOna (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:43:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ACDEB1C32;
+        Mon, 13 Jun 2022 04:50:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E058161306;
-        Mon, 13 Jun 2022 11:36:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3591C34114;
-        Mon, 13 Jun 2022 11:36:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12C2E61486;
+        Mon, 13 Jun 2022 11:50:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17FE8C34114;
+        Mon, 13 Jun 2022 11:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120218;
-        bh=sh2G4X4wFqnK2Zl2sU5zgIcGPX5ExeSw9GC5WbGyQy0=;
+        s=korg; t=1655121034;
+        bh=4aYV3+qesPToYmG7/6BMlAecFB2vSBxvku6tOzoYkcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBu+/JQmXQrQsaoov7l9kcRz/1GdruZhCHd3vph0EZUfpS5SAsZmezesQNIVl3wJL
-         3bXtoyS45bmO5tug0I112IDrlds4sNmGUyckcxsUnqGks4s74UI59J7bYCKPIvv2Ei
-         f5nx4guMOdNPfWPw1yRDl4SLnXtwkExST4cMVcGw=
+        b=easaohfn0Boke9p9puqPd8Ylyj6skBW4SSu+2iTz8HRTSR+YstTlcajPkJ1WHqX57
+         mlPSRRRNylBNN/htEReI5I/AaTvbmiDFHaL2UqQCuWDhT6hIdtrKOSS0z9jTqjgbsZ
+         E7v50hHQqM7hGGi2FxIYdOG4FQxmjNa5kJr3rpcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        =?UTF-8?q?Andr=C3=A9=20Kapelrud?= <a.kapelrud@gmail.com>
-Subject: [PATCH 5.18 293/339] ALSA: usb-audio: Skip generic sync EP parse for secondary EP
+        stable@vger.kernel.org, Liu Xinpeng <liuxp11@chinatelecom.cn>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 224/298] watchdog: wdat_wdt: Stop watchdog when rebooting the system
 Date:   Mon, 13 Jun 2022 12:11:58 +0200
-Message-Id: <20220613094935.520691896@linuxfoundation.org>
+Message-Id: <20220613094931.893327201@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Liu Xinpeng <liuxp11@chinatelecom.cn>
 
-commit efb75df105e82f076a85b9f2d81410428bcb55fc upstream.
+[ Upstream commit 27fdf84510a1374748904db43f6755f912736d92 ]
 
-When ep_idx is already non-zero, it means usually a capture stream
-that is set up explicity by a fixed-format quirk, and applying the
-check for generic (non-implicit-fb) sync EPs might hit incorrectly,
-resulting in a bogus sync endpoint for the capture stream.
+Executing reboot command several times on the machine "Dell
+PowerEdge R740", UEFI security detection stopped machine
+with the following prompt:
 
-This patch adds a check for the ep_idx and skip if it's a secondary
-endpoint.  It's a part of the fixes for regressions on Saffire 6.
+UEFI0082: The system was reset due to a timeout from the watchdog
+timer. Check the System Event Log (SEL) or crash dumps from
+Operating Sysstem to identify the source that triggered the
+watchdog timer reset. Update the firmware or driver for the
+identified device.
 
-Fixes: 7b0efea4baf0 ("ALSA: usb-audio: Add missing ep_idx in fixed EP quirks")
-Reported-and-tested-by: André Kapelrud <a.kapelrud@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220606160910.6926-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+iDRAC has warning event: "The watchdog timer reset the system".
+
+This patch fixes this issue by adding the reboot notifier.
+
+Signed-off-by: Liu Xinpeng <liuxp11@chinatelecom.cn>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/1650984810-6247-3-git-send-email-liuxp11@chinatelecom.cn
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/pcm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/wdat_wdt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -304,7 +304,7 @@ int snd_usb_audioformat_set_sync_ep(stru
- 	 * Generic sync EP handling
- 	 */
+diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
+index 195c8c004b69..4fac8148a8e6 100644
+--- a/drivers/watchdog/wdat_wdt.c
++++ b/drivers/watchdog/wdat_wdt.c
+@@ -462,6 +462,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+ 		return ret;
  
--	if (altsd->bNumEndpoints < 2)
-+	if (fmt->ep_idx > 0 || altsd->bNumEndpoints < 2)
- 		return 0;
+ 	watchdog_set_nowayout(&wdat->wdd, nowayout);
++	watchdog_stop_on_reboot(&wdat->wdd);
+ 	return devm_watchdog_register_device(dev, &wdat->wdd);
+ }
  
- 	is_playback = !(get_endpoint(alts, 0)->bEndpointAddress & USB_DIR_IN);
+-- 
+2.35.1
+
 
 
