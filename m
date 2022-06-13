@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 765E4548CD1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 710DB54922E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359321AbiFMNM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:12:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41664 "EHLO
+        id S1383822AbiFMOeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:34:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359336AbiFMNJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AFCC39163;
-        Mon, 13 Jun 2022 04:20:25 -0700 (PDT)
+        with ESMTP id S1383596AbiFMObo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:31:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0EFEABF70;
+        Mon, 13 Jun 2022 04:49:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55D96B80D31;
-        Mon, 13 Jun 2022 11:20:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1F94C34114;
-        Mon, 13 Jun 2022 11:20:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6063612A8;
+        Mon, 13 Jun 2022 11:49:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A71C34114;
+        Mon, 13 Jun 2022 11:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119223;
-        bh=uR7CQe4V55FxsHzDZ0qleDY1nvIx7lIoX7D3hsclkWQ=;
+        s=korg; t=1655120946;
+        bh=Rv2aAz7IGiMWJhkLpbWc7rlXzioTsKnTqNMEJ2Jd4O8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWyH7qMzF4XDfeQz3AVGIGeBoUoXQ4xZ6p6+uZ0MbhKOGFUoW8/SDBwyVG2Mbl4h4
-         y2fAZcMoV2RV6Mnx4rEnJkJOLSLWL/bgQLjVDpkoCnlPkklp4vJcP9vNepnnxC2zUj
-         x971VSZYeOuBtxtfx7L302SCokj1BtAfnkxt5GHo=
+        b=L49wDHZ2pSwvJMLc5xw6aTXjO44esIAxkGGROcwZmeg+V0HmdfeUCA25Y0zpPBg7t
+         XopS50K5u7JpzsgF9PJDsyvnltOH2j3IdYd2hmC+PfOhMPKnwQTWNPUOlESya5Sns/
+         dAkovVQcVsoCkh4wiIf3AI4kwfMX4okrGvGgyN5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 184/247] misc: rtsx: set NULL intfdata when probe fails
-Date:   Mon, 13 Jun 2022 12:11:26 +0200
-Message-Id: <20220613094928.533329453@linuxfoundation.org>
+Subject: [PATCH 5.17 193/298] drm: imx: fix compiler warning with gcc-12
+Date:   Mon, 13 Jun 2022 12:11:27 +0200
+Message-Id: <20220613094930.960272978@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit f861d36e021e1ac4a0a2a1f6411d623809975d63 ]
+[ Upstream commit 7aefd8b53815274f3ef398d370a3c9b27dd9f00c ]
 
-rtsx_usb_probe() doesn't call usb_set_intfdata() to null out the
-interface pointer when probe fails. This leaves a stale pointer.
-Noticed the missing usb_set_intfdata() while debugging an unrelated
-invalid DMA mapping problem.
+Gcc-12 correctly warned about this code using a non-NULL pointer as a
+truth value:
 
-Fix it with a call to usb_set_intfdata(..., NULL).
+  drivers/gpu/drm/imx/ipuv3-crtc.c: In function ‘ipu_crtc_disable_planes’:
+  drivers/gpu/drm/imx/ipuv3-crtc.c:72:21: error: the comparison will always evaluate as ‘true’ for the address of ‘plane’ will never be NULL [-Werror=address]
+     72 |                 if (&ipu_crtc->plane[1] && plane == &ipu_crtc->plane[1]->base)
+        |                     ^
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220429210913.46804-1-skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+due to the extraneous '&' address-of operator.
+
+Philipp Zabel points out that The mistake had no adverse effect since
+the following condition doesn't actually dereference the NULL pointer,
+but the intent of the code was obviously to check for it, not to take
+the address of the member.
+
+Fixes: eb8c88808c83 ("drm/imx: add deferred plane disabling")
+Acked-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cardreader/rtsx_usb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/imx/ipuv3-crtc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/cardreader/rtsx_usb.c b/drivers/misc/cardreader/rtsx_usb.c
-index 59eda55d92a3..1ef9b61077c4 100644
---- a/drivers/misc/cardreader/rtsx_usb.c
-+++ b/drivers/misc/cardreader/rtsx_usb.c
-@@ -667,6 +667,7 @@ static int rtsx_usb_probe(struct usb_interface *intf,
- 	return 0;
+diff --git a/drivers/gpu/drm/imx/ipuv3-crtc.c b/drivers/gpu/drm/imx/ipuv3-crtc.c
+index 9c8829f945b2..f7863d6dea80 100644
+--- a/drivers/gpu/drm/imx/ipuv3-crtc.c
++++ b/drivers/gpu/drm/imx/ipuv3-crtc.c
+@@ -69,7 +69,7 @@ static void ipu_crtc_disable_planes(struct ipu_crtc *ipu_crtc,
+ 	drm_atomic_crtc_state_for_each_plane(plane, old_crtc_state) {
+ 		if (plane == &ipu_crtc->plane[0]->base)
+ 			disable_full = true;
+-		if (&ipu_crtc->plane[1] && plane == &ipu_crtc->plane[1]->base)
++		if (ipu_crtc->plane[1] && plane == &ipu_crtc->plane[1]->base)
+ 			disable_partial = true;
+ 	}
  
- out_init_fail:
-+	usb_set_intfdata(ucr->pusb_intf, NULL);
- 	usb_free_coherent(ucr->pusb_dev, IOBUF_SIZE, ucr->iobuf,
- 			ucr->iobuf_dma);
- 	return ret;
 -- 
 2.35.1
 
