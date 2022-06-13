@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32D1C548068
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4219B54807F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:27:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237859AbiFMHVB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 03:21:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48508 "EHLO
+        id S232635AbiFMHVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 03:21:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232635AbiFMHVA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:21:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B679A1ADB0
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:20:59 -0700 (PDT)
+        with ESMTP id S237877AbiFMHVD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:21:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E554A1ADB5
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:21:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 14FE3CE0F77
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:20:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D282C34114;
-        Mon, 13 Jun 2022 07:20:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0F43B80D70
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:21:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0900AC34114;
+        Mon, 13 Jun 2022 07:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655104856;
-        bh=PJtZ5jFJZWQA5bimDc4ut2i1mFQN/ujU8sjmTl89AI4=;
+        s=korg; t=1655104860;
+        bh=ASJBW8OMrNCBRZeQyQsrdul1cJH5Tl2HhtO3ax6CeEQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=Dfxk6CLO0Amiocn9nDo3x84rAw3tVQ0aZmh4S8PHwnLSG+jX2QxznW5lXDYVYDXy3
-         v9eTrHD6FLmj2PrqJjHOPcxC+huBQRZScGXzEA0agdeQRcmSqDMynmah6zjErYkvil
-         61nEhyiv9zPw9X6VTqnoAyK9H91jP86bhqAOLA9I=
-Subject: FAILED: patch "[PATCH] KVM: SVM: fix tsc scaling cache logic" failed to apply to 5.15-stable tree
+        b=Wa/X54hZyhQIhx/gpzFecu/i8HrRcfkglqJiyW+fQV/fEU0BkIdLnNi7xQ7Qlqmz4
+         qzZ7N0KYfNY5lSNsTCP7lSNvtGNqqO7mfpHnudxxcZPQrQNmvobDPlQUOmjatiuUva
+         pk/73zFvZQt0G7NtRedmn7FSjIAcmbeLM3RV+h6o=
+Subject: FAILED: patch "[PATCH] KVM: SVM: fix tsc scaling cache logic" failed to apply to 5.17-stable tree
 To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Jun 2022 09:20:53 +0200
-Message-ID: <165510485318356@kroah.com>
+Date:   Mon, 13 Jun 2022 09:20:57 +0200
+Message-ID: <16551048578184@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
