@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01DCB54900B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA57954887B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358482AbiFMMGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:06:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54168 "EHLO
+        id S1358528AbiFMMG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:06:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358406AbiFMMDh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:03:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA70BA2;
-        Mon, 13 Jun 2022 03:57:19 -0700 (PDT)
+        with ESMTP id S1359007AbiFMMFG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01DB5255AE;
+        Mon, 13 Jun 2022 03:58:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0F53613E9;
-        Mon, 13 Jun 2022 10:57:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC921C341C7;
-        Mon, 13 Jun 2022 10:57:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88C1BB80D3A;
+        Mon, 13 Jun 2022 10:58:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EECC0C34114;
+        Mon, 13 Jun 2022 10:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117838;
-        bh=bZgoxt8+mkkmp6XpfosU+qkrogRbtpJT5SJTVZ1NZV0=;
+        s=korg; t=1655117911;
+        bh=6N9gzyCzBTU3QZ/tsrr7LFL9azFc6wQ6BXeHxk6wr6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrNcYikUSDzgwaop0zkF0fq0neS9VQVVbIkIx1b5kTqa0vBLLgicRrlR9fRfL31je
-         5QdUUrLMfY6bcqix5MRSho0sygGiZ1IoEwtw+c6SaOAzwTXzo4wDwvRzvfOF023WIF
-         uoyrXCWko5OZEuTMcuo/MR4zWb6fb3uLq+XQ5xV4=
+        b=LtV96jtQWotXraFPL2tDXPzPCjoaG/y87yQnEORFOp2TXr7+YN7BLFGOMVrri6cpA
+         8PsUal8GoLAW0p54XCVQJzsxGTLraFblPAHk+eUQ0RS4KUyQ3K3OYmBwxol3SZwo8B
+         SIa0MObM8M8lECyY3e2LADhNhPsep6QghSOJ3pUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 150/287] ext4: avoid cycles in directory h-tree
-Date:   Mon, 13 Jun 2022 12:09:34 +0200
-Message-Id: <20220613094928.425440227@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Tom Zanussi <zanussi@kernel.org>,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 151/287] tracing: Fix potential double free in create_var_ref()
+Date:   Mon, 13 Jun 2022 12:09:35 +0200
+Message-Id: <20220613094928.454656295@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
 References: <20220613094923.832156175@linuxfoundation.org>
@@ -53,81 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-commit 3ba733f879c2a88910744647e41edeefbc0d92b2 upstream.
+commit 99696a2592bca641eb88cc9a80c90e591afebd0f upstream.
 
-A maliciously corrupted filesystem can contain cycles in the h-tree
-stored inside a directory. That can easily lead to the kernel corrupting
-tree nodes that were already verified under its hands while doing a node
-split and consequently accessing unallocated memory. Fix the problem by
-verifying traversed block numbers are unique.
+In create_var_ref(), init_var_ref() is called to initialize the fields
+of variable ref_field, which is allocated in the previous function call
+to create_hist_field(). Function init_var_ref() allocates the
+corresponding fields such as ref_field->system, but frees these fields
+when the function encounters an error. The caller later calls
+destroy_hist_field() to conduct error handling, which frees the fields
+and the variable itself. This results in double free of the fields which
+are already freed in the previous function.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220518093332.13986-2-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fix this by storing NULL to the corresponding fields when they are freed
+in init_var_ref().
+
+Link: https://lkml.kernel.org/r/20220425063739.3859998-1-keitasuzuki.park@sslab.ics.keio.ac.jp
+
+Fixes: 067fe038e70f ("tracing: Add variable reference handling to hist triggers")
+CC: stable@vger.kernel.org
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c |   22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ kernel/trace/trace_events_hist.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -748,12 +748,14 @@ static struct dx_frame *
- dx_probe(struct ext4_filename *fname, struct inode *dir,
- 	 struct dx_hash_info *hinfo, struct dx_frame *frame_in)
- {
--	unsigned count, indirect;
-+	unsigned count, indirect, level, i;
- 	struct dx_entry *at, *entries, *p, *q, *m;
- 	struct dx_root *root;
- 	struct dx_frame *frame = frame_in;
- 	struct dx_frame *ret_err = ERR_PTR(ERR_BAD_DX_DIR);
- 	u32 hash;
-+	ext4_lblk_t block;
-+	ext4_lblk_t blocks[EXT4_HTREE_LEVEL];
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2456,8 +2456,11 @@ static int init_var_ref(struct hist_fiel
+ 	return err;
+  free:
+ 	kfree(ref_field->system);
++	ref_field->system = NULL;
+ 	kfree(ref_field->event_name);
++	ref_field->event_name = NULL;
+ 	kfree(ref_field->name);
++	ref_field->name = NULL;
  
- 	memset(frame_in, 0, EXT4_HTREE_LEVEL * sizeof(frame_in[0]));
- 	frame->bh = ext4_read_dirblock(dir, 0, INDEX);
-@@ -809,6 +811,8 @@ dx_probe(struct ext4_filename *fname, st
- 	}
- 
- 	dxtrace(printk("Look up %x", hash));
-+	level = 0;
-+	blocks[0] = 0;
- 	while (1) {
- 		count = dx_get_count(entries);
- 		if (!count || count > dx_get_limit(entries)) {
-@@ -850,15 +854,27 @@ dx_probe(struct ext4_filename *fname, st
- 			       dx_get_block(at)));
- 		frame->entries = entries;
- 		frame->at = at;
--		if (!indirect--)
-+
-+		block = dx_get_block(at);
-+		for (i = 0; i <= level; i++) {
-+			if (blocks[i] == block) {
-+				ext4_warning_inode(dir,
-+					"dx entry: tree cycle block %u points back to block %u",
-+					blocks[level], block);
-+				goto fail;
-+			}
-+		}
-+		if (++level > indirect)
- 			return frame;
-+		blocks[level] = block;
- 		frame++;
--		frame->bh = ext4_read_dirblock(dir, dx_get_block(at), INDEX);
-+		frame->bh = ext4_read_dirblock(dir, block, INDEX);
- 		if (IS_ERR(frame->bh)) {
- 			ret_err = (struct dx_frame *) frame->bh;
- 			frame->bh = NULL;
- 			goto fail;
- 		}
-+
- 		entries = ((struct dx_node *) frame->bh->b_data)->entries;
- 
- 		if (dx_get_limit(entries) != dx_node_limit(dir)) {
+ 	goto out;
+ }
 
 
