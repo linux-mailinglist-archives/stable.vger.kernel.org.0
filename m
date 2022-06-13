@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 853F1549494
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB48254975C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377082AbiFMNZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33212 "EHLO
+        id S1352408AbiFMLRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:17:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377124AbiFMNYZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:24:25 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BF506BFDA;
-        Mon, 13 Jun 2022 04:24:01 -0700 (PDT)
+        with ESMTP id S1353675AbiFMLQL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD9C613DE3;
+        Mon, 13 Jun 2022 03:38:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3949ECE116E;
-        Mon, 13 Jun 2022 11:23:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24A78C34114;
-        Mon, 13 Jun 2022 11:23:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4083F6119F;
+        Mon, 13 Jun 2022 10:38:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 520E6C34114;
+        Mon, 13 Jun 2022 10:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119435;
-        bh=jdGwrjvobpzMm2qGCl2OlF4BwcuG1X9pQUn5LjqBk/o=;
+        s=korg; t=1655116735;
+        bh=jz97ufQZegxXM/ay5UtsmJDdCJIvZdocyqwTKrydkNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQ1r622lHzPDeHYh6d/OTQKoo6UIr02vtaSV4dTc+c6ZbVl/BfD2ibKUlI3e+IB9f
-         WzmJ3Mz8h9av/Kb1HjH7UHbuBMXBIp7d132uSfJRdXI3vTGLYvMXJ2dZyPb/9gp/GS
-         EswMBjQ/sfEsvKRi3pxJnSJ9Bm+7r1j5qDXe5ySs=
+        b=soG7pIzwItXTHOJCerxRMNlzwvC2bMqq74D9xD2RDO3lrNFNb+MGCcWVetB7kT1Pp
+         EJJiAiXj3IQzjGo2c+8Z2kn7FEYQchhZqqbyxXr6txp0REPY8IziuOYmzAUvkIR33y
+         6hsV/qNAxRE2C8ZxyTQLwVvcUZgXb1b6oxvtVQbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 014/339] remoteproc: imx_rproc: Ignore create mem entry for resource table
+Subject: [PATCH 5.4 166/411] ARM: dts: bcm2837-rpi-3-b-plus: Fix GPIO line name of power LED
 Date:   Mon, 13 Jun 2022 12:07:19 +0200
-Message-Id: <20220613094926.940654722@linuxfoundation.org>
+Message-Id: <20220613094933.639865844@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Phil Elwell <phil@raspberrypi.com>
 
-[ Upstream commit 58b7c856519fe946620ee68dd0c37bd3c695484a ]
+[ Upstream commit 57f718aa4b93392fb1a8c0a874ab882b9e18136a ]
 
-Resource table is used by Linux to get information published by
-remote processor. It should be not be used for memory allocation, so
-not create rproc mem entry.
+The red LED on the Raspberry Pi 3 B Plus is the power LED.
+So fix the GPIO line name accordingly.
 
-Fixes: b29b4249f8f0 ("remoteproc: imx_rproc: add i.MX specific parse fw hook")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/20220415025737.1561976-1-peng.fan@oss.nxp.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: 71c0cd2283f2 ("ARM: dts: bcm2837: Add Raspberry Pi 3 B+")
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/imx_rproc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/imx_rproc.c b/drivers/remoteproc/imx_rproc.c
-index 7a096f1891e6..91eb037089ef 100644
---- a/drivers/remoteproc/imx_rproc.c
-+++ b/drivers/remoteproc/imx_rproc.c
-@@ -423,6 +423,9 @@ static int imx_rproc_prepare(struct rproc *rproc)
- 		if (!strcmp(it.node->name, "vdev0buffer"))
- 			continue;
- 
-+		if (!strcmp(it.node->name, "rsc-table"))
-+			continue;
-+
- 		rmem = of_reserved_mem_lookup(it.node);
- 		if (!rmem) {
- 			dev_err(priv->dev, "unable to acquire memory-region\n");
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts b/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
+index 74ed6d047807..d9f63fc59f16 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
++++ b/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
+@@ -43,7 +43,7 @@
+ 		#gpio-cells = <2>;
+ 		gpio-line-names = "BT_ON",
+ 				  "WL_ON",
+-				  "STATUS_LED_R",
++				  "PWR_LED_R",
+ 				  "LAN_RUN",
+ 				  "",
+ 				  "CAM_GPIO0",
 -- 
 2.35.1
 
