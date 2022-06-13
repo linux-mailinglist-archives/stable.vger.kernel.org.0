@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB4A548B94
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0EF2548A47
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377970AbiFMNki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:40:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58538 "EHLO
+        id S1356197AbiFMLuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:50:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378634AbiFMNjG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC6767891A;
-        Mon, 13 Jun 2022 04:27:46 -0700 (PDT)
+        with ESMTP id S1356324AbiFMLsv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:48:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C701D4C40C;
+        Mon, 13 Jun 2022 03:53:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55FB3B80EA8;
-        Mon, 13 Jun 2022 11:27:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7C4AC3411C;
-        Mon, 13 Jun 2022 11:27:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DA00B80E93;
+        Mon, 13 Jun 2022 10:53:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4219C3411E;
+        Mon, 13 Jun 2022 10:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119664;
-        bh=5KK2CwmryHRpgwOVonR+RYx+OZFduKmyzbH94Fe4iJ0=;
+        s=korg; t=1655117580;
+        bh=jV1nlxoLi1cKEqWaoK0WmtX6r+5CQ9w7Vi3Pto+GAHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bAnGkDh0Q+X4C4Rbd/+Eb8HJCjnSR/bhvupe3KLfHlln8ABbU75kd67/m7tF5WHqo
-         ZHX8oKdmVuUmgTtSjDdnziShuoxLv4ujgWKEhAdTtETRurENJZCtRJNjuqIyEQy2mN
-         DXgCGihDVN8bQSVmMw+EP5uT9EvvhdfIonQfVj24=
+        b=R6ix13pgclgRPKUjPGL3L46JO9srDKMmpQ0xCMHDDASE7S7KbBDWWrUR/zpnYq3av
+         mn61ydulrl/NrSljMTEKAbElPEdR+KNJK5E1Ck2e2hBMQTwduA9QWLRFV1wdZE+P3V
+         asb4F1F9L8ogKYxT5OyV9AkKJd+EJIolXxo5FUkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        "kernelci.org bot" <bot@kernelci.org>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 064/339] Revert "serial: 8250_mtk: Make sure to select the right FEATURE_SEL"
+Subject: [PATCH 4.19 065/287] drm/vc4: txp: Dont set TXP_VSTART_AT_EOF
 Date:   Mon, 13 Jun 2022 12:08:09 +0200
-Message-Id: <20220613094928.464950203@linuxfoundation.org>
+Message-Id: <20220613094925.841629984@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,52 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit f0136f65285bcfb7e8f90d1013723076a35acd51 ]
+[ Upstream commit 234998df929f14d00cbf2f1e81a7facb69fd9266 ]
 
-It was found that some MediaTek SoCs are incompatible with this
-change. Also, this register was mistakenly understood as it was
-related to the 16550A register layout selection but, at least
-on some IPs, if not all, it's related to something else unknown.
+The TXP_VSTART_AT_EOF will generate a second VSTART signal to the HVS.
+However, the HVS waits for VSTART to enable the FIFO and will thus start
+filling the FIFO before the start of the frame.
 
-This reverts commit 6f81fdded0d024c7d4084d434764f30bca1cd6b1.
+This leads to corruption at the beginning of the first frame, and
+content from the previous frame at the beginning of the next frames.
 
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Fixes: 6f81fdded0d0 ("serial: 8250_mtk: Make sure to select the right FEATURE_SEL")
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Link: https://lore.kernel.org/r/20220510122620.150342-1-angelogioacchino.delregno@collabora.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since one VSTART is enough, let's get rid of it.
+
+Fixes: 008095e065a8 ("drm/vc4: Add support for the transposer block")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://lore.kernel.org/r/20220328153659.2382206-3-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_mtk.c | 7 -------
- 1 file changed, 7 deletions(-)
+ drivers/gpu/drm/vc4/vc4_txp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
-index 21053db93ff1..54051ec7b499 100644
---- a/drivers/tty/serial/8250/8250_mtk.c
-+++ b/drivers/tty/serial/8250/8250_mtk.c
-@@ -54,9 +54,6 @@
- #define MTK_UART_TX_TRIGGER	1
- #define MTK_UART_RX_TRIGGER	MTK_UART_RX_SIZE
+diff --git a/drivers/gpu/drm/vc4/vc4_txp.c b/drivers/gpu/drm/vc4/vc4_txp.c
+index 6e23c50168f9..9b7810c3dd65 100644
+--- a/drivers/gpu/drm/vc4/vc4_txp.c
++++ b/drivers/gpu/drm/vc4/vc4_txp.c
+@@ -311,7 +311,7 @@ static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
+ 	if (WARN_ON(i == ARRAY_SIZE(drm_fmts)))
+ 		return;
  
--#define MTK_UART_FEATURE_SEL	39	/* Feature Selection register */
--#define MTK_UART_FEAT_NEWRMAP	BIT(0)	/* Use new register map */
--
- #define MTK_UART_XON1		40	/* I/O: Xon character 1 */
- #define MTK_UART_XOFF1		42	/* I/O: Xoff character 1 */
+-	ctrl = TXP_GO | TXP_VSTART_AT_EOF | TXP_EI |
++	ctrl = TXP_GO | TXP_EI |
+ 	       VC4_SET_FIELD(0xf, TXP_BYTE_ENABLE) |
+ 	       VC4_SET_FIELD(txp_fmts[i], TXP_FORMAT);
  
-@@ -575,10 +572,6 @@ static int mtk8250_probe(struct platform_device *pdev)
- 		uart.dma = data->dma;
- #endif
- 
--	/* Set AP UART new register map */
--	writel(MTK_UART_FEAT_NEWRMAP, uart.port.membase +
--	       (MTK_UART_FEATURE_SEL << uart.port.regshift));
--
- 	/* Disable Rate Fix function */
- 	writel(0x0, uart.port.membase +
- 			(MTK_UART_RATE_FIX << uart.port.regshift));
 -- 
 2.35.1
 
