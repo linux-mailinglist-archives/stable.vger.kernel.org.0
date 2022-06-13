@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03B7B548FDB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EEF7548FD9
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348009AbiFMMYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:24:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33896 "EHLO
+        id S1379555AbiFMN5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:57:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355148AbiFMMXy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB76731525;
-        Mon, 13 Jun 2022 04:04:20 -0700 (PDT)
+        with ESMTP id S1381074AbiFMNzx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:55:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06EE685EFB;
+        Mon, 13 Jun 2022 04:36:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C41BB80E42;
-        Mon, 13 Jun 2022 11:04:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC7FBC34114;
-        Mon, 13 Jun 2022 11:04:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BF0D4CE1247;
+        Mon, 13 Jun 2022 11:36:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABC07C34114;
+        Mon, 13 Jun 2022 11:36:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118258;
-        bh=Z6IPkPoOUagw/OZ8hPLnmLRYln8J0pLkvV77+rmkJ+I=;
+        s=korg; t=1655120188;
+        bh=VAG+3uL6h5kOCfu6AuzyUB7t+yIhbm19oEA/UYTLcX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DAatBxC1E20Nkaz8egArrlQLmC6leEl1v+rfuGPHzKCbwxlh9o1mD2UG8e90Smo70
-         VmfdVW1Pu1skDBLNPbdescNxIvK2HUeu9s/9LZP4soJP1TxksZY6q+jBA2EVCZrbqJ
-         7NX6eFHciWJzsVYsS+DNynj8xE9fzlxKZ+eiR1kA=
+        b=Dp8CUMOhhhXPLeo5xl/2bLdIi7HOmPCgtQVXuFSJESm6aYUmdem3/b7HReCwYFBEm
+         iVS4cfbEAuOvEfoUSz2eUTd8tsH94aUZQvEIoXEuAjAFsqE+kI4dyCV/G2cKf+drSG
+         QNo0DO70+3hccTyKLd3PKq3bQQVNyJ1t3PVcSj0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Olivier Matz <olivier.matz@6wind.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 4.19 282/287] ixgbe: fix unexpected VLAN Rx in promisc mode on VF
+        stable@vger.kernel.org, Cyril Brulebois <kibi@debian.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 281/339] Revert "PCI: brcmstb: Split brcm_pcie_setup() into two funcs"
 Date:   Mon, 13 Jun 2022 12:11:46 +0200
-Message-Id: <20220613094932.546352691@linuxfoundation.org>
+Message-Id: <20220613094935.158169666@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +54,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Matz <olivier.matz@6wind.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-commit 7bb0fb7c63df95d6027dc50d6af3bc3bbbc25483 upstream.
+[ Upstream commit f4fd559de3434c44bed1d2912bd0c75cfa42898b ]
 
-When the promiscuous mode is enabled on a VF, the IXGBE_VMOLR_VPE
-bit (VLAN Promiscuous Enable) is set. This means that the VF will
-receive packets whose VLAN is not the same than the VLAN of the VF.
+This reverts commit 830aa6f29f07a4e2f1a947dfa72b3ccddb46dd21.
 
-For instance, in this situation:
+This is part of a revert of the following commits:
 
-┌────────┐    ┌────────┐    ┌────────┐
-│        │    │        │    │        │
-│        │    │        │    │        │
-│     VF0├────┤VF1  VF2├────┤VF3     │
-│        │    │        │    │        │
-└────────┘    └────────┘    └────────┘
-   VM1           VM2           VM3
+  11ed8b8624b8 ("PCI: brcmstb: Do not turn off WOL regulators on suspend")
+  93e41f3fca3d ("PCI: brcmstb: Add control of subdevice voltage regulators")
+  67211aadcb4b ("PCI: brcmstb: Add mechanism to turn on subdev regulators")
+  830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup() into two funcs")
 
-vf 0:  vlan 1000
-vf 1:  vlan 1000
-vf 2:  vlan 1001
-vf 3:  vlan 1001
+Cyril reported that 830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup()
+into two funcs"), which appeared in v5.17-rc1, broke booting on the
+Raspberry Pi Compute Module 4.  Apparently 830aa6f29f07 panics with an
+Asynchronous SError Interrupt, and after further commits here is a black
+screen on HDMI and no output on the serial console.
 
-If we tcpdump on VF3, we see all the packets, even those transmitted
-on vlan 1000.
+This does not seem to affect the Raspberry Pi 4 B.
 
-This behavior prevents to bridge VF1 and VF2 in VM2, because it will
-create a loop: packets transmitted on VF1 will be received by VF2 and
-vice-versa, and bridged again through the software bridge.
-
-This patch remove the activation of VLAN Promiscuous when a VF enables
-the promiscuous mode. However, the IXGBE_VMOLR_UPE bit (Unicast
-Promiscuous) is kept, so that a VF receives all packets that has the
-same VLAN, whatever the destination MAC address.
-
-Fixes: 8443c1a4b192 ("ixgbe, ixgbevf: Add new mbox API xcast mode")
-Cc: stable@vger.kernel.org
-Cc: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: Olivier Matz <olivier.matz@6wind.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215925
+Link: https://lore.kernel.org/r/20220511201856.808690-5-helgaas@kernel.org
+Reported-by: Cyril Brulebois <kibi@debian.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pcie-brcmstb.c | 65 +++++++++++----------------
+ 1 file changed, 26 insertions(+), 39 deletions(-)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-@@ -1172,9 +1172,9 @@ static int ixgbe_update_vf_xcast_mode(st
- 			return -EPERM;
- 		}
+diff --git a/drivers/pci/controller/pcie-brcmstb.c b/drivers/pci/controller/pcie-brcmstb.c
+index 0e8346114a8d..e61058e13818 100644
+--- a/drivers/pci/controller/pcie-brcmstb.c
++++ b/drivers/pci/controller/pcie-brcmstb.c
+@@ -926,9 +926,16 @@ static inline int brcm_pcie_get_rc_bar2_size_and_offset(struct brcm_pcie *pcie,
  
--		disable = 0;
-+		disable = IXGBE_VMOLR_VPE;
- 		enable = IXGBE_VMOLR_BAM | IXGBE_VMOLR_ROMPE |
--			 IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE | IXGBE_VMOLR_VPE;
-+			 IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE;
- 		break;
- 	default:
- 		return -EOPNOTSUPP;
+ static int brcm_pcie_setup(struct brcm_pcie *pcie)
+ {
++	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(pcie);
+ 	u64 rc_bar2_offset, rc_bar2_size;
+ 	void __iomem *base = pcie->base;
+-	int ret, memc;
++	struct device *dev = pcie->dev;
++	struct resource_entry *entry;
++	bool ssc_good = false;
++	struct resource *res;
++	int num_out_wins = 0;
++	u16 nlw, cls, lnksta;
++	int i, ret, memc;
+ 	u32 tmp, burst, aspm_support;
+ 
+ 	/* Reset the bridge */
+@@ -1018,40 +1025,6 @@ static int brcm_pcie_setup(struct brcm_pcie *pcie)
+ 	if (pcie->gen)
+ 		brcm_pcie_set_gen(pcie, pcie->gen);
+ 
+-	/* Don't advertise L0s capability if 'aspm-no-l0s' */
+-	aspm_support = PCIE_LINK_STATE_L1;
+-	if (!of_property_read_bool(pcie->np, "aspm-no-l0s"))
+-		aspm_support |= PCIE_LINK_STATE_L0S;
+-	tmp = readl(base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
+-	u32p_replace_bits(&tmp, aspm_support,
+-		PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK);
+-	writel(tmp, base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
+-
+-	/*
+-	 * For config space accesses on the RC, show the right class for
+-	 * a PCIe-PCIe bridge (the default setting is to be EP mode).
+-	 */
+-	tmp = readl(base + PCIE_RC_CFG_PRIV1_ID_VAL3);
+-	u32p_replace_bits(&tmp, 0x060400,
+-			  PCIE_RC_CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK);
+-	writel(tmp, base + PCIE_RC_CFG_PRIV1_ID_VAL3);
+-
+-	return 0;
+-}
+-
+-static int brcm_pcie_linkup(struct brcm_pcie *pcie)
+-{
+-	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(pcie);
+-	struct device *dev = pcie->dev;
+-	void __iomem *base = pcie->base;
+-	struct resource_entry *entry;
+-	struct resource *res;
+-	int num_out_wins = 0;
+-	u16 nlw, cls, lnksta;
+-	bool ssc_good = false;
+-	u32 tmp;
+-	int ret, i;
+-
+ 	/* Unassert the fundamental reset */
+ 	pcie->perst_set(pcie, 0);
+ 
+@@ -1102,6 +1075,24 @@ static int brcm_pcie_linkup(struct brcm_pcie *pcie)
+ 		num_out_wins++;
+ 	}
+ 
++	/* Don't advertise L0s capability if 'aspm-no-l0s' */
++	aspm_support = PCIE_LINK_STATE_L1;
++	if (!of_property_read_bool(pcie->np, "aspm-no-l0s"))
++		aspm_support |= PCIE_LINK_STATE_L0S;
++	tmp = readl(base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
++	u32p_replace_bits(&tmp, aspm_support,
++		PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK);
++	writel(tmp, base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
++
++	/*
++	 * For config space accesses on the RC, show the right class for
++	 * a PCIe-PCIe bridge (the default setting is to be EP mode).
++	 */
++	tmp = readl(base + PCIE_RC_CFG_PRIV1_ID_VAL3);
++	u32p_replace_bits(&tmp, 0x060400,
++			  PCIE_RC_CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK);
++	writel(tmp, base + PCIE_RC_CFG_PRIV1_ID_VAL3);
++
+ 	if (pcie->ssc) {
+ 		ret = brcm_pcie_set_ssc(pcie);
+ 		if (ret == 0)
+@@ -1290,10 +1281,6 @@ static int brcm_pcie_resume(struct device *dev)
+ 	if (ret)
+ 		goto err_reset;
+ 
+-	ret = brcm_pcie_linkup(pcie);
+-	if (ret)
+-		goto err_reset;
+-
+ 	if (pcie->msi)
+ 		brcm_msi_set_regs(pcie->msi);
+ 
+-- 
+2.35.1
+
 
 
