@@ -2,43 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFDB1549623
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 893EE5494DF
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381048AbiFMOHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:07:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52012 "EHLO
+        id S242193AbiFMKRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:17:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382604AbiFMOGG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:06:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F3495DF4;
-        Mon, 13 Jun 2022 04:41:02 -0700 (PDT)
+        with ESMTP id S242127AbiFMKR1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:17:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50D351FCDA;
+        Mon, 13 Jun 2022 03:15:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3782B80E2C;
-        Mon, 13 Jun 2022 11:40:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 297E3C34114;
-        Mon, 13 Jun 2022 11:40:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6D7C614BA;
+        Mon, 13 Jun 2022 10:15:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC4F8C34114;
+        Mon, 13 Jun 2022 10:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120455;
-        bh=IVjXOW8RIGiL5phsUl4Pc2qplnLo+TV0JfVmuDGxz8s=;
+        s=korg; t=1655115327;
+        bh=Bf5QOHaJpiVUqhHBRSN35OBw5iZVamMzadF9hlHiv/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=angPs3F3JpgI+B2HrfkVWUy+iCGkezAtlldJtThXXPcorWEpasWY9Mq+SvSIKQGQR
-         EWwoCYwW8aPXAHSp12umYcpliKkLlUAsWssskM+lDKdPoQhsRvhw5RmQs9tn+qQorI
-         BlcraurqEQzMtIU3gPWOwHtmWviLyvkUxFXUDE4I=
+        b=PLRMXhSe4sYxym5RaDa2E/gMalRhek2hqMHHg++HmmzTv4VIkysjVXt8VPE3gZY1a
+         Jittjj/NkVTftS04WdAfNPV7vyzn0DAhwcWy9b74ENHULCDVOoPsPCQd10Pqj56cxp
+         DOQ2UXgZSUTJS+JlEQriNqacofcz9je6nJ3TnjB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 016/298] usb: musb: Fix missing of_node_put() in omap2430_probe
+Subject: [PATCH 4.9 036/167] drm: fix EDID struct for old ARM OABI format
 Date:   Mon, 13 Jun 2022 12:08:30 +0200
-Message-Id: <20220613094925.421603310@linuxfoundation.org>
+Message-Id: <20220613094849.337255700@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +61,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 424bef51fa530389b0b9008c9e144e40c10e8458 ]
+[ Upstream commit 47f15561b69e226bfc034e94ff6dbec51a4662af ]
 
-The device_node pointer is returned by of_parse_phandle() with refcount
-incremented. We should use of_node_put() on it when done.
+When building the kernel for arm with the "-mabi=apcs-gnu" option, gcc
+will force alignment of all structures and unions to a word boundary
+(see also STRUCTURE_SIZE_BOUNDARY and the "-mstructure-size-boundary=XX"
+option if you're a gcc person), even when the members of said structures
+do not want or need said alignment.
 
-Fixes: 8934d3e4d0e7 ("usb: musb: omap2430: Don't use omap_get_control_dev()")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220309111033.24487-1-linmq006@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This completely messes up the structure alignment of 'struct edid' on
+those targets, because even though all the embedded structures are
+marked with "__attribute__((packed))", the unions that contain them are
+not.
+
+This was exposed by commit f1e4c916f97f ("drm/edid: add EDID block count
+and size helpers"), but the bug is pre-existing.  That commit just made
+the structure layout problem cause a build failure due to the addition
+of the
+
+        BUILD_BUG_ON(sizeof(*edid) != EDID_LENGTH);
+
+sanity check in drivers/gpu/drm/drm_edid.c:edid_block_data().
+
+This legacy union alignment should probably not be used in the first
+place, but we can fix the layout by adding the packed attribute to the
+union entries even when each member is already packed and it shouldn't
+matter in a sane build environment.
+
+You can see this issue with a trivial test program:
+
+  union {
+	struct {
+		char c[5];
+	};
+	struct {
+		char d;
+		unsigned e;
+	} __attribute__((packed));
+  } a = { "1234" };
+
+where building this with a normal "gcc -S" will result in the expected
+5-byte size of said union:
+
+	.type	a, @object
+	.size	a, 5
+
+but with an ARM compiler and the old ABI:
+
+    arm-linux-gnu-gcc -mabi=apcs-gnu -mfloat-abi=soft -S t.c
+
+you get
+
+	.type	a, %object
+	.size	a, 8
+
+instead, because even though each member of the union is packed, the
+union itself still gets aligned.
+
+This was reported by Sudip for the spear3xx_defconfig target.
+
+Link: https://lore.kernel.org/lkml/YpCUzStDnSgQLNFN@debian/
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/omap2430.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/drm/drm_edid.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/musb/omap2430.c b/drivers/usb/musb/omap2430.c
-index d2b7e613eb34..f571a65ae6ee 100644
---- a/drivers/usb/musb/omap2430.c
-+++ b/drivers/usb/musb/omap2430.c
-@@ -362,6 +362,7 @@ static int omap2430_probe(struct platform_device *pdev)
- 	control_node = of_parse_phandle(np, "ctrl-module", 0);
- 	if (control_node) {
- 		control_pdev = of_find_device_by_node(control_node);
-+		of_node_put(control_node);
- 		if (!control_pdev) {
- 			dev_err(&pdev->dev, "Failed to get control device\n");
- 			ret = -EINVAL;
+diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
+index c3a7d440bc11..514a02095983 100644
+--- a/include/drm/drm_edid.h
++++ b/include/drm/drm_edid.h
+@@ -114,7 +114,7 @@ struct detailed_data_monitor_range {
+ 			u8 supported_scalings;
+ 			u8 preferred_refresh;
+ 		} __attribute__((packed)) cvt;
+-	} formula;
++	} __attribute__((packed)) formula;
+ } __attribute__((packed));
+ 
+ struct detailed_data_wpindex {
+@@ -147,7 +147,7 @@ struct detailed_non_pixel {
+ 		struct detailed_data_wpindex color;
+ 		struct std_timing timings[6];
+ 		struct cvt_timing cvt[4];
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
+ 
+ #define EDID_DETAIL_EST_TIMINGS 0xf7
+@@ -165,7 +165,7 @@ struct detailed_timing {
+ 	union {
+ 		struct detailed_pixel_timing pixel_data;
+ 		struct detailed_non_pixel other_data;
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
+ 
+ #define DRM_EDID_INPUT_SERRATION_VSYNC (1 << 0)
 -- 
 2.35.1
 
