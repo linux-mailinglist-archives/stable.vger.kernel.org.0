@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 125E3548BA1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87C9E549785
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355793AbiFMM5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:57:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49944 "EHLO
+        id S1357574AbiFMMAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:00:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355132AbiFMMzQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D681AE74;
-        Mon, 13 Jun 2022 04:15:27 -0700 (PDT)
+        with ESMTP id S1358376AbiFML74 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:59:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EABB24F2E;
+        Mon, 13 Jun 2022 03:56:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCA6460B6B;
-        Mon, 13 Jun 2022 11:15:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1E71C34114;
-        Mon, 13 Jun 2022 11:15:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADDE961346;
+        Mon, 13 Jun 2022 10:56:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA8D6C34114;
+        Mon, 13 Jun 2022 10:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118926;
-        bh=0R9cUiJJLlj1dZmF0CiC0DRn4+vSv1qX+ATJ4iTqCag=;
+        s=korg; t=1655117813;
+        bh=N6Z35cf+BtLsXMSsEPfu6bc8cqh33ameC/V7MCmmTVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qYXOhFlHIIJNGA/tfJU7Ra8aedNSnXy+38HKpSio+LOIxcYNaW4wTnTkYJE9XJCzg
-         C6JXkH8UCIqu+73KWWH5G7mKCeAtrm/LqSvzO47HjRPQsVFY/Tw57I1MbiLjZeAx5s
-         7XMDndd2Xp08JmwvemNAlWT8mJNeXq3xZghxsoUQ=
+        b=yvC7gj+2rsW01T8WGE0dxzfrOuyniTCm6iHtOGqxLy6RR8bVfN5Wi79WyjlHsy4PA
+         QmWMIhl02Bd6EzwAXYNZi4Ggwcsk/3ZRiuau2jd0DzbDy1OGUosrzKxpSz+DuBVxgv
+         RPLoiZvIRwmyQJN1lBzvAYE0v000t/x4fxOvkFWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 050/247] tty: n_gsm: Dont ignore write return value in gsmld_output()
+Subject: [PATCH 4.19 128/287] powerpc/perf: Fix the threshold compare group constraint for power9
 Date:   Mon, 13 Jun 2022 12:09:12 +0200
-Message-Id: <20220613094924.470403861@linuxfoundation.org>
+Message-Id: <20220613094927.760662039@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,45 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit 9136c68346d096697935b9840782f7051d5796c5 ]
+[ Upstream commit ab0cc6bbf0c812731c703ec757fcc3fc3a457a34 ]
 
-We currently have gsmld_output() ignore the return value from device
-write. This means we will lose packets if device write returns 0 or
-an error.
+Thresh compare bits for a event is used to program thresh compare
+field in Monitor Mode Control Register A (MMCRA: 9-18 bits for power9).
+When scheduling events as a group, all events in that group should
+match value in threshold bits (like thresh compare, thresh control,
+thresh select). Otherwise event open for the sibling events should fail.
+But in the current code, incase thresh compare bits are not valid,
+we are not failing in group_constraint function which can result
+in invalid group schduling.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210930060624.46523-1-tony@atomide.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix the issue by returning -1 incase event is threshold and threshold
+compare value is not valid.
+
+Thresh control bits in the event code is used to program thresh_ctl
+field in Monitor Mode Control Register A (MMCRA: 48-55). In below example,
+the scheduling of group events PM_MRK_INST_CMPL (873534401e0) and
+PM_THRESH_MET (8734340101ec) is expected to fail as both event
+request different thresh control bits and invalid thresh compare value.
+
+Result before the patch changes:
+
+[command]# perf stat -e "{r8735340401e0,r8734340101ec}" sleep 1
+
+ Performance counter stats for 'sleep 1':
+
+            11,048      r8735340401e0
+             1,967      r8734340101ec
+
+       1.001354036 seconds time elapsed
+
+       0.001421000 seconds user
+       0.000000000 seconds sys
+
+Result after the patch changes:
+
+[command]# perf stat -e "{r8735340401e0,r8734340101ec}" sleep 1
+Error:
+The sys_perf_event_open() syscall returned with 22 (Invalid argument)
+for event (r8735340401e0).
+/bin/dmesg | grep -i perf may provide additional information.
+
+Fixes: 78a16d9fc1206 ("powerpc/perf: Avoid FAB_*_MATCH checks for power9")
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Reviewed-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220506061015.43916-2-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/powerpc/perf/isa207-common.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 1767503de744..0722860b6f54 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -692,7 +692,7 @@ static void gsm_data_kick(struct gsm_mux *gsm, struct gsm_dlci *dlci)
- 			print_hex_dump_bytes("gsm_data_kick: ",
- 					     DUMP_PREFIX_OFFSET,
- 					     gsm->txframe, len);
--		if (gsmld_output(gsm, gsm->txframe, len) < 0)
-+		if (gsmld_output(gsm, gsm->txframe, len) <= 0)
- 			break;
- 		/* FIXME: Can eliminate one SOF in many more cases */
- 		gsm->tx_bytes -= msg->len;
-@@ -2373,8 +2373,7 @@ static int gsmld_output(struct gsm_mux *gsm, u8 *data, int len)
- 	if (debug & 4)
- 		print_hex_dump_bytes("gsmld_output: ", DUMP_PREFIX_OFFSET,
- 				     data, len);
--	gsm->tty->ops->write(gsm->tty, data, len);
--	return len;
-+	return gsm->tty->ops->write(gsm->tty, data, len);
- }
- 
- /**
+diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
+index a1ff4142cc6a..08f2227761f6 100644
+--- a/arch/powerpc/perf/isa207-common.c
++++ b/arch/powerpc/perf/isa207-common.c
+@@ -322,7 +322,8 @@ int isa207_get_constraint(u64 event, unsigned long *maskp, unsigned long *valp)
+ 		if (event_is_threshold(event) && is_thresh_cmp_valid(event)) {
+ 			mask  |= CNST_THRESH_MASK;
+ 			value |= CNST_THRESH_VAL(event >> EVENT_THRESH_SHIFT);
+-		}
++		} else if (event_is_threshold(event))
++			return -1;
+ 	} else {
+ 		/*
+ 		 * Special case for PM_MRK_FAB_RSP_MATCH and PM_MRK_FAB_RSP_MATCH_CYC,
 -- 
 2.35.1
 
