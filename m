@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B99EF548C9C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:13:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40A92548996
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352764AbiFMLUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:20:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47114 "EHLO
+        id S1346711AbiFMKiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:38:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353153AbiFMLTM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 256C23A5C3;
-        Mon, 13 Jun 2022 03:41:03 -0700 (PDT)
+        with ESMTP id S1345947AbiFMKhX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:37:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DA4212758;
+        Mon, 13 Jun 2022 03:22:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D920B80EAA;
-        Mon, 13 Jun 2022 10:41:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF97BC34114;
-        Mon, 13 Jun 2022 10:40:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3909A60AE9;
+        Mon, 13 Jun 2022 10:22:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D90C34114;
+        Mon, 13 Jun 2022 10:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116860;
-        bh=jGeZxlUIN3xLJC961hH/xnbk8vx7G1hFEgsXY9u7FGE=;
+        s=korg; t=1655115767;
+        bh=tlTUH1dsjMTE2GgTuQ6cQeF+qzMwp+Na8MzUcVDio9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D/ya9+4xOnV7SYw7w47rSnfAcPA8V91KxuxVWYZWZ6AJWSTXOclX6acxMNHmMyIib
-         OxiB9rQ2+aRDJ0I6YWpjqst9e5NAt2DZKEKc9gzBBoSsajpV6cxgk4vHQi4dbaZ7Dt
-         dKIbYJc33yr4A04TIXmtFghUIA3Q+efhPnjzyQDk=
+        b=ALEZi9dqZJI+arbAiryi+c3qltc8L/OOc7mPI1GeOxdohq/jvZfq0OiNHEf6vruBa
+         +if8zXtKxTp4dSGPZwq3KYiqZtpHJDvO2xPWWCrU/9p8O06KCAuOUiiaxjbmuOtZEu
+         ztmuvh8Myb0JpuZfz2bdiWfaCWdociNpL/iT9VgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Michael Walle <michael@walle.cc>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 199/411] i2c: at91: Initialize dma_buf in at91_twi_xfer()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 014/218] ALSA: jack: Access input_dev under mutex
 Date:   Mon, 13 Jun 2022 12:07:52 +0200
-Message-Id: <20220613094934.628406459@linuxfoundation.org>
+Message-Id: <20220613094911.713670886@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +56,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit 6977262c2eee111645668fe9e235ef2f5694abf7 ]
+[ Upstream commit 1b6a6fc5280e97559287b61eade2d4b363e836f2 ]
 
-Clang warns:
+It is possible when using ASoC that input_dev is unregistered while
+calling snd_jack_report, which causes NULL pointer dereference.
+In order to prevent this serialize access to input_dev using mutex lock.
 
-  drivers/i2c/busses/i2c-at91-master.c:707:6: warning: variable 'dma_buf' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
-          if (dev->use_dma) {
-              ^~~~~~~~~~~~
-  drivers/i2c/busses/i2c-at91-master.c:717:27: note: uninitialized use occurs here
-          i2c_put_dma_safe_msg_buf(dma_buf, m_start, !ret);
-                                   ^~~~~~~
-
-Initialize dma_buf to NULL, as i2c_put_dma_safe_msg_buf() is a no-op
-when the first argument is NULL, which will work for the !dev->use_dma
-case.
-
-Fixes: 03fbb903c8bf ("i2c: at91: use dma safe buffers")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1629
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20220412091628.3056922-1-amadeuszx.slawinski@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-at91-master.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/sound/jack.h |  1 +
+ sound/core/jack.c    | 34 +++++++++++++++++++++++++++-------
+ 2 files changed, 28 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
-index 44502024cc10..f74d5ad2f1fa 100644
---- a/drivers/i2c/busses/i2c-at91-master.c
-+++ b/drivers/i2c/busses/i2c-at91-master.c
-@@ -609,7 +609,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 	unsigned int_addr_flag = 0;
- 	struct i2c_msg *m_start = msg;
- 	bool is_read;
--	u8 *dma_buf;
-+	u8 *dma_buf = NULL;
+diff --git a/include/sound/jack.h b/include/sound/jack.h
+index 1e84bfb553cf..4742f842b457 100644
+--- a/include/sound/jack.h
++++ b/include/sound/jack.h
+@@ -77,6 +77,7 @@ struct snd_jack {
+ 	const char *id;
+ #ifdef CONFIG_SND_JACK_INPUT_DEV
+ 	struct input_dev *input_dev;
++	struct mutex input_dev_lock;
+ 	int registered;
+ 	int type;
+ 	char name[100];
+diff --git a/sound/core/jack.c b/sound/core/jack.c
+index 36cfe1c54109..d2f9a92453f2 100644
+--- a/sound/core/jack.c
++++ b/sound/core/jack.c
+@@ -48,8 +48,11 @@ static int snd_jack_dev_disconnect(struct snd_device *device)
+ #ifdef CONFIG_SND_JACK_INPUT_DEV
+ 	struct snd_jack *jack = device->device_data;
  
- 	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
+-	if (!jack->input_dev)
++	mutex_lock(&jack->input_dev_lock);
++	if (!jack->input_dev) {
++		mutex_unlock(&jack->input_dev_lock);
+ 		return 0;
++	}
  
+ 	/* If the input device is registered with the input subsystem
+ 	 * then we need to use a different deallocator. */
+@@ -58,6 +61,7 @@ static int snd_jack_dev_disconnect(struct snd_device *device)
+ 	else
+ 		input_free_device(jack->input_dev);
+ 	jack->input_dev = NULL;
++	mutex_unlock(&jack->input_dev_lock);
+ #endif /* CONFIG_SND_JACK_INPUT_DEV */
+ 	return 0;
+ }
+@@ -96,8 +100,11 @@ static int snd_jack_dev_register(struct snd_device *device)
+ 	snprintf(jack->name, sizeof(jack->name), "%s %s",
+ 		 card->shortname, jack->id);
+ 
+-	if (!jack->input_dev)
++	mutex_lock(&jack->input_dev_lock);
++	if (!jack->input_dev) {
++		mutex_unlock(&jack->input_dev_lock);
+ 		return 0;
++	}
+ 
+ 	jack->input_dev->name = jack->name;
+ 
+@@ -122,6 +129,7 @@ static int snd_jack_dev_register(struct snd_device *device)
+ 	if (err == 0)
+ 		jack->registered = 1;
+ 
++	mutex_unlock(&jack->input_dev_lock);
+ 	return err;
+ }
+ #endif /* CONFIG_SND_JACK_INPUT_DEV */
+@@ -242,9 +250,11 @@ int snd_jack_new(struct snd_card *card, const char *id, int type,
+ 		return -ENOMEM;
+ 	}
+ 
+-	/* don't creat input device for phantom jack */
+-	if (!phantom_jack) {
+ #ifdef CONFIG_SND_JACK_INPUT_DEV
++	mutex_init(&jack->input_dev_lock);
++
++	/* don't create input device for phantom jack */
++	if (!phantom_jack) {
+ 		int i;
+ 
+ 		jack->input_dev = input_allocate_device();
+@@ -262,8 +272,8 @@ int snd_jack_new(struct snd_card *card, const char *id, int type,
+ 				input_set_capability(jack->input_dev, EV_SW,
+ 						     jack_switch_types[i]);
+ 
+-#endif /* CONFIG_SND_JACK_INPUT_DEV */
+ 	}
++#endif /* CONFIG_SND_JACK_INPUT_DEV */
+ 
+ 	err = snd_device_new(card, SNDRV_DEV_JACK, jack, &ops);
+ 	if (err < 0)
+@@ -303,10 +313,14 @@ EXPORT_SYMBOL(snd_jack_new);
+ void snd_jack_set_parent(struct snd_jack *jack, struct device *parent)
+ {
+ 	WARN_ON(jack->registered);
+-	if (!jack->input_dev)
++	mutex_lock(&jack->input_dev_lock);
++	if (!jack->input_dev) {
++		mutex_unlock(&jack->input_dev_lock);
+ 		return;
++	}
+ 
+ 	jack->input_dev->dev.parent = parent;
++	mutex_unlock(&jack->input_dev_lock);
+ }
+ EXPORT_SYMBOL(snd_jack_set_parent);
+ 
+@@ -354,6 +368,8 @@ EXPORT_SYMBOL(snd_jack_set_key);
+ 
+ /**
+  * snd_jack_report - Report the current status of a jack
++ * Note: This function uses mutexes and should be called from a
++ * context which can sleep (such as a workqueue).
+  *
+  * @jack:   The jack to report status for
+  * @status: The current status of the jack
+@@ -373,8 +389,11 @@ void snd_jack_report(struct snd_jack *jack, int status)
+ 					    status & jack_kctl->mask_bits);
+ 
+ #ifdef CONFIG_SND_JACK_INPUT_DEV
+-	if (!jack->input_dev)
++	mutex_lock(&jack->input_dev_lock);
++	if (!jack->input_dev) {
++		mutex_unlock(&jack->input_dev_lock);
+ 		return;
++	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(jack->key); i++) {
+ 		int testbit = SND_JACK_BTN_0 >> i;
+@@ -393,6 +412,7 @@ void snd_jack_report(struct snd_jack *jack, int status)
+ 	}
+ 
+ 	input_sync(jack->input_dev);
++	mutex_unlock(&jack->input_dev_lock);
+ #endif /* CONFIG_SND_JACK_INPUT_DEV */
+ }
+ EXPORT_SYMBOL(snd_jack_report);
 -- 
 2.35.1
 
