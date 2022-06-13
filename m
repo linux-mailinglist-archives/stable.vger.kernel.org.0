@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA490548673
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47BFA5486E3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346540AbiFMKkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:40:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35158 "EHLO
+        id S1346839AbiFMKkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:40:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347838AbiFMKjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:39:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4DDC1400C;
-        Mon, 13 Jun 2022 03:23:12 -0700 (PDT)
+        with ESMTP id S1348284AbiFMKje (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:39:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9764E20F72;
+        Mon, 13 Jun 2022 03:23:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64A8DB80E95;
-        Mon, 13 Jun 2022 10:23:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B28FAC341C5;
-        Mon, 13 Jun 2022 10:23:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4193BB80E90;
+        Mon, 13 Jun 2022 10:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A772BC34114;
+        Mon, 13 Jun 2022 10:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115790;
-        bh=93gbBQ1CW6fW04ZVr6GhHTgR39LR4XV+Y+o+LtQyr4s=;
+        s=korg; t=1655115801;
+        bh=VNGegGaAd/ly1LXiAX5vOyIxqZbuAAy6Z7qocNNz9Qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vQvV3RYlHGkbnIQT9q94CdPssc8d5/PJZZML9JEC1hBUcrXfBgZZE6jBpJpB2bwRs
-         aFb7rcILVpF276JbHBNkomakUcGTetum+w9ctHNiCaTzAss/qjwxl4YMDeLIDHugRV
-         7xzqqUfJL/fIYQkabwrbo7BuXOnGVDR2uCCbeQok=
+        b=iMLjwVYfPP3xDVSPqc2ktr8bt2N2Gi5uVRicCv0FXLsoCBxLMG7R0zVz47N1jjH3I
+         nFUV18axS+tSJ5TYAKds41wdSWtahLUl/mDrINdcnPuhWBrhU3kRJODF4dSkadlecz
+         zLP9s9PC+3XCfil0aT5z739iqYWw0s8qIGsanwq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 031/218] net: phy: micrel: Allow probing without .driver_data
-Date:   Mon, 13 Jun 2022 12:08:09 +0200
-Message-Id: <20220613094915.666422390@linuxfoundation.org>
+Subject: [PATCH 4.14 035/218] ARM: dts: ox820: align interrupt controller node name with dtschema
+Date:   Mon, 13 Jun 2022 12:08:13 +0200
+Message-Id: <20220613094916.614126863@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
 References: <20220613094908.257446132@linuxfoundation.org>
@@ -54,70 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit f2ef6f7539c68c6bd6c32323d8845ee102b7c450 ]
+[ Upstream commit fbcd5ad7a419ad40644a0bb8b4152bc660172d8a ]
 
-Currently, if the .probe element is present in the phy_driver structure
-and the .driver_data is not, a NULL pointer dereference happens.
+Fixes dtbs_check warnings like:
 
-Allow passing .probe without .driver_data by inserting NULL checks
-for priv->type.
+  gic@1000: $nodename:0: 'gic@1000' does not match '^interrupt-controller(@[0-9a-f,]+)*$'
 
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220513114613.762810-1-festevam@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220317115705.450427-1-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/micrel.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/ox820.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
-index 755aa6741292..6f15cd5d4e7a 100644
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -285,7 +285,7 @@ static int kszphy_config_reset(struct phy_device *phydev)
- 		}
- 	}
+diff --git a/arch/arm/boot/dts/ox820.dtsi b/arch/arm/boot/dts/ox820.dtsi
+index 8355cb034525..3382b1a9cac9 100644
+--- a/arch/arm/boot/dts/ox820.dtsi
++++ b/arch/arm/boot/dts/ox820.dtsi
+@@ -286,7 +286,7 @@
+ 				clocks = <&armclk>;
+ 			};
  
--	if (priv->led_mode >= 0)
-+	if (priv->type && priv->led_mode >= 0)
- 		kszphy_setup_led(phydev, priv->type->led_mode_reg, priv->led_mode);
- 
- 	return 0;
-@@ -301,10 +301,10 @@ static int kszphy_config_init(struct phy_device *phydev)
- 
- 	type = priv->type;
- 
--	if (type->has_broadcast_disable)
-+	if (type && type->has_broadcast_disable)
- 		kszphy_broadcast_disable(phydev);
- 
--	if (type->has_nand_tree_disable)
-+	if (type && type->has_nand_tree_disable)
- 		kszphy_nand_tree_disable(phydev);
- 
- 	return kszphy_config_reset(phydev);
-@@ -764,7 +764,7 @@ static int kszphy_probe(struct phy_device *phydev)
- 
- 	priv->type = type;
- 
--	if (type->led_mode_reg) {
-+	if (type && type->led_mode_reg) {
- 		ret = of_property_read_u32(np, "micrel,led-mode",
- 				&priv->led_mode);
- 		if (ret)
-@@ -785,7 +785,8 @@ static int kszphy_probe(struct phy_device *phydev)
- 		unsigned long rate = clk_get_rate(clk);
- 		bool rmii_ref_clk_sel_25_mhz;
- 
--		priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
-+		if (type)
-+			priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
- 		rmii_ref_clk_sel_25_mhz = of_property_read_bool(np,
- 				"micrel,rmii-reference-clock-select-25-mhz");
- 
+-			gic: gic@1000 {
++			gic: interrupt-controller@1000 {
+ 				compatible = "arm,arm11mp-gic";
+ 				interrupt-controller;
+ 				#interrupt-cells = <3>;
 -- 
 2.35.1
 
