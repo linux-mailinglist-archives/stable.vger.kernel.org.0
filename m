@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BBA65493A6
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F275493B7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377726AbiFMNfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:35:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55392 "EHLO
+        id S1353898AbiFMLZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:25:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377723AbiFMNdp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:33:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A7FE72E19;
-        Mon, 13 Jun 2022 04:27:03 -0700 (PDT)
+        with ESMTP id S1353694AbiFMLYg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:24:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB9621E00;
+        Mon, 13 Jun 2022 03:42:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B02BDB80D3A;
-        Mon, 13 Jun 2022 11:27:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01788C3411C;
-        Mon, 13 Jun 2022 11:26:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8A3EB80E59;
+        Mon, 13 Jun 2022 10:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBB98C34114;
+        Mon, 13 Jun 2022 10:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119620;
-        bh=eXyL5yya7QZjyPzgxcv5lYoNuLFSty6KxCY5HEdVLTw=;
+        s=korg; t=1655116942;
+        bh=Iy2zCxexbia+3jnrwRqT+rxLhxPsx0s31m2dZe2YRmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zeBWBVvnlCJaXo2CbPd8VlOjAErDLTFQzuI+xn+iNW/3g/Ux3QlM7+UzUvz0b0g6d
-         1PG27MTSM6RpjgrFemiO+uHQYHoBZv9Daz/vBcidQhx2aemC7jiNMihKD75LT02D7h
-         tiECv0qR4oSWFKjYFXAKue8siIq5e5J25PrYULlg=
+        b=foRZ669MI5ohSmi6QN2aaI1znddQ+zgfkAdfTNJDViozqkHYWj0cCgcE1AsJ6rALD
+         8MezGbHl8xiKugUgPP1FSr44ESNokT+e15UyCNeLj84KldDvSA0pieG07n9WboDFS3
+         tUxDZ+DPDAEiFPHiBYZUBcXQVr6jD1FwEx/G/Zjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 079/339] watchdog: rti-wdt: Fix pm_runtime_get_sync() error checking
+        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.4 231/411] PCI: qcom: Fix runtime PM imbalance on probe errors
 Date:   Mon, 13 Jun 2022 12:08:24 +0200
-Message-Id: <20220613094928.915585706@linuxfoundation.org>
+Message-Id: <20220613094935.568051451@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit b3ac0c58fa8934926360268f3d89ec7680644d7b ]
+commit 87d83b96c8d6c6c2d2096bd0bdba73bcf42b8ef0 upstream.
 
-If the device is already in a runtime PM enabled state
-pm_runtime_get_sync() will return 1, so a test for negative
-value should be used to check for errors.
+Drop the leftover pm_runtime_disable() calls from the late probe error
+paths that would, for example, prevent runtime PM from being reenabled
+after a probe deferral.
 
-Fixes: 2d63908bdbfb ("watchdog: Add K3 RTI watchdog support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220412070824.23708-1-linmq006@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220401133854.10421-2-johan+linaro@kernel.org
+Fixes: 6e5da6f7d824 ("PCI: qcom: Fix error handling in runtime PM support")
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
+Cc: stable@vger.kernel.org      # 4.20
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/watchdog/rti_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pcie-qcom.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
-index db843f825860..00ebeffc674f 100644
---- a/drivers/watchdog/rti_wdt.c
-+++ b/drivers/watchdog/rti_wdt.c
-@@ -226,7 +226,7 @@ static int rti_wdt_probe(struct platform_device *pdev)
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -1343,17 +1343,14 @@ static int qcom_pcie_probe(struct platfo
+ 	}
  
- 	pm_runtime_enable(dev);
- 	ret = pm_runtime_get_sync(dev);
+ 	ret = phy_init(pcie->phy);
 -	if (ret) {
-+	if (ret < 0) {
- 		pm_runtime_put_noidle(dev);
- 		pm_runtime_disable(&pdev->dev);
- 		return dev_err_probe(dev, ret, "runtime pm failed\n");
--- 
-2.35.1
-
+-		pm_runtime_disable(&pdev->dev);
++	if (ret)
+ 		goto err_pm_runtime_put;
+-	}
+ 
+ 	platform_set_drvdata(pdev, pcie);
+ 
+ 	ret = dw_pcie_host_init(pp);
+ 	if (ret) {
+ 		dev_err(dev, "cannot initialize host\n");
+-		pm_runtime_disable(&pdev->dev);
+ 		goto err_pm_runtime_put;
+ 	}
+ 
 
 
