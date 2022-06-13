@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5D8548D4B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 469C0548C9B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:13:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357024AbiFMLwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:52:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44966 "EHLO
+        id S1346350AbiFMKj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:39:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356492AbiFMLug (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1DFA2EA05;
-        Mon, 13 Jun 2022 03:54:10 -0700 (PDT)
+        with ESMTP id S1346444AbiFMKiO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:38:14 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12F6713E00;
+        Mon, 13 Jun 2022 03:22:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4572B80D3F;
-        Mon, 13 Jun 2022 10:54:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1905AC34114;
-        Mon, 13 Jun 2022 10:54:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D3F8DCE1161;
+        Mon, 13 Jun 2022 10:22:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9F9BC3411E;
+        Mon, 13 Jun 2022 10:22:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117648;
-        bh=rzpCF9NGA5bwgOxj0c20j7PjcvxHifuuAdoYtyCVaoI=;
+        s=korg; t=1655115776;
+        bh=262NN7HEnh2igmL4l1gAU+SUwZl24FoHE7oXfKo85Lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1lDU104Rqwz1GXAFtA0xErM1fRHLHdqpVcUyeUDsFq8GV5SccdNVt5GbeStVUJOyg
-         Jz09HFNEaouwK/uIlbDMf4NQd+YYd/fndmKxaXKs8wXnvS3/jDjpdVvaDOdu7eh0ug
-         yJHoeR5KnABFpGWtHVVSOrTRQugi+33Sj8Q+ECjA=
+        b=OHqsMym+6e6UMVvCCy04eMaV9WYLcvjqn97A1F1NFirzFy1mRf16X3LRi9W8PnmFW
+         0ZPIlWUPEfJq0bOPcOXwLnOSjMZISkcgqnOn4D/t3QC6aXMUlS9SNCm7eMHdbwIdDX
+         Ab8+u1bdpf7KQ6qw60cZYYyS4dlm+AfNQTm/Ae8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 070/287] efi: Add missing prototype for efi_capsule_setup_info
-Date:   Mon, 13 Jun 2022 12:08:14 +0200
-Message-Id: <20220613094925.993249933@linuxfoundation.org>
+        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 037/218] ARM: OMAP1: clock: Fix UART rate reporting algorithm
+Date:   Mon, 13 Jun 2022 12:08:15 +0200
+Message-Id: <20220613094917.103514268@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-[ Upstream commit aa480379d8bdb33920d68acfd90f823c8af32578 ]
+[ Upstream commit 338d5d476cde853dfd97378d20496baabc2ce3c0 ]
 
-Fixes "no previous declaration for 'efi_capsule_setup_info'" warnings
-under W=1.
+Since its introduction to the mainline kernel, omap1_uart_recalc() helper
+makes incorrect use of clk->enable_bit as a ready to use bitmap mask while
+it only provides the bit number.  Fix it.
 
-Fixes: 2959c95d510c ("efi/capsule: Add support for Quark security header")
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-Link: https://lore.kernel.org/r/c28d3f86-dd72-27d1-e2c2-40971b8da6bd@siemens.com
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/efi.h | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mach-omap1/clock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/efi.h b/include/linux/efi.h
-index 9a5d4b499271..ec89e8bcc92f 100644
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -150,6 +150,8 @@ struct capsule_info {
- 	size_t			page_bytes_remain;
- };
+diff --git a/arch/arm/mach-omap1/clock.c b/arch/arm/mach-omap1/clock.c
+index fa512413a471..b277409f303a 100644
+--- a/arch/arm/mach-omap1/clock.c
++++ b/arch/arm/mach-omap1/clock.c
+@@ -44,7 +44,7 @@ static DEFINE_SPINLOCK(clockfw_lock);
+ unsigned long omap1_uart_recalc(struct clk *clk)
+ {
+ 	unsigned int val = __raw_readl(clk->enable_reg);
+-	return val & clk->enable_bit ? 48000000 : 12000000;
++	return val & 1 << clk->enable_bit ? 48000000 : 12000000;
+ }
  
-+int efi_capsule_setup_info(struct capsule_info *cap_info, void *kbuff,
-+                           size_t hdr_bytes);
- int __efi_capsule_setup_info(struct capsule_info *cap_info);
- 
- /*
+ unsigned long omap1_sossi_recalc(struct clk *clk)
 -- 
 2.35.1
 
