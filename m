@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E169548EB2
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27AE2548958
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343491AbiFMKpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:45:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47422 "EHLO
+        id S1355192AbiFMM4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:56:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345302AbiFMKn2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:43:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC283D114;
-        Mon, 13 Jun 2022 03:24:30 -0700 (PDT)
+        with ESMTP id S1356815AbiFMMyI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:54:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 465E26352F;
+        Mon, 13 Jun 2022 04:13:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56C0260EF8;
-        Mon, 13 Jun 2022 10:24:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E361C34114;
-        Mon, 13 Jun 2022 10:24:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E11F4B80E93;
+        Mon, 13 Jun 2022 11:12:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26DABC34114;
+        Mon, 13 Jun 2022 11:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115869;
-        bh=sKX0f2rm6Nc1YFGOFE/L3d9cw9EMLZUO6+aNCr12AxE=;
+        s=korg; t=1655118776;
+        bh=HRL1W3H3oXzbvv3ZmLRhHB16qHoYyZT0QHPA9gHqHuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bEcecxQjrxNd+DcCc5+exRweSLSP4kJCha/9eLHaccUlDuT3lx1Pd5NW7cnb2QPqT
-         6eT8d6j6Ml+swhqYzNCG7KuPSBcYQq8CdFRhFya6jbgAmNu1thJnpAUcC2E8N3wnQt
-         Md3q5sy6nrs7cKloT5Y61q8J+EnPGBvpFwRnyLjA=
+        b=QPCdqhhQeQb97cbzLVd3zTWgW38Rx2/+CsvsKO8mUhWR9elMAtH4ft/x7D654VgDx
+         LPdDqgndKher8UgUdnHi7GcAto9lFnZwTk2yD6muJ2WubtlsOAdlNJOOa5e8733cPP
+         SgY6DKGRHHdsxxnSQAaeIQOC6kWFOmy+peUuywkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Zhiqiang Lin <zhiqiang.lin@mediatek.com>,
-        CK Hu <ck.hu@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 052/218] drm/mediatek: Fix mtk_cec_mask()
-Date:   Mon, 13 Jun 2022 12:08:30 +0200
-Message-Id: <20220613094920.619626463@linuxfoundation.org>
+Subject: [PATCH 5.15 009/247] serial: 8250_aspeed_vuart: Fix potential NULL dereference in aspeed_vuart_probe
+Date:   Mon, 13 Jun 2022 12:08:31 +0200
+Message-Id: <20220613094923.200706705@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,43 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miles Chen <miles.chen@mediatek.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 2c5d69b0a141e1e98febe3111e6f4fd8420493a5 ]
+[ Upstream commit 0e0fd55719fa081de6f9e5d9e6cef48efb04d34a ]
 
-In current implementation, mtk_cec_mask() writes val into target register
-and ignores the mask. After talking to our hdmi experts, mtk_cec_mask()
-should read a register, clean only mask bits, and update (val | mask) bits
-to the register.
+platform_get_resource() may fail and return NULL, so we should
+better check it's return value to avoid a NULL pointer dereference.
 
-Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20220315232301.2434-1-miles.chen@mediatek.com/
-Fixes: 8f83f26891e1 ("drm/mediatek: Add HDMI support")
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Zhiqiang Lin <zhiqiang.lin@mediatek.com>
-Cc: CK Hu <ck.hu@mediatek.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Fixes: 54da3e381c2b ("serial: 8250_aspeed_vuart: use UPF_IOREMAP to set up register mapping")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220404143842.16960-1-linmq006@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_cec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_aspeed_vuart.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_cec.c b/drivers/gpu/drm/mediatek/mtk_cec.c
-index 7a3eb8c17ef9..4e5482986dc2 100644
---- a/drivers/gpu/drm/mediatek/mtk_cec.c
-+++ b/drivers/gpu/drm/mediatek/mtk_cec.c
-@@ -91,7 +91,7 @@ static void mtk_cec_mask(struct mtk_cec *cec, unsigned int offset,
- 	u32 tmp = readl(cec->regs + offset) & ~mask;
+diff --git a/drivers/tty/serial/8250/8250_aspeed_vuart.c b/drivers/tty/serial/8250/8250_aspeed_vuart.c
+index c2cecc6f47db..179bb1375636 100644
+--- a/drivers/tty/serial/8250/8250_aspeed_vuart.c
++++ b/drivers/tty/serial/8250/8250_aspeed_vuart.c
+@@ -429,6 +429,8 @@ static int aspeed_vuart_probe(struct platform_device *pdev)
+ 	timer_setup(&vuart->unthrottle_timer, aspeed_vuart_unthrottle_exp, 0);
  
- 	tmp |= val & mask;
--	writel(val, cec->regs + offset);
-+	writel(tmp, cec->regs + offset);
- }
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -EINVAL;
  
- void mtk_cec_set_hpd_event(struct device *dev,
+ 	memset(&port, 0, sizeof(port));
+ 	port.port.private_data = vuart;
 -- 
 2.35.1
 
