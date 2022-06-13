@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CA0549485
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B7DE548CF0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384744AbiFMOlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:41:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59008 "EHLO
+        id S1376425AbiFMNXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:23:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385499AbiFMOkL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:40:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1919AF31D;
-        Mon, 13 Jun 2022 04:50:07 -0700 (PDT)
+        with ESMTP id S1376454AbiFMNVw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:21:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F0123C4B1;
+        Mon, 13 Jun 2022 04:23:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92DB56146E;
-        Mon, 13 Jun 2022 11:50:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 957B2C34114;
-        Mon, 13 Jun 2022 11:50:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FDAF60F18;
+        Mon, 13 Jun 2022 11:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 503FAC34114;
+        Mon, 13 Jun 2022 11:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121007;
-        bh=jE3W0hdEMyYHxjf7LaaIstu20hqOtMFfzW4n4q0p/Ss=;
+        s=korg; t=1655119410;
+        bh=9T8ut3yJcEj4oJFttwR4tRBTO4q3a4CFu8mJehVbGC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hwc1z0MTMk94Dr7Vs+NMklXq9TjDAmVCsUgoZS7Z2BCc6cw6io/sr3iaPqp0chFy8
-         sLp0YCkqJg1O5Rp8ms28ZNQCoRhXYD2pCoITmMf6YEuJlmsEpTMA0mz4ca5o42PuB2
-         BzdTi5iIarWAohvoI8DDHPsSN14CokExh0gV6s80=
+        b=yAyUu1jxgKTGuP1Fti6j8xzhly+F1MkrTzJdTU51+wgqYRIO5ZaDqKRpIZuNNnDvk
+         dSmm0K9OfVcXr+ThjKfdmsjPkTZ/aqX77pnXjyI2bvj6bvPx6iPTMRTGi5OXiGrcv+
+         w30PUxsBzuZSkzh9Vp8S8C3VC2eXKuVbtGHd3Q88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jouni Malinen <j@w1.fi>,
-        Johannes Berg <johannes.berg@intel.com>,
-        anton ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 237/298] um: line: Use separate IRQs per line
+        stable@vger.kernel.org, Martin Faltesek <mfaltesek@google.com>,
+        Guenter Roeck <groeck@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 229/247] nfc: st21nfca: fix incorrect sizing calculations in EVT_TRANSACTION
 Date:   Mon, 13 Jun 2022 12:12:11 +0200
-Message-Id: <20220613094932.278694700@linuxfoundation.org>
+Message-Id: <20220613094929.890993023@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,252 +55,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Martin Faltesek <mfaltesek@google.com>
 
-[ Upstream commit d5a9597d6916a76663085db984cb8fe97f0a5c56 ]
+commit f2e19b36593caed4c977c2f55aeba7408aeb2132 upstream.
 
-Today, all possible serial lines (ssl*=) as well as all
-possible consoles (con*=) each share a single interrupt
-(with a fixed number) with others of the same type.
+The transaction buffer is allocated by using the size of the packet buf,
+and subtracting two which seem intended to remove the two tags which are
+not present in the target structure. This calculation leads to under
+counting memory because of differences between the packet contents and the
+target structure. The aid_len field is a u8 in the packet, but a u32 in
+the structure, resulting in at least 3 bytes always being under counted.
+Further, the aid data is a variable length field in the packet, but fixed
+in the structure, so if this field is less than the max, the difference is
+added to the under counting.
 
-Now, if you have two lines, say ssl0 and ssl1, and one
-of them is connected to an fd you cannot read (e.g. a
-file), but the other gets a read interrupt, then both
-of them get the interrupt since it's shared. Then, the
-read() call will return EOF, since it's a file being
-written and there's nothing to read (at least not at
-the current offset, at the end).
+The last validation check for transaction->params_len is also incorrect
+since it employs the same accounting error.
 
-Unfortunately, this is treated as a read error, and we
-close this line, losing all the possible output.
+To fix, perform validation checks progressively to safely reach the
+next field, to determine the size of both buffers and verify both tags.
+Once all validation checks pass, allocate the buffer and copy the data.
+This eliminates freeing memory on the error path, as those checks are
+moved ahead of memory allocation.
 
-It might be possible to work around this and make the
-IRQ sharing work, however, now that we have dynamically
-allocated IRQs that are easy to use, simply use that to
-achieve separating between the events; then there's no
-interrupt for that line and we never attempt the read
-in the first place, thus not closing the line.
-
-This manifested itself in the wifi hostap/hwsim tests
-where the parallel script communicates via one serial
-console and the kernel messages go to another (a file)
-and sending data on the communication console caused
-the kernel messages to stop flowing into the file.
-
-Reported-by: Jouni Malinen <j@w1.fi>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-By: anton ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
+Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
+Cc: stable@vger.kernel.org
+Signed-off-by: Martin Faltesek <mfaltesek@google.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/drivers/chan_kern.c     | 10 +++++-----
- arch/um/drivers/line.c          | 22 +++++++++++++---------
- arch/um/drivers/line.h          |  4 ++--
- arch/um/drivers/ssl.c           |  2 --
- arch/um/drivers/stdio_console.c |  2 --
- arch/um/include/asm/irq.h       | 22 +++++++++-------------
- 6 files changed, 29 insertions(+), 33 deletions(-)
+ drivers/nfc/st21nfca/se.c |   62 +++++++++++++++++++++++-----------------------
+ 1 file changed, 31 insertions(+), 31 deletions(-)
 
-diff --git a/arch/um/drivers/chan_kern.c b/arch/um/drivers/chan_kern.c
-index 62997055c454..26a702a06515 100644
---- a/arch/um/drivers/chan_kern.c
-+++ b/arch/um/drivers/chan_kern.c
-@@ -133,7 +133,7 @@ static void line_timer_cb(struct work_struct *work)
- 	struct line *line = container_of(work, struct line, task.work);
+--- a/drivers/nfc/st21nfca/se.c
++++ b/drivers/nfc/st21nfca/se.c
+@@ -304,6 +304,8 @@ int st21nfca_connectivity_event_received
+ 	int r = 0;
+ 	struct device *dev = &hdev->ndev->dev;
+ 	struct nfc_evt_transaction *transaction;
++	u32 aid_len;
++	u8 params_len;
  
- 	if (!line->throttled)
--		chan_interrupt(line, line->driver->read_irq);
-+		chan_interrupt(line, line->read_irq);
- }
+ 	pr_debug("connectivity gate event: %x\n", event);
  
- int enable_chan(struct line *line)
-@@ -195,9 +195,9 @@ void free_irqs(void)
- 		chan = list_entry(ele, struct chan, free_list);
+@@ -312,50 +314,48 @@ int st21nfca_connectivity_event_received
+ 		r = nfc_se_connectivity(hdev->ndev, host);
+ 	break;
+ 	case ST21NFCA_EVT_TRANSACTION:
+-		/*
+-		 * According to specification etsi 102 622
++		/* According to specification etsi 102 622
+ 		 * 11.2.2.4 EVT_TRANSACTION Table 52
+ 		 * Description	Tag	Length
+ 		 * AID		81	5 to 16
+ 		 * PARAMETERS	82	0 to 255
++		 *
++		 * The key differences are aid storage length is variably sized
++		 * in the packet, but fixed in nfc_evt_transaction, and that the aid_len
++		 * is u8 in the packet, but u32 in the structure, and the tags in
++		 * the packet are not included in nfc_evt_transaction.
++		 *
++		 * size in bytes: 1          1       5-16 1             1           0-255
++		 * offset:        0          1       2    aid_len + 2   aid_len + 3 aid_len + 4
++		 * member name:   aid_tag(M) aid_len aid  params_tag(M) params_len  params
++		 * example:       0x81       5-16    X    0x82 0-255    X
+ 		 */
+-		if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
+-		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
++		if (skb->len < 2 || skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
+ 			return -EPROTO;
  
- 		if (chan->input && chan->enabled)
--			um_free_irq(chan->line->driver->read_irq, chan);
-+			um_free_irq(chan->line->read_irq, chan);
- 		if (chan->output && chan->enabled)
--			um_free_irq(chan->line->driver->write_irq, chan);
-+			um_free_irq(chan->line->write_irq, chan);
- 		chan->enabled = 0;
- 	}
- }
-@@ -215,9 +215,9 @@ static void close_one_chan(struct chan *chan, int delay_free_irq)
- 		spin_unlock_irqrestore(&irqs_to_free_lock, flags);
- 	} else {
- 		if (chan->input && chan->enabled)
--			um_free_irq(chan->line->driver->read_irq, chan);
-+			um_free_irq(chan->line->read_irq, chan);
- 		if (chan->output && chan->enabled)
--			um_free_irq(chan->line->driver->write_irq, chan);
-+			um_free_irq(chan->line->write_irq, chan);
- 		chan->enabled = 0;
- 	}
- 	if (chan->ops->close != NULL)
-diff --git a/arch/um/drivers/line.c b/arch/um/drivers/line.c
-index 8febf95da96e..02b0befd6763 100644
---- a/arch/um/drivers/line.c
-+++ b/arch/um/drivers/line.c
-@@ -139,7 +139,7 @@ static int flush_buffer(struct line *line)
- 		count = line->buffer + LINE_BUFSIZE - line->head;
- 
- 		n = write_chan(line->chan_out, line->head, count,
--			       line->driver->write_irq);
-+			       line->write_irq);
- 		if (n < 0)
- 			return n;
- 		if (n == count) {
-@@ -156,7 +156,7 @@ static int flush_buffer(struct line *line)
- 
- 	count = line->tail - line->head;
- 	n = write_chan(line->chan_out, line->head, count,
--		       line->driver->write_irq);
-+		       line->write_irq);
- 
- 	if (n < 0)
- 		return n;
-@@ -195,7 +195,7 @@ int line_write(struct tty_struct *tty, const unsigned char *buf, int len)
- 		ret = buffer_data(line, buf, len);
- 	else {
- 		n = write_chan(line->chan_out, buf, len,
--			       line->driver->write_irq);
-+			       line->write_irq);
- 		if (n < 0) {
- 			ret = n;
- 			goto out_up;
-@@ -215,7 +215,7 @@ void line_throttle(struct tty_struct *tty)
- {
- 	struct line *line = tty->driver_data;
- 
--	deactivate_chan(line->chan_in, line->driver->read_irq);
-+	deactivate_chan(line->chan_in, line->read_irq);
- 	line->throttled = 1;
- }
- 
-@@ -224,7 +224,7 @@ void line_unthrottle(struct tty_struct *tty)
- 	struct line *line = tty->driver_data;
- 
- 	line->throttled = 0;
--	chan_interrupt(line, line->driver->read_irq);
-+	chan_interrupt(line, line->read_irq);
- }
- 
- static irqreturn_t line_write_interrupt(int irq, void *data)
-@@ -260,19 +260,23 @@ int line_setup_irq(int fd, int input, int output, struct line *line, void *data)
- 	int err;
- 
- 	if (input) {
--		err = um_request_irq(driver->read_irq, fd, IRQ_READ,
--				     line_interrupt, IRQF_SHARED,
-+		err = um_request_irq(UM_IRQ_ALLOC, fd, IRQ_READ,
-+				     line_interrupt, 0,
- 				     driver->read_irq_name, data);
- 		if (err < 0)
- 			return err;
+-		transaction = devm_kzalloc(dev, skb->len - 2, GFP_KERNEL);
+-		if (!transaction)
+-			return -ENOMEM;
++		aid_len = skb->data[1];
 +
-+		line->read_irq = err;
- 	}
++		if (skb->len < aid_len + 4 || aid_len > sizeof(transaction->aid))
++			return -EPROTO;
  
- 	if (output) {
--		err = um_request_irq(driver->write_irq, fd, IRQ_WRITE,
--				     line_write_interrupt, IRQF_SHARED,
-+		err = um_request_irq(UM_IRQ_ALLOC, fd, IRQ_WRITE,
-+				     line_write_interrupt, 0,
- 				     driver->write_irq_name, data);
- 		if (err < 0)
- 			return err;
-+
-+		line->write_irq = err;
- 	}
+-		transaction->aid_len = skb->data[1];
++		params_len = skb->data[aid_len + 3];
  
- 	return 0;
-diff --git a/arch/um/drivers/line.h b/arch/um/drivers/line.h
-index bdb16b96e76f..f15be75a3bf3 100644
---- a/arch/um/drivers/line.h
-+++ b/arch/um/drivers/line.h
-@@ -23,9 +23,7 @@ struct line_driver {
- 	const short minor_start;
- 	const short type;
- 	const short subtype;
--	const int read_irq;
- 	const char *read_irq_name;
--	const int write_irq;
- 	const char *write_irq_name;
- 	struct mc_device mc;
- 	struct tty_driver *driver;
-@@ -35,6 +33,8 @@ struct line {
- 	struct tty_port port;
- 	int valid;
+-		/* Checking if the length of the AID is valid */
+-		if (transaction->aid_len > sizeof(transaction->aid)) {
+-			devm_kfree(dev, transaction);
+-			return -EINVAL;
+-		}
+-
+-		memcpy(transaction->aid, &skb->data[2],
+-		       transaction->aid_len);
+-
+-		/* Check next byte is PARAMETERS tag (82) */
+-		if (skb->data[transaction->aid_len + 2] !=
+-		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
+-			devm_kfree(dev, transaction);
++		/* Verify PARAMETERS tag is (82), and final check that there is enough
++		 * space in the packet to read everything.
++		 */
++		if ((skb->data[aid_len + 2] != NFC_EVT_TRANSACTION_PARAMS_TAG) ||
++		    (skb->len < aid_len + 4 + params_len))
+ 			return -EPROTO;
+-		}
  
-+	int read_irq, write_irq;
-+
- 	char *init_str;
- 	struct list_head chan_list;
- 	struct chan *chan_in, *chan_out;
-diff --git a/arch/um/drivers/ssl.c b/arch/um/drivers/ssl.c
-index 41eae2e8fb65..8514966778d5 100644
---- a/arch/um/drivers/ssl.c
-+++ b/arch/um/drivers/ssl.c
-@@ -47,9 +47,7 @@ static struct line_driver driver = {
- 	.minor_start 		= 64,
- 	.type 		 	= TTY_DRIVER_TYPE_SERIAL,
- 	.subtype 	 	= 0,
--	.read_irq 		= SSL_IRQ,
- 	.read_irq_name 		= "ssl",
--	.write_irq 		= SSL_WRITE_IRQ,
- 	.write_irq_name 	= "ssl-write",
- 	.mc  = {
- 		.list		= LIST_HEAD_INIT(driver.mc.list),
-diff --git a/arch/um/drivers/stdio_console.c b/arch/um/drivers/stdio_console.c
-index e8b762f4d8c2..489d5a746ed3 100644
---- a/arch/um/drivers/stdio_console.c
-+++ b/arch/um/drivers/stdio_console.c
-@@ -53,9 +53,7 @@ static struct line_driver driver = {
- 	.minor_start 		= 0,
- 	.type 		 	= TTY_DRIVER_TYPE_CONSOLE,
- 	.subtype 	 	= SYSTEM_TYPE_CONSOLE,
--	.read_irq 		= CONSOLE_IRQ,
- 	.read_irq_name 		= "console",
--	.write_irq 		= CONSOLE_WRITE_IRQ,
- 	.write_irq_name 	= "console-write",
- 	.mc  = {
- 		.list		= LIST_HEAD_INIT(driver.mc.list),
-diff --git a/arch/um/include/asm/irq.h b/arch/um/include/asm/irq.h
-index e187c789369d..749dfe8512e8 100644
---- a/arch/um/include/asm/irq.h
-+++ b/arch/um/include/asm/irq.h
-@@ -4,19 +4,15 @@
+-		transaction->params_len = skb->data[transaction->aid_len + 3];
++		transaction = devm_kzalloc(dev, sizeof(*transaction) + params_len, GFP_KERNEL);
++		if (!transaction)
++			return -ENOMEM;
  
- #define TIMER_IRQ		0
- #define UMN_IRQ			1
--#define CONSOLE_IRQ		2
--#define CONSOLE_WRITE_IRQ	3
--#define UBD_IRQ			4
--#define UM_ETH_IRQ		5
--#define SSL_IRQ			6
--#define SSL_WRITE_IRQ		7
--#define ACCEPT_IRQ		8
--#define MCONSOLE_IRQ		9
--#define WINCH_IRQ		10
--#define SIGIO_WRITE_IRQ 	11
--#define TELNETD_IRQ 		12
--#define XTERM_IRQ 		13
--#define RANDOM_IRQ 		14
-+#define UBD_IRQ			2
-+#define UM_ETH_IRQ		3
-+#define ACCEPT_IRQ		4
-+#define MCONSOLE_IRQ		5
-+#define WINCH_IRQ		6
-+#define SIGIO_WRITE_IRQ 	7
-+#define TELNETD_IRQ 		8
-+#define XTERM_IRQ 		9
-+#define RANDOM_IRQ 		10
+-		/* Total size is allocated (skb->len - 2) minus fixed array members */
+-		if (transaction->params_len > ((skb->len - 2) -
+-		    sizeof(struct nfc_evt_transaction))) {
+-			devm_kfree(dev, transaction);
+-			return -EINVAL;
+-		}
++		transaction->aid_len = aid_len;
++		transaction->params_len = params_len;
  
- #ifdef CONFIG_UML_NET_VECTOR
+-		memcpy(transaction->params, skb->data +
+-		       transaction->aid_len + 4, transaction->params_len);
++		memcpy(transaction->aid, &skb->data[2], aid_len);
++		memcpy(transaction->params, &skb->data[aid_len + 4], params_len);
  
--- 
-2.35.1
-
+ 		r = nfc_se_transaction(hdev->ndev, host, transaction);
+ 	break;
 
 
