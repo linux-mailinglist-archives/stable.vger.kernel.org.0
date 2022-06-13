@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CD60549266
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5DC1549441
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350370AbiFMLBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:01:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54162 "EHLO
+        id S1349615AbiFMK5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:57:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351202AbiFMK7U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:59:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11F3D27140;
-        Mon, 13 Jun 2022 03:32:49 -0700 (PDT)
+        with ESMTP id S1350770AbiFMKzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:55:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7409324F0A;
+        Mon, 13 Jun 2022 03:31:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32A8160FAD;
-        Mon, 13 Jun 2022 10:32:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FA46C34114;
-        Mon, 13 Jun 2022 10:32:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1506B80E95;
+        Mon, 13 Jun 2022 10:31:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11D1FC3411C;
+        Mon, 13 Jun 2022 10:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116367;
-        bh=KBx7M6GVVtSJjrkKmfF0jiF6x0MeYg2p7U09nMlZ5Cw=;
+        s=korg; t=1655116312;
+        bh=a+nto0WPeTFaOBkATJKClQmpfGywYTjO3j8Tv34EtKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mtqb6W4Lm7lLqwJG7jwW+MZs7UtCQC48FqqAr93bf6NNMmIjJHkTB/I59uCIZDH3o
-         ebdTCTSslJw6fk9kTM5w2PuBE7ll3ks2b83pgarsIywqE0BXcZolvIbGMsXrnOmqSJ
-         Ry3d5ZBnJCSZhZjHN59UzYRzOvWlRN9RE4gIpR94=
+        b=bI7rO0steYOG0hRES+JoP/5IJg+8tSqFo5SOo91r2TPrQyImWbaPk63vy7ja4+Hvk
+         08DCdMOjbHUOL1UvQuN9aTMou/pWYcLlouVzXrvlMEPwX2zjTBIgzt1Z8N5aZr5LoE
+         86e4F8FaX535z2mm6eDCr071ZGxP1/aYr4XIpD1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/411] ASoC: max98357a: remove dependency on GPIOLIB
-Date:   Mon, 13 Jun 2022 12:05:31 +0200
-Message-Id: <20220613094930.255519077@linuxfoundation.org>
+Subject: [PATCH 5.4 059/411] hwmon: Make chip parameter for with_info API mandatory
+Date:   Mon, 13 Jun 2022 12:05:32 +0200
+Message-Id: <20220613094930.285828527@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -56,49 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 21ca3274333f5c1cbbf9d91e5b33f4f2463859b2 ]
+[ Upstream commit ddaefa209c4ac791c1262e97c9b2d0440c8ef1d5 ]
 
-commit dcc2c012c7691 ("ASoC: Fix gpiolib dependencies") removed a
-series of unnecessary dependencies on GPIOLIB when the gpio was
-optional.
+Various attempts were made recently to "convert" the old
+hwmon_device_register() API to devm_hwmon_device_register_with_info()
+by just changing the function name without actually converting the
+driver. Prevent this from happening by making the 'chip' parameter of
+devm_hwmon_device_register_with_info() mandatory.
 
-A similar simplification seems valid for max98357a, so remove the
-dependency as well. This will avoid the following warning
-
-   WARNING: unmet direct dependencies detected for SND_SOC_MAX98357A
-     Depends on [n]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && GPIOLIB [=n]
-     Selected by [y]:
-     - SND_SOC_INTEL_SOF_CS42L42_MACH [=y] && SOUND [=y] && !UML &&
-       SND [=y] && SND_SOC [=y] && SND_SOC_INTEL_MACH [=y] &&
-       (SND_SOC_SOF_HDA_LINK [=y] || SND_SOC_SOF_BAYTRAIL [=n]) && I2C
-       [=y] && ACPI [=y] && SND_HDA_CODEC_HDMI [=y] &&
-       SND_SOC_SOF_HDA_AUDIO_CODEC [=y] && (MFD_INTEL_LPSS [=y] ||
-       COMPILE_TEST [=n])
-
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220517172647.468244-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ Documentation/hwmon/hwmon-kernel-api.rst |  2 +-
+ drivers/hwmon/hwmon.c                    | 16 +++++++---------
+ 2 files changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index 466dc67799f4..dfc536cd9d2f 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -759,7 +759,6 @@ config SND_SOC_MAX98095
+diff --git a/Documentation/hwmon/hwmon-kernel-api.rst b/Documentation/hwmon/hwmon-kernel-api.rst
+index c41eb6108103..23f27fe78e37 100644
+--- a/Documentation/hwmon/hwmon-kernel-api.rst
++++ b/Documentation/hwmon/hwmon-kernel-api.rst
+@@ -72,7 +72,7 @@ hwmon_device_register_with_info is the most comprehensive and preferred means
+ to register a hardware monitoring device. It creates the standard sysfs
+ attributes in the hardware monitoring core, letting the driver focus on reading
+ from and writing to the chip instead of having to bother with sysfs attributes.
+-The parent device parameter cannot be NULL with non-NULL chip info. Its
++The parent device parameter as well as the chip parameter must not be NULL. Its
+ parameters are described in more detail below.
  
- config SND_SOC_MAX98357A
- 	tristate "Maxim MAX98357A CODEC"
--	depends on GPIOLIB
+ devm_hwmon_device_register_with_info is similar to
+diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
+index a2175394cd25..c73b93b9bb87 100644
+--- a/drivers/hwmon/hwmon.c
++++ b/drivers/hwmon/hwmon.c
+@@ -715,11 +715,12 @@ EXPORT_SYMBOL_GPL(hwmon_device_register_with_groups);
  
- config SND_SOC_MAX98371
-        tristate
+ /**
+  * hwmon_device_register_with_info - register w/ hwmon
+- * @dev: the parent device
+- * @name: hwmon name attribute
+- * @drvdata: driver data to attach to created device
+- * @chip: pointer to hwmon chip information
++ * @dev: the parent device (mandatory)
++ * @name: hwmon name attribute (mandatory)
++ * @drvdata: driver data to attach to created device (optional)
++ * @chip: pointer to hwmon chip information (mandatory)
+  * @extra_groups: pointer to list of additional non-standard attribute groups
++ *	(optional)
+  *
+  * hwmon_device_unregister() must be called when the device is no
+  * longer needed.
+@@ -732,13 +733,10 @@ hwmon_device_register_with_info(struct device *dev, const char *name,
+ 				const struct hwmon_chip_info *chip,
+ 				const struct attribute_group **extra_groups)
+ {
+-	if (!name)
+-		return ERR_PTR(-EINVAL);
+-
+-	if (chip && (!chip->ops || !chip->ops->is_visible || !chip->info))
++	if (!dev || !name || !chip)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	if (chip && !dev)
++	if (!chip->ops || !chip->ops->is_visible || !chip->info)
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	return __hwmon_device_register(dev, name, drvdata, chip, extra_groups);
 -- 
 2.35.1
 
