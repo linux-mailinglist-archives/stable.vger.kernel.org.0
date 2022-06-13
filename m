@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F185493F6
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C299549565
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380123AbiFMN5h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:57:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35490 "EHLO
+        id S1353881AbiFMMgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:36:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380072AbiFMNx0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:53:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E45056D4CD;
-        Mon, 13 Jun 2022 04:33:46 -0700 (PDT)
+        with ESMTP id S1357563AbiFMMe3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:34:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A38E61C106;
+        Mon, 13 Jun 2022 04:07:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 829416124E;
-        Mon, 13 Jun 2022 11:33:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 816D1C34114;
-        Mon, 13 Jun 2022 11:33:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97452B80D31;
+        Mon, 13 Jun 2022 11:07:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E69FEC34114;
+        Mon, 13 Jun 2022 11:07:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120025;
-        bh=jz1omFfR0vkzoDNm3LvoZFHbTcDVrzFygyqXxieAVTo=;
+        s=korg; t=1655118469;
+        bh=RtEXNlkzwJJXelVxr5GQUBzq7Qc5cnQyf3vlI1HEOQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ajPHtkfQerFY+CnaCuW+Hz+UNvh/cj7EJWD2ZrjFqgV97y1tqcKGdeEVywDK+EO3g
-         IyV62VWN1LqkofwYNTyzj+bvRwUxeqsYSvv7tqoJJMfVzB8sS6AMoXmM2S/TzqYQMg
-         WV1sv50v1geu30N3eRCVzvhTlNWXqOMkGQ1zsa0Y=
+        b=FcwttFP6YIda3cSxy7iKREQ3Jd9TyWPdyifbHwoYtfCo9Izm787NsJ2gdy8Xlf76W
+         f0QIj37u+AKOmoT5BDuz8CAZPxwjbn6ofby0iBy4iNtD9sjpzNXh0IrGSZoGiu0tAR
+         Iu13jIZvJ53RvtnozwOpJkZ0/ypEJDUL2SEB1PqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 204/339] drm/amdgpu: fix limiting AV1 to the first instance on VCN3
+Subject: [PATCH 5.10 069/172] gpio: pca953x: use the correct register address to do regcache sync
 Date:   Mon, 13 Jun 2022 12:10:29 +0200
-Message-Id: <20220613094932.851562765@linuxfoundation.org>
+Message-Id: <20220613094907.013759674@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,83 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit 1d2afeb7983081ecf656c2338c7db6fd405c653c ]
+[ Upstream commit 43624eda86c98b0de726d0b6f2516ccc3ef7313f ]
 
-The job is not yet initialized here.
+For regcache_sync_region, need to use pca953x_recalc_addr() to get
+the real register address.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2037
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Tested-by: Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Fixes: cdc7893fc93f ("drm/amdgpu: use job and ib structures directly in CS parsers")
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: b76574300504 ("gpio: pca953x: Restore registers after suspend/resume cycle")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/gpio/gpio-pca953x.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-index cb5f0a12333f..57a34e775da3 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-@@ -1821,23 +1821,21 @@ static const struct amdgpu_ring_funcs vcn_v3_0_dec_sw_ring_vm_funcs = {
- 	.emit_reg_write_reg_wait = amdgpu_ring_emit_reg_write_reg_wait_helper,
- };
- 
--static int vcn_v3_0_limit_sched(struct amdgpu_cs_parser *p,
--				struct amdgpu_job *job)
-+static int vcn_v3_0_limit_sched(struct amdgpu_cs_parser *p)
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index e936e1eb1f95..bb4ca064447e 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -1107,20 +1107,21 @@ static int pca953x_regcache_sync(struct device *dev)
  {
- 	struct drm_gpu_scheduler **scheds;
+ 	struct pca953x_chip *chip = dev_get_drvdata(dev);
+ 	int ret;
++	u8 regaddr;
  
- 	/* The create msg must be in the first IB submitted */
--	if (atomic_read(&job->base.entity->fence_seq))
-+	if (atomic_read(&p->entity->fence_seq))
- 		return -EINVAL;
- 
- 	scheds = p->adev->gpu_sched[AMDGPU_HW_IP_VCN_DEC]
- 		[AMDGPU_RING_PRIO_DEFAULT].sched;
--	drm_sched_entity_modify_sched(job->base.entity, scheds, 1);
-+	drm_sched_entity_modify_sched(p->entity, scheds, 1);
- 	return 0;
- }
- 
--static int vcn_v3_0_dec_msg(struct amdgpu_cs_parser *p, struct amdgpu_job *job,
--			    uint64_t addr)
-+static int vcn_v3_0_dec_msg(struct amdgpu_cs_parser *p, uint64_t addr)
- {
- 	struct ttm_operation_ctx ctx = { false, false };
- 	struct amdgpu_bo_va_mapping *map;
-@@ -1908,7 +1906,7 @@ static int vcn_v3_0_dec_msg(struct amdgpu_cs_parser *p, struct amdgpu_job *job,
- 		if (create[0] == 0x7 || create[0] == 0x10 || create[0] == 0x11)
- 			continue;
- 
--		r = vcn_v3_0_limit_sched(p, job);
-+		r = vcn_v3_0_limit_sched(p);
- 		if (r)
- 			goto out;
+ 	/*
+ 	 * The ordering between direction and output is important,
+ 	 * sync these registers first and only then sync the rest.
+ 	 */
+-	ret = regcache_sync_region(chip->regmap, chip->regs->direction,
+-				   chip->regs->direction + NBANK(chip));
++	regaddr = pca953x_recalc_addr(chip, chip->regs->direction, 0);
++	ret = regcache_sync_region(chip->regmap, regaddr, regaddr + NBANK(chip));
+ 	if (ret) {
+ 		dev_err(dev, "Failed to sync GPIO dir registers: %d\n", ret);
+ 		return ret;
  	}
-@@ -1922,7 +1920,7 @@ static int vcn_v3_0_ring_patch_cs_in_place(struct amdgpu_cs_parser *p,
- 					   struct amdgpu_job *job,
- 					   struct amdgpu_ib *ib)
- {
--	struct amdgpu_ring *ring = to_amdgpu_ring(job->base.sched);
-+	struct amdgpu_ring *ring = to_amdgpu_ring(p->entity->rq->sched);
- 	uint32_t msg_lo = 0, msg_hi = 0;
- 	unsigned i;
- 	int r;
-@@ -1941,8 +1939,7 @@ static int vcn_v3_0_ring_patch_cs_in_place(struct amdgpu_cs_parser *p,
- 			msg_hi = val;
- 		} else if (reg == PACKET0(p->adev->vcn.internal.cmd, 0) &&
- 			   val == 0) {
--			r = vcn_v3_0_dec_msg(p, job,
--					     ((u64)msg_hi) << 32 | msg_lo);
-+			r = vcn_v3_0_dec_msg(p, ((u64)msg_hi) << 32 | msg_lo);
- 			if (r)
- 				return r;
+ 
+-	ret = regcache_sync_region(chip->regmap, chip->regs->output,
+-				   chip->regs->output + NBANK(chip));
++	regaddr = pca953x_recalc_addr(chip, chip->regs->output, 0);
++	ret = regcache_sync_region(chip->regmap, regaddr, regaddr + NBANK(chip));
+ 	if (ret) {
+ 		dev_err(dev, "Failed to sync GPIO out registers: %d\n", ret);
+ 		return ret;
+@@ -1128,16 +1129,18 @@ static int pca953x_regcache_sync(struct device *dev)
+ 
+ #ifdef CONFIG_GPIO_PCA953X_IRQ
+ 	if (chip->driver_data & PCA_PCAL) {
+-		ret = regcache_sync_region(chip->regmap, PCAL953X_IN_LATCH,
+-					   PCAL953X_IN_LATCH + NBANK(chip));
++		regaddr = pca953x_recalc_addr(chip, PCAL953X_IN_LATCH, 0);
++		ret = regcache_sync_region(chip->regmap, regaddr,
++					   regaddr + NBANK(chip));
+ 		if (ret) {
+ 			dev_err(dev, "Failed to sync INT latch registers: %d\n",
+ 				ret);
+ 			return ret;
  		}
+ 
+-		ret = regcache_sync_region(chip->regmap, PCAL953X_INT_MASK,
+-					   PCAL953X_INT_MASK + NBANK(chip));
++		regaddr = pca953x_recalc_addr(chip, PCAL953X_INT_MASK, 0);
++		ret = regcache_sync_region(chip->regmap, regaddr,
++					   regaddr + NBANK(chip));
+ 		if (ret) {
+ 			dev_err(dev, "Failed to sync INT mask registers: %d\n",
+ 				ret);
 -- 
 2.35.1
 
