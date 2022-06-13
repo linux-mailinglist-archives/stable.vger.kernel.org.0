@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F0554871E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F45D548655
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:56:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349257AbiFMMU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:20:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47994 "EHLO
+        id S1352809AbiFMMlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:41:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354714AbiFMMRA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:17:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51E0E55499;
-        Mon, 13 Jun 2022 04:02:37 -0700 (PDT)
+        with ESMTP id S1356122AbiFMMjS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:39:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B96E2709;
+        Mon, 13 Jun 2022 04:09:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C31961346;
-        Mon, 13 Jun 2022 11:02:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96769C34114;
-        Mon, 13 Jun 2022 11:02:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58220B80EA7;
+        Mon, 13 Jun 2022 11:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A92C34114;
+        Mon, 13 Jun 2022 11:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118156;
-        bh=o3Wu0J4jFNlg/VFDmbxPFZwL8LXmJMBJygGAvRw29Zs=;
+        s=korg; t=1655118580;
+        bh=NJds1PRBxkhqeMwlTvMxXHJV8bOsurKwG6d4ijbAlCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GFcxw3gpdBRCwDFw/gWq95IVp9DWYYrupCyNGNvSeBaWGSuecDFIRoxKb2ucmO3m5
-         2mRzGz2jzNiKq/5Mk/z4d8O1tzsjOuHgFVdx9Ls9EhG/CipNrBKOdX8on9nq29hmQI
-         mrOsrzpaEYICZSmRWEtxl+kq48gPnNO/3lRXKorM=
+        b=bM7AU1a3TOG0tIpx+0JXx4d04mO3MExL3SMfqC6pkmH0B1NDZu87Uil/6x5wqjuVy
+         oXq+iY88zZkkv1fDP1cCvSRnALgyOqRCyPBMJkDSDb/N3BXuhnQXivHbswUCnIfv4l
+         iRXz9toJc9C053dcOPOt12+v1Tm1K9zfFo/E/lNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 246/287] net: altera: Fix refcount leak in altera_tse_mdio_create
-Date:   Mon, 13 Jun 2022 12:11:10 +0200
-Message-Id: <20220613094931.474674146@linuxfoundation.org>
+Subject: [PATCH 5.10 112/172] drm: imx: fix compiler warning with gcc-12
+Date:   Mon, 13 Jun 2022 12:11:12 +0200
+Message-Id: <20220613094917.196888618@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 11ec18b1d8d92b9df307d31950dcba0b3dd7283c ]
+[ Upstream commit 7aefd8b53815274f3ef398d370a3c9b27dd9f00c ]
 
-Every iteration of for_each_child_of_node() decrements
-the reference count of the previous node.
-When break from a for_each_child_of_node() loop,
-we need to explicitly call of_node_put() on the child node when
-not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+Gcc-12 correctly warned about this code using a non-NULL pointer as a
+truth value:
 
-Fixes: bbd2190ce96d ("Altera TSE: Add main and header file for Altera Ethernet Driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220607041144.7553-1-linmq006@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+  drivers/gpu/drm/imx/ipuv3-crtc.c: In function ‘ipu_crtc_disable_planes’:
+  drivers/gpu/drm/imx/ipuv3-crtc.c:72:21: error: the comparison will always evaluate as ‘true’ for the address of ‘plane’ will never be NULL [-Werror=address]
+     72 |                 if (&ipu_crtc->plane[1] && plane == &ipu_crtc->plane[1]->base)
+        |                     ^
+
+due to the extraneous '&' address-of operator.
+
+Philipp Zabel points out that The mistake had no adverse effect since
+the following condition doesn't actually dereference the NULL pointer,
+but the intent of the code was obviously to check for it, not to take
+the address of the member.
+
+Fixes: eb8c88808c83 ("drm/imx: add deferred plane disabling")
+Acked-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/altera/altera_tse_main.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/imx/ipuv3-crtc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/altera/altera_tse_main.c b/drivers/net/ethernet/altera/altera_tse_main.c
-index 1b4dfd357383..1b9fb78ef824 100644
---- a/drivers/net/ethernet/altera/altera_tse_main.c
-+++ b/drivers/net/ethernet/altera/altera_tse_main.c
-@@ -174,7 +174,8 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
- 	mdio = mdiobus_alloc();
- 	if (mdio == NULL) {
- 		netdev_err(dev, "Error allocating MDIO bus\n");
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto put_node;
+diff --git a/drivers/gpu/drm/imx/ipuv3-crtc.c b/drivers/gpu/drm/imx/ipuv3-crtc.c
+index d412fc265395..fd9d8e51837f 100644
+--- a/drivers/gpu/drm/imx/ipuv3-crtc.c
++++ b/drivers/gpu/drm/imx/ipuv3-crtc.c
+@@ -68,7 +68,7 @@ static void ipu_crtc_disable_planes(struct ipu_crtc *ipu_crtc,
+ 	drm_atomic_crtc_state_for_each_plane(plane, old_crtc_state) {
+ 		if (plane == &ipu_crtc->plane[0]->base)
+ 			disable_full = true;
+-		if (&ipu_crtc->plane[1] && plane == &ipu_crtc->plane[1]->base)
++		if (ipu_crtc->plane[1] && plane == &ipu_crtc->plane[1]->base)
+ 			disable_partial = true;
  	}
- 
- 	mdio->name = ALTERA_TSE_RESOURCE_NAME;
-@@ -191,6 +192,7 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
- 			   mdio->id);
- 		goto out_free_mdio;
- 	}
-+	of_node_put(mdio_node);
- 
- 	if (netif_msg_drv(priv))
- 		netdev_info(dev, "MDIO bus %s: created\n", mdio->id);
-@@ -200,6 +202,8 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
- out_free_mdio:
- 	mdiobus_free(mdio);
- 	mdio = NULL;
-+put_node:
-+	of_node_put(mdio_node);
- 	return ret;
- }
  
 -- 
 2.35.1
