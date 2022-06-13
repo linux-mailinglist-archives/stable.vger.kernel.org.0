@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BBFB548D3B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE6BB548918
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350388AbiFMMJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:09:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59132 "EHLO
+        id S1354664AbiFMLiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:38:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358952AbiFMMIy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:08:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7297D52503;
-        Mon, 13 Jun 2022 04:00:22 -0700 (PDT)
+        with ESMTP id S1355060AbiFMLhI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:37:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7EC945064;
+        Mon, 13 Jun 2022 03:48:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58B2AB80D31;
-        Mon, 13 Jun 2022 11:00:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5D61C34114;
-        Mon, 13 Jun 2022 11:00:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E82860FDB;
+        Mon, 13 Jun 2022 10:48:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D39CC34114;
+        Mon, 13 Jun 2022 10:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118017;
-        bh=1e8TP90XrpQPoe+wJZsWh5Rw/22MW2LoLZJC6jbCfwA=;
+        s=korg; t=1655117295;
+        bh=6kkjtfCyfPoYBDHlyShtWXsEIIe4ji9MKuIrYfI44CM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJDD14lHmdSXxL0bpMDnXeV9tFW4Ji04WZvgrGgLav9wx2m9PlVnXpakXA/vQPpFH
-         eaJ+sQmOcH48YXm1o/b5CyVwNpoYmvtvRxLPKlSLiA3ENJODz9+Jui8DAkQTCIFIk5
-         h8wpeFmNoQsIMHwJOSrTG4RJGLJt2gvBenK6fVgs=
+        b=OnS37yOBHeDzU4vqAM77QCifXmtc5GsOMJzkkuGZL9tAx+RrGMtAna4VPpfTmC4fK
+         CGUsahPLZjir+yBnSSSyTtIn//RUOkFfZ5roqSi9JUe4ksGdArydrvAqRbAIF++GHd
+         KNYuDSWIwdMQ6ypU2wwzcY9SeTOQyhvcvFpeV+FU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cixi Geng <cixi.geng1@unisoc.com>,
-        Baolin Wang <baolin.wang7@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 199/287] iio: adc: sc27xx: fix read big scale voltage not right
+Subject: [PATCH 5.4 350/411] netfilter: nf_tables: memleak flow rule from commit path
 Date:   Mon, 13 Jun 2022 12:10:23 +0200
-Message-Id: <20220613094929.897918358@linuxfoundation.org>
+Message-Id: <20220613094939.199850634@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cixi Geng <cixi.geng1@unisoc.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit ad930a75613282400179361e220e58b87386b8c7 ]
+[ Upstream commit 9dd732e0bdf538b1b76dc7c157e2b5e560ff30d3 ]
 
-Fix wrong configuration value of SC27XX_ADC_SCALE_MASK and
-SC27XX_ADC_SCALE_SHIFT by spec documetation.
+Abort path release flow rule object, however, commit path does not.
+Update code to destroy these objects before releasing the transaction.
 
-Fixes: 5df362a6cf49c (iio: adc: Add Spreadtrum SC27XX PMICs ADC support)
-Signed-off-by: Cixi Geng <cixi.geng1@unisoc.com>
-Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
-Link: https://lore.kernel.org/r/20220419142458.884933-3-gengcixi@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: c9626a2cbdb2 ("netfilter: nf_tables: add hardware offload support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/sc27xx_adc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/iio/adc/sc27xx_adc.c b/drivers/iio/adc/sc27xx_adc.c
-index 2b60efea0c39..4095e1f7d756 100644
---- a/drivers/iio/adc/sc27xx_adc.c
-+++ b/drivers/iio/adc/sc27xx_adc.c
-@@ -35,8 +35,8 @@
- 
- /* Bits and mask definition for SC27XX_ADC_CH_CFG register */
- #define SC27XX_ADC_CHN_ID_MASK		GENMASK(4, 0)
--#define SC27XX_ADC_SCALE_MASK		GENMASK(10, 8)
--#define SC27XX_ADC_SCALE_SHIFT		8
-+#define SC27XX_ADC_SCALE_MASK		GENMASK(10, 9)
-+#define SC27XX_ADC_SCALE_SHIFT		9
- 
- /* Bits definitions for SC27XX_ADC_INT_EN registers */
- #define SC27XX_ADC_IRQ_EN		BIT(0)
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index b51c192105fc..58a7d89719b1 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -6570,6 +6570,9 @@ static void nft_commit_release(struct nft_trans *trans)
+ 		nf_tables_chain_destroy(&trans->ctx);
+ 		break;
+ 	case NFT_MSG_DELRULE:
++		if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
++			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
++
+ 		nf_tables_rule_destroy(&trans->ctx, nft_trans_rule(trans));
+ 		break;
+ 	case NFT_MSG_DELSET:
+@@ -6891,6 +6894,9 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
+ 			nf_tables_rule_notify(&trans->ctx,
+ 					      nft_trans_rule(trans),
+ 					      NFT_MSG_NEWRULE);
++			if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
++				nft_flow_rule_destroy(nft_trans_flow_rule(trans));
++
+ 			nft_trans_destroy(trans);
+ 			break;
+ 		case NFT_MSG_DELRULE:
 -- 
 2.35.1
 
