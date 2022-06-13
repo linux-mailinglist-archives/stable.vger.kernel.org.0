@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43502549200
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AB3C548BC9
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381831AbiFMOQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:16:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41882 "EHLO
+        id S1357342AbiFMM6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:58:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383115AbiFMOPX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:15:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB9E09CC81;
-        Mon, 13 Jun 2022 04:42:50 -0700 (PDT)
+        with ESMTP id S1356122AbiFMMzR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF2DFB850;
+        Mon, 13 Jun 2022 04:15:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 507C1B80ECD;
-        Mon, 13 Jun 2022 11:42:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A430BC34114;
-        Mon, 13 Jun 2022 11:42:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B34860B6B;
+        Mon, 13 Jun 2022 11:15:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73BBCC3411E;
+        Mon, 13 Jun 2022 11:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120569;
-        bh=mw/Kae021Zd0ilpCkoH0xuovLwi9c677QHtw690TGHg=;
+        s=korg; t=1655118939;
+        bh=TGB8fvzfl3YhMocGqLbDYunFAdllXXLShxgvHAoCEIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfchMZCJSsx4iYFocSKDh1wWmpi0MMSFsE8odg+9yr2DAbyHrotWwHDD8RpTcGVpJ
-         rLBh0tFzwT2efvv/4EpzZPRrcojr0obPa7Kz8k6J4mECykCO1GKWU2qT6ItVGY8rsY
-         T1d6NhMFS8EpkkA77Bll87+OVdFMaO1nM3gXEeAY=
+        b=2UWtuJOIwEoCDkf3NOw5hQDkL3XMzufJDx4G0U1vVNi3SvIegXE5y+uSZZvWV3nq5
+         rF60nfqyhf//cnfP1STUq4+yx9oWWtDj2h1vunp3G4BfoTQdDmaqUIg5DQm/LSEx8L
+         mWf0a+WFYA9ILHvwDwKyEyyCmKR7dzpGFoBVcQ2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
         =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 062/298] serial: txx9: Dont allow CS5-6
-Date:   Mon, 13 Jun 2022 12:09:16 +0200
-Message-Id: <20220613094926.829673971@linuxfoundation.org>
+Subject: [PATCH 5.15 055/247] serial: digicolor-usart: Dont allow CS5-6
+Date:   Mon, 13 Jun 2022 12:09:17 +0200
+Message-Id: <20220613094924.624580201@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,33 +56,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 79ac88655dc0551e3571ad16bdabdbe65d61553e ]
+[ Upstream commit fd63031b8c0763addcecdefe0e0c59d49646204e ]
 
-Only CS7 and CS8 are supported but CSIZE is not sanitized with
-CS5 or CS6 to CS8.
+Only CS7 and CS8 seem supported but CSIZE is not sanitized to CS8 in
+the default: block.
 
 Set CSIZE correctly so that userspace knows the effective value.
 Incorrect CSIZE also results in miscalculation of the frame bits in
 tty_get_char_size() or in its predecessor where the roughly the same
 code is directly within uart_update_timeout().
 
-Fixes: 1da177e4c3f4 (Linux-2.6.12-rc2)
+Fixes: 5930cb3511df (serial: driver for Conexant Digicolor USART)
+Acked-by: Baruch Siach <baruch@tkos.co.il>
 Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220519081808.3776-5-ilpo.jarvinen@linux.intel.com
+Link: https://lore.kernel.org/r/20220519081808.3776-3-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial_txx9.c | 2 ++
+ drivers/tty/serial/digicolor-usart.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/serial_txx9.c b/drivers/tty/serial/serial_txx9.c
-index aaca4fe38486..1f8362d5e3b9 100644
---- a/drivers/tty/serial/serial_txx9.c
-+++ b/drivers/tty/serial/serial_txx9.c
-@@ -644,6 +644,8 @@ serial_txx9_set_termios(struct uart_port *port, struct ktermios *termios,
- 	case CS6:	/* not supported */
+diff --git a/drivers/tty/serial/digicolor-usart.c b/drivers/tty/serial/digicolor-usart.c
+index c7f81aa1ce91..5fea9bf86e85 100644
+--- a/drivers/tty/serial/digicolor-usart.c
++++ b/drivers/tty/serial/digicolor-usart.c
+@@ -309,6 +309,8 @@ static void digicolor_uart_set_termios(struct uart_port *port,
  	case CS8:
- 		cval |= TXX9_SILCR_UMODE_8BIT;
+ 	default:
+ 		config |= UA_CONFIG_CHAR_LEN;
 +		termios->c_cflag &= ~CSIZE;
 +		termios->c_cflag |= CS8;
  		break;
