@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D346B5488C6
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFBD3548F7F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:23:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237479AbiFMKeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:34:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42778 "EHLO
+        id S1352921AbiFMLVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:21:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244206AbiFMKck (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:32:40 -0400
+        with ESMTP id S1353096AbiFMLTK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C14627CE4;
-        Mon, 13 Jun 2022 03:21:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B770C3A193;
+        Mon, 13 Jun 2022 03:40:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3290060AEB;
-        Mon, 13 Jun 2022 10:21:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 399EFC34114;
-        Mon, 13 Jun 2022 10:21:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D98B6611E6;
+        Mon, 13 Jun 2022 10:40:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB6DAC34114;
+        Mon, 13 Jun 2022 10:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115709;
-        bh=l+AybNHC05BqQuQ3Dkj3uvVIIyZwvXV3Ggmj5WIMdqE=;
+        s=korg; t=1655116857;
+        bh=j6T9aUTHchhFID0D3XbRd4u4Z4N5xnyzCw2fslzLvxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UpPvOt4JHAsSGHkN2EMhzMFGLbihYuLn4me17vzF/oACwJhuyymngL4dyKCMuPMqv
-         7/OY9hOB10HfdHnq5GytLY4epfRcjrJXU5kPsRCcJ51mm3zxdlWApzYBpqcAg2VsUC
-         dwB7F33H2GDJGZ9QoLkaMlE+T11Z9sPIbMzJLxXY=
+        b=SGAFG2HH3iqwxkaVDG/gYumtWwVWTbQ813fPY+qvX/ejVpSztotnrgABE9c9jfDsq
+         WLErpxUVfz0hURq9dJYkpM0z86Vtle9pE/7L0oID+yuOOldzputHUYPF4aOVoXJw5c
+         mXHC9w4QuKqakKk2F4Zj3kwJrTsK/0csQjQxHf7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 013/218] ACPICA: Avoid cache flush inside virtual machines
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 198/411] i2c: at91: use dma safe buffers
 Date:   Mon, 13 Jun 2022 12:07:51 +0200
-Message-Id: <20220613094911.494259234@linuxfoundation.org>
+Message-Id: <20220613094934.598728005@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,69 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit e2efb6359e620521d1e13f69b2257de8ceaa9475 ]
+[ Upstream commit 03fbb903c8bf7e53e101e8d9a7b261264317c411 ]
 
-While running inside virtual machine, the kernel can bypass cache
-flushing. Changing sleep state in a virtual machine doesn't affect the
-host system sleep state and cannot lead to data loss.
+The supplied buffer might be on the stack and we get the following error
+message:
+[    3.312058] at91_i2c e0070600.i2c: rejecting DMA map of vmalloc memory
 
-Before entering sleep states, the ACPI code flushes caches to prevent
-data loss using the WBINVD instruction.  This mechanism is required on
-bare metal.
+Use i2c_{get,put}_dma_safe_msg_buf() to get a DMA-able memory region if
+necessary.
 
-But, any use WBINVD inside of a guest is worthless.  Changing sleep
-state in a virtual machine doesn't affect the host system sleep state
-and cannot lead to data loss, so most hypervisors simply ignore it.
-Despite this, the ACPI code calls WBINVD unconditionally anyway.
-It's useless, but also normally harmless.
-
-In TDX guests, though, WBINVD stops being harmless; it triggers a
-virtualization exception (#VE).  If the ACPI cache-flushing WBINVD
-were left in place, TDX guests would need handling to recover from
-the exception.
-
-Avoid using WBINVD whenever running under a hypervisor.  This both
-removes the useless WBINVDs and saves TDX from implementing WBINVD
-handling.
-
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20220405232939.73860-30-kirill.shutemov@linux.intel.com
+Fixes: 60937b2cdbf9 ("i2c: at91: add dma support")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/acenv.h | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-at91-master.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/x86/include/asm/acenv.h b/arch/x86/include/asm/acenv.h
-index 1b010a859b8b..6de59a4f723c 100644
---- a/arch/x86/include/asm/acenv.h
-+++ b/arch/x86/include/asm/acenv.h
-@@ -16,7 +16,19 @@
+diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+index a3fcc35ffd3b..44502024cc10 100644
+--- a/drivers/i2c/busses/i2c-at91-master.c
++++ b/drivers/i2c/busses/i2c-at91-master.c
+@@ -609,6 +609,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	unsigned int_addr_flag = 0;
+ 	struct i2c_msg *m_start = msg;
+ 	bool is_read;
++	u8 *dma_buf;
  
- /* Asm macros */
+ 	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
  
--#define ACPI_FLUSH_CPU_CACHE()	wbinvd()
-+/*
-+ * ACPI_FLUSH_CPU_CACHE() flushes caches on entering sleep states.
-+ * It is required to prevent data loss.
-+ *
-+ * While running inside virtual machine, the kernel can bypass cache flushing.
-+ * Changing sleep state in a virtual machine doesn't affect the host system
-+ * sleep state and cannot lead to data loss.
-+ */
-+#define ACPI_FLUSH_CPU_CACHE()					\
-+do {								\
-+	if (!cpu_feature_enabled(X86_FEATURE_HYPERVISOR))	\
-+		wbinvd();					\
-+} while (0)
+@@ -656,7 +657,17 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	dev->msg = m_start;
+ 	dev->recv_len_abort = false;
  
- int __acpi_acquire_global_lock(unsigned int *lock);
- int __acpi_release_global_lock(unsigned int *lock);
++	if (dev->use_dma) {
++		dma_buf = i2c_get_dma_safe_msg_buf(m_start, 1);
++		if (!dma_buf) {
++			ret = -ENOMEM;
++			goto out;
++		}
++		dev->buf = dma_buf;
++	}
++
+ 	ret = at91_do_twi_transfer(dev);
++	i2c_put_dma_safe_msg_buf(dma_buf, m_start, !ret);
+ 
+ 	ret = (ret < 0) ? ret : num;
+ out:
 -- 
 2.35.1
 
