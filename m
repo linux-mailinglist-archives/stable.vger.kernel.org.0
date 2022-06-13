@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E6F9549255
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9260F549675
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379130AbiFMNuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:50:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51378 "EHLO
+        id S1351428AbiFMLGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:06:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379901AbiFMNtr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:49:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77BEC29CAF;
-        Mon, 13 Jun 2022 04:33:15 -0700 (PDT)
+        with ESMTP id S1351683AbiFMLEw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:04:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32419326F8;
+        Mon, 13 Jun 2022 03:33:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2A080CE1166;
-        Mon, 13 Jun 2022 11:33:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16C96C34114;
-        Mon, 13 Jun 2022 11:33:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8DC561021;
+        Mon, 13 Jun 2022 10:33:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C6F9C34114;
+        Mon, 13 Jun 2022 10:33:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119992;
-        bh=Ue8Q/OH/aJakZP9rw0CDNBgGw19DNghoIMQuuVeHuJg=;
+        s=korg; t=1655116429;
+        bh=04mpPbox/M0M1E7bmFFkKF6WQganXPbe2XFAbJrCpzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sO6vxAJVxchLLznC7YcKrUA+h2/QA7lxalSdvBW5YcF6HTtSEQvZ6MYAKAxAvHAt3
-         EBSUnMUSZtSbJ902sdFh5zg9obn8DEciFF0+xn3bm6jzMxpANUmIz4a2/00Ds+IRng
-         nhu98tVbkZcIPmxYz+Lb0sv/KBdPyBSfcW51qPHM=
+        b=bqvfc65AWUKzGxsmJP32SVhsdiKjAuUtfrKy7nb3/kkhWx+GNP9h4NhmPIHkcLN/f
+         +40JCH65cZdb8YstdpcqAEqE+YwNX6Oap20uP5Cg2UIeZvEkdO0FroIM8fvtEAPc8V
+         fHIn8M5s0g+3ysiG+ezfc8SSrq9jX2UiieEm43Os=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Feras Daoud <ferasda@nvidia.com>,
-        Roy Novich <royno@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 212/339] net/mlx5: Rearm the FW tracer after each tracer event
+Subject: [PATCH 4.14 179/218] net: altera: Fix refcount leak in altera_tse_mdio_create
 Date:   Mon, 13 Jun 2022 12:10:37 +0200
-Message-Id: <20220613094933.092790215@linuxfoundation.org>
+Message-Id: <20220613094926.036539840@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Feras Daoud <ferasda@nvidia.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 8bf94e6414c9481bfa28269022688ab445d0081d ]
+[ Upstream commit 11ec18b1d8d92b9df307d31950dcba0b3dd7283c ]
 
-The current design does not arm the tracer if traces are available before
-the tracer string database is fully loaded, leading to an unfunctional tracer.
-This fix will rearm the tracer every time the FW triggers tracer event
-regardless of the tracer strings database status.
+Every iteration of for_each_child_of_node() decrements
+the reference count of the previous node.
+When break from a for_each_child_of_node() loop,
+we need to explicitly call of_node_put() on the child node when
+not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: c71ad41ccb0c ("net/mlx5: FW tracer, events handling")
-Signed-off-by: Feras Daoud <ferasda@nvidia.com>
-Signed-off-by: Roy Novich <royno@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: bbd2190ce96d ("Altera TSE: Add main and header file for Altera Ethernet Driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220607041144.7553-1-linmq006@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/altera/altera_tse_main.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-index eae9aa9c0811..978a2bb8e122 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-@@ -675,6 +675,9 @@ static void mlx5_fw_tracer_handle_traces(struct work_struct *work)
- 	if (!tracer->owner)
- 		return;
- 
-+	if (unlikely(!tracer->str_db.loaded))
-+		goto arm;
-+
- 	block_count = tracer->buff.size / TRACER_BLOCK_SIZE_BYTE;
- 	start_offset = tracer->buff.consumer_index * TRACER_BLOCK_SIZE_BYTE;
- 
-@@ -732,6 +735,7 @@ static void mlx5_fw_tracer_handle_traces(struct work_struct *work)
- 						      &tmp_trace_block[TRACES_PER_BLOCK - 1]);
+diff --git a/drivers/net/ethernet/altera/altera_tse_main.c b/drivers/net/ethernet/altera/altera_tse_main.c
+index 691fd194e5ea..1c0f11ec7a83 100644
+--- a/drivers/net/ethernet/altera/altera_tse_main.c
++++ b/drivers/net/ethernet/altera/altera_tse_main.c
+@@ -174,7 +174,8 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
+ 	mdio = mdiobus_alloc();
+ 	if (mdio == NULL) {
+ 		netdev_err(dev, "Error allocating MDIO bus\n");
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto put_node;
  	}
  
-+arm:
- 	mlx5_fw_tracer_arm(dev);
+ 	mdio->name = ALTERA_TSE_RESOURCE_NAME;
+@@ -191,6 +192,7 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
+ 			   mdio->id);
+ 		goto out_free_mdio;
+ 	}
++	of_node_put(mdio_node);
+ 
+ 	if (netif_msg_drv(priv))
+ 		netdev_info(dev, "MDIO bus %s: created\n", mdio->id);
+@@ -200,6 +202,8 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
+ out_free_mdio:
+ 	mdiobus_free(mdio);
+ 	mdio = NULL;
++put_node:
++	of_node_put(mdio_node);
+ 	return ret;
  }
  
-@@ -1136,8 +1140,7 @@ static int fw_tracer_event(struct notifier_block *nb, unsigned long action, void
- 		queue_work(tracer->work_queue, &tracer->ownership_change_work);
- 		break;
- 	case MLX5_TRACER_SUBTYPE_TRACES_AVAILABLE:
--		if (likely(tracer->str_db.loaded))
--			queue_work(tracer->work_queue, &tracer->handle_traces_work);
-+		queue_work(tracer->work_queue, &tracer->handle_traces_work);
- 		break;
- 	default:
- 		mlx5_core_dbg(dev, "FWTracer: Event with unrecognized subtype: sub_type %d\n",
 -- 
 2.35.1
 
