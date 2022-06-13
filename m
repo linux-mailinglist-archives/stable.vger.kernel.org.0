@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D90C549438
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 710085495AA
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377538AbiFMNdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:33:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50712 "EHLO
+        id S1352672AbiFMLUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:20:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378511AbiFMNbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:31:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE5B703EB;
-        Mon, 13 Jun 2022 04:26:14 -0700 (PDT)
+        with ESMTP id S1353029AbiFMLTG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:06 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA2139BBA;
+        Mon, 13 Jun 2022 03:40:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19F6761038;
-        Mon, 13 Jun 2022 11:26:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25E54C341C5;
-        Mon, 13 Jun 2022 11:26:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 94952CE1109;
+        Mon, 13 Jun 2022 10:40:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67A37C34114;
+        Mon, 13 Jun 2022 10:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119573;
-        bh=P2WvBvhNObln23cDiRXI50hZO+1ujw4dGKh/BQBU3KY=;
+        s=korg; t=1655116851;
+        bh=xhk+jTQMkpS4G6E67FnKiOm6izJyEeX+mMpX/wlbihI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZamHkhetZCOUjBD982UhCCC5YbZVu61E/Qa2UcZlTd2k4iAYTEeCR4CeFzG0IgJjT
-         dtbS6c7rIjL1gJWebKE5QqFYAaCau/Nn/oW/C550qekcYn1GYKa76537uyW3w/V0b3
-         VOKSI9K5FCR9/9owfu0Gcoj1WO9wLeLaWNgRigaQ=
+        b=mJhfoL8+/P5z0HQ5FPtpgrXyQ99G1O8G942C0QdCBUF2qkhrSKS4OBb1YeJiEpLeB
+         EZ4BF5AqQDS0VT9rp1KdKzDxPYNOcvsQLytdZOJn1aaNWAWirRcjlvtOIm8GxMvllL
+         v+33v8IFQyp6XZvdZYXb12tqpH+RqZiBVq7dtnWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 044/339] power: supply: ab8500_fg: Allocate wq in probe
+Subject: [PATCH 5.4 196/411] f2fs: fix dereference of stale list iterator after loop body
 Date:   Mon, 13 Jun 2022 12:07:49 +0200
-Message-Id: <20220613094927.858126177@linuxfoundation.org>
+Message-Id: <20220613094934.538790848@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Jakob Koschel <jakobkoschel@gmail.com>
 
-[ Upstream commit 010ddb813f3554cbbf8bd13b731452236a2c8017 ]
+[ Upstream commit 2aaf51dd39afb6d01d13f1e6fe20b684733b37d5 ]
 
-The workqueue is allocated in bind() but all interrupts are
-registered in probe().
+The list iterator variable will be a bogus pointer if no break was hit.
+Dereferencing it (cur->page in this case) could load an out-of-bounds/undefined
+value making it unsafe to use that in the comparision to determine if the
+specific element was found.
 
-Some interrupts put work on the workqueue, which can have
-bad side effects.
+Since 'cur->page' *can* be out-ouf-bounds it cannot be guaranteed that
+by chance (or intention of an attacker) it matches the value of 'page'
+even though the correct element was not found.
 
-Allocate the workqueue in probe() instead, destroy it in
-.remove() and make unbind() simply flush the workqueue.
+This is fixed by using a separate list iterator variable for the loop
+and only setting the original variable if a suitable element was found.
+Then determing if the element was found is simply checking if the
+variable is set.
 
-Fixes: 1c1f13a006ed ("power: supply: ab8500: Move to componentized binding")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 8c242db9b8c0 ("f2fs: fix stale ATOMIC_WRITTEN_PAGE private pointer")
+Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ab8500_fg.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ fs/f2fs/segment.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/power/supply/ab8500_fg.c b/drivers/power/supply/ab8500_fg.c
-index 97ac588a9e9c..ec8a404d71b4 100644
---- a/drivers/power/supply/ab8500_fg.c
-+++ b/drivers/power/supply/ab8500_fg.c
-@@ -3037,13 +3037,6 @@ static int ab8500_fg_bind(struct device *dev, struct device *master,
- {
- 	struct ab8500_fg *di = dev_get_drvdata(dev);
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 78c54bb7898d..7759323bd775 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -352,16 +352,19 @@ void f2fs_drop_inmem_page(struct inode *inode, struct page *page)
+ 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+ 	struct list_head *head = &fi->inmem_pages;
+ 	struct inmem_pages *cur = NULL;
++	struct inmem_pages *tmp;
  
--	/* Create a work queue for running the FG algorithm */
--	di->fg_wq = alloc_ordered_workqueue("ab8500_fg_wq", WQ_MEM_RECLAIM);
--	if (di->fg_wq == NULL) {
--		dev_err(dev, "failed to create work queue\n");
--		return -ENOMEM;
--	}
--
- 	di->bat_cap.max_mah_design = di->bm->bi->charge_full_design_uah;
- 	di->bat_cap.max_mah = di->bat_cap.max_mah_design;
- 	di->vbat_nom_uv = di->bm->bi->voltage_max_design_uv;
-@@ -3067,8 +3060,7 @@ static void ab8500_fg_unbind(struct device *dev, struct device *master,
- 	if (ret)
- 		dev_err(dev, "failed to disable coulomb counter\n");
+ 	f2fs_bug_on(sbi, !IS_ATOMIC_WRITTEN_PAGE(page));
  
--	destroy_workqueue(di->fg_wq);
--	flush_scheduled_work();
-+	flush_workqueue(di->fg_wq);
- }
+ 	mutex_lock(&fi->inmem_lock);
+-	list_for_each_entry(cur, head, list) {
+-		if (cur->page == page)
++	list_for_each_entry(tmp, head, list) {
++		if (tmp->page == page) {
++			cur = tmp;
+ 			break;
++		}
+ 	}
  
- static const struct component_ops ab8500_fg_component_ops = {
-@@ -3117,6 +3109,13 @@ static int ab8500_fg_probe(struct platform_device *pdev)
- 	ab8500_fg_charge_state_to(di, AB8500_FG_CHARGE_INIT);
- 	ab8500_fg_discharge_state_to(di, AB8500_FG_DISCHARGE_INIT);
+-	f2fs_bug_on(sbi, list_empty(head) || cur->page != page);
++	f2fs_bug_on(sbi, !cur);
+ 	list_del(&cur->list);
+ 	mutex_unlock(&fi->inmem_lock);
  
-+	/* Create a work queue for running the FG algorithm */
-+	di->fg_wq = alloc_ordered_workqueue("ab8500_fg_wq", WQ_MEM_RECLAIM);
-+	if (di->fg_wq == NULL) {
-+		dev_err(dev, "failed to create work queue\n");
-+		return -ENOMEM;
-+	}
-+
- 	/* Init work for running the fg algorithm instantly */
- 	INIT_WORK(&di->fg_work, ab8500_fg_instant_work);
- 
-@@ -3227,6 +3226,8 @@ static int ab8500_fg_remove(struct platform_device *pdev)
- {
- 	struct ab8500_fg *di = platform_get_drvdata(pdev);
- 
-+	destroy_workqueue(di->fg_wq);
-+	flush_scheduled_work();
- 	component_del(&pdev->dev, &ab8500_fg_component_ops);
- 	list_del(&di->node);
- 	ab8500_fg_sysfs_exit(di);
 -- 
 2.35.1
 
