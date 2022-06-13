@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D164A548775
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4C8D54860F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351660AbiFMLJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:09:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44946 "EHLO
+        id S1383670AbiFMObv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:31:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351770AbiFMLIL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:08:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5D3D33A22;
-        Mon, 13 Jun 2022 03:35:17 -0700 (PDT)
+        with ESMTP id S1385105AbiFMOai (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:30:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A8EDA86A5;
+        Mon, 13 Jun 2022 04:48:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A88BB80EAF;
-        Mon, 13 Jun 2022 10:35:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA711C34114;
-        Mon, 13 Jun 2022 10:35:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92360612AC;
+        Mon, 13 Jun 2022 11:48:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77806C3411C;
+        Mon, 13 Jun 2022 11:48:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116514;
-        bh=XCfyyp/SpNXn1B7LF8SU/L3pLBwEj/28+24y99Csbfo=;
+        s=korg; t=1655120881;
+        bh=xiYEgWBVMCuIUkmI5EK4524c4rH/1oU6YNVnXbs2OsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hXOLP9YOl0n+AvEm+uhWuB939fF57BELBvCxLBzoJnwwhsyS8ZtvrDDUixFeEQwkn
-         zMO6rRhJ7mdKln40U7KwwkxTBXRpcbf564Whdc1EZ/YtRN1Y0k8WHfVp/lbpjhAFuS
-         XXuB+dtTk9x0eT5m8/zwJEoR5ELyNVFE1jJOwVGE=
+        b=CewKg/IPdo05yYZhMRum+2tIyjM380BAQY1OwLXVbbdV1I87Ki+oWDuC/L1Ivbj0k
+         1Z/hrjQ5oPP8D+iXQFKCVcWUrLIJzmQmv3xRXsBYFzBaWx0X9hSmS1iegkGpyc0FXN
+         GmUdG5dWc6X/9EFmmSSvQzNMgYfGcfymKX6YqPtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Fam Zheng <fam.zheng@bytedance.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Taehee Yoo <ap420073@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 205/218] vringh: Fix loop descriptors check in the indirect cases
+Subject: [PATCH 5.17 169/298] amt: fix possible null-ptr-deref in amt_rcv()
 Date:   Mon, 13 Jun 2022 12:11:03 +0200
-Message-Id: <20220613094926.840709254@linuxfoundation.org>
+Message-Id: <20220613094930.057866332@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,61 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit dbd29e0752286af74243cf891accf472b2f3edd8 ]
+[ Upstream commit d16207f92a4a823c48b4ea953ad51f4483456768 ]
 
-We should use size of descriptor chain to test loop condition
-in the indirect case. And another statistical count is also introduced
-for indirect descriptors to avoid conflict with the statistical count
-of direct descriptors.
+When amt interface receives amt message, it tries to obtain amt private
+data from sock.
+If there is no amt private data, it frees an skb immediately.
+After kfree_skb(), it increases the rx_dropped stats.
+But in order to use rx_dropped, amt private data is needed.
+So, it makes amt_rcv() to do not increase rx_dropped stats when it can
+not obtain amt private data.
 
-Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Signed-off-by: Fam Zheng <fam.zheng@bytedance.com>
-Message-Id: <20220505100910.137-1-xieyongji@bytedance.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 1a1a0e80e005 ("amt: fix possible memory leak in amt_rcv()")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vringh.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/amt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index c23045aa9873..a764d36c4d38 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -263,7 +263,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 	     gfp_t gfp,
- 	     int (*copy)(void *dst, const void *src, size_t len))
- {
--	int err, count = 0, up_next, desc_max;
-+	int err, count = 0, indirect_count = 0, up_next, desc_max;
- 	struct vring_desc desc, *descs;
- 	struct vringh_range range = { -1ULL, 0 }, slowrange;
- 	bool slow = false;
-@@ -320,7 +320,12 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 			continue;
- 		}
+diff --git a/drivers/net/amt.c b/drivers/net/amt.c
+index d8c47c4e6559..e239c0262d56 100644
+--- a/drivers/net/amt.c
++++ b/drivers/net/amt.c
+@@ -2698,7 +2698,8 @@ static int amt_rcv(struct sock *sk, struct sk_buff *skb)
+ 	amt = rcu_dereference_sk_user_data(sk);
+ 	if (!amt) {
+ 		err = true;
+-		goto drop;
++		kfree_skb(skb);
++		goto out;
+ 	}
  
--		if (count++ == vrh->vring.num) {
-+		if (up_next == -1)
-+			count++;
-+		else
-+			indirect_count++;
-+
-+		if (count > vrh->vring.num || indirect_count > desc_max) {
- 			vringh_bad("Descriptor loop in %p", descs);
- 			err = -ELOOP;
- 			goto fail;
-@@ -382,6 +387,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 				i = return_from_indirect(vrh, &up_next,
- 							 &descs, &desc_max);
- 				slow = false;
-+				indirect_count = 0;
- 			} else
- 				break;
- 		}
+ 	skb->dev = amt->dev;
 -- 
 2.35.1
 
