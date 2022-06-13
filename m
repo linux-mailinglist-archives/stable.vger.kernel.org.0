@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8620548A27
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE418548BA0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352090AbiFMLKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:10:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60262 "EHLO
+        id S1383777AbiFMO1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:27:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352293AbiFMLJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:09:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 965CC2AF9;
-        Mon, 13 Jun 2022 03:35:41 -0700 (PDT)
+        with ESMTP id S1384174AbiFMOZC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:25:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61A1548E49;
+        Mon, 13 Jun 2022 04:46:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E46F6B80E93;
-        Mon, 13 Jun 2022 10:35:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63EFAC34114;
-        Mon, 13 Jun 2022 10:35:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90B65B80EF8;
+        Mon, 13 Jun 2022 11:46:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B6AAC341C4;
+        Mon, 13 Jun 2022 11:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116538;
-        bh=0s6miO3hio6EV1SkDFenbIHYxqvkp/Pll177S2U5AgM=;
+        s=korg; t=1655120807;
+        bh=JrIpi84RpMgxdT948gZwsY66rRyfpspHScAYri4PK+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TEVmDZWDuia5fca0YrlcPdkUx4ofdIr16TqNU6H5De2fgw3Dsjk74Pc8TklJMTLb/
-         H8KdeH2kQ3DDcCArmRksGN2k0L+0DZMDY1X90+AXb9vN6K+EWdNMl3pOhkZmNZZSUG
-         cd5oyHEXe8uyQJiNJ2ujDZrCgvBH6Fyzaa8EwrnM=
+        b=yL2N2H3BLPmdKNlwN9JwUnq4PVAelETbVKIe1zfrV8AxJ9LFEh8R70rma5MntX4c3
+         fVRBkj43P8AD/eC4MIBQyk5VZpdTJZ60AQaKNeih+iq/m2UWLWnqg4OUqOee8y8Fho
+         lcuMRdRF3GJhQsBRedQvXqStdj863bV8VDQamXYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 200/218] modpost: fix undefined behavior of is_arm_mapping_symbol()
+Subject: [PATCH 5.17 164/298] ata: pata_octeon_cf: Fix refcount leak in octeon_cf_probe
 Date:   Mon, 13 Jun 2022 12:10:58 +0200
-Message-Id: <20220613094926.688912806@linuxfoundation.org>
+Message-Id: <20220613094929.906607999@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit d6b732666a1bae0df3c3ae06925043bba34502b1 ]
+[ Upstream commit 10d6bdf532902be1d8aa5900b3c03c5671612aa2 ]
 
-The return value of is_arm_mapping_symbol() is unpredictable when "$"
-is passed in.
+of_find_device_by_node() takes reference, we should use put_device()
+to release it when not need anymore.
+Add missing put_device() to avoid refcount leak.
 
-strchr(3) says:
-  The strchr() and strrchr() functions return a pointer to the matched
-  character or NULL if the character is not found. The terminating null
-  byte is considered part of the string, so that if c is specified as
-  '\0', these functions return a pointer to the terminator.
-
-When str[1] is '\0', strchr("axtd", str[1]) is not NULL, and str[2] is
-referenced (i.e. buffer overrun).
-
-Test code
----------
-
-  char str1[] = "abc";
-  char str2[] = "ab";
-
-  strcpy(str1, "$");
-  strcpy(str2, "$");
-
-  printf("test1: %d\n", is_arm_mapping_symbol(str1));
-  printf("test2: %d\n", is_arm_mapping_symbol(str2));
-
-Result
-------
-
-  test1: 0
-  test2: 1
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Fixes: 43f01da0f279 ("MIPS/OCTEON/ata: Convert pata_octeon_cf.c to use device tree.")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/mod/modpost.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/ata/pata_octeon_cf.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index bc2c860f88ef..f35fb7fcd98c 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -1229,7 +1229,8 @@ static int secref_whitelist(const struct sectioncheck *mismatch,
- 
- static inline int is_arm_mapping_symbol(const char *str)
- {
--	return str[0] == '$' && strchr("axtd", str[1])
-+	return str[0] == '$' &&
-+	       (str[1] == 'a' || str[1] == 'd' || str[1] == 't' || str[1] == 'x')
- 	       && (str[2] == '\0' || str[2] == '.');
- }
- 
+diff --git a/drivers/ata/pata_octeon_cf.c b/drivers/ata/pata_octeon_cf.c
+index 05c2ab375756..a2abf6c9a085 100644
+--- a/drivers/ata/pata_octeon_cf.c
++++ b/drivers/ata/pata_octeon_cf.c
+@@ -856,12 +856,14 @@ static int octeon_cf_probe(struct platform_device *pdev)
+ 				int i;
+ 				res_dma = platform_get_resource(dma_dev, IORESOURCE_MEM, 0);
+ 				if (!res_dma) {
++					put_device(&dma_dev->dev);
+ 					of_node_put(dma_node);
+ 					return -EINVAL;
+ 				}
+ 				cf_port->dma_base = (u64)devm_ioremap(&pdev->dev, res_dma->start,
+ 									 resource_size(res_dma));
+ 				if (!cf_port->dma_base) {
++					put_device(&dma_dev->dev);
+ 					of_node_put(dma_node);
+ 					return -EINVAL;
+ 				}
+@@ -871,6 +873,7 @@ static int octeon_cf_probe(struct platform_device *pdev)
+ 					irq = i;
+ 					irq_handler = octeon_cf_interrupt;
+ 				}
++				put_device(&dma_dev->dev);
+ 			}
+ 			of_node_put(dma_node);
+ 		}
 -- 
 2.35.1
 
