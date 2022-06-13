@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADDDA5495C5
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A755A549365
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349281AbiFMK5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:57:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43340 "EHLO
+        id S1383551AbiFMO0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:26:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350204AbiFMKyp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10F0FF21;
-        Mon, 13 Jun 2022 03:30:16 -0700 (PDT)
+        with ESMTP id S1383872AbiFMOYN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5827B4707B;
+        Mon, 13 Jun 2022 04:45:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A063960F73;
-        Mon, 13 Jun 2022 10:30:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A3AC34114;
-        Mon, 13 Jun 2022 10:30:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAEBC612AC;
+        Mon, 13 Jun 2022 11:45:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02305C3411C;
+        Mon, 13 Jun 2022 11:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116215;
-        bh=KbjZcDXRQIGSGQAMd5LBDSS6CzGYX28y9Hf6DUrkxrU=;
+        s=korg; t=1655120739;
+        bh=9phftI5w2jdpco4ORl3mxxTJoT7mNPSI6iI6YVxDZsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nemE8jSh+w4yg96aLw1edpSxUPMbgOVxurX3vBAXra41qPWvNbuaY/ebz61HIIWWs
-         QM2SaevXJQsl0gTrKrhqO7LXzdYdaGCI/KWxD/aLWDOLBfGE87+m7PJioka8OHKBw7
-         MXcHzhgaLLKmwtZx6vchrrCJHWW3aMWPlkzhhnvU=
+        b=TRwJ5DfRYN+s+rxrUUK8kmY2YJBAn2/AbdwTuS/M7F1irSgzAAuLmysRjwU+Hv/de
+         4Jt+ZbrD/fAsI4bu6EEwF5vLGUxSKSYo+1CYKLT4oQjxpuOxrIc0RJprgWLREYO0PQ
+         BMWed24Vv/DGk3NNS5tnQA5j+iTe2Qfi7waXm4M8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 152/218] serial: digicolor-usart: Dont allow CS5-6
+Subject: [PATCH 5.17 116/298] vdpa: ifcvf: set pci driver data in probe
 Date:   Mon, 13 Jun 2022 12:10:10 +0200
-Message-Id: <20220613094925.202454445@linuxfoundation.org>
+Message-Id: <20220613094928.463447055@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Jason Wang <jasowang@redhat.com>
 
-[ Upstream commit fd63031b8c0763addcecdefe0e0c59d49646204e ]
+[ Upstream commit bd8bb9aed56b1814784a975e2dfea12a9adcee92 ]
 
-Only CS7 and CS8 seem supported but CSIZE is not sanitized to CS8 in
-the default: block.
+We should set the pci driver data in probe instead of the vdpa device
+adding callback. Otherwise if no vDPA device is created we will lose
+the pointer to the management device.
 
-Set CSIZE correctly so that userspace knows the effective value.
-Incorrect CSIZE also results in miscalculation of the frame bits in
-tty_get_char_size() or in its predecessor where the roughly the same
-code is directly within uart_update_timeout().
-
-Fixes: 5930cb3511df (serial: driver for Conexant Digicolor USART)
-Acked-by: Baruch Siach <baruch@tkos.co.il>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220519081808.3776-3-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6b5df347c6482 ("vDPA/ifcvf: implement management netlink framework for ifcvf")
+Tested-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Message-Id: <20220524055557.1938-1-jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/digicolor-usart.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/vdpa/ifcvf/ifcvf_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/digicolor-usart.c b/drivers/tty/serial/digicolor-usart.c
-index 794864fac625..74127813e6db 100644
---- a/drivers/tty/serial/digicolor-usart.c
-+++ b/drivers/tty/serial/digicolor-usart.c
-@@ -313,6 +313,8 @@ static void digicolor_uart_set_termios(struct uart_port *port,
- 	case CS8:
- 	default:
- 		config |= UA_CONFIG_CHAR_LEN;
-+		termios->c_cflag &= ~CSIZE;
-+		termios->c_cflag |= CS8;
- 		break;
+diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+index d1a6b5ab543c..474c6120c955 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -514,7 +514,6 @@ static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
  	}
  
+ 	ifcvf_mgmt_dev->adapter = adapter;
+-	pci_set_drvdata(pdev, ifcvf_mgmt_dev);
+ 
+ 	vf = &adapter->vf;
+ 	vf->dev_type = get_dev_type(pdev);
+@@ -629,6 +628,8 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		goto err;
+ 	}
+ 
++	pci_set_drvdata(pdev, ifcvf_mgmt_dev);
++
+ 	return 0;
+ 
+ err:
 -- 
 2.35.1
 
