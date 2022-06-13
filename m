@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7AE0548BAB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1E95549256
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349317AbiFMK5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:57:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44828 "EHLO
+        id S1348583AbiFMK4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:56:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350249AbiFMKyq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11428E024;
-        Mon, 13 Jun 2022 03:30:37 -0700 (PDT)
+        with ESMTP id S1350277AbiFMKys (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAF6DF59B;
+        Mon, 13 Jun 2022 03:30:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1628B80E5E;
-        Mon, 13 Jun 2022 10:30:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E75A3C34114;
-        Mon, 13 Jun 2022 10:30:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A059B80E94;
+        Mon, 13 Jun 2022 10:30:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AAABC34114;
+        Mon, 13 Jun 2022 10:30:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116234;
-        bh=+/FYCLGsRVRHNZXvwv77uB0pWt/M78vjProgDG0PYuM=;
+        s=korg; t=1655116240;
+        bh=D52O2FRzILz9zMg8zYdxD18w6tiNZOOjolfGlqsqKWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lclvt3DoXn2kXyOdoQCXt657EGna8Kw5y8LMQa6d8zCrthQA3iq3zTkT2KHURiFvh
-         hFh0yD7pn210BTuoN6p2LNrlE7glLXshfZUNAAoQ50RzbVX1CSit91cjQ5OjbLZUYQ
-         b7kuTYICi7wD7VwqqeJ/k2wuAnulXkrZykvm2JIU=
+        b=Lx4UdgT1a+mphQU6eNRUBhlunMLgn8/wrrXt/fZsLucoqion4AHLEFbHjdMI6tt1p
+         2hgpRRTZPuTad+lBZQhClijuWksIhl7CqZuAQlBX64axxC9VZflN22Qmvv44Tds4rV
+         KH8G+M5kBrEnrLjLOESgMH11gEaC27p08aELeWvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alice Wong <shiwei.wong@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 039/411] mlxsw: spectrum_dcb: Do not warn about priority changes
-Date:   Mon, 13 Jun 2022 12:05:12 +0200
-Message-Id: <20220613094929.681987818@linuxfoundation.org>
+Subject: [PATCH 5.4 040/411] drm/amdgpu/ucode: Remove firmware load type check in amdgpu_ucode_free_bo
+Date:   Mon, 13 Jun 2022 12:05:13 +0200
+Message-Id: <20220613094929.711769532@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -56,82 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Alice Wong <shiwei.wong@amd.com>
 
-[ Upstream commit b6b584562cbe7dc357083459d6dd5b171e12cadb ]
+[ Upstream commit ab0cd4a9ae5b4679b714d8dbfedc0901fecdce9f ]
 
-The idea behind the warnings is that the user would get warned in case when
-more than one priority is configured for a given DSCP value on a netdevice.
+When psp_hw_init failed, it will set the load_type to AMDGPU_FW_LOAD_DIRECT.
+During amdgpu_device_ip_fini, amdgpu_ucode_free_bo checks that load_type is
+AMDGPU_FW_LOAD_DIRECT and skips deallocating fw_buf causing memory leak.
+Remove load_type check in amdgpu_ucode_free_bo.
 
-The warning is currently wrong, because dcb_ieee_getapp_mask() returns
-the first matching entry, not all of them, and the warning will then claim
-that some priority is "current", when in fact it is not.
-
-But more importantly, the warning is misleading in general. Consider the
-following commands:
-
- # dcb app flush dev swp19 dscp-prio
- # dcb app add dev swp19 dscp-prio 24:3
- # dcb app replace dev swp19 dscp-prio 24:2
-
-The last command will issue the following warning:
-
- mlxsw_spectrum3 0000:07:00.0 swp19: Ignoring new priority 2 for DSCP 24 in favor of current value of 3
-
-The reason is that the "replace" command works by first adding the new
-value, and then removing all old values. This is the only way to make the
-replacement without causing the traffic to be prioritized to whatever the
-chip defaults to. The warning is issued in response to adding the new
-priority, and then no warning is shown when the old priority is removed.
-The upshot is that the canonical way to change traffic prioritization
-always produces a warning about ignoring the new priority, but what gets
-configured is in fact what the user intended.
-
-An option to just emit warning every time that the prioritization changes
-just to make it clear that it happened is obviously unsatisfactory.
-
-Therefore, in this patch, remove the warnings.
-
-Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alice Wong <shiwei.wong@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c | 13 -------------
- 1 file changed, 13 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-index 21296fa7f7fb..bf51ed94952c 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-@@ -227,8 +227,6 @@ static int mlxsw_sp_dcbnl_ieee_setets(struct net_device *dev,
- static int mlxsw_sp_dcbnl_app_validate(struct net_device *dev,
- 				       struct dcb_app *app)
- {
--	int prio;
--
- 	if (app->priority >= IEEE_8021QAZ_MAX_TCS) {
- 		netdev_err(dev, "APP entry with priority value %u is invalid\n",
- 			   app->priority);
-@@ -242,17 +240,6 @@ static int mlxsw_sp_dcbnl_app_validate(struct net_device *dev,
- 				   app->protocol);
- 			return -EINVAL;
- 		}
--
--		/* Warn about any DSCP APP entries with the same PID. */
--		prio = fls(dcb_ieee_getapp_mask(dev, app));
--		if (prio--) {
--			if (prio < app->priority)
--				netdev_warn(dev, "Choosing priority %d for DSCP %d in favor of previously-active value of %d\n",
--					    app->priority, app->protocol, prio);
--			else if (prio > app->priority)
--				netdev_warn(dev, "Ignoring new priority %d for DSCP %d in favor of current value of %d\n",
--					    app->priority, app->protocol, prio);
--		}
- 		break;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
+index 3a6115ad0196..f3250db7f9c2 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
+@@ -568,8 +568,7 @@ int amdgpu_ucode_create_bo(struct amdgpu_device *adev)
  
- 	case IEEE_8021QAZ_APP_SEL_ETHERTYPE:
+ void amdgpu_ucode_free_bo(struct amdgpu_device *adev)
+ {
+-	if (adev->firmware.load_type != AMDGPU_FW_LOAD_DIRECT)
+-		amdgpu_bo_free_kernel(&adev->firmware.fw_buf,
++	amdgpu_bo_free_kernel(&adev->firmware.fw_buf,
+ 		&adev->firmware.fw_buf_mc,
+ 		&adev->firmware.fw_buf_ptr);
+ }
 -- 
 2.35.1
 
