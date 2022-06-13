@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13683548649
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:56:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73C2E548766
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376311AbiFMNYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:24:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60884 "EHLO
+        id S1376273AbiFMNVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:21:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359179AbiFMNWk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:22:40 -0400
+        with ESMTP id S1377266AbiFMNUM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A41C56B082;
-        Mon, 13 Jun 2022 04:23:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDF5E6A03F;
+        Mon, 13 Jun 2022 04:23:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48712B80E93;
-        Mon, 13 Jun 2022 11:23:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9140BC34114;
-        Mon, 13 Jun 2022 11:23:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE6C3B80EB7;
+        Mon, 13 Jun 2022 11:23:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5769FC34114;
+        Mon, 13 Jun 2022 11:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119419;
-        bh=7ZJdOB8NWztNFmJga+HULPqObVqV573O24/WNfw5IOk=;
+        s=korg; t=1655119380;
+        bh=HAxRoji8uG/RdFQsI1RZvPTs7xTUfZBGIXUkTYvNiBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f3+1NKqF9SzxoECOq/Pc+9WYVfp/Q3sLcUjQiDZra0TZAEh8iJSBjflgY2Aqafl1c
-         a4NZqn/4hx83lO4GmQgey2EgZyZWWQkSqBGQ34oe5VzRx4P89zCiAiurcPD+8n8VB+
-         OpRf7A2EPASfrtsqlDYfOw/48PTv9V5LFftAAUpw=
+        b=np+gDYpBf+o1pa4GmoNUq7YfG2fOCMWlBQLGch3BL4dQwAC2+ggfBY1dtg1sA5ltE
+         XAqie5yTdpRQl0QeihoMrpAPErIwtAx8CCHUKgvKaHOm3XP7J0MPpJO4LO2SC7mmTh
+         MPdXwVotwV/WdGUI3Spc7D4gfNaxxVy7JJpRFOsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.15 222/247] ata: libata-transport: fix {dma|pio|xfer}_mode sysfs files
-Date:   Mon, 13 Jun 2022 12:12:04 +0200
-Message-Id: <20220613094929.678779354@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Sit, Michael Wei Hong" <michael.wei.hong.sit@intel.com>,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        Tan Tee Min <tee.min.tan@linux.intel.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        Sit@vger.kernel.org
+Subject: [PATCH 5.15 224/247] net: phy: dp83867: retrigger SGMII AN when link change
+Date:   Mon, 13 Jun 2022 12:12:06 +0200
+Message-Id: <20220613094929.739601502@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
 References: <20220613094922.843438024@linuxfoundation.org>
@@ -53,74 +57,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Tan Tee Min <tee.min.tan@linux.intel.com>
 
-commit 72aad489f992871e908ff6d9055b26c6366fb864 upstream.
+commit c76acfb7e19dcc3a0964e0563770b1d11b8d4540 upstream.
 
-The {dma|pio}_mode sysfs files are incorrectly documented as having a
-list of the supported DMA/PIO transfer modes, while the corresponding
-fields of the *struct* ata_device hold the transfer mode IDs, not masks.
+There is a limitation in TI DP83867 PHY device where SGMII AN is only
+triggered once after the device is booted up. Even after the PHY TPI is
+down and up again, SGMII AN is not triggered and hence no new in-band
+message from PHY to MAC side SGMII.
 
-To match these docs, the {dma|pio}_mode (and even xfer_mode!) sysfs
-files are handled by the ata_bitfield_name_match() macro which leads to
-reading such kind of nonsense from them:
+This could cause an issue during power up, when PHY is up prior to MAC.
+At this condition, once MAC side SGMII is up, MAC side SGMII wouldn`t
+receive new in-band message from TI PHY with correct link status, speed
+and duplex info.
 
-$ cat /sys/class/ata_device/dev3.0/pio_mode
-XFER_UDMA_7, XFER_UDMA_6, XFER_UDMA_5, XFER_UDMA_4, XFER_MW_DMA_4,
-XFER_PIO_6, XFER_PIO_5, XFER_PIO_4, XFER_PIO_3, XFER_PIO_2, XFER_PIO_1,
-XFER_PIO_0
+As suggested by TI, implemented a SW solution here to retrigger SGMII
+Auto-Neg whenever there is a link change.
 
-Using the correct ata_bitfield_name_search() macro fixes that:
+v2: Add Fixes tag in commit message.
 
-$ cat /sys/class/ata_device/dev3.0/pio_mode
-XFER_PIO_4
-
-While fixing the file documentation, somewhat reword the {dma|pio}_mode
-file doc and add a note about being mostly useful for PATA devices to
-the xfer_mode file doc...
-
-Fixes: d9027470b886 ("[libata] Add ATA transport class")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Cc: stable@vger.kernel.org
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: 2a10154abcb7 ("net: phy: dp83867: Add TI dp83867 phy")
+Cc: <stable@vger.kernel.org> # 5.4.x
+Signed-off-by: Sit, Michael Wei Hong <michael.wei.hong.sit@intel.com>
+Reviewed-by: Voon Weifeng <weifeng.voon@intel.com>
+Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220526090347.128742-1-tee.min.tan@linux.intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/ABI/testing/sysfs-ata |   11 ++++++-----
- drivers/ata/libata-transport.c      |    2 +-
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/phy/dp83867.c |   29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
---- a/Documentation/ABI/testing/sysfs-ata
-+++ b/Documentation/ABI/testing/sysfs-ata
-@@ -107,13 +107,14 @@ Description:
- 				described in ATA8 7.16 and 7.17. Only valid if
- 				the device is not a PM.
+--- a/drivers/net/phy/dp83867.c
++++ b/drivers/net/phy/dp83867.c
+@@ -137,6 +137,7 @@
+ #define DP83867_DOWNSHIFT_2_COUNT	2
+ #define DP83867_DOWNSHIFT_4_COUNT	4
+ #define DP83867_DOWNSHIFT_8_COUNT	8
++#define DP83867_SGMII_AUTONEG_EN	BIT(7)
  
--		pio_mode:	(RO) Transfer modes supported by the device when
--				in PIO mode. Mostly used by PATA device.
-+		pio_mode:	(RO) PIO transfer mode used by the device.
-+				Mostly used by PATA devices.
+ /* CFG3 bits */
+ #define DP83867_CFG3_INT_OE			BIT(7)
+@@ -836,6 +837,32 @@ static int dp83867_phy_reset(struct phy_
+ 			 DP83867_PHYCR_FORCE_LINK_GOOD, 0);
+ }
  
--		xfer_mode:	(RO) Current transfer mode
-+		xfer_mode:	(RO) Current transfer mode. Mostly used by
-+				PATA devices.
++static void dp83867_link_change_notify(struct phy_device *phydev)
++{
++	/* There is a limitation in DP83867 PHY device where SGMII AN is
++	 * only triggered once after the device is booted up. Even after the
++	 * PHY TPI is down and up again, SGMII AN is not triggered and
++	 * hence no new in-band message from PHY to MAC side SGMII.
++	 * This could cause an issue during power up, when PHY is up prior
++	 * to MAC. At this condition, once MAC side SGMII is up, MAC side
++	 * SGMII wouldn`t receive new in-band message from TI PHY with
++	 * correct link status, speed and duplex info.
++	 * Thus, implemented a SW solution here to retrigger SGMII Auto-Neg
++	 * whenever there is a link change.
++	 */
++	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
++		int val = 0;
++
++		val = phy_clear_bits(phydev, DP83867_CFG2,
++				     DP83867_SGMII_AUTONEG_EN);
++		if (val < 0)
++			return;
++
++		phy_set_bits(phydev, DP83867_CFG2,
++			     DP83867_SGMII_AUTONEG_EN);
++	}
++}
++
+ static struct phy_driver dp83867_driver[] = {
+ 	{
+ 		.phy_id		= DP83867_PHY_ID,
+@@ -860,6 +887,8 @@ static struct phy_driver dp83867_driver[
  
--		dma_mode:	(RO) Transfer modes supported by the device when
--				in DMA mode. Mostly used by PATA device.
-+		dma_mode:	(RO) DMA transfer mode used by the device.
-+				Mostly used by PATA devices.
- 
- 		class:		(RO) Device class. Can be "ata" for disk,
- 				"atapi" for packet device, "pmp" for PM, or
---- a/drivers/ata/libata-transport.c
-+++ b/drivers/ata/libata-transport.c
-@@ -196,7 +196,7 @@ static struct {
- 	{ XFER_PIO_0,			"XFER_PIO_0" },
- 	{ XFER_PIO_SLOW,		"XFER_PIO_SLOW" }
+ 		.suspend	= genphy_suspend,
+ 		.resume		= genphy_resume,
++
++		.link_change_notify = dp83867_link_change_notify,
+ 	},
  };
--ata_bitfield_name_match(xfer,ata_xfer_names)
-+ata_bitfield_name_search(xfer, ata_xfer_names)
- 
- /*
-  * ATA Port attributes
+ module_phy_driver(dp83867_driver);
 
 
