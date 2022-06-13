@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF9E65496DA
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65C7A548EC6
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351439AbiFMLGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:06:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45418 "EHLO
+        id S1383771AbiFMO1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:27:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351712AbiFMLEz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:04:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 879233206A;
-        Mon, 13 Jun 2022 03:33:53 -0700 (PDT)
+        with ESMTP id S1384158AbiFMOZA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:25:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4794049254;
+        Mon, 13 Jun 2022 04:46:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16EFFB80EA3;
-        Mon, 13 Jun 2022 10:33:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B6FAC34114;
-        Mon, 13 Jun 2022 10:33:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C009614C9;
+        Mon, 13 Jun 2022 11:46:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A85CAC36B1A;
+        Mon, 13 Jun 2022 11:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116417;
-        bh=kxf9ci/BCQtqhZJhZS8r0uz52LFijqgOzZISz+S4H7A=;
+        s=korg; t=1655120810;
+        bh=9gm+jjQCDonsH8R3vmn6xBs3fRxgO06gKADSFOrR/4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VI/n4QZsjGibicoXIM8tId1qnEWGpyJrkJe8EMcg5FcZgmamKPbG481QgL2feFh50
-         lZ+Uime+PZ8BCodexh84DKFpG3xJgzl5idCjVm52y0MOSVtFjDcJ8c3qb81bmzIYw7
-         HS5WODueTiptpaZV3LT6G+r7ieQb6cSolQWuX3YA=
+        b=15uDb3veAqk2digAoN7Gzh8KRyTI0UWZhZDcixzN5fadb2pNsgJHW3tVvaaf7sGZY
+         ar4I0BH6LLKQiFW3cYsfE440bPR7F62ad6GhN2/ua8fu7uhfiEzgm9wNp0T2DTQK5z
+         AMM3QU+DkqARWvwmvOpgnIY7FPdiFE2opvv8cepY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 177/218] net: xfrm: unexport __init-annotated xfrm4_protocol_init()
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 141/298] iommu/arm-smmu: fix possible null-ptr-deref in arm_smmu_device_probe()
 Date:   Mon, 13 Jun 2022 12:10:35 +0200
-Message-Id: <20220613094925.975978630@linuxfoundation.org>
+Message-Id: <20220613094929.219493569@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 4a388f08d8784af48f352193d2b72aaf167a57a1 ]
+[ Upstream commit d9ed8af1dee37f181096631fb03729ece98ba816 ]
 
-EXPORT_SYMBOL and __init is a bad combination because the .init.text
-section is freed up after the initialization. Hence, modules cannot
-use symbols annotated __init. The access to a freed symbol may end up
-with kernel panic.
+It will cause null-ptr-deref when using 'res', if platform_get_resource()
+returns NULL, so move using 'res' after devm_ioremap_resource() that
+will check it to avoid null-ptr-deref.
+And use devm_platform_get_and_ioremap_resource() to simplify code.
 
-modpost used to detect it, but it has been broken for a decade.
-
-Recently, I fixed modpost so it started to warn it again, then this
-showed up in linux-next builds.
-
-There are two ways to fix it:
-
-  - Remove __init
-  - Remove EXPORT_SYMBOL
-
-I chose the latter for this case because the only in-tree call-site,
-net/ipv4/xfrm4_policy.c is never compiled as modular.
-(CONFIG_XFRM is boolean)
-
-Fixes: 2f32b51b609f ("xfrm: Introduce xfrm_input_afinfo to access the the callbacks properly")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Acked-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220425114136.2649310-1-yangyingliang@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/xfrm4_protocol.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/iommu/arm/arm-smmu/arm-smmu.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/xfrm4_protocol.c b/net/ipv4/xfrm4_protocol.c
-index 8dd0e6ab8606..0e1f5dc2766b 100644
---- a/net/ipv4/xfrm4_protocol.c
-+++ b/net/ipv4/xfrm4_protocol.c
-@@ -297,4 +297,3 @@ void __init xfrm4_protocol_init(void)
- {
- 	xfrm_input_register_afinfo(&xfrm4_input_afinfo);
- }
--EXPORT_SYMBOL(xfrm4_protocol_init);
+diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+index 4bc75c4ce402..324e8f32962a 100644
+--- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
++++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+@@ -2090,11 +2090,10 @@ static int arm_smmu_device_probe(struct platform_device *pdev)
+ 	if (err)
+ 		return err;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	ioaddr = res->start;
+-	smmu->base = devm_ioremap_resource(dev, res);
++	smmu->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+ 	if (IS_ERR(smmu->base))
+ 		return PTR_ERR(smmu->base);
++	ioaddr = res->start;
+ 	/*
+ 	 * The resource size should effectively match the value of SMMU_TOP;
+ 	 * stash that temporarily until we know PAGESIZE to validate it with.
 -- 
 2.35.1
 
