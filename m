@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCF6E548C03
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2574A54947B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355186AbiFMLkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:40:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55272 "EHLO
+        id S1353894AbiFMMJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:09:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355658AbiFMLjW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F14932C654;
-        Mon, 13 Jun 2022 03:49:35 -0700 (PDT)
+        with ESMTP id S1359382AbiFMMJ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:09:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43A6152B01;
+        Mon, 13 Jun 2022 04:00:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DAD561260;
-        Mon, 13 Jun 2022 10:49:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98AB6C3411C;
-        Mon, 13 Jun 2022 10:49:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BF0AB80EA3;
+        Mon, 13 Jun 2022 11:00:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CBB0C34114;
+        Mon, 13 Jun 2022 11:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117375;
-        bh=bxcbrjOop6/rQKL0YUOq5KXbnkoO+6fgYRiUhhb5KcA=;
+        s=korg; t=1655118030;
+        bh=HsZcmkg6963w6+CWvPSwchal4G13F0zd1gvDD7VJV8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z/znVqgVkkdmH7SJha0x5M5MPcC1GTOURuCZk1C21H9YUzicnaOvucPbTrJg+TCpV
-         40bYdCxNea0B3m4bdxBIGlFMzgVKxvIyZGAKoBne1NnsDRXO4nrj8r5RRkeq7uZoTa
-         l25JRgVBwkBcCtONMRXIZ553nxbUzVX9YMYyQELI=
+        b=PH7OUMH+32COC+JjmmD1qTVUqgLLDjrCtv/IJF0Qj9JcXUxm4n3MSQM4WM1JNROXx
+         QZ/jH7ii0IAcd3FWmI29YFgofYGf7TtKIPazHEjCLn3DLdlt3vrmlwlky1Ejdd0HBu
+         uQ+/+JI3iebUbHjgKldrrYHrJphmV1oeu3dO52D0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 355/411] net/mlx4_en: Fix wrong return value on ioctl EEPROM query failure
+Subject: [PATCH 4.19 204/287] rtc: mt6397: check return value after calling platform_get_resource()
 Date:   Mon, 13 Jun 2022 12:10:28 +0200
-Message-Id: <20220613094939.343949863@linuxfoundation.org>
+Message-Id: <20220613094930.048494926@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gal Pressman <gal@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f5826c8c9d57210a17031af5527056eefdc2b7eb ]
+[ Upstream commit d3b43eb505bffb8e4cdf6800c15660c001553fe6 ]
 
-The ioctl EEPROM query wrongly returns success on read failures, fix
-that by returning the appropriate error code.
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-Fixes: 7202da8b7f71 ("ethtool, net/mlx4_en: Cable info, get_module_info/eeprom ethtool support")
-Signed-off-by: Gal Pressman <gal@nvidia.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Link: https://lore.kernel.org/r/20220606115718.14233-1-tariqt@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20220505125043.1594771-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-mt6397.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-index dd029d91bbc2..b711148a9d50 100644
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -2083,7 +2083,7 @@ static int mlx4_en_get_module_eeprom(struct net_device *dev,
- 			en_err(priv,
- 			       "mlx4_get_module_info i(%d) offset(%d) bytes_to_read(%d) - FAILED (0x%x)\n",
- 			       i, offset, ee->len - i, ret);
--			return 0;
-+			return ret;
- 		}
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 964ed91416e1..671b6d275da3 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -339,6 +339,8 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
- 		i += ret;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -EINVAL;
+ 	rtc->addr_base = res->start;
+ 
+ 	rtc->irq = platform_get_irq(pdev, 0);
 -- 
 2.35.1
 
