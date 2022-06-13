@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBD5A549080
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5258A5493F4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245544AbiFMKpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:45:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47356 "EHLO
+        id S241775AbiFMKTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:19:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344951AbiFMKnZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:43:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80C3B388E;
-        Mon, 13 Jun 2022 03:24:26 -0700 (PDT)
+        with ESMTP id S242006AbiFMKR4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:17:56 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C23A201AF;
+        Mon, 13 Jun 2022 03:15:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40825B80E90;
-        Mon, 13 Jun 2022 10:24:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0447C34114;
-        Mon, 13 Jun 2022 10:24:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 24A29CE1163;
+        Mon, 13 Jun 2022 10:15:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B20EC34114;
+        Mon, 13 Jun 2022 10:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115864;
-        bh=nynFC0L/CPp3cOZHpYSagzkl6Qtfal/nn+oKtkApMTg=;
+        s=korg; t=1655115349;
+        bh=zeX27Fz5CbFREmTH7EisWvyju2EjMVy2UlDeKjYszYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0anxKI3Bj3KhG+WJsghL+8AHEPbgcPG//Jy+yjufahHy4s8itAclxsl43drjrDunT
-         vrZmoyOvzgng3+ZNK7LxdZybvF2svYBsT+SLnP0tzCC5liFugdqGQvEzz3WARJQiRh
-         doMfOHTkAjB10WWhoG5wvbN2LSPMf4/ik2douL/w=
+        b=wnpp7ZcfbntFSHcaiqoZBTu2gW1/M5Ei1yox2RbOJZDSbtwEsQxt+Ic14bIIhz9jD
+         2ubnE8xdMkflUhTsP8Q9x2fB2iH3Shw/yMs+mXJClicBt8Xh+Eh/oqPdvvOS21owVt
+         WCv0BXnyMpal973RwG3lLvwUcLZtn4qAVrDO1Tdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khazhismel Kumykov <khazhy@google.com>,
-        Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 060/218] fsnotify: fix wrong lockdep annotations
+Subject: [PATCH 4.9 044/167] ath9k_htc: fix potential out of bounds access with invalid rxstatus->rs_keyix
 Date:   Mon, 13 Jun 2022 12:08:38 +0200
-Message-Id: <20220613094921.468816279@linuxfoundation.org>
+Message-Id: <20220613094851.276924228@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 623af4f538b5df9b416e1b82f720af7371b4c771 ]
+[ Upstream commit 2dc509305cf956381532792cb8dceef2b1504765 ]
 
-Commit 6960b0d909cd ("fsnotify: change locking order") changed some
-of the mark_mutex locks in direct reclaim path to use:
-  mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
+The "rxstatus->rs_keyix" eventually gets passed to test_bit() so we need to
+ensure that it is within the bitmap.
 
-This change is explained:
- "...It uses nested locking to avoid deadlock in case we do the final
-  iput() on an inode which still holds marks and thus would take the
-  mutex again when calling fsnotify_inode_delete() in destroy_inode()."
+drivers/net/wireless/ath/ath9k/common.c:46 ath9k_cmn_rx_accept()
+error: passing untrusted data 'rx_stats->rs_keyix' to 'test_bit()'
 
-The problem is that the mutex_lock_nested() is not a nested lock at
-all. In fact, it has the opposite effect of preventing lockdep from
-warning about a very possible deadlock.
-
-Due to these wrong annotations, a deadlock that was introduced with
-nfsd filecache in kernel v5.4 went unnoticed in v5.4.y for over two
-years until it was reported recently by Khazhismel Kumykov, only to
-find out that the deadlock was already fixed in kernel v5.5.
-
-Fix the wrong lockdep annotations.
-
-Cc: Khazhismel Kumykov <khazhy@google.com>
-Fixes: 6960b0d909cd ("fsnotify: change locking order")
-Link: https://lore.kernel.org/r/20220321112310.vpr7oxro2xkz5llh@quack3.lan/
-Link: https://lore.kernel.org/r/20220422120327.3459282-4-amir73il@gmail.com
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 4ed1a8d4a257 ("ath9k_htc: use ath9k_cmn_rx_accept")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220409061225.GA5447@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/notify/mark.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/notify/mark.c b/fs/notify/mark.c
-index 258d99087183..9b7201d1398f 100644
---- a/fs/notify/mark.c
-+++ b/fs/notify/mark.c
-@@ -387,7 +387,7 @@ void fsnotify_free_mark(struct fsnotify_mark *mark)
- void fsnotify_destroy_mark(struct fsnotify_mark *mark,
- 			   struct fsnotify_group *group)
- {
--	mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
-+	mutex_lock(&group->mark_mutex);
- 	fsnotify_detach_mark(mark);
- 	mutex_unlock(&group->mark_mutex);
- 	fsnotify_free_mark(mark);
-@@ -666,7 +666,7 @@ void fsnotify_clear_marks_by_group(struct fsnotify_group *group,
- 	 * move marks to free to to_free list in one go and then free marks in
- 	 * to_free list one by one.
- 	 */
--	mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
-+	mutex_lock(&group->mark_mutex);
- 	list_for_each_entry_safe(mark, lmark, &group->marks_list, g_list) {
- 		if (mark->connector->flags & type)
- 			list_move(&mark->g_list, &to_free);
-@@ -675,7 +675,7 @@ void fsnotify_clear_marks_by_group(struct fsnotify_group *group,
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+index 6a9c9b4ef2c9..fe4491eff8ca 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+@@ -1004,6 +1004,14 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
+ 		goto rx_next;
+ 	}
  
- clear:
- 	while (1) {
--		mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
-+		mutex_lock(&group->mark_mutex);
- 		if (list_empty(head)) {
- 			mutex_unlock(&group->mark_mutex);
- 			break;
++	if (rxstatus->rs_keyix >= ATH_KEYMAX &&
++	    rxstatus->rs_keyix != ATH9K_RXKEYIX_INVALID) {
++		ath_dbg(common, ANY,
++			"Invalid keyix, dropping (keyix: %d)\n",
++			rxstatus->rs_keyix);
++		goto rx_next;
++	}
++
+ 	/* Get the RX status information */
+ 
+ 	memset(rx_status, 0, sizeof(struct ieee80211_rx_status));
 -- 
 2.35.1
 
