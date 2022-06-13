@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE33D549021
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98782549012
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245417AbiFMKas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:30:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45862 "EHLO
+        id S1357278AbiFMM6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:58:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243834AbiFMKZi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:25:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5F39245A1;
-        Mon, 13 Jun 2022 03:19:41 -0700 (PDT)
+        with ESMTP id S1352990AbiFMMzT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C84B2CE17;
+        Mon, 13 Jun 2022 04:15:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 364D460AEA;
-        Mon, 13 Jun 2022 10:19:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44116C34114;
-        Mon, 13 Jun 2022 10:19:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61F6F60B6E;
+        Mon, 13 Jun 2022 11:15:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EE42C34114;
+        Mon, 13 Jun 2022 11:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115580;
-        bh=X57FLXK/sZrQYkPEBhG57IZ4/8Z2UlPgRRxegroWD3o=;
+        s=korg; t=1655118950;
+        bh=zr4wg0RQtrA+BGxp5xSFZRS+UmTe1Lq8t16C3rLsK7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vaw62YitBEO/75XEtckkkuZnAvIRjqI1kWDhMm878yD4cOUAQEpaTD5b9vg1+uTyh
-         AuuMnEIrjDLtqjIpCBfPPen69c+mbBWnggxgzvhX9aDLkgP/VYm23sZ6W9wUP8PDHv
-         P3obf7nJyuhwglO6jA0Bl1cyniSDgT4Y/2bXt2xk=
+        b=LrxJZ4kcF/jEMLbUxGhBct8qAIdu5DTrm0xjUOFE43h5IViZezGYL/oLpoE5fW0IP
+         uCJdexDF0MpNI3san+IIim+kgvDd2xVay32EjLTy0i0UZgbb+KJKbhkw1earO/gyxl
+         Xu1NqOnfhtghHPYmymxvh0ceDtf6Ic7z+Uc8GTB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Yu Xiao <yu.xiao@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 115/167] rtc: mt6397: check return value after calling platform_get_resource()
+Subject: [PATCH 5.15 087/247] nfp: only report pause frame configuration for physical device
 Date:   Mon, 13 Jun 2022 12:09:49 +0200
-Message-Id: <20220613094907.693616948@linuxfoundation.org>
+Message-Id: <20220613094925.594682759@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Yu Xiao <yu.xiao@corigine.com>
 
-[ Upstream commit d3b43eb505bffb8e4cdf6800c15660c001553fe6 ]
+[ Upstream commit 0649e4d63420ebc8cbebef3e9d39e12ffc5eb9fa ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+Only report pause frame configuration for physical device. Logical
+port of both PCI PF and PCI VF do not support it.
 
-Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220505125043.1594771-1-yangyingliang@huawei.com
+Fixes: 9fdc5d85a8fe ("nfp: update ethtool reporting of pauseframe control")
+Signed-off-by: Yu Xiao <yu.xiao@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-mt6397.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 494a7fbd512b..7e37ec7c8e02 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -339,6 +339,8 @@ static int mtk_rtc_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+index be1a358baadb..8b614b0201e7 100644
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+@@ -286,8 +286,6 @@ nfp_net_get_link_ksettings(struct net_device *netdev,
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res)
-+		return -EINVAL;
- 	rtc->addr_base = res->start;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+ 	/* Init to unknowns */
+ 	ethtool_link_ksettings_add_link_mode(cmd, supported, FIBRE);
+-	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
+-	ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
+ 	cmd->base.port = PORT_OTHER;
+ 	cmd->base.speed = SPEED_UNKNOWN;
+ 	cmd->base.duplex = DUPLEX_UNKNOWN;
+@@ -295,6 +293,8 @@ nfp_net_get_link_ksettings(struct net_device *netdev,
+ 	port = nfp_port_from_netdev(netdev);
+ 	eth_port = nfp_port_get_eth_port(port);
+ 	if (eth_port) {
++		ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
+ 		cmd->base.autoneg = eth_port->aneg != NFP_ANEG_DISABLED ?
+ 			AUTONEG_ENABLE : AUTONEG_DISABLE;
+ 		nfp_net_set_fec_link_mode(eth_port, cmd);
 -- 
 2.35.1
 
