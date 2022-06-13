@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8990548F5B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 405F5548E27
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383654AbiFMO05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:26:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49970 "EHLO
+        id S1355832AbiFMLrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:47:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383979AbiFMOYZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B0B95B2;
-        Mon, 13 Jun 2022 04:46:18 -0700 (PDT)
+        with ESMTP id S1356406AbiFMLob (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:44:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E1114738D;
+        Mon, 13 Jun 2022 03:50:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5331612AC;
-        Mon, 13 Jun 2022 11:46:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9282C34114;
-        Mon, 13 Jun 2022 11:46:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 872C0612BC;
+        Mon, 13 Jun 2022 10:50:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9151DC34114;
+        Mon, 13 Jun 2022 10:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120777;
-        bh=EGleJe67j/wtenNzkr2evwCWXHHiKXNmVSepmgjzxS8=;
+        s=korg; t=1655117444;
+        bh=ELu3yy7yIcm3DofcKPU4yWrv9X+QqBqmt/yCt5gDrQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HWr7m1hUCGixl2vKFIQizGDSVDuImffPfcpMaZE9Wgkm8OtSx4jKziqAlmq1NgW6z
-         2P5xvMsSYV8sgo40p35rP4Pg4x/dEF07rJ9ez/dJBSrbV01s1s4Tb2Amfckq2tkI5B
-         3Gdj5HWbZUTsoSFYAbGekG0wHqLe8VDgWBjMooKo=
+        b=Rlex3cm77nlg+Si005M1EkK3zHEEiVeNzohK0Y/iH3sCiJJUf0owHYkHohU32zebW
+         EIDSExJzocC4ch3HZ90G752cZgwZ7JeN1DRVjhq2/OBxYdwD4ktVxdeS1Tpgx2Nt93
+         E9Dp8n2EThqu7FGgnGEVCZ4CYvT5TeWiXKl0V6mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao.yu@oppo.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Evan Green <evgreen@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 154/298] f2fs: fix to tag gcing flag on page during file defragment
+Subject: [PATCH 5.4 375/411] USB: hcd-pci: Fully suspend across freeze/thaw cycle
 Date:   Mon, 13 Jun 2022 12:10:48 +0200
-Message-Id: <20220613094929.607849575@linuxfoundation.org>
+Message-Id: <20220613094939.920685108@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Evan Green <evgreen@chromium.org>
 
-[ Upstream commit 2d1fe8a86bf5e0663866fd0da83c2af1e1b0e362 ]
+[ Upstream commit 63acaa8e9c65dc34dc249440216f8e977f5d2748 ]
 
-In order to garantee migrated data be persisted during checkpoint,
-otherwise out-of-order persistency between data and node may cause
-data corruption after SPOR.
+The documentation for the freeze() method says that it "should quiesce
+the device so that it doesn't generate IRQs or DMA". The unspoken
+consequence of not doing this is that MSIs aimed at non-boot CPUs may
+get fully lost if they're sent during the period where the target CPU is
+offline.
 
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+The current callbacks for USB HCD do not fully quiesce interrupts,
+specifically on XHCI. Change to use the full suspend/resume flow for
+freeze/thaw to ensure interrupts are fully quiesced. This fixes issues
+where USB devices fail to thaw during hibernation because XHCI misses
+its interrupt and cannot recover.
+
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Link: https://lore.kernel.org/r/20220421103751.v3.2.I8226c7fdae88329ef70957b96a39b346c69a914e@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/core/hcd-pci.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 29cd65f7c9eb..a2b7dead68e0 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -2679,6 +2679,7 @@ static int f2fs_defragment_range(struct f2fs_sb_info *sbi,
- 			}
- 
- 			set_page_dirty(page);
-+			set_page_private_gcing(page);
- 			f2fs_put_page(page, 1);
- 
- 			idx++;
+diff --git a/drivers/usb/core/hcd-pci.c b/drivers/usb/core/hcd-pci.c
+index 9e26b0143a59..db16efe293e0 100644
+--- a/drivers/usb/core/hcd-pci.c
++++ b/drivers/usb/core/hcd-pci.c
+@@ -604,10 +604,10 @@ const struct dev_pm_ops usb_hcd_pci_pm_ops = {
+ 	.suspend_noirq	= hcd_pci_suspend_noirq,
+ 	.resume_noirq	= hcd_pci_resume_noirq,
+ 	.resume		= hcd_pci_resume,
+-	.freeze		= check_root_hub_suspended,
++	.freeze		= hcd_pci_suspend,
+ 	.freeze_noirq	= check_root_hub_suspended,
+ 	.thaw_noirq	= NULL,
+-	.thaw		= NULL,
++	.thaw		= hcd_pci_resume,
+ 	.poweroff	= hcd_pci_suspend,
+ 	.poweroff_noirq	= hcd_pci_suspend_noirq,
+ 	.restore_noirq	= hcd_pci_resume_noirq,
 -- 
 2.35.1
 
