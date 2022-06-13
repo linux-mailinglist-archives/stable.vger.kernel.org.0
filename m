@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27EA85486FC
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC8025486A2
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378429AbiFMNqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:46:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42640 "EHLO
+        id S1354210AbiFMLju (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:39:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379487AbiFMNoW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:44:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23A853FBF9;
-        Mon, 13 Jun 2022 04:32:11 -0700 (PDT)
+        with ESMTP id S1354988AbiFMLh4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:37:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2AB24507F;
+        Mon, 13 Jun 2022 03:48:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABE85B80E59;
-        Mon, 13 Jun 2022 11:32:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21196C36AFE;
-        Mon, 13 Jun 2022 11:32:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8859460AEB;
+        Mon, 13 Jun 2022 10:48:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 988DCC34114;
+        Mon, 13 Jun 2022 10:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119928;
-        bh=GBcOEMekEYACkDAIvNbKWzbK7L4FbUZNDQJO9xA/0OM=;
+        s=korg; t=1655117301;
+        bh=6CXYLaPR3cZEPhBGn7qYmfqLElRp0KzwtIAkLwt4JR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=be+l7XGQgpkcFsqDgk/qYcsPphwdUGp12eYN6orYEbly5Z/12R5rASkJ8jFv1EJ+T
-         z7nwYJI9LGsFJ13qJ2W0j7rAV9hkOwmLBwHFGOM5FEI1p4JPujJaBEF0a4KhqXdt2f
-         tJ7IWB4lRXqf3DSIUiXBFlF0CPIvQkB5FyonAWIg=
+        b=XoDnEN2mEbJ0IdLEdRmRn2TynUmPfBabAWtVlbeGPIs11zS5ax3ljEQ+SYfDh1A+r
+         iLpg5VzfK1/OzaS5lvnpWjRDkeB/+hY1XPLVBxnZR6tPDMDgFV9zl8X+qKpukHZmfV
+         WD4EBX1ovse7toSJghF73m5A7+LmW6b/po9yfVOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 189/339] netfilter: nf_tables: memleak flow rule from commit path
+        stable@vger.kernel.org,
+        Lucas Tanure <tanureal@opensource.cirrus.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 341/411] i2c: cadence: Increase timeout per message if necessary
 Date:   Mon, 13 Jun 2022 12:10:14 +0200
-Message-Id: <20220613094932.406106182@linuxfoundation.org>
+Message-Id: <20220613094938.937589519@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit 9dd732e0bdf538b1b76dc7c157e2b5e560ff30d3 ]
+[ Upstream commit 96789dce043f5bff8b7d62aa28d52a7c59403a84 ]
 
-Abort path release flow rule object, however, commit path does not.
-Update code to destroy these objects before releasing the transaction.
+Timeout as 1 second sets an upper limit on the length
+of the transfer executed, but there is no maximum length
+of a write or read message set in i2c_adapter_quirks for
+this controller.
 
-Fixes: c9626a2cbdb2 ("netfilter: nf_tables: add hardware offload support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+This upper limit affects devices that require sending
+large firmware blobs over I2C.
+
+To remove that limitation, calculate the minimal time
+necessary, plus some wiggle room, for every message and
+use it instead of the default one second, if more than
+one second.
+
+Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/i2c/busses/i2c-cadence.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 5c9a53729a28..bce7da870bce 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -8323,6 +8323,9 @@ static void nft_commit_release(struct nft_trans *trans)
- 		nf_tables_chain_destroy(&trans->ctx);
- 		break;
- 	case NFT_MSG_DELRULE:
-+		if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
-+			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 17f0dd1f891e..8a3a0991bc1c 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -506,7 +506,7 @@ static void cdns_i2c_master_reset(struct i2c_adapter *adap)
+ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+ 		struct i2c_adapter *adap)
+ {
+-	unsigned long time_left;
++	unsigned long time_left, msg_timeout;
+ 	u32 reg;
+ 
+ 	id->p_msg = msg;
+@@ -531,8 +531,16 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+ 	else
+ 		cdns_i2c_msend(id);
+ 
++	/* Minimal time to execute this message */
++	msg_timeout = msecs_to_jiffies((1000 * msg->len * BITS_PER_BYTE) / id->i2c_clk);
++	/* Plus some wiggle room */
++	msg_timeout += msecs_to_jiffies(500);
 +
- 		nf_tables_rule_destroy(&trans->ctx, nft_trans_rule(trans));
- 		break;
- 	case NFT_MSG_DELSET:
-@@ -8813,6 +8816,9 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
- 			nf_tables_rule_notify(&trans->ctx,
- 					      nft_trans_rule(trans),
- 					      NFT_MSG_NEWRULE);
-+			if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
-+				nft_flow_rule_destroy(nft_trans_flow_rule(trans));
++	if (msg_timeout < adap->timeout)
++		msg_timeout = adap->timeout;
 +
- 			nft_trans_destroy(trans);
- 			break;
- 		case NFT_MSG_DELRULE:
+ 	/* Wait for the signal of completion */
+-	time_left = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
++	time_left = wait_for_completion_timeout(&id->xfer_done, msg_timeout);
+ 	if (time_left == 0) {
+ 		cdns_i2c_master_reset(adap);
+ 		dev_err(id->adap.dev.parent,
 -- 
 2.35.1
 
