@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 645D0548CCA
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E84B55493E3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354132AbiFMMQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:16:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48076 "EHLO
+        id S1351506AbiFMLIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:08:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354965AbiFMMNp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:13:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6927A53C62;
-        Mon, 13 Jun 2022 04:01:21 -0700 (PDT)
+        with ESMTP id S1350226AbiFMLG0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:06:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E08028980;
+        Mon, 13 Jun 2022 03:34:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 885E061435;
-        Mon, 13 Jun 2022 11:01:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9794FC34114;
-        Mon, 13 Jun 2022 11:01:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09ECE60FF9;
+        Mon, 13 Jun 2022 10:34:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12CE3C34114;
+        Mon, 13 Jun 2022 10:34:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118080;
-        bh=y7GlcwRD3danYGc5bP/xB3Bm0BKDs6VAvErmOMRmARM=;
+        s=korg; t=1655116497;
+        bh=V6p5BQsO1+EU/j6FqgbS3TxvSYHwUNOeiBDZG2dot3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b19G+pUTUXGd37/Pd9WmGd7Esbcz++9sZtXlm/+wvubRFTAMvTdwwK9/cnEILEGQw
-         6evuS3NULB6FHt0yKLhvzHsoU8gUsQJ/NZTDxKZKoP6BfXphxYRzPbxjTsCGHv2wKh
-         EqyCLX8UvZS2+NU71x+AdLZY6MAKsCq+FNTZFj7k=
+        b=UPaRrTAAm3sQoZQlR8TvFsCt6u3ijX9JHNwxz1rt45vUmpy0uLtJ3CAH7key4Xq9w
+         Wa1j5oIKQ59FR/x55pBzvujGWqa3D1eMGhQMqGySW1OA1nCH43SDVXBLx+NYLKxwIb
+         LUXTIFASU33WZ0IPmo5YVh7trD+e+tg3738MCXxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 236/287] ata: pata_octeon_cf: Fix refcount leak in octeon_cf_probe
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Yu Kuai <yukuai3@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 202/218] nbd: fix race between nbd_alloc_config() and module removal
 Date:   Mon, 13 Jun 2022 12:11:00 +0200
-Message-Id: <20220613094931.172784455@linuxfoundation.org>
+Message-Id: <20220613094926.749637225@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +55,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 10d6bdf532902be1d8aa5900b3c03c5671612aa2 ]
+[ Upstream commit c55b2b983b0fa012942c3eb16384b2b722caa810 ]
 
-of_find_device_by_node() takes reference, we should use put_device()
-to release it when not need anymore.
-Add missing put_device() to avoid refcount leak.
+When nbd module is being removing, nbd_alloc_config() may be
+called concurrently by nbd_genl_connect(), although try_module_get()
+will return false, but nbd_alloc_config() doesn't handle it.
 
-Fixes: 43f01da0f279 ("MIPS/OCTEON/ata: Convert pata_octeon_cf.c to use device tree.")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+The race may lead to the leak of nbd_config and its related
+resources (e.g, recv_workq) and oops in nbd_read_stat() due
+to the unload of nbd module as shown below:
+
+  BUG: kernel NULL pointer dereference, address: 0000000000000040
+  Oops: 0000 [#1] SMP PTI
+  CPU: 5 PID: 13840 Comm: kworker/u17:33 Not tainted 5.14.0+ #1
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+  Workqueue: knbd16-recv recv_work [nbd]
+  RIP: 0010:nbd_read_stat.cold+0x130/0x1a4 [nbd]
+  Call Trace:
+   recv_work+0x3b/0xb0 [nbd]
+   process_one_work+0x1ed/0x390
+   worker_thread+0x4a/0x3d0
+   kthread+0x12a/0x150
+   ret_from_fork+0x22/0x30
+
+Fixing it by checking the return value of try_module_get()
+in nbd_alloc_config(). As nbd_alloc_config() may return ERR_PTR(-ENODEV),
+assign nbd->config only when nbd_alloc_config() succeeds to ensure
+the value of nbd->config is binary (valid or NULL).
+
+Also adding a debug message to check the reference counter
+of nbd_config during module removal.
+
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220521073749.3146892-3-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_octeon_cf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/block/nbd.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/ata/pata_octeon_cf.c b/drivers/ata/pata_octeon_cf.c
-index ac3b1fda820f..c240d8cbfd41 100644
---- a/drivers/ata/pata_octeon_cf.c
-+++ b/drivers/ata/pata_octeon_cf.c
-@@ -888,12 +888,14 @@ static int octeon_cf_probe(struct platform_device *pdev)
- 				int i;
- 				res_dma = platform_get_resource(dma_dev, IORESOURCE_MEM, 0);
- 				if (!res_dma) {
-+					put_device(&dma_dev->dev);
- 					of_node_put(dma_node);
- 					return -EINVAL;
- 				}
- 				cf_port->dma_base = (u64)devm_ioremap_nocache(&pdev->dev, res_dma->start,
- 									 resource_size(res_dma));
- 				if (!cf_port->dma_base) {
-+					put_device(&dma_dev->dev);
- 					of_node_put(dma_node);
- 					return -EINVAL;
- 				}
-@@ -903,6 +905,7 @@ static int octeon_cf_probe(struct platform_device *pdev)
- 					irq = i;
- 					irq_handler = octeon_cf_interrupt;
- 				}
-+				put_device(&dma_dev->dev);
- 			}
- 			of_node_put(dma_node);
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 1c9f866d9338..9596f93d98b2 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1382,15 +1382,20 @@ static struct nbd_config *nbd_alloc_config(void)
+ {
+ 	struct nbd_config *config;
+ 
++	if (!try_module_get(THIS_MODULE))
++		return ERR_PTR(-ENODEV);
++
+ 	config = kzalloc(sizeof(struct nbd_config), GFP_NOFS);
+-	if (!config)
+-		return NULL;
++	if (!config) {
++		module_put(THIS_MODULE);
++		return ERR_PTR(-ENOMEM);
++	}
++
+ 	atomic_set(&config->recv_threads, 0);
+ 	init_waitqueue_head(&config->recv_wq);
+ 	init_waitqueue_head(&config->conn_wait);
+ 	config->blksize = NBD_DEF_BLKSIZE;
+ 	atomic_set(&config->live_connections, 0);
+-	try_module_get(THIS_MODULE);
+ 	return config;
+ }
+ 
+@@ -1417,12 +1422,13 @@ static int nbd_open(struct block_device *bdev, fmode_t mode)
+ 			mutex_unlock(&nbd->config_lock);
+ 			goto out;
  		}
+-		config = nbd->config = nbd_alloc_config();
+-		if (!config) {
+-			ret = -ENOMEM;
++		config = nbd_alloc_config();
++		if (IS_ERR(config)) {
++			ret = PTR_ERR(config);
+ 			mutex_unlock(&nbd->config_lock);
+ 			goto out;
+ 		}
++		nbd->config = config;
+ 		refcount_set(&nbd->config_refs, 1);
+ 		refcount_inc(&nbd->refs);
+ 		mutex_unlock(&nbd->config_lock);
+@@ -1803,13 +1809,14 @@ static int nbd_genl_connect(struct sk_buff *skb, struct genl_info *info)
+ 		nbd_put(nbd);
+ 		return -EINVAL;
+ 	}
+-	config = nbd->config = nbd_alloc_config();
+-	if (!nbd->config) {
++	config = nbd_alloc_config();
++	if (IS_ERR(config)) {
+ 		mutex_unlock(&nbd->config_lock);
+ 		nbd_put(nbd);
+ 		printk(KERN_ERR "nbd: couldn't allocate config\n");
+-		return -ENOMEM;
++		return PTR_ERR(config);
+ 	}
++	nbd->config = config;
+ 	refcount_set(&nbd->config_refs, 1);
+ 	set_bit(NBD_BOUND, &config->runtime_flags);
+ 
+@@ -2334,6 +2341,9 @@ static void __exit nbd_cleanup(void)
+ 	while (!list_empty(&del_list)) {
+ 		nbd = list_first_entry(&del_list, struct nbd_device, list);
+ 		list_del_init(&nbd->list);
++		if (refcount_read(&nbd->config_refs))
++			printk(KERN_ERR "nbd: possibly leaking nbd_config (ref %d)\n",
++					refcount_read(&nbd->config_refs));
+ 		if (refcount_read(&nbd->refs) != 1)
+ 			printk(KERN_ERR "nbd: possibly leaking a device\n");
+ 		nbd_put(nbd);
 -- 
 2.35.1
 
