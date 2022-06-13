@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DE54548730
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 977A05487F1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235957AbiFMKRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:17:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57734 "EHLO
+        id S1378450AbiFMNlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:41:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241683AbiFMKRc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:17:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88EAC1FCED;
-        Mon, 13 Jun 2022 03:15:39 -0700 (PDT)
+        with ESMTP id S1379116AbiFMNjw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E8467A453;
+        Mon, 13 Jun 2022 04:28:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B855B80E92;
-        Mon, 13 Jun 2022 10:15:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76300C34114;
-        Mon, 13 Jun 2022 10:15:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA95761036;
+        Mon, 13 Jun 2022 11:28:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4DF7C34114;
+        Mon, 13 Jun 2022 11:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115332;
-        bh=9fM207ThNnSdzxF2rwXN/zW9jb0LrWT0dcV66EEyAQs=;
+        s=korg; t=1655119722;
+        bh=yRjoz7WQZ8rS3SzcadpZzio7LtuJZcOWf3VV+O2JBU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMO3ne67dtM+co9vdgi1kzjYaReMj4EMdfiN4pAoBikkmmO+vmg6GwLpnN2BSSDrJ
-         uMpAHignzsb4Nv7N2rSVNf6WjuOsYItVd+mbFcnQ6tcEB4E+IbcBOlLDbEyJT4OpYa
-         Sijg8WOEOv5VU6wqHObmL+7K0opGjrL0G6X2mBk0=
+        b=Cw0qVlw9ZP4rBTIW8YRGfXixIAPGuVEquWrRBkzkjaBtn+bd7pYe9mzw6zuyHcBeT
+         52FDnIT/9Rup/KbrtbI66axI8ciMtmIUsmYsy5BvHBoS/7ueB04KAJhLxzeyFvPBux
+         /sSTGQyr+wz39GagPfLhc5P3ciHkVASDCnKptxGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ammar Faizi <ammarfaizi2@gnuweeb.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 038/167] x86/delay: Fix the wrong asm constraint in delay_loop()
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 087/339] amt: fix possible memory leak in amt_rcv()
 Date:   Mon, 13 Jun 2022 12:08:32 +0200
-Message-Id: <20220613094849.810646269@linuxfoundation.org>
+Message-Id: <20220613094929.155305498@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit b86eb74098a92afd789da02699b4b0dd3f73b889 ]
+[ Upstream commit 1a1a0e80e005cbdc2c250fc858e1d8570f4e4acb ]
 
-The asm constraint does not reflect the fact that the asm statement can
-modify the value of the local variable loops. Which it does.
+If an amt receives packets and it finds socket.
+If it can't find a socket, it should free a received skb.
+But it doesn't.
+So, a memory leak would possibly occur.
 
-Specifying the wrong constraint may lead to undefined behavior, it may
-clobber random stuff (e.g. local variable, important temporary value in
-regs, etc.). This is especially dangerous when the compiler decides to
-inline the function and since it doesn't know that the value gets
-modified, it might decide to use it from a register directly without
-reloading it.
-
-Change the constraint to "+a" to denote that the first argument is an
-input and an output argument.
-
-  [ bp: Fix typo, massage commit message. ]
-
-Fixes: e01b70ef3eb3 ("x86: fix bug in arch/i386/lib/delay.c file, delay_loop function")
-Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220329104705.65256-2-ammarfaizi2@gnuweeb.org
+Fixes: cbc21dc1cfe9 ("amt: add data plane of amt interface")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/delay.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/amt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/lib/delay.c b/arch/x86/lib/delay.c
-index 71a3759a2d4e..60cc4f222cbf 100644
---- a/arch/x86/lib/delay.c
-+++ b/arch/x86/lib/delay.c
-@@ -42,8 +42,8 @@ static void delay_loop(unsigned long loops)
- 		"	jnz 2b		\n"
- 		"3:	dec %0		\n"
+diff --git a/drivers/net/amt.c b/drivers/net/amt.c
+index d376ed89f836..22d7da749a24 100644
+--- a/drivers/net/amt.c
++++ b/drivers/net/amt.c
+@@ -2679,7 +2679,7 @@ static int amt_rcv(struct sock *sk, struct sk_buff *skb)
+ 	amt = rcu_dereference_sk_user_data(sk);
+ 	if (!amt) {
+ 		err = true;
+-		goto out;
++		goto drop;
+ 	}
  
--		: /* we don't need output */
--		:"a" (loops)
-+		: "+a" (loops)
-+		:
- 	);
- }
- 
+ 	skb->dev = amt->dev;
 -- 
 2.35.1
 
