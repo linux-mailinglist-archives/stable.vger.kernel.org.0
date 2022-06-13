@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7256C548EAC
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98F64548999
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349240AbiFMMkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:40:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56204 "EHLO
+        id S238959AbiFMMPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:15:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355328AbiFMMjH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:39:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 983DD5DD0E;
-        Mon, 13 Jun 2022 04:08:49 -0700 (PDT)
+        with ESMTP id S1354890AbiFMMNl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:13:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A0FD53C40;
+        Mon, 13 Jun 2022 04:01:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C08CB80D31;
-        Mon, 13 Jun 2022 11:08:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 990DEC34114;
-        Mon, 13 Jun 2022 11:08:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCA3F613E9;
+        Mon, 13 Jun 2022 11:01:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFFFFC3411E;
+        Mon, 13 Jun 2022 11:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118527;
-        bh=v2YP0+JpIKXokNhvf6LdWFPoYz0sBxRZm2EfgvB77HI=;
+        s=korg; t=1655118077;
+        bh=/gEi9uoEGtw9vFKpk5iTBlPbocY+K5T7zTqsewRdOx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x1zdgGtphpUTB21500Ggg2JqKFE0ncZGfwCZ13ZQbnbLI8xgs3oyvN2Gfidg8hVt2
-         xxaK/9oOh4to8RzxfS1RWIYqDF2UyJqgvCSLlSr/s3tIf8qyCQWZWqY1DIwUZDrGbZ
-         r9zlkFQHswCmDzORluGqYWcaEpYZWqXdIHCCjkT4=
+        b=oHSwCJI1ehiwbViH2s20jWthrXw9vmLSgpAjEgkm8yz0jGhBS4ExXikFzfmlMA5dp
+         p5ChUlihtWCbdLmFLUMzg6jWTOV6iSfQtg+y8c8Y3JXnXDipqVoysu6g898BMGd7sj
+         qHo53FwfhpZZ9jhR33bzPAqRO1T2vBovyIDGnOV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Gong Yuanjun <ruc_gongyuanjun@163.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 091/172] netfilter: nat: really support inet nat without l3 address
+Subject: [PATCH 4.19 227/287] mips: cpc: Fix refcount leak in mips_cpc_default_phys_base
 Date:   Mon, 13 Jun 2022 12:10:51 +0200
-Message-Id: <20220613094912.277611629@linuxfoundation.org>
+Message-Id: <20220613094930.898195079@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Gong Yuanjun <ruc_gongyuanjun@163.com>
 
-[ Upstream commit 282e5f8fe907dc3f2fbf9f2103b0e62ffc3a68a5 ]
+[ Upstream commit 4107fa700f314592850e2c64608f6ede4c077476 ]
 
-When no l3 address is given, priv->family is set to NFPROTO_INET and
-the evaluation function isn't called.
+Add the missing of_node_put() to release the refcount incremented
+by of_find_compatible_node().
 
-Call it too so l4-only rewrite can work.
-Also add a test case for this.
-
-Fixes: a33f387ecd5aa ("netfilter: nft_nat: allow to specify layer 4 protocol NAT only")
-Reported-by: Yi Chen <yiche@redhat.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Gong Yuanjun <ruc_gongyuanjun@163.com>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_nat.c                      |  3 +-
- tools/testing/selftests/netfilter/nft_nat.sh | 43 ++++++++++++++++++++
- 2 files changed, 45 insertions(+), 1 deletion(-)
+ arch/mips/kernel/mips-cpc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netfilter/nft_nat.c b/net/netfilter/nft_nat.c
-index ea53fd999f46..6a4a5ac88db7 100644
---- a/net/netfilter/nft_nat.c
-+++ b/net/netfilter/nft_nat.c
-@@ -341,7 +341,8 @@ static void nft_nat_inet_eval(const struct nft_expr *expr,
- {
- 	const struct nft_nat *priv = nft_expr_priv(expr);
- 
--	if (priv->family == nft_pf(pkt))
-+	if (priv->family == nft_pf(pkt) ||
-+	    priv->family == NFPROTO_INET)
- 		nft_nat_eval(expr, regs, pkt);
- }
- 
-diff --git a/tools/testing/selftests/netfilter/nft_nat.sh b/tools/testing/selftests/netfilter/nft_nat.sh
-index d7e07f4c3d7f..4e15e8167310 100755
---- a/tools/testing/selftests/netfilter/nft_nat.sh
-+++ b/tools/testing/selftests/netfilter/nft_nat.sh
-@@ -374,6 +374,45 @@ EOF
- 	return $lret
- }
- 
-+test_local_dnat_portonly()
-+{
-+	local family=$1
-+	local daddr=$2
-+	local lret=0
-+	local sr_s
-+	local sr_r
-+
-+ip netns exec "$ns0" nft -f /dev/stdin <<EOF
-+table $family nat {
-+	chain output {
-+		type nat hook output priority 0; policy accept;
-+		meta l4proto tcp dnat to :2000
-+
-+	}
-+}
-+EOF
-+	if [ $? -ne 0 ]; then
-+		if [ $family = "inet" ];then
-+			echo "SKIP: inet port test"
-+			test_inet_nat=false
-+			return
-+		fi
-+		echo "SKIP: Could not add $family dnat hook"
-+		return
-+	fi
-+
-+	echo SERVER-$family | ip netns exec "$ns1" timeout 5 socat -u STDIN TCP-LISTEN:2000 &
-+	sc_s=$!
-+
-+	result=$(ip netns exec "$ns0" timeout 1 socat TCP:$daddr:2000 STDOUT)
-+
-+	if [ "$result" = "SERVER-inet" ];then
-+		echo "PASS: inet port rewrite without l3 address"
-+	else
-+		echo "ERROR: inet port rewrite"
-+		ret=1
-+	fi
-+}
- 
- test_masquerade6()
- {
-@@ -841,6 +880,10 @@ fi
- reset_counters
- test_local_dnat ip
- test_local_dnat6 ip6
-+
-+reset_counters
-+test_local_dnat_portonly inet 10.0.1.99
-+
- reset_counters
- $test_inet_nat && test_local_dnat inet
- $test_inet_nat && test_local_dnat6 inet
+diff --git a/arch/mips/kernel/mips-cpc.c b/arch/mips/kernel/mips-cpc.c
+index fcf9af492d60..cf46502c605e 100644
+--- a/arch/mips/kernel/mips-cpc.c
++++ b/arch/mips/kernel/mips-cpc.c
+@@ -31,6 +31,7 @@ phys_addr_t __weak mips_cpc_default_phys_base(void)
+ 	cpc_node = of_find_compatible_node(of_root, NULL, "mti,mips-cpc");
+ 	if (cpc_node) {
+ 		err = of_address_to_resource(cpc_node, 0, &res);
++		of_node_put(cpc_node);
+ 		if (!err)
+ 			return res.start;
+ 	}
 -- 
 2.35.1
 
