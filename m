@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB2B549447
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE7705498B4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378328AbiFMNlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:41:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36046 "EHLO
+        id S1355490AbiFMLw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:52:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379008AbiFMNji (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 227B479808;
-        Mon, 13 Jun 2022 04:28:29 -0700 (PDT)
+        with ESMTP id S1356618AbiFMLur (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E2942496B;
+        Mon, 13 Jun 2022 03:54:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B467461120;
-        Mon, 13 Jun 2022 11:28:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C42DDC3411E;
-        Mon, 13 Jun 2022 11:28:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE30860F00;
+        Mon, 13 Jun 2022 10:54:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE508C34114;
+        Mon, 13 Jun 2022 10:54:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119708;
-        bh=lb1NRHIneZZckJbWqJqCUNgsGp3oaxQWuts+N2qVL5w=;
+        s=korg; t=1655117681;
+        bh=1m6/EIMpGD2Yh5Dld9xGWKJ9tHNx3A1+nVUUHQqiN/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=koYGnRW3BPWsP5d436X9o0XQZfi5aLLdpQlHVACrBy5/VlAF4/GPn4fsI+UUdF4jj
-         jqQ+oGVpwDzSA1Rmap8LFXKiOlBfb6ACH4Y+cqxdXV86epU+d/50TrFwY6bY0fa84d
-         66vrd1MhgAx+ht0zac2wf8PY5euh+OBcpS9yRI+g=
+        b=paasS5reOilLHsxlPwrn4WQh6ZC8HGb9vJlsyCbfClQ/lb+DjsyviAsuHGy6Ek0rt
+         q0cTZesj7HGSKzmQ6MRm9tp1vcut1xU2gH6jDtjOrLZPbWfaizelEZAElXQBhaj+Ag
+         8IhFDCj9B08ULRUMm6kIojzSGXvDkZx6uHyjDe2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 092/339] net: lan966x: check devm_of_phy_get() for -EDEFER_PROBE
+Subject: [PATCH 4.19 093/287] ASoC: mxs-saif: Fix refcount leak in mxs_saif_probe
 Date:   Mon, 13 Jun 2022 12:08:37 +0200
-Message-Id: <20220613094929.305199521@linuxfoundation.org>
+Message-Id: <20220613094926.699394462@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit b58cdd4388b1d8f5bee9f5a3897a7e780d1eaa48 ]
+[ Upstream commit 2be84f73785fa9ed6443e3c5b158730266f1c2ee ]
 
-At the moment, if devm_of_phy_get() returns an error the serdes
-simply isn't set. While it is bad to ignore an error in general, there
-is a particular bug that network isn't working if the serdes driver is
-compiled as a module. In that case, devm_of_phy_get() returns
--EDEFER_PROBE and the error is silently ignored.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
 
-The serdes is optional, it is not there if the port is using RGMII, in
-which case devm_of_phy_get() returns -ENODEV. Rearrange the error
-handling so that -ENODEV will be handled but other error codes will
-abort the probing.
-
-Fixes: d28d6d2e37d1 ("net: lan966x: add port module support")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Link: https://lore.kernel.org/r/20220525231239.1307298-1-michael@walle.cc
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 08641c7c74dd ("ASoC: mxs: add device tree support for mxs-saif")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220511133725.39039-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/lan966x/lan966x_main.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ sound/soc/mxs/mxs-saif.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-index 05f6dcc9dfd5..f180a157eea4 100644
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-@@ -1080,8 +1080,13 @@ static int lan966x_probe(struct platform_device *pdev)
- 		lan966x->ports[p]->fwnode = fwnode_handle_get(portnp);
- 
- 		serdes = devm_of_phy_get(lan966x->dev, to_of_node(portnp), NULL);
--		if (!IS_ERR(serdes))
--			lan966x->ports[p]->serdes = serdes;
-+		if (PTR_ERR(serdes) == -ENODEV)
-+			serdes = NULL;
-+		if (IS_ERR(serdes)) {
-+			err = PTR_ERR(serdes);
-+			goto cleanup_ports;
-+		}
-+		lan966x->ports[p]->serdes = serdes;
- 
- 		lan966x_port_init(lan966x->ports[p]);
- 	}
+diff --git a/sound/soc/mxs/mxs-saif.c b/sound/soc/mxs/mxs-saif.c
+index 93c019670199..6d0ab4e75518 100644
+--- a/sound/soc/mxs/mxs-saif.c
++++ b/sound/soc/mxs/mxs-saif.c
+@@ -780,6 +780,7 @@ static int mxs_saif_probe(struct platform_device *pdev)
+ 		saif->master_id = saif->id;
+ 	} else {
+ 		ret = of_alias_get_id(master, "saif");
++		of_node_put(master);
+ 		if (ret < 0)
+ 			return ret;
+ 		else
 -- 
 2.35.1
 
