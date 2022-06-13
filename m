@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F050548A89
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70AB954914A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378585AbiFMNlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:41:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36284 "EHLO
+        id S243570AbiFMKZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:25:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379215AbiFMNkD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3915CE03;
-        Mon, 13 Jun 2022 04:30:12 -0700 (PDT)
+        with ESMTP id S244830AbiFMKYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:24:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E61A3DEA9;
+        Mon, 13 Jun 2022 03:18:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A233FB80EA7;
-        Mon, 13 Jun 2022 11:30:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE069C34114;
-        Mon, 13 Jun 2022 11:30:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB1B560AE6;
+        Mon, 13 Jun 2022 10:18:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2434C3411C;
+        Mon, 13 Jun 2022 10:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119810;
-        bh=gJVcHejTKcyuP/psQJV5MtzjcY2RzC0c8YvPepU7RPE=;
+        s=korg; t=1655115503;
+        bh=lWzxDcM+oNVyARterZsgb4KRcuK7rk/l6vBMcvJlKf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUAlXZ6dRlwtnlzQVa+ExeLq5bQZ29PFHJ0v/J6KSzy4zLsU1/2gzuvUR3Ch+08W1
-         eK0hTu+Oz30BZMrhZISRDXmtgzAtsWMMR5UI5MMI2X/sTSeTqIBy05dqSX5y4Rrq12
-         GUP4V+uIWuXPlTm7IG7gfZhXLlq26O1cvUDCq6Hg=
+        b=0sh5dr/7U5R1FV80dwXNNKHhI0wf2PUkbys5u3l7qJaADZZH9D4oHpzufIwr9rZ1y
+         fQli6Eu0T9r+aPWnbaaTJuhc8+tpWUKjQZqtxPaR84M0Ao6oVwhK1DfBM8KBrP+Bzf
+         F0P0lUJmGYiUq5E+5+vGEZQ3OLLS4bgxIGTFiwh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 148/339] perf parse-events: Move slots event for the hybrid platform too
+        stable@vger.kernel.org, pa@panix.com,
+        Alexander Wetzel <alexander@wetzel-home.de>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 4.9 099/167] rtl818x: Prevent using not initialized queues
 Date:   Mon, 13 Jun 2022 12:09:33 +0200
-Message-Id: <20220613094931.172977154@linuxfoundation.org>
+Message-Id: <20220613094904.087405436@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,143 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Alexander Wetzel <alexander@wetzel-home.de>
 
-[ Upstream commit e0e14cdff31d326f81e0edbd5140f788c870756c ]
+commit 746285cf81dc19502ab238249d75f5990bd2d231 upstream.
 
-The commit 94dbfd6781a0e87b ("perf parse-events: Architecture specific
-leader override") introduced a feature to reorder the slots event to
-fulfill the restriction of the perf metrics topdown group. But the
-feature doesn't work on the hybrid machine.
+Using not existing queues can panic the kernel with rtl8180/rtl8185 cards.
+Ignore the skb priority for those cards, they only have one tx queue. Pierre
+Asselin (pa@panix.com) reported the kernel crash in the Gentoo forum:
 
-  $ perf stat -e "{cpu_core/instructions/,cpu_core/slots/,cpu_core/topdown-retiring/}" -a sleep 1
+https://forums.gentoo.org/viewtopic-t-1147832-postdays-0-postorder-asc-start-25.html
 
-   Performance counter stats for 'system wide':
+He also confirmed that this patch fixes the issue. In summary this happened:
 
-       <not counted>      cpu_core/instructions/
-       <not counted>      cpu_core/slots/
-     <not supported>      cpu_core/topdown-retiring/
+After updating wpa_supplicant from 2.9 to 2.10 the kernel crashed with a
+"divide error: 0000" when connecting to an AP. Control port tx now tries to
+use IEEE80211_AC_VO for the priority, which wpa_supplicants starts to use in
+2.10.
 
-         1.002871801 seconds time elapsed
+Since only the rtl8187se part of the driver supports QoS, the priority
+of the skb is set to IEEE80211_AC_BE (2) by mac80211 for rtl8180/rtl8185
+cards.
 
-A hybrid platform has a different PMU name for the core PMUs, while
-current perf hard code the PMU name "cpu".
+rtl8180 is then unconditionally reading out the priority and finally crashes on
+drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c line 544 without this
+patch:
+	idx = (ring->idx + skb_queue_len(&ring->queue)) % ring->entries
 
-Introduce a new function to check whether the system supports the perf
-metrics feature. The result is cached for the future usage.
+"ring->entries" is zero for rtl8180/rtl8185 cards, tx_ring[2] never got
+initialized.
 
-For X86, the core PMU name always has "cpu" prefix.
-
-With the patch:
-
-  $ perf stat -e "{cpu_core/instructions/,cpu_core/slots/,cpu_core/topdown-retiring/}" -a sleep 1
-
-   Performance counter stats for 'system wide':
-
-          76,337,010      cpu_core/slots/
-          10,416,809      cpu_core/instructions/
-          11,692,372      cpu_core/topdown-retiring/
-
-         1.002805453 seconds time elapsed
-
-Reviewed-by: Ian Rogers <irogers@google.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Xing Zhengjun <zhengjun.xing@linux.intel.com>
-Link: https://lore.kernel.org/r/20220518143900.1493980-5-kan.liang@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: pa@panix.com
+Tested-by: pa@panix.com
+Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220422145228.7567-1-alexander@wetzel-home.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/arch/x86/util/evlist.c  |  5 +++--
- tools/perf/arch/x86/util/topdown.c | 25 +++++++++++++++++++++++++
- tools/perf/arch/x86/util/topdown.h |  7 +++++++
- 3 files changed, 35 insertions(+), 2 deletions(-)
- create mode 100644 tools/perf/arch/x86/util/topdown.h
+ drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/arch/x86/util/evlist.c b/tools/perf/arch/x86/util/evlist.c
-index 75564a7df15b..68f681ad54c1 100644
---- a/tools/perf/arch/x86/util/evlist.c
-+++ b/tools/perf/arch/x86/util/evlist.c
-@@ -3,6 +3,7 @@
- #include "util/pmu.h"
- #include "util/evlist.h"
- #include "util/parse-events.h"
-+#include "topdown.h"
+--- a/drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c
++++ b/drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c
+@@ -460,8 +460,10 @@ static void rtl8180_tx(struct ieee80211_
+ 	struct rtl8180_priv *priv = dev->priv;
+ 	struct rtl8180_tx_ring *ring;
+ 	struct rtl8180_tx_desc *entry;
++	unsigned int prio = 0;
+ 	unsigned long flags;
+-	unsigned int idx, prio, hw_prio;
++	unsigned int idx, hw_prio;
++
+ 	dma_addr_t mapping;
+ 	u32 tx_flags;
+ 	u8 rc_flags;
+@@ -470,7 +472,9 @@ static void rtl8180_tx(struct ieee80211_
+ 	/* do arithmetic and then convert to le16 */
+ 	u16 frame_duration = 0;
  
- #define TOPDOWN_L1_EVENTS	"{slots,topdown-retiring,topdown-bad-spec,topdown-fe-bound,topdown-be-bound}"
- #define TOPDOWN_L2_EVENTS	"{slots,topdown-retiring,topdown-bad-spec,topdown-fe-bound,topdown-be-bound,topdown-heavy-ops,topdown-br-mispredict,topdown-fetch-lat,topdown-mem-bound}"
-@@ -25,12 +26,12 @@ struct evsel *arch_evlist__leader(struct list_head *list)
+-	prio = skb_get_queue_mapping(skb);
++	/* rtl8180/rtl8185 only has one useable tx queue */
++	if (dev->queues > IEEE80211_AC_BK)
++		prio = skb_get_queue_mapping(skb);
+ 	ring = &priv->tx_ring[prio];
  
- 	first = list_first_entry(list, struct evsel, core.node);
- 
--	if (!pmu_have_event("cpu", "slots"))
-+	if (!topdown_sys_has_perf_metrics())
- 		return first;
- 
- 	/* If there is a slots event and a topdown event then the slots event comes first. */
- 	__evlist__for_each_entry(list, evsel) {
--		if (evsel->pmu_name && !strcmp(evsel->pmu_name, "cpu") && evsel->name) {
-+		if (evsel->pmu_name && !strncmp(evsel->pmu_name, "cpu", 3) && evsel->name) {
- 			if (strcasestr(evsel->name, "slots")) {
- 				slots = evsel;
- 				if (slots == first)
-diff --git a/tools/perf/arch/x86/util/topdown.c b/tools/perf/arch/x86/util/topdown.c
-index 2f3d96aa92a5..f4d5422e9960 100644
---- a/tools/perf/arch/x86/util/topdown.c
-+++ b/tools/perf/arch/x86/util/topdown.c
-@@ -3,6 +3,31 @@
- #include "api/fs/fs.h"
- #include "util/pmu.h"
- #include "util/topdown.h"
-+#include "topdown.h"
-+
-+/* Check whether there is a PMU which supports the perf metrics. */
-+bool topdown_sys_has_perf_metrics(void)
-+{
-+	static bool has_perf_metrics;
-+	static bool cached;
-+	struct perf_pmu *pmu;
-+
-+	if (cached)
-+		return has_perf_metrics;
-+
-+	/*
-+	 * The perf metrics feature is a core PMU feature.
-+	 * The PERF_TYPE_RAW type is the type of a core PMU.
-+	 * The slots event is only available when the core PMU
-+	 * supports the perf metrics feature.
-+	 */
-+	pmu = perf_pmu__find_by_type(PERF_TYPE_RAW);
-+	if (pmu && pmu_have_event(pmu->name, "slots"))
-+		has_perf_metrics = true;
-+
-+	cached = true;
-+	return has_perf_metrics;
-+}
- 
- /*
-  * Check whether we can use a group for top down.
-diff --git a/tools/perf/arch/x86/util/topdown.h b/tools/perf/arch/x86/util/topdown.h
-new file mode 100644
-index 000000000000..46bf9273e572
---- /dev/null
-+++ b/tools/perf/arch/x86/util/topdown.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _TOPDOWN_H
-+#define _TOPDOWN_H 1
-+
-+bool topdown_sys_has_perf_metrics(void);
-+
-+#endif
--- 
-2.35.1
-
+ 	mapping = pci_map_single(priv->pdev, skb->data,
 
 
