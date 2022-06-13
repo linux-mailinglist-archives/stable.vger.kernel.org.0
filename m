@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E70E8548F5A
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC543548995
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236813AbiFMKl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:41:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58582 "EHLO
+        id S1380938AbiFMOHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:07:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346204AbiFMKj5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:39:57 -0400
+        with ESMTP id S1382482AbiFMOFz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E24528E0D;
-        Mon, 13 Jun 2022 03:23:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E129548C;
+        Mon, 13 Jun 2022 04:40:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49C94B80E94;
-        Mon, 13 Jun 2022 10:23:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A36B6C34114;
-        Mon, 13 Jun 2022 10:23:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34B00B80ECE;
+        Mon, 13 Jun 2022 11:40:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0BC1C34114;
+        Mon, 13 Jun 2022 11:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115812;
-        bh=PyINb2rJZQ7Qe5pjNIZ7+ywP2k++AnplNV1utZalMI4=;
+        s=korg; t=1655120449;
+        bh=pl/Mo2zTG3iyAG3IF2rzNQ79wq94PhZgwe/irXGYYwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IVtQdXveThP8TxAx3Oir3BewkCaeUrqEGln1V/VR9khmIQOVKXS2KlV/SADDNQbhK
-         MzKXVu5noQlUCEA0l0s01d6YRTFQ6AYl0emwE6YfP4+VYAU6AzUI9Qnuv7bqnlVG0U
-         6U0FkJKOQp3j/YrKGhkvHDbMneW1275jtBvDXBxM=
+        b=GrrSeoXvsdcToW/SzVyJfu38fParPZv7dSafNM9JhlObWbBv1RyGfQxvllMIa1k5B
+         Ra44+DeeTV706Np/9VvwnKUityZF1GFBLBBOtH4OwGfZQ0GWY/abBgAt0QW8UwSzza
+         WFdsvs7bevhycM3dKBbbJCk64eIRwxfQcMV9tEow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Niels Dossche <dossche.niels@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 050/218] ASoC: mediatek: Fix missing of_node_put in mt2701_wm8960_machine_probe
+Subject: [PATCH 5.17 014/298] usb: usbip: add missing device lock on tweak configuration cmd
 Date:   Mon, 13 Jun 2022 12:08:28 +0200
-Message-Id: <20220613094920.227053512@linuxfoundation.org>
+Message-Id: <20220613094925.358309711@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit 05654431a18fe24e5e46a375d98904134628a102 ]
+[ Upstream commit d088fabace2ca337b275d1d4b36db4fe7771e44f ]
 
-This node pointer is returned by of_parse_phandle() with
-refcount incremented in this function.
-Calling of_node_put() to avoid the refcount leak.
+The function documentation of usb_set_configuration says that its
+callers should hold the device lock. This lock is held for all
+callsites except tweak_set_configuration_cmd. The code path can be
+executed for example when attaching a remote USB device.
+The solution is to surround the call by the device lock.
 
-Fixes: 8625c1dbd876 ("ASoC: mediatek: Add mt2701-wm8960 machine driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220404093526.30004-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This bug was found using my experimental own-developed static analysis
+tool, which reported the missing lock on v5.17.2. I manually verified
+this bug report by doing code review as well. I runtime checked that
+the required lock is not held. I compiled and runtime tested this on
+x86_64 with a USB mouse. After applying this patch, my analyser no
+longer reports this potential bug.
+
+Fixes: 2c8c98158946 ("staging: usbip: let client choose device configuration")
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Link: https://lore.kernel.org/r/20220412165055.257113-1-dossche.niels@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt2701/mt2701-wm8960.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/usbip/stub_rx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/mediatek/mt2701/mt2701-wm8960.c b/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-index a08ce2323bdc..3db92506ccea 100644
---- a/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-+++ b/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-@@ -126,7 +126,8 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 	if (!codec_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_platform_node;
- 	}
- 	for (i = 0; i < card->num_links; i++) {
- 		if (mt2701_wm8960_dai_links[i].codec_name)
-@@ -137,7 +138,7 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 	ret = snd_soc_of_parse_audio_routing(card, "audio-routing");
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to parse audio-routing: %d\n", ret);
--		return ret;
-+		goto put_codec_node;
- 	}
+diff --git a/drivers/usb/usbip/stub_rx.c b/drivers/usb/usbip/stub_rx.c
+index 325c22008e53..5dd41e8215e0 100644
+--- a/drivers/usb/usbip/stub_rx.c
++++ b/drivers/usb/usbip/stub_rx.c
+@@ -138,7 +138,9 @@ static int tweak_set_configuration_cmd(struct urb *urb)
+ 	req = (struct usb_ctrlrequest *) urb->setup_packet;
+ 	config = le16_to_cpu(req->wValue);
  
- 	ret = devm_snd_soc_register_card(&pdev->dev, card);
-@@ -145,6 +146,10 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
- 
-+put_codec_node:
-+	of_node_put(codec_node);
-+put_platform_node:
-+	of_node_put(platform_node);
- 	return ret;
- }
- 
++	usb_lock_device(sdev->udev);
+ 	err = usb_set_configuration(sdev->udev, config);
++	usb_unlock_device(sdev->udev);
+ 	if (err && err != -ENODEV)
+ 		dev_err(&sdev->udev->dev, "can't set config #%d, error %d\n",
+ 			config, err);
 -- 
 2.35.1
 
