@@ -2,170 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F35BE548056
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32D1C548068
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238848AbiFMHT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 03:19:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47942 "EHLO
+        id S237859AbiFMHVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 03:21:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232635AbiFMHT1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:19:27 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B68381ADB0
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:19:26 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id 187so4988650pfu.9
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:19:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=iETuPKnEXrDjCWmhzwSLfCDqPNYGrvihX3Ha/8aboJI=;
-        b=TXuL7TSP3pv9Blw5gAruQp6bg9yeQGi2QKprKhkSNulOGi6F18rUtJhh27ctJjmTTu
-         oKFVDIriWHF8lyG9Gn5RzIAv/ncpBO4gDuErN49Gm3zpkp/uaQZyumKue/QujAu4T5oj
-         wvthZAxx624RyFwdgCfqKJZVPMQWwk0NQLPQ8tpcGwkmGtjRxF6UVBJkHQSES8orpiE2
-         ZSisAH5nb0P4GlW/5E8fKw7x+MA8mc8xO62j3e50lJ4GYImSAHYegq/Ho/MGZW2Cefj9
-         7aU+X5YjCQ+bGAa2lhcXRt3oVtO/yKfRG+BY+n4M/VVJoxy26KlWa2nZx2xi2WoR6zaa
-         AJoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=iETuPKnEXrDjCWmhzwSLfCDqPNYGrvihX3Ha/8aboJI=;
-        b=SPcAAvB0qqkMOomrGw6DwLSzGyY7Q9Az244O8kQTkVKaUaIsID5CaLoxA6zlDLEOxI
-         w0P8ji2hBbXW21P1e2b8VSLN69xP99rP5CU9bLll+DqOudENhYqvJtu0xbLgRaeqw8Ta
-         AVu7ZgJzy/AhhH7JfAK2sUNZ11rHV3qmuHvVTSeDiyUARiGooxO8TUJvJng1pca7ZSJi
-         UFt+tz/CHhAAEsdDoNWxoPEDSunQ1WBfVuUvcguYW2CM98N9s60Clrx6Y7+GvRbNmk6R
-         nVKOTZRjtr3bBUiuqKVhJZqJyAQisZJoYPO/7SVAIl4QPJ6QP+tHyTqA1wtPUc2twQu8
-         XJ8w==
-X-Gm-Message-State: AOAM5318YzD9guKTbTokpEuqSDn6Y9U/bD97xBRCfjl/FPpMnefTvP36
-        oP/b1fghIEtYczgo4FX9G0QUtz86bTSnsIgf06I=
-X-Google-Smtp-Source: ABdhPJzRAKZOFNs4MqUdtc9XrTs6GbufVAN2C7SaPlE4m3sA0kd3VQgt6NS8ArKe7d+7I3GoeYgosA==
-X-Received: by 2002:a63:d154:0:b0:3fc:e1c1:50ea with SMTP id c20-20020a63d154000000b003fce1c150eamr48773326pgj.67.1655104765961;
-        Mon, 13 Jun 2022 00:19:25 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h188-20020a62dec5000000b0051bb61c0eacsm4525604pfg.20.2022.06.13.00.19.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jun 2022 00:19:25 -0700 (PDT)
-Message-ID: <62a6e4fd.1c69fb81.e221d.5193@mx.google.com>
-Date:   Mon, 13 Jun 2022 00:19:25 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232635AbiFMHVA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:21:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B679A1ADB0
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:20:59 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 14FE3CE0F77
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:20:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D282C34114;
+        Mon, 13 Jun 2022 07:20:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1655104856;
+        bh=PJtZ5jFJZWQA5bimDc4ut2i1mFQN/ujU8sjmTl89AI4=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Dfxk6CLO0Amiocn9nDo3x84rAw3tVQ0aZmh4S8PHwnLSG+jX2QxznW5lXDYVYDXy3
+         v9eTrHD6FLmj2PrqJjHOPcxC+huBQRZScGXzEA0agdeQRcmSqDMynmah6zjErYkvil
+         61nEhyiv9zPw9X6VTqnoAyK9H91jP86bhqAOLA9I=
+Subject: FAILED: patch "[PATCH] KVM: SVM: fix tsc scaling cache logic" failed to apply to 5.15-stable tree
+To:     mlevitsk@redhat.com, pbonzini@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 13 Jun 2022 09:20:53 +0200
+Message-ID: <165510485318356@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.17.13-1024-gb80ef70132a79
-X-Kernelci-Branch: queue/5.17
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.17 baseline: 95 runs,
- 2 regressions (v5.17.13-1024-gb80ef70132a79)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.17 baseline: 95 runs, 2 regressions (v5.17.13-1024-gb80ef=
-70132a79)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-jetson-tk1                   | arm   | lab-baylibre  | gcc-10   | tegra_def=
-config            | 1          =
+thanks,
 
-mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.17/ker=
-nel/v5.17.13-1024-gb80ef70132a79/plan/baseline/
+From 11d39e8cc43e1c6737af19ca9372e590061b5ad2 Mon Sep 17 00:00:00 2001
+From: Maxim Levitsky <mlevitsk@redhat.com>
+Date: Mon, 6 Jun 2022 21:11:49 +0300
+Subject: [PATCH] KVM: SVM: fix tsc scaling cache logic
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.17
-  Describe: v5.17.13-1024-gb80ef70132a79
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b80ef70132a794057d4c61d9c9db5ec52110f498 =
+SVM uses a per-cpu variable to cache the current value of the
+tsc scaling multiplier msr on each cpu.
 
+Commit 1ab9287add5e2
+("KVM: X86: Add vendor callbacks for writing the TSC multiplier")
+broke this caching logic.
 
+Refactor the code so that all TSC scaling multiplier writes go through
+a single function which checks and updates the cache.
 
-Test Regressions
----------------- =
+This fixes the following scenario:
 
+1. A CPU runs a guest with some tsc scaling ratio.
 
+2. New guest with different tsc scaling ratio starts on this CPU
+   and terminates almost immediately.
 
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-jetson-tk1                   | arm   | lab-baylibre  | gcc-10   | tegra_def=
-config            | 1          =
+   This ensures that the short running guest had set the tsc scaling ratio just
+   once when it was set via KVM_SET_TSC_KHZ. Due to the bug,
+   the per-cpu cache is not updated.
 
+3. The original guest continues to run, it doesn't restore the msr
+   value back to its own value, because the cache matches,
+   and thus continues to run with a wrong tsc scaling ratio.
 
-  Details:     https://kernelci.org/test/plan/id/62a6add2d3349c07e7a39bd4
+Fixes: 1ab9287add5e2 ("KVM: X86: Add vendor callbacks for writing the TSC multiplier")
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220606181149.103072-1-mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
-1024-gb80ef70132a79/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
-1024-gb80ef70132a79/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/armel/rootfs.cpio.gz =
+diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
+index bed5e1692cef..3361258640a2 100644
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -982,7 +982,7 @@ int nested_svm_vmexit(struct vcpu_svm *svm)
+ 	if (svm->tsc_ratio_msr != kvm_default_tsc_scaling_ratio) {
+ 		WARN_ON(!svm->tsc_scaling_enabled);
+ 		vcpu->arch.tsc_scaling_ratio = vcpu->arch.l1_tsc_scaling_ratio;
+-		svm_write_tsc_multiplier(vcpu, vcpu->arch.tsc_scaling_ratio);
++		__svm_write_tsc_multiplier(vcpu->arch.tsc_scaling_ratio);
+ 	}
+ 
+ 	svm->nested.ctl.nested_cr3 = 0;
+@@ -1387,7 +1387,7 @@ void nested_svm_update_tsc_ratio_msr(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.tsc_scaling_ratio =
+ 		kvm_calc_nested_tsc_multiplier(vcpu->arch.l1_tsc_scaling_ratio,
+ 					       svm->tsc_ratio_msr);
+-	svm_write_tsc_multiplier(vcpu, vcpu->arch.tsc_scaling_ratio);
++	__svm_write_tsc_multiplier(vcpu->arch.tsc_scaling_ratio);
+ }
+ 
+ /* Inverse operation of nested_copy_vmcb_control_to_cache(). asid is copied too. */
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 63880b33ce37..478e6ee81d88 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -465,11 +465,24 @@ static int has_svm(void)
+ 	return 1;
+ }
+ 
++void __svm_write_tsc_multiplier(u64 multiplier)
++{
++	preempt_disable();
++
++	if (multiplier == __this_cpu_read(current_tsc_ratio))
++		goto out;
++
++	wrmsrl(MSR_AMD64_TSC_RATIO, multiplier);
++	__this_cpu_write(current_tsc_ratio, multiplier);
++out:
++	preempt_enable();
++}
++
+ static void svm_hardware_disable(void)
+ {
+ 	/* Make sure we clean up behind us */
+ 	if (tsc_scaling)
+-		wrmsrl(MSR_AMD64_TSC_RATIO, SVM_TSC_RATIO_DEFAULT);
++		__svm_write_tsc_multiplier(SVM_TSC_RATIO_DEFAULT);
+ 
+ 	cpu_svm_disable();
+ 
+@@ -515,8 +528,7 @@ static int svm_hardware_enable(void)
+ 		 * Set the default value, even if we don't use TSC scaling
+ 		 * to avoid having stale value in the msr
+ 		 */
+-		wrmsrl(MSR_AMD64_TSC_RATIO, SVM_TSC_RATIO_DEFAULT);
+-		__this_cpu_write(current_tsc_ratio, SVM_TSC_RATIO_DEFAULT);
++		__svm_write_tsc_multiplier(SVM_TSC_RATIO_DEFAULT);
+ 	}
+ 
+ 
+@@ -999,11 +1011,12 @@ static void svm_write_tsc_offset(struct kvm_vcpu *vcpu, u64 offset)
+ 	vmcb_mark_dirty(svm->vmcb, VMCB_INTERCEPTS);
+ }
+ 
+-void svm_write_tsc_multiplier(struct kvm_vcpu *vcpu, u64 multiplier)
++static void svm_write_tsc_multiplier(struct kvm_vcpu *vcpu, u64 multiplier)
+ {
+-	wrmsrl(MSR_AMD64_TSC_RATIO, multiplier);
++	__svm_write_tsc_multiplier(multiplier);
+ }
+ 
++
+ /* Evaluate instruction intercepts that depend on guest CPUID features. */
+ static void svm_recalc_instruction_intercepts(struct kvm_vcpu *vcpu,
+ 					      struct vcpu_svm *svm)
+@@ -1363,13 +1376,8 @@ static void svm_prepare_switch_to_guest(struct kvm_vcpu *vcpu)
+ 		sev_es_prepare_switch_to_guest(hostsa);
+ 	}
+ 
+-	if (tsc_scaling) {
+-		u64 tsc_ratio = vcpu->arch.tsc_scaling_ratio;
+-		if (tsc_ratio != __this_cpu_read(current_tsc_ratio)) {
+-			__this_cpu_write(current_tsc_ratio, tsc_ratio);
+-			wrmsrl(MSR_AMD64_TSC_RATIO, tsc_ratio);
+-		}
+-	}
++	if (tsc_scaling)
++		__svm_write_tsc_multiplier(vcpu->arch.tsc_scaling_ratio);
+ 
+ 	if (likely(tsc_aux_uret_slot >= 0))
+ 		kvm_set_user_return_msr(tsc_aux_uret_slot, svm->tsc_aux, -1ull);
+diff --git a/arch/x86/kvm/svm/svm.h b/arch/x86/kvm/svm/svm.h
+index 45a87b2a8b3c..29d6fd205a49 100644
+--- a/arch/x86/kvm/svm/svm.h
++++ b/arch/x86/kvm/svm/svm.h
+@@ -590,7 +590,7 @@ int nested_svm_check_exception(struct vcpu_svm *svm, unsigned nr,
+ 			       bool has_error_code, u32 error_code);
+ int nested_svm_exit_special(struct vcpu_svm *svm);
+ void nested_svm_update_tsc_ratio_msr(struct kvm_vcpu *vcpu);
+-void svm_write_tsc_multiplier(struct kvm_vcpu *vcpu, u64 multiplier);
++void __svm_write_tsc_multiplier(u64 multiplier);
+ void nested_copy_vmcb_control_to_cache(struct vcpu_svm *svm,
+ 				       struct vmcb_control_area *control);
+ void nested_copy_vmcb_save_to_cache(struct vcpu_svm *svm,
 
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62a6add2d3349c07e7a39=
-bd5
-        failing since 2 days (last pass: v5.17.13-907-ga980fa631e355, first=
- fail: v5.17.13-928-gfe5fcee7b41f8) =
-
- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62a6ac1ef28deb76efa39c3f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
-1024-gb80ef70132a79/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-mt8183-kukui-jacuzzi-juniper-sku16.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
-1024-gb80ef70132a79/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-mt8183-kukui-jacuzzi-juniper-sku16.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62a6ac1ef28deb76efa39=
-c40
-        new failure (last pass: v5.17.13-771-g1bf589e90ab9c) =
-
- =20
