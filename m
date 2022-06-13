@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FCEE549636
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F3FB549359
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351226AbiFMMZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:25:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34150 "EHLO
+        id S243797AbiFMKZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:25:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355547AbiFMMX5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E57A27B20;
-        Mon, 13 Jun 2022 04:05:07 -0700 (PDT)
+        with ESMTP id S244391AbiFMKXy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:23:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 736BED129;
+        Mon, 13 Jun 2022 03:18:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7FB860F9A;
-        Mon, 13 Jun 2022 11:05:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05BBBC34114;
-        Mon, 13 Jun 2022 11:05:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AC9460AE8;
+        Mon, 13 Jun 2022 10:18:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA456C34114;
+        Mon, 13 Jun 2022 10:18:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118306;
-        bh=pl/Mo2zTG3iyAG3IF2rzNQ79wq94PhZgwe/irXGYYwc=;
+        s=korg; t=1655115495;
+        bh=warabXHqo3R/AW86wKqeUS76ekKpwHQWxZeyzIf6P7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ri5XAINXBhLaBiaj+DqjdCUEVcmf5GfmRurfbc+X8zdeBjJk8S+IOtpdsNuJj+saf
-         dThEvfFsIWt6hezckLYi1GWAyhvmZDfKhBELhyiezhdyDTEQcZ1eCHmJPL0DBH+Fki
-         ENBebYb4+k/oS8Ae/T9DFhs17KG/9G8n/5aoRxaI=
+        b=qfghu0PByznlAGqYZNhnXK3hQ7CE+8DbeDIt9I+RLvEQPOf5jWR8ZG1WGoHVypAWv
+         1q89GyTwJEJzp7xSJYS6IemLllCVmiOSmyuQ+pRUo5ldenv6q+xdcJhX4reIjgPqHx
+         67jYkB6vwr98Y4GVDATNCTUdneOYxbWRvU81JCNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        Niels Dossche <dossche.niels@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 010/172] usb: usbip: add missing device lock on tweak configuration cmd
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.9 096/167] iommu/msm: Fix an incorrect NULL check on list iterator
 Date:   Mon, 13 Jun 2022 12:09:30 +0200
-Message-Id: <20220613094852.876973328@linuxfoundation.org>
+Message-Id: <20220613094903.413953382@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit d088fabace2ca337b275d1d4b36db4fe7771e44f ]
+commit 8b9ad480bd1dd25f4ff4854af5685fa334a2f57a upstream.
 
-The function documentation of usb_set_configuration says that its
-callers should hold the device lock. This lock is held for all
-callsites except tweak_set_configuration_cmd. The code path can be
-executed for example when attaching a remote USB device.
-The solution is to surround the call by the device lock.
+The bug is here:
+	if (!iommu || iommu->dev->of_node != spec->np) {
 
-This bug was found using my experimental own-developed static analysis
-tool, which reported the missing lock on v5.17.2. I manually verified
-this bug report by doing code review as well. I runtime checked that
-the required lock is not held. I compiled and runtime tested this on
-x86_64 with a USB mouse. After applying this patch, my analyser no
-longer reports this potential bug.
+The list iterator value 'iommu' will *always* be set and non-NULL by
+list_for_each_entry(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element is found (in fact,
+it will point to a invalid structure object containing HEAD).
 
-Fixes: 2c8c98158946 ("staging: usbip: let client choose device configuration")
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Link: https://lore.kernel.org/r/20220412165055.257113-1-dossche.niels@gmail.com
+To fix the bug, use a new value 'iter' as the list iterator, while use
+the old value 'iommu' as a dedicated variable to point to the found one,
+and remove the unneeded check for 'iommu->dev->of_node != spec->np'
+outside the loop.
+
+Cc: stable@vger.kernel.org
+Fixes: f78ebca8ff3d6 ("iommu/msm: Add support for generic master bindings")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220501132823.12714-1-xiam0nd.tong@gmail.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/stub_rx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iommu/msm_iommu.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/usbip/stub_rx.c b/drivers/usb/usbip/stub_rx.c
-index 325c22008e53..5dd41e8215e0 100644
---- a/drivers/usb/usbip/stub_rx.c
-+++ b/drivers/usb/usbip/stub_rx.c
-@@ -138,7 +138,9 @@ static int tweak_set_configuration_cmd(struct urb *urb)
- 	req = (struct usb_ctrlrequest *) urb->setup_packet;
- 	config = le16_to_cpu(req->wValue);
+--- a/drivers/iommu/msm_iommu.c
++++ b/drivers/iommu/msm_iommu.c
+@@ -580,16 +580,19 @@ static void insert_iommu_master(struct d
+ static int qcom_iommu_of_xlate(struct device *dev,
+ 			       struct of_phandle_args *spec)
+ {
+-	struct msm_iommu_dev *iommu;
++	struct msm_iommu_dev *iommu = NULL, *iter;
+ 	unsigned long flags;
+ 	int ret = 0;
  
-+	usb_lock_device(sdev->udev);
- 	err = usb_set_configuration(sdev->udev, config);
-+	usb_unlock_device(sdev->udev);
- 	if (err && err != -ENODEV)
- 		dev_err(&sdev->udev->dev, "can't set config #%d, error %d\n",
- 			config, err);
--- 
-2.35.1
-
+ 	spin_lock_irqsave(&msm_iommu_lock, flags);
+-	list_for_each_entry(iommu, &qcom_iommu_devices, dev_node)
+-		if (iommu->dev->of_node == spec->np)
++	list_for_each_entry(iter, &qcom_iommu_devices, dev_node) {
++		if (iter->dev->of_node == spec->np) {
++			iommu = iter;
+ 			break;
++		}
++	}
+ 
+-	if (!iommu || iommu->dev->of_node != spec->np) {
++	if (!iommu) {
+ 		ret = -ENODEV;
+ 		goto fail;
+ 	}
 
 
