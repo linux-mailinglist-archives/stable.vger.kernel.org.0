@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A131548B44
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 150A3548A31
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356044AbiFMLr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:47:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41660 "EHLO
+        id S244168AbiFMKex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:34:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357171AbiFMLpo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:45:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0DA749C98;
-        Mon, 13 Jun 2022 03:51:47 -0700 (PDT)
+        with ESMTP id S1345046AbiFMKdy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:33:54 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F6B927FD2;
+        Mon, 13 Jun 2022 03:21:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E95DB80D3C;
-        Mon, 13 Jun 2022 10:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99443C34114;
-        Mon, 13 Jun 2022 10:51:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 001BACE1161;
+        Mon, 13 Jun 2022 10:21:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD2A5C34114;
+        Mon, 13 Jun 2022 10:21:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117505;
-        bh=wZ952zhWikajxX9H/+8SDddrcd170PgC6i07FK0S+K4=;
+        s=korg; t=1655115715;
+        bh=f4Sar/WvzR2BqS9FayKm4bduJaQEzWXxAM2xpEH8zkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1U28CCCJ+6E2XO8Wnd9UttOzz27/+c5lel1Z7aEwQWdnuuXIgq9s88TJXH4o7K1km
-         /WIc1bLzf4w1/nQF0UxhMSjS4jbq5Fkzr6LGZt2QEtLlGzeYJ9Hrt1+e3o7bvA6xsT
-         /MAc+euMqGLnSkHAYym9o1w6b7kQTeYvijcN76mw=
+        b=enSajT1KuwlOw9g8DaemDQjXsapOhCBI6MAuPQOBM1N50++QB4M/G1BXOnY2SNkG4
+         ObRCLnNIqlNyoJEhuaGjeqptxEEjoZr7dAA7c9gPGHqIPgBqBk7JE7llf8GxHaLzmh
+         38gTJ79Mi/SnSG2IJI44jMHkuLlTlrwIMpxQSo1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kyle Smith <kyles@hpe.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 037/287] nvme-pci: fix a NULL pointer dereference in nvme_alloc_admin_tags
+        stable@vger.kernel.org, Monish Kumar R <monish.kumar.r@intel.com>
+Subject: [PATCH 4.14 003/218] USB: new quirk for Dell Gen 2 devices
 Date:   Mon, 13 Jun 2022 12:07:41 +0200
-Message-Id: <20220613094924.990921410@linuxfoundation.org>
+Message-Id: <20220613094909.135439307@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Smith, Kyle Miller (Nimble Kernel) <kyles@hpe.com>
+From: Monish Kumar R <monish.kumar.r@intel.com>
 
-[ Upstream commit da42761181627e9bdc37d18368b827948a583929 ]
+commit 97fa5887cf283bb75ffff5f6b2c0e71794c02400 upstream.
 
-In nvme_alloc_admin_tags, the admin_q can be set to an error (typically
--ENOMEM) if the blk_mq_init_queue call fails to set up the queue, which
-is checked immediately after the call. However, when we return the error
-message up the stack, to nvme_reset_work the error takes us to
-nvme_remove_dead_ctrl()
-  nvme_dev_disable()
-   nvme_suspend_queue(&dev->queues[0]).
+Add USB_QUIRK_NO_LPM and USB_QUIRK_RESET_RESUME quirks for Dell usb gen
+2 device to not fail during enumeration.
 
-Here, we only check that the admin_q is non-NULL, rather than not
-an error or NULL, and begin quiescing a queue that never existed, leading
-to bad / NULL pointer dereference.
+Found this bug on own testing
 
-Signed-off-by: Kyle Smith <kyles@hpe.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Monish Kumar R <monish.kumar.r@intel.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220520130044.17303-1-monish.kumar.r@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index d7cf3202cdd3..b06d2b6bd3fe 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1522,6 +1522,7 @@ static int nvme_alloc_admin_tags(struct nvme_dev *dev)
- 		dev->ctrl.admin_q = blk_mq_init_queue(&dev->admin_tagset);
- 		if (IS_ERR(dev->ctrl.admin_q)) {
- 			blk_mq_free_tag_set(&dev->admin_tagset);
-+			dev->ctrl.admin_q = NULL;
- 			return -ENOMEM;
- 		}
- 		if (!blk_get_queue(dev->ctrl.admin_q)) {
--- 
-2.35.1
-
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -328,6 +328,9 @@ static const struct usb_device_id usb_qu
+ 	/* DJI CineSSD */
+ 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
+ 
++	/* DELL USB GEN2 */
++	{ USB_DEVICE(0x413c, 0xb062), .driver_info = USB_QUIRK_NO_LPM | USB_QUIRK_RESET_RESUME },
++
+ 	/* VCOM device */
+ 	{ USB_DEVICE(0x4296, 0x7570), .driver_info = USB_QUIRK_CONFIG_INTF_STRINGS },
+ 
 
 
