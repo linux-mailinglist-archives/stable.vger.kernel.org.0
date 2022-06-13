@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C364D54928B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B26DE548F1C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352216AbiFMLLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:11:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45506 "EHLO
+        id S1355993AbiFMLrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:47:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351665AbiFMLJy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:09:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D95A34644;
-        Mon, 13 Jun 2022 03:35:47 -0700 (PDT)
+        with ESMTP id S1357186AbiFMLpq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:45:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 066D849F2F;
+        Mon, 13 Jun 2022 03:51:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 687C3B80EA7;
-        Mon, 13 Jun 2022 10:35:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5BAFC34114;
-        Mon, 13 Jun 2022 10:35:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F709611B3;
+        Mon, 13 Jun 2022 10:51:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF45C3411C;
+        Mon, 13 Jun 2022 10:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116544;
-        bh=DAYQ0OroB66563gRhhqeAiJCMl89W3TJBKmM10sxpcA=;
+        s=korg; t=1655117507;
+        bh=Th3DUZqFk8+1/xRoOYXgybjrLnW/ivzgL1Rlj1RfciY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fATL98HFVL3Udq42KzqDhvyKKn+98S5fH+jCzGeofiWgTZUCnfsJ6h3SWhlVT7h9H
-         TGkH/aKEswD2uv3xw/Xy6kchR+0iWgdcz5Xy/mnC36n9kI7h1h3qoGlQNvXvwvAH8N
-         c0C634Q9IFDh0Z9CxIUR6mHpsvp4pIWcJGNBhcH0=
+        b=RySDj4QIlxpXrQ3fAMUhsXRL6Ddpkg8SdS9Czx4vyDnuSrOtBuxCZXCCMVAmZqbSg
+         wJlyMSmLY1wis9Y7tdNmzFTXARpWRpw5tWyyjqCMPgyfG6kvTiz6HjFffUW7QqOvQw
+         ae4pzPZJ0+GVMknKfhl9m0uF4ROqzhy/QakoDcSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Yu Kuai <yukuai3@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 201/218] nbd: call genl_unregister_family() first in nbd_cleanup()
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 386/411] scsi: myrb: Fix up null pointer access on myrb_cleanup()
 Date:   Mon, 13 Jun 2022 12:10:59 +0200
-Message-Id: <20220613094926.719036746@linuxfoundation.org>
+Message-Id: <20220613094940.242459061@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 06c4da89c24e7023ea448cadf8e9daf06a0aae6e ]
+[ Upstream commit f9f0a46141e2e39bedb4779c88380d1b5f018c14 ]
 
-Otherwise there may be race between module removal and the handling of
-netlink command, which can lead to the oops as shown below:
+When myrb_probe() fails the callback might not be set, so we need to
+validate the 'disable_intr' callback in myrb_cleanup() to not cause a null
+pointer exception. And while at it do not call myrb_cleanup() if we cannot
+enable the PCI device at all.
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000098
-  Oops: 0002 [#1] SMP PTI
-  CPU: 1 PID: 31299 Comm: nbd-client Tainted: G            E     5.14.0-rc4
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-  RIP: 0010:down_write+0x1a/0x50
-  Call Trace:
-   start_creating+0x89/0x130
-   debugfs_create_dir+0x1b/0x130
-   nbd_start_device+0x13d/0x390 [nbd]
-   nbd_genl_connect+0x42f/0x748 [nbd]
-   genl_family_rcv_msg_doit.isra.0+0xec/0x150
-   genl_rcv_msg+0xe5/0x1e0
-   netlink_rcv_skb+0x55/0x100
-   genl_rcv+0x29/0x40
-   netlink_unicast+0x1a8/0x250
-   netlink_sendmsg+0x21b/0x430
-   ____sys_sendmsg+0x2a4/0x2d0
-   ___sys_sendmsg+0x81/0xc0
-   __sys_sendmsg+0x62/0xb0
-   __x64_sys_sendmsg+0x1f/0x30
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  Modules linked in: nbd(E-)
-
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220521073749.3146892-2-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/20220523120244.99515-1-hare@suse.de
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Tested-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/scsi/myrb.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 826b3877a157..1c9f866d9338 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -2319,6 +2319,12 @@ static void __exit nbd_cleanup(void)
- 	struct nbd_device *nbd;
- 	LIST_HEAD(del_list);
+diff --git a/drivers/scsi/myrb.c b/drivers/scsi/myrb.c
+index 539ac8ce4fcd..35b32920a94a 100644
+--- a/drivers/scsi/myrb.c
++++ b/drivers/scsi/myrb.c
+@@ -1241,7 +1241,8 @@ static void myrb_cleanup(struct myrb_hba *cb)
+ 	myrb_unmap(cb);
  
-+	/*
-+	 * Unregister netlink interface prior to waiting
-+	 * for the completion of netlink commands.
-+	 */
-+	genl_unregister_family(&nbd_genl_family);
-+
- 	nbd_dbg_close();
- 
- 	mutex_lock(&nbd_index_mutex);
-@@ -2334,7 +2340,6 @@ static void __exit nbd_cleanup(void)
+ 	if (cb->mmio_base) {
+-		cb->disable_intr(cb->io_base);
++		if (cb->disable_intr)
++			cb->disable_intr(cb->io_base);
+ 		iounmap(cb->mmio_base);
  	}
+ 	if (cb->irq)
+@@ -3516,9 +3517,13 @@ static struct myrb_hba *myrb_detect(struct pci_dev *pdev,
+ 	mutex_init(&cb->dcmd_mutex);
+ 	mutex_init(&cb->dma_mutex);
+ 	cb->pdev = pdev;
++	cb->host = shost;
  
- 	idr_destroy(&nbd_index_idr);
--	genl_unregister_family(&nbd_genl_family);
- 	unregister_blkdev(NBD_MAJOR, "nbd");
- }
+-	if (pci_enable_device(pdev))
+-		goto failure;
++	if (pci_enable_device(pdev)) {
++		dev_err(&pdev->dev, "Failed to enable PCI device\n");
++		scsi_host_put(shost);
++		return NULL;
++	}
  
+ 	if (privdata->hw_init == DAC960_PD_hw_init ||
+ 	    privdata->hw_init == DAC960_P_hw_init) {
 -- 
 2.35.1
 
