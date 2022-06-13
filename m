@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF2AD548E9C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 992C0549460
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240088AbiFMNeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:34:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50962 "EHLO
+        id S1352835AbiFMLUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:20:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378777AbiFMNcG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:32:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71C9E71A37;
-        Mon, 13 Jun 2022 04:26:39 -0700 (PDT)
+        with ESMTP id S1353349AbiFMLTk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72BF43AA51;
+        Mon, 13 Jun 2022 03:41:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9120761038;
-        Mon, 13 Jun 2022 11:26:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AB8DC34114;
-        Mon, 13 Jun 2022 11:26:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 759FB60FDB;
+        Mon, 13 Jun 2022 10:41:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80E20C3411C;
+        Mon, 13 Jun 2022 10:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119598;
-        bh=KclK8A9MhOsYG/yo+Vlgioldi22Z3Bpk3Q51BGbrmKE=;
+        s=korg; t=1655116870;
+        bh=JBdysYnTCOqo85vNwlQFdf3X2vArao3AMOxh5xGOC+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o08hNd9L6c3y5NKnlsrnp+YmROYTZYdM93ucyUQ8vltkdoHq/maIf3vJtCclEE9Sp
-         z71fMo2bnz6Uqs6U2sXpye86iqprLOpEOs+MLYsVxzbBuhqqEIWOt3KKQkdOMo51iw
-         L0ZXPS1pGilTKMAzLJm4973/K+s9bOIxCh3pmeq4=
+        b=xPsDoHdaEzoYQV/7hhZfGcKybFS1sI5fryhc6tqDCydlR8DEXQyQOcLzmoZlzY7Rj
+         TkBgGHkVNbrxqoxQT/38tDrX2FPQ0u67Hpw+URuQFbabBoo2CA39msluAKtNyvdNH/
+         gZXGmhR27JjLTnWCkWd1wSdr+f0il1gy9jXvzRX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 051/339] soundwire: intel: prevent pm_runtime resume prior to system suspend
+        stable@vger.kernel.org, Olga Kornievskaia <aglo@umich.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 203/411] NFSv4/pNFS: Do not fail I/O when we fail to allocate the pNFS layout
 Date:   Mon, 13 Jun 2022 12:07:56 +0200
-Message-Id: <20220613094928.071132812@linuxfoundation.org>
+Message-Id: <20220613094934.746280586@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,56 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 6d9f2dadba698114fed97b224578c5338a36b0d9 ]
+[ Upstream commit 3764a17e31d579cf9b4bd0a69894b577e8d75702 ]
 
-commit e38f9ff63e6d ("ACPI: scan: Do not add device IDs from _CID if _HID is not valid")
-exposes a race condition on a TGL RVP device leading to a timeout.
+Commit 587f03deb69b caused pnfs_update_layout() to stop returning ENOMEM
+when the memory allocation fails, and hence causes it to fall back to
+trying to do I/O through the MDS. There is no guarantee that this will
+fare any better. If we're failing the pNFS layout allocation, then we
+should just redirty the page and retry later.
 
-The detailed analysis shows the RT711 codec driver scheduling a jack
-detection workqueue while attaching during a spurious pm_runtime
-resume, and the work function happens to be scheduled after the
-manager device is suspended.
-
-The direct link between this ACPI patch and a spurious pm_runtime
-resume is not obvious; the most likely explanation is that a change in
-the ACPI device linked list management modifies the order in which the
-pm_runtime device status is checked and exposes a race condition that
-was probably present for a very long time, but was not identified.
-
-We already have a check in the .prepare stage, where we will resume to
-full power from specific clock-stop modes. In all other cases, we
-don't need to resume to full power by default. Adding the
-SMART_SUSPEND flag prevents the spurious resume from happening.
-
-BugLink: https://github.com/thesofproject/linux/issues/3459
-Fixes: 029bfd1cd53cd ("soundwire: intel: conditionally exit clock stop mode on system suspend")
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220420023241.14335-2-yung-chuan.liao@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: Olga Kornievskaia <aglo@umich.edu>
+Fixes: 587f03deb69b ("pnfs: refactor send_layoutget")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/intel.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/nfs/pnfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
-index 63101f1ba271..32e5fdb823c4 100644
---- a/drivers/soundwire/intel.c
-+++ b/drivers/soundwire/intel.c
-@@ -1293,6 +1293,9 @@ static int intel_link_probe(struct auxiliary_device *auxdev,
- 	/* use generic bandwidth allocation algorithm */
- 	sdw->cdns.bus.compute_params = sdw_compute_params;
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index 0471b6e0da16..2fe48982fbb4 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -1961,6 +1961,7 @@ pnfs_update_layout(struct inode *ino,
+ 	lo = pnfs_find_alloc_layout(ino, ctx, gfp_flags);
+ 	if (lo == NULL) {
+ 		spin_unlock(&ino->i_lock);
++		lseg = ERR_PTR(-ENOMEM);
+ 		trace_pnfs_update_layout(ino, pos, count, iomode, lo, lseg,
+ 				 PNFS_UPDATE_LAYOUT_NOMEM);
+ 		goto out;
+@@ -2090,6 +2091,7 @@ pnfs_update_layout(struct inode *ino,
  
-+	/* avoid resuming from pm_runtime suspend if it's not required */
-+	dev_pm_set_driver_flags(dev, DPM_FLAG_SMART_SUSPEND);
-+
- 	ret = sdw_bus_master_add(bus, dev, dev->fwnode);
- 	if (ret) {
- 		dev_err(dev, "sdw_bus_master_add fail: %d\n", ret);
+ 	lgp = pnfs_alloc_init_layoutget_args(ino, ctx, &stateid, &arg, gfp_flags);
+ 	if (!lgp) {
++		lseg = ERR_PTR(-ENOMEM);
+ 		trace_pnfs_update_layout(ino, pos, count, iomode, lo, NULL,
+ 					 PNFS_UPDATE_LAYOUT_NOMEM);
+ 		nfs_layoutget_end(lo);
 -- 
 2.35.1
 
