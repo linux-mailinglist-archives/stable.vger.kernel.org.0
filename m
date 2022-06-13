@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FE4654972B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B2CB5492FD
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383887AbiFMO1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:27:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49972 "EHLO
+        id S1349997AbiFMLG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:06:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383972AbiFMOYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:23 -0400
+        with ESMTP id S1351885AbiFMLFL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:05:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A57FD47573;
-        Mon, 13 Jun 2022 04:46:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51CBDE7;
+        Mon, 13 Jun 2022 03:34:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64724B80EB2;
-        Mon, 13 Jun 2022 11:46:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B44CBC34114;
-        Mon, 13 Jun 2022 11:46:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10AD4B80E93;
+        Mon, 13 Jun 2022 10:34:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DB20C34114;
+        Mon, 13 Jun 2022 10:34:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120769;
-        bh=orI7NLzyYAo4r79BAJZsq8oCnJd/A00pdqYpG0bPBhw=;
+        s=korg; t=1655116472;
+        bh=x3KhVWC0ll/qL0hqYrVnjfMXp95Ww5ZMIt+AkkTdFUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAgRqBsOS4E51GtWDGC7fcJdZFqUJru3SIONZppa/Ww+O6HBuPOrBgqMH09Wx3bNg
-         oSivHaiya3f9fvzwhNJO3NM5d+GwKMct9Va43L7J0PJzyCwxbTJa9wa76Fj2qejyLE
-         xVvhHTlj8p9uF30Dr8HtpRtSN2slfaTtdNUNX+eQ=
+        b=IhQdUgDNf4vYE7E/m2Iz1JaohBrIFYG8db7LD/Inffk0TUtiYtOSRdE4weI47tf7s
+         LdvN87roJjowIhGk0foBKLKeyqgKf6MxUcny30LPkkbBV7Yp4QWW4c6k2KurjUuaoN
+         kJvMJfg0KlhDqR6PIWBT/JM8/RisJ/AAtOe/UjbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liao Chang <liaochang1@huawei.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 151/298] RISC-V: use memcpy for kexec_file mode
+Subject: [PATCH 4.14 187/218] drivers: tty: serial: Fix deadlock in sa1100_set_termios()
 Date:   Mon, 13 Jun 2022 12:10:45 +0200
-Message-Id: <20220613094929.517599059@linuxfoundation.org>
+Message-Id: <20220613094926.286902618@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liao Chang <liaochang1@huawei.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit b7fb4d78a6ade6026d9e5cf438c2a46ab962e032 ]
+[ Upstream commit 62b2caef400c1738b6d22f636c628d9f85cd4c4c ]
 
-The pointer to buffer loading kernel binaries is in kernel space for
-kexec_fil mode, When copy_from_user copies data from pointer to a block
-of memory, it checkes that the pointer is in the user space range, on
-RISCV-V that is:
+There is a deadlock in sa1100_set_termios(), which is shown
+below:
 
-static inline bool __access_ok(unsigned long addr, unsigned long size)
-{
-	return size <= TASK_SIZE && addr <= TASK_SIZE - size;
-}
+   (Thread 1)              |      (Thread 2)
+                           | sa1100_enable_ms()
+sa1100_set_termios()       |  mod_timer()
+ spin_lock_irqsave() //(1) |  (wait a time)
+ ...                       | sa1100_timeout()
+ del_timer_sync()          |  spin_lock_irqsave() //(2)
+ (wait timer to stop)      |  ...
 
-and TASK_SIZE is 0x4000000000 for 64-bits, which now causes
-copy_from_user to reject the access of the field 'buf' of struct
-kexec_segment that is in range [CONFIG_PAGE_OFFSET - VMALLOC_SIZE,
-CONFIG_PAGE_OFFSET), is invalid user space pointer.
+We hold sport->port.lock in position (1) of thread 1 and
+use del_timer_sync() to wait timer to stop, but timer handler
+also need sport->port.lock in position (2) of thread 2. As a result,
+sa1100_set_termios() will block forever.
 
-This patch fixes this issue by skipping access_ok(), use mempcy() instead.
+This patch moves del_timer_sync() before spin_lock_irqsave()
+in order to prevent the deadlock.
 
-Signed-off-by: Liao Chang <liaochang1@huawei.com>
-Link: https://lore.kernel.org/r/20220408100914.150110-3-lizhengyu3@huawei.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220417111626.7802-1-duoming@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/machine_kexec.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/sa1100.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/riscv/kernel/machine_kexec.c b/arch/riscv/kernel/machine_kexec.c
-index cbef0fc73afa..df8e24559035 100644
---- a/arch/riscv/kernel/machine_kexec.c
-+++ b/arch/riscv/kernel/machine_kexec.c
-@@ -65,7 +65,9 @@ machine_kexec_prepare(struct kimage *image)
- 		if (image->segment[i].memsz <= sizeof(fdt))
- 			continue;
+diff --git a/drivers/tty/serial/sa1100.c b/drivers/tty/serial/sa1100.c
+index fd3d1329d48c..68eb1c9faa29 100644
+--- a/drivers/tty/serial/sa1100.c
++++ b/drivers/tty/serial/sa1100.c
+@@ -452,6 +452,8 @@ sa1100_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16); 
+ 	quot = uart_get_divisor(port, baud);
  
--		if (copy_from_user(&fdt, image->segment[i].buf, sizeof(fdt)))
-+		if (image->file_mode)
-+			memcpy(&fdt, image->segment[i].buf, sizeof(fdt));
-+		else if (copy_from_user(&fdt, image->segment[i].buf, sizeof(fdt)))
- 			continue;
++	del_timer_sync(&sport->timer);
++
+ 	spin_lock_irqsave(&sport->port.lock, flags);
  
- 		if (fdt_check_header(&fdt))
+ 	sport->port.read_status_mask &= UTSR0_TO_SM(UTSR0_TFS);
+@@ -482,8 +484,6 @@ sa1100_set_termios(struct uart_port *port, struct ktermios *termios,
+ 				UTSR1_TO_SM(UTSR1_ROR);
+ 	}
+ 
+-	del_timer_sync(&sport->timer);
+-
+ 	/*
+ 	 * Update the per-port timeout.
+ 	 */
 -- 
 2.35.1
 
