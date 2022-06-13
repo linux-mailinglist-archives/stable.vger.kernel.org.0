@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB6CA54979D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FDBE549499
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386032AbiFMOqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:46:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35816 "EHLO
+        id S1376302AbiFMNVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:21:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386242AbiFMOoz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:44:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 588DFB7175;
-        Mon, 13 Jun 2022 04:51:32 -0700 (PDT)
+        with ESMTP id S1377311AbiFMNUP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585B76A421;
+        Mon, 13 Jun 2022 04:23:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A98B61425;
-        Mon, 13 Jun 2022 11:51:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C32DC34114;
-        Mon, 13 Jun 2022 11:51:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0633AB80EA7;
+        Mon, 13 Jun 2022 11:22:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EA19C34114;
+        Mon, 13 Jun 2022 11:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121091;
-        bh=2H2CyXv2Ye91YOMEfo5u5VeHXj+oImPJDnj3yXu5duQ=;
+        s=korg; t=1655119368;
+        bh=1wZ063nPCYAb+23XcVbHHG6i9zVjkAUHDUBFO3C4ZZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKFtyq0KFt27FDsT4RwHG/sNrtHAYrDJy4/76i/YRfK4vB2rR6a+UngNnWs18jQ8q
-         NEl2aj68OKZZmtypehbm6PXPSAz/nNNNebhBTk02qPHnVNb3wzMqeS1PKCqeUmH7Ed
-         iqYv2YpYrj17f04Yz55zmDnuz218wXmgR/ZRQfOo=
+        b=jZt25fs1ClLgj9DuVFyNRqktDboYidwCyYLz5PZ5F5e9VdZ4THOI0bM5+MKOX4l3Q
+         DtHAjx71lmJfJcq+vOq0qji5yyfeq2UnK89ItDFUrSi3wek0S1H5zs9PdVOcDsGFUb
+         vr6T2fMiNjMR/32rYl/G0PDlRxTLhNhKL9fQKBVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cyril Brulebois <kibi@debian.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 245/298] Revert "PCI: brcmstb: Add control of subdevice voltage regulators"
-Date:   Mon, 13 Jun 2022 12:12:19 +0200
-Message-Id: <20220613094932.516560707@linuxfoundation.org>
+        stable@vger.kernel.org, Ariel Miculas <ariel.miculas@belden.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 238/247] powerpc/32: Fix overread/overwrite of thread_struct via ptrace
+Date:   Mon, 13 Jun 2022 12:12:20 +0200
+Message-Id: <20220613094930.163903842@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,197 +54,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 212942609d83b591f5a2f2691df122d13aa3a87d ]
+commit 8e1278444446fc97778a5e5c99bca1ce0bbc5ec9 upstream.
 
-This reverts commit 93e41f3fca3d4a0f927b784012338c37f80a8a80.
+The ptrace PEEKUSR/POKEUSR (aka PEEKUSER/POKEUSER) API allows a process
+to read/write registers of another process.
 
-This is part of a revert of the following commits:
+To get/set a register, the API takes an index into an imaginary address
+space called the "USER area", where the registers of the process are
+laid out in some fashion.
 
-  11ed8b8624b8 ("PCI: brcmstb: Do not turn off WOL regulators on suspend")
-  93e41f3fca3d ("PCI: brcmstb: Add control of subdevice voltage regulators")
-  67211aadcb4b ("PCI: brcmstb: Add mechanism to turn on subdev regulators")
-  830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup() into two funcs")
+The kernel then maps that index to a particular register in its own data
+structures and gets/sets the value.
 
-Cyril reported that 830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup()
-into two funcs"), which appeared in v5.17-rc1, broke booting on the
-Raspberry Pi Compute Module 4.  Apparently 830aa6f29f07 panics with an
-Asynchronous SError Interrupt, and after further commits here is a black
-screen on HDMI and no output on the serial console.
+The API only allows a single machine-word to be read/written at a time.
+So 4 bytes on 32-bit kernels and 8 bytes on 64-bit kernels.
 
-This does not seem to affect the Raspberry Pi 4 B.
+The way floating point registers (FPRs) are addressed is somewhat
+complicated, because double precision float values are 64-bit even on
+32-bit CPUs. That means on 32-bit kernels each FPR occupies two
+word-sized locations in the USER area. On 64-bit kernels each FPR
+occupies one word-sized location in the USER area.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215925
-Link: https://lore.kernel.org/r/20220511201856.808690-3-helgaas@kernel.org
-Reported-by: Cyril Brulebois <kibi@debian.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Internally the kernel stores the FPRs in an array of u64s, or if VSX is
+enabled, an array of pairs of u64s where one half of each pair stores
+the FPR. Which half of the pair stores the FPR depends on the kernel's
+endianness.
+
+To handle the different layouts of the FPRs depending on VSX/no-VSX and
+big/little endian, the TS_FPR() macro was introduced.
+
+Unfortunately the TS_FPR() macro does not take into account the fact
+that the addressing of each FPR differs between 32-bit and 64-bit
+kernels. It just takes the index into the "USER area" passed from
+userspace and indexes into the fp_state.fpr array.
+
+On 32-bit there are 64 indexes that address FPRs, but only 32 entries in
+the fp_state.fpr array, meaning the user can read/write 256 bytes past
+the end of the array. Because the fp_state sits in the middle of the
+thread_struct there are various fields than can be overwritten,
+including some pointers. As such it may be exploitable.
+
+It has also been observed to cause systems to hang or otherwise
+misbehave when using gdbserver, and is probably the root cause of this
+report which could not be easily reproduced:
+  https://lore.kernel.org/linuxppc-dev/dc38afe9-6b78-f3f5-666b-986939e40fc6@keymile.com/
+
+Rather than trying to make the TS_FPR() macro even more complicated to
+fix the bug, or add more macros, instead add a special-case for 32-bit
+kernels. This is more obvious and hopefully avoids a similar bug
+happening again in future.
+
+Note that because 32-bit kernels never have VSX enabled the code doesn't
+need to consider TS_FPRWIDTH/OFFSET at all. Add a BUILD_BUG_ON() to
+ensure that 32-bit && VSX is never enabled.
+
+Fixes: 87fec0514f61 ("powerpc: PTRACE_PEEKUSR/PTRACE_POKEUSER of FPR registers in little endian builds")
+Cc: stable@vger.kernel.org # v3.13+
+Reported-by: Ariel Miculas <ariel.miculas@belden.com>
+Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220609133245.573565-1-mpe@ellerman.id.au
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pcie-brcmstb.c | 83 ++-------------------------
- 1 file changed, 5 insertions(+), 78 deletions(-)
+ arch/powerpc/kernel/ptrace/ptrace-fpu.c |   20 ++++++++++++++------
+ arch/powerpc/kernel/ptrace/ptrace.c     |    3 +++
+ 2 files changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-brcmstb.c b/drivers/pci/controller/pcie-brcmstb.c
-index 3edd63735948..fd464d38fecb 100644
---- a/drivers/pci/controller/pcie-brcmstb.c
-+++ b/drivers/pci/controller/pcie-brcmstb.c
-@@ -196,8 +196,6 @@ static inline void brcm_pcie_bridge_sw_init_set_generic(struct brcm_pcie *pcie,
- static inline void brcm_pcie_perst_set_4908(struct brcm_pcie *pcie, u32 val);
- static inline void brcm_pcie_perst_set_7278(struct brcm_pcie *pcie, u32 val);
- static inline void brcm_pcie_perst_set_generic(struct brcm_pcie *pcie, u32 val);
--static int brcm_pcie_linkup(struct brcm_pcie *pcie);
--static int brcm_pcie_add_bus(struct pci_bus *bus);
+--- a/arch/powerpc/kernel/ptrace/ptrace-fpu.c
++++ b/arch/powerpc/kernel/ptrace/ptrace-fpu.c
+@@ -17,9 +17,13 @@ int ptrace_get_fpr(struct task_struct *c
  
- enum {
- 	RGR1_SW_INIT_1,
-@@ -331,8 +329,6 @@ struct brcm_pcie {
- 	u32			hw_rev;
- 	void			(*perst_set)(struct brcm_pcie *pcie, u32 val);
- 	void			(*bridge_sw_init_set)(struct brcm_pcie *pcie, u32 val);
--	bool			refusal_mode;
--	struct subdev_regulators *sr;
- };
+ #ifdef CONFIG_PPC_FPU_REGS
+ 	flush_fp_to_thread(child);
+-	if (fpidx < (PT_FPSCR - PT_FPR0))
+-		memcpy(data, &child->thread.TS_FPR(fpidx), sizeof(long));
+-	else
++	if (fpidx < (PT_FPSCR - PT_FPR0)) {
++		if (IS_ENABLED(CONFIG_PPC32))
++			// On 32-bit the index we are passed refers to 32-bit words
++			*data = ((u32 *)child->thread.fp_state.fpr)[fpidx];
++		else
++			memcpy(data, &child->thread.TS_FPR(fpidx), sizeof(long));
++	} else
+ 		*data = child->thread.fp_state.fpscr;
+ #else
+ 	*data = 0;
+@@ -39,9 +43,13 @@ int ptrace_put_fpr(struct task_struct *c
  
- static inline bool is_bmips(const struct brcm_pcie *pcie)
-@@ -501,34 +497,6 @@ static int pci_subdev_regulators_add_bus(struct pci_bus *bus)
- 	return 0;
+ #ifdef CONFIG_PPC_FPU_REGS
+ 	flush_fp_to_thread(child);
+-	if (fpidx < (PT_FPSCR - PT_FPR0))
+-		memcpy(&child->thread.TS_FPR(fpidx), &data, sizeof(long));
+-	else
++	if (fpidx < (PT_FPSCR - PT_FPR0)) {
++		if (IS_ENABLED(CONFIG_PPC32))
++			// On 32-bit the index we are passed refers to 32-bit words
++			((u32 *)child->thread.fp_state.fpr)[fpidx] = data;
++		else
++			memcpy(&child->thread.TS_FPR(fpidx), &data, sizeof(long));
++	} else
+ 		child->thread.fp_state.fpscr = data;
+ #endif
+ 
+--- a/arch/powerpc/kernel/ptrace/ptrace.c
++++ b/arch/powerpc/kernel/ptrace/ptrace.c
+@@ -446,4 +446,7 @@ void __init pt_regs_check(void)
+ 	 * real registers.
+ 	 */
+ 	BUILD_BUG_ON(PT_DSCR < sizeof(struct user_pt_regs) / sizeof(unsigned long));
++
++	// ptrace_get/put_fpr() rely on PPC32 and VSX being incompatible
++	BUILD_BUG_ON(IS_ENABLED(CONFIG_PPC32) && IS_ENABLED(CONFIG_VSX));
  }
- 
--static int brcm_pcie_add_bus(struct pci_bus *bus)
--{
--	struct device *dev = &bus->dev;
--	struct brcm_pcie *pcie = (struct brcm_pcie *) bus->sysdata;
--	int ret;
--
--	if (!dev->of_node || !bus->parent || !pci_is_root_bus(bus->parent))
--		return 0;
--
--	ret = pci_subdev_regulators_add_bus(bus);
--	if (ret)
--		return ret;
--
--	/* Grab the regulators for suspend/resume */
--	pcie->sr = bus->dev.driver_data;
--
--	/*
--	 * If we have failed linkup there is no point to return an error as
--	 * currently it will cause a WARNING() from pci_alloc_child_bus().
--	 * We return 0 and turn on the "refusal_mode" so that any further
--	 * accesses to the pci_dev just get 0xffffffff
--	 */
--	if (brcm_pcie_linkup(pcie) != 0)
--		pcie->refusal_mode = true;
--
--	return 0;
--}
--
- static void pci_subdev_regulators_remove_bus(struct pci_bus *bus)
- {
- 	struct device *dev = &bus->dev;
-@@ -857,18 +825,6 @@ static void __iomem *brcm_pcie_map_conf(struct pci_bus *bus, unsigned int devfn,
- 	/* Accesses to the RC go right to the RC registers if slot==0 */
- 	if (pci_is_root_bus(bus))
- 		return PCI_SLOT(devfn) ? NULL : base + where;
--	if (pcie->refusal_mode) {
--		/*
--		 * At this point we do not have link.  There will be a CPU
--		 * abort -- a quirk with this controller --if Linux tries
--		 * to read any config-space registers besides those
--		 * targeting the host bridge.  To prevent this we hijack
--		 * the address to point to a safe access that will return
--		 * 0xffffffff.
--		 */
--		writel(0xffffffff, base + PCIE_MISC_RC_BAR2_CONFIG_HI);
--		return base + PCIE_MISC_RC_BAR2_CONFIG_HI + (where & 0x3);
--	}
- 
- 	/* For devices, write to the config space index register */
- 	idx = PCIE_ECAM_OFFSET(bus->number, devfn, 0);
-@@ -897,7 +853,7 @@ static struct pci_ops brcm_pcie_ops = {
- 	.map_bus = brcm_pcie_map_conf,
- 	.read = pci_generic_config_read,
- 	.write = pci_generic_config_write,
--	.add_bus = brcm_pcie_add_bus,
-+	.add_bus = pci_subdev_regulators_add_bus,
- 	.remove_bus = pci_subdev_regulators_remove_bus,
- };
- 
-@@ -1370,14 +1326,6 @@ static int brcm_pcie_suspend(struct device *dev)
- 		return ret;
- 	}
- 
--	if (pcie->sr) {
--		ret = regulator_bulk_disable(pcie->sr->num_supplies, pcie->sr->supplies);
--		if (ret) {
--			dev_err(dev, "Could not turn off regulators\n");
--			reset_control_reset(pcie->rescal);
--			return ret;
--		}
--	}
- 	clk_disable_unprepare(pcie->clk);
- 
- 	return 0;
-@@ -1395,17 +1343,9 @@ static int brcm_pcie_resume(struct device *dev)
- 	if (ret)
- 		return ret;
- 
--	if (pcie->sr) {
--		ret = regulator_bulk_enable(pcie->sr->num_supplies, pcie->sr->supplies);
--		if (ret) {
--			dev_err(dev, "Could not turn on regulators\n");
--			goto err_disable_clk;
--		}
--	}
--
- 	ret = reset_control_reset(pcie->rescal);
- 	if (ret)
--		goto err_regulator;
-+		goto err_disable_clk;
- 
- 	ret = brcm_phy_start(pcie);
- 	if (ret)
-@@ -1437,9 +1377,6 @@ static int brcm_pcie_resume(struct device *dev)
- 
- err_reset:
- 	reset_control_rearm(pcie->rescal);
--err_regulator:
--	if (pcie->sr)
--		regulator_bulk_disable(pcie->sr->num_supplies, pcie->sr->supplies);
- err_disable_clk:
- 	clk_disable_unprepare(pcie->clk);
- 	return ret;
-@@ -1571,17 +1508,7 @@ static int brcm_pcie_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, pcie);
- 
--	ret = pci_host_probe(bridge);
--	if (!ret && !brcm_pcie_link_up(pcie))
--		ret = -ENODEV;
--
--	if (ret) {
--		brcm_pcie_remove(pdev);
--		return ret;
--	}
--
--	return 0;
--
-+	return pci_host_probe(bridge);
- fail:
- 	__brcm_pcie_remove(pcie);
- 	return ret;
-@@ -1590,8 +1517,8 @@ static int brcm_pcie_probe(struct platform_device *pdev)
- MODULE_DEVICE_TABLE(of, brcm_pcie_match);
- 
- static const struct dev_pm_ops brcm_pcie_pm_ops = {
--	.suspend_noirq = brcm_pcie_suspend,
--	.resume_noirq = brcm_pcie_resume,
-+	.suspend = brcm_pcie_suspend,
-+	.resume = brcm_pcie_resume,
- };
- 
- static struct platform_driver brcm_pcie_driver = {
--- 
-2.35.1
-
 
 
