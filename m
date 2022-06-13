@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 393ED548A0B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:06:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 809F254937F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355980AbiFMM5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:57:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50332 "EHLO
+        id S1354219AbiFMLbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:31:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355507AbiFMMzR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A9BBB4AC;
-        Mon, 13 Jun 2022 04:15:34 -0700 (PDT)
+        with ESMTP id S1354457AbiFML3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34E15DEE1;
+        Mon, 13 Jun 2022 03:44:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13785B80EAA;
-        Mon, 13 Jun 2022 11:15:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 612BCC34114;
-        Mon, 13 Jun 2022 11:15:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C408D61016;
+        Mon, 13 Jun 2022 10:44:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6ACBC34114;
+        Mon, 13 Jun 2022 10:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118931;
-        bh=Khduy9z1D5fs1MdqY+9JrX/W2pwEvQY+bI09HiNPlUw=;
+        s=korg; t=1655117083;
+        bh=mHXEFMwDKrvfDzcL1oVCWAqbKD/Z4Ksvn3N1vZsy8Vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0H7tLbe2ou4TgS0nJlhkP784VE0SmvlPA0F9YUa7lVZTq34sAtGH03KR0Px3Z9w+k
-         JIEMpe5ZLN9rKpkgXQ9QXZ9NvMetwaFwMp7PpVkRoiaiSKbT/NyWvqpvpF4uZocMJh
-         u5GstjLAiC5krOlNCzjiuy7Gvom2MII2jAgCPplc=
+        b=2Ejfl7ApYDVMgJ3Rvbujg6n+Tb/lXhNmR+EMHOXWPMUiUnFxyF6P1D43cgBM418yr
+         71G9mVW6LeRVyz22Ns8gOa6CE3MdetRdOXZrbkIdY8FO+ToeY8zQF/PkW8znqmHZ6i
+         XzhXVUQu7anXSKj1L2/1eMv7zCRCRZvZIAmHjt0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        John Ogness <john.ogness@linutronix.de>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips@vger.kernel.org, Manuel Lauss <manuel.lauss@gmail.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 052/247] serial: meson: acquire port->lock in startup()
+Subject: [PATCH 5.4 281/411] pcmcia: db1xxx_ss: restrict to MIPS_DB1XXX boards
 Date:   Mon, 13 Jun 2022 12:09:14 +0200
-Message-Id: <20220613094924.532927936@linuxfoundation.org>
+Message-Id: <20220613094937.184824863@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,96 +60,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Ogness <john.ogness@linutronix.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 589f892ac8ef244e47c5a00ffd8605daa1eaef8e ]
+[ Upstream commit 3928cf08334ed895a31458cbebd8d4ec6d84c080 ]
 
-The uart_ops startup() callback is called without interrupts
-disabled and without port->lock locked, relatively late during the
-boot process (from the call path of console_on_rootfs()). If the
-device is a console, it was already previously registered and could
-be actively printing messages.
+When the MIPS_ALCHEMY board selection is MIPS_XXS1500 instead of
+MIPS_DB1XXX, the PCMCIA driver 'db1xxx_ss' has build errors due
+to missing DB1XXX symbols. The PCMCIA driver should be restricted
+to MIPS_DB1XXX instead of MIPS_ALCHEMY to fix this build error.
 
-Since the startup() callback is reading/writing registers used by
-the console write() callback (AML_UART_CONTROL), its access must
-be synchronized using the port->lock. Currently it is not.
+ERROR: modpost: "bcsr_read" [drivers/pcmcia/db1xxx_ss.ko] undefined!
+ERROR: modpost: "bcsr_mod" [drivers/pcmcia/db1xxx_ss.ko] undefined!
 
-The startup() callback is the only function that explicitly enables
-interrupts. Without the synchronization, it is possible that
-interrupts become accidentally permanently disabled.
-
-CPU0                           CPU1
-meson_serial_console_write     meson_uart_startup
---------------------------     ------------------
-spin_lock(port->lock)
-val = readl(AML_UART_CONTROL)
-uart_console_write()
-                               writel(INT_EN, AML_UART_CONTROL)
-writel(val, AML_UART_CONTROL)
-spin_unlock(port->lock)
-
-Add port->lock synchronization to meson_uart_startup() to avoid
-racing with meson_serial_console_write().
-
-Also add detailed comments to meson_uart_reset() explaining why it
-is *not* using port->lock synchronization.
-
-Link: https://lore.kernel.org/lkml/2a82eae7-a256-f70c-fd82-4e510750906e@samsung.com
-Fixes: ff7693d079e5 ("ARM: meson: serial: add MesonX SoC on-chip uart driver")
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: John Ogness <john.ogness@linutronix.de>
-Link: https://lore.kernel.org/r/20220508103547.626355-1-john.ogness@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 42a4f17dc356 ("MIPS: Alchemy: remove SOC_AU1X00 in favor of MIPS_ALCHEMY")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
+Acked-by: Manuel Lauss <manuel.lauss@gmail.com>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/meson_uart.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/pcmcia/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/meson_uart.c b/drivers/tty/serial/meson_uart.c
-index efee3935917f..62e6c1af1344 100644
---- a/drivers/tty/serial/meson_uart.c
-+++ b/drivers/tty/serial/meson_uart.c
-@@ -253,6 +253,14 @@ static const char *meson_uart_type(struct uart_port *port)
- 	return (port->type == PORT_MESON) ? "meson_uart" : NULL;
- }
+diff --git a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
+index e004d8da03dc..73df71a14253 100644
+--- a/drivers/pcmcia/Kconfig
++++ b/drivers/pcmcia/Kconfig
+@@ -151,7 +151,7 @@ config TCIC
  
-+/*
-+ * This function is called only from probe() using a temporary io mapping
-+ * in order to perform a reset before setting up the device. Since the
-+ * temporarily mapped region was successfully requested, there can be no
-+ * console on this port at this time. Hence it is not necessary for this
-+ * function to acquire the port->lock. (Since there is no console on this
-+ * port at this time, the port->lock is not initialized yet.)
-+ */
- static void meson_uart_reset(struct uart_port *port)
- {
- 	u32 val;
-@@ -267,9 +275,12 @@ static void meson_uart_reset(struct uart_port *port)
- 
- static int meson_uart_startup(struct uart_port *port)
- {
-+	unsigned long flags;
- 	u32 val;
- 	int ret = 0;
- 
-+	spin_lock_irqsave(&port->lock, flags);
-+
- 	val = readl(port->membase + AML_UART_CONTROL);
- 	val |= AML_UART_CLEAR_ERR;
- 	writel(val, port->membase + AML_UART_CONTROL);
-@@ -285,6 +296,8 @@ static int meson_uart_startup(struct uart_port *port)
- 	val = (AML_UART_RECV_IRQ(1) | AML_UART_XMIT_IRQ(port->fifosize / 2));
- 	writel(val, port->membase + AML_UART_MISC);
- 
-+	spin_unlock_irqrestore(&port->lock, flags);
-+
- 	ret = request_irq(port->irq, meson_uart_interrupt, 0,
- 			  port->name, port);
- 
+ config PCMCIA_ALCHEMY_DEVBOARD
+ 	tristate "Alchemy Db/Pb1xxx PCMCIA socket services"
+-	depends on MIPS_ALCHEMY && PCMCIA
++	depends on MIPS_DB1XXX && PCMCIA
+ 	help
+ 	  Enable this driver of you want PCMCIA support on your Alchemy
+ 	  Db1000, Db/Pb1100, Db/Pb1500, Db/Pb1550, Db/Pb1200, DB1300
 -- 
 2.35.1
 
