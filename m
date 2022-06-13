@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F0D54907D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 982EC549873
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383432AbiFMOWt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:22:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49958 "EHLO
+        id S1348064AbiFMKz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:55:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383310AbiFMOVy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:21:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 578FCA207D;
-        Mon, 13 Jun 2022 04:44:03 -0700 (PDT)
+        with ESMTP id S1350116AbiFMKym (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79420DFCE;
+        Mon, 13 Jun 2022 03:29:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9C03612AC;
-        Mon, 13 Jun 2022 11:44:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5E8BC34114;
-        Mon, 13 Jun 2022 11:44:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39204B80E95;
+        Mon, 13 Jun 2022 10:29:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99421C34114;
+        Mon, 13 Jun 2022 10:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120642;
-        bh=/XQp6G/NIOfCaEEU79/UPBuVPS3v/JgYHvs5q5WjPv4=;
+        s=korg; t=1655116160;
+        bh=m3mQ0K2nY20wBSuawmJFygct/FIvP2rUvjLm0G27y8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1BEfjAb6onkrD0kZwL88svThF1b7SEcfJdWkc/cq+tbvh/56rZ04kiKZhjNlMfVv
-         pwEjavMsRf0lBvIkphT0VNvj12acoj0pSbPJOFW1oz6y9xKIpdATO72+qHDWC26n/f
-         I9GMw+j/w1PDFT4rao0KNKV1QvSiccmFKVFat6No=
+        b=NfbquxVuAaR2EVxoWGEWNV5agVSTGy5clHmh2oD/xuH/fLQauQc9GoBobnIq29h/T
+         BcV9wzPFUXYAzkUepaYK27tZnnjgOBTPFAEiCou+HjUca7qdLzFqkqR4Ykd5lZ7UxR
+         h3t059I5ZDPgK9+fczCsBVUd9j0pRkWngTsHpp8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haisu Wang <haisuwang@tencent.com>,
-        samuelliao <samuelliao@tencent.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Wang Weiyang <wangweiyang2@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 105/298] blk-mq: do not update io_ticks with passthrough requests
-Date:   Mon, 13 Jun 2022 12:09:59 +0200
-Message-Id: <20220613094928.134297731@linuxfoundation.org>
+Subject: [PATCH 4.14 142/218] tty: goldfish: Use tty_port_destroy() to destroy port
+Date:   Mon, 13 Jun 2022 12:10:00 +0200
+Message-Id: <20220613094924.896588516@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haisu Wang <haisuwang@tencent.com>
+From: Wang Weiyang <wangweiyang2@huawei.com>
 
-[ Upstream commit b81c14ca14b631aa1abae32fb5ae75b5e9251012 ]
+[ Upstream commit 507b05063d1b7a1fcb9f7d7c47586fc4f3508f98 ]
 
-Flush or passthrough requests are not accounted as normal IO in completion.
-To reflect iostat for slow IO, io_ticks is updated when stat show called
-based on inflight numbers.
-It may cause inconsistent io_ticks calculation result.
+In goldfish_tty_probe(), the port initialized through tty_port_init()
+should be destroyed in error paths.In goldfish_tty_remove(), qtty->port
+also should be destroyed or else might leak resources.
 
-So do not account non-passthrough request when check inflight.
+Fix the above by calling tty_port_destroy().
 
-Fixes: 86d7331299fd ("block: update io_ticks when io hang")
-Signed-off-by: Haisu Wang <haisuwang@tencent.com>
-Reviewed-by: samuelliao <samuelliao@tencent.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220530064059.1120058-1-haisuwang@tencent.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 666b7793d4bf ("goldfish: tty driver")
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
+Link: https://lore.kernel.org/r/20220328115844.86032-1-wangweiyang2@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/goldfish.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 6afe0cd128ac..f18e1c9c3f4a 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -132,7 +132,8 @@ static bool blk_mq_check_inflight(struct request *rq, void *priv,
- {
- 	struct mq_inflight *mi = priv;
- 
--	if ((!mi->part->bd_partno || rq->part == mi->part) &&
-+	if (rq->part && blk_do_io_stat(rq) &&
-+	    (!mi->part->bd_partno || rq->part == mi->part) &&
- 	    blk_mq_rq_state(rq) == MQ_RQ_IN_FLIGHT)
- 		mi->inflight[rq_data_dir(rq)]++;
- 
+diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
+index 85a500ddbcaa..1b72321f2d0b 100644
+--- a/drivers/tty/goldfish.c
++++ b/drivers/tty/goldfish.c
+@@ -414,6 +414,7 @@ static int goldfish_tty_probe(struct platform_device *pdev)
+ err_tty_register_device_failed:
+ 	free_irq(irq, qtty);
+ err_dec_line_count:
++	tty_port_destroy(&qtty->port);
+ 	goldfish_tty_current_line_count--;
+ 	if (goldfish_tty_current_line_count == 0)
+ 		goldfish_tty_delete_driver();
+@@ -435,6 +436,7 @@ static int goldfish_tty_remove(struct platform_device *pdev)
+ 	iounmap(qtty->base);
+ 	qtty->base = NULL;
+ 	free_irq(qtty->irq, pdev);
++	tty_port_destroy(&qtty->port);
+ 	goldfish_tty_current_line_count--;
+ 	if (goldfish_tty_current_line_count == 0)
+ 		goldfish_tty_delete_driver();
 -- 
 2.35.1
 
