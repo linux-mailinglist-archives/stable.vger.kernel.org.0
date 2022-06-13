@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA8E154869D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBED3548732
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356184AbiFMLuG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:50:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56348 "EHLO
+        id S1383977AbiFMOb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:31:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356619AbiFMLtV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:49:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C44B84CD57;
-        Mon, 13 Jun 2022 03:53:10 -0700 (PDT)
+        with ESMTP id S1384628AbiFMO3y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:29:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D109A5FC9;
+        Mon, 13 Jun 2022 04:48:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B29FB80D3A;
-        Mon, 13 Jun 2022 10:53:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3DCAC34114;
-        Mon, 13 Jun 2022 10:53:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1224861425;
+        Mon, 13 Jun 2022 11:47:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 270F6C36AFE;
+        Mon, 13 Jun 2022 11:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117588;
-        bh=3K7C41fTffbQ/v6QxeTjmJCyuQRwcrtVfBjKF8Xfi4A=;
+        s=korg; t=1655120859;
+        bh=UuwuoCKP0zhAIEMCwoBc6I19MSn59HdkRGxknIb62ZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CVdY6Q+PY2d878jBk1losPiAapuey0Dm9tGw2aHFt8IzzUDOEouSgoTC+M7ELR9Or
-         ZYwH/lB5uDiXxm0gb2mglR3o+Kha6Tkaz7vYmkERrEooS7uLHIUkb/JQ556u8mTzGP
-         utFe+TzfmrBKoQuGITIwcznfnCJop7rtkWl5UyQ4=
+        b=UAdBDN0iJ5Ry0cj9/q3AQ9xNjjJ+yEprXKMy63ALhYF4NjTIYltAr2MfUGMTtIoBg
+         VPY7IEu/QvDDHOetHfZcpq6a6m3m4E2LKWZhK+SLu2A57LbOlow19ynyD+fotxQaAP
+         y4M7u+upvtbJzDo3iGAwJzwQL7Hyx2Jw8pKQ7ido=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Faltesek <mfaltesek@google.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 404/411] nfc: st21nfca: fix incorrect validating logic in EVT_TRANSACTION
-Date:   Mon, 13 Jun 2022 12:11:17 +0200
-Message-Id: <20220613094940.936815006@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 184/298] net: ipv6: unexport __init-annotated seg6_hmac_init()
+Date:   Mon, 13 Jun 2022 12:11:18 +0200
+Message-Id: <20220613094930.511005664@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Faltesek <mfaltesek@google.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 77e5fe8f176a525523ae091d6fd0fbb8834c156d upstream.
+[ Upstream commit 5801f064e35181c71857a80ff18af4dbec3c5f5c ]
 
-The first validation check for EVT_TRANSACTION has two different checks
-tied together with logical AND. One is a check for minimum packet length,
-and the other is for a valid aid_tag. If either condition is true (fails),
-then an error should be triggered.  The fix is to change && to ||.
+EXPORT_SYMBOL and __init is a bad combination because the .init.text
+section is freed up after the initialization. Hence, modules cannot
+use symbols annotated __init. The access to a freed symbol may end up
+with kernel panic.
 
-Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Martin Faltesek <mfaltesek@google.com>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+modpost used to detect it, but it has been broken for a decade.
+
+Recently, I fixed modpost so it started to warn it again, then this
+showed up in linux-next builds.
+
+There are two ways to fix it:
+
+  - Remove __init
+  - Remove EXPORT_SYMBOL
+
+I chose the latter for this case because the caller (net/ipv6/seg6.c)
+and the callee (net/ipv6/seg6_hmac.c) belong to the same module.
+It seems an internal function call in ipv6.ko.
+
+Fixes: bf355b8d2c30 ("ipv6: sr: add core files for SR HMAC support")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st21nfca/se.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/seg6_hmac.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/nfc/st21nfca/se.c
-+++ b/drivers/nfc/st21nfca/se.c
-@@ -319,7 +319,7 @@ int st21nfca_connectivity_event_received
- 		 * AID		81	5 to 16
- 		 * PARAMETERS	82	0 to 255
- 		 */
--		if (skb->len < NFC_MIN_AID_LENGTH + 2 &&
-+		if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
- 		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
- 			return -EPROTO;
+diff --git a/net/ipv6/seg6_hmac.c b/net/ipv6/seg6_hmac.c
+index 29bc4e7c3046..6de01185cc68 100644
+--- a/net/ipv6/seg6_hmac.c
++++ b/net/ipv6/seg6_hmac.c
+@@ -399,7 +399,6 @@ int __init seg6_hmac_init(void)
+ {
+ 	return seg6_hmac_init_algo();
+ }
+-EXPORT_SYMBOL(seg6_hmac_init);
  
+ int __net_init seg6_hmac_net_init(struct net *net)
+ {
+-- 
+2.35.1
+
 
 
