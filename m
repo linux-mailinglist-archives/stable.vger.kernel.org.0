@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D257549130
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BBC548B45
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359524AbiFMNNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:13:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42366 "EHLO
+        id S1350512AbiFMMm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:42:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359375AbiFMNJu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35EF8393CD;
-        Mon, 13 Jun 2022 04:20:31 -0700 (PDT)
+        with ESMTP id S1358477AbiFMMkV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:40:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B0B5F253;
+        Mon, 13 Jun 2022 04:10:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0841B80E59;
-        Mon, 13 Jun 2022 11:20:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D7CBC34114;
-        Mon, 13 Jun 2022 11:20:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1D0C60B6B;
+        Mon, 13 Jun 2022 11:10:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0680DC34114;
+        Mon, 13 Jun 2022 11:10:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119228;
-        bh=9SZb2OlcDWkzks0xoNShZDQ/ZyVUi3/K0dKgoFwWqt0=;
+        s=korg; t=1655118629;
+        bh=Z8y4Ur00BaodPmkMwPEOuEZOmogimHyCXKlYHZ+liec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nsw/sJlE0OiZSqvrIKLj/S/kaLZkaj3iOhbSwJSplh6AveQAYPOawaqQNnMoGO83y
-         ltEaLO//pK4RYNpw4Evw+tmuRiaoIvzjJQ81AQAFvTtilJJpH8HfKqav+vOGFZRV2f
-         mTADUdprPXVt017c2la1wRU29Wycpbw7jZKJ7Bfw=
+        b=PVOuwAdZYvKk4joiomcO0ugb1ScPK//V3dcx87uf8XgxlVwJlAgzS8bCLgeRyQ+Fx
+         pZE3fgXqA3DgQjuajpm6pSXYKGE3MoB37OS1BB87mBtJbjaq1kFgYVN8CZRPmTxHgU
+         ro1AsZxCJy2tTqTz8mDujKsu1Vo2/XVsxOYVGpmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, bumwoo lee <bw365.lee@samsung.com>,
         Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 186/247] extcon: Modify extcon device to be created after driver data is set
+Subject: [PATCH 5.10 128/172] extcon: Modify extcon device to be created after driver data is set
 Date:   Mon, 13 Jun 2022 12:11:28 +0200
-Message-Id: <20220613094928.594008232@linuxfoundation.org>
+Message-Id: <20220613094920.954779220@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -85,10 +85,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 17 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/extcon/extcon.c b/drivers/extcon/extcon.c
-index 9eb92997f3ae..f305503ec27e 100644
+index e7a9561a826d..356610404bb4 100644
 --- a/drivers/extcon/extcon.c
 +++ b/drivers/extcon/extcon.c
-@@ -1232,19 +1232,14 @@ int extcon_dev_register(struct extcon_dev *edev)
+@@ -1230,19 +1230,14 @@ int extcon_dev_register(struct extcon_dev *edev)
  		edev->dev.type = &edev->extcon_dev_type;
  	}
  
@@ -115,7 +115,7 @@ index 9eb92997f3ae..f305503ec27e 100644
  	}
  
  	for (index = 0; index < edev->max_supported; index++)
-@@ -1255,6 +1250,12 @@ int extcon_dev_register(struct extcon_dev *edev)
+@@ -1253,6 +1248,12 @@ int extcon_dev_register(struct extcon_dev *edev)
  	dev_set_drvdata(&edev->dev, edev);
  	edev->state = 0;
  
@@ -128,7 +128,7 @@ index 9eb92997f3ae..f305503ec27e 100644
  	mutex_lock(&extcon_dev_list_lock);
  	list_add(&edev->entry, &extcon_dev_list);
  	mutex_unlock(&extcon_dev_list_lock);
-@@ -1262,6 +1263,9 @@ int extcon_dev_register(struct extcon_dev *edev)
+@@ -1260,6 +1261,9 @@ int extcon_dev_register(struct extcon_dev *edev)
  	return 0;
  
  err_dev:
@@ -138,7 +138,7 @@ index 9eb92997f3ae..f305503ec27e 100644
  	if (edev->max_supported)
  		kfree(edev->extcon_dev_type.groups);
  err_alloc_groups:
-@@ -1322,6 +1326,7 @@ void extcon_dev_unregister(struct extcon_dev *edev)
+@@ -1320,6 +1324,7 @@ void extcon_dev_unregister(struct extcon_dev *edev)
  	if (edev->max_supported) {
  		kfree(edev->extcon_dev_type.groups);
  		kfree(edev->cables);
