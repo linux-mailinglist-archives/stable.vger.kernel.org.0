@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FE0854861B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85DDA5487A9
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353607AbiFMMZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:25:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55382 "EHLO
+        id S1358587AbiFMMHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:07:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356733AbiFMMYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:24:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 925D11FCC7;
-        Mon, 13 Jun 2022 04:05:25 -0700 (PDT)
+        with ESMTP id S1358722AbiFMMEj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:04:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C9955003B;
+        Mon, 13 Jun 2022 03:57:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15232B80EAB;
-        Mon, 13 Jun 2022 11:05:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82F24C34114;
-        Mon, 13 Jun 2022 11:05:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0ED4B80E5E;
+        Mon, 13 Jun 2022 10:57:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D8ACC34114;
+        Mon, 13 Jun 2022 10:57:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118322;
-        bh=zW+2x77bqaM5lcgA4zPuxWYPKaH99HYp4WgkQ+XVlik=;
+        s=korg; t=1655117865;
+        bh=iAG9RWpEghfKfq0GB8oQIn5Urxg4irXjwx8ImEewb3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YObQPQz0rMPjgPrAKFe53/Ec9Thlg4FSccKm+tx5201eQGZlw/Xh7T5bBRPWky63n
-         9HXZcX1fzitcyXOR+vz0e6QRptBmTzqrPEhV1Q2tc9iZZOK3+RL9XaMshfUar7wTJA
-         TrUDyCMByVBVaEoTzP5ANcOq++rQNG6ORdGSeGz8=
+        b=2GWVAl4fI6SZT9P9sdANdwk9OWgItEEeU0l+LPZhou4HBXrkzEmXH86raU4nb2D/M
+         3Kukqe6TJSFweBA5zBN8tMLK/HZ9G5GIhbQHO4llyTm0+lz/1CMLduU3adEWkp5cF4
+         gXTz2WrxXYUGicbVJos/YK3SOR3gePIh7HJ4ECfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 016/172] usb: dwc3: pci: Fix pm_runtime_get_sync() error checking
+        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.19 152/287] PCI/PM: Fix bridge_d3_blacklist[] Elo i2 overwrite of Gigabyte X299
 Date:   Mon, 13 Jun 2022 12:09:36 +0200
-Message-Id: <20220613094854.316915427@linuxfoundation.org>
+Message-Id: <20220613094928.485836228@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-[ Upstream commit a03e2ddab8e735e2cc315609b297b300e9cc60d2 ]
+commit 12068bb346db5776d0ec9bb4cd073f8427a1ac92 upstream.
 
-If the device is already in a runtime PM enabled state
-pm_runtime_get_sync() will return 1, so a test for negative
-value should be used to check for errors.
+92597f97a40b ("PCI/PM: Avoid putting Elo i2 PCIe Ports in D3cold") omitted
+braces around the new Elo i2 entry, so it overwrote the existing Gigabyte
+X299 entry.  Add the appropriate braces.
 
-Fixes: 8eed00b237a28 ("usb: dwc3: pci: Runtime resume child device from wq")
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Link: https://lore.kernel.org/r/20220422062652.10575-1-zhengyongjun3@huawei.com
+Found by:
+
+  $ make W=1 drivers/pci/pci.o
+    CC      drivers/pci/pci.o
+  drivers/pci/pci.c:2974:12: error: initialized field overwritten [-Werror=override-init]
+   2974 |   .ident = "Elo i2",
+        |            ^~~~~~~~
+
+Link: https://lore.kernel.org/r/20220526221258.GA409855@bhelgaas
+Fixes: 92597f97a40b ("PCI/PM: Avoid putting Elo i2 PCIe Ports in D3cold")
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org  # v5.15+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/pci.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index 98df8d52c765..a5a8c5712bce 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -213,7 +213,7 @@ static void dwc3_pci_resume_work(struct work_struct *work)
- 	int ret;
- 
- 	ret = pm_runtime_get_sync(&dwc3->dev);
--	if (ret) {
-+	if (ret < 0) {
- 		pm_runtime_put_sync_autosuspend(&dwc3->dev);
- 		return;
- 	}
--- 
-2.35.1
-
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -2517,6 +2517,8 @@ static const struct dmi_system_id bridge
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "Gigabyte Technology Co., Ltd."),
+ 			DMI_MATCH(DMI_BOARD_NAME, "X299 DESIGNARE EX-CF"),
+ 		},
++	},
++	{
+ 		/*
+ 		 * Downstream device is not accessible after putting a root port
+ 		 * into D3cold and back into D0 on Elo i2.
 
 
