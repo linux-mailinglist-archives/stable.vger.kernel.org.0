@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDC7254977C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5E7E548F4B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243526AbiFMKZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:25:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45678 "EHLO
+        id S1356451AbiFMM4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:56:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244168AbiFMKXt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:23:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B61823177;
-        Mon, 13 Jun 2022 03:18:10 -0700 (PDT)
+        with ESMTP id S1358323AbiFMMzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC7E51E7;
+        Mon, 13 Jun 2022 04:14:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 123C260023;
-        Mon, 13 Jun 2022 10:18:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15F26C3411C;
-        Mon, 13 Jun 2022 10:18:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8893260B6B;
+        Mon, 13 Jun 2022 11:14:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E53C3411C;
+        Mon, 13 Jun 2022 11:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115489;
-        bh=bNxTvQwfvlCQhLBV5XP5eB24HHOeNW7RiIDKe2u+9rk=;
+        s=korg; t=1655118899;
+        bh=0+3cOnk2z3C+1fmNZLPemFHmvE1ZEFxh/Sv4oC37mqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KnS6IYc5lii/LuR6vlcRA3cFsuCc+Hop77eu0B8PTmeqo18xBerLni27fN8+k3Mye
-         hNj3fR0/ClqNDWSnfDw3ArDbUkqU/WDWmwpa07GNKie0gVsSYtuWN39SuBolqSKVDH
-         aN+bP4vOrMtVQF+zNvGJ921sdoFHK3wEiMZLF5FU=
+        b=cV7VVtBUuKYqnIFXKAOHvcor8zzCqHMdSBc/AgvQeNZzKtwWbtKbtDCuJokuuS7/c
+         K7UMCjFb+sOwmul10YC/2Jk9IL1W+QO0i9QoQhNxeg0BsZi8Llzrh32Zrir5heOitJ
+         KjtCtNrbTkhutDHzrZ555zyZE1YVd7ncq4Rmydjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.9 095/167] um: Fix out-of-bounds read in LDT setup
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 067/247] watchdog: ts4800_wdt: Fix refcount leak in ts4800_wdt_probe
 Date:   Mon, 13 Jun 2022 12:09:29 +0200
-Message-Id: <20220613094903.205609371@linuxfoundation.org>
+Message-Id: <20220613094924.990995949@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 2a4a62a14be1947fa945c5c11ebf67326381a568 upstream.
+[ Upstream commit 5d24df3d690809952528e7a19a43d84bc5b99d44 ]
 
-syscall_stub_data() expects the data_count parameter to be the number of
-longs, not bytes.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add  missing of_node_put() in some error paths.
 
- ==================================================================
- BUG: KASAN: stack-out-of-bounds in syscall_stub_data+0x70/0xe0
- Read of size 128 at addr 000000006411f6f0 by task swapper/1
-
- CPU: 0 PID: 1 Comm: swapper Not tainted 5.18.0+ #18
- Call Trace:
-  show_stack.cold+0x166/0x2a7
-  __dump_stack+0x3a/0x43
-  dump_stack_lvl+0x1f/0x27
-  print_report.cold+0xdb/0xf81
-  kasan_report+0x119/0x1f0
-  kasan_check_range+0x3a3/0x440
-  memcpy+0x52/0x140
-  syscall_stub_data+0x70/0xe0
-  write_ldt_entry+0xac/0x190
-  init_new_ldt+0x515/0x960
-  init_new_context+0x2c4/0x4d0
-  mm_init.constprop.0+0x5ed/0x760
-  mm_alloc+0x118/0x170
-  0x60033f48
-  do_one_initcall+0x1d7/0x860
-  0x60003e7b
-  kernel_init+0x6e/0x3d4
-  new_thread_handler+0x1e7/0x2c0
-
- The buggy address belongs to stack of task swapper/1
-  and is located at offset 64 in frame:
-  init_new_ldt+0x0/0x960
-
- This frame has 2 objects:
-  [32, 40) 'addr'
-  [64, 80) 'desc'
- ==================================================================
-
-Fixes: 858259cf7d1c443c83 ("uml: maintain own LDT entries")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bf9006399939 ("watchdog: ts4800: add driver for TS-4800 watchdog")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220511114203.47420-1-linmq006@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/um/ldt.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/watchdog/ts4800_wdt.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/x86/um/ldt.c
-+++ b/arch/x86/um/ldt.c
-@@ -23,9 +23,11 @@ static long write_ldt_entry(struct mm_id
- {
- 	long res;
- 	void *stub_addr;
-+
-+	BUILD_BUG_ON(sizeof(*desc) % sizeof(long));
-+
- 	res = syscall_stub_data(mm_idp, (unsigned long *)desc,
--				(sizeof(*desc) + sizeof(long) - 1) &
--				    ~(sizeof(long) - 1),
-+				sizeof(*desc) / sizeof(long),
- 				addr, &stub_addr);
- 	if (!res) {
- 		unsigned long args[] = { func,
+diff --git a/drivers/watchdog/ts4800_wdt.c b/drivers/watchdog/ts4800_wdt.c
+index c137ad2bd5c3..0ea554c7cda5 100644
+--- a/drivers/watchdog/ts4800_wdt.c
++++ b/drivers/watchdog/ts4800_wdt.c
+@@ -125,13 +125,16 @@ static int ts4800_wdt_probe(struct platform_device *pdev)
+ 	ret = of_property_read_u32_index(np, "syscon", 1, &reg);
+ 	if (ret < 0) {
+ 		dev_err(dev, "no offset in syscon\n");
++		of_node_put(syscon_np);
+ 		return ret;
+ 	}
+ 
+ 	/* allocate memory for watchdog struct */
+ 	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+-	if (!wdt)
++	if (!wdt) {
++		of_node_put(syscon_np);
+ 		return -ENOMEM;
++	}
+ 
+ 	/* set regmap and offset to know where to write */
+ 	wdt->feed_offset = reg;
+-- 
+2.35.1
+
 
 
