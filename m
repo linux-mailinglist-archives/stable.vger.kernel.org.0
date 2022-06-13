@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69367548A9B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA131548D90
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352791AbiFMLUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:20:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46504 "EHLO
+        id S1377550AbiFMNd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:33:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353189AbiFMLTP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F7283A5E0;
-        Mon, 13 Jun 2022 03:41:05 -0700 (PDT)
+        with ESMTP id S1378712AbiFMNcC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:32:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 882EB719F5;
+        Mon, 13 Jun 2022 04:26:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0273FB80EA3;
-        Mon, 13 Jun 2022 10:41:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55170C34114;
-        Mon, 13 Jun 2022 10:41:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1235CB80E59;
+        Mon, 13 Jun 2022 11:26:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67862C34114;
+        Mon, 13 Jun 2022 11:26:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116862;
-        bh=AklaX1ZjOpwibdDKIcs/+NV5T8qhW/NEYtOqgijoN+8=;
+        s=korg; t=1655119589;
+        bh=rc1qJxIc+5g16Bihj4I702HMC+qtROUwShXb0CBt2RA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qgsk/dWjaRTpbD71TK/vymZWHxv7x/pLD+ZYsSDlWyt2Fky1wObgHIEKrzzNYnm+G
-         0j+LW8VLc/2D9kSn569uQfDGYqBVFusVobHFBvLLEmemrr01vvGHVPCKI108PlSNQg
-         a/7LnFwfxheoGDCuD8SqJJ5FDfjDs4uMSZIT+BXc=
+        b=i/hsO7d2Q4jW8PYJYqOonSRsCazCvGsZ2Iv/dgmle49TBtsekuA/E2Yk18F9JEf3Z
+         4MxlBtKIXAmDJ+NETVpanAxYnCo7h2FgARny3ivKfW9orFfLBuIryiJH145G0ckGgW
+         SNynkAtk8sGRL43srbf8fdlBUb466phRvzj66Gjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 200/411] NFS: Do not report EINTR/ERESTARTSYS as mapping errors
+Subject: [PATCH 5.18 048/339] watchdog: rzg2l_wdt: Fix Runtime PM usage
 Date:   Mon, 13 Jun 2022 12:07:53 +0200
-Message-Id: <20220613094934.657282191@linuxfoundation.org>
+Message-Id: <20220613094927.980856236@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit cea9ba7239dcc84175041174304c6cdeae3226e5 ]
+[ Upstream commit 95abafe76297fa057de6c3486ef844bd446bdf18 ]
 
-If the attempt to flush data was interrupted due to a local signal, then
-just requeue the writes back for I/O.
+Both rzg2l_wdt_probe() and rzg2l_wdt_start() calls pm_runtime_get() which
+results in a usage counter imbalance. This patch fixes this issue by
+removing pm_runtime_get() call from probe.
 
-Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with generic one")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 2cbc5cd0b55fa2 ("watchdog: Add Watchdog Timer driver for RZ/G2L")
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220225175320.11041-3-biju.das.jz@bp.renesas.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/write.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/rzg2l_wdt.c | 16 ++--------------
+ 1 file changed, 2 insertions(+), 14 deletions(-)
 
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index 30d8e7bc1cef..ecdd79a55840 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -1429,7 +1429,7 @@ static void nfs_async_write_error(struct list_head *head, int error)
- 	while (!list_empty(head)) {
- 		req = nfs_list_entry(head->next);
- 		nfs_list_remove_request(req);
--		if (nfs_error_is_fatal(error))
-+		if (nfs_error_is_fatal_on_server(error))
- 			nfs_write_error(req, error);
- 		else
- 			nfs_redirty_request(req);
+diff --git a/drivers/watchdog/rzg2l_wdt.c b/drivers/watchdog/rzg2l_wdt.c
+index 96f2a018ab62..0fc73b8a9567 100644
+--- a/drivers/watchdog/rzg2l_wdt.c
++++ b/drivers/watchdog/rzg2l_wdt.c
+@@ -151,12 +151,11 @@ static const struct watchdog_ops rzg2l_wdt_ops = {
+ 	.restart = rzg2l_wdt_restart,
+ };
+ 
+-static void rzg2l_wdt_reset_assert_pm_disable_put(void *data)
++static void rzg2l_wdt_reset_assert_pm_disable(void *data)
+ {
+ 	struct watchdog_device *wdev = data;
+ 	struct rzg2l_wdt_priv *priv = watchdog_get_drvdata(wdev);
+ 
+-	pm_runtime_put(wdev->parent);
+ 	pm_runtime_disable(wdev->parent);
+ 	reset_control_assert(priv->rstc);
+ }
+@@ -206,11 +205,6 @@ static int rzg2l_wdt_probe(struct platform_device *pdev)
+ 
+ 	reset_control_deassert(priv->rstc);
+ 	pm_runtime_enable(&pdev->dev);
+-	ret = pm_runtime_resume_and_get(&pdev->dev);
+-	if (ret < 0) {
+-		dev_err(dev, "pm_runtime_resume_and_get failed ret=%pe", ERR_PTR(ret));
+-		goto out_pm_get;
+-	}
+ 
+ 	priv->wdev.info = &rzg2l_wdt_ident;
+ 	priv->wdev.ops = &rzg2l_wdt_ops;
+@@ -222,7 +216,7 @@ static int rzg2l_wdt_probe(struct platform_device *pdev)
+ 
+ 	watchdog_set_drvdata(&priv->wdev, priv);
+ 	ret = devm_add_action_or_reset(&pdev->dev,
+-				       rzg2l_wdt_reset_assert_pm_disable_put,
++				       rzg2l_wdt_reset_assert_pm_disable,
+ 				       &priv->wdev);
+ 	if (ret < 0)
+ 		return ret;
+@@ -235,12 +229,6 @@ static int rzg2l_wdt_probe(struct platform_device *pdev)
+ 		dev_warn(dev, "Specified timeout invalid, using default");
+ 
+ 	return devm_watchdog_register_device(&pdev->dev, &priv->wdev);
+-
+-out_pm_get:
+-	pm_runtime_disable(dev);
+-	reset_control_assert(priv->rstc);
+-
+-	return ret;
+ }
+ 
+ static const struct of_device_id rzg2l_wdt_ids[] = {
 -- 
 2.35.1
 
