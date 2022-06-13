@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5585488C1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 125135493EF
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352859AbiFMLUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:20:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56150 "EHLO
+        id S1377801AbiFMNeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:34:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353434AbiFMLTo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E79B3B002;
-        Mon, 13 Jun 2022 03:41:16 -0700 (PDT)
+        with ESMTP id S1378799AbiFMNcH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:32:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08B7F71D8D;
+        Mon, 13 Jun 2022 04:26:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF409B80EA3;
-        Mon, 13 Jun 2022 10:41:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 304EDC3411C;
-        Mon, 13 Jun 2022 10:41:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ED5A60B6E;
+        Mon, 13 Jun 2022 11:26:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6744AC34114;
+        Mon, 13 Jun 2022 11:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116873;
-        bh=710qDeAQ+M2wd+oQnN+CKC6Zb5QNapd+zSvcMbkNVZ8=;
+        s=korg; t=1655119600;
+        bh=u2FxgfkoGnjzoKKN8QBayAg+rk7Gc72KjK/quKszqoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQZyt5xby/6XAippub76DF5pOvT6awuJEoI8+bfrgwHTLdDE/e5unTE9bkMCeu6u2
-         OvL18VSjGGTHXyMcSjqmGfpnHiGdlp6LFX/1G0p0tsWfETaP0AqXuaQ0x1W9TDCE9B
-         DOBNr3E0fBhNHsJk+g7YBYpUH0SMmvtgzRCuNTQ8=
+        b=L5ZxAnXSiHEXzT7ViLitmzCNYeDHGRMqkRCEWp3MinSj2Ub1J1iafCTIM0vV3pMBV
+         HLofigD1yhAW7XQg85om9ttzJ6LUuOOBZ5Wf+ScplFfh4CyrayyMocrJR6Hp57W7Ea
+         kbI4yNdOXzZUbm9ewyog//eR+/G7OKzSxSs3Dp9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Douglas Miller <doug.miller@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 194/411] RDMA/hfi1: Prevent use of lock before it is initialized
+Subject: [PATCH 5.18 042/339] power: supply: axp288_fuel_gauge: Fix battery reporting on the One Mix 1
 Date:   Mon, 13 Jun 2022 12:07:47 +0200
-Message-Id: <20220613094934.478195288@linuxfoundation.org>
+Message-Id: <20220613094927.796398867@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,70 +54,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Miller <doug.miller@cornelisnetworks.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 05c03dfd09c069c4ffd783b47b2da5dcc9421f2c ]
+[ Upstream commit 34f243e9fb5ace1ca760c72e366247eaeff430c0 ]
 
-If there is a failure during probe of hfi1 before the sdma_map_lock is
-initialized, the call to hfi1_free_devdata() will attempt to use a lock
-that has not been initialized. If the locking correctness validator is on
-then an INFO message and stack trace resembling the following may be seen:
+Commit 3a06b912a5ce ("power: supply: axp288_fuel_gauge: Make "T3 MRD"
+no_battery_list DMI entry more generic") added a generic no-battery DMI
+match for many mini-PCs / HDMI-sticks which use "T3 MRD" as their DMI
+board-name.
 
-  INFO: trying to register non-static key.
-  The code is fine but needs lockdep annotation, or maybe
-  you didn't initialize this object before use?
-  turning off the locking correctness validator.
-  Call Trace:
-  register_lock_class+0x11b/0x880
-  __lock_acquire+0xf3/0x7930
-  lock_acquire+0xff/0x2d0
-  _raw_spin_lock_irq+0x46/0x60
-  sdma_clean+0x42a/0x660 [hfi1]
-  hfi1_free_devdata+0x3a7/0x420 [hfi1]
-  init_one+0x867/0x11a0 [hfi1]
-  pci_device_probe+0x40e/0x8d0
+It turns out that the One Mix 1 mini laptop also uses "T3 MRD" for its
+DMI boardname and it also has its chassis-type wrongly set to a value
+of "3" (desktop). This was causing the axp288_fuel_gauge driver to
+disable battery reporting because this matches the no-battery DMI
+list entry for generic "T3 MRD" mini-PCs.
 
-The use of sdma_map_lock in sdma_clean() is for freeing the sdma_map
-memory, and sdma_map is not allocated/initialized until after
-sdma_map_lock has been initialized. This code only needs to be run if
-sdma_map is not NULL, and so checking for that condition will avoid trying
-to use the lock before it is initialized.
+Change the no-battery DMI list into a quirks DMI list and add a
+specific match for the One Mix 1 mini laptop before the generic
+"T3 MRD" no-battery quirk entry to fix this.
 
-Fixes: 473291b3ea0e ("IB/hfi1: Fix for early release of sdma context")
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Link: https://lore.kernel.org/r/20220520183701.48973.72434.stgit@awfm-01.cornelisnetworks.com
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 3a06b912a5ce ("power: supply: axp288_fuel_gauge: Make "T3 MRD" no_battery_list DMI entry more generic")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/sdma.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/power/supply/axp288_fuel_gauge.c | 40 +++++++++++++++++++++---
+ 1 file changed, 36 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
-index 248be21acdbe..2a684fc6056e 100644
---- a/drivers/infiniband/hw/hfi1/sdma.c
-+++ b/drivers/infiniband/hw/hfi1/sdma.c
-@@ -1329,11 +1329,13 @@ void sdma_clean(struct hfi1_devdata *dd, size_t num_engines)
- 		kvfree(sde->tx_ring);
- 		sde->tx_ring = NULL;
- 	}
--	spin_lock_irq(&dd->sde_map_lock);
--	sdma_map_free(rcu_access_pointer(dd->sdma_map));
--	RCU_INIT_POINTER(dd->sdma_map, NULL);
--	spin_unlock_irq(&dd->sde_map_lock);
--	synchronize_rcu();
-+	if (rcu_access_pointer(dd->sdma_map)) {
-+		spin_lock_irq(&dd->sde_map_lock);
-+		sdma_map_free(rcu_access_pointer(dd->sdma_map));
-+		RCU_INIT_POINTER(dd->sdma_map, NULL);
-+		spin_unlock_irq(&dd->sde_map_lock);
-+		synchronize_rcu();
-+	}
- 	kfree(dd->per_sdma);
- 	dd->per_sdma = NULL;
+diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
+index e9f285dae489..5b8aa4a980cd 100644
+--- a/drivers/power/supply/axp288_fuel_gauge.c
++++ b/drivers/power/supply/axp288_fuel_gauge.c
+@@ -90,6 +90,8 @@
+ #define AXP288_REG_UPDATE_INTERVAL		(60 * HZ)
+ #define AXP288_FG_INTR_NUM			6
  
++#define AXP288_QUIRK_NO_BATTERY			BIT(0)
++
+ static bool no_current_sense_res;
+ module_param(no_current_sense_res, bool, 0444);
+ MODULE_PARM_DESC(no_current_sense_res, "No (or broken) current sense resistor");
+@@ -524,7 +526,7 @@ static struct power_supply_desc fuel_gauge_desc = {
+  * detection reports one despite it not being there.
+  * Please keep this listed sorted alphabetically.
+  */
+-static const struct dmi_system_id axp288_no_battery_list[] = {
++static const struct dmi_system_id axp288_quirks[] = {
+ 	{
+ 		/* ACEPC T8 Cherry Trail Z8350 mini PC */
+ 		.matches = {
+@@ -534,6 +536,7 @@ static const struct dmi_system_id axp288_no_battery_list[] = {
+ 			/* also match on somewhat unique bios-version */
+ 			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1.000"),
+ 		},
++		.driver_data = (void *)AXP288_QUIRK_NO_BATTERY,
+ 	},
+ 	{
+ 		/* ACEPC T11 Cherry Trail Z8350 mini PC */
+@@ -544,6 +547,7 @@ static const struct dmi_system_id axp288_no_battery_list[] = {
+ 			/* also match on somewhat unique bios-version */
+ 			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1.000"),
+ 		},
++		.driver_data = (void *)AXP288_QUIRK_NO_BATTERY,
+ 	},
+ 	{
+ 		/* Intel Cherry Trail Compute Stick, Windows version */
+@@ -551,6 +555,7 @@ static const struct dmi_system_id axp288_no_battery_list[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Intel"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "STK1AW32SC"),
+ 		},
++		.driver_data = (void *)AXP288_QUIRK_NO_BATTERY,
+ 	},
+ 	{
+ 		/* Intel Cherry Trail Compute Stick, version without an OS */
+@@ -558,34 +563,55 @@ static const struct dmi_system_id axp288_no_battery_list[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Intel"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "STK1A32SC"),
+ 		},
++		.driver_data = (void *)AXP288_QUIRK_NO_BATTERY,
+ 	},
+ 	{
+ 		/* Meegopad T02 */
+ 		.matches = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "MEEGOPAD T02"),
+ 		},
++		.driver_data = (void *)AXP288_QUIRK_NO_BATTERY,
+ 	},
+ 	{	/* Mele PCG03 Mini PC */
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Mini PC"),
+ 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "Mini PC"),
+ 		},
++		.driver_data = (void *)AXP288_QUIRK_NO_BATTERY,
+ 	},
+ 	{
+ 		/* Minix Neo Z83-4 mini PC */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "MINIX"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
+-		}
++		},
++		.driver_data = (void *)AXP288_QUIRK_NO_BATTERY,
+ 	},
+ 	{
+-		/* Various Ace PC/Meegopad/MinisForum/Wintel Mini-PCs/HDMI-sticks */
++		/*
++		 * One Mix 1, this uses the "T3 MRD" boardname used by
++		 * generic mini PCs, but it is a mini laptop so it does
++		 * actually have a battery!
++		 */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "T3 MRD"),
++			DMI_MATCH(DMI_BIOS_DATE, "06/14/2018"),
++		},
++		.driver_data = NULL,
++	},
++	{
++		/*
++		 * Various Ace PC/Meegopad/MinisForum/Wintel Mini-PCs/HDMI-sticks
++		 * This entry must be last because it is generic, this allows
++		 * adding more specifuc quirks overriding this generic entry.
++		 */
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "T3 MRD"),
+ 			DMI_MATCH(DMI_CHASSIS_TYPE, "3"),
+ 			DMI_MATCH(DMI_BIOS_VENDOR, "American Megatrends Inc."),
+ 			DMI_MATCH(DMI_BIOS_VERSION, "5.11"),
+ 		},
++		.driver_data = (void *)AXP288_QUIRK_NO_BATTERY,
+ 	},
+ 	{}
+ };
+@@ -665,7 +691,9 @@ static int axp288_fuel_gauge_probe(struct platform_device *pdev)
+ 		[BAT_D_CURR] = "axp288-chrg-d-curr",
+ 		[BAT_VOLT] = "axp288-batt-volt",
+ 	};
++	const struct dmi_system_id *dmi_id;
+ 	struct device *dev = &pdev->dev;
++	unsigned long quirks = 0;
+ 	int i, pirq, ret;
+ 
+ 	/*
+@@ -675,7 +703,11 @@ static int axp288_fuel_gauge_probe(struct platform_device *pdev)
+ 	if (!acpi_quirk_skip_acpi_ac_and_battery())
+ 		return -ENODEV;
+ 
+-	if (dmi_check_system(axp288_no_battery_list))
++	dmi_id = dmi_first_match(axp288_quirks);
++	if (dmi_id)
++		quirks = (unsigned long)dmi_id->driver_data;
++
++	if (quirks & AXP288_QUIRK_NO_BATTERY)
+ 		return -ENODEV;
+ 
+ 	info = devm_kzalloc(dev, sizeof(*info), GFP_KERNEL);
 -- 
 2.35.1
 
