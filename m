@@ -2,64 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A35715496BE
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 302585493EA
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358920AbiFMNMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:12:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35930 "EHLO
+        id S1348596AbiFMMbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:31:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357627AbiFMNGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:06:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65D6636B71;
-        Mon, 13 Jun 2022 04:18:20 -0700 (PDT)
+        with ESMTP id S1355440AbiFMMaW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:30:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BDCA5B889;
+        Mon, 13 Jun 2022 04:07:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18F27B80D31;
-        Mon, 13 Jun 2022 11:18:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 583D5C3411C;
-        Mon, 13 Jun 2022 11:18:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8AE060F9A;
+        Mon, 13 Jun 2022 11:06:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 931A1C34114;
+        Mon, 13 Jun 2022 11:06:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119083;
-        bh=4NUSCTNVCAPRaqG0IRwk7W4XUU7ZquBP4nhbrj5/Yas=;
+        s=korg; t=1655118419;
+        bh=i4UrdNh/w1HqKxEbhvH7EbnVz3Tuhaih/X1iFaZXl0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkMXNbWxZnA6hHcRmoTqAeH473O+RmpFQ4JkuXKKSLgu1CcMAww4ubJlKzsXc5EZt
-         sWvpLN70pd2TvYgVogxLgIn+RHWKru2ZXV3q/d68HcYzncT3Ulfv55uOi92SPmZiMp
-         286Y5JEevFJcHIS9/+j3+uOx5NSKhzvGHO8haVXI=
+        b=u3+ohHfRn8Pj3VDYeBfSYGNKeDkAld5rAQtyrGptphioBC9mstKmZCkV1OnGvDD15
+         3VYPAEIEKpS71riP7HMzZULDTVSCw52DigS/V3KZ7HkQodKjl4Qkoxv/VnQlKgLtuX
+         Oey74g0dNEW5rh/yfspo86S7e185Ms8chhyWwsKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Stultz <jstultz@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        stable@vger.kernel.org, Vincent Ray <vray@kalrayinc.com>,
+        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Basil Eljuse <Basil.Eljuse@arm.com>,
-        Ferry Toth <fntoth@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        linux-pm@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Saravana Kannan <saravanak@google.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 108/247] driver core: Fix wait_for_device_probe() & deferred_probe_timeout interaction
+Subject: [PATCH 5.10 050/172] net: sched: fixed barrier to prevent skbuff sticking in qdisc backlog
 Date:   Mon, 13 Jun 2022 12:10:10 +0200
-Message-Id: <20220613094926.235396426@linuxfoundation.org>
+Message-Id: <20220613094902.444603190@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -74,104 +55,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: Vincent Ray <vray@kalrayinc.com>
 
-[ Upstream commit 5ee76c256e928455212ab759c51d198fedbe7523 ]
+[ Upstream commit a54ce3703613e41fe1d98060b62ec09a3984dc28 ]
 
-Mounting NFS rootfs was timing out when deferred_probe_timeout was
-non-zero [1].  This was because ip_auto_config() initcall times out
-waiting for the network interfaces to show up when
-deferred_probe_timeout was non-zero. While ip_auto_config() calls
-wait_for_device_probe() to make sure any currently running deferred
-probe work or asynchronous probe finishes, that wasn't sufficient to
-account for devices being deferred until deferred_probe_timeout.
+In qdisc_run_begin(), smp_mb__before_atomic() used before test_bit()
+does not provide any ordering guarantee as test_bit() is not an atomic
+operation. This, added to the fact that the spin_trylock() call at
+the beginning of qdisc_run_begin() does not guarantee acquire
+semantics if it does not grab the lock, makes it possible for the
+following statement :
 
-Commit 35a672363ab3 ("driver core: Ensure wait_for_device_probe() waits
-until the deferred_probe_timeout fires") tried to fix that by making
-sure wait_for_device_probe() waits for deferred_probe_timeout to expire
-before returning.
+if (test_bit(__QDISC_STATE_MISSED, &qdisc->state))
 
-However, if wait_for_device_probe() is called from the kernel_init()
-context:
+to be executed before an enqueue operation called before
+qdisc_run_begin().
 
-- Before deferred_probe_initcall() [2], it causes the boot process to
-  hang due to a deadlock.
+As a result the following race can happen :
 
-- After deferred_probe_initcall() [3], it blocks kernel_init() from
-  continuing till deferred_probe_timeout expires and beats the point of
-  deferred_probe_timeout that's trying to wait for userspace to load
-  modules.
+           CPU 1                             CPU 2
 
-Neither of this is good. So revert the changes to
-wait_for_device_probe().
+      qdisc_run_begin()               qdisc_run_begin() /* true */
+        set(MISSED)                            .
+      /* returns false */                      .
+          .                            /* sees MISSED = 1 */
+          .                            /* so qdisc not empty */
+          .                            __qdisc_run()
+          .                                    .
+          .                              pfifo_fast_dequeue()
+ ----> /* may be done here */                  .
+|         .                                clear(MISSED)
+|         .                                    .
+|         .                                smp_mb __after_atomic();
+|         .                                    .
+|         .                                /* recheck the queue */
+|         .                                /* nothing => exit   */
+|   enqueue(skb1)
+|         .
+|   qdisc_run_begin()
+|         .
+|     spin_trylock() /* fail */
+|         .
+|     smp_mb__before_atomic() /* not enough */
+|         .
+ ---- if (test_bit(MISSED))
+        return false;   /* exit */
 
-[1] - https://lore.kernel.org/lkml/TYAPR01MB45443DF63B9EF29054F7C41FD8C60@TYAPR01MB4544.jpnprd01.prod.outlook.com/
-[2] - https://lore.kernel.org/lkml/YowHNo4sBjr9ijZr@dev-arch.thelio-3990X/
-[3] - https://lore.kernel.org/lkml/Yo3WvGnNk3LvLb7R@linutronix.de/
+In the above scenario, CPU 1 and CPU 2 both try to grab the
+qdisc->seqlock at the same time. Only CPU 2 succeeds and enters the
+bypass code path, where it emits its skb then calls __qdisc_run().
 
-Fixes: 35a672363ab3 ("driver core: Ensure wait_for_device_probe() waits until the deferred_probe_timeout fires")
-Cc: John Stultz <jstultz@google.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Sudeep Holla <sudeep.holla@arm.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: Basil Eljuse <Basil.Eljuse@arm.com>
-Cc: Ferry Toth <fntoth@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Anders Roxell <anders.roxell@linaro.org>
-Cc: linux-pm@vger.kernel.org
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: John Stultz <jstultz@google.com>
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Link: https://lore.kernel.org/r/20220526034609.480766-2-saravanak@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Rafael J. Wysocki <rafael@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+CPU1 fails, sets MISSED and goes down the traditionnal enqueue() +
+dequeue() code path. But when executing qdisc_run_begin() for the
+second time, after enqueuing its skbuff, it sees the MISSED bit still
+set (by itself) and consequently chooses to exit early without setting
+it again nor trying to grab the spinlock again.
+
+Meanwhile CPU2 has seen MISSED = 1, cleared it, checked the queue
+and found it empty, so it returned.
+
+At the end of the sequence, we end up with skb1 enqueued in the
+backlog, both CPUs out of __dev_xmit_skb(), the MISSED bit not set,
+and no __netif_schedule() called made. skb1 will now linger in the
+qdisc until somebody later performs a full __qdisc_run(). Associated
+to the bypass capacity of the qdisc, and the ability of the TCP layer
+to avoid resending packets which it knows are still in the qdisc, this
+can lead to serious traffic "holes" in a TCP connection.
+
+We fix this by replacing the smp_mb__before_atomic() / test_bit() /
+set_bit() / smp_mb__after_atomic() sequence inside qdisc_run_begin()
+by a single test_and_set_bit() call, which is more concise and
+enforces the needed memory barriers.
+
+Fixes: 89837eb4b246 ("net: sched: add barrier to ensure correct ordering for lockless qdisc")
+Signed-off-by: Vincent Ray <vray@kalrayinc.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220526001746.2437669-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c | 5 -----
- 1 file changed, 5 deletions(-)
+ include/net/sch_generic.h | 36 ++++++++----------------------------
+ 1 file changed, 8 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index a480004b9897..76ded601d0c1 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -257,7 +257,6 @@ DEFINE_SHOW_ATTRIBUTE(deferred_devs);
+diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
+index 1042c449e7db..769764bda7a8 100644
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -163,37 +163,17 @@ static inline bool qdisc_run_begin(struct Qdisc *qdisc)
+ 		if (spin_trylock(&qdisc->seqlock))
+ 			goto nolock_empty;
  
- int driver_deferred_probe_timeout;
- EXPORT_SYMBOL_GPL(driver_deferred_probe_timeout);
--static DECLARE_WAIT_QUEUE_HEAD(probe_timeout_waitqueue);
- 
- static int __init deferred_probe_timeout_setup(char *str)
- {
-@@ -312,7 +311,6 @@ static void deferred_probe_timeout_work_func(struct work_struct *work)
- 	list_for_each_entry(p, &deferred_probe_pending_list, deferred_probe)
- 		dev_info(p->device, "deferred probe pending\n");
- 	mutex_unlock(&deferred_probe_mutex);
--	wake_up_all(&probe_timeout_waitqueue);
- }
- static DECLARE_DELAYED_WORK(deferred_probe_timeout_work, deferred_probe_timeout_work_func);
- 
-@@ -719,9 +717,6 @@ int driver_probe_done(void)
-  */
- void wait_for_device_probe(void)
- {
--	/* wait for probe timeout */
--	wait_event(probe_timeout_waitqueue, !driver_deferred_probe_timeout);
+-		/* Paired with smp_mb__after_atomic() to make sure
+-		 * STATE_MISSED checking is synchronized with clearing
+-		 * in pfifo_fast_dequeue().
++		/* No need to insist if the MISSED flag was already set.
++		 * Note that test_and_set_bit() also gives us memory ordering
++		 * guarantees wrt potential earlier enqueue() and below
++		 * spin_trylock(), both of which are necessary to prevent races
+ 		 */
+-		smp_mb__before_atomic();
 -
- 	/* wait for the deferred probe workqueue to finish */
- 	flush_work(&deferred_probe_work);
+-		/* If the MISSED flag is set, it means other thread has
+-		 * set the MISSED flag before second spin_trylock(), so
+-		 * we can return false here to avoid multi cpus doing
+-		 * the set_bit() and second spin_trylock() concurrently.
+-		 */
+-		if (test_bit(__QDISC_STATE_MISSED, &qdisc->state))
++		if (test_and_set_bit(__QDISC_STATE_MISSED, &qdisc->state))
+ 			return false;
  
+-		/* Set the MISSED flag before the second spin_trylock(),
+-		 * if the second spin_trylock() return false, it means
+-		 * other cpu holding the lock will do dequeuing for us
+-		 * or it will see the MISSED flag set after releasing
+-		 * lock and reschedule the net_tx_action() to do the
+-		 * dequeuing.
+-		 */
+-		set_bit(__QDISC_STATE_MISSED, &qdisc->state);
+-
+-		/* spin_trylock() only has load-acquire semantic, so use
+-		 * smp_mb__after_atomic() to ensure STATE_MISSED is set
+-		 * before doing the second spin_trylock().
+-		 */
+-		smp_mb__after_atomic();
+-
+-		/* Retry again in case other CPU may not see the new flag
+-		 * after it releases the lock at the end of qdisc_run_end().
++		/* Try to take the lock again to make sure that we will either
++		 * grab it or the CPU that still has it will see MISSED set
++		 * when testing it in qdisc_run_end()
+ 		 */
+ 		if (!spin_trylock(&qdisc->seqlock))
+ 			return false;
 -- 
 2.35.1
 
