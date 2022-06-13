@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D108548EC0
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6981548C01
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354353AbiFMLcR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:32:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49866 "EHLO
+        id S1346739AbiFMKzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:55:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355018AbiFMLaY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0380340A2C;
-        Mon, 13 Jun 2022 03:46:20 -0700 (PDT)
+        with ESMTP id S1350093AbiFMKyl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81D2424970;
+        Mon, 13 Jun 2022 03:29:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93E8E61259;
-        Mon, 13 Jun 2022 10:46:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A47E3C34114;
-        Mon, 13 Jun 2022 10:46:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30475B80E59;
+        Mon, 13 Jun 2022 10:29:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AEDFC34114;
+        Mon, 13 Jun 2022 10:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117179;
-        bh=5v3UGAyPJezobIbyy1LC/hgX1ZVAKtD9+5IHR+gLdjM=;
+        s=korg; t=1655116149;
+        bh=pOFYgfee5iVtMFAxZz46DsyhKPKQrBcJoxcFBBfq19w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yikBqgN/IHn0G8sEkKa2CsY9wZR3EZA+sIE8lavOgc3UTGgYrSl+wOpVs1oHgRcID
-         niwh6ZO1XZh+ylq426TO9OEPXDAkuHLuok4e96bDwZ00WD3JOPkYDABErm+Wax7gvR
-         5XRRpShqmUQAnu8c4suFJ/4e48DMbkX28AugknUA=
+        b=c08SeGDs8US+g6GmBs5+Hg8uFHB7AGqyQzPYpSQl7YYj3h7QkpBr+i0wo1xnFRx0P
+         bCT7yjG63LqSKq7+GV7momnFXIJ3ra73EOJOUpyvgnN6lxLaOVGvAGvo4awI8JlAM6
+         eonfeBkYMzE85vKDINwDwFYI8krZLGWhuUgVGAt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips@vger.kernel.org, Manuel Lauss <manuel.lauss@gmail.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 325/411] net: dsa: mv88e6xxx: Fix refcount leak in mv88e6xxx_mdios_register
+Subject: [PATCH 4.14 140/218] pcmcia: db1xxx_ss: restrict to MIPS_DB1XXX boards
 Date:   Mon, 13 Jun 2022 12:09:58 +0200
-Message-Id: <20220613094938.475909084@linuxfoundation.org>
+Message-Id: <20220613094924.834796876@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +60,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 02ded5a173619b11728b8bf75a3fd995a2c1ff28 ]
+[ Upstream commit 3928cf08334ed895a31458cbebd8d4ec6d84c080 ]
 
-of_get_child_by_name() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
+When the MIPS_ALCHEMY board selection is MIPS_XXS1500 instead of
+MIPS_DB1XXX, the PCMCIA driver 'db1xxx_ss' has build errors due
+to missing DB1XXX symbols. The PCMCIA driver should be restricted
+to MIPS_DB1XXX instead of MIPS_ALCHEMY to fix this build error.
 
-mv88e6xxx_mdio_register() pass the device node to of_mdiobus_register().
-We don't need the device node after it.
+ERROR: modpost: "bcsr_read" [drivers/pcmcia/db1xxx_ss.ko] undefined!
+ERROR: modpost: "bcsr_mod" [drivers/pcmcia/db1xxx_ss.ko] undefined!
 
-Add missing of_node_put() to avoid refcount leak.
-
-Fixes: a3c53be55c95 ("net: dsa: mv88e6xxx: Support multiple MDIO busses")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 42a4f17dc356 ("MIPS: Alchemy: remove SOC_AU1X00 in favor of MIPS_ALCHEMY")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
+Acked-by: Manuel Lauss <manuel.lauss@gmail.com>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pcmcia/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 87d28ef82559..b336ed071fa8 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2910,6 +2910,7 @@ static int mv88e6xxx_mdios_register(struct mv88e6xxx_chip *chip,
- 	 */
- 	child = of_get_child_by_name(np, "mdio");
- 	err = mv88e6xxx_mdio_register(chip, child, false);
-+	of_node_put(child);
- 	if (err)
- 		return err;
+diff --git a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
+index d3c378b4db6c..20d85d564b80 100644
+--- a/drivers/pcmcia/Kconfig
++++ b/drivers/pcmcia/Kconfig
+@@ -146,7 +146,7 @@ config TCIC
  
+ config PCMCIA_ALCHEMY_DEVBOARD
+ 	tristate "Alchemy Db/Pb1xxx PCMCIA socket services"
+-	depends on MIPS_ALCHEMY && PCMCIA
++	depends on MIPS_DB1XXX && PCMCIA
+ 	help
+ 	  Enable this driver of you want PCMCIA support on your Alchemy
+ 	  Db1000, Db/Pb1100, Db/Pb1500, Db/Pb1550, Db/Pb1200, DB1300
 -- 
 2.35.1
 
