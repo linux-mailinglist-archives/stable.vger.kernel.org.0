@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD3F3549526
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADDDA5495C5
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358464AbiFMMG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:06:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59918 "EHLO
+        id S1349281AbiFMK5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:57:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359184AbiFMMF0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26FB125C73;
-        Mon, 13 Jun 2022 03:59:41 -0700 (PDT)
+        with ESMTP id S1350204AbiFMKyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10F0FF21;
+        Mon, 13 Jun 2022 03:30:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6B29B80E5E;
-        Mon, 13 Jun 2022 10:59:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34537C34114;
-        Mon, 13 Jun 2022 10:59:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A063960F73;
+        Mon, 13 Jun 2022 10:30:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A3AC34114;
+        Mon, 13 Jun 2022 10:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117978;
-        bh=zLNYGnhl3HROVhvLdtptN+k7B+4om0XZMN1MPs90rtQ=;
+        s=korg; t=1655116215;
+        bh=KbjZcDXRQIGSGQAMd5LBDSS6CzGYX28y9Hf6DUrkxrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W0YIVbWS92fiIeD5m5POcXCJG29R31RCJPfDS5aYhPOZwqc9j/a1XkXJdgg3FUsK/
-         XV/sqRATBMMHzRnN0WUo01EYCLrLqEfPARXzodoYjxqHdm4qEQGRbA+RQWU/Yb2z3A
-         UlPkgoZEuI6pVubUpnOzhHn0A/6hg2nw30jyYvLI=
+        b=nemE8jSh+w4yg96aLw1edpSxUPMbgOVxurX3vBAXra41qPWvNbuaY/ebz61HIIWWs
+         QM2SaevXJQsl0gTrKrhqO7LXzdYdaGCI/KWxD/aLWDOLBfGE87+m7PJioka8OHKBw7
+         MXcHzhgaLLKmwtZx6vchrrCJHWW3aMWPlkzhhnvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Yang <yangx.jy@fujitsu.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 4.19 186/287] RDMA/rxe: Generate a completion for unsupported/invalid opcode
+        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 152/218] serial: digicolor-usart: Dont allow CS5-6
 Date:   Mon, 13 Jun 2022 12:10:10 +0200
-Message-Id: <20220613094929.508336843@linuxfoundation.org>
+Message-Id: <20220613094925.202454445@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Yang <yangx.jy@fujitsu.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 2f917af777011c88e977b9b9a5d00b280d3a59ce upstream.
+[ Upstream commit fd63031b8c0763addcecdefe0e0c59d49646204e ]
 
-Current rxe_requester() doesn't generate a completion when processing an
-unsupported/invalid opcode. If rxe driver doesn't support a new opcode
-(e.g. RDMA Atomic Write) and RDMA library supports it, an application
-using the new opcode can reproduce this issue. Fix the issue by calling
-"goto err;".
+Only CS7 and CS8 seem supported but CSIZE is not sanitized to CS8 in
+the default: block.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20220410113513.27537-1-yangx.jy@fujitsu.com
-Signed-off-by: Xiao Yang <yangx.jy@fujitsu.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Set CSIZE correctly so that userspace knows the effective value.
+Incorrect CSIZE also results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
+
+Fixes: 5930cb3511df (serial: driver for Conexant Digicolor USART)
+Acked-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-3-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_req.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/digicolor-usart.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/infiniband/sw/rxe/rxe_req.c
-+++ b/drivers/infiniband/sw/rxe/rxe_req.c
-@@ -680,7 +680,7 @@ next_wqe:
- 	opcode = next_opcode(qp, wqe, wqe->wr.opcode);
- 	if (unlikely(opcode < 0)) {
- 		wqe->status = IB_WC_LOC_QP_OP_ERR;
--		goto exit;
-+		goto err;
+diff --git a/drivers/tty/serial/digicolor-usart.c b/drivers/tty/serial/digicolor-usart.c
+index 794864fac625..74127813e6db 100644
+--- a/drivers/tty/serial/digicolor-usart.c
++++ b/drivers/tty/serial/digicolor-usart.c
+@@ -313,6 +313,8 @@ static void digicolor_uart_set_termios(struct uart_port *port,
+ 	case CS8:
+ 	default:
+ 		config |= UA_CONFIG_CHAR_LEN;
++		termios->c_cflag &= ~CSIZE;
++		termios->c_cflag |= CS8;
+ 		break;
  	}
  
- 	mask = rxe_opcode[opcode].mask;
+-- 
+2.35.1
+
 
 
