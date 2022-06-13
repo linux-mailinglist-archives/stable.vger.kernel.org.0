@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 157F154910C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D65154986D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354549AbiFMLhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:37:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40758 "EHLO
+        id S1377062AbiFMNZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:25:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354524AbiFMLfV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:35:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F55D4477D;
-        Mon, 13 Jun 2022 03:48:05 -0700 (PDT)
+        with ESMTP id S1377190AbiFMNYl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:24:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0C616B7E7;
+        Mon, 13 Jun 2022 04:23:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D7C561259;
-        Mon, 13 Jun 2022 10:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18ACEC34114;
-        Mon, 13 Jun 2022 10:48:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DCDD9B80E59;
+        Mon, 13 Jun 2022 11:23:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F393C34114;
+        Mon, 13 Jun 2022 11:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117284;
-        bh=pKCDag8bf/Ypgjyn0nTLfApo1tDKRa146YhOUsb39l8=;
+        s=korg; t=1655119432;
+        bh=vRM2dlIwjQSrogb4P0RAs0ZyRLIbezsLTuCM6WnjExU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lak58/XdWTHehtx5/X9fhoM/J54YMWSUu2flJ5RUT+4OZW2s/aaGKaOT26Cn3of3M
-         rIptUxM8d7r4FJIldD8ZljXY53vKHvCk4edBGtP7zzpOIVyHfuyYP3T3Mwl3bzlLLF
-         ekO1imVDo/1IlPUSOB63vYbo7kO9TkkJoZvQO3vc=
+        b=wRpxQgo/fOFIW3g0p9QYQRODZcb5hr4Ntuj5Ddqmic3jJMN7s8NJroCNlC/+SaPvv
+         qXHqYmJ+RyP1teNcm0dzBLyf0wUR+LpWGrJbtdJDT+/rQ9+L5yXUZ8lUlwWiuHVIQm
+         mWHJP5i50jCgHGk8p3oTlRS6Z/EO9GJcvDPLW4Dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Niels Dossche <dossche.niels@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 014/287] ipv6: fix locking issues with loops over idev->addr_list
+Subject: [PATCH 5.18 013/339] tty: serial: fsl_lpuart: fix potential bug when using both of_alias_get_id and ida_simple_get
 Date:   Mon, 13 Jun 2022 12:07:18 +0200
-Message-Id: <20220613094924.285724763@linuxfoundation.org>
+Message-Id: <20220613094926.911327425@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,147 +53,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 51454ea42c1ab4e0c2828bb0d4d53957976980de ]
+[ Upstream commit f398e0aa325c61fa20903833a5b534ecb8e6e418 ]
 
-idev->addr_list needs to be protected by idev->lock. However, it is not
-always possible to do so while iterating and performing actions on
-inet6_ifaddr instances. For example, multiple functions (like
-addrconf_{join,leave}_anycast) eventually call down to other functions
-that acquire the idev->lock. The current code temporarily unlocked the
-idev->lock during the loops, which can cause race conditions. Moving the
-locks up is also not an appropriate solution as the ordering of lock
-acquisition will be inconsistent with for example mc_lock.
+Now fsl_lpuart driver use both of_alias_get_id() and ida_simple_get() in
+.probe(), which has the potential bug. For example, when remove the
+lpuart7 alias in dts, of_alias_get_id() will return error, then call
+ida_simple_get() to allocate the id 0 for lpuart7, this may confilct
+with the lpuart4 which has alias 0.
 
-This solution adds an additional field to inet6_ifaddr that is used
-to temporarily add the instances to a temporary list while holding
-idev->lock. The temporary list can then be traversed without holding
-idev->lock. This change was done in two places. In addrconf_ifdown, the
-list_for_each_entry_safe variant of the list loop is also no longer
-necessary as there is no deletion within that specific loop.
+    aliases {
+	...
+        serial0 = &lpuart4;
+        serial1 = &lpuart5;
+        serial2 = &lpuart6;
+        serial3 = &lpuart7;
+    }
 
-Suggested-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Link: https://lore.kernel.org/r/20220403231523.45843-1-dossche.niels@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+So remove the ida_simple_get() in .probe(), return an error directly
+when calling of_alias_get_id() fails, which is consistent with other
+uart drivers behavior.
+
+Fixes: 3bc3206e1c0f ("serial: fsl_lpuart: Remove the alias node dependence")
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20220321112211.8895-1-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/if_inet6.h |  8 ++++++++
- net/ipv6/addrconf.c    | 30 ++++++++++++++++++++++++------
- 2 files changed, 32 insertions(+), 6 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 24 ++++--------------------
+ 1 file changed, 4 insertions(+), 20 deletions(-)
 
-diff --git a/include/net/if_inet6.h b/include/net/if_inet6.h
-index d7578cf49c3a..3953003b0490 100644
---- a/include/net/if_inet6.h
-+++ b/include/net/if_inet6.h
-@@ -69,6 +69,14 @@ struct inet6_ifaddr {
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index be12fee94db5..2cb89491dd09 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -239,8 +239,6 @@
+ /* IMX lpuart has four extra unused regs located at the beginning */
+ #define IMX_REG_OFF	0x10
  
- 	struct hlist_node	addr_lst;
- 	struct list_head	if_list;
-+	/*
-+	 * Used to safely traverse idev->addr_list in process context
-+	 * if the idev->lock needed to protect idev->addr_list cannot be held.
-+	 * In that case, add the items to this list temporarily and iterate
-+	 * without holding idev->lock.
-+	 * See addrconf_ifdown and dev_forward_change.
-+	 */
-+	struct list_head	if_list_aux;
- 
- 	struct list_head	tmp_list;
- 	struct inet6_ifaddr	*ifpub;
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 9d8b791f63ef..a8db1efccbf5 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -739,6 +739,7 @@ static void dev_forward_change(struct inet6_dev *idev)
- {
- 	struct net_device *dev;
- 	struct inet6_ifaddr *ifa;
-+	LIST_HEAD(tmp_addr_list);
- 
- 	if (!idev)
- 		return;
-@@ -757,14 +758,24 @@ static void dev_forward_change(struct inet6_dev *idev)
- 		}
- 	}
- 
-+	read_lock_bh(&idev->lock);
- 	list_for_each_entry(ifa, &idev->addr_list, if_list) {
- 		if (ifa->flags&IFA_F_TENTATIVE)
- 			continue;
-+		list_add_tail(&ifa->if_list_aux, &tmp_addr_list);
-+	}
-+	read_unlock_bh(&idev->lock);
-+
-+	while (!list_empty(&tmp_addr_list)) {
-+		ifa = list_first_entry(&tmp_addr_list,
-+				       struct inet6_ifaddr, if_list_aux);
-+		list_del(&ifa->if_list_aux);
- 		if (idev->cnf.forwarding)
- 			addrconf_join_anycast(ifa);
- 		else
- 			addrconf_leave_anycast(ifa);
- 	}
-+
- 	inet6_netconf_notify_devconf(dev_net(dev), RTM_NEWNETCONF,
- 				     NETCONFA_FORWARDING,
- 				     dev->ifindex, &idev->cnf);
-@@ -3658,7 +3669,8 @@ static int addrconf_ifdown(struct net_device *dev, int how)
- 	unsigned long event = how ? NETDEV_UNREGISTER : NETDEV_DOWN;
- 	struct net *net = dev_net(dev);
- 	struct inet6_dev *idev;
--	struct inet6_ifaddr *ifa, *tmp;
-+	struct inet6_ifaddr *ifa;
-+	LIST_HEAD(tmp_addr_list);
- 	bool keep_addr = false;
- 	int state, i;
- 
-@@ -3746,16 +3758,23 @@ static int addrconf_ifdown(struct net_device *dev, int how)
- 		write_lock_bh(&idev->lock);
- 	}
- 
--	list_for_each_entry_safe(ifa, tmp, &idev->addr_list, if_list) {
-+	list_for_each_entry(ifa, &idev->addr_list, if_list)
-+		list_add_tail(&ifa->if_list_aux, &tmp_addr_list);
-+	write_unlock_bh(&idev->lock);
-+
-+	while (!list_empty(&tmp_addr_list)) {
- 		struct fib6_info *rt = NULL;
- 		bool keep;
- 
-+		ifa = list_first_entry(&tmp_addr_list,
-+				       struct inet6_ifaddr, if_list_aux);
-+		list_del(&ifa->if_list_aux);
-+
- 		addrconf_del_dad_work(ifa);
- 
- 		keep = keep_addr && (ifa->flags & IFA_F_PERMANENT) &&
- 			!addr_is_local(&ifa->addr);
- 
--		write_unlock_bh(&idev->lock);
- 		spin_lock_bh(&ifa->lock);
- 
- 		if (keep) {
-@@ -3786,15 +3805,14 @@ static int addrconf_ifdown(struct net_device *dev, int how)
- 			addrconf_leave_solict(ifa->idev, &ifa->addr);
- 		}
- 
--		write_lock_bh(&idev->lock);
- 		if (!keep) {
-+			write_lock_bh(&idev->lock);
- 			list_del_rcu(&ifa->if_list);
-+			write_unlock_bh(&idev->lock);
- 			in6_ifa_put(ifa);
- 		}
- 	}
- 
--	write_unlock_bh(&idev->lock);
+-static DEFINE_IDA(fsl_lpuart_ida);
 -
- 	/* Step 5: Discard anycast and multicast list */
- 	if (how) {
- 		ipv6_ac_destroy_dev(idev);
+ enum lpuart_type {
+ 	VF610_LPUART,
+ 	LS1021A_LPUART,
+@@ -276,7 +274,6 @@ struct lpuart_port {
+ 	int			rx_dma_rng_buf_len;
+ 	unsigned int		dma_tx_nents;
+ 	wait_queue_head_t	dma_wait;
+-	bool			id_allocated;
+ };
+ 
+ struct lpuart_soc_data {
+@@ -2717,23 +2714,18 @@ static int lpuart_probe(struct platform_device *pdev)
+ 
+ 	ret = of_alias_get_id(np, "serial");
+ 	if (ret < 0) {
+-		ret = ida_simple_get(&fsl_lpuart_ida, 0, UART_NR, GFP_KERNEL);
+-		if (ret < 0) {
+-			dev_err(&pdev->dev, "port line is full, add device failed\n");
+-			return ret;
+-		}
+-		sport->id_allocated = true;
++		dev_err(&pdev->dev, "failed to get alias id, errno %d\n", ret);
++		return ret;
+ 	}
+ 	if (ret >= ARRAY_SIZE(lpuart_ports)) {
+ 		dev_err(&pdev->dev, "serial%d out of range\n", ret);
+-		ret = -EINVAL;
+-		goto failed_out_of_range;
++		return -EINVAL;
+ 	}
+ 	sport->port.line = ret;
+ 
+ 	ret = lpuart_enable_clks(sport);
+ 	if (ret)
+-		goto failed_clock_enable;
++		return ret;
+ 	sport->port.uartclk = lpuart_get_baud_clk_rate(sport);
+ 
+ 	lpuart_ports[sport->port.line] = sport;
+@@ -2781,10 +2773,6 @@ static int lpuart_probe(struct platform_device *pdev)
+ 	uart_remove_one_port(&lpuart_reg, &sport->port);
+ failed_attach_port:
+ 	lpuart_disable_clks(sport);
+-failed_clock_enable:
+-failed_out_of_range:
+-	if (sport->id_allocated)
+-		ida_simple_remove(&fsl_lpuart_ida, sport->port.line);
+ 	return ret;
+ }
+ 
+@@ -2794,9 +2782,6 @@ static int lpuart_remove(struct platform_device *pdev)
+ 
+ 	uart_remove_one_port(&lpuart_reg, &sport->port);
+ 
+-	if (sport->id_allocated)
+-		ida_simple_remove(&fsl_lpuart_ida, sport->port.line);
+-
+ 	lpuart_disable_clks(sport);
+ 
+ 	if (sport->dma_tx_chan)
+@@ -2926,7 +2911,6 @@ static int __init lpuart_serial_init(void)
+ 
+ static void __exit lpuart_serial_exit(void)
+ {
+-	ida_destroy(&fsl_lpuart_ida);
+ 	platform_driver_unregister(&lpuart_driver);
+ 	uart_unregister_driver(&lpuart_reg);
+ }
 -- 
 2.35.1
 
