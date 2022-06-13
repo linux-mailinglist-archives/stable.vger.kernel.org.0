@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F0FE5498F2
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6573B548C79
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:13:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385613AbiFMOpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35540 "EHLO
+        id S1381630AbiFMOIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386202AbiFMOop (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:44:45 -0400
+        with ESMTP id S1381239AbiFMOEN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:04:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DBFEB717E;
-        Mon, 13 Jun 2022 04:51:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B53FA9156F;
+        Mon, 13 Jun 2022 04:38:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C2C9B80EDE;
-        Mon, 13 Jun 2022 11:51:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD6B5C34114;
-        Mon, 13 Jun 2022 11:51:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70F7FB80EC6;
+        Mon, 13 Jun 2022 11:38:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C81AAC34114;
+        Mon, 13 Jun 2022 11:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121086;
-        bh=sXhm+oMCrui/y0I0+QBtmpIK+POYQhAS48jgfA/2Ycw=;
+        s=korg; t=1655120333;
+        bh=URr56cRJookzc1q9Jh6GC+bIL0PYgFldU7IMSJ8bFoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ts7AqWDPJ/1YCVZN29TQuJLrclfKJd6LiTdSMPLSvq8z7V/QEWQKTOXz63iUyaEqc
-         hLVyxE8oj/QYrCVzCY4WWYdk/Uuqk85T5SbKyoyc3JH/t46DyQRBE04iHMxLHryABu
-         l+rCMN3yrWVwYHdPpeuLjW/JnrGmPqyfuko84IbU=
+        b=0TEOg6pDwjs7wuKvONDDDe9iPB5RCmhGi/WhTp8V3pp/c/isZ7hTSyqFPRORepFx6
+         B4hZ9KeKIzzS3bI/uPQ+8iRPJ6iiny06J1k0Loo2XenVSnvbfm6Gs5nXVuxk0p6VwE
+         kzUWf+gPvy/AH1WgDlkS76Crhd67y/ZU9yU0IIQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Safford <david.safford@gmail.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.17 266/298] KEYS: trusted: tpm2: Fix migratable logic
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.18 335/339] random: avoid checking crng_ready() twice in random_init()
 Date:   Mon, 13 Jun 2022 12:12:40 +0200
-Message-Id: <20220613094933.140190890@linuxfoundation.org>
+Message-Id: <20220613094936.896840412@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Safford <david.safford@gmail.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit dda5384313a40ecbaafd8a9a80f47483255e4c4d upstream.
+commit 9b29b6b20376ab64e1b043df6301d8a92378e631 upstream.
 
-When creating (sealing) a new trusted key, migratable
-trusted keys have the FIXED_TPM and FIXED_PARENT attributes
-set, and non-migratable keys don't. This is backwards, and
-also causes creation to fail when creating a migratable key
-under a migratable parent. (The TPM thinks you are trying to
-seal a non-migratable blob under a migratable parent.)
+The current flow expands to:
 
-The following simple patch fixes the logic, and has been
-tested for all four combinations of migratable and non-migratable
-trusted keys and parent storage keys. With this logic, you will
-get a proper failure if you try to create a non-migratable
-trusted key under a migratable parent storage key, and all other
-combinations work correctly.
+    if (crng_ready())
+       ...
+    else if (...)
+        if (!crng_ready())
+            ...
 
-Cc: stable@vger.kernel.org # v5.13+
-Fixes: e5fb5d2c5a03 ("security: keys: trusted: Make sealed key properly interoperable")
-Signed-off-by: David Safford <david.safford@gmail.com>
-Reviewed-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+The second crng_ready() call is redundant, but can't so easily be
+optimized out by the compiler.
+
+This commit simplifies that to:
+
+    if (crng_ready()
+        ...
+    else if (...)
+        ...
+
+Fixes: 560181c27b58 ("random: move initialization functions out of hot pages")
+Cc: stable@vger.kernel.org
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/keys/trusted-keys/trusted_tpm2.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/keys/trusted-keys/trusted_tpm2.c
-+++ b/security/keys/trusted-keys/trusted_tpm2.c
-@@ -283,8 +283,8 @@ int tpm2_seal_trusted(struct tpm_chip *c
- 	/* key properties */
- 	flags = 0;
- 	flags |= options->policydigest_len ? 0 : TPM2_OA_USER_WITH_AUTH;
--	flags |= payload->migratable ? (TPM2_OA_FIXED_TPM |
--					TPM2_OA_FIXED_PARENT) : 0;
-+	flags |= payload->migratable ? 0 : (TPM2_OA_FIXED_TPM |
-+					    TPM2_OA_FIXED_PARENT);
- 	tpm_buf_append_u32(&buf, flags);
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -842,7 +842,7 @@ int __init random_init(const char *comma
+ 	if (crng_ready())
+ 		crng_reseed();
+ 	else if (trust_cpu)
+-		credit_init_bits(arch_bytes * 8);
++		_credit_init_bits(arch_bytes * 8);
  
- 	/* policy */
+ 	return 0;
+ }
 
 
