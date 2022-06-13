@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 988E45496A3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A5B548A57
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345379AbiFMKuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:50:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59012 "EHLO
+        id S244569AbiFMKvM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:51:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348762AbiFMKtf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:49:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98AAC2E692;
-        Mon, 13 Jun 2022 03:27:11 -0700 (PDT)
+        with ESMTP id S245056AbiFMKtk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:49:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D4172E9D9;
+        Mon, 13 Jun 2022 03:27:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F10FB80E94;
-        Mon, 13 Jun 2022 10:27:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88246C34114;
-        Mon, 13 Jun 2022 10:27:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7E23B80E94;
+        Mon, 13 Jun 2022 10:27:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 077A8C34114;
+        Mon, 13 Jun 2022 10:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116028;
-        bh=+wk2EABwxlb5J2SZ0+gM5lgp+xcxklX2wYWqEH/OWII=;
+        s=korg; t=1655116034;
+        bh=GVBoC3ONwbd18zu1JOv8mlw0ejjz+jFPu3hUDCp8mUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0YWipDs7Skjz/5u8JV1y3Xhto6FwlTfqrFvjCeBnKgibmAqn3dZ/qWUBlwP6zPTzX
-         mqP3m8H+X9alvhqo4pCmWp9eAZ/2OfxwI4SfkUuyJ0ZFdDn2qB93ap4cB3Ya3UqS9P
-         jINeTU8QGJbN9UbWsKREq5dYIY0g7Am1iVLkXV9k=
+        b=cwDT0fP0uRX7331Kr/FaSyHVAlTS7ZKl03T/nIsFls7KEMdvKhbqCVFzPIvVIATOE
+         60goLNor4e9tcjHdLm79lfiK2AF9pCP8aZinGCQJcHmOPr3FWMHu5swrcqvrs68jfp
+         8o8TeUjpPoD6If/UoE10ed9vNr4iQkrtoXzzOrAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.4 009/411] ptrace: Reimplement PTRACE_KILL by always sending SIGKILL
-Date:   Mon, 13 Jun 2022 12:04:42 +0200
-Message-Id: <20220613094928.775306086@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 010/411] btrfs: add "0x" prefix for unsupported optional features
+Date:   Mon, 13 Jun 2022 12:04:43 +0200
+Message-Id: <20220613094928.804598824@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -55,71 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 6a2d90ba027adba528509ffa27097cffd3879257 upstream.
+commit d5321a0fa8bc49f11bea0b470800962c17d92d8f upstream.
 
-The current implementation of PTRACE_KILL is buggy and has been for
-many years as it assumes it's target has stopped in ptrace_stop.  At a
-quick skim it looks like this assumption has existed since ptrace
-support was added in linux v1.0.
+The following error message lack the "0x" obviously:
 
-While PTRACE_KILL has been deprecated we can not remove it as
-a quick search with google code search reveals many existing
-programs calling it.
+  cannot mount because of unsupported optional features (4000)
 
-When the ptracee is not stopped at ptrace_stop some fields would be
-set that are ignored except in ptrace_stop.  Making the userspace
-visible behavior of PTRACE_KILL a noop in those case.
+Add the prefix to make it less confusing. This can happen on older
+kernels that try to mount a filesystem with newer features so it makes
+sense to backport to older trees.
 
-As the usual rules are not obeyed it is not clear what the
-consequences are of calling PTRACE_KILL on a running process.
-Presumably userspace does not do this as it achieves nothing.
-
-Replace the implementation of PTRACE_KILL with a simple
-send_sig_info(SIGKILL) followed by a return 0.  This changes the
-observable user space behavior only in that PTRACE_KILL on a process
-not stopped in ptrace_stop will also kill it.  As that has always
-been the intent of the code this seems like a reasonable change.
-
-Cc: stable@vger.kernel.org
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Tested-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-Link: https://lkml.kernel.org/r/20220505182645.497868-7-ebiederm@xmission.com
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/step.c |    3 +--
- kernel/ptrace.c        |    5 ++---
- 2 files changed, 3 insertions(+), 5 deletions(-)
+ fs/btrfs/disk-io.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/step.c
-+++ b/arch/x86/kernel/step.c
-@@ -175,8 +175,7 @@ void set_task_blockstep(struct task_stru
- 	 *
- 	 * NOTE: this means that set/clear TIF_BLOCKSTEP is only safe if
- 	 * task is current or it can't be running, otherwise we can race
--	 * with __switch_to_xtra(). We rely on ptrace_freeze_traced() but
--	 * PTRACE_KILL is not safe.
-+	 * with __switch_to_xtra(). We rely on ptrace_freeze_traced().
- 	 */
- 	local_irq_disable();
- 	debugctl = get_debugctlmsr();
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -1219,9 +1219,8 @@ int ptrace_request(struct task_struct *c
- 		return ptrace_resume(child, request, data);
- 
- 	case PTRACE_KILL:
--		if (child->exit_state)	/* already dead */
--			return 0;
--		return ptrace_resume(child, request, SIGKILL);
-+		send_sig_info(SIGKILL, SEND_SIG_NOINFO, child);
-+		return 0;
- 
- #ifdef CONFIG_HAVE_ARCH_TRACEHOOK
- 	case PTRACE_GETREGSET:
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -2927,7 +2927,7 @@ int open_ctree(struct super_block *sb,
+ 		~BTRFS_FEATURE_INCOMPAT_SUPP;
+ 	if (features) {
+ 		btrfs_err(fs_info,
+-		    "cannot mount because of unsupported optional features (%llx)",
++		    "cannot mount because of unsupported optional features (0x%llx)",
+ 		    features);
+ 		err = -EINVAL;
+ 		goto fail_csum;
+@@ -2965,7 +2965,7 @@ int open_ctree(struct super_block *sb,
+ 		~BTRFS_FEATURE_COMPAT_RO_SUPP;
+ 	if (!sb_rdonly(sb) && features) {
+ 		btrfs_err(fs_info,
+-	"cannot mount read-write because of unsupported optional features (%llx)",
++	"cannot mount read-write because of unsupported optional features (0x%llx)",
+ 		       features);
+ 		err = -EINVAL;
+ 		goto fail_csum;
 
 
