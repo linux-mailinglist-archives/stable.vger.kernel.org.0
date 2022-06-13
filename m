@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4067F5487AD
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 304BC54863B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379859AbiFMNvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:51:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50732 "EHLO
+        id S238046AbiFMPIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 11:08:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378217AbiFMNt4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:49:56 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 778552A41F
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 04:33:22 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id u2so5504102pfc.2
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 04:33:22 -0700 (PDT)
+        with ESMTP id S1386434AbiFMPIV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 11:08:21 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0181A1059FE
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 05:18:18 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id h1so4924639plf.11
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 05:18:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=ux7OwHLkwL7qB/cLkWx/wAi+FxAM5oiLPTr3bW+WGlg=;
-        b=KBhtM+F/ss49amdwSa8ea8kGz+IHOCpM+1fMFhMynkR4R+z171ML/P6d6Qrks2DQ7o
-         eXBccwrR4sAvfrZ/SZ5dkt04FQhrn2DYAeJx0qA4VB9LznoBNtGe/9j2toEMWLXaCq15
-         TJVIbhvG9wM8XKL3C6lhDbEli6WIZmBBD5OdKKaYt7NtxSWcbugSWjeD1KWByMRZK/Jm
-         5M6pUcR+OQrbSprIYpVvn1P2ySeD0ukHhg5r7wIOLZDd3qUgLd4yogamzPf+XUbii2m/
-         DDhInFw+m3vdOJoGQ2inXHsVC6+Bg/N97nL5oqF1kc5TyO7xlsJsP+oXBT9BdAlV/oZx
-         yq3A==
+        bh=1pH5z48vb2ukDa7rtIlC2BBGHnA3V0UiFtbD3YggjVo=;
+        b=D+2r1z4lZOSaQ/ro1i9X9VcORsbYdKHgiFP9OSCGCO67UZTbBEmj+SsYY/junMY9+X
+         2Ro20vrjatRnVk/QcbgR+/PXCVHLmkA2kJAxARmK1ciB0l2Bhxy05lO8ajkYNiSKx6PX
+         RKVaKy8l2/xor6zYnPt5FxLaI+nZoyFQbyy/stML+kAgQ5abi0YPfZUJQm3swkTSt4R8
+         FTfsbsNhKqZ/UfgBEs+iE6kF4W4c442lWhOzV/v41mP27nuH0ZutoRbMcTTvO5mNKZav
+         GQb6s+QpYc3dWCu5F+cdDT+31Xp4zLvuiFGiZ3ThBFKCqN22/cXUrBEa2OE3c5fzd7eZ
+         a7Rg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=ux7OwHLkwL7qB/cLkWx/wAi+FxAM5oiLPTr3bW+WGlg=;
-        b=LnMOYEs2lzEQUPGyTFnQVxsUJE59/XRWyvEo2SNnN03wMQPgxPHDWBrT4Cgu4CCqsA
-         XrSc4zoQVuT709z6GLPhHUZRG4hxYluCzWNDwM6Tsi75lVLeVU6Fwgh23OOGzftNUv8L
-         b+1Mw4N6ca4b8SwI4LpcGJA5Y8bmGrPT3FA1L4EINN4KCOXXjDAPRHgQFsAuflfxNIG6
-         APJhNZva+1pxFBXUQ0TAdHHVzQia7bU86urW1AzoCh3Fx1Y6HtULXUp0KehawOQoFmzs
-         KLRIodpUn7tuCCxnerh8v1Bl/rzoUnV5q3LmuJgbVkh1R6NYx53f1pwnLYA6EalIWDzl
-         +qtw==
-X-Gm-Message-State: AOAM530iHINWobGRWUKSLv4wVSZ6BxC+zwczmoi0/h2Gi0RZPNHhQz1A
-        SyRE5dtXrCSHsw0zifk3aLMvCTPoz3luXqGKVHE=
-X-Google-Smtp-Source: ABdhPJypH7wEU/sGjdsroadFvnATOcTycqSLhzt3ertnFAstCYfB1tW0Ll4LSJl+wAapW6GTZ5jFEQ==
-X-Received: by 2002:a05:6a00:1344:b0:51b:e3b5:54e2 with SMTP id k4-20020a056a00134400b0051be3b554e2mr51836039pfu.6.1655120001360;
-        Mon, 13 Jun 2022 04:33:21 -0700 (PDT)
+        bh=1pH5z48vb2ukDa7rtIlC2BBGHnA3V0UiFtbD3YggjVo=;
+        b=LiOIDo8PzXA0sauiH5D64ORnZRkEM/92lU6DVMLMhEOmwQg1nPqEehd4GRhUEEFlLB
+         1Ur+sfpJJuWECMwsaNEGt1l6IfTF/uBplJJAe2xLNNpqeJi7WE+1sK1GxJW1DNlkWNIi
+         K7k9N6uuRvEr4u2PT3oUIfc1dAlXQ1GKkFhU776CQ1W4+sDJaVUqMqPavYRPWubPuETm
+         b1R56Y2jKu997/12gjqtAun4LNaljRXEC8BHhA9DcF9gZ75bRgvhRTBhBD2nSKA9EAqJ
+         O/SmNegxnR5zQtMl4b5lVqQm0sVEgnI/ZoxJ0beq6OzqCi+0hniDy2MeMK/ALrKZdWe7
+         AgLA==
+X-Gm-Message-State: AOAM5337fSXww3aNAJ32Nf3Ir+Un9ZBC8zudzO97J40HXy7vNuAOGSd6
+        K+qJe2sWpuz3m8y3RNYFnj7sRWwn+K8z9LPMUT4=
+X-Google-Smtp-Source: ABdhPJyr1SCpmVgimOYVJKXr10zA8O241N22M2kVi3eIm/3ucO52X7cpA7suHS4RRcPICt58LNt2Yw==
+X-Received: by 2002:a17:902:d54b:b0:164:bf9:3e1e with SMTP id z11-20020a170902d54b00b001640bf93e1emr59793908plf.58.1655122697602;
+        Mon, 13 Jun 2022 05:18:17 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q5-20020a170902c74500b001638a171558sm4848602plq.202.2022.06.13.04.33.20
+        by smtp.gmail.com with ESMTPSA id q8-20020a170902a3c800b0015e8d4eb22csm4963498plb.118.2022.06.13.05.18.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jun 2022 04:33:21 -0700 (PDT)
-Message-ID: <62a72081.1c69fb81.50396.587c@mx.google.com>
-Date:   Mon, 13 Jun 2022 04:33:21 -0700 (PDT)
+        Mon, 13 Jun 2022 05:18:17 -0700 (PDT)
+Message-ID: <62a72b09.1c69fb81.7546f.57cb@mx.google.com>
+Date:   Mon, 13 Jun 2022 05:18:17 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.45-882-gf1e18052eb978
-X-Kernelci-Branch: queue/5.15
+X-Kernelci-Kernel: v5.17.13-1037-gb6b19f82d1437
+X-Kernelci-Branch: queue/5.17
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 131 runs,
- 3 regressions (v5.15.45-882-gf1e18052eb978)
+Subject: stable-rc/queue/5.17 baseline: 168 runs,
+ 2 regressions (v5.17.13-1037-gb6b19f82d1437)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,36 +70,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 131 runs, 3 regressions (v5.15.45-882-gf1e18=
-052eb978)
+stable-rc/queue/5.17 baseline: 168 runs, 2 regressions (v5.17.13-1037-gb6b1=
+9f82d1437)
 
 Regressions Summary
 -------------------
 
-platform                | arch  | lab           | compiler | defconfig     =
-             | regressions
-------------------------+-------+---------------+----------+---------------=
--------------+------------
-jetson-tk1              | arm   | lab-baylibre  | gcc-10   | tegra_defconfi=
-g            | 1          =
+platform   | arch | lab          | compiler | defconfig          | regressi=
+ons
+-----------+------+--------------+----------+--------------------+---------=
+---
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
+   =
 
-rk3399-gru-kevin        | arm64 | lab-collabora | gcc-10   | defconfig+arm6=
-4-chromebook | 1          =
-
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-10   | defconfig     =
-             | 1          =
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig    | 1       =
+   =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.45-882-gf1e18052eb978/plan/baseline/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.17/ker=
+nel/v5.17.13-1037-gb6b19f82d1437/plan/baseline/
 
   Test:     baseline
   Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.45-882-gf1e18052eb978
+  Branch:   queue/5.17
+  Describe: v5.17.13-1037-gb6b19f82d1437
   URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
 able-rc.git
-  SHA:      f1e18052eb978d29bf558cb21d25c40480060f76 =
+  SHA:      b6b19f82d14370609cab3d4f454d29dbc541e852 =
 
 
 
@@ -108,105 +105,67 @@ Test Regressions
 
 
 
-platform                | arch  | lab           | compiler | defconfig     =
-             | regressions
-------------------------+-------+---------------+----------+---------------=
--------------+------------
-jetson-tk1              | arm   | lab-baylibre  | gcc-10   | tegra_defconfi=
-g            | 1          =
+platform   | arch | lab          | compiler | defconfig          | regressi=
+ons
+-----------+------+--------------+----------+--------------------+---------=
+---
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
+   =
 
 
-  Details:     https://kernelci.org/test/plan/id/62a6e9bbef450051c5a39bd1
+  Details:     https://kernelci.org/test/plan/id/62a6f6a07cd408a1dda39bd3
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
+  Full config: multi_v7_defconfig
   Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
 10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-882-gf1e18052eb978/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-882-gf1e18052eb978/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
-tk1.html
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
+1037-gb6b19f82d1437/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jet=
+son-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
+1037-gb6b19f82d1437/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jet=
+son-tk1.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220610.1/armel/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/62a6e9bbef450051c5a39=
-bd2
-        failing since 0 day (last pass: v5.15.45-833-g04983d84c84ee, first =
-fail: v5.15.45-880-g694575c32c9b2) =
+  * baseline.login: https://kernelci.org/test/case/id/62a6f6a07cd408a1dda39=
+bd4
+        new failure (last pass: v5.17.13-1029-g0132bdf6be9af) =
 
  =
 
 
 
-platform                | arch  | lab           | compiler | defconfig     =
-             | regressions
-------------------------+-------+---------------+----------+---------------=
--------------+------------
-rk3399-gru-kevin        | arm64 | lab-collabora | gcc-10   | defconfig+arm6=
-4-chromebook | 1          =
+platform   | arch | lab          | compiler | defconfig          | regressi=
+ons
+-----------+------+--------------+----------+--------------------+---------=
+---
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig    | 1       =
+   =
 
 
-  Details:     https://kernelci.org/test/plan/id/62a6e9ea31d812e844a39bce
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-882-gf1e18052eb978/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-882-gf1e18052eb978/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62a6e9ea31d812e844a39bf0
-        failing since 97 days (last pass: v5.15.26-42-gc89c0807b943, first =
-fail: v5.15.26-257-g2b9a22cd5eb8)
-
-    2022-06-13T07:40:11.368420  /lava-6603231/1/../bin/lava-test-case
-    2022-06-13T07:40:11.379910  <8>[   33.723353] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =
-
-
-
-platform                | arch  | lab           | compiler | defconfig     =
-             | regressions
-------------------------+-------+---------------+----------+---------------=
--------------+------------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-10   | defconfig     =
-             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62a6eb0c486feb67b5a39bf4
+  Details:     https://kernelci.org/test/plan/id/62a6f4a9a4d81056a7a39bee
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-882-gf1e18052eb978/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ba=
-nanapi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-882-gf1e18052eb978/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ba=
-nanapi-m64.html
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
+1037-gb6b19f82d1437/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson=
+-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
+1037-gb6b19f82d1437/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson=
+-tk1.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/62a6eb0c486feb67b5a39=
-bf5
-        new failure (last pass: v5.15.45-880-g694575c32c9b2) =
+  * baseline.login: https://kernelci.org/test/case/id/62a6f4a9a4d81056a7a39=
+bef
+        failing since 2 days (last pass: v5.17.13-907-ga980fa631e355, first=
+ fail: v5.17.13-928-gfe5fcee7b41f8) =
 
  =20
