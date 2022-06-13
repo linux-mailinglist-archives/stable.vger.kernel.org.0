@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C2C754909A
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD13B5491CA
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:29:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380932AbiFMOKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:10:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52876 "EHLO
+        id S1355692AbiFMM4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:56:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381291AbiFMOIS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:08:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EEA4986DC;
-        Mon, 13 Jun 2022 04:41:30 -0700 (PDT)
+        with ESMTP id S1358004AbiFMMyz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:54:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF7B735859;
+        Mon, 13 Jun 2022 04:13:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73F62B80ECC;
-        Mon, 13 Jun 2022 11:41:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB28AC34114;
-        Mon, 13 Jun 2022 11:41:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F373B80E93;
+        Mon, 13 Jun 2022 11:13:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C32E2C3411C;
+        Mon, 13 Jun 2022 11:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120488;
-        bh=YbAO6dc61CTVZPXA3H0275LCoBrPznmVp9BrsF0I538=;
+        s=korg; t=1655118832;
+        bh=/lWHFpte0nQhGTo7XI8GUdlZRuC2Mn0hannG7wMM4LU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vlaIYLEMf591fzGKNh93Q7+vXot0PG37u51/EXCHbhdU1FrRfzdW+kel6fJLNfj5+
-         0/82tz+QyzTEgAfAkB5fQLWu/gG9ye859nKPcFhjsQeZ/CV/zK17riBhLHfRHQO6y6
-         yXdUd3x0+lhdGoCMUS29eQTTUuc2EMR4LyK3xnp8=
+        b=BYUk5qYzjtoPek5DLwfLFNqfkTBuBBjjJwm6RDmylSCS9ysbeISUQIQ+hkwNhurBW
+         Gm4xto+hVfo0RORZv9sNkBT4QMz7LpHYqr0EkbzTW64FhoWRe1gWsrMVZvJjRF11iH
+         gWbqClMcjehNiuuOUfYcUVBscB6n97ND/KCM69e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Anup Patel <anup@brainfault.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 051/298] clocksource/drivers/riscv: Events are stopped during CPU suspend
+Subject: [PATCH 5.15 043/247] soc: rockchip: Fix refcount leak in rockchip_grf_init
 Date:   Mon, 13 Jun 2022 12:09:05 +0200
-Message-Id: <20220613094926.498513613@linuxfoundation.org>
+Message-Id: <20220613094924.254243303@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 232ccac1bd9b5bfe73895f527c08623e7fa0752d ]
+[ Upstream commit 9b59588d8be91c96bfb0371e912ceb4f16315dbf ]
 
-Some implementations of the SBI time extension depend on hart-local
-state (for example, CSRs) that are lost or hardware that is powered
-down when a CPU is suspended. To be safe, the clockevents driver
-cannot assume that timer IRQs will be received during CPU suspend.
+of_find_matching_node_and_match returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 62b019436814 ("clocksource: new RISC-V SBI timer driver")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Link: https://lore.kernel.org/r/20220509012121.40031-1-samuel@sholland.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: 4c58063d4258 ("soc: rockchip: add driver handling grf setup")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220516072013.19731-1-linmq006@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-riscv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/rockchip/grf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/clocksource/timer-riscv.c b/drivers/clocksource/timer-riscv.c
-index 1767f8bf2013..593d5a957b69 100644
---- a/drivers/clocksource/timer-riscv.c
-+++ b/drivers/clocksource/timer-riscv.c
-@@ -34,7 +34,7 @@ static int riscv_clock_next_event(unsigned long delta,
- static unsigned int riscv_clock_event_irq;
- static DEFINE_PER_CPU(struct clock_event_device, riscv_clock_event) = {
- 	.name			= "riscv_timer_clockevent",
--	.features		= CLOCK_EVT_FEAT_ONESHOT,
-+	.features		= CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_C3STOP,
- 	.rating			= 100,
- 	.set_next_event		= riscv_clock_next_event,
- };
+diff --git a/drivers/soc/rockchip/grf.c b/drivers/soc/rockchip/grf.c
+index 494cf2b5bf7b..343ff61ccccb 100644
+--- a/drivers/soc/rockchip/grf.c
++++ b/drivers/soc/rockchip/grf.c
+@@ -148,12 +148,14 @@ static int __init rockchip_grf_init(void)
+ 		return -ENODEV;
+ 	if (!match || !match->data) {
+ 		pr_err("%s: missing grf data\n", __func__);
++		of_node_put(np);
+ 		return -EINVAL;
+ 	}
+ 
+ 	grf_info = match->data;
+ 
+ 	grf = syscon_node_to_regmap(np);
++	of_node_put(np);
+ 	if (IS_ERR(grf)) {
+ 		pr_err("%s: could not get grf syscon\n", __func__);
+ 		return PTR_ERR(grf);
 -- 
 2.35.1
 
