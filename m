@@ -2,53 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 247A65488B9
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E38C9549423
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356856AbiFMNHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:07:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35582 "EHLO
+        id S1383581AbiFMO0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:26:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352790AbiFMNFo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:05:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55A60377F1;
-        Mon, 13 Jun 2022 04:18:32 -0700 (PDT)
+        with ESMTP id S1383911AbiFMOYR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CA40473AE;
+        Mon, 13 Jun 2022 04:45:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05E15B80EAF;
-        Mon, 13 Jun 2022 11:18:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B6E5C34114;
-        Mon, 13 Jun 2022 11:18:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E125F613CA;
+        Mon, 13 Jun 2022 11:45:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E84C34114;
+        Mon, 13 Jun 2022 11:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119094;
-        bh=ZoIQx/4KSETmL1Fddvq3W5LMPWCMPRJ+iRqS9vyiepg=;
+        s=korg; t=1655120750;
+        bh=l2YBfg34tk5X/O+rDM5zgYJ6lyiB2LpFE7Bnqfy9WVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k0YFFCGrUNSTJL7EjPLHGLQRO32iTmds5BjLZx6NttooVY9fBdqbxBZALpjihwLDO
-         SBhLaLwbIX4mttbZIdHTXXFzKqFOgRTIH0ycLN/COM+Pmdbw/idyP8lETJapvb67Ml
-         tX6sTQKTyhvJ0XYzhOSSApajjvgYllQ+Z2FZW5zk=
+        b=noM+3V0wY2UpDCehqP3YbITF9VAVhJD976IpKkGYcim+DgctKULb+LVxk4/62DmW2
+         fQZS0BcaUhqjMJUyA3kDhAWMsLUf86fpRFutz/+JCQeVM8/fQNyDrfXKTnMHE8F4EW
+         TOq6+sARC7cyXeNXLPcyenfrlkpLAJWkgcnhAYRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Padmanabha Srinivasaiah <treasure4paddy@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Fabien Parent <fparent@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 112/247] bootconfig: Make the bootconfig.o as a normal object file
+Subject: [PATCH 5.17 120/298] regulator: mt6315-regulator: fix invalid allowed mode
 Date:   Mon, 13 Jun 2022 12:10:14 +0200
-Message-Id: <20220613094926.359805431@linuxfoundation.org>
+Message-Id: <20220613094928.583050569@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,43 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Fabien Parent <fparent@baylibre.com>
 
-[ Upstream commit 6014a23638cdee63a71ef13c51d7c563eb5829ee ]
+[ Upstream commit 28cbc2d4c54c09a427b18a1604740efb6b2cc2d6 ]
 
-Since the APIs defined in the bootconfig.o are not individually used,
-it is meaningless to build it as library by lib-y. Use obj-y for that.
+In the binding example, the regulator mode 4 is shown as a valid mode,
+but the driver actually only support mode 0 to 2:
 
-Link: https://lkml.kernel.org/r/164921225875.1090670.15565363126983098971.stgit@devnote2
+This generates an error in dmesg when copy/pasting the binding example:
+[    0.306080] vbuck1: invalid regulator-allowed-modes element 4
+[    0.307290] vbuck2: invalid regulator-allowed-modes element 4
 
-Cc: Padmanabha Srinivasaiah <treasure4paddy@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
-Reported-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+This commit fixes this error by removing the invalid mode from the
+examples.
+
+Fixes: 977fb5b58469 ("regulator: document binding for MT6315 regulator")
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
+Link: https://lore.kernel.org/r/20220529154613.337559-1-fparent@baylibre.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/regulator/mt6315-regulator.yaml       | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/lib/Makefile b/lib/Makefile
-index a841be5244ac..6cf97c60b00b 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -275,7 +275,7 @@ $(foreach file, $(libfdt_files), \
- 	$(eval CFLAGS_$(file) = -I $(srctree)/scripts/dtc/libfdt))
- lib-$(CONFIG_LIBFDT) += $(libfdt_files)
+diff --git a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
+index 5d2d989de893..37402c370fbb 100644
+--- a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
++++ b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
+@@ -55,7 +55,7 @@ examples:
+           regulator-min-microvolt = <300000>;
+           regulator-max-microvolt = <1193750>;
+           regulator-enable-ramp-delay = <256>;
+-          regulator-allowed-modes = <0 1 2 4>;
++          regulator-allowed-modes = <0 1 2>;
+         };
  
--lib-$(CONFIG_BOOT_CONFIG) += bootconfig.o
-+obj-$(CONFIG_BOOT_CONFIG) += bootconfig.o
- 
- obj-$(CONFIG_RBTREE_TEST) += rbtree_test.o
- obj-$(CONFIG_INTERVAL_TREE_TEST) += interval_tree_test.o
+         vbuck3 {
+@@ -63,7 +63,7 @@ examples:
+           regulator-min-microvolt = <300000>;
+           regulator-max-microvolt = <1193750>;
+           regulator-enable-ramp-delay = <256>;
+-          regulator-allowed-modes = <0 1 2 4>;
++          regulator-allowed-modes = <0 1 2>;
+         };
+       };
+     };
 -- 
 2.35.1
 
