@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16064549969
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15C60549207
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240176AbiFMQ7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 12:59:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47780 "EHLO
+        id S1376330AbiFMNV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:21:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242590AbiFMQ6r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 12:58:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B1222459F;
-        Mon, 13 Jun 2022 04:52:10 -0700 (PDT)
+        with ESMTP id S1377088AbiFMNUA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 920B06973E;
+        Mon, 13 Jun 2022 04:23:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E5C9B80EDE;
-        Mon, 13 Jun 2022 11:51:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98446C34114;
-        Mon, 13 Jun 2022 11:51:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84F1160F18;
+        Mon, 13 Jun 2022 11:22:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95224C3411C;
+        Mon, 13 Jun 2022 11:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121108;
-        bh=/0WqHp0bAsCjLBQAphAF7NVmIqufVOkvLOBCYBMpssg=;
+        s=korg; t=1655119358;
+        bh=2hBjMjiZ041N5Z0Yg7mhxSGjvQprD2H+8vtm5RyJEns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gFNgJsu42aKjM3yFSaAevCDtnnCVOo1G6BDvSMOLo7n4L5TJhyOO7E4/en6r9BUWd
-         h5KiT4YPSBzT3bmKb07QrAJoUsfS+5cW7mTgoEV+DBGc6qRoyOXioub08NNaIclH76
-         nz9P6qLZohSHXT3lhOZhtNkrGPxhu5cx2yAKf7tI=
+        b=YgY2wEzjC2rWgYkQRF6vyOMQ631nz59nOqCJz1L20ogVEyRyFV6freIFbbOmppsUo
+         hG2KZ1rO4nqbtqi2P1w4wzZyo4U9nXbIXnQA6byhCVeZfOUDebZ0mulbBwfMhKGiaj
+         WtSVCB+GKBI5T4o6loKTw/i7eOg27/v8EC2IemRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Yu Kuai <yukuai3@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 241/298] nbd: call genl_unregister_family() first in nbd_cleanup()
-Date:   Mon, 13 Jun 2022 12:12:15 +0200
-Message-Id: <20220613094932.396612047@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 234/247] powerpc: Dont select HAVE_IRQ_EXIT_ON_IRQ_STACK
+Date:   Mon, 13 Jun 2022 12:12:16 +0200
+Message-Id: <20220613094930.041280594@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 06c4da89c24e7023ea448cadf8e9daf06a0aae6e ]
+commit 1346d00e1bdfd4067f92bc14e8a6131a01de4190 upstream.
 
-Otherwise there may be race between module removal and the handling of
-netlink command, which can lead to the oops as shown below:
+The HAVE_IRQ_EXIT_ON_IRQ_STACK option tells generic code that irq_exit()
+is called while still running on the hard irq stack (hardirq_ctx[] in
+the powerpc code).
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000098
-  Oops: 0002 [#1] SMP PTI
-  CPU: 1 PID: 31299 Comm: nbd-client Tainted: G            E     5.14.0-rc4
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-  RIP: 0010:down_write+0x1a/0x50
-  Call Trace:
-   start_creating+0x89/0x130
-   debugfs_create_dir+0x1b/0x130
-   nbd_start_device+0x13d/0x390 [nbd]
-   nbd_genl_connect+0x42f/0x748 [nbd]
-   genl_family_rcv_msg_doit.isra.0+0xec/0x150
-   genl_rcv_msg+0xe5/0x1e0
-   netlink_rcv_skb+0x55/0x100
-   genl_rcv+0x29/0x40
-   netlink_unicast+0x1a8/0x250
-   netlink_sendmsg+0x21b/0x430
-   ____sys_sendmsg+0x2a4/0x2d0
-   ___sys_sendmsg+0x81/0xc0
-   __sys_sendmsg+0x62/0xb0
-   __x64_sys_sendmsg+0x1f/0x30
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  Modules linked in: nbd(E-)
+Selecting the option means the generic code will *not* switch to the
+softirq stack before running softirqs, because the code is already
+running on the (mostly empty) hard irq stack.
 
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220521073749.3146892-2-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But since commit 1b1b6a6f4cc0 ("powerpc: handle irq_enter/irq_exit in
+interrupt handler wrappers"), irq_exit() is now called on the regular task
+stack, not the hard irq stack.
+
+That's because previously irq_exit() was called in __do_irq() which is
+run on the hard irq stack, but now it is called in
+interrupt_async_exit_prepare() which is called from do_irq() constructed
+by the wrapper macro, which is after the switch back to the task stack.
+
+So drop HAVE_IRQ_EXIT_ON_IRQ_STACK from the Kconfig. This will mean an
+extra stack switch when processing some interrupts, but should
+significantly reduce the likelihood of stack overflow.
+
+It also means the softirq stack will be used for running softirqs from
+other interrupts that don't use the hard irq stack, eg. timer interrupts.
+
+Fixes: 1b1b6a6f4cc0 ("powerpc: handle irq_enter/irq_exit in interrupt handler wrappers")
+Cc: stable@vger.kernel.org # v5.12+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220525032639.1947280-1-mpe@ellerman.id.au
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/nbd.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/powerpc/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index ed678037ba6d..b4d309af27dd 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -2544,6 +2544,12 @@ static void __exit nbd_cleanup(void)
- 	struct nbd_device *nbd;
- 	LIST_HEAD(del_list);
- 
-+	/*
-+	 * Unregister netlink interface prior to waiting
-+	 * for the completion of netlink commands.
-+	 */
-+	genl_unregister_family(&nbd_genl_family);
-+
- 	nbd_dbg_close();
- 
- 	mutex_lock(&nbd_index_mutex);
-@@ -2562,7 +2568,6 @@ static void __exit nbd_cleanup(void)
- 	destroy_workqueue(nbd_del_wq);
- 
- 	idr_destroy(&nbd_index_idr);
--	genl_unregister_family(&nbd_genl_family);
- 	unregister_blkdev(NBD_MAJOR, "nbd");
- }
- 
--- 
-2.35.1
-
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -217,7 +217,6 @@ config PPC
+ 	select HAVE_HARDLOCKUP_DETECTOR_PERF	if PERF_EVENTS && HAVE_PERF_EVENTS_NMI && !HAVE_HARDLOCKUP_DETECTOR_ARCH
+ 	select HAVE_HW_BREAKPOINT		if PERF_EVENTS && (PPC_BOOK3S || PPC_8xx)
+ 	select HAVE_IOREMAP_PROT
+-	select HAVE_IRQ_EXIT_ON_IRQ_STACK
+ 	select HAVE_IRQ_TIME_ACCOUNTING
+ 	select HAVE_KERNEL_GZIP
+ 	select HAVE_KERNEL_LZMA			if DEFAULT_UIMAGE
 
 
