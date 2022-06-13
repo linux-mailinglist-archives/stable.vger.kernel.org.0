@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B640548E9E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F40D548FBB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359557AbiFMNNs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:13:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43522 "EHLO
+        id S1351265AbiFMMlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:41:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376268AbiFMNKq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:10:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 152155E77C;
-        Mon, 13 Jun 2022 04:21:41 -0700 (PDT)
+        with ESMTP id S1357586AbiFMMj4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:39:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EA3E5E146;
+        Mon, 13 Jun 2022 04:10:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2520560F95;
-        Mon, 13 Jun 2022 11:21:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30E4DC34114;
-        Mon, 13 Jun 2022 11:21:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6771360B77;
+        Mon, 13 Jun 2022 11:10:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70DB6C34114;
+        Mon, 13 Jun 2022 11:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119300;
-        bh=3TszrS3lAtEjZ2rupo4rzyU9qtS2/kAgbkhSgz7ytFE=;
+        s=korg; t=1655118607;
+        bh=l5ObCqWV5DtUWe/84mfk11TbqDN6Yq+o0TqAqpuILE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BbOodqTBlKRnH9Vcrmc6YRXmeqXrOaTQ8u3EdgeJkXO/mZj4xFsHolpXlQ8S3Fjms
-         9M2BOg7xG4/gXJmb0c5rMptDiR5+ndiRifIN3io6UFLTmkwvGh3MEPD2WVgmxwhMAX
-         8paLAk6kYywAPRWw+bVhYN6mtL2s+PuyygL1tIgo=
+        b=UdjzRD3XJXnv1sEWja1VJs1UnVSZ/nG2F8hoD+hZUMaEDJ8VqIsDT/jZwAYccwdNM
+         gPzsNCFziNZl+qgHph3mLJMnQ69yGDEJkS7xI3qfrgAk3nFLt9OKG9qDXjaI9Pv/Nn
+         R3cp5x78rjYTlG3MmL1EJyv4o5uj7V9XOoh6TyB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
         Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 195/247] Revert "net: af_key: add check for pfkey_broadcast in function pfkey_process"
+Subject: [PATCH 5.10 137/172] Revert "net: af_key: add check for pfkey_broadcast in function pfkey_process"
 Date:   Mon, 13 Jun 2022 12:11:37 +0200
-Message-Id: <20220613094928.864524800@linuxfoundation.org>
+Message-Id: <20220613094921.659363970@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -85,10 +85,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/net/key/af_key.c b/net/key/af_key.c
-index 339d95df19d3..d93bde657359 100644
+index 6b7ed5568c09..2aa16a171285 100644
 --- a/net/key/af_key.c
 +++ b/net/key/af_key.c
-@@ -2826,10 +2826,12 @@ static int pfkey_process(struct sock *sk, struct sk_buff *skb, const struct sadb
+@@ -2830,10 +2830,12 @@ static int pfkey_process(struct sock *sk, struct sk_buff *skb, const struct sadb
  	void *ext_hdrs[SADB_EXT_MAX];
  	int err;
  
