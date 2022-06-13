@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C6315493B5
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F37154980F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358141AbiFMMGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:06:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59592 "EHLO
+        id S239735AbiFMM52 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:57:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358853AbiFMMEw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:04:52 -0400
+        with ESMTP id S1355492AbiFMM4E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:56:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 817295046F;
-        Mon, 13 Jun 2022 03:58:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40E7D12D0D;
+        Mon, 13 Jun 2022 04:17:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC879613EF;
-        Mon, 13 Jun 2022 10:58:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF533C34114;
-        Mon, 13 Jun 2022 10:58:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B79A260B60;
+        Mon, 13 Jun 2022 11:17:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5DADC34114;
+        Mon, 13 Jun 2022 11:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117887;
-        bh=xF8yIWbEetOHnmhmGQHznR5lIx4juxK+WgkFwVon71Y=;
+        s=korg; t=1655119023;
+        bh=EFH/jpz6Y7HbXvroxBQ+an5CCn0BgHUFSg7kxrGjx/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2J3a+ckZY+BgiTs2UvL/kqcMz5/ktSsjEA9eRfdRrWog+602HCFKzdH1IJYjz8uU2
-         zaqMDr3BlZxVvCYuI4VaxdgLcHM8+k/jpiGI4TWV96l9ckZ1R/9K3GVvfqLVbQof2G
-         6JoMtcUTQW3qnsk4Ff6VB6lu1UlfvKNE7iiesQj8=
+        b=VSZyhebbLLKQ59ZhT0eFMw/ptpAJgdvH2JxmaF72eF3tghJQfhyMsQEtlO560Iw06
+         w5j48UeFqUxA56CUE5YPXAJ9xrn1ACbe9Tl10M1mqU6pWFdHawJONsiusq5Os6eyzr
+         bDJNEbglAt0hZnOqqiPucglUi+J9WWqJrFqyYitM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Stanimir Varbanov <svarbanov@mm-sol.com>
-Subject: [PATCH 4.19 154/287] PCI: qcom: Fix unbalanced PHY init on probe errors
+        stable@vger.kernel.org,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 076/247] modpost: fix removing numeric suffixes
 Date:   Mon, 13 Jun 2022 12:09:38 +0200
-Message-Id: <20220613094928.548465973@linuxfoundation.org>
+Message-Id: <20220613094925.262644048@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
 
-commit 83013631f0f9961416abd812e228c8efbc2f6069 upstream.
+[ Upstream commit b5beffa20d83c4e15306c991ffd00de0d8628338 ]
 
-Undo the PHY initialisation (e.g. balance runtime PM) if host
-initialisation fails during probe.
+With the `-z unique-symbol` linker flag or any similar mechanism,
+it is possible to trigger the following:
 
-Link: https://lore.kernel.org/r/20220401133854.10421-3-johan+linaro@kernel.org
-Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
-Cc: stable@vger.kernel.org      # 4.5
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ERROR: modpost: "param_set_uint.0" [vmlinux] is a static EXPORT_SYMBOL
+
+The reason is that for now the condition from remove_dot():
+
+if (m && (s[n + m] == '.' || s[n + m] == 0))
+
+which was designed to test if it's a dot or a '\0' after the suffix
+is never satisfied.
+This is due to that `s[n + m]` always points to the last digit of a
+numeric suffix, not on the symbol next to it (from a custom debug
+print added to modpost):
+
+param_set_uint.0, s[n + m] is '0', s[n + m + 1] is '\0'
+
+So it's off-by-one and was like that since 2014.
+
+Fix this for the sake of any potential upcoming features, but don't
+bother stable-backporting, as it's well hidden -- apart from that
+LD flag, it can be triggered only with GCC LTO which never landed
+upstream.
+
+Fixes: fcd38ed0ff26 ("scripts: modpost: fix compilation warning")
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-qcom.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ scripts/mod/modpost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -1339,11 +1339,13 @@ static int qcom_pcie_probe(struct platfo
- 	ret = dw_pcie_host_init(pp);
- 	if (ret) {
- 		dev_err(dev, "cannot initialize host\n");
--		goto err_pm_runtime_put;
-+		goto err_phy_exit;
- 	}
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index ca491aa2b376..7a5bddb8913e 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -1971,7 +1971,7 @@ static char *remove_dot(char *s)
  
- 	return 0;
+ 	if (n && s[n]) {
+ 		size_t m = strspn(s + n + 1, "0123456789");
+-		if (m && (s[n + m] == '.' || s[n + m] == 0))
++		if (m && (s[n + m + 1] == '.' || s[n + m + 1] == 0))
+ 			s[n] = 0;
  
-+err_phy_exit:
-+	phy_exit(pcie->phy);
- err_pm_runtime_put:
- 	pm_runtime_put(dev);
- 	pm_runtime_disable(dev);
+ 		/* strip trailing .lto */
+-- 
+2.35.1
+
 
 
