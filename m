@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7F91548D6C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F8465496B2
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355799AbiFMLvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:51:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55952 "EHLO
+        id S1359313AbiFMNM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:12:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355813AbiFMLtr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:49:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F27CD4D6AA;
-        Mon, 13 Jun 2022 03:53:35 -0700 (PDT)
+        with ESMTP id S1359509AbiFMNKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:10:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D0113A5D1;
+        Mon, 13 Jun 2022 04:21:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 626EFB80D3F;
-        Mon, 13 Jun 2022 10:53:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B90F1C34114;
-        Mon, 13 Jun 2022 10:53:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDDE360EF1;
+        Mon, 13 Jun 2022 11:21:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5697C341C4;
+        Mon, 13 Jun 2022 11:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117613;
-        bh=k+/pVrIT8QfqIWbATLK3wlWEq5hh0GwRx7H7a3D01Zw=;
+        s=korg; t=1655119262;
+        bh=EbHpsNQsZRgTMF45CSYfLlirVAaStJQ+cyuj+aVwgLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z4Xsj2Elr2VEsZT6T+5XJ2q7n8+I1b6VPKA9WTHuotSre4xL0y4jIa5dr8bZ3DxK7
-         pCM3Ub6NOXgC70emscTWQPeGrqK8/W/z3MsQGlFAi6oZmzhr+S1EykUYmJAkkdhypX
-         OsMdMJpd3+wfiFZh9UUNi6uzzZa44hV2i5Ujplk8=
+        b=u7pfJXCr1G397fPKbAM8yU7cdLkgmkFe1Gv9y4NV2GpTwQOAzzAylA0sAkfNiSBae
+         Ox8iC3Wtd6IH0l7XjNiN2BX1cFZ+caMeiNt2wsHn+fs08fvFr5emmnfFCKmNZWDi+9
+         DJPWgf7F4sXvnhhbjYap9rCu5DvBvTr/tDhLXfMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 399/411] scripts/gdb: change kernel config dumping method
-Date:   Mon, 13 Jun 2022 12:11:12 +0200
-Message-Id: <20220613094940.790327325@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Zheyu Ma <zheyuma97@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 171/247] tty: synclink_gt: Fix null-pointer-dereference in slgt_clean()
+Date:   Mon, 13 Jun 2022 12:11:13 +0200
+Message-Id: <20220613094928.144777699@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 1f7a6cf6b07c74a17343c2559cd5f5018a245961 ]
+[ Upstream commit 689ca31c542687709ba21ec2195c1fbce34fd029 ]
 
-MAGIC_START("IKCFG_ST") and MAGIC_END("IKCFG_ED") are moved out
-from the kernel_config_data variable.
+When the driver fails at alloc_hdlcdev(), and then we remove the driver
+module, we will get the following splat:
 
-Thus, we parse kernel_config_data directly instead of considering
-offset of MAGIC_START and MAGIC_END.
+[   25.065966] general protection fault, probably for non-canonical address 0xdffffc0000000182: 0000 [#1] PREEMPT SMP KASAN PTI
+[   25.066914] KASAN: null-ptr-deref in range [0x0000000000000c10-0x0000000000000c17]
+[   25.069262] RIP: 0010:detach_hdlc_protocol+0x2a/0x3e0
+[   25.077709] Call Trace:
+[   25.077924]  <TASK>
+[   25.078108]  unregister_hdlc_device+0x16/0x30
+[   25.078481]  slgt_cleanup+0x157/0x9f0 [synclink_gt]
 
-Fixes: 13610aa908dc ("kernel/configs: use .incbin directive to embed config_data.gz")
-Signed-off-by: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fix this by checking whether the 'info->netdev' is a null pointer first.
+
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220410114814.3920474-1-zheyuma97@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gdb/linux/config.py | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/tty/synclink_gt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/scripts/gdb/linux/config.py b/scripts/gdb/linux/config.py
-index 90e1565b1967..8843ab3cbadd 100644
---- a/scripts/gdb/linux/config.py
-+++ b/scripts/gdb/linux/config.py
-@@ -24,9 +24,9 @@ class LxConfigDump(gdb.Command):
-             filename = arg
- 
-         try:
--            py_config_ptr = gdb.parse_and_eval("kernel_config_data + 8")
--            py_config_size = gdb.parse_and_eval(
--                    "sizeof(kernel_config_data) - 1 - 8 * 2")
-+            py_config_ptr = gdb.parse_and_eval("&kernel_config_data")
-+            py_config_ptr_end = gdb.parse_and_eval("&kernel_config_data_end")
-+            py_config_size = py_config_ptr_end - py_config_ptr
-         except gdb.error as e:
-             raise gdb.GdbError("Can't find config, enable CONFIG_IKCONFIG?")
- 
+diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
+index 25c558e65ece..9bc2a9265277 100644
+--- a/drivers/tty/synclink_gt.c
++++ b/drivers/tty/synclink_gt.c
+@@ -1746,6 +1746,8 @@ static int hdlcdev_init(struct slgt_info *info)
+  */
+ static void hdlcdev_exit(struct slgt_info *info)
+ {
++	if (!info->netdev)
++		return;
+ 	unregister_hdlc_device(info->netdev);
+ 	free_netdev(info->netdev);
+ 	info->netdev = NULL;
 -- 
 2.35.1
 
