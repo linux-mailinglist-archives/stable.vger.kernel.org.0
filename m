@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79716548AA8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C1175498A8
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353498AbiFMMQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:16:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47084 "EHLO
+        id S1383647AbiFMObs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:31:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356352AbiFMMNv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:13:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89FCB53C4D;
-        Mon, 13 Jun 2022 04:01:26 -0700 (PDT)
+        with ESMTP id S1385051AbiFMOad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:30:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9412A8684;
+        Mon, 13 Jun 2022 04:48:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D3860613E9;
-        Mon, 13 Jun 2022 11:01:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6858C34114;
-        Mon, 13 Jun 2022 11:01:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1517612D0;
+        Mon, 13 Jun 2022 11:47:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5677C34114;
+        Mon, 13 Jun 2022 11:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118085;
-        bh=HQXkaF/0XjO+oCZ2kZ8uyO/oX1UPYAWidGjb7jTFUlg=;
+        s=korg; t=1655120878;
+        bh=0Iwo5Gcye3VS9NYYrO2aH3mgsqiNWBDrItlwXSltw2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=shDzEkdUOLk61G28pkajuVFJDCHpeqvC3RwCunFH3AuINccwETFbW+/jAO0QkujPH
-         mGLClWkrDbVbPtdGgni2ToKkfVCiPEvbbbbo8BDEorgf6BxfhRfS061n4a5GOIHJw9
-         z/kN1qLk83985vQHsnoFIXpzOcT+Qij99pFekZew=
+        b=wIROrH6FYYL5EvXNcPpkHx7Fw60GbHDGqB/fEV2gIyAabdwxBlWLns1Pfj/TTyhrb
+         MkxBVvVMbtopNsY1OgEIehNfwN6vO8IEl/QDI7sRC8FV1Nlq/BDPRnsiNEIMQl17K5
+         2RKaNKHJePabb/McapxB1UuUPMEQ64KhvM4hDui8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Taehee Yoo <ap420073@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 238/287] bpf, arm64: Clear prog->jited_len along prog->jited
+Subject: [PATCH 5.17 168/298] amt: fix wrong usage of pskb_may_pull()
 Date:   Mon, 13 Jun 2022 12:11:02 +0200
-Message-Id: <20220613094931.232935919@linuxfoundation.org>
+Message-Id: <20220613094930.027648622@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,98 +54,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 10f3b29c65bb2fe0d47c2945cd0b4087be1c5218 ]
+[ Upstream commit f55a07074fdd38cab8c097ac5bd397d68eff733c ]
 
-syzbot reported an illegal copy_to_user() attempt
-from bpf_prog_get_info_by_fd() [1]
+It adds missing pskb_may_pull() in amt_update_handler() and
+amt_multicast_data_handler().
+And it fixes wrong parameter of pskb_may_pull() in
+amt_advertisement_handler() and amt_membership_query_handler().
 
-There was no repro yet on this bug, but I think
-that commit 0aef499f3172 ("mm/usercopy: Detect vmalloc overruns")
-is exposing a prior bug in bpf arm64.
-
-bpf_prog_get_info_by_fd() looks at prog->jited_len
-to determine if the JIT image can be copied out to user space.
-
-My theory is that syzbot managed to get a prog where prog->jited_len
-has been set to 43, while prog->bpf_func has ben cleared.
-
-It is not clear why copy_to_user(uinsns, NULL, ulen) is triggering
-this particular warning.
-
-I thought find_vma_area(NULL) would not find a vm_struct.
-As we do not hold vmap_area_lock spinlock, it might be possible
-that the found vm_struct was garbage.
-
-[1]
-usercopy: Kernel memory exposure attempt detected from vmalloc (offset 792633534417210172, size 43)!
-kernel BUG at mm/usercopy.c:101!
-Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 0 PID: 25002 Comm: syz-executor.1 Not tainted 5.18.0-syzkaller-10139-g8291eaafed36 #0
-Hardware name: linux,dummy-virt (DT)
-pstate: 60400009 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : usercopy_abort+0x90/0x94 mm/usercopy.c:101
-lr : usercopy_abort+0x90/0x94 mm/usercopy.c:89
-sp : ffff80000b773a20
-x29: ffff80000b773a30 x28: faff80000b745000 x27: ffff80000b773b48
-x26: 0000000000000000 x25: 000000000000002b x24: 0000000000000000
-x23: 00000000000000e0 x22: ffff80000b75db67 x21: 0000000000000001
-x20: 000000000000002b x19: ffff80000b75db3c x18: 00000000fffffffd
-x17: 2820636f6c6c616d x16: 76206d6f72662064 x15: 6574636574656420
-x14: 74706d6574746120 x13: 2129333420657a69 x12: 73202c3237313031
-x11: 3237313434333533 x10: 3336323937207465 x9 : 657275736f707865
-x8 : ffff80000a30c550 x7 : ffff80000b773830 x6 : ffff80000b773830
-x5 : 0000000000000000 x4 : ffff00007fbbaa10 x3 : 0000000000000000
-x2 : 0000000000000000 x1 : f7ff000028fc0000 x0 : 0000000000000064
-Call trace:
- usercopy_abort+0x90/0x94 mm/usercopy.c:89
- check_heap_object mm/usercopy.c:186 [inline]
- __check_object_size mm/usercopy.c:252 [inline]
- __check_object_size+0x198/0x36c mm/usercopy.c:214
- check_object_size include/linux/thread_info.h:199 [inline]
- check_copy_size include/linux/thread_info.h:235 [inline]
- copy_to_user include/linux/uaccess.h:159 [inline]
- bpf_prog_get_info_by_fd.isra.0+0xf14/0xfdc kernel/bpf/syscall.c:3993
- bpf_obj_get_info_by_fd+0x12c/0x510 kernel/bpf/syscall.c:4253
- __sys_bpf+0x900/0x2150 kernel/bpf/syscall.c:4956
- __do_sys_bpf kernel/bpf/syscall.c:5021 [inline]
- __se_sys_bpf kernel/bpf/syscall.c:5019 [inline]
- __arm64_sys_bpf+0x28/0x40 kernel/bpf/syscall.c:5019
- __invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
- invoke_syscall+0x48/0x114 arch/arm64/kernel/syscall.c:52
- el0_svc_common.constprop.0+0x44/0xec arch/arm64/kernel/syscall.c:142
- do_el0_svc+0xa0/0xc0 arch/arm64/kernel/syscall.c:206
- el0_svc+0x44/0xb0 arch/arm64/kernel/entry-common.c:624
- el0t_64_sync_handler+0x1ac/0x1b0 arch/arm64/kernel/entry-common.c:642
- el0t_64_sync+0x198/0x19c arch/arm64/kernel/entry.S:581
-Code: aa0003e3 d00038c0 91248000 97fff65f (d4210000)
-
-Fixes: db496944fdaa ("bpf: arm64: add JIT support for multi-function programs")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20220531215113.1100754-1-eric.dumazet@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: cbc21dc1cfe9 ("amt: add data plane of amt interface")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/net/bpf_jit_comp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/amt.c | 55 +++++++++++++++++++++++++++++++----------------
+ 1 file changed, 37 insertions(+), 18 deletions(-)
 
-diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
-index 6876e8205042..321d3880fe13 100644
---- a/arch/arm64/net/bpf_jit_comp.c
-+++ b/arch/arm64/net/bpf_jit_comp.c
-@@ -938,6 +938,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
- 			bpf_jit_binary_free(header);
- 			prog->bpf_func = NULL;
- 			prog->jited = 0;
-+			prog->jited_len = 0;
- 			goto out_off;
- 		}
- 		bpf_jit_binary_lock_ro(header);
+diff --git a/drivers/net/amt.c b/drivers/net/amt.c
+index d23eac9ce858..d8c47c4e6559 100644
+--- a/drivers/net/amt.c
++++ b/drivers/net/amt.c
+@@ -2220,8 +2220,7 @@ static bool amt_advertisement_handler(struct amt_dev *amt, struct sk_buff *skb)
+ 	struct amt_header_advertisement *amta;
+ 	int hdr_size;
+ 
+-	hdr_size = sizeof(*amta) - sizeof(struct amt_header);
+-
++	hdr_size = sizeof(*amta) + sizeof(struct udphdr);
+ 	if (!pskb_may_pull(skb, hdr_size))
+ 		return true;
+ 
+@@ -2251,19 +2250,27 @@ static bool amt_multicast_data_handler(struct amt_dev *amt, struct sk_buff *skb)
+ 	struct ethhdr *eth;
+ 	struct iphdr *iph;
+ 
++	hdr_size = sizeof(*amtmd) + sizeof(struct udphdr);
++	if (!pskb_may_pull(skb, hdr_size))
++		return true;
++
+ 	amtmd = (struct amt_header_mcast_data *)(udp_hdr(skb) + 1);
+ 	if (amtmd->reserved || amtmd->version)
+ 		return true;
+ 
+-	hdr_size = sizeof(*amtmd) + sizeof(struct udphdr);
+ 	if (iptunnel_pull_header(skb, hdr_size, htons(ETH_P_IP), false))
+ 		return true;
++
+ 	skb_reset_network_header(skb);
+ 	skb_push(skb, sizeof(*eth));
+ 	skb_reset_mac_header(skb);
+ 	skb_pull(skb, sizeof(*eth));
+ 	eth = eth_hdr(skb);
++
++	if (!pskb_may_pull(skb, sizeof(*iph)))
++		return true;
+ 	iph = ip_hdr(skb);
++
+ 	if (iph->version == 4) {
+ 		if (!ipv4_is_multicast(iph->daddr))
+ 			return true;
+@@ -2274,6 +2281,9 @@ static bool amt_multicast_data_handler(struct amt_dev *amt, struct sk_buff *skb)
+ 	} else if (iph->version == 6) {
+ 		struct ipv6hdr *ip6h;
+ 
++		if (!pskb_may_pull(skb, sizeof(*ip6h)))
++			return true;
++
+ 		ip6h = ipv6_hdr(skb);
+ 		if (!ipv6_addr_is_multicast(&ip6h->daddr))
+ 			return true;
+@@ -2306,8 +2316,7 @@ static bool amt_membership_query_handler(struct amt_dev *amt,
+ 	struct iphdr *iph;
+ 	int hdr_size, len;
+ 
+-	hdr_size = sizeof(*amtmq) - sizeof(struct amt_header);
+-
++	hdr_size = sizeof(*amtmq) + sizeof(struct udphdr);
+ 	if (!pskb_may_pull(skb, hdr_size))
+ 		return true;
+ 
+@@ -2315,22 +2324,27 @@ static bool amt_membership_query_handler(struct amt_dev *amt,
+ 	if (amtmq->reserved || amtmq->version)
+ 		return true;
+ 
+-	hdr_size = sizeof(*amtmq) + sizeof(struct udphdr) - sizeof(*eth);
++	hdr_size -= sizeof(*eth);
+ 	if (iptunnel_pull_header(skb, hdr_size, htons(ETH_P_TEB), false))
+ 		return true;
++
+ 	oeth = eth_hdr(skb);
+ 	skb_reset_mac_header(skb);
+ 	skb_pull(skb, sizeof(*eth));
+ 	skb_reset_network_header(skb);
+ 	eth = eth_hdr(skb);
++	if (!pskb_may_pull(skb, sizeof(*iph)))
++		return true;
++
+ 	iph = ip_hdr(skb);
+ 	if (iph->version == 4) {
+-		if (!ipv4_is_multicast(iph->daddr))
+-			return true;
+ 		if (!pskb_may_pull(skb, sizeof(*iph) + AMT_IPHDR_OPTS +
+ 				   sizeof(*ihv3)))
+ 			return true;
+ 
++		if (!ipv4_is_multicast(iph->daddr))
++			return true;
++
+ 		ihv3 = skb_pull(skb, sizeof(*iph) + AMT_IPHDR_OPTS);
+ 		skb_reset_transport_header(skb);
+ 		skb_push(skb, sizeof(*iph) + AMT_IPHDR_OPTS);
+@@ -2345,15 +2359,17 @@ static bool amt_membership_query_handler(struct amt_dev *amt,
+ 		ip_eth_mc_map(iph->daddr, eth->h_dest);
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	} else if (iph->version == 6) {
+-		struct ipv6hdr *ip6h = ipv6_hdr(skb);
+ 		struct mld2_query *mld2q;
++		struct ipv6hdr *ip6h;
+ 
+-		if (!ipv6_addr_is_multicast(&ip6h->daddr))
+-			return true;
+ 		if (!pskb_may_pull(skb, sizeof(*ip6h) + AMT_IP6HDR_OPTS +
+ 				   sizeof(*mld2q)))
+ 			return true;
+ 
++		ip6h = ipv6_hdr(skb);
++		if (!ipv6_addr_is_multicast(&ip6h->daddr))
++			return true;
++
+ 		mld2q = skb_pull(skb, sizeof(*ip6h) + AMT_IP6HDR_OPTS);
+ 		skb_reset_transport_header(skb);
+ 		skb_push(skb, sizeof(*ip6h) + AMT_IP6HDR_OPTS);
+@@ -2389,23 +2405,23 @@ static bool amt_update_handler(struct amt_dev *amt, struct sk_buff *skb)
+ {
+ 	struct amt_header_membership_update *amtmu;
+ 	struct amt_tunnel_list *tunnel;
+-	struct udphdr *udph;
+ 	struct ethhdr *eth;
+ 	struct iphdr *iph;
+-	int len;
++	int len, hdr_size;
+ 
+ 	iph = ip_hdr(skb);
+-	udph = udp_hdr(skb);
+ 
+-	if (__iptunnel_pull_header(skb, sizeof(*udph), skb->protocol,
+-				   false, false))
++	hdr_size = sizeof(*amtmu) + sizeof(struct udphdr);
++	if (!pskb_may_pull(skb, hdr_size))
+ 		return true;
+ 
+-	amtmu = (struct amt_header_membership_update *)skb->data;
++	amtmu = (struct amt_header_membership_update *)(udp_hdr(skb) + 1);
+ 	if (amtmu->reserved || amtmu->version)
+ 		return true;
+ 
+-	skb_pull(skb, sizeof(*amtmu));
++	if (iptunnel_pull_header(skb, hdr_size, skb->protocol, false))
++		return true;
++
+ 	skb_reset_network_header(skb);
+ 
+ 	list_for_each_entry_rcu(tunnel, &amt->tunnel_list, list) {
+@@ -2426,6 +2442,9 @@ static bool amt_update_handler(struct amt_dev *amt, struct sk_buff *skb)
+ 	return true;
+ 
+ report:
++	if (!pskb_may_pull(skb, sizeof(*iph)))
++		return true;
++
+ 	iph = ip_hdr(skb);
+ 	if (iph->version == 4) {
+ 		if (ip_mc_check_igmp(skb)) {
 -- 
 2.35.1
 
