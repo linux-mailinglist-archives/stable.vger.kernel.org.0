@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0E82548751
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A33554866A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385891AbiFMOzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:55:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45268 "EHLO
+        id S1384965AbiFMOqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:46:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386816AbiFMOyY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:54:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F495CEB98;
-        Mon, 13 Jun 2022 04:57:10 -0700 (PDT)
+        with ESMTP id S1386559AbiFMOqN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:46:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE8EBF133;
+        Mon, 13 Jun 2022 04:52:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8FDDB80EB2;
-        Mon, 13 Jun 2022 11:52:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2707DC3411B;
-        Mon, 13 Jun 2022 11:52:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD0546133B;
+        Mon, 13 Jun 2022 11:52:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB819C34114;
+        Mon, 13 Jun 2022 11:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121121;
-        bh=eSd1ELFsAoy1oMuc2JFhD/6t5LSqKBh+HAHIcUu/rcE=;
+        s=korg; t=1655121135;
+        bh=MmMkYtXo0kaC/SGumxIQWqcUBTgb+3KADcP4UnpW0gM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BjpsHzsD8bXgZIDJIZPhFbL58M0GLeu5tSgegD+sbUznBlYSlZCqcfTxPffdnPf3X
-         AHCPHB+Grj0RtwRFQem3d9hXvtcAgnDl0YVrxb07BbA28OsGgKK2QLTyy9lRKGntCS
-         F1IsqgIqV2UBP+A0vjGr/HHQ62bQyr5GhAiGHsA0=
+        b=rbGxBohw4UXA9p3bb3bLpvnnrn6CXwQcorIP/Yi0KvQEf0ICGy34b6RHKGvsG+KC3
+         YRgGWXe6Drme1lkcc+ix0oTsLR98lZR51/gsXUDHGAnBRF5cOXlkTqZRr7N8EzJbVG
+         5eOUyZBTBZFCglMMIcSXJwKJNSUUQN1qoPscc0cA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.17 280/298] vduse: Fix NULL pointer dereference on sysfs access
-Date:   Mon, 13 Jun 2022 12:12:54 +0200
-Message-Id: <20220613094933.574939149@linuxfoundation.org>
+        stable@vger.kernel.org, Liu Ying <victor.liu@oss.nxp.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 5.17 285/298] drm/atomic: Force bridge self-refresh-exit on CRTC switch
+Date:   Mon, 13 Jun 2022 12:12:59 +0200
+Message-Id: <20220613094933.725811695@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
 References: <20220613094924.913340374@linuxfoundation.org>
@@ -54,68 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit b27ee76c74dc831d6e092eaebc2dfc9c0beed1c9 upstream.
+commit e54a4424925a27ed94dff046db3ce5caf4b1e748 upstream.
 
-The control device has no drvdata. So we will get a
-NULL pointer dereference when accessing control
-device's msg_timeout attribute via sysfs:
+It's possible to change which CRTC is in use for a given
+connector/encoder/bridge while we're in self-refresh without fully
+disabling the connector/encoder/bridge along the way. This can confuse
+the bridge encoder/bridge, because
+(a) it needs to track the SR state (trying to perform "active"
+    operations while the panel is still in SR can be Bad(TM)); and
+(b) it tracks the SR state via the CRTC state (and after the switch, the
+    previous SR state is lost).
 
-[ 132.841881][ T3644] BUG: kernel NULL pointer dereference, address: 00000000000000f8
-[ 132.850619][ T3644] RIP: 0010:msg_timeout_show (drivers/vdpa/vdpa_user/vduse_dev.c:1271)
-[ 132.869447][ T3644] dev_attr_show (drivers/base/core.c:2094)
-[ 132.870215][ T3644] sysfs_kf_seq_show (fs/sysfs/file.c:59)
-[ 132.871164][ T3644] ? device_remove_bin_file (drivers/base/core.c:2088)
-[ 132.872082][ T3644] kernfs_seq_show (fs/kernfs/file.c:164)
-[ 132.872838][ T3644] seq_read_iter (fs/seq_file.c:230)
-[ 132.873578][ T3644] ? __vmalloc_area_node (mm/vmalloc.c:3041)
-[ 132.874532][ T3644] kernfs_fop_read_iter (fs/kernfs/file.c:238)
-[ 132.875513][ T3644] __kernel_read (fs/read_write.c:440 (discriminator 1))
-[ 132.876319][ T3644] kernel_read (fs/read_write.c:459)
-[ 132.877129][ T3644] kernel_read_file (fs/kernel_read_file.c:94)
-[ 132.877978][ T3644] kernel_read_file_from_fd (include/linux/file.h:45 fs/kernel_read_file.c:186)
-[ 132.879019][ T3644] __do_sys_finit_module (kernel/module.c:4207)
-[ 132.879930][ T3644] __ia32_sys_finit_module (kernel/module.c:4189)
-[ 132.880930][ T3644] do_int80_syscall_32 (arch/x86/entry/common.c:112 arch/x86/entry/common.c:132)
-[ 132.881847][ T3644] entry_INT80_compat (arch/x86/entry/entry_64_compat.S:419)
+Thus, we need to either somehow carry the self-refresh state over to the
+new CRTC, or else force an encoder/bridge self-refresh transition during
+such a switch.
 
-To fix it, don't create the unneeded attribute for
-control device anymore.
+I choose the latter, so we disable the encoder (and exit PSR) before
+attaching it to the new CRTC (where we can continue to assume a clean
+(non-self-refresh) state).
 
-Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Message-Id: <20220426073656.229-1-xieyongji@bytedance.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+This fixes PSR issues seen on Rockchip RK3399 systems with
+drivers/gpu/drm/bridge/analogix/analogix_dp_core.c.
+
+Change in v2:
+
+- Drop "->enable" condition; this could possibly be "->active" to
+  reflect the intended hardware state, but it also is a little
+  over-specific. We want to make a transition through "disabled" any
+  time we're exiting PSR at the same time as a CRTC switch.
+  (Thanks Liu Ying)
+
+Cc: Liu Ying <victor.liu@oss.nxp.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 1452c25b0e60 ("drm: Add helpers to kick off self refresh mode in drivers")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220228122522.v2.2.Ic15a2ef69c540aee8732703103e2cff51fb9c399@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/drm_atomic_helper.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1344,9 +1344,9 @@ static int vduse_create_dev(struct vduse
+--- a/drivers/gpu/drm/drm_atomic_helper.c
++++ b/drivers/gpu/drm/drm_atomic_helper.c
+@@ -1011,9 +1011,19 @@ crtc_needs_disable(struct drm_crtc_state
+ 		return drm_atomic_crtc_effectively_active(old_state);
  
- 	dev->minor = ret;
- 	dev->msg_timeout = VDUSE_MSG_DEFAULT_TIMEOUT;
--	dev->dev = device_create(vduse_class, NULL,
--				 MKDEV(MAJOR(vduse_major), dev->minor),
--				 dev, "%s", config->name);
-+	dev->dev = device_create_with_groups(vduse_class, NULL,
-+				MKDEV(MAJOR(vduse_major), dev->minor),
-+				dev, vduse_dev_groups, "%s", config->name);
- 	if (IS_ERR(dev->dev)) {
- 		ret = PTR_ERR(dev->dev);
- 		goto err_dev;
-@@ -1595,7 +1595,6 @@ static int vduse_init(void)
- 		return PTR_ERR(vduse_class);
- 
- 	vduse_class->devnode = vduse_devnode;
--	vduse_class->dev_groups = vduse_dev_groups;
- 
- 	ret = alloc_chrdev_region(&vduse_major, 0, VDUSE_DEV_MAX, "vduse");
- 	if (ret)
+ 	/*
+-	 * We need to run through the crtc_funcs->disable() function if the CRTC
+-	 * is currently on, if it's transitioning to self refresh mode, or if
+-	 * it's in self refresh mode and needs to be fully disabled.
++	 * We need to disable bridge(s) and CRTC if we're transitioning out of
++	 * self-refresh and changing CRTCs at the same time, because the
++	 * bridge tracks self-refresh status via CRTC state.
++	 */
++	if (old_state->self_refresh_active &&
++	    old_state->crtc != new_state->crtc)
++		return true;
++
++	/*
++	 * We also need to run through the crtc_funcs->disable() function if
++	 * the CRTC is currently on, if it's transitioning to self refresh
++	 * mode, or if it's in self refresh mode and needs to be fully
++	 * disabled.
+ 	 */
+ 	return old_state->active ||
+ 	       (old_state->self_refresh_active && !new_state->active) ||
 
 
