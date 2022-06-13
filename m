@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 543FB54940F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EAE1549788
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381202AbiFMOQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:16:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41608 "EHLO
+        id S1353885AbiFMLcG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:32:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382981AbiFMOPB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:15:01 -0400
+        with ESMTP id S1354528AbiFML3k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D109C9B199;
-        Mon, 13 Jun 2022 04:42:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A048201BA;
+        Mon, 13 Jun 2022 03:44:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52E77B80EA7;
-        Mon, 13 Jun 2022 11:42:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1D19C341C0;
-        Mon, 13 Jun 2022 11:42:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39583B80E59;
+        Mon, 13 Jun 2022 10:44:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DEF5C341C5;
+        Mon, 13 Jun 2022 10:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120557;
-        bh=ckANyrkMqg8JdbVw/F++oS0RepEeTBciE0XRiI5cdxU=;
+        s=korg; t=1655117097;
+        bh=aRdbOx7lSLv9D6cWiWuBrvvuoubprMwBW9czfB/JjMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/mozYCCwsWk0kWL0KcDtA96PojUrQhpfts+aapc6oouHkE14PWZ4nysVEa6nNea+
-         PqtSYLolnRfWIGTdyWp/zs1dULbd588yR5RP7r76AhzX39GRGZy+Gb0KKdHsS06JwV
-         yEjtjrwGOzrx8Yb74ttJEatUFbTod3oNfYBJCCcw=
+        b=XVSsLWEfebVn7cEbPbVH2lPXlK0jqV/+v6n/WNtWhGPdxfRrleTCfsOJaq4Ha7qOY
+         kjXxMr/02MgfMjUwwoLV4o//qXsSz2X4kcoclloN2SIqYKKIfVP9orfx6RbnKGTPzD
+         gsB1y9yUv9kBwW2P1Hyn3caLzFSbNL4BxJDW1cNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        stable@vger.kernel.org, Cixi Geng <cixi.geng1@unisoc.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 076/298] s390/crypto: fix scatterwalk_unmap() callers in AES-GCM
+Subject: [PATCH 5.4 297/411] iio: adc: sc27xx: fix read big scale voltage not right
 Date:   Mon, 13 Jun 2022 12:09:30 +0200
-Message-Id: <20220613094927.252073006@linuxfoundation.org>
+Message-Id: <20220613094937.664275438@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Cixi Geng <cixi.geng1@unisoc.com>
 
-[ Upstream commit bd52cd5e23f134019b23f0c389db0f9a436e4576 ]
+[ Upstream commit ad930a75613282400179361e220e58b87386b8c7 ]
 
-The argument of scatterwalk_unmap() is supposed to be the void* that was
-returned by the previous scatterwalk_map() call.
-The s390 AES-GCM implementation was instead passing the pointer to the
-struct scatter_walk.
+Fix wrong configuration value of SC27XX_ADC_SCALE_MASK and
+SC27XX_ADC_SCALE_SHIFT by spec documetation.
 
-This doesn't actually break anything because scatterwalk_unmap() only uses
-its argument under CONFIG_HIGHMEM and ARCH_HAS_FLUSH_ON_KUNMAP.
-
-Fixes: bf7fa038707c ("s390/crypto: add s390 platform specific aes gcm support.")
-Signed-off-by: Jann Horn <jannh@google.com>
-Acked-by: Harald Freudenberger <freude@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220517143047.3054498-1-jannh@google.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: 5df362a6cf49c (iio: adc: Add Spreadtrum SC27XX PMICs ADC support)
+Signed-off-by: Cixi Geng <cixi.geng1@unisoc.com>
+Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
+Link: https://lore.kernel.org/r/20220419142458.884933-3-gengcixi@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/crypto/aes_s390.c | 4 ++--
+ drivers/iio/adc/sc27xx_adc.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-index 54c7536f2482..1023e9d43d44 100644
---- a/arch/s390/crypto/aes_s390.c
-+++ b/arch/s390/crypto/aes_s390.c
-@@ -701,7 +701,7 @@ static inline void _gcm_sg_unmap_and_advance(struct gcm_sg_walk *gw,
- 					     unsigned int nbytes)
- {
- 	gw->walk_bytes_remain -= nbytes;
--	scatterwalk_unmap(&gw->walk);
-+	scatterwalk_unmap(gw->walk_ptr);
- 	scatterwalk_advance(&gw->walk, nbytes);
- 	scatterwalk_done(&gw->walk, 0, gw->walk_bytes_remain);
- 	gw->walk_ptr = NULL;
-@@ -776,7 +776,7 @@ static int gcm_out_walk_go(struct gcm_sg_walk *gw, unsigned int minbytesneeded)
- 		goto out;
- 	}
+diff --git a/drivers/iio/adc/sc27xx_adc.c b/drivers/iio/adc/sc27xx_adc.c
+index a6c046575ec3..dcc01cdcff3f 100644
+--- a/drivers/iio/adc/sc27xx_adc.c
++++ b/drivers/iio/adc/sc27xx_adc.c
+@@ -36,8 +36,8 @@
  
--	scatterwalk_unmap(&gw->walk);
-+	scatterwalk_unmap(gw->walk_ptr);
- 	gw->walk_ptr = NULL;
+ /* Bits and mask definition for SC27XX_ADC_CH_CFG register */
+ #define SC27XX_ADC_CHN_ID_MASK		GENMASK(4, 0)
+-#define SC27XX_ADC_SCALE_MASK		GENMASK(10, 8)
+-#define SC27XX_ADC_SCALE_SHIFT		8
++#define SC27XX_ADC_SCALE_MASK		GENMASK(10, 9)
++#define SC27XX_ADC_SCALE_SHIFT		9
  
- 	gw->ptr = gw->buf;
+ /* Bits definitions for SC27XX_ADC_INT_EN registers */
+ #define SC27XX_ADC_IRQ_EN		BIT(0)
 -- 
 2.35.1
 
