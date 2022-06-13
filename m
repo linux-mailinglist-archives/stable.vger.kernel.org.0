@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB64B54874B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5585486C5
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382247AbiFMORA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:17:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42468 "EHLO
+        id S1358538AbiFMMG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:06:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383511AbiFMOQB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:16:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45CF09E9FC;
-        Mon, 13 Jun 2022 04:43:20 -0700 (PDT)
+        with ESMTP id S1358269AbiFMMCJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:02:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58F594F465;
+        Mon, 13 Jun 2022 03:57:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62F61613F9;
-        Mon, 13 Jun 2022 11:43:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74061C34114;
-        Mon, 13 Jun 2022 11:43:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C912B80E93;
+        Mon, 13 Jun 2022 10:57:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF284C3411F;
+        Mon, 13 Jun 2022 10:57:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120598;
-        bh=58t3a21QM1+D/RKpGEpYCld2O32dL7KkNcO/l5AN8Pg=;
+        s=korg; t=1655117827;
+        bh=tyA0ejAS9z+0uiLzoyWjMGJJNFCiypMG0doZNc98FoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tAguwrarXcy+bsN70RohmFy4pcTFiwfStzitTcMlU2ijVd2IU4P/CwsZkA1FgFHf8
-         RkQYS4s04G2ZW/5oDcUxcFk7FArXcposbdMhp11EsLC0gc528eujcldXPdl99+AUzu
-         SWSSbfBhhn7QUWpvNUdJ9SBL//UyGp6qaZnCqSRs=
+        b=yMm9pUeSCAiwuasDg7yxq/QVixT+LvUN0QdNp8ePkjlguz9IazhRwSz5qLD1F1Vmq
+         EPF29yGd+bsnqrjZDWQAaPPOLZlUrISH1cMekfGAcpGJU69aPDikHbzFMgkcBAQq1B
+         w4oLdaWya8WUDfgxiFjO/mx2t0U9+xE+T7mSN9ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 067/298] firmware: dmi-sysfs: Fix memory leak in dmi_sysfs_register_handle
-Date:   Mon, 13 Jun 2022 12:09:21 +0200
-Message-Id: <20220613094926.978743451@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 138/287] dmaengine: stm32-mdma: remove GISR1 register
+Date:   Mon, 13 Jun 2022 12:09:22 +0200
+Message-Id: <20220613094928.062694848@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-[ Upstream commit 660ba678f9998aca6db74f2dd912fa5124f0fa31 ]
+[ Upstream commit 9d6a2d92e450926c483e45eaf426080a19219f4e ]
 
-kobject_init_and_add() takes reference even when it fails.
-According to the doc of kobject_init_and_add()
+GISR1 was described in a not up-to-date documentation when the stm32-mdma
+driver has been developed. This register has not been added in reference
+manual of STM32 SoC with MDMA, which have only 32 MDMA channels.
+So remove it from stm32-mdma driver.
 
-   If this function returns an error, kobject_put() must be called to
-   properly clean up the memory associated with the object.
-
-Fix this issue by calling kobject_put().
-
-Fixes: 948af1f0bbc8 ("firmware: Basic dmi-sysfs support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220511071421.9769-1-linmq006@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a4ffb13c8946 ("dmaengine: Add STM32 MDMA driver")
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/20220504155322.121431-2-amelie.delaunay@foss.st.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/dmi-sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/stm32-mdma.c | 21 +++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/firmware/dmi-sysfs.c b/drivers/firmware/dmi-sysfs.c
-index 3a353776bd34..66727ad3361b 100644
---- a/drivers/firmware/dmi-sysfs.c
-+++ b/drivers/firmware/dmi-sysfs.c
-@@ -604,7 +604,7 @@ static void __init dmi_sysfs_register_handle(const struct dmi_header *dh,
- 				    "%d-%d", dh->type, entry->instance);
+diff --git a/drivers/dma/stm32-mdma.c b/drivers/dma/stm32-mdma.c
+index 8585fed84e83..3259c450544c 100644
+--- a/drivers/dma/stm32-mdma.c
++++ b/drivers/dma/stm32-mdma.c
+@@ -50,7 +50,6 @@
+ 					 STM32_MDMA_SHIFT(mask))
  
- 	if (*ret) {
--		kfree(entry);
-+		kobject_put(&entry->kobj);
- 		return;
+ #define STM32_MDMA_GISR0		0x0000 /* MDMA Int Status Reg 1 */
+-#define STM32_MDMA_GISR1		0x0004 /* MDMA Int Status Reg 2 */
+ 
+ /* MDMA Channel x interrupt/status register */
+ #define STM32_MDMA_CISR(x)		(0x40 + 0x40 * (x)) /* x = 0..62 */
+@@ -206,7 +205,7 @@
+ 
+ #define STM32_MDMA_MAX_BUF_LEN		128
+ #define STM32_MDMA_MAX_BLOCK_LEN	65536
+-#define STM32_MDMA_MAX_CHANNELS		63
++#define STM32_MDMA_MAX_CHANNELS		32
+ #define STM32_MDMA_MAX_REQUESTS		256
+ #define STM32_MDMA_MAX_BURST		128
+ #define STM32_MDMA_VERY_HIGH_PRIORITY	0x11
+@@ -1361,21 +1360,11 @@ static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
+ 
+ 	/* Find out which channel generates the interrupt */
+ 	status = readl_relaxed(dmadev->base + STM32_MDMA_GISR0);
+-	if (status) {
+-		id = __ffs(status);
+-	} else {
+-		status = readl_relaxed(dmadev->base + STM32_MDMA_GISR1);
+-		if (!status) {
+-			dev_dbg(mdma2dev(dmadev), "spurious it\n");
+-			return IRQ_NONE;
+-		}
+-		id = __ffs(status);
+-		/*
+-		 * As GISR0 provides status for channel id from 0 to 31,
+-		 * so GISR1 provides status for channel id from 32 to 62
+-		 */
+-		id += 32;
++	if (!status) {
++		dev_dbg(mdma2dev(dmadev), "spurious it\n");
++		return IRQ_NONE;
  	}
++	id = __ffs(status);
  
+ 	chan = &dmadev->chan[id];
+ 	if (!chan) {
 -- 
 2.35.1
 
