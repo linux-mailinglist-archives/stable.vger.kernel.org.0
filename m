@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CFE0549123
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBB815494CA
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378305AbiFMNm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:42:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59058 "EHLO
+        id S232579AbiFMMzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:55:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379186AbiFMNkA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52E5011152;
-        Mon, 13 Jun 2022 04:29:32 -0700 (PDT)
+        with ESMTP id S1357862AbiFMMyr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:54:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37B1D66697;
+        Mon, 13 Jun 2022 04:13:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A7533CE110D;
-        Mon, 13 Jun 2022 11:29:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0B90C34114;
-        Mon, 13 Jun 2022 11:29:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C589460B60;
+        Mon, 13 Jun 2022 11:13:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6BE1C3411E;
+        Mon, 13 Jun 2022 11:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119769;
-        bh=6nQzew8eWXcwJ/e6eQADK+2ZYHZl3QXmSnJJdhl8oDA=;
+        s=korg; t=1655118810;
+        bh=x0Y131J8nnxXns7YvxxNrHgT0d8tKBuoMIC9D2JTZec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DninzJh26n7mxupTT4Xm9BlLONLX778jUsUoRKi3GaXRYgZOXiyUDQEoBOCVpJXsB
-         j2wKK9U32Ggdx9O2zxpJKWPl0SQRVZ2kN48Y5tMk84jE4DSdUHDf0WtcwNnbW4DZ2f
-         Zc3lM0eXH6ubTbCrwTEGt+YryB3rXb9qhFNqVla4=
+        b=iBVn0jWssTpk9Tv1dcl3SmbIM/nzmzNMMZM3BVbtf1czS9HSmxrwXOhyedFI/95RG
+         /Bf7KYg63rIdJfb5FFK8CclwQ0Io17vgZQH6ZlpyX/OqThTwbuHW37IwIEXdNTKW17
+         NlwQUAoI2+8T0/nFc3TMSPFbbqxBuAjzQX2+drKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Liang <liali@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Jonathan Toppins <jtoppins@redhat.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 113/339] bonding: NS target should accept link local address
+Subject: [PATCH 5.15 036/247] power: supply: axp288_fuel_gauge: Drop BIOS version check from "T3 MRD" DMI quirk
 Date:   Mon, 13 Jun 2022 12:08:58 +0200
-Message-Id: <20220613094929.938831564@linuxfoundation.org>
+Message-Id: <20220613094924.034734391@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,45 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 5e1eeef69c0fef6249b794bda5d68f95a65d062f ]
+[ Upstream commit f61509a6f0b70f5bedea34efaf8065621689bd7a ]
 
-When setting bond NS target, we use bond_is_ip6_target_ok() to check
-if the address valid. The link local address was wrongly rejected in
-bond_changelink(), as most time the user just set the ARP/NS target to
-gateway, while the IPv6 gateway is always a link local address when user
-set up interface via SLAAC.
+Some "T3 MRD" mini-PCs / HDMI-sticks without a battery use a different
+value then "5.11" for their DMI BIOS version field.
 
-So remove the link local addr check when setting bond NS target.
+Drop the BIOS version check so that the no-battery "T3 MRD" DMI quirk
+applies to these too.
 
-Fixes: 129e3c1bab24 ("bonding: add new option ns_ip6_target")
-Reported-by: Li Liang <liali@redhat.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Reviewed-by: Jonathan Toppins <jtoppins@redhat.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3a06b912a5ce ("power: supply: axp288_fuel_gauge: Make "T3 MRD" no_battery_list DMI entry more generic")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_netlink.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/power/supply/axp288_fuel_gauge.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/bonding/bond_netlink.c b/drivers/net/bonding/bond_netlink.c
-index f427fa1737c7..6f404f9c34e3 100644
---- a/drivers/net/bonding/bond_netlink.c
-+++ b/drivers/net/bonding/bond_netlink.c
-@@ -290,11 +290,6 @@ static int bond_changelink(struct net_device *bond_dev, struct nlattr *tb[],
- 
- 			addr6 = nla_get_in6_addr(attr);
- 
--			if (ipv6_addr_type(&addr6) & IPV6_ADDR_LINKLOCAL) {
--				NL_SET_ERR_MSG(extack, "Invalid IPv6 addr6");
--				return -EINVAL;
--			}
--
- 			bond_opt_initextra(&newval, &addr6, sizeof(addr6));
- 			err = __bond_opt_set(bond, BOND_OPT_NS_TARGETS,
- 					     &newval);
+diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
+index c1da217fdb0e..97e8663c08df 100644
+--- a/drivers/power/supply/axp288_fuel_gauge.c
++++ b/drivers/power/supply/axp288_fuel_gauge.c
+@@ -605,7 +605,6 @@ static const struct dmi_system_id axp288_no_battery_list[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "T3 MRD"),
+ 			DMI_MATCH(DMI_CHASSIS_TYPE, "3"),
+ 			DMI_MATCH(DMI_BIOS_VENDOR, "American Megatrends Inc."),
+-			DMI_MATCH(DMI_BIOS_VERSION, "5.11"),
+ 		},
+ 	},
+ 	{}
 -- 
 2.35.1
 
