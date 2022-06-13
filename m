@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E06854897F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 449405495FF
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348317AbiFMK4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:56:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39580 "EHLO
+        id S1380867AbiFMOUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:20:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347786AbiFMKwd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:52:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 098D12458D;
-        Mon, 13 Jun 2022 03:27:31 -0700 (PDT)
+        with ESMTP id S1382654AbiFMOSh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:18:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49B182E0BA;
+        Mon, 13 Jun 2022 04:43:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ED2760EF8;
-        Mon, 13 Jun 2022 10:27:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70F45C34114;
-        Mon, 13 Jun 2022 10:27:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A76E61236;
+        Mon, 13 Jun 2022 11:43:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2863CC34114;
+        Mon, 13 Jun 2022 11:43:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116050;
-        bh=yBMfBMsenoejD3SJApeyaIR+DRPPPmmkDIHXMUaPI6E=;
+        s=korg; t=1655120609;
+        bh=c67V56s4yiqr9KBUa9oYsn0oH4mwB5ZrMV4N1j52+P8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mAcmotJJowfnTxOygy7VS9oQ5XKBrXDTjudjW1zSlBCTklyv8IF9Rm6dX12rj99/a
-         lvpCcKUXKro+6r8ilGSrSsTWf81MXRPb7UP6aJGXu99fGoSo4k7bVy/ffXSEBlVNTK
-         JvpDccHY/hZL5pVfBryy5rUo6aQAa752FAdwn9uk=
+        b=SeEH7W9o8X/UDcUgyYGAF8/taeTbOxFB8oxrzCOs0+ExriRGmws7Mw+NzjW8CdnSk
+         jhxVsUq9dCw2aoijXJpf+LDh5OX2yfLvqIt8TgK+Zb4y0CAfUxinoYRO3pvEMOHDCP
+         fQxUzdFxizqbjYhoFIq+yiipiQf2S7eCbmXzVRtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.14 123/218] um: chan_user: Fix winch_tramp() return value
+        stable@vger.kernel.org,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 087/298] modpost: fix removing numeric suffixes
 Date:   Mon, 13 Jun 2022 12:09:41 +0200
-Message-Id: <20220613094924.303302204@linuxfoundation.org>
+Message-Id: <20220613094927.587234013@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
 
-commit 57ae0b67b747031bc41fb44643aa5344ab58607e upstream.
+[ Upstream commit b5beffa20d83c4e15306c991ffd00de0d8628338 ]
 
-The previous fix here was only partially correct, it did
-result in returning a proper error value in case of error,
-but it also clobbered the pid that we need to return from
-this function (not just zero for success).
+With the `-z unique-symbol` linker flag or any similar mechanism,
+it is possible to trigger the following:
 
-As a result, it returned 0 here, but later this is treated
-as a pid and used to kill the process, but since it's now
-0 we kill(0, SIGKILL), which makes UML kill itself rather
-than just the helper thread.
+ERROR: modpost: "param_set_uint.0" [vmlinux] is a static EXPORT_SYMBOL
 
-Fix that and make it more obvious by using a separate
-variable for the pid.
+The reason is that for now the condition from remove_dot():
 
-Fixes: ccf1236ecac4 ("um: fix error return code in winch_tramp()")
-Reported-and-tested-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+if (m && (s[n + m] == '.' || s[n + m] == 0))
+
+which was designed to test if it's a dot or a '\0' after the suffix
+is never satisfied.
+This is due to that `s[n + m]` always points to the last digit of a
+numeric suffix, not on the symbol next to it (from a custom debug
+print added to modpost):
+
+param_set_uint.0, s[n + m] is '0', s[n + m + 1] is '\0'
+
+So it's off-by-one and was like that since 2014.
+
+Fix this for the sake of any potential upcoming features, but don't
+bother stable-backporting, as it's well hidden -- apart from that
+LD flag, it can be triggered only with GCC LTO which never landed
+upstream.
+
+Fixes: fcd38ed0ff26 ("scripts: modpost: fix compilation warning")
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/chan_user.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ scripts/mod/modpost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/um/drivers/chan_user.c
-+++ b/arch/um/drivers/chan_user.c
-@@ -220,7 +220,7 @@ static int winch_tramp(int fd, struct tt
- 		       unsigned long *stack_out)
- {
- 	struct winch_data data;
--	int fds[2], n, err;
-+	int fds[2], n, err, pid;
- 	char c;
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index e04ae56931e2..3b098e26938e 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -1986,7 +1986,7 @@ static char *remove_dot(char *s)
  
- 	err = os_pipe(fds, 1, 1);
-@@ -238,8 +238,9 @@ static int winch_tramp(int fd, struct tt
- 	 * problem with /dev/net/tun, which if held open by this
- 	 * thread, prevents the TUN/TAP device from being reused.
- 	 */
--	err = run_helper_thread(winch_thread, &data, CLONE_FILES, stack_out);
--	if (err < 0) {
-+	pid = run_helper_thread(winch_thread, &data, CLONE_FILES, stack_out);
-+	if (pid < 0) {
-+		err = pid;
- 		printk(UM_KERN_ERR "fork of winch_thread failed - errno = %d\n",
- 		       -err);
- 		goto out_close;
-@@ -263,7 +264,7 @@ static int winch_tramp(int fd, struct tt
- 		goto out_close;
- 	}
+ 	if (n && s[n]) {
+ 		size_t m = strspn(s + n + 1, "0123456789");
+-		if (m && (s[n + m] == '.' || s[n + m] == 0))
++		if (m && (s[n + m + 1] == '.' || s[n + m + 1] == 0))
+ 			s[n] = 0;
  
--	return err;
-+	return pid;
- 
-  out_close:
- 	close(fds[1]);
+ 		/* strip trailing .lto */
+-- 
+2.35.1
+
 
 
