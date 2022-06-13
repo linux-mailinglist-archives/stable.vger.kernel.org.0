@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CAC45496D2
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 790F55496F1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380560AbiFMOCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:02:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41906 "EHLO
+        id S1380973AbiFMODV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:03:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380673AbiFMOBT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:01:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBBE74506D;
-        Mon, 13 Jun 2022 04:38:08 -0700 (PDT)
+        with ESMTP id S1380861AbiFMOCK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:02:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E77D08DDFE;
+        Mon, 13 Jun 2022 04:38:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6957612A8;
-        Mon, 13 Jun 2022 11:38:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8E74C34114;
-        Mon, 13 Jun 2022 11:38:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F9FD612AB;
+        Mon, 13 Jun 2022 11:38:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72AD4C34114;
+        Mon, 13 Jun 2022 11:38:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120287;
-        bh=3BWxhKNulzcCbnNSV6FQ23n1YY6LfjnJnjidMBbqzYI=;
+        s=korg; t=1655120289;
+        bh=G0vA+oHO6Pf/NwOimi2XtgklJgsVBvKZSqkj2BqgjLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XZNdnBkOVoib+9EOSkBhd4ue2tUJojkCeA6Mg7yRb1olS6/OX3WZGJYt4JbAfYG6O
-         nmhJ6LbzmHX8x6c+LXnKFyJVKDzeNEWVrhM2clmaxLJ0dl26FhNcrEbDech4f4I8Ek
-         ZjGZgKiwTuUs2klZG4cUiFalZcqmBtuv8Lc8mGhQ=
+        b=YtkjEEoJn4Va4iChNRX9olPKwMNZ+f4RT9QgqNPVn513sNwE39/U5WUQvsFMntSzS
+         n/dHiOba5OykrvE/ePlVTnFaz5bZrXs+k2YiABNI5afl9eDJL+ZDEiTr/SlSt2ZZ4Z
+         T3OyEv4shRcqbaBnDuQLKN/kyVj/4XaUwHeu9/7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Guenter Roeck <groeck@chromium.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.18 318/339] nfc: st21nfca: fix memory leaks in EVT_TRANSACTION handling
-Date:   Mon, 13 Jun 2022 12:12:23 +0200
-Message-Id: <20220613094936.394754267@linuxfoundation.org>
+Subject: [PATCH 5.18 319/339] nfc: st21nfca: fix incorrect sizing calculations in EVT_TRANSACTION
+Date:   Mon, 13 Jun 2022 12:12:24 +0200
+Message-Id: <20220613094936.424027115@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
 References: <20220613094926.497929857@linuxfoundation.org>
@@ -57,10 +57,26 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Faltesek <mfaltesek@google.com>
 
-commit 996419e0594abb311fb958553809f24f38e7abbe upstream.
+commit f2e19b36593caed4c977c2f55aeba7408aeb2132 upstream.
 
-Error paths do not free previously allocated memory. Add devm_kfree() to
-those failure paths.
+The transaction buffer is allocated by using the size of the packet buf,
+and subtracting two which seem intended to remove the two tags which are
+not present in the target structure. This calculation leads to under
+counting memory because of differences between the packet contents and the
+target structure. The aid_len field is a u8 in the packet, but a u32 in
+the structure, resulting in at least 3 bytes always being under counted.
+Further, the aid data is a variable length field in the packet, but fixed
+in the structure, so if this field is less than the max, the difference is
+added to the under counting.
+
+The last validation check for transaction->params_len is also incorrect
+since it employs the same accounting error.
+
+To fix, perform validation checks progressively to safely reach the
+next field, to determine the size of both buffers and verify both tags.
+Once all validation checks pass, allocate the buffer and copy the data.
+This eliminates freeing memory on the error path, as those checks are
+moved ahead of memory allocation.
 
 Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
 Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
@@ -71,43 +87,99 @@ Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/st21nfca/se.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/nfc/st21nfca/se.c |   62 +++++++++++++++++++++++-----------------------
+ 1 file changed, 31 insertions(+), 31 deletions(-)
 
 --- a/drivers/nfc/st21nfca/se.c
 +++ b/drivers/nfc/st21nfca/se.c
-@@ -326,22 +326,29 @@ int st21nfca_connectivity_event_received
- 		transaction->aid_len = skb->data[1];
+@@ -300,6 +300,8 @@ int st21nfca_connectivity_event_received
+ 	int r = 0;
+ 	struct device *dev = &hdev->ndev->dev;
+ 	struct nfc_evt_transaction *transaction;
++	u32 aid_len;
++	u8 params_len;
  
- 		/* Checking if the length of the AID is valid */
--		if (transaction->aid_len > sizeof(transaction->aid))
-+		if (transaction->aid_len > sizeof(transaction->aid)) {
-+			devm_kfree(dev, transaction);
- 			return -EINVAL;
-+		}
+ 	pr_debug("connectivity gate event: %x\n", event);
  
- 		memcpy(transaction->aid, &skb->data[2],
- 		       transaction->aid_len);
- 
- 		/* Check next byte is PARAMETERS tag (82) */
- 		if (skb->data[transaction->aid_len + 2] !=
--		    NFC_EVT_TRANSACTION_PARAMS_TAG)
-+		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
-+			devm_kfree(dev, transaction);
+@@ -308,50 +310,48 @@ int st21nfca_connectivity_event_received
+ 		r = nfc_se_connectivity(hdev->ndev, host);
+ 	break;
+ 	case ST21NFCA_EVT_TRANSACTION:
+-		/*
+-		 * According to specification etsi 102 622
++		/* According to specification etsi 102 622
+ 		 * 11.2.2.4 EVT_TRANSACTION Table 52
+ 		 * Description	Tag	Length
+ 		 * AID		81	5 to 16
+ 		 * PARAMETERS	82	0 to 255
++		 *
++		 * The key differences are aid storage length is variably sized
++		 * in the packet, but fixed in nfc_evt_transaction, and that the aid_len
++		 * is u8 in the packet, but u32 in the structure, and the tags in
++		 * the packet are not included in nfc_evt_transaction.
++		 *
++		 * size in bytes: 1          1       5-16 1             1           0-255
++		 * offset:        0          1       2    aid_len + 2   aid_len + 3 aid_len + 4
++		 * member name:   aid_tag(M) aid_len aid  params_tag(M) params_len  params
++		 * example:       0x81       5-16    X    0x82 0-255    X
+ 		 */
+-		if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
+-		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
++		if (skb->len < 2 || skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
  			return -EPROTO;
-+		}
  
- 		transaction->params_len = skb->data[transaction->aid_len + 3];
+-		transaction = devm_kzalloc(dev, skb->len - 2, GFP_KERNEL);
+-		if (!transaction)
+-			return -ENOMEM;
++		aid_len = skb->data[1];
++
++		if (skb->len < aid_len + 4 || aid_len > sizeof(transaction->aid))
++			return -EPROTO;
  
- 		/* Total size is allocated (skb->len - 2) minus fixed array members */
--		if (transaction->params_len > ((skb->len - 2) - sizeof(struct nfc_evt_transaction)))
-+		if (transaction->params_len > ((skb->len - 2) -
-+		    sizeof(struct nfc_evt_transaction))) {
-+			devm_kfree(dev, transaction);
- 			return -EINVAL;
-+		}
+-		transaction->aid_len = skb->data[1];
++		params_len = skb->data[aid_len + 3];
  
- 		memcpy(transaction->params, skb->data +
- 		       transaction->aid_len + 4, transaction->params_len);
+-		/* Checking if the length of the AID is valid */
+-		if (transaction->aid_len > sizeof(transaction->aid)) {
+-			devm_kfree(dev, transaction);
+-			return -EINVAL;
+-		}
+-
+-		memcpy(transaction->aid, &skb->data[2],
+-		       transaction->aid_len);
+-
+-		/* Check next byte is PARAMETERS tag (82) */
+-		if (skb->data[transaction->aid_len + 2] !=
+-		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
+-			devm_kfree(dev, transaction);
++		/* Verify PARAMETERS tag is (82), and final check that there is enough
++		 * space in the packet to read everything.
++		 */
++		if ((skb->data[aid_len + 2] != NFC_EVT_TRANSACTION_PARAMS_TAG) ||
++		    (skb->len < aid_len + 4 + params_len))
+ 			return -EPROTO;
+-		}
+ 
+-		transaction->params_len = skb->data[transaction->aid_len + 3];
++		transaction = devm_kzalloc(dev, sizeof(*transaction) + params_len, GFP_KERNEL);
++		if (!transaction)
++			return -ENOMEM;
+ 
+-		/* Total size is allocated (skb->len - 2) minus fixed array members */
+-		if (transaction->params_len > ((skb->len - 2) -
+-		    sizeof(struct nfc_evt_transaction))) {
+-			devm_kfree(dev, transaction);
+-			return -EINVAL;
+-		}
++		transaction->aid_len = aid_len;
++		transaction->params_len = params_len;
+ 
+-		memcpy(transaction->params, skb->data +
+-		       transaction->aid_len + 4, transaction->params_len);
++		memcpy(transaction->aid, &skb->data[2], aid_len);
++		memcpy(transaction->params, &skb->data[aid_len + 4], params_len);
+ 
+ 		r = nfc_se_transaction(hdev->ndev, host, transaction);
+ 	break;
 
 
