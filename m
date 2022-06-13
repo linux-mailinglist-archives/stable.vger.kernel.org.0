@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24981548677
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49CD954871D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241028AbiFMM5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:57:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44830 "EHLO
+        id S243326AbiFMKZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:25:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358234AbiFMMzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC031638B;
-        Mon, 13 Jun 2022 04:14:52 -0700 (PDT)
+        with ESMTP id S245075AbiFMKYY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:24:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF453205E8;
+        Mon, 13 Jun 2022 03:18:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2816B80EA7;
-        Mon, 13 Jun 2022 11:14:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17EB0C34114;
-        Mon, 13 Jun 2022 11:14:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E1EC60AE7;
+        Mon, 13 Jun 2022 10:18:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BDDAC34114;
+        Mon, 13 Jun 2022 10:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118890;
-        bh=L8pNPXENcGl4mTBVoi1vnDoV48D1r2hQ4ShnGOv7jDc=;
+        s=korg; t=1655115516;
+        bh=yBMfBMsenoejD3SJApeyaIR+DRPPPmmkDIHXMUaPI6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LXn9y9FKkqcVraBEj6BWF3l+6w0NHvpjk+bSSB5SUda7Cu/ylnMLfaFiX7E4eYKI+
-         ZvOHR1WUPgu8WPAcDErAk6rx+YsEz33SAwrECcr0siueqJql2MhvlS7eZ7J8D6JP+D
-         sTYlRFQqSH0XPRTl0TpXA6HZMAsSxjVGku1Qx9nY=
+        b=Cp9CVqPx1gTO+K0GusWvdFE0t8gM6wu4C8XTmxcjVbYop/51YJL8df+eFMeNEafOa
+         dPt/5+5/7/wOkSp4WBIzH4b3QcDwFrTfU88UofmWQPKqVNAJ8VdIoy82n9qGx6Oi2F
+         J0KFEAek5FWBe7nhHol40xWqjQh7M4i6C0+YWv34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Wensheng <zhangwensheng5@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 065/247] driver core: fix deadlock in __device_attach
-Date:   Mon, 13 Jun 2022 12:09:27 +0200
-Message-Id: <20220613094924.930494278@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.9 094/167] um: chan_user: Fix winch_tramp() return value
+Date:   Mon, 13 Jun 2022 12:09:28 +0200
+Message-Id: <20220613094902.980862392@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Wensheng <zhangwensheng5@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit b232b02bf3c205b13a26dcec08e53baddd8e59ed ]
+commit 57ae0b67b747031bc41fb44643aa5344ab58607e upstream.
 
-In __device_attach function, The lock holding logic is as follows:
-...
-__device_attach
-device_lock(dev)      // get lock dev
-  async_schedule_dev(__device_attach_async_helper, dev); // func
-    async_schedule_node
-      async_schedule_node_domain(func)
-        entry = kzalloc(sizeof(struct async_entry), GFP_ATOMIC);
-	/* when fail or work limit, sync to execute func, but
-	   __device_attach_async_helper will get lock dev as
-	   well, which will lead to A-A deadlock.  */
-	if (!entry || atomic_read(&entry_count) > MAX_WORK) {
-	  func;
-	else
-	  queue_work_node(node, system_unbound_wq, &entry->work)
-  device_unlock(dev)
+The previous fix here was only partially correct, it did
+result in returning a proper error value in case of error,
+but it also clobbered the pid that we need to return from
+this function (not just zero for success).
 
-As shown above, when it is allowed to do async probes, because of
-out of memory or work limit, async work is not allowed, to do
-sync execute instead. it will lead to A-A deadlock because of
-__device_attach_async_helper getting lock dev.
+As a result, it returned 0 here, but later this is treated
+as a pid and used to kill the process, but since it's now
+0 we kill(0, SIGKILL), which makes UML kill itself rather
+than just the helper thread.
 
-To fix the deadlock, move the async_schedule_dev outside device_lock,
-as we can see, in async_schedule_node_domain, the parameter of
-queue_work_node is system_unbound_wq, so it can accept concurrent
-operations. which will also not change the code logic, and will
-not lead to deadlock.
+Fix that and make it more obvious by using a separate
+variable for the pid.
 
-Fixes: 765230b5f084 ("driver-core: add asynchronous probing support for drivers")
-Signed-off-by: Zhang Wensheng <zhangwensheng5@huawei.com>
-Link: https://lore.kernel.org/r/20220518074516.1225580-1-zhangwensheng5@huawei.com
+Fixes: ccf1236ecac4 ("um: fix error return code in winch_tramp()")
+Reported-and-tested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/um/drivers/chan_user.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 95ae347df137..a480004b9897 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -944,6 +944,7 @@ static void __device_attach_async_helper(void *_dev, async_cookie_t cookie)
- static int __device_attach(struct device *dev, bool allow_async)
+--- a/arch/um/drivers/chan_user.c
++++ b/arch/um/drivers/chan_user.c
+@@ -220,7 +220,7 @@ static int winch_tramp(int fd, struct tt
+ 		       unsigned long *stack_out)
  {
- 	int ret = 0;
-+	bool async = false;
+ 	struct winch_data data;
+-	int fds[2], n, err;
++	int fds[2], n, err, pid;
+ 	char c;
  
- 	device_lock(dev);
- 	if (dev->p->dead) {
-@@ -982,7 +983,7 @@ static int __device_attach(struct device *dev, bool allow_async)
- 			 */
- 			dev_dbg(dev, "scheduling asynchronous probe\n");
- 			get_device(dev);
--			async_schedule_dev(__device_attach_async_helper, dev);
-+			async = true;
- 		} else {
- 			pm_request_idle(dev);
- 		}
-@@ -992,6 +993,8 @@ static int __device_attach(struct device *dev, bool allow_async)
+ 	err = os_pipe(fds, 1, 1);
+@@ -238,8 +238,9 @@ static int winch_tramp(int fd, struct tt
+ 	 * problem with /dev/net/tun, which if held open by this
+ 	 * thread, prevents the TUN/TAP device from being reused.
+ 	 */
+-	err = run_helper_thread(winch_thread, &data, CLONE_FILES, stack_out);
+-	if (err < 0) {
++	pid = run_helper_thread(winch_thread, &data, CLONE_FILES, stack_out);
++	if (pid < 0) {
++		err = pid;
+ 		printk(UM_KERN_ERR "fork of winch_thread failed - errno = %d\n",
+ 		       -err);
+ 		goto out_close;
+@@ -263,7 +264,7 @@ static int winch_tramp(int fd, struct tt
+ 		goto out_close;
  	}
- out_unlock:
- 	device_unlock(dev);
-+	if (async)
-+		async_schedule_dev(__device_attach_async_helper, dev);
- 	return ret;
- }
  
--- 
-2.35.1
-
+-	return err;
++	return pid;
+ 
+  out_close:
+ 	close(fds[1]);
 
 
