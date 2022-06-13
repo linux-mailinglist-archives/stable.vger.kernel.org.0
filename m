@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23DE85492BC
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB32A548E48
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241907AbiFMKSR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:18:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60024 "EHLO
+        id S1356833AbiFMLw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:52:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241612AbiFMKRt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:17:49 -0400
+        with ESMTP id S1356621AbiFMLur (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C058CDE8F;
-        Mon, 13 Jun 2022 03:15:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AC4022B27;
+        Mon, 13 Jun 2022 03:54:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A43E2614A0;
-        Mon, 13 Jun 2022 10:15:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0ABCC34114;
-        Mon, 13 Jun 2022 10:15:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26CF160F00;
+        Mon, 13 Jun 2022 10:54:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38F2BC34114;
+        Mon, 13 Jun 2022 10:54:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115341;
-        bh=XCY2vbdhVb6IAOGE6zsmnRjqax0Xt+YnCNXKezmd2B0=;
+        s=korg; t=1655117678;
+        bh=aumf9yAoZ5XHJ9DWTFSBRcccitJ4jRF/Eo0ETcWmvzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5pzEuxE2q1DUMGaGG6+pO/Io1p4p7lw7fahnxKeDwjVTezdQcdNgK2v4U+nCH0w2
-         wx2MBCk2ruQtEMwPZR8b9KbOQvIfIjwpmVHleC81oHqmP1tkl+5oAAyxkWHioap9+P
-         4MvrG7ZmT8Z1UtzOw4RHkE8NJiwg434m5HVa6Mgw=
+        b=XOOOXAFs+qyCRocM6qwGi//r7Duzawsmq8SZtNiBOl/whZQcG1+9uHWWVUYD347sW
+         28fMfKXdsfWrFOjx6Ec1cKwELD7wDNG5UOIL8AVPEqXlAoe05v8HeHBicAAdPEtgDj
+         T3CCSGcLwOxAaPGWhJkPZXDYp8xG/uWyXrSRj9KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ravi Bangoria <ravi.bangoria@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 041/167] NFC: NULL out the dev->rfkill to prevent UAF
-Date:   Mon, 13 Jun 2022 12:08:35 +0200
-Message-Id: <20220613094850.540137477@linuxfoundation.org>
+Subject: [PATCH 4.19 092/287] perf/amd/ibs: Use interrupt regs ip for stack unwinding
+Date:   Mon, 13 Jun 2022 12:08:36 +0200
+Message-Id: <20220613094926.668894523@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,148 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Ravi Bangoria <ravi.bangoria@amd.com>
 
-[ Upstream commit 1b0e81416a24d6e9b8c2341e22e8bf48f8b8bfc9 ]
+[ Upstream commit 3d47083b9ff46863e8374ad3bb5edb5e464c75f8 ]
 
-Commit 3e3b5dfcd16a ("NFC: reorder the logic in nfc_{un,}register_device")
-assumes the device_is_registered() in function nfc_dev_up() will help
-to check when the rfkill is unregistered. However, this check only
-take effect when device_del(&dev->dev) is done in nfc_unregister_device().
-Hence, the rfkill object is still possible be dereferenced.
+IbsOpRip is recorded when IBS interrupt is triggered. But there is
+a skid from the time IBS interrupt gets triggered to the time the
+interrupt is presented to the core. Meanwhile processor would have
+moved ahead and thus IbsOpRip will be inconsistent with rsp and rbp
+recorded as part of the interrupt regs. This causes issues while
+unwinding stack using the ORC unwinder as it needs consistent rip,
+rsp and rbp. Fix this by using rip from interrupt regs instead of
+IbsOpRip for stack unwinding.
 
-The crash trace in latest kernel (5.18-rc2):
-
-[   68.760105] ==================================================================
-[   68.760330] BUG: KASAN: use-after-free in __lock_acquire+0x3ec1/0x6750
-[   68.760756] Read of size 8 at addr ffff888009c93018 by task fuzz/313
-[   68.760756]
-[   68.760756] CPU: 0 PID: 313 Comm: fuzz Not tainted 5.18.0-rc2 #4
-[   68.760756] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[   68.760756] Call Trace:
-[   68.760756]  <TASK>
-[   68.760756]  dump_stack_lvl+0x57/0x7d
-[   68.760756]  print_report.cold+0x5e/0x5db
-[   68.760756]  ? __lock_acquire+0x3ec1/0x6750
-[   68.760756]  kasan_report+0xbe/0x1c0
-[   68.760756]  ? __lock_acquire+0x3ec1/0x6750
-[   68.760756]  __lock_acquire+0x3ec1/0x6750
-[   68.760756]  ? lockdep_hardirqs_on_prepare+0x410/0x410
-[   68.760756]  ? register_lock_class+0x18d0/0x18d0
-[   68.760756]  lock_acquire+0x1ac/0x4f0
-[   68.760756]  ? rfkill_blocked+0xe/0x60
-[   68.760756]  ? lockdep_hardirqs_on_prepare+0x410/0x410
-[   68.760756]  ? mutex_lock_io_nested+0x12c0/0x12c0
-[   68.760756]  ? nla_get_range_signed+0x540/0x540
-[   68.760756]  ? _raw_spin_lock_irqsave+0x4e/0x50
-[   68.760756]  _raw_spin_lock_irqsave+0x39/0x50
-[   68.760756]  ? rfkill_blocked+0xe/0x60
-[   68.760756]  rfkill_blocked+0xe/0x60
-[   68.760756]  nfc_dev_up+0x84/0x260
-[   68.760756]  nfc_genl_dev_up+0x90/0xe0
-[   68.760756]  genl_family_rcv_msg_doit+0x1f4/0x2f0
-[   68.760756]  ? genl_family_rcv_msg_attrs_parse.constprop.0+0x230/0x230
-[   68.760756]  ? security_capable+0x51/0x90
-[   68.760756]  genl_rcv_msg+0x280/0x500
-[   68.760756]  ? genl_get_cmd+0x3c0/0x3c0
-[   68.760756]  ? lock_acquire+0x1ac/0x4f0
-[   68.760756]  ? nfc_genl_dev_down+0xe0/0xe0
-[   68.760756]  ? lockdep_hardirqs_on_prepare+0x410/0x410
-[   68.760756]  netlink_rcv_skb+0x11b/0x340
-[   68.760756]  ? genl_get_cmd+0x3c0/0x3c0
-[   68.760756]  ? netlink_ack+0x9c0/0x9c0
-[   68.760756]  ? netlink_deliver_tap+0x136/0xb00
-[   68.760756]  genl_rcv+0x1f/0x30
-[   68.760756]  netlink_unicast+0x430/0x710
-[   68.760756]  ? memset+0x20/0x40
-[   68.760756]  ? netlink_attachskb+0x740/0x740
-[   68.760756]  ? __build_skb_around+0x1f4/0x2a0
-[   68.760756]  netlink_sendmsg+0x75d/0xc00
-[   68.760756]  ? netlink_unicast+0x710/0x710
-[   68.760756]  ? netlink_unicast+0x710/0x710
-[   68.760756]  sock_sendmsg+0xdf/0x110
-[   68.760756]  __sys_sendto+0x19e/0x270
-[   68.760756]  ? __ia32_sys_getpeername+0xa0/0xa0
-[   68.760756]  ? fd_install+0x178/0x4c0
-[   68.760756]  ? fd_install+0x195/0x4c0
-[   68.760756]  ? kernel_fpu_begin_mask+0x1c0/0x1c0
-[   68.760756]  __x64_sys_sendto+0xd8/0x1b0
-[   68.760756]  ? lockdep_hardirqs_on+0xbf/0x130
-[   68.760756]  ? syscall_enter_from_user_mode+0x1d/0x50
-[   68.760756]  do_syscall_64+0x3b/0x90
-[   68.760756]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[   68.760756] RIP: 0033:0x7f67fb50e6b3
-...
-[   68.760756] RSP: 002b:00007f67fa91fe90 EFLAGS: 00000293 ORIG_RAX: 000000000000002c
-[   68.760756] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f67fb50e6b3
-[   68.760756] RDX: 000000000000001c RSI: 0000559354603090 RDI: 0000000000000003
-[   68.760756] RBP: 00007f67fa91ff00 R08: 00007f67fa91fedc R09: 000000000000000c
-[   68.760756] R10: 0000000000000000 R11: 0000000000000293 R12: 00007ffe824d496e
-[   68.760756] R13: 00007ffe824d496f R14: 00007f67fa120000 R15: 0000000000000003
-
-[   68.760756]  </TASK>
-[   68.760756]
-[   68.760756] Allocated by task 279:
-[   68.760756]  kasan_save_stack+0x1e/0x40
-[   68.760756]  __kasan_kmalloc+0x81/0xa0
-[   68.760756]  rfkill_alloc+0x7f/0x280
-[   68.760756]  nfc_register_device+0xa3/0x1a0
-[   68.760756]  nci_register_device+0x77a/0xad0
-[   68.760756]  nfcmrvl_nci_register_dev+0x20b/0x2c0
-[   68.760756]  nfcmrvl_nci_uart_open+0xf2/0x1dd
-[   68.760756]  nci_uart_tty_ioctl+0x2c3/0x4a0
-[   68.760756]  tty_ioctl+0x764/0x1310
-[   68.760756]  __x64_sys_ioctl+0x122/0x190
-[   68.760756]  do_syscall_64+0x3b/0x90
-[   68.760756]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[   68.760756]
-[   68.760756] Freed by task 314:
-[   68.760756]  kasan_save_stack+0x1e/0x40
-[   68.760756]  kasan_set_track+0x21/0x30
-[   68.760756]  kasan_set_free_info+0x20/0x30
-[   68.760756]  __kasan_slab_free+0x108/0x170
-[   68.760756]  kfree+0xb0/0x330
-[   68.760756]  device_release+0x96/0x200
-[   68.760756]  kobject_put+0xf9/0x1d0
-[   68.760756]  nfc_unregister_device+0x77/0x190
-[   68.760756]  nfcmrvl_nci_unregister_dev+0x88/0xd0
-[   68.760756]  nci_uart_tty_close+0xdf/0x180
-[   68.760756]  tty_ldisc_kill+0x73/0x110
-[   68.760756]  tty_ldisc_hangup+0x281/0x5b0
-[   68.760756]  __tty_hangup.part.0+0x431/0x890
-[   68.760756]  tty_release+0x3a8/0xc80
-[   68.760756]  __fput+0x1f0/0x8c0
-[   68.760756]  task_work_run+0xc9/0x170
-[   68.760756]  exit_to_user_mode_prepare+0x194/0x1a0
-[   68.760756]  syscall_exit_to_user_mode+0x19/0x50
-[   68.760756]  do_syscall_64+0x48/0x90
-[   68.760756]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-This patch just add the null out of dev->rfkill to make sure such
-dereference cannot happen. This is safe since the device_lock() already
-protect the check/write from data race.
-
-Fixes: 3e3b5dfcd16a ("NFC: reorder the logic in nfc_{un,}register_device")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ee9f8fce99640 ("x86/unwind: Add the ORC unwinder")
+Reported-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220429051441.14251-1-ravi.bangoria@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/events/amd/ibs.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/net/nfc/core.c b/net/nfc/core.c
-index 8c38a21fb0c6..120259c2b6a7 100644
---- a/net/nfc/core.c
-+++ b/net/nfc/core.c
-@@ -1174,6 +1174,7 @@ void nfc_unregister_device(struct nfc_dev *dev)
- 	if (dev->rfkill) {
- 		rfkill_unregister(dev->rfkill);
- 		rfkill_destroy(dev->rfkill);
-+		dev->rfkill = NULL;
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index 2d9e1372b070..d157d0adef06 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -324,6 +324,16 @@ static int perf_ibs_init(struct perf_event *event)
+ 	hwc->config_base = perf_ibs->msr;
+ 	hwc->config = config;
+ 
++	/*
++	 * rip recorded by IbsOpRip will not be consistent with rsp and rbp
++	 * recorded as part of interrupt regs. Thus we need to use rip from
++	 * interrupt regs while unwinding call stack. Setting _EARLY flag
++	 * makes sure we unwind call-stack before perf sample rip is set to
++	 * IbsOpRip.
++	 */
++	if (event->attr.sample_type & PERF_SAMPLE_CALLCHAIN)
++		event->attr.sample_type |= __PERF_SAMPLE_CALLCHAIN_EARLY;
++
+ 	return 0;
+ }
+ 
+@@ -693,6 +703,14 @@ static int perf_ibs_handle_irq(struct perf_ibs *perf_ibs, struct pt_regs *iregs)
+ 		data.raw = &raw;
  	}
- 	dev->shutting_down = true;
- 	device_unlock(&dev->dev);
+ 
++	/*
++	 * rip recorded by IbsOpRip will not be consistent with rsp and rbp
++	 * recorded as part of interrupt regs. Thus we need to use rip from
++	 * interrupt regs while unwinding call stack.
++	 */
++	if (event->attr.sample_type & PERF_SAMPLE_CALLCHAIN)
++		data.callchain = perf_callchain(event, iregs);
++
+ 	throttle = perf_event_overflow(event, &data, &regs);
+ out:
+ 	if (throttle) {
 -- 
 2.35.1
 
