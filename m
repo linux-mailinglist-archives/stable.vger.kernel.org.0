@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DDE854950B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA30D549361
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241773AbiFMOri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:47:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37934 "EHLO
+        id S1385592AbiFMOrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:47:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385701AbiFMOqC (ORCPT
+        with ESMTP id S1386431AbiFMOqC (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:46:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1576EBE175;
-        Mon, 13 Jun 2022 04:52:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B376DBF10C;
+        Mon, 13 Jun 2022 04:52:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7A176124E;
-        Mon, 13 Jun 2022 11:52:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B57C5C34114;
-        Mon, 13 Jun 2022 11:52:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23F06614F8;
+        Mon, 13 Jun 2022 11:52:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D0E9C3411B;
+        Mon, 13 Jun 2022 11:52:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121146;
-        bh=KKeoL48rZJn6/zPjlSpjTvPqmKvNat2ujrv+PiAbrHo=;
+        s=korg; t=1655121151;
+        bh=AxhBKUCtCxlJS5f8zHw6zkgvS9rbDdVZWXrRtpuA1Jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQyv6c5GOq7ylQUqTHJuD3Kr9NGhVoSj/z8n2EOC+O5midlvuaQFiu2FspDrCLgb+
-         M+9l02WoN9bRPg4op/jLxdGHGH1jwtESsSnxU3V7OgeZ4E+dY1fxWoRXd+MdNrcGUc
-         f6JIvKKMr7PBdzCNTATJDNRYimJ0x7AKFTmOo03Y=
+        b=FgqzzKxq1bU4FG9sGcv9wtGpm48NLwWlvY2QzQ5eQizbb61TKEipdw/HDy6spF0tF
+         JqthX2GgZZ94JTnIS4OiX+uf/APR1NjvW7kJuAX/2Drp6NHQZaOwcLia+nClWaThNo
+         vO7WHRgk5p29BCMLU1BozMnJWkpZnkeDj+k/8HKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Laurent Vivier <lvivier@redhat.com>,
-        syzbot+5b59d6d459306a556f54@syzkaller.appspotmail.com
-Subject: [PATCH 5.17 288/298] virtio-rng: make device ready before making request
-Date:   Mon, 13 Jun 2022 12:13:02 +0200
-Message-Id: <20220613094933.814157705@linuxfoundation.org>
+        stable@vger.kernel.org,
+        KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 5.17 290/298] drm/ast: Create threshold values for AST2600
+Date:   Mon, 13 Jun 2022 12:13:04 +0200
+Message-Id: <20220613094933.875504290@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
 References: <20220613094924.913340374@linuxfoundation.org>
@@ -55,44 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
 
-commit 228432551bd8783211e494ab35f42a4344580502 upstream.
+commit bcc77411e8a65929655cef7b63a36000724cdc4b upstream.
 
-Current virtio-rng does a entropy request before DRIVER_OK, this
-violates the spec:
+The threshold value is used for AST2600 only.
 
-virtio spec requires that all drivers set DRIVER_OK
-before using devices.
-
-Further, kernel will ignore the interrupt after commit
-8b4ec69d7e09 ("virtio: harden vring IRQ").
-
-Fixing this by making device ready before the request.
-
-Cc: stable@vger.kernel.org
-Fixes: 8b4ec69d7e09 ("virtio: harden vring IRQ")
-Fixes: f7f510ec1957 ("virtio: An entropy device, as suggested by hpa.")
-Reported-and-tested-by: syzbot+5b59d6d459306a556f54@syzkaller.appspotmail.com
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Message-Id: <20220608061422.38437-1-jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Laurent Vivier <lvivier@redhat.com>
+Signed-off-by: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220117083643.41493-1-kuohsiang_chou@aspeedtech.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/hw_random/virtio-rng.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/ast/ast_mode.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/char/hw_random/virtio-rng.c
-+++ b/drivers/char/hw_random/virtio-rng.c
-@@ -159,6 +159,8 @@ static int probe_common(struct virtio_de
- 		goto err_find;
- 	}
- 
-+	virtio_device_ready(vdev);
-+
- 	/* we always have a pending entropy request */
- 	request_entropy(vi);
- 
+--- a/drivers/gpu/drm/ast/ast_mode.c
++++ b/drivers/gpu/drm/ast/ast_mode.c
+@@ -471,7 +471,10 @@ static void ast_set_color_reg(struct ast
+ static void ast_set_crtthd_reg(struct ast_private *ast)
+ {
+ 	/* Set Threshold */
+-	if (ast->chip == AST2300 || ast->chip == AST2400 ||
++	if (ast->chip == AST2600) {
++		ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa7, 0xe0);
++		ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa6, 0xa0);
++	} else if (ast->chip == AST2300 || ast->chip == AST2400 ||
+ 	    ast->chip == AST2500) {
+ 		ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa7, 0x78);
+ 		ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa6, 0x60);
 
 
