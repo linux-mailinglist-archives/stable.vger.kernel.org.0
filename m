@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7FD054877B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B10548727
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349162AbiFMK46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:56:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44328 "EHLO
+        id S1348665AbiFMK4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:56:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350065AbiFMKyl (ORCPT
+        with ESMTP id S1350089AbiFMKyl (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0516DFBE;
-        Mon, 13 Jun 2022 03:28:58 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0BEB2496D;
+        Mon, 13 Jun 2022 03:29:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E05860B8B;
-        Mon, 13 Jun 2022 10:28:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CFC0C34114;
-        Mon, 13 Jun 2022 10:28:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5411B80E90;
+        Mon, 13 Jun 2022 10:29:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28A74C34114;
+        Mon, 13 Jun 2022 10:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116137;
-        bh=w45OzuGuLmtj9sEylkHgxYIfZXvDGqEsrxVIkJCabSU=;
+        s=korg; t=1655116143;
+        bh=JSualys+wE7HH/++xefNdthks7nl0trL8q7V5fzWJDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=THo3M/PLQzGCqGF1tticXNQ+goG+uu+ooIj1+3WNXChtRYIUN7YUkUeJJCmNp+JMm
-         0pAlI/f8nUhLahE0cWLN45UCN2DzW420oh1WFZGcYrEm8yIcNBl5lOFf92S9WSunjz
-         628j1/S9D0QilTjUplGeuYeSgIuncmjWLsRVLvVA=
+        b=Oc3wJPyTo9RZFwiHhsV4jeM5oJQ2E/FFXJBrNN8HE99e96cG8ps88BwAbJhCQitSe
+         tDYy6xt/VhMvDQe2nAiw8kygXiRmDrXWc1/KcMfGqgRr5syUU1QvPAdnVugZcuvoAg
+         k45svnjbDVk/cpLZvrhlIkvFw+EmKjotXipUshjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Weiss <luca.weiss@fairphone.com>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 026/411] media: venus: hfi: avoid null dereference in deinit
-Date:   Mon, 13 Jun 2022 12:04:59 +0200
-Message-Id: <20220613094929.286618788@linuxfoundation.org>
+Subject: [PATCH 5.4 031/411] scsi: megaraid: Fix error check return value of register_chrdev()
+Date:   Mon, 13 Jun 2022 12:05:04 +0200
+Message-Id: <20220613094929.438098679@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -55,39 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca.weiss@fairphone.com>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit 86594f6af867b5165d2ba7b5a71fae3a5961e56c ]
+[ Upstream commit c5acd61dbb32b6bda0f3a354108f2b8dcb788985 ]
 
-If venus_probe fails at pm_runtime_put_sync the error handling first
-calls hfi_destroy and afterwards hfi_core_deinit. As hfi_destroy sets
-core->ops to NULL, hfi_core_deinit cannot call the core_deinit function
-anymore.
+If major equals 0, register_chrdev() returns an error code when it fails.
+This function dynamically allocates a major and returns its number on
+success, so we should use "< 0" to check it instead of "!".
 
-Avoid this null pointer derefence by skipping the call when necessary.
-
-Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://lore.kernel.org/r/20220418105755.2558828-1-lv.ruyi@zte.com.cn
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/hfi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/megaraid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/qcom/venus/hfi.c b/drivers/media/platform/qcom/venus/hfi.c
-index 3d8b1284d1f3..68964a80fe61 100644
---- a/drivers/media/platform/qcom/venus/hfi.c
-+++ b/drivers/media/platform/qcom/venus/hfi.c
-@@ -104,6 +104,9 @@ int hfi_core_deinit(struct venus_core *core, bool blocking)
- 		mutex_lock(&core->lock);
+diff --git a/drivers/scsi/megaraid.c b/drivers/scsi/megaraid.c
+index ff6d4aa92421..8b1ba690039b 100644
+--- a/drivers/scsi/megaraid.c
++++ b/drivers/scsi/megaraid.c
+@@ -4635,7 +4635,7 @@ static int __init megaraid_init(void)
+ 	 * major number allocation.
+ 	 */
+ 	major = register_chrdev(0, "megadev_legacy", &megadev_fops);
+-	if (!major) {
++	if (major < 0) {
+ 		printk(KERN_WARNING
+ 				"megaraid: failed to register char device\n");
  	}
- 
-+	if (!core->ops)
-+		goto unlock;
-+
- 	ret = core->ops->core_deinit(core);
- 
- 	if (!ret)
 -- 
 2.35.1
 
