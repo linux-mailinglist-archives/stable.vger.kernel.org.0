@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F24565491F1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:29:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72245548E47
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351880AbiFMMUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:20:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53670 "EHLO
+        id S1380635AbiFMN7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:59:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358525AbiFMMTc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:19:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B280656C05;
-        Mon, 13 Jun 2022 04:03:02 -0700 (PDT)
+        with ESMTP id S1380813AbiFMNzJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:55:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87E618199F;
+        Mon, 13 Jun 2022 04:35:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4E0C613E9;
-        Mon, 13 Jun 2022 11:03:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE924C34114;
-        Mon, 13 Jun 2022 11:03:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C0DE612A8;
+        Mon, 13 Jun 2022 11:35:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10594C34114;
+        Mon, 13 Jun 2022 11:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118181;
-        bh=R1fg0jbArUk76OFDbNDPtgKbT9ANofjb4LAD13xul88=;
+        s=korg; t=1655120155;
+        bh=jE3W0hdEMyYHxjf7LaaIstu20hqOtMFfzW4n4q0p/Ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O7ChxfnEi51K/UX8gXfMYD/gdw5qEkrlGzbc1lm0Khw6txB7k0ZWWC97rZkUJ6vLo
-         qZDbsWvQ+xREIsWoVMlFFkoXXxgWFBdzIT816MD5SfYyqNhMbiabTJJ6N99LRLt/AT
-         wRKcWo9ieJjZ/EICzIrcolRklGv5EgNlqfhe8co8=
+        b=Dtbek+RjiKJmzCI3sibYM2bR4VqOEcwTBnsfLB7WAuh7Auqt16LuNc8mNhWfbp5rB
+         W8R3mF69OdVWD/2ngnu5stgYYqaVO9QkYz5EYCzVOceiVU9OEyoPciKkEroqpUb1kk
+         TIMaNUaSHHi8/eIiHh5dW2l2v6U0CZ+N5yKnFbRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Yu Kuai <yukuai3@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 271/287] nbd: fix race between nbd_alloc_config() and module removal
+        stable@vger.kernel.org, Jouni Malinen <j@w1.fi>,
+        Johannes Berg <johannes.berg@intel.com>,
+        anton ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 270/339] um: line: Use separate IRQs per line
 Date:   Mon, 13 Jun 2022 12:11:35 +0200
-Message-Id: <20220613094932.217851632@linuxfoundation.org>
+Message-Id: <20220613094934.834040861@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,122 +56,250 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit c55b2b983b0fa012942c3eb16384b2b722caa810 ]
+[ Upstream commit d5a9597d6916a76663085db984cb8fe97f0a5c56 ]
 
-When nbd module is being removing, nbd_alloc_config() may be
-called concurrently by nbd_genl_connect(), although try_module_get()
-will return false, but nbd_alloc_config() doesn't handle it.
+Today, all possible serial lines (ssl*=) as well as all
+possible consoles (con*=) each share a single interrupt
+(with a fixed number) with others of the same type.
 
-The race may lead to the leak of nbd_config and its related
-resources (e.g, recv_workq) and oops in nbd_read_stat() due
-to the unload of nbd module as shown below:
+Now, if you have two lines, say ssl0 and ssl1, and one
+of them is connected to an fd you cannot read (e.g. a
+file), but the other gets a read interrupt, then both
+of them get the interrupt since it's shared. Then, the
+read() call will return EOF, since it's a file being
+written and there's nothing to read (at least not at
+the current offset, at the end).
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000040
-  Oops: 0000 [#1] SMP PTI
-  CPU: 5 PID: 13840 Comm: kworker/u17:33 Not tainted 5.14.0+ #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-  Workqueue: knbd16-recv recv_work [nbd]
-  RIP: 0010:nbd_read_stat.cold+0x130/0x1a4 [nbd]
-  Call Trace:
-   recv_work+0x3b/0xb0 [nbd]
-   process_one_work+0x1ed/0x390
-   worker_thread+0x4a/0x3d0
-   kthread+0x12a/0x150
-   ret_from_fork+0x22/0x30
+Unfortunately, this is treated as a read error, and we
+close this line, losing all the possible output.
 
-Fixing it by checking the return value of try_module_get()
-in nbd_alloc_config(). As nbd_alloc_config() may return ERR_PTR(-ENODEV),
-assign nbd->config only when nbd_alloc_config() succeeds to ensure
-the value of nbd->config is binary (valid or NULL).
+It might be possible to work around this and make the
+IRQ sharing work, however, now that we have dynamically
+allocated IRQs that are easy to use, simply use that to
+achieve separating between the events; then there's no
+interrupt for that line and we never attempt the read
+in the first place, thus not closing the line.
 
-Also adding a debug message to check the reference counter
-of nbd_config during module removal.
+This manifested itself in the wifi hostap/hwsim tests
+where the parallel script communicates via one serial
+console and the kernel messages go to another (a file)
+and sending data on the communication console caused
+the kernel messages to stop flowing into the file.
 
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220521073749.3146892-3-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Jouni Malinen <j@w1.fi>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Acked-By: anton ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ arch/um/drivers/chan_kern.c     | 10 +++++-----
+ arch/um/drivers/line.c          | 22 +++++++++++++---------
+ arch/um/drivers/line.h          |  4 ++--
+ arch/um/drivers/ssl.c           |  2 --
+ arch/um/drivers/stdio_console.c |  2 --
+ arch/um/include/asm/irq.h       | 22 +++++++++-------------
+ 6 files changed, 29 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 29bed6397173..f48553979b85 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1395,15 +1395,20 @@ static struct nbd_config *nbd_alloc_config(void)
- {
- 	struct nbd_config *config;
+diff --git a/arch/um/drivers/chan_kern.c b/arch/um/drivers/chan_kern.c
+index 62997055c454..26a702a06515 100644
+--- a/arch/um/drivers/chan_kern.c
++++ b/arch/um/drivers/chan_kern.c
+@@ -133,7 +133,7 @@ static void line_timer_cb(struct work_struct *work)
+ 	struct line *line = container_of(work, struct line, task.work);
  
-+	if (!try_module_get(THIS_MODULE))
-+		return ERR_PTR(-ENODEV);
-+
- 	config = kzalloc(sizeof(struct nbd_config), GFP_NOFS);
--	if (!config)
--		return NULL;
-+	if (!config) {
-+		module_put(THIS_MODULE);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
- 	atomic_set(&config->recv_threads, 0);
- 	init_waitqueue_head(&config->recv_wq);
- 	init_waitqueue_head(&config->conn_wait);
- 	config->blksize = NBD_DEF_BLKSIZE;
- 	atomic_set(&config->live_connections, 0);
--	try_module_get(THIS_MODULE);
- 	return config;
+ 	if (!line->throttled)
+-		chan_interrupt(line, line->driver->read_irq);
++		chan_interrupt(line, line->read_irq);
  }
  
-@@ -1430,12 +1435,13 @@ static int nbd_open(struct block_device *bdev, fmode_t mode)
- 			mutex_unlock(&nbd->config_lock);
- 			goto out;
- 		}
--		config = nbd->config = nbd_alloc_config();
--		if (!config) {
--			ret = -ENOMEM;
-+		config = nbd_alloc_config();
-+		if (IS_ERR(config)) {
-+			ret = PTR_ERR(config);
- 			mutex_unlock(&nbd->config_lock);
- 			goto out;
- 		}
-+		nbd->config = config;
- 		refcount_set(&nbd->config_refs, 1);
- 		refcount_inc(&nbd->refs);
- 		mutex_unlock(&nbd->config_lock);
-@@ -1820,13 +1826,14 @@ static int nbd_genl_connect(struct sk_buff *skb, struct genl_info *info)
- 		nbd_put(nbd);
- 		return -EINVAL;
- 	}
--	config = nbd->config = nbd_alloc_config();
--	if (!nbd->config) {
-+	config = nbd_alloc_config();
-+	if (IS_ERR(config)) {
- 		mutex_unlock(&nbd->config_lock);
- 		nbd_put(nbd);
- 		printk(KERN_ERR "nbd: couldn't allocate config\n");
--		return -ENOMEM;
-+		return PTR_ERR(config);
- 	}
-+	nbd->config = config;
- 	refcount_set(&nbd->config_refs, 1);
- 	set_bit(NBD_BOUND, &config->runtime_flags);
+ int enable_chan(struct line *line)
+@@ -195,9 +195,9 @@ void free_irqs(void)
+ 		chan = list_entry(ele, struct chan, free_list);
  
-@@ -2352,6 +2359,9 @@ static void __exit nbd_cleanup(void)
- 	while (!list_empty(&del_list)) {
- 		nbd = list_first_entry(&del_list, struct nbd_device, list);
- 		list_del_init(&nbd->list);
-+		if (refcount_read(&nbd->config_refs))
-+			printk(KERN_ERR "nbd: possibly leaking nbd_config (ref %d)\n",
-+					refcount_read(&nbd->config_refs));
- 		if (refcount_read(&nbd->refs) != 1)
- 			printk(KERN_ERR "nbd: possibly leaking a device\n");
- 		nbd_put(nbd);
+ 		if (chan->input && chan->enabled)
+-			um_free_irq(chan->line->driver->read_irq, chan);
++			um_free_irq(chan->line->read_irq, chan);
+ 		if (chan->output && chan->enabled)
+-			um_free_irq(chan->line->driver->write_irq, chan);
++			um_free_irq(chan->line->write_irq, chan);
+ 		chan->enabled = 0;
+ 	}
+ }
+@@ -215,9 +215,9 @@ static void close_one_chan(struct chan *chan, int delay_free_irq)
+ 		spin_unlock_irqrestore(&irqs_to_free_lock, flags);
+ 	} else {
+ 		if (chan->input && chan->enabled)
+-			um_free_irq(chan->line->driver->read_irq, chan);
++			um_free_irq(chan->line->read_irq, chan);
+ 		if (chan->output && chan->enabled)
+-			um_free_irq(chan->line->driver->write_irq, chan);
++			um_free_irq(chan->line->write_irq, chan);
+ 		chan->enabled = 0;
+ 	}
+ 	if (chan->ops->close != NULL)
+diff --git a/arch/um/drivers/line.c b/arch/um/drivers/line.c
+index 8febf95da96e..02b0befd6763 100644
+--- a/arch/um/drivers/line.c
++++ b/arch/um/drivers/line.c
+@@ -139,7 +139,7 @@ static int flush_buffer(struct line *line)
+ 		count = line->buffer + LINE_BUFSIZE - line->head;
+ 
+ 		n = write_chan(line->chan_out, line->head, count,
+-			       line->driver->write_irq);
++			       line->write_irq);
+ 		if (n < 0)
+ 			return n;
+ 		if (n == count) {
+@@ -156,7 +156,7 @@ static int flush_buffer(struct line *line)
+ 
+ 	count = line->tail - line->head;
+ 	n = write_chan(line->chan_out, line->head, count,
+-		       line->driver->write_irq);
++		       line->write_irq);
+ 
+ 	if (n < 0)
+ 		return n;
+@@ -195,7 +195,7 @@ int line_write(struct tty_struct *tty, const unsigned char *buf, int len)
+ 		ret = buffer_data(line, buf, len);
+ 	else {
+ 		n = write_chan(line->chan_out, buf, len,
+-			       line->driver->write_irq);
++			       line->write_irq);
+ 		if (n < 0) {
+ 			ret = n;
+ 			goto out_up;
+@@ -215,7 +215,7 @@ void line_throttle(struct tty_struct *tty)
+ {
+ 	struct line *line = tty->driver_data;
+ 
+-	deactivate_chan(line->chan_in, line->driver->read_irq);
++	deactivate_chan(line->chan_in, line->read_irq);
+ 	line->throttled = 1;
+ }
+ 
+@@ -224,7 +224,7 @@ void line_unthrottle(struct tty_struct *tty)
+ 	struct line *line = tty->driver_data;
+ 
+ 	line->throttled = 0;
+-	chan_interrupt(line, line->driver->read_irq);
++	chan_interrupt(line, line->read_irq);
+ }
+ 
+ static irqreturn_t line_write_interrupt(int irq, void *data)
+@@ -260,19 +260,23 @@ int line_setup_irq(int fd, int input, int output, struct line *line, void *data)
+ 	int err;
+ 
+ 	if (input) {
+-		err = um_request_irq(driver->read_irq, fd, IRQ_READ,
+-				     line_interrupt, IRQF_SHARED,
++		err = um_request_irq(UM_IRQ_ALLOC, fd, IRQ_READ,
++				     line_interrupt, 0,
+ 				     driver->read_irq_name, data);
+ 		if (err < 0)
+ 			return err;
++
++		line->read_irq = err;
+ 	}
+ 
+ 	if (output) {
+-		err = um_request_irq(driver->write_irq, fd, IRQ_WRITE,
+-				     line_write_interrupt, IRQF_SHARED,
++		err = um_request_irq(UM_IRQ_ALLOC, fd, IRQ_WRITE,
++				     line_write_interrupt, 0,
+ 				     driver->write_irq_name, data);
+ 		if (err < 0)
+ 			return err;
++
++		line->write_irq = err;
+ 	}
+ 
+ 	return 0;
+diff --git a/arch/um/drivers/line.h b/arch/um/drivers/line.h
+index bdb16b96e76f..f15be75a3bf3 100644
+--- a/arch/um/drivers/line.h
++++ b/arch/um/drivers/line.h
+@@ -23,9 +23,7 @@ struct line_driver {
+ 	const short minor_start;
+ 	const short type;
+ 	const short subtype;
+-	const int read_irq;
+ 	const char *read_irq_name;
+-	const int write_irq;
+ 	const char *write_irq_name;
+ 	struct mc_device mc;
+ 	struct tty_driver *driver;
+@@ -35,6 +33,8 @@ struct line {
+ 	struct tty_port port;
+ 	int valid;
+ 
++	int read_irq, write_irq;
++
+ 	char *init_str;
+ 	struct list_head chan_list;
+ 	struct chan *chan_in, *chan_out;
+diff --git a/arch/um/drivers/ssl.c b/arch/um/drivers/ssl.c
+index 41eae2e8fb65..8514966778d5 100644
+--- a/arch/um/drivers/ssl.c
++++ b/arch/um/drivers/ssl.c
+@@ -47,9 +47,7 @@ static struct line_driver driver = {
+ 	.minor_start 		= 64,
+ 	.type 		 	= TTY_DRIVER_TYPE_SERIAL,
+ 	.subtype 	 	= 0,
+-	.read_irq 		= SSL_IRQ,
+ 	.read_irq_name 		= "ssl",
+-	.write_irq 		= SSL_WRITE_IRQ,
+ 	.write_irq_name 	= "ssl-write",
+ 	.mc  = {
+ 		.list		= LIST_HEAD_INIT(driver.mc.list),
+diff --git a/arch/um/drivers/stdio_console.c b/arch/um/drivers/stdio_console.c
+index e8b762f4d8c2..489d5a746ed3 100644
+--- a/arch/um/drivers/stdio_console.c
++++ b/arch/um/drivers/stdio_console.c
+@@ -53,9 +53,7 @@ static struct line_driver driver = {
+ 	.minor_start 		= 0,
+ 	.type 		 	= TTY_DRIVER_TYPE_CONSOLE,
+ 	.subtype 	 	= SYSTEM_TYPE_CONSOLE,
+-	.read_irq 		= CONSOLE_IRQ,
+ 	.read_irq_name 		= "console",
+-	.write_irq 		= CONSOLE_WRITE_IRQ,
+ 	.write_irq_name 	= "console-write",
+ 	.mc  = {
+ 		.list		= LIST_HEAD_INIT(driver.mc.list),
+diff --git a/arch/um/include/asm/irq.h b/arch/um/include/asm/irq.h
+index e187c789369d..749dfe8512e8 100644
+--- a/arch/um/include/asm/irq.h
++++ b/arch/um/include/asm/irq.h
+@@ -4,19 +4,15 @@
+ 
+ #define TIMER_IRQ		0
+ #define UMN_IRQ			1
+-#define CONSOLE_IRQ		2
+-#define CONSOLE_WRITE_IRQ	3
+-#define UBD_IRQ			4
+-#define UM_ETH_IRQ		5
+-#define SSL_IRQ			6
+-#define SSL_WRITE_IRQ		7
+-#define ACCEPT_IRQ		8
+-#define MCONSOLE_IRQ		9
+-#define WINCH_IRQ		10
+-#define SIGIO_WRITE_IRQ 	11
+-#define TELNETD_IRQ 		12
+-#define XTERM_IRQ 		13
+-#define RANDOM_IRQ 		14
++#define UBD_IRQ			2
++#define UM_ETH_IRQ		3
++#define ACCEPT_IRQ		4
++#define MCONSOLE_IRQ		5
++#define WINCH_IRQ		6
++#define SIGIO_WRITE_IRQ 	7
++#define TELNETD_IRQ 		8
++#define XTERM_IRQ 		9
++#define RANDOM_IRQ 		10
+ 
+ #ifdef CONFIG_UML_NET_VECTOR
+ 
 -- 
 2.35.1
 
