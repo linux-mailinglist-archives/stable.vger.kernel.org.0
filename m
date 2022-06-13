@@ -2,46 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B56E1549432
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE791548998
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379182AbiFMNrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:47:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40996 "EHLO
+        id S1357700AbiFMMF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:05:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379930AbiFMNpi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:45:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D84111A3E;
-        Mon, 13 Jun 2022 04:32:50 -0700 (PDT)
+        with ESMTP id S1359151AbiFMMFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E1F512AAC;
+        Mon, 13 Jun 2022 03:59:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0BBEB80E59;
-        Mon, 13 Jun 2022 11:32:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2821DC34114;
-        Mon, 13 Jun 2022 11:32:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEBE760F9A;
+        Mon, 13 Jun 2022 10:59:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4412C34114;
+        Mon, 13 Jun 2022 10:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119967;
-        bh=OwEYFRgpUf80fRMHkCntxKPzyDSeeIknykURCdFO160=;
+        s=korg; t=1655117942;
+        bh=1deBv8pWO4EhlblSV+d3qc0OS1zA34siQuYQ1ppkR98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fm1MQDYi3p8lpiaS7p6GSixcZe4cgK14ji+208/RwS4Wc2a1W9zB4OcX4wpDFUKol
-         OLcwl8hgzfySlgbkAwMkZ7/NlCLVKZfwG2zd+eul9dcSk3OVYIwPULHLQ7n7S+tKpK
-         CqFkVcAkkJYfbchJzYr5aW/r3L30lYQtrB5B5Il0=
+        b=M2SjwOqiUcxy/EUEZd8gACipjIGZ1h7DeYBvPpaPyh5kewhp6xsPW10kqscjygUP7
+         nWUAlIup+YhRlWnbJXIw51J6LDPsoBO0ghcg/7N0Y6HNB08lr253pLqFYMgUDjqQft
+         xdOb9QYh1hwqEwxWbTAUf9tLDXEkfaygmlIUIvq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 173/339] m68knommu: fix undefined reference to `mach_get_rtc_pll
+        stable@vger.kernel.org,
+        Christophe de Dinechin <christophe@dinechin.org>,
+        Christophe de Dinechin <dinechin@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ben Segall <bsegall@google.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 4.19 174/287] nodemask.h: fix compilation error with GCC12
 Date:   Mon, 13 Jun 2022 12:09:58 +0200
-Message-Id: <20220613094931.924956611@linuxfoundation.org>
+Message-Id: <20220613094929.147608458@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,91 +67,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Ungerer <gerg@linux-m68k.org>
+From: Christophe de Dinechin <dinechin@redhat.com>
 
-[ Upstream commit 1300eec9e51f23c34c4487d2b06f58ca22e1ad3d ]
+commit 37462a920392cb86541650a6f4121155f11f1199 upstream.
 
-Configuring for a nommu classic m68k target and enabling the generic rtc
-driver (CONFIG_RTC_DRV_GENERIC) will result in the following compile
-error:
+With gcc version 12.0.1 20220401 (Red Hat 12.0.1-0), building with
+defconfig results in the following compilation error:
 
-   m68k-linux-ld: arch/m68k/kernel/time.o: in function `rtc_ioctl':
-   time.c:(.text+0x82): undefined reference to `mach_get_rtc_pll'
-   m68k-linux-ld: time.c:(.text+0xbc): undefined reference to `mach_set_rtc_pll'
-   m68k-linux-ld: time.c:(.text+0xf4): undefined reference to `mach_set_rtc_pll'
+|   CC      mm/swapfile.o
+| mm/swapfile.c: In function `setup_swap_info':
+| mm/swapfile.c:2291:47: error: array subscript -1 is below array bounds
+|  of `struct plist_node[]' [-Werror=array-bounds]
+|  2291 |                                 p->avail_lists[i].prio = 1;
+|       |                                 ~~~~~~~~~~~~~~^~~
+| In file included from mm/swapfile.c:16:
+| ./include/linux/swap.h:292:27: note: while referencing `avail_lists'
+|   292 |         struct plist_node avail_lists[]; /*
+|       |                           ^~~~~~~~~~~
 
-There are no definitions of "mach_set_rtc_pll" and "mach_get_rtc_pll" in the
-nommu code paths. Move these definitions and the associated "mach_hwclk",
-so that they are around their use case in time.c. This means they will
-always be defined on the builds that require them, and not on those that
-cannot use them - such as ColdFire (both with and without MMU enabled).
+This is due to the compiler detecting that the mask in
+node_states[__state] could theoretically be zero, which would lead to
+first_node() returning -1 through find_first_bit.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+I believe that the warning/error is legitimate.  I first tried adding a
+test to check that the node mask is not emtpy, since a similar test exists
+in the case where MAX_NUMNODES == 1.
+
+However, adding the if statement causes other warnings to appear in
+for_each_cpu_node_but, because it introduces a dangling else ambiguity.
+And unfortunately, GCC is not smart enough to detect that the added test
+makes the case where (node) == -1 impossible, so it still complains with
+the same message.
+
+This is why I settled on replacing that with a harmless, but relatively
+useless (node) >= 0 test.  Based on the warning for the dangling else, I
+also decided to fix the case where MAX_NUMNODES == 1 by moving the
+condition inside the for loop.  It will still only be tested once.  This
+ensures that the meaning of an else following for_each_node_mask or
+derivatives would not silently have a different meaning depending on the
+configuration.
+
+Link: https://lkml.kernel.org/r/20220414150855.2407137-3-dinechin@redhat.com
+Signed-off-by: Christophe de Dinechin <christophe@dinechin.org>
+Signed-off-by: Christophe de Dinechin <dinechin@redhat.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Ben Segall <bsegall@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/m68k/kernel/setup_mm.c | 7 -------
- arch/m68k/kernel/setup_no.c | 1 -
- arch/m68k/kernel/time.c     | 9 +++++++++
- 3 files changed, 9 insertions(+), 8 deletions(-)
+ include/linux/nodemask.h |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/arch/m68k/kernel/setup_mm.c b/arch/m68k/kernel/setup_mm.c
-index 8f94feed969c..07317367ead8 100644
---- a/arch/m68k/kernel/setup_mm.c
-+++ b/arch/m68k/kernel/setup_mm.c
-@@ -87,15 +87,8 @@ void (*mach_sched_init) (void) __initdata = NULL;
- void (*mach_init_IRQ) (void) __initdata = NULL;
- void (*mach_get_model) (char *model);
- void (*mach_get_hardware_list) (struct seq_file *m);
--/* machine dependent timer functions */
--int (*mach_hwclk) (int, struct rtc_time*);
--EXPORT_SYMBOL(mach_hwclk);
- unsigned int (*mach_get_ss)(void);
--int (*mach_get_rtc_pll)(struct rtc_pll_info *);
--int (*mach_set_rtc_pll)(struct rtc_pll_info *);
- EXPORT_SYMBOL(mach_get_ss);
--EXPORT_SYMBOL(mach_get_rtc_pll);
--EXPORT_SYMBOL(mach_set_rtc_pll);
- void (*mach_reset)( void );
- void (*mach_halt)( void );
- void (*mach_power_off)( void );
-diff --git a/arch/m68k/kernel/setup_no.c b/arch/m68k/kernel/setup_no.c
-index 5e4104f07a44..19eea73d3c17 100644
---- a/arch/m68k/kernel/setup_no.c
-+++ b/arch/m68k/kernel/setup_no.c
-@@ -50,7 +50,6 @@ char __initdata command_line[COMMAND_LINE_SIZE];
+--- a/include/linux/nodemask.h
++++ b/include/linux/nodemask.h
+@@ -375,14 +375,13 @@ static inline void __nodes_fold(nodemask
+ }
  
- /* machine dependent timer functions */
- void (*mach_sched_init)(void) __initdata = NULL;
--int (*mach_hwclk) (int, struct rtc_time*);
+ #if MAX_NUMNODES > 1
+-#define for_each_node_mask(node, mask)			\
+-	for ((node) = first_node(mask);			\
+-		(node) < MAX_NUMNODES;			\
+-		(node) = next_node((node), (mask)))
++#define for_each_node_mask(node, mask)				    \
++	for ((node) = first_node(mask);				    \
++	     (node >= 0) && (node) < MAX_NUMNODES;		    \
++	     (node) = next_node((node), (mask)))
+ #else /* MAX_NUMNODES == 1 */
+-#define for_each_node_mask(node, mask)			\
+-	if (!nodes_empty(mask))				\
+-		for ((node) = 0; (node) < 1; (node)++)
++#define for_each_node_mask(node, mask)                                  \
++	for ((node) = 0; (node) < 1 && !nodes_empty(mask); (node)++)
+ #endif /* MAX_NUMNODES */
  
- /* machine dependent reboot functions */
- void (*mach_reset)(void);
-diff --git a/arch/m68k/kernel/time.c b/arch/m68k/kernel/time.c
-index 340ffeea0a9d..a97600b2af50 100644
---- a/arch/m68k/kernel/time.c
-+++ b/arch/m68k/kernel/time.c
-@@ -63,6 +63,15 @@ void timer_heartbeat(void)
- #endif /* CONFIG_HEARTBEAT */
- 
- #ifdef CONFIG_M68KCLASSIC
-+/* machine dependent timer functions */
-+int (*mach_hwclk) (int, struct rtc_time*);
-+EXPORT_SYMBOL(mach_hwclk);
-+
-+int (*mach_get_rtc_pll)(struct rtc_pll_info *);
-+int (*mach_set_rtc_pll)(struct rtc_pll_info *);
-+EXPORT_SYMBOL(mach_get_rtc_pll);
-+EXPORT_SYMBOL(mach_set_rtc_pll);
-+
- #if !IS_BUILTIN(CONFIG_RTC_DRV_GENERIC)
- void read_persistent_clock64(struct timespec64 *ts)
- {
--- 
-2.35.1
-
+ /*
 
 
