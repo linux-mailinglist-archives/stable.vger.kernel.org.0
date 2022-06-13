@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E6C1548EE6
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D662F549113
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352542AbiFMLSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:18:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46664 "EHLO
+        id S1354852AbiFMLhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:37:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353672AbiFMLQL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB5413DD3;
-        Mon, 13 Jun 2022 03:38:55 -0700 (PDT)
+        with ESMTP id S1354876AbiFMLgK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:36:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AACA2BB28;
+        Mon, 13 Jun 2022 03:48:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D8C3B80EA8;
-        Mon, 13 Jun 2022 10:38:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B77FC3411C;
-        Mon, 13 Jun 2022 10:38:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D4B860AEB;
+        Mon, 13 Jun 2022 10:48:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE4FAC34114;
+        Mon, 13 Jun 2022 10:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116733;
-        bh=EFmUdl9NrFEx7bbsKO6ZCv5QzcIZLGeHdaaADbLR9TU=;
+        s=korg; t=1655117290;
+        bh=nCcNByXWT/diSi/kX4pWjohsR1ESAZBLN/o8dTNP/Qo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftbRUP7lBoROfzmY7mcJVD9tdznWyk/cyKjZkpLPszKD2+h6fs8TfPrldFSlwGt1U
-         9BjykUbSfCvoeD0/j1N0DfeODvLTLY8VpJsVc2WtGVgxThL2j9ZB1fhycFjKbpl+NG
-         KS5xl3VXio6JLwdmwFkisr2wikiHNpXBtpnrMs2Y=
+        b=bOPPDuzN/kg3Hp2FQ3yFf4YcYp04Wa6UXeNlKUxivYiB26LXQHOzvXc448jvLkI4D
+         mcFwru2Q4zcppx8N67nE8at0F2VfMsfQ0b7LzEA4mCGV5XiEwFVa+IHGigtQXbIyfE
+         yvYoDyEX7T/yrEjXT+9WvsPlSdvkr5GgJaAOp71s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>, Du Cheng <ducheng2@gmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Claudio Suarez <cssk@net-c.es>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 165/411] ARM: dts: bcm2837-rpi-cm3-io3: Fix GPIO line names for SMPS I2C
-Date:   Mon, 13 Jun 2022 12:07:18 +0200
-Message-Id: <20220613094933.609820473@linuxfoundation.org>
+Subject: [PATCH 4.19 015/287] fbcon: Consistently protect deferred_takeover with console_lock()
+Date:   Mon, 13 Jun 2022 12:07:19 +0200
+Message-Id: <20220613094924.317288764@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +58,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Elwell <phil@raspberrypi.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-[ Upstream commit 9fd26fd02749ec964eb0d588a3bab9e09bf77927 ]
+[ Upstream commit 43553559121ca90965b572cf8a1d6d0fd618b449 ]
 
-The GPIOs 46 & 47 are already used for a I2C interface to a SMPS.
-So fix the GPIO line names accordingly.
+This shouldn't be a problem in practice since until we've actually
+taken over the console there's nothing we've registered with the
+console/vt subsystem, so the exit/unbind path that check this can't
+do the wrong thing. But it's confusing, so fix it by moving it a tad
+later.
 
-Fixes: a54fe8a6cf66 ("ARM: dts: add Raspberry Pi Compute Module 3 and IO board")
-Signed-off-by: Phil Elwell <phil@raspberrypi.com>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Du Cheng <ducheng2@gmail.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Claudio Suarez <cssk@net-c.es>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220405210335.3434130-14-daniel.vetter@ffwll.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/core/fbcon.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts b/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts
-index 588d9411ceb6..3dfce4312dfc 100644
---- a/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts
-+++ b/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts
-@@ -63,8 +63,8 @@
- 			  "GPIO43",
- 			  "GPIO44",
- 			  "GPIO45",
--			  "GPIO46",
--			  "GPIO47",
-+			  "SMPS_SCL",
-+			  "SMPS_SDA",
- 			  /* Used by eMMC */
- 			  "SD_CLK_R",
- 			  "SD_CMD_R",
+diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
+index bf7959fdf9f4..7c2582892eab 100644
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -3314,6 +3314,9 @@ static void fbcon_register_existing_fbs(struct work_struct *work)
+ 
+ 	console_lock();
+ 
++	deferred_takeover = false;
++	logo_shown = FBCON_LOGO_DONTSHOW;
++
+ 	for_each_registered_fb(i)
+ 		fbcon_fb_registered(registered_fb[i]);
+ 
+@@ -3331,8 +3334,6 @@ static int fbcon_output_notifier(struct notifier_block *nb,
+ 	pr_info("fbcon: Taking over console\n");
+ 
+ 	dummycon_unregister_output_notifier(&fbcon_output_nb);
+-	deferred_takeover = false;
+-	logo_shown = FBCON_LOGO_DONTSHOW;
+ 
+ 	/* We may get called in atomic context */
+ 	schedule_work(&fbcon_deferred_takeover_work);
 -- 
 2.35.1
 
