@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F054F549867
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E4A9548A4D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378258AbiFMNk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:40:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
+        id S235844AbiFMKT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378968AbiFMNjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5751579384;
-        Mon, 13 Jun 2022 04:28:01 -0700 (PDT)
+        with ESMTP id S242729AbiFMKSd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:18:33 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7249220BD5;
+        Mon, 13 Jun 2022 03:16:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12A3A60B6E;
-        Mon, 13 Jun 2022 11:28:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22C9BC34114;
-        Mon, 13 Jun 2022 11:27:59 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BC0ACCE1109;
+        Mon, 13 Jun 2022 10:16:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B08CAC34114;
+        Mon, 13 Jun 2022 10:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119680;
-        bh=9nVcIG5ydgmrjycLDmCNUY1fUKBAcXsrQvka0p+T/H0=;
+        s=korg; t=1655115377;
+        bh=lXOwunPvjLmnJDHlPHNJ8y9/+BMNkm1eEegXiSOoUHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BYDMQo9qoeNxKKLvBm7Ls53/EyYCv/YR5c9xqV8sRz4ATfJlx5fHFDZLarTgMYs15
-         CJBd8p40+7po4ixJ/y+9/f3aCGujMdJAxh5VTXGKrTEewDBqFkkl+tNR0S/jhKBl3J
-         dZZF4hYkR0j42X/VusSE5ocbGJ/hSL+9ZreYfZRw=
+        b=GMJ4Z6qqM6lKq0OKqrXN2heb9CVZgiboWdf+cq/gbn1ZuZ72eWfPVu4Gp41TWeZH+
+         QmJdwaaTpE7DG/WlTUxXy0iu73PvJMXdh1bEYz8kw0/EkRSxcZhcrAhUPEuJQ34Ihf
+         Gv7ExYneSj5OA5/6c/s9dnmj3J1u2v87dcO6j1pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 101/339] ubi: fastmap: Fix high cpu usage of ubi_bgt by making sure wl_pool not empty
+Subject: [PATCH 4.9 052/167] media: uvcvideo: Fix missing check to determine if element is found in list
 Date:   Mon, 13 Jun 2022 12:08:46 +0200
-Message-Id: <20220613094929.575736089@linuxfoundation.org>
+Message-Id: <20220613094853.179297413@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,297 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit d09e9a2bddba6c48e0fddb16c4383172ac593251 ]
+[ Upstream commit 261f33388c29f6f3c12a724e6d89172b7f6d5996 ]
 
-There at least 6 PEBs reserved on UBI device:
-1. EBA_RESERVED_PEBS[1]
-2. WL_RESERVED_PEBS[1]
-3. UBI_LAYOUT_VOLUME_EBS[2]
-4. MIN_FASTMAP_RESERVED_PEBS[2]
+The list iterator will point to a bogus position containing HEAD if
+the list is empty or the element is not found in list. This case
+should be checked before any use of the iterator, otherwise it will
+lead to a invalid memory access. The missing check here is before
+"pin = iterm->id;", just add check here to fix the security bug.
 
-When all ubi volumes take all their PEBs, there are 3 (EBA_RESERVED_PEBS +
-WL_RESERVED_PEBS + MIN_FASTMAP_RESERVED_PEBS - MIN_FASTMAP_TAKEN_PEBS[1])
-free PEBs. Since commit f9c34bb529975fe ("ubi: Fix producing anchor PEBs")
-and commit 4b68bf9a69d22dd ("ubi: Select fastmap anchor PEBs considering
-wear level rules") applied, there is only 1 (3 - FASTMAP_ANCHOR_PEBS[1] -
-FASTMAP_NEXT_ANCHOR_PEBS[1]) free PEB to fill pool and wl_pool, after
-filling pool, wl_pool is always empty. So, UBI could be stuck in an
-infinite loop:
+In addition, the list iterator value will *always* be set and non-NULL
+by list_for_each_entry(), so it is incorrect to assume that the iterator
+value will be NULL if the element is not found in list, considering
+the (mis)use here: "if (iterm == NULL".
 
-	ubi_thread	   system_wq
-wear_leveling_worker <--------------------------------------------------
-  get_peb_for_wl							|
-    // fm_wl_pool, used = size = 0					|
-    schedule_work(&ubi->fm_work)					|
-									|
-		    update_fastmap_work_fn				|
-		      ubi_update_fastmap				|
-			ubi_refill_pools				|
-			// ubi->free_count - ubi->beb_rsvd_pebs < 5	|
-			// wl_pool is not filled with any PEBs		|
-			schedule_erase(old_fm_anchor)			|
-			ubi_ensure_anchor_pebs				|
-			  __schedule_ubi_work(wear_leveling_worker)	|
-									|
-__erase_worker								|
-  ensure_wear_leveling							|
-    __schedule_ubi_work(wear_leveling_worker) --------------------------
+Use a new value 'it' as the list iterator, while use the old value
+'iterm' as a dedicated pointer to point to the found element, which
+1. can fix this bug, due to 'iterm' is NULL only if it's not found.
+2. do not need to change all the uses of 'iterm' after the loop.
+3. can also limit the scope of the list iterator 'it' *only inside*
+   the traversal loop by simply declaring 'it' inside the loop in the
+   future, as usage of the iterator outside of the list_for_each_entry
+   is considered harmful. https://lkml.org/lkml/2022/2/17/1032
 
-, which cause high cpu usage of ubi_bgt:
-top - 12:10:42 up 5 min,  2 users,  load average: 1.76, 0.68, 0.27
-Tasks: 123 total,   3 running,  54 sleeping,   0 stopped,   0 zombie
-
-  PID USER PR   NI VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
- 1589 root 20   0   0      0      0 R  45.0  0.0   0:38.86 ubi_bgt0d
-  319 root 20   0   0      0      0 I  15.2  0.0   0:15.29 kworker/0:3-eve
-  371 root 20   0   0      0      0 I  14.9  0.0   0:12.85 kworker/3:3-eve
-   20 root 20   0   0      0      0 I  11.3  0.0   0:05.33 kworker/1:0-eve
-  202 root 20   0   0      0      0 I  11.3  0.0   0:04.93 kworker/2:3-eve
-
-In commit 4b68bf9a69d22dd ("ubi: Select fastmap anchor PEBs considering
-wear level rules"), there are three key changes:
-  1) Choose the fastmap anchor when the most free PEBs are available.
-  2) Enable anchor move within the anchor area again as it is useful
-     for distributing wear.
-  3) Import a candidate fm anchor and check this PEB's erase count during
-     wear leveling. If the wear leveling limit is exceeded, use the used
-     anchor area PEB with the lowest erase count to replace it.
-
-The anchor candidate can be removed, we can check fm_anchor PEB's erase
-count during wear leveling. Fix it by:
-  1) Removing 'fm_next_anchor' and check 'fm_anchor' during wear leveling.
-  2) Preferentially filling one free peb into fm_wl_pool in condition of
-     ubi->free_count > ubi->beb_rsvd_pebs, then try to reserve enough
-     free count for fastmap non anchor pebs after the above prerequisites
-     are met.
-Then, there are at least 1 PEB in pool and 1 PEB in wl_pool after calling
-ubi_refill_pools() with all erase works done.
-
-Fetch a reproducer in [Link].
-
-Fixes: 4b68bf9a69d22dd ("ubi: Select fastmap anchor PEBs ... rules")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215407
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: d5e90b7a6cd1c ("[media] uvcvideo: Move to video_ioctl2")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/fastmap-wl.c | 69 ++++++++++++++++++++++++------------
- drivers/mtd/ubi/fastmap.c    | 11 ------
- drivers/mtd/ubi/ubi.h        |  4 +--
- drivers/mtd/ubi/wl.c         | 19 +++++-----
- 4 files changed, 57 insertions(+), 46 deletions(-)
+ drivers/media/usb/uvc/uvc_v4l2.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/mtd/ubi/fastmap-wl.c b/drivers/mtd/ubi/fastmap-wl.c
-index 28f55f9cf715..053ab52668e8 100644
---- a/drivers/mtd/ubi/fastmap-wl.c
-+++ b/drivers/mtd/ubi/fastmap-wl.c
-@@ -97,6 +97,33 @@ struct ubi_wl_entry *ubi_wl_get_fm_peb(struct ubi_device *ubi, int anchor)
- 	return e;
- }
+diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
+index 2b1e06e825f0..53d81ef9a4be 100644
+--- a/drivers/media/usb/uvc/uvc_v4l2.c
++++ b/drivers/media/usb/uvc/uvc_v4l2.c
+@@ -846,29 +846,31 @@ static int uvc_ioctl_enum_input(struct file *file, void *fh,
+ 	struct uvc_video_chain *chain = handle->chain;
+ 	const struct uvc_entity *selector = chain->selector;
+ 	struct uvc_entity *iterm = NULL;
++	struct uvc_entity *it;
+ 	u32 index = input->index;
+-	int pin = 0;
  
-+/*
-+ * has_enough_free_count - whether ubi has enough free pebs to fill fm pools
-+ * @ubi: UBI device description object
-+ * @is_wl_pool: whether UBI is filling wear leveling pool
-+ *
-+ * This helper function checks whether there are enough free pebs (deducted
-+ * by fastmap pebs) to fill fm_pool and fm_wl_pool, above rule works after
-+ * there is at least one of free pebs is filled into fm_wl_pool.
-+ * For wear leveling pool, UBI should also reserve free pebs for bad pebs
-+ * handling, because there maybe no enough free pebs for user volumes after
-+ * producing new bad pebs.
-+ */
-+static bool has_enough_free_count(struct ubi_device *ubi, bool is_wl_pool)
-+{
-+	int fm_used = 0;	// fastmap non anchor pebs.
-+	int beb_rsvd_pebs;
-+
-+	if (!ubi->free.rb_node)
-+		return false;
-+
-+	beb_rsvd_pebs = is_wl_pool ? ubi->beb_rsvd_pebs : 0;
-+	if (ubi->fm_wl_pool.size > 0 && !(ubi->ro_mode || ubi->fm_disabled))
-+		fm_used = ubi->fm_size / ubi->leb_size - 1;
-+
-+	return ubi->free_count - beb_rsvd_pebs > fm_used;
-+}
-+
- /**
-  * ubi_refill_pools - refills all fastmap PEB pools.
-  * @ubi: UBI device description object
-@@ -120,21 +147,17 @@ void ubi_refill_pools(struct ubi_device *ubi)
- 		wl_tree_add(ubi->fm_anchor, &ubi->free);
- 		ubi->free_count++;
- 	}
--	if (ubi->fm_next_anchor) {
--		wl_tree_add(ubi->fm_next_anchor, &ubi->free);
--		ubi->free_count++;
--	}
- 
--	/* All available PEBs are in ubi->free, now is the time to get
-+	/*
-+	 * All available PEBs are in ubi->free, now is the time to get
- 	 * the best anchor PEBs.
- 	 */
- 	ubi->fm_anchor = ubi_wl_get_fm_peb(ubi, 1);
--	ubi->fm_next_anchor = ubi_wl_get_fm_peb(ubi, 1);
- 
- 	for (;;) {
- 		enough = 0;
- 		if (pool->size < pool->max_size) {
--			if (!ubi->free.rb_node)
-+			if (!has_enough_free_count(ubi, false))
+ 	if (selector == NULL ||
+ 	    (chain->dev->quirks & UVC_QUIRK_IGNORE_SELECTOR_UNIT)) {
+ 		if (index != 0)
+ 			return -EINVAL;
+-		list_for_each_entry(iterm, &chain->entities, chain) {
+-			if (UVC_ENTITY_IS_ITERM(iterm))
++		list_for_each_entry(it, &chain->entities, chain) {
++			if (UVC_ENTITY_IS_ITERM(it)) {
++				iterm = it;
  				break;
- 
- 			e = wl_get_wle(ubi);
-@@ -147,8 +170,7 @@ void ubi_refill_pools(struct ubi_device *ubi)
- 			enough++;
- 
- 		if (wl_pool->size < wl_pool->max_size) {
--			if (!ubi->free.rb_node ||
--			   (ubi->free_count - ubi->beb_rsvd_pebs < 5))
-+			if (!has_enough_free_count(ubi, true))
++			}
+ 		}
+-		pin = iterm->id;
+ 	} else if (index < selector->bNrInPins) {
+-		pin = selector->baSourceID[index];
+-		list_for_each_entry(iterm, &chain->entities, chain) {
+-			if (!UVC_ENTITY_IS_ITERM(iterm))
++		list_for_each_entry(it, &chain->entities, chain) {
++			if (!UVC_ENTITY_IS_ITERM(it))
+ 				continue;
+-			if (iterm->id == pin)
++			if (it->id == selector->baSourceID[index]) {
++				iterm = it;
  				break;
- 
- 			e = find_wl_entry(ubi, &ubi->free, WL_FREE_MAX_DIFF);
-@@ -286,20 +308,26 @@ static struct ubi_wl_entry *get_peb_for_wl(struct ubi_device *ubi)
- int ubi_ensure_anchor_pebs(struct ubi_device *ubi)
- {
- 	struct ubi_work *wrk;
-+	struct ubi_wl_entry *anchor;
- 
- 	spin_lock(&ubi->wl_lock);
- 
--	/* Do we have a next anchor? */
--	if (!ubi->fm_next_anchor) {
--		ubi->fm_next_anchor = ubi_wl_get_fm_peb(ubi, 1);
--		if (!ubi->fm_next_anchor)
--			/* Tell wear leveling to produce a new anchor PEB */
--			ubi->fm_do_produce_anchor = 1;
-+	/* Do we already have an anchor? */
-+	if (ubi->fm_anchor) {
-+		spin_unlock(&ubi->wl_lock);
-+		return 0;
++			}
+ 		}
  	}
  
--	/* Do wear leveling to get a new anchor PEB or check the
--	 * existing next anchor candidate.
--	 */
-+	/* See if we can find an anchor PEB on the list of free PEBs */
-+	anchor = ubi_wl_get_fm_peb(ubi, 1);
-+	if (anchor) {
-+		ubi->fm_anchor = anchor;
-+		spin_unlock(&ubi->wl_lock);
-+		return 0;
-+	}
-+
-+	ubi->fm_do_produce_anchor = 1;
-+	/* No luck, trigger wear leveling to produce a new anchor PEB. */
- 	if (ubi->wl_scheduled) {
- 		spin_unlock(&ubi->wl_lock);
- 		return 0;
-@@ -381,11 +409,6 @@ static void ubi_fastmap_close(struct ubi_device *ubi)
- 		ubi->fm_anchor = NULL;
- 	}
+-	if (iterm == NULL || iterm->id != pin)
++	if (iterm == NULL)
+ 		return -EINVAL;
  
--	if (ubi->fm_next_anchor) {
--		return_unused_peb(ubi, ubi->fm_next_anchor);
--		ubi->fm_next_anchor = NULL;
--	}
--
- 	if (ubi->fm) {
- 		for (i = 0; i < ubi->fm->used_blocks; i++)
- 			kfree(ubi->fm->e[i]);
-diff --git a/drivers/mtd/ubi/fastmap.c b/drivers/mtd/ubi/fastmap.c
-index 6b5f1ffd961b..6e95c4b1473e 100644
---- a/drivers/mtd/ubi/fastmap.c
-+++ b/drivers/mtd/ubi/fastmap.c
-@@ -1230,17 +1230,6 @@ static int ubi_write_fastmap(struct ubi_device *ubi,
- 		fm_pos += sizeof(*fec);
- 		ubi_assert(fm_pos <= ubi->fm_size);
- 	}
--	if (ubi->fm_next_anchor) {
--		fec = (struct ubi_fm_ec *)(fm_raw + fm_pos);
--
--		fec->pnum = cpu_to_be32(ubi->fm_next_anchor->pnum);
--		set_seen(ubi, ubi->fm_next_anchor->pnum, seen_pebs);
--		fec->ec = cpu_to_be32(ubi->fm_next_anchor->ec);
--
--		free_peb_count++;
--		fm_pos += sizeof(*fec);
--		ubi_assert(fm_pos <= ubi->fm_size);
--	}
- 	fmh->free_peb_count = cpu_to_be32(free_peb_count);
- 
- 	ubi_for_each_used_peb(ubi, wl_e, tmp_rb) {
-diff --git a/drivers/mtd/ubi/ubi.h b/drivers/mtd/ubi/ubi.h
-index 7c083ad58274..078112e23dfd 100644
---- a/drivers/mtd/ubi/ubi.h
-+++ b/drivers/mtd/ubi/ubi.h
-@@ -489,8 +489,7 @@ struct ubi_debug_info {
-  * @fm_work: fastmap work queue
-  * @fm_work_scheduled: non-zero if fastmap work was scheduled
-  * @fast_attach: non-zero if UBI was attached by fastmap
-- * @fm_anchor: The new anchor PEB used during fastmap update
-- * @fm_next_anchor: An anchor PEB candidate for the next time fastmap is updated
-+ * @fm_anchor: The next anchor PEB to use for fastmap
-  * @fm_do_produce_anchor: If true produce an anchor PEB in wl
-  *
-  * @used: RB-tree of used physical eraseblocks
-@@ -601,7 +600,6 @@ struct ubi_device {
- 	int fm_work_scheduled;
- 	int fast_attach;
- 	struct ubi_wl_entry *fm_anchor;
--	struct ubi_wl_entry *fm_next_anchor;
- 	int fm_do_produce_anchor;
- 
- 	/* Wear-leveling sub-system's stuff */
-diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
-index 8455f1d47f3c..afcdacb9d0e9 100644
---- a/drivers/mtd/ubi/wl.c
-+++ b/drivers/mtd/ubi/wl.c
-@@ -689,16 +689,16 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
- 
- #ifdef CONFIG_MTD_UBI_FASTMAP
- 	e1 = find_anchor_wl_entry(&ubi->used);
--	if (e1 && ubi->fm_next_anchor &&
--	    (ubi->fm_next_anchor->ec - e1->ec >= UBI_WL_THRESHOLD)) {
-+	if (e1 && ubi->fm_anchor &&
-+	    (ubi->fm_anchor->ec - e1->ec >= UBI_WL_THRESHOLD)) {
- 		ubi->fm_do_produce_anchor = 1;
--		/* fm_next_anchor is no longer considered a good anchor
--		 * candidate.
-+		/*
-+		 * fm_anchor is no longer considered a good anchor.
- 		 * NULL assignment also prevents multiple wear level checks
- 		 * of this PEB.
- 		 */
--		wl_tree_add(ubi->fm_next_anchor, &ubi->free);
--		ubi->fm_next_anchor = NULL;
-+		wl_tree_add(ubi->fm_anchor, &ubi->free);
-+		ubi->fm_anchor = NULL;
- 		ubi->free_count++;
- 	}
- 
-@@ -1085,12 +1085,13 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
- 	if (!err) {
- 		spin_lock(&ubi->wl_lock);
- 
--		if (!ubi->fm_disabled && !ubi->fm_next_anchor &&
-+		if (!ubi->fm_disabled && !ubi->fm_anchor &&
- 		    e->pnum < UBI_FM_MAX_START) {
--			/* Abort anchor production, if needed it will be
-+			/*
-+			 * Abort anchor production, if needed it will be
- 			 * enabled again in the wear leveling started below.
- 			 */
--			ubi->fm_next_anchor = e;
-+			ubi->fm_anchor = e;
- 			ubi->fm_do_produce_anchor = 0;
- 		} else {
- 			wl_tree_add(e, &ubi->free);
+ 	memset(input, 0, sizeof(*input));
 -- 
 2.35.1
 
