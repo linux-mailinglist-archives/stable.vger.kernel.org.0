@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1563549103
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D235A549033
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348907AbiFMMYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:24:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56324 "EHLO
+        id S1353282AbiFMMtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:49:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354782AbiFMMXs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 492B3580DA;
-        Mon, 13 Jun 2022 04:03:46 -0700 (PDT)
+        with ESMTP id S1353051AbiFMMrh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:47:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FD1C2DC0;
+        Mon, 13 Jun 2022 04:11:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBCA661347;
-        Mon, 13 Jun 2022 11:03:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE0BC34114;
-        Mon, 13 Jun 2022 11:03:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD58560B6F;
+        Mon, 13 Jun 2022 11:11:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA4D3C34114;
+        Mon, 13 Jun 2022 11:11:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118225;
-        bh=qmLyxOF1QlqqtHH/XqRrUGjso9HD9RiZ88Y2BKFYqYQ=;
+        s=korg; t=1655118681;
+        bh=k+/pVrIT8QfqIWbATLK3wlWEq5hh0GwRx7H7a3D01Zw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7sIUyJSfV8ev3P7vR4NBavtT4lw7hyBBe6itwyjilnUerZxzlkaKEvBwKmX9cuJC
-         UI4eSLg06lk3zqY/s/aDnsQxLFRX/JNwOZTp8+EkCyteX4gVB27EL9LCxNNZDZ8uVf
-         3eszevwf5i3YCxhINCNdCM9holkjs14Rx+A/DVcE=
+        b=jCGogqysW51KsVChoascf9krViimy2O6+ltWMhrlvEYgQxkefqOWKGCplWKdVjK1X
+         AyGsEGt5XDbiYNyO8HY+g7Ey+qlDh45zh6SqMITDqhnyfZPFuqnVXYiA8n90iDYyjh
+         CXVDiHV31OeHG3GTTR7eJbid3+tnUMi773fss80E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tokunori Ikegami <ikegami.t@gmail.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.19 286/287] mtd: cfi_cmdset_0002: Move and rename chip_check/chip_ready/chip_good_for_write
+        stable@vger.kernel.org, Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 150/172] scripts/gdb: change kernel config dumping method
 Date:   Mon, 13 Jun 2022 12:11:50 +0200
-Message-Id: <20220613094932.665758427@linuxfoundation.org>
+Message-Id: <20220613094922.695739684@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,234 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tokunori Ikegami <ikegami.t@gmail.com>
+From: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
 
-commit 083084df578a8bdb18334f69e7b32d690aaa3247 upstream.
+[ Upstream commit 1f7a6cf6b07c74a17343c2559cd5f5018a245961 ]
 
-This is a preparation patch for the S29GL064N buffer writes fix. There
-is no functional change.
+MAGIC_START("IKCFG_ST") and MAGIC_END("IKCFG_ED") are moved out
+from the kernel_config_data variable.
 
-Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
-Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
-Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
-Cc: stable@vger.kernel.org
-Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-2-ikegami.t@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Thus, we parse kernel_config_data directly instead of considering
+offset of MAGIC_START and MAGIC_END.
+
+Fixes: 13610aa908dc ("kernel/configs: use .incbin directive to embed config_data.gz")
+Signed-off-by: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/chips/cfi_cmdset_0002.c |   77 ++++++++++++++----------------------
- 1 file changed, 32 insertions(+), 45 deletions(-)
+ scripts/gdb/linux/config.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/mtd/chips/cfi_cmdset_0002.c
-+++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -731,50 +731,34 @@ static struct mtd_info *cfi_amdstd_setup
- }
+diff --git a/scripts/gdb/linux/config.py b/scripts/gdb/linux/config.py
+index 90e1565b1967..8843ab3cbadd 100644
+--- a/scripts/gdb/linux/config.py
++++ b/scripts/gdb/linux/config.py
+@@ -24,9 +24,9 @@ class LxConfigDump(gdb.Command):
+             filename = arg
  
- /*
-- * Return true if the chip is ready.
-+ * Return true if the chip is ready and has the correct value.
-  *
-  * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
-  * non-suspended sector) and is indicated by no toggle bits toggling.
-  *
-+ * Error are indicated by toggling bits or bits held with the wrong value,
-+ * or with bits toggling.
-+ *
-  * Note that anything more complicated than checking if no bits are toggling
-  * (including checking DQ5 for an error status) is tricky to get working
-  * correctly and is therefore not done	(particularly with interleaved chips
-  * as each chip must be checked independently of the others).
-  */
--static int __xipram chip_ready(struct map_info *map, unsigned long addr)
-+static int __xipram chip_ready(struct map_info *map, unsigned long addr,
-+			       map_word *expected)
- {
- 	map_word d, t;
-+	int ret;
+         try:
+-            py_config_ptr = gdb.parse_and_eval("kernel_config_data + 8")
+-            py_config_size = gdb.parse_and_eval(
+-                    "sizeof(kernel_config_data) - 1 - 8 * 2")
++            py_config_ptr = gdb.parse_and_eval("&kernel_config_data")
++            py_config_ptr_end = gdb.parse_and_eval("&kernel_config_data_end")
++            py_config_size = py_config_ptr_end - py_config_ptr
+         except gdb.error as e:
+             raise gdb.GdbError("Can't find config, enable CONFIG_IKCONFIG?")
  
- 	d = map_read(map, addr);
- 	t = map_read(map, addr);
- 
--	return map_word_equal(map, d, t);
--}
-+	ret = map_word_equal(map, d, t);
- 
--/*
-- * Return true if the chip is ready and has the correct value.
-- *
-- * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
-- * non-suspended sector) and it is indicated by no bits toggling.
-- *
-- * Error are indicated by toggling bits or bits held with the wrong value,
-- * or with bits toggling.
-- *
-- * Note that anything more complicated than checking if no bits are toggling
-- * (including checking DQ5 for an error status) is tricky to get working
-- * correctly and is therefore not done	(particularly with interleaved chips
-- * as each chip must be checked independently of the others).
-- *
-- */
--static int __xipram chip_good(struct map_info *map, unsigned long addr, map_word expected)
--{
--	map_word oldd, curd;
--
--	oldd = map_read(map, addr);
--	curd = map_read(map, addr);
-+	if (!ret || !expected)
-+		return ret;
- 
--	return	map_word_equal(map, oldd, curd) &&
--		map_word_equal(map, curd, expected);
-+	return map_word_equal(map, t, *expected);
- }
- 
- static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
-@@ -791,7 +775,7 @@ static int get_chip(struct map_info *map
- 
- 	case FL_STATUS:
- 		for (;;) {
--			if (chip_ready(map, adr))
-+			if (chip_ready(map, adr, NULL))
- 				break;
- 
- 			if (time_after(jiffies, timeo)) {
-@@ -829,7 +813,7 @@ static int get_chip(struct map_info *map
- 		chip->state = FL_ERASE_SUSPENDING;
- 		chip->erase_suspended = 1;
- 		for (;;) {
--			if (chip_ready(map, adr))
-+			if (chip_ready(map, adr, NULL))
- 				break;
- 
- 			if (time_after(jiffies, timeo)) {
-@@ -1360,7 +1344,7 @@ static int do_otp_lock(struct map_info *
- 	/* wait for chip to become ready */
- 	timeo = jiffies + msecs_to_jiffies(2);
- 	for (;;) {
--		if (chip_ready(map, adr))
-+		if (chip_ready(map, adr, NULL))
- 			break;
- 
- 		if (time_after(jiffies, timeo)) {
-@@ -1627,10 +1611,11 @@ static int __xipram do_write_oneword(str
- 		}
- 
- 		/*
--		 * We check "time_after" and "!chip_good" before checking
--		 * "chip_good" to avoid the failure due to scheduling.
-+		 * We check "time_after" and "!chip_ready" before checking
-+		 * "chip_ready" to avoid the failure due to scheduling.
- 		 */
--		if (time_after(jiffies, timeo) && !chip_good(map, adr, datum)) {
-+		if (time_after(jiffies, timeo) &&
-+		    !chip_ready(map, adr, &datum)) {
- 			xip_enable(map, chip, adr);
- 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
- 			xip_disable(map, chip, adr);
-@@ -1638,7 +1623,7 @@ static int __xipram do_write_oneword(str
- 			break;
- 		}
- 
--		if (chip_good(map, adr, datum))
-+		if (chip_ready(map, adr, &datum))
- 			break;
- 
- 		/* Latency issues. Drop the lock, wait a while and retry */
-@@ -1882,13 +1867,13 @@ static int __xipram do_write_buffer(stru
- 		}
- 
- 		/*
--		 * We check "time_after" and "!chip_good" before checking "chip_good" to avoid
--		 * the failure due to scheduling.
-+		 * We check "time_after" and "!chip_ready" before checking
-+		 * "chip_ready" to avoid the failure due to scheduling.
- 		 */
--		if (time_after(jiffies, timeo) && !chip_good(map, adr, datum))
-+		if (time_after(jiffies, timeo) && !chip_ready(map, adr, &datum))
- 			break;
- 
--		if (chip_good(map, adr, datum)) {
-+		if (chip_ready(map, adr, &datum)) {
- 			xip_enable(map, chip, adr);
- 			goto op_done;
- 		}
-@@ -2022,7 +2007,7 @@ static int cfi_amdstd_panic_wait(struct
- 	 * If the driver thinks the chip is idle, and no toggle bits
- 	 * are changing, then the chip is actually idle for sure.
- 	 */
--	if (chip->state == FL_READY && chip_ready(map, adr))
-+	if (chip->state == FL_READY && chip_ready(map, adr, NULL))
- 		return 0;
- 
- 	/*
-@@ -2039,7 +2024,7 @@ static int cfi_amdstd_panic_wait(struct
- 
- 		/* wait for the chip to become ready */
- 		for (i = 0; i < jiffies_to_usecs(timeo); i++) {
--			if (chip_ready(map, adr))
-+			if (chip_ready(map, adr, NULL))
- 				return 0;
- 
- 			udelay(1);
-@@ -2103,13 +2088,13 @@ retry:
- 	map_write(map, datum, adr);
- 
- 	for (i = 0; i < jiffies_to_usecs(uWriteTimeout); i++) {
--		if (chip_ready(map, adr))
-+		if (chip_ready(map, adr, NULL))
- 			break;
- 
- 		udelay(1);
- 	}
- 
--	if (!chip_good(map, adr, datum)) {
-+	if (!chip_ready(map, adr, &datum)) {
- 		/* reset on all failures. */
- 		map_write(map, CMD(0xF0), chip->start);
- 		/* FIXME - should have reset delay before continuing */
-@@ -2250,6 +2235,7 @@ static int __xipram do_erase_chip(struct
- 	DECLARE_WAITQUEUE(wait, current);
- 	int ret = 0;
- 	int retry_cnt = 0;
-+	map_word datum = map_word_ff(map);
- 
- 	adr = cfi->addr_unlock1;
- 
-@@ -2304,7 +2290,7 @@ static int __xipram do_erase_chip(struct
- 			chip->erase_suspended = 0;
- 		}
- 
--		if (chip_good(map, adr, map_word_ff(map)))
-+		if (chip_ready(map, adr, &datum))
- 			break;
- 
- 		if (time_after(jiffies, timeo)) {
-@@ -2346,6 +2332,7 @@ static int __xipram do_erase_oneblock(st
- 	DECLARE_WAITQUEUE(wait, current);
- 	int ret = 0;
- 	int retry_cnt = 0;
-+	map_word datum = map_word_ff(map);
- 
- 	adr += chip->start;
- 
-@@ -2400,7 +2387,7 @@ static int __xipram do_erase_oneblock(st
- 			chip->erase_suspended = 0;
- 		}
- 
--		if (chip_good(map, adr, map_word_ff(map)))
-+		if (chip_ready(map, adr, &datum))
- 			break;
- 
- 		if (time_after(jiffies, timeo)) {
-@@ -2593,7 +2580,7 @@ static int __maybe_unused do_ppb_xxlock(
- 	 */
- 	timeo = jiffies + msecs_to_jiffies(2000);	/* 2s max (un)locking */
- 	for (;;) {
--		if (chip_ready(map, adr))
-+		if (chip_ready(map, adr, NULL))
- 			break;
- 
- 		if (time_after(jiffies, timeo)) {
+-- 
+2.35.1
+
 
 
