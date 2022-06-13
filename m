@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A05B4548F64
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A4805497C6
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379017AbiFMNqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:46:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41490 "EHLO
+        id S1383415AbiFMO0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:26:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378294AbiFMNm0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:42:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 125742AE0A;
-        Mon, 13 Jun 2022 04:31:32 -0700 (PDT)
+        with ESMTP id S1383676AbiFMOXq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:23:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D06AA46CB9;
+        Mon, 13 Jun 2022 04:44:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4534B80E59;
-        Mon, 13 Jun 2022 11:31:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19169C34114;
-        Mon, 13 Jun 2022 11:31:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73937B80EA7;
+        Mon, 13 Jun 2022 11:44:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBB9FC34114;
+        Mon, 13 Jun 2022 11:44:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119889;
-        bh=mNMKCj7YmZGHq44rzzYxEBmfMtk9Q5va+TOc/sbYdvw=;
+        s=korg; t=1655120684;
+        bh=Lb60rln3aOojiHgVdkvSl8i3tDqPa2q1r9uXhxhDlsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e+uQY6RzGpK/majq9vt0XWLb3pUCIWHDyDC1HcvZwOIH/ApCYqHhfn9yaala2vo8t
-         iehW7Q1dLJjcGmJYfeufQBAKRf04gcDwnjUFYIeaQBqfvbLE7/bWXXn8hK2SAK+RWw
-         nMgaNEaNt2mZVQDx3pvkyA0Dar38XdvB4JSynK1c=
+        b=Vkp2/CPHzYqvmJPX5nzaGg/FPBLfi9KgkaHAvnwTKqLVgjo8ogCEnA+oY6QbBessu
+         V20E4uW1x+BRPM03w1yvCeJpTzwJLf9mP1F3yCi5IxdUlwQlpAasTggVwsWvMi9meD
+         oOmt0Erv2ARrCW0jxYrOAApRsKOykrZFUZPLNsjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gong Yuanjun <ruc_gongyuanjun@163.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 155/339] mips: cpc: Fix refcount leak in mips_cpc_default_phys_base
+Subject: [PATCH 5.17 086/298] net: dsa: mv88e6xxx: Fix refcount leak in mv88e6xxx_mdios_register
 Date:   Mon, 13 Jun 2022 12:09:40 +0200
-Message-Id: <20220613094931.387291407@linuxfoundation.org>
+Message-Id: <20220613094927.556818493@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,33 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gong Yuanjun <ruc_gongyuanjun@163.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 4107fa700f314592850e2c64608f6ede4c077476 ]
+[ Upstream commit 02ded5a173619b11728b8bf75a3fd995a2c1ff28 ]
 
-Add the missing of_node_put() to release the refcount incremented
-by of_find_compatible_node().
+of_get_child_by_name() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
 
-Signed-off-by: Gong Yuanjun <ruc_gongyuanjun@163.com>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+mv88e6xxx_mdio_register() pass the device node to of_mdiobus_register().
+We don't need the device node after it.
+
+Add missing of_node_put() to avoid refcount leak.
+
+Fixes: a3c53be55c95 ("net: dsa: mv88e6xxx: Support multiple MDIO busses")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/mips-cpc.c | 1 +
+ drivers/net/dsa/mv88e6xxx/chip.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/kernel/mips-cpc.c b/arch/mips/kernel/mips-cpc.c
-index 17aff13cd7ce..3e386f7e1545 100644
---- a/arch/mips/kernel/mips-cpc.c
-+++ b/arch/mips/kernel/mips-cpc.c
-@@ -28,6 +28,7 @@ phys_addr_t __weak mips_cpc_default_phys_base(void)
- 	cpc_node = of_find_compatible_node(of_root, NULL, "mti,mips-cpc");
- 	if (cpc_node) {
- 		err = of_address_to_resource(cpc_node, 0, &res);
-+		of_node_put(cpc_node);
- 		if (!err)
- 			return res.start;
- 	}
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index cf7754dddad7..283ae376f469 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -3482,6 +3482,7 @@ static int mv88e6xxx_mdios_register(struct mv88e6xxx_chip *chip,
+ 	 */
+ 	child = of_get_child_by_name(np, "mdio");
+ 	err = mv88e6xxx_mdio_register(chip, child, false);
++	of_node_put(child);
+ 	if (err)
+ 		return err;
+ 
 -- 
 2.35.1
 
