@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F14C5498C4
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DC37548A6D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351526AbiFMLG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:06:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45186 "EHLO
+        id S1349561AbiFMLGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:06:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351882AbiFMLFL (ORCPT
+        with ESMTP id S1351888AbiFMLFL (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:05:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29138272;
-        Mon, 13 Jun 2022 03:34:31 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5DAB283;
+        Mon, 13 Jun 2022 03:34:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9E8960F9A;
-        Mon, 13 Jun 2022 10:34:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CACE2C34114;
-        Mon, 13 Jun 2022 10:34:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61CEDB80EAA;
+        Mon, 13 Jun 2022 10:34:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7699C341C6;
+        Mon, 13 Jun 2022 10:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116470;
-        bh=JzLTZvIxI/bUbu0r41iCl9hj9nz0AwpHT9/b+qTUprg=;
+        s=korg; t=1655116478;
+        bh=mcCq2tAQcRwM1eMmrEbz4JuAXlEEuypW9hkFo3uvlzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KHy7DKnj4cfLGEED/a1dqnAfNW8qqTYu4Nz5AeEwuuDAYFYViYTy6WfTKa4LGemIw
-         w4A1o5HbYF13QuD5/hcDjWy0sa3td18cqO5lVkW8nE5GLtv96iHsku+VC3laMhInh4
-         t7Ky3XngSUrXkPqKzsgzApSZb90pNO/kwdZaj1eM=
+        b=wreQOycSoUdoqxpfHYzYLjtU8zxMMGgBBLR6RXiv+1mFBhG5edncqMyjDyHFzCu68
+         7KntsUNLezm/T4x5MnKDE/lNdZ6uLBkZ64N2m5bbFf+7Ec61UNktYFACSYplQWqi9+
+         cR7kX9YAmKlV8sHhrcssMUZabEhiB9wGJ8j+IogM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 083/411] drm/bridge: adv7511: clean up CEC adapter when probe fails
-Date:   Mon, 13 Jun 2022 12:05:56 +0200
-Message-Id: <20220613094931.170533764@linuxfoundation.org>
+Subject: [PATCH 5.4 084/411] ASoC: mediatek: Fix error handling in mt8173_max98090_dev_probe
+Date:   Mon, 13 Jun 2022 12:05:57 +0200
+Message-Id: <20220613094931.200268598@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -54,35 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 7ed2b0dabf7a22874cb30f8878df239ef638eb53 ]
+[ Upstream commit 4f4e0454e226de3bf4efd7e7924d1edc571c52d5 ]
 
-When the probe routine fails we also need to clean up the
-CEC adapter registered in adv7511_cec_init().
+Call of_node_put(platform_node) to avoid refcount leak in
+the error path.
 
-Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220321104705.2804423-1-l.stach@pengutronix.de
+Fixes: 94319ba10eca ("ASoC: mediatek: Use platform_of_node for machine drivers")
+Fixes: 493433785df0 ("ASoC: mediatek: mt8173: fix device_node leak")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220404092903.26725-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/mediatek/mt8173/mt8173-max98090.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index 9e13e466e72c..e7bf32f234d7 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -1225,6 +1225,7 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
- 	return 0;
+diff --git a/sound/soc/mediatek/mt8173/mt8173-max98090.c b/sound/soc/mediatek/mt8173/mt8173-max98090.c
+index de1410c2c446..32df18180114 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-max98090.c
++++ b/sound/soc/mediatek/mt8173/mt8173-max98090.c
+@@ -167,7 +167,8 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
+ 	if (!codec_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_platform_node;
+ 	}
+ 	for_each_card_prelinks(card, i, dai_link) {
+ 		if (dai_link->codecs->name)
+@@ -182,6 +183,8 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
+ 			__func__, ret);
  
- err_unregister_cec:
-+	cec_unregister_adapter(adv7511->cec_adap);
- 	i2c_unregister_device(adv7511->i2c_cec);
- 	if (adv7511->cec_clk)
- 		clk_disable_unprepare(adv7511->cec_clk);
+ 	of_node_put(codec_node);
++
++put_platform_node:
+ 	of_node_put(platform_node);
+ 	return ret;
+ }
 -- 
 2.35.1
 
