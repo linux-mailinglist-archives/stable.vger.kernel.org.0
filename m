@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0A8D5495BE
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9BCE549248
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377509AbiFMNc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
+        id S1355951AbiFMLr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:47:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378088AbiFMNav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:30:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A433A6F486;
-        Mon, 13 Jun 2022 04:25:34 -0700 (PDT)
+        with ESMTP id S1356178AbiFMLnv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:43:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE0046663;
+        Mon, 13 Jun 2022 03:50:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4F7AB80EA7;
-        Mon, 13 Jun 2022 11:25:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EB7CC34114;
-        Mon, 13 Jun 2022 11:25:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 413A3612C3;
+        Mon, 13 Jun 2022 10:50:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45782C34114;
+        Mon, 13 Jun 2022 10:50:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119531;
-        bh=rl0H6cuungh3oCmmkIOXPDee5ihmfkOOVqtdHvvH+7o=;
+        s=korg; t=1655117424;
+        bh=SCrb2B54rfJkpjKpDTRTPDuM7Oj8CekCHGji+4OOpcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rd/BYi2LeOxr7Fd1CE1WnrEncR/CUzgLdzoAfIRwBFtlmSKx5KW+1twfiM2pk0wFH
-         V4sviFddfHewTZVVk+R+hVpdgtq6dReta0tz7jMThSvPAKWW+Px47AKEn0YEWFqZni
-         rVOSMpHqR3PQCuD34Uo7IAiKcvx7h9kjYnfdOiFM=
+        b=2PYxKuXJXCU8DNYwRZVsyJF8tYJES2foW4RueQskrUHghGT6qkwPkH68iRnKfkzq9
+         XFHa0pvq/FzD5kD3aWR2xqMwkRYvGWWUP3ZpZjup1QMF1PwZhVS7jpvJ0cU2+bAoI5
+         NzKdgoOVJBzufOIPSSUzwwXZmVKx7T1YcCEL1X7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, SeongJae Park <sj@kernel.org>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 027/339] scripts/get_abi: Fix wrong script file name in the help message
+Subject: [PATCH 4.19 028/287] ASoC: dapm: Dont fold register value changes into notifications
 Date:   Mon, 13 Jun 2022 12:07:32 +0200
-Message-Id: <20220613094927.335156808@linuxfoundation.org>
+Message-Id: <20220613094924.718182639@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sj@kernel.org>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 5b5bfecaa333fb6a0cce1bfc4852a622dacfed1d ]
+[ Upstream commit ad685980469b9f9b99d4d6ea05f4cb8f57cb2234 ]
 
-The help message of 'get_abi.pl' is mistakenly saying it's
-'abi_book.pl'.  This commit fixes the wrong name in the help message.
+DAPM tracks and reports the value presented to the user from DAPM controls
+separately to the register value, these may diverge during initialisation
+or when an autodisable control is in use.
 
-Fixes: bbc249f2b859 ("scripts: add an script to parse the ABI files")
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Link: https://lore.kernel.org/r/20220419121636.290407-1-sj@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When writing DAPM controls we currently report that a change has occurred
+if either the DAPM value or the value stored in the register has changed,
+meaning that if the two are out of sync we may appear to report a spurious
+event to userspace. Since we use this folded in value for nothing other
+than the value reported to userspace simply drop the folding in of the
+register change.
+
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220428161833.3690050-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/get_abi.pl | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/soc-dapm.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/scripts/get_abi.pl b/scripts/get_abi.pl
-index 1389db76cff3..0ffd5531242a 100755
---- a/scripts/get_abi.pl
-+++ b/scripts/get_abi.pl
-@@ -981,11 +981,11 @@ __END__
+diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+index af9f28dd957d..4d70e6bc2c12 100644
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -3302,7 +3302,6 @@ int snd_soc_dapm_put_volsw(struct snd_kcontrol *kcontrol,
+ 			update.val = val;
+ 			card->update = &update;
+ 		}
+-		change |= reg_change;
  
- =head1 NAME
+ 		ret = soc_dapm_mixer_update_power(card, kcontrol, connect,
+ 						  rconnect);
+@@ -3408,7 +3407,6 @@ int snd_soc_dapm_put_enum_double(struct snd_kcontrol *kcontrol,
+ 			update.val = val;
+ 			card->update = &update;
+ 		}
+-		change |= reg_change;
  
--abi_book.pl - parse the Linux ABI files and produce a ReST book.
-+get_abi.pl - parse the Linux ABI files and produce a ReST book.
+ 		ret = soc_dapm_mux_update_power(card, kcontrol, item[0], e);
  
- =head1 SYNOPSIS
- 
--B<abi_book.pl> [--debug <level>] [--enable-lineno] [--man] [--help]
-+B<get_abi.pl> [--debug <level>] [--enable-lineno] [--man] [--help]
- 	       [--(no-)rst-source] [--dir=<dir>] [--show-hints]
- 	       [--search-string <regex>]
- 	       <COMMAND> [<ARGUMENT>]
 -- 
 2.35.1
 
