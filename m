@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D2A45491C9
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:29:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 833FA549811
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379090AbiFMNrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:47:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42694 "EHLO
+        id S245455AbiFMKau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:30:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379762AbiFMNpF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:45:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EAABF25;
-        Mon, 13 Jun 2022 04:32:36 -0700 (PDT)
+        with ESMTP id S244430AbiFMK0d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:26:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB50245B2;
+        Mon, 13 Jun 2022 03:19:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F3C2B80E93;
-        Mon, 13 Jun 2022 11:32:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15BE1C36B0A;
-        Mon, 13 Jun 2022 11:32:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74F1EB80E5C;
+        Mon, 13 Jun 2022 10:19:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D2EC34114;
+        Mon, 13 Jun 2022 10:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119953;
-        bh=OFNj5xmXGxE4mdg0R2KYtiLRMIxzRi9bXGMK1v6AV0s=;
+        s=korg; t=1655115583;
+        bh=0evX1aX+8vGsL+wWX4IQfjHNmGv7ZxnUybITsf+ORBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d7a/7oq0jypROSDCsf3AacsqV7z5C0NJPpbUQKprBFYhVRKrG0scvrDQN1utRhjCZ
-         Ui6VrCRfURFgOSZEuTeQCWNb/1b2Y3Wshy1MEOS/ETjHhQVoGlluOdHF3akcHpnHeX
-         wd7G+14QeZH9qFFh8APGKRcho2n/Xffc5iF0umR4=
+        b=FUtSNPHZtuZlTbWgJBjSCn7TfKAWQrqosC4D0JZqTxoYsdDyZn7NBLpOm5BMWbYub
+         LByomx/5BuXcm3Zdb+N+5tc1jxkQboE4AFn4wwJRorjFiSB2cywtXv4maz3snmPHCX
+         lC/1YehJYJwT4un6ylackIhKO5Hr0TIR1qM5vHRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        stable@vger.kernel.org, Hugh Dickens <hughd@google.com>,
+        Greg Ungerer <gerg@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 178/339] drm/panfrost: Job should reference MMU not file_priv
+Subject: [PATCH 4.9 129/167] m68knommu: set ZERO_PAGE() to the allocated zeroed page
 Date:   Mon, 13 Jun 2022 12:10:03 +0200
-Message-Id: <20220613094932.073544035@linuxfoundation.org>
+Message-Id: <20220613094911.120736832@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Price <steven.price@arm.com>
+From: Greg Ungerer <gerg@linux-m68k.org>
 
-[ Upstream commit 6e516faf04317db2c46cbec4e3b78b4653a5b109 ]
+[ Upstream commit dc068f46217970d9516f16cd37972a01d50dc055 ]
 
-For a while now it's been allowed for a MMU context to outlive it's
-corresponding panfrost_priv, however the job structure still references
-panfrost_priv to get hold of the MMU context. If panfrost_priv has been
-freed this is a use-after-free which I've been able to trigger resulting
-in a splat.
+The non-MMU m68k pagetable ZERO_PAGE() macro is being set to the
+somewhat non-sensical value of "virt_to_page(0)". The zeroth page
+is not in any way guaranteed to be a page full of "0". So the result
+is that ZERO_PAGE() will almost certainly contain random values.
 
-To fix this, drop the reference to panfrost_priv in the job structure
-and add a direct reference to the MMU structure which is what's actually
-needed.
+We already allocate a real "empty_zero_page" in the mm setup code shared
+between MMU m68k and non-MMU m68k. It is just not hooked up to the
+ZERO_PAGE() macro for the non-MMU m68k case.
 
-Fixes: 7fdc48cc63a3 ("drm/panfrost: Make sure MMU context lifetime is not bound to panfrost_priv")
-Signed-off-by: Steven Price <steven.price@arm.com>
-Acked-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220519152003.81081-1-steven.price@arm.com
+Fix ZERO_PAGE() to use the allocated "empty_zero_page" pointer.
+
+I am not aware of any specific issues caused by the old code.
+
+Link: https://lore.kernel.org/linux-m68k/2a462b23-5b8e-bbf4-ec7d-778434a3b9d7@google.com/T/#t
+Reported-by: Hugh Dickens <hughd@google.com>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_drv.c | 5 +++--
- drivers/gpu/drm/panfrost/panfrost_job.c | 6 +++---
- drivers/gpu/drm/panfrost/panfrost_job.h | 2 +-
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ arch/m68k/include/asm/pgtable_no.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
-index 94b6f0a19c83..47780fe597f2 100644
---- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-@@ -233,6 +233,7 @@ static int panfrost_ioctl_submit(struct drm_device *dev, void *data,
- 		struct drm_file *file)
- {
- 	struct panfrost_device *pfdev = dev->dev_private;
-+	struct panfrost_file_priv *file_priv = file->driver_priv;
- 	struct drm_panfrost_submit *args = data;
- 	struct drm_syncobj *sync_out = NULL;
- 	struct panfrost_job *job;
-@@ -262,12 +263,12 @@ static int panfrost_ioctl_submit(struct drm_device *dev, void *data,
- 	job->jc = args->jc;
- 	job->requirements = args->requirements;
- 	job->flush_id = panfrost_gpu_get_latest_flush_id(pfdev);
--	job->file_priv = file->driver_priv;
-+	job->mmu = file_priv->mmu;
+diff --git a/arch/m68k/include/asm/pgtable_no.h b/arch/m68k/include/asm/pgtable_no.h
+index ac7d87a02335..269443e1084b 100644
+--- a/arch/m68k/include/asm/pgtable_no.h
++++ b/arch/m68k/include/asm/pgtable_no.h
+@@ -41,7 +41,8 @@ extern void paging_init(void);
+  * ZERO_PAGE is a global shared page that is always zero: used
+  * for zero-mapped memory areas etc..
+  */
+-#define ZERO_PAGE(vaddr)	(virt_to_page(0))
++extern void *empty_zero_page;
++#define ZERO_PAGE(vaddr)	(virt_to_page(empty_zero_page))
  
- 	slot = panfrost_job_get_slot(job);
- 
- 	ret = drm_sched_job_init(&job->base,
--				 &job->file_priv->sched_entity[slot],
-+				 &file_priv->sched_entity[slot],
- 				 NULL);
- 	if (ret)
- 		goto out_put_job;
-diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
-index a6925dbb6224..22c2af1a4627 100644
---- a/drivers/gpu/drm/panfrost/panfrost_job.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_job.c
-@@ -201,7 +201,7 @@ static void panfrost_job_hw_submit(struct panfrost_job *job, int js)
- 		return;
- 	}
- 
--	cfg = panfrost_mmu_as_get(pfdev, job->file_priv->mmu);
-+	cfg = panfrost_mmu_as_get(pfdev, job->mmu);
- 
- 	job_write(pfdev, JS_HEAD_NEXT_LO(js), lower_32_bits(jc_head));
- 	job_write(pfdev, JS_HEAD_NEXT_HI(js), upper_32_bits(jc_head));
-@@ -431,7 +431,7 @@ static void panfrost_job_handle_err(struct panfrost_device *pfdev,
- 		job->jc = 0;
- 	}
- 
--	panfrost_mmu_as_put(pfdev, job->file_priv->mmu);
-+	panfrost_mmu_as_put(pfdev, job->mmu);
- 	panfrost_devfreq_record_idle(&pfdev->pfdevfreq);
- 
- 	if (signal_fence)
-@@ -452,7 +452,7 @@ static void panfrost_job_handle_done(struct panfrost_device *pfdev,
- 	 * happen when we receive the DONE interrupt while doing a GPU reset).
- 	 */
- 	job->jc = 0;
--	panfrost_mmu_as_put(pfdev, job->file_priv->mmu);
-+	panfrost_mmu_as_put(pfdev, job->mmu);
- 	panfrost_devfreq_record_idle(&pfdev->pfdevfreq);
- 
- 	dma_fence_signal_locked(job->done_fence);
-diff --git a/drivers/gpu/drm/panfrost/panfrost_job.h b/drivers/gpu/drm/panfrost/panfrost_job.h
-index 77e6d0e6f612..8becc1ba0eb9 100644
---- a/drivers/gpu/drm/panfrost/panfrost_job.h
-+++ b/drivers/gpu/drm/panfrost/panfrost_job.h
-@@ -17,7 +17,7 @@ struct panfrost_job {
- 	struct kref refcount;
- 
- 	struct panfrost_device *pfdev;
--	struct panfrost_file_priv *file_priv;
-+	struct panfrost_mmu *mmu;
- 
- 	/* Fence to be signaled by IRQ handler when the job is complete. */
- 	struct dma_fence *done_fence;
+ /*
+  * No page table caches to initialise.
 -- 
 2.35.1
 
