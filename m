@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81FB6548DDE
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B98DA549075
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382353AbiFMORL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:17:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59894 "EHLO
+        id S242483AbiFMKV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:21:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382410AbiFMOOM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:14:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B620DD6;
-        Mon, 13 Jun 2022 04:42:19 -0700 (PDT)
+        with ESMTP id S242893AbiFMKUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:20:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54A371EC69;
+        Mon, 13 Jun 2022 03:17:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 572D2B80EA7;
-        Mon, 13 Jun 2022 11:42:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB722C3411B;
-        Mon, 13 Jun 2022 11:42:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7652B80E2D;
+        Mon, 13 Jun 2022 10:17:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B1E0C34114;
+        Mon, 13 Jun 2022 10:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120538;
-        bh=PCCk4JNQgklISFIHqCeoOkSALeamK3gJwPOwyQM9VkE=;
+        s=korg; t=1655115431;
+        bh=4CnfZTVIakF7H6BgXbf61/Vv64C1smXXvBhssH3OVKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Az0uNntZjxhEct9sdKhp31qfBgbW5xXV0nOs4HAVEJZVyz9Wa5oIChKu42p3p2UVz
-         Kr/Ltb5ODBXgWH6T/5ORUqATA+ZfZjrPJn+Am7CyhdcNS4GCbSdOMEIbpTUREEF4IS
-         32Z6gAY/7nyp/Fj6kYoDqwqKz/z5IZwqyy3sxAhE=
+        b=Rh0BFQlEReYcOKkJmTtMBzpw2oiQZftU4Ae6QUNrWckSykhAnRPS1gw/5djvc13wc
+         06FIxG6llEyS10r7Ibq5q+A3yTr2gopeVGOYceLU8J/zplYhRSQTkwz3Bd7N/K7SNg
+         pv3BfarjLVwNHSWgQPmFAQzHH+mI6hsOUkjph3Hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manivannan Sadhasivam <mani@kernel.org>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 061/298] serial: rda-uart: Dont allow CS5-6
-Date:   Mon, 13 Jun 2022 12:09:15 +0200
-Message-Id: <20220613094926.800534031@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 4.9 082/167] dlm: fix missing lkb refcount handling
+Date:   Mon, 13 Jun 2022 12:09:16 +0200
+Message-Id: <20220613094900.120461254@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 098333a9c7d12bb3ce44c82f08b4d810c44d31b0 ]
+commit 1689c169134f4b5a39156122d799b7dca76d8ddb upstream.
 
-Only CS7 and CS8 are supported but CSIZE is not sanitized after
-fallthrough from CS5 or CS6 to CS7.
+We always call hold_lkb(lkb) if we increment lkb->lkb_wait_count.
+So, we always need to call unhold_lkb(lkb) if we decrement
+lkb->lkb_wait_count. This patch will add missing unhold_lkb(lkb) if we
+decrement lkb->lkb_wait_count. In case of setting lkb->lkb_wait_count to
+zero we need to countdown until reaching zero and call unhold_lkb(lkb).
+The waiters list unhold_lkb(lkb) can be removed because it's done for
+the last lkb_wait_count decrement iteration as it's done in
+_remove_from_waiters().
 
-Set CSIZE correctly so that userspace knows the effective value.
-Incorrect CSIZE also results in miscalculation of the frame bits in
-tty_get_char_size() or in its predecessor where the roughly the same
-code is directly within uart_update_timeout().
+This issue was discovered by a dlm gfs2 test case which use excessively
+dlm_unlock(LKF_CANCEL) feature. Probably the lkb->lkb_wait_count value
+never reached above 1 if this feature isn't used and so it was not
+discovered before.
 
-Fixes: c10b13325ced (tty: serial: Add RDA8810PL UART driver)
-Cc: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220519081808.3776-4-ilpo.jarvinen@linux.intel.com
+The testcase ended in a rsb on the rsb keep data structure with a
+refcount of 1 but no lkb was associated with it, which is itself
+an invalid behaviour. A side effect of that was a condition in which
+the dlm was sending remove messages in a looping behaviour. With this
+patch that has not been reproduced.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/rda-uart.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/dlm/lock.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/rda-uart.c b/drivers/tty/serial/rda-uart.c
-index d550d8fa2fab..a8fe1c3ebcd9 100644
---- a/drivers/tty/serial/rda-uart.c
-+++ b/drivers/tty/serial/rda-uart.c
-@@ -262,6 +262,8 @@ static void rda_uart_set_termios(struct uart_port *port,
- 		fallthrough;
- 	case CS7:
- 		ctrl &= ~RDA_UART_DBITS_8;
-+		termios->c_cflag &= ~CSIZE;
-+		termios->c_cflag |= CS7;
- 		break;
- 	default:
- 		ctrl |= RDA_UART_DBITS_8;
--- 
-2.35.1
-
+--- a/fs/dlm/lock.c
++++ b/fs/dlm/lock.c
+@@ -1555,6 +1555,7 @@ static int _remove_from_waiters(struct d
+ 		lkb->lkb_wait_type = 0;
+ 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_CANCEL;
+ 		lkb->lkb_wait_count--;
++		unhold_lkb(lkb);
+ 		goto out_del;
+ 	}
+ 
+@@ -1581,6 +1582,7 @@ static int _remove_from_waiters(struct d
+ 		log_error(ls, "remwait error %x reply %d wait_type %d overlap",
+ 			  lkb->lkb_id, mstype, lkb->lkb_wait_type);
+ 		lkb->lkb_wait_count--;
++		unhold_lkb(lkb);
+ 		lkb->lkb_wait_type = 0;
+ 	}
+ 
+@@ -5314,11 +5316,16 @@ int dlm_recover_waiters_post(struct dlm_
+ 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_UNLOCK;
+ 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_CANCEL;
+ 		lkb->lkb_wait_type = 0;
+-		lkb->lkb_wait_count = 0;
++		/* drop all wait_count references we still
++		 * hold a reference for this iteration.
++		 */
++		while (lkb->lkb_wait_count) {
++			lkb->lkb_wait_count--;
++			unhold_lkb(lkb);
++		}
+ 		mutex_lock(&ls->ls_waiters_mutex);
+ 		list_del_init(&lkb->lkb_wait_reply);
+ 		mutex_unlock(&ls->ls_waiters_mutex);
+-		unhold_lkb(lkb); /* for waiters list */
+ 
+ 		if (oc || ou) {
+ 			/* do an unlock or cancel instead of resending */
 
 
