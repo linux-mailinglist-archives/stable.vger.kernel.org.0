@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6881D5487A3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD4AE5486E4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349491AbiFMMer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:34:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50034 "EHLO
+        id S1352620AbiFMMPs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:15:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357204AbiFMMeS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:34:18 -0400
+        with ESMTP id S1353072AbiFMMNP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:13:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D654B1A808;
-        Mon, 13 Jun 2022 04:07:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D6CE53B6B;
+        Mon, 13 Jun 2022 04:01:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66D17B80EA8;
-        Mon, 13 Jun 2022 11:07:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A59C34114;
-        Mon, 13 Jun 2022 11:07:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D51BB80EA3;
+        Mon, 13 Jun 2022 11:01:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66D79C34114;
+        Mon, 13 Jun 2022 11:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118458;
-        bh=ojvQO6cm4PbQqQ023UPiJ8nXEl6/BlpRnWuGVqOAcE8=;
+        s=korg; t=1655118071;
+        bh=S4jPgUg8MqGX+wr9yf803r/TYRg+Ex4aiLdDTooZV9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySR+Awqr5AlA55qEZntgiLO7HkCrtAHow8kFtvSR/7umFsfto5I5X5kbFhEJzwaPQ
-         4/HJ7/9nYEkJzQ6tWSnDBMhJ8QUmGQsoaUsLoEQGdu29o5dXpC6iIxVhaejq0+vmoM
-         lkzMQhPzyHTMoebYcoMQ0nxaFqzuK0hU6o4Yy7zE=
+        b=qXdfhXaiyIQN1BR402qEiLZdQm6zqtLqbk9pc6xoSmUxb5sqyKFUv3eled2B/mAY6
+         eI1KpeRGROf6mT5oDT7Dn75OS0ntCORn7+T+bIDiluVXHc3HhNY5baW5cCMKviCGDT
+         kfzux1L323sjaBXCVWMQvpM7J3o7c29ZaLXsK2f8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lucas Tanure <tanureal@opensource.cirrus.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 083/172] i2c: cadence: Increase timeout per message if necessary
-Date:   Mon, 13 Jun 2022 12:10:43 +0200
-Message-Id: <20220613094910.327344826@linuxfoundation.org>
+        stable@vger.kernel.org, Yu Xiao <yu.xiao@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 221/287] nfp: only report pause frame configuration for physical device
+Date:   Mon, 13 Jun 2022 12:10:45 +0200
+Message-Id: <20220613094930.560156935@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Tanure <tanureal@opensource.cirrus.com>
+From: Yu Xiao <yu.xiao@corigine.com>
 
-[ Upstream commit 96789dce043f5bff8b7d62aa28d52a7c59403a84 ]
+[ Upstream commit 0649e4d63420ebc8cbebef3e9d39e12ffc5eb9fa ]
 
-Timeout as 1 second sets an upper limit on the length
-of the transfer executed, but there is no maximum length
-of a write or read message set in i2c_adapter_quirks for
-this controller.
+Only report pause frame configuration for physical device. Logical
+port of both PCI PF and PCI VF do not support it.
 
-This upper limit affects devices that require sending
-large firmware blobs over I2C.
-
-To remove that limitation, calculate the minimal time
-necessary, plus some wiggle room, for every message and
-use it instead of the default one second, if more than
-one second.
-
-Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 9fdc5d85a8fe ("nfp: update ethtool reporting of pauseframe control")
+Signed-off-by: Yu Xiao <yu.xiao@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-cadence.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index c1bbc4caeb5c..50e3ddba52ba 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -724,7 +724,7 @@ static void cdns_i2c_master_reset(struct i2c_adapter *adap)
- static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 		struct i2c_adapter *adap)
- {
--	unsigned long time_left;
-+	unsigned long time_left, msg_timeout;
- 	u32 reg;
+diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+index 2e75d0af4a58..a51661cfd27f 100644
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+@@ -292,8 +292,6 @@ nfp_net_get_link_ksettings(struct net_device *netdev,
  
- 	id->p_msg = msg;
-@@ -749,8 +749,16 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 	else
- 		cdns_i2c_msend(id);
- 
-+	/* Minimal time to execute this message */
-+	msg_timeout = msecs_to_jiffies((1000 * msg->len * BITS_PER_BYTE) / id->i2c_clk);
-+	/* Plus some wiggle room */
-+	msg_timeout += msecs_to_jiffies(500);
-+
-+	if (msg_timeout < adap->timeout)
-+		msg_timeout = adap->timeout;
-+
- 	/* Wait for the signal of completion */
--	time_left = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
-+	time_left = wait_for_completion_timeout(&id->xfer_done, msg_timeout);
- 	if (time_left == 0) {
- 		cdns_i2c_master_reset(adap);
- 		dev_err(id->adap.dev.parent,
+ 	/* Init to unknowns */
+ 	ethtool_link_ksettings_add_link_mode(cmd, supported, FIBRE);
+-	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
+-	ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
+ 	cmd->base.port = PORT_OTHER;
+ 	cmd->base.speed = SPEED_UNKNOWN;
+ 	cmd->base.duplex = DUPLEX_UNKNOWN;
+@@ -301,6 +299,8 @@ nfp_net_get_link_ksettings(struct net_device *netdev,
+ 	port = nfp_port_from_netdev(netdev);
+ 	eth_port = nfp_port_get_eth_port(port);
+ 	if (eth_port) {
++		ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
+ 		cmd->base.autoneg = eth_port->aneg != NFP_ANEG_DISABLED ?
+ 			AUTONEG_ENABLE : AUTONEG_DISABLE;
+ 		nfp_net_set_fec_link_mode(eth_port, cmd);
 -- 
 2.35.1
 
