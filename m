@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7BDD549366
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4E4C549567
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349424AbiFMLAO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:00:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44956 "EHLO
+        id S1349382AbiFMLAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:00:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350867AbiFMK7A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:59:00 -0400
+        with ESMTP id S1351066AbiFMK7J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:59:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73A2F25E8C;
-        Mon, 13 Jun 2022 03:32:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C3652612E;
+        Mon, 13 Jun 2022 03:32:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B66EEB80EA8;
-        Mon, 13 Jun 2022 10:32:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0985EC34114;
-        Mon, 13 Jun 2022 10:32:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67BADB80E94;
+        Mon, 13 Jun 2022 10:32:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96438C34114;
+        Mon, 13 Jun 2022 10:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116356;
-        bh=KC745XvqyuuZYSvsSRRk9yKT/qjIcafkwRqQ36ofcRg=;
+        s=korg; t=1655116362;
+        bh=Rj0CiQQ29Z8w5a5VkjUKJyJKpDxyKeVJ10N2BTko0zY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wj/qry0dX2DDv5Uib3Lbqiaa0EtCvS9gmF1R/tU0lmObREW48IgdttxGhzG7cr7Uw
-         quZYwKDbbvu+hNEoxomZSEbPOVDpVmDZ8BOLjhmNNHA/ydfesJir1QFkysV8aTHWSD
-         5Kks4yavjrYjB5FaZEtWCjNtJ5qRUQ/yr9N5GANE=
+        b=IXLlMBny/pgj1v7v23F8LEBxr4432m/Ky5wK/igkWpJjoBtE6tmPAsY8xA91fyKLK
+         erDrhRt3x44kTfcU+Po6hvCRUbKQiCdvLPUqMYmmQT4ZG1OzOeVmMJfJ51SmnlnRMC
+         g2rxsCxGS6IkyObKckooF8V7YzXelULejPRMNFx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mykola Lysenko <mykolal@fb.com>,
-        Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/411] selftests/bpf: fix btf_dump/btf_dump due to recent clang change
-Date:   Mon, 13 Jun 2022 12:05:35 +0200
-Message-Id: <20220613094930.376627489@linuxfoundation.org>
+Subject: [PATCH 5.4 063/411] IB/rdmavt: add missing locks in rvt_ruc_loopback
+Date:   Mon, 13 Jun 2022 12:05:36 +0200
+Message-Id: <20220613094930.407473254@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -55,87 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit 4050764cbaa25760aab40857f723393c07898474 ]
+[ Upstream commit 22cbc6c2681a0a4fe76150270426e763d52353a4 ]
 
-Latest llvm-project upstream had a change of behavior
-related to qualifiers on function return type ([1]).
-This caused selftests btf_dump/btf_dump failure.
-The following example shows what changed.
+The documentation of the function rvt_error_qp says both r_lock and
+s_lock need to be held when calling that function.
+It also asserts using lockdep that both of those locks are held.
+rvt_error_qp is called form rvt_send_cq, which is called from
+rvt_qp_complete_swqe, which is called from rvt_send_complete, which is
+called from rvt_ruc_loopback in two places. Both of these places do not
+hold r_lock. Fix this by acquiring a spin_lock of r_lock in both of
+these places.
+The r_lock acquiring cannot be added in rvt_qp_complete_swqe because
+some of its other callers already have r_lock acquired.
 
-  $ cat t.c
-  typedef const char * const (* const (* const fn_ptr_arr2_t[5])())(char * (*)(int));
-  struct t {
-    int a;
-    fn_ptr_arr2_t l;
-  };
-  int foo(struct t *arg) {
-    return arg->a;
-  }
-
-Compiled with latest upstream llvm15,
-  $ clang -O2 -g -target bpf -S -emit-llvm t.c
-The related generated debuginfo IR looks like:
-  !16 = !DIDerivedType(tag: DW_TAG_typedef, name: "fn_ptr_arr2_t", file: !1, line: 1, baseType: !17)
-  !17 = !DICompositeType(tag: DW_TAG_array_type, baseType: !18, size: 320, elements: !32)
-  !18 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !19)
-  !19 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !20, size: 64)
-  !20 = !DISubroutineType(types: !21)
-  !21 = !{!22, null}
-  !22 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !23, size: 64)
-  !23 = !DISubroutineType(types: !24)
-  !24 = !{!25, !28}
-  !25 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !26, size: 64)
-  !26 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !27)
-  !27 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
-You can see two intermediate const qualifier to pointer are dropped in debuginfo IR.
-
-With llvm14, we have following debuginfo IR:
-  !16 = !DIDerivedType(tag: DW_TAG_typedef, name: "fn_ptr_arr2_t", file: !1, line: 1, baseType: !17)
-  !17 = !DICompositeType(tag: DW_TAG_array_type, baseType: !18, size: 320, elements: !34)
-  !18 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !19)
-  !19 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !20, size: 64)
-  !20 = !DISubroutineType(types: !21)
-  !21 = !{!22, null}
-  !22 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !23)
-  !23 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !24, size: 64)
-  !24 = !DISubroutineType(types: !25)
-  !25 = !{!26, !30}
-  !26 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !27)
-  !27 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !28, size: 64)
-  !28 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !29)
-  !29 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
-All const qualifiers are preserved.
-
-To adapt the selftest to both old and new llvm, this patch removed
-the intermediate const qualifier in const-to-ptr types, to make the
-test succeed again.
-
-  [1] https://reviews.llvm.org/D125919
-
-Reported-by: Mykola Lysenko <mykolal@fb.com>
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/r/20220523152044.3905809-1-yhs@fb.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/r/20220228195144.71946-1-dossche.niels@gmail.com
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/sw/rdmavt/qp.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c b/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
-index d4a02fe44a12..0620580a5c16 100644
---- a/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
-+++ b/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
-@@ -94,7 +94,7 @@ typedef void (* (*signal_t)(int, void (*)(int)))(int);
+diff --git a/drivers/infiniband/sw/rdmavt/qp.c b/drivers/infiniband/sw/rdmavt/qp.c
+index 48e8612c1bc8..e97c13967174 100644
+--- a/drivers/infiniband/sw/rdmavt/qp.c
++++ b/drivers/infiniband/sw/rdmavt/qp.c
+@@ -2812,7 +2812,7 @@ void rvt_qp_iter(struct rvt_dev_info *rdi,
+ EXPORT_SYMBOL(rvt_qp_iter);
  
- typedef char * (*fn_ptr_arr1_t[10])(int **);
+ /*
+- * This should be called with s_lock held.
++ * This should be called with s_lock and r_lock held.
+  */
+ void rvt_send_complete(struct rvt_qp *qp, struct rvt_swqe *wqe,
+ 		       enum ib_wc_status status)
+@@ -3171,7 +3171,9 @@ void rvt_ruc_loopback(struct rvt_qp *sqp)
+ 	rvp->n_loop_pkts++;
+ flush_send:
+ 	sqp->s_rnr_retry = sqp->s_rnr_retry_cnt;
++	spin_lock(&sqp->r_lock);
+ 	rvt_send_complete(sqp, wqe, send_status);
++	spin_unlock(&sqp->r_lock);
+ 	if (local_ops) {
+ 		atomic_dec(&sqp->local_ops_pending);
+ 		local_ops = 0;
+@@ -3225,7 +3227,9 @@ void rvt_ruc_loopback(struct rvt_qp *sqp)
+ 	spin_unlock_irqrestore(&qp->r_lock, flags);
+ serr_no_r_lock:
+ 	spin_lock_irqsave(&sqp->s_lock, flags);
++	spin_lock(&sqp->r_lock);
+ 	rvt_send_complete(sqp, wqe, send_status);
++	spin_unlock(&sqp->r_lock);
+ 	if (sqp->ibqp.qp_type == IB_QPT_RC) {
+ 		int lastwqe;
  
--typedef char * (* const (* const fn_ptr_arr2_t[5])())(char * (*)(int));
-+typedef char * (* (* const fn_ptr_arr2_t[5])())(char * (*)(int));
- 
- struct struct_w_typedefs {
- 	int_t a;
 -- 
 2.35.1
 
