@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E7D6549591
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEFA1548B2E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352324AbiFMLRY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:17:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36128 "EHLO
+        id S237878AbiFMLQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:16:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353280AbiFMLPY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:15:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2BBF3703A;
-        Mon, 13 Jun 2022 03:37:52 -0700 (PDT)
+        with ESMTP id S1353326AbiFMLPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:15:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E88BA377F1;
+        Mon, 13 Jun 2022 03:37:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 722E0B80E5C;
-        Mon, 13 Jun 2022 10:37:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD313C34114;
-        Mon, 13 Jun 2022 10:37:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E813B80EA8;
+        Mon, 13 Jun 2022 10:37:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E386C3411C;
+        Mon, 13 Jun 2022 10:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116669;
-        bh=CR0lwMZLemY1W6sEBkqnBPV6dOdLJ0RE9AjjI/9sP1g=;
+        s=korg; t=1655116671;
+        bh=Nob+Wmo/YnXwl+VFdK2ySHRbkeW8I4PYJgUMajmRc/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgR+7KxKCsz0mH0ULMVnOnPCTHc2y5icl2h5LQf/qfIvV6yTv1ED5+VkCnBUptnuv
-         hWfxaUkjdqicyMOgClKBdcM95L2iJFNydrI6dE0TiavaGonA3ls/Who2Vk3GkJ07pK
-         5RXOWkZZPKnHxpzvRpBkAbuXOvBY5HpWr1MWscfA=
+        b=1vnMImAElVfo+7JtypjZTukBKtjZgFSQZNUTcfWgpLJl+REa6owtgTWYrtu6W96hf
+         UgprMYs/fwGgjV8et3UeG9ZswO/kgzaGX3Vy61R3Ra6yehCuwWUXUvCYL3wdGRPRnd
+         QX7kAR2G/EFzzqPYuPrvacWStyWakK4vSroL41PY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@amd.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 130/411] perf/amd/ibs: Use interrupt regs ip for stack unwinding
-Date:   Mon, 13 Jun 2022 12:06:43 +0200
-Message-Id: <20220613094932.570497390@linuxfoundation.org>
+Subject: [PATCH 5.4 131/411] ASoC: fsl: Fix refcount leak in imx_sgtl5000_probe
+Date:   Mon, 13 Jun 2022 12:06:44 +0200
+Message-Id: <20220613094932.601101228@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -56,66 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ravi Bangoria <ravi.bangoria@amd.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 3d47083b9ff46863e8374ad3bb5edb5e464c75f8 ]
+[ Upstream commit 41cd312dfe980af869c3503b4d38e62ed20dd3b7 ]
 
-IbsOpRip is recorded when IBS interrupt is triggered. But there is
-a skid from the time IBS interrupt gets triggered to the time the
-interrupt is presented to the core. Meanwhile processor would have
-moved ahead and thus IbsOpRip will be inconsistent with rsp and rbp
-recorded as part of the interrupt regs. This causes issues while
-unwinding stack using the ORC unwinder as it needs consistent rip,
-rsp and rbp. Fix this by using rip from interrupt regs instead of
-IbsOpRip for stack unwinding.
+of_find_i2c_device_by_node() takes a reference,
+In error paths, we should call put_device() to drop
+the reference to aviod refount leak.
 
-Fixes: ee9f8fce99640 ("x86/unwind: Add the ORC unwinder")
-Reported-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220429051441.14251-1-ravi.bangoria@amd.com
+Fixes: 81e8e4926167 ("ASoC: fsl: add sgtl5000 clock support for imx-sgtl5000")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20220511065803.3957-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/ibs.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ sound/soc/fsl/imx-sgtl5000.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
-index b7baaa973317..2e930d8c04d9 100644
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -312,6 +312,16 @@ static int perf_ibs_init(struct perf_event *event)
- 	hwc->config_base = perf_ibs->msr;
- 	hwc->config = config;
- 
-+	/*
-+	 * rip recorded by IbsOpRip will not be consistent with rsp and rbp
-+	 * recorded as part of interrupt regs. Thus we need to use rip from
-+	 * interrupt regs while unwinding call stack. Setting _EARLY flag
-+	 * makes sure we unwind call-stack before perf sample rip is set to
-+	 * IbsOpRip.
-+	 */
-+	if (event->attr.sample_type & PERF_SAMPLE_CALLCHAIN)
-+		event->attr.sample_type |= __PERF_SAMPLE_CALLCHAIN_EARLY;
-+
- 	return 0;
- }
- 
-@@ -683,6 +693,14 @@ static int perf_ibs_handle_irq(struct perf_ibs *perf_ibs, struct pt_regs *iregs)
- 		data.raw = &raw;
+diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
+index 15e8b9343c35..7106d56a3346 100644
+--- a/sound/soc/fsl/imx-sgtl5000.c
++++ b/sound/soc/fsl/imx-sgtl5000.c
+@@ -120,19 +120,19 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data) {
+ 		ret = -ENOMEM;
+-		goto fail;
++		goto put_device;
  	}
  
-+	/*
-+	 * rip recorded by IbsOpRip will not be consistent with rsp and rbp
-+	 * recorded as part of interrupt regs. Thus we need to use rip from
-+	 * interrupt regs while unwinding call stack.
-+	 */
-+	if (event->attr.sample_type & PERF_SAMPLE_CALLCHAIN)
-+		data.callchain = perf_callchain(event, iregs);
-+
- 	throttle = perf_event_overflow(event, &data, &regs);
- out:
- 	if (throttle) {
+ 	comp = devm_kzalloc(&pdev->dev, 3 * sizeof(*comp), GFP_KERNEL);
+ 	if (!comp) {
+ 		ret = -ENOMEM;
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	data->codec_clk = clk_get(&codec_dev->dev, NULL);
+ 	if (IS_ERR(data->codec_clk)) {
+ 		ret = PTR_ERR(data->codec_clk);
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	data->clk_frequency = clk_get_rate(data->codec_clk);
+@@ -158,10 +158,10 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 	data->card.dev = &pdev->dev;
+ 	ret = snd_soc_of_parse_card_name(&data->card, "model");
+ 	if (ret)
+-		goto fail;
++		goto put_device;
+ 	ret = snd_soc_of_parse_audio_routing(&data->card, "audio-routing");
+ 	if (ret)
+-		goto fail;
++		goto put_device;
+ 	data->card.num_links = 1;
+ 	data->card.owner = THIS_MODULE;
+ 	data->card.dai_link = &data->dai;
+@@ -176,7 +176,7 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 		if (ret != -EPROBE_DEFER)
+ 			dev_err(&pdev->dev, "snd_soc_register_card failed (%d)\n",
+ 				ret);
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	of_node_put(ssi_np);
+@@ -184,6 +184,8 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
++put_device:
++	put_device(&codec_dev->dev);
+ fail:
+ 	if (data && !IS_ERR(data->codec_clk))
+ 		clk_put(data->codec_clk);
 -- 
 2.35.1
 
