@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55F62548D65
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F18F654915A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:28:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380167AbiFMN6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:58:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54852 "EHLO
+        id S1358926AbiFMNMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:12:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380556AbiFMNym (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:54:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F5982BB10;
-        Mon, 13 Jun 2022 04:35:18 -0700 (PDT)
+        with ESMTP id S1359316AbiFMNJs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0922C38DAE;
+        Mon, 13 Jun 2022 04:20:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22C8FB80ECC;
-        Mon, 13 Jun 2022 11:35:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70766C34114;
-        Mon, 13 Jun 2022 11:35:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 845C860F18;
+        Mon, 13 Jun 2022 11:20:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9491AC34114;
+        Mon, 13 Jun 2022 11:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120115;
-        bh=mSmapjDN1hLuiRaMFbGcdot/5OABdk/qIsbPhTmZHB0=;
+        s=korg; t=1655119206;
+        bh=YrV3nqLP+jAT5CvSK+m0J/RN1V+pBDdcZX8TEWWHFFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQuxdntPOosD45MNTWG3S61q5Fgu2uNbMBawD6Tnmk0OA3PA6d8DXmqaacwnrstz7
-         D58+QW1BwP3u8y8AoXgNQEPCCbSiZH6oUmdPDO+cPdF4pRYMhuiowjfoQ3LJDnLhq2
-         6HbVlXY2zjSkzFhTdjcspxTwUfYhnwfNRZzHPPKI=
+        b=IR2s1dMKMQgiLMl2kbXLieOq2RiJRx8WwGfbroZcdI9ytqO6t7KVFmfwEM5R3gvFu
+         /Hz5GwRKrHrJbfk6wHQHpVR02aww4Tq8TCLLs2Ev4Pm+It8G0iOLYozSgAgE7accv1
+         fdwfAcc9UHwGCML5EUSz21u2AxJ+jl4eCK7VsJQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Syed Saba Kareem <ssabakar@amd.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Evan Green <evgreen@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 256/339] ASoC: SOF: amd: Fixed Build error
+Subject: [PATCH 5.15 179/247] USB: hcd-pci: Fully suspend across freeze/thaw cycle
 Date:   Mon, 13 Jun 2022 12:11:21 +0200
-Message-Id: <20220613094934.416886383@linuxfoundation.org>
+Message-Id: <20220613094928.384093393@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,41 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Syed Saba kareem <ssabakar@amd.com>
+From: Evan Green <evgreen@chromium.org>
 
-[ Upstream commit 803a1f7272797faa15a7879cdc70f9adaf3fdcba ]
+[ Upstream commit 63acaa8e9c65dc34dc249440216f8e977f5d2748 ]
 
-Add linux/module.h in acp-pci.c to solve the below dependency
+The documentation for the freeze() method says that it "should quiesce
+the device so that it doesn't generate IRQs or DMA". The unspoken
+consequence of not doing this is that MSIs aimed at non-boot CPUs may
+get fully lost if they're sent during the period where the target CPU is
+offline.
 
-All error/warnings (new ones prefixed by >>):
+The current callbacks for USB HCD do not fully quiesce interrupts,
+specifically on XHCI. Change to use the full suspend/resume flow for
+freeze/thaw to ensure interrupts are fully quiesced. This fixes issues
+where USB devices fail to thaw during hibernation because XHCI misses
+its interrupt and cannot recover.
 
->> sound/soc/amd/acp/acp-pci.c:148:1: warning: data definition has no type or storage class
-148 | MODULE_DEVICE_TABLE(pci, acp_pci_ids);
-| ^~~~~~~~~~~~~~~~~~~
->> sound/soc/amd/acp/acp-pci.c:148:1: error: type defaults to 'int' in declaration of 'MODULE_DEVICE_TABLE' [-Werror=implicit-int]
-...
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Syed Saba Kareem<ssabakar@amd.com>
-Link: https://lore.kernel.org/r/20220523112956.3087604-1-ssabakar@amd.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Link: https://lore.kernel.org/r/20220421103751.v3.2.I8226c7fdae88329ef70957b96a39b346c69a914e@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/acp/acp-pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/core/hcd-pci.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/amd/acp/acp-pci.c b/sound/soc/amd/acp/acp-pci.c
-index 340e39d7f420..c893963ee2d0 100644
---- a/sound/soc/amd/acp/acp-pci.c
-+++ b/sound/soc/amd/acp/acp-pci.c
-@@ -16,6 +16,7 @@
- #include <linux/pci.h>
- #include <linux/platform_device.h>
- #include <linux/pm_runtime.h>
-+#include <linux/module.h>
- 
- #include "amd.h"
- #include "../mach-config.h"
+diff --git a/drivers/usb/core/hcd-pci.c b/drivers/usb/core/hcd-pci.c
+index d630cccd2e6e..5af810cd8a58 100644
+--- a/drivers/usb/core/hcd-pci.c
++++ b/drivers/usb/core/hcd-pci.c
+@@ -616,10 +616,10 @@ const struct dev_pm_ops usb_hcd_pci_pm_ops = {
+ 	.suspend_noirq	= hcd_pci_suspend_noirq,
+ 	.resume_noirq	= hcd_pci_resume_noirq,
+ 	.resume		= hcd_pci_resume,
+-	.freeze		= check_root_hub_suspended,
++	.freeze		= hcd_pci_suspend,
+ 	.freeze_noirq	= check_root_hub_suspended,
+ 	.thaw_noirq	= NULL,
+-	.thaw		= NULL,
++	.thaw		= hcd_pci_resume,
+ 	.poweroff	= hcd_pci_suspend,
+ 	.poweroff_noirq	= hcd_pci_suspend_noirq,
+ 	.restore_noirq	= hcd_pci_resume_noirq,
 -- 
 2.35.1
 
