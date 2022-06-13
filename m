@@ -2,57 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 809F254937F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4D335488C3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354219AbiFMLbx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:31:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43336 "EHLO
+        id S1358093AbiFMMBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:01:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354457AbiFML3f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34E15DEE1;
-        Mon, 13 Jun 2022 03:44:44 -0700 (PDT)
+        with ESMTP id S1358424AbiFMMAD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:00:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5211524F3C;
+        Mon, 13 Jun 2022 03:57:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C408D61016;
-        Mon, 13 Jun 2022 10:44:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6ACBC34114;
-        Mon, 13 Jun 2022 10:44:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 695DF6140D;
+        Mon, 13 Jun 2022 10:56:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71D40C3411E;
+        Mon, 13 Jun 2022 10:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117083;
-        bh=mHXEFMwDKrvfDzcL1oVCWAqbKD/Z4Ksvn3N1vZsy8Vk=;
+        s=korg; t=1655117818;
+        bh=ViJROby02GyZyQYTg0MYFcHMxaI8kXhKPs9s2mAtsnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Ejfl7ApYDVMgJ3Rvbujg6n+Tb/lXhNmR+EMHOXWPMUiUnFxyF6P1D43cgBM418yr
-         71G9mVW6LeRVyz22Ns8gOa6CE3MdetRdOXZrbkIdY8FO+ToeY8zQF/PkW8znqmHZ6i
-         XzhXVUQu7anXSKj1L2/1eMv7zCRCRZvZIAmHjt0Q=
+        b=ptI4jmTAC+QtCB9A7MY4Bex+brfHTHSUtCUwHNpvOuD2x6VhC1lf7MvZRVI/+xwYb
+         5uQKHP6cS7Rpim12/K+enEz5iKN/GovohT8UBtfdsrTW+wBnNrZd6V12LHHavNiw7c
+         lt8tQnVHLfNrumStfRUlLo4m+/0ZCzPPJbPy+FCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Kees Cook <keescook@chromium.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org, Manuel Lauss <manuel.lauss@gmail.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B6rn=20Ard=C3=B6?= <bjorn.ardo@axis.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 281/411] pcmcia: db1xxx_ss: restrict to MIPS_DB1XXX boards
+Subject: [PATCH 4.19 130/287] mailbox: forward the hrtimer if not queued and under a lock
 Date:   Mon, 13 Jun 2022 12:09:14 +0200
-Message-Id: <20220613094937.184824863@linuxfoundation.org>
+Message-Id: <20220613094927.822026604@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,46 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Björn Ardö <bjorn.ardo@axis.com>
 
-[ Upstream commit 3928cf08334ed895a31458cbebd8d4ec6d84c080 ]
+[ Upstream commit bca1a1004615efe141fd78f360ecc48c60bc4ad5 ]
 
-When the MIPS_ALCHEMY board selection is MIPS_XXS1500 instead of
-MIPS_DB1XXX, the PCMCIA driver 'db1xxx_ss' has build errors due
-to missing DB1XXX symbols. The PCMCIA driver should be restricted
-to MIPS_DB1XXX instead of MIPS_ALCHEMY to fix this build error.
+This reverts commit c7dacf5b0f32957b24ef29df1207dc2cd8307743,
+"mailbox: avoid timer start from callback"
 
-ERROR: modpost: "bcsr_read" [drivers/pcmcia/db1xxx_ss.ko] undefined!
-ERROR: modpost: "bcsr_mod" [drivers/pcmcia/db1xxx_ss.ko] undefined!
+The previous commit was reverted since it lead to a race that
+caused the hrtimer to not be started at all. The check for
+hrtimer_active() in msg_submit() will return true if the
+callback function txdone_hrtimer() is currently running. This
+function could return HRTIMER_NORESTART and then the timer
+will not be restarted, and also msg_submit() will not start
+the timer. This will lead to a message actually being submitted
+but no timer will start to check for its compleation.
 
-Fixes: 42a4f17dc356 ("MIPS: Alchemy: remove SOC_AU1X00 in favor of MIPS_ALCHEMY")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Acked-by: Manuel Lauss <manuel.lauss@gmail.com>
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+The original fix that added checking hrtimer_active() was added to
+avoid a warning with hrtimer_forward. Looking in the kernel
+another solution to avoid this warning is to check hrtimer_is_queued()
+before calling hrtimer_forward_now() instead. This however requires a
+lock so the timer is not started by msg_submit() inbetween this check
+and the hrtimer_forward() call.
+
+Fixes: c7dacf5b0f32 ("mailbox: avoid timer start from callback")
+Signed-off-by: Björn Ardö <bjorn.ardo@axis.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pcmcia/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mailbox/mailbox.c          | 19 +++++++++++++------
+ include/linux/mailbox_controller.h |  1 +
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
-index e004d8da03dc..73df71a14253 100644
---- a/drivers/pcmcia/Kconfig
-+++ b/drivers/pcmcia/Kconfig
-@@ -151,7 +151,7 @@ config TCIC
+diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
+index 10a559cfb7ea..aa28fdcb81b9 100644
+--- a/drivers/mailbox/mailbox.c
++++ b/drivers/mailbox/mailbox.c
+@@ -85,11 +85,11 @@ static void msg_submit(struct mbox_chan *chan)
+ exit:
+ 	spin_unlock_irqrestore(&chan->lock, flags);
  
- config PCMCIA_ALCHEMY_DEVBOARD
- 	tristate "Alchemy Db/Pb1xxx PCMCIA socket services"
--	depends on MIPS_ALCHEMY && PCMCIA
-+	depends on MIPS_DB1XXX && PCMCIA
- 	help
- 	  Enable this driver of you want PCMCIA support on your Alchemy
- 	  Db1000, Db/Pb1100, Db/Pb1500, Db/Pb1550, Db/Pb1200, DB1300
+-	/* kick start the timer immediately to avoid delays */
+ 	if (!err && (chan->txdone_method & TXDONE_BY_POLL)) {
+-		/* but only if not already active */
+-		if (!hrtimer_active(&chan->mbox->poll_hrt))
+-			hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
++		/* kick start the timer immediately to avoid delays */
++		spin_lock_irqsave(&chan->mbox->poll_hrt_lock, flags);
++		hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
++		spin_unlock_irqrestore(&chan->mbox->poll_hrt_lock, flags);
+ 	}
+ }
+ 
+@@ -123,20 +123,26 @@ static enum hrtimer_restart txdone_hrtimer(struct hrtimer *hrtimer)
+ 		container_of(hrtimer, struct mbox_controller, poll_hrt);
+ 	bool txdone, resched = false;
+ 	int i;
++	unsigned long flags;
+ 
+ 	for (i = 0; i < mbox->num_chans; i++) {
+ 		struct mbox_chan *chan = &mbox->chans[i];
+ 
+ 		if (chan->active_req && chan->cl) {
+-			resched = true;
+ 			txdone = chan->mbox->ops->last_tx_done(chan);
+ 			if (txdone)
+ 				tx_tick(chan, 0);
++			else
++				resched = true;
+ 		}
+ 	}
+ 
+ 	if (resched) {
+-		hrtimer_forward_now(hrtimer, ms_to_ktime(mbox->txpoll_period));
++		spin_lock_irqsave(&mbox->poll_hrt_lock, flags);
++		if (!hrtimer_is_queued(hrtimer))
++			hrtimer_forward_now(hrtimer, ms_to_ktime(mbox->txpoll_period));
++		spin_unlock_irqrestore(&mbox->poll_hrt_lock, flags);
++
+ 		return HRTIMER_RESTART;
+ 	}
+ 	return HRTIMER_NORESTART;
+@@ -473,6 +479,7 @@ int mbox_controller_register(struct mbox_controller *mbox)
+ 		hrtimer_init(&mbox->poll_hrt, CLOCK_MONOTONIC,
+ 			     HRTIMER_MODE_REL);
+ 		mbox->poll_hrt.function = txdone_hrtimer;
++		spin_lock_init(&mbox->poll_hrt_lock);
+ 	}
+ 
+ 	for (i = 0; i < mbox->num_chans; i++) {
+diff --git a/include/linux/mailbox_controller.h b/include/linux/mailbox_controller.h
+index 74deadb42d76..5a4524f66ea1 100644
+--- a/include/linux/mailbox_controller.h
++++ b/include/linux/mailbox_controller.h
+@@ -83,6 +83,7 @@ struct mbox_controller {
+ 				      const struct of_phandle_args *sp);
+ 	/* Internal to API */
+ 	struct hrtimer poll_hrt;
++	spinlock_t poll_hrt_lock;
+ 	struct list_head node;
+ };
+ 
 -- 
 2.35.1
 
