@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93F8C549500
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 767DD5496EE
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376845AbiFMNdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:33:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51978 "EHLO
+        id S1356033AbiFMLrz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:47:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378113AbiFMNax (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:30:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C7D313D6A;
-        Mon, 13 Jun 2022 04:25:38 -0700 (PDT)
+        with ESMTP id S1356359AbiFMLoV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:44:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF494704E;
+        Mon, 13 Jun 2022 03:50:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EAE5E60F18;
-        Mon, 13 Jun 2022 11:25:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00E52C36B07;
-        Mon, 13 Jun 2022 11:25:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4061C61306;
+        Mon, 13 Jun 2022 10:50:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C85EC34114;
+        Mon, 13 Jun 2022 10:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119537;
-        bh=b/9qIeG94uHBo4HSzdZoF9DK2yKWhDCwVZXzJ95coXI=;
+        s=korg; t=1655117435;
+        bh=QeQg3hA5x9OrSaQpUJVXP7E9MxhSc4xird1zk6F7M0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcjtbUIL9ahrf5EWb11Q/dNj8ArcwREoAqq1T3TmX0CFY1oFH93FrMJlfzlWijVQ6
-         Pa1J/lnL6Iip74bJva+Ml/tog+hjq580YykE94y5s2BrNplaX2KGwhEZtFlIueh7ko
-         PxyTEmz26y+F4Mi7TmTyNFDsx2kVHhGP0RKUPTKE=
+        b=PisOQSrF9uigMk3jic4bIAo+ftTwAgMj655PGHeVVGRS7YITdl8REwjfPN9E2LXaB
+         1nV9bgu6DxJ48tL16aUxkmUK6EgohSbRx8ZDKWgKFqn/rdmS1k1ykzHUZhJE/tslWL
+         2Fi4Dt47IrrT2MxG5G2yrPkcMpiLmr55AHSycA+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 029/339] firmware: stratix10-svc: fix a missing check on list iterator
+Subject: [PATCH 4.19 030/287] ASoC: tscs454: Add endianness flag in snd_soc_component_driver
 Date:   Mon, 13 Jun 2022 12:07:34 +0200
-Message-Id: <20220613094927.397080499@linuxfoundation.org>
+Message-Id: <20220613094924.778294963@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 5a0793ac66ac0e254d292f129a4d6c526f9f2aff ]
+[ Upstream commit ff69ec96b87dccb3a29edef8cec5d4fefbbc2055 ]
 
-The bug is here:
-	pmem->vaddr = NULL;
+The endianness flag is used on the CODEC side to specify an
+ambivalence to endian, typically because it is lost over the hardware
+link. This device receives audio over an I2S DAI and as such should
+have endianness applied.
 
-The list iterator 'pmem' will point to a bogus position containing
-HEAD if the list is empty or no element is found. This case must
-be checked before any use of the iterator, otherwise it will
-lead to a invalid memory access.
+A fixup is also required to use the width directly rather than relying
+on the format in hw_params, now both little and big endian would be
+supported. It is worth noting this changes the behaviour of S24_LE to
+use a word length of 24 rather than 32. This would appear to be a
+correction since the fact S24_LE is stored as 32 bits should not be
+presented over the bus.
 
-To fix this bug, just gen_pool_free/set NULL/list_del() and return
-when found, otherwise list_del HEAD and return;
-
-Fixes: 7ca5ce896524f ("firmware: add Intel Stratix10 service layer driver")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Link: https://lore.kernel.org/r/20220414035609.2239-1-xiam0nd.tong@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220504170905.332415-26-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/stratix10-svc.c | 12 ++++++------
+ sound/soc/codecs/tscs454.c | 12 ++++++------
  1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
-index 8177a0fae11d..14663f671323 100644
---- a/drivers/firmware/stratix10-svc.c
-+++ b/drivers/firmware/stratix10-svc.c
-@@ -948,17 +948,17 @@ EXPORT_SYMBOL_GPL(stratix10_svc_allocate_memory);
- void stratix10_svc_free_memory(struct stratix10_svc_chan *chan, void *kaddr)
- {
- 	struct stratix10_svc_data_mem *pmem;
--	size_t size = 0;
+diff --git a/sound/soc/codecs/tscs454.c b/sound/soc/codecs/tscs454.c
+index ff85a0bf6170..00a90ccd6566 100644
+--- a/sound/soc/codecs/tscs454.c
++++ b/sound/soc/codecs/tscs454.c
+@@ -3129,18 +3129,17 @@ static int set_aif_sample_format(struct snd_soc_component *component,
+ 	unsigned int width;
+ 	int ret;
  
- 	list_for_each_entry(pmem, &svc_data_mem, node)
- 		if (pmem->vaddr == kaddr) {
--			size = pmem->size;
--			break;
-+			gen_pool_free(chan->ctrl->genpool,
-+				       (unsigned long)kaddr, pmem->size);
-+			pmem->vaddr = NULL;
-+			list_del(&pmem->node);
-+			return;
- 		}
+-	switch (format) {
+-	case SNDRV_PCM_FORMAT_S16_LE:
++	switch (snd_pcm_format_width(format)) {
++	case 16:
+ 		width = FV_WL_16;
+ 		break;
+-	case SNDRV_PCM_FORMAT_S20_3LE:
++	case 20:
+ 		width = FV_WL_20;
+ 		break;
+-	case SNDRV_PCM_FORMAT_S24_3LE:
++	case 24:
+ 		width = FV_WL_24;
+ 		break;
+-	case SNDRV_PCM_FORMAT_S24_LE:
+-	case SNDRV_PCM_FORMAT_S32_LE:
++	case 32:
+ 		width = FV_WL_32;
+ 		break;
+ 	default:
+@@ -3338,6 +3337,7 @@ static const struct snd_soc_component_driver soc_component_dev_tscs454 = {
+ 	.num_dapm_routes = ARRAY_SIZE(tscs454_intercon),
+ 	.controls =	tscs454_snd_controls,
+ 	.num_controls = ARRAY_SIZE(tscs454_snd_controls),
++	.endianness = 1,
+ };
  
--	gen_pool_free(chan->ctrl->genpool, (unsigned long)kaddr, size);
--	pmem->vaddr = NULL;
--	list_del(&pmem->node);
-+	list_del(&svc_data_mem);
- }
- EXPORT_SYMBOL_GPL(stratix10_svc_free_memory);
- 
+ #define TSCS454_RATES SNDRV_PCM_RATE_8000_96000
 -- 
 2.35.1
 
