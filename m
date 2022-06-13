@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8080548E63
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:18:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F891548B90
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350341AbiFMMhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:37:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49692 "EHLO
+        id S1383646AbiFMO04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:26:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353353AbiFMMf2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:35:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D1931C915;
-        Mon, 13 Jun 2022 04:07:55 -0700 (PDT)
+        with ESMTP id S1383973AbiFMOYX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C97AC65D5;
+        Mon, 13 Jun 2022 04:46:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AFFA60906;
-        Mon, 13 Jun 2022 11:07:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24C9FC34114;
-        Mon, 13 Jun 2022 11:07:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66D4061342;
+        Mon, 13 Jun 2022 11:46:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76520C34114;
+        Mon, 13 Jun 2022 11:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118466;
-        bh=M6GNObdT38NasueEcuZx7LUs0CCTPyAhpWWgfvkvyPY=;
+        s=korg; t=1655120771;
+        bh=EmXXkwtr+OdQj9M0ROu7qd3hWmwk2maZ/xMKVUEiJcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a1GaukBiPoBrWsRvqRynq3Wx3F2WGI216SDlFpqVyTnqaeDSbau56WPqcLRVWpTEO
-         o7ybwGOFOYaOO9Y9mBDvIelsUioX3+1xdzKE2orcyzzeI2CHVNUrDTgFWy42lyh9NX
-         3zfu45i7Nnkk4HRKYU8u8oF0SV5YFUEbVhEVJ1hU=
+        b=OHuB1uhluJDtom9LczIJc8sAgqmcxVWiXcC1Ea7X3Q4iTAvssvqaK95E1/ywtqprv
+         QxEFSBcBtXL22qFD9S0ytHXbrP3D7eo1npEuMnMsM/67fegLVDCtTZq8stTk/QXTVR
+         M0OaaWrAYpnNRhhfl3E6mV5Llha1pf/2woVsFPfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 086/172] dmaengine: zynqmp_dma: In struct zynqmp_dma_chan fix desc_size data type
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 152/298] m68knommu: fix undefined reference to `mach_get_rtc_pll
 Date:   Mon, 13 Jun 2022 12:10:46 +0200
-Message-Id: <20220613094911.091016427@linuxfoundation.org>
+Message-Id: <20220613094929.547493133@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +56,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+From: Greg Ungerer <gerg@linux-m68k.org>
 
-[ Upstream commit f9a9f43a62a04ec3183fb0da9226c7706eed0115 ]
+[ Upstream commit 1300eec9e51f23c34c4487d2b06f58ca22e1ad3d ]
 
-In zynqmp_dma_alloc/free_chan_resources functions there is a
-potential overflow in the below expressions.
+Configuring for a nommu classic m68k target and enabling the generic rtc
+driver (CONFIG_RTC_DRV_GENERIC) will result in the following compile
+error:
 
-dma_alloc_coherent(chan->dev, (2 * chan->desc_size *
-		   ZYNQMP_DMA_NUM_DESCS),
-		   &chan->desc_pool_p, GFP_KERNEL);
+   m68k-linux-ld: arch/m68k/kernel/time.o: in function `rtc_ioctl':
+   time.c:(.text+0x82): undefined reference to `mach_get_rtc_pll'
+   m68k-linux-ld: time.c:(.text+0xbc): undefined reference to `mach_set_rtc_pll'
+   m68k-linux-ld: time.c:(.text+0xf4): undefined reference to `mach_set_rtc_pll'
 
-dma_free_coherent(chan->dev,(2 * ZYNQMP_DMA_DESC_SIZE(chan) *
-                 ZYNQMP_DMA_NUM_DESCS),
-                chan->desc_pool_v, chan->desc_pool_p);
+There are no definitions of "mach_set_rtc_pll" and "mach_get_rtc_pll" in the
+nommu code paths. Move these definitions and the associated "mach_hwclk",
+so that they are around their use case in time.c. This means they will
+always be defined on the builds that require them, and not on those that
+cannot use them - such as ColdFire (both with and without MMU enabled).
 
-The arguments desc_size and ZYNQMP_DMA_NUM_DESCS were 32 bit. Though
-this overflow condition is not observed but it is a potential problem
-in the case of 32-bit multiplication. Hence fix it by changing the
-desc_size data type to size_t.
-
-In addition to coverity fix it also reuse ZYNQMP_DMA_DESC_SIZE macro in
-dma_alloc_coherent API argument.
-
-Addresses-Coverity: Event overflow_before_widen.
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/1652166762-18317-2-git-send-email-radhey.shyam.pandey@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/zynqmp_dma.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/m68k/kernel/setup_mm.c | 7 -------
+ arch/m68k/kernel/setup_no.c | 1 -
+ arch/m68k/kernel/time.c     | 9 +++++++++
+ 3 files changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/dma/xilinx/zynqmp_dma.c b/drivers/dma/xilinx/zynqmp_dma.c
-index 5fecf5aa6e85..7e6be076e9d3 100644
---- a/drivers/dma/xilinx/zynqmp_dma.c
-+++ b/drivers/dma/xilinx/zynqmp_dma.c
-@@ -232,7 +232,7 @@ struct zynqmp_dma_chan {
- 	bool is_dmacoherent;
- 	struct tasklet_struct tasklet;
- 	bool idle;
--	u32 desc_size;
-+	size_t desc_size;
- 	bool err;
- 	u32 bus_width;
- 	u32 src_burst_len;
-@@ -490,7 +490,8 @@ static int zynqmp_dma_alloc_chan_resources(struct dma_chan *dchan)
- 	}
+diff --git a/arch/m68k/kernel/setup_mm.c b/arch/m68k/kernel/setup_mm.c
+index 49e573b94326..811c7b85db87 100644
+--- a/arch/m68k/kernel/setup_mm.c
++++ b/arch/m68k/kernel/setup_mm.c
+@@ -87,15 +87,8 @@ void (*mach_sched_init) (void) __initdata = NULL;
+ void (*mach_init_IRQ) (void) __initdata = NULL;
+ void (*mach_get_model) (char *model);
+ void (*mach_get_hardware_list) (struct seq_file *m);
+-/* machine dependent timer functions */
+-int (*mach_hwclk) (int, struct rtc_time*);
+-EXPORT_SYMBOL(mach_hwclk);
+ unsigned int (*mach_get_ss)(void);
+-int (*mach_get_rtc_pll)(struct rtc_pll_info *);
+-int (*mach_set_rtc_pll)(struct rtc_pll_info *);
+ EXPORT_SYMBOL(mach_get_ss);
+-EXPORT_SYMBOL(mach_get_rtc_pll);
+-EXPORT_SYMBOL(mach_set_rtc_pll);
+ void (*mach_reset)( void );
+ void (*mach_halt)( void );
+ void (*mach_power_off)( void );
+diff --git a/arch/m68k/kernel/setup_no.c b/arch/m68k/kernel/setup_no.c
+index 5e4104f07a44..19eea73d3c17 100644
+--- a/arch/m68k/kernel/setup_no.c
++++ b/arch/m68k/kernel/setup_no.c
+@@ -50,7 +50,6 @@ char __initdata command_line[COMMAND_LINE_SIZE];
  
- 	chan->desc_pool_v = dma_alloc_coherent(chan->dev,
--					       (2 * chan->desc_size * ZYNQMP_DMA_NUM_DESCS),
-+					       (2 * ZYNQMP_DMA_DESC_SIZE(chan) *
-+					       ZYNQMP_DMA_NUM_DESCS),
- 					       &chan->desc_pool_p, GFP_KERNEL);
- 	if (!chan->desc_pool_v)
- 		return -ENOMEM;
+ /* machine dependent timer functions */
+ void (*mach_sched_init)(void) __initdata = NULL;
+-int (*mach_hwclk) (int, struct rtc_time*);
+ 
+ /* machine dependent reboot functions */
+ void (*mach_reset)(void);
+diff --git a/arch/m68k/kernel/time.c b/arch/m68k/kernel/time.c
+index 340ffeea0a9d..a97600b2af50 100644
+--- a/arch/m68k/kernel/time.c
++++ b/arch/m68k/kernel/time.c
+@@ -63,6 +63,15 @@ void timer_heartbeat(void)
+ #endif /* CONFIG_HEARTBEAT */
+ 
+ #ifdef CONFIG_M68KCLASSIC
++/* machine dependent timer functions */
++int (*mach_hwclk) (int, struct rtc_time*);
++EXPORT_SYMBOL(mach_hwclk);
++
++int (*mach_get_rtc_pll)(struct rtc_pll_info *);
++int (*mach_set_rtc_pll)(struct rtc_pll_info *);
++EXPORT_SYMBOL(mach_get_rtc_pll);
++EXPORT_SYMBOL(mach_set_rtc_pll);
++
+ #if !IS_BUILTIN(CONFIG_RTC_DRV_GENERIC)
+ void read_persistent_clock64(struct timespec64 *ts)
+ {
 -- 
 2.35.1
 
