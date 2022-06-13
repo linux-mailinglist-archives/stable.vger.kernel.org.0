@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 432C75497E4
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F106C549553
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348339AbiFMK4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:56:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44346 "EHLO
+        id S1350687AbiFMMZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:25:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350075AbiFMKyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:41 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 429A7DFDE;
-        Mon, 13 Jun 2022 03:29:04 -0700 (PDT)
+        with ESMTP id S1351967AbiFMMYX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:24:23 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E94431DFB;
+        Mon, 13 Jun 2022 04:05:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 936EACE110D;
-        Mon, 13 Jun 2022 10:29:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AB82C34114;
-        Mon, 13 Jun 2022 10:29:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AED48CE1184;
+        Mon, 13 Jun 2022 11:05:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFBBBC34114;
+        Mon, 13 Jun 2022 11:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116140;
-        bh=HyCY5KGgas697E3GH/oFhgcRaNzfAkPzE9b7nX7GE5M=;
+        s=korg; t=1655118331;
+        bh=PuqvqFcsFUVH1pQWN3jq/hsg4+X3qawIG6diTb0z6fY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jWcuFvRyOyumNu5sg/cVTYrcLaOvF9fdse7U2Gf7Ye3nGTYMthYqKjQp+Vz/TU9wT
-         6Pk2cWgIy/fiIzZcdNuYhis1MWLI6WBUSvKMLGnTGSc7XtvSHZJwTcMIUub6eQQ467
-         M9dAaUiGOtRKqDmRxBhWosaO81SUwA3lA9sUkmCs=
+        b=fR3zxdsVtj1NtaH3985emEVAFQM1r2MTt6t0TupCBqbF1qLeoLvrnicZEXT4QtIyg
+         vJTSjiDOXWFG/pnAsNUJ1b7i4sD+fou9sTeVRRQSEBflqvwQBp289u0pbleCQVZYwx
+         ZHN4kK1lYzOr2TCJYup8rLb/6uWAvia4DYIC+OWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Ajay Kaher <akaher@vmware.com>,
-        Aaron Adams <edg-e@nccgroup.com>
-Subject: [PATCH 4.14 139/218] netfilter: nf_tables: disallow non-stateful expression in sets earlier
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 037/172] serial: sh-sci: Dont allow CS5-6
 Date:   Mon, 13 Jun 2022 12:09:57 +0200
-Message-Id: <20220613094924.802922038@linuxfoundation.org>
+Message-Id: <20220613094859.286956628@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
+[ Upstream commit 9b87162de8be26bf3156460b37deee6399fd0fcb ]
 
-Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
-instantiation"), it is possible to attach stateful expressions to set
-elements.
+Only CS7 and CS8 seem supported but CSIZE is not sanitized from
+CS5 or CS6 to CS8.
 
-cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
-and destroy phase") introduces conditional destruction on the object to
-accomodate transaction semantics.
+Set CSIZE correctly so that userspace knows the effective value.
+Incorrect CSIZE also results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
 
-nft_expr_init() calls expr->ops->init() first, then check for
-NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
-lookup expressions which points to a set, which might lead to UAF since
-the set is not properly detached from the set->binding for this case.
-Anyway, this combination is non-sense from nf_tables perspective.
-
-This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
-expr->ops->init() is called.
-
-The reporter provides a KASAN splat and a poc reproducer (similar to
-those autogenerated by syzbot to report use-after-free errors). It is
-unknown to me if they are using syzbot or if they use similar automated
-tool to locate the bug that they are reporting.
-
-For the record, this is the KASAN splat.
-
-[   85.431824] ==================================================================
-[   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
-[   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
-[   85.434756]
-[   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
-[   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
-
-Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
-Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-[Ajay: Regenerated the patch for v4.14.y]
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Fixes: 1da177e4c3f4 (Linux-2.6.12-rc2)
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-6-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c |   16 ++++++++++------
- net/netfilter/nft_dynset.c    |    3 ---
- 2 files changed, 10 insertions(+), 9 deletions(-)
+ drivers/tty/serial/sh-sci.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -1952,23 +1952,27 @@ struct nft_expr *nft_expr_init(const str
+diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
+index f700bfaef129..8d924727d6f0 100644
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -2392,8 +2392,12 @@ static void sci_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	int best_clk = -1;
+ 	unsigned long flags;
  
- 	err = nf_tables_expr_parse(ctx, nla, &info);
- 	if (err < 0)
--		goto err1;
-+		goto err_expr_parse;
-+
-+	err = -EOPNOTSUPP;
-+	if (!(info.ops->type->flags & NFT_EXPR_STATEFUL))
-+		goto err_expr_stateful;
- 
- 	err = -ENOMEM;
- 	expr = kzalloc(info.ops->size, GFP_KERNEL);
- 	if (expr == NULL)
--		goto err2;
-+		goto err_expr_stateful;
- 
- 	err = nf_tables_newexpr(ctx, &info, expr);
- 	if (err < 0)
--		goto err3;
-+		goto err_expr_new;
- 
- 	return expr;
--err3:
-+err_expr_new:
- 	kfree(expr);
--err2:
-+err_expr_stateful:
- 	module_put(info.ops->type->owner);
--err1:
-+err_expr_parse:
- 	return ERR_PTR(err);
- }
- 
---- a/net/netfilter/nft_dynset.c
-+++ b/net/netfilter/nft_dynset.c
-@@ -191,9 +191,6 @@ static int nft_dynset_init(const struct
- 		if (IS_ERR(priv->expr))
- 			return PTR_ERR(priv->expr);
- 
--		err = -EOPNOTSUPP;
--		if (!(priv->expr->ops->type->flags & NFT_EXPR_STATEFUL))
--			goto err1;
- 	} else if (set->flags & NFT_SET_EVAL)
- 		return -EINVAL;
- 
+-	if ((termios->c_cflag & CSIZE) == CS7)
++	if ((termios->c_cflag & CSIZE) == CS7) {
+ 		smr_val |= SCSMR_CHR;
++	} else {
++		termios->c_cflag &= ~CSIZE;
++		termios->c_cflag |= CS8;
++	}
+ 	if (termios->c_cflag & PARENB)
+ 		smr_val |= SCSMR_PE;
+ 	if (termios->c_cflag & PARODD)
+-- 
+2.35.1
+
 
 
