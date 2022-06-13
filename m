@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6484A548E6F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96549549620
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354483AbiFMLjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:39:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43572 "EHLO
+        id S1377578AbiFMNdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:33:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355654AbiFMLjW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D76D32C64F;
-        Mon, 13 Jun 2022 03:49:34 -0700 (PDT)
+        with ESMTP id S1378129AbiFMNay (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:30:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57C1CEBA;
+        Mon, 13 Jun 2022 04:25:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A2D0B80E07;
-        Mon, 13 Jun 2022 10:49:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD16DC3411E;
-        Mon, 13 Jun 2022 10:49:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A091560F18;
+        Mon, 13 Jun 2022 11:25:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE387C36B08;
+        Mon, 13 Jun 2022 11:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117372;
-        bh=mfzOGPGDFMwBe8JQHvgneMIcB+OQk61Uas1dXZKCVjs=;
+        s=korg; t=1655119540;
+        bh=IVjXOW8RIGiL5phsUl4Pc2qplnLo+TV0JfVmuDGxz8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9/ny6bx1kL1rgvkD4H3IQSdgIiWnvefqIc+sZDTpgAXXGsdYPS3dTcSSujJlLtzP
-         blOa4NdYwtuPmM2n6zIZjXfHOq6l1NOPMCOkUaKLb/XSuXNmz8j3C3/RPk9QWsPBWs
-         9x2AeZ9YfhsyZt9PzWmB2qVBhFz40OEjJDxsxrQE=
+        b=Q0Z7AZWIdHFJICfDKuNl+ikDdZdLQ/3WKPS10T/X+xrD3xdLZ74cu9Ii19lduY4lB
+         55OZbLqCpC+SH/COGTqTCTSqdZ9po99qSCP5qYWl4fYx5gZ6zueHSCkHx64iHiO5xQ
+         v4l6pvhZUoAfh7MkJ0+7z2S1L3/wypjHRGC7S7Qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Weiss <luca.weiss@fairphone.com>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 020/287] media: venus: hfi: avoid null dereference in deinit
-Date:   Mon, 13 Jun 2022 12:07:24 +0200
-Message-Id: <20220613094924.472288107@linuxfoundation.org>
+Subject: [PATCH 5.18 020/339] usb: musb: Fix missing of_node_put() in omap2430_probe
+Date:   Mon, 13 Jun 2022 12:07:25 +0200
+Message-Id: <20220613094927.121085023@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca.weiss@fairphone.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 86594f6af867b5165d2ba7b5a71fae3a5961e56c ]
+[ Upstream commit 424bef51fa530389b0b9008c9e144e40c10e8458 ]
 
-If venus_probe fails at pm_runtime_put_sync the error handling first
-calls hfi_destroy and afterwards hfi_core_deinit. As hfi_destroy sets
-core->ops to NULL, hfi_core_deinit cannot call the core_deinit function
-anymore.
+The device_node pointer is returned by of_parse_phandle() with refcount
+incremented. We should use of_node_put() on it when done.
 
-Avoid this null pointer derefence by skipping the call when necessary.
-
-Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 8934d3e4d0e7 ("usb: musb: omap2430: Don't use omap_get_control_dev()")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220309111033.24487-1-linmq006@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/hfi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/musb/omap2430.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/qcom/venus/hfi.c b/drivers/media/platform/qcom/venus/hfi.c
-index 24207829982f..8a99e2d8274a 100644
---- a/drivers/media/platform/qcom/venus/hfi.c
-+++ b/drivers/media/platform/qcom/venus/hfi.c
-@@ -113,6 +113,9 @@ int hfi_core_deinit(struct venus_core *core, bool blocking)
- 		mutex_lock(&core->lock);
- 	}
- 
-+	if (!core->ops)
-+		goto unlock;
-+
- 	ret = core->ops->core_deinit(core);
- 
- 	if (!ret)
+diff --git a/drivers/usb/musb/omap2430.c b/drivers/usb/musb/omap2430.c
+index d2b7e613eb34..f571a65ae6ee 100644
+--- a/drivers/usb/musb/omap2430.c
++++ b/drivers/usb/musb/omap2430.c
+@@ -362,6 +362,7 @@ static int omap2430_probe(struct platform_device *pdev)
+ 	control_node = of_parse_phandle(np, "ctrl-module", 0);
+ 	if (control_node) {
+ 		control_pdev = of_find_device_by_node(control_node);
++		of_node_put(control_node);
+ 		if (!control_pdev) {
+ 			dev_err(&pdev->dev, "Failed to get control device\n");
+ 			ret = -EINVAL;
 -- 
 2.35.1
 
