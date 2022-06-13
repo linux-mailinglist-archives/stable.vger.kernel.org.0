@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 071DC5491DE
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:29:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBCF9549649
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344335AbiFMKu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:50:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51124 "EHLO
+        id S1378153AbiFMNmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:42:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348582AbiFMKt2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:49:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6827C2E0AA;
-        Mon, 13 Jun 2022 03:27:03 -0700 (PDT)
+        with ESMTP id S1379221AbiFMNkD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E313CE1E;
+        Mon, 13 Jun 2022 04:30:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E99FCB80E95;
-        Mon, 13 Jun 2022 10:27:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EF8EC34114;
-        Mon, 13 Jun 2022 10:27:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F219961241;
+        Mon, 13 Jun 2022 11:30:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05D52C34114;
+        Mon, 13 Jun 2022 11:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116020;
-        bh=jF8jZSlmfxE9qd0ZzdwmSA2Q2KJaePP+dIHkpy2PxbE=;
+        s=korg; t=1655119824;
+        bh=akKn2AL4oea2O+DF+UneReBqlmtl0dUtuL5qhBsPHgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eexn0QnwuCYVlSiy8YNwCvVdJ8ygPpL9eydaBs10gfeS6U1i4QozJ9LYD94W3u+PZ
-         c4Y446mAbo/zbAmaCHQ1u/UiU7luGoTtGhl+DJvmdI/2UkVHaXerxJSzivWMRB3sv6
-         ConypoEiq3j1rF4ttJVLAvj27syE3jcfX65ZivUY=
+        b=dD0yuSVB3+ItxVGbif6+it01Nczofkg9tHB1EUbcImoWuHwge6w0/01aElULGB9Zm
+         sKMsk98onPQIhdwoumDcMalJM/bqxl7SEHVub7MPoEJCF9K6ODpyqmGQh1nBbylFJG
+         J04n2BifY5PqU+EdQ6QEqmnOlkiugFwszMitYwuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 101/218] perf jevents: Fix event syntax error caused by ExtSel
+Subject: [PATCH 5.18 134/339] octeontx2-af: fix error code in is_valid_offset()
 Date:   Mon, 13 Jun 2022 12:09:19 +0200
-Message-Id: <20220613094923.616066466@linuxfoundation.org>
+Message-Id: <20220613094930.574385363@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,57 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit f4df0dbbe62ee8e4405a57b27ccd54393971c773 ]
+[ Upstream commit f3d671c711097a133bc36bd2bde52f1fcca783a6 ]
 
-In the origin code, when "ExtSel" is 1, the eventcode will change to
-"eventcode |= 1 << 21”. For event “UNC_Q_RxL_CREDITS_CONSUMED_VN0.DRS",
-its "ExtSel" is "1", its eventcode will change from 0x1E to 0x20001E,
-but in fact the eventcode should <=0x1FF, so this will cause the parse
-fail:
+The is_valid_offset() function returns success/true if the call to
+validate_and_get_cpt_blkaddr() fails.
 
-  # perf stat -e "UNC_Q_RxL_CREDITS_CONSUMED_VN0.DRS" -a sleep 0.1
-  event syntax error: '.._RxL_CREDITS_CONSUMED_VN0.DRS'
-                                    \___ value too big for format, maximum is 511
-
-On the perf kernel side, the kernel assumes the valid bits are continuous.
-It will adjust the 0x100 (bit 8 for perf tool) to bit 21 in HW.
-
-DEFINE_UNCORE_FORMAT_ATTR(event_ext, event, "config:0-7,21");
-
-So the perf tool follows the kernel side and just set bit8 other than bit21.
-
-Fixes: fedb2b518239cbc0 ("perf jevents: Add support for parsing uncore json files")
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Xing Zhengjun <zhengjun.xing@linux.intel.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220525140410.1706851-1-zhengjun.xing@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: ecad2ce8c48f ("octeontx2-af: cn10k: Add mailbox to configure reassembly timeout")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YpXDrTPb8qV01JSP@kili
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/pmu-events/jevents.c | 2 +-
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
-index 8e487b2a37a6..dcfbbade657e 100644
---- a/tools/perf/pmu-events/jevents.c
-+++ b/tools/perf/pmu-events/jevents.c
-@@ -428,7 +428,7 @@ int json_events(const char *fn,
- 			} else if (json_streq(map, field, "ExtSel")) {
- 				char *code = NULL;
- 				addfield(map, &code, "", "", val);
--				eventcode |= strtoul(code, NULL, 0) << 21;
-+				eventcode |= strtoul(code, NULL, 0) << 8;
- 				free(code);
- 			} else if (json_streq(map, field, "EventName")) {
- 				addfield(map, &name, "", "", val);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c
+index a79201a9a6f0..a9da85e418a4 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c
+@@ -579,7 +579,7 @@ static bool is_valid_offset(struct rvu *rvu, struct cpt_rd_wr_reg_msg *req)
+ 
+ 	blkaddr = validate_and_get_cpt_blkaddr(req->blkaddr);
+ 	if (blkaddr < 0)
+-		return blkaddr;
++		return false;
+ 
+ 	/* Registers that can be accessed from PF/VF */
+ 	if ((offset & 0xFF000) ==  CPT_AF_LFX_CTL(0) ||
 -- 
 2.35.1
 
