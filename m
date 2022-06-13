@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFBB9548696
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25AAA54881C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:00:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354365AbiFMLhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:37:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40442 "EHLO
+        id S245192AbiFMKao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:30:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354855AbiFMLgK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:36:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8D944A28;
-        Mon, 13 Jun 2022 03:48:09 -0700 (PDT)
+        with ESMTP id S1345221AbiFMK3c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:29:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC9A0E036;
+        Mon, 13 Jun 2022 03:20:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58FA7B80E5E;
-        Mon, 13 Jun 2022 10:48:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF9B3C34114;
-        Mon, 13 Jun 2022 10:48:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 284FBB80E93;
+        Mon, 13 Jun 2022 10:20:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B5CC34114;
+        Mon, 13 Jun 2022 10:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117287;
-        bh=y7GlcwRD3danYGc5bP/xB3Bm0BKDs6VAvErmOMRmARM=;
+        s=korg; t=1655115641;
+        bh=wsDuzAc9NqsM7BkZpBqt7GwC66dvPJnn9XcP8LB5P/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NYfZmrmXvMnCBQSR2JbgSpUMUOegKvlozvL64wYdr3JegO6tXU1NZ8caEurAE95PG
-         Cb2dl1w2nnqiMlVU1k0DfquG2JFj4N8iFMVrFH78SG6d6QSmevqEJWdmo2ZhcvTbo1
-         J4IEO4tIEQ4RMCEBEzt7v3zVPst7LxkKi06Q9jzY=
+        b=ryhrdyfJp3qSbHlf5vmGPK7osrPRp68iUmtfHmTrjJhyOXTyOJkGbdS5HO9Nr5lXT
+         hg1cDmX9BXHFTCOn6LkVAgckbM9NJLbpubg7m6gNmqzT65V0qF6S8Acbr+0eVDJEp7
+         3jp7y8Uq2KXj8W1bUDg86cCSagFvfAoDtFg0Kxuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 349/411] ata: pata_octeon_cf: Fix refcount leak in octeon_cf_probe
+Subject: [PATCH 4.9 148/167] misc: rtsx: set NULL intfdata when probe fails
 Date:   Mon, 13 Jun 2022 12:10:22 +0200
-Message-Id: <20220613094939.171474968@linuxfoundation.org>
+Message-Id: <20220613094915.603526997@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 10d6bdf532902be1d8aa5900b3c03c5671612aa2 ]
+[ Upstream commit f861d36e021e1ac4a0a2a1f6411d623809975d63 ]
 
-of_find_device_by_node() takes reference, we should use put_device()
-to release it when not need anymore.
-Add missing put_device() to avoid refcount leak.
+rtsx_usb_probe() doesn't call usb_set_intfdata() to null out the
+interface pointer when probe fails. This leaves a stale pointer.
+Noticed the missing usb_set_intfdata() while debugging an unrelated
+invalid DMA mapping problem.
 
-Fixes: 43f01da0f279 ("MIPS/OCTEON/ata: Convert pata_octeon_cf.c to use device tree.")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fix it with a call to usb_set_intfdata(..., NULL).
+
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220429210913.46804-1-skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_octeon_cf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mfd/rtsx_usb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ata/pata_octeon_cf.c b/drivers/ata/pata_octeon_cf.c
-index ac3b1fda820f..c240d8cbfd41 100644
---- a/drivers/ata/pata_octeon_cf.c
-+++ b/drivers/ata/pata_octeon_cf.c
-@@ -888,12 +888,14 @@ static int octeon_cf_probe(struct platform_device *pdev)
- 				int i;
- 				res_dma = platform_get_resource(dma_dev, IORESOURCE_MEM, 0);
- 				if (!res_dma) {
-+					put_device(&dma_dev->dev);
- 					of_node_put(dma_node);
- 					return -EINVAL;
- 				}
- 				cf_port->dma_base = (u64)devm_ioremap_nocache(&pdev->dev, res_dma->start,
- 									 resource_size(res_dma));
- 				if (!cf_port->dma_base) {
-+					put_device(&dma_dev->dev);
- 					of_node_put(dma_node);
- 					return -EINVAL;
- 				}
-@@ -903,6 +905,7 @@ static int octeon_cf_probe(struct platform_device *pdev)
- 					irq = i;
- 					irq_handler = octeon_cf_interrupt;
- 				}
-+				put_device(&dma_dev->dev);
- 			}
- 			of_node_put(dma_node);
- 		}
+diff --git a/drivers/mfd/rtsx_usb.c b/drivers/mfd/rtsx_usb.c
+index 691dab791f7a..e94f855eac15 100644
+--- a/drivers/mfd/rtsx_usb.c
++++ b/drivers/mfd/rtsx_usb.c
+@@ -678,6 +678,7 @@ static int rtsx_usb_probe(struct usb_interface *intf,
+ 	return 0;
+ 
+ out_init_fail:
++	usb_set_intfdata(ucr->pusb_intf, NULL);
+ 	usb_free_coherent(ucr->pusb_dev, IOBUF_SIZE, ucr->iobuf,
+ 			ucr->iobuf_dma);
+ 	return ret;
 -- 
 2.35.1
 
