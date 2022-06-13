@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CE09549038
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D360548C06
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353120AbiFMMQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:16:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48006 "EHLO
+        id S1383687AbiFMO1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:27:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358531AbiFMMOL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:14:11 -0400
+        with ESMTP id S1384065AbiFMOYm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9D74544C8;
-        Mon, 13 Jun 2022 04:01:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE06F48316;
+        Mon, 13 Jun 2022 04:46:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FB3961435;
-        Mon, 13 Jun 2022 11:01:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B851C34114;
-        Mon, 13 Jun 2022 11:01:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3E51612AC;
+        Mon, 13 Jun 2022 11:46:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBAA8C34114;
+        Mon, 13 Jun 2022 11:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118104;
-        bh=biiVoSpGX61XIR/40UCOyNG2ZScSEoYD1nvvGjKna2E=;
+        s=korg; t=1655120799;
+        bh=D30LyP4x5zEhrVjuQDj45JBU4eQu6819dhg1fmv8l+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rs1HP7qao15IvW1rvy66fhTLyC7Q6yIoXRcn4sZwplO1OC36TLvxyvBDx72EZu20g
-         vayrpDeUXclFxNXE8SNBtSsIG669QqkvDRR/NSS15gbZ2mDfvbxJGAVwXg+pH/IuyC
-         kHcO5b65CsApq3K6OGnGOLHHyhXj51ZriyoNfco4=
+        b=n5cPVGI/JgKPmvRIkrtS+v5E0ftANcfz/xSsQKMLSn83E7L0eIQGK479jN0P4VpF/
+         aLlZKIKTnKzvcO6AtnBQEOII+hJqx2pYGwYAJfl4pmus/qltl0yexKIzt1xpPI/mvv
+         kSa9mirodzh1HKjtsaiopgOTaguoXSwyum45TSY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickens <hughd@google.com>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 231/287] m68knommu: set ZERO_PAGE() to the allocated zeroed page
+Subject: [PATCH 5.17 161/298] powerpc/kasan: Force thread size increase with KASAN
 Date:   Mon, 13 Jun 2022 12:10:55 +0200
-Message-Id: <20220613094931.020997377@linuxfoundation.org>
+Message-Id: <20220613094929.818510517@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Ungerer <gerg@linux-m68k.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit dc068f46217970d9516f16cd37972a01d50dc055 ]
+[ Upstream commit 3e8635fb2e072672cbc650989ffedf8300ad67fb ]
 
-The non-MMU m68k pagetable ZERO_PAGE() macro is being set to the
-somewhat non-sensical value of "virt_to_page(0)". The zeroth page
-is not in any way guaranteed to be a page full of "0". So the result
-is that ZERO_PAGE() will almost certainly contain random values.
+KASAN causes increased stack usage, which can lead to stack overflows.
 
-We already allocate a real "empty_zero_page" in the mm setup code shared
-between MMU m68k and non-MMU m68k. It is just not hooked up to the
-ZERO_PAGE() macro for the non-MMU m68k case.
+The logic in Kconfig to suggest a larger default doesn't work if a user
+has CONFIG_EXPERT enabled and has an existing .config with a smaller
+value.
 
-Fix ZERO_PAGE() to use the allocated "empty_zero_page" pointer.
+Follow the lead of x86 and arm64, and force the thread size to be
+increased when KASAN is enabled.
 
-I am not aware of any specific issues caused by the old code.
+That also has the effect of enlarging the stack for 64-bit KASAN builds,
+which is also desirable.
 
-Link: https://lore.kernel.org/linux-m68k/2a462b23-5b8e-bbf4-ec7d-778434a3b9d7@google.com/T/#t
-Reported-by: Hugh Dickens <hughd@google.com>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Fixes: edbadaf06710 ("powerpc/kasan: Fix stack overflow by increasing THREAD_SHIFT")
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Use MIN_THREAD_SHIFT as suggested by Christophe]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220601143114.133524-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/pgtable_no.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/Kconfig                   |  1 -
+ arch/powerpc/include/asm/thread_info.h | 10 ++++++++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/m68k/include/asm/pgtable_no.h b/arch/m68k/include/asm/pgtable_no.h
-index fc3a96c77bd8..12f673707d4b 100644
---- a/arch/m68k/include/asm/pgtable_no.h
-+++ b/arch/m68k/include/asm/pgtable_no.h
-@@ -42,7 +42,8 @@ extern void paging_init(void);
-  * ZERO_PAGE is a global shared page that is always zero: used
-  * for zero-mapped memory areas etc..
-  */
--#define ZERO_PAGE(vaddr)	(virt_to_page(0))
-+extern void *empty_zero_page;
-+#define ZERO_PAGE(vaddr)	(virt_to_page(empty_zero_page))
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index b779603978e1..574e4ba13959 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -764,7 +764,6 @@ config THREAD_SHIFT
+ 	range 13 15
+ 	default "15" if PPC_256K_PAGES
+ 	default "14" if PPC64
+-	default "14" if KASAN
+ 	default "13"
+ 	help
+ 	  Used to define the stack size. The default is almost always what you
+diff --git a/arch/powerpc/include/asm/thread_info.h b/arch/powerpc/include/asm/thread_info.h
+index d6e649b3c70b..bc3e1de9d08b 100644
+--- a/arch/powerpc/include/asm/thread_info.h
++++ b/arch/powerpc/include/asm/thread_info.h
+@@ -14,10 +14,16 @@
  
- /*
-  * No page table caches to initialise.
+ #ifdef __KERNEL__
+ 
+-#if defined(CONFIG_VMAP_STACK) && CONFIG_THREAD_SHIFT < PAGE_SHIFT
++#ifdef CONFIG_KASAN
++#define MIN_THREAD_SHIFT	(CONFIG_THREAD_SHIFT + 1)
++#else
++#define MIN_THREAD_SHIFT	CONFIG_THREAD_SHIFT
++#endif
++
++#if defined(CONFIG_VMAP_STACK) && MIN_THREAD_SHIFT < PAGE_SHIFT
+ #define THREAD_SHIFT		PAGE_SHIFT
+ #else
+-#define THREAD_SHIFT		CONFIG_THREAD_SHIFT
++#define THREAD_SHIFT		MIN_THREAD_SHIFT
+ #endif
+ 
+ #define THREAD_SIZE		(1 << THREAD_SHIFT)
 -- 
 2.35.1
 
