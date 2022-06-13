@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 713A8548CB8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E6254901D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355661AbiFMLlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:41:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46006 "EHLO
+        id S1377414AbiFMNcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:32:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355591AbiFMLjR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF3832C12E;
-        Mon, 13 Jun 2022 03:49:05 -0700 (PDT)
+        with ESMTP id S1378038AbiFMNas (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:30:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87F1B6EC54;
+        Mon, 13 Jun 2022 04:25:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69C2D60AEB;
-        Mon, 13 Jun 2022 10:49:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B8A3C34114;
-        Mon, 13 Jun 2022 10:49:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B2BDFB80D31;
+        Mon, 13 Jun 2022 11:25:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12966C3411E;
+        Mon, 13 Jun 2022 11:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117344;
-        bh=NhQIeyPX25gsV3OUwC5lhjgviB0f5JW/jJAS23Jt5uw=;
+        s=korg; t=1655119523;
+        bh=72tc4bIMi/WzF0JQ9Pd7txZATTkGwv0vXHYtqVJ7lA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xCJ0ysOLmBM3sQocwcBkJNlDDgHwBpJwUOtKvwohI18e4FgkXR7/7nOYmn0sFHe/X
-         1UZ5o7HtbPj4ffqgTeqkB7HYY+o/mAZFF+sMXkHhsCdfhD90y+FsiPWPpUeZTKTZi1
-         Rs+XjLE0QhAucmIBSzbMBauheHCZ6Skj3paA4FJc=
+        b=MSi6TUSDh8YzIMAvGZYWTEjREUPzNdpocj/YcXvdyobejcbCfT/upbH7MJ4At+cw2
+         M0dbiX3y4X0uU5HE2fcehCHlLPOArJH+aLFgjsHx/LUzBswlaQH7DMLTn2xcp8ECq9
+         HB+2mRGYTH4kICLOwQ4iN4JwUK7TvgMO0BTzc6ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 025/287] drm/plane: Move range check for format_count earlier
+Subject: [PATCH 5.18 024/339] rpmsg: qcom_smd: Fix irq_of_parse_and_map() return value
 Date:   Mon, 13 Jun 2022 12:07:29 +0200
-Message-Id: <20220613094924.626133438@linuxfoundation.org>
+Message-Id: <20220613094927.242788800@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Price <steven.price@arm.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 4b674dd69701c2e22e8e7770c1706a69f3b17269 ]
+[ Upstream commit 1a358d35066487d228a68303d808bc4721c6b1b9 ]
 
-While the check for format_count > 64 in __drm_universal_plane_init()
-shouldn't be hit (it's a WARN_ON), in its current position it will then
-leak the plane->format_types array and fail to call
-drm_mode_object_unregister() leaking the modeset identifier. Move it to
-the start of the function to avoid allocating those resources in the
-first place.
+The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
 
-Signed-off-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
-Link: https://lore.kernel.org/dri-devel/20211203102815.38624-1-steven.price@arm.com/
+Fixes: 53e2822e56c7 ("rpmsg: Introduce Qualcomm SMD backend")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220422105326.78713-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_plane.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/rpmsg/qcom_smd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
-index 2411b6de055e..425e76e39b3b 100644
---- a/drivers/gpu/drm/drm_plane.c
-+++ b/drivers/gpu/drm/drm_plane.c
-@@ -177,6 +177,13 @@ int drm_universal_plane_init(struct drm_device *dev, struct drm_plane *plane,
- 	if (WARN_ON(config->num_total_plane >= 32))
- 		return -EINVAL;
+diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
+index 764c980507be..6ccfa12abd10 100644
+--- a/drivers/rpmsg/qcom_smd.c
++++ b/drivers/rpmsg/qcom_smd.c
+@@ -1407,7 +1407,7 @@ static int qcom_smd_parse_edge(struct device *dev,
+ 		edge->name = node->name;
  
-+	/*
-+	 * First driver to need more than 64 formats needs to fix this. Each
-+	 * format is encoded as a bit and the current code only supports a u64.
-+	 */
-+	if (WARN_ON(format_count > 64))
-+		return -EINVAL;
-+
- 	WARN_ON(drm_drv_uses_atomic_modeset(dev) &&
- 		(!funcs->atomic_destroy_state ||
- 		 !funcs->atomic_duplicate_state));
-@@ -198,13 +205,6 @@ int drm_universal_plane_init(struct drm_device *dev, struct drm_plane *plane,
- 		return -ENOMEM;
- 	}
- 
--	/*
--	 * First driver to need more than 64 formats needs to fix this. Each
--	 * format is encoded as a bit and the current code only supports a u64.
--	 */
--	if (WARN_ON(format_count > 64))
--		return -EINVAL;
--
- 	if (format_modifiers) {
- 		const uint64_t *temp_modifiers = format_modifiers;
- 		while (*temp_modifiers++ != DRM_FORMAT_MOD_INVALID)
+ 	irq = irq_of_parse_and_map(node, 0);
+-	if (irq < 0) {
++	if (!irq) {
+ 		dev_err(dev, "required smd interrupt missing\n");
+ 		ret = irq;
+ 		goto put_node;
 -- 
 2.35.1
 
