@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6106D548825
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:00:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE47854880E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:00:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242497AbiFMKUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:20:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58846 "EHLO
+        id S241930AbiFMKVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:21:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243170AbiFMKTE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:19:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17A89DF84;
-        Mon, 13 Jun 2022 03:16:51 -0700 (PDT)
+        with ESMTP id S243280AbiFMKTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:19:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58D2920F73;
+        Mon, 13 Jun 2022 03:16:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A84C7608C3;
-        Mon, 13 Jun 2022 10:16:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5738C34114;
-        Mon, 13 Jun 2022 10:16:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5CACB80E5C;
+        Mon, 13 Jun 2022 10:16:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A1C8C34114;
+        Mon, 13 Jun 2022 10:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115410;
-        bh=rZrO5jJVf/CDcbdcByQJGPBo7QorKqK1PDw7kMbQaEo=;
+        s=korg; t=1655115415;
+        bh=z9ZVZvLTkZIpAPfLBywKcJvGM8+KiNdtryLagDHFcN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZJ6h4iqOYJ+4uvwaKqwaSyTfzqviP7m46Bz7aBMnelUSNsJXXZxHhbanPFLioK1S
-         B7FvW6ERObFzc5yvmP5uzELCO0frIccktv3muOvmcggzupKxUmIYvk7IJ7HMSEm8Uc
-         HDoLkJ2DvrwTQ7kFgv9S4U9/hCWGMVp+LOAzl6G8=
+        b=b04Qx3YKVEYkFJY7v8UfG7DUjREyO6dQHtEZn78lk5n9Eirgk4PrHZwAr3FHVWxfr
+         SpdH/uYG9pEujLshdGGs97swtisCcJmEqj3/yI7dzJTf5TGoF+mJ6OuYf6lxJSit25
+         ZK8w/8LzfrBUq2HIVpPviH0952p6UaOYuSrm4x3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 062/167] rxrpc: Dont try to resend the request if were receiving the reply
-Date:   Mon, 13 Jun 2022 12:08:56 +0200
-Message-Id: <20220613094855.430700012@linuxfoundation.org>
+Subject: [PATCH 4.9 064/167] soc: qcom: smsm: Fix missing of_node_put() in smsm_parse_ipc
+Date:   Mon, 13 Jun 2022 12:08:58 +0200
+Message-Id: <20220613094855.940213495@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
 References: <20220613094840.720778945@linuxfoundation.org>
@@ -55,43 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 114af61f88fbe34d641b13922d098ffec4c1be1b ]
+[ Upstream commit aad66a3c78da668f4506356c2fdb70b7a19ecc76 ]
 
-rxrpc has a timer to trigger resending of unacked data packets in a call.
-This is not cancelled when a client call switches to the receive phase on
-the basis that most calls don't last long enough for it to ever expire.
-However, if it *does* expire after we've started to receive the reply, we
-shouldn't then go into trying to retransmit or pinging the server to find
-out if an ack got lost.
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-Fix this by skipping the resend code if we're into receiving the reply to a
-client call.
-
-Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: linux-afs@lists.infradead.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220308073648.24634-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/call_event.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/soc/qcom/smsm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
-index 97a17ada4431..4aae0904ae1b 100644
---- a/net/rxrpc/call_event.c
-+++ b/net/rxrpc/call_event.c
-@@ -403,7 +403,8 @@ void rxrpc_process_call(struct work_struct *work)
- 		goto recheck_state;
- 	}
+diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
+index 783cb3364599..01bc8528f24d 100644
+--- a/drivers/soc/qcom/smsm.c
++++ b/drivers/soc/qcom/smsm.c
+@@ -367,6 +367,7 @@ static int smsm_parse_ipc(struct qcom_smsm *smsm, unsigned host_id)
+ 		return 0;
  
--	if (test_and_clear_bit(RXRPC_CALL_EV_RESEND, &call->events)) {
-+	if (test_and_clear_bit(RXRPC_CALL_EV_RESEND, &call->events) &&
-+	    call->state != RXRPC_CALL_CLIENT_RECV_REPLY) {
- 		rxrpc_resend(call, now);
- 		goto recheck_state;
- 	}
+ 	host->ipc_regmap = syscon_node_to_regmap(syscon);
++	of_node_put(syscon);
+ 	if (IS_ERR(host->ipc_regmap))
+ 		return PTR_ERR(host->ipc_regmap);
+ 
 -- 
 2.35.1
 
