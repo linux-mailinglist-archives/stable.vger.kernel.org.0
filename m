@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 313DD548624
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:55:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83AD6548738
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354444AbiFMLcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:32:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45108 "EHLO
+        id S245319AbiFMKpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:45:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354259AbiFML3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:06 -0400
+        with ESMTP id S1345567AbiFMKn3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:43:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A9A3ED20;
-        Mon, 13 Jun 2022 03:43:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FF4EDEAE;
+        Mon, 13 Jun 2022 03:24:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 722886124F;
-        Mon, 13 Jun 2022 10:43:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 821ADC34114;
-        Mon, 13 Jun 2022 10:43:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9E1060EF5;
+        Mon, 13 Jun 2022 10:24:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D429FC34114;
+        Mon, 13 Jun 2022 10:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116986;
-        bh=isilzAeni0jy00oxPlLWnaC0R+yeZKqVfUubavwfJDQ=;
+        s=korg; t=1655115875;
+        bh=b322/1BkvgbHz4jnXSytj74Ne1OwGJ8tk3k1Vru9dvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NrFlSKSbeQcPxq/nkhXzFQRrKGyTktuvK8QcUTFG/HGDG5PayhVeu4jHvMrGJh55S
-         aF1prSmo4WYj9eQ6G6HIKIwhFPho4BFJR8bnGU2GIz4tJTE9DHzjsekFptAbxeRjBm
-         6eRh3xlb/nZODxP2EAkxdniqdnitK8lYIqClPY5E=
+        b=uvGLvwzwrsFyRPu1CUt4WXI80nUQizjE5Io3HuUqGkOPX0/AQHFCElcUM70Zd9w2r
+         4J64TkHOTwjNqMJb9ROQ3wJiwDJXxRGnmRoxMMt6yTNYTiPR02EUSW3vZN3i/x2O1v
+         dmAuAyYQIgYjlsWe18YjOl1ReQnR8P0hYY/4Raic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 257/411] hugetlb: fix huge_pmd_unshare address update
-Date:   Mon, 13 Jun 2022 12:08:50 +0200
-Message-Id: <20220613094936.471951916@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 073/218] media: exynos4-is: Change clk_disable to clk_disable_unprepare
+Date:   Mon, 13 Jun 2022 12:08:51 +0200
+Message-Id: <20220613094922.532254028@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 48381273f8734d28ef56a5bdf1966dd8530111bc upstream.
+[ Upstream commit 9fadab72a6916c7507d7fedcd644859eef995078 ]
 
-The routine huge_pmd_unshare() is passed a pointer to an address
-associated with an area which may be unshared.  If unshare is successful
-this address is updated to 'optimize' callers iterating over huge page
-addresses.  For the optimization to work correctly, address should be
-updated to the last huge page in the unmapped/unshared area.  However, in
-the common case where the passed address is PUD_SIZE aligned, the address
-is incorrectly updated to the address of the preceding huge page.  That
-wastes CPU cycles as the unmapped/unshared range is scanned twice.
+The corresponding API for clk_prepare_enable is clk_disable_unprepare,
+other than clk_disable.
 
-Link: https://lkml.kernel.org/r/20220524205003.126184-1-mike.kravetz@oracle.com
-Fixes: 39dde65c9940 ("shared page table for hugetlb page")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by changing clk_disable to clk_disable_unprepare.
+
+Fixes: b4155d7d5b2c ("[media] exynos4-is: Ensure fimc-is clocks are not enabled until properly configured")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/media/platform/exynos4-is/fimc-is.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5033,7 +5033,14 @@ int huge_pmd_unshare(struct mm_struct *m
- 	pud_clear(pud);
- 	put_page(virt_to_page(ptep));
- 	mm_dec_nr_pmds(mm);
--	*addr = ALIGN(*addr, HPAGE_SIZE * PTRS_PER_PTE) - HPAGE_SIZE;
-+	/*
-+	 * This update of passed address optimizes loops sequentially
-+	 * processing addresses in increments of huge page size (PMD_SIZE
-+	 * in this case).  By clearing the pud, a PUD_SIZE area is unmapped.
-+	 * Update address to the 'last page' in the cleared area so that
-+	 * calling loop can move to first page past this area.
-+	 */
-+	*addr |= PUD_SIZE - PMD_SIZE;
- 	return 1;
- }
- #define want_pmd_share()	(1)
+diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
+index 0fe9be93fabe..0f3f82bd4d20 100644
+--- a/drivers/media/platform/exynos4-is/fimc-is.c
++++ b/drivers/media/platform/exynos4-is/fimc-is.c
+@@ -144,7 +144,7 @@ static int fimc_is_enable_clocks(struct fimc_is *is)
+ 			dev_err(&is->pdev->dev, "clock %s enable failed\n",
+ 				fimc_is_clocks[i]);
+ 			for (--i; i >= 0; i--)
+-				clk_disable(is->clocks[i]);
++				clk_disable_unprepare(is->clocks[i]);
+ 			return ret;
+ 		}
+ 		pr_debug("enabled clock: %s\n", fimc_is_clocks[i]);
+-- 
+2.35.1
+
 
 
