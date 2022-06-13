@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6F654939E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45B55549429
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383511AbiFMO0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:26:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52852 "EHLO
+        id S1358694AbiFMNAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:00:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383823AbiFMOYI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64EE62E9E2;
-        Mon, 13 Jun 2022 04:45:25 -0700 (PDT)
+        with ESMTP id S1357467AbiFMM65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:58:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4FDF2BDC;
+        Mon, 13 Jun 2022 04:17:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18907B80EA7;
-        Mon, 13 Jun 2022 11:45:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FDCFC34114;
-        Mon, 13 Jun 2022 11:45:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08E7760F18;
+        Mon, 13 Jun 2022 11:17:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1530EC36AFE;
+        Mon, 13 Jun 2022 11:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120722;
-        bh=71pftw3OoNE6+mQQHohO9Rn9Lsf9BTrdcnxHCcIWmas=;
+        s=korg; t=1655119059;
+        bh=h7BD6X4WsdlZ62dptpys6AtBjDppkukzPrTZvNt5/UY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NRnLHPMACniKj4BdN83iud7j8SUPnie9yokJNV127gTyu88LrygW6CO8H89lj3qjU
-         sXnnvJH9cuofbK6mgz2+CKqUIce/YCPGvSY/KMI5JkkwM3/SH4a1ml24mqDsBkWH9n
-         jPPKWaRjEL61SesFeuStK1ZtYxbjQQLkKQrpG0Zs=
+        b=vp4Q5Td19Tz551PgsYwrXHIr04HFD0OeDI9aVYA4GyuY9nwqIidrUNxkkGZpqCLtv
+         rNB8jTNuJ2cww1y7RcehygSvR5d/+g+mAijSqtxShlOaRUWLzjM8Go33CqOxjyTfO9
+         De8uSZxmhUGG+ppVO2637CvXECb+B2Jtzmr1HjO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 133/298] Bluetooth: hci_sync: Fix attempting to suspend with unfiltered passive scan
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 125/247] video: fbdev: pxa3xx-gcu: release the resources correctly in pxa3xx_gcu_probe/remove()
 Date:   Mon, 13 Jun 2022 12:10:27 +0200
-Message-Id: <20220613094928.978289369@linuxfoundation.org>
+Message-Id: <20220613094926.752878618@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,142 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3b42055388c30f2761a2d9cd9af2c99611dfe457 ]
+[ Upstream commit d87ad457f7e1b8d2492ca5b1531eb35030a1cc8f ]
 
-When suspending the passive scanning _must_ have its filter_policy set
-to 0x01 to use the accept list otherwise _any_ advertise report would
-end up waking up the system.
+In pxa3xx_gcu_probe(), the sequence of error lable is wrong, it will
+leads some resource leaked, so adjust the sequence to handle the error
+correctly, and if pxa3xx_gcu_add_buffer() fails, pxa3xx_gcu_free_buffers()
+need be called.
+In pxa3xx_gcu_remove(), add missing clk_disable_unpreprare().
 
-In order to fix the filter_policy the code now checks for
-hdev->suspended && HCI_CONN_FLAG_REMOTE_WAKEUP
-first, since the MGMT_OP_SET_DEVICE_FLAGS will reject any attempt to
-set HCI_CONN_FLAG_REMOTE_WAKEUP when it cannot be programmed in the
-acceptlist, so it can return success causing the proper filter_policy
-to be used.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215768
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sync.c | 58 +++++++++++++++++++++++++++++-----------
- 1 file changed, 43 insertions(+), 15 deletions(-)
+ drivers/video/fbdev/pxa3xx-gcu.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index 13600bf120b0..6b8d1cd65de4 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -1664,20 +1664,19 @@ static int hci_le_add_accept_list_sync(struct hci_dev *hdev,
- 	struct hci_cp_le_add_to_accept_list cp;
- 	int err;
- 
-+	/* During suspend, only wakeable devices can be in acceptlist */
-+	if (hdev->suspended &&
-+	    !test_bit(HCI_CONN_FLAG_REMOTE_WAKEUP, params->flags))
-+		return 0;
-+
- 	/* Select filter policy to accept all advertising */
- 	if (*num_entries >= hdev->le_accept_list_size)
- 		return -ENOSPC;
- 
- 	/* Accept list can not be used with RPAs */
- 	if (!use_ll_privacy(hdev) &&
--	    hci_find_irk_by_addr(hdev, &params->addr, params->addr_type)) {
-+	    hci_find_irk_by_addr(hdev, &params->addr, params->addr_type))
- 		return -EINVAL;
--	}
--
--	/* During suspend, only wakeable devices can be in acceptlist */
--	if (hdev->suspended &&
--	    !test_bit(HCI_CONN_FLAG_REMOTE_WAKEUP, params->flags))
--		return 0;
- 
- 	/* Attempt to program the device in the resolving list first to avoid
- 	 * having to rollback in case it fails since the resolving list is
-@@ -4881,10 +4880,28 @@ static int hci_update_event_filter_sync(struct hci_dev *hdev)
+diff --git a/drivers/video/fbdev/pxa3xx-gcu.c b/drivers/video/fbdev/pxa3xx-gcu.c
+index 4279e13a3b58..9421d14d0eb0 100644
+--- a/drivers/video/fbdev/pxa3xx-gcu.c
++++ b/drivers/video/fbdev/pxa3xx-gcu.c
+@@ -650,6 +650,7 @@ static int pxa3xx_gcu_probe(struct platform_device *pdev)
+ 	for (i = 0; i < 8; i++) {
+ 		ret = pxa3xx_gcu_add_buffer(dev, priv);
+ 		if (ret) {
++			pxa3xx_gcu_free_buffers(dev, priv);
+ 			dev_err(dev, "failed to allocate DMA memory\n");
+ 			goto err_disable_clk;
+ 		}
+@@ -666,15 +667,15 @@ static int pxa3xx_gcu_probe(struct platform_device *pdev)
+ 			SHARED_SIZE, irq);
  	return 0;
+ 
+-err_free_dma:
+-	dma_free_coherent(dev, SHARED_SIZE,
+-			priv->shared, priv->shared_phys);
++err_disable_clk:
++	clk_disable_unprepare(priv->clk);
+ 
+ err_misc_deregister:
+ 	misc_deregister(&priv->misc_dev);
+ 
+-err_disable_clk:
+-	clk_disable_unprepare(priv->clk);
++err_free_dma:
++	dma_free_coherent(dev, SHARED_SIZE,
++			  priv->shared, priv->shared_phys);
+ 
+ 	return ret;
  }
+@@ -687,6 +688,7 @@ static int pxa3xx_gcu_remove(struct platform_device *pdev)
+ 	pxa3xx_gcu_wait_idle(priv);
+ 	misc_deregister(&priv->misc_dev);
+ 	dma_free_coherent(dev, SHARED_SIZE, priv->shared, priv->shared_phys);
++	clk_disable_unprepare(priv->clk);
+ 	pxa3xx_gcu_free_buffers(dev, priv);
  
-+/* This function disables scan (BR and LE) and mark it as paused */
-+static int hci_pause_scan_sync(struct hci_dev *hdev)
-+{
-+	if (hdev->scanning_paused)
-+		return 0;
-+
-+	/* Disable page scan if enabled */
-+	if (test_bit(HCI_PSCAN, &hdev->flags))
-+		hci_write_scan_enable_sync(hdev, SCAN_DISABLED);
-+
-+	hci_scan_disable_sync(hdev);
-+
-+	hdev->scanning_paused = true;
-+
-+	return 0;
-+}
-+
- /* This function performs the HCI suspend procedures in the follow order:
-  *
-  * Pause discovery (active scanning/inquiry)
-  * Pause Directed Advertising/Advertising
-+ * Pause Scanning (passive scanning in case discovery was not active)
-  * Disconnect all connections
-  * Set suspend_status to BT_SUSPEND_DISCONNECT if hdev cannot wakeup
-  * otherwise:
-@@ -4910,15 +4927,11 @@ int hci_suspend_sync(struct hci_dev *hdev)
- 	/* Pause other advertisements */
- 	hci_pause_advertising_sync(hdev);
- 
--	/* Disable page scan if enabled */
--	if (test_bit(HCI_PSCAN, &hdev->flags))
--		hci_write_scan_enable_sync(hdev, SCAN_DISABLED);
--
- 	/* Suspend monitor filters */
- 	hci_suspend_monitor_sync(hdev);
- 
- 	/* Prevent disconnects from causing scanning to be re-enabled */
--	hdev->scanning_paused = true;
-+	hci_pause_scan_sync(hdev);
- 
- 	/* Soft disconnect everything (power off) */
- 	err = hci_disconnect_all_sync(hdev, HCI_ERROR_REMOTE_POWER_OFF);
-@@ -4989,6 +5002,22 @@ static void hci_resume_monitor_sync(struct hci_dev *hdev)
- 	}
- }
- 
-+/* This function resume scan and reset paused flag */
-+static int hci_resume_scan_sync(struct hci_dev *hdev)
-+{
-+	if (!hdev->scanning_paused)
-+		return 0;
-+
-+	hci_update_scan_sync(hdev);
-+
-+	/* Reset passive scanning to normal */
-+	hci_update_passive_scan_sync(hdev);
-+
-+	hdev->scanning_paused = false;
-+
-+	return 0;
-+}
-+
- /* This function performs the HCI suspend procedures in the follow order:
-  *
-  * Restore event mask
-@@ -5011,10 +5040,9 @@ int hci_resume_sync(struct hci_dev *hdev)
- 
- 	/* Clear any event filters and restore scan state */
- 	hci_clear_event_filter_sync(hdev);
--	hci_update_scan_sync(hdev);
- 
--	/* Reset passive scanning to normal */
--	hci_update_passive_scan_sync(hdev);
-+	/* Resume scanning */
-+	hci_resume_scan_sync(hdev);
- 
- 	/* Resume monitor filters */
- 	hci_resume_monitor_sync(hdev);
+ 	return 0;
 -- 
 2.35.1
 
