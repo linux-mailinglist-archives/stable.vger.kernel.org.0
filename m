@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50BC6549517
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83758548A6B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239238AbiFMMbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:31:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34360 "EHLO
+        id S231733AbiFMM6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:58:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353230AbiFMM1E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:27:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61CCD326FF;
-        Mon, 13 Jun 2022 04:05:46 -0700 (PDT)
+        with ESMTP id S1354394AbiFMMzk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA67610543;
+        Mon, 13 Jun 2022 04:16:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CC83614BF;
-        Mon, 13 Jun 2022 11:05:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9971C34114;
-        Mon, 13 Jun 2022 11:05:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59BB060EF1;
+        Mon, 13 Jun 2022 11:16:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65BBEC34114;
+        Mon, 13 Jun 2022 11:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118345;
-        bh=EUTDtY3A60DHC0r/RLOq13/jsTP5MMXGOG1l/cmd1y8=;
+        s=korg; t=1655118989;
+        bh=T6ZSpYjX9kIN6bdYKRnBTZugulok050C0NWTF+1U8Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8L/A+nVfT6oYRg2CP+sOrMhH0Q0Ym+tQ02C5xu9GVkOV9g+NsE2uf3iHagjcWr1X
-         +M28JfF7OD5u6a/XH4OXG9f3Dlj5f47l6fN12MOSuWKXKP0jPAy9H4/y+QNX577UFO
-         /s2csxjtWQvkklLUEihjKXW+nj22JwShFlRsbvhs=
+        b=CIpNIMmvZt5FzqNKH+veWioQKz1wYo6dHxb1KpODRPz+Bi8KYypigQvZ8+SJjX/LZ
+         UZ6MxQCq7jRZJrK+U5ljYVU0wbX0f0Vwk3j0TVOVaudLg0joXaeG5ssAsJ/Jhw2z7I
+         PUTsuW0Pbx7nBtI87rn1r6EcHc4I9AgHmltGKDbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Romain Naour <romain.naour@smile.fr>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 042/172] bus: ti-sysc: Fix warnings for unbind for serial
+Subject: [PATCH 5.15 100/247] vdpa: ifcvf: set pci driver data in probe
 Date:   Mon, 13 Jun 2022 12:10:02 +0200
-Message-Id: <20220613094900.470349013@linuxfoundation.org>
+Message-Id: <20220613094925.988710920@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Jason Wang <jasowang@redhat.com>
 
-[ Upstream commit c337125b8834f9719dfda0e40b25eaa266f1b8cf ]
+[ Upstream commit bd8bb9aed56b1814784a975e2dfea12a9adcee92 ]
 
-We can get "failed to disable" clock_unprepare warnings on unbind at least
-for the serial console device if the unbind is done before the device has
-been idled.
+We should set the pci driver data in probe instead of the vdpa device
+adding callback. Otherwise if no vDPA device is created we will lose
+the pointer to the management device.
 
-As some devices are using deferred idle, we must check the status for
-pending idle work to idle the device.
-
-Fixes: 76f0f772e469 ("bus: ti-sysc: Improve handling for no-reset-on-init and no-idle-on-init")
-Cc: Romain Naour <romain.naour@smile.fr>
-Reviewed-by: Romain Naour <romain.naour@smile.fr>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20220512053021.61650-1-tony@atomide.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6b5df347c6482 ("vDPA/ifcvf: implement management netlink framework for ifcvf")
+Tested-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Message-Id: <20220524055557.1938-1-jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/vdpa/ifcvf/ifcvf_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index ac559c262033..4ee20be76508 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -3291,7 +3291,9 @@ static int sysc_remove(struct platform_device *pdev)
- 	struct sysc *ddata = platform_get_drvdata(pdev);
- 	int error;
+diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+index 003530b19b4e..4fe8aa13ac68 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -505,7 +505,6 @@ static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name)
+ 	}
  
--	cancel_delayed_work_sync(&ddata->idle_work);
-+	/* Device can still be enabled, see deferred idle quirk in probe */
-+	if (cancel_delayed_work_sync(&ddata->idle_work))
-+		ti_sysc_idle(&ddata->idle_work.work);
+ 	ifcvf_mgmt_dev->adapter = adapter;
+-	pci_set_drvdata(pdev, ifcvf_mgmt_dev);
  
- 	error = pm_runtime_get_sync(ddata->dev);
- 	if (error < 0) {
+ 	vf = &adapter->vf;
+ 	vf->dev_type = get_dev_type(pdev);
+@@ -620,6 +619,8 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		goto err;
+ 	}
+ 
++	pci_set_drvdata(pdev, ifcvf_mgmt_dev);
++
+ 	return 0;
+ 
+ err:
 -- 
 2.35.1
 
