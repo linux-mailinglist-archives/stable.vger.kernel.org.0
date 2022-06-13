@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 193555494FB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C9915491DC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:29:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377763AbiFMNkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:40:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58252 "EHLO
+        id S1381615AbiFMOIp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378911AbiFMNjY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0F0793A4;
-        Mon, 13 Jun 2022 04:28:18 -0700 (PDT)
+        with ESMTP id S1381842AbiFMOEw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:04:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD08D9271D;
+        Mon, 13 Jun 2022 04:40:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 072CA61243;
-        Mon, 13 Jun 2022 11:28:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 130E0C3411E;
-        Mon, 13 Jun 2022 11:28:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E368EB80ECE;
+        Mon, 13 Jun 2022 11:40:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 488E3C3411C;
+        Mon, 13 Jun 2022 11:40:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119697;
-        bh=rrdUq0+U2ydsV3HuaJAwxcFjpuqb+aKuO/e9fbI9Kmg=;
+        s=korg; t=1655120401;
+        bh=m9aKvLlwoqBpoRkNHQC6FXm1NXIxoi5txZor1xMVKQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AhWMC1qNHTsfVHC5NH/vQUQti5pgkTfUWvhlNb/P/NoW7d43GDMI2ODXectv9AJn6
-         xw9X1jgVA4EwhsHsP2DAZXiCrvNEDT9eztToQgy7lNxfZ7sS9Xf0RXfBSdg6vcZIao
-         cSWVDoILXPD7//8KjmM3R0wR7Tt+66zT/R22J0/c=
+        b=UbIiXe6D2RHXpv5zYbz4ot8LSp2+/ZgYTbhoBuJPngeCF0rCrYNsaHF5a/P7MZHdW
+         00uXE4NQxX3k4m5GV154E/7mrSluzGWLC90MAPW5MhnYiMp9ucUb0UchpB4EUjrLrG
+         nrcg6AAt2EIVJMYEbhVY5i6Ktdai5ENr6UktT0Vo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, liuyacan <liuyacan@corp.netease.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 089/339] net/smc: set ini->smcrv2.ib_dev_v2 to NULL if SMC-Rv2 is unavailable
+Subject: [PATCH 5.17 020/298] rpmsg: qcom_smd: Fix irq_of_parse_and_map() return value
 Date:   Mon, 13 Jun 2022 12:08:34 +0200
-Message-Id: <20220613094929.215867138@linuxfoundation.org>
+Message-Id: <20220613094925.543473455@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: liuyacan <liuyacan@corp.netease.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit b3b1a17538d3ef6a9667b2271216fd16d7678ab5 ]
+[ Upstream commit 1a358d35066487d228a68303d808bc4721c6b1b9 ]
 
-In the process of checking whether RDMAv2 is available, the current
-implementation first sets ini->smcrv2.ib_dev_v2, and then allocates
-smc buf desc and register rmb, but the latter may fail. In this case,
-the pointer should be reset.
+The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
 
-Fixes: e49300a6bf62 ("net/smc: add listen processing for SMC-Rv2")
-Signed-off-by: liuyacan <liuyacan@corp.netease.com>
-Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220525085408.812273-1-liuyacan@corp.netease.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 53e2822e56c7 ("rpmsg: Introduce Qualcomm SMD backend")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220422105326.78713-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rpmsg/qcom_smd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 45a24d24210f..540b32d86d9b 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2136,6 +2136,7 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
+index 540e027f08c4..d4b54eebe15d 100644
+--- a/drivers/rpmsg/qcom_smd.c
++++ b/drivers/rpmsg/qcom_smd.c
+@@ -1404,7 +1404,7 @@ static int qcom_smd_parse_edge(struct device *dev,
+ 		edge->name = node->name;
  
- not_found:
- 	ini->smcr_version &= ~SMC_V2;
-+	ini->smcrv2.ib_dev_v2 = NULL;
- 	ini->check_smcrv2 = false;
- }
- 
+ 	irq = irq_of_parse_and_map(node, 0);
+-	if (irq < 0) {
++	if (!irq) {
+ 		dev_err(dev, "required smd interrupt missing\n");
+ 		ret = irq;
+ 		goto put_node;
 -- 
 2.35.1
 
