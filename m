@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F754548E4B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:18:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 537B9548E73
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352891AbiFMLUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:20:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56286 "EHLO
+        id S1377609AbiFMNdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:33:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353647AbiFMLTx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3107B3B3D0;
-        Mon, 13 Jun 2022 03:41:31 -0700 (PDT)
+        with ESMTP id S1378405AbiFMNb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:31:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D37AB70377;
+        Mon, 13 Jun 2022 04:26:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6C2C6120F;
-        Mon, 13 Jun 2022 10:41:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6E50C34114;
-        Mon, 13 Jun 2022 10:41:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A88660B6E;
+        Mon, 13 Jun 2022 11:26:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DFD5C34114;
+        Mon, 13 Jun 2022 11:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116890;
-        bh=uhAikVW3+fGYdSEq4++jX+IFxCaKQkM/o+8pQs6LtkI=;
+        s=korg; t=1655119562;
+        bh=YbAO6dc61CTVZPXA3H0275LCoBrPznmVp9BrsF0I538=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KmueuwyBtlBkKfKw0XaDWdf4aJ2aXcLQbUu7s29qDXdJkl6IkGM/JtDqUJUYto+p9
-         r6ITgWTtC2DjGMAoZJLQBUpj/Bwf7g34gWJRlXFYgcHLjWh8jkDGX9mB/1ISqb/+fv
-         qAN9wImcPbKzmv2WdQyUW/len6vFpos7LZAEvn7Q=
+        b=PX/yJ57aC5zIuOo+3dmGAbh8Ct2uyeX8HyGE3mGTp1IuGp+EBQqHNP9K6wNkG3dAS
+         JYdS/ZfeBMkPCBWdgKrJuu83CXmVgD30IAP7BekaUlyFsQM5Npks//MHKNK1OiOr8p
+         N1Y/q1a/EEh9D+YOSxqerEeo7NBtYQVia2P33PXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
-        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4 210/411] f2fs: fix to do sanity check on block address in f2fs_do_zero_range()
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Anup Patel <anup@brainfault.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 058/339] clocksource/drivers/riscv: Events are stopped during CPU suspend
 Date:   Mon, 13 Jun 2022 12:08:03 +0200
-Message-Id: <20220613094934.953482107@linuxfoundation.org>
+Message-Id: <20220613094928.281945592@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Samuel Holland <samuel@sholland.org>
 
-commit 25f8236213a91efdf708b9d77e9e51b6fc3e141c upstream.
+[ Upstream commit 232ccac1bd9b5bfe73895f527c08623e7fa0752d ]
 
-As Yanming reported in bugzilla:
+Some implementations of the SBI time extension depend on hart-local
+state (for example, CSRs) that are lost or hardware that is powered
+down when a CPU is suspended. To be safe, the clockevents driver
+cannot assume that timer IRQs will be received during CPU suspend.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215894
-
-I have encountered a bug in F2FS file system in kernel v5.17.
-
-I have uploaded the system call sequence as case.c, and a fuzzed image can
-be found in google net disk
-
-The kernel should enable CONFIG_KASAN=y and CONFIG_KASAN_INLINE=y. You can
-reproduce the bug by running the following commands:
-
-kernel BUG at fs/f2fs/segment.c:2291!
-Call Trace:
- f2fs_invalidate_blocks+0x193/0x2d0
- f2fs_fallocate+0x2593/0x4a70
- vfs_fallocate+0x2a5/0xac0
- ksys_fallocate+0x35/0x70
- __x64_sys_fallocate+0x8e/0xf0
- do_syscall_64+0x3b/0x90
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root cause is, after image was fuzzed, block mapping info in inode
-will be inconsistent with SIT table, so in f2fs_fallocate(), it will cause
-panic when updating SIT with invalid blkaddr.
-
-Let's fix the issue by adding sanity check on block address before updating
-SIT table with it.
-
-Cc: stable@vger.kernel.org
-Reported-by: Ming Yan <yanming@tju.edu.cn>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 62b019436814 ("clocksource: new RISC-V SBI timer driver")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Link: https://lore.kernel.org/r/20220509012121.40031-1-samuel@sholland.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/clocksource/timer-riscv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -1320,11 +1320,19 @@ static int f2fs_do_zero_range(struct dno
- 			ret = -ENOSPC;
- 			break;
- 		}
--		if (dn->data_blkaddr != NEW_ADDR) {
--			f2fs_invalidate_blocks(sbi, dn->data_blkaddr);
--			dn->data_blkaddr = NEW_ADDR;
--			f2fs_set_data_blkaddr(dn);
-+
-+		if (dn->data_blkaddr == NEW_ADDR)
-+			continue;
-+
-+		if (!f2fs_is_valid_blkaddr(sbi, dn->data_blkaddr,
-+					DATA_GENERIC_ENHANCE)) {
-+			ret = -EFSCORRUPTED;
-+			break;
- 		}
-+
-+		f2fs_invalidate_blocks(sbi, dn->data_blkaddr);
-+		dn->data_blkaddr = NEW_ADDR;
-+		f2fs_set_data_blkaddr(dn);
- 	}
- 
- 	f2fs_update_extent_cache_range(dn, start, 0, index - start);
+diff --git a/drivers/clocksource/timer-riscv.c b/drivers/clocksource/timer-riscv.c
+index 1767f8bf2013..593d5a957b69 100644
+--- a/drivers/clocksource/timer-riscv.c
++++ b/drivers/clocksource/timer-riscv.c
+@@ -34,7 +34,7 @@ static int riscv_clock_next_event(unsigned long delta,
+ static unsigned int riscv_clock_event_irq;
+ static DEFINE_PER_CPU(struct clock_event_device, riscv_clock_event) = {
+ 	.name			= "riscv_timer_clockevent",
+-	.features		= CLOCK_EVT_FEAT_ONESHOT,
++	.features		= CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_C3STOP,
+ 	.rating			= 100,
+ 	.set_next_event		= riscv_clock_next_event,
+ };
+-- 
+2.35.1
+
 
 
