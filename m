@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C4B0549535
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF0215496F4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359289AbiFMNRv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:17:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51842 "EHLO
+        id S1384931AbiFMOlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359022AbiFMNPb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:15:31 -0400
+        with ESMTP id S1384856AbiFMOhK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:37:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EDD55F59;
-        Mon, 13 Jun 2022 04:22:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C8254D25D;
+        Mon, 13 Jun 2022 04:49:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 809FAB80E59;
-        Mon, 13 Jun 2022 11:22:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0327C3411C;
-        Mon, 13 Jun 2022 11:22:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 957F1B80EB3;
+        Mon, 13 Jun 2022 11:49:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 130F4C34114;
+        Mon, 13 Jun 2022 11:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119325;
-        bh=sXhm+oMCrui/y0I0+QBtmpIK+POYQhAS48jgfA/2Ycw=;
+        s=korg; t=1655120981;
+        bh=3TszrS3lAtEjZ2rupo4rzyU9qtS2/kAgbkhSgz7ytFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nmllbXWxgLa4kDVeP88BtUZCSYYeoQ1/OqQxtNBnCHhVKGnwccg0UT46kqB/iFgqt
-         G8A5RxPMUQXPwVJzuIKhpuGmPBr0uth+cy3KK3D/nmxDaGDRq+EZcc+Vv0yuuaSqQU
-         gyx/gm2KTrQko7SVx+U0lXS2xWe62m0cjgnZsq1I=
+        b=C6XYUsOrrqjxV3OD77jEdKTHqntm5wFkFRi3Nu/+16IjOX8CJalp/vtVCW4jWVsss
+         NsgMB/keLf3NO5uyBE1CkFSLuZpGYZ/Gk6uADozceOzKUVa/WruJGyF/GEZFp5tQ3E
+         h7P6G44gBTJL+n6rXOxRUU3Q99tg/XQVzgbvxZOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Safford <david.safford@gmail.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.15 221/247] KEYS: trusted: tpm2: Fix migratable logic
+        stable@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 229/298] Revert "net: af_key: add check for pfkey_broadcast in function pfkey_process"
 Date:   Mon, 13 Jun 2022 12:12:03 +0200
-Message-Id: <20220613094929.646580519@linuxfoundation.org>
+Message-Id: <20220613094932.041641587@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Safford <david.safford@gmail.com>
+From: Michal Kubecek <mkubecek@suse.cz>
 
-commit dda5384313a40ecbaafd8a9a80f47483255e4c4d upstream.
+[ Upstream commit 9c90c9b3e50e16d03c7f87d63e9db373974781e0 ]
 
-When creating (sealing) a new trusted key, migratable
-trusted keys have the FIXED_TPM and FIXED_PARENT attributes
-set, and non-migratable keys don't. This is backwards, and
-also causes creation to fail when creating a migratable key
-under a migratable parent. (The TPM thinks you are trying to
-seal a non-migratable blob under a migratable parent.)
+This reverts commit 4dc2a5a8f6754492180741facf2a8787f2c415d7.
 
-The following simple patch fixes the logic, and has been
-tested for all four combinations of migratable and non-migratable
-trusted keys and parent storage keys. With this logic, you will
-get a proper failure if you try to create a non-migratable
-trusted key under a migratable parent storage key, and all other
-combinations work correctly.
+A non-zero return value from pfkey_broadcast() does not necessarily mean
+an error occurred as this function returns -ESRCH when no registered
+listener received the message. In particular, a call with
+BROADCAST_PROMISC_ONLY flag and null one_sk argument can never return
+zero so that this commit in fact prevents processing any PF_KEY message.
+One visible effect is that racoon daemon fails to find encryption
+algorithms like aes and refuses to start.
 
-Cc: stable@vger.kernel.org # v5.13+
-Fixes: e5fb5d2c5a03 ("security: keys: trusted: Make sealed key properly interoperable")
-Signed-off-by: David Safford <david.safford@gmail.com>
-Reviewed-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Excluding -ESRCH return value would fix this but it's not obvious that
+we really want to bail out here and most other callers of
+pfkey_broadcast() also ignore the return value. Also, as pointed out by
+Steffen Klassert, PF_KEY is kind of deprecated and newer userspace code
+should use netlink instead so that we should only disturb the code for
+really important fixes.
+
+v2: add a comment explaining why is the return value ignored
+
+Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/keys/trusted-keys/trusted_tpm2.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/key/af_key.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/security/keys/trusted-keys/trusted_tpm2.c
-+++ b/security/keys/trusted-keys/trusted_tpm2.c
-@@ -283,8 +283,8 @@ int tpm2_seal_trusted(struct tpm_chip *c
- 	/* key properties */
- 	flags = 0;
- 	flags |= options->policydigest_len ? 0 : TPM2_OA_USER_WITH_AUTH;
--	flags |= payload->migratable ? (TPM2_OA_FIXED_TPM |
--					TPM2_OA_FIXED_PARENT) : 0;
-+	flags |= payload->migratable ? 0 : (TPM2_OA_FIXED_TPM |
-+					    TPM2_OA_FIXED_PARENT);
- 	tpm_buf_append_u32(&buf, flags);
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 339d95df19d3..d93bde657359 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2826,10 +2826,12 @@ static int pfkey_process(struct sock *sk, struct sk_buff *skb, const struct sadb
+ 	void *ext_hdrs[SADB_EXT_MAX];
+ 	int err;
  
- 	/* policy */
+-	err = pfkey_broadcast(skb_clone(skb, GFP_KERNEL), GFP_KERNEL,
+-			      BROADCAST_PROMISC_ONLY, NULL, sock_net(sk));
+-	if (err)
+-		return err;
++	/* Non-zero return value of pfkey_broadcast() does not always signal
++	 * an error and even on an actual error we may still want to process
++	 * the message so rather ignore the return value.
++	 */
++	pfkey_broadcast(skb_clone(skb, GFP_KERNEL), GFP_KERNEL,
++			BROADCAST_PROMISC_ONLY, NULL, sock_net(sk));
+ 
+ 	memset(ext_hdrs, 0, sizeof(ext_hdrs));
+ 	err = parse_exthdrs(skb, hdr, ext_hdrs);
+-- 
+2.35.1
+
 
 
