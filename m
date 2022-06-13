@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D28CB54923C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB6CA54979D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380665AbiFMOBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:01:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43210 "EHLO
+        id S1386032AbiFMOqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:46:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380195AbiFMOAB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:00:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4981A8D693;
-        Mon, 13 Jun 2022 04:37:57 -0700 (PDT)
+        with ESMTP id S1386242AbiFMOoz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:44:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 588DFB7175;
+        Mon, 13 Jun 2022 04:51:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5A206130D;
-        Mon, 13 Jun 2022 11:37:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D069BC341C6;
-        Mon, 13 Jun 2022 11:37:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A98B61425;
+        Mon, 13 Jun 2022 11:51:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C32DC34114;
+        Mon, 13 Jun 2022 11:51:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120276;
-        bh=9y3ubL8G56M9GNII/l+BHiIuPm1Ni1Xym+8v3tSfm2A=;
+        s=korg; t=1655121091;
+        bh=2H2CyXv2Ye91YOMEfo5u5VeHXj+oImPJDnj3yXu5duQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmypeAwAlz/m6HzYofFlldTjz3cyyXshef/RkdIfg3LEqUY/KttlQj5mWb300lpTd
-         MWiLWf0gduBkVX8h99mkurDLJD3WcEkeXJ7h0LHe3flSj7NPUGeAWzB+SNb5joIUrc
-         lc8a82/U2k3Awj0dLgqNw7xT9UdGmgckEpayAj20=
+        b=OKFtyq0KFt27FDsT4RwHG/sNrtHAYrDJy4/76i/YRfK4vB2rR6a+UngNnWs18jQ8q
+         NEl2aj68OKZZmtypehbm6PXPSAz/nNNNebhBTk02qPHnVNb3wzMqeS1PKCqeUmH7Ed
+         iqYv2YpYrj17f04Yz55zmDnuz218wXmgR/ZRQfOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Sit, Michael Wei Hong" <michael.wei.hong.sit@intel.com>,
-        Voon Weifeng <weifeng.voon@intel.com>,
-        Tan Tee Min <tee.min.tan@linux.intel.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
-        Sit@vger.kernel.org
-Subject: [PATCH 5.18 314/339] net: phy: dp83867: retrigger SGMII AN when link change
+        stable@vger.kernel.org, Cyril Brulebois <kibi@debian.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 245/298] Revert "PCI: brcmstb: Add control of subdevice voltage regulators"
 Date:   Mon, 13 Jun 2022 12:12:19 +0200
-Message-Id: <20220613094936.273921464@linuxfoundation.org>
+Message-Id: <20220613094932.516560707@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,89 +54,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tan Tee Min <tee.min.tan@linux.intel.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-commit c76acfb7e19dcc3a0964e0563770b1d11b8d4540 upstream.
+[ Upstream commit 212942609d83b591f5a2f2691df122d13aa3a87d ]
 
-There is a limitation in TI DP83867 PHY device where SGMII AN is only
-triggered once after the device is booted up. Even after the PHY TPI is
-down and up again, SGMII AN is not triggered and hence no new in-band
-message from PHY to MAC side SGMII.
+This reverts commit 93e41f3fca3d4a0f927b784012338c37f80a8a80.
 
-This could cause an issue during power up, when PHY is up prior to MAC.
-At this condition, once MAC side SGMII is up, MAC side SGMII wouldn`t
-receive new in-band message from TI PHY with correct link status, speed
-and duplex info.
+This is part of a revert of the following commits:
 
-As suggested by TI, implemented a SW solution here to retrigger SGMII
-Auto-Neg whenever there is a link change.
+  11ed8b8624b8 ("PCI: brcmstb: Do not turn off WOL regulators on suspend")
+  93e41f3fca3d ("PCI: brcmstb: Add control of subdevice voltage regulators")
+  67211aadcb4b ("PCI: brcmstb: Add mechanism to turn on subdev regulators")
+  830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup() into two funcs")
 
-v2: Add Fixes tag in commit message.
+Cyril reported that 830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup()
+into two funcs"), which appeared in v5.17-rc1, broke booting on the
+Raspberry Pi Compute Module 4.  Apparently 830aa6f29f07 panics with an
+Asynchronous SError Interrupt, and after further commits here is a black
+screen on HDMI and no output on the serial console.
 
-Fixes: 2a10154abcb7 ("net: phy: dp83867: Add TI dp83867 phy")
-Cc: <stable@vger.kernel.org> # 5.4.x
-Signed-off-by: Sit, Michael Wei Hong <michael.wei.hong.sit@intel.com>
-Reviewed-by: Voon Weifeng <weifeng.voon@intel.com>
-Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220526090347.128742-1-tee.min.tan@linux.intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This does not seem to affect the Raspberry Pi 4 B.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215925
+Link: https://lore.kernel.org/r/20220511201856.808690-3-helgaas@kernel.org
+Reported-by: Cyril Brulebois <kibi@debian.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83867.c |   29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ drivers/pci/controller/pcie-brcmstb.c | 83 ++-------------------------
+ 1 file changed, 5 insertions(+), 78 deletions(-)
 
---- a/drivers/net/phy/dp83867.c
-+++ b/drivers/net/phy/dp83867.c
-@@ -137,6 +137,7 @@
- #define DP83867_DOWNSHIFT_2_COUNT	2
- #define DP83867_DOWNSHIFT_4_COUNT	4
- #define DP83867_DOWNSHIFT_8_COUNT	8
-+#define DP83867_SGMII_AUTONEG_EN	BIT(7)
+diff --git a/drivers/pci/controller/pcie-brcmstb.c b/drivers/pci/controller/pcie-brcmstb.c
+index 3edd63735948..fd464d38fecb 100644
+--- a/drivers/pci/controller/pcie-brcmstb.c
++++ b/drivers/pci/controller/pcie-brcmstb.c
+@@ -196,8 +196,6 @@ static inline void brcm_pcie_bridge_sw_init_set_generic(struct brcm_pcie *pcie,
+ static inline void brcm_pcie_perst_set_4908(struct brcm_pcie *pcie, u32 val);
+ static inline void brcm_pcie_perst_set_7278(struct brcm_pcie *pcie, u32 val);
+ static inline void brcm_pcie_perst_set_generic(struct brcm_pcie *pcie, u32 val);
+-static int brcm_pcie_linkup(struct brcm_pcie *pcie);
+-static int brcm_pcie_add_bus(struct pci_bus *bus);
  
- /* CFG3 bits */
- #define DP83867_CFG3_INT_OE			BIT(7)
-@@ -855,6 +856,32 @@ static int dp83867_phy_reset(struct phy_
- 			 DP83867_PHYCR_FORCE_LINK_GOOD, 0);
+ enum {
+ 	RGR1_SW_INIT_1,
+@@ -331,8 +329,6 @@ struct brcm_pcie {
+ 	u32			hw_rev;
+ 	void			(*perst_set)(struct brcm_pcie *pcie, u32 val);
+ 	void			(*bridge_sw_init_set)(struct brcm_pcie *pcie, u32 val);
+-	bool			refusal_mode;
+-	struct subdev_regulators *sr;
+ };
+ 
+ static inline bool is_bmips(const struct brcm_pcie *pcie)
+@@ -501,34 +497,6 @@ static int pci_subdev_regulators_add_bus(struct pci_bus *bus)
+ 	return 0;
  }
  
-+static void dp83867_link_change_notify(struct phy_device *phydev)
-+{
-+	/* There is a limitation in DP83867 PHY device where SGMII AN is
-+	 * only triggered once after the device is booted up. Even after the
-+	 * PHY TPI is down and up again, SGMII AN is not triggered and
-+	 * hence no new in-band message from PHY to MAC side SGMII.
-+	 * This could cause an issue during power up, when PHY is up prior
-+	 * to MAC. At this condition, once MAC side SGMII is up, MAC side
-+	 * SGMII wouldn`t receive new in-band message from TI PHY with
-+	 * correct link status, speed and duplex info.
-+	 * Thus, implemented a SW solution here to retrigger SGMII Auto-Neg
-+	 * whenever there is a link change.
-+	 */
-+	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
-+		int val = 0;
-+
-+		val = phy_clear_bits(phydev, DP83867_CFG2,
-+				     DP83867_SGMII_AUTONEG_EN);
-+		if (val < 0)
-+			return;
-+
-+		phy_set_bits(phydev, DP83867_CFG2,
-+			     DP83867_SGMII_AUTONEG_EN);
-+	}
-+}
-+
- static struct phy_driver dp83867_driver[] = {
- 	{
- 		.phy_id		= DP83867_PHY_ID,
-@@ -879,6 +906,8 @@ static struct phy_driver dp83867_driver[
+-static int brcm_pcie_add_bus(struct pci_bus *bus)
+-{
+-	struct device *dev = &bus->dev;
+-	struct brcm_pcie *pcie = (struct brcm_pcie *) bus->sysdata;
+-	int ret;
+-
+-	if (!dev->of_node || !bus->parent || !pci_is_root_bus(bus->parent))
+-		return 0;
+-
+-	ret = pci_subdev_regulators_add_bus(bus);
+-	if (ret)
+-		return ret;
+-
+-	/* Grab the regulators for suspend/resume */
+-	pcie->sr = bus->dev.driver_data;
+-
+-	/*
+-	 * If we have failed linkup there is no point to return an error as
+-	 * currently it will cause a WARNING() from pci_alloc_child_bus().
+-	 * We return 0 and turn on the "refusal_mode" so that any further
+-	 * accesses to the pci_dev just get 0xffffffff
+-	 */
+-	if (brcm_pcie_linkup(pcie) != 0)
+-		pcie->refusal_mode = true;
+-
+-	return 0;
+-}
+-
+ static void pci_subdev_regulators_remove_bus(struct pci_bus *bus)
+ {
+ 	struct device *dev = &bus->dev;
+@@ -857,18 +825,6 @@ static void __iomem *brcm_pcie_map_conf(struct pci_bus *bus, unsigned int devfn,
+ 	/* Accesses to the RC go right to the RC registers if slot==0 */
+ 	if (pci_is_root_bus(bus))
+ 		return PCI_SLOT(devfn) ? NULL : base + where;
+-	if (pcie->refusal_mode) {
+-		/*
+-		 * At this point we do not have link.  There will be a CPU
+-		 * abort -- a quirk with this controller --if Linux tries
+-		 * to read any config-space registers besides those
+-		 * targeting the host bridge.  To prevent this we hijack
+-		 * the address to point to a safe access that will return
+-		 * 0xffffffff.
+-		 */
+-		writel(0xffffffff, base + PCIE_MISC_RC_BAR2_CONFIG_HI);
+-		return base + PCIE_MISC_RC_BAR2_CONFIG_HI + (where & 0x3);
+-	}
  
- 		.suspend	= genphy_suspend,
- 		.resume		= genphy_resume,
-+
-+		.link_change_notify = dp83867_link_change_notify,
- 	},
+ 	/* For devices, write to the config space index register */
+ 	idx = PCIE_ECAM_OFFSET(bus->number, devfn, 0);
+@@ -897,7 +853,7 @@ static struct pci_ops brcm_pcie_ops = {
+ 	.map_bus = brcm_pcie_map_conf,
+ 	.read = pci_generic_config_read,
+ 	.write = pci_generic_config_write,
+-	.add_bus = brcm_pcie_add_bus,
++	.add_bus = pci_subdev_regulators_add_bus,
+ 	.remove_bus = pci_subdev_regulators_remove_bus,
  };
- module_phy_driver(dp83867_driver);
+ 
+@@ -1370,14 +1326,6 @@ static int brcm_pcie_suspend(struct device *dev)
+ 		return ret;
+ 	}
+ 
+-	if (pcie->sr) {
+-		ret = regulator_bulk_disable(pcie->sr->num_supplies, pcie->sr->supplies);
+-		if (ret) {
+-			dev_err(dev, "Could not turn off regulators\n");
+-			reset_control_reset(pcie->rescal);
+-			return ret;
+-		}
+-	}
+ 	clk_disable_unprepare(pcie->clk);
+ 
+ 	return 0;
+@@ -1395,17 +1343,9 @@ static int brcm_pcie_resume(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
+-	if (pcie->sr) {
+-		ret = regulator_bulk_enable(pcie->sr->num_supplies, pcie->sr->supplies);
+-		if (ret) {
+-			dev_err(dev, "Could not turn on regulators\n");
+-			goto err_disable_clk;
+-		}
+-	}
+-
+ 	ret = reset_control_reset(pcie->rescal);
+ 	if (ret)
+-		goto err_regulator;
++		goto err_disable_clk;
+ 
+ 	ret = brcm_phy_start(pcie);
+ 	if (ret)
+@@ -1437,9 +1377,6 @@ static int brcm_pcie_resume(struct device *dev)
+ 
+ err_reset:
+ 	reset_control_rearm(pcie->rescal);
+-err_regulator:
+-	if (pcie->sr)
+-		regulator_bulk_disable(pcie->sr->num_supplies, pcie->sr->supplies);
+ err_disable_clk:
+ 	clk_disable_unprepare(pcie->clk);
+ 	return ret;
+@@ -1571,17 +1508,7 @@ static int brcm_pcie_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, pcie);
+ 
+-	ret = pci_host_probe(bridge);
+-	if (!ret && !brcm_pcie_link_up(pcie))
+-		ret = -ENODEV;
+-
+-	if (ret) {
+-		brcm_pcie_remove(pdev);
+-		return ret;
+-	}
+-
+-	return 0;
+-
++	return pci_host_probe(bridge);
+ fail:
+ 	__brcm_pcie_remove(pcie);
+ 	return ret;
+@@ -1590,8 +1517,8 @@ static int brcm_pcie_probe(struct platform_device *pdev)
+ MODULE_DEVICE_TABLE(of, brcm_pcie_match);
+ 
+ static const struct dev_pm_ops brcm_pcie_pm_ops = {
+-	.suspend_noirq = brcm_pcie_suspend,
+-	.resume_noirq = brcm_pcie_resume,
++	.suspend = brcm_pcie_suspend,
++	.resume = brcm_pcie_resume,
+ };
+ 
+ static struct platform_driver brcm_pcie_driver = {
+-- 
+2.35.1
+
 
 
