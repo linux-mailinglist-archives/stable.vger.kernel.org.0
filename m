@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90A6A549680
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D8E054902B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357176AbiFMLxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:53:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57656 "EHLO
+        id S1381353AbiFMOQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:16:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356841AbiFMLvh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:51:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F1291F2DB;
-        Mon, 13 Jun 2022 03:55:21 -0700 (PDT)
+        with ESMTP id S1381488AbiFMONI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:13:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D64129A9BE;
+        Mon, 13 Jun 2022 04:42:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57C9460F00;
-        Mon, 13 Jun 2022 10:55:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 654D9C34114;
-        Mon, 13 Jun 2022 10:55:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1353B80D31;
+        Mon, 13 Jun 2022 11:41:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 200C9C34114;
+        Mon, 13 Jun 2022 11:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117719;
-        bh=nXbVtZBMYdh1/mCRCl45kEoYAqILv+JAoJaQO+5rpLA=;
+        s=korg; t=1655120515;
+        bh=YIJK08ugzVS2SgYjCZVRaEaAU4lF8zqy0AK0Q4FTywg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rqFmqEPSJ6kAoqp+BTViUMmarS782qCSxLVdasouxkZH0qBfh3CVjzwMa+J8Y4dQw
-         9FLO7l4UTGJJZmCISOpLqCiTn9Wlf3ek49jptfS+ei5zhTjsM2jxnRY1yIwDbtQL7s
-         rCrJZTD0V6PRWTAUBdUDng6Xl8Khunb7ZxCpq4PM=
+        b=z2J+chQXXpL+4OKLgtxIK5NeVo8tix0/dtqS6ddA3EzhnRlneCCVB41zvU/zUcVey
+         JoOcx1Ng3aIaBecJft4DZaATr1kTv8PkiiCzFKKdjjhIy6CpETyHhxwCyYeElu6F00
+         zXuL1I/+NohmHqd0X+aS8eSw3bWBmLYh9v9JdHMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 107/287] rxrpc: Fix listen() setting the bar too high for the prealloc rings
+Subject: [PATCH 5.17 037/298] power: supply: axp288_fuel_gauge: Drop BIOS version check from "T3 MRD" DMI quirk
 Date:   Mon, 13 Jun 2022 12:08:51 +0200
-Message-Id: <20220613094927.122139585@linuxfoundation.org>
+Message-Id: <20220613094926.059113182@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 88e22159750b0d55793302eeed8ee603f5c1a95c ]
+[ Upstream commit f61509a6f0b70f5bedea34efaf8065621689bd7a ]
 
-AF_RXRPC's listen() handler lets you set the backlog up to 32 (if you bump
-up the sysctl), but whilst the preallocation circular buffers have 32 slots
-in them, one of them has to be a dead slot because we're using CIRC_CNT().
+Some "T3 MRD" mini-PCs / HDMI-sticks without a battery use a different
+value then "5.11" for their DMI BIOS version field.
 
-This means that listen(rxrpc_sock, 32) will cause an oops when the socket
-is closed because rxrpc_service_prealloc_one() allocated one too many calls
-and rxrpc_discard_prealloc() won't then be able to get rid of them because
-it'll think the ring is empty.  rxrpc_release_calls_on_socket() then tries
-to abort them, but oopses because call->peer isn't yet set.
+Drop the BIOS version check so that the no-battery "T3 MRD" DMI quirk
+applies to these too.
 
-Fix this by setting the maximum backlog to RXRPC_BACKLOG_MAX - 1 to match
-the ring capacity.
-
- BUG: kernel NULL pointer dereference, address: 0000000000000086
- ...
- RIP: 0010:rxrpc_send_abort_packet+0x73/0x240 [rxrpc]
- Call Trace:
-  <TASK>
-  ? __wake_up_common_lock+0x7a/0x90
-  ? rxrpc_notify_socket+0x8e/0x140 [rxrpc]
-  ? rxrpc_abort_call+0x4c/0x60 [rxrpc]
-  rxrpc_release_calls_on_socket+0x107/0x1a0 [rxrpc]
-  rxrpc_release+0xc9/0x1c0 [rxrpc]
-  __sock_release+0x37/0xa0
-  sock_close+0x11/0x20
-  __fput+0x89/0x240
-  task_work_run+0x59/0x90
-  do_exit+0x319/0xaa0
-
-Fixes: 00e907127e6f ("rxrpc: Preallocate peers, conns and calls for incoming service requests")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lists.infradead.org/pipermail/linux-afs/2022-March/005079.html
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3a06b912a5ce ("power: supply: axp288_fuel_gauge: Make "T3 MRD" no_battery_list DMI entry more generic")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/sysctl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/power/supply/axp288_fuel_gauge.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/rxrpc/sysctl.c b/net/rxrpc/sysctl.c
-index d75bd15151e6..50f825f55c21 100644
---- a/net/rxrpc/sysctl.c
-+++ b/net/rxrpc/sysctl.c
-@@ -17,7 +17,7 @@
- static struct ctl_table_header *rxrpc_sysctl_reg_table;
- static const unsigned int one = 1;
- static const unsigned int four = 4;
--static const unsigned int thirtytwo = 32;
-+static const unsigned int max_backlog = RXRPC_BACKLOG_MAX - 1;
- static const unsigned int n_65535 = 65535;
- static const unsigned int n_max_acks = RXRPC_RXTX_BUFF_SIZE - 1;
- static const unsigned long one_jiffy = 1;
-@@ -111,7 +111,7 @@ static struct ctl_table rxrpc_sysctl_table[] = {
- 		.mode		= 0644,
- 		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= (void *)&four,
--		.extra2		= (void *)&thirtytwo,
-+		.extra2		= (void *)&max_backlog,
+diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
+index ce8ffd0a41b5..68595897e72d 100644
+--- a/drivers/power/supply/axp288_fuel_gauge.c
++++ b/drivers/power/supply/axp288_fuel_gauge.c
+@@ -600,7 +600,6 @@ static const struct dmi_system_id axp288_no_battery_list[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "T3 MRD"),
+ 			DMI_MATCH(DMI_CHASSIS_TYPE, "3"),
+ 			DMI_MATCH(DMI_BIOS_VENDOR, "American Megatrends Inc."),
+-			DMI_MATCH(DMI_BIOS_VERSION, "5.11"),
+ 		},
  	},
- 	{
- 		.procname	= "rx_window_size",
+ 	{}
 -- 
 2.35.1
 
