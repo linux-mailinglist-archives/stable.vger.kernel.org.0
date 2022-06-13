@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 087E35498AC
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D758D54949E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385774AbiFMOuG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:50:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43384 "EHLO
+        id S1385818AbiFMOuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:50:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386193AbiFMOtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:49:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE82521266;
-        Mon, 13 Jun 2022 04:53:21 -0700 (PDT)
+        with ESMTP id S1386301AbiFMOtQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:49:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F0EC2EC4;
+        Mon, 13 Jun 2022 04:53:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74093614F5;
-        Mon, 13 Jun 2022 11:53:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AFC1C3411B;
-        Mon, 13 Jun 2022 11:53:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D30B0B80EDD;
+        Mon, 13 Jun 2022 11:53:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 356A1C341C0;
+        Mon, 13 Jun 2022 11:53:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121184;
-        bh=gsknnm1TEWssjyLcGyQFf5l/MRxpU5FvJ25DZvX++9s=;
+        s=korg; t=1655121187;
+        bh=ggenJEKAVXkVp+EDsAyPGRdkEc/hNaddQxwC6i2POkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vgmEjjSse80ecQiQvI5G3E+8xP5N0luFmWQUDGRZQuzT+YPTUSmLWwOqIKfYcWr3s
-         7/1v2ACROfzliJP6OtgNReJF55zVvS0HUXFdtNPKI3b+Rr6jYLxu4g9zh/bVAqdrKg
-         mD6SD26hnGwKkkDLBR3u5Fnp4a3Vahyzzc8qfWIk=
+        b=PtoqtozIXmNcuKiGqFdI2AXBxrpgTrT7okdXiAUU4ttfIaQ03KFxiXidjRNkQK+de
+         cg7iPm3HaFeqbatsEjcyAcJTrzWSCoFkLQH1bCf+TUeksBHBseSMfl1h95UUuDlyjt
+         6z9m1ZMYBtTlKDFAgxYINLW1kto0cuZqEtYUGyDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.17 295/298] net/sched: act_police: more accurate MTU policing
-Date:   Mon, 13 Jun 2022 12:13:09 +0200
-Message-Id: <20220613094934.024491410@linuxfoundation.org>
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 296/298] block, loop: support partitions without scanning
+Date:   Mon, 13 Jun 2022 12:13:10 +0200
+Message-Id: <20220613094934.054060026@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
 References: <20220613094924.913340374@linuxfoundation.org>
@@ -54,130 +53,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 4ddc844eb81da59bfb816d8d52089aba4e59e269 upstream.
+commit b9684a71fca793213378dd410cd11675d973eaa1 upstream.
 
-in current Linux, MTU policing does not take into account that packets at
-the TC ingress have the L2 header pulled. Thus, the same TC police action
-(with the same value of tcfp_mtu) behaves differently for ingress/egress.
-In addition, the full GSO size is compared to tcfp_mtu: as a consequence,
-the policer drops GSO packets even when individual segments have the L2 +
-L3 + L4 + payload length below the configured valued of tcfp_mtu.
+Historically we did distinguish between a flag that surpressed partition
+scanning, and a combinations of the minors variable and another flag if
+any partitions were supported.  This was generally confusing and doesn't
+make much sense, but some corner case uses of the loop driver actually
+do want to support manually added partitions on a device that does not
+actively scan for partitions.  To make things worsee the loop driver
+also wants to dynamically toggle the scanning for partitions on a live
+gendisk, which makes the disk->flags updates non-atomic.
 
-Improve the accuracy of MTU policing as follows:
- - account for mac_len for non-GSO packets at TC ingress.
- - compare MTU threshold with the segmented size for GSO packets.
-Also, add a kselftest that verifies the correct behavior.
+Introduce a new GD_SUPPRESS_PART_SCAN bit in disk->state that disables
+just scanning for partitions, and toggle that instead of GENHD_FL_NO_PART
+in the loop driver.
 
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1ebe2e5f9d68 ("block: remove GENHD_FL_EXT_DEVT")
+Reported-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20220527055806.1972352-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_police.c                              |   16 +++++-
- tools/testing/selftests/net/forwarding/tc_police.sh |   52 ++++++++++++++++++++
- 2 files changed, 67 insertions(+), 1 deletion(-)
+ block/genhd.c         |    2 ++
+ drivers/block/loop.c  |    8 ++++----
+ include/linux/genhd.h |    1 +
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
---- a/net/sched/act_police.c
-+++ b/net/sched/act_police.c
-@@ -239,6 +239,20 @@ release_idr:
- 	return err;
- }
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -380,6 +380,8 @@ int disk_scan_partitions(struct gendisk
  
-+static bool tcf_police_mtu_check(struct sk_buff *skb, u32 limit)
-+{
-+	u32 len;
-+
-+	if (skb_is_gso(skb))
-+		return skb_gso_validate_mac_len(skb, limit);
-+
-+	len = qdisc_pkt_len(skb);
-+	if (skb_at_tc_ingress(skb))
-+		len += skb->mac_len;
-+
-+	return len <= limit;
-+}
-+
- static int tcf_police_act(struct sk_buff *skb, const struct tc_action *a,
- 			  struct tcf_result *res)
- {
-@@ -261,7 +275,7 @@ static int tcf_police_act(struct sk_buff
- 			goto inc_overlimits;
+ 	if (disk->flags & (GENHD_FL_NO_PART | GENHD_FL_HIDDEN))
+ 		return -EINVAL;
++	if (test_bit(GD_SUPPRESS_PART_SCAN, &disk->state))
++		return -EINVAL;
+ 	if (disk->open_partitions)
+ 		return -EBUSY;
+ 
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1067,7 +1067,7 @@ static int loop_configure(struct loop_de
+ 		lo->lo_flags |= LO_FLAGS_PARTSCAN;
+ 	partscan = lo->lo_flags & LO_FLAGS_PARTSCAN;
+ 	if (partscan)
+-		lo->lo_disk->flags &= ~GENHD_FL_NO_PART;
++		clear_bit(GD_SUPPRESS_PART_SCAN, &lo->lo_disk->state);
+ 
+ 	loop_global_unlock(lo, is_loop);
+ 	if (partscan)
+@@ -1186,7 +1186,7 @@ static void __loop_clr_fd(struct loop_de
+ 	 */
+ 	lo->lo_flags = 0;
+ 	if (!part_shift)
+-		lo->lo_disk->flags |= GENHD_FL_NO_PART;
++		set_bit(GD_SUPPRESS_PART_SCAN, &lo->lo_disk->state);
+ 	mutex_lock(&lo->lo_mutex);
+ 	lo->lo_state = Lo_unbound;
+ 	mutex_unlock(&lo->lo_mutex);
+@@ -1296,7 +1296,7 @@ out_unfreeze:
+ 
+ 	if (!err && (lo->lo_flags & LO_FLAGS_PARTSCAN) &&
+ 	     !(prev_lo_flags & LO_FLAGS_PARTSCAN)) {
+-		lo->lo_disk->flags &= ~GENHD_FL_NO_PART;
++		clear_bit(GD_SUPPRESS_PART_SCAN, &lo->lo_disk->state);
+ 		partscan = true;
  	}
+ out_unlock:
+@@ -2028,7 +2028,7 @@ static int loop_add(int i)
+ 	 * userspace tools. Parameters like this in general should be avoided.
+ 	 */
+ 	if (!part_shift)
+-		disk->flags |= GENHD_FL_NO_PART;
++		set_bit(GD_SUPPRESS_PART_SCAN, &disk->state);
+ 	atomic_set(&lo->lo_refcnt, 0);
+ 	mutex_init(&lo->lo_mutex);
+ 	lo->lo_number		= i;
+--- a/include/linux/genhd.h
++++ b/include/linux/genhd.h
+@@ -110,6 +110,7 @@ struct gendisk {
+ #define GD_READ_ONLY			1
+ #define GD_DEAD				2
+ #define GD_NATIVE_CAPACITY		3
++#define GD_SUPPRESS_PART_SCAN		5
  
--	if (qdisc_pkt_len(skb) <= p->tcfp_mtu) {
-+	if (tcf_police_mtu_check(skb, p->tcfp_mtu)) {
- 		if (!p->rate_present && !p->pps_present) {
- 			ret = p->tcfp_result;
- 			goto end;
---- a/tools/testing/selftests/net/forwarding/tc_police.sh
-+++ b/tools/testing/selftests/net/forwarding/tc_police.sh
-@@ -37,6 +37,8 @@ ALL_TESTS="
- 	police_tx_mirror_test
- 	police_pps_rx_test
- 	police_pps_tx_test
-+	police_mtu_rx_test
-+	police_mtu_tx_test
- "
- NUM_NETIFS=6
- source tc_common.sh
-@@ -346,6 +348,56 @@ police_pps_tx_test()
- 	tc filter del dev $rp2 egress protocol ip pref 1 handle 101 flower
- }
- 
-+police_mtu_common_test() {
-+	RET=0
-+
-+	local test_name=$1; shift
-+	local dev=$1; shift
-+	local direction=$1; shift
-+
-+	tc filter add dev $dev $direction protocol ip pref 1 handle 101 flower \
-+		dst_ip 198.51.100.1 ip_proto udp dst_port 54321 \
-+		action police mtu 1042 conform-exceed drop/ok
-+
-+	# to count "conform" packets
-+	tc filter add dev $h2 ingress protocol ip pref 1 handle 101 flower \
-+		dst_ip 198.51.100.1 ip_proto udp dst_port 54321 \
-+		action drop
-+
-+	mausezahn $h1 -a own -b $(mac_get $rp1) -A 192.0.2.1 -B 198.51.100.1 \
-+		-t udp sp=12345,dp=54321 -p 1001 -c 10 -q
-+
-+	mausezahn $h1 -a own -b $(mac_get $rp1) -A 192.0.2.1 -B 198.51.100.1 \
-+		-t udp sp=12345,dp=54321 -p 1000 -c 3 -q
-+
-+	tc_check_packets "dev $dev $direction" 101 13
-+	check_err $? "wrong packet counter"
-+
-+	# "exceed" packets
-+	local overlimits_t0=$(tc_rule_stats_get ${dev} 1 ${direction} .overlimits)
-+	test ${overlimits_t0} = 10
-+	check_err $? "wrong overlimits, expected 10 got ${overlimits_t0}"
-+
-+	# "conform" packets
-+	tc_check_packets "dev $h2 ingress" 101 3
-+	check_err $? "forwarding error"
-+
-+	tc filter del dev $h2 ingress protocol ip pref 1 handle 101 flower
-+	tc filter del dev $dev $direction protocol ip pref 1 handle 101 flower
-+
-+	log_test "$test_name"
-+}
-+
-+police_mtu_rx_test()
-+{
-+	police_mtu_common_test "police mtu (rx)" $rp1 ingress
-+}
-+
-+police_mtu_tx_test()
-+{
-+	police_mtu_common_test "police mtu (tx)" $rp2 egress
-+}
-+
- setup_prepare()
- {
- 	h1=${NETIFS[p1]}
+ 	struct mutex open_mutex;	/* open/close mutex */
+ 	unsigned open_partitions;	/* number of open partitions */
 
 
