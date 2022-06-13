@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D74E54926E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85E005494F4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242924AbiFMKZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:25:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45604 "EHLO
+        id S1350214AbiFMMYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:24:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245333AbiFMKYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:24:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD52023BDE;
-        Mon, 13 Jun 2022 03:18:51 -0700 (PDT)
+        with ESMTP id S1355430AbiFMMX4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 613E931537;
+        Mon, 13 Jun 2022 04:04:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3AF9ECE1102;
-        Mon, 13 Jun 2022 10:18:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F7F3C34114;
-        Mon, 13 Jun 2022 10:18:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14153B80D3A;
+        Mon, 13 Jun 2022 11:04:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7161FC34114;
+        Mon, 13 Jun 2022 11:04:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115528;
-        bh=O2PA9Ni19gaRMiAurHcO57JsR1PvSUrvIXn87F590/8=;
+        s=korg; t=1655118292;
+        bh=JQ7diboswwPbW4MBnle3d7C+meHOXcCwdB72ddX8aU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=siQjUZwyhN4v/g2CgPLxX0uCdORmr3wbR1ny7gDfWMhpFgZfX3XRd4ohpnwdjr3N2
-         NL3/lxpqAgT0e5kydl8osAJDUD1cm6I93QeMFl1ssd+gnUJGezu4erEmZce7glKBrI
-         og3fnz8zEXOPvv2bDu0BpqGtkNSEDf/AX4czRLTQ=
+        b=RJeh/kwvYEQI8PoTEzCtoXyfKoi24vh/IZLxpwWA9Mo1q/gIQ+lRsKBJxG10CtwBr
+         KX2mDpkzdAapsaWvShZuBlnfxNh7O+yHyDxLgA/1mN+4mcw47DJby0pVlg/GEkTZQm
+         fIRSdtPTb3h2/UxGv45sVIGVcCSrEle5DToXbFXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Vaibhav Agarwal <vaibhav.sr@gmail.com>,
-        Mark Greer <mgreer@animalcreek.com>,
-        Jakob Koschel <jakobkoschel@gmail.com>,
+        stable@vger.kernel.org, Cixi Geng <cixi.geng1@unisoc.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 109/167] staging: greybus: codecs: fix type confusion of list iterator variable
+Subject: [PATCH 5.10 023/172] iio: adc: sc27xx: Fine tune the scale calibration values
 Date:   Mon, 13 Jun 2022 12:09:43 +0200
-Message-Id: <20220613094906.387164737@linuxfoundation.org>
+Message-Id: <20220613094855.980373077@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Cixi Geng <cixi.geng1@unisoc.com>
 
-[ Upstream commit 84ef256550196bc06e6849a34224c998b45bd557 ]
+[ Upstream commit 5a7a184b11c6910f47600ff5cbbee34168f701a8 ]
 
-If the list does not exit early then data == NULL and 'module' does not
-point to a valid list element.
-Using 'module' in such a case is not valid and was therefore removed.
+Small adjustment the scale calibration value for the sc2731,
+use new name sc2731_[big|small]_scale_graph_calib, and remove
+the origin [big|small]_scale_graph_calib struct for unused.
 
-Fixes: 6dd67645f22c ("greybus: audio: Use single codec driver registration")
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Vaibhav Agarwal <vaibhav.sr@gmail.com>
-Reviewed-by: Mark Greer <mgreer@animalcreek.com>
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Link: https://lore.kernel.org/r/20220321123626.3068639-1-jakobkoschel@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8ba0dbfd07a35 (iio: adc: sc27xx: Add ADC scale calibration)
+Signed-off-by: Cixi Geng <cixi.geng1@unisoc.com>
+Link: https://lore.kernel.org/r/20220419142458.884933-4-gengcixi@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/audio_codec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/adc/sc27xx_adc.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/greybus/audio_codec.c b/drivers/staging/greybus/audio_codec.c
-index 4c2d6c2d4fb4..90bc23408a9c 100644
---- a/drivers/staging/greybus/audio_codec.c
-+++ b/drivers/staging/greybus/audio_codec.c
-@@ -618,8 +618,8 @@ static int gbcodec_mute_stream(struct snd_soc_dai *dai, int mute, int stream)
- 			break;
- 	}
- 	if (!data) {
--		dev_err(dai->dev, "%s:%s DATA connection missing\n",
--			dai->name, module->name);
-+		dev_err(dai->dev, "%s DATA connection missing\n",
-+			dai->name);
- 		mutex_unlock(&codec->lock);
- 		return -ENODEV;
+diff --git a/drivers/iio/adc/sc27xx_adc.c b/drivers/iio/adc/sc27xx_adc.c
+index 2c0d0d1634c8..2b463e1cf1c7 100644
+--- a/drivers/iio/adc/sc27xx_adc.c
++++ b/drivers/iio/adc/sc27xx_adc.c
+@@ -103,14 +103,14 @@ static struct sc27xx_adc_linear_graph small_scale_graph = {
+ 	100, 341,
+ };
+ 
+-static const struct sc27xx_adc_linear_graph big_scale_graph_calib = {
+-	4200, 856,
+-	3600, 733,
++static const struct sc27xx_adc_linear_graph sc2731_big_scale_graph_calib = {
++	4200, 850,
++	3600, 728,
+ };
+ 
+-static const struct sc27xx_adc_linear_graph small_scale_graph_calib = {
+-	1000, 833,
+-	100, 80,
++static const struct sc27xx_adc_linear_graph sc2731_small_scale_graph_calib = {
++	1000, 838,
++	100, 84,
+ };
+ 
+ static int sc27xx_adc_get_calib_data(u32 calib_data, int calib_adc)
+@@ -130,11 +130,11 @@ static int sc27xx_adc_scale_calibration(struct sc27xx_adc_data *data,
+ 	size_t len;
+ 
+ 	if (big_scale) {
+-		calib_graph = &big_scale_graph_calib;
++		calib_graph = &sc2731_big_scale_graph_calib;
+ 		graph = &big_scale_graph;
+ 		cell_name = "big_scale_calib";
+ 	} else {
+-		calib_graph = &small_scale_graph_calib;
++		calib_graph = &sc2731_small_scale_graph_calib;
+ 		graph = &small_scale_graph;
+ 		cell_name = "small_scale_calib";
  	}
 -- 
 2.35.1
