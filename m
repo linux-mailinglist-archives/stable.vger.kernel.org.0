@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10C425488A3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15B06548A1A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358570AbiFMMHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:07:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54128 "EHLO
+        id S1357094AbiFMM6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:58:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359146AbiFMMFT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1D40B49E;
-        Mon, 13 Jun 2022 03:58:54 -0700 (PDT)
+        with ESMTP id S1349811AbiFMMzb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A37E0D2;
+        Mon, 13 Jun 2022 04:16:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90DEC61257;
-        Mon, 13 Jun 2022 10:58:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97DB0C34114;
-        Mon, 13 Jun 2022 10:58:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA754B80D31;
+        Mon, 13 Jun 2022 11:16:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07A97C3411E;
+        Mon, 13 Jun 2022 11:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117934;
-        bh=yBMfBMsenoejD3SJApeyaIR+DRPPPmmkDIHXMUaPI6E=;
+        s=korg; t=1655118967;
+        bh=jqlb9j3DcrFhiYXFuaDgQsMjUk2qrafWbbb6XbIC7vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e8j1YH2lYk8C8XzWrWVUDP6GOmM+hOkbk1j+9zbF9ed1yeFxb10N3jvh+Y9jT1Rye
-         fZq7F0sMx+rGFXNT44yZ4/YJLWHA/HyYP4jm04JWV8xX46gXKInZYpLZdTfm2TWc1V
-         UH347UBFIMWTh4NFrjLiZM/mitraZ7k4lubUgk6g=
+        b=oCoD4I6LtmpaJDVbz+aNVsz0zdE+j30vLMbWza3Y+8fI1JbrwA1kHgUbWZJUByFlA
+         ZWrbmV8dBWQ9S2av2qnB8Cdu61pi4E+NSunOk+HBbwtH86nysSa6PLJjagYsNNtFaS
+         vFOtCDyvd6B0QEOudcwsYspHyvN7/d8AoJnA57TM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.19 171/287] um: chan_user: Fix winch_tramp() return value
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 093/247] net/mlx5: Dont use already freed action pointer
 Date:   Mon, 13 Jun 2022 12:09:55 +0200
-Message-Id: <20220613094929.059410827@linuxfoundation.org>
+Message-Id: <20220613094925.778304735@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit 57ae0b67b747031bc41fb44643aa5344ab58607e upstream.
+[ Upstream commit 80b2bd737d0e833e6a2b77e482e5a714a79c86a4 ]
 
-The previous fix here was only partially correct, it did
-result in returning a proper error value in case of error,
-but it also clobbered the pid that we need to return from
-this function (not just zero for success).
+The call to mlx5dr_action_destroy() releases "action" memory. That
+pointer is set to miss_action later and generates the following smatch
+error:
 
-As a result, it returned 0 here, but later this is treated
-as a pid and used to kill the process, but since it's now
-0 we kill(0, SIGKILL), which makes UML kill itself rather
-than just the helper thread.
+ drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c:53 set_miss_action()
+ warn: 'action' was already freed.
 
-Fix that and make it more obvious by using a separate
-variable for the pid.
+Make sure that the pointer is always valid by setting NULL after destroy.
 
-Fixes: ccf1236ecac4 ("um: fix error return code in winch_tramp()")
-Reported-and-tested-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6a48faeeca10 ("net/mlx5: Add direct rule fs_cmd implementation")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/chan_user.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/arch/um/drivers/chan_user.c
-+++ b/arch/um/drivers/chan_user.c
-@@ -220,7 +220,7 @@ static int winch_tramp(int fd, struct tt
- 		       unsigned long *stack_out)
- {
- 	struct winch_data data;
--	int fds[2], n, err;
-+	int fds[2], n, err, pid;
- 	char c;
- 
- 	err = os_pipe(fds, 1, 1);
-@@ -238,8 +238,9 @@ static int winch_tramp(int fd, struct tt
- 	 * problem with /dev/net/tun, which if held open by this
- 	 * thread, prevents the TUN/TAP device from being reused.
- 	 */
--	err = run_helper_thread(winch_thread, &data, CLONE_FILES, stack_out);
--	if (err < 0) {
-+	pid = run_helper_thread(winch_thread, &data, CLONE_FILES, stack_out);
-+	if (pid < 0) {
-+		err = pid;
- 		printk(UM_KERN_ERR "fork of winch_thread failed - errno = %d\n",
- 		       -err);
- 		goto out_close;
-@@ -263,7 +264,7 @@ static int winch_tramp(int fd, struct tt
- 		goto out_close;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
+index ae4597118f8b..0553ee1fe80a 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
+@@ -43,11 +43,10 @@ static int set_miss_action(struct mlx5_flow_root_namespace *ns,
+ 	err = mlx5dr_table_set_miss_action(ft->fs_dr_table.dr_table, action);
+ 	if (err && action) {
+ 		err = mlx5dr_action_destroy(action);
+-		if (err) {
+-			action = NULL;
+-			mlx5_core_err(ns->dev, "Failed to destroy action (%d)\n",
+-				      err);
+-		}
++		if (err)
++			mlx5_core_err(ns->dev,
++				      "Failed to destroy action (%d)\n", err);
++		action = NULL;
  	}
- 
--	return err;
-+	return pid;
- 
-  out_close:
- 	close(fds[1]);
+ 	ft->fs_dr_table.miss_action = action;
+ 	if (old_miss_action) {
+-- 
+2.35.1
+
 
 
