@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 449405495FF
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF59D5493D0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380867AbiFMOUX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:20:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42658 "EHLO
+        id S1354474AbiFMMZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:25:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382654AbiFMOSh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:18:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49B182E0BA;
-        Mon, 13 Jun 2022 04:43:40 -0700 (PDT)
+        with ESMTP id S1355359AbiFMMXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8D331535;
+        Mon, 13 Jun 2022 04:04:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A76E61236;
-        Mon, 13 Jun 2022 11:43:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2863CC34114;
-        Mon, 13 Jun 2022 11:43:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB0F060F9A;
+        Mon, 13 Jun 2022 11:04:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0264FC34114;
+        Mon, 13 Jun 2022 11:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120609;
-        bh=c67V56s4yiqr9KBUa9oYsn0oH4mwB5ZrMV4N1j52+P8=;
+        s=korg; t=1655118287;
+        bh=ILuenawKbjOrDwWqNqVUBtwfgO7eeVeZ+H1tzJT7j/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SeEH7W9o8X/UDcUgyYGAF8/taeTbOxFB8oxrzCOs0+ExriRGmws7Mw+NzjW8CdnSk
-         jhxVsUq9dCw2aoijXJpf+LDh5OX2yfLvqIt8TgK+Zb4y0CAfUxinoYRO3pvEMOHDCP
-         fQxUzdFxizqbjYhoFIq+yiipiQf2S7eCbmXzVRtA=
+        b=0/O5jiJ3P/wFwzRJjQl6jf052HHn/NqVoYpCPeTYH6UEeDeNPtljUeRLvpRhU5WHN
+         CZXngK77zeU5FkyMMgG68Jui6RuZWjWGil62ChMZyT6Awwb1ukF69YZ0k92qU7W8Bu
+         3lxMMz/UDKLAJKd9YH4D2cIcSC9PV4/RsxIGm5iY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 087/298] modpost: fix removing numeric suffixes
+Subject: [PATCH 5.10 021/172] iio: proximity: vl53l0x: Fix return value check of wait_for_completion_timeout
 Date:   Mon, 13 Jun 2022 12:09:41 +0200
-Message-Id: <20220613094927.587234013@linuxfoundation.org>
+Message-Id: <20220613094855.460626895@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,56 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit b5beffa20d83c4e15306c991ffd00de0d8628338 ]
+[ Upstream commit 50f2959113cb6756ffd73c4fedc712cf2661f711 ]
 
-With the `-z unique-symbol` linker flag or any similar mechanism,
-it is possible to trigger the following:
+wait_for_completion_timeout() returns unsigned long not int.
+It returns 0 if timed out, and positive if completed.
+The check for <= 0 is ambiguous and should be == 0 here
+indicating timeout which is the only error case.
 
-ERROR: modpost: "param_set_uint.0" [vmlinux] is a static EXPORT_SYMBOL
-
-The reason is that for now the condition from remove_dot():
-
-if (m && (s[n + m] == '.' || s[n + m] == 0))
-
-which was designed to test if it's a dot or a '\0' after the suffix
-is never satisfied.
-This is due to that `s[n + m]` always points to the last digit of a
-numeric suffix, not on the symbol next to it (from a custom debug
-print added to modpost):
-
-param_set_uint.0, s[n + m] is '0', s[n + m + 1] is '\0'
-
-So it's off-by-one and was like that since 2014.
-
-Fix this for the sake of any potential upcoming features, but don't
-bother stable-backporting, as it's well hidden -- apart from that
-LD flag, it can be triggered only with GCC LTO which never landed
-upstream.
-
-Fixes: fcd38ed0ff26 ("scripts: modpost: fix compilation warning")
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: 3cef2e31b54b ("iio: proximity: vl53l0x: Add IRQ support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220412064210.10734-1-linmq006@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/mod/modpost.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/proximity/vl53l0x-i2c.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index e04ae56931e2..3b098e26938e 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -1986,7 +1986,7 @@ static char *remove_dot(char *s)
+diff --git a/drivers/iio/proximity/vl53l0x-i2c.c b/drivers/iio/proximity/vl53l0x-i2c.c
+index 235e125aeb3a..3d3ab86423ee 100644
+--- a/drivers/iio/proximity/vl53l0x-i2c.c
++++ b/drivers/iio/proximity/vl53l0x-i2c.c
+@@ -104,6 +104,7 @@ static int vl53l0x_read_proximity(struct vl53l0x_data *data,
+ 	u16 tries = 20;
+ 	u8 buffer[12];
+ 	int ret;
++	unsigned long time_left;
  
- 	if (n && s[n]) {
- 		size_t m = strspn(s + n + 1, "0123456789");
--		if (m && (s[n + m] == '.' || s[n + m] == 0))
-+		if (m && (s[n + m + 1] == '.' || s[n + m + 1] == 0))
- 			s[n] = 0;
+ 	ret = i2c_smbus_write_byte_data(client, VL_REG_SYSRANGE_START, 1);
+ 	if (ret < 0)
+@@ -112,10 +113,8 @@ static int vl53l0x_read_proximity(struct vl53l0x_data *data,
+ 	if (data->client->irq) {
+ 		reinit_completion(&data->completion);
  
- 		/* strip trailing .lto */
+-		ret = wait_for_completion_timeout(&data->completion, HZ/10);
+-		if (ret < 0)
+-			return ret;
+-		else if (ret == 0)
++		time_left = wait_for_completion_timeout(&data->completion, HZ/10);
++		if (time_left == 0)
+ 			return -ETIMEDOUT;
+ 
+ 		vl53l0x_clear_irq(data);
 -- 
 2.35.1
 
