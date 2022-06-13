@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45B55549429
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 675FA548A61
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358694AbiFMNAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:00:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55236 "EHLO
+        id S1348588AbiFMK5n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:57:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357467AbiFMM65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:58:57 -0400
+        with ESMTP id S1350824AbiFMKzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:55:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4FDF2BDC;
-        Mon, 13 Jun 2022 04:17:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3966C24F35;
+        Mon, 13 Jun 2022 03:31:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08E7760F18;
-        Mon, 13 Jun 2022 11:17:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1530EC36AFE;
-        Mon, 13 Jun 2022 11:17:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 985D660FC9;
+        Mon, 13 Jun 2022 10:31:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5DA2C34114;
+        Mon, 13 Jun 2022 10:31:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119059;
-        bh=h7BD6X4WsdlZ62dptpys6AtBjDppkukzPrTZvNt5/UY=;
+        s=korg; t=1655116318;
+        bh=biiVoSpGX61XIR/40UCOyNG2ZScSEoYD1nvvGjKna2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vp4Q5Td19Tz551PgsYwrXHIr04HFD0OeDI9aVYA4GyuY9nwqIidrUNxkkGZpqCLtv
-         rNB8jTNuJ2cww1y7RcehygSvR5d/+g+mAijSqtxShlOaRUWLzjM8Go33CqOxjyTfO9
-         De8uSZxmhUGG+ppVO2637CvXECb+B2Jtzmr1HjO0=
+        b=nxSc5/jC7CBfG5OFaUua4ZhTv1+offX4Hf42QpocONotlEZs95ik5XEfjblJKAQwE
+         HMPc+XraoC9b6lXYWpNtTm6/5qyGldcZTB2LfmT2FhDWLn5jabm4wSILtQZgbI9HJ9
+         G9ptw66R2zyGQL0A5A7id6cz0thVE+exTlNT2reU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 125/247] video: fbdev: pxa3xx-gcu: release the resources correctly in pxa3xx_gcu_probe/remove()
+        stable@vger.kernel.org, Hugh Dickens <hughd@google.com>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 169/218] m68knommu: set ZERO_PAGE() to the allocated zeroed page
 Date:   Mon, 13 Jun 2022 12:10:27 +0200
-Message-Id: <20220613094926.752878618@linuxfoundation.org>
+Message-Id: <20220613094925.728691588@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Greg Ungerer <gerg@linux-m68k.org>
 
-[ Upstream commit d87ad457f7e1b8d2492ca5b1531eb35030a1cc8f ]
+[ Upstream commit dc068f46217970d9516f16cd37972a01d50dc055 ]
 
-In pxa3xx_gcu_probe(), the sequence of error lable is wrong, it will
-leads some resource leaked, so adjust the sequence to handle the error
-correctly, and if pxa3xx_gcu_add_buffer() fails, pxa3xx_gcu_free_buffers()
-need be called.
-In pxa3xx_gcu_remove(), add missing clk_disable_unpreprare().
+The non-MMU m68k pagetable ZERO_PAGE() macro is being set to the
+somewhat non-sensical value of "virt_to_page(0)". The zeroth page
+is not in any way guaranteed to be a page full of "0". So the result
+is that ZERO_PAGE() will almost certainly contain random values.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+We already allocate a real "empty_zero_page" in the mm setup code shared
+between MMU m68k and non-MMU m68k. It is just not hooked up to the
+ZERO_PAGE() macro for the non-MMU m68k case.
+
+Fix ZERO_PAGE() to use the allocated "empty_zero_page" pointer.
+
+I am not aware of any specific issues caused by the old code.
+
+Link: https://lore.kernel.org/linux-m68k/2a462b23-5b8e-bbf4-ec7d-778434a3b9d7@google.com/T/#t
+Reported-by: Hugh Dickens <hughd@google.com>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pxa3xx-gcu.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/m68k/include/asm/pgtable_no.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/pxa3xx-gcu.c b/drivers/video/fbdev/pxa3xx-gcu.c
-index 4279e13a3b58..9421d14d0eb0 100644
---- a/drivers/video/fbdev/pxa3xx-gcu.c
-+++ b/drivers/video/fbdev/pxa3xx-gcu.c
-@@ -650,6 +650,7 @@ static int pxa3xx_gcu_probe(struct platform_device *pdev)
- 	for (i = 0; i < 8; i++) {
- 		ret = pxa3xx_gcu_add_buffer(dev, priv);
- 		if (ret) {
-+			pxa3xx_gcu_free_buffers(dev, priv);
- 			dev_err(dev, "failed to allocate DMA memory\n");
- 			goto err_disable_clk;
- 		}
-@@ -666,15 +667,15 @@ static int pxa3xx_gcu_probe(struct platform_device *pdev)
- 			SHARED_SIZE, irq);
- 	return 0;
+diff --git a/arch/m68k/include/asm/pgtable_no.h b/arch/m68k/include/asm/pgtable_no.h
+index fc3a96c77bd8..12f673707d4b 100644
+--- a/arch/m68k/include/asm/pgtable_no.h
++++ b/arch/m68k/include/asm/pgtable_no.h
+@@ -42,7 +42,8 @@ extern void paging_init(void);
+  * ZERO_PAGE is a global shared page that is always zero: used
+  * for zero-mapped memory areas etc..
+  */
+-#define ZERO_PAGE(vaddr)	(virt_to_page(0))
++extern void *empty_zero_page;
++#define ZERO_PAGE(vaddr)	(virt_to_page(empty_zero_page))
  
--err_free_dma:
--	dma_free_coherent(dev, SHARED_SIZE,
--			priv->shared, priv->shared_phys);
-+err_disable_clk:
-+	clk_disable_unprepare(priv->clk);
- 
- err_misc_deregister:
- 	misc_deregister(&priv->misc_dev);
- 
--err_disable_clk:
--	clk_disable_unprepare(priv->clk);
-+err_free_dma:
-+	dma_free_coherent(dev, SHARED_SIZE,
-+			  priv->shared, priv->shared_phys);
- 
- 	return ret;
- }
-@@ -687,6 +688,7 @@ static int pxa3xx_gcu_remove(struct platform_device *pdev)
- 	pxa3xx_gcu_wait_idle(priv);
- 	misc_deregister(&priv->misc_dev);
- 	dma_free_coherent(dev, SHARED_SIZE, priv->shared, priv->shared_phys);
-+	clk_disable_unprepare(priv->clk);
- 	pxa3xx_gcu_free_buffers(dev, priv);
- 
- 	return 0;
+ /*
+  * No page table caches to initialise.
 -- 
 2.35.1
 
