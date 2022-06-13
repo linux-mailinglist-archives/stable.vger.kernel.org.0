@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85566548ABC
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55035548CD3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381530AbiFMOIh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:08:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41468 "EHLO
+        id S1354421AbiFMMtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:49:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380948AbiFMODH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:03:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A20A58DDE3;
-        Mon, 13 Jun 2022 04:38:23 -0700 (PDT)
+        with ESMTP id S1357733AbiFMMtL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:49:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B43462BD6;
+        Mon, 13 Jun 2022 04:11:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C28A7B80EA7;
-        Mon, 13 Jun 2022 11:38:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AF2DC34114;
-        Mon, 13 Jun 2022 11:38:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDCBE60EAB;
+        Mon, 13 Jun 2022 11:11:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED3F3C34114;
+        Mon, 13 Jun 2022 11:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120300;
-        bh=j+uAT323+KaJj7UMoqr4xyarKUVNsQL7xM52Y8ib5w4=;
+        s=korg; t=1655118700;
+        bh=WFGQ7ZAPxUpvCEKv1vpG6rEPqrzyXIIXezFbT/tLKgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zq3RLXS+29TORsDQ2ldRTznfIMPzf1kRvrwj42pABC44qp5AKCBO+lGcwhFvTYAgZ
-         jg4/BwAwGUfo3oZKaLlJ2wMbpDWBmo7OL4Tx3w7RCshH7+3adAbDrdxL2UOxZOtzu7
-         DRomr/c8CxC2w6OqQRYd55PHGVQUg1wSFSv7BvVg=
+        b=zw4weku2nsKIXem6YmvUmLvDRfzb77iri9z/S93NZiy3YxNW9QGm3N7EOW/xvjh4v
+         QuvuGTaXhc4HPGTzmmCpl+pPt1SEKNI26PmViw27EJ0crRV3BMnsWDSSsKwZKTl2h/
+         DNcaTZeCJexS0J6X/kHeXMcweitD9SCR4Az0Ve58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shaoqin Huang <shaoqin.huang@intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.18 305/339] KVM: x86/mmu: Check every prev_roots in __kvm_mmu_free_obsolete_roots()
-Date:   Mon, 13 Jun 2022 12:12:10 +0200
-Message-Id: <20220613094936.010226301@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.10 171/172] PCI: qcom: Fix pipe clock imbalance
+Date:   Mon, 13 Jun 2022 12:12:11 +0200
+Message-Id: <20220613094923.461428580@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaoqin Huang <shaoqin.huang@intel.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit cf4a8693d97a51dccf5a1557248d12d6d8be4b9e upstream.
+commit fdf6a2f533115ec5d4d9629178f8196331f1ac50 upstream.
 
-When freeing obsolete previous roots, check prev_roots as intended, not
-the current root.
+Fix a clock imbalance introduced by ed8cc3b1fc84 ("PCI: qcom: Add support
+for SDM845 PCIe controller"), which enables the pipe clock both in init()
+and in post_init() but only disables in post_deinit().
 
-Signed-off-by: Shaoqin Huang <shaoqin.huang@intel.com>
-Fixes: 527d5cd7eece ("KVM: x86/mmu: Zap only obsolete roots if a root shadow page is zapped")
-Message-Id: <20220607005905.2933378-1-shaoqin.huang@intel.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Note that the pipe clock was also never disabled in the init() error
+paths and that enabling the clock before powering up the PHY looks
+questionable.
+
+Link: https://lore.kernel.org/r/20220401133351.10113-1-johan+linaro@kernel.org
+Fixes: ed8cc3b1fc84 ("PCI: qcom: Add support for SDM845 PCIe controller")
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: stable@vger.kernel.org      # 5.6
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pcie-qcom.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -5168,7 +5168,7 @@ static void __kvm_mmu_free_obsolete_root
- 		roots_to_free |= KVM_MMU_ROOT_CURRENT;
- 
- 	for (i = 0; i < KVM_MMU_NUM_PREV_ROOTS; i++) {
--		if (is_obsolete_root(kvm, mmu->root.hpa))
-+		if (is_obsolete_root(kvm, mmu->prev_roots[i].hpa))
- 			roots_to_free |= KVM_MMU_ROOT_PREVIOUS(i);
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -1192,12 +1192,6 @@ static int qcom_pcie_init_2_7_0(struct q
+ 		goto err_disable_clocks;
  	}
+ 
+-	ret = clk_prepare_enable(res->pipe_clk);
+-	if (ret) {
+-		dev_err(dev, "cannot prepare/enable pipe clock\n");
+-		goto err_disable_clocks;
+-	}
+-
+ 	/* configure PCIe to RC mode */
+ 	writel(DEVICE_TYPE_RC, pcie->parf + PCIE20_PARF_DEVICE_TYPE);
  
 
 
