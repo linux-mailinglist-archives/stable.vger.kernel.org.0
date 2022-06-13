@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D11F1549790
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 254D7548FCB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383428AbiFMO0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:26:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54128 "EHLO
+        id S1352490AbiFMMax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:30:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383695AbiFMOXr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:23:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2040746C9F;
-        Mon, 13 Jun 2022 04:44:56 -0700 (PDT)
+        with ESMTP id S1357565AbiFMM3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:29:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CBDB5A0AE;
+        Mon, 13 Jun 2022 04:06:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B48B0612A8;
-        Mon, 13 Jun 2022 11:44:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9AD8C34114;
-        Mon, 13 Jun 2022 11:44:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB4B6B80D3A;
+        Mon, 13 Jun 2022 11:06:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 451D5C34114;
+        Mon, 13 Jun 2022 11:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120695;
-        bh=7VwtMFW1AMc4/lyAzgdPsDpmsJE+fVMKFqOIJTo4+zg=;
+        s=korg; t=1655118388;
+        bh=hRtCWbJIiky/IJSgSMEZ2RkjSFGQID5cKf6r0rRfTxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SLg+1KbiIfNgzYMvXqvGMbg/HRiveo8dybPJbF6P1qXZnHMCO89lYXdefmHaBrWxx
-         SGzm3cGzNZqQ4wzPmeeLadikHlfrtzj8ez61x+7W3JyufCv5HW2soNp8onOonQfY/9
-         rjFvHu+efkCgyqKZOaJtGWrQ9LtwBYMiuBvaMkmw=
+        b=QZa7ZAouaoyzIqk3N8C0YOtLUtB4lmJ0gBqQzdsivolF2mJDcTVV2TPBDA1w5qbj6
+         /UQDRJQaRLfodMXJMIkW1VBNxmsk0ZR4b0jeTTLnS3mlaq2kN9Lq9Lg9/yO+yOVLXE
+         7xFX8duHlqaGabIG9vbzMNObC5GDJgbaBAvzQQSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Menglong Dong <imagedong@tencent.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiang Biao <benbjiang@tencent.com>,
+        Hao Peng <flyingpeng@tencent.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 124/298] scsi: sd: Fix potential NULL pointer dereference
+Subject: [PATCH 5.10 058/172] bpf: Fix probe read error in ___bpf_prog_run()
 Date:   Mon, 13 Jun 2022 12:10:18 +0200
-Message-Id: <20220613094928.703076298@linuxfoundation.org>
+Message-Id: <20220613094904.276782386@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +57,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Menglong Dong <imagedong@tencent.com>
 
-[ Upstream commit 05fbde3a77a4f1d62e4c4428f384288c1f1a0be5 ]
+[ Upstream commit caff1fa4118cec4dfd4336521ebd22a6408a1e3e ]
 
-If sd_probe() sees an early error before sdkp->device is initialized,
-sd_zbc_release_disk() is called. This causes a NULL pointer dereference
-when sd_is_zoned() is called inside that function. Avoid this by removing
-the call to sd_zbc_release_disk() in sd_probe() error path.
+I think there is something wrong with BPF_PROBE_MEM in ___bpf_prog_run()
+in big-endian machine. Let's make a test and see what will happen if we
+want to load a 'u16' with BPF_PROBE_MEM.
 
-This change is safe and does not result in zone information memory leakage
-because the zone information for a zoned disk is allocated only when
-sd_revalidate_disk() is called, at which point sdkp->disk_dev is fully set,
-resulting in sd_disk_release() being called when needed to cleanup a disk
-zone information using sd_zbc_release_disk().
+Let's make the src value '0x0001', the value of dest register will become
+0x0001000000000000, as the value will be loaded to the first 2 byte of
+DST with following code:
 
-Link: https://lore.kernel.org/r/20220601062544.905141-2-damien.lemoal@opensource.wdc.com
-Fixes: 89d947561077 ("sd: Implement support for ZBC devices")
-Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Suggested-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  bpf_probe_read_kernel(&DST, SIZE, (const void *)(long) (SRC + insn->off));
+
+Obviously, the value in DST is not correct. In fact, we can compare
+BPF_PROBE_MEM with LDX_MEM_H:
+
+  DST = *(SIZE *)(unsigned long) (SRC + insn->off);
+
+If the memory load is done by LDX_MEM_H, the value in DST will be 0x1 now.
+
+And I think this error results in the test case 'test_bpf_sk_storage_map'
+failing:
+
+  test_bpf_sk_storage_map:PASS:bpf_iter_bpf_sk_storage_map__open_and_load 0 nsec
+  test_bpf_sk_storage_map:PASS:socket 0 nsec
+  test_bpf_sk_storage_map:PASS:map_update 0 nsec
+  test_bpf_sk_storage_map:PASS:socket 0 nsec
+  test_bpf_sk_storage_map:PASS:map_update 0 nsec
+  test_bpf_sk_storage_map:PASS:socket 0 nsec
+  test_bpf_sk_storage_map:PASS:map_update 0 nsec
+  test_bpf_sk_storage_map:PASS:attach_iter 0 nsec
+  test_bpf_sk_storage_map:PASS:create_iter 0 nsec
+  test_bpf_sk_storage_map:PASS:read 0 nsec
+  test_bpf_sk_storage_map:FAIL:ipv6_sk_count got 0 expected 3
+  $10/26 bpf_iter/bpf_sk_storage_map:FAIL
+
+The code of the test case is simply, it will load sk->sk_family to the
+register with BPF_PROBE_MEM and check if it is AF_INET6. With this patch,
+now the test case 'bpf_iter' can pass:
+
+  $10  bpf_iter:OK
+
+Fixes: 2a02759ef5f8 ("bpf: Add support for BTF pointers to interpreter")
+Signed-off-by: Menglong Dong <imagedong@tencent.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Jiang Biao <benbjiang@tencent.com>
+Reviewed-by: Hao Peng <flyingpeng@tencent.com>
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>
+Link: https://lore.kernel.org/bpf/20220524021228.533216-1-imagedong@tencent.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sd.c | 1 -
- 1 file changed, 1 deletion(-)
+ kernel/bpf/core.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index 8b5d2a4076c2..65b501859141 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -3605,7 +3605,6 @@ static int sd_probe(struct device *dev)
-  out_put:
- 	put_disk(gd);
-  out_free:
--	sd_zbc_release_disk(sdkp);
- 	kfree(sdkp);
-  out:
- 	scsi_autopm_put_device(sdp);
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index d3a1f25f8ec2..845a4c052433 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -1653,6 +1653,11 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
+ 		CONT;							\
+ 	LDX_MEM_##SIZEOP:						\
+ 		DST = *(SIZE *)(unsigned long) (SRC + insn->off);	\
++		CONT;							\
++	LDX_PROBE_MEM_##SIZEOP:						\
++		bpf_probe_read_kernel(&DST, sizeof(SIZE),		\
++				      (const void *)(long) (SRC + insn->off));	\
++		DST = *((SIZE *)&DST);					\
+ 		CONT;
+ 
+ 	LDST(B,   u8)
+@@ -1660,15 +1665,6 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
+ 	LDST(W,  u32)
+ 	LDST(DW, u64)
+ #undef LDST
+-#define LDX_PROBE(SIZEOP, SIZE)							\
+-	LDX_PROBE_MEM_##SIZEOP:							\
+-		bpf_probe_read_kernel(&DST, SIZE, (const void *)(long) (SRC + insn->off));	\
+-		CONT;
+-	LDX_PROBE(B,  1)
+-	LDX_PROBE(H,  2)
+-	LDX_PROBE(W,  4)
+-	LDX_PROBE(DW, 8)
+-#undef LDX_PROBE
+ 
+ 	STX_XADD_W: /* lock xadd *(u32 *)(dst_reg + off16) += src_reg */
+ 		atomic_add((u32) SRC, (atomic_t *)(unsigned long)
 -- 
 2.35.1
 
