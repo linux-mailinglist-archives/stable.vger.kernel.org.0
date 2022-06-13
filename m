@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48D9E548CE7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D8085491C1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:29:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377514AbiFMNeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:34:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51976 "EHLO
+        id S1343971AbiFMKnC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:43:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377515AbiFMNc7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:32:59 -0400
+        with ESMTP id S1344859AbiFMKlN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:41:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2733272E01;
-        Mon, 13 Jun 2022 04:26:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76AA722B0A;
+        Mon, 13 Jun 2022 03:23:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77F3E61154;
-        Mon, 13 Jun 2022 11:26:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89F12C34114;
-        Mon, 13 Jun 2022 11:26:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12A7460AEB;
+        Mon, 13 Jun 2022 10:23:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E1B8C3411C;
+        Mon, 13 Jun 2022 10:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119614;
-        bh=uocWnAIGDj1N1SgxSfZcGZiwjslXY7sezSgDHKrzoow=;
+        s=korg; t=1655115825;
+        bh=lmlUxpqSq8SeGyucPtyJ86223H3HnhRr2pO7KXDiykQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qX8o1cNPidfKQs+uWMO5f1q4MPpCnlQ7Ds2R7CYWS4PHwNNEKaL5p+GPUVo9KPzIw
-         rPWhlTFycNfPgbRPT4uavsf+MA+sh/O1X6d7VvRga4HoKDvZ2W1EckLGcIA8c8tcwW
-         HyHRLcLa+MJu5w3FJUG8CkAlNSYqBw2mijNzi0Ag=
+        b=mkM6bV0DVeKhD8HTfj9dIgySd4Mwi78BaqpOiiOYZU3xRKdiC+2yxh7Yw/2pkrvYz
+         vOdfq6v883CFv0w2oDZnXBM9wH0eU6LhZvL7YeIi/y5VeVMkq55kAzIo3nLkvbpvX/
+         fg8oNbYm/YxndTseBtoHJqjXedVrdILEcoLhMscc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Schspa Shi <schspa@gmail.com>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 077/339] driver: base: fix UAF when driver_attach failed
+Subject: [PATCH 4.14 044/218] powerpc/xics: fix refcount leak in icp_opal_init()
 Date:   Mon, 13 Jun 2022 12:08:22 +0200
-Message-Id: <20220613094928.855379902@linuxfoundation.org>
+Message-Id: <20220613094918.840412162@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Schspa Shi <schspa@gmail.com>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit 310862e574001a97ad02272bac0fd13f75f42a27 ]
+[ Upstream commit 5dd9e27ea4a39f7edd4bf81e9e70208e7ac0b7c9 ]
 
-When driver_attach(drv); failed, the driver_private will be freed.
-But it has been added to the bus, which caused a UAF.
+The of_find_compatible_node() function returns a node pointer with
+refcount incremented, use of_node_put() on it when done.
 
-To fix it, we need to delete it from the bus when failed.
-
-Fixes: 190888ac01d0 ("driver core: fix possible missing of device probe")
-Signed-off-by: Schspa Shi <schspa@gmail.com>
-Link: https://lore.kernel.org/r/20220513112444.45112-1-schspa@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220402013419.2410298-1-lv.ruyi@zte.com.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/bus.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/sysdev/xics/icp-opal.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/bus.c b/drivers/base/bus.c
-index 97936ec49bde..7ca47e5b3c1f 100644
---- a/drivers/base/bus.c
-+++ b/drivers/base/bus.c
-@@ -617,7 +617,7 @@ int bus_add_driver(struct device_driver *drv)
- 	if (drv->bus->p->drivers_autoprobe) {
- 		error = driver_attach(drv);
- 		if (error)
--			goto out_unregister;
-+			goto out_del_list;
- 	}
- 	module_add_driver(drv->owner, drv);
+diff --git a/arch/powerpc/sysdev/xics/icp-opal.c b/arch/powerpc/sysdev/xics/icp-opal.c
+index c71d2ea42627..3c9dd871491e 100644
+--- a/arch/powerpc/sysdev/xics/icp-opal.c
++++ b/arch/powerpc/sysdev/xics/icp-opal.c
+@@ -199,6 +199,7 @@ int icp_opal_init(void)
  
-@@ -644,6 +644,8 @@ int bus_add_driver(struct device_driver *drv)
+ 	printk("XICS: Using OPAL ICP fallbacks\n");
  
++	of_node_put(np);
  	return 0;
+ }
  
-+out_del_list:
-+	klist_del(&priv->knode_bus);
- out_unregister:
- 	kobject_put(&priv->kobj);
- 	/* drv->p is freed in driver_release()  */
 -- 
 2.35.1
 
