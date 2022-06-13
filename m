@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E27054904B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A178549328
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242185AbiFMKTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:19:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59696 "EHLO
+        id S1357293AbiFMMAW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:00:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242964AbiFMKS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:18:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3F4620F52;
-        Mon, 13 Jun 2022 03:16:29 -0700 (PDT)
+        with ESMTP id S1357892AbiFML6d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:58:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EDE424F1D;
+        Mon, 13 Jun 2022 03:56:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 938A261496;
-        Mon, 13 Jun 2022 10:16:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA264C34114;
-        Mon, 13 Jun 2022 10:16:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C573B80E59;
+        Mon, 13 Jun 2022 10:56:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DF6BC34114;
+        Mon, 13 Jun 2022 10:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115388;
-        bh=G9JIeztz/1WNc1f5ma3qZPcbfK3A8KMrnRB+hYfkvNU=;
+        s=korg; t=1655117782;
+        bh=ZpPcPB8YF5BA9EP5ErRWYP+OsO/SOgOJZbHEQZakAD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LFKKNkUvUXaQUlvrgVpuHJGj7bQgk/fwkPSGx62PBKcwCeM5AoCfpYMnq9nlxMi5i
-         Ot83mb3GRQbdk8vmkjUw7lzEU4oSlbVy/KqL6dp0VSha+atho7Hu3pl+0AxpNEU/YC
-         SVXCaqQhBVQ/QPvvfU9qjnF2eTzGIdUjGcRF0hww=
+        b=Wnlna+M6vD0M5pPf5qKFsLepFzzVbJmZaayASqoPldYQkgxOVCdf5JHR55pV6uwJT
+         eR9J8kQIgen6EDwonkSdsUDZdRWKbqws+C8GeUSdwj3VpDjRX5w3Ekbchhw//jpXZd
+         k58FzTuL3/Khu7/URURojVV+shfNK2G+LBZ1wzXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        linux-afs@lists.infradead.org,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 058/167] m68k: math-emu: Fix dependencies of math emulation support
+Subject: [PATCH 4.19 108/287] rxrpc: Dont try to resend the request if were receiving the reply
 Date:   Mon, 13 Jun 2022 12:08:52 +0200
-Message-Id: <20220613094854.486794202@linuxfoundation.org>
+Message-Id: <20220613094927.153084000@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit ed6bc6bf0a7d75e80eb1df883c09975ebb74e590 ]
+[ Upstream commit 114af61f88fbe34d641b13922d098ffec4c1be1b ]
 
-If CONFIG_M54xx=y, CONFIG_MMU=y, and CONFIG_M68KFPU_EMU=y:
+rxrpc has a timer to trigger resending of unacked data packets in a call.
+This is not cancelled when a client call switches to the receive phase on
+the basis that most calls don't last long enough for it to ever expire.
+However, if it *does* expire after we've started to receive the reply, we
+shouldn't then go into trying to retransmit or pinging the server to find
+out if an ack got lost.
 
-    {standard input}:272: Error: invalid instruction for this architecture; needs 68000 or higher (68000 [68ec000, 68hc000, 68hc001, 68008, 68302, 68306, 68307, 68322, 68356], 68010, 68020 [68k, 68ec020], 68030 [68ec030], 68040 [68ec040], 68060 [68ec060], cpu32 [68330, 68331, 68332, 68333, 68334, 68336, 68340, 68341, 68349, 68360], fidoa [fido]) -- statement `sub.b %d1,%d3' ignored
-    {standard input}:609: Error: invalid instruction for this architecture; needs 68020 or higher (68020 [68k, 68ec020], 68030 [68ec030], 68040 [68ec040], 68060 [68ec060]) -- statement `bfextu 4(%a1){%d0,#8},%d0' ignored
-    {standard input}:752: Error: operands mismatch -- statement `mulu.l 4(%a0),%d3:%d0' ignored
-    {standard input}:1155: Error: operands mismatch -- statement `divu.l %d0,%d3:%d7' ignored
+Fix this by skipping the resend code if we're into receiving the reply to a
+client call.
 
-The math emulation support code is intended for 68020 and higher, and
-uses several instructions or instruction modes not available on coldfire
-or 68000.
-
-Originally, the dependency of M68KFPU_EMU on MMU was fine, as MMU
-support was only available on 68020 or higher.  But this assumption
-was broken by the introduction of MMU support for M547x and M548x.
-
-Drop the dependency on MMU, as the code should work fine on 68020 and up
-without MMU (which are not yet supported by Linux, though).
-Add dependencies on M68KCLASSIC (to rule out Coldfire) and FPU (kernel
-has some type of floating-point support --- be it hardware or software
-emulated, to rule out anything below 68020).
-
-Fixes: 1f7034b9616e6f14 ("m68k: allow ColdFire 547x and 548x CPUs to be built with MMU enabled")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Greg Ungerer <gerg@linux-m68k.org>
-Link: https://lore.kernel.org/r/18c34695b7c95107f60ccca82a4ff252f3edf477.1652446117.git.geert@linux-m68k.org
+Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: linux-afs@lists.infradead.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.cpu | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rxrpc/call_event.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/m68k/Kconfig.cpu b/arch/m68k/Kconfig.cpu
-index d2219f30b78f..2268d19cc915 100644
---- a/arch/m68k/Kconfig.cpu
-+++ b/arch/m68k/Kconfig.cpu
-@@ -307,7 +307,7 @@ comment "Processor Specific Options"
+diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
+index 468efc3660c0..12f5c1870103 100644
+--- a/net/rxrpc/call_event.c
++++ b/net/rxrpc/call_event.c
+@@ -429,7 +429,8 @@ void rxrpc_process_call(struct work_struct *work)
+ 		goto recheck_state;
+ 	}
  
- config M68KFPU_EMU
- 	bool "Math emulation support"
--	depends on MMU
-+	depends on M68KCLASSIC && FPU
- 	help
- 	  At some point in the future, this will cause floating-point math
- 	  instructions to be emulated by the kernel on machines that lack a
+-	if (test_and_clear_bit(RXRPC_CALL_EV_RESEND, &call->events)) {
++	if (test_and_clear_bit(RXRPC_CALL_EV_RESEND, &call->events) &&
++	    call->state != RXRPC_CALL_CLIENT_RECV_REPLY) {
+ 		rxrpc_resend(call, now);
+ 		goto recheck_state;
+ 	}
 -- 
 2.35.1
 
