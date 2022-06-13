@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D32548F13
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6115B548FAB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351175AbiFMMfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:35:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43858 "EHLO
+        id S1349552AbiFMLCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:02:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357507AbiFMMe1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:34:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20B3A1AF22;
-        Mon, 13 Jun 2022 04:07:47 -0700 (PDT)
+        with ESMTP id S1349520AbiFMLAX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:00:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AF0730F60;
+        Mon, 13 Jun 2022 03:33:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7631EB80EB4;
-        Mon, 13 Jun 2022 11:07:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F03C34114;
-        Mon, 13 Jun 2022 11:07:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C08560FEA;
+        Mon, 13 Jun 2022 10:33:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8374C34114;
+        Mon, 13 Jun 2022 10:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118447;
-        bh=cYu+1ovIvzbZWdV6fydt0umFUycVmoK/fr3u/duYZ5I=;
+        s=korg; t=1655116384;
+        bh=LauyIngqKhHgUdFrZjftbaUlMZvP3vHjbGSVAmxtyFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Agb18uW/Gw1Eu1BmsWgc/2wKH5T8W7f1hKxd5grB5SJ/XgoHa+CYGWStU+XraOq+4
-         xd63DS9tty266U5gR3a0jdZeoBmAdr974ULPJ/TVCUg3BjRtOFTEqHWjXz6tju0U3y
-         BAUzMC467tvETNl9DPVSdfbP0m2wqoM5QffZbeUo=
+        b=WGOaOA59ziwEmZbSn5LnQoUDQ6TAcyY6Rw8WOZ9j4xdS9ddCmls13g+NwhayHsykU
+         R56EVrebs/9Od/9HZTnoNAL8A1aE0cNQTTlFsKYYyc4ImADprns0drhPMRp2xlw3+d
+         iB/Cyb0vU+bZsSZoUTRgYp/54EtpXUfZiDoCzpTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 079/172] tracing: Avoid adding tracer option before update_tracer_options
+Subject: [PATCH 4.14 181/218] iio: dummy: iio_simple_dummy: check the return value of kstrdup()
 Date:   Mon, 13 Jun 2022 12:10:39 +0200
-Message-Id: <20220613094909.380646825@linuxfoundation.org>
+Message-Id: <20220613094926.098095663@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit ef9188bcc6ca1d8a2ad83e826b548e6820721061 ]
+[ Upstream commit ba93642188a6fed754bf7447f638bc410e05a929 ]
 
-To prepare for support asynchronous tracer_init_tracefs initcall,
-avoid calling create_trace_option_files before __update_tracer_options.
-Otherwise, create_trace_option_files will show warning because
-some tracers in trace_types list are already in tr->topts.
+kstrdup() is also a memory allocation-related function, it returns NULL
+when some memory errors happen. So it is better to check the return
+value of it so to catch the memory error in time. Besides, there should
+have a kfree() to clear up the allocation if we get a failure later in
+this function to prevent memory leak.
 
-For example, hwlat_tracer call register_tracer in late_initcall,
-and global_trace.dir is already created in tracing_init_dentry,
-hwlat_tracer will be put into tr->topts.
-Then if the __update_tracer_options is executed after hwlat_tracer
-registered, create_trace_option_files find that hwlat_tracer is
-already in tr->topts.
-
-Link: https://lkml.kernel.org/r/20220426122407.17042-2-mark-pk.tsai@mediatek.com
-
-Link: https://lore.kernel.org/lkml/20220322133339.GA32582@xsang-OptiPlex-9020/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Link: https://lore.kernel.org/r/tencent_C920CFCC33B9CC1C63141FE1334A39FF8508@qq.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/iio/dummy/iio_simple_dummy.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 124e3e25e155..50200898410d 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5907,12 +5907,18 @@ static void tracing_set_nop(struct trace_array *tr)
- 	tr->current_trace = &nop_trace;
- }
+diff --git a/drivers/iio/dummy/iio_simple_dummy.c b/drivers/iio/dummy/iio_simple_dummy.c
+index ad3410e528b6..7fef76f0b5c7 100644
+--- a/drivers/iio/dummy/iio_simple_dummy.c
++++ b/drivers/iio/dummy/iio_simple_dummy.c
+@@ -572,10 +572,9 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
+ 	struct iio_sw_device *swd;
  
-+static bool tracer_options_updated;
+ 	swd = kzalloc(sizeof(*swd), GFP_KERNEL);
+-	if (!swd) {
+-		ret = -ENOMEM;
+-		goto error_kzalloc;
+-	}
++	if (!swd)
++		return ERR_PTR(-ENOMEM);
 +
- static void add_tracer_options(struct trace_array *tr, struct tracer *t)
- {
- 	/* Only enable if the directory has been created already. */
- 	if (!tr->dir)
- 		return;
+ 	/*
+ 	 * Allocate an IIO device.
+ 	 *
+@@ -587,7 +586,7 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
+ 	indio_dev = iio_device_alloc(sizeof(*st));
+ 	if (!indio_dev) {
+ 		ret = -ENOMEM;
+-		goto error_ret;
++		goto error_free_swd;
+ 	}
  
-+	/* Only create trace option files after update_tracer_options finish */
-+	if (!tracer_options_updated)
-+		return;
-+
- 	create_trace_option_files(tr, t);
+ 	st = iio_priv(indio_dev);
+@@ -618,6 +617,10 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
+ 	 *    indio_dev->name = spi_get_device_id(spi)->name;
+ 	 */
+ 	indio_dev->name = kstrdup(name, GFP_KERNEL);
++	if (!indio_dev->name) {
++		ret = -ENOMEM;
++		goto error_free_device;
++	}
+ 
+ 	/* Provide description of available channels */
+ 	indio_dev->channels = iio_dummy_channels;
+@@ -634,7 +637,7 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
+ 
+ 	ret = iio_simple_dummy_events_register(indio_dev);
+ 	if (ret < 0)
+-		goto error_free_device;
++		goto error_free_name;
+ 
+ 	ret = iio_simple_dummy_configure_buffer(indio_dev);
+ 	if (ret < 0)
+@@ -651,11 +654,12 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
+ 	iio_simple_dummy_unconfigure_buffer(indio_dev);
+ error_unregister_events:
+ 	iio_simple_dummy_events_unregister(indio_dev);
++error_free_name:
++	kfree(indio_dev->name);
+ error_free_device:
+ 	iio_device_free(indio_dev);
+-error_ret:
++error_free_swd:
+ 	kfree(swd);
+-error_kzalloc:
+ 	return ERR_PTR(ret);
  }
  
-@@ -8649,6 +8655,7 @@ static void __update_tracer_options(struct trace_array *tr)
- static void update_tracer_options(struct trace_array *tr)
- {
- 	mutex_lock(&trace_types_lock);
-+	tracer_options_updated = true;
- 	__update_tracer_options(tr);
- 	mutex_unlock(&trace_types_lock);
- }
 -- 
 2.35.1
 
