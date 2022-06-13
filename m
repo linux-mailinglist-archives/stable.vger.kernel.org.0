@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4511F548AF8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D257549130
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351382AbiFMMWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:22:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53670 "EHLO
+        id S1359524AbiFMNNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:13:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353282AbiFMMU5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:20:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E367B57165;
-        Mon, 13 Jun 2022 04:03:21 -0700 (PDT)
+        with ESMTP id S1359375AbiFMNJu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35EF8393CD;
+        Mon, 13 Jun 2022 04:20:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0351E614A1;
-        Mon, 13 Jun 2022 11:03:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CA07C3411C;
-        Mon, 13 Jun 2022 11:03:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0841B80E59;
+        Mon, 13 Jun 2022 11:20:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D7CBC34114;
+        Mon, 13 Jun 2022 11:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118200;
-        bh=gclfMne1sjmP5P4K7nWFoebt4i5ALuGgPZs+IH+vnZk=;
+        s=korg; t=1655119228;
+        bh=9SZb2OlcDWkzks0xoNShZDQ/ZyVUi3/K0dKgoFwWqt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5kI5nstPfdpGVQ/0oc0kdkL/9uN3hfpZUxZ5DHStXgykSxkTkWZ3b9tG//bdOm4O
-         RswGAu3jQkOQ4nfjcFEQMLfB+OvQIJbepdffGyCs1L5WauwkzK/gRqMnYB7cHuRnaU
-         2/mnpLDqpB6FFSBC0PhJQ00SkYvPWFB7PZ3QO8ps=
+        b=nsw/sJlE0OiZSqvrIKLj/S/kaLZkaj3iOhbSwJSplh6AveQAYPOawaqQNnMoGO83y
+         ltEaLO//pK4RYNpw4Evw+tmuRiaoIvzjJQ81AQAFvTtilJJpH8HfKqav+vOGFZRV2f
+         mTADUdprPXVt017c2la1wRU29Wycpbw7jZKJ7Bfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Hao Luo <haoluo@google.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 264/287] kernfs: Separate kernfs_pr_cont_buf and rename_lock.
+        stable@vger.kernel.org, bumwoo lee <bw365.lee@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 186/247] extcon: Modify extcon device to be created after driver data is set
 Date:   Mon, 13 Jun 2022 12:11:28 +0200
-Message-Id: <20220613094932.010133376@linuxfoundation.org>
+Message-Id: <20220613094928.594008232@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,140 +54,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Luo <haoluo@google.com>
+From: bumwoo lee <bw365.lee@samsung.com>
 
-[ Upstream commit 1a702dc88e150487c9c173a249b3d236498b9183 ]
+[ Upstream commit 5dcc2afe716d69f5112ce035cb14f007461ff189 ]
 
-Previously the protection of kernfs_pr_cont_buf was piggy backed by
-rename_lock, which means that pr_cont() needs to be protected under
-rename_lock. This can cause potential circular lock dependencies.
+Currently, someone can invoke the sysfs such as state_show()
+intermittently before dev_set_drvdata() is done.
+And it can be a cause of kernel Oops because of edev is Null at that time.
+So modified the driver registration to after setting drviver data.
 
-If there is an OOM, we have the following call hierarchy:
+- Oops's backtrace.
 
- -> cpuset_print_current_mems_allowed()
-   -> pr_cont_cgroup_name()
-     -> pr_cont_kernfs_name()
+Backtrace:
+[<c067865c>] (state_show) from [<c05222e8>] (dev_attr_show)
+[<c05222c0>] (dev_attr_show) from [<c02c66e0>] (sysfs_kf_seq_show)
+[<c02c6648>] (sysfs_kf_seq_show) from [<c02c496c>] (kernfs_seq_show)
+[<c02c4938>] (kernfs_seq_show) from [<c025e2a0>] (seq_read)
+[<c025e11c>] (seq_read) from [<c02c50a0>] (kernfs_fop_read)
+[<c02c5064>] (kernfs_fop_read) from [<c0231cac>] (__vfs_read)
+[<c0231c5c>] (__vfs_read) from [<c0231ee0>] (vfs_read)
+[<c0231e34>] (vfs_read) from [<c0232464>] (ksys_read)
+[<c02323f0>] (ksys_read) from [<c02324fc>] (sys_read)
+[<c02324e4>] (sys_read) from [<c00091d0>] (__sys_trace_return)
 
-pr_cont_kernfs_name() will grab rename_lock and call printk. So we have
-the following lock dependencies:
-
- kernfs_rename_lock -> console_sem
-
-Sometimes, printk does a wakeup before releasing console_sem, which has
-the dependence chain:
-
- console_sem -> p->pi_lock -> rq->lock
-
-Now, imagine one wants to read cgroup_name under rq->lock, for example,
-printing cgroup_name in a tracepoint in the scheduler code. They will
-be holding rq->lock and take rename_lock:
-
- rq->lock -> kernfs_rename_lock
-
-Now they will deadlock.
-
-A prevention to this circular lock dependency is to separate the
-protection of pr_cont_buf from rename_lock. In principle, rename_lock
-is to protect the integrity of cgroup name when copying to buf. Once
-pr_cont_buf has got its content, rename_lock can be dropped. So it's
-safe to drop rename_lock after kernfs_name_locked (and
-kernfs_path_from_node_locked) and rely on a dedicated pr_cont_lock
-to protect pr_cont_buf.
-
-Acked-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Hao Luo <haoluo@google.com>
-Link: https://lore.kernel.org/r/20220516190951.3144144-1-haoluo@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: bumwoo lee <bw365.lee@samsung.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/kernfs/dir.c | 31 +++++++++++++++++++------------
- 1 file changed, 19 insertions(+), 12 deletions(-)
+ drivers/extcon/extcon.c | 29 +++++++++++++++++------------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
 
-diff --git a/fs/kernfs/dir.c b/fs/kernfs/dir.c
-index a4a538abcaf9..99627d3438e5 100644
---- a/fs/kernfs/dir.c
-+++ b/fs/kernfs/dir.c
-@@ -20,7 +20,15 @@
- 
- DEFINE_MUTEX(kernfs_mutex);
- static DEFINE_SPINLOCK(kernfs_rename_lock);	/* kn->parent and ->name */
--static char kernfs_pr_cont_buf[PATH_MAX];	/* protected by rename_lock */
-+/*
-+ * Don't use rename_lock to piggy back on pr_cont_buf. We don't want to
-+ * call pr_cont() while holding rename_lock. Because sometimes pr_cont()
-+ * will perform wakeups when releasing console_sem. Holding rename_lock
-+ * will introduce deadlock if the scheduler reads the kernfs_name in the
-+ * wakeup path.
-+ */
-+static DEFINE_SPINLOCK(kernfs_pr_cont_lock);
-+static char kernfs_pr_cont_buf[PATH_MAX];	/* protected by pr_cont_lock */
- static DEFINE_SPINLOCK(kernfs_idr_lock);	/* root->ino_idr */
- 
- #define rb_to_kn(X) rb_entry((X), struct kernfs_node, rb)
-@@ -229,12 +237,12 @@ void pr_cont_kernfs_name(struct kernfs_node *kn)
- {
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&kernfs_rename_lock, flags);
-+	spin_lock_irqsave(&kernfs_pr_cont_lock, flags);
- 
--	kernfs_name_locked(kn, kernfs_pr_cont_buf, sizeof(kernfs_pr_cont_buf));
-+	kernfs_name(kn, kernfs_pr_cont_buf, sizeof(kernfs_pr_cont_buf));
- 	pr_cont("%s", kernfs_pr_cont_buf);
- 
--	spin_unlock_irqrestore(&kernfs_rename_lock, flags);
-+	spin_unlock_irqrestore(&kernfs_pr_cont_lock, flags);
- }
- 
- /**
-@@ -248,10 +256,10 @@ void pr_cont_kernfs_path(struct kernfs_node *kn)
- 	unsigned long flags;
- 	int sz;
- 
--	spin_lock_irqsave(&kernfs_rename_lock, flags);
-+	spin_lock_irqsave(&kernfs_pr_cont_lock, flags);
- 
--	sz = kernfs_path_from_node_locked(kn, NULL, kernfs_pr_cont_buf,
--					  sizeof(kernfs_pr_cont_buf));
-+	sz = kernfs_path_from_node(kn, NULL, kernfs_pr_cont_buf,
-+				   sizeof(kernfs_pr_cont_buf));
- 	if (sz < 0) {
- 		pr_cont("(error)");
- 		goto out;
-@@ -265,7 +273,7 @@ void pr_cont_kernfs_path(struct kernfs_node *kn)
- 	pr_cont("%s", kernfs_pr_cont_buf);
- 
- out:
--	spin_unlock_irqrestore(&kernfs_rename_lock, flags);
-+	spin_unlock_irqrestore(&kernfs_pr_cont_lock, flags);
- }
- 
- /**
-@@ -867,13 +875,12 @@ static struct kernfs_node *kernfs_walk_ns(struct kernfs_node *parent,
- 
- 	lockdep_assert_held(&kernfs_mutex);
- 
--	/* grab kernfs_rename_lock to piggy back on kernfs_pr_cont_buf */
--	spin_lock_irq(&kernfs_rename_lock);
-+	spin_lock_irq(&kernfs_pr_cont_lock);
- 
- 	len = strlcpy(kernfs_pr_cont_buf, path, sizeof(kernfs_pr_cont_buf));
- 
- 	if (len >= sizeof(kernfs_pr_cont_buf)) {
--		spin_unlock_irq(&kernfs_rename_lock);
-+		spin_unlock_irq(&kernfs_pr_cont_lock);
- 		return NULL;
+diff --git a/drivers/extcon/extcon.c b/drivers/extcon/extcon.c
+index 9eb92997f3ae..f305503ec27e 100644
+--- a/drivers/extcon/extcon.c
++++ b/drivers/extcon/extcon.c
+@@ -1232,19 +1232,14 @@ int extcon_dev_register(struct extcon_dev *edev)
+ 		edev->dev.type = &edev->extcon_dev_type;
  	}
  
-@@ -885,7 +892,7 @@ static struct kernfs_node *kernfs_walk_ns(struct kernfs_node *parent,
- 		parent = kernfs_find_ns(parent, name, ns);
+-	ret = device_register(&edev->dev);
+-	if (ret) {
+-		put_device(&edev->dev);
+-		goto err_dev;
+-	}
+-
+ 	spin_lock_init(&edev->lock);
+-	edev->nh = devm_kcalloc(&edev->dev, edev->max_supported,
+-				sizeof(*edev->nh), GFP_KERNEL);
+-	if (!edev->nh) {
+-		ret = -ENOMEM;
+-		device_unregister(&edev->dev);
+-		goto err_dev;
++	if (edev->max_supported) {
++		edev->nh = kcalloc(edev->max_supported, sizeof(*edev->nh),
++				GFP_KERNEL);
++		if (!edev->nh) {
++			ret = -ENOMEM;
++			goto err_alloc_nh;
++		}
  	}
  
--	spin_unlock_irq(&kernfs_rename_lock);
-+	spin_unlock_irq(&kernfs_pr_cont_lock);
+ 	for (index = 0; index < edev->max_supported; index++)
+@@ -1255,6 +1250,12 @@ int extcon_dev_register(struct extcon_dev *edev)
+ 	dev_set_drvdata(&edev->dev, edev);
+ 	edev->state = 0;
  
- 	return parent;
- }
++	ret = device_register(&edev->dev);
++	if (ret) {
++		put_device(&edev->dev);
++		goto err_dev;
++	}
++
+ 	mutex_lock(&extcon_dev_list_lock);
+ 	list_add(&edev->entry, &extcon_dev_list);
+ 	mutex_unlock(&extcon_dev_list_lock);
+@@ -1262,6 +1263,9 @@ int extcon_dev_register(struct extcon_dev *edev)
+ 	return 0;
+ 
+ err_dev:
++	if (edev->max_supported)
++		kfree(edev->nh);
++err_alloc_nh:
+ 	if (edev->max_supported)
+ 		kfree(edev->extcon_dev_type.groups);
+ err_alloc_groups:
+@@ -1322,6 +1326,7 @@ void extcon_dev_unregister(struct extcon_dev *edev)
+ 	if (edev->max_supported) {
+ 		kfree(edev->extcon_dev_type.groups);
+ 		kfree(edev->cables);
++		kfree(edev->nh);
+ 	}
+ 
+ 	put_device(&edev->dev);
 -- 
 2.35.1
 
