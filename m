@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97650548715
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 395AA5486BC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235968AbiFMKTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:19:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58118 "EHLO
+        id S1355368AbiFMM4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:56:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242789AbiFMKSg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:18:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43CAE20BEF;
-        Mon, 13 Jun 2022 03:16:25 -0700 (PDT)
+        with ESMTP id S1358078AbiFMMzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEEAC639E;
+        Mon, 13 Jun 2022 04:14:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5D8FB80E95;
-        Mon, 13 Jun 2022 10:16:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EDB3C34114;
-        Mon, 13 Jun 2022 10:16:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A27560B6B;
+        Mon, 13 Jun 2022 11:14:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85703C34114;
+        Mon, 13 Jun 2022 11:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115382;
-        bh=N1dnNiaQZ8dPQI6cLQ+KpB/HglecVQwnL9DV4rJIFTI=;
+        s=korg; t=1655118856;
+        bh=GuEZAMVML4UAVYbxjDfUyMZcQpxhrVaDmupRrwOZv/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D03XLdyZr4gUT+xLD/LenUu5FtaSMryeVRSbL+ixANmEUaE5XRydUnajKjFlfuSKg
-         PWa9h7HZOl423dT/9W9dcdf/AtjpOYUexNnmGsko1tT4w904OIlNAXbMiMp2WES6ks
-         YTR/IPdyidYW7cFWLaGmbm4SJ9QNNzRv4VfLGFRQ=
+        b=HZNt3qlqcLbsqK67KzAaNX4AuCbUOOj6G+xWvKjOZDwbpJ1HsSiWwoYPDB/XBF6M0
+         MvwACUIltnqgZK4q687I8SmxVKdOLaU7jBJ3pRznrEe8cIAsDIZ9K1ZbrKYBkdEbPE
+         3XmrYs7k6uNrsMIr51yxpiclfjyixkfgxIe6Qb3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 054/167] regulator: pfuze100: Fix refcount leak in pfuze_parse_regulators_dt
+Subject: [PATCH 5.15 026/247] rpmsg: virtio: Fix possible double free in rpmsg_virtio_add_ctrl_dev()
 Date:   Mon, 13 Jun 2022 12:08:48 +0200
-Message-Id: <20220613094853.590423975@linuxfoundation.org>
+Message-Id: <20220613094923.728521855@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit afaa7b933ef00a2d3262f4d1252087613fb5c06d ]
+[ Upstream commit 1680939e9ecf7764fba8689cfb3429c2fe2bb23c ]
 
-of_node_get() returns a node with refcount incremented.
-Calling of_node_put() to drop the reference when not needed anymore.
+vch will be free in virtio_rpmsg_release_device() when
+rpmsg_ctrldev_register_device() fails. There is no need to call
+kfree() again.
 
-Fixes: 3784b6d64dc5 ("regulator: pfuze100: add pfuze100 regulator driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220511113506.45185-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: c486682ae1e2 ("rpmsg: virtio: Register the rpmsg_char device")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Tested-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
+Link: https://lore.kernel.org/r/20220426060536.15594-3-hbh25y@gmail.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pfuze100-regulator.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rpmsg/virtio_rpmsg_bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
-index ffb1f61d2c75..998c7c972e60 100644
---- a/drivers/regulator/pfuze100-regulator.c
-+++ b/drivers/regulator/pfuze100-regulator.c
-@@ -407,6 +407,7 @@ static int pfuze_parse_regulators_dt(struct pfuze_chip *chip)
- 	parent = of_get_child_by_name(np, "regulators");
- 	if (!parent) {
- 		dev_err(dev, "regulators node not found\n");
-+		of_node_put(np);
- 		return -EINVAL;
+diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+index 834a0811e371..3a62e6197151 100644
+--- a/drivers/rpmsg/virtio_rpmsg_bus.c
++++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+@@ -842,7 +842,7 @@ static struct rpmsg_device *rpmsg_virtio_add_ctrl_dev(struct virtio_device *vdev
+ 
+ 	err = rpmsg_chrdev_register_device(rpdev_ctrl);
+ 	if (err) {
+-		kfree(vch);
++		/* vch will be free in virtio_rpmsg_release_device() */
+ 		return ERR_PTR(err);
  	}
  
-@@ -431,6 +432,7 @@ static int pfuze_parse_regulators_dt(struct pfuze_chip *chip)
- 	}
- 
- 	of_node_put(parent);
-+	of_node_put(np);
- 	if (ret < 0) {
- 		dev_err(dev, "Error parsing regulator init data: %d\n",
- 			ret);
 -- 
 2.35.1
 
