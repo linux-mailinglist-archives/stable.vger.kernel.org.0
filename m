@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C73548AE7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 622F8548F44
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236587AbiFMKep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:34:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41156 "EHLO
+        id S1352674AbiFMLVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:21:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344500AbiFMKbm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:31:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5E5B27B12;
-        Mon, 13 Jun 2022 03:21:39 -0700 (PDT)
+        with ESMTP id S1351543AbiFMLRV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:17:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A5A138D97;
+        Mon, 13 Jun 2022 03:40:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D6DD60AE9;
-        Mon, 13 Jun 2022 10:21:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ED7AC34114;
-        Mon, 13 Jun 2022 10:21:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 077A7611E1;
+        Mon, 13 Jun 2022 10:40:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E676AC34114;
+        Mon, 13 Jun 2022 10:40:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115698;
-        bh=GrMNQC0Zq45esoFsSLD8+gdKZCtqv2bzxMJxZd9rbEQ=;
+        s=korg; t=1655116824;
+        bh=YJZuX6ju7TeGUViIRwze1kYj5SGNvVfn1hkK+PTuGUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2wH+PciwA3UW4TTF0lWQlayUo4h6XxoIp7ZUZMMUzqhQvn+5XKYodZ1bKGgfAeM8D
-         7o9hSOB8mcre8dZ6KK5rtnXph5Bi3vvBAGIpKIhu41J/z6hOy5SMqxf4rRwE5M3FfC
-         y1jEcCWHmU8c+YWK2rPRf5u2A13TG1GGGXgDdxew=
+        b=YxUXXoG0M6WjIfFlkcyipnV6JIR0cJwM99XAu40HtfHgkxrgXlokDJotvQtkuEQRM
+         k+5IOCbVp7kJqENKr/JH8oXn6MoVoSX0lLt9GW7qxxZ9WENQ0qPgo8pTizFBrUfKf0
+         3uTcqg9Zz/xWJtIyF90Q8aaOIDAUcFFuT1Ni74hY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Kees Cook <keescook@chromium.org>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 4.14 001/218] binfmt_flat: do not stop relocating GOT entries prematurely on riscv
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 186/411] crypto: cryptd - Protect per-CPU resource by disabling BH.
 Date:   Mon, 13 Jun 2022 12:07:39 +0200
-Message-Id: <20220613094908.637652870@linuxfoundation.org>
+Message-Id: <20220613094934.237155067@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,108 +55,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit 6045ab5fea4c849153ebeb0acb532da5f29d69c4 upstream.
+[ Upstream commit 91e8bcd7b4da182e09ea19a2c73167345fe14c98 ]
 
-bFLT binaries are usually created using elf2flt.
+The access to cryptd_queue::cpu_queue is synchronized by disabling
+preemption in cryptd_enqueue_request() and disabling BH in
+cryptd_queue_worker(). This implies that access is allowed from BH.
 
-The linker script used by elf2flt has defined the .data section like the
-following for the last 19 years:
+If cryptd_enqueue_request() is invoked from preemptible context _and_
+soft interrupt then this can lead to list corruption since
+cryptd_enqueue_request() is not protected against access from
+soft interrupt.
 
-.data : {
-	_sdata = . ;
-	__data_start = . ;
-	data_start = . ;
-	*(.got.plt)
-	*(.got)
-	FILL(0) ;
-	. = ALIGN(0x20) ;
-	LONG(-1)
-	. = ALIGN(0x20) ;
-	...
-}
+Replace get_cpu() in cryptd_enqueue_request() with local_bh_disable()
+to ensure BH is always disabled.
+Remove preempt_disable() from cryptd_queue_worker() since it is not
+needed because local_bh_disable() ensures synchronisation.
 
-It places the .got.plt input section before the .got input section.
-The same is true for the default linker script (ld --verbose) on most
-architectures except x86/x86-64.
-
-The binfmt_flat loader should relocate all GOT entries until it encounters
-a -1 (the LONG(-1) in the linker script).
-
-The problem is that the .got.plt input section starts with a GOTPLT header
-(which has size 16 bytes on elf64-riscv and 8 bytes on elf32-riscv), where
-the first word is set to -1. See the binutils implementation for riscv [1].
-
-This causes the binfmt_flat loader to stop relocating GOT entries
-prematurely and thus causes the application to crash when running.
-
-Fix this by skipping the whole GOTPLT header, since the whole GOTPLT header
-is reserved for the dynamic linker.
-
-The GOTPLT header will only be skipped for bFLT binaries with flag
-FLAT_FLAG_GOTPIC set. This flag is unconditionally set by elf2flt if the
-supplied ELF binary has the symbol _GLOBAL_OFFSET_TABLE_ defined.
-ELF binaries without a .got input section should thus remain unaffected.
-
-Tested on RISC-V Canaan Kendryte K210 and RISC-V QEMU nommu_virt_defconfig.
-
-[1] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfnn-riscv.c;hb=binutils-2_38#l3275
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Link: https://lore.kernel.org/r/20220414091018.896737-1-niklas.cassel@wdc.com
-Fixed-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202204182333.OIUOotK8-lkp@intel.com
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 254eff771441 ("crypto: cryptd - Per-CPU thread implementation...")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_flat.c |   27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ crypto/cryptd.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
---- a/fs/binfmt_flat.c
-+++ b/fs/binfmt_flat.c
-@@ -408,6 +408,30 @@ static void old_reloc(unsigned long rl)
+diff --git a/crypto/cryptd.c b/crypto/cryptd.c
+index 927760b316a4..43a1a855886b 100644
+--- a/crypto/cryptd.c
++++ b/crypto/cryptd.c
+@@ -39,6 +39,10 @@ struct cryptd_cpu_queue {
+ };
  
- /****************************************************************************/
+ struct cryptd_queue {
++	/*
++	 * Protected by disabling BH to allow enqueueing from softinterrupt and
++	 * dequeuing from kworker (cryptd_queue_worker()).
++	 */
+ 	struct cryptd_cpu_queue __percpu *cpu_queue;
+ };
  
-+static inline u32 __user *skip_got_header(u32 __user *rp)
-+{
-+	if (IS_ENABLED(CONFIG_RISCV)) {
-+		/*
-+		 * RISC-V has a 16 byte GOT PLT header for elf64-riscv
-+		 * and 8 byte GOT PLT header for elf32-riscv.
-+		 * Skip the whole GOT PLT header, since it is reserved
-+		 * for the dynamic linker (ld.so).
-+		 */
-+		u32 rp_val0, rp_val1;
-+
-+		if (get_user(rp_val0, rp))
-+			return rp;
-+		if (get_user(rp_val1, rp + 1))
-+			return rp;
-+
-+		if (rp_val0 == 0xffffffff && rp_val1 == 0xffffffff)
-+			rp += 4;
-+		else if (rp_val0 == 0xffffffff)
-+			rp += 2;
-+	}
-+	return rp;
-+}
-+
- static int load_flat_file(struct linux_binprm *bprm,
- 		struct lib_info *libinfo, int id, unsigned long *extra_stack)
+@@ -125,28 +129,28 @@ static void cryptd_fini_queue(struct cryptd_queue *queue)
+ static int cryptd_enqueue_request(struct cryptd_queue *queue,
+ 				  struct crypto_async_request *request)
  {
-@@ -745,7 +769,8 @@ static int load_flat_file(struct linux_b
- 	 * image.
+-	int cpu, err;
++	int err;
+ 	struct cryptd_cpu_queue *cpu_queue;
+ 	refcount_t *refcnt;
+ 
+-	cpu = get_cpu();
++	local_bh_disable();
+ 	cpu_queue = this_cpu_ptr(queue->cpu_queue);
+ 	err = crypto_enqueue_request(&cpu_queue->queue, request);
+ 
+ 	refcnt = crypto_tfm_ctx(request->tfm);
+ 
+ 	if (err == -ENOSPC)
+-		goto out_put_cpu;
++		goto out;
+ 
+-	queue_work_on(cpu, cryptd_wq, &cpu_queue->work);
++	queue_work_on(smp_processor_id(), cryptd_wq, &cpu_queue->work);
+ 
+ 	if (!refcount_read(refcnt))
+-		goto out_put_cpu;
++		goto out;
+ 
+ 	refcount_inc(refcnt);
+ 
+-out_put_cpu:
+-	put_cpu();
++out:
++	local_bh_enable();
+ 
+ 	return err;
+ }
+@@ -162,15 +166,10 @@ static void cryptd_queue_worker(struct work_struct *work)
+ 	cpu_queue = container_of(work, struct cryptd_cpu_queue, work);
+ 	/*
+ 	 * Only handle one request at a time to avoid hogging crypto workqueue.
+-	 * preempt_disable/enable is used to prevent being preempted by
+-	 * cryptd_enqueue_request(). local_bh_disable/enable is used to prevent
+-	 * cryptd_enqueue_request() being accessed from software interrupts.
  	 */
- 	if (flags & FLAT_FLAG_GOTPIC) {
--		for (rp = (u32 __user *)datapos; ; rp++) {
-+		rp = skip_got_header((u32 __user *) datapos);
-+		for (; ; rp++) {
- 			u32 addr, rp_val;
- 			if (get_user(rp_val, rp))
- 				return -EFAULT;
+ 	local_bh_disable();
+-	preempt_disable();
+ 	backlog = crypto_get_backlog(&cpu_queue->queue);
+ 	req = crypto_dequeue_request(&cpu_queue->queue);
+-	preempt_enable();
+ 	local_bh_enable();
+ 
+ 	if (!req)
+-- 
+2.35.1
+
 
 
