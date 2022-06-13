@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 996AD54974B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA9154981A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243554AbiFMKZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:25:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
+        id S1358556AbiFMMHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:07:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245450AbiFMKYl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:24:41 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF64EDEC1;
-        Mon, 13 Jun 2022 03:19:05 -0700 (PDT)
+        with ESMTP id S1358868AbiFMMEz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:04:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FDB450455;
+        Mon, 13 Jun 2022 03:57:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 49F61CE1102;
-        Mon, 13 Jun 2022 10:19:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BD66C34114;
-        Mon, 13 Jun 2022 10:19:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B512FB80D3A;
+        Mon, 13 Jun 2022 10:57:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D1CBC34114;
+        Mon, 13 Jun 2022 10:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115542;
-        bh=Go4NoJP4zvHjb5j/B+FOLi+KOFVbnqGiz+YBHyjzZ0Y=;
+        s=korg; t=1655117876;
+        bh=LRWRfcT9EZj9+yfD0l9tY7R/KoEQVzOpr6MYzMIoa5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ow4pqrA9PnhHrR+J0b2+DrcZAF8105ZeADcHb4BJGQe+Msvs+sGRdi3wt5TXf8C6H
-         9z8jXgacyR/CPJQSOG94zJ/PaG3SZdlj9MO9Lmr/Lyt6ro7sDOluthpy4K1xwoTzrX
-         KQb+eDghdQjsHAtfZ1rOvpYumUiiNFx8kztQSWic=
+        b=rhRW7YkFpl1AaTXWc38+lQ+WMmXvxmDYVAR1cxOlpNwJ6MqJIC5C9KYQ/8VOqUWYr
+         yB1iUbzAYmp98HoAIDhmJ76IzTGrMaghwC/XJvH9Phq/hmNA7ndG+uV1eunkCpsYLe
+         wBYd3sMQq6tanUZDNbQaMLoNglBK0+d00XWvwtTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 114/167] rpmsg: qcom_smd: Fix irq_of_parse_and_map() return value
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 4.19 164/287] md: fix an incorrect NULL check in md_reload_sb
 Date:   Mon, 13 Jun 2022 12:09:48 +0200
-Message-Id: <20220613094907.469957691@linuxfoundation.org>
+Message-Id: <20220613094928.849964226@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 1a358d35066487d228a68303d808bc4721c6b1b9 ]
+commit 64c54d9244a4efe9bc6e9c98e13c4bbb8bb39083 upstream.
 
-The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
+The bug is here:
+	if (!rdev || rdev->desc_nr != nr) {
 
-Fixes: 53e2822e56c7 ("rpmsg: Introduce Qualcomm SMD backend")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220422105326.78713-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The list iterator value 'rdev' will *always* be set and non-NULL
+by rdev_for_each_rcu(), so it is incorrect to assume that the
+iterator value will be NULL if the list is empty or no element
+found (In fact, it will be a bogus pointer to an invalid struct
+object containing the HEAD). Otherwise it will bypass the check
+and lead to invalid memory access passing the check.
+
+To fix the bug, use a new variable 'iter' as the list iterator,
+while using the original variable 'pdev' as a dedicated pointer to
+point to the found element.
+
+Cc: stable@vger.kernel.org
+Fixes: 70bcecdb1534 ("md-cluster: Improve md_reload_sb to be less error prone")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rpmsg/qcom_smd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/md.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
-index 312cb7fec5b0..5e67e42e6461 100644
---- a/drivers/rpmsg/qcom_smd.c
-+++ b/drivers/rpmsg/qcom_smd.c
-@@ -1258,7 +1258,7 @@ static int qcom_smd_parse_edge(struct device *dev,
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -9325,16 +9325,18 @@ static int read_rdev(struct mddev *mddev
+ 
+ void md_reload_sb(struct mddev *mddev, int nr)
+ {
+-	struct md_rdev *rdev;
++	struct md_rdev *rdev = NULL, *iter;
+ 	int err;
+ 
+ 	/* Find the rdev */
+-	rdev_for_each_rcu(rdev, mddev) {
+-		if (rdev->desc_nr == nr)
++	rdev_for_each_rcu(iter, mddev) {
++		if (iter->desc_nr == nr) {
++			rdev = iter;
+ 			break;
++		}
  	}
  
- 	irq = irq_of_parse_and_map(node, 0);
--	if (irq < 0) {
-+	if (!irq) {
- 		dev_err(dev, "required smd interrupt missing\n");
- 		return -EINVAL;
+-	if (!rdev || rdev->desc_nr != nr) {
++	if (!rdev) {
+ 		pr_warn("%s: %d Could not find rdev with nr %d\n", __func__, __LINE__, nr);
+ 		return;
  	}
--- 
-2.35.1
-
 
 
