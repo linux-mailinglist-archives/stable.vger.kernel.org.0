@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A4E548F27
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B56F5498E5
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240914AbiFMN7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:59:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35834 "EHLO
+        id S1354089AbiFMMwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:52:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379894AbiFMN5Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:57:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78232495C;
-        Mon, 13 Jun 2022 04:37:27 -0700 (PDT)
+        with ESMTP id S1353061AbiFMMuh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:50:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B9716350D;
+        Mon, 13 Jun 2022 04:12:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE07C61046;
-        Mon, 13 Jun 2022 11:37:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBCFAC34114;
-        Mon, 13 Jun 2022 11:37:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A03A860B6B;
+        Mon, 13 Jun 2022 11:12:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD06DC3411C;
+        Mon, 13 Jun 2022 11:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120246;
-        bh=Ex+e9/qLX4kzTYZbR3+QhEHr3b8O+kj9evKNUAxbhyo=;
+        s=korg; t=1655118725;
+        bh=yLGGIpjfaSSs9oeLf7Wm2id6cx9cbdcnV4O2hHcE/yQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v5SDbcLkD9ZCQtfnflJkXj9vLoR3tGGgv9VCuc85jMb60Imk9TqaJcux4ydFeU91z
-         C2Wz5iRVVr8OYLIR/VJgheWDAItPF72a2TdxNyIQpDScx7Ohq24G9FZcfhmEB5t8CQ
-         +H3yry22Lue8IfEXMmn8ZspVHFbQSCmq6NPOL+nk=
+        b=B9uid5G9ULaRtqzww9iIl7dHxtG7fdNAEGPmwheJyYY82Xz2Wts9vCkAg4y8eMVVl
+         727lc1V86Tw42ENWGOepXp8P0zSH+Uy8gRl+legR1vJeqzbPW4kc4G6hHQ3Ba0MkI3
+         QG61fS/Op0eu5HMSxSNzycSuSZpQ4ZeSqA2pRZSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.18 302/339] scsi: lpfc: Resolve some cleanup issues following abort path refactoring
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 167/172] powerpc/mm: Switch obsolete dssall to .long
 Date:   Mon, 13 Jun 2022 12:12:07 +0200
-Message-Id: <20220613094935.919738177@linuxfoundation.org>
+Message-Id: <20220613094923.337831369@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +53,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit 24e1f056677eefe834d5dcf61905cce857ca4b19 upstream.
+commit d51f86cfd8e378d4907958db77da3074f6dce3ba upstream.
 
-Refactoring and consolidation of abort paths:
+The dssall ("Data Stream Stop All") instruction is obsolete altogether
+with other Data Cache Instructions since ISA 2.03 (year 2006).
 
- - lpfc_sli4_abort_fcp_cmpl() and lpfc_sli_abort_fcp_cmpl() are combined
-  into a single generic lpfc_sli_abort_fcp_cmpl() routine.  Thus, remove
-  extraneous lpfc_sli4_abort_fcp_cmpl() prototype declaration.
+LLVM IAS does not support it but PPC970 seems to be using it.
+This switches dssall to .long as there is no much point in fixing LLVM.
 
- - lpfc_nvme_abort_fcreq_cmpl() abort completion routine is called with a
-  mismatched argument type.  This may result in misleading log message
-  content.  Update to the correct argument type of lpfc_iocbq instead of
-  lpfc_wcqe_complete.  The lpfc_wcqe_complete should be derived from the
-  lpfc_iocbq structure.
-
-Link: https://lore.kernel.org/r/20220603174329.63777-3-jsmart2021@gmail.com
-Fixes: 31a59f75702f ("scsi: lpfc: SLI path split: Refactor Abort paths")
-Cc: <stable@vger.kernel.org> # v5.18
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211221055904.555763-6-aik@ozlabs.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_crtn.h |    4 +---
- drivers/scsi/lpfc/lpfc_nvme.c |    6 ++++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ arch/powerpc/include/asm/ppc-opcode.h   |    2 ++
+ arch/powerpc/kernel/idle.c              |    2 +-
+ arch/powerpc/kernel/idle_6xx.S          |    2 +-
+ arch/powerpc/kernel/l2cr_6xx.S          |    6 +++---
+ arch/powerpc/kernel/swsusp_32.S         |    2 +-
+ arch/powerpc/kernel/swsusp_asm64.S      |    2 +-
+ arch/powerpc/mm/mmu_context.c           |    2 +-
+ arch/powerpc/platforms/powermac/cache.S |    4 ++--
+ 8 files changed, 12 insertions(+), 10 deletions(-)
 
---- a/drivers/scsi/lpfc/lpfc_crtn.h
-+++ b/drivers/scsi/lpfc/lpfc_crtn.h
-@@ -418,8 +418,6 @@ int lpfc_sli_issue_iocb_wait(struct lpfc
- 			     uint32_t);
- void lpfc_sli_abort_fcp_cmpl(struct lpfc_hba *, struct lpfc_iocbq *,
- 			     struct lpfc_iocbq *);
--void lpfc_sli4_abort_fcp_cmpl(struct lpfc_hba *h, struct lpfc_iocbq *i,
--			      struct lpfc_wcqe_complete *w);
+--- a/arch/powerpc/include/asm/ppc-opcode.h
++++ b/arch/powerpc/include/asm/ppc-opcode.h
+@@ -212,6 +212,7 @@
+ #define PPC_INST_COPY			0x7c20060c
+ #define PPC_INST_DCBA			0x7c0005ec
+ #define PPC_INST_DCBA_MASK		0xfc0007fe
++#define PPC_INST_DSSALL			0x7e00066c
+ #define PPC_INST_ISEL			0x7c00001e
+ #define PPC_INST_ISEL_MASK		0xfc00003e
+ #define PPC_INST_LSWI			0x7c0004aa
+@@ -517,6 +518,7 @@
+ #define	PPC_DCBZL(a, b)		stringify_in_c(.long PPC_RAW_DCBZL(a, b))
+ #define	PPC_DIVDE(t, a, b)	stringify_in_c(.long PPC_RAW_DIVDE(t, a, b))
+ #define	PPC_DIVDEU(t, a, b)	stringify_in_c(.long PPC_RAW_DIVDEU(t, a, b))
++#define PPC_DSSALL		stringify_in_c(.long PPC_INST_DSSALL)
+ #define PPC_LQARX(t, a, b, eh)	stringify_in_c(.long PPC_RAW_LQARX(t, a, b, eh))
+ #define PPC_LDARX(t, a, b, eh)	stringify_in_c(.long PPC_RAW_LDARX(t, a, b, eh))
+ #define PPC_LWARX(t, a, b, eh)	stringify_in_c(.long PPC_RAW_LWARX(t, a, b, eh))
+--- a/arch/powerpc/kernel/idle.c
++++ b/arch/powerpc/kernel/idle.c
+@@ -82,7 +82,7 @@ void power4_idle(void)
+ 		return;
  
- void lpfc_sli_free_hbq(struct lpfc_hba *, struct hbq_dmabuf *);
+ 	if (cpu_has_feature(CPU_FTR_ALTIVEC))
+-		asm volatile("DSSALL ; sync" ::: "memory");
++		asm volatile(PPC_DSSALL " ; sync" ::: "memory");
  
-@@ -627,7 +625,7 @@ void lpfc_nvmet_invalidate_host(struct l
- 			struct lpfc_nodelist *ndlp);
- void lpfc_nvme_abort_fcreq_cmpl(struct lpfc_hba *phba,
- 				struct lpfc_iocbq *cmdiocb,
--				struct lpfc_wcqe_complete *abts_cmpl);
-+				struct lpfc_iocbq *rspiocb);
- void lpfc_create_multixri_pools(struct lpfc_hba *phba);
- void lpfc_create_destroy_pools(struct lpfc_hba *phba);
- void lpfc_move_xri_pvt_to_pbl(struct lpfc_hba *phba, u32 hwqid);
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -1741,7 +1741,7 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_l
-  * lpfc_nvme_abort_fcreq_cmpl - Complete an NVME FCP abort request.
-  * @phba: Pointer to HBA context object
-  * @cmdiocb: Pointer to command iocb object.
-- * @abts_cmpl: Pointer to wcqe complete object.
-+ * @rspiocb: Pointer to response iocb object.
-  *
-  * This is the callback function for any NVME FCP IO that was aborted.
-  *
-@@ -1750,8 +1750,10 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_l
-  **/
- void
- lpfc_nvme_abort_fcreq_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
--			   struct lpfc_wcqe_complete *abts_cmpl)
-+			   struct lpfc_iocbq *rspiocb)
- {
-+	struct lpfc_wcqe_complete *abts_cmpl = &rspiocb->wcqe_cmpl;
-+
- 	lpfc_printf_log(phba, KERN_INFO, LOG_NVME,
- 			"6145 ABORT_XRI_CN completing on rpi x%x "
- 			"original iotag x%x, abort cmd iotag x%x "
+ 	power4_idle_nap();
+ 
+--- a/arch/powerpc/kernel/idle_6xx.S
++++ b/arch/powerpc/kernel/idle_6xx.S
+@@ -129,7 +129,7 @@ BEGIN_FTR_SECTION
+ END_FTR_SECTION_IFCLR(CPU_FTR_NO_DPM)
+ 	mtspr	SPRN_HID0,r4
+ BEGIN_FTR_SECTION
+-	DSSALL
++	PPC_DSSALL
+ 	sync
+ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
+ 	lwz	r8,TI_LOCAL_FLAGS(r2)	/* set napping bit */
+--- a/arch/powerpc/kernel/l2cr_6xx.S
++++ b/arch/powerpc/kernel/l2cr_6xx.S
+@@ -96,7 +96,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_L2CR)
+ 
+ 	/* Stop DST streams */
+ BEGIN_FTR_SECTION
+-	DSSALL
++	PPC_DSSALL
+ 	sync
+ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
+ 
+@@ -292,7 +292,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_L3CR)
+ 	isync
+ 
+ 	/* Stop DST streams */
+-	DSSALL
++	PPC_DSSALL
+ 	sync
+ 
+ 	/* Get the current enable bit of the L3CR into r4 */
+@@ -401,7 +401,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_L3CR)
+ _GLOBAL(__flush_disable_L1)
+ 	/* Stop pending alitvec streams and memory accesses */
+ BEGIN_FTR_SECTION
+-	DSSALL
++	PPC_DSSALL
+ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
+  	sync
+ 
+--- a/arch/powerpc/kernel/swsusp_32.S
++++ b/arch/powerpc/kernel/swsusp_32.S
+@@ -181,7 +181,7 @@ _GLOBAL(swsusp_arch_resume)
+ #ifdef CONFIG_ALTIVEC
+ 	/* Stop pending alitvec streams and memory accesses */
+ BEGIN_FTR_SECTION
+-	DSSALL
++	PPC_DSSALL
+ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
+ #endif
+  	sync
+--- a/arch/powerpc/kernel/swsusp_asm64.S
++++ b/arch/powerpc/kernel/swsusp_asm64.S
+@@ -142,7 +142,7 @@ END_FW_FTR_SECTION_IFCLR(FW_FEATURE_LPAR
+ _GLOBAL(swsusp_arch_resume)
+ 	/* Stop pending alitvec streams and memory accesses */
+ BEGIN_FTR_SECTION
+-	DSSALL
++	PPC_DSSALL
+ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
+ 	sync
+ 
+--- a/arch/powerpc/mm/mmu_context.c
++++ b/arch/powerpc/mm/mmu_context.c
+@@ -79,7 +79,7 @@ void switch_mm_irqs_off(struct mm_struct
+ 	 * context
+ 	 */
+ 	if (cpu_has_feature(CPU_FTR_ALTIVEC))
+-		asm volatile ("dssall");
++		asm volatile (PPC_DSSALL);
+ 
+ 	if (new_on_cpu)
+ 		radix_kvm_prefetch_workaround(next);
+--- a/arch/powerpc/platforms/powermac/cache.S
++++ b/arch/powerpc/platforms/powermac/cache.S
+@@ -48,7 +48,7 @@ flush_disable_75x:
+ 
+ 	/* Stop DST streams */
+ BEGIN_FTR_SECTION
+-	DSSALL
++	PPC_DSSALL
+ 	sync
+ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
+ 
+@@ -197,7 +197,7 @@ flush_disable_745x:
+ 	isync
+ 
+ 	/* Stop prefetch streams */
+-	DSSALL
++	PPC_DSSALL
+ 	sync
+ 
+ 	/* Disable L2 prefetching */
 
 
