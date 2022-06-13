@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC854549831
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A44154901E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353859AbiFMLcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:32:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50600 "EHLO
+        id S1381990AbiFMOZe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:25:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354947AbiFMLaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 199D0403FD;
-        Mon, 13 Jun 2022 03:46:08 -0700 (PDT)
+        with ESMTP id S1383409AbiFMOWm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:22:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0F50A26E0;
+        Mon, 13 Jun 2022 04:44:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 947B6B80D3C;
-        Mon, 13 Jun 2022 10:46:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1666C34114;
-        Mon, 13 Jun 2022 10:46:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45E12B80E2C;
+        Mon, 13 Jun 2022 11:44:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A79D1C34114;
+        Mon, 13 Jun 2022 11:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117165;
-        bh=Ok3La8mRQV7bu6LFgpuG/TAdbgySw0P+nNilnEqF8j0=;
+        s=korg; t=1655120645;
+        bh=uG0I/gJsRKxBuo++ROArv2w/vHAcrZRr6c1u6N1YxZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NjNbEgBdXRXx8sTcq69oEeKIPrHugmNb3qdAoYRV6nVJjKpbsoa00ZJMomm+ijZ0O
-         vSVUeEHsGGuAt4iLbDRymD/s1IMRoIekBpV/kfqZ26tssVpU/jvP5wJCJ9Wv8F2ho3
-         yrde7wy2WET7Slm6zUBQMlmXDtZSGx9fi84B0ZYY=
+        b=gqBDzvw+trlm1XrQp7jWWAYCCLLcEnHH+3wJIMkM02vdgaCmp+ck2kkclD1Pzc/gf
+         1vTldbAQMU3WpEUNS0DaKJTU9pAfW9Jsw4o4Q4NhDSO1eS0ihuY7spUQ97Jgg2+g6i
+         +LwNzjCRVvdzl/j7Jy8IiohirE85o/d9GKlRx1xk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manivannan Sadhasivam <mani@kernel.org>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 309/411] serial: rda-uart: Dont allow CS5-6
+        stable@vger.kernel.org, Genjian Zhang <zhanggenjian@kylinos.cn>,
+        Alexander Sverdlin <alexander.sverdlin@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 088/298] ep93xx: clock: Do not return the address of the freed memory
 Date:   Mon, 13 Jun 2022 12:09:42 +0200
-Message-Id: <20220613094938.014578255@linuxfoundation.org>
+Message-Id: <20220613094927.618030909@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Genjian Zhang <zhanggenjian123@gmail.com>
 
-[ Upstream commit 098333a9c7d12bb3ce44c82f08b4d810c44d31b0 ]
+[ Upstream commit 8a7322a3a05f75e8a4902bdf8129aecd37d54fe9 ]
 
-Only CS7 and CS8 are supported but CSIZE is not sanitized after
-fallthrough from CS5 or CS6 to CS7.
+Avoid return freed memory addresses,Modified to the actual error
+return value of clk_register().
 
-Set CSIZE correctly so that userspace knows the effective value.
-Incorrect CSIZE also results in miscalculation of the frame bits in
-tty_get_char_size() or in its predecessor where the roughly the same
-code is directly within uart_update_timeout().
-
-Fixes: c10b13325ced (tty: serial: Add RDA8810PL UART driver)
-Cc: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220519081808.3776-4-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9645ccc7bd7a ("ep93xx: clock: convert in-place to COMMON_CLK")
+Signed-off-by: Genjian Zhang <zhanggenjian@kylinos.cn>
+Acked-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/rda-uart.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mach-ep93xx/clock.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/serial/rda-uart.c b/drivers/tty/serial/rda-uart.c
-index ff9a27d48bca..877d86ff6819 100644
---- a/drivers/tty/serial/rda-uart.c
-+++ b/drivers/tty/serial/rda-uart.c
-@@ -262,6 +262,8 @@ static void rda_uart_set_termios(struct uart_port *port,
- 		/* Fall through */
- 	case CS7:
- 		ctrl &= ~RDA_UART_DBITS_8;
-+		termios->c_cflag &= ~CSIZE;
-+		termios->c_cflag |= CS7;
- 		break;
- 	default:
- 		ctrl |= RDA_UART_DBITS_8;
+diff --git a/arch/arm/mach-ep93xx/clock.c b/arch/arm/mach-ep93xx/clock.c
+index 28e0ae6e890e..00c2db101ce5 100644
+--- a/arch/arm/mach-ep93xx/clock.c
++++ b/arch/arm/mach-ep93xx/clock.c
+@@ -345,9 +345,10 @@ static struct clk_hw *clk_hw_register_ddiv(const char *name,
+ 	psc->hw.init = &init;
+ 
+ 	clk = clk_register(NULL, &psc->hw);
+-	if (IS_ERR(clk))
++	if (IS_ERR(clk)) {
+ 		kfree(psc);
+-
++		return ERR_CAST(clk);
++	}
+ 	return &psc->hw;
+ }
+ 
+@@ -452,9 +453,10 @@ static struct clk_hw *clk_hw_register_div(const char *name,
+ 	psc->hw.init = &init;
+ 
+ 	clk = clk_register(NULL, &psc->hw);
+-	if (IS_ERR(clk))
++	if (IS_ERR(clk)) {
+ 		kfree(psc);
+-
++		return ERR_CAST(clk);
++	}
+ 	return &psc->hw;
+ }
+ 
 -- 
 2.35.1
 
