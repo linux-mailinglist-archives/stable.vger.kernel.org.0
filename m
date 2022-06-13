@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B4D854958A
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D8C3549748
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358852AbiFMNLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:11:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38490 "EHLO
+        id S1352676AbiFMMlU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:41:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357448AbiFMNHl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:07:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9534C381BD;
-        Mon, 13 Jun 2022 04:18:48 -0700 (PDT)
+        with ESMTP id S1355357AbiFMMjH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:39:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C6945DD11;
+        Mon, 13 Jun 2022 04:08:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75525B80EB1;
-        Mon, 13 Jun 2022 11:18:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7BD8C34114;
-        Mon, 13 Jun 2022 11:18:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E9D7B80EA7;
+        Mon, 13 Jun 2022 11:08:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FED1C34114;
+        Mon, 13 Jun 2022 11:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119122;
-        bh=sEV7WN5gvPYHUR2+AlgrOnDLO7J8h7aP7imPvjQ0UJA=;
+        s=korg; t=1655118529;
+        bh=ZBJYkgPNFRM3u3ol/sDY2wlx3RX7Ieto/6GbF+E1F6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mtZQAd3VX+XjxFWIWZ2l4kERedIi+tNEaDxNOebs61qMS+m2/w3WpC2b5/Bg6UhWZ
-         sNmELhkGrMycbbgum39Yn0Y+ZqM/DGVsiRnozQo6baSvhdxHpnCL8NbUK4wnZXge7n
-         0a24iQwGZSacEdKm2lJrakfOGhOpVy6TikImI4dE=
+        b=NOGx/fCKy6vPJJZs/RTG0enjDvQ6ZQhPu9LqFMowDXlRSg5l8mD6jDMf2W20o/kCq
+         NBaEtmokcV7em0/S9ZKGANCI/Dxhg+PB6oYKj3uE9sggCKEXazGZAguTy4jHjOtD91
+         gSc49f4hfhUTjTeJh82EeyMTAZPxAfUYyh5eRffc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 149/247] xsk: Fix handling of invalid descriptors in XSK TX batching API
-Date:   Mon, 13 Jun 2022 12:10:51 +0200
-Message-Id: <20220613094927.474546705@linuxfoundation.org>
+Subject: [PATCH 5.10 092/172] netfilter: nf_tables: delete flowtable hooks via transaction list
+Date:   Mon, 13 Jun 2022 12:10:52 +0200
+Message-Id: <20220613094912.536908626@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,83 +53,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit d678cbd2f867a564a3c5b276c454e873f43f02f8 ]
+[ Upstream commit b6d9014a3335194590abdd2a2471ef5147a67645 ]
 
-xdpxceiver run on a AF_XDP ZC enabled driver revealed a problem with XSK
-Tx batching API. There is a test that checks how invalid Tx descriptors
-are handled by AF_XDP. Each valid descriptor is followed by invalid one
-on Tx side whereas the Rx side expects only to receive a set of valid
-descriptors.
+Remove inactive bool field in nft_hook object that was introduced in
+abadb2f865d7 ("netfilter: nf_tables: delete devices from flowtable").
+Move stale flowtable hooks to transaction list instead.
 
-In current xsk_tx_peek_release_desc_batch() function, the amount of
-available descriptors is hidden inside xskq_cons_peek_desc_batch(). This
-can be problematic in cases where invalid descriptors are present due to
-the fact that xskq_cons_peek_desc_batch() returns only a count of valid
-descriptors. This means that it is impossible to properly update XSK
-ring state when calling xskq_cons_release_n().
+Deleting twice the same device does not result in ENOENT.
 
-To address this issue, pull out the contents of
-xskq_cons_peek_desc_batch() so that callers (currently only
-xsk_tx_peek_release_desc_batch()) will always be able to update the
-state of ring properly, as total count of entries is now available and
-use this value as an argument in xskq_cons_release_n(). By
-doing so, xskq_cons_peek_desc_batch() can be dropped altogether.
-
-Fixes: 9349eb3a9d2a ("xsk: Introduce batched Tx descriptor interfaces")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Link: https://lore.kernel.org/bpf/20220607142200.576735-1-maciej.fijalkowski@intel.com
+Fixes: abadb2f865d7 ("netfilter: nf_tables: delete devices from flowtable")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xsk.c       | 5 +++--
- net/xdp/xsk_queue.h | 8 --------
- 2 files changed, 3 insertions(+), 10 deletions(-)
+ include/net/netfilter/nf_tables.h |  1 -
+ net/netfilter/nf_tables_api.c     | 31 ++++++-------------------------
+ 2 files changed, 6 insertions(+), 26 deletions(-)
 
-diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
-index 404cbfde2f84..b9e70931c794 100644
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -388,7 +388,8 @@ u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
- 		goto out;
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index 76bfb6cd5815..b7907385a02f 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -1013,7 +1013,6 @@ struct nft_stats {
+ 
+ struct nft_hook {
+ 	struct list_head	list;
+-	bool			inactive;
+ 	struct nf_hook_ops	ops;
+ 	struct rcu_head		rcu;
+ };
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index ea162e36e0e4..a5779790e337 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -1733,7 +1733,6 @@ static struct nft_hook *nft_netdev_hook_alloc(struct net *net,
+ 		goto err_hook_dev;
+ 	}
+ 	hook->ops.dev = dev;
+-	hook->inactive = false;
+ 
+ 	return hook;
+ 
+@@ -6880,6 +6879,7 @@ static int nft_delflowtable_hook(struct nft_ctx *ctx,
+ {
+ 	const struct nlattr * const *nla = ctx->nla;
+ 	struct nft_flowtable_hook flowtable_hook;
++	LIST_HEAD(flowtable_del_list);
+ 	struct nft_hook *this, *hook;
+ 	struct nft_trans *trans;
+ 	int err;
+@@ -6895,7 +6895,7 @@ static int nft_delflowtable_hook(struct nft_ctx *ctx,
+ 			err = -ENOENT;
+ 			goto err_flowtable_del_hook;
+ 		}
+-		hook->inactive = true;
++		list_move(&hook->list, &flowtable_del_list);
  	}
  
--	nb_pkts = xskq_cons_peek_desc_batch(xs->tx, pool, max_entries);
-+	max_entries = xskq_cons_nb_entries(xs->tx, max_entries);
-+	nb_pkts = xskq_cons_read_desc_batch(xs->tx, pool, max_entries);
- 	if (!nb_pkts) {
- 		xs->tx->queue_empty_descs++;
- 		goto out;
-@@ -404,7 +405,7 @@ u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
- 	if (!nb_pkts)
- 		goto out;
+ 	trans = nft_trans_alloc(ctx, NFT_MSG_DELFLOWTABLE,
+@@ -6908,6 +6908,7 @@ static int nft_delflowtable_hook(struct nft_ctx *ctx,
+ 	nft_trans_flowtable(trans) = flowtable;
+ 	nft_trans_flowtable_update(trans) = true;
+ 	INIT_LIST_HEAD(&nft_trans_flowtable_hooks(trans));
++	list_splice(&flowtable_del_list, &nft_trans_flowtable_hooks(trans));
+ 	nft_flowtable_hook_release(&flowtable_hook);
  
--	xskq_cons_release_n(xs->tx, nb_pkts);
-+	xskq_cons_release_n(xs->tx, max_entries);
- 	__xskq_cons_release(xs->tx);
- 	xs->sk.sk_write_space(&xs->sk);
+ 	list_add_tail(&trans->list, &ctx->net->nft.commit_list);
+@@ -6915,13 +6916,7 @@ static int nft_delflowtable_hook(struct nft_ctx *ctx,
+ 	return 0;
  
-diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
-index b721795fe50c..491a18c1f786 100644
---- a/net/xdp/xsk_queue.h
-+++ b/net/xdp/xsk_queue.h
-@@ -278,14 +278,6 @@ static inline bool xskq_cons_peek_desc(struct xsk_queue *q,
- 	return xskq_cons_read_desc(q, desc, pool);
+ err_flowtable_del_hook:
+-	list_for_each_entry(this, &flowtable_hook.list, list) {
+-		hook = nft_hook_list_find(&flowtable->hook_list, this);
+-		if (!hook)
+-			break;
+-
+-		hook->inactive = false;
+-	}
++	list_splice(&flowtable_del_list, &flowtable->hook_list);
+ 	nft_flowtable_hook_release(&flowtable_hook);
+ 
+ 	return err;
+@@ -7771,17 +7766,6 @@ void nft_chain_del(struct nft_chain *chain)
+ 	list_del_rcu(&chain->list);
  }
  
--static inline u32 xskq_cons_peek_desc_batch(struct xsk_queue *q, struct xsk_buff_pool *pool,
--					    u32 max)
+-static void nft_flowtable_hooks_del(struct nft_flowtable *flowtable,
+-				    struct list_head *hook_list)
 -{
--	u32 entries = xskq_cons_nb_entries(q, max);
+-	struct nft_hook *hook, *next;
 -
--	return xskq_cons_read_desc_batch(q, pool, entries);
+-	list_for_each_entry_safe(hook, next, &flowtable->hook_list, list) {
+-		if (hook->inactive)
+-			list_move(&hook->list, hook_list);
+-	}
 -}
 -
- /* To improve performance in the xskq_cons_release functions, only update local state here.
-  * Reflect this to global state when we get new entries from the ring in
-  * xskq_cons_get_entries() and whenever Rx or Tx processing are completed in the NAPI loop.
+ static void nf_tables_module_autoload_cleanup(struct net *net)
+ {
+ 	struct nft_module_request *req, *next;
+@@ -8045,8 +8029,6 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
+ 			break;
+ 		case NFT_MSG_DELFLOWTABLE:
+ 			if (nft_trans_flowtable_update(trans)) {
+-				nft_flowtable_hooks_del(nft_trans_flowtable(trans),
+-							&nft_trans_flowtable_hooks(trans));
+ 				nf_tables_flowtable_notify(&trans->ctx,
+ 							   nft_trans_flowtable(trans),
+ 							   &nft_trans_flowtable_hooks(trans),
+@@ -8124,7 +8106,6 @@ static int __nf_tables_abort(struct net *net, enum nfnl_abort_action action)
+ {
+ 	struct nft_trans *trans, *next;
+ 	struct nft_trans_elem *te;
+-	struct nft_hook *hook;
+ 
+ 	if (action == NFNL_ABORT_VALIDATE &&
+ 	    nf_tables_validate(net) < 0)
+@@ -8242,8 +8223,8 @@ static int __nf_tables_abort(struct net *net, enum nfnl_abort_action action)
+ 			break;
+ 		case NFT_MSG_DELFLOWTABLE:
+ 			if (nft_trans_flowtable_update(trans)) {
+-				list_for_each_entry(hook, &nft_trans_flowtable(trans)->hook_list, list)
+-					hook->inactive = false;
++				list_splice(&nft_trans_flowtable_hooks(trans),
++					    &nft_trans_flowtable(trans)->hook_list);
+ 			} else {
+ 				trans->ctx.table->use++;
+ 				nft_clear(trans->ctx.net, nft_trans_flowtable(trans));
 -- 
 2.35.1
 
