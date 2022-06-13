@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FFE454972F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DD554940A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380551AbiFMOHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:07:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43444 "EHLO
+        id S1353298AbiFMMzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:55:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381990AbiFMOFC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C2193468;
-        Mon, 13 Jun 2022 04:40:20 -0700 (PDT)
+        with ESMTP id S1357303AbiFMMyR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:54:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A021534BBE;
+        Mon, 13 Jun 2022 04:13:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F380561342;
-        Mon, 13 Jun 2022 11:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B5ADC34114;
-        Mon, 13 Jun 2022 11:40:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6376B80D31;
+        Mon, 13 Jun 2022 11:13:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B34C36AFF;
+        Mon, 13 Jun 2022 11:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120418;
-        bh=mEwbqgWojyxtkqgxEaRPGMELVaiZS+FLu/4v3N6gpOg=;
+        s=korg; t=1655118782;
+        bh=TzVVYuRYfyqpl+pNcccpnbUcdqw0UImOaOkO9GB3FP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TClz/8E0JvHVOVsFKf2WeFjHCXsxiNfR22o0zZ7QDKlFhPaRYzbY21borrAAjEfVO
-         IV6/OEMiw4tWERSc/tfhUQQIsStlnuT5WdM1xefPd8Yx6QuFdhI+vhmMSGqs8UIFhR
-         ckpF25rXGZ5rX/DZsEjmGZB7yqBcAl2/1/ExKPNE=
+        b=kCNrEpqBzoaYAo8mFNBGqpgkifU+n5NE7JQxtPSxkBQ7SOjHT0iG785eO7Qow/5LJ
+         ChD5xVSg0HflnIxuXOrJnZApCuCcOv8AcW8OszSPtp+UCN86/3WvLDsVntQUVqnHPB
+         zJGVv+g2pWmqB40brFblCLCV431lp3fNp1Ni0mWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 026/298] usb: typec: mux: Check dev_set_name() return value
+Subject: [PATCH 5.15 018/247] pwm: raspberrypi-poe: Fix endianness in firmware struct
 Date:   Mon, 13 Jun 2022 12:08:40 +0200
-Message-Id: <20220613094925.724029025@linuxfoundation.org>
+Message-Id: <20220613094923.481881758@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,56 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit b9fa0292490db39d6542f514117333d366ec0011 ]
+[ Upstream commit 09f688f0718f57f9cf68ee1aa94490f641e759ba ]
 
-It's possible that dev_set_name() returns -ENOMEM, catch and handle this.
+The reg member of struct raspberrypi_pwm_prop is a little endian 32 bit
+quantity. Explicitly convert the (native endian) value to little endian
+on assignment as is already done in raspberrypi_pwm_set_property().
 
-Fixes: 3370db35193b ("usb: typec: Registering real device entries for the muxes")
-Reported-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220422222351.1297276-4-bjorn.andersson@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This fixes the following sparse warning:
+
+	drivers/pwm/pwm-raspberrypi-poe.c:69:24: warning: incorrect type in initializer (different base types)
+	drivers/pwm/pwm-raspberrypi-poe.c:69:24:    expected restricted __le32 [usertype] reg
+	drivers/pwm/pwm-raspberrypi-poe.c:69:24:    got unsigned int [usertype] reg
+
+Fixes: 79caa362eab6 ("pwm: Add Raspberry Pi Firmware based PWM bus")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/mux.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/pwm/pwm-raspberrypi-poe.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/typec/mux.c b/drivers/usb/typec/mux.c
-index c8340de0ed49..d2aaf294b649 100644
---- a/drivers/usb/typec/mux.c
-+++ b/drivers/usb/typec/mux.c
-@@ -131,8 +131,11 @@ typec_switch_register(struct device *parent,
- 	sw->dev.class = &typec_mux_class;
- 	sw->dev.type = &typec_switch_dev_type;
- 	sw->dev.driver_data = desc->drvdata;
--	dev_set_name(&sw->dev, "%s-switch",
--		     desc->name ? desc->name : dev_name(parent));
-+	ret = dev_set_name(&sw->dev, "%s-switch", desc->name ? desc->name : dev_name(parent));
-+	if (ret) {
-+		put_device(&sw->dev);
-+		return ERR_PTR(ret);
-+	}
+diff --git a/drivers/pwm/pwm-raspberrypi-poe.c b/drivers/pwm/pwm-raspberrypi-poe.c
+index 579a15240e0a..c877de37734d 100644
+--- a/drivers/pwm/pwm-raspberrypi-poe.c
++++ b/drivers/pwm/pwm-raspberrypi-poe.c
+@@ -66,7 +66,7 @@ static int raspberrypi_pwm_get_property(struct rpi_firmware *firmware,
+ 					u32 reg, u32 *val)
+ {
+ 	struct raspberrypi_pwm_prop msg = {
+-		.reg = reg
++		.reg = cpu_to_le32(reg),
+ 	};
+ 	int ret;
  
- 	ret = device_add(&sw->dev);
- 	if (ret) {
-@@ -338,8 +341,11 @@ typec_mux_register(struct device *parent, const struct typec_mux_desc *desc)
- 	mux->dev.class = &typec_mux_class;
- 	mux->dev.type = &typec_mux_dev_type;
- 	mux->dev.driver_data = desc->drvdata;
--	dev_set_name(&mux->dev, "%s-mux",
--		     desc->name ? desc->name : dev_name(parent));
-+	ret = dev_set_name(&mux->dev, "%s-mux", desc->name ? desc->name : dev_name(parent));
-+	if (ret) {
-+		put_device(&mux->dev);
-+		return ERR_PTR(ret);
-+	}
- 
- 	ret = device_add(&mux->dev);
- 	if (ret) {
 -- 
 2.35.1
 
