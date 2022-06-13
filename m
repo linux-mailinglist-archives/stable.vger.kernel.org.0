@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0A36548D66
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9F67549471
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359527AbiFMNNm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:13:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36026 "EHLO
+        id S240519AbiFMO1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:27:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359225AbiFMNJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:43 -0400
+        with ESMTP id S1384361AbiFMOZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:25:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5A8A38D93;
-        Mon, 13 Jun 2022 04:19:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86CBC49F82;
+        Mon, 13 Jun 2022 04:47:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8D15B80E59;
-        Mon, 13 Jun 2022 11:19:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F3A4C34114;
-        Mon, 13 Jun 2022 11:19:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADFFCB80D3A;
+        Mon, 13 Jun 2022 11:47:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E826C34114;
+        Mon, 13 Jun 2022 11:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119169;
-        bh=+3ZqZfclM2ETNB5Ya+rViISbhqJhLgqU6wC3f8lsBfI=;
+        s=korg; t=1655120826;
+        bh=1p3XvtCW++ZOFQc/Ji5oBq0oFJ1q34MynTJtoyKtaAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=trmNl7h71avKtrL0IbaSYJssQAQdKQKn96909RkiFFRBPhoF5fnADhbjAyzAW/UX4
-         juhRKgw4a/ivqlzaoUOzHtI0ctbHbxf3xQfWwOHRrpWdvGSVVVHxAZwZpwzomFX8h+
-         f4olttM6W3BanLVL9V8Zkr8dEqbi4LXyaqqBg9V4=
+        b=FPUR3gKyD4OXT9fYnFqeU33gXolXnUOau1bfzELainHYVwSINa2RF8Hjc9axOSAhn
+         WHU64LcYpoHi/7SerhLQf65FVuBKBEExanC18F1bvk+PZPifB7sYb3l4n038dauq5Z
+         RAF17rVw3Or25/zfiY8cZVuHmQULANqpGh/9i95Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 139/247] netfilter: nf_tables: release new hooks on unsupported flowtable flags
+        stable@vger.kernel.org,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 147/298] dmaengine: zynqmp_dma: In struct zynqmp_dma_chan fix desc_size data type
 Date:   Mon, 13 Jun 2022 12:10:41 +0200
-Message-Id: <20220613094927.171901921@linuxfoundation.org>
+Message-Id: <20220613094929.397254993@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
 
-[ Upstream commit c271cc9febaaa1bcbc0842d1ee30466aa6148ea8 ]
+[ Upstream commit f9a9f43a62a04ec3183fb0da9226c7706eed0115 ]
 
-Release the list of new hooks that are pending to be registered in case
-that unsupported flowtable flags are provided.
+In zynqmp_dma_alloc/free_chan_resources functions there is a
+potential overflow in the below expressions.
 
-Fixes: 78d9f48f7f44 ("netfilter: nf_tables: add devices to existing flowtable")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+dma_alloc_coherent(chan->dev, (2 * chan->desc_size *
+		   ZYNQMP_DMA_NUM_DESCS),
+		   &chan->desc_pool_p, GFP_KERNEL);
+
+dma_free_coherent(chan->dev,(2 * ZYNQMP_DMA_DESC_SIZE(chan) *
+                 ZYNQMP_DMA_NUM_DESCS),
+                chan->desc_pool_v, chan->desc_pool_p);
+
+The arguments desc_size and ZYNQMP_DMA_NUM_DESCS were 32 bit. Though
+this overflow condition is not observed but it is a potential problem
+in the case of 32-bit multiplication. Hence fix it by changing the
+desc_size data type to size_t.
+
+In addition to coverity fix it also reuse ZYNQMP_DMA_DESC_SIZE macro in
+dma_alloc_coherent API argument.
+
+Addresses-Coverity: Event overflow_before_widen.
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/1652166762-18317-2-git-send-email-radhey.shyam.pandey@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/dma/xilinx/zynqmp_dma.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 5c0379394b4a..af2ae42cc5c7 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -7332,11 +7332,15 @@ static int nft_flowtable_update(struct nft_ctx *ctx, const struct nlmsghdr *nlh,
- 
- 	if (nla[NFTA_FLOWTABLE_FLAGS]) {
- 		flags = ntohl(nla_get_be32(nla[NFTA_FLOWTABLE_FLAGS]));
--		if (flags & ~NFT_FLOWTABLE_MASK)
--			return -EOPNOTSUPP;
-+		if (flags & ~NFT_FLOWTABLE_MASK) {
-+			err = -EOPNOTSUPP;
-+			goto err_flowtable_update_hook;
-+		}
- 		if ((flowtable->data.flags & NFT_FLOWTABLE_HW_OFFLOAD) ^
--		    (flags & NFT_FLOWTABLE_HW_OFFLOAD))
--			return -EOPNOTSUPP;
-+		    (flags & NFT_FLOWTABLE_HW_OFFLOAD)) {
-+			err = -EOPNOTSUPP;
-+			goto err_flowtable_update_hook;
-+		}
- 	} else {
- 		flags = flowtable->data.flags;
+diff --git a/drivers/dma/xilinx/zynqmp_dma.c b/drivers/dma/xilinx/zynqmp_dma.c
+index 7aa63b652027..3ffa7f37c701 100644
+--- a/drivers/dma/xilinx/zynqmp_dma.c
++++ b/drivers/dma/xilinx/zynqmp_dma.c
+@@ -229,7 +229,7 @@ struct zynqmp_dma_chan {
+ 	bool is_dmacoherent;
+ 	struct tasklet_struct tasklet;
+ 	bool idle;
+-	u32 desc_size;
++	size_t desc_size;
+ 	bool err;
+ 	u32 bus_width;
+ 	u32 src_burst_len;
+@@ -486,7 +486,8 @@ static int zynqmp_dma_alloc_chan_resources(struct dma_chan *dchan)
  	}
+ 
+ 	chan->desc_pool_v = dma_alloc_coherent(chan->dev,
+-					       (2 * chan->desc_size * ZYNQMP_DMA_NUM_DESCS),
++					       (2 * ZYNQMP_DMA_DESC_SIZE(chan) *
++					       ZYNQMP_DMA_NUM_DESCS),
+ 					       &chan->desc_pool_p, GFP_KERNEL);
+ 	if (!chan->desc_pool_v)
+ 		return -ENOMEM;
 -- 
 2.35.1
 
