@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AC565490B8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53F185493F6
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380152AbiFMN5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:57:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54714 "EHLO
+        id S1380123AbiFMN5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:57:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379757AbiFMNxP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:53:15 -0400
+        with ESMTP id S1380072AbiFMNx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:53:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2B236AA49;
-        Mon, 13 Jun 2022 04:33:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E45056D4CD;
+        Mon, 13 Jun 2022 04:33:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9285B61037;
-        Mon, 13 Jun 2022 11:33:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2C34C3411C;
-        Mon, 13 Jun 2022 11:33:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 829416124E;
+        Mon, 13 Jun 2022 11:33:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 816D1C34114;
+        Mon, 13 Jun 2022 11:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120023;
-        bh=Gz5KKxSoQqdqXxpnd/NNBuLB+Maj7zOsdY6zfhd9yW8=;
+        s=korg; t=1655120025;
+        bh=jz1omFfR0vkzoDNm3LvoZFHbTcDVrzFygyqXxieAVTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oT+n4r6X43I0QAIEfu9K3ZLAiGL5m+4E0zA2CaJkm7GNZfIsJSeTXlA0v3Ko07fra
-         aw2wQRXilwbL5abucHXqSUZPWD7JA9sQMlWPVsQwLFB4TVdVkG8WUs0ScMYqWuK+KE
-         l0Vq0j+i2t7cjQm7NwwUBEOVA1+eSyPg1obUjZ0I=
+        b=ajPHtkfQerFY+CnaCuW+Hz+UNvh/cj7EJWD2ZrjFqgV97y1tqcKGdeEVywDK+EO3g
+         IyV62VWN1LqkofwYNTyzj+bvRwUxeqsYSvv7tqoJJMfVzB8sS6AMoXmM2S/TzqYQMg
+         WV1sv50v1geu30N3eRCVzvhTlNWXqOMkGQ1zsa0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 203/339] xsk: Fix handling of invalid descriptors in XSK TX batching API
-Date:   Mon, 13 Jun 2022 12:10:28 +0200
-Message-Id: <20220613094932.821168595@linuxfoundation.org>
+Subject: [PATCH 5.18 204/339] drm/amdgpu: fix limiting AV1 to the first instance on VCN3
+Date:   Mon, 13 Jun 2022 12:10:29 +0200
+Message-Id: <20220613094932.851562765@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
 References: <20220613094926.497929857@linuxfoundation.org>
@@ -56,83 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit d678cbd2f867a564a3c5b276c454e873f43f02f8 ]
+[ Upstream commit 1d2afeb7983081ecf656c2338c7db6fd405c653c ]
 
-xdpxceiver run on a AF_XDP ZC enabled driver revealed a problem with XSK
-Tx batching API. There is a test that checks how invalid Tx descriptors
-are handled by AF_XDP. Each valid descriptor is followed by invalid one
-on Tx side whereas the Rx side expects only to receive a set of valid
-descriptors.
+The job is not yet initialized here.
 
-In current xsk_tx_peek_release_desc_batch() function, the amount of
-available descriptors is hidden inside xskq_cons_peek_desc_batch(). This
-can be problematic in cases where invalid descriptors are present due to
-the fact that xskq_cons_peek_desc_batch() returns only a count of valid
-descriptors. This means that it is impossible to properly update XSK
-ring state when calling xskq_cons_release_n().
-
-To address this issue, pull out the contents of
-xskq_cons_peek_desc_batch() so that callers (currently only
-xsk_tx_peek_release_desc_batch()) will always be able to update the
-state of ring properly, as total count of entries is now available and
-use this value as an argument in xskq_cons_release_n(). By
-doing so, xskq_cons_peek_desc_batch() can be dropped altogether.
-
-Fixes: 9349eb3a9d2a ("xsk: Introduce batched Tx descriptor interfaces")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Link: https://lore.kernel.org/bpf/20220607142200.576735-1-maciej.fijalkowski@intel.com
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2037
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Tested-by: Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Fixes: cdc7893fc93f ("drm/amdgpu: use job and ib structures directly in CS parsers")
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xsk.c       | 5 +++--
- net/xdp/xsk_queue.h | 8 --------
- 2 files changed, 3 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
-index 3a9348030e20..d6bcdbfd0fc5 100644
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -373,7 +373,8 @@ u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
- 		goto out;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
+index cb5f0a12333f..57a34e775da3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
+@@ -1821,23 +1821,21 @@ static const struct amdgpu_ring_funcs vcn_v3_0_dec_sw_ring_vm_funcs = {
+ 	.emit_reg_write_reg_wait = amdgpu_ring_emit_reg_write_reg_wait_helper,
+ };
  
--	nb_pkts = xskq_cons_peek_desc_batch(xs->tx, pool, max_entries);
-+	max_entries = xskq_cons_nb_entries(xs->tx, max_entries);
-+	nb_pkts = xskq_cons_read_desc_batch(xs->tx, pool, max_entries);
- 	if (!nb_pkts) {
- 		xs->tx->queue_empty_descs++;
- 		goto out;
-@@ -389,7 +390,7 @@ u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
- 	if (!nb_pkts)
- 		goto out;
+-static int vcn_v3_0_limit_sched(struct amdgpu_cs_parser *p,
+-				struct amdgpu_job *job)
++static int vcn_v3_0_limit_sched(struct amdgpu_cs_parser *p)
+ {
+ 	struct drm_gpu_scheduler **scheds;
  
--	xskq_cons_release_n(xs->tx, nb_pkts);
-+	xskq_cons_release_n(xs->tx, max_entries);
- 	__xskq_cons_release(xs->tx);
- 	xs->sk.sk_write_space(&xs->sk);
+ 	/* The create msg must be in the first IB submitted */
+-	if (atomic_read(&job->base.entity->fence_seq))
++	if (atomic_read(&p->entity->fence_seq))
+ 		return -EINVAL;
  
-diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
-index 801cda5d1938..64b43f31942f 100644
---- a/net/xdp/xsk_queue.h
-+++ b/net/xdp/xsk_queue.h
-@@ -282,14 +282,6 @@ static inline bool xskq_cons_peek_desc(struct xsk_queue *q,
- 	return xskq_cons_read_desc(q, desc, pool);
+ 	scheds = p->adev->gpu_sched[AMDGPU_HW_IP_VCN_DEC]
+ 		[AMDGPU_RING_PRIO_DEFAULT].sched;
+-	drm_sched_entity_modify_sched(job->base.entity, scheds, 1);
++	drm_sched_entity_modify_sched(p->entity, scheds, 1);
+ 	return 0;
  }
  
--static inline u32 xskq_cons_peek_desc_batch(struct xsk_queue *q, struct xsk_buff_pool *pool,
--					    u32 max)
--{
--	u32 entries = xskq_cons_nb_entries(q, max);
--
--	return xskq_cons_read_desc_batch(q, pool, entries);
--}
--
- /* To improve performance in the xskq_cons_release functions, only update local state here.
-  * Reflect this to global state when we get new entries from the ring in
-  * xskq_cons_get_entries() and whenever Rx or Tx processing are completed in the NAPI loop.
+-static int vcn_v3_0_dec_msg(struct amdgpu_cs_parser *p, struct amdgpu_job *job,
+-			    uint64_t addr)
++static int vcn_v3_0_dec_msg(struct amdgpu_cs_parser *p, uint64_t addr)
+ {
+ 	struct ttm_operation_ctx ctx = { false, false };
+ 	struct amdgpu_bo_va_mapping *map;
+@@ -1908,7 +1906,7 @@ static int vcn_v3_0_dec_msg(struct amdgpu_cs_parser *p, struct amdgpu_job *job,
+ 		if (create[0] == 0x7 || create[0] == 0x10 || create[0] == 0x11)
+ 			continue;
+ 
+-		r = vcn_v3_0_limit_sched(p, job);
++		r = vcn_v3_0_limit_sched(p);
+ 		if (r)
+ 			goto out;
+ 	}
+@@ -1922,7 +1920,7 @@ static int vcn_v3_0_ring_patch_cs_in_place(struct amdgpu_cs_parser *p,
+ 					   struct amdgpu_job *job,
+ 					   struct amdgpu_ib *ib)
+ {
+-	struct amdgpu_ring *ring = to_amdgpu_ring(job->base.sched);
++	struct amdgpu_ring *ring = to_amdgpu_ring(p->entity->rq->sched);
+ 	uint32_t msg_lo = 0, msg_hi = 0;
+ 	unsigned i;
+ 	int r;
+@@ -1941,8 +1939,7 @@ static int vcn_v3_0_ring_patch_cs_in_place(struct amdgpu_cs_parser *p,
+ 			msg_hi = val;
+ 		} else if (reg == PACKET0(p->adev->vcn.internal.cmd, 0) &&
+ 			   val == 0) {
+-			r = vcn_v3_0_dec_msg(p, job,
+-					     ((u64)msg_hi) << 32 | msg_lo);
++			r = vcn_v3_0_dec_msg(p, ((u64)msg_hi) << 32 | msg_lo);
+ 			if (r)
+ 				return r;
+ 		}
 -- 
 2.35.1
 
