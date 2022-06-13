@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 328A05498FB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B5A9549171
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:28:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243189AbiFMKcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:32:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59270 "EHLO
+        id S1359363AbiFMNNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:13:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345938AbiFMKaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:30:12 -0400
+        with ESMTP id S1357815AbiFMNGc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:06:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9FAB2127E;
-        Mon, 13 Jun 2022 03:21:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88F1037A9F;
+        Mon, 13 Jun 2022 04:18:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B006FB80E5C;
-        Mon, 13 Jun 2022 10:21:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 070C7C3411C;
-        Mon, 13 Jun 2022 10:20:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1E90B80EAA;
+        Mon, 13 Jun 2022 11:18:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54D47C34114;
+        Mon, 13 Jun 2022 11:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115660;
-        bh=aRZPBIfUmeY/7zsPHU6zZqXyFI7wRPCiXmi7Q4AB3YU=;
+        s=korg; t=1655119105;
+        bh=N2lN/vr6RoxqrZh8pRE7zdpxZbQoDCiCU9uHcpBJTxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U4vCVgSGEDAM8ykTXbIk4mxe5aj0lA3vwebwm2a00DU3Mz4uj305TXd1/XqSTyl61
-         jLUHaQzECxE3NBEQug6F6t4n+hUkayvhmhAv1M9SsBfkM6UQErH/V9EZ6MLOiFaiAH
-         KO6G4g2EfbqBLUIh9Fyc0/qxusPv6GI1QG6tFxuI=
+        b=bekMBayag3qsFO7hlAnpG62Nw3faNiqfbfrtrLCR8xwu6hKnJrD6ESjfQgyHb+YZ+
+         HfXxU49rckEb0rV3D46Oi2Aing8NKepQcFiUeYD39idDw6ENhG/Of0iai3UW+KkVM3
+         NHtFVwBGhArNm6CXkLLZtRsNJCYDiyG3I+NlaDxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 163/167] Input: bcm5974 - set missing URB_NO_TRANSFER_DMA_MAP urb flag
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 135/247] powerpc/kasan: Force thread size increase with KASAN
 Date:   Mon, 13 Jun 2022 12:10:37 +0200
-Message-Id: <20220613094919.196551093@linuxfoundation.org>
+Message-Id: <20220613094927.053595378@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit c42e65664390be7c1ef3838cd84956d3a2739d60 upstream.
+[ Upstream commit 3e8635fb2e072672cbc650989ffedf8300ad67fb ]
 
-The bcm5974 driver does the allocation and dma mapping of the usb urb
-data buffer, but driver does not set the URB_NO_TRANSFER_DMA_MAP flag
-to let usb core know the buffer is already mapped.
+KASAN causes increased stack usage, which can lead to stack overflows.
 
-usb core tries to map the already mapped buffer, causing a warning:
-"xhci_hcd 0000:00:14.0: rejecting DMA map of vmalloc memory"
+The logic in Kconfig to suggest a larger default doesn't work if a user
+has CONFIG_EXPERT enabled and has an existing .config with a smaller
+value.
 
-Fix this by setting the URB_NO_TRANSFER_DMA_MAP, letting usb core
-know buffer is already mapped by bcm5974 driver
+Follow the lead of x86 and arm64, and force the thread size to be
+increased when KASAN is enabled.
 
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215890
-Link: https://lore.kernel.org/r/20220606113636.588955-1-mathias.nyman@linux.intel.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+That also has the effect of enlarging the stack for 64-bit KASAN builds,
+which is also desirable.
+
+Fixes: edbadaf06710 ("powerpc/kasan: Fix stack overflow by increasing THREAD_SHIFT")
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Use MIN_THREAD_SHIFT as suggested by Christophe]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220601143114.133524-1-mpe@ellerman.id.au
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/bcm5974.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/powerpc/Kconfig                   |  1 -
+ arch/powerpc/include/asm/thread_info.h | 10 ++++++++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -956,17 +956,22 @@ static int bcm5974_probe(struct usb_inte
- 	if (!dev->tp_data)
- 		goto err_free_bt_buffer;
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 6b9f523882c5..3bd3a3f16648 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -768,7 +768,6 @@ config THREAD_SHIFT
+ 	range 13 15
+ 	default "15" if PPC_256K_PAGES
+ 	default "14" if PPC64
+-	default "14" if KASAN
+ 	default "13"
+ 	help
+ 	  Used to define the stack size. The default is almost always what you
+diff --git a/arch/powerpc/include/asm/thread_info.h b/arch/powerpc/include/asm/thread_info.h
+index 2a4ea0e213a9..87013ac2a640 100644
+--- a/arch/powerpc/include/asm/thread_info.h
++++ b/arch/powerpc/include/asm/thread_info.h
+@@ -14,10 +14,16 @@
  
--	if (dev->bt_urb)
-+	if (dev->bt_urb) {
- 		usb_fill_int_urb(dev->bt_urb, udev,
- 				 usb_rcvintpipe(udev, cfg->bt_ep),
- 				 dev->bt_data, dev->cfg.bt_datalen,
- 				 bcm5974_irq_button, dev, 1);
+ #ifdef __KERNEL__
  
-+		dev->bt_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-+	}
+-#if defined(CONFIG_VMAP_STACK) && CONFIG_THREAD_SHIFT < PAGE_SHIFT
++#ifdef CONFIG_KASAN
++#define MIN_THREAD_SHIFT	(CONFIG_THREAD_SHIFT + 1)
++#else
++#define MIN_THREAD_SHIFT	CONFIG_THREAD_SHIFT
++#endif
 +
- 	usb_fill_int_urb(dev->tp_urb, udev,
- 			 usb_rcvintpipe(udev, cfg->tp_ep),
- 			 dev->tp_data, dev->cfg.tp_datalen,
- 			 bcm5974_irq_trackpad, dev, 1);
++#if defined(CONFIG_VMAP_STACK) && MIN_THREAD_SHIFT < PAGE_SHIFT
+ #define THREAD_SHIFT		PAGE_SHIFT
+ #else
+-#define THREAD_SHIFT		CONFIG_THREAD_SHIFT
++#define THREAD_SHIFT		MIN_THREAD_SHIFT
+ #endif
  
-+	dev->tp_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-+
- 	/* create bcm5974 device */
- 	usb_make_path(udev, dev->phys, sizeof(dev->phys));
- 	strlcat(dev->phys, "/input0", sizeof(dev->phys));
+ #define THREAD_SIZE		(1 << THREAD_SHIFT)
+-- 
+2.35.1
+
 
 
