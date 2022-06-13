@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09C175490FD
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D485497C8
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359040AbiFMNM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:12:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43524 "EHLO
+        id S1383926AbiFMObW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:31:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359479AbiFMNJ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B0B43A18D;
-        Mon, 13 Jun 2022 04:20:55 -0700 (PDT)
+        with ESMTP id S1383933AbiFMO2c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:28:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E56915839;
+        Mon, 13 Jun 2022 04:47:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7182B60F16;
-        Mon, 13 Jun 2022 11:20:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CC6EC34114;
-        Mon, 13 Jun 2022 11:20:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82607B80EA7;
+        Mon, 13 Jun 2022 11:47:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD840C341C5;
+        Mon, 13 Jun 2022 11:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119253;
-        bh=6nfGQcmOO+nzmnVXs7EuA6e3s87z59d7FQhJE3qTKds=;
+        s=korg; t=1655120840;
+        bh=2RdyjOpU/bVFs6TeY0Oges0DITMvHapRKBYEgmiqFB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pBAx25Z7mMg0QML+aNVgqy9PknqGvQcBf9bxcBMm2PnAHy2MjaDgMtGDXWtYxssh
-         8lcudWwxWUiZCp9/PkqQYV6NRtP9qk5M8V9h3aXTT1RJfpF44A1vluc3ZgGJVi5lTW
-         vkUPneb7/5kcYHucRjAwUaPG8gFEPt/FEfMFMYf4=
+        b=EGlI3DzkvStIcZN4WlzVZleTdbyXeFbUvdhOKCEgo0dHOK4YFMFzAZC8YoZL0mrlN
+         3dLBcM3dPLQbqVulFe9ubnM01we+nXFcZC3RFQnqeKHyLkzaL0XqU9P4nZ/UI42wLx
+         VLP+Y1rew8K285tSz6ozyHzuAUUHgmzGz6erfrWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 168/247] lkdtm/usercopy: Expand size of "out of frame" object
-Date:   Mon, 13 Jun 2022 12:11:10 +0200
-Message-Id: <20220613094928.054005217@linuxfoundation.org>
+Subject: [PATCH 5.17 177/298] net: dsa: lantiq_gswip: Fix refcount leak in gswip_gphy_fw_list
+Date:   Mon, 13 Jun 2022 12:11:11 +0200
+Message-Id: <20220613094930.303287409@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,73 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit f387e86d3a74407bdd9c5815820ac9d060962840 ]
+[ Upstream commit 0737e018a05e2aa352828c52bdeed3b02cff2930 ]
 
-To be sufficiently out of range for the usercopy test to see the lifetime
-mismatch, expand the size of the "bad" buffer, which will let it be
-beyond current_stack_pointer regardless of stack growth direction.
-Paired with the recent addition of stack depth checking under
-CONFIG_HARDENED_USERCOPY=y, this will correctly start tripping again.
+Every iteration of for_each_available_child_of_node() decrements
+the reference count of the previous node.
+when breaking early from a for_each_available_child_of_node() loop,
+we need to explicitly call of_node_put() on the gphy_fw_np.
+Add missing of_node_put() to avoid refcount leak.
 
-Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Link: https://lore.kernel.org/lkml/762faf1b-0443-5ddf-4430-44a20cf2ec4d@collabora.com/
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: 14fceff4771e ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220605072335.11257-1-linmq006@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/lkdtm/usercopy.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/net/dsa/lantiq_gswip.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/lkdtm/usercopy.c b/drivers/misc/lkdtm/usercopy.c
-index 9161ce7ed47a..3fead5efe523 100644
---- a/drivers/misc/lkdtm/usercopy.c
-+++ b/drivers/misc/lkdtm/usercopy.c
-@@ -30,12 +30,12 @@ static const unsigned char test_text[] = "This is a test.\n";
-  */
- static noinline unsigned char *trick_compiler(unsigned char *stack)
- {
--	return stack + 0;
-+	return stack + unconst;
- }
- 
- static noinline unsigned char *do_usercopy_stack_callee(int value)
- {
--	unsigned char buf[32];
-+	unsigned char buf[128];
- 	int i;
- 
- 	/* Exercise stack to avoid everything living in registers. */
-@@ -43,7 +43,12 @@ static noinline unsigned char *do_usercopy_stack_callee(int value)
- 		buf[i] = value & 0xff;
+diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
+index 8acec33a4702..9d8db457599c 100644
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -2021,8 +2021,10 @@ static int gswip_gphy_fw_list(struct gswip_priv *priv,
+ 	for_each_available_child_of_node(gphy_fw_list_np, gphy_fw_np) {
+ 		err = gswip_gphy_fw_probe(priv, &priv->gphy_fw[i],
+ 					  gphy_fw_np, i);
+-		if (err)
++		if (err) {
++			of_node_put(gphy_fw_np);
+ 			goto remove_gphy;
++		}
+ 		i++;
  	}
  
--	return trick_compiler(buf);
-+	/*
-+	 * Put the target buffer in the middle of stack allocation
-+	 * so that we don't step on future stack users regardless
-+	 * of stack growth direction.
-+	 */
-+	return trick_compiler(&buf[(128/2)-32]);
- }
- 
- static noinline void do_usercopy_stack(bool to_user, bool bad_frame)
-@@ -66,6 +71,12 @@ static noinline void do_usercopy_stack(bool to_user, bool bad_frame)
- 		bad_stack -= sizeof(unsigned long);
- 	}
- 
-+#ifdef ARCH_HAS_CURRENT_STACK_POINTER
-+	pr_info("stack     : %px\n", (void *)current_stack_pointer);
-+#endif
-+	pr_info("good_stack: %px-%px\n", good_stack, good_stack + sizeof(good_stack));
-+	pr_info("bad_stack : %px-%px\n", bad_stack, bad_stack + sizeof(good_stack));
-+
- 	user_addr = vm_mmap(NULL, 0, PAGE_SIZE,
- 			    PROT_READ | PROT_WRITE | PROT_EXEC,
- 			    MAP_ANONYMOUS | MAP_PRIVATE, 0);
 -- 
 2.35.1
 
