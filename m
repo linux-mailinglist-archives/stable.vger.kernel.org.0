@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63BA25490F9
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 958445490EC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357694AbiFMMA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:00:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41402 "EHLO
+        id S1382529AbiFMORs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:17:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358191AbiFML7h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:59:37 -0400
+        with ESMTP id S1381962AbiFMOQS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:16:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A2934DF7E;
-        Mon, 13 Jun 2022 03:56:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8297EA005E;
+        Mon, 13 Jun 2022 04:43:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1EBC6139D;
-        Mon, 13 Jun 2022 10:56:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AECCCC34114;
-        Mon, 13 Jun 2022 10:56:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ECCC6146C;
+        Mon, 13 Jun 2022 11:43:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 712FEC34114;
+        Mon, 13 Jun 2022 11:43:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117794;
-        bh=HTFSOGHBWdRDwUFiV3IKhBF8OEM33YNKdbdeRaZD1kI=;
+        s=korg; t=1655120590;
+        bh=Y1PrFQd2z7ks6vExBBUqZskoendISOySkhLR5eHinlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZ0wmuBRgNZ4chIBX6Be7U1G76rUmkbpOPLaDmtL5WCIw5Z82+BTSpMZeQ4/ZXlAV
-         VSnMUHRloKAOzEbd/zHolyKBUfeWsvyJzJk0lM2Mr1vl9O0Dd5jv6hL+bG0a9WC5Z6
-         oROUBibufwL/w6tsAEG3PnI3ytvUleroM1KonJ6Q=
+        b=i4FqH5/zZUUojN14cKhl8P42fuczxS2wxM4BOc7IqYj6eYsh98DrpTO0E8sJQ/+z2
+         LBL7wvde87FQOA0R8nlFh2qHp3ftVC6buxS/vbIfoQOz4NEJeRH7vx+5lE0wFRKL8J
+         JMo+h2J9aTDRVxFyT8J3ZI4XsGiuLErx6ej3OlcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 134/287] i2c: at91: use dma safe buffers
+        stable@vger.kernel.org, Paul Walmsley <paul.walmsley@sifive.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 064/298] serial: sifive: Sanitize CSIZE and c_iflag
 Date:   Mon, 13 Jun 2022 12:09:18 +0200
-Message-Id: <20220613094927.943345073@linuxfoundation.org>
+Message-Id: <20220613094926.889268399@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 03fbb903c8bf7e53e101e8d9a7b261264317c411 ]
+[ Upstream commit c069d2756c01ed36121fae6a42c14fdf1325c71d ]
 
-The supplied buffer might be on the stack and we get the following error
-message:
-[    3.312058] at91_i2c e0070600.i2c: rejecting DMA map of vmalloc memory
+Only CS8 is supported but CSIZE was not sanitized to CS8.
 
-Use i2c_{get,put}_dma_safe_msg_buf() to get a DMA-able memory region if
-necessary.
+Set CSIZE correctly so that userspace knows the effective value.
+Incorrect CSIZE also results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
 
-Fixes: 60937b2cdbf9 ("i2c: at91: add dma support")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Similarly, INPCK, PARMRK, and BRKINT are reported textually unsupported
+but were not cleared in termios c_iflag which is the machine-readable
+format.
+
+Fixes: 45c054d0815b (tty: serial: add driver for the SiFive UART)
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-7-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-at91.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/tty/serial/sifive.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index d51bf536bdf7..d5119a2adf5d 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -757,6 +757,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 	unsigned int_addr_flag = 0;
- 	struct i2c_msg *m_start = msg;
- 	bool is_read;
-+	u8 *dma_buf;
+diff --git a/drivers/tty/serial/sifive.c b/drivers/tty/serial/sifive.c
+index fff0b7916f3d..cba44483cb03 100644
+--- a/drivers/tty/serial/sifive.c
++++ b/drivers/tty/serial/sifive.c
+@@ -666,12 +666,16 @@ static void sifive_serial_set_termios(struct uart_port *port,
+ 	int rate;
+ 	char nstop;
  
- 	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
- 
-@@ -804,7 +805,17 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 	dev->msg = m_start;
- 	dev->recv_len_abort = false;
- 
-+	if (dev->use_dma) {
-+		dma_buf = i2c_get_dma_safe_msg_buf(m_start, 1);
-+		if (!dma_buf) {
-+			ret = -ENOMEM;
-+			goto out;
-+		}
-+		dev->buf = dma_buf;
+-	if ((termios->c_cflag & CSIZE) != CS8)
++	if ((termios->c_cflag & CSIZE) != CS8) {
+ 		dev_err_once(ssp->port.dev, "only 8-bit words supported\n");
++		termios->c_cflag &= ~CSIZE;
++		termios->c_cflag |= CS8;
 +	}
-+
- 	ret = at91_do_twi_transfer(dev);
-+	i2c_put_dma_safe_msg_buf(dma_buf, m_start, !ret);
+ 	if (termios->c_iflag & (INPCK | PARMRK))
+ 		dev_err_once(ssp->port.dev, "parity checking not supported\n");
+ 	if (termios->c_iflag & BRKINT)
+ 		dev_err_once(ssp->port.dev, "BREAK detection not supported\n");
++	termios->c_iflag &= ~(INPCK|PARMRK|BRKINT);
  
- 	ret = (ret < 0) ? ret : num;
- out:
+ 	/* Set number of stop bits */
+ 	nstop = (termios->c_cflag & CSTOPB) ? 2 : 1;
 -- 
 2.35.1
 
