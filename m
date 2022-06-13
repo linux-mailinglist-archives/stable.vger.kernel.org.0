@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A2DA548EAB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71CA0549485
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380987AbiFMOHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:07:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43210 "EHLO
+        id S1384744AbiFMOlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:41:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381022AbiFMODZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:03:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E70E4550C;
-        Mon, 13 Jun 2022 04:38:31 -0700 (PDT)
+        with ESMTP id S1385499AbiFMOkL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:40:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1919AF31D;
+        Mon, 13 Jun 2022 04:50:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7F56B80ECD;
-        Mon, 13 Jun 2022 11:38:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65DCCC34114;
-        Mon, 13 Jun 2022 11:38:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92DB56146E;
+        Mon, 13 Jun 2022 11:50:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 957B2C34114;
+        Mon, 13 Jun 2022 11:50:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120308;
-        bh=gbB36lepBkbWC774q08+PNylmooVNJXDF/maPQEkFZA=;
+        s=korg; t=1655121007;
+        bh=jE3W0hdEMyYHxjf7LaaIstu20hqOtMFfzW4n4q0p/Ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPex+6N7BkGrKLLiGsHbn1k3BS/eVRjaFE2bw9SP4hEJzurBGHfm+RGIys++RjsME
-         jjRVA5jU9MSqoQOvfuxy1RxSACbWTQavzTeICYUgLNPPjIfJdSuylpvxdWkpBY3vCP
-         yt3cqko0EwtbOc8ZR245s5G1BdscW8dkq+13RN/g=
+        b=hwc1z0MTMk94Dr7Vs+NMklXq9TjDAmVCsUgoZS7Z2BCc6cw6io/sr3iaPqp0chFy8
+         sLp0YCkqJg1O5Rp8ms28ZNQCoRhXYD2pCoITmMf6YEuJlmsEpTMA0mz4ca5o42PuB2
+         BzdTi5iIarWAohvoI8DDHPsSN14CokExh0gV6s80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.18 306/339] KVM: SVM: fix tsc scaling cache logic
+        stable@vger.kernel.org, Jouni Malinen <j@w1.fi>,
+        Johannes Berg <johannes.berg@intel.com>,
+        anton ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 237/298] um: line: Use separate IRQs per line
 Date:   Mon, 13 Jun 2022 12:12:11 +0200
-Message-Id: <20220613094936.039355710@linuxfoundation.org>
+Message-Id: <20220613094932.278694700@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,146 +56,252 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 11d39e8cc43e1c6737af19ca9372e590061b5ad2 upstream.
+[ Upstream commit d5a9597d6916a76663085db984cb8fe97f0a5c56 ]
 
-SVM uses a per-cpu variable to cache the current value of the
-tsc scaling multiplier msr on each cpu.
+Today, all possible serial lines (ssl*=) as well as all
+possible consoles (con*=) each share a single interrupt
+(with a fixed number) with others of the same type.
 
-Commit 1ab9287add5e2
-("KVM: X86: Add vendor callbacks for writing the TSC multiplier")
-broke this caching logic.
+Now, if you have two lines, say ssl0 and ssl1, and one
+of them is connected to an fd you cannot read (e.g. a
+file), but the other gets a read interrupt, then both
+of them get the interrupt since it's shared. Then, the
+read() call will return EOF, since it's a file being
+written and there's nothing to read (at least not at
+the current offset, at the end).
 
-Refactor the code so that all TSC scaling multiplier writes go through
-a single function which checks and updates the cache.
+Unfortunately, this is treated as a read error, and we
+close this line, losing all the possible output.
 
-This fixes the following scenario:
+It might be possible to work around this and make the
+IRQ sharing work, however, now that we have dynamically
+allocated IRQs that are easy to use, simply use that to
+achieve separating between the events; then there's no
+interrupt for that line and we never attempt the read
+in the first place, thus not closing the line.
 
-1. A CPU runs a guest with some tsc scaling ratio.
+This manifested itself in the wifi hostap/hwsim tests
+where the parallel script communicates via one serial
+console and the kernel messages go to another (a file)
+and sending data on the communication console caused
+the kernel messages to stop flowing into the file.
 
-2. New guest with different tsc scaling ratio starts on this CPU
-   and terminates almost immediately.
-
-   This ensures that the short running guest had set the tsc scaling ratio just
-   once when it was set via KVM_SET_TSC_KHZ. Due to the bug,
-   the per-cpu cache is not updated.
-
-3. The original guest continues to run, it doesn't restore the msr
-   value back to its own value, because the cache matches,
-   and thus continues to run with a wrong tsc scaling ratio.
-
-Fixes: 1ab9287add5e2 ("KVM: X86: Add vendor callbacks for writing the TSC multiplier")
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20220606181149.103072-1-mlevitsk@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Jouni Malinen <j@w1.fi>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Acked-By: anton ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/nested.c |    4 ++--
- arch/x86/kvm/svm/svm.c    |   32 ++++++++++++++++++++------------
- arch/x86/kvm/svm/svm.h    |    2 +-
- 3 files changed, 23 insertions(+), 15 deletions(-)
+ arch/um/drivers/chan_kern.c     | 10 +++++-----
+ arch/um/drivers/line.c          | 22 +++++++++++++---------
+ arch/um/drivers/line.h          |  4 ++--
+ arch/um/drivers/ssl.c           |  2 --
+ arch/um/drivers/stdio_console.c |  2 --
+ arch/um/include/asm/irq.h       | 22 +++++++++-------------
+ 6 files changed, 29 insertions(+), 33 deletions(-)
 
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -896,7 +896,7 @@ int nested_svm_vmexit(struct vcpu_svm *s
- 	if (svm->tsc_ratio_msr != kvm_default_tsc_scaling_ratio) {
- 		WARN_ON(!svm->tsc_scaling_enabled);
- 		vcpu->arch.tsc_scaling_ratio = vcpu->arch.l1_tsc_scaling_ratio;
--		svm_write_tsc_multiplier(vcpu, vcpu->arch.tsc_scaling_ratio);
-+		__svm_write_tsc_multiplier(vcpu->arch.tsc_scaling_ratio);
+diff --git a/arch/um/drivers/chan_kern.c b/arch/um/drivers/chan_kern.c
+index 62997055c454..26a702a06515 100644
+--- a/arch/um/drivers/chan_kern.c
++++ b/arch/um/drivers/chan_kern.c
+@@ -133,7 +133,7 @@ static void line_timer_cb(struct work_struct *work)
+ 	struct line *line = container_of(work, struct line, task.work);
+ 
+ 	if (!line->throttled)
+-		chan_interrupt(line, line->driver->read_irq);
++		chan_interrupt(line, line->read_irq);
+ }
+ 
+ int enable_chan(struct line *line)
+@@ -195,9 +195,9 @@ void free_irqs(void)
+ 		chan = list_entry(ele, struct chan, free_list);
+ 
+ 		if (chan->input && chan->enabled)
+-			um_free_irq(chan->line->driver->read_irq, chan);
++			um_free_irq(chan->line->read_irq, chan);
+ 		if (chan->output && chan->enabled)
+-			um_free_irq(chan->line->driver->write_irq, chan);
++			um_free_irq(chan->line->write_irq, chan);
+ 		chan->enabled = 0;
  	}
- 
- 	svm->nested.ctl.nested_cr3 = 0;
-@@ -1293,7 +1293,7 @@ void nested_svm_update_tsc_ratio_msr(str
- 	vcpu->arch.tsc_scaling_ratio =
- 		kvm_calc_nested_tsc_multiplier(vcpu->arch.l1_tsc_scaling_ratio,
- 					       svm->tsc_ratio_msr);
--	svm_write_tsc_multiplier(vcpu, vcpu->arch.tsc_scaling_ratio);
-+	__svm_write_tsc_multiplier(vcpu->arch.tsc_scaling_ratio);
  }
+@@ -215,9 +215,9 @@ static void close_one_chan(struct chan *chan, int delay_free_irq)
+ 		spin_unlock_irqrestore(&irqs_to_free_lock, flags);
+ 	} else {
+ 		if (chan->input && chan->enabled)
+-			um_free_irq(chan->line->driver->read_irq, chan);
++			um_free_irq(chan->line->read_irq, chan);
+ 		if (chan->output && chan->enabled)
+-			um_free_irq(chan->line->driver->write_irq, chan);
++			um_free_irq(chan->line->write_irq, chan);
+ 		chan->enabled = 0;
+ 	}
+ 	if (chan->ops->close != NULL)
+diff --git a/arch/um/drivers/line.c b/arch/um/drivers/line.c
+index 8febf95da96e..02b0befd6763 100644
+--- a/arch/um/drivers/line.c
++++ b/arch/um/drivers/line.c
+@@ -139,7 +139,7 @@ static int flush_buffer(struct line *line)
+ 		count = line->buffer + LINE_BUFSIZE - line->head;
  
- /* Inverse operation of nested_copy_vmcb_control_to_cache(). asid is copied too. */
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -463,11 +463,24 @@ static int has_svm(void)
- 	return 1;
- }
+ 		n = write_chan(line->chan_out, line->head, count,
+-			       line->driver->write_irq);
++			       line->write_irq);
+ 		if (n < 0)
+ 			return n;
+ 		if (n == count) {
+@@ -156,7 +156,7 @@ static int flush_buffer(struct line *line)
  
-+void __svm_write_tsc_multiplier(u64 multiplier)
-+{
-+	preempt_disable();
-+
-+	if (multiplier == __this_cpu_read(current_tsc_ratio))
-+		goto out;
-+
-+	wrmsrl(MSR_AMD64_TSC_RATIO, multiplier);
-+	__this_cpu_write(current_tsc_ratio, multiplier);
-+out:
-+	preempt_enable();
-+}
-+
- static void svm_hardware_disable(void)
+ 	count = line->tail - line->head;
+ 	n = write_chan(line->chan_out, line->head, count,
+-		       line->driver->write_irq);
++		       line->write_irq);
+ 
+ 	if (n < 0)
+ 		return n;
+@@ -195,7 +195,7 @@ int line_write(struct tty_struct *tty, const unsigned char *buf, int len)
+ 		ret = buffer_data(line, buf, len);
+ 	else {
+ 		n = write_chan(line->chan_out, buf, len,
+-			       line->driver->write_irq);
++			       line->write_irq);
+ 		if (n < 0) {
+ 			ret = n;
+ 			goto out_up;
+@@ -215,7 +215,7 @@ void line_throttle(struct tty_struct *tty)
  {
- 	/* Make sure we clean up behind us */
- 	if (tsc_scaling)
--		wrmsrl(MSR_AMD64_TSC_RATIO, SVM_TSC_RATIO_DEFAULT);
-+		__svm_write_tsc_multiplier(SVM_TSC_RATIO_DEFAULT);
+ 	struct line *line = tty->driver_data;
  
- 	cpu_svm_disable();
- 
-@@ -513,8 +526,7 @@ static int svm_hardware_enable(void)
- 		 * Set the default value, even if we don't use TSC scaling
- 		 * to avoid having stale value in the msr
- 		 */
--		wrmsrl(MSR_AMD64_TSC_RATIO, SVM_TSC_RATIO_DEFAULT);
--		__this_cpu_write(current_tsc_ratio, SVM_TSC_RATIO_DEFAULT);
-+		__svm_write_tsc_multiplier(SVM_TSC_RATIO_DEFAULT);
- 	}
- 
- 
-@@ -915,11 +927,12 @@ static void svm_write_tsc_offset(struct
- 	vmcb_mark_dirty(svm->vmcb, VMCB_INTERCEPTS);
+-	deactivate_chan(line->chan_in, line->driver->read_irq);
++	deactivate_chan(line->chan_in, line->read_irq);
+ 	line->throttled = 1;
  }
  
--void svm_write_tsc_multiplier(struct kvm_vcpu *vcpu, u64 multiplier)
-+static void svm_write_tsc_multiplier(struct kvm_vcpu *vcpu, u64 multiplier)
- {
--	wrmsrl(MSR_AMD64_TSC_RATIO, multiplier);
-+	__svm_write_tsc_multiplier(multiplier);
+@@ -224,7 +224,7 @@ void line_unthrottle(struct tty_struct *tty)
+ 	struct line *line = tty->driver_data;
+ 
+ 	line->throttled = 0;
+-	chan_interrupt(line, line->driver->read_irq);
++	chan_interrupt(line, line->read_irq);
  }
  
+ static irqreturn_t line_write_interrupt(int irq, void *data)
+@@ -260,19 +260,23 @@ int line_setup_irq(int fd, int input, int output, struct line *line, void *data)
+ 	int err;
+ 
+ 	if (input) {
+-		err = um_request_irq(driver->read_irq, fd, IRQ_READ,
+-				     line_interrupt, IRQF_SHARED,
++		err = um_request_irq(UM_IRQ_ALLOC, fd, IRQ_READ,
++				     line_interrupt, 0,
+ 				     driver->read_irq_name, data);
+ 		if (err < 0)
+ 			return err;
 +
- /* Evaluate instruction intercepts that depend on guest CPUID features. */
- static void svm_recalc_instruction_intercepts(struct kvm_vcpu *vcpu,
- 					      struct vcpu_svm *svm)
-@@ -1276,13 +1289,8 @@ static void svm_prepare_switch_to_guest(
- 		sev_es_prepare_switch_to_guest(hostsa);
++		line->read_irq = err;
  	}
  
--	if (tsc_scaling) {
--		u64 tsc_ratio = vcpu->arch.tsc_scaling_ratio;
--		if (tsc_ratio != __this_cpu_read(current_tsc_ratio)) {
--			__this_cpu_write(current_tsc_ratio, tsc_ratio);
--			wrmsrl(MSR_AMD64_TSC_RATIO, tsc_ratio);
--		}
--	}
-+	if (tsc_scaling)
-+		__svm_write_tsc_multiplier(vcpu->arch.tsc_scaling_ratio);
+ 	if (output) {
+-		err = um_request_irq(driver->write_irq, fd, IRQ_WRITE,
+-				     line_write_interrupt, IRQF_SHARED,
++		err = um_request_irq(UM_IRQ_ALLOC, fd, IRQ_WRITE,
++				     line_write_interrupt, 0,
+ 				     driver->write_irq_name, data);
+ 		if (err < 0)
+ 			return err;
++
++		line->write_irq = err;
+ 	}
  
- 	if (likely(tsc_aux_uret_slot >= 0))
- 		kvm_set_user_return_msr(tsc_aux_uret_slot, svm->tsc_aux, -1ull);
---- a/arch/x86/kvm/svm/svm.h
-+++ b/arch/x86/kvm/svm/svm.h
-@@ -558,7 +558,7 @@ int nested_svm_check_exception(struct vc
- 			       bool has_error_code, u32 error_code);
- int nested_svm_exit_special(struct vcpu_svm *svm);
- void nested_svm_update_tsc_ratio_msr(struct kvm_vcpu *vcpu);
--void svm_write_tsc_multiplier(struct kvm_vcpu *vcpu, u64 multiplier);
-+void __svm_write_tsc_multiplier(u64 multiplier);
- void nested_copy_vmcb_control_to_cache(struct vcpu_svm *svm,
- 				       struct vmcb_control_area *control);
- void nested_copy_vmcb_save_to_cache(struct vcpu_svm *svm,
+ 	return 0;
+diff --git a/arch/um/drivers/line.h b/arch/um/drivers/line.h
+index bdb16b96e76f..f15be75a3bf3 100644
+--- a/arch/um/drivers/line.h
++++ b/arch/um/drivers/line.h
+@@ -23,9 +23,7 @@ struct line_driver {
+ 	const short minor_start;
+ 	const short type;
+ 	const short subtype;
+-	const int read_irq;
+ 	const char *read_irq_name;
+-	const int write_irq;
+ 	const char *write_irq_name;
+ 	struct mc_device mc;
+ 	struct tty_driver *driver;
+@@ -35,6 +33,8 @@ struct line {
+ 	struct tty_port port;
+ 	int valid;
+ 
++	int read_irq, write_irq;
++
+ 	char *init_str;
+ 	struct list_head chan_list;
+ 	struct chan *chan_in, *chan_out;
+diff --git a/arch/um/drivers/ssl.c b/arch/um/drivers/ssl.c
+index 41eae2e8fb65..8514966778d5 100644
+--- a/arch/um/drivers/ssl.c
++++ b/arch/um/drivers/ssl.c
+@@ -47,9 +47,7 @@ static struct line_driver driver = {
+ 	.minor_start 		= 64,
+ 	.type 		 	= TTY_DRIVER_TYPE_SERIAL,
+ 	.subtype 	 	= 0,
+-	.read_irq 		= SSL_IRQ,
+ 	.read_irq_name 		= "ssl",
+-	.write_irq 		= SSL_WRITE_IRQ,
+ 	.write_irq_name 	= "ssl-write",
+ 	.mc  = {
+ 		.list		= LIST_HEAD_INIT(driver.mc.list),
+diff --git a/arch/um/drivers/stdio_console.c b/arch/um/drivers/stdio_console.c
+index e8b762f4d8c2..489d5a746ed3 100644
+--- a/arch/um/drivers/stdio_console.c
++++ b/arch/um/drivers/stdio_console.c
+@@ -53,9 +53,7 @@ static struct line_driver driver = {
+ 	.minor_start 		= 0,
+ 	.type 		 	= TTY_DRIVER_TYPE_CONSOLE,
+ 	.subtype 	 	= SYSTEM_TYPE_CONSOLE,
+-	.read_irq 		= CONSOLE_IRQ,
+ 	.read_irq_name 		= "console",
+-	.write_irq 		= CONSOLE_WRITE_IRQ,
+ 	.write_irq_name 	= "console-write",
+ 	.mc  = {
+ 		.list		= LIST_HEAD_INIT(driver.mc.list),
+diff --git a/arch/um/include/asm/irq.h b/arch/um/include/asm/irq.h
+index e187c789369d..749dfe8512e8 100644
+--- a/arch/um/include/asm/irq.h
++++ b/arch/um/include/asm/irq.h
+@@ -4,19 +4,15 @@
+ 
+ #define TIMER_IRQ		0
+ #define UMN_IRQ			1
+-#define CONSOLE_IRQ		2
+-#define CONSOLE_WRITE_IRQ	3
+-#define UBD_IRQ			4
+-#define UM_ETH_IRQ		5
+-#define SSL_IRQ			6
+-#define SSL_WRITE_IRQ		7
+-#define ACCEPT_IRQ		8
+-#define MCONSOLE_IRQ		9
+-#define WINCH_IRQ		10
+-#define SIGIO_WRITE_IRQ 	11
+-#define TELNETD_IRQ 		12
+-#define XTERM_IRQ 		13
+-#define RANDOM_IRQ 		14
++#define UBD_IRQ			2
++#define UM_ETH_IRQ		3
++#define ACCEPT_IRQ		4
++#define MCONSOLE_IRQ		5
++#define WINCH_IRQ		6
++#define SIGIO_WRITE_IRQ 	7
++#define TELNETD_IRQ 		8
++#define XTERM_IRQ 		9
++#define RANDOM_IRQ 		10
+ 
+ #ifdef CONFIG_UML_NET_VECTOR
+ 
+-- 
+2.35.1
+
 
 
