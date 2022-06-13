@@ -2,46 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B5A1548B54
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B9DC549667
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236961AbiFMKal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:30:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58730 "EHLO
+        id S1383497AbiFMO0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:26:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345365AbiFMK3e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:29:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 757DC1E3D1;
-        Mon, 13 Jun 2022 03:20:48 -0700 (PDT)
+        with ESMTP id S1383774AbiFMOX7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:23:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F0932E9C3;
+        Mon, 13 Jun 2022 04:45:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E886A60AE8;
-        Mon, 13 Jun 2022 10:20:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0546CC34114;
-        Mon, 13 Jun 2022 10:20:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D263B80D31;
+        Mon, 13 Jun 2022 11:45:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C149C34114;
+        Mon, 13 Jun 2022 11:45:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115647;
-        bh=sXA8eHrhDiaMO3chv+YN3qGZ4+qj4uRNBHrPjyUh5X0=;
+        s=korg; t=1655120711;
+        bh=oPvLPVSnUwxVm9FEdOgtJaVg+07QbMxAqqkLoJz7sQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZbBsxk8WsqnFDz5gSRTm3ymzNSxm3ZvLl3CCE5DS4tf6eatESI1QwGDKPDA+KxIe
-         h/eyo9deYVbOrQ/ASe+muFp/9eykYTiSpL4zqUBdQG2SjE/1jS0wnT1MBPkJK96uQm
-         9uYYyPdedNoMCx0XFAOTip6nEKKmoLJ95yXH/yiw=
+        b=mC1oKz5XQQ4FSuzEWv36Szzu4cC8f3fYAqVoDEDiCyTkqnHMl1+FZ0n1UsDMQe23b
+         fefHXBs+APAYY6m0JmnKBta7N9H52KUHz5EGAuRVqVKEuVc+Ja5Ta7XsR13rxbKa6I
+         rQl+GzIFNHLBEe938g3KSKQyH4wn3y3itEB9I8T4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Wang Cheng <wanngchenng@gmail.com>,
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 150/167] staging: rtl8712: fix uninit-value in r871xu_drv_init()
+Subject: [PATCH 5.17 130/298] perf record: Support sample-read topdown metric group for hybrid platforms
 Date:   Mon, 13 Jun 2022 12:10:24 +0200
-Message-Id: <20220613094916.074090220@linuxfoundation.org>
+Message-Id: <20220613094928.886152999@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,86 +61,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Cheng <wanngchenng@gmail.com>
+From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
 
-[ Upstream commit 0458e5428e5e959d201a40ffe71d762a79ecedc4 ]
+[ Upstream commit 151e7d75036b4e2ac0f33730bc1a5b3ff424d9a7 ]
 
-When 'tmpU1b' returns from r8712_read8(padapter, EE_9346CR) is 0,
-'mac[6]' will not be initialized.
+With the hardware TopDown metrics feature, the sample-read feature should
+be supported for a TopDown group, e.g., sample a non-topdown event and read
+a Topdown metric group. But the current perf record code errors are out.
 
-BUG: KMSAN: uninit-value in r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
- r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
- usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
- really_probe+0x653/0x14b0 drivers/base/dd.c:596
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_set_configuration+0x37e9/0x3ed0 drivers/usb/core/message.c:2170
- usb_generic_driver_probe+0x13c/0x300 drivers/usb/core/generic.c:238
- usb_probe_device+0x309/0x570 drivers/usb/core/driver.c:293
- really_probe+0x653/0x14b0 drivers/base/dd.c:596
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_new_device+0x1b8e/0x2950 drivers/usb/core/hub.c:2566
- hub_port_connect drivers/usb/core/hub.c:5358 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5502 [inline]
- port_event drivers/usb/core/hub.c:5660 [inline]
- hub_event+0x58e3/0x89e0 drivers/usb/core/hub.c:5742
- process_one_work+0xdb6/0x1820 kernel/workqueue.c:2307
- worker_thread+0x10b3/0x21e0 kernel/workqueue.c:2454
- kthread+0x3c7/0x500 kernel/kthread.c:377
- ret_from_fork+0x1f/0x30
+For a TopDown metric group,the slots event must be the leader of the group,
+but the leader slots event doesn't support sampling. To support sample-read
+the TopDown metric group, uses the 2nd event of the group as the "leader"
+for the purposes of sampling.
 
-Local variable mac created at:
- r871xu_drv_init+0x1771/0x3070 drivers/staging/rtl8712/usb_intf.c:394
- usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
+Only the platform with the TopDown metric feature supports sample-read the
+topdown group. In commit acb65150a47c ("perf record: Support sample-read
+topdown metric group"), it adds arch_topdown_sample_read() to indicate
+whether the TopDown group supports sample-read, it should only work on the
+non-hybrid systems, this patch extends the support for hybrid platforms.
 
-KMSAN: uninit-value in r871xu_drv_init
-https://syzkaller.appspot.com/bug?id=3cd92b1d85428b128503bfa7a250294c9ae00bd8
+Before:
 
-Reported-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
-Tested-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
-Link: https://lore.kernel.org/r/14c3886173dfa4597f0704547c414cfdbcd11d16.1652618244.git.wanngchenng@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  # ./perf record -e "{cpu_core/slots/,cpu_core/cycles/,cpu_core/topdown-retiring/}:S" -a sleep 1
+  Error:
+  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (cpu_core/topdown-retiring/).
+  /bin/dmesg | grep -i perf may provide additional information.
+
+After:
+
+  # ./perf record -e "{cpu_core/slots/,cpu_core/cycles/,cpu_core/topdown-retiring/}:S" -a sleep 1
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.238 MB perf.data (369 samples) ]
+
+Fixes: acb65150a47c2bae ("perf record: Support sample-read topdown metric group")
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220602153603.1884710-1-zhengjun.xing@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/usb_intf.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/perf/arch/x86/util/evsel.c   |  3 ++-
+ tools/perf/arch/x86/util/evsel.h   |  7 +++++++
+ tools/perf/arch/x86/util/topdown.c | 21 ++++-----------------
+ 3 files changed, 13 insertions(+), 18 deletions(-)
+ create mode 100644 tools/perf/arch/x86/util/evsel.h
 
-diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
-index d0ba42dfafeb..7b7cb2a7db60 100644
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -569,13 +569,13 @@ static int r871xu_drv_init(struct usb_interface *pusb_intf,
- 		} else {
- 			AutoloadFail = false;
- 		}
--		if (((mac[0] == 0xff) && (mac[1] == 0xff) &&
-+		if ((!AutoloadFail) ||
-+		    ((mac[0] == 0xff) && (mac[1] == 0xff) &&
- 		     (mac[2] == 0xff) && (mac[3] == 0xff) &&
- 		     (mac[4] == 0xff) && (mac[5] == 0xff)) ||
- 		    ((mac[0] == 0x00) && (mac[1] == 0x00) &&
- 		     (mac[2] == 0x00) && (mac[3] == 0x00) &&
--		     (mac[4] == 0x00) && (mac[5] == 0x00)) ||
--		     (!AutoloadFail)) {
-+		     (mac[4] == 0x00) && (mac[5] == 0x00))) {
- 			mac[0] = 0x00;
- 			mac[1] = 0xe0;
- 			mac[2] = 0x4c;
+diff --git a/tools/perf/arch/x86/util/evsel.c b/tools/perf/arch/x86/util/evsel.c
+index ff4561b7b600..3501399cef35 100644
+--- a/tools/perf/arch/x86/util/evsel.c
++++ b/tools/perf/arch/x86/util/evsel.c
+@@ -5,6 +5,7 @@
+ #include "util/env.h"
+ #include "util/pmu.h"
+ #include "linux/string.h"
++#include "evsel.h"
+ 
+ void arch_evsel__set_sample_weight(struct evsel *evsel)
+ {
+@@ -32,7 +33,7 @@ void arch_evsel__fixup_new_cycles(struct perf_event_attr *attr)
+ }
+ 
+ /* Check whether the evsel's PMU supports the perf metrics */
+-static bool evsel__sys_has_perf_metrics(const struct evsel *evsel)
++bool evsel__sys_has_perf_metrics(const struct evsel *evsel)
+ {
+ 	const char *pmu_name = evsel->pmu_name ? evsel->pmu_name : "cpu";
+ 
+diff --git a/tools/perf/arch/x86/util/evsel.h b/tools/perf/arch/x86/util/evsel.h
+new file mode 100644
+index 000000000000..19ad1691374d
+--- /dev/null
++++ b/tools/perf/arch/x86/util/evsel.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _EVSEL_H
++#define _EVSEL_H 1
++
++bool evsel__sys_has_perf_metrics(const struct evsel *evsel);
++
++#endif
+diff --git a/tools/perf/arch/x86/util/topdown.c b/tools/perf/arch/x86/util/topdown.c
+index f4d5422e9960..f81a7cfe4d63 100644
+--- a/tools/perf/arch/x86/util/topdown.c
++++ b/tools/perf/arch/x86/util/topdown.c
+@@ -4,6 +4,7 @@
+ #include "util/pmu.h"
+ #include "util/topdown.h"
+ #include "topdown.h"
++#include "evsel.h"
+ 
+ /* Check whether there is a PMU which supports the perf metrics. */
+ bool topdown_sys_has_perf_metrics(void)
+@@ -55,33 +56,19 @@ void arch_topdown_group_warn(void)
+ 
+ #define TOPDOWN_SLOTS		0x0400
+ 
+-static bool is_topdown_slots_event(struct evsel *counter)
+-{
+-	if (!counter->pmu_name)
+-		return false;
+-
+-	if (strcmp(counter->pmu_name, "cpu"))
+-		return false;
+-
+-	if (counter->core.attr.config == TOPDOWN_SLOTS)
+-		return true;
+-
+-	return false;
+-}
+-
+ /*
+  * Check whether a topdown group supports sample-read.
+  *
+- * Only Topdown metic supports sample-read. The slots
++ * Only Topdown metric supports sample-read. The slots
+  * event must be the leader of the topdown group.
+  */
+ 
+ bool arch_topdown_sample_read(struct evsel *leader)
+ {
+-	if (!pmu_have_event("cpu", "slots"))
++	if (!evsel__sys_has_perf_metrics(leader))
+ 		return false;
+ 
+-	if (is_topdown_slots_event(leader))
++	if (leader->core.attr.config == TOPDOWN_SLOTS)
+ 		return true;
+ 
+ 	return false;
 -- 
 2.35.1
 
