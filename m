@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 741E2548929
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5ABC5490DA
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359489AbiFMNN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:13:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41612 "EHLO
+        id S1384938AbiFMOlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376260AbiFMNKq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:10:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E1C25BE72;
-        Mon, 13 Jun 2022 04:21:40 -0700 (PDT)
+        with ESMTP id S1385751AbiFMOkm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:40:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E169EB042C;
+        Mon, 13 Jun 2022 04:50:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22174B80EAA;
-        Mon, 13 Jun 2022 11:21:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76098C34114;
-        Mon, 13 Jun 2022 11:21:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69CA9B80EA7;
+        Mon, 13 Jun 2022 11:50:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2F39C34114;
+        Mon, 13 Jun 2022 11:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119297;
-        bh=O1BECb1BwhYEIW1CUebpdzDbEJQLtGkgaLnnWW6lRNQ=;
+        s=korg; t=1655121026;
+        bh=O81XcMlN/TnTWCUyaNqzBZdDsQkHdCrUlFjxtCxOq20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yPCRmRWOnd+ctDFeE9FWUwzyYRufK5dfVY3H5SKAe+se4yhN+ZFjb+BhXwO1mj8DL
-         esNhfTGOyCGTZUkEr3pCYIEnReSzP4yutS1ss7sIqIiLNuGCSAVI10bkGgbE6Q1jo5
-         4xFaunG6l2t90+kWvKXKvIUayTE+mrCOKOBNRReA=
+        b=oJDAJFQj3y59JV1wA98+KYrujJrque0DTYAjKcJM3I3P/k4mAOPQG/mFcQSkFgDGo
+         OXlKSzpUKpejG2Wx9tZneGaa77G+fyQ2E/yzPvmG4HJOMkTBi4VTVjUtFGHvkg6BkU
+         iDpqciavL/Qsd0p1N6pMT3QEerNhbYf6rzkCYOpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Fam Zheng <fam.zheng@bytedance.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Wang Cheng <wanngchenng@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 212/247] vringh: Fix loop descriptors check in the indirect cases
-Date:   Mon, 13 Jun 2022 12:11:54 +0200
-Message-Id: <20220613094929.370619513@linuxfoundation.org>
+Subject: [PATCH 5.17 221/298] staging: rtl8712: fix uninit-value in r871xu_drv_init()
+Date:   Mon, 13 Jun 2022 12:11:55 +0200
+Message-Id: <20220613094931.804794972@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,61 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Wang Cheng <wanngchenng@gmail.com>
 
-[ Upstream commit dbd29e0752286af74243cf891accf472b2f3edd8 ]
+[ Upstream commit 0458e5428e5e959d201a40ffe71d762a79ecedc4 ]
 
-We should use size of descriptor chain to test loop condition
-in the indirect case. And another statistical count is also introduced
-for indirect descriptors to avoid conflict with the statistical count
-of direct descriptors.
+When 'tmpU1b' returns from r8712_read8(padapter, EE_9346CR) is 0,
+'mac[6]' will not be initialized.
 
-Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Signed-off-by: Fam Zheng <fam.zheng@bytedance.com>
-Message-Id: <20220505100910.137-1-xieyongji@bytedance.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+BUG: KMSAN: uninit-value in r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
+ r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
+ usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
+ really_probe+0x653/0x14b0 drivers/base/dd.c:596
+ __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
+ driver_probe_device drivers/base/dd.c:782 [inline]
+ __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
+ bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
+ __device_attach+0x593/0x8e0 drivers/base/dd.c:970
+ device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
+ bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
+ device_add+0x1fff/0x26e0 drivers/base/core.c:3405
+ usb_set_configuration+0x37e9/0x3ed0 drivers/usb/core/message.c:2170
+ usb_generic_driver_probe+0x13c/0x300 drivers/usb/core/generic.c:238
+ usb_probe_device+0x309/0x570 drivers/usb/core/driver.c:293
+ really_probe+0x653/0x14b0 drivers/base/dd.c:596
+ __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
+ driver_probe_device drivers/base/dd.c:782 [inline]
+ __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
+ bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
+ __device_attach+0x593/0x8e0 drivers/base/dd.c:970
+ device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
+ bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
+ device_add+0x1fff/0x26e0 drivers/base/core.c:3405
+ usb_new_device+0x1b8e/0x2950 drivers/usb/core/hub.c:2566
+ hub_port_connect drivers/usb/core/hub.c:5358 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5502 [inline]
+ port_event drivers/usb/core/hub.c:5660 [inline]
+ hub_event+0x58e3/0x89e0 drivers/usb/core/hub.c:5742
+ process_one_work+0xdb6/0x1820 kernel/workqueue.c:2307
+ worker_thread+0x10b3/0x21e0 kernel/workqueue.c:2454
+ kthread+0x3c7/0x500 kernel/kthread.c:377
+ ret_from_fork+0x1f/0x30
+
+Local variable mac created at:
+ r871xu_drv_init+0x1771/0x3070 drivers/staging/rtl8712/usb_intf.c:394
+ usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
+
+KMSAN: uninit-value in r871xu_drv_init
+https://syzkaller.appspot.com/bug?id=3cd92b1d85428b128503bfa7a250294c9ae00bd8
+
+Reported-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
+Tested-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
+Link: https://lore.kernel.org/r/14c3886173dfa4597f0704547c414cfdbcd11d16.1652618244.git.wanngchenng@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vringh.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8712/usb_intf.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 14e2043d7685..eab55accf381 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -292,7 +292,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 	     int (*copy)(const struct vringh *vrh,
- 			 void *dst, const void *src, size_t len))
- {
--	int err, count = 0, up_next, desc_max;
-+	int err, count = 0, indirect_count = 0, up_next, desc_max;
- 	struct vring_desc desc, *descs;
- 	struct vringh_range range = { -1ULL, 0 }, slowrange;
- 	bool slow = false;
-@@ -349,7 +349,12 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 			continue;
+diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
+index 56450ede9f23..1ff3e2658e77 100644
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -536,13 +536,13 @@ static int r871xu_drv_init(struct usb_interface *pusb_intf,
+ 		} else {
+ 			AutoloadFail = false;
  		}
- 
--		if (count++ == vrh->vring.num) {
-+		if (up_next == -1)
-+			count++;
-+		else
-+			indirect_count++;
-+
-+		if (count > vrh->vring.num || indirect_count > desc_max) {
- 			vringh_bad("Descriptor loop in %p", descs);
- 			err = -ELOOP;
- 			goto fail;
-@@ -411,6 +416,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 				i = return_from_indirect(vrh, &up_next,
- 							 &descs, &desc_max);
- 				slow = false;
-+				indirect_count = 0;
- 			} else
- 				break;
- 		}
+-		if (((mac[0] == 0xff) && (mac[1] == 0xff) &&
++		if ((!AutoloadFail) ||
++		    ((mac[0] == 0xff) && (mac[1] == 0xff) &&
+ 		     (mac[2] == 0xff) && (mac[3] == 0xff) &&
+ 		     (mac[4] == 0xff) && (mac[5] == 0xff)) ||
+ 		    ((mac[0] == 0x00) && (mac[1] == 0x00) &&
+ 		     (mac[2] == 0x00) && (mac[3] == 0x00) &&
+-		     (mac[4] == 0x00) && (mac[5] == 0x00)) ||
+-		     (!AutoloadFail)) {
++		     (mac[4] == 0x00) && (mac[5] == 0x00))) {
+ 			mac[0] = 0x00;
+ 			mac[1] = 0xe0;
+ 			mac[2] = 0x4c;
 -- 
 2.35.1
 
