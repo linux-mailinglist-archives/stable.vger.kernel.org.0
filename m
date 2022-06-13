@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56D06548C63
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79006548F2B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352928AbiFMMYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:24:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34256 "EHLO
+        id S1384076AbiFMOco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:32:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355139AbiFMMXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9A6231523;
-        Mon, 13 Jun 2022 04:04:17 -0700 (PDT)
+        with ESMTP id S1385507AbiFMObQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:31:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA86ABE6B;
+        Mon, 13 Jun 2022 04:48:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D9EEB80E92;
-        Mon, 13 Jun 2022 11:04:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CEA0C34114;
-        Mon, 13 Jun 2022 11:04:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8C6261425;
+        Mon, 13 Jun 2022 11:48:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7DAAC34114;
+        Mon, 13 Jun 2022 11:48:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118255;
-        bh=n/iPcz26bENoyDWoH2+vnvVXO744lC1fOnnEkkhZjGI=;
+        s=korg; t=1655120935;
+        bh=H/ojBjv8RedJ1tRhj7i5pR0yqtBqO8nR4KB/LsnXy2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCFcTqEamuIq4YsBEyweCegWNQonKkZ68998vz3A80baRMmhT9DJct654g6vOZHRb
-         4sm4iuxTGoQp8R0vXFAHkr9Tq/XvUVFDJaYqCj1kRY2SLsv9nOYQTnej+h+EEPXCeH
-         BAVtWuJbHaklscjRZ/mJ6/FpUk4peQ+af6SgX3JY=
+        b=imqA0AAbh+PXHgluq+ix33b7/g5wH+1xdgw5LG7QyFuUumTvyKu6cjVxKzs3wZ4Rh
+         ymNHY6/MrwmfDBGkHgJhtYpGHYxbqMU+Zi0b2L8TLu4YYKHlxWT1WO55Wm8YKcOxYm
+         lwftWlyheQdknE5L4ngV+x8HRlBuJxLNJ1rgAH0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Olivier Matz <olivier.matz@6wind.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 4.19 281/287] ixgbe: fix bcast packets Rx on VF after promisc removal
+        stable@vger.kernel.org, Eli Billauer <eli.billauer@gmail.com>,
+        Hangyu Hua <hbh25y@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 211/298] char: xillybus: fix a refcount leak in cleanup_dev()
 Date:   Mon, 13 Jun 2022 12:11:45 +0200
-Message-Id: <20220613094932.516094910@linuxfoundation.org>
+Message-Id: <20220613094931.504796157@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Matz <olivier.matz@6wind.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-commit 803e9895ea2b0fe80bc85980ae2d7a7e44037914 upstream.
+[ Upstream commit b67d19662fdee275c479d21853bc1239600a798f ]
 
-After a VF requested to remove the promiscuous flag on an interface, the
-broadcast packets are not received anymore. This breaks some protocols
-like ARP.
+usb_get_dev is called in xillyusb_probe. So it is better to call
+usb_put_dev before xdev is released.
 
-In ixgbe_update_vf_xcast_mode(), we should keep the IXGBE_VMOLR_BAM
-bit (Broadcast Accept) on promiscuous removal.
-
-This flag is already set by default in ixgbe_set_vmolr() on VF reset.
-
-Fixes: 8443c1a4b192 ("ixgbe, ixgbevf: Add new mbox API xcast mode")
-Cc: stable@vger.kernel.org
-Cc: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: Olivier Matz <olivier.matz@6wind.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Acked-by: Eli Billauer <eli.billauer@gmail.com>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lore.kernel.org/r/20220406075703.23464-1-hbh25y@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/xillybus/xillyusb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-@@ -1148,9 +1148,9 @@ static int ixgbe_update_vf_xcast_mode(st
+diff --git a/drivers/char/xillybus/xillyusb.c b/drivers/char/xillybus/xillyusb.c
+index dc3551796e5e..39bcbfd908b4 100644
+--- a/drivers/char/xillybus/xillyusb.c
++++ b/drivers/char/xillybus/xillyusb.c
+@@ -549,6 +549,7 @@ static void cleanup_dev(struct kref *kref)
+ 	if (xdev->workq)
+ 		destroy_workqueue(xdev->workq);
  
- 	switch (xcast_mode) {
- 	case IXGBEVF_XCAST_MODE_NONE:
--		disable = IXGBE_VMOLR_BAM | IXGBE_VMOLR_ROMPE |
-+		disable = IXGBE_VMOLR_ROMPE |
- 			  IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE | IXGBE_VMOLR_VPE;
--		enable = 0;
-+		enable = IXGBE_VMOLR_BAM;
- 		break;
- 	case IXGBEVF_XCAST_MODE_MULTI:
- 		disable = IXGBE_VMOLR_MPE | IXGBE_VMOLR_UPE | IXGBE_VMOLR_VPE;
++	usb_put_dev(xdev->udev);
+ 	kfree(xdev->channels); /* Argument may be NULL, and that's fine */
+ 	kfree(xdev);
+ }
+-- 
+2.35.1
+
 
 
