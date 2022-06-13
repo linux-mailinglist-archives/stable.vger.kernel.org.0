@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3605F549312
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06DA6549796
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380488AbiFMN7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:59:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35486 "EHLO
+        id S1356183AbiFMLuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:50:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380505AbiFMNyi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:54:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FE9D443E2;
-        Mon, 13 Jun 2022 04:35:11 -0700 (PDT)
+        with ESMTP id S1356694AbiFMLt1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:49:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD9384D26A;
+        Mon, 13 Jun 2022 03:53:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 23B81CE1232;
-        Mon, 13 Jun 2022 11:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11B3EC36AFF;
-        Mon, 13 Jun 2022 11:35:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45E3B6135F;
+        Mon, 13 Jun 2022 10:53:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 275DBC3411C;
+        Mon, 13 Jun 2022 10:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120107;
-        bh=4aYV3+qesPToYmG7/6BMlAecFB2vSBxvku6tOzoYkcc=;
+        s=korg; t=1655117593;
+        bh=2HQSmBnichybBCDp3mrh9Rp8FHzNIOjhmd7G3VIkAU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnquiUfNFIyox0w45cE4n4y/FtbCT+xoi7Yo84gblPvEf3ojGVTHvp6JyHON5pBlz
-         B8/Et8FvGNXkJUSl6snk4b+1yFiiQnYmGX3tHuDikjBNlj73A6OsnjbxpgPYnJwPat
-         GLti8tFa65U4guobirfFIxSTWrHmEIhDuqxSGcgE=
+        b=ZG/l2uUt1vcGo3MOK5Lxk/e2owBmpp81TvGaEcYmlhPQs6hjT+W+BBaY8UYVVXeMn
+         svabYLyC1YLMD9Ok9jsDZ/AytYuLuPRDMi7QHYuliz1Pf722tzoTUFxMchGVvUgQ/r
+         Ttz4QgER+YdvpvXa92Elj6qZKqqOgaz0dp/wbnEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Xinpeng <liuxp11@chinatelecom.cn>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 253/339] watchdog: wdat_wdt: Stop watchdog when rebooting the system
+        stable@vger.kernel.org, Martin Faltesek <mfaltesek@google.com>,
+        Guenter Roeck <groeck@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 405/411] nfc: st21nfca: fix memory leaks in EVT_TRANSACTION handling
 Date:   Mon, 13 Jun 2022 12:11:18 +0200
-Message-Id: <20220613094934.325985974@linuxfoundation.org>
+Message-Id: <20220613094940.966488160@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Xinpeng <liuxp11@chinatelecom.cn>
+From: Martin Faltesek <mfaltesek@google.com>
 
-[ Upstream commit 27fdf84510a1374748904db43f6755f912736d92 ]
+commit 996419e0594abb311fb958553809f24f38e7abbe upstream.
 
-Executing reboot command several times on the machine "Dell
-PowerEdge R740", UEFI security detection stopped machine
-with the following prompt:
+Error paths do not free previously allocated memory. Add devm_kfree() to
+those failure paths.
 
-UEFI0082: The system was reset due to a timeout from the watchdog
-timer. Check the System Event Log (SEL) or crash dumps from
-Operating Sysstem to identify the source that triggered the
-watchdog timer reset. Update the firmware or driver for the
-identified device.
-
-iDRAC has warning event: "The watchdog timer reset the system".
-
-This patch fixes this issue by adding the reboot notifier.
-
-Signed-off-by: Liu Xinpeng <liuxp11@chinatelecom.cn>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/1650984810-6247-3-git-send-email-liuxp11@chinatelecom.cn
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
+Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
+Cc: stable@vger.kernel.org
+Signed-off-by: Martin Faltesek <mfaltesek@google.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/watchdog/wdat_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nfc/st21nfca/se.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-index 195c8c004b69..4fac8148a8e6 100644
---- a/drivers/watchdog/wdat_wdt.c
-+++ b/drivers/watchdog/wdat_wdt.c
-@@ -462,6 +462,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
- 		return ret;
+--- a/drivers/nfc/st21nfca/se.c
++++ b/drivers/nfc/st21nfca/se.c
+@@ -331,22 +331,29 @@ int st21nfca_connectivity_event_received
+ 		transaction->aid_len = skb->data[1];
  
- 	watchdog_set_nowayout(&wdat->wdd, nowayout);
-+	watchdog_stop_on_reboot(&wdat->wdd);
- 	return devm_watchdog_register_device(dev, &wdat->wdd);
- }
+ 		/* Checking if the length of the AID is valid */
+-		if (transaction->aid_len > sizeof(transaction->aid))
++		if (transaction->aid_len > sizeof(transaction->aid)) {
++			devm_kfree(dev, transaction);
+ 			return -EINVAL;
++		}
  
--- 
-2.35.1
-
+ 		memcpy(transaction->aid, &skb->data[2],
+ 		       transaction->aid_len);
+ 
+ 		/* Check next byte is PARAMETERS tag (82) */
+ 		if (skb->data[transaction->aid_len + 2] !=
+-		    NFC_EVT_TRANSACTION_PARAMS_TAG)
++		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
++			devm_kfree(dev, transaction);
+ 			return -EPROTO;
++		}
+ 
+ 		transaction->params_len = skb->data[transaction->aid_len + 3];
+ 
+ 		/* Total size is allocated (skb->len - 2) minus fixed array members */
+-		if (transaction->params_len > ((skb->len - 2) - sizeof(struct nfc_evt_transaction)))
++		if (transaction->params_len > ((skb->len - 2) -
++		    sizeof(struct nfc_evt_transaction))) {
++			devm_kfree(dev, transaction);
+ 			return -EINVAL;
++		}
+ 
+ 		memcpy(transaction->params, skb->data +
+ 		       transaction->aid_len + 4, transaction->params_len);
 
 
