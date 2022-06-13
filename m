@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65C6D548EC8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0CB9549476
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345842AbiFMMiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:38:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49812 "EHLO
+        id S1357392AbiFMNCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:02:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352470AbiFMMh0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:37:26 -0400
+        with ESMTP id S1358394AbiFMNAJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:00:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7E433356;
-        Mon, 13 Jun 2022 04:08:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D80635DE3;
+        Mon, 13 Jun 2022 04:18:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 751FD60906;
-        Mon, 13 Jun 2022 11:08:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5703FC34114;
-        Mon, 13 Jun 2022 11:08:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCA5C60B6B;
+        Mon, 13 Jun 2022 11:18:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAB13C34114;
+        Mon, 13 Jun 2022 11:18:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118482;
-        bh=oaoRDeZAJvw6SVwkzPRaLqOvQxFyNaCbNl5Zhtj3dE4=;
+        s=korg; t=1655119081;
+        bh=tFd6vRnzTblSZJjJSTJSRhOuRJ6Nhzgy75wAP5XxB6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGjAMHSnnGvmbdTi4UI4pqRS56o7PE1adV1ARA+cA3LxWT9CPb9uf0A2oKRVjkpSf
-         RbgR9nBfSC2QUn+fqUxa03MkmS+b56tl/lhhahlpGaFxH9SJhw2pOYG+/59kHfB08h
-         g+jevA2On5xxysDkcgna7oY/AsJt5XmKWJVQruwY=
+        b=ErMS3D1+FZFo0YVs0TAqtJKWjRUe2AnO6qXIY5J62ewtT5+x8Tl681spyv3ySx7Qn
+         KvLGAzGRoaVox1BDTrLiR7bSdzrYqfzQ3h1HSQvIPV9krKhrPnaJpAlfuL8eN4OTNH
+         bgzUNDYBX0tazH4MuRK/bb8cJY1FV6pdHr9sJ71w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Joe Mario <jmario@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/172] perf c2c: Fix sorting in percent_rmt_hitm_cmp()
-Date:   Mon, 13 Jun 2022 12:10:34 +0200
-Message-Id: <20220613094908.174089352@linuxfoundation.org>
+Subject: [PATCH 5.15 133/247] netfilter: nf_tables: use kfree_rcu(ptr, rcu) to release hooks in clean_net path
+Date:   Mon, 13 Jun 2022 12:10:35 +0200
+Message-Id: <20220613094926.994030250@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,46 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit b24192a17337abbf3f44aaa75e15df14a2d0016e ]
+[ Upstream commit ab5e5c062f67c5ae8cd07f0632ffa62dc0e7d169 ]
 
-The function percent_rmt_hitm_cmp() wrongly uses local HITMs for
-sorting remote HITMs.
+Use kfree_rcu(ptr, rcu) variant instead as described by ae089831ff28
+("netfilter: nf_tables: prefer kfree_rcu(ptr, rcu) variant").
 
-Since this function is to sort cache lines for remote HITMs, this patch
-changes to use 'rmt_hitm' field for correct sorting.
-
-Fixes: 9cb3500afc0980c5 ("perf c2c report: Add hitm/store percent related sort keys")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Joe Mario <jmario@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220530084253.750190-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: f9a43007d3f7 ("netfilter: nf_tables: double hook unregistration in netns path")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-c2c.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
-index 7f7111d4b3ad..fb7d01f3961b 100644
---- a/tools/perf/builtin-c2c.c
-+++ b/tools/perf/builtin-c2c.c
-@@ -918,8 +918,8 @@ percent_rmt_hitm_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
- 	double per_left;
- 	double per_right;
- 
--	per_left  = PERCENT(left, lcl_hitm);
--	per_right = PERCENT(right, lcl_hitm);
-+	per_left  = PERCENT(left, rmt_hitm);
-+	per_right = PERCENT(right, rmt_hitm);
- 
- 	return per_left - per_right;
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 79e8fc687fdd..5833fe17be43 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -7231,7 +7231,7 @@ static void __nft_unregister_flowtable_net_hooks(struct net *net,
+ 		nf_unregister_net_hook(net, &hook->ops);
+ 		if (release_netdev) {
+ 			list_del(&hook->list);
+-			kfree_rcu(hook);
++			kfree_rcu(hook, rcu);
+ 		}
+ 	}
  }
 -- 
 2.35.1
