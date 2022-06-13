@@ -2,105 +2,2203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D52549A53
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 19:44:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 256FB549824
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241133AbiFMRo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 13:44:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53892 "EHLO
+        id S241312AbiFMPra (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 11:47:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241927AbiFMRoO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 13:44:14 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D98D168D15;
-        Mon, 13 Jun 2022 06:18:41 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id a10so5603330pju.3;
-        Mon, 13 Jun 2022 06:18:41 -0700 (PDT)
+        with ESMTP id S237222AbiFMPrV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 11:47:21 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5EC21760E1
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 06:24:04 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id y6so100058pfr.13
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 06:24:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=GqcjIBiZHdkiFQqTyaXjMxy6knKrlT2JCmzywSrR6F4=;
-        b=W6Stz7yNDgHrafTk7QMKI2bwWX8VJq3RL1tKe0dtoZAC9IKwoc/ga5MzReVsIFu4Dz
-         QoY+auFOsQVCqFHQcxwPsDgQy5Pwug8khg+wJ2WWNLvM3i+EGKDlsuniQV8NDUjs/ihC
-         dqOE/gWGix6+NgoklW5oEQIujMeaKFeaDq84mzvNsyDvF3CHYRlZbMWAMurZoQMp1cQI
-         QXH3Jxx6UxNCdAy1wHPu4flkEOtDc945/d9jZQG5rQL/nq6L6WNsxHUJVW5POUOADclk
-         1MpfYPYrDuqQmYuZxyVds9SVpa1AVLhhp0wzgctFpTbcaKb9KUU6dyNw8XW464wT9nPj
-         hf9A==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=G345XbW7aGUdtge3s1+tUyZiuRJkHpI+P4iWTKv0sAs=;
+        b=YXcY46R4ujHAkcdPsZ7fhCLGvG1wv8fc8zLEY30ODBoEBTb731RXJOhVeaNLSOPjhl
+         58gHJld4dOLHSbLM7Pq/k+lQspmZrKsLoPGiu2bLUNl72XlhvwBUutKy9k69YDwYZNpU
+         nbZviRkA5RVs645W02/YWZOdfEsbNKHnayabXIFd7mOUQVmw0uQsvTuqeqEgU0Rr4T9j
+         f29+fcoYY5sBCcOdD8EvPq85tftFYBiKd2OxwQ0QDBce+ozwCp4NBRd5piZFvrvtiJcm
+         k8iGuE09W2MJ5OQuvxxKsejfnJkMzrFzY631mkpOQ/IiY0TEnoQDgsmIytRSqMGliMpm
+         JPZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=GqcjIBiZHdkiFQqTyaXjMxy6knKrlT2JCmzywSrR6F4=;
-        b=I38iXnN8g4bnC4Dm+Rkikg6jK73LhpqcibB/6Usdp0DCmjVXIza0MsZYLryrCJxt4E
-         IssC5+cPnIghh915MPpNdajUQQPypA7Dbl/R56bGkSiCQbHfD+9lcwtgnxh3kQr5unOk
-         ihahJqaFft8pHgbkxSlOdtT/cvSVJQ28GQ6nYo508wxHMK8wHowaWi2hVddyRhWL4zTy
-         LrirjoBfxRFkAFu7lvgaIb5J0E39bY2BRFluXCf+euGbOrGdnjK0mu9qA/cFdNUBak5y
-         O+pIoHX7osRTd7xsuvLj5BPT71D1w0lFtWyBqM+ioAyREm5anCelkad/JRI+DLOzJKJu
-         KALw==
-X-Gm-Message-State: AOAM530DYUXScd3TexBKkUqPTx5YOKZjebzMc8ecdsmG1/C7vGAg0oT2
-        7eTmu7SOaARh9JTS0MELK2k=
-X-Google-Smtp-Source: ABdhPJxSXN3t0e9qsGy4v9kZozVl7y++GOeJiSptH8f6Zw38nYb+LQeHXkHR2poHPSudLwd9DSR4RA==
-X-Received: by 2002:a17:90a:5409:b0:1e8:664e:41dd with SMTP id z9-20020a17090a540900b001e8664e41ddmr15785311pjh.173.1655126320488;
-        Mon, 13 Jun 2022 06:18:40 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 19-20020a170902e9d300b001639f038250sm5070965plk.220.2022.06.13.06.18.39
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=G345XbW7aGUdtge3s1+tUyZiuRJkHpI+P4iWTKv0sAs=;
+        b=aBWSbU+Alf/DsDdZIDc95pfjv9MKoX6Qq7pcwLPuysgsRk5ahG4cyOSvjh6PfH/EEI
+         eFl1L3KhS1BEi3ZHT2LGj0LSuRTiVBcuRWvfMEZlm0XasSVIO+Eb7jot5MxKGkZF+0Ei
+         DfZhwdjXWecQ1nhBpFN4LnctiIqpxSuCkp+bVg66QSKvITF6bhtPFkNJ51vR6OXH0dDJ
+         6/9EeNYYd58PzsPDlYasc8l969/KS9OOWobBitjLdFGd0Fn9dwzsENd8mYTbXEnCSO//
+         I6OkpQ2NPDD0tHN8kiEGsbw4DXKgRefIj8pEvMlcKkYbfCJCfZYcc00yTK0bZXllVJtY
+         D4XQ==
+X-Gm-Message-State: AOAM53081W1niHR5zttlRfvte+mCz0LaeNiFSC/BFqo8tqkPGGnr2Ws1
+        vjUohgfxNaWpnnamMvtqNDEAVe7MAQ4DvVNkru8=
+X-Google-Smtp-Source: ABdhPJzeCsgfoYqvgnJDmkMcvG70/UDNIE/Kjygh//qz83JvR/pu3+Av1NEmaviadt2lSy6xpGQN6w==
+X-Received: by 2002:a63:5304:0:b0:3fb:92eb:8e90 with SMTP id h4-20020a635304000000b003fb92eb8e90mr51722788pgb.36.1655126642412;
+        Mon, 13 Jun 2022 06:24:02 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f9-20020a17090a654900b001eab99a42efsm1445843pjs.31.2022.06.13.06.24.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jun 2022 06:18:39 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Mon, 13 Jun 2022 06:18:38 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.15 000/247] 5.15.47-rc1 review
-Message-ID: <20220613131838.GA3571788@roeck-us.net>
-References: <20220613094922.843438024@linuxfoundation.org>
+        Mon, 13 Jun 2022 06:24:01 -0700 (PDT)
+Message-ID: <62a73a71.1c69fb81.d6b3b.17d5@mx.google.com>
+Date:   Mon, 13 Jun 2022 06:24:01 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v5.15.45-915-gfe83bcae3c626
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 build: 178 builds: 4 failed, 174 passed,
+ 14 errors, 319 warnings (v5.15.45-915-gfe83bcae3c626)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 13, 2022 at 12:08:22PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.47 release.
-> There are 247 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 15 Jun 2022 09:47:08 +0000.
-> Anything received after that time might be too late.
-> 
+stable-rc/queue/5.15 build: 178 builds: 4 failed, 174 passed, 14 errors, 31=
+9 warnings (v5.15.45-915-gfe83bcae3c626)
 
-Early feedback:
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+5/kernel/v5.15.45-915-gfe83bcae3c626/
 
-Building arm:allmodconfig ... failed
---------------
-Error log:
-In file included from include/linux/kernel.h:16,
-                 from include/linux/crypto.h:16,
-                 from include/crypto/hash.h:11,
-                 from lib/iov_iter.c:2:
-lib/iov_iter.c: In function 'iter_xarray_get_pages':
-include/linux/minmax.h:20:35: error: comparison of distinct pointer types lacks a cast
+Tree: stable-rc
+Branch: queue/5.15
+Git Describe: v5.15.45-915-gfe83bcae3c626
+Git Commit: fe83bcae3c6261e9d8d87fc67f86574266534143
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-This will likely affect affects all branches where commit 6c77676645ad
-("iov_iter: Fix iter_xarray_get_pages{,_alloc}()") was backported.
+Build Failures Detected:
 
-The fix is upstream commit 1c27f1fc1549 ("iov_iter: fix build issue due
-to possible type mis-match").
+arm:
+    rpc_defconfig: (gcc-10) FAIL
 
-Guenter
+mips:
+    decstation_64_defconfig: (gcc-10) FAIL
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+    allnoconfig (gcc-10): 2 warnings
+    axs103_defconfig (gcc-10): 2 warnings
+    axs103_smp_defconfig (gcc-10): 2 warnings
+    haps_hs_defconfig (gcc-10): 2 warnings
+    haps_hs_smp_defconfig (gcc-10): 2 warnings
+    hsdk_defconfig (gcc-10): 2 warnings
+    nsimosci_hs_defconfig (gcc-10): 2 warnings
+    nsimosci_hs_smp_defconfig (gcc-10): 2 warnings
+    tinyconfig (gcc-10): 3 warnings
+    vdk_hs38_defconfig (gcc-10): 2 warnings
+    vdk_hs38_smp_defconfig (gcc-10): 2 warnings
+
+arm64:
+
+arm:
+    am200epdkit_defconfig (gcc-10): 2 warnings
+    aspeed_g4_defconfig (gcc-10): 2 warnings
+    aspeed_g5_defconfig (gcc-10): 2 warnings
+    assabet_defconfig (gcc-10): 2 warnings
+    at91_dt_defconfig (gcc-10): 2 warnings
+    axm55xx_defconfig (gcc-10): 2 warnings
+    badge4_defconfig (gcc-10): 2 warnings
+    bcm2835_defconfig (gcc-10): 2 warnings
+    cerfcube_defconfig (gcc-10): 2 warnings
+    cm_x300_defconfig (gcc-10): 2 warnings
+    colibri_pxa270_defconfig (gcc-10): 2 warnings
+    colibri_pxa300_defconfig (gcc-10): 2 warnings
+    collie_defconfig (gcc-10): 2 warnings
+    corgi_defconfig (gcc-10): 2 warnings
+    davinci_all_defconfig (gcc-10): 2 warnings
+    dove_defconfig (gcc-10): 2 warnings
+    ep93xx_defconfig (gcc-10): 2 warnings
+    eseries_pxa_defconfig (gcc-10): 2 warnings
+    exynos_defconfig (gcc-10): 2 warnings
+    ezx_defconfig (gcc-10): 2 warnings
+    footbridge_defconfig (gcc-10): 2 warnings
+    gemini_defconfig (gcc-10): 2 warnings
+    h3600_defconfig (gcc-10): 2 warnings
+    h5000_defconfig (gcc-10): 2 warnings
+    hackkit_defconfig (gcc-10): 2 warnings
+    hisi_defconfig (gcc-10): 2 warnings
+    imote2_defconfig (gcc-10): 2 warnings
+    imx_v4_v5_defconfig (gcc-10): 2 warnings
+    imx_v6_v7_defconfig (gcc-10): 2 warnings
+    integrator_defconfig (gcc-10): 2 warnings
+    iop32x_defconfig (gcc-10): 2 warnings
+    ixp4xx_defconfig (gcc-10): 2 warnings
+    jornada720_defconfig (gcc-10): 2 warnings
+    lart_defconfig (gcc-10): 2 warnings
+    lpc18xx_defconfig (gcc-10): 2 warnings
+    lpc32xx_defconfig (gcc-10): 2 warnings
+    lpd270_defconfig (gcc-10): 2 warnings
+    lubbock_defconfig (gcc-10): 2 warnings
+    magician_defconfig (gcc-10): 2 warnings
+    mainstone_defconfig (gcc-10): 2 warnings
+    milbeaut_m10v_defconfig (gcc-10): 2 warnings
+    mini2440_defconfig (gcc-10): 2 warnings
+    mmp2_defconfig (gcc-10): 2 warnings
+    moxart_defconfig (gcc-10): 2 warnings
+    mps2_defconfig (gcc-10): 2 warnings
+    multi_v4t_defconfig (gcc-10): 2 warnings
+    multi_v5_defconfig (gcc-10): 2 warnings
+    multi_v7_defconfig (gcc-10): 2 warnings
+    mvebu_v5_defconfig (gcc-10): 2 warnings
+    mvebu_v7_defconfig (gcc-10): 2 warnings
+    mxs_defconfig (gcc-10): 2 warnings
+    neponset_defconfig (gcc-10): 2 warnings
+    netwinder_defconfig (gcc-10): 2 warnings
+    nhk8815_defconfig (gcc-10): 2 warnings
+    omap1_defconfig (gcc-10): 2 warnings
+    omap2plus_defconfig (gcc-10): 2 warnings
+    orion5x_defconfig (gcc-10): 2 warnings
+    oxnas_v6_defconfig (gcc-10): 2 warnings
+    palmz72_defconfig (gcc-10): 2 warnings
+    pcm027_defconfig (gcc-10): 2 warnings
+    pleb_defconfig (gcc-10): 2 warnings
+    pxa168_defconfig (gcc-10): 2 warnings
+    pxa255-idp_defconfig (gcc-10): 2 warnings
+    pxa3xx_defconfig (gcc-10): 2 warnings
+    pxa910_defconfig (gcc-10): 2 warnings
+    pxa_defconfig (gcc-10): 2 warnings
+    qcom_defconfig (gcc-10): 2 warnings
+    realview_defconfig (gcc-10): 2 warnings
+    rpc_defconfig (gcc-10): 4 errors
+    s3c2410_defconfig (gcc-10): 2 warnings
+    s3c6400_defconfig (gcc-10): 2 warnings
+    s5pv210_defconfig (gcc-10): 2 warnings
+    sama5_defconfig (gcc-10): 2 warnings
+    sama7_defconfig (gcc-10): 2 warnings
+    shannon_defconfig (gcc-10): 2 warnings
+    shmobile_defconfig (gcc-10): 2 warnings
+    simpad_defconfig (gcc-10): 2 warnings
+    socfpga_defconfig (gcc-10): 2 warnings
+    spear13xx_defconfig (gcc-10): 2 warnings
+    spear3xx_defconfig (gcc-10): 2 warnings
+    spear6xx_defconfig (gcc-10): 2 warnings
+    spitz_defconfig (gcc-10): 2 warnings
+    stm32_defconfig (gcc-10): 2 warnings
+    sunxi_defconfig (gcc-10): 2 warnings
+    tct_hammer_defconfig (gcc-10): 2 warnings
+    tegra_defconfig (gcc-10): 2 warnings
+    trizeps4_defconfig (gcc-10): 2 warnings
+    u8500_defconfig (gcc-10): 2 warnings
+    versatile_defconfig (gcc-10): 2 warnings
+    vexpress_defconfig (gcc-10): 2 warnings
+    vf610m4_defconfig (gcc-10): 2 warnings
+    viper_defconfig (gcc-10): 2 warnings
+    vt8500_v6_v7_defconfig (gcc-10): 2 warnings
+    xcep_defconfig (gcc-10): 2 warnings
+    zeus_defconfig (gcc-10): 2 warnings
+
+i386:
+    allnoconfig (gcc-10): 2 warnings
+    i386_defconfig (gcc-10): 2 warnings
+    tinyconfig (gcc-10): 2 warnings
+
+mips:
+    32r2el_defconfig (gcc-10): 3 warnings
+    ar7_defconfig (gcc-10): 2 warnings
+    ath25_defconfig (gcc-10): 2 warnings
+    ath79_defconfig (gcc-10): 2 warnings
+    bcm47xx_defconfig (gcc-10): 2 warnings
+    bcm63xx_defconfig (gcc-10): 2 warnings
+    bigsur_defconfig (gcc-10): 1 error
+    bmips_be_defconfig (gcc-10): 2 warnings
+    bmips_stb_defconfig (gcc-10): 2 warnings
+    capcella_defconfig (gcc-10): 2 warnings
+    cavium_octeon_defconfig (gcc-10): 1 error
+    ci20_defconfig (gcc-10): 2 warnings
+    cobalt_defconfig (gcc-10): 2 warnings
+    cu1000-neo_defconfig (gcc-10): 2 warnings
+    cu1830-neo_defconfig (gcc-10): 2 warnings
+    db1xxx_defconfig (gcc-10): 2 warnings
+    decstation_64_defconfig (gcc-10): 1 error
+    decstation_defconfig (gcc-10): 2 warnings
+    decstation_r4k_defconfig (gcc-10): 2 warnings
+    e55_defconfig (gcc-10): 2 warnings
+    fuloong2e_defconfig (gcc-10): 1 error
+    gcw0_defconfig (gcc-10): 2 warnings
+    gpr_defconfig (gcc-10): 2 warnings
+    ip22_defconfig (gcc-10): 2 warnings
+    ip32_defconfig (gcc-10): 1 error
+    jazz_defconfig (gcc-10): 2 warnings
+    jmr3927_defconfig (gcc-10): 2 warnings
+    lemote2f_defconfig (gcc-10): 1 error, 1 warning
+    loongson1b_defconfig (gcc-10): 2 warnings
+    loongson1c_defconfig (gcc-10): 2 warnings
+    loongson2k_defconfig (gcc-10): 1 error, 1 warning
+    loongson3_defconfig (gcc-10): 1 error
+    malta_defconfig (gcc-10): 2 warnings
+    malta_kvm_defconfig (gcc-10): 2 warnings
+    malta_qemu_32r6_defconfig (gcc-10): 2 warnings
+    maltaaprp_defconfig (gcc-10): 2 warnings
+    maltasmvp_defconfig (gcc-10): 2 warnings
+    maltasmvp_eva_defconfig (gcc-10): 2 warnings
+    maltaup_defconfig (gcc-10): 2 warnings
+    maltaup_xpa_defconfig (gcc-10): 2 warnings
+    mpc30x_defconfig (gcc-10): 2 warnings
+    mtx1_defconfig (gcc-10): 2 warnings
+    nlm_xlp_defconfig (gcc-10): 1 error
+    nlm_xlr_defconfig (gcc-10): 2 warnings
+    omega2p_defconfig (gcc-10): 2 warnings
+    pic32mzda_defconfig (gcc-10): 2 warnings
+    qi_lb60_defconfig (gcc-10): 2 warnings
+    rb532_defconfig (gcc-10): 2 warnings
+    rbtx49xx_defconfig (gcc-10): 2 warnings
+    rm200_defconfig (gcc-10): 3 warnings
+    rs90_defconfig (gcc-10): 2 warnings
+    rt305x_defconfig (gcc-10): 2 warnings
+    sb1250_swarm_defconfig (gcc-10): 1 error
+    tb0219_defconfig (gcc-10): 2 warnings
+    tb0226_defconfig (gcc-10): 2 warnings
+    tb0287_defconfig (gcc-10): 2 warnings
+    vocore2_defconfig (gcc-10): 2 warnings
+    workpad_defconfig (gcc-10): 2 warnings
+
+riscv:
+    rv32_defconfig (gcc-10): 2 warnings
+
+x86_64:
+
+Errors summary:
+
+    10   expr: syntax error: unexpected argument =E2=80=980xffffffff8000000=
+0=E2=80=99
+    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+h=3D=E2=80=99
+
+Warnings summary:
+
+    314  include/linux/minmax.h:20:28: warning: comparison of distinct poin=
+ter types lacks a cast
+    2    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes =
+is larger than 1024 bytes [-Wframe-larger-than=3D]
+    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
+e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
+ted "0,0"
+    1    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' i=
+s unknown, fallback to ''
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_device_reg=
+): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expected "=
+0,0"
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
+ismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
+mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
+ section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings=
+, 0 section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings=
+, 0 section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
+ section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
+ section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
+ section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
+ section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warning=
+s, 0 section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
+ings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
+ section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
+ section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+Warnings:
+    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes is la=
+rger than 1024 bytes [-Wframe-larger-than=3D]
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
+ section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
+ section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+Warnings:
+    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes is la=
+rger than 1024 bytes [-Wframe-larger-than=3D]
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnin=
+gs, 0 section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings=
+, 0 section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, =
+0 section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings,=
+ 0 section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_sdcard_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 war=
+nings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
+ section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 2 warning=
+s, 0 section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+sama7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, =
+0 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
+smatches
+
+Warnings:
+    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' is unk=
+nown, fallback to ''
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
+ismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, =
+0 section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, =
+0 section mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+    include/linux/minmax.h:20:28: warning: comparison of distinct pointer t=
+ypes lacks a cast
+
+---
+For more info write to <info@kernelci.org>
