@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CCC4548897
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8080548E63
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:18:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358804AbiFMNLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:11:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58598 "EHLO
+        id S1350341AbiFMMhM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:37:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357548AbiFMNGX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:06:23 -0400
+        with ESMTP id S1353353AbiFMMf2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:35:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88C3437A99;
-        Mon, 13 Jun 2022 04:18:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D1931C915;
+        Mon, 13 Jun 2022 04:07:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B66160F18;
-        Mon, 13 Jun 2022 11:18:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 178D4C34114;
-        Mon, 13 Jun 2022 11:18:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AFFA60906;
+        Mon, 13 Jun 2022 11:07:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24C9FC34114;
+        Mon, 13 Jun 2022 11:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119108;
-        bh=UArQUhck6Fc5jufA0UWjZnQNQgFHa5m1QG8+p+nZfk8=;
+        s=korg; t=1655118466;
+        bh=M6GNObdT38NasueEcuZx7LUs0CCTPyAhpWWgfvkvyPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00zX5ACwzmBfapae7btg+ioch7drrn7ICVgS5xSE7j4LxRJ5zxa7qETBdlVjvTWYG
-         XNxHDpfUlRjIwN/9Iu8ZeAOhgd/UNzlPrRjoqpP5fmyTntMUNYGIcBnO7PEtNFAeHr
-         Y/OUPghGaWzll8BPxW5B4irdWY2E6dRJWpk5Av0A=
+        b=a1GaukBiPoBrWsRvqRynq3Wx3F2WGI216SDlFpqVyTnqaeDSbau56WPqcLRVWpTEO
+         o7ybwGOFOYaOO9Y9mBDvIelsUioX3+1xdzKE2orcyzzeI2CHVNUrDTgFWy42lyh9NX
+         3zfu45i7Nnkk4HRKYU8u8oF0SV5YFUEbVhEVJ1hU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 144/247] af_unix: Fix a data-race in unix_dgram_peer_wake_me().
+        stable@vger.kernel.org,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 086/172] dmaengine: zynqmp_dma: In struct zynqmp_dma_chan fix desc_size data type
 Date:   Mon, 13 Jun 2022 12:10:46 +0200
-Message-Id: <20220613094927.322167391@linuxfoundation.org>
+Message-Id: <20220613094911.091016427@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
 
-[ Upstream commit 662a80946ce13633ae90a55379f1346c10f0c432 ]
+[ Upstream commit f9a9f43a62a04ec3183fb0da9226c7706eed0115 ]
 
-unix_dgram_poll() calls unix_dgram_peer_wake_me() without `other`'s
-lock held and check if its receive queue is full.  Here we need to
-use unix_recvq_full_lockless() instead of unix_recvq_full(), otherwise
-KCSAN will report a data-race.
+In zynqmp_dma_alloc/free_chan_resources functions there is a
+potential overflow in the below expressions.
 
-Fixes: 7d267278a9ec ("unix: avoid use-after-free in ep_remove_wait_queue")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Link: https://lore.kernel.org/r/20220605232325.11804-1-kuniyu@amazon.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+dma_alloc_coherent(chan->dev, (2 * chan->desc_size *
+		   ZYNQMP_DMA_NUM_DESCS),
+		   &chan->desc_pool_p, GFP_KERNEL);
+
+dma_free_coherent(chan->dev,(2 * ZYNQMP_DMA_DESC_SIZE(chan) *
+                 ZYNQMP_DMA_NUM_DESCS),
+                chan->desc_pool_v, chan->desc_pool_p);
+
+The arguments desc_size and ZYNQMP_DMA_NUM_DESCS were 32 bit. Though
+this overflow condition is not observed but it is a potential problem
+in the case of 32-bit multiplication. Hence fix it by changing the
+desc_size data type to size_t.
+
+In addition to coverity fix it also reuse ZYNQMP_DMA_DESC_SIZE macro in
+dma_alloc_coherent API argument.
+
+Addresses-Coverity: Event overflow_before_widen.
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/1652166762-18317-2-git-send-email-radhey.shyam.pandey@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/unix/af_unix.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/xilinx/zynqmp_dma.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index 62f47821d783..b7be8d066753 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -446,7 +446,7 @@ static int unix_dgram_peer_wake_me(struct sock *sk, struct sock *other)
- 	 * -ECONNREFUSED. Otherwise, if we haven't queued any skbs
- 	 * to other and its full, we will hang waiting for POLLOUT.
- 	 */
--	if (unix_recvq_full(other) && !sock_flag(other, SOCK_DEAD))
-+	if (unix_recvq_full_lockless(other) && !sock_flag(other, SOCK_DEAD))
- 		return 1;
+diff --git a/drivers/dma/xilinx/zynqmp_dma.c b/drivers/dma/xilinx/zynqmp_dma.c
+index 5fecf5aa6e85..7e6be076e9d3 100644
+--- a/drivers/dma/xilinx/zynqmp_dma.c
++++ b/drivers/dma/xilinx/zynqmp_dma.c
+@@ -232,7 +232,7 @@ struct zynqmp_dma_chan {
+ 	bool is_dmacoherent;
+ 	struct tasklet_struct tasklet;
+ 	bool idle;
+-	u32 desc_size;
++	size_t desc_size;
+ 	bool err;
+ 	u32 bus_width;
+ 	u32 src_burst_len;
+@@ -490,7 +490,8 @@ static int zynqmp_dma_alloc_chan_resources(struct dma_chan *dchan)
+ 	}
  
- 	if (connected)
+ 	chan->desc_pool_v = dma_alloc_coherent(chan->dev,
+-					       (2 * chan->desc_size * ZYNQMP_DMA_NUM_DESCS),
++					       (2 * ZYNQMP_DMA_DESC_SIZE(chan) *
++					       ZYNQMP_DMA_NUM_DESCS),
+ 					       &chan->desc_pool_p, GFP_KERNEL);
+ 	if (!chan->desc_pool_v)
+ 		return -ENOMEM;
 -- 
 2.35.1
 
