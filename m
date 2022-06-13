@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B45254860D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B39D8548861
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244532AbiFMKp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:45:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47674 "EHLO
+        id S1380398AbiFMOKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:10:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244283AbiFMKoj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:44:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6E1A2B1A3;
-        Mon, 13 Jun 2022 03:25:35 -0700 (PDT)
+        with ESMTP id S1380294AbiFMOGT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:06:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2CB980A9;
+        Mon, 13 Jun 2022 04:41:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BFCD7B80E95;
-        Mon, 13 Jun 2022 10:25:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 163A2C34114;
-        Mon, 13 Jun 2022 10:25:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 046A76124E;
+        Mon, 13 Jun 2022 11:41:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFAFEC34114;
+        Mon, 13 Jun 2022 11:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115932;
-        bh=OVUFaOWUmbpkj69+VKs5fiy14EGc8rkaQ0JYQakAbwk=;
+        s=korg; t=1655120477;
+        bh=dHrpiGBjW9rbIO3xNAUzBvjMwbqUsruwtApSEy5CXQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0JowjslV54Y4x22qzHJpWx8QO5HbStcVhs9EBGD2Nfhb1ty/Do28AgZkZc2et3Zp
-         MziOAhkD78Nd2e+fesgO7tYCGBkbRdjD67fE6cuTkVJCvobaUa+flgCIt6uNRBWWbB
-         2LBmR2JQOiSKr7wiIvfh9ca60kLAmpj7tKJ7qytk=
+        b=gjupAc2L9MPS5t/PmP69uUBZhP5rgFs0xJeOJqxexXAjUZ53sEXMLtpALSyX19lLV
+         xh0gImRgL9I4/uaZkH2OIFNThGYMysTOwJFDfsNR2AlCIMtKUpcUU6jVGe1deWI6Hi
+         MCExEaa578kCUgua4kdYKMT0y5JnhwX8BysAp2Yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 083/218] ARM: dts: bcm2835-rpi-zero-w: Fix GPIO line name for Wifi/BT
+Subject: [PATCH 5.17 047/298] ksmbd: fix reference count leak in smb_check_perm_dacl()
 Date:   Mon, 13 Jun 2022 12:09:01 +0200
-Message-Id: <20220613094923.032582436@linuxfoundation.org>
+Message-Id: <20220613094926.372665260@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Elwell <phil@raspberrypi.com>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit 2c663e5e5bbf2a5b85e0f76ccb69663f583c3e33 ]
+[ Upstream commit d21a580dafc69aa04f46e6099616146a536b0724 ]
 
-The GPIOs 30 to 39 are connected to the Cypress CYW43438 (Wifi/BT).
-So fix the GPIO line names accordingly.
+The issue happens in a specific path in smb_check_perm_dacl(). When
+"id" and "uid" have the same value, the function simply jumps out of
+the loop without decrementing the reference count of the object
+"posix_acls", which is increased by get_acl() earlier. This may
+result in memory leaks.
 
-Fixes: 2c7c040c73e9 ("ARM: dts: bcm2835: Add Raspberry Pi Zero W")
-Signed-off-by: Phil Elwell <phil@raspberrypi.com>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fix it by decreasing the reference count of "posix_acls" before
+jumping to label "check_access_bits".
+
+Fixes: 777cad1604d6 ("ksmbd: remove select FS_POSIX_ACL in Kconfig")
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm2835-rpi-zero-w.dts | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ fs/ksmbd/smbacl.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-index 120776d45441..932e0e6320c5 100644
---- a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-+++ b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-@@ -77,16 +77,18 @@
- 			  "GPIO27",
- 			  "SDA0",
- 			  "SCL0",
--			  "NC", /* GPIO30 */
--			  "NC", /* GPIO31 */
--			  "NC", /* GPIO32 */
--			  "NC", /* GPIO33 */
--			  "NC", /* GPIO34 */
--			  "NC", /* GPIO35 */
--			  "NC", /* GPIO36 */
--			  "NC", /* GPIO37 */
--			  "NC", /* GPIO38 */
--			  "NC", /* GPIO39 */
-+			  /* Used by BT module */
-+			  "CTS0",
-+			  "RTS0",
-+			  "TXD0",
-+			  "RXD0",
-+			  /* Used by Wifi */
-+			  "SD1_CLK",
-+			  "SD1_CMD",
-+			  "SD1_DATA0",
-+			  "SD1_DATA1",
-+			  "SD1_DATA2",
-+			  "SD1_DATA3",
- 			  "CAM_GPIO1", /* GPIO40 */
- 			  "WL_ON", /* GPIO41 */
- 			  "NC", /* GPIO42 */
+diff --git a/fs/ksmbd/smbacl.c b/fs/ksmbd/smbacl.c
+index 6ecf55ea1fed..38f23bf981ac 100644
+--- a/fs/ksmbd/smbacl.c
++++ b/fs/ksmbd/smbacl.c
+@@ -1261,6 +1261,7 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
+ 					if (!access_bits)
+ 						access_bits =
+ 							SET_MINIMUM_RIGHTS;
++					posix_acl_release(posix_acls);
+ 					goto check_access_bits;
+ 				}
+ 			}
 -- 
 2.35.1
 
