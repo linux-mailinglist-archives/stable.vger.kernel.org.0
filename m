@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D9B1549401
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93F8C549500
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377516AbiFMNc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:32:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51950 "EHLO
+        id S1376845AbiFMNdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:33:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378093AbiFMNaw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:30:52 -0400
+        with ESMTP id S1378113AbiFMNax (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:30:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 945256EC61;
-        Mon, 13 Jun 2022 04:25:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C7D313D6A;
+        Mon, 13 Jun 2022 04:25:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2999A61038;
-        Mon, 13 Jun 2022 11:25:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06CF7C34114;
-        Mon, 13 Jun 2022 11:25:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAE5E60F18;
+        Mon, 13 Jun 2022 11:25:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00E52C36B07;
+        Mon, 13 Jun 2022 11:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119534;
-        bh=pxwfveOQbs3q4CWvuvWKEN9ZYUsSv29hVviNEHGwBkA=;
+        s=korg; t=1655119537;
+        bh=b/9qIeG94uHBo4HSzdZoF9DK2yKWhDCwVZXzJ95coXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=URHO8aOBrOeTZnKupBLkpkGMuPj6NqkKojjbCYvIhkz6cGKhtxGWRdAGf0JPgw5f+
-         9vpEsJhQ6cdDGAhv5jczsdJeA5idxKTQaqes6HbeIJR1ruVUOqTw0Xkrncnp0Btnun
-         sEaN9/iyVjVZD7N2240SrOMAcYf42T7PHU9miNeE=
+        b=mcjtbUIL9ahrf5EWb11Q/dNj8ArcwREoAqq1T3TmX0CFY1oFH93FrMJlfzlWijVQ6
+         Pa1J/lnL6Iip74bJva+Ml/tog+hjq580YykE94y5s2BrNplaX2KGwhEZtFlIueh7ko
+         PxyTEmz26y+F4Mi7TmTyNFDsx2kVHhGP0RKUPTKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 028/339] misc: fastrpc: fix an incorrect NULL check on list iterator
-Date:   Mon, 13 Jun 2022 12:07:33 +0200
-Message-Id: <20220613094927.366173223@linuxfoundation.org>
+Subject: [PATCH 5.18 029/339] firmware: stratix10-svc: fix a missing check on list iterator
+Date:   Mon, 13 Jun 2022 12:07:34 +0200
+Message-Id: <20220613094927.397080499@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
 References: <20220613094926.497929857@linuxfoundation.org>
@@ -55,55 +55,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 5ac11fe03a0a83042d1a040dbce4fa2fb5521e23 ]
+[ Upstream commit 5a0793ac66ac0e254d292f129a4d6c526f9f2aff ]
 
 The bug is here:
-	if (!buf) {
+	pmem->vaddr = NULL;
 
-The list iterator value 'buf' will *always* be set and non-NULL
-by list_for_each_entry(), so it is incorrect to assume that the
-iterator value will be NULL if the list is empty (in this case, the
-check 'if (!buf) {' will always be false and never exit expectly).
+The list iterator 'pmem' will point to a bogus position containing
+HEAD if the list is empty or no element is found. This case must
+be checked before any use of the iterator, otherwise it will
+lead to a invalid memory access.
 
-To fix the bug, use a new variable 'iter' as the list iterator,
-while use the original variable 'buf' as a dedicated pointer to
-point to the found element.
+To fix this bug, just gen_pool_free/set NULL/list_del() and return
+when found, otherwise list_del HEAD and return;
 
-Fixes: 2419e55e532de ("misc: fastrpc: add mmap/unmap support")
+Fixes: 7ca5ce896524f ("firmware: add Intel Stratix10 service layer driver")
 Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Link: https://lore.kernel.org/r/20220327062202.5720-1-xiam0nd.tong@gmail.com
+Link: https://lore.kernel.org/r/20220414035609.2239-1-xiam0nd.tong@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/fastrpc.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/firmware/stratix10-svc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
-index 29cf292c0aba..93ebd174d848 100644
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -1606,17 +1606,18 @@ static int fastrpc_req_munmap_impl(struct fastrpc_user *fl,
- 				   struct fastrpc_req_munmap *req)
+diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
+index 8177a0fae11d..14663f671323 100644
+--- a/drivers/firmware/stratix10-svc.c
++++ b/drivers/firmware/stratix10-svc.c
+@@ -948,17 +948,17 @@ EXPORT_SYMBOL_GPL(stratix10_svc_allocate_memory);
+ void stratix10_svc_free_memory(struct stratix10_svc_chan *chan, void *kaddr)
  {
- 	struct fastrpc_invoke_args args[1] = { [0] = { 0 } };
--	struct fastrpc_buf *buf, *b;
-+	struct fastrpc_buf *buf = NULL, *iter, *b;
- 	struct fastrpc_munmap_req_msg req_msg;
- 	struct device *dev = fl->sctx->dev;
- 	int err;
- 	u32 sc;
+ 	struct stratix10_svc_data_mem *pmem;
+-	size_t size = 0;
  
- 	spin_lock(&fl->lock);
--	list_for_each_entry_safe(buf, b, &fl->mmaps, node) {
--		if ((buf->raddr == req->vaddrout) && (buf->size == req->size))
-+	list_for_each_entry_safe(iter, b, &fl->mmaps, node) {
-+		if ((iter->raddr == req->vaddrout) && (iter->size == req->size)) {
-+			buf = iter;
- 			break;
--		buf = NULL;
-+		}
- 	}
- 	spin_unlock(&fl->lock);
+ 	list_for_each_entry(pmem, &svc_data_mem, node)
+ 		if (pmem->vaddr == kaddr) {
+-			size = pmem->size;
+-			break;
++			gen_pool_free(chan->ctrl->genpool,
++				       (unsigned long)kaddr, pmem->size);
++			pmem->vaddr = NULL;
++			list_del(&pmem->node);
++			return;
+ 		}
+ 
+-	gen_pool_free(chan->ctrl->genpool, (unsigned long)kaddr, size);
+-	pmem->vaddr = NULL;
+-	list_del(&pmem->node);
++	list_del(&svc_data_mem);
+ }
+ EXPORT_SYMBOL_GPL(stratix10_svc_free_memory);
  
 -- 
 2.35.1
