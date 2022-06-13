@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FEFF5497F0
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49504548D8E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381127AbiFMOUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:20:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42656 "EHLO
+        id S1357291AbiFMM6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:58:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382071AbiFMOQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:16:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E662DD6E;
-        Mon, 13 Jun 2022 04:43:31 -0700 (PDT)
+        with ESMTP id S1356308AbiFMMzS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33E15BF51;
+        Mon, 13 Jun 2022 04:15:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9714B80E2C;
-        Mon, 13 Jun 2022 11:43:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C3DCC34114;
-        Mon, 13 Jun 2022 11:43:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3E8C60B6E;
+        Mon, 13 Jun 2022 11:15:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1191C3411C;
+        Mon, 13 Jun 2022 11:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120585;
-        bh=kspaQPGbJV1NlakBjIX0v3JHztnswdilDVjBlWSPEtA=;
+        s=korg; t=1655118945;
+        bh=7z+N3KMvMkb3XEW6HZ1NlJrXCA4y2wOP47eUpURj/FU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kK+XbWUV0bjzE+mpBvkPEGNnuUyWFzJqk2icJOJAMF1WwJvP0uDrkbxsJe54+XYDo
-         tz0kRBOKoSAn+MlU/bJ1WUPD8lTthzWj34aQ5Vr2FoDMEKf5HC5FtsP52PBIU42EZ7
-         6xTUMCCFo9m2gFg58m9W5TwnoOhMZ9MWYtnqiGu8=
+        b=NIdQFmfHAwoJn5GvNHftZqV4tn3CSGXtJQX2AVBHR5jUMtRsQBqM6yUOkYqkowvPk
+         cSIe+ImG/Z7ECyj/138TdSRuKjT/Oh5KlwU6JZkLw67YVDvO3ZamNzDL0Wy95CVvQN
+         62Aix0dKfm1CJfkhpev0LxEUOorMf4bm1UL75RmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 085/298] net: ethernet: ti: am65-cpsw-nuss: Fix some refcount leaks
+Subject: [PATCH 5.15 077/247] jffs2: fix memory leak in jffs2_do_fill_super
 Date:   Mon, 13 Jun 2022 12:09:39 +0200
-Message-Id: <20220613094927.526020927@linuxfoundation.org>
+Message-Id: <20220613094925.293400065@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit 5dd89d2fc438457811cbbec07999ce0d80051ff5 ]
+[ Upstream commit c14adb1cf70a984ed081c67e9d27bc3caad9537c ]
 
-of_get_child_by_name() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-am65_cpsw_init_cpts() and am65_cpsw_nuss_probe() don't release
-the refcount in error case.
-Add missing of_node_put() to avoid refcount leak.
+If jffs2_iget() or d_make_root() in jffs2_do_fill_super() returns
+an error, we can observe the following kmemleak report:
 
-Fixes: b1f66a5bee07 ("net: ethernet: ti: am65-cpsw-nuss: enable packet timestamping support")
-Fixes: 93a76530316a ("net: ethernet: ti: introduce am65x/j721e gigabit eth subsystem driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+--------------------------------------------
+unreferenced object 0xffff888105a65340 (size 64):
+  comm "mount", pid 710, jiffies 4302851558 (age 58.239s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff859c45e5>] kmem_cache_alloc_trace+0x475/0x8a0
+    [<ffffffff86160146>] jffs2_sum_init+0x96/0x1a0
+    [<ffffffff86140e25>] jffs2_do_mount_fs+0x745/0x2120
+    [<ffffffff86149fec>] jffs2_do_fill_super+0x35c/0x810
+    [<ffffffff8614aae9>] jffs2_fill_super+0x2b9/0x3b0
+    [...]
+unreferenced object 0xffff8881bd7f0000 (size 65536):
+  comm "mount", pid 710, jiffies 4302851558 (age 58.239s)
+  hex dump (first 32 bytes):
+    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+  backtrace:
+    [<ffffffff858579ba>] kmalloc_order+0xda/0x110
+    [<ffffffff85857a11>] kmalloc_order_trace+0x21/0x130
+    [<ffffffff859c2ed1>] __kmalloc+0x711/0x8a0
+    [<ffffffff86160189>] jffs2_sum_init+0xd9/0x1a0
+    [<ffffffff86140e25>] jffs2_do_mount_fs+0x745/0x2120
+    [<ffffffff86149fec>] jffs2_do_fill_super+0x35c/0x810
+    [<ffffffff8614aae9>] jffs2_fill_super+0x2b9/0x3b0
+    [...]
+--------------------------------------------
+
+This is because the resources allocated in jffs2_sum_init() are not
+released. Call jffs2_sum_exit() to release these resources to solve
+the problem.
+
+Fixes: e631ddba5887 ("[JFFS2] Add erase block summary support (mount time improvement)")
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/jffs2/fs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-index 8251d7eb001b..eda91336c9f6 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -1802,6 +1802,7 @@ static int am65_cpsw_init_cpts(struct am65_cpsw_common *common)
- 	if (IS_ERR(cpts)) {
- 		int ret = PTR_ERR(cpts);
- 
-+		of_node_put(node);
- 		if (ret == -EOPNOTSUPP) {
- 			dev_info(dev, "cpts disabled\n");
- 			return 0;
-@@ -2669,9 +2670,9 @@ static int am65_cpsw_nuss_probe(struct platform_device *pdev)
- 	if (!node)
- 		return -ENOENT;
- 	common->port_num = of_get_child_count(node);
-+	of_node_put(node);
- 	if (common->port_num < 1 || common->port_num > AM65_CPSW_MAX_PORTS)
- 		return -ENOENT;
--	of_node_put(node);
- 
- 	common->rx_flow_id_base = -1;
- 	init_completion(&common->tdown_complete);
+diff --git a/fs/jffs2/fs.c b/fs/jffs2/fs.c
+index 71f03a5d36ed..f83a468b6488 100644
+--- a/fs/jffs2/fs.c
++++ b/fs/jffs2/fs.c
+@@ -604,6 +604,7 @@ int jffs2_do_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	jffs2_free_raw_node_refs(c);
+ 	kvfree(c->blocks);
+ 	jffs2_clear_xattr_subsystem(c);
++	jffs2_sum_exit(c);
+  out_inohash:
+ 	kfree(c->inocache_list);
+  out_wbuf:
 -- 
 2.35.1
 
