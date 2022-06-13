@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EABEA548AC5
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4434C5496FA
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352036AbiFMMlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:41:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56268 "EHLO
+        id S1384484AbiFMOhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:37:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356625AbiFMMjc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:39:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40ECB33E37;
-        Mon, 13 Jun 2022 04:09:55 -0700 (PDT)
+        with ESMTP id S1384524AbiFMOgQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:36:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84E714C782;
+        Mon, 13 Jun 2022 04:49:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 751BE60B7B;
-        Mon, 13 Jun 2022 11:09:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809F4C34114;
-        Mon, 13 Jun 2022 11:09:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FA35612A8;
+        Mon, 13 Jun 2022 11:49:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B04F0C3411B;
+        Mon, 13 Jun 2022 11:49:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118593;
-        bh=T39f0eVQOSJ9MBYJVxLyGztljyf680swlm25slWr4q4=;
+        s=korg; t=1655120965;
+        bh=7eOcHCF7+4t2kcJUauB/gN70Ms3lE7F0lcxE7gghkE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UGTA5d3AiC1VfkfVE4uyUPtxwH7PObbNdtlHuXAFkbYNW7R+Im6BKn/kV7t1AZVlI
-         mQfJXdrwMPxFpwZ+866nDjVFIcQz5lnzDQ0zozwR/F9P0lyifXOBuGqY7LDy6bGau1
-         TA76UV0xr6lOzW6K6gjq8dLUgNSp6G5OZAGvJDMU=
+        b=lQGVX8m7AME0D3s1RoQS0r87Yp3Mm0GrWQcFFcjhhc1vdlVAp84aKx/mPhly4Ok9h
+         iJpr+YuCH7tAZZq4wIgpZdpDDnp1T/81t8JtkLlzugpURLbBQWC3L8l6h59jAusitS
+         ZmniL/K1cMtpATBI4OkMay8gU5CEuIR9cnkyHhkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Evan Green <evgreen@chromium.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 124/172] USB: hcd-pci: Fully suspend across freeze/thaw cycle
+Subject: [PATCH 5.17 190/298] net: altera: Fix refcount leak in altera_tse_mdio_create
 Date:   Mon, 13 Jun 2022 12:11:24 +0200
-Message-Id: <20220613094920.320151695@linuxfoundation.org>
+Message-Id: <20220613094930.867807410@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 63acaa8e9c65dc34dc249440216f8e977f5d2748 ]
+[ Upstream commit 11ec18b1d8d92b9df307d31950dcba0b3dd7283c ]
 
-The documentation for the freeze() method says that it "should quiesce
-the device so that it doesn't generate IRQs or DMA". The unspoken
-consequence of not doing this is that MSIs aimed at non-boot CPUs may
-get fully lost if they're sent during the period where the target CPU is
-offline.
+Every iteration of for_each_child_of_node() decrements
+the reference count of the previous node.
+When break from a for_each_child_of_node() loop,
+we need to explicitly call of_node_put() on the child node when
+not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-The current callbacks for USB HCD do not fully quiesce interrupts,
-specifically on XHCI. Change to use the full suspend/resume flow for
-freeze/thaw to ensure interrupts are fully quiesced. This fixes issues
-where USB devices fail to thaw during hibernation because XHCI misses
-its interrupt and cannot recover.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Link: https://lore.kernel.org/r/20220421103751.v3.2.I8226c7fdae88329ef70957b96a39b346c69a914e@changeid
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bbd2190ce96d ("Altera TSE: Add main and header file for Altera Ethernet Driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220607041144.7553-1-linmq006@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hcd-pci.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/altera/altera_tse_main.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/core/hcd-pci.c b/drivers/usb/core/hcd-pci.c
-index ec0d6c50610c..eee78cbfaa72 100644
---- a/drivers/usb/core/hcd-pci.c
-+++ b/drivers/usb/core/hcd-pci.c
-@@ -614,10 +614,10 @@ const struct dev_pm_ops usb_hcd_pci_pm_ops = {
- 	.suspend_noirq	= hcd_pci_suspend_noirq,
- 	.resume_noirq	= hcd_pci_resume_noirq,
- 	.resume		= hcd_pci_resume,
--	.freeze		= check_root_hub_suspended,
-+	.freeze		= hcd_pci_suspend,
- 	.freeze_noirq	= check_root_hub_suspended,
- 	.thaw_noirq	= NULL,
--	.thaw		= NULL,
-+	.thaw		= hcd_pci_resume,
- 	.poweroff	= hcd_pci_suspend,
- 	.poweroff_noirq	= hcd_pci_suspend_noirq,
- 	.restore_noirq	= hcd_pci_resume_noirq,
+diff --git a/drivers/net/ethernet/altera/altera_tse_main.c b/drivers/net/ethernet/altera/altera_tse_main.c
+index 993b2fb42961..36bf3ce545c9 100644
+--- a/drivers/net/ethernet/altera/altera_tse_main.c
++++ b/drivers/net/ethernet/altera/altera_tse_main.c
+@@ -163,7 +163,8 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
+ 	mdio = mdiobus_alloc();
+ 	if (mdio == NULL) {
+ 		netdev_err(dev, "Error allocating MDIO bus\n");
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto put_node;
+ 	}
+ 
+ 	mdio->name = ALTERA_TSE_RESOURCE_NAME;
+@@ -180,6 +181,7 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
+ 			   mdio->id);
+ 		goto out_free_mdio;
+ 	}
++	of_node_put(mdio_node);
+ 
+ 	if (netif_msg_drv(priv))
+ 		netdev_info(dev, "MDIO bus %s: created\n", mdio->id);
+@@ -189,6 +191,8 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
+ out_free_mdio:
+ 	mdiobus_free(mdio);
+ 	mdio = NULL;
++put_node:
++	of_node_put(mdio_node);
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
