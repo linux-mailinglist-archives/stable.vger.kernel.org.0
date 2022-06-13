@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0090548663
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:56:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CF96548753
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380977AbiFMOHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:07:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51744 "EHLO
+        id S1355736AbiFMM4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:56:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382110AbiFMOFP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AE2B9398E;
-        Mon, 13 Jun 2022 04:40:23 -0700 (PDT)
+        with ESMTP id S1358022AbiFMMy7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:54:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F6CBF6E;
+        Mon, 13 Jun 2022 04:14:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AABFD60EAE;
-        Mon, 13 Jun 2022 11:40:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B17D4C34114;
-        Mon, 13 Jun 2022 11:40:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01F93608C3;
+        Mon, 13 Jun 2022 11:14:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B41C34114;
+        Mon, 13 Jun 2022 11:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120421;
-        bh=0fLRRqfF3K12v1PzU3KVqPJmFNu0jucA711johY6/OU=;
+        s=korg; t=1655118840;
+        bh=KZwwiaMn6jMSA+APeDBmeJBeB+0XDWzbrp4o/Ua+SXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4hnvDYQDaNfwGdgyuIg93ojy+PkdX2Eoly/NR0Ml9viAZVV5DSM0I79wUC7yhPo4
-         FvbfhZOemZNQCxsAVpvLxOm1l0XuOJr/Cn7JbbxE1savdEpHiKfzNLKFyB4pL7n6Pk
-         0CVgoKa0MCQofHoowNjezDRi7D+8IGb/N0j1tsIo=
+        b=imZ5Oo5bZn/fDlKIyjfWx3AheDTtCGoCN8YyG7Lqnk29lCNi/n+Osudj0RwOvk6en
+         jCNNoDJYwJR0jLqFID9PlCjAETqydJPJJRjpppYrmJbWqQJJhplBmn2EYCHLofKEAF
+         2vsWbXg/MqChUPjHfjMDVwbbqSme6ZUGGln83sCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        stable@vger.kernel.org, Wesley Cheng <quic_wcheng@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 027/298] rpmsg: virtio: Fix possible double free in rpmsg_probe()
-Date:   Mon, 13 Jun 2022 12:08:41 +0200
-Message-Id: <20220613094925.754205866@linuxfoundation.org>
+Subject: [PATCH 5.15 020/247] usb: dwc3: gadget: Replace list_for_each_entry_safe() if using giveback
+Date:   Mon, 13 Jun 2022 12:08:42 +0200
+Message-Id: <20220613094923.543036554@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +53,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Wesley Cheng <quic_wcheng@quicinc.com>
 
-[ Upstream commit c2eecefec5df1306eafce28ccdf1ca159a552ecc ]
+[ Upstream commit bf594d1d0c1d7b895954018043536ffd327844f9 ]
 
-vch will be free in virtio_rpmsg_release_device() when
-rpmsg_ns_register_device() fails. There is no need to call kfree() again.
+The list_for_each_entry_safe() macro saves the current item (n) and
+the item after (n+1), so that n can be safely removed without
+corrupting the list.  However, when traversing the list and removing
+items using gadget giveback, the DWC3 lock is briefly released,
+allowing other routines to execute.  There is a situation where, while
+items are being removed from the cancelled_list using
+dwc3_gadget_ep_cleanup_cancelled_requests(), the pullup disable
+routine is running in parallel (due to UDC unbind).  As the cleanup
+routine removes n, and the pullup disable removes n+1, once the
+cleanup retakes the DWC3 lock, it references a request who was already
+removed/handled.  With list debug enabled, this leads to a panic.
+Ensure all instances of the macro are replaced where gadget giveback
+is used.
 
-Fix this by changing error path from free_vch to free_ctrldev.
+Example call stack:
 
-Fixes: c486682ae1e2 ("rpmsg: virtio: Register the rpmsg_char device")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Tested-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
-Link: https://lore.kernel.org/r/20220426060536.15594-2-hbh25y@gmail.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Thread#1:
+__dwc3_gadget_ep_set_halt() - CLEAR HALT
+  -> dwc3_gadget_ep_cleanup_cancelled_requests()
+    ->list_for_each_entry_safe()
+    ->dwc3_gadget_giveback(n)
+      ->dwc3_gadget_del_and_unmap_request()- n deleted[cancelled_list]
+      ->spin_unlock
+      ->Thread#2 executes
+      ...
+    ->dwc3_gadget_giveback(n+1)
+      ->Already removed!
+
+Thread#2:
+dwc3_gadget_pullup()
+  ->waiting for dwc3 spin_lock
+  ...
+  ->Thread#1 released lock
+  ->dwc3_stop_active_transfers()
+    ->dwc3_remove_requests()
+      ->fetches n+1 item from cancelled_list (n removed by Thread#1)
+      ->dwc3_gadget_giveback()
+        ->dwc3_gadget_del_and_unmap_request()- n+1 deleted[cancelled_list]
+        ->spin_unlock
+
+Fixes: d4f1afe5e896 ("usb: dwc3: gadget: move requests to cancelled_list")
+Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
+Link: https://lore.kernel.org/r/20220414183521.23451-1-quic_wcheng@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rpmsg/virtio_rpmsg_bus.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/gadget.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-index ac764e04c898..1c39e9c4fa02 100644
---- a/drivers/rpmsg/virtio_rpmsg_bus.c
-+++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-@@ -973,7 +973,8 @@ static int rpmsg_probe(struct virtio_device *vdev)
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index c064ec41bf8c..99d0372ed840 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1955,10 +1955,10 @@ static void dwc3_gadget_ep_skip_trbs(struct dwc3_ep *dep, struct dwc3_request *r
+ static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep)
+ {
+ 	struct dwc3_request		*req;
+-	struct dwc3_request		*tmp;
+ 	struct dwc3			*dwc = dep->dwc;
  
- 		err = rpmsg_ns_register_device(rpdev_ns);
- 		if (err)
--			goto free_vch;
-+			/* vch will be free in virtio_rpmsg_release_device() */
-+			goto free_ctrldev;
+-	list_for_each_entry_safe(req, tmp, &dep->cancelled_list, list) {
++	while (!list_empty(&dep->cancelled_list)) {
++		req = next_request(&dep->cancelled_list);
+ 		dwc3_gadget_ep_skip_trbs(dep, req);
+ 		switch (req->status) {
+ 		case DWC3_REQUEST_STATUS_DISCONNECTED:
+@@ -1975,6 +1975,12 @@ static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep)
+ 			dwc3_gadget_giveback(dep, req, -ECONNRESET);
+ 			break;
+ 		}
++		/*
++		 * The endpoint is disabled, let the dwc3_remove_requests()
++		 * handle the cleanup.
++		 */
++		if (!dep->endpoint.desc)
++			break;
  	}
+ }
  
- 	/*
-@@ -997,8 +998,6 @@ static int rpmsg_probe(struct virtio_device *vdev)
+@@ -3258,15 +3264,21 @@ static void dwc3_gadget_ep_cleanup_completed_requests(struct dwc3_ep *dep,
+ 		const struct dwc3_event_depevt *event, int status)
+ {
+ 	struct dwc3_request	*req;
+-	struct dwc3_request	*tmp;
  
- 	return 0;
+-	list_for_each_entry_safe(req, tmp, &dep->started_list, list) {
++	while (!list_empty(&dep->started_list)) {
+ 		int ret;
  
--free_vch:
--	kfree(vch);
- free_ctrldev:
- 	rpmsg_virtio_del_ctrl_dev(rpdev_ctrl);
- free_coherent:
++		req = next_request(&dep->started_list);
+ 		ret = dwc3_gadget_ep_cleanup_completed_request(dep, event,
+ 				req, status);
+ 		if (ret)
+ 			break;
++		/*
++		 * The endpoint is disabled, let the dwc3_remove_requests()
++		 * handle the cleanup.
++		 */
++		if (!dep->endpoint.desc)
++			break;
+ 	}
+ }
+ 
 -- 
 2.35.1
 
