@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D52C1548AE5
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E152549241
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354019AbiFMLb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:31:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45256 "EHLO
+        id S236294AbiFMKZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:25:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354803AbiFMLaK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6CA33F8A9;
-        Mon, 13 Jun 2022 03:45:45 -0700 (PDT)
+        with ESMTP id S245361AbiFMKYe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:24:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38727205FB;
+        Mon, 13 Jun 2022 03:18:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63826B80D3C;
-        Mon, 13 Jun 2022 10:45:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C234DC34114;
-        Mon, 13 Jun 2022 10:45:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBFAC6066C;
+        Mon, 13 Jun 2022 10:18:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE67C34114;
+        Mon, 13 Jun 2022 10:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117143;
-        bh=I8oULWVL+L4kvTvgtQzqFkRIvj5C38xYUwG6aVPRCpQ=;
+        s=korg; t=1655115534;
+        bh=agnz51hOJwQlbz3bP/HVXLEFh+xK1woCpBP81eDI+uE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nAVA+iMAC0rC3hcaB9ylrNZjNgPPxvFQ/Uxh9O+FVAJB2GJaSF43IMBKVFFgSqHPu
-         QptwzJ8mxIcX8RIbIj96po0BcxErVsZ2zO0r0bl87bvd6CP7ETcm7+/k2wq5JOgKsW
-         CIDc2xm3vZl4uV/Nj6JdnkH6Fp/sZvDleOTk6Yrw=
+        b=fDH48Fb6YQzX7aS3ktZJwdzkyfzNW6VVm+MboPC6BvIZUukVgn4dxKkd1LLrHPRl/
+         S6scg5gkMuuAO05IDGMdz/qsXDMFc4Kp9PnJx4K2TkpRJB/yYbPUa6huGLNwq90TNd
+         AkR5Cy/d9kmnDdP8NIAfgH+A2nUOCmFalEbOp3rU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Walmsley <paul.walmsley@sifive.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Niels Dossche <dossche.niels@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 312/411] serial: sifive: Sanitize CSIZE and c_iflag
+Subject: [PATCH 4.9 111/167] usb: usbip: add missing device lock on tweak configuration cmd
 Date:   Mon, 13 Jun 2022 12:09:45 +0200
-Message-Id: <20220613094938.101618816@linuxfoundation.org>
+Message-Id: <20220613094906.856505720@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit c069d2756c01ed36121fae6a42c14fdf1325c71d ]
+[ Upstream commit d088fabace2ca337b275d1d4b36db4fe7771e44f ]
 
-Only CS8 is supported but CSIZE was not sanitized to CS8.
+The function documentation of usb_set_configuration says that its
+callers should hold the device lock. This lock is held for all
+callsites except tweak_set_configuration_cmd. The code path can be
+executed for example when attaching a remote USB device.
+The solution is to surround the call by the device lock.
 
-Set CSIZE correctly so that userspace knows the effective value.
-Incorrect CSIZE also results in miscalculation of the frame bits in
-tty_get_char_size() or in its predecessor where the roughly the same
-code is directly within uart_update_timeout().
+This bug was found using my experimental own-developed static analysis
+tool, which reported the missing lock on v5.17.2. I manually verified
+this bug report by doing code review as well. I runtime checked that
+the required lock is not held. I compiled and runtime tested this on
+x86_64 with a USB mouse. After applying this patch, my analyser no
+longer reports this potential bug.
 
-Similarly, INPCK, PARMRK, and BRKINT are reported textually unsupported
-but were not cleared in termios c_iflag which is the machine-readable
-format.
-
-Fixes: 45c054d0815b (tty: serial: add driver for the SiFive UART)
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220519081808.3776-7-ilpo.jarvinen@linux.intel.com
+Fixes: 2c8c98158946 ("staging: usbip: let client choose device configuration")
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Link: https://lore.kernel.org/r/20220412165055.257113-1-dossche.niels@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sifive.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/usbip/stub_rx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/sifive.c b/drivers/tty/serial/sifive.c
-index ec9bd2207271..7015632c4990 100644
---- a/drivers/tty/serial/sifive.c
-+++ b/drivers/tty/serial/sifive.c
-@@ -667,12 +667,16 @@ static void sifive_serial_set_termios(struct uart_port *port,
- 	int rate;
- 	char nstop;
+diff --git a/drivers/usb/usbip/stub_rx.c b/drivers/usb/usbip/stub_rx.c
+index d47176f9c310..dd6228a51d0d 100644
+--- a/drivers/usb/usbip/stub_rx.c
++++ b/drivers/usb/usbip/stub_rx.c
+@@ -151,7 +151,9 @@ static int tweak_set_configuration_cmd(struct urb *urb)
+ 	req = (struct usb_ctrlrequest *) urb->setup_packet;
+ 	config = le16_to_cpu(req->wValue);
  
--	if ((termios->c_cflag & CSIZE) != CS8)
-+	if ((termios->c_cflag & CSIZE) != CS8) {
- 		dev_err_once(ssp->port.dev, "only 8-bit words supported\n");
-+		termios->c_cflag &= ~CSIZE;
-+		termios->c_cflag |= CS8;
-+	}
- 	if (termios->c_iflag & (INPCK | PARMRK))
- 		dev_err_once(ssp->port.dev, "parity checking not supported\n");
- 	if (termios->c_iflag & BRKINT)
- 		dev_err_once(ssp->port.dev, "BREAK detection not supported\n");
-+	termios->c_iflag &= ~(INPCK|PARMRK|BRKINT);
- 
- 	/* Set number of stop bits */
- 	nstop = (termios->c_cflag & CSTOPB) ? 2 : 1;
++	usb_lock_device(sdev->udev);
+ 	err = usb_set_configuration(sdev->udev, config);
++	usb_unlock_device(sdev->udev);
+ 	if (err && err != -ENODEV)
+ 		dev_err(&sdev->udev->dev, "can't set config #%d, error %d\n",
+ 			config, err);
 -- 
 2.35.1
 
