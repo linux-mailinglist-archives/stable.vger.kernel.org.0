@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3E235497E8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E286C54939B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382142AbiFMOQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:16:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42112 "EHLO
+        id S1354041AbiFMLbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:31:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383218AbiFMOPb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:15:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E24699CF51;
-        Mon, 13 Jun 2022 04:42:58 -0700 (PDT)
+        with ESMTP id S1354830AbiFMLaM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE1983FBDE;
+        Mon, 13 Jun 2022 03:45:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A976B80EDD;
-        Mon, 13 Jun 2022 11:42:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C14FBC34114;
-        Mon, 13 Jun 2022 11:42:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48A2361248;
+        Mon, 13 Jun 2022 10:45:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55AF1C34114;
+        Mon, 13 Jun 2022 10:45:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120577;
-        bh=nrF/adwgwx9MgAPpcT7qaXo0qs8+u+oOf8h/HKdJwhM=;
+        s=korg; t=1655117148;
+        bh=/lWHFpte0nQhGTo7XI8GUdlZRuC2Mn0hannG7wMM4LU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6c2pywff9FQqjzDNkXyQRQ21+Jbuky3Ot3PUc50cS901Fsff5jOOTgI/fawP2drZ
-         fBnEWAC9L/2cI+zEc5aI4kLMDtk6req4fmmkYkqMt20K37GIiuZ/zbAkjwG+rCC/Vi
-         vXyC/lDAenmQJxHYmzl36QR6VTZVzFomr1uNbvYc=
+        b=JSK5jsaarZ7GpSYuiETkUSEGJMSCVAcwJGNtubVqVcZXhWapn9ZuWYUh+du8r7U/6
+         2hhPejOBz8aLn3/w7qGdl14KaEZklsvCdseOCMQGcjTHqD0SnBmKt2GZCopPlnJd3R
+         4jhPVPRqCcDxYheGVeJpyB4PSYjRFikAsxseJTDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 082/298] net: lan966x: check devm_of_phy_get() for -EDEFER_PROBE
+Subject: [PATCH 5.4 303/411] soc: rockchip: Fix refcount leak in rockchip_grf_init
 Date:   Mon, 13 Jun 2022 12:09:36 +0200
-Message-Id: <20220613094927.433965236@linuxfoundation.org>
+Message-Id: <20220613094937.839141064@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit b58cdd4388b1d8f5bee9f5a3897a7e780d1eaa48 ]
+[ Upstream commit 9b59588d8be91c96bfb0371e912ceb4f16315dbf ]
 
-At the moment, if devm_of_phy_get() returns an error the serdes
-simply isn't set. While it is bad to ignore an error in general, there
-is a particular bug that network isn't working if the serdes driver is
-compiled as a module. In that case, devm_of_phy_get() returns
--EDEFER_PROBE and the error is silently ignored.
+of_find_matching_node_and_match returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-The serdes is optional, it is not there if the port is using RGMII, in
-which case devm_of_phy_get() returns -ENODEV. Rearrange the error
-handling so that -ENODEV will be handled but other error codes will
-abort the probing.
-
-Fixes: d28d6d2e37d1 ("net: lan966x: add port module support")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Link: https://lore.kernel.org/r/20220525231239.1307298-1-michael@walle.cc
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 4c58063d4258 ("soc: rockchip: add driver handling grf setup")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220516072013.19731-1-linmq006@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/lan966x/lan966x_main.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/soc/rockchip/grf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-index fee148bbf13e..b0cb3b65cd5b 100644
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-@@ -948,8 +948,13 @@ static int lan966x_probe(struct platform_device *pdev)
- 		lan966x->ports[p]->fwnode = fwnode_handle_get(portnp);
- 
- 		serdes = devm_of_phy_get(lan966x->dev, to_of_node(portnp), NULL);
--		if (!IS_ERR(serdes))
--			lan966x->ports[p]->serdes = serdes;
-+		if (PTR_ERR(serdes) == -ENODEV)
-+			serdes = NULL;
-+		if (IS_ERR(serdes)) {
-+			err = PTR_ERR(serdes);
-+			goto cleanup_ports;
-+		}
-+		lan966x->ports[p]->serdes = serdes;
- 
- 		lan966x_port_init(lan966x->ports[p]);
+diff --git a/drivers/soc/rockchip/grf.c b/drivers/soc/rockchip/grf.c
+index 494cf2b5bf7b..343ff61ccccb 100644
+--- a/drivers/soc/rockchip/grf.c
++++ b/drivers/soc/rockchip/grf.c
+@@ -148,12 +148,14 @@ static int __init rockchip_grf_init(void)
+ 		return -ENODEV;
+ 	if (!match || !match->data) {
+ 		pr_err("%s: missing grf data\n", __func__);
++		of_node_put(np);
+ 		return -EINVAL;
  	}
+ 
+ 	grf_info = match->data;
+ 
+ 	grf = syscon_node_to_regmap(np);
++	of_node_put(np);
+ 	if (IS_ERR(grf)) {
+ 		pr_err("%s: could not get grf syscon\n", __func__);
+ 		return PTR_ERR(grf);
 -- 
 2.35.1
 
