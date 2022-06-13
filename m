@@ -2,51 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F42154927E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2543E548DB1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351586AbiFMLJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:09:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45240 "EHLO
+        id S1380052AbiFMN5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:57:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350962AbiFMLIK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:08:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E729633A18;
-        Mon, 13 Jun 2022 03:35:16 -0700 (PDT)
+        with ESMTP id S1380286AbiFMNyB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:54:01 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B22BC42A18;
+        Mon, 13 Jun 2022 04:34:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F03CCB80EA3;
-        Mon, 13 Jun 2022 10:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26683C34114;
-        Mon, 13 Jun 2022 10:35:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0C867CE1230;
+        Mon, 13 Jun 2022 11:34:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8BC9C3411C;
+        Mon, 13 Jun 2022 11:34:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116508;
-        bh=LaYa5idQ1yJxJe8+9meCByz64bMEhW5oj9iw1k0GRMs=;
+        s=korg; t=1655120062;
+        bh=u/6BFpc3oKkrIembXPs4WNepmSjV4wLzaru37KJWng0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wsU7c6/YKc0QLKaNCZc/qZijqKkGj4K4hmzf3JnGpwDcOydwDLp63n5yWnDp0puNF
-         9udVhpWWUVoCmYQTtf+SIdi2PpxT95KEp4aw2GvbQXZb/i8aiPWXAmLGv1Z+rKgyP2
-         f0YIZ6heBKuDOwED9vnz2JF8h6htHynQEp5R1K5I=
+        b=W9BeJLNBo0NWq3rnJBH6w9GiHmXDQ45xjkg98xbSxcIoRGKSMDGzS4b6uCHbfVtd7
+         kZjCkw2fROHMReRnPKhaCrOE2w5exNsi53AMyVMpwv2JnV6Pc/VGKVQ6K0FTHkncCH
+         gzMMtsli8Ecthm01+boSjWDuB3T4LF1c818mPHy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe de Dinechin <dinechin@redhat.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 204/218] nodemask: Fix return values to be unsigned
+Subject: [PATCH 5.18 237/339] drivers: usb: host: Fix deadlock in oxu_bus_suspend()
 Date:   Mon, 13 Jun 2022 12:11:02 +0200
-Message-Id: <20220613094926.809951377@linuxfoundation.org>
+Message-Id: <20220613094933.844867552@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,184 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 0dfe54071d7c828a02917b595456bfde1afdddc9 ]
+[ Upstream commit 4d378f2ae58138d4c55684e1d274e7dd94aa6524 ]
 
-The nodemask routines had mixed return values that provided potentially
-signed return values that could never happen. This was leading to the
-compiler getting confusing about the range of possible return values
-(it was thinking things could be negative where they could not be). Fix
-all the nodemask routines that should be returning unsigned
-(or bool) values. Silences:
+There is a deadlock in oxu_bus_suspend(), which is shown below:
 
- mm/swapfile.c: In function ‘setup_swap_info’:
- mm/swapfile.c:2291:47: error: array subscript -1 is below array bounds of ‘struct plist_node[]’ [-Werror=array-bounds]
-  2291 |                                 p->avail_lists[i].prio = 1;
-       |                                 ~~~~~~~~~~~~~~^~~
- In file included from mm/swapfile.c:16:
- ./include/linux/swap.h:292:27: note: while referencing ‘avail_lists’
-   292 |         struct plist_node avail_lists[]; /*
-       |                           ^~~~~~~~~~~
+   (Thread 1)              |      (Thread 2)
+                           | timer_action()
+oxu_bus_suspend()          |  mod_timer()
+ spin_lock_irq() //(1)     |  (wait a time)
+ ...                       | oxu_watchdog()
+ del_timer_sync()          |  spin_lock_irq() //(2)
+ (wait timer to stop)      |  ...
 
-Reported-by: Christophe de Dinechin <dinechin@redhat.com>
-Link: https://lore.kernel.org/lkml/20220414150855.2407137-3-dinechin@redhat.com/
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
+We hold oxu->lock in position (1) of thread 1, and use
+del_timer_sync() to wait timer to stop, but timer handler
+also need oxu->lock in position (2) of thread 2. As a result,
+oxu_bus_suspend() will block forever.
+
+This patch extracts del_timer_sync() from the protection of
+spin_lock_irq(), which could let timer handler to obtain
+the needed lock.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220417120305.64577-1-duoming@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/nodemask.h | 38 +++++++++++++++++++-------------------
- lib/nodemask.c           |  4 ++--
- 2 files changed, 21 insertions(+), 21 deletions(-)
+ drivers/usb/host/oxu210hp-hcd.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/linux/nodemask.h b/include/linux/nodemask.h
-index da9f53586932..13f6248151b9 100644
---- a/include/linux/nodemask.h
-+++ b/include/linux/nodemask.h
-@@ -42,11 +42,11 @@
-  * void nodes_shift_right(dst, src, n)	Shift right
-  * void nodes_shift_left(dst, src, n)	Shift left
-  *
-- * int first_node(mask)			Number lowest set bit, or MAX_NUMNODES
-- * int next_node(node, mask)		Next node past 'node', or MAX_NUMNODES
-- * int next_node_in(node, mask)		Next node past 'node', or wrap to first,
-+ * unsigned int first_node(mask)	Number lowest set bit, or MAX_NUMNODES
-+ * unsigend int next_node(node, mask)	Next node past 'node', or MAX_NUMNODES
-+ * unsigned int next_node_in(node, mask) Next node past 'node', or wrap to first,
-  *					or MAX_NUMNODES
-- * int first_unset_node(mask)		First node not set in mask, or 
-+ * unsigned int first_unset_node(mask)	First node not set in mask, or
-  *					MAX_NUMNODES
-  *
-  * nodemask_t nodemask_of_node(node)	Return nodemask with bit 'node' set
-@@ -144,7 +144,7 @@ static inline void __nodes_clear(nodemask_t *dstp, unsigned int nbits)
+diff --git a/drivers/usb/host/oxu210hp-hcd.c b/drivers/usb/host/oxu210hp-hcd.c
+index b741670525e3..ee403df33093 100644
+--- a/drivers/usb/host/oxu210hp-hcd.c
++++ b/drivers/usb/host/oxu210hp-hcd.c
+@@ -3909,8 +3909,10 @@ static int oxu_bus_suspend(struct usb_hcd *hcd)
+ 		}
+ 	}
  
- #define node_test_and_set(node, nodemask) \
- 			__node_test_and_set((node), &(nodemask))
--static inline int __node_test_and_set(int node, nodemask_t *addr)
-+static inline bool __node_test_and_set(int node, nodemask_t *addr)
- {
- 	return test_and_set_bit(node, addr->bits);
- }
-@@ -191,7 +191,7 @@ static inline void __nodes_complement(nodemask_t *dstp,
++	spin_unlock_irq(&oxu->lock);
+ 	/* turn off now-idle HC */
+ 	del_timer_sync(&oxu->watchdog);
++	spin_lock_irq(&oxu->lock);
+ 	ehci_halt(oxu);
+ 	hcd->state = HC_STATE_SUSPENDED;
  
- #define nodes_equal(src1, src2) \
- 			__nodes_equal(&(src1), &(src2), MAX_NUMNODES)
--static inline int __nodes_equal(const nodemask_t *src1p,
-+static inline bool __nodes_equal(const nodemask_t *src1p,
- 					const nodemask_t *src2p, unsigned int nbits)
- {
- 	return bitmap_equal(src1p->bits, src2p->bits, nbits);
-@@ -199,7 +199,7 @@ static inline int __nodes_equal(const nodemask_t *src1p,
- 
- #define nodes_intersects(src1, src2) \
- 			__nodes_intersects(&(src1), &(src2), MAX_NUMNODES)
--static inline int __nodes_intersects(const nodemask_t *src1p,
-+static inline bool __nodes_intersects(const nodemask_t *src1p,
- 					const nodemask_t *src2p, unsigned int nbits)
- {
- 	return bitmap_intersects(src1p->bits, src2p->bits, nbits);
-@@ -207,20 +207,20 @@ static inline int __nodes_intersects(const nodemask_t *src1p,
- 
- #define nodes_subset(src1, src2) \
- 			__nodes_subset(&(src1), &(src2), MAX_NUMNODES)
--static inline int __nodes_subset(const nodemask_t *src1p,
-+static inline bool __nodes_subset(const nodemask_t *src1p,
- 					const nodemask_t *src2p, unsigned int nbits)
- {
- 	return bitmap_subset(src1p->bits, src2p->bits, nbits);
- }
- 
- #define nodes_empty(src) __nodes_empty(&(src), MAX_NUMNODES)
--static inline int __nodes_empty(const nodemask_t *srcp, unsigned int nbits)
-+static inline bool __nodes_empty(const nodemask_t *srcp, unsigned int nbits)
- {
- 	return bitmap_empty(srcp->bits, nbits);
- }
- 
- #define nodes_full(nodemask) __nodes_full(&(nodemask), MAX_NUMNODES)
--static inline int __nodes_full(const nodemask_t *srcp, unsigned int nbits)
-+static inline bool __nodes_full(const nodemask_t *srcp, unsigned int nbits)
- {
- 	return bitmap_full(srcp->bits, nbits);
- }
-@@ -251,15 +251,15 @@ static inline void __nodes_shift_left(nodemask_t *dstp,
-           > MAX_NUMNODES, then the silly min_ts could be dropped. */
- 
- #define first_node(src) __first_node(&(src))
--static inline int __first_node(const nodemask_t *srcp)
-+static inline unsigned int __first_node(const nodemask_t *srcp)
- {
--	return min_t(int, MAX_NUMNODES, find_first_bit(srcp->bits, MAX_NUMNODES));
-+	return min_t(unsigned int, MAX_NUMNODES, find_first_bit(srcp->bits, MAX_NUMNODES));
- }
- 
- #define next_node(n, src) __next_node((n), &(src))
--static inline int __next_node(int n, const nodemask_t *srcp)
-+static inline unsigned int __next_node(int n, const nodemask_t *srcp)
- {
--	return min_t(int,MAX_NUMNODES,find_next_bit(srcp->bits, MAX_NUMNODES, n+1));
-+	return min_t(unsigned int, MAX_NUMNODES, find_next_bit(srcp->bits, MAX_NUMNODES, n+1));
- }
- 
- /*
-@@ -267,7 +267,7 @@ static inline int __next_node(int n, const nodemask_t *srcp)
-  * the first node in src if needed.  Returns MAX_NUMNODES if src is empty.
-  */
- #define next_node_in(n, src) __next_node_in((n), &(src))
--int __next_node_in(int node, const nodemask_t *srcp);
-+unsigned int __next_node_in(int node, const nodemask_t *srcp);
- 
- static inline void init_nodemask_of_node(nodemask_t *mask, int node)
- {
-@@ -287,9 +287,9 @@ static inline void init_nodemask_of_node(nodemask_t *mask, int node)
- })
- 
- #define first_unset_node(mask) __first_unset_node(&(mask))
--static inline int __first_unset_node(const nodemask_t *maskp)
-+static inline unsigned int __first_unset_node(const nodemask_t *maskp)
- {
--	return min_t(int,MAX_NUMNODES,
-+	return min_t(unsigned int, MAX_NUMNODES,
- 			find_first_zero_bit(maskp->bits, MAX_NUMNODES));
- }
- 
-@@ -425,11 +425,11 @@ static inline int num_node_state(enum node_states state)
- 
- #define first_online_node	first_node(node_states[N_ONLINE])
- #define first_memory_node	first_node(node_states[N_MEMORY])
--static inline int next_online_node(int nid)
-+static inline unsigned int next_online_node(int nid)
- {
- 	return next_node(nid, node_states[N_ONLINE]);
- }
--static inline int next_memory_node(int nid)
-+static inline unsigned int next_memory_node(int nid)
- {
- 	return next_node(nid, node_states[N_MEMORY]);
- }
-diff --git a/lib/nodemask.c b/lib/nodemask.c
-index 3aa454c54c0d..e22647f5181b 100644
---- a/lib/nodemask.c
-+++ b/lib/nodemask.c
-@@ -3,9 +3,9 @@
- #include <linux/module.h>
- #include <linux/random.h>
- 
--int __next_node_in(int node, const nodemask_t *srcp)
-+unsigned int __next_node_in(int node, const nodemask_t *srcp)
- {
--	int ret = __next_node(node, srcp);
-+	unsigned int ret = __next_node(node, srcp);
- 
- 	if (ret == MAX_NUMNODES)
- 		ret = __first_node(srcp);
 -- 
 2.35.1
 
