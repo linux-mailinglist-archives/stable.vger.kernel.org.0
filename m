@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 187C0548386
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 11:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9235548391
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 11:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234063AbiFMJRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 05:17:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53796 "EHLO
+        id S232763AbiFMJVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 05:21:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233986AbiFMJRO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 05:17:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C092B18B30;
-        Mon, 13 Jun 2022 02:17:13 -0700 (PDT)
+        with ESMTP id S231440AbiFMJVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 05:21:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2630818B1E
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 02:21:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AE6B6132A;
-        Mon, 13 Jun 2022 09:17:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51463C34114;
-        Mon, 13 Jun 2022 09:17:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B71FF6130B
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 09:21:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3103C34114;
+        Mon, 13 Jun 2022 09:21:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655111832;
-        bh=xvaTrA/hT+882XGo8RJkhe9Pd4T6ylFv/gQwzn+huXY=;
+        s=korg; t=1655112105;
+        bh=+K2+wNStrxavCSy2piYJ2hQqdT7ExjIfR0Y2zzb5FvA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Y1dINAJ19F3AyodF41o+C5f0tbV02uGKAlXJ1Izuv/43yyZsWY6YGQl04Dgr3rxtn
-         lxQOtFyVs5FT0LylQ2VQMopBiZ/+fz5JoTmzySygS/h1d+6a6CPgU+GMmmIYM8LozO
-         yS+h1rUzEAO95zaB8H33FNpD/24RZImJrel5tswQ=
-Date:   Mon, 13 Jun 2022 11:17:10 +0200
+        b=ZWzxwIrgivj5+pv7uXzjjb8retBC93g9CpXPlbciHUMIi+l69D0R5ML0NlfLJgEbR
+         hI5VE0X2WdaqJDBgPEwFAw4KZLgpI7xKQviY85tk/xkyMUoNE2kxXVqYyXpPThTJ04
+         hssXAGu5zf2I4PVHfZ6uJ8Nqy1FHaaY6auXcYy0Q=
+Date:   Mon, 13 Jun 2022 11:21:42 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     stable@vger.kernel.org, linux-block@vger.kernel.org,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH 5.17-stable] block, loop: support partitions without
- scanning
-Message-ID: <YqcAlj/r+vTOPLu6@kroah.com>
-References: <20220609042432.1656938-1-hch@lst.de>
+To:     Tokunori Ikegami <ikegami.t@gmail.com>
+Cc:     stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: Re: [PATCH for 4.9.y 2/2] mtd: cfi_cmdset_0002: Use chip_ready() for
+ write on S29GL064N
+Message-ID: <YqcBphMj/XeAaDEC@kroah.com>
+References: <20220610155604.1342511-1-ikegami.t@gmail.com>
+ <20220610155604.1342511-2-ikegami.t@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220609042432.1656938-1-hch@lst.de>
+In-Reply-To: <20220610155604.1342511-2-ikegami.t@gmail.com>
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -51,28 +52,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 09, 2022 at 06:24:32AM +0200, Christoph Hellwig wrote:
-> Historically we did distinguish between a flag that surpressed partition
-> scanning, and a combinations of the minors variable and another flag if
-> any partitions were supported.  This was generally confusing and doesn't
-> make much sense, but some corner case uses of the loop driver actually
-> do want to support manually added partitions on a device that does not
-> actively scan for partitions.  To make things worsee the loop driver
-> also wants to dynamically toggle the scanning for partitions on a live
-> gendisk, which makes the disk->flags updates non-atomic.
+On Sat, Jun 11, 2022 at 12:56:04AM +0900, Tokunori Ikegami wrote:
+> Since commit dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to
+> check correct value") buffered writes fail on S29GL064N. This is
+> because, on S29GL064N, reads return 0xFF at the end of DQ polling for
+> write completion, where as, chip_good() check expects actual data
+> written to the last location to be returned post DQ polling completion.
+> Fix is to revert to using chip_good() for S29GL064N which only checks
+> for DQ lines to settle down to determine write completion.
 > 
-> Introduce a new GD_SUPPRESS_PART_SCAN bit in disk->state that disables
-> just scanning for partitions, and toggle that instead of GENHD_FL_NO_PART
-> in the loop driver.
-> 
-> Fixes: 1ebe2e5f9d68 ("block: remove GENHD_FL_EXT_DEVT")
-> Reported-by: Ming Lei <ming.lei@redhat.com>
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Ming Lei <ming.lei@redhat.com>
-> Link: https://lore.kernel.org/r/20220527055806.1972352-1-hch@lst.de
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> (cherry picked from commit b9684a71fca793213378dd410cd11675d973eaa1)
+> Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
+> Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+> Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
+> Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+> Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-3-ikegami.t@gmail.com
+> ---
+>  drivers/mtd/chips/cfi_cmdset_0002.c | 42 +++++++++++++++++++++++------
+>  include/linux/mtd/cfi.h             |  1 +
+>  2 files changed, 35 insertions(+), 8 deletions(-)
 
-Both queued up, thanks.
+All now queued up, thanks.
 
 greg k-h
