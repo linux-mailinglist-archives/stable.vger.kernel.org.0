@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF7965488F7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B33B554896A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378093AbiFMNmD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:42:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60558 "EHLO
+        id S1350028AbiFMMZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:25:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378055AbiFMNkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A4B0A45C;
-        Mon, 13 Jun 2022 04:29:52 -0700 (PDT)
+        with ESMTP id S1356698AbiFMMYK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:24:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92FED31905;
+        Mon, 13 Jun 2022 04:05:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CABDE61236;
-        Mon, 13 Jun 2022 11:29:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D53B5C34114;
-        Mon, 13 Jun 2022 11:29:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52523614DF;
+        Mon, 13 Jun 2022 11:05:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BBF1C3411E;
+        Mon, 13 Jun 2022 11:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119791;
-        bh=oVBfeT43YiBBYZIXtsBG1KEvA//lVG/SvY0P/Qp7O3s=;
+        s=korg; t=1655118325;
+        bh=dQNws+jJxXI0km39GL9lQb6x9kS+9wy/+s80ews2QI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AaX5yKIyLZrGmnSntnMwT/1D3RGh1ZO1AGLyCZKZkb+q+OGLTlVRV0zr7ltqRDopg
-         HSnhoseQdZ58d8Ln3SZLTB5vvU1TtK0xvWmgHQQRd+7az1+4fUUcjwjj33Un9RCeI8
-         EYJnsOvc0fWRhBGN6SEw9+CDP4YInVjNQVNpqxNA=
+        b=L5dtoDOb+QhpovTwLdfO9FlwrmFE/nNr2IFzc1S0Many47QyvjW6elK37gkGzWmcU
+         y3ymhAynlcftqLrBBXZMfzpt0ejZgttJJMK3Hm90mHh0nTXNGS/bk1LUYXdtLMRu6k
+         4l/sZbTMKqRMl0/6C+OCSQAukUCLYbowbI9CrLTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        stable@vger.kernel.org, Peter Hurley <peter@hurleysoftware.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Daniel Gibson <daniel@gibson.sh>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 141/339] drm/msm/dp: Always clear mask bits to disable interrupts at dp_ctrl_reset_irq_ctrl()
-Date:   Mon, 13 Jun 2022 12:09:26 +0200
-Message-Id: <20220613094930.961025942@linuxfoundation.org>
+Subject: [PATCH 5.10 007/172] tty: n_tty: Restore EOF push handling behavior
+Date:   Mon, 13 Jun 2022 12:09:27 +0200
+Message-Id: <20220613094852.116983191@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +56,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Daniel Gibson <daniel@gibson.sh>
 
-[ Upstream commit 993a2adc6e2e94a0a7b5bfc054eda90ac95f62c3 ]
+[ Upstream commit 65a8b287023da68c4550deab5c764e6891cf1caf ]
 
-dp_catalog_ctrl_reset() will software reset DP controller. But it will
-not reset programmable registers to default value. DP driver still have
-to clear mask bits to interrupt status registers to disable interrupts
-after software reset of controller.
+TTYs in ICANON mode have a special case that allows "pushing" a line
+without a regular EOL character (like newline), by using EOF (the EOT
+character - ASCII 0x4) as a pseudo-EOL. It is silently discarded, so
+the reader of the PTS will receive the line *without* EOF or any other
+terminating character.
 
-At current implementation, dp_ctrl_reset_irq_ctrl() will software reset dp
-controller but did not call dp_catalog_ctrl_enable_irq(false) to clear hpd
-related interrupt mask bits to disable hpd related interrupts due to it
-mistakenly think hpd related interrupt mask bits will be cleared by software
-reset of dp controller automatically. This mistake may cause system to crash
-during suspending procedure due to unexpected irq fired and trigger event
-thread to access dp controller registers with controller clocks are disabled.
+This special case has an edge case: What happens if the readers buffer
+is the same size as the line (without EOF)? Will they be able to tell
+if the whole line is received, i.e. if the next read() will return more
+of the same line or the next line?
 
-This patch fixes system crash during suspending problem by removing "enable"
-flag condition checking at dp_ctrl_reset_irq_ctrl() so that hpd related
-interrupt mask bits are cleared to prevent unexpected from happening.
+There are two possibilities,  that both have (dis)advantages:
 
-Changes in v2:
--- add more details commit text
+1. The next read() returns 0. FreeBSD (13.0) and OSX (10.11) do this.
+   Advantage: The reader can interpret this as "the line is over".
+   Disadvantage: read() returning 0 means EOF, the reader could also
+   interpret it as "there's no more data" and stop reading or even
+   close the PT.
 
-Changes in v3:
--- add synchrons_irq()
--- add atomic_t suspended
+2. The next read() returns the next line, the EOF is silently discarded.
+   Solaris (or at least OpenIndiana 2021.10) does this, Linux has done
+   do this since commit 40d5e0905a03 ("n_tty: Fix EOF push handling");
+   this behavior was recently broken by commit 359303076163 ("tty:
+   n_tty: do not look ahead for EOL character past the end of the buffer").
+   Advantage: read() won't return 0 (EOF), reader less likely to be
+   confused (and things like `while(read(..)>0)` don't break)
+   Disadvantage: The reader can't really know if the read() continues
+   the last line (that filled the whole read buffer) or starts a
+   new line.
 
-Changes in v4:
--- correct Fixes's commit ID
--- remove synchrons_irq()
+As both options are defensible (and are used by other Unix-likes), it's
+best to stick to the "old" behavior since "n_tty: Fix EOF push handling"
+of 2013, i.e. silently discard that EOF.
 
-Changes in v5:
--- revise commit text
+This patch - that I actually got from Linus for testing and only
+modified slightly - restores that behavior by skipping an EOF
+character if it's the next character after reading is done.
 
-Changes in v6:
--- add event_lock to protect "suspended"
+Based on a patch from Linus Torvalds.
 
-Changes in v7:
--- delete "suspended" flag
-
-Fixes: 989ebe7bc446 ("drm/msm/dp: do not initialize phy until plugin interrupt received")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/486591/
-Link: https://lore.kernel.org/r/1652804494-19650-1-git-send-email-quic_khsieh@quicinc.com
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215611
+Fixes: 359303076163 ("tty: n_tty: do not look ahead for EOL character past the end of the buffer")
+Cc: Peter Hurley <peter@hurleysoftware.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Reviewed-and-tested-by: Daniel Gibson <daniel@gibson.sh>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Daniel Gibson <daniel@gibson.sh>
+Link: https://lore.kernel.org/r/20220329235810.452513-2-daniel@gibson.sh
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_ctrl.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/tty/n_tty.c | 38 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 37 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-index 08cc48af03b7..de1974916ad2 100644
---- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
-+++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-@@ -1380,8 +1380,13 @@ void dp_ctrl_reset_irq_ctrl(struct dp_ctrl *dp_ctrl, bool enable)
- 
- 	dp_catalog_ctrl_reset(ctrl->catalog);
- 
--	if (enable)
--		dp_catalog_ctrl_enable_irq(ctrl->catalog, enable);
-+	/*
-+	 * all dp controller programmable registers will not
-+	 * be reset to default value after DP_SW_RESET
-+	 * therefore interrupt mask bits have to be updated
-+	 * to enable/disable interrupts
-+	 */
-+	dp_catalog_ctrl_enable_irq(ctrl->catalog, enable);
+diff --git a/drivers/tty/n_tty.c b/drivers/tty/n_tty.c
+index 58190135efb7..12dde01e576b 100644
+--- a/drivers/tty/n_tty.c
++++ b/drivers/tty/n_tty.c
+@@ -2073,6 +2073,35 @@ static bool canon_copy_from_read_buf(struct tty_struct *tty,
+ 	return ldata->read_tail != canon_head;
  }
  
- void dp_ctrl_phy_init(struct dp_ctrl *dp_ctrl)
++/*
++ * If we finished a read at the exact location of an
++ * EOF (special EOL character that's a __DISABLED_CHAR)
++ * in the stream, silently eat the EOF.
++ */
++static void canon_skip_eof(struct tty_struct *tty)
++{
++	struct n_tty_data *ldata = tty->disc_data;
++	size_t tail, canon_head;
++
++	canon_head = smp_load_acquire(&ldata->canon_head);
++	tail = ldata->read_tail;
++
++	// No data?
++	if (tail == canon_head)
++		return;
++
++	// See if the tail position is EOF in the circular buffer
++	tail &= (N_TTY_BUF_SIZE - 1);
++	if (!test_bit(tail, ldata->read_flags))
++		return;
++	if (read_buf(ldata, tail) != __DISABLED_CHAR)
++		return;
++
++	// Clear the EOL bit, skip the EOF char.
++	clear_bit(tail, ldata->read_flags);
++	smp_store_release(&ldata->read_tail, ldata->read_tail + 1);
++}
++
+ /**
+  *	job_control		-	check job control
+  *	@tty: tty
+@@ -2142,7 +2171,14 @@ static ssize_t n_tty_read(struct tty_struct *tty, struct file *file,
+ 	 */
+ 	if (*cookie) {
+ 		if (ldata->icanon && !L_EXTPROC(tty)) {
+-			if (canon_copy_from_read_buf(tty, &kb, &nr))
++			/*
++			 * If we have filled the user buffer, see
++			 * if we should skip an EOF character before
++			 * releasing the lock and returning done.
++			 */
++			if (!nr)
++				canon_skip_eof(tty);
++			else if (canon_copy_from_read_buf(tty, &kb, &nr))
+ 				return kb - kbuf;
+ 		} else {
+ 			if (copy_from_read_buf(tty, &kb, &nr))
 -- 
 2.35.1
 
