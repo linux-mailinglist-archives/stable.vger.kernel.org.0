@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C885F547FAB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 08:44:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8631547FB2
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 08:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235485AbiFMGok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 02:44:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52730 "EHLO
+        id S232095AbiFMGpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 02:45:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233989AbiFMGoj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 02:44:39 -0400
+        with ESMTP id S231241AbiFMGo6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 02:44:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F180FD34
-        for <stable@vger.kernel.org>; Sun, 12 Jun 2022 23:44:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 631B8FD34
+        for <stable@vger.kernel.org>; Sun, 12 Jun 2022 23:44:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9037B80D49
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 06:44:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 045EBC34114;
-        Mon, 13 Jun 2022 06:44:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 176AFB80D56
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 06:44:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60338C34114;
+        Mon, 13 Jun 2022 06:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655102675;
-        bh=d3pi0A2hwDZQhr78c8Fk0qanfexl6uj6B1MtUJBzd0k=;
+        s=korg; t=1655102694;
+        bh=rLbiA9gXbi13Ut8gG3cjAk/nKRviw8WziEUS4cLfAdk=;
         h=Subject:To:Cc:From:Date:From;
-        b=OO2KD7VTHxDA5L01tUo79TtKOg4NeeiHQTCovdxZPE71Dll0UVkm7hQ0PjEwdmyl4
-         2AQ4hRHyyBfXfUNQ9tLo//IvTzTNywXKJMbMOldGpsqr0mKgu9b7VKFJ7HFRi8k6fW
-         lLS+OyPVgfpudiF3jB90EFQU/t66CX+jYSdFR5O4=
-Subject: FAILED: patch "[PATCH] random: avoid checking crng_ready() twice in random_init()" failed to apply to 5.10-stable tree
-To:     Jason@zx2c4.com, linux@dominikbrodowski.net
+        b=OYiYIKutDNNTA5iOf4t22LMVr7Tt78LmLkA8R2iuTaKMTq9a4sHVnwj4UZFRn0PE3
+         kGFiQMEhiOmQYOa41ThBjvyRD0D1qz57cySxEww6d7eSbB6vrTnpWfG21Fn1Y7AOIc
+         RY7FwaOda3fU8PDEPbze7kQc3gs5OU1fSnLeYjGQ=
+Subject: FAILED: patch "[PATCH] random: account for arch randomness in bits" failed to apply to 5.4-stable tree
+To:     Jason@zx2c4.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Jun 2022 08:44:28 +0200
-Message-ID: <165510266838234@kroah.com>
+Date:   Mon, 13 Jun 2022 08:44:52 +0200
+Message-ID: <1655102692104194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,45 +59,57 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9b29b6b20376ab64e1b043df6301d8a92378e631 Mon Sep 17 00:00:00 2001
+From 77fc95f8c0dc9e1f8e620ec14d2fb65028fb7adc Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Tue, 7 Jun 2022 09:44:07 +0200
-Subject: [PATCH] random: avoid checking crng_ready() twice in random_init()
+Date: Tue, 7 Jun 2022 17:04:38 +0200
+Subject: [PATCH] random: account for arch randomness in bits
 
-The current flow expands to:
+Rather than accounting in bytes and multiplying (shifting), we can just
+account in bits and avoid the shift. The main motivation for this is
+there are other patches in flux that expand this code a bit, and
+avoiding the duplication of "* 8" everywhere makes things a bit clearer.
 
-    if (crng_ready())
-       ...
-    else if (...)
-        if (!crng_ready())
-            ...
-
-The second crng_ready() call is redundant, but can't so easily be
-optimized out by the compiler.
-
-This commit simplifies that to:
-
-    if (crng_ready()
-        ...
-    else if (...)
-        ...
-
-Fixes: 560181c27b58 ("random: move initialization functions out of hot pages")
 Cc: stable@vger.kernel.org
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Fixes: 12e45a2a6308 ("random: credit architectural init the exact amount")
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 
 diff --git a/drivers/char/random.c b/drivers/char/random.c
-index b691b9d59503..4862d4d3ec49 100644
+index 0d6fb3eaf609..60d701a2516b 100644
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -801,7 +801,7 @@ int __init random_init(const char *command_line)
+@@ -776,7 +776,7 @@ static struct notifier_block pm_notifier = { .notifier_call = random_pm_notifica
+ int __init random_init(const char *command_line)
+ {
+ 	ktime_t now = ktime_get_real();
+-	unsigned int i, arch_bytes;
++	unsigned int i, arch_bits;
+ 	unsigned long entropy;
+ 
+ #if defined(LATENT_ENTROPY_PLUGIN)
+@@ -784,12 +784,12 @@ int __init random_init(const char *command_line)
+ 	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
+ #endif
+ 
+-	for (i = 0, arch_bytes = BLAKE2S_BLOCK_SIZE;
++	for (i = 0, arch_bits = BLAKE2S_BLOCK_SIZE * 8;
+ 	     i < BLAKE2S_BLOCK_SIZE; i += sizeof(entropy)) {
+ 		if (!arch_get_random_seed_long_early(&entropy) &&
+ 		    !arch_get_random_long_early(&entropy)) {
+ 			entropy = random_get_entropy();
+-			arch_bytes -= sizeof(entropy);
++			arch_bits -= sizeof(entropy) * 8;
+ 		}
+ 		_mix_pool_bytes(&entropy, sizeof(entropy));
+ 	}
+@@ -801,8 +801,8 @@ int __init random_init(const char *command_line)
  	if (crng_ready())
  		crng_reseed();
  	else if (trust_cpu)
--		credit_init_bits(arch_bytes * 8);
-+		_credit_init_bits(arch_bytes * 8);
- 	used_arch_random = arch_bytes * 8 >= POOL_READY_BITS;
+-		_credit_init_bits(arch_bytes * 8);
+-	used_arch_random = arch_bytes * 8 >= POOL_READY_BITS;
++		_credit_init_bits(arch_bits);
++	used_arch_random = arch_bits >= POOL_READY_BITS;
  
  	WARN_ON(register_pm_notifier(&pm_notifier));
+ 
 
