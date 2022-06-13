@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C66D548CB0
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E265B549053
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354305AbiFMLdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:33:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46106 "EHLO
+        id S1345967AbiFMKu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:50:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354852AbiFMLaN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F5793FD8A;
-        Mon, 13 Jun 2022 03:45:55 -0700 (PDT)
+        with ESMTP id S1348794AbiFMKtg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:49:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B4212E6A2;
+        Mon, 13 Jun 2022 03:27:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B95FA61252;
-        Mon, 13 Jun 2022 10:45:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C33CEC34114;
-        Mon, 13 Jun 2022 10:45:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D91E60AEB;
+        Mon, 13 Jun 2022 10:27:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C4CBC34114;
+        Mon, 13 Jun 2022 10:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117154;
-        bh=jmE2/USi15nJhTcRW+0edENCA3cLVWARNcmmv6GMHb0=;
+        s=korg; t=1655116031;
+        bh=2p8gEQy7N4nmmIhZpnKGXvMKWI0J2oK3wHed5skNLhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kzkMVCDcFVen9upNA4Z8+20XZNxWDk5jDQH979gRWn0b8F01NTJUTAzoajn7qK3yq
-         1Mk7/qiJuR1Sk1nsbWgwjozBNqnlVV+rCVVXFC+YDbK5xBnVuarIh3+jeCgTLav1+5
-         358hh8Ez2Cd13qlua4zyvbqlti0YhUpzI3wBtJGQ=
+        b=d20CYm/PL/Vjl/XXrxI3ghYQYxQg4yOvgpz6dQLM3D5CfGEzt7KlTvju3BUjdY5xS
+         sHSBcaWl4G4A9eRM7UBUlDmG7YzISRMkqt6fU5svwHdoIzWe0zSgBw+7A3+6ZHSTJA
+         EDkZ+i22hD3wt90b8cXQJkCuI/OVEPQ3vDgGCwKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 305/411] rtc: mt6397: check return value after calling platform_get_resource()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.14 120/218] irqchip/armada-370-xp: Do not touch Performance Counter Overflow on A375, A38x, A39x
 Date:   Mon, 13 Jun 2022 12:09:38 +0200
-Message-Id: <20220613094937.897143184@linuxfoundation.org>
+Message-Id: <20220613094924.210937845@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit d3b43eb505bffb8e4cdf6800c15660c001553fe6 ]
+commit a3d66a76348daf559873f19afc912a2a7c2ccdaf upstream.
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+Register ARMADA_370_XP_INT_FABRIC_MASK_OFFS is Armada 370 and XP specific
+and on new Armada platforms it has different meaning. It does not configure
+Performance Counter Overflow interrupt masking. So do not touch this
+register on non-A370/XP platforms (A375, A38x and A39x).
 
-Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220505125043.1594771-1-yangyingliang@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 28da06dfd9e4 ("irqchip: armada-370-xp: Enable the PMU interrupts")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220425113706.29310-1-pali@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-mt6397.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/irqchip/irq-armada-370-xp.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index b216bdcba0da..dd3901b0a4ed 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -331,6 +331,8 @@ static int mtk_rtc_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+--- a/drivers/irqchip/irq-armada-370-xp.c
++++ b/drivers/irqchip/irq-armada-370-xp.c
+@@ -392,7 +392,16 @@ static void armada_xp_mpic_smp_cpu_init(
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res)
-+		return -EINVAL;
- 	rtc->addr_base = res->start;
+ static void armada_xp_mpic_perf_init(void)
+ {
+-	unsigned long cpuid = cpu_logical_map(smp_processor_id());
++	unsigned long cpuid;
++
++	/*
++	 * This Performance Counter Overflow interrupt is specific for
++	 * Armada 370 and XP. It is not available on Armada 375, 38x and 39x.
++	 */
++	if (!of_machine_is_compatible("marvell,armada-370-xp"))
++		return;
++
++	cpuid = cpu_logical_map(smp_processor_id());
  
- 	rtc->irq = platform_get_irq(pdev, 0);
--- 
-2.35.1
-
+ 	/* Enable Performance Counter Overflow interrupts */
+ 	writel(ARMADA_370_XP_INT_CAUSE_PERF(cpuid),
 
 
