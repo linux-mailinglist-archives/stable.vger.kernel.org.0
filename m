@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31D8F548A22
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C73548AE7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377106AbiFMNcm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:32:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43862 "EHLO
+        id S236587AbiFMKep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:34:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377626AbiFMN3x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:29:53 -0400
+        with ESMTP id S1344500AbiFMKbm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:31:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 926886D3A5;
-        Mon, 13 Jun 2022 04:24:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5E5B27B12;
+        Mon, 13 Jun 2022 03:21:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0AF360B6E;
-        Mon, 13 Jun 2022 11:24:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6589C3411C;
-        Mon, 13 Jun 2022 11:24:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D6DD60AE9;
+        Mon, 13 Jun 2022 10:21:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ED7AC34114;
+        Mon, 13 Jun 2022 10:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119491;
-        bh=cJI/Ff5eCY4YKk09fUdLQV5mFqySbVgI0sF7RBQJTzk=;
+        s=korg; t=1655115698;
+        bh=GrMNQC0Zq45esoFsSLD8+gdKZCtqv2bzxMJxZd9rbEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sikwp8gOdq5jUZ8j7D2QKqmsW1NV8QnSdJxn46kjWQ5mWFKPhtTtMHGPi3miR5otE
-         ti8e0coexwwb1vhfed/HsdQb4wPpZIjhtBCPb8lMlwzjrs/x4i1xzrR20r9kzuCc8i
-         IJCJQ5kSZe5y2xuglZWt0X1KxLkAAXTVKhEN7C7o=
+        b=2wH+PciwA3UW4TTF0lWQlayUo4h6XxoIp7ZUZMMUzqhQvn+5XKYodZ1bKGgfAeM8D
+         7o9hSOB8mcre8dZ6KK5rtnXph5Bi3vvBAGIpKIhu41J/z6hOy5SMqxf4rRwE5M3FfC
+         y1jEcCWHmU8c+YWK2rPRf5u2A13TG1GGGXgDdxew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Philippe Schenker <philippe.schenker@toradex.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 034/339] iio: adc: stmpe-adc: Fix wait_for_completion_timeout return value check
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Kees Cook <keescook@chromium.org>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 4.14 001/218] binfmt_flat: do not stop relocating GOT entries prematurely on riscv
 Date:   Mon, 13 Jun 2022 12:07:39 +0200
-Message-Id: <20220613094927.552169501@linuxfoundation.org>
+Message-Id: <20220613094908.637652870@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,67 +57,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit d345b23200bcdbd2bd3582213d738c258b77718f ]
+commit 6045ab5fea4c849153ebeb0acb532da5f29d69c4 upstream.
 
-wait_for_completion_timeout() returns unsigned long not long.
-it returns 0 if timed out, and positive if completed.
-The check for <= 0 is ambiguous and should be == 0 here
-indicating timeout which is the only error case
+bFLT binaries are usually created using elf2flt.
 
-Fixes: e813dde6f833 ("iio: stmpe-adc: Use wait_for_completion_timeout")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Philippe Schenker <philippe.schenker@toradex.com>
-Link: https://lore.kernel.org/r/20220412065150.14486-1-linmq006@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The linker script used by elf2flt has defined the .data section like the
+following for the last 19 years:
+
+.data : {
+	_sdata = . ;
+	__data_start = . ;
+	data_start = . ;
+	*(.got.plt)
+	*(.got)
+	FILL(0) ;
+	. = ALIGN(0x20) ;
+	LONG(-1)
+	. = ALIGN(0x20) ;
+	...
+}
+
+It places the .got.plt input section before the .got input section.
+The same is true for the default linker script (ld --verbose) on most
+architectures except x86/x86-64.
+
+The binfmt_flat loader should relocate all GOT entries until it encounters
+a -1 (the LONG(-1) in the linker script).
+
+The problem is that the .got.plt input section starts with a GOTPLT header
+(which has size 16 bytes on elf64-riscv and 8 bytes on elf32-riscv), where
+the first word is set to -1. See the binutils implementation for riscv [1].
+
+This causes the binfmt_flat loader to stop relocating GOT entries
+prematurely and thus causes the application to crash when running.
+
+Fix this by skipping the whole GOTPLT header, since the whole GOTPLT header
+is reserved for the dynamic linker.
+
+The GOTPLT header will only be skipped for bFLT binaries with flag
+FLAT_FLAG_GOTPIC set. This flag is unconditionally set by elf2flt if the
+supplied ELF binary has the symbol _GLOBAL_OFFSET_TABLE_ defined.
+ELF binaries without a .got input section should thus remain unaffected.
+
+Tested on RISC-V Canaan Kendryte K210 and RISC-V QEMU nommu_virt_defconfig.
+
+[1] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfnn-riscv.c;hb=binutils-2_38#l3275
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Link: https://lore.kernel.org/r/20220414091018.896737-1-niklas.cassel@wdc.com
+Fixed-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202204182333.OIUOotK8-lkp@intel.com
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/stmpe-adc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/binfmt_flat.c |   27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/stmpe-adc.c b/drivers/iio/adc/stmpe-adc.c
-index d2d405388499..83e0ac4467ca 100644
---- a/drivers/iio/adc/stmpe-adc.c
-+++ b/drivers/iio/adc/stmpe-adc.c
-@@ -61,7 +61,7 @@ struct stmpe_adc {
- static int stmpe_read_voltage(struct stmpe_adc *info,
- 		struct iio_chan_spec const *chan, int *val)
+--- a/fs/binfmt_flat.c
++++ b/fs/binfmt_flat.c
+@@ -408,6 +408,30 @@ static void old_reloc(unsigned long rl)
+ 
+ /****************************************************************************/
+ 
++static inline u32 __user *skip_got_header(u32 __user *rp)
++{
++	if (IS_ENABLED(CONFIG_RISCV)) {
++		/*
++		 * RISC-V has a 16 byte GOT PLT header for elf64-riscv
++		 * and 8 byte GOT PLT header for elf32-riscv.
++		 * Skip the whole GOT PLT header, since it is reserved
++		 * for the dynamic linker (ld.so).
++		 */
++		u32 rp_val0, rp_val1;
++
++		if (get_user(rp_val0, rp))
++			return rp;
++		if (get_user(rp_val1, rp + 1))
++			return rp;
++
++		if (rp_val0 == 0xffffffff && rp_val1 == 0xffffffff)
++			rp += 4;
++		else if (rp_val0 == 0xffffffff)
++			rp += 2;
++	}
++	return rp;
++}
++
+ static int load_flat_file(struct linux_binprm *bprm,
+ 		struct lib_info *libinfo, int id, unsigned long *extra_stack)
  {
--	long ret;
-+	unsigned long ret;
- 
- 	mutex_lock(&info->lock);
- 
-@@ -79,7 +79,7 @@ static int stmpe_read_voltage(struct stmpe_adc *info,
- 
- 	ret = wait_for_completion_timeout(&info->completion, STMPE_ADC_TIMEOUT);
- 
--	if (ret <= 0) {
-+	if (ret == 0) {
- 		stmpe_reg_write(info->stmpe, STMPE_REG_ADC_INT_STA,
- 				STMPE_ADC_CH(info->channel));
- 		mutex_unlock(&info->lock);
-@@ -96,7 +96,7 @@ static int stmpe_read_voltage(struct stmpe_adc *info,
- static int stmpe_read_temp(struct stmpe_adc *info,
- 		struct iio_chan_spec const *chan, int *val)
- {
--	long ret;
-+	unsigned long ret;
- 
- 	mutex_lock(&info->lock);
- 
-@@ -114,7 +114,7 @@ static int stmpe_read_temp(struct stmpe_adc *info,
- 
- 	ret = wait_for_completion_timeout(&info->completion, STMPE_ADC_TIMEOUT);
- 
--	if (ret <= 0) {
-+	if (ret == 0) {
- 		mutex_unlock(&info->lock);
- 		return -ETIMEDOUT;
- 	}
--- 
-2.35.1
-
+@@ -745,7 +769,8 @@ static int load_flat_file(struct linux_b
+ 	 * image.
+ 	 */
+ 	if (flags & FLAT_FLAG_GOTPIC) {
+-		for (rp = (u32 __user *)datapos; ; rp++) {
++		rp = skip_got_header((u32 __user *) datapos);
++		for (; ; rp++) {
+ 			u32 addr, rp_val;
+ 			if (get_user(rp_val, rp))
+ 				return -EFAULT;
 
 
