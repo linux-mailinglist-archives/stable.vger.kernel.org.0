@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33FF2548E39
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43502549200
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354178AbiFMLch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:32:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56244 "EHLO
+        id S1381831AbiFMOQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:16:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354472AbiFML3g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:36 -0400
+        with ESMTP id S1383115AbiFMOPX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:15:23 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62B2BDF28;
-        Mon, 13 Jun 2022 03:44:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB9E09CC81;
+        Mon, 13 Jun 2022 04:42:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 150D6B80D3A;
-        Mon, 13 Jun 2022 10:44:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F811C34114;
-        Mon, 13 Jun 2022 10:44:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 507C1B80ECD;
+        Mon, 13 Jun 2022 11:42:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A430BC34114;
+        Mon, 13 Jun 2022 11:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117088;
-        bh=A2kOf+YUalMSyW3ba6LpRQec2UkZUl6itbbNZD+h3Uk=;
+        s=korg; t=1655120569;
+        bh=mw/Kae021Zd0ilpCkoH0xuovLwi9c677QHtw690TGHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zFfalB4HttQShkXy9PQDeimxn2g1MPrfztG7sLAIHhZEBeRAFHNTdRAHreLSuWkce
-         8A2OiKIaHVMLIsqawYCoPNVwNpkPk1nE8/OcNpvIfoFjP6jUb/xakLKbGDUHudwte8
-         7ZwKCUv49UD5RQzcET03eiVRNf509vRm8357dX50=
+        b=xfchMZCJSsx4iYFocSKDh1wWmpi0MMSFsE8odg+9yr2DAbyHrotWwHDD8RpTcGVpJ
+         rLBh0tFzwT2efvv/4EpzZPRrcojr0obPa7Kz8k6J4mECykCO1GKWU2qT6ItVGY8rsY
+         T1d6NhMFS8EpkkA77Bll87+OVdFMaO1nM3gXEeAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexandru Tachici <alexandru.tachici@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 283/411] iio: adc: ad7124: Remove shift from scan_type
+Subject: [PATCH 5.17 062/298] serial: txx9: Dont allow CS5-6
 Date:   Mon, 13 Jun 2022 12:09:16 +0200
-Message-Id: <20220613094937.243746057@linuxfoundation.org>
+Message-Id: <20220613094926.829673971@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Tachici <alexandru.tachici@analog.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit fe78ccf79b0e29fd6d8dc2e2c3b0dbeda4ce3ad8 ]
+[ Upstream commit 79ac88655dc0551e3571ad16bdabdbe65d61553e ]
 
-The 24 bits data is stored in 32 bits in BE. There
-is no need to shift it. This confuses user-space apps.
+Only CS7 and CS8 are supported but CSIZE is not sanitized with
+CS5 or CS6 to CS8.
 
-Fixes: b3af341bbd966 ("iio: adc: Add ad7124 support")
-Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
-Link: https://lore.kernel.org/r/20220322105029.86389-2-alexandru.tachici@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Set CSIZE correctly so that userspace knows the effective value.
+Incorrect CSIZE also results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
+
+Fixes: 1da177e4c3f4 (Linux-2.6.12-rc2)
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-5-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad7124.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/tty/serial/serial_txx9.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iio/adc/ad7124.c b/drivers/iio/adc/ad7124.c
-index 635cc1e7b123..793a803919c5 100644
---- a/drivers/iio/adc/ad7124.c
-+++ b/drivers/iio/adc/ad7124.c
-@@ -142,7 +142,6 @@ static const struct iio_chan_spec ad7124_channel_template = {
- 		.sign = 'u',
- 		.realbits = 24,
- 		.storagebits = 32,
--		.shift = 8,
- 		.endianness = IIO_BE,
- 	},
- };
+diff --git a/drivers/tty/serial/serial_txx9.c b/drivers/tty/serial/serial_txx9.c
+index aaca4fe38486..1f8362d5e3b9 100644
+--- a/drivers/tty/serial/serial_txx9.c
++++ b/drivers/tty/serial/serial_txx9.c
+@@ -644,6 +644,8 @@ serial_txx9_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	case CS6:	/* not supported */
+ 	case CS8:
+ 		cval |= TXX9_SILCR_UMODE_8BIT;
++		termios->c_cflag &= ~CSIZE;
++		termios->c_cflag |= CS8;
+ 		break;
+ 	}
+ 
 -- 
 2.35.1
 
