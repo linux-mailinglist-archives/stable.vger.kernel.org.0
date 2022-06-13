@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01532548D8D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D4CB5489BB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382948AbiFMOWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:22:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52892 "EHLO
+        id S1357083AbiFMM63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:58:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382933AbiFMOVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:21:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DE9A2060;
-        Mon, 13 Jun 2022 04:43:59 -0700 (PDT)
+        with ESMTP id S1351231AbiFMMzb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F1B1E0EA;
+        Mon, 13 Jun 2022 04:16:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E24DDB80E2C;
-        Mon, 13 Jun 2022 11:43:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F04C34114;
-        Mon, 13 Jun 2022 11:43:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6E3160B6C;
+        Mon, 13 Jun 2022 11:16:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C848FC34114;
+        Mon, 13 Jun 2022 11:16:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120636;
-        bh=vgKo32g688iQ+3jnemU02qj9Di+VAnXSWSB12XS0bkQ=;
+        s=korg; t=1655118973;
+        bh=YoFo55FR6GuCxwjzObkMZXyp+7gaK5kdqZJXzW1mApQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s60zLo+sBW00tl9LGqgOLTeFk3199TvbnoDVxToq8HQ9zdHzDXhmB70LtD9D31ckx
-         nNSFD8uaz/8nHeamtcdk6CfzU7SqmTyDCN0tXpo6zhTXo8glgREIpkRjCBU+sfGaIz
-         pbcWOSNEkb1G7R5Yz5RtFUiwYXCWglOwMT39Ohe0=
+        b=aGlIXaI9SLwFUlZ7FPIDh9MBaW8MB0eOg7U6V6jcj9IlwlOYK2XcLIhfT1vi5PM5w
+         2YjXWV51lpmKAgtGPotl26IcSvKtRm4m2PrMliMkH5oW8kLj7b2zgcK9HEOF/fObo+
+         x3gFXXy2Jkqt/xmMHoFAq7+Yo3EoeKDesqtv95u8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianhao Zhao <tizhao@redhat.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Paul Blakey <paulb@nvidia.com>,
+        Ariel Levkovich <lariel@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 103/298] sfc: fix wrong tx channel offset with efx_separate_tx_channels
+Subject: [PATCH 5.15 095/247] net/mlx5: CT: Fix header-rewrite re-use for tupels
 Date:   Mon, 13 Jun 2022 12:09:57 +0200
-Message-Id: <20220613094928.075637456@linuxfoundation.org>
+Message-Id: <20220613094925.838138222@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Paul Blakey <paulb@nvidia.com>
 
-[ Upstream commit c308dfd1b43ef0d4c3e57b741bb3462eb7a7f4a2 ]
+[ Upstream commit 1f2856cde64baa78475e6d3c601fb7b7f693a161 ]
 
-tx_channel_offset is calculated in efx_allocate_msix_channels, but it is
-also calculated again in efx_set_channels because it was originally done
-there, and when efx_allocate_msix_channels was introduced it was
-forgotten to be removed from efx_set_channels.
+Tuple entries that don't have nat configured for them
+which are added to the ct nat table will always create
+a new modify header, as we don't check for possible
+re-use on them. The same for tuples that have nat configured
+for them but are added to ct table.
 
-Moreover, the old calculation is wrong when using
-efx_separate_tx_channels because now we can have XDP channels after the
-TX channels, so n_channels - n_tx_channels doesn't point to the first TX
-channel.
+Fix the above by only avoiding wasteful re-use lookup
+for actually natted entries in ct nat table.
 
-Remove the old calculation from efx_set_channels, and add the
-initialization of this variable if MSI or legacy interrupts are used,
-next to the initialization of the rest of the related variables, where
-it was missing.
-
-Fixes: 3990a8fffbda ("sfc: allocate channels for XDP tx queues")
-Reported-by: Tianhao Zhao <tizhao@redhat.com>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7fac5c2eced3 ("net/mlx5: CT: Avoid reusing modify header context for natted entries")
+Signed-off-by: Paul Blakey <paulb@nvidia.com>
+Reviewed-by: Ariel Levkovich <lariel@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/efx_channels.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ .../ethernet/mellanox/mlx5/core/en/tc_ct.c    | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
-index eec0db76d888..8ab9358a1c3d 100644
---- a/drivers/net/ethernet/sfc/efx_channels.c
-+++ b/drivers/net/ethernet/sfc/efx_channels.c
-@@ -309,6 +309,7 @@ int efx_probe_interrupts(struct efx_nic *efx)
- 		efx->n_channels = 1;
- 		efx->n_rx_channels = 1;
- 		efx->n_tx_channels = 1;
-+		efx->tx_channel_offset = 0;
- 		efx->n_xdp_channels = 0;
- 		efx->xdp_channel_offset = efx->n_channels;
- 		rc = pci_enable_msi(efx->pci_dev);
-@@ -329,6 +330,7 @@ int efx_probe_interrupts(struct efx_nic *efx)
- 		efx->n_channels = 1 + (efx_separate_tx_channels ? 1 : 0);
- 		efx->n_rx_channels = 1;
- 		efx->n_tx_channels = 1;
-+		efx->tx_channel_offset = 1;
- 		efx->n_xdp_channels = 0;
- 		efx->xdp_channel_offset = efx->n_channels;
- 		efx->legacy_irq = efx->pci_dev->irq;
-@@ -957,10 +959,6 @@ int efx_set_channels(struct efx_nic *efx)
- 	struct efx_channel *channel;
- 	int rc;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
+index d4b7b4d73b08..94200f2dd92b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
+@@ -650,7 +650,7 @@ mlx5_tc_ct_entry_create_mod_hdr(struct mlx5_tc_ct_priv *ct_priv,
+ 				struct mlx5_flow_attr *attr,
+ 				struct flow_rule *flow_rule,
+ 				struct mlx5e_mod_hdr_handle **mh,
+-				u8 zone_restore_id, bool nat)
++				u8 zone_restore_id, bool nat_table, bool has_nat)
+ {
+ 	struct mlx5e_tc_mod_hdr_acts mod_acts = {};
+ 	struct flow_action_entry *meta;
+@@ -665,11 +665,12 @@ mlx5_tc_ct_entry_create_mod_hdr(struct mlx5_tc_ct_priv *ct_priv,
+ 				     &attr->ct_attr.ct_labels_id);
+ 	if (err)
+ 		return -EOPNOTSUPP;
+-	if (nat) {
+-		err = mlx5_tc_ct_entry_create_nat(ct_priv, flow_rule,
+-						  &mod_acts);
+-		if (err)
+-			goto err_mapping;
++	if (nat_table) {
++		if (has_nat) {
++			err = mlx5_tc_ct_entry_create_nat(ct_priv, flow_rule, &mod_acts);
++			if (err)
++				goto err_mapping;
++		}
  
--	efx->tx_channel_offset =
--		efx_separate_tx_channels ?
--		efx->n_channels - efx->n_tx_channels : 0;
--
- 	if (efx->xdp_tx_queue_count) {
- 		EFX_WARN_ON_PARANOID(efx->xdp_tx_queues);
+ 		ct_state |= MLX5_CT_STATE_NAT_BIT;
+ 	}
+@@ -684,7 +685,7 @@ mlx5_tc_ct_entry_create_mod_hdr(struct mlx5_tc_ct_priv *ct_priv,
+ 	if (err)
+ 		goto err_mapping;
  
+-	if (nat) {
++	if (nat_table && has_nat) {
+ 		attr->modify_hdr = mlx5_modify_header_alloc(ct_priv->dev, ct_priv->ns_type,
+ 							    mod_acts.num_actions,
+ 							    mod_acts.actions);
+@@ -752,7 +753,9 @@ mlx5_tc_ct_entry_add_rule(struct mlx5_tc_ct_priv *ct_priv,
+ 
+ 	err = mlx5_tc_ct_entry_create_mod_hdr(ct_priv, attr, flow_rule,
+ 					      &zone_rule->mh,
+-					      zone_restore_id, nat);
++					      zone_restore_id,
++					      nat,
++					      mlx5_tc_ct_entry_has_nat(entry));
+ 	if (err) {
+ 		ct_dbg("Failed to create ct entry mod hdr");
+ 		goto err_mod_hdr;
 -- 
 2.35.1
 
