@@ -2,151 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3D715483A7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 11:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A013548358
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 11:44:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240912AbiFMJjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 05:39:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60208 "EHLO
+        id S231939AbiFMJoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 05:44:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240908AbiFMJjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 05:39:19 -0400
-Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A68B12BEA
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 02:39:16 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4LM6372Nh3z4xYN;
-        Mon, 13 Jun 2022 19:39:15 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1655113155;
-        bh=ICS2RNd2sGo14OZ1Po2nehj+mfTrdt05hlZ0FIoqKxs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=e3qFRT1kkDGSZigL7PNxr30ApHAfSONQtKJ5KmQWFzdYNyBDVkI8ywDa7RrpZaG6c
-         EvkaO5auv6JoTFynIX2sVwe4qGFo7KyuNKXrjAhQtWWEk1fUvWKMK8eHL3H34Rrw0+
-         v1UwOz4UAvYVA14jEgciiZsvOGRAjYqlysvmgFTJYSBdXvhKwn2Im1OXcSTBp3zkKd
-         JzLuEZWhikhQQQmx8pzv5HFfCTWKOg+tuedB96tMe2a3OuBB1mzr0jIIWo76jMi09a
-         pappDYEFJHPyIEkbu9M8t4bWBkUIdBu1pGFe4ZCHt7k4NF5egBgw0Jda2p2vmfuBOb
-         vlHTc67j6ixAQ==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>
-Cc:     <linuxppc-dev@lists.ozlabs.org>, <sashal@kernel.org>
-Subject: [PATCH v4.14] powerpc/32: Fix overread/overwrite of thread_struct via ptrace
-Date:   Mon, 13 Jun 2022 19:39:07 +1000
-Message-Id: <20220613093907.1283021-1-mpe@ellerman.id.au>
-X-Mailer: git-send-email 2.35.3
+        with ESMTP id S235093AbiFMJoF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 05:44:05 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8C88E1402F
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 02:44:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1655113442;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=wX4MzqsPXkX7HniXRJt/CJ6zT4X1zB/XBHjLSZuk9fc=;
+        b=OG+Usl6DWwIS1DaAd1QJN8WtE1mzIsC/HuUm54U1fLlkIHPGaxpFWJLxuZQCBqTOiDn8Gd
+        lZXSLMqaeEHpblTzxkOLsl0HrLEBbWkbj8yYsPi3YESMijn1ROsOYO9CZFJie9wztvOCl+
+        RWPoxb/ET5Oa1REHh0zyIOLRpD4GC+I=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-301-NuvHBV1PMI-N-yI9LNpvnQ-1; Mon, 13 Jun 2022 05:43:57 -0400
+X-MC-Unique: NuvHBV1PMI-N-yI9LNpvnQ-1
+Received: by mail-ed1-f71.google.com with SMTP id ee46-20020a056402292e00b0042dd4d6054dso3646936edb.2
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 02:43:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=wX4MzqsPXkX7HniXRJt/CJ6zT4X1zB/XBHjLSZuk9fc=;
+        b=IGOF+P8mVVmWbFWBFtDhkg0KGtvMraWYtpXKdTYSFwjahIIgiq6IX2xFq+5mFAavqr
+         y9Da3gvQ+ibxdcqlWHRsv1uIrfGuyLZ0w6agprXdPSMgAkesmcwUXbN/pBleYV8TWKge
+         ODf9whvdJ7kLXhC6lrMH42KbBhLveKweWew9rd9ytDBf+5G8f7fbKrIwWl/+b+fdTbOO
+         6yVQtN9zmLpp4Sf4Rwhr71G1YLm59xIQ1qTO4lfqrBgj47xEkOg7a19NYhKuKcCpMHte
+         HTqXnkYlH+nsFkM5XPxKeYOJ2HJD1jEgrSOW0UrwhpBD9+rqUcbkaHUuyW/CRRQsN7F+
+         tfiw==
+X-Gm-Message-State: AOAM531duIOb8m6wEbMD3h4e6dgaB0OnXXRrX1TpF2vbOAcaxT+MAvPy
+        RYXDBfyePFUWLRwG/bmjHEVQDFQdoxZZPhJHJudzJv9r2cfutGXW62gTRt2KlIjkUsaj9baKLQk
+        cy6rvyWQwx3UGkIai
+X-Received: by 2002:a05:6402:2999:b0:434:edcc:f12c with SMTP id eq25-20020a056402299900b00434edccf12cmr5382514edb.96.1655113436554;
+        Mon, 13 Jun 2022 02:43:56 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyucl+Fa6sSHJvwJ+ixOGvUrcz38xvg4Do1+iqzXe8iozHH+ehFlcdX7sHHtkmjzctuwWkPHg==
+X-Received: by 2002:a05:6402:2999:b0:434:edcc:f12c with SMTP id eq25-20020a056402299900b00434edccf12cmr5382498edb.96.1655113436347;
+        Mon, 13 Jun 2022 02:43:56 -0700 (PDT)
+Received: from localhost (net-93-66-64-158.cust.vodafonedsl.it. [93.66.64.158])
+        by smtp.gmail.com with ESMTPSA id e6-20020a170906044600b006fe98c7c7a9sm3586473eja.85.2022.06.13.02.43.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jun 2022 02:43:56 -0700 (PDT)
+Date:   Mon, 13 Jun 2022 11:43:55 +0200
+From:   Davide Caratti <dcaratti@redhat.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, echaudro@redhat.com, i.maximets@ovn.org
+Subject: Re: net/sched: act_police: more accurate MTU policing
+Message-ID: <YqcG24495hOdOgm1@dcaratti.users.ipa.redhat.com>
+References: <YqNcHbk0K20+qfxP@dcaratti.users.ipa.redhat.com>
+ <YqNeoTphHJV5jRYy@kroah.com>
+ <YqN6oALiUdh7vnCE@dcaratti.users.ipa.redhat.com>
+ <Yqb/NsKSyDmQoS+h@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yqb/NsKSyDmQoS+h@kroah.com>
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 8e1278444446fc97778a5e5c99bca1ce0bbc5ec9 upstream.
+hello Greg,
 
-The ptrace PEEKUSR/POKEUSR (aka PEEKUSER/POKEUSER) API allows a process
-to read/write registers of another process.
+On Mon, Jun 13, 2022 at 11:11:18AM +0200, Greg KH wrote:
+> On Fri, Jun 10, 2022 at 07:08:48PM +0200, Davide Caratti wrote:
+> > hello Greg,
 
-To get/set a register, the API takes an index into an imaginary address
-space called the "USER area", where the registers of the process are
-laid out in some fashion.
+[...]
 
-The kernel then maps that index to a particular register in its own data
-structures and gets/sets the value.
+> > > and what kernel(s) do you want it applied to?
+> > 
+> > the reported bug is in act_police since the very beginning; however, the
+> > patch should apply cleanly at least on 5.x kernels. On older ones, there
+> > might be a small conflict due to lack of RCU-ification of struct
+> > tcf_police_params.
+> > A conflict that gets fixed easily, but in case we need it I volunteer to
+> > write a patch for kernels older than 4.20. @Ilya, what is the
+> > minimum kernel usable for openvswitch with MTU policing?
+> > 
+> 
+> It does not apply to 5.10 or earlier, so please provide a working
+> backport for those kernels if you wish it to be applied there.
 
-The API only allows a single machine-word to be read/written at a time.
-So 4 bytes on 32-bit kernels and 8 bytes on 64-bit kernels.
-
-The way floating point registers (FPRs) are addressed is somewhat
-complicated, because double precision float values are 64-bit even on
-32-bit CPUs. That means on 32-bit kernels each FPR occupies two
-word-sized locations in the USER area. On 64-bit kernels each FPR
-occupies one word-sized location in the USER area.
-
-Internally the kernel stores the FPRs in an array of u64s, or if VSX is
-enabled, an array of pairs of u64s where one half of each pair stores
-the FPR. Which half of the pair stores the FPR depends on the kernel's
-endianness.
-
-To handle the different layouts of the FPRs depending on VSX/no-VSX and
-big/little endian, the TS_FPR() macro was introduced.
-
-Unfortunately the TS_FPR() macro does not take into account the fact
-that the addressing of each FPR differs between 32-bit and 64-bit
-kernels. It just takes the index into the "USER area" passed from
-userspace and indexes into the fp_state.fpr array.
-
-On 32-bit there are 64 indexes that address FPRs, but only 32 entries in
-the fp_state.fpr array, meaning the user can read/write 256 bytes past
-the end of the array. Because the fp_state sits in the middle of the
-thread_struct there are various fields than can be overwritten,
-including some pointers. As such it may be exploitable.
-
-It has also been observed to cause systems to hang or otherwise
-misbehave when using gdbserver, and is probably the root cause of this
-report which could not be easily reproduced:
-  https://lore.kernel.org/linuxppc-dev/dc38afe9-6b78-f3f5-666b-986939e40fc6@keymile.com/
-
-Rather than trying to make the TS_FPR() macro even more complicated to
-fix the bug, or add more macros, instead add a special-case for 32-bit
-kernels. This is more obvious and hopefully avoids a similar bug
-happening again in future.
-
-Note that because 32-bit kernels never have VSX enabled the code doesn't
-need to consider TS_FPRWIDTH/OFFSET at all.
-
-Fixes: 87fec0514f61 ("powerpc: PTRACE_PEEKUSR/PTRACE_POKEUSER of FPR registers in little endian builds")
-Cc: stable@vger.kernel.org # v3.13+
-Reported-by: Ariel Miculas <ariel.miculas@belden.com>
-Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220609133245.573565-1-mpe@ellerman.id.au
----
- arch/powerpc/kernel/ptrace.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
-
-diff --git a/arch/powerpc/kernel/ptrace.c b/arch/powerpc/kernel/ptrace.c
-index bfc5f59d9f1b..ef5875f83692 100644
---- a/arch/powerpc/kernel/ptrace.c
-+++ b/arch/powerpc/kernel/ptrace.c
-@@ -2920,8 +2920,13 @@ long arch_ptrace(struct task_struct *child, long request,
- 
- 			flush_fp_to_thread(child);
- 			if (fpidx < (PT_FPSCR - PT_FPR0))
--				memcpy(&tmp, &child->thread.TS_FPR(fpidx),
--				       sizeof(long));
-+				if (IS_ENABLED(CONFIG_PPC32)) {
-+					// On 32-bit the index we are passed refers to 32-bit words
-+					tmp = ((u32 *)child->thread.fp_state.fpr)[fpidx];
-+				} else {
-+					memcpy(&tmp, &child->thread.TS_FPR(fpidx),
-+					       sizeof(long));
-+				}
- 			else
- 				tmp = child->thread.fp_state.fpscr;
- 		}
-@@ -2953,8 +2958,13 @@ long arch_ptrace(struct task_struct *child, long request,
- 
- 			flush_fp_to_thread(child);
- 			if (fpidx < (PT_FPSCR - PT_FPR0))
--				memcpy(&child->thread.TS_FPR(fpidx), &data,
--				       sizeof(long));
-+				if (IS_ENABLED(CONFIG_PPC32)) {
-+					// On 32-bit the index we are passed refers to 32-bit words
-+					((u32 *)child->thread.fp_state.fpr)[fpidx] = data;
-+				} else {
-+					memcpy(&child->thread.TS_FPR(fpidx), &data,
-+					       sizeof(long));
-+				}
- 			else
- 				child->thread.fp_state.fpscr = data;
- 			ret = 0;
+sure, I will do that.
+thanks!
 -- 
-2.35.3
+davide
 
