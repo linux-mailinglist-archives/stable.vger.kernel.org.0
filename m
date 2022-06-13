@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5911E549252
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7187C548A38
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356523AbiFMLuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:50:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57048 "EHLO
+        id S1347139AbiFMKkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:40:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356863AbiFMLth (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:49:37 -0400
+        with ESMTP id S1348400AbiFMKji (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:39:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E817A4D681;
-        Mon, 13 Jun 2022 03:53:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF9C2220E5;
+        Mon, 13 Jun 2022 03:23:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6597061257;
-        Mon, 13 Jun 2022 10:53:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75025C34114;
-        Mon, 13 Jun 2022 10:53:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C89460EF5;
+        Mon, 13 Jun 2022 10:23:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75B77C3411E;
+        Mon, 13 Jun 2022 10:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117604;
-        bh=peyZOt9jqrsMflfuz0rMN5lqyXQHAsvowKwl4RFdtC4=;
+        s=korg; t=1655115803;
+        bh=ZtsaDR2IWu8SvqQ6ynaqLlc+4Y8bj/DYVgveu4E+KqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVJXf03yVuAdixgsiqk9jA/FkBCMs/IsfSCwFOfwD0Z2kyL0h2kFNFD1N6A18iAbg
-         WIRERc51DHxQdes+fx8MeFQW4r3NyvRCneFP/MNiguM6+us2xYVA62P3g5ynjAPYet
-         kY/+wGYw/pW7DM1kHej3UPIPpnmDnOox0i5M5Ia8=
+        b=pKeFaXJd6M27+chx8CembQusmzsxLIG+hq1TPQ6jSxK3t6hG0DMevcxaHZuoBTXnH
+         VSWx3g8+PhhD3u0VPebhh7Z50/Jr7oRz8+pPHcpFEg7aNKpQ+nB53yjfGxkHWHhomd
+         8fI1QIC8JgQpZmYvbMFE7gt+Ghy9l7Gygx+7QTtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
+        Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 060/287] drm/bridge: adv7511: clean up CEC adapter when probe fails
+Subject: [PATCH 4.14 026/218] ipmi:ssif: Check for NULL msg when handling events and messages
 Date:   Mon, 13 Jun 2022 12:08:04 +0200
-Message-Id: <20220613094925.689352120@linuxfoundation.org>
+Message-Id: <20220613094914.510203556@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Corey Minyard <cminyard@mvista.com>
 
-[ Upstream commit 7ed2b0dabf7a22874cb30f8878df239ef638eb53 ]
+[ Upstream commit 7602b957e2404e5f98d9a40b68f1fd27f0028712 ]
 
-When the probe routine fails we also need to clean up the
-CEC adapter registered in adv7511_cec_init().
+Even though it's not possible to get into the SSIF_GETTING_MESSAGES and
+SSIF_GETTING_EVENTS states without a valid message in the msg field,
+it's probably best to be defensive here and check and print a log, since
+that means something else went wrong.
 
-Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220321104705.2804423-1-l.stach@pengutronix.de
+Also add a default clause to that switch statement to release the lock
+and print a log, in case the state variable gets messed up somehow.
+
+Reported-by: Haowen Bai <baihaowen@meizu.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/ipmi/ipmi_ssif.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index e7ddd3e3db92..b6e7cc9082ca 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -1225,6 +1225,7 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
- 	return 0;
+diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+index cf87bfe971e6..171c54c86356 100644
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -816,6 +816,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 		break;
  
- err_unregister_cec:
-+	cec_unregister_adapter(adv7511->cec_adap);
- 	i2c_unregister_device(adv7511->i2c_cec);
- 	if (adv7511->cec_clk)
- 		clk_disable_unprepare(adv7511->cec_clk);
+ 	case SSIF_GETTING_EVENTS:
++		if (!msg) {
++			/* Should never happen, but just in case. */
++			dev_warn(&ssif_info->client->dev,
++				 "No message set while getting events\n");
++			ipmi_ssif_unlock_cond(ssif_info, flags);
++			break;
++		}
++
+ 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
+ 			/* Error getting event, probably done. */
+ 			msg->done(msg);
+@@ -839,6 +847,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 		break;
+ 
+ 	case SSIF_GETTING_MESSAGES:
++		if (!msg) {
++			/* Should never happen, but just in case. */
++			dev_warn(&ssif_info->client->dev,
++				 "No message set while getting messages\n");
++			ipmi_ssif_unlock_cond(ssif_info, flags);
++			break;
++		}
++
+ 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
+ 			/* Error getting event, probably done. */
+ 			msg->done(msg);
+@@ -861,6 +877,13 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 			deliver_recv_msg(ssif_info, msg);
+ 		}
+ 		break;
++
++	default:
++		/* Should never happen, but just in case. */
++		dev_warn(&ssif_info->client->dev,
++			 "Invalid state in message done handling: %d\n",
++			 ssif_info->ssif_state);
++		ipmi_ssif_unlock_cond(ssif_info, flags);
+ 	}
+ 
+ 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
 -- 
 2.35.1
 
