@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 979CB548EDA
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03385549554
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355910AbiFMLrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:47:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58258 "EHLO
+        id S1352832AbiFMMNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:13:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356199AbiFMLn4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:43:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4CD246B3C;
-        Mon, 13 Jun 2022 03:50:34 -0700 (PDT)
+        with ESMTP id S1353241AbiFMMLy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:11:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD6D30F68;
+        Mon, 13 Jun 2022 04:01:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79D6A61343;
-        Mon, 13 Jun 2022 10:50:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 862D1C34114;
-        Mon, 13 Jun 2022 10:50:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49B5DB80EA3;
+        Mon, 13 Jun 2022 11:00:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A54B3C34114;
+        Mon, 13 Jun 2022 11:00:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117432;
-        bh=9fscbB/2/WC67uRuZ4ZUNRPLnqkEBlREFuhjDFoHd/s=;
+        s=korg; t=1655118058;
+        bh=Q6O0rLhRh7t1GEXYwFrotaql9tBEwTFcFTigl83sGXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTortXwutidUatrl05405/BArWE9gmi+fyGvsR4QtrDzzIX8grxJLDFX2BMksCqkA
-         xw2+bxwwwGigUF5XIOooozDc15tLSCcHQX/nP49WNdoZZhgdazyNwmHMCt2ZhbdXUR
-         b5bQf7spWh51dwy8X7YrG1xPUgr+J7Vgzsfjn8Rk=
+        b=kH/b4VrkDQXoPo/bLYxqef5fd7wkF7qvW6Q0Im/+4ZE8MFAssVIwksSxl1ymvLz0W
+         F+AlJpBNj6BeWCOvWmndI9U9BqwEeI8/yrvbZ6PrmjkmdokA7bmm0ZZDtZeTobSrDj
+         PqPfbc/u/vvDCb1LlHYvhNI6z213pGvEl9KzRcSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 367/411] lkdtm/usercopy: Expand size of "out of frame" object
+Subject: [PATCH 4.19 216/287] net: ethernet: mtk_eth_soc: out of bounds read in mtk_hwlro_get_fdir_entry()
 Date:   Mon, 13 Jun 2022 12:10:40 +0200
-Message-Id: <20220613094939.690561949@linuxfoundation.org>
+Message-Id: <20220613094930.410942777@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,73 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit f387e86d3a74407bdd9c5815820ac9d060962840 ]
+[ Upstream commit e7e7104e2d5ddf3806a28695670f21bef471f1e1 ]
 
-To be sufficiently out of range for the usercopy test to see the lifetime
-mismatch, expand the size of the "bad" buffer, which will let it be
-beyond current_stack_pointer regardless of stack growth direction.
-Paired with the recent addition of stack depth checking under
-CONFIG_HARDENED_USERCOPY=y, this will correctly start tripping again.
+The "fsp->location" variable comes from user via ethtool_get_rxnfc().
+Check that it is valid to prevent an out of bounds read.
 
-Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Link: https://lore.kernel.org/lkml/762faf1b-0443-5ddf-4430-44a20cf2ec4d@collabora.com/
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: 7aab747e5563 ("net: ethernet: mediatek: add ethtool functions to configure RX flows of HW LRO")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/lkdtm/usercopy.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/misc/lkdtm/usercopy.c b/drivers/misc/lkdtm/usercopy.c
-index e172719dd86d..4617c63b1026 100644
---- a/drivers/misc/lkdtm/usercopy.c
-+++ b/drivers/misc/lkdtm/usercopy.c
-@@ -30,12 +30,12 @@ static const unsigned char test_text[] = "This is a test.\n";
-  */
- static noinline unsigned char *trick_compiler(unsigned char *stack)
- {
--	return stack + 0;
-+	return stack + unconst;
- }
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index 59f3dce3ab1d..f2eaf8c13cc2 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -1575,6 +1575,9 @@ static int mtk_hwlro_get_fdir_entry(struct net_device *dev,
+ 	struct ethtool_rx_flow_spec *fsp =
+ 		(struct ethtool_rx_flow_spec *)&cmd->fs;
  
- static noinline unsigned char *do_usercopy_stack_callee(int value)
- {
--	unsigned char buf[32];
-+	unsigned char buf[128];
- 	int i;
- 
- 	/* Exercise stack to avoid everything living in registers. */
-@@ -43,7 +43,12 @@ static noinline unsigned char *do_usercopy_stack_callee(int value)
- 		buf[i] = value & 0xff;
- 	}
- 
--	return trick_compiler(buf);
-+	/*
-+	 * Put the target buffer in the middle of stack allocation
-+	 * so that we don't step on future stack users regardless
-+	 * of stack growth direction.
-+	 */
-+	return trick_compiler(&buf[(128/2)-32]);
- }
- 
- static noinline void do_usercopy_stack(bool to_user, bool bad_frame)
-@@ -66,6 +71,12 @@ static noinline void do_usercopy_stack(bool to_user, bool bad_frame)
- 		bad_stack -= sizeof(unsigned long);
- 	}
- 
-+#ifdef ARCH_HAS_CURRENT_STACK_POINTER
-+	pr_info("stack     : %px\n", (void *)current_stack_pointer);
-+#endif
-+	pr_info("good_stack: %px-%px\n", good_stack, good_stack + sizeof(good_stack));
-+	pr_info("bad_stack : %px-%px\n", bad_stack, bad_stack + sizeof(good_stack));
++	if (fsp->location >= ARRAY_SIZE(mac->hwlro_ip))
++		return -EINVAL;
 +
- 	user_addr = vm_mmap(NULL, 0, PAGE_SIZE,
- 			    PROT_READ | PROT_WRITE | PROT_EXEC,
- 			    MAP_ANONYMOUS | MAP_PRIVATE, 0);
+ 	/* only tcp dst ipv4 is meaningful, others are meaningless */
+ 	fsp->flow_type = TCP_V4_FLOW;
+ 	fsp->h_u.tcp_ip4_spec.ip4dst = ntohl(mac->hwlro_ip[fsp->location]);
 -- 
 2.35.1
 
