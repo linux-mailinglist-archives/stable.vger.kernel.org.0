@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 367EF5495B3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04EDC548A6C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352665AbiFMMUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:20:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53716 "EHLO
+        id S1359640AbiFMNU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:20:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358990AbiFMMTk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:19:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DA8E56FAE;
-        Mon, 13 Jun 2022 04:03:10 -0700 (PDT)
+        with ESMTP id S1376755AbiFMNT3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:19:29 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C39656416;
+        Mon, 13 Jun 2022 04:22:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1681C614A8;
-        Mon, 13 Jun 2022 11:03:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 245DDC34114;
-        Mon, 13 Jun 2022 11:03:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A3BA4CE1184;
+        Mon, 13 Jun 2022 11:22:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 871B7C3411C;
+        Mon, 13 Jun 2022 11:22:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118189;
-        bh=Aq5IGVpLu/dgzqu2jUzOzzSrBhplJ3oD1IJZ1ojJFc8=;
+        s=korg; t=1655119330;
+        bh=RGI/+Kt+yF7/Hi7Ju1QxNMwGev2vPf7BIbJqB3l03Sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vJwSb62q7r9RMgltp6wgENga5f24aAzNstdzGl6qD17qI4U+N2dwguqfEJ6TAcwzk
-         c1leEEx7hVzGA/0nuBD/RX060W0iH4qMdKVIXUGN6OpmzZIOod2daPvxbjaye+oetg
-         JKv8/Zw1zfNBgv5KO8NLUjqvYtwr6gQoJWAMOwXo=
+        b=grk4syGz3slf+cqkCek81g3LA4Oud1CCOcN6ajfAWQ2nAxqIb5tbIJiFWMOVKs/vE
+         HBUM5hV34y1H112Iwk7YgbwxMN6Ao4AhQUGiOCBnWtcUuSGtMqO5Ph8/yhgi636jqs
+         eAbDXW2Ro6kieWMucKCHtGdLXVTjdmpFCFIdQqB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Fam Zheng <fam.zheng@bytedance.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 274/287] vringh: Fix loop descriptors check in the indirect cases
-Date:   Mon, 13 Jun 2022 12:11:38 +0200
-Message-Id: <20220613094932.306134383@linuxfoundation.org>
+Subject: [PATCH 5.15 197/247] ceph: flush the mdlog for filesystem sync
+Date:   Mon, 13 Jun 2022 12:11:39 +0200
+Message-Id: <20220613094928.924066918@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,61 +55,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit dbd29e0752286af74243cf891accf472b2f3edd8 ]
+[ Upstream commit 1b2ba3c5616e17ff951359e25c658a1c3f146f1e ]
 
-We should use size of descriptor chain to test loop condition
-in the indirect case. And another statistical count is also introduced
-for indirect descriptors to avoid conflict with the statistical count
-of direct descriptors.
+Before waiting for a request's safe reply, we will send the mdlog flush
+request to the relevant MDS. And this will also flush the mdlog for all
+the other unsafe requests in the same session, so we can record the last
+session and no need to flush mdlog again in the next loop. But there
+still have cases that it may send the mdlog flush requst twice or more,
+but that should be not often.
 
-Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Signed-off-by: Fam Zheng <fam.zheng@bytedance.com>
-Message-Id: <20220505100910.137-1-xieyongji@bytedance.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Rename wait_unsafe_requests() to
+flush_mdlog_and_wait_mdsc_unsafe_requests() to make it more
+descriptive.
+
+[xiubli: fold in MDS request refcount leak fix from Jeff]
+
+URL: https://tracker.ceph.com/issues/55284
+URL: https://tracker.ceph.com/issues/55411
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vringh.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/ceph/mds_client.c | 33 +++++++++++++++++++++++++++------
+ 1 file changed, 27 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 97aa9b87e572..6b2efff1c297 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -263,7 +263,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 	     gfp_t gfp,
- 	     int (*copy)(void *dst, const void *src, size_t len))
- {
--	int err, count = 0, up_next, desc_max;
-+	int err, count = 0, indirect_count = 0, up_next, desc_max;
- 	struct vring_desc desc, *descs;
- 	struct vringh_range range = { -1ULL, 0 }, slowrange;
- 	bool slow = false;
-@@ -320,7 +320,12 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 			continue;
- 		}
+diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
+index e9409c460acd..912903de4de4 100644
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -4794,15 +4794,17 @@ void ceph_mdsc_pre_umount(struct ceph_mds_client *mdsc)
+ }
  
--		if (count++ == vrh->vring.num) {
-+		if (up_next == -1)
-+			count++;
-+		else
-+			indirect_count++;
+ /*
+- * wait for all write mds requests to flush.
++ * flush the mdlog and wait for all write mds requests to flush.
+  */
+-static void wait_unsafe_requests(struct ceph_mds_client *mdsc, u64 want_tid)
++static void flush_mdlog_and_wait_mdsc_unsafe_requests(struct ceph_mds_client *mdsc,
++						 u64 want_tid)
+ {
+ 	struct ceph_mds_request *req = NULL, *nextreq;
++	struct ceph_mds_session *last_session = NULL;
+ 	struct rb_node *n;
+ 
+ 	mutex_lock(&mdsc->mutex);
+-	dout("wait_unsafe_requests want %lld\n", want_tid);
++	dout("%s want %lld\n", __func__, want_tid);
+ restart:
+ 	req = __get_oldest_req(mdsc);
+ 	while (req && req->r_tid <= want_tid) {
+@@ -4814,14 +4816,32 @@ static void wait_unsafe_requests(struct ceph_mds_client *mdsc, u64 want_tid)
+ 			nextreq = NULL;
+ 		if (req->r_op != CEPH_MDS_OP_SETFILELOCK &&
+ 		    (req->r_op & CEPH_MDS_OP_WRITE)) {
++			struct ceph_mds_session *s = req->r_session;
 +
-+		if (count > vrh->vring.num || indirect_count > desc_max) {
- 			vringh_bad("Descriptor loop in %p", descs);
- 			err = -ELOOP;
- 			goto fail;
-@@ -382,6 +387,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 				i = return_from_indirect(vrh, &up_next,
- 							 &descs, &desc_max);
- 				slow = false;
-+				indirect_count = 0;
- 			} else
- 				break;
- 		}
++			if (!s) {
++				req = nextreq;
++				continue;
++			}
++
+ 			/* write op */
+ 			ceph_mdsc_get_request(req);
+ 			if (nextreq)
+ 				ceph_mdsc_get_request(nextreq);
++			s = ceph_get_mds_session(s);
+ 			mutex_unlock(&mdsc->mutex);
+-			dout("wait_unsafe_requests  wait on %llu (want %llu)\n",
++
++			/* send flush mdlog request to MDS */
++			if (last_session != s) {
++				send_flush_mdlog(s);
++				ceph_put_mds_session(last_session);
++				last_session = s;
++			} else {
++				ceph_put_mds_session(s);
++			}
++			dout("%s wait on %llu (want %llu)\n", __func__,
+ 			     req->r_tid, want_tid);
+ 			wait_for_completion(&req->r_safe_completion);
++
+ 			mutex_lock(&mdsc->mutex);
+ 			ceph_mdsc_put_request(req);
+ 			if (!nextreq)
+@@ -4836,7 +4856,8 @@ static void wait_unsafe_requests(struct ceph_mds_client *mdsc, u64 want_tid)
+ 		req = nextreq;
+ 	}
+ 	mutex_unlock(&mdsc->mutex);
+-	dout("wait_unsafe_requests done\n");
++	ceph_put_mds_session(last_session);
++	dout("%s done\n", __func__);
+ }
+ 
+ void ceph_mdsc_sync(struct ceph_mds_client *mdsc)
+@@ -4865,7 +4886,7 @@ void ceph_mdsc_sync(struct ceph_mds_client *mdsc)
+ 	dout("sync want tid %lld flush_seq %lld\n",
+ 	     want_tid, want_flush);
+ 
+-	wait_unsafe_requests(mdsc, want_tid);
++	flush_mdlog_and_wait_mdsc_unsafe_requests(mdsc, want_tid);
+ 	wait_caps_flush(mdsc, want_flush);
+ }
+ 
 -- 
 2.35.1
 
