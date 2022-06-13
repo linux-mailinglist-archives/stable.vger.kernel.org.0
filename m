@@ -2,165 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 292EB54934E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F42154927E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359210AbiFMNMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:12:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38568 "EHLO
+        id S1351586AbiFMLJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:09:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359096AbiFMNJR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F5138BE1;
-        Mon, 13 Jun 2022 04:19:18 -0700 (PDT)
+        with ESMTP id S1350962AbiFMLIK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:08:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E729633A18;
+        Mon, 13 Jun 2022 03:35:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B012BB80D3A;
-        Mon, 13 Jun 2022 11:19:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEBEDC3411E;
-        Mon, 13 Jun 2022 11:19:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F03CCB80EA3;
+        Mon, 13 Jun 2022 10:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26683C34114;
+        Mon, 13 Jun 2022 10:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119155;
-        bh=0kTaFpef1BwMfsjh+msVDWsWfwPI65+qIGZ47BekVm4=;
+        s=korg; t=1655116508;
+        bh=LaYa5idQ1yJxJe8+9meCByz64bMEhW5oj9iw1k0GRMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D2n0rDRr5p5qX/G3eD9WbutetdRc1O2IR9jrkyV2fkqbGsd7++oKKo4o09rswY7tP
-         0kpjkCZ0NyQrmRUP567ytmtVzB7Yhnx455naEE9PJVkW3EQwEbxTZjApqKDyHrUwwP
-         CFSK/XG9Nv+b1Q4tnOjOr02T9FjraTas9Z6bbC48=
+        b=wsU7c6/YKc0QLKaNCZc/qZijqKkGj4K4hmzf3JnGpwDcOydwDLp63n5yWnDp0puNF
+         9udVhpWWUVoCmYQTtf+SIdi2PpxT95KEp4aw2GvbQXZb/i8aiPWXAmLGv1Z+rKgyP2
+         f0YIZ6heBKuDOwED9vnz2JF8h6htHynQEp5R1K5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Jakub Kicinski <kuba@kernel.org>,
+        Christophe de Dinechin <dinechin@redhat.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 160/247] net: dsa: mv88e6xxx: use BMSR_ANEGCOMPLETE bit for filling an_complete
+Subject: [PATCH 4.14 204/218] nodemask: Fix return values to be unsigned
 Date:   Mon, 13 Jun 2022 12:11:02 +0200
-Message-Id: <20220613094927.808373111@linuxfoundation.org>
+Message-Id: <20220613094926.809951377@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 47e96930d6e6106d5252e85b868d3c7e29296de0 ]
+[ Upstream commit 0dfe54071d7c828a02917b595456bfde1afdddc9 ]
 
-Commit ede359d8843a ("net: dsa: mv88e6xxx: Link in pcs_get_state() if AN
-is bypassed") added the ability to link if AN was bypassed, and added
-filling of state->an_complete field, but set it to true if AN was
-enabled in BMCR, not when AN was reported complete in BMSR.
+The nodemask routines had mixed return values that provided potentially
+signed return values that could never happen. This was leading to the
+compiler getting confusing about the range of possible return values
+(it was thinking things could be negative where they could not be). Fix
+all the nodemask routines that should be returning unsigned
+(or bool) values. Silences:
 
-This was done because for some reason, when I wanted to use BMSR value
-to infer an_complete, I was looking at BMSR_ANEGCAPABLE bit (which was
-always 1), instead of BMSR_ANEGCOMPLETE bit.
+ mm/swapfile.c: In function ‘setup_swap_info’:
+ mm/swapfile.c:2291:47: error: array subscript -1 is below array bounds of ‘struct plist_node[]’ [-Werror=array-bounds]
+  2291 |                                 p->avail_lists[i].prio = 1;
+       |                                 ~~~~~~~~~~~~~~^~~
+ In file included from mm/swapfile.c:16:
+ ./include/linux/swap.h:292:27: note: while referencing ‘avail_lists’
+   292 |         struct plist_node avail_lists[]; /*
+       |                           ^~~~~~~~~~~
 
-Use BMSR_ANEGCOMPLETE for filling state->an_complete.
-
-Fixes: ede359d8843a ("net: dsa: mv88e6xxx: Link in pcs_get_state() if AN is bypassed")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Christophe de Dinechin <dinechin@redhat.com>
+Link: https://lore.kernel.org/lkml/20220414150855.2407137-3-dinechin@redhat.com/
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Yury Norov <yury.norov@gmail.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/serdes.c | 27 +++++++++++----------------
- 1 file changed, 11 insertions(+), 16 deletions(-)
+ include/linux/nodemask.h | 38 +++++++++++++++++++-------------------
+ lib/nodemask.c           |  4 ++--
+ 2 files changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/serdes.c b/drivers/net/dsa/mv88e6xxx/serdes.c
-index 2b05ead515cd..6ae7a0ed9e0b 100644
---- a/drivers/net/dsa/mv88e6xxx/serdes.c
-+++ b/drivers/net/dsa/mv88e6xxx/serdes.c
-@@ -50,22 +50,17 @@ static int mv88e6390_serdes_write(struct mv88e6xxx_chip *chip,
+diff --git a/include/linux/nodemask.h b/include/linux/nodemask.h
+index da9f53586932..13f6248151b9 100644
+--- a/include/linux/nodemask.h
++++ b/include/linux/nodemask.h
+@@ -42,11 +42,11 @@
+  * void nodes_shift_right(dst, src, n)	Shift right
+  * void nodes_shift_left(dst, src, n)	Shift left
+  *
+- * int first_node(mask)			Number lowest set bit, or MAX_NUMNODES
+- * int next_node(node, mask)		Next node past 'node', or MAX_NUMNODES
+- * int next_node_in(node, mask)		Next node past 'node', or wrap to first,
++ * unsigned int first_node(mask)	Number lowest set bit, or MAX_NUMNODES
++ * unsigend int next_node(node, mask)	Next node past 'node', or MAX_NUMNODES
++ * unsigned int next_node_in(node, mask) Next node past 'node', or wrap to first,
+  *					or MAX_NUMNODES
+- * int first_unset_node(mask)		First node not set in mask, or 
++ * unsigned int first_unset_node(mask)	First node not set in mask, or
+  *					MAX_NUMNODES
+  *
+  * nodemask_t nodemask_of_node(node)	Return nodemask with bit 'node' set
+@@ -144,7 +144,7 @@ static inline void __nodes_clear(nodemask_t *dstp, unsigned int nbits)
+ 
+ #define node_test_and_set(node, nodemask) \
+ 			__node_test_and_set((node), &(nodemask))
+-static inline int __node_test_and_set(int node, nodemask_t *addr)
++static inline bool __node_test_and_set(int node, nodemask_t *addr)
+ {
+ 	return test_and_set_bit(node, addr->bits);
+ }
+@@ -191,7 +191,7 @@ static inline void __nodes_complement(nodemask_t *dstp,
+ 
+ #define nodes_equal(src1, src2) \
+ 			__nodes_equal(&(src1), &(src2), MAX_NUMNODES)
+-static inline int __nodes_equal(const nodemask_t *src1p,
++static inline bool __nodes_equal(const nodemask_t *src1p,
+ 					const nodemask_t *src2p, unsigned int nbits)
+ {
+ 	return bitmap_equal(src1p->bits, src2p->bits, nbits);
+@@ -199,7 +199,7 @@ static inline int __nodes_equal(const nodemask_t *src1p,
+ 
+ #define nodes_intersects(src1, src2) \
+ 			__nodes_intersects(&(src1), &(src2), MAX_NUMNODES)
+-static inline int __nodes_intersects(const nodemask_t *src1p,
++static inline bool __nodes_intersects(const nodemask_t *src1p,
+ 					const nodemask_t *src2p, unsigned int nbits)
+ {
+ 	return bitmap_intersects(src1p->bits, src2p->bits, nbits);
+@@ -207,20 +207,20 @@ static inline int __nodes_intersects(const nodemask_t *src1p,
+ 
+ #define nodes_subset(src1, src2) \
+ 			__nodes_subset(&(src1), &(src2), MAX_NUMNODES)
+-static inline int __nodes_subset(const nodemask_t *src1p,
++static inline bool __nodes_subset(const nodemask_t *src1p,
+ 					const nodemask_t *src2p, unsigned int nbits)
+ {
+ 	return bitmap_subset(src1p->bits, src2p->bits, nbits);
  }
  
- static int mv88e6xxx_serdes_pcs_get_state(struct mv88e6xxx_chip *chip,
--					  u16 ctrl, u16 status, u16 lpa,
-+					  u16 bmsr, u16 lpa, u16 status,
- 					  struct phylink_link_state *state)
+ #define nodes_empty(src) __nodes_empty(&(src), MAX_NUMNODES)
+-static inline int __nodes_empty(const nodemask_t *srcp, unsigned int nbits)
++static inline bool __nodes_empty(const nodemask_t *srcp, unsigned int nbits)
  {
- 	state->link = !!(status & MV88E6390_SGMII_PHY_STATUS_LINK);
-+	state->an_complete = !!(bmsr & BMSR_ANEGCOMPLETE);
- 
- 	if (status & MV88E6390_SGMII_PHY_STATUS_SPD_DPL_VALID) {
- 		/* The Spped and Duplex Resolved register is 1 if AN is enabled
- 		 * and complete, or if AN is disabled. So with disabled AN we
--		 * still get here on link up. But we want to set an_complete
--		 * only if AN was enabled, thus we look at BMCR_ANENABLE.
--		 * (According to 802.3-2008 section 22.2.4.2.10, we should be
--		 *  able to get this same value from BMSR_ANEGCAPABLE, but tests
--		 *  show that these Marvell PHYs don't conform to this part of
--		 *  the specificaion - BMSR_ANEGCAPABLE is simply always 1.)
-+		 * still get here on link up.
- 		 */
--		state->an_complete = !!(ctrl & BMCR_ANENABLE);
- 		state->duplex = status &
- 				MV88E6390_SGMII_PHY_STATUS_DUPLEX_FULL ?
- 			                         DUPLEX_FULL : DUPLEX_HALF;
-@@ -191,12 +186,12 @@ int mv88e6352_serdes_pcs_config(struct mv88e6xxx_chip *chip, int port,
- int mv88e6352_serdes_pcs_get_state(struct mv88e6xxx_chip *chip, int port,
- 				   int lane, struct phylink_link_state *state)
- {
--	u16 lpa, status, ctrl;
-+	u16 bmsr, lpa, status;
- 	int err;
- 
--	err = mv88e6352_serdes_read(chip, MII_BMCR, &ctrl);
-+	err = mv88e6352_serdes_read(chip, MII_BMSR, &bmsr);
- 	if (err) {
--		dev_err(chip->dev, "can't read Serdes PHY control: %d\n", err);
-+		dev_err(chip->dev, "can't read Serdes BMSR: %d\n", err);
- 		return err;
- 	}
- 
-@@ -212,7 +207,7 @@ int mv88e6352_serdes_pcs_get_state(struct mv88e6xxx_chip *chip, int port,
- 		return err;
- 	}
- 
--	return mv88e6xxx_serdes_pcs_get_state(chip, ctrl, status, lpa, state);
-+	return mv88e6xxx_serdes_pcs_get_state(chip, bmsr, lpa, status, state);
+ 	return bitmap_empty(srcp->bits, nbits);
  }
  
- int mv88e6352_serdes_pcs_an_restart(struct mv88e6xxx_chip *chip, int port,
-@@ -915,13 +910,13 @@ int mv88e6390_serdes_pcs_config(struct mv88e6xxx_chip *chip, int port,
- static int mv88e6390_serdes_pcs_get_state_sgmii(struct mv88e6xxx_chip *chip,
- 	int port, int lane, struct phylink_link_state *state)
+ #define nodes_full(nodemask) __nodes_full(&(nodemask), MAX_NUMNODES)
+-static inline int __nodes_full(const nodemask_t *srcp, unsigned int nbits)
++static inline bool __nodes_full(const nodemask_t *srcp, unsigned int nbits)
  {
--	u16 lpa, status, ctrl;
-+	u16 bmsr, lpa, status;
- 	int err;
+ 	return bitmap_full(srcp->bits, nbits);
+ }
+@@ -251,15 +251,15 @@ static inline void __nodes_shift_left(nodemask_t *dstp,
+           > MAX_NUMNODES, then the silly min_ts could be dropped. */
  
- 	err = mv88e6390_serdes_read(chip, lane, MDIO_MMD_PHYXS,
--				    MV88E6390_SGMII_BMCR, &ctrl);
-+				    MV88E6390_SGMII_BMSR, &bmsr);
- 	if (err) {
--		dev_err(chip->dev, "can't read Serdes PHY control: %d\n", err);
-+		dev_err(chip->dev, "can't read Serdes PHY BMSR: %d\n", err);
- 		return err;
- 	}
- 
-@@ -939,7 +934,7 @@ static int mv88e6390_serdes_pcs_get_state_sgmii(struct mv88e6xxx_chip *chip,
- 		return err;
- 	}
- 
--	return mv88e6xxx_serdes_pcs_get_state(chip, ctrl, status, lpa, state);
-+	return mv88e6xxx_serdes_pcs_get_state(chip, bmsr, lpa, status, state);
+ #define first_node(src) __first_node(&(src))
+-static inline int __first_node(const nodemask_t *srcp)
++static inline unsigned int __first_node(const nodemask_t *srcp)
+ {
+-	return min_t(int, MAX_NUMNODES, find_first_bit(srcp->bits, MAX_NUMNODES));
++	return min_t(unsigned int, MAX_NUMNODES, find_first_bit(srcp->bits, MAX_NUMNODES));
  }
  
- static int mv88e6390_serdes_pcs_get_state_10g(struct mv88e6xxx_chip *chip,
+ #define next_node(n, src) __next_node((n), &(src))
+-static inline int __next_node(int n, const nodemask_t *srcp)
++static inline unsigned int __next_node(int n, const nodemask_t *srcp)
+ {
+-	return min_t(int,MAX_NUMNODES,find_next_bit(srcp->bits, MAX_NUMNODES, n+1));
++	return min_t(unsigned int, MAX_NUMNODES, find_next_bit(srcp->bits, MAX_NUMNODES, n+1));
+ }
+ 
+ /*
+@@ -267,7 +267,7 @@ static inline int __next_node(int n, const nodemask_t *srcp)
+  * the first node in src if needed.  Returns MAX_NUMNODES if src is empty.
+  */
+ #define next_node_in(n, src) __next_node_in((n), &(src))
+-int __next_node_in(int node, const nodemask_t *srcp);
++unsigned int __next_node_in(int node, const nodemask_t *srcp);
+ 
+ static inline void init_nodemask_of_node(nodemask_t *mask, int node)
+ {
+@@ -287,9 +287,9 @@ static inline void init_nodemask_of_node(nodemask_t *mask, int node)
+ })
+ 
+ #define first_unset_node(mask) __first_unset_node(&(mask))
+-static inline int __first_unset_node(const nodemask_t *maskp)
++static inline unsigned int __first_unset_node(const nodemask_t *maskp)
+ {
+-	return min_t(int,MAX_NUMNODES,
++	return min_t(unsigned int, MAX_NUMNODES,
+ 			find_first_zero_bit(maskp->bits, MAX_NUMNODES));
+ }
+ 
+@@ -425,11 +425,11 @@ static inline int num_node_state(enum node_states state)
+ 
+ #define first_online_node	first_node(node_states[N_ONLINE])
+ #define first_memory_node	first_node(node_states[N_MEMORY])
+-static inline int next_online_node(int nid)
++static inline unsigned int next_online_node(int nid)
+ {
+ 	return next_node(nid, node_states[N_ONLINE]);
+ }
+-static inline int next_memory_node(int nid)
++static inline unsigned int next_memory_node(int nid)
+ {
+ 	return next_node(nid, node_states[N_MEMORY]);
+ }
+diff --git a/lib/nodemask.c b/lib/nodemask.c
+index 3aa454c54c0d..e22647f5181b 100644
+--- a/lib/nodemask.c
++++ b/lib/nodemask.c
+@@ -3,9 +3,9 @@
+ #include <linux/module.h>
+ #include <linux/random.h>
+ 
+-int __next_node_in(int node, const nodemask_t *srcp)
++unsigned int __next_node_in(int node, const nodemask_t *srcp)
+ {
+-	int ret = __next_node(node, srcp);
++	unsigned int ret = __next_node(node, srcp);
+ 
+ 	if (ret == MAX_NUMNODES)
+ 		ret = __first_node(srcp);
 -- 
 2.35.1
 
