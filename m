@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E17FC548C4A
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B770454971B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382954AbiFMOV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:21:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42324 "EHLO
+        id S1353639AbiFMMau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:30:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383029AbiFMOTo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:19:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6CCB2DAAB;
-        Mon, 13 Jun 2022 04:43:46 -0700 (PDT)
+        with ESMTP id S1357554AbiFMM3R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:29:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D2005A09A;
+        Mon, 13 Jun 2022 04:06:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66D84B80D31;
-        Mon, 13 Jun 2022 11:43:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDE49C34114;
-        Mon, 13 Jun 2022 11:43:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52DA8614C5;
+        Mon, 13 Jun 2022 11:06:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59BDCC34114;
+        Mon, 13 Jun 2022 11:06:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120623;
-        bh=t8f/zEGuKOgoaHcue8rHHQ2DmueQpjmcDbqocU6hnjU=;
+        s=korg; t=1655118369;
+        bh=TGB8fvzfl3YhMocGqLbDYunFAdllXXLShxgvHAoCEIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mXRsMKOYpTAHbT7RjyGIzaUm6bcolsaCO1dpPYrNE14/4CPIIH2YZKQq0w1IgQl2m
-         FdCCwQ5sZ9BepoUixLZFUBhiAbUNAfsxZC4SvRQjtedfu1v/CxVV8Ho6/Vv28kpNs/
-         m6pZ2CsBgu3+npKdLKnbLtrsM8Eg6rGlR2xppGzM=
+        b=fT1Bhslf5UZ3odGjkARA5NOmSNaDPkdKe9rfLuGT83V+PqeDoOLoIBywGxbgB8mav
+         /0uOm33WrX8+xl1PF18DU7Enr/y3q4A+O2HJUs1P2fBMc8QHO7kCPkZESP8YEDpBBg
+         y6NQyzg2T+OkiQoZMfpnlzrbEn77WDWwoRkmdBkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Xiao <yu.xiao@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 100/298] nfp: only report pause frame configuration for physical device
+Subject: [PATCH 5.10 034/172] serial: digicolor-usart: Dont allow CS5-6
 Date:   Mon, 13 Jun 2022 12:09:54 +0200
-Message-Id: <20220613094927.984506257@linuxfoundation.org>
+Message-Id: <20220613094858.562826185@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Xiao <yu.xiao@corigine.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 0649e4d63420ebc8cbebef3e9d39e12ffc5eb9fa ]
+[ Upstream commit fd63031b8c0763addcecdefe0e0c59d49646204e ]
 
-Only report pause frame configuration for physical device. Logical
-port of both PCI PF and PCI VF do not support it.
+Only CS7 and CS8 seem supported but CSIZE is not sanitized to CS8 in
+the default: block.
 
-Fixes: 9fdc5d85a8fe ("nfp: update ethtool reporting of pauseframe control")
-Signed-off-by: Yu Xiao <yu.xiao@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Set CSIZE correctly so that userspace knows the effective value.
+Incorrect CSIZE also results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
+
+Fixes: 5930cb3511df (serial: driver for Conexant Digicolor USART)
+Acked-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-3-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/digicolor-usart.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-index e0c27471bcdb..5e2631aafdb6 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-@@ -287,8 +287,6 @@ nfp_net_get_link_ksettings(struct net_device *netdev,
+diff --git a/drivers/tty/serial/digicolor-usart.c b/drivers/tty/serial/digicolor-usart.c
+index c7f81aa1ce91..5fea9bf86e85 100644
+--- a/drivers/tty/serial/digicolor-usart.c
++++ b/drivers/tty/serial/digicolor-usart.c
+@@ -309,6 +309,8 @@ static void digicolor_uart_set_termios(struct uart_port *port,
+ 	case CS8:
+ 	default:
+ 		config |= UA_CONFIG_CHAR_LEN;
++		termios->c_cflag &= ~CSIZE;
++		termios->c_cflag |= CS8;
+ 		break;
+ 	}
  
- 	/* Init to unknowns */
- 	ethtool_link_ksettings_add_link_mode(cmd, supported, FIBRE);
--	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
--	ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
- 	cmd->base.port = PORT_OTHER;
- 	cmd->base.speed = SPEED_UNKNOWN;
- 	cmd->base.duplex = DUPLEX_UNKNOWN;
-@@ -296,6 +294,8 @@ nfp_net_get_link_ksettings(struct net_device *netdev,
- 	port = nfp_port_from_netdev(netdev);
- 	eth_port = nfp_port_get_eth_port(port);
- 	if (eth_port) {
-+		ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
-+		ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
- 		cmd->base.autoneg = eth_port->aneg != NFP_ANEG_DISABLED ?
- 			AUTONEG_ENABLE : AUTONEG_DISABLE;
- 		nfp_net_set_fec_link_mode(eth_port, cmd);
 -- 
 2.35.1
 
