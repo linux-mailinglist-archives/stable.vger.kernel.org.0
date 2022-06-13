@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E286C54939B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2024549865
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354041AbiFMLbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:31:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50598 "EHLO
+        id S1355817AbiFMM5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:57:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354830AbiFMLaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE1983FBDE;
-        Mon, 13 Jun 2022 03:45:49 -0700 (PDT)
+        with ESMTP id S1354771AbiFMMzL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B7B11C;
+        Mon, 13 Jun 2022 04:15:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48A2361248;
-        Mon, 13 Jun 2022 10:45:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55AF1C34114;
-        Mon, 13 Jun 2022 10:45:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90485B80D31;
+        Mon, 13 Jun 2022 11:15:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E38FBC3411E;
+        Mon, 13 Jun 2022 11:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117148;
-        bh=/lWHFpte0nQhGTo7XI8GUdlZRuC2Mn0hannG7wMM4LU=;
+        s=korg; t=1655118918;
+        bh=CDbbO8rl9pvSj3vXHiV8m5yh2vVfOs7Vfub+T62+gUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JSK5jsaarZ7GpSYuiETkUSEGJMSCVAcwJGNtubVqVcZXhWapn9ZuWYUh+du8r7U/6
-         2hhPejOBz8aLn3/w7qGdl14KaEZklsvCdseOCMQGcjTHqD0SnBmKt2GZCopPlnJd3R
-         4jhPVPRqCcDxYheGVeJpyB4PSYjRFikAsxseJTDM=
+        b=rk8Ptog2Wkl1pqVmDHzz6mVJTUzAGyn52kIyizoyC7lwkYOwFP5NuSIwNVtN8zAzG
+         fC9K3qRpxR3HBbZrwzuJGu/i64I7pb2rDPLB75Cdr+hpdChPlqphpwC9HtQt78fego
+         luVgPs+JBidsHqJ1OpSyMdpe+uJtcLklaRbp8xmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 303/411] soc: rockchip: Fix refcount leak in rockchip_grf_init
+Subject: [PATCH 5.15 074/247] net: ethernet: ti: am65-cpsw-nuss: Fix some refcount leaks
 Date:   Mon, 13 Jun 2022 12:09:36 +0200
-Message-Id: <20220613094937.839141064@linuxfoundation.org>
+Message-Id: <20220613094925.203534986@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +56,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 9b59588d8be91c96bfb0371e912ceb4f16315dbf ]
+[ Upstream commit 5dd89d2fc438457811cbbec07999ce0d80051ff5 ]
 
-of_find_matching_node_and_match returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
+of_get_child_by_name() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+am65_cpsw_init_cpts() and am65_cpsw_nuss_probe() don't release
+the refcount in error case.
 Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 4c58063d4258 ("soc: rockchip: add driver handling grf setup")
+Fixes: b1f66a5bee07 ("net: ethernet: ti: am65-cpsw-nuss: enable packet timestamping support")
+Fixes: 93a76530316a ("net: ethernet: ti: introduce am65x/j721e gigabit eth subsystem driver")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220516072013.19731-1-linmq006@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/rockchip/grf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soc/rockchip/grf.c b/drivers/soc/rockchip/grf.c
-index 494cf2b5bf7b..343ff61ccccb 100644
---- a/drivers/soc/rockchip/grf.c
-+++ b/drivers/soc/rockchip/grf.c
-@@ -148,12 +148,14 @@ static int __init rockchip_grf_init(void)
- 		return -ENODEV;
- 	if (!match || !match->data) {
- 		pr_err("%s: missing grf data\n", __func__);
-+		of_node_put(np);
- 		return -EINVAL;
- 	}
+diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+index 130346f74ee8..ea9d073e87fa 100644
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -1802,6 +1802,7 @@ static int am65_cpsw_init_cpts(struct am65_cpsw_common *common)
+ 	if (IS_ERR(cpts)) {
+ 		int ret = PTR_ERR(cpts);
  
- 	grf_info = match->data;
++		of_node_put(node);
+ 		if (ret == -EOPNOTSUPP) {
+ 			dev_info(dev, "cpts disabled\n");
+ 			return 0;
+@@ -2668,9 +2669,9 @@ static int am65_cpsw_nuss_probe(struct platform_device *pdev)
+ 	if (!node)
+ 		return -ENOENT;
+ 	common->port_num = of_get_child_count(node);
++	of_node_put(node);
+ 	if (common->port_num < 1 || common->port_num > AM65_CPSW_MAX_PORTS)
+ 		return -ENOENT;
+-	of_node_put(node);
  
- 	grf = syscon_node_to_regmap(np);
-+	of_node_put(np);
- 	if (IS_ERR(grf)) {
- 		pr_err("%s: could not get grf syscon\n", __func__);
- 		return PTR_ERR(grf);
+ 	common->rx_flow_id_base = -1;
+ 	init_completion(&common->tdown_complete);
 -- 
 2.35.1
 
