@@ -2,44 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ABFA5497FB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 032FB5498FD
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358513AbiFMMIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:08:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59968 "EHLO
+        id S1356165AbiFMNAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:00:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358518AbiFMMG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:06:56 -0400
+        with ESMTP id S1358520AbiFMM7v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:59:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77C705133B;
-        Mon, 13 Jun 2022 04:00:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 232B71758D;
+        Mon, 13 Jun 2022 04:17:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A613C60F9A;
-        Mon, 13 Jun 2022 11:00:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADF12C36B08;
-        Mon, 13 Jun 2022 11:00:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F07860B60;
+        Mon, 13 Jun 2022 11:17:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 455CEC34114;
+        Mon, 13 Jun 2022 11:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118006;
-        bh=sKuesprVT5LnO01tueBsXKlfkjMXTI7TwSAU5v4lJMw=;
+        s=korg; t=1655119075;
+        bh=629SFRU7bdEcR8ppDMmOZ+gE7gENa3uY5h0drane660=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x8WtxtZbZpJlKL3ML/3qw4tnFj7zbf6w+MMMKPxEjP4lJd5j+xHoxd8SzDnX6GXqv
-         r/BfOn/Owa1AV4RRedY0Q/Pv/8oc41gUiL+eTTa7BKXLKt+CbWgMhf1NHDZpEIgwDp
-         MgMICU7ehfCnb+44AK7csfJLHesQOYZgzwV5FxKA=
+        b=KG1DoggPtaBlRa+nUEjJMEJJodx2BvApWILEs8XyUIkoouaymGvAbFYzUfvQpNCUA
+         T+4QUWsENeiQHu95Xn7WSs9hkGrdW+93zLcqjdgxZz0lRYJzsjZHGU4jSyl8MMFrw6
+         8QxobRhQtE79+SWFgAhK3ZpmPHNVN2okgrBH1IOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 209/287] serial: sh-sci: Dont allow CS5-6
+Subject: [PATCH 5.15 131/247] drm/bridge: ti-sn65dsi83: Handle dsi_lanes == 0 as invalid
 Date:   Mon, 13 Jun 2022 12:10:33 +0200
-Message-Id: <20220613094930.199409851@linuxfoundation.org>
+Message-Id: <20220613094926.932783624@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +61,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 9b87162de8be26bf3156460b37deee6399fd0fcb ]
+[ Upstream commit edbc7960bef7fd71ef1e44d0df15b864784b14c8 ]
 
-Only CS7 and CS8 seem supported but CSIZE is not sanitized from
-CS5 or CS6 to CS8.
+Handle empty data-lanes = < >; property, which translates to
+dsi_lanes = 0 as invalid.
 
-Set CSIZE correctly so that userspace knows the effective value.
-Incorrect CSIZE also results in miscalculation of the frame bits in
-tty_get_char_size() or in its predecessor where the roughly the same
-code is directly within uart_update_timeout().
-
-Fixes: 1da177e4c3f4 (Linux-2.6.12-rc2)
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220519081808.3776-6-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ceb515ba29ba6 ("drm/bridge: ti-sn65dsi83: Add TI SN65DSI83 and SN65DSI84 driver")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Jonas Karlman <jonas@kwiboo.se>
+Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Marek Vasut <marex@denx.de>
+Cc: Maxime Ripard <maxime@cerno.tech>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Cc: Robert Foss <robert.foss@linaro.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220518233844.248504-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sh-sci.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/ti-sn65dsi83.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index 6f44c5f0ef3a..ba7f0b44b710 100644
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -2382,8 +2382,12 @@ static void sci_set_termios(struct uart_port *port, struct ktermios *termios,
- 	int best_clk = -1;
- 	unsigned long flags;
+diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi83.c b/drivers/gpu/drm/bridge/ti-sn65dsi83.c
+index bf469e8ac563..c901c0e1a3b0 100644
+--- a/drivers/gpu/drm/bridge/ti-sn65dsi83.c
++++ b/drivers/gpu/drm/bridge/ti-sn65dsi83.c
+@@ -608,7 +608,7 @@ static int sn65dsi83_parse_dt(struct sn65dsi83 *ctx, enum sn65dsi83_model model)
+ 	ctx->host_node = of_graph_get_remote_port_parent(endpoint);
+ 	of_node_put(endpoint);
  
--	if ((termios->c_cflag & CSIZE) == CS7)
-+	if ((termios->c_cflag & CSIZE) == CS7) {
- 		smr_val |= SCSMR_CHR;
-+	} else {
-+		termios->c_cflag &= ~CSIZE;
-+		termios->c_cflag |= CS8;
-+	}
- 	if (termios->c_cflag & PARENB)
- 		smr_val |= SCSMR_PE;
- 	if (termios->c_cflag & PARODD)
+-	if (ctx->dsi_lanes < 0 || ctx->dsi_lanes > 4) {
++	if (ctx->dsi_lanes <= 0 || ctx->dsi_lanes > 4) {
+ 		ret = -EINVAL;
+ 		goto err_put_node;
+ 	}
 -- 
 2.35.1
 
