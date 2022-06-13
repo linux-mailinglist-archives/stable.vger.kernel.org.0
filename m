@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B5345490B3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85A1F549496
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357849AbiFMNLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:11:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42500 "EHLO
+        id S1380470AbiFMN67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:58:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359236AbiFMNJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBD5638D9B;
-        Mon, 13 Jun 2022 04:19:34 -0700 (PDT)
+        with ESMTP id S1380156AbiFMNxm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:53:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB5A71DA9;
+        Mon, 13 Jun 2022 04:33:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93E2FB80E93;
-        Mon, 13 Jun 2022 11:19:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE0B2C34114;
-        Mon, 13 Jun 2022 11:19:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 598486101F;
+        Mon, 13 Jun 2022 11:33:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67DD6C34114;
+        Mon, 13 Jun 2022 11:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119172;
-        bh=UzkXVXcVlQIyOt/ib8J7ffHnS3VEqMrdDTeztC7n3xY=;
+        s=korg; t=1655120036;
+        bh=JL83QN5fpzJ+aXaHAbiWlbtZe14KTbAOKOfCTad7rS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WexvY1yMED/yCYKvsSlgkKUTXWVhJfV90CocJLJm5k3BbMx5Obd53VboHZPLxfHiI
-         6zuT37BrS/HwLwZ4jGHSBFx3YH0EpQ/plE60dTTrvQQKShEZBdBmjbbO2AgL4ITqZd
-         QBrSotyAY17z1RsCowSNiaAOrsfTIyxh33QY0Gz4=
+        b=YVmlq53tiYADGJj4xZFF70n7lhMRNN0DgKbjzmm/GEXYTo6GfhqMpNcC+awAn/VUe
+         hugjwrDfbt2L+i7fcrhMyz3SNRx00+9FaV4HP3yZYAr03bACKqeIpBxMmBPRP6pnu2
+         qDsPPzNuYR8Me80RbqUPDAif9uj7R0ck6tiuU/zY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 140/247] netfilter: nf_tables: memleak flow rule from commit path
+Subject: [PATCH 5.18 217/339] net: dsa: realtek: rtl8365mb: fix GMII caps for ports with internal PHY
 Date:   Mon, 13 Jun 2022 12:10:42 +0200
-Message-Id: <20220613094927.202216181@linuxfoundation.org>
+Message-Id: <20220613094933.242922777@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +56,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-[ Upstream commit 9dd732e0bdf538b1b76dc7c157e2b5e560ff30d3 ]
+[ Upstream commit 487994ff75880569d32504d7e70da8b3328e0693 ]
 
-Abort path release flow rule object, however, commit path does not.
-Update code to destroy these objects before releasing the transaction.
+Since commit a18e6521a7d9 ("net: phylink: handle NA interface mode in
+phylink_fwnode_phy_connect()"), phylib defaults to GMII when no phy-mode
+or phy-connection-type property is specified in a DSA port node of the
+device tree. The same commit caused a regression in rtl8365mb whereby
+phylink would fail to connect, because the driver did not advertise
+support for GMII for ports with internal PHY.
 
-Fixes: c9626a2cbdb2 ("netfilter: nf_tables: add hardware offload support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+It should be noted that the aforementioned regression is not because the
+blamed commit was incorrect: on the contrary, the blamed commit is
+correcting the previous behaviour whereby unspecified phy-mode would
+cause the internal interface mode to be PHY_INTERFACE_MODE_NA. The
+rtl8365mb driver only worked by accident before because it _did_
+advertise support for PHY_INTERFACE_MODE_NA, despite NA being reserved
+for internal use by phylink. With one mistake fixed, the other was
+exposed.
+
+Commit a5dba0f207e5 ("net: dsa: rtl8365mb: add GMII as user port mode")
+then introduced implicit support for GMII mode on ports with internal
+PHY to allow a PHY connection for device trees where the phy-mode is not
+explicitly set to "internal". At this point everything was working OK
+again.
+
+Subsequently, commit 6ff6064605e9 ("net: dsa: realtek: convert to
+phylink_generic_validate()") broke this behaviour again by discarding
+the usage of rtl8365mb_phy_mode_supported() - where this GMII support
+was indicated - while switching to the new .phylink_get_caps API.
+
+With the new API, rtl8365mb_phy_mode_supported() is no longer needed.
+Remove it altogether and add back the GMII capability - this time to
+rtl8365mb_phylink_get_caps() - so that the above default behaviour works
+for ports with internal PHY again.
+
+Fixes: 6ff6064605e9 ("net: dsa: realtek: convert to phylink_generic_validate()")
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20220607184624.417641-1-alvin@pqrs.dk
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/dsa/realtek/rtl8365mb.c | 38 +++++++----------------------
+ 1 file changed, 9 insertions(+), 29 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index af2ae42cc5c7..1528620df34c 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -8228,6 +8228,9 @@ static void nft_commit_release(struct nft_trans *trans)
- 		nf_tables_chain_destroy(&trans->ctx);
- 		break;
- 	case NFT_MSG_DELRULE:
-+		if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
-+			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
+diff --git a/drivers/net/dsa/realtek/rtl8365mb.c b/drivers/net/dsa/realtek/rtl8365mb.c
+index 3d70e8a77ecf..907c743370e3 100644
+--- a/drivers/net/dsa/realtek/rtl8365mb.c
++++ b/drivers/net/dsa/realtek/rtl8365mb.c
+@@ -955,35 +955,21 @@ static int rtl8365mb_ext_config_forcemode(struct realtek_priv *priv, int port,
+ 	return 0;
+ }
+ 
+-static bool rtl8365mb_phy_mode_supported(struct dsa_switch *ds, int port,
+-					 phy_interface_t interface)
+-{
+-	int ext_int;
+-
+-	ext_int = rtl8365mb_extint_port_map[port];
+-
+-	if (ext_int < 0 &&
+-	    (interface == PHY_INTERFACE_MODE_NA ||
+-	     interface == PHY_INTERFACE_MODE_INTERNAL ||
+-	     interface == PHY_INTERFACE_MODE_GMII))
+-		/* Internal PHY */
+-		return true;
+-	else if ((ext_int >= 1) &&
+-		 phy_interface_mode_is_rgmii(interface))
+-		/* Extension MAC */
+-		return true;
+-
+-	return false;
+-}
+-
+ static void rtl8365mb_phylink_get_caps(struct dsa_switch *ds, int port,
+ 				       struct phylink_config *config)
+ {
+-	if (dsa_is_user_port(ds, port))
++	if (dsa_is_user_port(ds, port)) {
+ 		__set_bit(PHY_INTERFACE_MODE_INTERNAL,
+ 			  config->supported_interfaces);
+-	else if (dsa_is_cpu_port(ds, port))
 +
- 		nf_tables_rule_destroy(&trans->ctx, nft_trans_rule(trans));
- 		break;
- 	case NFT_MSG_DELSET:
-@@ -8667,6 +8670,9 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
- 			nf_tables_rule_notify(&trans->ctx,
- 					      nft_trans_rule(trans),
- 					      NFT_MSG_NEWRULE);
-+			if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
-+				nft_flow_rule_destroy(nft_trans_flow_rule(trans));
-+
- 			nft_trans_destroy(trans);
- 			break;
- 		case NFT_MSG_DELRULE:
++		/* GMII is the default interface mode for phylib, so
++		 * we have to support it for ports with integrated PHY.
++		 */
++		__set_bit(PHY_INTERFACE_MODE_GMII,
++			  config->supported_interfaces);
++	} else if (dsa_is_cpu_port(ds, port)) {
+ 		phy_interface_set_rgmii(config->supported_interfaces);
++	}
+ 
+ 	config->mac_capabilities = MAC_SYM_PAUSE | MAC_ASYM_PAUSE |
+ 				   MAC_10 | MAC_100 | MAC_1000FD;
+@@ -996,12 +982,6 @@ static void rtl8365mb_phylink_mac_config(struct dsa_switch *ds, int port,
+ 	struct realtek_priv *priv = ds->priv;
+ 	int ret;
+ 
+-	if (!rtl8365mb_phy_mode_supported(ds, port, state->interface)) {
+-		dev_err(priv->dev, "phy mode %s is unsupported on port %d\n",
+-			phy_modes(state->interface), port);
+-		return;
+-	}
+-
+ 	if (mode != MLO_AN_PHY && mode != MLO_AN_FIXED) {
+ 		dev_err(priv->dev,
+ 			"port %d supports only conventional PHY or fixed-link\n",
 -- 
 2.35.1
 
