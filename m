@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DBD5486E7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7854548849
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351480AbiFMLGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:06:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45080 "EHLO
+        id S1383705AbiFMO1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:27:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351828AbiFMLFH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:05:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF96F27CF7;
-        Mon, 13 Jun 2022 03:34:11 -0700 (PDT)
+        with ESMTP id S1384030AbiFMOYb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A478447ACB;
+        Mon, 13 Jun 2022 04:46:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B53E60F9A;
-        Mon, 13 Jun 2022 10:34:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98BE6C34114;
-        Mon, 13 Jun 2022 10:34:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2114BB80D3A;
+        Mon, 13 Jun 2022 11:46:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B51C34114;
+        Mon, 13 Jun 2022 11:46:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116451;
-        bh=Wk2SiS2mceLsePYCLyZsYF5/o+rOjRU/tSOFOuEtzhI=;
+        s=korg; t=1655120790;
+        bh=WSnIb8c1EK7S1Ug1rp1Uyxgzi6wIMQAdTOBGWLHDaWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTm7UTcCcqvWmuWZkv03/QfVzgE5MbW5/J2WWpqaxqk9Sgmg7kyOYVCdUN0waAAoQ
-         HETStm58XJJlvUZl1Mgz1rOs0UnRGMnWgWkEVVKv1piWsQ6kNYlXt6+rP+a4okHnwz
-         sjHcvTdSwko1dtRXbRerCgng9qCzqTmY7GdXHH2Q=
+        b=ilDXSdL/CMXSJypmoKQ6v7UqDA2MndPJlbVLkPS3BmTcnDXiZn9H0Y4LdbC5RFEEh
+         oTXI9BBG6KNP1mGePKQbVmqJmOeRvQ4OQfJ/xW4qAvXOarosM6Fs3/9TkvN5ZvcJyr
+         AYp3GOztr6uPnZhFckz+iHoyYeH07ID5Z5286hR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 193/218] clocksource/drivers/sp804: Avoid error on multiple instances
-Date:   Mon, 13 Jun 2022 12:10:51 +0200
-Message-Id: <20220613094926.472717198@linuxfoundation.org>
+Subject: [PATCH 5.17 158/298] netfilter: nat: really support inet nat without l3 address
+Date:   Mon, 13 Jun 2022 12:10:52 +0200
+Message-Id: <20220613094929.728184662@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +55,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit a98399cbc1e05f7b977419f03905501d566cf54e ]
+[ Upstream commit 282e5f8fe907dc3f2fbf9f2103b0e62ffc3a68a5 ]
 
-When a machine sports more than one SP804 timer instance, we only bring
-up the first one, since multiple timers of the same kind are not useful
-to Linux. As this is intentional behaviour, we should not return an
-error message, as we do today:
-===============
-[    0.000800] Failed to initialize '/bus@8000000/motherboard-bus@8000000/iofpga-bus@300000000/timer@120000': -22
-===============
+When no l3 address is given, priv->family is set to NFPROTO_INET and
+the evaluation function isn't called.
 
-Replace the -EINVAL return with a debug message and return 0 instead.
+Call it too so l4-only rewrite can work.
+Also add a test case for this.
 
-Also we do not reach the init function anymore if the DT node is
-disabled (as this is now handled by OF_DECLARE), so remove the explicit
-check for that case.
-
-This fixes a long standing bogus error when booting ARM's fastmodels.
-
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20220506162522.3675399-1-andre.przywara@arm.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: a33f387ecd5aa ("netfilter: nft_nat: allow to specify layer 4 protocol NAT only")
+Reported-by: Yi Chen <yiche@redhat.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-sp804.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/netfilter/nft_nat.c                      |  3 +-
+ tools/testing/selftests/netfilter/nft_nat.sh | 43 ++++++++++++++++++++
+ 2 files changed, 45 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/timer-sp804.c b/drivers/clocksource/timer-sp804.c
-index 3ac9dec9a038..42cac9262630 100644
---- a/drivers/clocksource/timer-sp804.c
-+++ b/drivers/clocksource/timer-sp804.c
-@@ -227,6 +227,11 @@ static int __init sp804_of_init(struct device_node *np)
- 	struct clk *clk1, *clk2;
- 	const char *name = of_get_property(np, "compatible", NULL);
+diff --git a/net/netfilter/nft_nat.c b/net/netfilter/nft_nat.c
+index be1595d6979d..db8f9116eeb4 100644
+--- a/net/netfilter/nft_nat.c
++++ b/net/netfilter/nft_nat.c
+@@ -334,7 +334,8 @@ static void nft_nat_inet_eval(const struct nft_expr *expr,
+ {
+ 	const struct nft_nat *priv = nft_expr_priv(expr);
  
-+	if (initialized) {
-+		pr_debug("%pOF: skipping further SP804 timer device\n", np);
-+		return 0;
-+	}
+-	if (priv->family == nft_pf(pkt))
++	if (priv->family == nft_pf(pkt) ||
++	    priv->family == NFPROTO_INET)
+ 		nft_nat_eval(expr, regs, pkt);
+ }
+ 
+diff --git a/tools/testing/selftests/netfilter/nft_nat.sh b/tools/testing/selftests/netfilter/nft_nat.sh
+index eb8543b9a5c4..924ecb3f1f73 100755
+--- a/tools/testing/selftests/netfilter/nft_nat.sh
++++ b/tools/testing/selftests/netfilter/nft_nat.sh
+@@ -374,6 +374,45 @@ EOF
+ 	return $lret
+ }
+ 
++test_local_dnat_portonly()
++{
++	local family=$1
++	local daddr=$2
++	local lret=0
++	local sr_s
++	local sr_r
 +
- 	base = of_iomap(np, 0);
- 	if (!base)
- 		return -ENXIO;
-@@ -235,11 +240,6 @@ static int __init sp804_of_init(struct device_node *np)
- 	writel(0, base + TIMER_CTRL);
- 	writel(0, base + TIMER_2_BASE + TIMER_CTRL);
++ip netns exec "$ns0" nft -f /dev/stdin <<EOF
++table $family nat {
++	chain output {
++		type nat hook output priority 0; policy accept;
++		meta l4proto tcp dnat to :2000
++
++	}
++}
++EOF
++	if [ $? -ne 0 ]; then
++		if [ $family = "inet" ];then
++			echo "SKIP: inet port test"
++			test_inet_nat=false
++			return
++		fi
++		echo "SKIP: Could not add $family dnat hook"
++		return
++	fi
++
++	echo SERVER-$family | ip netns exec "$ns1" timeout 5 socat -u STDIN TCP-LISTEN:2000 &
++	sc_s=$!
++
++	result=$(ip netns exec "$ns0" timeout 1 socat TCP:$daddr:2000 STDOUT)
++
++	if [ "$result" = "SERVER-inet" ];then
++		echo "PASS: inet port rewrite without l3 address"
++	else
++		echo "ERROR: inet port rewrite"
++		ret=1
++	fi
++}
  
--	if (initialized || !of_device_is_available(np)) {
--		ret = -EINVAL;
--		goto err;
--	}
--
- 	clk1 = of_clk_get(np, 0);
- 	if (IS_ERR(clk1))
- 		clk1 = NULL;
+ test_masquerade6()
+ {
+@@ -1148,6 +1187,10 @@ fi
+ reset_counters
+ test_local_dnat ip
+ test_local_dnat6 ip6
++
++reset_counters
++test_local_dnat_portonly inet 10.0.1.99
++
+ reset_counters
+ $test_inet_nat && test_local_dnat inet
+ $test_inet_nat && test_local_dnat6 inet
 -- 
 2.35.1
 
