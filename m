@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46335548F67
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CFE0549123
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378721AbiFMNm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:42:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35914 "EHLO
+        id S1378305AbiFMNm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:42:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379184AbiFMNkA (ORCPT
+        with ESMTP id S1379186AbiFMNkA (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:00 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 519BE22B0A;
-        Mon, 13 Jun 2022 04:29:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52E5011152;
+        Mon, 13 Jun 2022 04:29:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C738ECE116E;
-        Mon, 13 Jun 2022 11:29:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD518C34114;
-        Mon, 13 Jun 2022 11:29:25 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A7533CE110D;
+        Mon, 13 Jun 2022 11:29:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0B90C34114;
+        Mon, 13 Jun 2022 11:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119766;
-        bh=zaJ54aqljYU3glLctuLdXw0T4Jh9fBKyskzpmi1NTio=;
+        s=korg; t=1655119769;
+        bh=6nQzew8eWXcwJ/e6eQADK+2ZYHZl3QXmSnJJdhl8oDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQ95zkduYSwznI0OHVljsaPT/JujjVXJNHoniEai+rCZw8wml5LEA7N3pSBX2/YXw
-         tFYus8lNBNsgomdWBRpcbNJyuhBJsRh+i8OMVmrXpLOkvTcKuxY8Us+Bb7qaUNCTR1
-         OxSbzWkLz4tdQ+ZHIfzsWJBw8k3SKgJRihQsyi/k=
+        b=DninzJh26n7mxupTT4Xm9BlLONLX778jUsUoRKi3GaXRYgZOXiyUDQEoBOCVpJXsB
+         j2wKK9U32Ggdx9O2zxpJKWPl0SQRVZ2kN48Y5tMk84jE4DSdUHDf0WtcwNnbW4DZ2f
+         Zc3lM0eXH6ubTbCrwTEGt+YryB3rXb9qhFNqVla4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 112/339] block: use bio_queue_enter instead of blk_queue_enter in bio_poll
-Date:   Mon, 13 Jun 2022 12:08:57 +0200
-Message-Id: <20220613094929.908659843@linuxfoundation.org>
+        stable@vger.kernel.org, Li Liang <liali@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        Jonathan Toppins <jtoppins@redhat.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 113/339] bonding: NS target should accept link local address
+Date:   Mon, 13 Jun 2022 12:08:58 +0200
+Message-Id: <20220613094929.938831564@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
 References: <20220613094926.497929857@linuxfoundation.org>
@@ -53,35 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit ebd076bf7d5deef488ec7ebc3fdbf781eafae269 ]
+[ Upstream commit 5e1eeef69c0fef6249b794bda5d68f95a65d062f ]
 
-We want to have a valid live gendisk to call ->poll and not just a
-request_queue, so call the right helper.
+When setting bond NS target, we use bond_is_ip6_target_ok() to check
+if the address valid. The link local address was wrongly rejected in
+bond_changelink(), as most time the user just set the ARP/NS target to
+gateway, while the IPv6 gateway is always a link local address when user
+set up interface via SLAAC.
 
-Fixes: 3e08773c3841 ("block: switch polling to be bio based")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220523124302.526186-1-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+So remove the link local addr check when setting bond NS target.
+
+Fixes: 129e3c1bab24 ("bonding: add new option ns_ip6_target")
+Reported-by: Li Liang <liali@redhat.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Reviewed-by: Jonathan Toppins <jtoppins@redhat.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/bonding/bond_netlink.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index bc0506772152..84f7b7884d07 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -948,7 +948,7 @@ int bio_poll(struct bio *bio, struct io_comp_batch *iob, unsigned int flags)
+diff --git a/drivers/net/bonding/bond_netlink.c b/drivers/net/bonding/bond_netlink.c
+index f427fa1737c7..6f404f9c34e3 100644
+--- a/drivers/net/bonding/bond_netlink.c
++++ b/drivers/net/bonding/bond_netlink.c
+@@ -290,11 +290,6 @@ static int bond_changelink(struct net_device *bond_dev, struct nlattr *tb[],
  
- 	blk_flush_plug(current->plug, false);
+ 			addr6 = nla_get_in6_addr(attr);
  
--	if (blk_queue_enter(q, BLK_MQ_REQ_NOWAIT))
-+	if (bio_queue_enter(bio))
- 		return 0;
- 	if (queue_is_mq(q)) {
- 		ret = blk_mq_poll(q, cookie, iob, flags);
+-			if (ipv6_addr_type(&addr6) & IPV6_ADDR_LINKLOCAL) {
+-				NL_SET_ERR_MSG(extack, "Invalid IPv6 addr6");
+-				return -EINVAL;
+-			}
+-
+ 			bond_opt_initextra(&newval, &addr6, sizeof(addr6));
+ 			err = __bond_opt_set(bond, BOND_OPT_NS_TARGETS,
+ 					     &newval);
 -- 
 2.35.1
 
