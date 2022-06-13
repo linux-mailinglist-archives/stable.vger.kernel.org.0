@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E2245488A4
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F95549060
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352564AbiFMLQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1352575AbiFMLQy (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 13 Jun 2022 07:16:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46690 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352882AbiFMLOm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:14:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 220B336E0C;
-        Mon, 13 Jun 2022 03:37:14 -0700 (PDT)
+        with ESMTP id S1352908AbiFMLOp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:14:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32DDC3700A;
+        Mon, 13 Jun 2022 03:37:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B0E3B80EA8;
-        Mon, 13 Jun 2022 10:37:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03C2BC34114;
-        Mon, 13 Jun 2022 10:37:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A084FCE0EEB;
+        Mon, 13 Jun 2022 10:37:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8443C34114;
+        Mon, 13 Jun 2022 10:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116632;
-        bh=/tpylO+ivnt2Hual+1NorgV0kMC5I6mRJmet6hYzPB8=;
+        s=korg; t=1655116635;
+        bh=ZUhX4KE8HW8LaPFAwdiXijE9aSSe9i/Uh7oemQaO+nA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kXVHYeT8pp9FgzuU4PIdC/IG5pF7IdBcbjKouKEWymVc3Wegtbexke49nCPxHtnt1
-         h92fyoz3S4zeQFuLUHY2KnWuHToDsaNmnB9EKi60E4al83DzZ7qD9laUplTsgkdm7t
-         7Oz6KT9yL0cVFCrJUWLXbcSxkpdbLS/cLRMOeJsY=
+        b=1Jk6PhjMdGi9RuYQE0Yhtsvzge7mTBS+mKoFVIXzvZdJIy1V9+ez7J22Ipj6bS//a
+         wuzDVSXS8Rn1XDIwTgbJMNm6PLL/Fd7CRBDu6YahdbukhwhjzizOoDIFJDBNHK1EVy
+         YPnrABblpKMrU3Ml8HCiVoideEe9Q00DRPAAQo0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 117/411] drm/rockchip: vop: fix possible null-ptr-deref in vop_bind()
-Date:   Mon, 13 Jun 2022 12:06:30 +0200
-Message-Id: <20220613094932.185502547@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 118/411] virtio_blk: fix the discard_granularity and discard_alignment queue limits
+Date:   Mon, 13 Jun 2022 12:06:31 +0200
+Message-Id: <20220613094932.215014684@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -54,39 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit f8c242908ad15bbd604d3bcb54961b7d454c43f8 ]
+[ Upstream commit 62952cc5bccd89b76d710de1d0b43244af0f2903 ]
 
-It will cause null-ptr-deref in resource_size(), if platform_get_resource()
-returns NULL, move calling resource_size() after devm_ioremap_resource() that
-will check 'res' to avoid null-ptr-deref.
+The discard_alignment queue limit is named a bit misleading means the
+offset into the block device at which the discard granularity starts.
 
-Fixes: 2048e3286f34 ("drm: rockchip: Add basic drm driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220422032854.2995175-1-yangyingliang@huawei.com
+On the other hand the discard_sector_alignment from the virtio 1.1 looks
+similar to what Linux uses as discard granularity (even if not very well
+described):
+
+  "discard_sector_alignment can be used by OS when splitting a request
+   based on alignment. "
+
+And at least qemu does set it to the discard granularity.
+
+So stop setting the discard_alignment and use the virtio
+discard_sector_alignment to set the discard granularity.
+
+Fixes: 1f23816b8eb8 ("virtio_blk: add discard and write zeroes support")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20220418045314.360785-5-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/virtio_blk.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-index 84e3decb17b1..2e4e1933a43c 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-@@ -1848,10 +1848,10 @@ static int vop_bind(struct device *dev, struct device *master, void *data)
- 	vop_win_init(vop);
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 2a5cd502feae..9b3ea86c20e5 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -976,11 +976,12 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 		blk_queue_io_opt(q, blk_size * opt_io_size);
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	vop->len = resource_size(res);
- 	vop->regs = devm_ioremap_resource(dev, res);
- 	if (IS_ERR(vop->regs))
- 		return PTR_ERR(vop->regs);
-+	vop->len = resource_size(res);
+ 	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
+-		q->limits.discard_granularity = blk_size;
+-
+ 		virtio_cread(vdev, struct virtio_blk_config,
+ 			     discard_sector_alignment, &v);
+-		q->limits.discard_alignment = v ? v << SECTOR_SHIFT : 0;
++		if (v)
++			q->limits.discard_granularity = v << SECTOR_SHIFT;
++		else
++			q->limits.discard_granularity = blk_size;
  
- 	vop->regsbak = devm_kzalloc(dev, vop->len, GFP_KERNEL);
- 	if (!vop->regsbak)
+ 		virtio_cread(vdev, struct virtio_blk_config,
+ 			     max_discard_sectors, &v);
 -- 
 2.35.1
 
