@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A48B54933E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64EE1548CE1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242215AbiFMKTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:19:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58232 "EHLO
+        id S1354250AbiFMLb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:31:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242977AbiFMKS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:18:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7FDCDF7A;
-        Mon, 13 Jun 2022 03:16:33 -0700 (PDT)
+        with ESMTP id S1354413AbiFML32 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC389A456;
+        Mon, 13 Jun 2022 03:44:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 555F5CE1166;
-        Mon, 13 Jun 2022 10:16:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64F16C34114;
-        Mon, 13 Jun 2022 10:16:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B528B80D3F;
+        Mon, 13 Jun 2022 10:44:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3A7BC3411F;
+        Mon, 13 Jun 2022 10:44:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115390;
-        bh=CD9dILorBqE+9Fufp4BbNE1cyEAiGST6p5QIRyxJzos=;
+        s=korg; t=1655117050;
+        bh=dCeVzC/jF/iTDOn+inmUhCo29O8Nt84UucMF/ifylBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKRSPP7sP2FZUn2W+KKcqBf3LLK2KY3gWsTHfv7jPssVcK1gz4q5r5Dnm14RwdMr8
-         0MwgKCMYvSIByo7Uk6N9FmI3LPfL1LQgd20pvTkfkrwbVFAysrm7s0ZiBkApDkLlaj
-         hF8goq2C2S/q7/seYuqOQ5tyGJC6TK6sO3nqvm8w=
+        b=zWNvIsa5F1ZQsz1SeyLhBxdpmEq4hQ/AXj2d/NABVxWN1lcGzSQShAUy2ES62eIPz
+         ldmBoIQNjL+5SVmtKhCcPa2A/rTjvs36R19E2Az4ldHHYOnQSK1ZreB7ErU9qpfja0
+         A8DJdPsUQLst9yCO6JK95k4nfkKHE9y4vCSb+mLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Mel Gorman <mel@csn.ul.ie>,
-        Minchan Kim <minchan.kim@gmail.com>,
-        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-        KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 067/167] drivers/base/node.c: fix compaction sysfs file leak
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 5.4 268/411] dt-bindings: gpio: altera: correct interrupt-cells
 Date:   Mon, 13 Jun 2022 12:09:01 +0200
-Message-Id: <20220613094856.623504892@linuxfoundation.org>
+Message-Id: <20220613094936.795147837@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,44 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-[ Upstream commit da63dc84befaa9e6079a0bc363ff0eaa975f9073 ]
+commit 3a21c3ac93aff7b4522b152399df8f6a041df56d upstream.
 
-Compaction sysfs file is created via compaction_register_node in
-register_node.  But we forgot to remove it in unregister_node.  Thus
-compaction sysfs file is leaked.  Using compaction_unregister_node to fix
-this issue.
+update documentation to correctly state the interrupt-cells to be 2.
 
-Link: https://lkml.kernel.org/r/20220401070905.43679-1-linmiaohe@huawei.com
-Fixes: ed4a6d7f0676 ("mm: compaction: add /sys trigger for per-node memory compaction")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Rafael J. Wysocki <rafael@kernel.org>
-Cc: Mel Gorman <mel@csn.ul.ie>
-Cc: Minchan Kim <minchan.kim@gmail.com>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 4fd9bbc6e071 ("drivers/gpio: Altera soft IP GPIO driver devicetree binding")
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/node.c | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/gpio/gpio-altera.txt |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/node.c b/drivers/base/node.c
-index 5548f9686016..7f9126633080 100644
---- a/drivers/base/node.c
-+++ b/drivers/base/node.c
-@@ -315,6 +315,7 @@ static int register_node(struct node *node, int num, struct node *parent)
-  */
- void unregister_node(struct node *node)
- {
-+	compaction_unregister_node(node);
- 	hugetlb_unregister_node(node);		/* no-op, if memoryless node */
- 
- 	device_unregister(&node->dev);
--- 
-2.35.1
-
+--- a/Documentation/devicetree/bindings/gpio/gpio-altera.txt
++++ b/Documentation/devicetree/bindings/gpio/gpio-altera.txt
+@@ -9,8 +9,9 @@ Required properties:
+   - The second cell is reserved and is currently unused.
+ - gpio-controller : Marks the device node as a GPIO controller.
+ - interrupt-controller: Mark the device node as an interrupt controller
+-- #interrupt-cells : Should be 1. The interrupt type is fixed in the hardware.
++- #interrupt-cells : Should be 2. The interrupt type is fixed in the hardware.
+   - The first cell is the GPIO offset number within the GPIO controller.
++  - The second cell is the interrupt trigger type and level flags.
+ - interrupts: Specify the interrupt.
+ - altr,interrupt-type: Specifies the interrupt trigger type the GPIO
+   hardware is synthesized. This field is required if the Altera GPIO controller
+@@ -38,6 +39,6 @@ gpio_altr: gpio@ff200000 {
+ 	altr,interrupt-type = <IRQ_TYPE_EDGE_RISING>;
+ 	#gpio-cells = <2>;
+ 	gpio-controller;
+-	#interrupt-cells = <1>;
++	#interrupt-cells = <2>;
+ 	interrupt-controller;
+ };
 
 
