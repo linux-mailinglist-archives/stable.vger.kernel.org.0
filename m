@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 477DF548F32
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE0C549582
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346879AbiFMKzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:55:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44320 "EHLO
+        id S239137AbiFMMa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:30:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350061AbiFMKyk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:40 -0400
+        with ESMTP id S1357799AbiFMM32 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:29:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58BAC2496A;
-        Mon, 13 Jun 2022 03:28:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E5DA5A161;
+        Mon, 13 Jun 2022 04:06:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA63860B8B;
-        Mon, 13 Jun 2022 10:28:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4901C34114;
-        Mon, 13 Jun 2022 10:28:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C2F0614DC;
+        Mon, 13 Jun 2022 11:06:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76A53C34114;
+        Mon, 13 Jun 2022 11:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116132;
-        bh=/QdSKNOpC8Zo65YAdy/tPhlzNZ0sdR1gpKn2cxWiK8Q=;
+        s=korg; t=1655118377;
+        bh=c2tgN3p+zjBZ0UI8I3rzEyvmKixlS5QbGliVZrXxf60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1M2zBScvM/nNpSLtCO3TJkS+lNK6IUShCHtLc0ZJN6oPeeaPHTZOX9vetXIE8Bsso
-         84EZQ8RyjdKMIMU1slRU7Xz3M9Oa/J1E0zQtKYeJK46x6+CGUsJ8rp1BN9AV7VmR/K
-         Yaju6EF0MgqHZ6ff0FGUrdmvvS0CpyF34MT+0baY=
+        b=aAtHU7n6vCVOVGYCj29+QkYm/zMjLqvULxGhKwhHJ9eMPDyxP/+fDvdNZCtEwe2SL
+         KUsSE44faOCOt5QVKF4gbON/N2Dp0K1xI0oBj2gWBLnbqQy1mpNgek6FFmBrgkT8R2
+         /TY+qxvlLaM0O2QXTHoTQl8HbXtdVyoBdLUlCAVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 129/218] ASoC: rt5514: Fix event generation for "DSP Voice Wake Up" control
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Mike Leach <mike.leach@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 027/172] coresight: cpu-debug: Replace mutex with mutex_trylock on panic notifier
 Date:   Mon, 13 Jun 2022 12:09:47 +0200
-Message-Id: <20220613094924.490998698@linuxfoundation.org>
+Message-Id: <20220613094856.943105489@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +57,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-commit 4213ff556740bb45e2d9ff0f50d056c4e7dd0921 upstream.
+[ Upstream commit 1adff542d67a2ed1120955cb219bfff8a9c53f59 ]
 
-The driver has a custom put function for "DSP Voice Wake Up" which does
-not generate event notifications on change, instead returning 0. Since we
-already exit early in the case that there is no change this can be fixed
-by unconditionally returning 1 at the end of the function.
+The panic notifier infrastructure executes registered callbacks when
+a panic event happens - such callbacks are executed in atomic context,
+with interrupts and preemption disabled in the running CPU and all other
+CPUs disabled. That said, mutexes in such context are not a good idea.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220428162444.3883147-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch replaces a regular mutex with a mutex_trylock safer approach;
+given the nature of the mutex used in the driver, it should be pretty
+uncommon being unable to acquire such mutex in the panic path, hence
+no functional change should be observed (and if it is, that would be
+likely a deadlock with the regular mutex).
+
+Fixes: 2227b7c74634 ("coresight: add support for CPU debug module")
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Mike Leach <mike.leach@linaro.org>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20220427224924.592546-10-gpiccoli@igalia.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5514.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwtracing/coresight/coresight-cpu-debug.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/sound/soc/codecs/rt5514.c
-+++ b/sound/soc/codecs/rt5514.c
-@@ -352,7 +352,7 @@ static int rt5514_dsp_voice_wake_up_put(
- 		}
- 	}
+diff --git a/drivers/hwtracing/coresight/coresight-cpu-debug.c b/drivers/hwtracing/coresight/coresight-cpu-debug.c
+index 2dcf13de751f..1e98562f4287 100644
+--- a/drivers/hwtracing/coresight/coresight-cpu-debug.c
++++ b/drivers/hwtracing/coresight/coresight-cpu-debug.c
+@@ -379,9 +379,10 @@ static int debug_notifier_call(struct notifier_block *self,
+ 	int cpu;
+ 	struct debug_drvdata *drvdata;
  
+-	mutex_lock(&debug_lock);
++	/* Bail out if we can't acquire the mutex or the functionality is off */
++	if (!mutex_trylock(&debug_lock))
++		return NOTIFY_DONE;
+ 
+-	/* Bail out if the functionality is disabled */
+ 	if (!debug_enable)
+ 		goto skip_dump;
+ 
+@@ -400,7 +401,7 @@ static int debug_notifier_call(struct notifier_block *self,
+ 
+ skip_dump:
+ 	mutex_unlock(&debug_lock);
 -	return 0;
-+	return 1;
++	return NOTIFY_DONE;
  }
  
- static const struct snd_kcontrol_new rt5514_snd_controls[] = {
+ static struct notifier_block debug_notifier = {
+-- 
+2.35.1
+
 
 
