@@ -2,116 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1466B548884
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01B41548E52
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:18:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352751AbiFMMUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:20:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54736 "EHLO
+        id S241257AbiFMOb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:31:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357785AbiFMMT1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:19:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56BBC56775;
-        Mon, 13 Jun 2022 04:02:58 -0700 (PDT)
+        with ESMTP id S1385333AbiFMObE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:31:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6315A98BA;
+        Mon, 13 Jun 2022 04:48:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C47BAB80D31;
-        Mon, 13 Jun 2022 11:02:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 237F4C3411C;
-        Mon, 13 Jun 2022 11:02:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53AE4B80D31;
+        Mon, 13 Jun 2022 11:48:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A736EC34114;
+        Mon, 13 Jun 2022 11:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118175;
-        bh=xyFbE5pv8bl67oZmKZ4mGg9acI4G9yfb0MUCQQZAONg=;
+        s=korg; t=1655120900;
+        bh=0kTaFpef1BwMfsjh+msVDWsWfwPI65+qIGZ47BekVm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aV3sw3LWg3KO784Z/2CZQ7nZTHw/ZeUAHGzUo5+5qHfW7qZ3DMoxcw6tgRaAW134L
-         O0xgQ6zdlih0/zDgyXRRE99GSufQxHizmsmpKnOX7X5PQte2o+RtwLOARHhFKJsz9v
-         MP9P91RyBmbiJJTQ9SkT9K4poLp09WISInAB7qkE=
+        b=JjJ6TBQ8K+WoRjRib0dSjCuEfCoHNn8JgfHnpzN49Kk8Ln8WBX5/qq8TEhX+qFclt
+         x6hfFUzFgjlouXwaKlD7HDnCsFgsiTWSCsxl8gWl8N08IZhT4uNRm3iC84jibbKnaq
+         jpxwuZaU/FUDp92Y2vB139QZ7roUzhNOL/3Uv3GA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 261/287] clocksource/drivers/sp804: Avoid error on multiple instances
+Subject: [PATCH 5.17 191/298] net: dsa: mv88e6xxx: use BMSR_ANEGCOMPLETE bit for filling an_complete
 Date:   Mon, 13 Jun 2022 12:11:25 +0200
-Message-Id: <20220613094931.922183213@linuxfoundation.org>
+Message-Id: <20220613094930.897998791@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit a98399cbc1e05f7b977419f03905501d566cf54e ]
+[ Upstream commit 47e96930d6e6106d5252e85b868d3c7e29296de0 ]
 
-When a machine sports more than one SP804 timer instance, we only bring
-up the first one, since multiple timers of the same kind are not useful
-to Linux. As this is intentional behaviour, we should not return an
-error message, as we do today:
-===============
-[    0.000800] Failed to initialize '/bus@8000000/motherboard-bus@8000000/iofpga-bus@300000000/timer@120000': -22
-===============
+Commit ede359d8843a ("net: dsa: mv88e6xxx: Link in pcs_get_state() if AN
+is bypassed") added the ability to link if AN was bypassed, and added
+filling of state->an_complete field, but set it to true if AN was
+enabled in BMCR, not when AN was reported complete in BMSR.
 
-Replace the -EINVAL return with a debug message and return 0 instead.
+This was done because for some reason, when I wanted to use BMSR value
+to infer an_complete, I was looking at BMSR_ANEGCAPABLE bit (which was
+always 1), instead of BMSR_ANEGCOMPLETE bit.
 
-Also we do not reach the init function anymore if the DT node is
-disabled (as this is now handled by OF_DECLARE), so remove the explicit
-check for that case.
+Use BMSR_ANEGCOMPLETE for filling state->an_complete.
 
-This fixes a long standing bogus error when booting ARM's fastmodels.
-
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20220506162522.3675399-1-andre.przywara@arm.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: ede359d8843a ("net: dsa: mv88e6xxx: Link in pcs_get_state() if AN is bypassed")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-sp804.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/dsa/mv88e6xxx/serdes.c | 27 +++++++++++----------------
+ 1 file changed, 11 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/clocksource/timer-sp804.c b/drivers/clocksource/timer-sp804.c
-index e01222ea888f..738c50e916f7 100644
---- a/drivers/clocksource/timer-sp804.c
-+++ b/drivers/clocksource/timer-sp804.c
-@@ -228,6 +228,11 @@ static int __init sp804_of_init(struct device_node *np)
- 	struct clk *clk1, *clk2;
- 	const char *name = of_get_property(np, "compatible", NULL);
+diff --git a/drivers/net/dsa/mv88e6xxx/serdes.c b/drivers/net/dsa/mv88e6xxx/serdes.c
+index 2b05ead515cd..6ae7a0ed9e0b 100644
+--- a/drivers/net/dsa/mv88e6xxx/serdes.c
++++ b/drivers/net/dsa/mv88e6xxx/serdes.c
+@@ -50,22 +50,17 @@ static int mv88e6390_serdes_write(struct mv88e6xxx_chip *chip,
+ }
  
-+	if (initialized) {
-+		pr_debug("%pOF: skipping further SP804 timer device\n", np);
-+		return 0;
-+	}
-+
- 	base = of_iomap(np, 0);
- 	if (!base)
- 		return -ENXIO;
-@@ -236,11 +241,6 @@ static int __init sp804_of_init(struct device_node *np)
- 	writel(0, base + TIMER_CTRL);
- 	writel(0, base + TIMER_2_BASE + TIMER_CTRL);
+ static int mv88e6xxx_serdes_pcs_get_state(struct mv88e6xxx_chip *chip,
+-					  u16 ctrl, u16 status, u16 lpa,
++					  u16 bmsr, u16 lpa, u16 status,
+ 					  struct phylink_link_state *state)
+ {
+ 	state->link = !!(status & MV88E6390_SGMII_PHY_STATUS_LINK);
++	state->an_complete = !!(bmsr & BMSR_ANEGCOMPLETE);
  
--	if (initialized || !of_device_is_available(np)) {
--		ret = -EINVAL;
--		goto err;
--	}
--
- 	clk1 = of_clk_get(np, 0);
- 	if (IS_ERR(clk1))
- 		clk1 = NULL;
+ 	if (status & MV88E6390_SGMII_PHY_STATUS_SPD_DPL_VALID) {
+ 		/* The Spped and Duplex Resolved register is 1 if AN is enabled
+ 		 * and complete, or if AN is disabled. So with disabled AN we
+-		 * still get here on link up. But we want to set an_complete
+-		 * only if AN was enabled, thus we look at BMCR_ANENABLE.
+-		 * (According to 802.3-2008 section 22.2.4.2.10, we should be
+-		 *  able to get this same value from BMSR_ANEGCAPABLE, but tests
+-		 *  show that these Marvell PHYs don't conform to this part of
+-		 *  the specificaion - BMSR_ANEGCAPABLE is simply always 1.)
++		 * still get here on link up.
+ 		 */
+-		state->an_complete = !!(ctrl & BMCR_ANENABLE);
+ 		state->duplex = status &
+ 				MV88E6390_SGMII_PHY_STATUS_DUPLEX_FULL ?
+ 			                         DUPLEX_FULL : DUPLEX_HALF;
+@@ -191,12 +186,12 @@ int mv88e6352_serdes_pcs_config(struct mv88e6xxx_chip *chip, int port,
+ int mv88e6352_serdes_pcs_get_state(struct mv88e6xxx_chip *chip, int port,
+ 				   int lane, struct phylink_link_state *state)
+ {
+-	u16 lpa, status, ctrl;
++	u16 bmsr, lpa, status;
+ 	int err;
+ 
+-	err = mv88e6352_serdes_read(chip, MII_BMCR, &ctrl);
++	err = mv88e6352_serdes_read(chip, MII_BMSR, &bmsr);
+ 	if (err) {
+-		dev_err(chip->dev, "can't read Serdes PHY control: %d\n", err);
++		dev_err(chip->dev, "can't read Serdes BMSR: %d\n", err);
+ 		return err;
+ 	}
+ 
+@@ -212,7 +207,7 @@ int mv88e6352_serdes_pcs_get_state(struct mv88e6xxx_chip *chip, int port,
+ 		return err;
+ 	}
+ 
+-	return mv88e6xxx_serdes_pcs_get_state(chip, ctrl, status, lpa, state);
++	return mv88e6xxx_serdes_pcs_get_state(chip, bmsr, lpa, status, state);
+ }
+ 
+ int mv88e6352_serdes_pcs_an_restart(struct mv88e6xxx_chip *chip, int port,
+@@ -915,13 +910,13 @@ int mv88e6390_serdes_pcs_config(struct mv88e6xxx_chip *chip, int port,
+ static int mv88e6390_serdes_pcs_get_state_sgmii(struct mv88e6xxx_chip *chip,
+ 	int port, int lane, struct phylink_link_state *state)
+ {
+-	u16 lpa, status, ctrl;
++	u16 bmsr, lpa, status;
+ 	int err;
+ 
+ 	err = mv88e6390_serdes_read(chip, lane, MDIO_MMD_PHYXS,
+-				    MV88E6390_SGMII_BMCR, &ctrl);
++				    MV88E6390_SGMII_BMSR, &bmsr);
+ 	if (err) {
+-		dev_err(chip->dev, "can't read Serdes PHY control: %d\n", err);
++		dev_err(chip->dev, "can't read Serdes PHY BMSR: %d\n", err);
+ 		return err;
+ 	}
+ 
+@@ -939,7 +934,7 @@ static int mv88e6390_serdes_pcs_get_state_sgmii(struct mv88e6xxx_chip *chip,
+ 		return err;
+ 	}
+ 
+-	return mv88e6xxx_serdes_pcs_get_state(chip, ctrl, status, lpa, state);
++	return mv88e6xxx_serdes_pcs_get_state(chip, bmsr, lpa, status, state);
+ }
+ 
+ static int mv88e6390_serdes_pcs_get_state_10g(struct mv88e6xxx_chip *chip,
 -- 
 2.35.1
 
