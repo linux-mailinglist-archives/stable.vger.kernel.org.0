@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE2E2549527
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B094154894B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245327AbiFMKaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:30:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35964 "EHLO
+        id S1358565AbiFMMHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:07:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344692AbiFMK3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:29:06 -0400
+        with ESMTP id S1359164AbiFMMFW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 171E82559A;
-        Mon, 13 Jun 2022 03:20:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1CE2186C8;
+        Mon, 13 Jun 2022 03:59:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6379CB80E5E;
-        Mon, 13 Jun 2022 10:20:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0E6AC34114;
-        Mon, 13 Jun 2022 10:20:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69352B80E92;
+        Mon, 13 Jun 2022 10:59:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A8EAC34114;
+        Mon, 13 Jun 2022 10:59:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115619;
-        bh=YfQvhTNtRCQoxAKmCzCkkxrzlP3GHt4D3FPbvmkZ/vM=;
+        s=korg; t=1655117959;
+        bh=1yjKjTzcT1Zx3cO1HUO1ozBdecc6lgMHL6Fc+Gj3GjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uzqvWyG8HMhMCceuJkJp6kjyHYqZMiFoTPgF9iF5JxitxkXjcAMuuABafa209+Zx9
-         ubLFx3vzfhGYR+y+MldqR0jWZF08pXZs09UGaegcvBvg2QHpi9wcC6KlqbhA/FIedy
-         91/EqN5E951aKMTahrpKcxQ3AQ5e72jMatdQzRHs=
+        b=MaxSj39ql2tKv54h2OY1k0oPoZGVsSI6SoplgxyVlx09QsWq5ML8SA1LsAT0T8RUG
+         eFq/2T5nkFarJYsabUbIeKmGB8nMbZYf4ANZ3cBVDXVmMZkvItsBKta37qCIQ4Bheb
+         ezHXn4rwWXN1IWoCXv4JUwfJg9lGE417iqBCQckY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 142/167] drivers: staging: rtl8192e: Fix deadlock in rtllib_beacons_stop()
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Hangyu Hua <hbh25y@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 192/287] usb: usbip: fix a refcount leak in stub_probe()
 Date:   Mon, 13 Jun 2022 12:10:16 +0200
-Message-Id: <20220613094914.154052567@linuxfoundation.org>
+Message-Id: <20220613094929.688447577@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 9b6bdbd9337de3917945847bde262a34a87a6303 ]
+[ Upstream commit 9ec4cbf1cc55d126759051acfe328d489c5d6e60 ]
 
-There is a deadlock in rtllib_beacons_stop(), which is shown
-below:
+usb_get_dev() is called in stub_device_alloc(). When stub_probe() fails
+after that, usb_put_dev() needs to be called to release the reference.
 
-   (Thread 1)              |      (Thread 2)
-                           | rtllib_send_beacon()
-rtllib_beacons_stop()      |  mod_timer()
- spin_lock_irqsave() //(1) |  (wait a time)
- ...                       | rtllib_send_beacon_cb()
- del_timer_sync()          |  spin_lock_irqsave() //(2)
- (wait timer to stop)      |  ...
+Fix this by moving usb_put_dev() to sdev_free error path handling.
 
-We hold ieee->beacon_lock in position (1) of thread 1 and
-use del_timer_sync() to wait timer to stop, but timer handler
-also need ieee->beacon_lock in position (2) of thread 2.
-As a result, rtllib_beacons_stop() will block forever.
+Find this by code review.
 
-This patch extracts del_timer_sync() from the protection of
-spin_lock_irqsave(), which could let timer handler to obtain
-the needed lock.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220417141641.124388-1-duoming@zju.edu.cn
+Fixes: 3ff67445750a ("usbip: fix error handling in stub_probe()")
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lore.kernel.org/r/20220412020257.9767-1-hbh25y@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192e/rtllib_softmac.c | 2 +-
+ drivers/usb/usbip/stub_dev.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rtl8192e/rtllib_softmac.c b/drivers/staging/rtl8192e/rtllib_softmac.c
-index da74dc49b95e..f46def63967b 100644
---- a/drivers/staging/rtl8192e/rtllib_softmac.c
-+++ b/drivers/staging/rtl8192e/rtllib_softmac.c
-@@ -655,9 +655,9 @@ static void rtllib_beacons_stop(struct rtllib_device *ieee)
- 	spin_lock_irqsave(&ieee->beacon_lock, flags);
+diff --git a/drivers/usb/usbip/stub_dev.c b/drivers/usb/usbip/stub_dev.c
+index 0081c1073b08..c64964c32cc9 100644
+--- a/drivers/usb/usbip/stub_dev.c
++++ b/drivers/usb/usbip/stub_dev.c
+@@ -427,7 +427,6 @@ static int stub_probe(struct usb_device *udev)
+ 			     (struct usb_dev_state *) udev);
+ err_port:
+ 	dev_set_drvdata(&udev->dev, NULL);
+-	usb_put_dev(udev);
  
- 	ieee->beacon_txing = 0;
--	del_timer_sync(&ieee->beacon_timer);
+ 	/* we already have busid_priv, just lock busid_lock */
+ 	spin_lock(&busid_priv->busid_lock);
+@@ -442,6 +441,7 @@ static int stub_probe(struct usb_device *udev)
+ 	put_busid_priv(busid_priv);
  
- 	spin_unlock_irqrestore(&ieee->beacon_lock, flags);
-+	del_timer_sync(&ieee->beacon_timer);
+ sdev_free:
++	usb_put_dev(udev);
+ 	stub_device_free(sdev);
  
- }
- 
+ 	return rc;
 -- 
 2.35.1
 
