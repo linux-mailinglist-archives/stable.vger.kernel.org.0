@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 851A2548F8F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:23:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 852B0548CCB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349213AbiFMMQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:16:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47878 "EHLO
+        id S1356081AbiFMLsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:48:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358844AbiFMMOW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:14:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2949B54BCC;
-        Mon, 13 Jun 2022 04:02:03 -0700 (PDT)
+        with ESMTP id S1357332AbiFMLp7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:45:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A0014AE3B;
+        Mon, 13 Jun 2022 03:52:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B58BAB80E92;
-        Mon, 13 Jun 2022 11:02:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27894C34114;
-        Mon, 13 Jun 2022 11:01:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03459611B3;
+        Mon, 13 Jun 2022 10:52:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06E95C34114;
+        Mon, 13 Jun 2022 10:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118120;
-        bh=D+zeTU6SXXi0V2t/Dy+iOTkgmgB5f1gBGleEo3rDDCg=;
+        s=korg; t=1655117527;
+        bh=waQKgNy+BWkAicT7he7wv5bSKCqAUiqLzRoxehJRFQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUsS2f/fkFhIcdm3E3E0fWjePXLgifQmsPe/SXCmvA4w8H4fnktawmxHSySS2CnI3
-         JfsQRgE5ms+rXtL/oOJZohgk7+3Sa+KCN3FyRGn5OIwmtZp4htYH5Ez6Gik1cHro04
-         DT4XRxVz7VY0rh72KRgxJ4sxCzuGIU0CcyvdMpfo=
+        b=kxc4nILfNAO4QV30RFGRPjTbpUeZnI6BTOEZsFcA9YOLX0IHFJZzxgiTkuri4aMyD
+         EGdppwohVSq5EMtrIsUHs7XeQN5c55MDjZu6oCJ2CmnXK3fYXmxXWrKLMxu7fc5U5D
+         FLRXV0nDM6pVkIvollfwNg4P5cipBmMI9pJ9vPw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 243/287] net: ipv6: unexport __init-annotated seg6_hmac_init()
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 394/411] nbd: fix io hung while disconnecting device
 Date:   Mon, 13 Jun 2022 12:11:07 +0200
-Message-Id: <20220613094931.384937546@linuxfoundation.org>
+Message-Id: <20220613094940.481053342@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 5801f064e35181c71857a80ff18af4dbec3c5f5c ]
+[ Upstream commit 09dadb5985023e27d4740ebd17e6fea4640110e5 ]
 
-EXPORT_SYMBOL and __init is a bad combination because the .init.text
-section is freed up after the initialization. Hence, modules cannot
-use symbols annotated __init. The access to a freed symbol may end up
-with kernel panic.
+In our tests, "qemu-nbd" triggers a io hung:
 
-modpost used to detect it, but it has been broken for a decade.
+INFO: task qemu-nbd:11445 blocked for more than 368 seconds.
+      Not tainted 5.18.0-rc3-next-20220422-00003-g2176915513ca #884
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:qemu-nbd        state:D stack:    0 pid:11445 ppid:     1 flags:0x00000000
+Call Trace:
+ <TASK>
+ __schedule+0x480/0x1050
+ ? _raw_spin_lock_irqsave+0x3e/0xb0
+ schedule+0x9c/0x1b0
+ blk_mq_freeze_queue_wait+0x9d/0xf0
+ ? ipi_rseq+0x70/0x70
+ blk_mq_freeze_queue+0x2b/0x40
+ nbd_add_socket+0x6b/0x270 [nbd]
+ nbd_ioctl+0x383/0x510 [nbd]
+ blkdev_ioctl+0x18e/0x3e0
+ __x64_sys_ioctl+0xac/0x120
+ do_syscall_64+0x35/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7fd8ff706577
+RSP: 002b:00007fd8fcdfebf8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000040000000 RCX: 00007fd8ff706577
+RDX: 000000000000000d RSI: 000000000000ab00 RDI: 000000000000000f
+RBP: 000000000000000f R08: 000000000000fbe8 R09: 000055fe497c62b0
+R10: 00000002aff20000 R11: 0000000000000246 R12: 000000000000006d
+R13: 0000000000000000 R14: 00007ffe82dc5e70 R15: 00007fd8fcdff9c0
 
-Recently, I fixed modpost so it started to warn it again, then this
-showed up in linux-next builds.
+"qemu-ndb -d" will call ioctl 'NBD_DISCONNECT' first, however, following
+message was found:
 
-There are two ways to fix it:
+block nbd0: Send disconnect failed -32
 
-  - Remove __init
-  - Remove EXPORT_SYMBOL
+Which indicate that something is wrong with the server. Then,
+"qemu-nbd -d" will call ioctl 'NBD_CLEAR_SOCK', however ioctl can't clear
+requests after commit 2516ab1543fd("nbd: only clear the queue on device
+teardown"). And in the meantime, request can't complete through timeout
+because nbd_xmit_timeout() will always return 'BLK_EH_RESET_TIMER', which
+means such request will never be completed in this situation.
 
-I chose the latter for this case because the caller (net/ipv6/seg6.c)
-and the callee (net/ipv6/seg6_hmac.c) belong to the same module.
-It seems an internal function call in ipv6.ko.
+Now that the flag 'NBD_CMD_INFLIGHT' can make sure requests won't
+complete multiple times, switch back to call nbd_clear_sock() in
+nbd_clear_sock_ioctl(), so that inflight requests can be cleared.
 
-Fixes: bf355b8d2c30 ("ipv6: sr: add core files for SR HMAC support")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220521073749.3146892-5-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/seg6_hmac.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/block/nbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/seg6_hmac.c b/net/ipv6/seg6_hmac.c
-index 8546f94f30d4..a886a8f4c0cb 100644
---- a/net/ipv6/seg6_hmac.c
-+++ b/net/ipv6/seg6_hmac.c
-@@ -406,7 +406,6 @@ int __init seg6_hmac_init(void)
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index ef355f14ed2c..09323b0510f0 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1344,7 +1344,7 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
+ static void nbd_clear_sock_ioctl(struct nbd_device *nbd,
+ 				 struct block_device *bdev)
  {
- 	return seg6_hmac_init_algo();
- }
--EXPORT_SYMBOL(seg6_hmac_init);
- 
- int __net_init seg6_hmac_net_init(struct net *net)
- {
+-	sock_shutdown(nbd);
++	nbd_clear_sock(nbd);
+ 	__invalidate_device(bdev, true);
+ 	nbd_bdev_reset(bdev);
+ 	if (test_and_clear_bit(NBD_RT_HAS_CONFIG_REF,
 -- 
 2.35.1
 
