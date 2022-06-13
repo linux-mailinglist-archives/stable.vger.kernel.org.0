@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FD5A548B47
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37CBE549042
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354319AbiFMLfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:35:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56132 "EHLO
+        id S1348769AbiFMK41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:56:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354584AbiFMLd3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:33:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69073968A;
-        Mon, 13 Jun 2022 03:47:29 -0700 (PDT)
+        with ESMTP id S1350280AbiFMKys (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3C8E13F6C;
+        Mon, 13 Jun 2022 03:30:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10AF86112A;
-        Mon, 13 Jun 2022 10:47:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25AEBC34114;
-        Mon, 13 Jun 2022 10:47:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D87C60FCE;
+        Mon, 13 Jun 2022 10:30:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76E2AC341C8;
+        Mon, 13 Jun 2022 10:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117248;
-        bh=h22vLYdgdva+a54IzP5sYoSo8XOMrX/sUBB6usoDs/o=;
+        s=korg; t=1655116242;
+        bh=xap97sa4M+AXe1p1mmYFq2dbHFYCbMlJWkn8Vt+k8nA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQGPxNDMfK0iOjmj+u2doCP+vnx/vron9+75G0e4NgmO5rbmhtR3n2cdNhtX6Cn7r
-         6dIlAQ7xXI+e87zZmn3Ie3EqJwkzxnJLGUvUDGL3rLAty4dF0WjqUfLj1hg3cR9Lz5
-         SbZHF5XOXXbljHUr0lTbhZmk8jHpWse54trmsYGc=
+        b=LVlrPozfPzNKCfsoyt8x8/8rYOGeqbEDvg4cSoz+TbhoVWdCGQZRIKpnhs+O/wFVF
+         9VmhUJsb014iDLoGJcvui6n4tencXY9Oi0lJaC1l+32vdsLQu3dXe19KxC8TbPy0a8
+         WVanVFUt14f8uoz4JLRMvfVu7uUtxF1MuOqJpwEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Laurent Fasnacht <laurent.fasnacht@proton.ch>,
-        Neal Cardwell <ncardwell@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Mike Leach <mike.leach@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 333/411] tcp: tcp_rtx_synack() can be called from process context
+Subject: [PATCH 4.14 148/218] coresight: cpu-debug: Replace mutex with mutex_trylock on panic notifier
 Date:   Mon, 13 Jun 2022 12:10:06 +0200
-Message-Id: <20220613094938.707534130@linuxfoundation.org>
+Message-Id: <20220613094925.079027842@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,90 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-[ Upstream commit 0a375c822497ed6ad6b5da0792a12a6f1af10c0b ]
+[ Upstream commit 1adff542d67a2ed1120955cb219bfff8a9c53f59 ]
 
-Laurent reported the enclosed report [1]
+The panic notifier infrastructure executes registered callbacks when
+a panic event happens - such callbacks are executed in atomic context,
+with interrupts and preemption disabled in the running CPU and all other
+CPUs disabled. That said, mutexes in such context are not a good idea.
 
-This bug triggers with following coditions:
+This patch replaces a regular mutex with a mutex_trylock safer approach;
+given the nature of the mutex used in the driver, it should be pretty
+uncommon being unable to acquire such mutex in the panic path, hence
+no functional change should be observed (and if it is, that would be
+likely a deadlock with the regular mutex).
 
-0) Kernel built with CONFIG_DEBUG_PREEMPT=y
-
-1) A new passive FastOpen TCP socket is created.
-   This FO socket waits for an ACK coming from client to be a complete
-   ESTABLISHED one.
-2) A socket operation on this socket goes through lock_sock()
-   release_sock() dance.
-3) While the socket is owned by the user in step 2),
-   a retransmit of the SYN is received and stored in socket backlog.
-4) At release_sock() time, the socket backlog is processed while
-   in process context.
-5) A SYNACK packet is cooked in response of the SYN retransmit.
-6) -> tcp_rtx_synack() is called in process context.
-
-Before blamed commit, tcp_rtx_synack() was always called from BH handler,
-from a timer handler.
-
-Fix this by using TCP_INC_STATS() & NET_INC_STATS()
-which do not assume caller is in non preemptible context.
-
-[1]
-BUG: using __this_cpu_add() in preemptible [00000000] code: epollpep/2180
-caller is tcp_rtx_synack.part.0+0x36/0xc0
-CPU: 10 PID: 2180 Comm: epollpep Tainted: G           OE     5.16.0-0.bpo.4-amd64 #1  Debian 5.16.12-1~bpo11+1
-Hardware name: Supermicro SYS-5039MC-H8TRF/X11SCD-F, BIOS 1.7 11/23/2021
-Call Trace:
- <TASK>
- dump_stack_lvl+0x48/0x5e
- check_preemption_disabled+0xde/0xe0
- tcp_rtx_synack.part.0+0x36/0xc0
- tcp_rtx_synack+0x8d/0xa0
- ? kmem_cache_alloc+0x2e0/0x3e0
- ? apparmor_file_alloc_security+0x3b/0x1f0
- inet_rtx_syn_ack+0x16/0x30
- tcp_check_req+0x367/0x610
- tcp_rcv_state_process+0x91/0xf60
- ? get_nohz_timer_target+0x18/0x1a0
- ? lock_timer_base+0x61/0x80
- ? preempt_count_add+0x68/0xa0
- tcp_v4_do_rcv+0xbd/0x270
- __release_sock+0x6d/0xb0
- release_sock+0x2b/0x90
- sock_setsockopt+0x138/0x1140
- ? __sys_getsockname+0x7e/0xc0
- ? aa_sk_perm+0x3e/0x1a0
- __sys_setsockopt+0x198/0x1e0
- __x64_sys_setsockopt+0x21/0x30
- do_syscall_64+0x38/0xc0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: 168a8f58059a ("tcp: TCP Fast Open Server - main code path")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Laurent Fasnacht <laurent.fasnacht@proton.ch>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Link: https://lore.kernel.org/r/20220530213713.601888-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 2227b7c74634 ("coresight: add support for CPU debug module")
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Mike Leach <mike.leach@linaro.org>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20220427224924.592546-10-gpiccoli@igalia.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwtracing/coresight/coresight-cpu-debug.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 67493ec6318a..739fc69cdcc6 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -3869,8 +3869,8 @@ int tcp_rtx_synack(const struct sock *sk, struct request_sock *req)
- 	tcp_rsk(req)->txhash = net_tx_rndhash();
- 	res = af_ops->send_synack(sk, NULL, &fl, req, NULL, TCP_SYNACK_NORMAL);
- 	if (!res) {
--		__TCP_INC_STATS(sock_net(sk), TCP_MIB_RETRANSSEGS);
--		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPSYNRETRANS);
-+		TCP_INC_STATS(sock_net(sk), TCP_MIB_RETRANSSEGS);
-+		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPSYNRETRANS);
- 		if (unlikely(tcp_passive_fastopen(sk)))
- 			tcp_sk(sk)->total_retrans++;
- 		trace_tcp_retransmit_synack(sk, req);
+diff --git a/drivers/hwtracing/coresight/coresight-cpu-debug.c b/drivers/hwtracing/coresight/coresight-cpu-debug.c
+index 2f6f46ea68e9..ccd59ba26609 100644
+--- a/drivers/hwtracing/coresight/coresight-cpu-debug.c
++++ b/drivers/hwtracing/coresight/coresight-cpu-debug.c
+@@ -391,9 +391,10 @@ static int debug_notifier_call(struct notifier_block *self,
+ 	int cpu;
+ 	struct debug_drvdata *drvdata;
+ 
+-	mutex_lock(&debug_lock);
++	/* Bail out if we can't acquire the mutex or the functionality is off */
++	if (!mutex_trylock(&debug_lock))
++		return NOTIFY_DONE;
+ 
+-	/* Bail out if the functionality is disabled */
+ 	if (!debug_enable)
+ 		goto skip_dump;
+ 
+@@ -412,7 +413,7 @@ static int debug_notifier_call(struct notifier_block *self,
+ 
+ skip_dump:
+ 	mutex_unlock(&debug_lock);
+-	return 0;
++	return NOTIFY_DONE;
+ }
+ 
+ static struct notifier_block debug_notifier = {
 -- 
 2.35.1
 
