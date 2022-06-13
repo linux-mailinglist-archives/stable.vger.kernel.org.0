@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3409548957
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C065492B7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243147AbiFMKWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:22:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45690 "EHLO
+        id S1357343AbiFMMAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:00:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243409AbiFMKVT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:21:19 -0400
+        with ESMTP id S1358232AbiFML7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:59:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8790B1FA6E;
-        Mon, 13 Jun 2022 03:17:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7B674EA3C;
+        Mon, 13 Jun 2022 03:56:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3BE060AEA;
-        Mon, 13 Jun 2022 10:17:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A77B8C34114;
-        Mon, 13 Jun 2022 10:17:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CD4461257;
+        Mon, 13 Jun 2022 10:56:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6831EC3411E;
+        Mon, 13 Jun 2022 10:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115462;
-        bh=uHiXHh8rpvQZR0e8uQogm4N/r9NIltAJEfxRp7gm8KY=;
+        s=korg; t=1655117796;
+        bh=gzEyKK8I6JOnFN7klCEewGiQRBGvaWNSnax61KWE0pQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZTs6b6F4Uz+yZcpvl5Cga/inzIKEDnnofGV/WBvXuLeWwaLF/uRatyqIQj1Oipe+N
-         BrbAiFaWIcxzkdYoXzl4ADxFDRqh2B/UiwUAT5V+Ll0lJ0DXT4HoAdobOCDj0kVDix
-         P+TMkYKD+GGkjJWJxjv+EDchn5JZIYDe+OTPG/TQ=
+        b=uV/3dWsbxX3FflrFu21xLE/47JwdYUs4xuS889Zo/06P+N8lTykyELRfBmhKA7gGl
+         jOGb/XhZqhQAVeSEoz28D798ORAIZ/nqB+5DwVF0Pdyo5CJRoqbAB/Ep9gQsSxK/ew
+         DciUQ2/VqlpamY5dP3z1a6IZmfXWfcWEpcaFpWC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 085/167] scsi: ufs: qcom: Add a readl() to make sure ref_clk gets enabled
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Michael Walle <michael@walle.cc>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 135/287] i2c: at91: Initialize dma_buf in at91_twi_xfer()
 Date:   Mon, 13 Jun 2022 12:09:19 +0200
-Message-Id: <20220613094900.810380608@linuxfoundation.org>
+Message-Id: <20220613094927.973227816@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 8eecddfca30e1651dc1c74531ed5eef21dcce7e3 upstream.
+[ Upstream commit 6977262c2eee111645668fe9e235ef2f5694abf7 ]
 
-In ufs_qcom_dev_ref_clk_ctrl(), it was noted that the ref_clk needs to be
-stable for at least 1us. Even though there is wmb() to make sure the write
-gets "completed", there is no guarantee that the write actually reached the
-UFS device. There is a good chance that the write could be stored in a
-Write Buffer (WB). In that case, even though the CPU waits for 1us, the
-ref_clk might not be stable for that period.
+Clang warns:
 
-So lets do a readl() to make sure that the previous write has reached the
-UFS device before udelay().
+  drivers/i2c/busses/i2c-at91-master.c:707:6: warning: variable 'dma_buf' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+          if (dev->use_dma) {
+              ^~~~~~~~~~~~
+  drivers/i2c/busses/i2c-at91-master.c:717:27: note: uninitialized use occurs here
+          i2c_put_dma_safe_msg_buf(dma_buf, m_start, !ret);
+                                   ^~~~~~~
 
-Also, the wmb() after writel_relaxed() is not really needed. Both writel()
-and readl() are ordered on all architectures and the CPU won't speculate
-instructions after readl() due to the in-built control dependency with read
-value on weakly ordered architectures. So it can be safely removed.
+Initialize dma_buf to NULL, as i2c_put_dma_safe_msg_buf() is a no-op
+when the first argument is NULL, which will work for the !dev->use_dma
+case.
 
-Link: https://lore.kernel.org/r/20220504084212.11605-4-manivannan.sadhasivam@linaro.org
-Fixes: f06fcc7155dc ("scsi: ufs-qcom: add QUniPro hardware support and power optimizations")
-Cc: stable@vger.kernel.org
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 03fbb903c8bf ("i2c: at91: use dma safe buffers")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1629
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-qcom.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-at91.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/ufs/ufs-qcom.c
-+++ b/drivers/scsi/ufs/ufs-qcom.c
-@@ -915,8 +915,11 @@ static void ufs_qcom_dev_ref_clk_ctrl(st
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index d5119a2adf5d..29947eb905fb 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -757,7 +757,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	unsigned int_addr_flag = 0;
+ 	struct i2c_msg *m_start = msg;
+ 	bool is_read;
+-	u8 *dma_buf;
++	u8 *dma_buf = NULL;
  
- 		writel_relaxed(temp, host->dev_ref_clk_ctrl_mmio);
+ 	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
  
--		/* ensure that ref_clk is enabled/disabled before we return */
--		wmb();
-+		/*
-+		 * Make sure the write to ref_clk reaches the destination and
-+		 * not stored in a Write Buffer (WB).
-+		 */
-+		readl(host->dev_ref_clk_ctrl_mmio);
- 
- 		/*
- 		 * If we call hibern8 exit after this, we need to make sure that
+-- 
+2.35.1
+
 
 
