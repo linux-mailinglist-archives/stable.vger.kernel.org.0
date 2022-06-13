@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ACC85497FD
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61A1E548C40
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354695AbiFMMbB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:31:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36110 "EHLO
+        id S1379152AbiFMNwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:52:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358343AbiFMM3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:29:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22724286F0;
-        Mon, 13 Jun 2022 04:06:41 -0700 (PDT)
+        with ESMTP id S1379215AbiFMNuL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:50:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA67C2A435;
+        Mon, 13 Jun 2022 04:33:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6939B80EA7;
-        Mon, 13 Jun 2022 11:06:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 182E7C34114;
-        Mon, 13 Jun 2022 11:06:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0550DB80E93;
+        Mon, 13 Jun 2022 11:33:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 671A9C3411C;
+        Mon, 13 Jun 2022 11:33:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118399;
-        bh=vwXcdhnVOCrYk5dtqcAHOP3Nk/WMBvVWYBtNL46+VZE=;
+        s=korg; t=1655120000;
+        bh=QDH42gKm5gGWv+NIEhenKt9NGcU0y959xwFHE/pD/gM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enhgt5VRzCZ2kZvXT0r8nyUubbuRWJm2CJqXnrErlUZL3klMnvQ/8sc4JmMyMlde2
-         ztHiQ0eRGmcmmmkAp2kizfIuCHEP1UCsZYFfEHlwoHgT4Z7BNwN18QHWHecnYqyagA
-         bCFiMnu2vB86OB80cOEWa3+D+U94Ec7cqWKxWYqU=
+        b=asd2nRPfUGfDNN2GNnpet3qBRD5ZopxXPKlkZZjHFMRuteKSQbktiXjT1z+B2Jpn0
+         lcwAzWsYg4AXwIBFSA+XCmNcFXDottFVCi04mmJbpX7K2HKt83dOTZaw6e+r8ZAMjB
+         QcwNPgBQhkqyjMhZiJxPqyngkM6HWLPOOhDScPEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianhao Zhao <tizhao@redhat.com>,
-        Martin Habets <habetsm.xilinx@gmail.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/172] sfc: fix considering that all channels have TX queues
+Subject: [PATCH 5.18 197/339] af_unix: Fix a data-race in unix_dgram_peer_wake_me().
 Date:   Mon, 13 Jun 2022 12:10:22 +0200
-Message-Id: <20220613094905.310212719@linuxfoundation.org>
+Message-Id: <20220613094932.642406521@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Habets <habetsm.xilinx@gmail.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 2e102b53f8a778f872dc137f4c7ac548705817aa ]
+[ Upstream commit 662a80946ce13633ae90a55379f1346c10f0c432 ]
 
-Normally, all channels have RX and TX queues, but this is not true if
-modparam efx_separate_tx_channels=1 is used. In that cases, some
-channels only have RX queues and others only TX queues (or more
-preciselly, they have them allocated, but not initialized).
+unix_dgram_poll() calls unix_dgram_peer_wake_me() without `other`'s
+lock held and check if its receive queue is full.  Here we need to
+use unix_recvq_full_lockless() instead of unix_recvq_full(), otherwise
+KCSAN will report a data-race.
 
-Fix efx_channel_has_tx_queues to return the correct value for this case
-too.
-
-Messages shown at probe time before the fix:
- sfc 0000:03:00.0 ens6f0np0: MC command 0x82 inlen 544 failed rc=-22 (raw=0) arg=0
- ------------[ cut here ]------------
- netdevice: ens6f0np0: failed to initialise TXQ -1
- WARNING: CPU: 1 PID: 626 at drivers/net/ethernet/sfc/ef10.c:2393 efx_ef10_tx_init+0x201/0x300 [sfc]
- [...] stripped
- RIP: 0010:efx_ef10_tx_init+0x201/0x300 [sfc]
- [...] stripped
- Call Trace:
-  efx_init_tx_queue+0xaa/0xf0 [sfc]
-  efx_start_channels+0x49/0x120 [sfc]
-  efx_start_all+0x1f8/0x430 [sfc]
-  efx_net_open+0x5a/0xe0 [sfc]
-  __dev_open+0xd0/0x190
-  __dev_change_flags+0x1b3/0x220
-  dev_change_flags+0x21/0x60
- [...] stripped
-
-Messages shown at remove time before the fix:
- sfc 0000:03:00.0 ens6f0np0: failed to flush 10 queues
- sfc 0000:03:00.0 ens6f0np0: failed to flush queues
-
-Fixes: 8700aff08984 ("sfc: fix channel allocation with brute force")
-Reported-by: Tianhao Zhao <tizhao@redhat.com>
-Signed-off-by: Martin Habets <habetsm.xilinx@gmail.com>
-Tested-by: Íñigo Huguet <ihuguet@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7d267278a9ec ("unix: avoid use-after-free in ep_remove_wait_queue")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Link: https://lore.kernel.org/r/20220605232325.11804-1-kuniyu@amazon.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/net_driver.h | 2 +-
+ net/unix/af_unix.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sfc/net_driver.h b/drivers/net/ethernet/sfc/net_driver.h
-index 9f7dfdf708cf..8aecb4bd2c0d 100644
---- a/drivers/net/ethernet/sfc/net_driver.h
-+++ b/drivers/net/ethernet/sfc/net_driver.h
-@@ -1522,7 +1522,7 @@ static inline bool efx_channel_is_xdp_tx(struct efx_channel *channel)
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index e71a312faa1e..4aed12e94221 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -490,7 +490,7 @@ static int unix_dgram_peer_wake_me(struct sock *sk, struct sock *other)
+ 	 * -ECONNREFUSED. Otherwise, if we haven't queued any skbs
+ 	 * to other and its full, we will hang waiting for POLLOUT.
+ 	 */
+-	if (unix_recvq_full(other) && !sock_flag(other, SOCK_DEAD))
++	if (unix_recvq_full_lockless(other) && !sock_flag(other, SOCK_DEAD))
+ 		return 1;
  
- static inline bool efx_channel_has_tx_queues(struct efx_channel *channel)
- {
--	return true;
-+	return channel && channel->channel >= channel->efx->tx_channel_offset;
- }
- 
- static inline unsigned int efx_channel_num_tx_queues(struct efx_channel *channel)
+ 	if (connected)
 -- 
 2.35.1
 
