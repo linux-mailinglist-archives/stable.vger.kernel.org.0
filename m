@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD9C754958C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B518548A6A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239650AbiFMMzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:55:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49926 "EHLO
+        id S1380442AbiFMOGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:06:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357412AbiFMMyW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:54:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A788B65413;
-        Mon, 13 Jun 2022 04:13:08 -0700 (PDT)
+        with ESMTP id S1382666AbiFMOGL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:06:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEF61972A1;
+        Mon, 13 Jun 2022 04:41:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D0ADB80EB2;
-        Mon, 13 Jun 2022 11:13:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08EDFC3411E;
-        Mon, 13 Jun 2022 11:13:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7DC7B80ECD;
+        Mon, 13 Jun 2022 11:41:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14E41C34114;
+        Mon, 13 Jun 2022 11:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118785;
-        bh=qIctmzWwVqoXtzQCDZGCcDEE0UjqLDBVq5twQgliLeE=;
+        s=korg; t=1655120466;
+        bh=wVkcYHc5vMhIs7MOXoo85jAoir9Esaq47MytOfsNKtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VZshVmcPKMK/Y4YP+ZbhRweH6M5PtrY1F2FueG0PiLfdbkxVaxjSF5bv1AIhkh/8F
-         oLT2l4hR1D17Gs7Md1StmVBkcKQwptFmZ9PLkiZ0DKfmUICl2g3mTiL9Bv9/EeSM+X
-         ekAMlUEnRlMoJaaY6SfZ2Bw71Me2RIJaevGXQIKQ=
+        b=UAr9UHEhlnA4/0msg5CZHT/h+rD0bSkhCBnr8+Wg+eVLH47SBF83K9JG4W6eqzw2U
+         aCGMl22E4bsuwsKNGxBab7alb925zZRkqhLsoUrVF9CKiI9lITL5WjL9Ligccu2vOV
+         TSmfI/scOwIP5f5R69mg5eSQL0iX4bSVBVVti/7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
-        Hangyu Hua <hbh25y@gmail.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mihai Carabas <mihai.carabas@oracle.com>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        zhenwei pi <pizhenwei@bytedance.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 027/247] rpmsg: virtio: Fix the unregistration of the device rpmsg_ctrl
+Subject: [PATCH 5.17 035/298] misc/pvpanic: Convert regular spinlock into trylock on panic path
 Date:   Mon, 13 Jun 2022 12:08:49 +0200
-Message-Id: <20220613094923.758774686@linuxfoundation.org>
+Message-Id: <20220613094925.996414608@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +59,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-[ Upstream commit df191796985922488e4e6b64f7bd79c3934412f2 ]
+[ Upstream commit e918c10265ef2bc82ce8a6fed6d8123d09ec1db3 ]
 
-Unregister the rpmsg_ctrl device instead of just freeing the
-the virtio_rpmsg_channel structure.
-This will properly unregister the device and call
-virtio_rpmsg_release_device() that frees the structure.
+The pvpanic driver relies on panic notifiers to execute a callback
+on panic event. Such function is executed in atomic context - the
+panic function disables local IRQs, preemption and all other CPUs
+that aren't running the panic code.
 
-Fixes: c486682ae1e2 ("rpmsg: virtio: Register the rpmsg_char device")
-Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
-Reviewed-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220426060536.15594-4-hbh25y@gmail.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+With that said, it's dangerous to use regular spinlocks in such path,
+as introduced by commit b3c0f8774668 ("misc/pvpanic: probe multiple instances").
+This patch fixes that by replacing regular spinlocks with the trylock
+safer approach.
+
+It also fixes an old comment (about a long gone framebuffer code) and
+the notifier priority - we should execute hypervisor notifiers early,
+deferring this way the panic action to the hypervisor, as expected by
+the users that are setting up pvpanic.
+
+Fixes: b3c0f8774668 ("misc/pvpanic: probe multiple instances")
+Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: Mihai Carabas <mihai.carabas@oracle.com>
+Cc: Shile Zhang <shile.zhang@linux.alibaba.com>
+Cc: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Cc: zhenwei pi <pizhenwei@bytedance.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Link: https://lore.kernel.org/r/20220427224924.592546-6-gpiccoli@igalia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rpmsg/virtio_rpmsg_bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/pvpanic/pvpanic.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-index 3a62e6197151..b03e7404212f 100644
---- a/drivers/rpmsg/virtio_rpmsg_bus.c
-+++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-@@ -853,7 +853,7 @@ static void rpmsg_virtio_del_ctrl_dev(struct rpmsg_device *rpdev_ctrl)
+diff --git a/drivers/misc/pvpanic/pvpanic.c b/drivers/misc/pvpanic/pvpanic.c
+index 4b8f1c7d726d..049a12006348 100644
+--- a/drivers/misc/pvpanic/pvpanic.c
++++ b/drivers/misc/pvpanic/pvpanic.c
+@@ -34,7 +34,9 @@ pvpanic_send_event(unsigned int event)
  {
- 	if (!rpdev_ctrl)
- 		return;
--	kfree(to_virtio_rpmsg_channel(rpdev_ctrl));
-+	device_unregister(&rpdev_ctrl->dev);
+ 	struct pvpanic_instance *pi_cur;
+ 
+-	spin_lock(&pvpanic_lock);
++	if (!spin_trylock(&pvpanic_lock))
++		return;
++
+ 	list_for_each_entry(pi_cur, &pvpanic_list, list) {
+ 		if (event & pi_cur->capability & pi_cur->events)
+ 			iowrite8(event, pi_cur->base);
+@@ -55,9 +57,13 @@ pvpanic_panic_notify(struct notifier_block *nb, unsigned long code, void *unused
+ 	return NOTIFY_DONE;
  }
  
- static int rpmsg_probe(struct virtio_device *vdev)
++/*
++ * Call our notifier very early on panic, deferring the
++ * action taken to the hypervisor.
++ */
+ static struct notifier_block pvpanic_panic_nb = {
+ 	.notifier_call = pvpanic_panic_notify,
+-	.priority = 1, /* let this called before broken drm_fb_helper() */
++	.priority = INT_MAX,
+ };
+ 
+ static void pvpanic_remove(void *param)
 -- 
 2.35.1
 
