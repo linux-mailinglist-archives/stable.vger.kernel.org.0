@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 269CD5489AE
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6313B5498B0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354392AbiFMLc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:32:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45338 "EHLO
+        id S1378279AbiFMNmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:42:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354395AbiFML31 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F6E9BF7E;
-        Mon, 13 Jun 2022 03:44:02 -0700 (PDT)
+        with ESMTP id S1379185AbiFMNkA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 446C720192;
+        Mon, 13 Jun 2022 04:29:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E6DC61016;
-        Mon, 13 Jun 2022 10:44:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F3AC34114;
-        Mon, 13 Jun 2022 10:44:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03ED1B80D3A;
+        Mon, 13 Jun 2022 11:29:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E5EFC34114;
+        Mon, 13 Jun 2022 11:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117042;
-        bh=2GxNHxTzYTOuyt9YaLzB4zVVZgJb0OBNOJq0mhVsJ8o=;
+        s=korg; t=1655119771;
+        bh=/xmJ2uBU3yrpOFL3voMeLP3SrzDDVNuEh0M+dn8yYVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOhRpwCHJ0IncWS1No8eZukBjIjeqV1Z4DfGvg875Du67oBb4ZVPcKmQTdOH5qqGs
-         cczAoijvpdvtcerH75jk/ghFNsRnkQaDZOPNxcEttyveBH+3coZ/F2BHbgiPmhZCC+
-         9E2B1g8yoVoomoiJ2XXeb8Z6PCUKjtLwY0h5QW0g=
+        b=ra4VZ9E4MyYln7JAm9RImff/OdBO8O0ta0SAQGj450e0kWc+h4IyZixXHAntWVQBz
+         rtLVHa6vad1HlhLrjRsWsN3ugTt0RSvKguMqUf11MXQwYWSGbtuHTMO5WQgDpbPuIX
+         NtTxYJfAievjZU/bwhEJ7O2mzBTu70aaH47LllAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vivek Gautam <vivek.gautam@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.4 265/411] phy: qcom-qmp: fix struct clk leak on probe errors
-Date:   Mon, 13 Jun 2022 12:08:58 +0200
-Message-Id: <20220613094936.706573038@linuxfoundation.org>
+        stable@vger.kernel.org, Tianhao Zhao <tizhao@redhat.com>,
+        Martin Habets <habetsm.xilinx@gmail.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 114/339] sfc: fix considering that all channels have TX queues
+Date:   Mon, 13 Jun 2022 12:08:59 +0200
+Message-Id: <20220613094929.968768888@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +56,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Martin Habets <habetsm.xilinx@gmail.com>
 
-commit f0a4bc38a12f5a0cc5ad68670d9480e91e6a94df upstream.
+[ Upstream commit 2e102b53f8a778f872dc137f4c7ac548705817aa ]
 
-Make sure to release the pipe clock reference in case of a late probe
-error (e.g. probe deferral).
+Normally, all channels have RX and TX queues, but this is not true if
+modparam efx_separate_tx_channels=1 is used. In that cases, some
+channels only have RX queues and others only TX queues (or more
+preciselly, they have them allocated, but not initialized).
 
-Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
-Cc: stable@vger.kernel.org      # 4.12
-Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220427063243.32576-2-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix efx_channel_has_tx_queues to return the correct value for this case
+too.
+
+Messages shown at probe time before the fix:
+ sfc 0000:03:00.0 ens6f0np0: MC command 0x82 inlen 544 failed rc=-22 (raw=0) arg=0
+ ------------[ cut here ]------------
+ netdevice: ens6f0np0: failed to initialise TXQ -1
+ WARNING: CPU: 1 PID: 626 at drivers/net/ethernet/sfc/ef10.c:2393 efx_ef10_tx_init+0x201/0x300 [sfc]
+ [...] stripped
+ RIP: 0010:efx_ef10_tx_init+0x201/0x300 [sfc]
+ [...] stripped
+ Call Trace:
+  efx_init_tx_queue+0xaa/0xf0 [sfc]
+  efx_start_channels+0x49/0x120 [sfc]
+  efx_start_all+0x1f8/0x430 [sfc]
+  efx_net_open+0x5a/0xe0 [sfc]
+  __dev_open+0xd0/0x190
+  __dev_change_flags+0x1b3/0x220
+  dev_change_flags+0x21/0x60
+ [...] stripped
+
+Messages shown at remove time before the fix:
+ sfc 0000:03:00.0 ens6f0np0: failed to flush 10 queues
+ sfc 0000:03:00.0 ens6f0np0: failed to flush queues
+
+Fixes: 8700aff08984 ("sfc: fix channel allocation with brute force")
+Reported-by: Tianhao Zhao <tizhao@redhat.com>
+Signed-off-by: Martin Habets <habetsm.xilinx@gmail.com>
+Tested-by: Íñigo Huguet <ihuguet@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp.c |    2 +-
+ drivers/net/ethernet/sfc/net_driver.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/phy/qualcomm/phy-qcom-qmp.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
-@@ -1929,7 +1929,7 @@ int qcom_qmp_phy_create(struct device *d
- 	 * all phys that don't need this.
- 	 */
- 	snprintf(prop_name, sizeof(prop_name), "pipe%d", id);
--	qphy->pipe_clk = of_clk_get_by_name(np, prop_name);
-+	qphy->pipe_clk = devm_get_clk_from_child(dev, np, prop_name);
- 	if (IS_ERR(qphy->pipe_clk)) {
- 		if (qmp->cfg->type == PHY_TYPE_PCIE ||
- 		    qmp->cfg->type == PHY_TYPE_USB3) {
+diff --git a/drivers/net/ethernet/sfc/net_driver.h b/drivers/net/ethernet/sfc/net_driver.h
+index c75dc75e2857..d7255d54707c 100644
+--- a/drivers/net/ethernet/sfc/net_driver.h
++++ b/drivers/net/ethernet/sfc/net_driver.h
+@@ -1535,7 +1535,7 @@ static inline bool efx_channel_is_xdp_tx(struct efx_channel *channel)
+ 
+ static inline bool efx_channel_has_tx_queues(struct efx_channel *channel)
+ {
+-	return true;
++	return channel && channel->channel >= channel->efx->tx_channel_offset;
+ }
+ 
+ static inline unsigned int efx_channel_num_tx_queues(struct efx_channel *channel)
+-- 
+2.35.1
+
 
 
