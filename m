@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17AB75494F9
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED056548BFB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384859AbiFMOlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:41:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58202 "EHLO
+        id S1381620AbiFMOIq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385651AbiFMOkd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:40:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 861DCAFAE3;
-        Mon, 13 Jun 2022 04:50:16 -0700 (PDT)
+        with ESMTP id S1381082AbiFMODr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:03:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD83490CEB;
+        Mon, 13 Jun 2022 04:38:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B00E61499;
-        Mon, 13 Jun 2022 11:50:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F939C34114;
-        Mon, 13 Jun 2022 11:50:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 568F2612AC;
+        Mon, 13 Jun 2022 11:38:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67957C34114;
+        Mon, 13 Jun 2022 11:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121015;
-        bh=KcOo1oA3ujYCM/X6/pxf5zQ0h3TH3jWllfC3FvL+cl8=;
+        s=korg; t=1655120316;
+        bh=B7tnLXZ9zOFwqW4lhSdUyligTwXyJWYFGo6O+Ex6O7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9+JEyKa8yVKLWmkkWhBksC0qFdBkIviGLzwgq+wFJHZYgug6X83dp0T/pb2gnT7W
-         qsxM2ueJ9ur1zUvCPnSwucurDezU+0hjhpfVL09ss/u6ZFF6wjxBxRW9yg46gQLjGa
-         lT0lj6koZHGdmIY6Nr9ta2JNZaGvgfxOdoE+xLJ8=
+        b=HClw81wntL9SkZ79h/qcnnfKvERNZ+bm74O5QC94Reb5E7nmjxYNT700gLoblsLtF
+         aI/qX6ziHXOwZvQt4U6HYEBmIoOPgBYQZyhtf7Ug/HvqjEroZxAmTLgaKyQyEIgHAH
+         ypYz8+TxhDDLAKX8yFFpZ99vgZbOSyTJnAhOcFco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 240/298] jump_label,noinstr: Avoid instrumentation for JUMP_LABEL=n builds
+        stable@vger.kernel.org,
+        Tyler Erickson <tyler.erickson@seagate.com>,
+        Muhammad Ahmad <muhammad.ahmad@seagate.com>,
+        Michael English <michael.english@seagate.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 5.18 309/339] libata: fix reading concurrent positioning ranges log
 Date:   Mon, 13 Jun 2022 12:12:14 +0200
-Message-Id: <20220613094932.366639764@linuxfoundation.org>
+Message-Id: <20220613094936.128065828@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +56,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Tyler Erickson <tyler.erickson@seagate.com>
 
-[ Upstream commit 656d054e0a15ec327bd82801ccd58201e59f6896 ]
+commit c745dfc541e78428ba3986f1d17fe1dfdaca8184 upstream.
 
-When building x86_64 with JUMP_LABEL=n it's possible for
-instrumentation to sneak into noinstr:
+The concurrent positioning ranges log is not a fixed size and may depend
+on how many ranges are supported by the device. This patch uses the size
+reported in the GPL directory to determine the number of pages supported
+by the device before attempting to read this log page.
 
-vmlinux.o: warning: objtool: exit_to_user_mode+0x14: call to static_key_count.constprop.0() leaves .noinstr.text section
-vmlinux.o: warning: objtool: syscall_exit_to_user_mode+0x2d: call to static_key_count.constprop.0() leaves .noinstr.text section
-vmlinux.o: warning: objtool: irqentry_exit_to_user_mode+0x1b: call to static_key_count.constprop.0() leaves .noinstr.text section
+This resolves this error from the dmesg output:
+    ata6.00: Read log 0x47 page 0x00 failed, Emask 0x1
 
-Switch to arch_ prefixed atomic to avoid the explicit instrumentation.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: fe22e1c2f705 ("libata: support concurrent positioning ranges log")
+Signed-off-by: Tyler Erickson <tyler.erickson@seagate.com>
+Reviewed-by: Muhammad Ahmad <muhammad.ahmad@seagate.com>
+Tested-by: Michael English <michael.english@seagate.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/jump_label.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/ata/libata-core.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/jump_label.h b/include/linux/jump_label.h
-index 48b9b2a82767..019e55c13248 100644
---- a/include/linux/jump_label.h
-+++ b/include/linux/jump_label.h
-@@ -261,9 +261,9 @@ extern void static_key_disable_cpuslocked(struct static_key *key);
- #include <linux/atomic.h>
- #include <linux/bug.h>
- 
--static inline int static_key_count(struct static_key *key)
-+static __always_inline int static_key_count(struct static_key *key)
- {
--	return atomic_read(&key->enabled);
-+	return arch_atomic_read(&key->enabled);
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -2003,16 +2003,16 @@ retry:
+ 	return err_mask;
  }
  
- static __always_inline void jump_label_init(void)
--- 
-2.35.1
-
+-static bool ata_log_supported(struct ata_device *dev, u8 log)
++static int ata_log_supported(struct ata_device *dev, u8 log)
+ {
+ 	struct ata_port *ap = dev->link->ap;
+ 
+ 	if (dev->horkage & ATA_HORKAGE_NO_LOG_DIR)
+-		return false;
++		return 0;
+ 
+ 	if (ata_read_log_page(dev, ATA_LOG_DIRECTORY, 0, ap->sector_buf, 1))
+-		return false;
+-	return get_unaligned_le16(&ap->sector_buf[log * 2]) ? true : false;
++		return 0;
++	return get_unaligned_le16(&ap->sector_buf[log * 2]);
+ }
+ 
+ static bool ata_identify_page_supported(struct ata_device *dev, u8 page)
+@@ -2448,15 +2448,20 @@ static void ata_dev_config_cpr(struct at
+ 	struct ata_cpr_log *cpr_log = NULL;
+ 	u8 *desc, *buf = NULL;
+ 
+-	if (ata_id_major_version(dev->id) < 11 ||
+-	    !ata_log_supported(dev, ATA_LOG_CONCURRENT_POSITIONING_RANGES))
++	if (ata_id_major_version(dev->id) < 11)
++		goto out;
++
++	buf_len = ata_log_supported(dev, ATA_LOG_CONCURRENT_POSITIONING_RANGES);
++	if (buf_len == 0)
+ 		goto out;
+ 
+ 	/*
+ 	 * Read the concurrent positioning ranges log (0x47). We can have at
+-	 * most 255 32B range descriptors plus a 64B header.
++	 * most 255 32B range descriptors plus a 64B header. This log varies in
++	 * size, so use the size reported in the GPL directory. Reading beyond
++	 * the supported length will result in an error.
+ 	 */
+-	buf_len = (64 + 255 * 32 + 511) & ~511;
++	buf_len <<= 9;
+ 	buf = kzalloc(buf_len, GFP_KERNEL);
+ 	if (!buf)
+ 		goto out;
 
 
