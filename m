@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 947CA548AA5
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E76F549118
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386554AbiFMOpi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58726 "EHLO
+        id S1381221AbiFMOIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385702AbiFMOnm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:43:42 -0400
+        with ESMTP id S1380932AbiFMOCn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:02:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33F2AB2E90;
-        Mon, 13 Jun 2022 04:50:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 111878FD53;
+        Mon, 13 Jun 2022 04:38:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62E55612AC;
-        Mon, 13 Jun 2022 11:50:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7211FC341C4;
-        Mon, 13 Jun 2022 11:50:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BED061306;
+        Mon, 13 Jun 2022 11:38:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BCDAC34114;
+        Mon, 13 Jun 2022 11:38:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121047;
-        bh=FLrjGgUTQv6fCtRv8Vq1Iy1NjHMHnXddlPMjRF9DYdM=;
+        s=korg; t=1655120297;
+        bh=pbz9DlEqA5TwTXAkZWWpEn6u8/MCy1hJFPIoVEmfs4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/1oqYHAc/AeMdwD6NBzv11AO8GmG8o2jP9nnQt7Ls+3hmQZP0mv0q3h8O+7QRIY4
-         kQi6GAL3I7rhcPwxytYApu8wKiakzqY0UmvMkFksDc5WhNfpth9U0xt5lV8Fh5XuRf
-         /Ts/qw4iqjrk8zEXBaeoE0FNG95HX9gaSeavJz2Y=
+        b=aXvVBaQNaZdqxitqs1N19ZFR+edREYa+BJvLw3R5eUoATn55E0Oi6XhJB+ifIu4Nz
+         L47XRlX+iEFPZN00+c5L7nOIMCU5xM7XusSGhaGAi5I2QVL/VQJtHvw0TCa6SeES8U
+         32ON7EOdcjNhLqKdmNfKv3PB16cHYwz8JuXVd018=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Peter Korsgaard <peter.korsgaard@barco.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 253/298] platform/x86: barco-p50-gpio: Add check for platform_driver_register
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.18 322/339] Input: bcm5974 - set missing URB_NO_TRANSFER_DMA_MAP urb flag
 Date:   Mon, 13 Jun 2022 12:12:27 +0200
-Message-Id: <20220613094932.753788739@linuxfoundation.org>
+Message-Id: <20220613094936.513051621@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit 011881b80ebe773914b59905bce0f5e0ef93e7ba ]
+commit c42e65664390be7c1ef3838cd84956d3a2739d60 upstream.
 
-As platform_driver_register() could fail, it should be better
-to deal with the return value in order to maintain the code
-consisitency.
+The bcm5974 driver does the allocation and dma mapping of the usb urb
+data buffer, but driver does not set the URB_NO_TRANSFER_DMA_MAP flag
+to let usb core know the buffer is already mapped.
 
-Fixes: 86af1d02d458 ("platform/x86: Support for EC-connected GPIOs for identify LED/button on Barco P50 board")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Peter Korsgaard <peter.korsgaard@barco.com>
-Link: https://lore.kernel.org/r/20220526090345.1444172-1-jiasheng@iscas.ac.cn
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+usb core tries to map the already mapped buffer, causing a warning:
+"xhci_hcd 0000:00:14.0: rejecting DMA map of vmalloc memory"
+
+Fix this by setting the URB_NO_TRANSFER_DMA_MAP, letting usb core
+know buffer is already mapped by bcm5974 driver
+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215890
+Link: https://lore.kernel.org/r/20220606113636.588955-1-mathias.nyman@linux.intel.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/barco-p50-gpio.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/input/mouse/bcm5974.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/barco-p50-gpio.c b/drivers/platform/x86/barco-p50-gpio.c
-index f5c72e33f9ae..f8b796820ef4 100644
---- a/drivers/platform/x86/barco-p50-gpio.c
-+++ b/drivers/platform/x86/barco-p50-gpio.c
-@@ -406,11 +406,14 @@ MODULE_DEVICE_TABLE(dmi, dmi_ids);
- static int __init p50_module_init(void)
- {
- 	struct resource res = DEFINE_RES_IO(P50_GPIO_IO_PORT_BASE, P50_PORT_CMD + 1);
-+	int ret;
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -942,17 +942,22 @@ static int bcm5974_probe(struct usb_inte
+ 	if (!dev->tp_data)
+ 		goto err_free_bt_buffer;
  
- 	if (!dmi_first_match(dmi_ids))
- 		return -ENODEV;
+-	if (dev->bt_urb)
++	if (dev->bt_urb) {
+ 		usb_fill_int_urb(dev->bt_urb, udev,
+ 				 usb_rcvintpipe(udev, cfg->bt_ep),
+ 				 dev->bt_data, dev->cfg.bt_datalen,
+ 				 bcm5974_irq_button, dev, 1);
  
--	platform_driver_register(&p50_gpio_driver);
-+	ret = platform_driver_register(&p50_gpio_driver);
-+	if (ret)
-+		return ret;
++		dev->bt_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++	}
++
+ 	usb_fill_int_urb(dev->tp_urb, udev,
+ 			 usb_rcvintpipe(udev, cfg->tp_ep),
+ 			 dev->tp_data, dev->cfg.tp_datalen,
+ 			 bcm5974_irq_trackpad, dev, 1);
  
- 	gpio_pdev = platform_device_register_simple(DRIVER_NAME, PLATFORM_DEVID_NONE, &res, 1);
- 	if (IS_ERR(gpio_pdev)) {
--- 
-2.35.1
-
++	dev->tp_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++
+ 	/* create bcm5974 device */
+ 	usb_make_path(udev, dev->phys, sizeof(dev->phys));
+ 	strlcat(dev->phys, "/input0", sizeof(dev->phys));
 
 
