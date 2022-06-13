@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B91F654882E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D792D5487B5
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352512AbiFMLQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:16:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60184 "EHLO
+        id S1352320AbiFMLRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:17:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352769AbiFMLOU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:14:20 -0400
+        with ESMTP id S1353246AbiFMLPT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:15:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ABCF369FD;
-        Mon, 13 Jun 2022 03:36:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12EB248EF;
+        Mon, 13 Jun 2022 03:37:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45FC7B80EA3;
-        Mon, 13 Jun 2022 10:36:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 997D6C34114;
-        Mon, 13 Jun 2022 10:36:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C156CB80E94;
+        Mon, 13 Jun 2022 10:37:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38A47C34114;
+        Mon, 13 Jun 2022 10:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116613;
-        bh=SPVE0E2YJ48XYj0xRu3cSmgM4bWdPP+ZLndDgMbsIJA=;
+        s=korg; t=1655116666;
+        bh=odwwFRkk68+klX+IXiBeGcqimMANVc67CuJI9VaA7pE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fxbwhi9dXGwNHL4S6BUrEUvTAJaTl+AaMOW+TtEKWvA14BP+FdPPgtFH/UqzRbw4I
-         vG04az2CcYrENeJW48YCZF1CDAAvRpH72HvhXzFv/f/iz3NwZIYx73/3dEVkoYnn/4
-         4hEKB+HIXUBVN7klFr77Fz880QlFw+WijQ723ZlM=
+        b=BGLMRLD2kDrqiNPGcJrt4+ClkEZzegMzYGj0Xl7ZEnI4jES5cHxC4slXRRntBzack
+         LMY6mV9dQcYJiDOczs0d3x3X1EYi2RYWjQdgUSMimYqnauGngtQJJ4FJrLPn5/iOTY
+         r2t5XO+8MDilgzYU1H1vp+8+8YvjL63ngE2AzySs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 122/411] x86/mm: Cleanup the control_va_addr_alignment() __setup handler
-Date:   Mon, 13 Jun 2022 12:06:35 +0200
-Message-Id: <20220613094932.332538524@linuxfoundation.org>
+        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 129/411] Revert "cpufreq: Fix possible race in cpufreq online error path"
+Date:   Mon, 13 Jun 2022 12:06:42 +0200
+Message-Id: <20220613094932.540761266@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -54,57 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 1ef64b1e89e6d4018da46e08ffc32779a31160c7 ]
+[ Upstream commit 85f0e42bd65d01b351d561efb38e584d4c596553 ]
 
-Clean up control_va_addr_alignment():
+This reverts commit f346e96267cd76175d6c201b40f770c0116a8a04.
 
-a. Make '=' required instead of optional (as documented).
-b. Print a warning if an invalid option value is used.
-c. Return 1 from the __setup handler when an invalid option value is
-   used. This prevents the kernel from polluting init's (limited)
-   environment space with the entire string.
+The commit tried to fix a possible real bug but it made it even worse.
+The fix was simply buggy as now an error out to out_offline_policy or
+out_exit_policy will try to release a semaphore which was never taken in
+the first place. This works fine only if we failed late, i.e. via
+out_destroy_policy.
 
-Fixes: dfb09f9b7ab0 ("x86, amd: Avoid cache aliasing penalties on AMD family 15h")
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Link: https://lore.kernel.org/r/20220315001045.7680-1-rdunlap@infradead.org
+Fixes: f346e96267cd ("cpufreq: Fix possible race in cpufreq online error path")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/sys_x86_64.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/cpufreq/cpufreq.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/sys_x86_64.c b/arch/x86/kernel/sys_x86_64.c
-index f7476ce23b6e..42e31358a9d3 100644
---- a/arch/x86/kernel/sys_x86_64.c
-+++ b/arch/x86/kernel/sys_x86_64.c
-@@ -70,9 +70,6 @@ static int __init control_va_addr_alignment(char *str)
- 	if (*str == 0)
- 		return 1;
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 7ea07764988e..af9f34804862 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -1509,6 +1509,8 @@ static int cpufreq_online(unsigned int cpu)
+ 	for_each_cpu(j, policy->real_cpus)
+ 		remove_cpu_dev_symlink(policy, get_cpu_device(j));
  
--	if (*str == '=')
--		str++;
++	up_write(&policy->rwsem);
++
+ out_offline_policy:
+ 	if (cpufreq_driver->offline)
+ 		cpufreq_driver->offline(policy);
+@@ -1517,9 +1519,6 @@ static int cpufreq_online(unsigned int cpu)
+ 	if (cpufreq_driver->exit)
+ 		cpufreq_driver->exit(policy);
+ 
+-	cpumask_clear(policy->cpus);
+-	up_write(&policy->rwsem);
 -
- 	if (!strcmp(str, "32"))
- 		va_align.flags = ALIGN_VA_32;
- 	else if (!strcmp(str, "64"))
-@@ -82,11 +79,11 @@ static int __init control_va_addr_alignment(char *str)
- 	else if (!strcmp(str, "on"))
- 		va_align.flags = ALIGN_VA_32 | ALIGN_VA_64;
- 	else
--		return 0;
-+		pr_warn("invalid option value: 'align_va_addr=%s'\n", str);
- 
- 	return 1;
- }
--__setup("align_va_addr", control_va_addr_alignment);
-+__setup("align_va_addr=", control_va_addr_alignment);
- 
- SYSCALL_DEFINE6(mmap, unsigned long, addr, unsigned long, len,
- 		unsigned long, prot, unsigned long, flags,
+ out_free_policy:
+ 	cpufreq_policy_free(policy);
+ 	return ret;
 -- 
 2.35.1
 
