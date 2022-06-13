@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6096E548645
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5B175486F1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386437AbiFMOpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57512 "EHLO
+        id S1376439AbiFMNVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:21:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385642AbiFMOni (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:43:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A00B6B2E8A;
-        Mon, 13 Jun 2022 04:50:51 -0700 (PDT)
+        with ESMTP id S1377429AbiFMNUZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EADA26AA73;
+        Mon, 13 Jun 2022 04:23:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7782FB80EE6;
-        Mon, 13 Jun 2022 11:50:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C871CC341C6;
-        Mon, 13 Jun 2022 11:50:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3279661127;
+        Mon, 13 Jun 2022 11:23:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45A62C34114;
+        Mon, 13 Jun 2022 11:23:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121045;
-        bh=O1BECb1BwhYEIW1CUebpdzDbEJQLtGkgaLnnWW6lRNQ=;
+        s=korg; t=1655119391;
+        bh=gsknnm1TEWssjyLcGyQFf5l/MRxpU5FvJ25DZvX++9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m86mfXN9srmtNV2v94lh/z1MWclq3obJTDDr4PtXMPp/9NLceiziPR8uJ1KGpyVU4
-         95kk+v2+FgnAMwQL4ITLei0/QRETZ9WRwaL5ROpAKnakJCxcNNHu1z3tGyCuQqnk27
-         WcaI/h+TywEMyxoCCPn2vBIfO2WpExHbDFzh/uhk=
+        b=D66+P4rgzG3lMkXJGHU1ZdLs0cn26TL8WACXIjSvPLI8zqdAZgBsYY08fnVAAzTU+
+         9qXLqJFNW+mJY4YIXyYeAO2iZ6G0/kdahX07jVT6+XGDr6AyU2+lgz/F2M/4NYM2NC
+         bnRcAqSMexAyjq6EPoKqtcMnNXTtwjBtHKC7rjbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Fam Zheng <fam.zheng@bytedance.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 252/298] vringh: Fix loop descriptors check in the indirect cases
-Date:   Mon, 13 Jun 2022 12:12:26 +0200
-Message-Id: <20220613094932.724487421@linuxfoundation.org>
+        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 245/247] net/sched: act_police: more accurate MTU policing
+Date:   Mon, 13 Jun 2022 12:12:27 +0200
+Message-Id: <20220613094930.376357741@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +54,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit dbd29e0752286af74243cf891accf472b2f3edd8 ]
+commit 4ddc844eb81da59bfb816d8d52089aba4e59e269 upstream.
 
-We should use size of descriptor chain to test loop condition
-in the indirect case. And another statistical count is also introduced
-for indirect descriptors to avoid conflict with the statistical count
-of direct descriptors.
+in current Linux, MTU policing does not take into account that packets at
+the TC ingress have the L2 header pulled. Thus, the same TC police action
+(with the same value of tcfp_mtu) behaves differently for ingress/egress.
+In addition, the full GSO size is compared to tcfp_mtu: as a consequence,
+the policer drops GSO packets even when individual segments have the L2 +
+L3 + L4 + payload length below the configured valued of tcfp_mtu.
 
-Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Signed-off-by: Fam Zheng <fam.zheng@bytedance.com>
-Message-Id: <20220505100910.137-1-xieyongji@bytedance.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Improve the accuracy of MTU policing as follows:
+ - account for mac_len for non-GSO packets at TC ingress.
+ - compare MTU threshold with the segmented size for GSO packets.
+Also, add a kselftest that verifies the correct behavior.
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/vringh.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/sched/act_police.c                              |   16 +++++-
+ tools/testing/selftests/net/forwarding/tc_police.sh |   52 ++++++++++++++++++++
+ 2 files changed, 67 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 14e2043d7685..eab55accf381 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -292,7 +292,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 	     int (*copy)(const struct vringh *vrh,
- 			 void *dst, const void *src, size_t len))
- {
--	int err, count = 0, up_next, desc_max;
-+	int err, count = 0, indirect_count = 0, up_next, desc_max;
- 	struct vring_desc desc, *descs;
- 	struct vringh_range range = { -1ULL, 0 }, slowrange;
- 	bool slow = false;
-@@ -349,7 +349,12 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 			continue;
- 		}
+--- a/net/sched/act_police.c
++++ b/net/sched/act_police.c
+@@ -239,6 +239,20 @@ release_idr:
+ 	return err;
+ }
  
--		if (count++ == vrh->vring.num) {
-+		if (up_next == -1)
-+			count++;
-+		else
-+			indirect_count++;
++static bool tcf_police_mtu_check(struct sk_buff *skb, u32 limit)
++{
++	u32 len;
 +
-+		if (count > vrh->vring.num || indirect_count > desc_max) {
- 			vringh_bad("Descriptor loop in %p", descs);
- 			err = -ELOOP;
- 			goto fail;
-@@ -411,6 +416,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 				i = return_from_indirect(vrh, &up_next,
- 							 &descs, &desc_max);
- 				slow = false;
-+				indirect_count = 0;
- 			} else
- 				break;
- 		}
--- 
-2.35.1
-
++	if (skb_is_gso(skb))
++		return skb_gso_validate_mac_len(skb, limit);
++
++	len = qdisc_pkt_len(skb);
++	if (skb_at_tc_ingress(skb))
++		len += skb->mac_len;
++
++	return len <= limit;
++}
++
+ static int tcf_police_act(struct sk_buff *skb, const struct tc_action *a,
+ 			  struct tcf_result *res)
+ {
+@@ -261,7 +275,7 @@ static int tcf_police_act(struct sk_buff
+ 			goto inc_overlimits;
+ 	}
+ 
+-	if (qdisc_pkt_len(skb) <= p->tcfp_mtu) {
++	if (tcf_police_mtu_check(skb, p->tcfp_mtu)) {
+ 		if (!p->rate_present && !p->pps_present) {
+ 			ret = p->tcfp_result;
+ 			goto end;
+--- a/tools/testing/selftests/net/forwarding/tc_police.sh
++++ b/tools/testing/selftests/net/forwarding/tc_police.sh
+@@ -37,6 +37,8 @@ ALL_TESTS="
+ 	police_tx_mirror_test
+ 	police_pps_rx_test
+ 	police_pps_tx_test
++	police_mtu_rx_test
++	police_mtu_tx_test
+ "
+ NUM_NETIFS=6
+ source tc_common.sh
+@@ -346,6 +348,56 @@ police_pps_tx_test()
+ 	tc filter del dev $rp2 egress protocol ip pref 1 handle 101 flower
+ }
+ 
++police_mtu_common_test() {
++	RET=0
++
++	local test_name=$1; shift
++	local dev=$1; shift
++	local direction=$1; shift
++
++	tc filter add dev $dev $direction protocol ip pref 1 handle 101 flower \
++		dst_ip 198.51.100.1 ip_proto udp dst_port 54321 \
++		action police mtu 1042 conform-exceed drop/ok
++
++	# to count "conform" packets
++	tc filter add dev $h2 ingress protocol ip pref 1 handle 101 flower \
++		dst_ip 198.51.100.1 ip_proto udp dst_port 54321 \
++		action drop
++
++	mausezahn $h1 -a own -b $(mac_get $rp1) -A 192.0.2.1 -B 198.51.100.1 \
++		-t udp sp=12345,dp=54321 -p 1001 -c 10 -q
++
++	mausezahn $h1 -a own -b $(mac_get $rp1) -A 192.0.2.1 -B 198.51.100.1 \
++		-t udp sp=12345,dp=54321 -p 1000 -c 3 -q
++
++	tc_check_packets "dev $dev $direction" 101 13
++	check_err $? "wrong packet counter"
++
++	# "exceed" packets
++	local overlimits_t0=$(tc_rule_stats_get ${dev} 1 ${direction} .overlimits)
++	test ${overlimits_t0} = 10
++	check_err $? "wrong overlimits, expected 10 got ${overlimits_t0}"
++
++	# "conform" packets
++	tc_check_packets "dev $h2 ingress" 101 3
++	check_err $? "forwarding error"
++
++	tc filter del dev $h2 ingress protocol ip pref 1 handle 101 flower
++	tc filter del dev $dev $direction protocol ip pref 1 handle 101 flower
++
++	log_test "$test_name"
++}
++
++police_mtu_rx_test()
++{
++	police_mtu_common_test "police mtu (rx)" $rp1 ingress
++}
++
++police_mtu_tx_test()
++{
++	police_mtu_common_test "police mtu (tx)" $rp2 egress
++}
++
+ setup_prepare()
+ {
+ 	h1=${NETIFS[p1]}
 
 
