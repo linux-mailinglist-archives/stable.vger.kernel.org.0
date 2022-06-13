@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E66454906D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85566548ABC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376365AbiFMNVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:21:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59460 "EHLO
+        id S1381530AbiFMOIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377383AbiFMNUT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDDE76A051;
-        Mon, 13 Jun 2022 04:23:29 -0700 (PDT)
+        with ESMTP id S1380948AbiFMODH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:03:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A20A58DDE3;
+        Mon, 13 Jun 2022 04:38:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DE2061036;
-        Mon, 13 Jun 2022 11:23:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB3BC34114;
-        Mon, 13 Jun 2022 11:23:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C28A7B80EA7;
+        Mon, 13 Jun 2022 11:38:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AF2DC34114;
+        Mon, 13 Jun 2022 11:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119407;
-        bh=kfEY3QRZjbQFex0x+RE6UPxEfcV2bewxyvgnel+V6pY=;
+        s=korg; t=1655120300;
+        bh=j+uAT323+KaJj7UMoqr4xyarKUVNsQL7xM52Y8ib5w4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cX6ePzuIE8shcInaqpgxNptix4ZJwMe2VR2x/pLHIG2HLHnq/Z8BNuG/mJDqfE2+b
-         ummBYnWxAcECEQl4PVieZX5DREy6rvp7Sc2+r22fuAXNuKFsi/WFfzzdET0vhucnJ5
-         HHlncT2kJ8dKm+5HTEMdDxjPcScWBWnapnd4kU88=
+        b=zq3RLXS+29TORsDQ2ldRTznfIMPzf1kRvrwj42pABC44qp5AKCBO+lGcwhFvTYAgZ
+         jg4/BwAwGUfo3oZKaLlJ2wMbpDWBmo7OL4Tx3w7RCshH7+3adAbDrdxL2UOxZOtzu7
+         DRomr/c8CxC2w6OqQRYd55PHGVQUg1wSFSv7BvVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Faltesek <mfaltesek@google.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 228/247] nfc: st21nfca: fix memory leaks in EVT_TRANSACTION handling
+        stable@vger.kernel.org, Shaoqin Huang <shaoqin.huang@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.18 305/339] KVM: x86/mmu: Check every prev_roots in __kvm_mmu_free_obsolete_roots()
 Date:   Mon, 13 Jun 2022 12:12:10 +0200
-Message-Id: <20220613094929.861633356@linuxfoundation.org>
+Message-Id: <20220613094936.010226301@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Faltesek <mfaltesek@google.com>
+From: Shaoqin Huang <shaoqin.huang@intel.com>
 
-commit 996419e0594abb311fb958553809f24f38e7abbe upstream.
+commit cf4a8693d97a51dccf5a1557248d12d6d8be4b9e upstream.
 
-Error paths do not free previously allocated memory. Add devm_kfree() to
-those failure paths.
+When freeing obsolete previous roots, check prev_roots as intended, not
+the current root.
 
-Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
-Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
+Signed-off-by: Shaoqin Huang <shaoqin.huang@intel.com>
+Fixes: 527d5cd7eece ("KVM: x86/mmu: Zap only obsolete roots if a root shadow page is zapped")
+Message-Id: <20220607005905.2933378-1-shaoqin.huang@intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Martin Faltesek <mfaltesek@google.com>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/st21nfca/se.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/x86/kvm/mmu/mmu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nfc/st21nfca/se.c
-+++ b/drivers/nfc/st21nfca/se.c
-@@ -330,22 +330,29 @@ int st21nfca_connectivity_event_received
- 		transaction->aid_len = skb->data[1];
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5168,7 +5168,7 @@ static void __kvm_mmu_free_obsolete_root
+ 		roots_to_free |= KVM_MMU_ROOT_CURRENT;
  
- 		/* Checking if the length of the AID is valid */
--		if (transaction->aid_len > sizeof(transaction->aid))
-+		if (transaction->aid_len > sizeof(transaction->aid)) {
-+			devm_kfree(dev, transaction);
- 			return -EINVAL;
-+		}
+ 	for (i = 0; i < KVM_MMU_NUM_PREV_ROOTS; i++) {
+-		if (is_obsolete_root(kvm, mmu->root.hpa))
++		if (is_obsolete_root(kvm, mmu->prev_roots[i].hpa))
+ 			roots_to_free |= KVM_MMU_ROOT_PREVIOUS(i);
+ 	}
  
- 		memcpy(transaction->aid, &skb->data[2],
- 		       transaction->aid_len);
- 
- 		/* Check next byte is PARAMETERS tag (82) */
- 		if (skb->data[transaction->aid_len + 2] !=
--		    NFC_EVT_TRANSACTION_PARAMS_TAG)
-+		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
-+			devm_kfree(dev, transaction);
- 			return -EPROTO;
-+		}
- 
- 		transaction->params_len = skb->data[transaction->aid_len + 3];
- 
- 		/* Total size is allocated (skb->len - 2) minus fixed array members */
--		if (transaction->params_len > ((skb->len - 2) - sizeof(struct nfc_evt_transaction)))
-+		if (transaction->params_len > ((skb->len - 2) -
-+		    sizeof(struct nfc_evt_transaction))) {
-+			devm_kfree(dev, transaction);
- 			return -EINVAL;
-+		}
- 
- 		memcpy(transaction->params, skb->data +
- 		       transaction->aid_len + 4, transaction->params_len);
 
 
