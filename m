@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D806549770
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 697DA5498A6
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236488AbiFMKot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:44:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35742 "EHLO
+        id S1377496AbiFMNkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:40:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345869AbiFMKlx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:41:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F2B82314D;
-        Mon, 13 Jun 2022 03:24:04 -0700 (PDT)
+        with ESMTP id S1378087AbiFMNhS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:37:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D1E83630D;
+        Mon, 13 Jun 2022 04:27:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CB2AB80E90;
-        Mon, 13 Jun 2022 10:24:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1907C34114;
-        Mon, 13 Jun 2022 10:24:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACE5761225;
+        Mon, 13 Jun 2022 11:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9CB4C3411C;
+        Mon, 13 Jun 2022 11:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115842;
-        bh=9GYc/5u8MFAyl/Ky7sHzrBM/HShJd5hQHgFPUL2MzGU=;
+        s=korg; t=1655119642;
+        bh=uo0lwWJaTQsbH8CNcVD3Nc5hC4tDjxOrZxt2j38czqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXilopfD8ALUj5uyE8K4RLjgKkajgMqNvE6evsgxJSQchD8MXpjsRuvNQY6tDVmKi
-         1ORQ0dldmOlc7gq/s2iiIv5g0lpxOmgZOftuNS1r0ZaoaGknW7jVKVAUebWUMxlAvX
-         ehx2v+WNsmJAFJ1yyWO2RHV2SQ4n/CUmwWpARq+w=
+        b=QKGIA348tCBdukOZO2D20sOQ1Qb3HSARkDKzhO4iRbOgq+zxkNjQL3IZWJjZo+EsQ
+         vdtr8ZFSGegbuh+EqLqZk2dCFT9OIZekFmtfxD/8wn3x3zh39DetmZ6fnmY40UBmtR
+         S9vBbUFnvVCikY5Kdv/tGncpXeFNNTCER5kDQzHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 053/218] spi: spi-ti-qspi: Fix return value handling of wait_for_completion_timeout
+Subject: [PATCH 5.18 086/339] amt: fix return value of amt_update_handler()
 Date:   Mon, 13 Jun 2022 12:08:31 +0200
-Message-Id: <20220613094920.753950320@linuxfoundation.org>
+Message-Id: <20220613094929.125482154@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 8b1ea69a63eb62f97cef63e6d816b64ed84e8760 ]
+[ Upstream commit ac1dbf55981b88d64312858ea06e3e63001f085d ]
 
-wait_for_completion_timeout() returns unsigned long not int.
-It returns 0 if timed out, and positive if completed.
-The check for <= 0 is ambiguous and should be == 0 here
-indicating timeout which is the only error case.
+If a relay receives an update message, it lookup a tunnel.
+and if there is no tunnel for that message, it should be treated
+as an error, not a success.
+But amt_update_handler() returns false, which means success.
 
-Fixes: 5720ec0a6d26 ("spi: spi-ti-qspi: Add DMA support for QSPI mmap read")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220411111034.24447-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: cbc21dc1cfe9 ("amt: add data plane of amt interface")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-ti-qspi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/amt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-ti-qspi.c b/drivers/spi/spi-ti-qspi.c
-index d9b02e7668ae..e5db20d11e3f 100644
---- a/drivers/spi/spi-ti-qspi.c
-+++ b/drivers/spi/spi-ti-qspi.c
-@@ -405,6 +405,7 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
- 	enum dma_ctrl_flags flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
- 	struct dma_async_tx_descriptor *tx;
- 	int ret;
-+	unsigned long time_left;
- 
- 	tx = dmaengine_prep_dma_memcpy(chan, dma_dst, dma_src, len, flags);
- 	if (!tx) {
-@@ -424,9 +425,9 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
+diff --git a/drivers/net/amt.c b/drivers/net/amt.c
+index de4ea518c793..d376ed89f836 100644
+--- a/drivers/net/amt.c
++++ b/drivers/net/amt.c
+@@ -2423,7 +2423,7 @@ static bool amt_update_handler(struct amt_dev *amt, struct sk_buff *skb)
+ 		}
  	}
  
- 	dma_async_issue_pending(chan);
--	ret = wait_for_completion_timeout(&qspi->transfer_complete,
-+	time_left = wait_for_completion_timeout(&qspi->transfer_complete,
- 					  msecs_to_jiffies(len));
--	if (ret <= 0) {
-+	if (time_left == 0) {
- 		dmaengine_terminate_sync(chan);
- 		dev_err(qspi->dev, "DMA wait_for_completion_timeout\n");
- 		return -ETIMEDOUT;
+-	return false;
++	return true;
+ 
+ report:
+ 	iph = ip_hdr(skb);
 -- 
 2.35.1
 
