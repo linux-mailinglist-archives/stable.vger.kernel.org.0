@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17B935492B0
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 306C854973D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357124AbiFMM6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:58:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50432 "EHLO
+        id S1378748AbiFMNmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:42:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238842AbiFMMzV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E55DE9F;
-        Mon, 13 Jun 2022 04:16:04 -0700 (PDT)
+        with ESMTP id S1378281AbiFMNlA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:41:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A11C422B22;
+        Mon, 13 Jun 2022 04:31:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17842B80E93;
-        Mon, 13 Jun 2022 11:16:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DE70C34114;
-        Mon, 13 Jun 2022 11:16:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF090B80E59;
+        Mon, 13 Jun 2022 11:31:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39434C3411C;
+        Mon, 13 Jun 2022 11:31:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118961;
-        bh=KG2kk7cL6bCUC7FITWZq4H+9m9GoMnSkpW4cXAC5fwQ=;
+        s=korg; t=1655119870;
+        bh=1p3XvtCW++ZOFQc/Ji5oBq0oFJ1q34MynTJtoyKtaAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iYvEeoM7dHJKnkwmtrbG845E8aQrg4CTkLwE56BzW5kgqBbjnR/iaHFDLcxUsW5sz
-         UOMBHz4JiwajCMMMCehj9zLxyp3veDao3uX9nrGZbBQxBiaFXEPGol6qK+SRTR7OvJ
-         OsOyJ/JejhIkffFrGIafC10Au+PdWuwDVEXsbtYU=
+        b=g2x6/UpCEfqPgbjC1KLovJHzW59QHR3/pjB9eVft8qBq9ojnUxowMd2jTJ7DS8DZJ
+         i052wysgRdTjUxmeWy0P/PO8Gr5T49T8azK/KmNgqjaxhJJU1d8nP0elo3lFG+xVZw
+         /GrklTVpjHmoAL9KmJrr/DMV8eS/Eac1FD29RAzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Si-Wei Liu <si-wei.liu@oracle.com>,
-        Jason Wang <jasowang@redhat.com>, Eli Cohen <elic@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 091/247] vdpa: Fix error logic in vdpa_nl_cmd_dev_get_doit
+        stable@vger.kernel.org,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 168/339] dmaengine: zynqmp_dma: In struct zynqmp_dma_chan fix desc_size data type
 Date:   Mon, 13 Jun 2022 12:09:53 +0200
-Message-Id: <20220613094925.716808472@linuxfoundation.org>
+Message-Id: <20220613094931.776467876@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
 
-[ Upstream commit 7a6691f1f89784f775fa0c54be57533445726068 ]
+[ Upstream commit f9a9f43a62a04ec3183fb0da9226c7706eed0115 ]
 
-In vdpa_nl_cmd_dev_get_doit(), if the call to genlmsg_reply() fails we
-must not call nlmsg_free() since this is done inside genlmsg_reply().
+In zynqmp_dma_alloc/free_chan_resources functions there is a
+potential overflow in the below expressions.
 
-Fix it.
+dma_alloc_coherent(chan->dev, (2 * chan->desc_size *
+		   ZYNQMP_DMA_NUM_DESCS),
+		   &chan->desc_pool_p, GFP_KERNEL);
 
-Fixes: bc0d90ee021f ("vdpa: Enable user to query vdpa device info")
-Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Message-Id: <20220518133804.1075129-2-elic@nvidia.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+dma_free_coherent(chan->dev,(2 * ZYNQMP_DMA_DESC_SIZE(chan) *
+                 ZYNQMP_DMA_NUM_DESCS),
+                chan->desc_pool_v, chan->desc_pool_p);
+
+The arguments desc_size and ZYNQMP_DMA_NUM_DESCS were 32 bit. Though
+this overflow condition is not observed but it is a potential problem
+in the case of 32-bit multiplication. Hence fix it by changing the
+desc_size data type to size_t.
+
+In addition to coverity fix it also reuse ZYNQMP_DMA_DESC_SIZE macro in
+dma_alloc_coherent API argument.
+
+Addresses-Coverity: Event overflow_before_widen.
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/1652166762-18317-2-git-send-email-radhey.shyam.pandey@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/vdpa.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/dma/xilinx/zynqmp_dma.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index 12bf3d16a40f..86571498c1c2 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -558,14 +558,19 @@ static int vdpa_nl_cmd_dev_get_doit(struct sk_buff *skb, struct genl_info *info)
- 		goto mdev_err;
+diff --git a/drivers/dma/xilinx/zynqmp_dma.c b/drivers/dma/xilinx/zynqmp_dma.c
+index 7aa63b652027..3ffa7f37c701 100644
+--- a/drivers/dma/xilinx/zynqmp_dma.c
++++ b/drivers/dma/xilinx/zynqmp_dma.c
+@@ -229,7 +229,7 @@ struct zynqmp_dma_chan {
+ 	bool is_dmacoherent;
+ 	struct tasklet_struct tasklet;
+ 	bool idle;
+-	u32 desc_size;
++	size_t desc_size;
+ 	bool err;
+ 	u32 bus_width;
+ 	u32 src_burst_len;
+@@ -486,7 +486,8 @@ static int zynqmp_dma_alloc_chan_resources(struct dma_chan *dchan)
  	}
- 	err = vdpa_dev_fill(vdev, msg, info->snd_portid, info->snd_seq, 0, info->extack);
--	if (!err)
--		err = genlmsg_reply(msg, info);
-+	if (err)
-+		goto mdev_err;
-+
-+	err = genlmsg_reply(msg, info);
-+	put_device(dev);
-+	mutex_unlock(&vdpa_dev_mutex);
-+	return err;
-+
- mdev_err:
- 	put_device(dev);
- err:
- 	mutex_unlock(&vdpa_dev_mutex);
--	if (err)
--		nlmsg_free(msg);
-+	nlmsg_free(msg);
- 	return err;
- }
  
+ 	chan->desc_pool_v = dma_alloc_coherent(chan->dev,
+-					       (2 * chan->desc_size * ZYNQMP_DMA_NUM_DESCS),
++					       (2 * ZYNQMP_DMA_DESC_SIZE(chan) *
++					       ZYNQMP_DMA_NUM_DESCS),
+ 					       &chan->desc_pool_p, GFP_KERNEL);
+ 	if (!chan->desc_pool_v)
+ 		return -ENOMEM;
 -- 
 2.35.1
 
