@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE7705498B4
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C5BB548E82
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355490AbiFMLw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:52:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53796 "EHLO
+        id S1353797AbiFML0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:26:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356618AbiFMLur (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:47 -0400
+        with ESMTP id S1353799AbiFMLZG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:25:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E2942496B;
-        Mon, 13 Jun 2022 03:54:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA23F36B62;
+        Mon, 13 Jun 2022 03:42:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE30860F00;
-        Mon, 13 Jun 2022 10:54:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE508C34114;
-        Mon, 13 Jun 2022 10:54:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51FD86120F;
+        Mon, 13 Jun 2022 10:42:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A5B6C34114;
+        Mon, 13 Jun 2022 10:42:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117681;
-        bh=1m6/EIMpGD2Yh5Dld9xGWKJ9tHNx3A1+nVUUHQqiN/A=;
+        s=korg; t=1655116950;
+        bh=OySBGy14kQnAeQhAIXtumlEjIlkuzyoHj/XmYzIZdBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=paasS5reOilLHsxlPwrn4WQh6ZC8HGb9vJlsyCbfClQ/lb+DjsyviAsuHGy6Ek0rt
-         q0cTZesj7HGSKzmQ6MRm9tp1vcut1xU2gH6jDtjOrLZPbWfaizelEZAElXQBhaj+Ag
-         8IhFDCj9B08ULRUMm6kIojzSGXvDkZx6uHyjDe2Q=
+        b=vLOLP7jY7XjpIrz36gdmcy6yDuUDXu6+Hgn6eSMIy1SCt2CB3Daa3jR62cfyU1Aop
+         i0ecX9RxK9CT0ecf4/n3UFY7ovj0POv4sa1FrXg0Wcmm1zsyTueA2YqbeUzI0xiHv+
+         NA7/2xDOr5gXuUNNymBHoI0xawnDv00CyZ7DQa/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 093/287] ASoC: mxs-saif: Fix refcount leak in mxs_saif_probe
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 5.4 244/411] md: fix an incorrect NULL check in md_reload_sb
 Date:   Mon, 13 Jun 2022 12:08:37 +0200
-Message-Id: <20220613094926.699394462@linuxfoundation.org>
+Message-Id: <20220613094936.093138325@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 2be84f73785fa9ed6443e3c5b158730266f1c2ee ]
+commit 64c54d9244a4efe9bc6e9c98e13c4bbb8bb39083 upstream.
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
+The bug is here:
+	if (!rdev || rdev->desc_nr != nr) {
 
-Fixes: 08641c7c74dd ("ASoC: mxs: add device tree support for mxs-saif")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220511133725.39039-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The list iterator value 'rdev' will *always* be set and non-NULL
+by rdev_for_each_rcu(), so it is incorrect to assume that the
+iterator value will be NULL if the list is empty or no element
+found (In fact, it will be a bogus pointer to an invalid struct
+object containing the HEAD). Otherwise it will bypass the check
+and lead to invalid memory access passing the check.
+
+To fix the bug, use a new variable 'iter' as the list iterator,
+while using the original variable 'pdev' as a dedicated pointer to
+point to the found element.
+
+Cc: stable@vger.kernel.org
+Fixes: 70bcecdb1534 ("md-cluster: Improve md_reload_sb to be less error prone")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/mxs/mxs-saif.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/md.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/mxs/mxs-saif.c b/sound/soc/mxs/mxs-saif.c
-index 93c019670199..6d0ab4e75518 100644
---- a/sound/soc/mxs/mxs-saif.c
-+++ b/sound/soc/mxs/mxs-saif.c
-@@ -780,6 +780,7 @@ static int mxs_saif_probe(struct platform_device *pdev)
- 		saif->master_id = saif->id;
- 	} else {
- 		ret = of_alias_get_id(master, "saif");
-+		of_node_put(master);
- 		if (ret < 0)
- 			return ret;
- 		else
--- 
-2.35.1
-
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -9531,16 +9531,18 @@ static int read_rdev(struct mddev *mddev
+ 
+ void md_reload_sb(struct mddev *mddev, int nr)
+ {
+-	struct md_rdev *rdev;
++	struct md_rdev *rdev = NULL, *iter;
+ 	int err;
+ 
+ 	/* Find the rdev */
+-	rdev_for_each_rcu(rdev, mddev) {
+-		if (rdev->desc_nr == nr)
++	rdev_for_each_rcu(iter, mddev) {
++		if (iter->desc_nr == nr) {
++			rdev = iter;
+ 			break;
++		}
+ 	}
+ 
+-	if (!rdev || rdev->desc_nr != nr) {
++	if (!rdev) {
+ 		pr_warn("%s: %d Could not find rdev with nr %d\n", __func__, __LINE__, nr);
+ 		return;
+ 	}
 
 
