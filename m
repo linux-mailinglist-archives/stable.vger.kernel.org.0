@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CAE554908B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C11F3549348
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351281AbiFMM5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:57:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50370 "EHLO
+        id S1358582AbiFMMHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:07:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355262AbiFMM4B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:56:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 497D312754;
-        Mon, 13 Jun 2022 04:16:50 -0700 (PDT)
+        with ESMTP id S1358977AbiFMMFD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ED2250E31;
+        Mon, 13 Jun 2022 03:58:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBCC8608C3;
-        Mon, 13 Jun 2022 11:16:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB5F8C3411C;
-        Mon, 13 Jun 2022 11:16:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 703E161257;
+        Mon, 13 Jun 2022 10:58:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F1D2C34114;
+        Mon, 13 Jun 2022 10:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119009;
-        bh=zUhWQWXJA/gFCH2+w8XY9HWyVwl5ZvqLtCizUywFNqs=;
+        s=korg; t=1655117905;
+        bh=88S4UqxzOaOPnauPhayDirdJ9qnG1tlVJt8mICmGb1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ca2iDluedkR/bt5s1uf61VrdyHFFcnmfykwqkDpxBWucBNA5458L5npwxvFaAFR+9
-         DYww5cropdBUi0iHspJSpqwVOttrvAS6vO6LMdLts2+MPXgANjfHS0TbAN/iJqeviI
-         GUEvBJVJ+nsb33AcSEIjJuHr/1DQlPun72XDoN/U=
+        b=aJ1ddicuGtZLminLaNJzn/t4rRsAQNuhWrcp/GsWI63kyiUR6pT4Ng9a4/HZ08apP
+         B/DhslwHGyyuj3vxOOCvXhVWNt2QsE12UcGCxtA3K9wJGDp/3hcC4Wn3lPPOvAFObQ
+         U2XD30rtlppFkCEzj8NJXwoqdS6uFJpSuq6qKsgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mykola Lysenko <mykolal@fb.com>,
-        Song Liu <song@kernel.org>, David Vernet <void@manifault.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 081/247] selftests/bpf: fix stacktrace_build_id with missing kprobe/urandom_read
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 159/287] scsi: ufs: qcom: Add a readl() to make sure ref_clk gets enabled
 Date:   Mon, 13 Jun 2022 12:09:43 +0200
-Message-Id: <20220613094925.412303533@linuxfoundation.org>
+Message-Id: <20220613094928.700931655@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <song@kernel.org>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit 59ed76fe2f981bccde37bdddb465f260a96a2404 ]
+commit 8eecddfca30e1651dc1c74531ed5eef21dcce7e3 upstream.
 
-Kernel function urandom_read is replaced with urandom_read_iter.
-Therefore, kprobe on urandom_read is not working any more:
+In ufs_qcom_dev_ref_clk_ctrl(), it was noted that the ref_clk needs to be
+stable for at least 1us. Even though there is wmb() to make sure the write
+gets "completed", there is no guarantee that the write actually reached the
+UFS device. There is a good chance that the write could be stored in a
+Write Buffer (WB). In that case, even though the CPU waits for 1us, the
+ref_clk might not be stable for that period.
 
-[root@eth50-1 bpf]# ./test_progs -n 161
-test_stacktrace_build_id:PASS:skel_open_and_load 0 nsec
-libbpf: kprobe perf_event_open() failed: No such file or directory
-libbpf: prog 'oncpu': failed to create kprobe 'urandom_read+0x0' \
-        perf event: No such file or directory
-libbpf: prog 'oncpu': failed to auto-attach: -2
-test_stacktrace_build_id:FAIL:attach_tp err -2
-161     stacktrace_build_id:FAIL
+So lets do a readl() to make sure that the previous write has reached the
+UFS device before udelay().
 
-Fix this by replacing urandom_read with urandom_read_iter in the test.
+Also, the wmb() after writel_relaxed() is not really needed. Both writel()
+and readl() are ordered on all architectures and the CPU won't speculate
+instructions after readl() due to the in-built control dependency with read
+value on weakly ordered architectures. So it can be safely removed.
 
-Fixes: 1b388e7765f2 ("random: convert to using fops->read_iter()")
-Reported-by: Mykola Lysenko <mykolal@fb.com>
-Signed-off-by: Song Liu <song@kernel.org>
-Acked-by: David Vernet <void@manifault.com>
-Link: https://lore.kernel.org/r/20220526191608.2364049-1-song@kernel.org
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220504084212.11605-4-manivannan.sadhasivam@linaro.org
+Fixes: f06fcc7155dc ("scsi: ufs-qcom: add QUniPro hardware support and power optimizations")
+Cc: stable@vger.kernel.org
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufs-qcom.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c b/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c
-index 08aee18d9ded..58fbe22a3bf8 100644
---- a/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c
-+++ b/tools/testing/selftests/bpf/progs/test_stacktrace_build_id.c
-@@ -39,7 +39,7 @@ struct {
- 	__type(value, stack_trace_t);
- } stack_amap SEC(".maps");
+--- a/drivers/scsi/ufs/ufs-qcom.c
++++ b/drivers/scsi/ufs/ufs-qcom.c
+@@ -910,8 +910,11 @@ static void ufs_qcom_dev_ref_clk_ctrl(st
  
--SEC("kprobe/urandom_read")
-+SEC("kprobe/urandom_read_iter")
- int oncpu(struct pt_regs *args)
- {
- 	__u32 max_len = sizeof(struct bpf_stack_build_id)
--- 
-2.35.1
-
+ 		writel_relaxed(temp, host->dev_ref_clk_ctrl_mmio);
+ 
+-		/* ensure that ref_clk is enabled/disabled before we return */
+-		wmb();
++		/*
++		 * Make sure the write to ref_clk reaches the destination and
++		 * not stored in a Write Buffer (WB).
++		 */
++		readl(host->dev_ref_clk_ctrl_mmio);
+ 
+ 		/*
+ 		 * If we call hibern8 exit after this, we need to make sure that
 
 
