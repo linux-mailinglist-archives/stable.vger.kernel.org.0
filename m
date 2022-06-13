@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4B2054945D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C451354923E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355113AbiFMMbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:31:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41216 "EHLO
+        id S1380351AbiFMN6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:58:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358461AbiFMM3m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:29:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 097215A2E5;
-        Mon, 13 Jun 2022 04:06:42 -0700 (PDT)
+        with ESMTP id S1379993AbiFMNwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:52:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E1055B7;
+        Mon, 13 Jun 2022 04:33:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B2513614A5;
-        Mon, 13 Jun 2022 11:06:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE4B2C385A9;
-        Mon, 13 Jun 2022 11:06:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BCB1CCE1166;
+        Mon, 13 Jun 2022 11:33:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A35D4C34114;
+        Mon, 13 Jun 2022 11:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118402;
-        bh=ujqa69PlYLhlbA5HRuL7vg58c8MZKjA7sq0ItS05Eg8=;
+        s=korg; t=1655120009;
+        bh=SvdoKDO845DJKIMOR1OY8H7Us3qIkHAwANgwu9W1094=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fg2O84OFt7hAinIz0/1oyAVvHnDw7i3FRoh6dsDgT9QZWjRW6UPE6fkBsyzfzWrlh
-         ST6W0L+e8W32B47yb9Qci+TfGflyjWHe/uQHI4FrMNAbi681Ce1aiHCvqiKC/6PMab
-         djGVT7Y0gkCw/6f53j3reBpUXdQrjGCuX84IAW2g=
+        b=J0Zed07+u81k1isGWmGszON1FnoYyS4wvimZj32UHC6WbbUwTmk23Zr4lV/AqaP8c
+         nxCDWD8+dioE2sNvQaQ7GpE1WGjE02aWxaYmRiK6Vu3UI7d2YkYyAxCTHHWNooJTXX
+         Zq6QcOPQDM0fOMKyt4W2sTxss4BOuzk4qk205bjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianhao Zhao <tizhao@redhat.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Lina Wang <lina.wang@mediatek.com>,
+        Song Liu <songliubraving@fb.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 063/172] sfc: fix wrong tx channel offset with efx_separate_tx_channels
+Subject: [PATCH 5.18 198/339] selftests net: fix bpf build error
 Date:   Mon, 13 Jun 2022 12:10:23 +0200
-Message-Id: <20220613094905.560176189@linuxfoundation.org>
+Message-Id: <20220613094932.671794098@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Lina Wang <lina.wang@mediatek.com>
 
-[ Upstream commit c308dfd1b43ef0d4c3e57b741bb3462eb7a7f4a2 ]
+[ Upstream commit cf67838c4422eab826679b076dad99f96152b4de ]
 
-tx_channel_offset is calculated in efx_allocate_msix_channels, but it is
-also calculated again in efx_set_channels because it was originally done
-there, and when efx_allocate_msix_channels was introduced it was
-forgotten to be removed from efx_set_channels.
+bpf_helpers.h has been moved to tools/lib/bpf since 5.10, so add more
+including path.
 
-Moreover, the old calculation is wrong when using
-efx_separate_tx_channels because now we can have XDP channels after the
-TX channels, so n_channels - n_tx_channels doesn't point to the first TX
-channel.
-
-Remove the old calculation from efx_set_channels, and add the
-initialization of this variable if MSI or legacy interrupts are used,
-next to the initialization of the rest of the related variables, where
-it was missing.
-
-Fixes: 3990a8fffbda ("sfc: allocate channels for XDP tx queues")
-Reported-by: Tianhao Zhao <tizhao@redhat.com>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: edae34a3ed92 ("selftests net: add UDP GRO fraglist + bpf self-tests")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Signed-off-by: Lina Wang <lina.wang@mediatek.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://lore.kernel.org/r/20220606064517.8175-1-lina.wang@mediatek.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/efx_channels.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ tools/testing/selftests/net/bpf/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
-index 2ab8571ef1cc..d0f1b2dc7dff 100644
---- a/drivers/net/ethernet/sfc/efx_channels.c
-+++ b/drivers/net/ethernet/sfc/efx_channels.c
-@@ -287,6 +287,7 @@ int efx_probe_interrupts(struct efx_nic *efx)
- 		efx->n_channels = 1;
- 		efx->n_rx_channels = 1;
- 		efx->n_tx_channels = 1;
-+		efx->tx_channel_offset = 0;
- 		efx->n_xdp_channels = 0;
- 		efx->xdp_channel_offset = efx->n_channels;
- 		rc = pci_enable_msi(efx->pci_dev);
-@@ -307,6 +308,7 @@ int efx_probe_interrupts(struct efx_nic *efx)
- 		efx->n_channels = 1 + (efx_separate_tx_channels ? 1 : 0);
- 		efx->n_rx_channels = 1;
- 		efx->n_tx_channels = 1;
-+		efx->tx_channel_offset = 1;
- 		efx->n_xdp_channels = 0;
- 		efx->xdp_channel_offset = efx->n_channels;
- 		efx->legacy_irq = efx->pci_dev->irq;
-@@ -858,10 +860,6 @@ int efx_set_channels(struct efx_nic *efx)
- 	int xdp_queue_number;
- 	int rc;
+diff --git a/tools/testing/selftests/net/bpf/Makefile b/tools/testing/selftests/net/bpf/Makefile
+index f91bf14bbee7..8a69c91fcca0 100644
+--- a/tools/testing/selftests/net/bpf/Makefile
++++ b/tools/testing/selftests/net/bpf/Makefile
+@@ -2,6 +2,7 @@
  
--	efx->tx_channel_offset =
--		efx_separate_tx_channels ?
--		efx->n_channels - efx->n_tx_channels : 0;
--
- 	if (efx->xdp_tx_queue_count) {
- 		EFX_WARN_ON_PARANOID(efx->xdp_tx_queues);
+ CLANG ?= clang
+ CCINCLUDE += -I../../bpf
++CCINCLUDE += -I../../../lib
+ CCINCLUDE += -I../../../../../usr/include/
  
+ TEST_CUSTOM_PROGS = $(OUTPUT)/bpf/nat6to4.o
+@@ -10,5 +11,4 @@ all: $(TEST_CUSTOM_PROGS)
+ $(OUTPUT)/%.o: %.c
+ 	$(CLANG) -O2 -target bpf -c $< $(CCINCLUDE) -o $@
+ 
+-clean:
+-	rm -f $(TEST_CUSTOM_PROGS)
++EXTRA_CLEAN := $(TEST_CUSTOM_PROGS)
 -- 
 2.35.1
 
