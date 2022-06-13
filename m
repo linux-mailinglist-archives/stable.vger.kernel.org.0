@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 498AF54877C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B236E54866B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348440AbiFMK4S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:56:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43338 "EHLO
+        id S1358444AbiFMMGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:06:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349190AbiFMKyP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA7402F382;
-        Mon, 13 Jun 2022 03:27:57 -0700 (PDT)
+        with ESMTP id S1358852AbiFMMEw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:04:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 808D950462;
+        Mon, 13 Jun 2022 03:58:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63EC0B80E94;
-        Mon, 13 Jun 2022 10:27:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE998C34114;
-        Mon, 13 Jun 2022 10:27:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32C2361372;
+        Mon, 13 Jun 2022 10:58:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4332AC34114;
+        Mon, 13 Jun 2022 10:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116075;
-        bh=E5T8XFXdHMh26thn7ulMZBY1jVHtv/4aHE/TTVK12Cw=;
+        s=korg; t=1655117884;
+        bh=dt8xZhMxuuCWYJ5EOaNtQVPRqm0fP9U0QnW2yVBRQiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SXvFUtM3sQV1PqUCDkWRj3MsbAGprjUA620WK7XgU3XlBxIWk+O/OZybbbHNYl7TG
-         ocPmRGfcPIJgxmxzCOu1I+947fYSC37LYlWk1FupagS/B8fmdAHYDOboOmWZ3gaKdZ
-         p8QZer5u3rfvj4RkimKRMlhXg+oCmVaO6mmyKN8g=
+        b=kq7p4xPH3jFdsEVsv9QXSjQkZlsNbj/JWFijX4h+2OtRpmFPRUE+vRtfcJNya4PH1
+         kAqx5wyZ9H3bIuwJZ7UYgtYUNWi2MycP+iRIDgdFTxmIo9jDPeJi86WyDklVDZXmt6
+         HUPUTXCdcJKmv/lscLb5yQXaFESmKhVakOyqXzZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Song Liu <song@kernel.org>
-Subject: [PATCH 4.14 118/218] md: fix an incorrect NULL check in md_reload_sb
-Date:   Mon, 13 Jun 2022 12:09:36 +0200
-Message-Id: <20220613094924.148433301@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 4.19 153/287] PCI: qcom: Fix runtime PM imbalance on probe errors
+Date:   Mon, 13 Jun 2022 12:09:37 +0200
+Message-Id: <20220613094928.517197940@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 64c54d9244a4efe9bc6e9c98e13c4bbb8bb39083 upstream.
+commit 87d83b96c8d6c6c2d2096bd0bdba73bcf42b8ef0 upstream.
 
-The bug is here:
-	if (!rdev || rdev->desc_nr != nr) {
+Drop the leftover pm_runtime_disable() calls from the late probe error
+paths that would, for example, prevent runtime PM from being reenabled
+after a probe deferral.
 
-The list iterator value 'rdev' will *always* be set and non-NULL
-by rdev_for_each_rcu(), so it is incorrect to assume that the
-iterator value will be NULL if the list is empty or no element
-found (In fact, it will be a bogus pointer to an invalid struct
-object containing the HEAD). Otherwise it will bypass the check
-and lead to invalid memory access passing the check.
-
-To fix the bug, use a new variable 'iter' as the list iterator,
-while using the original variable 'pdev' as a dedicated pointer to
-point to the found element.
-
-Cc: stable@vger.kernel.org
-Fixes: 70bcecdb1534 ("md-cluster: Improve md_reload_sb to be less error prone")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Link: https://lore.kernel.org/r/20220401133854.10421-2-johan+linaro@kernel.org
+Fixes: 6e5da6f7d824 ("PCI: qcom: Fix error handling in runtime PM support")
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
+Cc: stable@vger.kernel.org      # 4.20
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/pci/controller/dwc/pcie-qcom.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -9266,16 +9266,18 @@ static int read_rdev(struct mddev *mddev
- 
- void md_reload_sb(struct mddev *mddev, int nr)
- {
--	struct md_rdev *rdev;
-+	struct md_rdev *rdev = NULL, *iter;
- 	int err;
- 
- 	/* Find the rdev */
--	rdev_for_each_rcu(rdev, mddev) {
--		if (rdev->desc_nr == nr)
-+	rdev_for_each_rcu(iter, mddev) {
-+		if (iter->desc_nr == nr) {
-+			rdev = iter;
- 			break;
-+		}
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -1331,17 +1331,14 @@ static int qcom_pcie_probe(struct platfo
  	}
  
--	if (!rdev || rdev->desc_nr != nr) {
-+	if (!rdev) {
- 		pr_warn("%s: %d Could not find rdev with nr %d\n", __func__, __LINE__, nr);
- 		return;
+ 	ret = phy_init(pcie->phy);
+-	if (ret) {
+-		pm_runtime_disable(&pdev->dev);
++	if (ret)
+ 		goto err_pm_runtime_put;
+-	}
+ 
+ 	platform_set_drvdata(pdev, pcie);
+ 
+ 	ret = dw_pcie_host_init(pp);
+ 	if (ret) {
+ 		dev_err(dev, "cannot initialize host\n");
+-		pm_runtime_disable(&pdev->dev);
+ 		goto err_pm_runtime_put;
  	}
+ 
 
 
