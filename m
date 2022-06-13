@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA74E549866
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C5FD548AD4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355124AbiFMLhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:37:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56862 "EHLO
+        id S1379254AbiFMNrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:47:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354373AbiFMLey (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:34:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F4EF43AF4;
-        Mon, 13 Jun 2022 03:47:59 -0700 (PDT)
+        with ESMTP id S1379949AbiFMNpn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:45:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB6111263E;
+        Mon, 13 Jun 2022 04:32:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92D75B80D41;
-        Mon, 13 Jun 2022 10:47:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE52CC34114;
-        Mon, 13 Jun 2022 10:47:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E0AF5612AC;
+        Mon, 13 Jun 2022 11:32:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9723C34114;
+        Mon, 13 Jun 2022 11:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117276;
-        bh=Sclf7lVmV+mqd2eS8IKNwFXIS2EI9KeHGxjc4ArTIkY=;
+        s=korg; t=1655119970;
+        bh=GEl7BdXUTL8gy1bVosmWG6EdlMfz8WLs1WYhopPFKH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sl2fzHM0C7ny+rXB6CZW8FknQqayQs93SMlaHDd+FZqPOBqn3ys+BFwplcMoFytIS
-         tgjnACLjSpLzX6zLF+aIuUgR+WAI2W2uKkNTRSdwu9bjREcyES6KrpKA75qDKlpreu
-         5pRAf6B+foQWVPXx3uvszGlCSinqH1p0br4ecEtE=
+        b=xaBnXw+wBXS9wH/DEo76C1GDSVSvok5kJ9/fs3c9NBqDVT8A8lqIPcOfli/0ySFjT
+         bJO2R2gqaCPKWCViC/pcovyKhRoCj+vNnX7yr65srl2ngnDB1wRKhRgLHzkzNkDAEw
+         yb37TA08fupbM4XIA/n+LeWlPlmBfcFr7Ggojk6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kinglong Mee <kinglongmee@gmail.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 347/411] xprtrdma: treat all calls not a bcall when bc_serv is NULL
-Date:   Mon, 13 Jun 2022 12:10:20 +0200
-Message-Id: <20220613094939.113317188@linuxfoundation.org>
+Subject: [PATCH 5.18 196/339] stmmac: intel: Fix an error handling path in intel_eth_pci_probe()
+Date:   Mon, 13 Jun 2022 12:10:21 +0200
+Message-Id: <20220613094932.612918234@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kinglong Mee <kinglongmee@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 11270e7ca268e8d61b5d9e5c3a54bd1550642c9c ]
+[ Upstream commit 5e74a4b3ec1816e3bbfd715d46ae29d2508079cb ]
 
-When a rdma server returns a fault format reply, nfs v3 client may
-treats it as a bcall when bc service is not exist.
+When the managed API is used, there is no need to explicitly call
+pci_free_irq_vectors().
 
-The debug message at rpcrdma_bc_receive_call are,
+This looks to be a left-over from the commit in the Fixes tag. Only the
+.remove() function had been updated.
 
-[56579.837169] RPC:       rpcrdma_bc_receive_call: callback XID
-00000001, length=20
-[56579.837174] RPC:       rpcrdma_bc_receive_call: 00 00 00 01 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 04
+So remove this unused function call and update goto label accordingly.
 
-After that, rpcrdma_bc_receive_call will meets NULL pointer as,
-
-[  226.057890] BUG: unable to handle kernel NULL pointer dereference at
-00000000000000c8
-...
-[  226.058704] RIP: 0010:_raw_spin_lock+0xc/0x20
-...
-[  226.059732] Call Trace:
-[  226.059878]  rpcrdma_bc_receive_call+0x138/0x327 [rpcrdma]
-[  226.060011]  __ib_process_cq+0x89/0x170 [ib_core]
-[  226.060092]  ib_cq_poll_work+0x26/0x80 [ib_core]
-[  226.060257]  process_one_work+0x1a7/0x360
-[  226.060367]  ? create_worker+0x1a0/0x1a0
-[  226.060440]  worker_thread+0x30/0x390
-[  226.060500]  ? create_worker+0x1a0/0x1a0
-[  226.060574]  kthread+0x116/0x130
-[  226.060661]  ? kthread_flush_work_fn+0x10/0x10
-[  226.060724]  ret_from_fork+0x35/0x40
-...
-
-Signed-off-by: Kinglong Mee <kinglongmee@gmail.com>
-Reviewed-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 8accc467758e ("stmmac: intel: use managed PCI function on probe and resume")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+Link: https://lore.kernel.org/r/1ac9b6787b0db83b0095711882c55c77c8ea8da0.1654462241.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/rpc_rdma.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/sunrpc/xprtrdma/rpc_rdma.c b/net/sunrpc/xprtrdma/rpc_rdma.c
-index c091417bd799..60aaed9457e4 100644
---- a/net/sunrpc/xprtrdma/rpc_rdma.c
-+++ b/net/sunrpc/xprtrdma/rpc_rdma.c
-@@ -1042,6 +1042,7 @@ static bool
- rpcrdma_is_bcall(struct rpcrdma_xprt *r_xprt, struct rpcrdma_rep *rep)
- #if defined(CONFIG_SUNRPC_BACKCHANNEL)
- {
-+	struct rpc_xprt *xprt = &r_xprt->rx_xprt;
- 	struct xdr_stream *xdr = &rep->rr_stream;
- 	__be32 *p;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
+index 0b0be0898ac5..f6d8109e7edc 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
+@@ -1072,13 +1072,11 @@ static int intel_eth_pci_probe(struct pci_dev *pdev,
  
-@@ -1065,6 +1066,10 @@ rpcrdma_is_bcall(struct rpcrdma_xprt *r_xprt, struct rpcrdma_rep *rep)
- 	if (*p != cpu_to_be32(RPC_CALL))
- 		return false;
+ 	ret = stmmac_dvr_probe(&pdev->dev, plat, &res);
+ 	if (ret) {
+-		goto err_dvr_probe;
++		goto err_alloc_irq;
+ 	}
  
-+	/* No bc service. */
-+	if (xprt->bc_serv == NULL)
-+		return false;
-+
- 	/* Now that we are sure this is a backchannel call,
- 	 * advance to the RPC header.
- 	 */
+ 	return 0;
+ 
+-err_dvr_probe:
+-	pci_free_irq_vectors(pdev);
+ err_alloc_irq:
+ 	clk_disable_unprepare(plat->stmmac_clk);
+ 	clk_unregister_fixed_rate(plat->stmmac_clk);
 -- 
 2.35.1
 
