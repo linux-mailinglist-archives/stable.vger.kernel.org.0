@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 833FA549811
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 247905492E2
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245455AbiFMKau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:30:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33190 "EHLO
+        id S1357029AbiFMM6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:58:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244430AbiFMK0d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:26:33 -0400
+        with ESMTP id S1354587AbiFMMzm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB50245B2;
-        Mon, 13 Jun 2022 03:19:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC1FC1117B;
+        Mon, 13 Jun 2022 04:16:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74F1EB80E5C;
-        Mon, 13 Jun 2022 10:19:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D2EC34114;
-        Mon, 13 Jun 2022 10:19:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A51B0B80EAA;
+        Mon, 13 Jun 2022 11:16:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E99CC3411E;
+        Mon, 13 Jun 2022 11:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115583;
-        bh=0evX1aX+8vGsL+wWX4IQfjHNmGv7ZxnUybITsf+ORBQ=;
+        s=korg; t=1655118992;
+        bh=cbX6OY6RNJbguBJonjIdBD44LgzCrkQUfXN+abLuJMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FUtSNPHZtuZlTbWgJBjSCn7TfKAWQrqosC4D0JZqTxoYsdDyZn7NBLpOm5BMWbYub
-         LByomx/5BuXcm3Zdb+N+5tc1jxkQboE4AFn4wwJRorjFiSB2cywtXv4maz3snmPHCX
-         lC/1YehJYJwT4un6ylackIhKO5Hr0TIR1qM5vHRw=
+        b=OLHK5hxpAFhjxnPXgYS+EffwwMBrOU2Q+AzPou0psvyWbQ/z2R1pc2kbbfZTsShkT
+         0y+XTwpdA3m+Ivvbm5fAcOzBHxgO9usM2g6ojj0WLwzNbNZmxr5s6t2ZMJ1DpOvZYM
+         D+xAHsjDI+FUBzmco4Hk+MZqJxkfnr4IM95Jl9GY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickens <hughd@google.com>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 129/167] m68knommu: set ZERO_PAGE() to the allocated zeroed page
+Subject: [PATCH 5.15 101/247] octeontx2-af: fix error code in is_valid_offset()
 Date:   Mon, 13 Jun 2022 12:10:03 +0200
-Message-Id: <20220613094911.120736832@linuxfoundation.org>
+Message-Id: <20220613094926.019685814@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Ungerer <gerg@linux-m68k.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit dc068f46217970d9516f16cd37972a01d50dc055 ]
+[ Upstream commit f3d671c711097a133bc36bd2bde52f1fcca783a6 ]
 
-The non-MMU m68k pagetable ZERO_PAGE() macro is being set to the
-somewhat non-sensical value of "virt_to_page(0)". The zeroth page
-is not in any way guaranteed to be a page full of "0". So the result
-is that ZERO_PAGE() will almost certainly contain random values.
+The is_valid_offset() function returns success/true if the call to
+validate_and_get_cpt_blkaddr() fails.
 
-We already allocate a real "empty_zero_page" in the mm setup code shared
-between MMU m68k and non-MMU m68k. It is just not hooked up to the
-ZERO_PAGE() macro for the non-MMU m68k case.
-
-Fix ZERO_PAGE() to use the allocated "empty_zero_page" pointer.
-
-I am not aware of any specific issues caused by the old code.
-
-Link: https://lore.kernel.org/linux-m68k/2a462b23-5b8e-bbf4-ec7d-778434a3b9d7@google.com/T/#t
-Reported-by: Hugh Dickens <hughd@google.com>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Fixes: ecad2ce8c48f ("octeontx2-af: cn10k: Add mailbox to configure reassembly timeout")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YpXDrTPb8qV01JSP@kili
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/pgtable_no.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/m68k/include/asm/pgtable_no.h b/arch/m68k/include/asm/pgtable_no.h
-index ac7d87a02335..269443e1084b 100644
---- a/arch/m68k/include/asm/pgtable_no.h
-+++ b/arch/m68k/include/asm/pgtable_no.h
-@@ -41,7 +41,8 @@ extern void paging_init(void);
-  * ZERO_PAGE is a global shared page that is always zero: used
-  * for zero-mapped memory areas etc..
-  */
--#define ZERO_PAGE(vaddr)	(virt_to_page(0))
-+extern void *empty_zero_page;
-+#define ZERO_PAGE(vaddr)	(virt_to_page(empty_zero_page))
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c
+index 1f90a7403392..4895faa667b5 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c
+@@ -206,7 +206,7 @@ static bool is_valid_offset(struct rvu *rvu, struct cpt_rd_wr_reg_msg *req)
  
- /*
-  * No page table caches to initialise.
+ 	blkaddr = validate_and_get_cpt_blkaddr(req->blkaddr);
+ 	if (blkaddr < 0)
+-		return blkaddr;
++		return false;
+ 
+ 	/* Registers that can be accessed from PF/VF */
+ 	if ((offset & 0xFF000) ==  CPT_AF_LFX_CTL(0) ||
 -- 
 2.35.1
 
