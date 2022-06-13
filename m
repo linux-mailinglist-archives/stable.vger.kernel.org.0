@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56A50548BCF
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B47D8548E09
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351176AbiFMMe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:34:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45206 "EHLO
+        id S1357920AbiFMNAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:00:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356465AbiFMMeI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:34:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB75DE83;
-        Mon, 13 Jun 2022 04:07:37 -0700 (PDT)
+        with ESMTP id S1357313AbiFMM6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:58:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D43562BC3;
+        Mon, 13 Jun 2022 04:17:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A4CEB80EA7;
-        Mon, 13 Jun 2022 11:07:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E4ABC34114;
-        Mon, 13 Jun 2022 11:07:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B342360F0D;
+        Mon, 13 Jun 2022 11:17:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1B8AC34114;
+        Mon, 13 Jun 2022 11:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118438;
-        bh=ZAUD58ADeIymrSm6V0rs+sOs+cSgCbn9SkbFXcjfWbU=;
+        s=korg; t=1655119062;
+        bh=orI7NLzyYAo4r79BAJZsq8oCnJd/A00pdqYpG0bPBhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uTrFjeUNY7qcW2HIXdViwNYwmJKSBwfaPKoZRiHTygBNg9cFw8mEZVr9PMb3BcrlF
-         Gqx493BOQy0ZkZSyEtHSdZWEbAc4QzEp0W6P3+bKvjt4EW9m1wvODk/sTgkWXydEMv
-         4VtrSB7x/v8r2p7KhBBlTl1akU3tOYfA+KjtcpdA=
+        b=tLkrBctfky2R9cv4dnvIPfr8qTqSgi/Dx899ummZqwnn3yzolAw3LCAWLrVJqEkZZ
+         JmpWd8XJnioqA9ryqu6M9fDSyg4F/f1cIeBr3pPgLIixHts5uyNR7bBvtjNvFtB83F
+         NTi6HCe3NDWYkQhScd77R8ezfwquxoMFVezdHK0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Laurent Fasnacht <laurent.fasnacht@proton.ch>,
-        Neal Cardwell <ncardwell@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Liao Chang <liaochang1@huawei.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/172] tcp: tcp_rtx_synack() can be called from process context
+Subject: [PATCH 5.15 126/247] RISC-V: use memcpy for kexec_file mode
 Date:   Mon, 13 Jun 2022 12:10:28 +0200
-Message-Id: <20220613094906.757037488@linuxfoundation.org>
+Message-Id: <20220613094926.782568314@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,90 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Liao Chang <liaochang1@huawei.com>
 
-[ Upstream commit 0a375c822497ed6ad6b5da0792a12a6f1af10c0b ]
+[ Upstream commit b7fb4d78a6ade6026d9e5cf438c2a46ab962e032 ]
 
-Laurent reported the enclosed report [1]
+The pointer to buffer loading kernel binaries is in kernel space for
+kexec_fil mode, When copy_from_user copies data from pointer to a block
+of memory, it checkes that the pointer is in the user space range, on
+RISCV-V that is:
 
-This bug triggers with following coditions:
+static inline bool __access_ok(unsigned long addr, unsigned long size)
+{
+	return size <= TASK_SIZE && addr <= TASK_SIZE - size;
+}
 
-0) Kernel built with CONFIG_DEBUG_PREEMPT=y
+and TASK_SIZE is 0x4000000000 for 64-bits, which now causes
+copy_from_user to reject the access of the field 'buf' of struct
+kexec_segment that is in range [CONFIG_PAGE_OFFSET - VMALLOC_SIZE,
+CONFIG_PAGE_OFFSET), is invalid user space pointer.
 
-1) A new passive FastOpen TCP socket is created.
-   This FO socket waits for an ACK coming from client to be a complete
-   ESTABLISHED one.
-2) A socket operation on this socket goes through lock_sock()
-   release_sock() dance.
-3) While the socket is owned by the user in step 2),
-   a retransmit of the SYN is received and stored in socket backlog.
-4) At release_sock() time, the socket backlog is processed while
-   in process context.
-5) A SYNACK packet is cooked in response of the SYN retransmit.
-6) -> tcp_rtx_synack() is called in process context.
+This patch fixes this issue by skipping access_ok(), use mempcy() instead.
 
-Before blamed commit, tcp_rtx_synack() was always called from BH handler,
-from a timer handler.
-
-Fix this by using TCP_INC_STATS() & NET_INC_STATS()
-which do not assume caller is in non preemptible context.
-
-[1]
-BUG: using __this_cpu_add() in preemptible [00000000] code: epollpep/2180
-caller is tcp_rtx_synack.part.0+0x36/0xc0
-CPU: 10 PID: 2180 Comm: epollpep Tainted: G           OE     5.16.0-0.bpo.4-amd64 #1  Debian 5.16.12-1~bpo11+1
-Hardware name: Supermicro SYS-5039MC-H8TRF/X11SCD-F, BIOS 1.7 11/23/2021
-Call Trace:
- <TASK>
- dump_stack_lvl+0x48/0x5e
- check_preemption_disabled+0xde/0xe0
- tcp_rtx_synack.part.0+0x36/0xc0
- tcp_rtx_synack+0x8d/0xa0
- ? kmem_cache_alloc+0x2e0/0x3e0
- ? apparmor_file_alloc_security+0x3b/0x1f0
- inet_rtx_syn_ack+0x16/0x30
- tcp_check_req+0x367/0x610
- tcp_rcv_state_process+0x91/0xf60
- ? get_nohz_timer_target+0x18/0x1a0
- ? lock_timer_base+0x61/0x80
- ? preempt_count_add+0x68/0xa0
- tcp_v4_do_rcv+0xbd/0x270
- __release_sock+0x6d/0xb0
- release_sock+0x2b/0x90
- sock_setsockopt+0x138/0x1140
- ? __sys_getsockname+0x7e/0xc0
- ? aa_sk_perm+0x3e/0x1a0
- __sys_setsockopt+0x198/0x1e0
- __x64_sys_setsockopt+0x21/0x30
- do_syscall_64+0x38/0xc0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: 168a8f58059a ("tcp: TCP Fast Open Server - main code path")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Laurent Fasnacht <laurent.fasnacht@proton.ch>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Link: https://lore.kernel.org/r/20220530213713.601888-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Liao Chang <liaochang1@huawei.com>
+Link: https://lore.kernel.org/r/20220408100914.150110-3-lizhengyu3@huawei.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/riscv/kernel/machine_kexec.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index e37ad0b3645c..8634a5c853f5 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -4115,8 +4115,8 @@ int tcp_rtx_synack(const struct sock *sk, struct request_sock *req)
- 	res = af_ops->send_synack(sk, NULL, &fl, req, NULL, TCP_SYNACK_NORMAL,
- 				  NULL);
- 	if (!res) {
--		__TCP_INC_STATS(sock_net(sk), TCP_MIB_RETRANSSEGS);
--		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPSYNRETRANS);
-+		TCP_INC_STATS(sock_net(sk), TCP_MIB_RETRANSSEGS);
-+		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPSYNRETRANS);
- 		if (unlikely(tcp_passive_fastopen(sk)))
- 			tcp_sk(sk)->total_retrans++;
- 		trace_tcp_retransmit_synack(sk, req);
+diff --git a/arch/riscv/kernel/machine_kexec.c b/arch/riscv/kernel/machine_kexec.c
+index cbef0fc73afa..df8e24559035 100644
+--- a/arch/riscv/kernel/machine_kexec.c
++++ b/arch/riscv/kernel/machine_kexec.c
+@@ -65,7 +65,9 @@ machine_kexec_prepare(struct kimage *image)
+ 		if (image->segment[i].memsz <= sizeof(fdt))
+ 			continue;
+ 
+-		if (copy_from_user(&fdt, image->segment[i].buf, sizeof(fdt)))
++		if (image->file_mode)
++			memcpy(&fdt, image->segment[i].buf, sizeof(fdt));
++		else if (copy_from_user(&fdt, image->segment[i].buf, sizeof(fdt)))
+ 			continue;
+ 
+ 		if (fdt_check_header(&fdt))
 -- 
 2.35.1
 
