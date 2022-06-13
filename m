@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D5F4548845
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:00:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8FBE548614
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:55:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376521AbiFMN0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:26:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43862 "EHLO
+        id S1352414AbiFMLRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:17:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376278AbiFMNYx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:24:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E3E63C736;
-        Mon, 13 Jun 2022 04:24:17 -0700 (PDT)
+        with ESMTP id S1353682AbiFMLQL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F86613D53;
+        Mon, 13 Jun 2022 03:38:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE082B80E93;
-        Mon, 13 Jun 2022 11:24:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52F2FC3411C;
-        Mon, 13 Jun 2022 11:24:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E16AE60AE6;
+        Mon, 13 Jun 2022 10:38:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0164DC34114;
+        Mon, 13 Jun 2022 10:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119454;
-        bh=cgRqJ602WtDp1oRr9ZMXmyJhbDwJiUrgtiitxn7pP48=;
+        s=korg; t=1655116738;
+        bh=L/MEZxvAKSUaoK7ru1wLW2kZXpTBU08Z9+MoWcemPh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OY3XWS2ofPtDMZ/LMH1h4SBLRtYyOJEvzWjfShmBNkY55CQSGnhE1vgIO/+wKbDBZ
-         Gq5NcjNMxhtwb1Go0HTQLIRuBsC8m59y0QhoxLvTKTK+WyDbFNuJ4JHagoGVD4X8pP
-         lHLp7oroX3gvCtRZMGiBGaUaSRd/bF+5IDiRtRro=
+        b=ZFhXdviwF1+szeu85vmQyfU8ep2jpHV6KIJvPrmqaSRK5R4qGmSIIiShaekxwdrzM
+         m4sI19EvC3+t0YK/dMjkckX63R6hKTxrk/mwEQPK3UaDoyA9z9oFddQpBm0lLZuD7m
+         APXnjPAn0XcFrnDvCkXXvLj6vq6dtqum/M0FgvW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandru Tachici <alexandru.tachici@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 003/339] iio: adc: ad7124: Remove shift from scan_type
-Date:   Mon, 13 Jun 2022 12:07:08 +0200
-Message-Id: <20220613094926.608261494@linuxfoundation.org>
+Subject: [PATCH 5.4 156/411] arm64: dts: rockchip: Move drive-impedance-ohm to emmc phy on rk3399
+Date:   Mon, 13 Jun 2022 12:07:09 +0200
+Message-Id: <20220613094933.340582744@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Tachici <alexandru.tachici@analog.com>
+From: Shawn Lin <shawn.lin@rock-chips.com>
 
-[ Upstream commit fe78ccf79b0e29fd6d8dc2e2c3b0dbeda4ce3ad8 ]
+[ Upstream commit 4246d0bab2a8685e3d4aec2cb0ef8c526689ce96 ]
 
-The 24 bits data is stored in 32 bits in BE. There
-is no need to shift it. This confuses user-space apps.
+drive-impedance-ohm is introduced for emmc phy instead of pcie phy.
 
-Fixes: b3af341bbd966 ("iio: adc: Add ad7124 support")
-Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
-Link: https://lore.kernel.org/r/20220322105029.86389-2-alexandru.tachici@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: fb8b7460c995 ("arm64: dts: rockchip: Define drive-impedance-ohm for RK3399's emmc-phy.")
+Signed-off-by: Shawn Lin <shawn.lin@rock-chips.com>
+Link: https://lore.kernel.org/r/1647336426-154797-1-git-send-email-shawn.lin@rock-chips.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad7124.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3399.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/ad7124.c b/drivers/iio/adc/ad7124.c
-index c47ead15f6e5..3752b2c88959 100644
---- a/drivers/iio/adc/ad7124.c
-+++ b/drivers/iio/adc/ad7124.c
-@@ -188,7 +188,6 @@ static const struct iio_chan_spec ad7124_channel_template = {
- 		.sign = 'u',
- 		.realbits = 24,
- 		.storagebits = 32,
--		.shift = 8,
- 		.endianness = IIO_BE,
- 	},
- };
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+index 95942d917de5..4496f7e1c68f 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+@@ -1447,6 +1447,7 @@
+ 			reg = <0xf780 0x24>;
+ 			clocks = <&sdhci>;
+ 			clock-names = "emmcclk";
++			drive-impedance-ohm = <50>;
+ 			#phy-cells = <0>;
+ 			status = "disabled";
+ 		};
+@@ -1457,7 +1458,6 @@
+ 			clock-names = "refclk";
+ 			#phy-cells = <1>;
+ 			resets = <&cru SRST_PCIEPHY>;
+-			drive-impedance-ohm = <50>;
+ 			reset-names = "phy";
+ 			status = "disabled";
+ 		};
 -- 
 2.35.1
 
