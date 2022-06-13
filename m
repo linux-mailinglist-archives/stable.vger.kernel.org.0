@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F111548ACC
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD45E548FE4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349381AbiFMLAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:00:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57678 "EHLO
+        id S1355323AbiFMMbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:31:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350904AbiFMK7B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:59:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A7EB25EB7;
-        Mon, 13 Jun 2022 03:32:41 -0700 (PDT)
+        with ESMTP id S1358748AbiFMM3q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:29:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC2C5A598;
+        Mon, 13 Jun 2022 04:06:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6505FB80EAA;
-        Mon, 13 Jun 2022 10:32:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC926C34114;
-        Mon, 13 Jun 2022 10:32:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 277E961435;
+        Mon, 13 Jun 2022 11:06:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33BF3C34114;
+        Mon, 13 Jun 2022 11:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116359;
-        bh=Q01MA/xE19LFBgpdqYkg0EJBDx4BvOaJ2SbB90FT5Ek=;
+        s=korg; t=1655118407;
+        bh=Us5cevsHlpX53cLnlX7pKUx0cNQOjP1PciUAUcFtUUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZfPRCIWc/qjbYbanx4jHhxZwiO7yR0B9xsQsqrfTEckqbNzJI6CrQl4TPn8AQjy1/
-         iRyNNtbCmGS2xM6u3L3bffDv4y5LLkOicYdZLtRqMGe20Otg1Pe4p68gElKkVqyCke
-         /jDoV9CaowIgp5oHxz0O7VD22QwX6lTXtmHWVauk=
+        b=iZ057T+8yPvKjKlpOd6/tjHaSlcI6xSe49JLMMBlA2K18WdBwzb0KlUUM2Resmhch
+         fe0DJ5gWLWUDSa5uPBsUTEWVaWt3T5zKcXbUXYw2ea4DXU/P5/wxhh7jUQYzovr3gu
+         zvMxOQeIw/0CTjVfMNZ0yApF85r6Ypk3+UPK+bd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Changcheng Liu <jerrliu@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 167/218] tracing: Avoid adding tracer option before update_tracer_options
+Subject: [PATCH 5.10 065/172] net/mlx5: correct ECE offset in query qp output
 Date:   Mon, 13 Jun 2022 12:10:25 +0200
-Message-Id: <20220613094925.667541682@linuxfoundation.org>
+Message-Id: <20220613094906.041920103@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+From: Changcheng Liu <jerrliu@nvidia.com>
 
-[ Upstream commit ef9188bcc6ca1d8a2ad83e826b548e6820721061 ]
+[ Upstream commit 3fc2a9e89b3508a5cc0c324f26d7b4740ba8c456 ]
 
-To prepare for support asynchronous tracer_init_tracefs initcall,
-avoid calling create_trace_option_files before __update_tracer_options.
-Otherwise, create_trace_option_files will show warning because
-some tracers in trace_types list are already in tr->topts.
+ECE field should be after opt_param_mask in query qp output.
 
-For example, hwlat_tracer call register_tracer in late_initcall,
-and global_trace.dir is already created in tracing_init_dentry,
-hwlat_tracer will be put into tr->topts.
-Then if the __update_tracer_options is executed after hwlat_tracer
-registered, create_trace_option_files find that hwlat_tracer is
-already in tr->topts.
-
-Link: https://lkml.kernel.org/r/20220426122407.17042-2-mark-pk.tsai@mediatek.com
-
-Link: https://lore.kernel.org/lkml/20220322133339.GA32582@xsang-OptiPlex-9020/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: 6b646a7e4af6 ("net/mlx5: Add ability to read and write ECE options")
+Signed-off-by: Changcheng Liu <jerrliu@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ include/linux/mlx5/mlx5_ifc.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index aaf1194be551..60a1733abbb7 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5363,12 +5363,18 @@ static void tracing_set_nop(struct trace_array *tr)
- 	tr->current_trace = &nop_trace;
- }
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index eba1f1cbc9fb..6ca97729b54a 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -4877,12 +4877,11 @@ struct mlx5_ifc_query_qp_out_bits {
  
-+static bool tracer_options_updated;
-+
- static void add_tracer_options(struct trace_array *tr, struct tracer *t)
- {
- 	/* Only enable if the directory has been created already. */
- 	if (!tr->dir)
- 		return;
+ 	u8         syndrome[0x20];
  
-+	/* Only create trace option files after update_tracer_options finish */
-+	if (!tracer_options_updated)
-+		return;
-+
- 	create_trace_option_files(tr, t);
- }
+-	u8         reserved_at_40[0x20];
+-	u8         ece[0x20];
++	u8         reserved_at_40[0x40];
  
-@@ -7733,6 +7739,7 @@ static void __update_tracer_options(struct trace_array *tr)
- static void update_tracer_options(struct trace_array *tr)
- {
- 	mutex_lock(&trace_types_lock);
-+	tracer_options_updated = true;
- 	__update_tracer_options(tr);
- 	mutex_unlock(&trace_types_lock);
- }
+ 	u8         opt_param_mask[0x20];
+ 
+-	u8         reserved_at_a0[0x20];
++	u8         ece[0x20];
+ 
+ 	struct mlx5_ifc_qpc_bits qpc;
+ 
 -- 
 2.35.1
 
