@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0D6A5498B6
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94D5F548D7A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349402AbiFMK5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:57:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44582 "EHLO
+        id S1348822AbiFMK4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:56:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350689AbiFMKzE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:55:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5580324BE5;
-        Mon, 13 Jun 2022 03:31:51 -0700 (PDT)
+        with ESMTP id S1350326AbiFMKyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A15B61D0DC;
+        Mon, 13 Jun 2022 03:30:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E13F60FC9;
-        Mon, 13 Jun 2022 10:31:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04EC3C34114;
-        Mon, 13 Jun 2022 10:31:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EE1B60F09;
+        Mon, 13 Jun 2022 10:30:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E164C34114;
+        Mon, 13 Jun 2022 10:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116309;
-        bh=qhBdDSP/FzA3KPGOb2WnzGbQS+zoac+5ULvYh7qmlTU=;
+        s=korg; t=1655116253;
+        bh=3wuBoO78M/jyBi9wiMoupv9Wxz2G3NRlkB+0uX6BVHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cplE2j5jRE1hZEyCIrnj22Sixdk11eDSk4DJY0h+WUkTz5BipseiTgxkHD4r6tk3C
-         y33u77lTOY40m1dk3SaQmHILBjfloMsQwHvp0BNdhSyBrkj2+aVA2+q1boO4TefCaz
-         2dPnyWd0MaQIR7lIfFldllKBFB7uR18pKnd2pMfw=
+        b=NyisNSJblqs/CJmHypiBJ+7J1nSZSF1lhguGxcfDHQQheZd1xoVKdfmg3t8yKNcKM
+         CJL6p5gccmU5ljsXks+t4d3Nc8I+dQE8Lc9FurOocXzXFV/Dn7YeGfhqziv2qjaKu8
+         q3WihvwPIqwHf7QVGKwiQlqzzUuTVKCSJtKdm2PU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
         Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 047/411] ipmi:ssif: Check for NULL msg when handling events and messages
-Date:   Mon, 13 Jun 2022 12:05:20 +0200
-Message-Id: <20220613094929.921771780@linuxfoundation.org>
+Subject: [PATCH 5.4 048/411] ipmi: Fix pr_fmt to avoid compilation issues
+Date:   Mon, 13 Jun 2022 12:05:21 +0200
+Message-Id: <20220613094929.952095210@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -56,71 +56,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Corey Minyard <cminyard@mvista.com>
 
-[ Upstream commit 7602b957e2404e5f98d9a40b68f1fd27f0028712 ]
+[ Upstream commit 2ebaf18a0b7fb764bba6c806af99fe868cee93de ]
 
-Even though it's not possible to get into the SSIF_GETTING_MESSAGES and
-SSIF_GETTING_EVENTS states without a valid message in the msg field,
-it's probably best to be defensive here and check and print a log, since
-that means something else went wrong.
+The was it was wouldn't work in some situations, simplify it.  What was
+there was unnecessary complexity.
 
-Also add a default clause to that switch statement to release the lock
-and print a log, in case the state variable gets messed up somehow.
-
-Reported-by: Haowen Bai <baihaowen@meizu.com>
+Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/char/ipmi/ipmi_msghandler.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-index bb42a1c92cae..60fb6c62f224 100644
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -845,6 +845,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 		break;
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+index ad2e6d55d4a5..736970312bbc 100644
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -11,8 +11,8 @@
+  * Copyright 2002 MontaVista Software Inc.
+  */
  
- 	case SSIF_GETTING_EVENTS:
-+		if (!msg) {
-+			/* Should never happen, but just in case. */
-+			dev_warn(&ssif_info->client->dev,
-+				 "No message set while getting events\n");
-+			ipmi_ssif_unlock_cond(ssif_info, flags);
-+			break;
-+		}
-+
- 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
- 			/* Error getting event, probably done. */
- 			msg->done(msg);
-@@ -869,6 +877,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 		break;
+-#define pr_fmt(fmt) "%s" fmt, "IPMI message handler: "
+-#define dev_fmt pr_fmt
++#define pr_fmt(fmt) "IPMI message handler: " fmt
++#define dev_fmt(fmt) pr_fmt(fmt)
  
- 	case SSIF_GETTING_MESSAGES:
-+		if (!msg) {
-+			/* Should never happen, but just in case. */
-+			dev_warn(&ssif_info->client->dev,
-+				 "No message set while getting messages\n");
-+			ipmi_ssif_unlock_cond(ssif_info, flags);
-+			break;
-+		}
-+
- 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
- 			/* Error getting event, probably done. */
- 			msg->done(msg);
-@@ -892,6 +908,13 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 			deliver_recv_msg(ssif_info, msg);
- 		}
- 		break;
-+
-+	default:
-+		/* Should never happen, but just in case. */
-+		dev_warn(&ssif_info->client->dev,
-+			 "Invalid state in message done handling: %d\n",
-+			 ssif_info->ssif_state);
-+		ipmi_ssif_unlock_cond(ssif_info, flags);
- 	}
- 
- 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
+ #include <linux/module.h>
+ #include <linux/errno.h>
 -- 
 2.35.1
 
