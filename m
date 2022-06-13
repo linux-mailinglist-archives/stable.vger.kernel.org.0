@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37317549142
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2956548DF1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352565AbiFMLSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:18:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
+        id S1355281AbiFMLiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:38:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353685AbiFMLQM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81828120B1;
-        Mon, 13 Jun 2022 03:39:03 -0700 (PDT)
+        with ESMTP id S1355012AbiFMLg6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:36:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6455545046;
+        Mon, 13 Jun 2022 03:48:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A96CB80EA8;
-        Mon, 13 Jun 2022 10:39:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1540C34114;
-        Mon, 13 Jun 2022 10:39:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59B3061283;
+        Mon, 13 Jun 2022 10:48:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68C70C34114;
+        Mon, 13 Jun 2022 10:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116741;
-        bh=liNhd+rQWFOn1syJrUOicb3uykE30jaLc4TMIIZdHug=;
+        s=korg; t=1655117292;
+        bh=pUOebfwrLtqNLWZkg1nxnGxWaIJhgX1AI/gxr2smE+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oUQ+Tg4v6zTSYfMF+VZjpZIUpi8fPljcQor2LpMJrcL92RfOlRBJrrV/WDKtcIlmY
-         V2TAMM5HsXKV15DA2QC5m0ylbniL+7AhvyX5m7sC8P2MxOBjVz5WE3TgEKq+PyskHa
-         DDih0LPnKw7L78ns7x37LCwkF+nLsZZEJHeRnPA0=
+        b=cHtaiKDs+VJpa+0PsFSAX59aHI7pfPQtz5HU/mszDm3A1UVVp9I/r7GrK52lDloso
+         rrqzO7OxWRUWA2uek5Ko8gyKFoAhiGQuB62Qs6+jQhXQUOjnYwpkEEz3zTz+p/+xy4
+         3Dm0y8BVIj3IdfIfHqg788Tg74pDDwN5NYZfb+t4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 157/411] ARM: dts: suniv: F1C100: fix watchdog compatible
-Date:   Mon, 13 Jun 2022 12:07:10 +0200
-Message-Id: <20220613094933.370022221@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 007/287] btrfs: add "0x" prefix for unsupported optional features
+Date:   Mon, 13 Jun 2022 12:07:11 +0200
+Message-Id: <20220613094924.070422538@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 01a850ee61cbf0ab77dcbf26bb133fec2dd640d6 ]
+commit d5321a0fa8bc49f11bea0b470800962c17d92d8f upstream.
 
-The F1C100 series of SoCs actually have their watchdog IP being
-compatible with the newer Allwinner generation, not the older one.
+The following error message lack the "0x" obviously:
 
-The currently described sun4i-a10-wdt actually does not work, neither
-the watchdog functionality (just never fires), nor the reset part
-(reboot hangs).
+  cannot mount because of unsupported optional features (4000)
 
-Replace the compatible string with the one used by the newer generation.
-Verified to work with both the watchdog and reboot functionality on a
-LicheePi Nano.
+Add the prefix to make it less confusing. This can happen on older
+kernels that try to mount a filesystem with newer features so it makes
+sense to backport to older trees.
 
-Also add the missing interrupt line and clock source, to make it binding
-compliant.
-
-Fixes: 4ba16d17efdd ("ARM: dts: suniv: add initial DTSI file for F1C100s")
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220317162349.739636-4-andre.przywara@arm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/suniv-f1c100s.dtsi | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/disk-io.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/suniv-f1c100s.dtsi b/arch/arm/boot/dts/suniv-f1c100s.dtsi
-index 6100d3b75f61..def830101448 100644
---- a/arch/arm/boot/dts/suniv-f1c100s.dtsi
-+++ b/arch/arm/boot/dts/suniv-f1c100s.dtsi
-@@ -104,8 +104,10 @@
- 
- 		wdt: watchdog@1c20ca0 {
- 			compatible = "allwinner,suniv-f1c100s-wdt",
--				     "allwinner,sun4i-a10-wdt";
-+				     "allwinner,sun6i-a31-wdt";
- 			reg = <0x01c20ca0 0x20>;
-+			interrupts = <16>;
-+			clocks = <&osc32k>;
- 		};
- 
- 		uart0: serial@1c25000 {
--- 
-2.35.1
-
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -2855,7 +2855,7 @@ int open_ctree(struct super_block *sb,
+ 		~BTRFS_FEATURE_INCOMPAT_SUPP;
+ 	if (features) {
+ 		btrfs_err(fs_info,
+-		    "cannot mount because of unsupported optional features (%llx)",
++		    "cannot mount because of unsupported optional features (0x%llx)",
+ 		    features);
+ 		err = -EINVAL;
+ 		goto fail_alloc;
+@@ -2915,7 +2915,7 @@ int open_ctree(struct super_block *sb,
+ 		~BTRFS_FEATURE_COMPAT_RO_SUPP;
+ 	if (!sb_rdonly(sb) && features) {
+ 		btrfs_err(fs_info,
+-	"cannot mount read-write because of unsupported optional features (%llx)",
++	"cannot mount read-write because of unsupported optional features (0x%llx)",
+ 		       features);
+ 		err = -EINVAL;
+ 		goto fail_alloc;
 
 
