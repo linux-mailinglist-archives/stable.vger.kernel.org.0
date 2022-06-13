@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5D1F549654
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1466B548884
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351016AbiFMMmf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:42:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54934 "EHLO
+        id S1352751AbiFMMUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:20:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358134AbiFMMkL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:40:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C15ED5EBE5;
-        Mon, 13 Jun 2022 04:10:25 -0700 (PDT)
+        with ESMTP id S1357785AbiFMMT1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:19:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56BBC56775;
+        Mon, 13 Jun 2022 04:02:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B37EA608C3;
-        Mon, 13 Jun 2022 11:10:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C359CC34114;
-        Mon, 13 Jun 2022 11:10:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C47BAB80D31;
+        Mon, 13 Jun 2022 11:02:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 237F4C3411C;
+        Mon, 13 Jun 2022 11:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118621;
-        bh=3B2X66Nmpe6wB09aSth1g6OhRMxH2VcusbbHSLbMnlI=;
+        s=korg; t=1655118175;
+        bh=xyFbE5pv8bl67oZmKZ4mGg9acI4G9yfb0MUCQQZAONg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uqbG26gzzjRqQw6Mus7NwC1KpVpMb4TKTXj8vMKQGmMBuoAmLfJKceQe8C4/dxPXG
-         3FzszsruG9Nxd2zaYv4QS3guR07ZXRtIHfGbRWyCUaUgETKdzAFt5bqaVbrgie4Ag7
-         +6qxteUt0B64o0LDRSkLcHhmxuije4c7Cr3qotA0=
+        b=aV3sw3LWg3KO784Z/2CZQ7nZTHw/ZeUAHGzUo5+5qHfW7qZ3DMoxcw6tgRaAW134L
+         O0xgQ6zdlih0/zDgyXRRE99GSufQxHizmsmpKnOX7X5PQte2o+RtwLOARHhFKJsz9v
+         MP9P91RyBmbiJJTQ9SkT9K4poLp09WISInAB7qkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
+        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 125/172] sysrq: do not omit current cpu when showing backtrace of all active CPUs
+Subject: [PATCH 4.19 261/287] clocksource/drivers/sp804: Avoid error on multiple instances
 Date:   Mon, 13 Jun 2022 12:11:25 +0200
-Message-Id: <20220613094920.524083970@linuxfoundation.org>
+Message-Id: <20220613094931.922183213@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,88 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changbin Du <changbin.du@gmail.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit 5390e7f46b9d5546d45a83e6463bc656678b1d0e ]
+[ Upstream commit a98399cbc1e05f7b977419f03905501d566cf54e ]
 
-The backtrace of current CPU also should be printed as it is active. This
-change add stack trace for current CPU and print a hint for idle CPU for
-the generic workqueue based printing. (x86 already does this)
+When a machine sports more than one SP804 timer instance, we only bring
+up the first one, since multiple timers of the same kind are not useful
+to Linux. As this is intentional behaviour, we should not return an
+error message, as we do today:
+===============
+[    0.000800] Failed to initialize '/bus@8000000/motherboard-bus@8000000/iofpga-bus@300000000/timer@120000': -22
+===============
 
-Now it looks like below:
-[  279.401567] sysrq: Show backtrace of all active CPUs
-[  279.407234] sysrq: CPU5:
-[  279.407505] Call Trace:
-[  279.408789] [<ffffffff8000606c>] dump_backtrace+0x2c/0x3a
-[  279.411698] [<ffffffff800060ac>] show_stack+0x32/0x3e
-[  279.411809] [<ffffffff80542258>] sysrq_handle_showallcpus+0x4c/0xc6
-[  279.411929] [<ffffffff80542f16>] __handle_sysrq+0x106/0x26c
-[  279.412034] [<ffffffff805436a8>] write_sysrq_trigger+0x64/0x74
-[  279.412139] [<ffffffff8029cd48>] proc_reg_write+0x8e/0xe2
-[  279.412252] [<ffffffff8021a8f8>] vfs_write+0x90/0x2be
-[  279.412362] [<ffffffff8021acd2>] ksys_write+0xa6/0xce
-[  279.412467] [<ffffffff8021ad24>] sys_write+0x2a/0x38
-[  279.412689] [<ffffffff80003ff8>] ret_from_syscall+0x0/0x2
-[  279.417173] sysrq: CPU6: backtrace skipped as idling
-[  279.417185] sysrq: CPU4: backtrace skipped as idling
-[  279.417187] sysrq: CPU0: backtrace skipped as idling
-[  279.417181] sysrq: CPU7: backtrace skipped as idling
-[  279.417190] sysrq: CPU1: backtrace skipped as idling
-[  279.417193] sysrq: CPU3: backtrace skipped as idling
-[  279.417219] sysrq: CPU2:
-[  279.419179] Call Trace:
-[  279.419440] [<ffffffff8000606c>] dump_backtrace+0x2c/0x3a
-[  279.419782] [<ffffffff800060ac>] show_stack+0x32/0x3e
-[  279.420015] [<ffffffff80542b30>] showacpu+0x5c/0x96
-[  279.420317] [<ffffffff800ba71c>] flush_smp_call_function_queue+0xd6/0x218
-[  279.420569] [<ffffffff800bb438>] generic_smp_call_function_single_interrupt+0x14/0x1c
-[  279.420798] [<ffffffff800079ae>] handle_IPI+0xaa/0x13a
-[  279.421024] [<ffffffff804dcb92>] riscv_intc_irq+0x56/0x70
-[  279.421274] [<ffffffff80a05b70>] generic_handle_arch_irq+0x6a/0xfa
-[  279.421518] [<ffffffff80004006>] ret_from_exception+0x0/0x10
-[  279.421750] [<ffffffff80096492>] rcu_idle_enter+0x16/0x1e
+Replace the -EINVAL return with a debug message and return 0 instead.
 
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Link: https://lore.kernel.org/r/20220117154300.2808-1-changbin.du@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also we do not reach the init function anymore if the DT node is
+disabled (as this is now handled by OF_DECLARE), so remove the explicit
+check for that case.
+
+This fixes a long standing bogus error when booting ARM's fastmodels.
+
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/20220506162522.3675399-1-andre.przywara@arm.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/sysrq.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/clocksource/timer-sp804.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
-index 959f9e121cc6..7ca209d4e088 100644
---- a/drivers/tty/sysrq.c
-+++ b/drivers/tty/sysrq.c
-@@ -231,8 +231,10 @@ static void showacpu(void *dummy)
- 	unsigned long flags;
+diff --git a/drivers/clocksource/timer-sp804.c b/drivers/clocksource/timer-sp804.c
+index e01222ea888f..738c50e916f7 100644
+--- a/drivers/clocksource/timer-sp804.c
++++ b/drivers/clocksource/timer-sp804.c
+@@ -228,6 +228,11 @@ static int __init sp804_of_init(struct device_node *np)
+ 	struct clk *clk1, *clk2;
+ 	const char *name = of_get_property(np, "compatible", NULL);
  
- 	/* Idle CPUs have no interesting backtrace. */
--	if (idle_cpu(smp_processor_id()))
-+	if (idle_cpu(smp_processor_id())) {
-+		pr_info("CPU%d: backtrace skipped as idling\n", smp_processor_id());
- 		return;
++	if (initialized) {
++		pr_debug("%pOF: skipping further SP804 timer device\n", np);
++		return 0;
 +	}
- 
- 	raw_spin_lock_irqsave(&show_lock, flags);
- 	pr_info("CPU%d:\n", smp_processor_id());
-@@ -259,10 +261,13 @@ static void sysrq_handle_showallcpus(int key)
- 
- 		if (in_irq())
- 			regs = get_irq_regs();
--		if (regs) {
--			pr_info("CPU%d:\n", smp_processor_id());
 +
-+		pr_info("CPU%d:\n", smp_processor_id());
-+		if (regs)
- 			show_regs(regs);
--		}
-+		else
-+			show_stack(NULL, NULL, KERN_INFO);
-+
- 		schedule_work(&sysrq_showallcpus);
- 	}
- }
+ 	base = of_iomap(np, 0);
+ 	if (!base)
+ 		return -ENXIO;
+@@ -236,11 +241,6 @@ static int __init sp804_of_init(struct device_node *np)
+ 	writel(0, base + TIMER_CTRL);
+ 	writel(0, base + TIMER_2_BASE + TIMER_CTRL);
+ 
+-	if (initialized || !of_device_is_available(np)) {
+-		ret = -EINVAL;
+-		goto err;
+-	}
+-
+ 	clk1 = of_clk_get(np, 0);
+ 	if (IS_ERR(clk1))
+ 		clk1 = NULL;
 -- 
 2.35.1
 
