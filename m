@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9022C548E22
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 087E35498AC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385574AbiFMOuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:50:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43122 "EHLO
+        id S1385774AbiFMOuG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:50:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386152AbiFMOtG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:49:06 -0400
+        with ESMTP id S1386193AbiFMOtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:49:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 735E82181B;
-        Mon, 13 Jun 2022 04:53:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE82521266;
+        Mon, 13 Jun 2022 04:53:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D628B61486;
-        Mon, 13 Jun 2022 11:53:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6F14C385A5;
-        Mon, 13 Jun 2022 11:53:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 74093614F5;
+        Mon, 13 Jun 2022 11:53:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AFC1C3411B;
+        Mon, 13 Jun 2022 11:53:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121182;
-        bh=r5UkIx9IQWDvAj1alAKl7AX+3z3IEBhN+N1fO7ohM8Q=;
+        s=korg; t=1655121184;
+        bh=gsknnm1TEWssjyLcGyQFf5l/MRxpU5FvJ25DZvX++9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fvxbht2+UowLRphlnRVjJ7FJr5w97E/RG0+4Zd1hSHGXTUZr9OlHnC0telmNkYLvq
-         nb7ltrzaXvWG+B+j/razA4ZXfR8z7I1IhqdkXjW+1cu/AF+n+mJFp8Xk9hwIeKR2KD
-         DmaaTyZ2r46kix9aogPQO4cnp2iMtNZXpKY6xCiA=
+        b=vgmEjjSse80ecQiQvI5G3E+8xP5N0luFmWQUDGRZQuzT+YPTUSmLWwOqIKfYcWr3s
+         7/1v2ACROfzliJP6OtgNReJF55zVvS0HUXFdtNPKI3b+Rr6jYLxu4g9zh/bVAqdrKg
+         mD6SD26hnGwKkkDLBR3u5Fnp4a3Vahyzzc8qfWIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Pascal Hambourg <pascal@plouf.fr.eu.org>,
-        Song Liu <song@kernel.org>
-Subject: [PATCH 5.17 294/298] md/raid0: Ignore RAID0 layout if the second zone has only one device
-Date:   Mon, 13 Jun 2022 12:13:08 +0200
-Message-Id: <20220613094933.995122713@linuxfoundation.org>
+        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.17 295/298] net/sched: act_police: more accurate MTU policing
+Date:   Mon, 13 Jun 2022 12:13:09 +0200
+Message-Id: <20220613094934.024491410@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
 References: <20220613094924.913340374@linuxfoundation.org>
@@ -54,72 +54,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pascal Hambourg <pascal@plouf.fr.eu.org>
+From: Davide Caratti <dcaratti@redhat.com>
 
-commit ea23994edc4169bd90d7a9b5908c6ccefd82fa40 upstream.
+commit 4ddc844eb81da59bfb816d8d52089aba4e59e269 upstream.
 
-The RAID0 layout is irrelevant if all members have the same size so the
-array has only one zone. It is *also* irrelevant if the array has two
-zones and the second zone has only one device, for example if the array
-has two members of different sizes.
+in current Linux, MTU policing does not take into account that packets at
+the TC ingress have the L2 header pulled. Thus, the same TC police action
+(with the same value of tcfp_mtu) behaves differently for ingress/egress.
+In addition, the full GSO size is compared to tcfp_mtu: as a consequence,
+the policer drops GSO packets even when individual segments have the L2 +
+L3 + L4 + payload length below the configured valued of tcfp_mtu.
 
-So in that case it makes sense to allow assembly even when the layout is
-undefined, like what is done when the array has only one zone.
+Improve the accuracy of MTU policing as follows:
+ - account for mac_len for non-GSO packets at TC ingress.
+ - compare MTU threshold with the segmented size for GSO packets.
+Also, add a kselftest that verifies the correct behavior.
 
-Reviewed-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Pascal Hambourg <pascal@plouf.fr.eu.org>
-Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/raid0.c |   31 ++++++++++++++++---------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ net/sched/act_police.c                              |   16 +++++-
+ tools/testing/selftests/net/forwarding/tc_police.sh |   52 ++++++++++++++++++++
+ 2 files changed, 67 insertions(+), 1 deletion(-)
 
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -128,21 +128,6 @@ static int create_strip_zones(struct mdd
- 	pr_debug("md/raid0:%s: FINAL %d zones\n",
- 		 mdname(mddev), conf->nr_strip_zones);
+--- a/net/sched/act_police.c
++++ b/net/sched/act_police.c
+@@ -239,6 +239,20 @@ release_idr:
+ 	return err;
+ }
  
--	if (conf->nr_strip_zones == 1) {
--		conf->layout = RAID0_ORIG_LAYOUT;
--	} else if (mddev->layout == RAID0_ORIG_LAYOUT ||
--		   mddev->layout == RAID0_ALT_MULTIZONE_LAYOUT) {
--		conf->layout = mddev->layout;
--	} else if (default_layout == RAID0_ORIG_LAYOUT ||
--		   default_layout == RAID0_ALT_MULTIZONE_LAYOUT) {
--		conf->layout = default_layout;
--	} else {
--		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
--		       mdname(mddev));
--		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
--		err = -ENOTSUPP;
--		goto abort;
--	}
- 	/*
- 	 * now since we have the hard sector sizes, we can make sure
- 	 * chunk size is a multiple of that sector size
-@@ -273,6 +258,22 @@ static int create_strip_zones(struct mdd
- 			 (unsigned long long)smallest->sectors);
++static bool tcf_police_mtu_check(struct sk_buff *skb, u32 limit)
++{
++	u32 len;
++
++	if (skb_is_gso(skb))
++		return skb_gso_validate_mac_len(skb, limit);
++
++	len = qdisc_pkt_len(skb);
++	if (skb_at_tc_ingress(skb))
++		len += skb->mac_len;
++
++	return len <= limit;
++}
++
+ static int tcf_police_act(struct sk_buff *skb, const struct tc_action *a,
+ 			  struct tcf_result *res)
+ {
+@@ -261,7 +275,7 @@ static int tcf_police_act(struct sk_buff
+ 			goto inc_overlimits;
  	}
  
-+	if (conf->nr_strip_zones == 1 || conf->strip_zone[1].nb_dev == 1) {
-+		conf->layout = RAID0_ORIG_LAYOUT;
-+	} else if (mddev->layout == RAID0_ORIG_LAYOUT ||
-+		   mddev->layout == RAID0_ALT_MULTIZONE_LAYOUT) {
-+		conf->layout = mddev->layout;
-+	} else if (default_layout == RAID0_ORIG_LAYOUT ||
-+		   default_layout == RAID0_ALT_MULTIZONE_LAYOUT) {
-+		conf->layout = default_layout;
-+	} else {
-+		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
-+		       mdname(mddev));
-+		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
-+		err = -EOPNOTSUPP;
-+		goto abort;
-+	}
-+
- 	pr_debug("md/raid0:%s: done.\n", mdname(mddev));
- 	*private_conf = conf;
+-	if (qdisc_pkt_len(skb) <= p->tcfp_mtu) {
++	if (tcf_police_mtu_check(skb, p->tcfp_mtu)) {
+ 		if (!p->rate_present && !p->pps_present) {
+ 			ret = p->tcfp_result;
+ 			goto end;
+--- a/tools/testing/selftests/net/forwarding/tc_police.sh
++++ b/tools/testing/selftests/net/forwarding/tc_police.sh
+@@ -37,6 +37,8 @@ ALL_TESTS="
+ 	police_tx_mirror_test
+ 	police_pps_rx_test
+ 	police_pps_tx_test
++	police_mtu_rx_test
++	police_mtu_tx_test
+ "
+ NUM_NETIFS=6
+ source tc_common.sh
+@@ -346,6 +348,56 @@ police_pps_tx_test()
+ 	tc filter del dev $rp2 egress protocol ip pref 1 handle 101 flower
+ }
  
++police_mtu_common_test() {
++	RET=0
++
++	local test_name=$1; shift
++	local dev=$1; shift
++	local direction=$1; shift
++
++	tc filter add dev $dev $direction protocol ip pref 1 handle 101 flower \
++		dst_ip 198.51.100.1 ip_proto udp dst_port 54321 \
++		action police mtu 1042 conform-exceed drop/ok
++
++	# to count "conform" packets
++	tc filter add dev $h2 ingress protocol ip pref 1 handle 101 flower \
++		dst_ip 198.51.100.1 ip_proto udp dst_port 54321 \
++		action drop
++
++	mausezahn $h1 -a own -b $(mac_get $rp1) -A 192.0.2.1 -B 198.51.100.1 \
++		-t udp sp=12345,dp=54321 -p 1001 -c 10 -q
++
++	mausezahn $h1 -a own -b $(mac_get $rp1) -A 192.0.2.1 -B 198.51.100.1 \
++		-t udp sp=12345,dp=54321 -p 1000 -c 3 -q
++
++	tc_check_packets "dev $dev $direction" 101 13
++	check_err $? "wrong packet counter"
++
++	# "exceed" packets
++	local overlimits_t0=$(tc_rule_stats_get ${dev} 1 ${direction} .overlimits)
++	test ${overlimits_t0} = 10
++	check_err $? "wrong overlimits, expected 10 got ${overlimits_t0}"
++
++	# "conform" packets
++	tc_check_packets "dev $h2 ingress" 101 3
++	check_err $? "forwarding error"
++
++	tc filter del dev $h2 ingress protocol ip pref 1 handle 101 flower
++	tc filter del dev $dev $direction protocol ip pref 1 handle 101 flower
++
++	log_test "$test_name"
++}
++
++police_mtu_rx_test()
++{
++	police_mtu_common_test "police mtu (rx)" $rp1 ingress
++}
++
++police_mtu_tx_test()
++{
++	police_mtu_common_test "police mtu (tx)" $rp2 egress
++}
++
+ setup_prepare()
+ {
+ 	h1=${NETIFS[p1]}
 
 
