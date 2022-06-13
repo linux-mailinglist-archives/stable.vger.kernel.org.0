@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F666548899
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 956AD548D9E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359584AbiFMNU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:20:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60456 "EHLO
+        id S1380146AbiFMN5i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:57:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376754AbiFMNT3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:19:29 -0400
+        with ESMTP id S1380879AbiFMNz1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:55:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 778B45A097;
-        Mon, 13 Jun 2022 04:22:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C6EF4477B;
+        Mon, 13 Jun 2022 04:36:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01621B80EAB;
-        Mon, 13 Jun 2022 11:22:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 528F1C34114;
-        Mon, 13 Jun 2022 11:22:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F12BB80ECC;
+        Mon, 13 Jun 2022 11:36:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D7CC3411C;
+        Mon, 13 Jun 2022 11:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119333;
-        bh=UuT5pcuIYfI0vQXMOvXgNqqRRJ+ochAjLD8cGR0HfcE=;
+        s=korg; t=1655120169;
+        bh=s20Pv0mbCpNv4t4N63x+0KLjF8uIVneLkO6xzMsE/gc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=caHO4I0YsHFrl+cb1FdyeM6ZMVNU2aw+1kmEeuIMZX6mVUlx8860P/LKGSbc6+Eqj
-         psBHIVTgtotJpKHOYfxos9CgKzlgEeZZLRQFWoIQJDNZcXRCvUOlXZPisdgEdPCrXo
-         ou+N6eqVSOGL2HoeBF1/vyjI+LYjWCtsuBDTls6M=
+        b=OpqfWXGUsYXR+4EvY+WvioLB/d1E3AXJHImcbNn5EwnRDPTZZseOD+O5xkY3dmAdU
+         mtFzIQX0HB3pb9deL6gccqTlIJ7PAjePm/OMGZyaRynpJFR8+bvrXyBySl1R8stHl5
+         cyQ9se8cBuN18U50RtXO5uibSfP3spEiTatSXDz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Leung <Martin.Leung@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        David Galiffi <David.Galiffi@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 198/247] drm/amd/display: Check if modulo is 0 before dividing.
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Yu Kuai <yukuai3@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 275/339] nbd: call genl_unregister_family() first in nbd_cleanup()
 Date:   Mon, 13 Jun 2022 12:11:40 +0200
-Message-Id: <20220613094928.954510878@linuxfoundation.org>
+Message-Id: <20220613094934.980577592@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Galiffi <David.Galiffi@amd.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 49947b906a6bd9668eaf4f9cf691973c25c26955 ]
+[ Upstream commit 06c4da89c24e7023ea448cadf8e9daf06a0aae6e ]
 
-[How & Why]
-If a value of 0 is read, then this will cause a divide-by-0 panic.
+Otherwise there may be race between module removal and the handling of
+netlink command, which can lead to the oops as shown below:
 
-Reviewed-by: Martin Leung <Martin.Leung@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: David Galiffi <David.Galiffi@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  BUG: kernel NULL pointer dereference, address: 0000000000000098
+  Oops: 0002 [#1] SMP PTI
+  CPU: 1 PID: 31299 Comm: nbd-client Tainted: G            E     5.14.0-rc4
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+  RIP: 0010:down_write+0x1a/0x50
+  Call Trace:
+   start_creating+0x89/0x130
+   debugfs_create_dir+0x1b/0x130
+   nbd_start_device+0x13d/0x390 [nbd]
+   nbd_genl_connect+0x42f/0x748 [nbd]
+   genl_family_rcv_msg_doit.isra.0+0xec/0x150
+   genl_rcv_msg+0xe5/0x1e0
+   netlink_rcv_skb+0x55/0x100
+   genl_rcv+0x29/0x40
+   netlink_unicast+0x1a8/0x250
+   netlink_sendmsg+0x21b/0x430
+   ____sys_sendmsg+0x2a4/0x2d0
+   ___sys_sendmsg+0x81/0xc0
+   __sys_sendmsg+0x62/0xb0
+   __x64_sys_sendmsg+0x1f/0x30
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  Modules linked in: nbd(E-)
+
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220521073749.3146892-2-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/block/nbd.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c b/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
-index 2c7eb982eabc..054823d12403 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
-@@ -1013,9 +1013,12 @@ static bool get_pixel_clk_frequency_100hz(
- 			 * not be programmed equal to DPREFCLK
- 			 */
- 			modulo_hz = REG_READ(MODULO[inst]);
--			*pixel_clk_khz = div_u64((uint64_t)clock_hz*
--				clock_source->ctx->dc->clk_mgr->dprefclk_khz*10,
--				modulo_hz);
-+			if (modulo_hz)
-+				*pixel_clk_khz = div_u64((uint64_t)clock_hz*
-+					clock_source->ctx->dc->clk_mgr->dprefclk_khz*10,
-+					modulo_hz);
-+			else
-+				*pixel_clk_khz = 0;
- 		} else {
- 			/* NOTE: There is agreement with VBIOS here that MODULO is
- 			 * programmed equal to DPREFCLK, in which case PHASE will be
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index c860a9930855..b564942be5a3 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -2545,6 +2545,12 @@ static void __exit nbd_cleanup(void)
+ 	struct nbd_device *nbd;
+ 	LIST_HEAD(del_list);
+ 
++	/*
++	 * Unregister netlink interface prior to waiting
++	 * for the completion of netlink commands.
++	 */
++	genl_unregister_family(&nbd_genl_family);
++
+ 	nbd_dbg_close();
+ 
+ 	mutex_lock(&nbd_index_mutex);
+@@ -2563,7 +2569,6 @@ static void __exit nbd_cleanup(void)
+ 	destroy_workqueue(nbd_del_wq);
+ 
+ 	idr_destroy(&nbd_index_idr);
+-	genl_unregister_family(&nbd_genl_family);
+ 	unregister_blkdev(NBD_MAJOR, "nbd");
+ }
+ 
 -- 
 2.35.1
 
