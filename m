@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4D3F549247
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 125E3548BA1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382031AbiFMOMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:12:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60322 "EHLO
+        id S1355793AbiFMM5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:57:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382195AbiFMOKQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:10:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09A82996BE;
-        Mon, 13 Jun 2022 04:42:01 -0700 (PDT)
+        with ESMTP id S1355132AbiFMMzQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D681AE74;
+        Mon, 13 Jun 2022 04:15:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F808B80EA7;
-        Mon, 13 Jun 2022 11:41:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE049C34114;
-        Mon, 13 Jun 2022 11:41:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCA6460B6B;
+        Mon, 13 Jun 2022 11:15:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1E71C34114;
+        Mon, 13 Jun 2022 11:15:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120507;
-        bh=7h4rZyqwtDdmYLoZ2kB4nYcPAMuofr5Hp9IrMWAmCj4=;
+        s=korg; t=1655118926;
+        bh=0R9cUiJJLlj1dZmF0CiC0DRn4+vSv1qX+ATJ4iTqCag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J75EvQSe/HrJJ7GFM8iH3kC+pK8tYEpNu7eJXOK6VGqWgthxxR4PueEVR0CsnDt33
-         NlC2Kgu9rpmCHUbXa3yYpjdYRFLq2Wr4xbFKSj8Fs+gYJ/8svZ7q5vF33Vr2R4ocU5
-         1tzJT0OMxfZQbE4sEhJqOuGya7xgxLn1iJotAas4=
+        b=qYXOhFlHIIJNGA/tfJU7Ra8aedNSnXy+38HKpSio+LOIxcYNaW4wTnTkYJE9XJCzg
+         C6JXkH8UCIqu+73KWWH5G7mKCeAtrm/LqSvzO47HjRPQsVFY/Tw57I1MbiLjZeAx5s
+         7XMDndd2Xp08JmwvemNAlWT8mJNeXq3xZghxsoUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 057/298] serial: 8250_fintek: Check SER_RS485_RTS_* only with RS485
-Date:   Mon, 13 Jun 2022 12:09:11 +0200
-Message-Id: <20220613094926.679653949@linuxfoundation.org>
+Subject: [PATCH 5.15 050/247] tty: n_gsm: Dont ignore write return value in gsmld_output()
+Date:   Mon, 13 Jun 2022 12:09:12 +0200
+Message-Id: <20220613094924.470403861@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit af0179270977508df6986b51242825d7edd59caf ]
+[ Upstream commit 9136c68346d096697935b9840782f7051d5796c5 ]
 
-SER_RS485_RTS_ON_SEND and SER_RS485_RTS_AFTER_SEND relate to behavior
-within RS485 operation. The driver checks if they have the same value
-which is not possible to realize with the hardware. The check is taken
-regardless of SER_RS485_ENABLED flag and -EINVAL is returned when the
-check fails, which creates problems.
+We currently have gsmld_output() ignore the return value from device
+write. This means we will lose packets if device write returns 0 or
+an error.
 
-This check makes it unnecessarily complicated to turn RS485 mode off as
-simple zeroed serial_rs485 struct will trigger that equal values check.
-In addition, the driver itself memsets its rs485 structure to zero when
-RS485 is disabled but if userspace would try to make an TIOCSRS485
-ioctl() call with the very same struct, it would end up failing with
--EINVAL which doesn't make much sense.
-
-Resolve the problem by moving the check inside SER_RS485_ENABLED block.
-
-Fixes: 7ecc77011c6f ("serial: 8250_fintek: Return -EINVAL on invalid configuration")
-Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/035c738-8ea5-8b17-b1d7-84a7b3aeaa51@linux.intel.com
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210930060624.46523-1-tony@atomide.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_fintek.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/tty/n_gsm.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_fintek.c b/drivers/tty/serial/8250/8250_fintek.c
-index 251f0018ae8c..dba5950b8d0e 100644
---- a/drivers/tty/serial/8250/8250_fintek.c
-+++ b/drivers/tty/serial/8250/8250_fintek.c
-@@ -200,12 +200,12 @@ static int fintek_8250_rs485_config(struct uart_port *port,
- 	if (!pdata)
- 		return -EINVAL;
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 1767503de744..0722860b6f54 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -692,7 +692,7 @@ static void gsm_data_kick(struct gsm_mux *gsm, struct gsm_dlci *dlci)
+ 			print_hex_dump_bytes("gsm_data_kick: ",
+ 					     DUMP_PREFIX_OFFSET,
+ 					     gsm->txframe, len);
+-		if (gsmld_output(gsm, gsm->txframe, len) < 0)
++		if (gsmld_output(gsm, gsm->txframe, len) <= 0)
+ 			break;
+ 		/* FIXME: Can eliminate one SOF in many more cases */
+ 		gsm->tx_bytes -= msg->len;
+@@ -2373,8 +2373,7 @@ static int gsmld_output(struct gsm_mux *gsm, u8 *data, int len)
+ 	if (debug & 4)
+ 		print_hex_dump_bytes("gsmld_output: ", DUMP_PREFIX_OFFSET,
+ 				     data, len);
+-	gsm->tty->ops->write(gsm->tty, data, len);
+-	return len;
++	return gsm->tty->ops->write(gsm->tty, data, len);
+ }
  
--	/* Hardware do not support same RTS level on send and receive */
--	if (!(rs485->flags & SER_RS485_RTS_ON_SEND) ==
--			!(rs485->flags & SER_RS485_RTS_AFTER_SEND))
--		return -EINVAL;
- 
- 	if (rs485->flags & SER_RS485_ENABLED) {
-+		/* Hardware do not support same RTS level on send and receive */
-+		if (!(rs485->flags & SER_RS485_RTS_ON_SEND) ==
-+		    !(rs485->flags & SER_RS485_RTS_AFTER_SEND))
-+			return -EINVAL;
- 		memset(rs485->padding, 0, sizeof(rs485->padding));
- 		config |= RS485_URA;
- 	} else {
+ /**
 -- 
 2.35.1
 
