@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E59F548DB7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8494C549711
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378454AbiFMNlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:41:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58854 "EHLO
+        id S242969AbiFMKUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:20:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379160AbiFMNj4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01B4622502;
-        Mon, 13 Jun 2022 04:29:05 -0700 (PDT)
+        with ESMTP id S242961AbiFMKUn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:20:43 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E1BD5A;
+        Mon, 13 Jun 2022 03:17:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9358461036;
-        Mon, 13 Jun 2022 11:29:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A219DC34114;
-        Mon, 13 Jun 2022 11:29:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 67726CE1102;
+        Mon, 13 Jun 2022 10:17:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E03BC34114;
+        Mon, 13 Jun 2022 10:17:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119744;
-        bh=eDqhiksNIf+jsUY2XBvAV3uAA2+r9m8+eNfbCUe+LBo=;
+        s=korg; t=1655115442;
+        bh=L+loGqkh9a3KGhATRv0kKG+dx/ozURz4KOnBC5vg7JQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mXYTmD6bvOL09S5MBcrdFw8zMerE/3Ecz8oU0J+xxZnFvQBd/sZH8ZmC7w/DHOsAf
-         P1z/0kL9dm/vaxPPIZ6neXEwSlQMxSAAnm6pVrbZ+g2Ak77JMDsiAi4ZyS5PUo+yuW
-         hEIEIQCKvb5d3tqIJE5gBXZCmAt2qNMMkqyJWzNs=
+        b=a477uGgfAjlgfGuuopiJhsbhXWHxRU+Vy9NolW+kfjhPiSFH9DaDB5JGwJKwgHmnb
+         EOkC4BvDqfAb0owXafxz9WsqJgjulwFHbZdhN6O78ubHTFQOSQCXPYKN5dWmpiH5zi
+         YWGmiLuG41yzENtG8Z/RCx6jR4zwIw6A5ldT0kV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 124/339] net/mlx5: Dont use already freed action pointer
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 4.9 075/167] wifi: mac80211: fix use-after-free in chanctx code
 Date:   Mon, 13 Jun 2022 12:09:09 +0200
-Message-Id: <20220613094930.271415321@linuxfoundation.org>
+Message-Id: <20220613094858.490570668@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 80b2bd737d0e833e6a2b77e482e5a714a79c86a4 ]
+commit 2965c4cdf7ad9ce0796fac5e57debb9519ea721e upstream.
 
-The call to mlx5dr_action_destroy() releases "action" memory. That
-pointer is set to miss_action later and generates the following smatch
-error:
+In ieee80211_vif_use_reserved_context(), when we have an
+old context and the new context's replace_state is set to
+IEEE80211_CHANCTX_REPLACE_NONE, we free the old context
+in ieee80211_vif_use_reserved_reassign(). Therefore, we
+cannot check the old_ctx anymore, so we should set it to
+NULL after this point.
 
- drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c:53 set_miss_action()
- warn: 'action' was already freed.
+However, since the new_ctx replace state is clearly not
+IEEE80211_CHANCTX_REPLACES_OTHER, we're not going to do
+anything else in this function and can just return to
+avoid accessing the freed old_ctx.
 
-Make sure that the pointer is always valid by setting NULL after destroy.
-
-Fixes: 6a48faeeca10 ("net/mlx5: Add direct rule fs_cmd implementation")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 5bcae31d9cb1 ("mac80211: implement multi-vif in-place reservations")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220601091926.df419d91b165.I17a9b3894ff0b8323ce2afdb153b101124c821e5@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ net/mac80211/chan.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
-index 728f81882589..6a9abba92df6 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
-@@ -44,11 +44,10 @@ static int set_miss_action(struct mlx5_flow_root_namespace *ns,
- 	err = mlx5dr_table_set_miss_action(ft->fs_dr_table.dr_table, action);
- 	if (err && action) {
- 		err = mlx5dr_action_destroy(action);
--		if (err) {
--			action = NULL;
--			mlx5_core_err(ns->dev, "Failed to destroy action (%d)\n",
--				      err);
--		}
-+		if (err)
-+			mlx5_core_err(ns->dev,
-+				      "Failed to destroy action (%d)\n", err);
-+		action = NULL;
+--- a/net/mac80211/chan.c
++++ b/net/mac80211/chan.c
+@@ -1640,12 +1640,9 @@ int ieee80211_vif_use_reserved_context(s
+ 
+ 	if (new_ctx->replace_state == IEEE80211_CHANCTX_REPLACE_NONE) {
+ 		if (old_ctx)
+-			err = ieee80211_vif_use_reserved_reassign(sdata);
+-		else
+-			err = ieee80211_vif_use_reserved_assign(sdata);
++			return ieee80211_vif_use_reserved_reassign(sdata);
+ 
+-		if (err)
+-			return err;
++		return ieee80211_vif_use_reserved_assign(sdata);
  	}
- 	ft->fs_dr_table.miss_action = action;
- 	if (old_miss_action) {
--- 
-2.35.1
-
+ 
+ 	/*
 
 
