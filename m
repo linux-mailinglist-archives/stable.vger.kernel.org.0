@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80638548DA7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52CEA5494EE
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239573AbiFMNAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:00:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54970 "EHLO
+        id S245118AbiFMKao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:30:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357375AbiFMM6m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:58:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 462452DC6;
-        Mon, 13 Jun 2022 04:17:37 -0700 (PDT)
+        with ESMTP id S1343746AbiFMK2m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:28:42 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5AA124F15;
+        Mon, 13 Jun 2022 03:20:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48C6760EAE;
-        Mon, 13 Jun 2022 11:17:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CB9CC34114;
-        Mon, 13 Jun 2022 11:17:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A8DE3CE1102;
+        Mon, 13 Jun 2022 10:20:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9884CC34114;
+        Mon, 13 Jun 2022 10:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119056;
-        bh=EqpB5QRqD6dOFaUdYwkgChjtgEvzBniG9DkPH2wSEq4=;
+        s=korg; t=1655115608;
+        bh=NJv5yMjXEaLu4sTVaTqcnR+kvIcxGGSfqkc59P6ixjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oEkazyA1nUiWlFkVBD9YCKYii7ybElOjFItU+YnqaNG2UzT9CHBDLzOLFuBqA1oug
-         Ac706myLX0Yp9wMHcHI3Ckgo014TioijcXpPjpgZN6EVTqiNPzuQcR43vxJB14huUq
-         twxoWPCsbeczeGijG6BjfhIJN91VCwQOLJMxabmk=
+        b=EQKm4ASH6SVQVB3HF6b/n5qt3BvJ7PyJMOROrghgx+wO/sfNv4U/qGN6raBRsV+Qe
+         ALsc9I+8UoQ+r73IpJcv/sKYOa5xaweCvP/ltZ7s6My+/g1q1am4Y7lH4GsEIveLA8
+         eUCLPyMl+zVSOsi0q8SImWF/6Ayg/0X50gwA0prw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e820fdc8ce362f2dea51@syzkaller.appspotmail.com,
-        Jon Maloy <jmaloy@redhat.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        NeilBrown <neilb@suse.de>,
+        "J. Bruce Fields" <bfields@fieldses.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 107/247] tipc: check attribute length for bearer name
+Subject: [PATCH 4.9 135/167] SUNRPC: Fix the calculation of xdr->end in xdr_get_next_encode_buffer()
 Date:   Mon, 13 Jun 2022 12:10:09 +0200
-Message-Id: <20220613094926.204235963@linuxfoundation.org>
+Message-Id: <20220613094912.560232671@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,56 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 7f36f798f89bf32c0164049cb0e3fd1af613d0bb ]
+[ Upstream commit 6c254bf3b637dd4ef4f78eb78c7447419c0161d7 ]
 
-syzbot reported uninit-value:
-=====================================================
-BUG: KMSAN: uninit-value in string_nocheck lib/vsprintf.c:644 [inline]
-BUG: KMSAN: uninit-value in string+0x4f9/0x6f0 lib/vsprintf.c:725
- string_nocheck lib/vsprintf.c:644 [inline]
- string+0x4f9/0x6f0 lib/vsprintf.c:725
- vsnprintf+0x2222/0x3650 lib/vsprintf.c:2806
- vprintk_store+0x537/0x2150 kernel/printk/printk.c:2158
- vprintk_emit+0x28b/0xab0 kernel/printk/printk.c:2256
- vprintk_default+0x86/0xa0 kernel/printk/printk.c:2283
- vprintk+0x15f/0x180 kernel/printk/printk_safe.c:50
- _printk+0x18d/0x1cf kernel/printk/printk.c:2293
- tipc_enable_bearer net/tipc/bearer.c:371 [inline]
- __tipc_nl_bearer_enable+0x2022/0x22a0 net/tipc/bearer.c:1033
- tipc_nl_bearer_enable+0x6c/0xb0 net/tipc/bearer.c:1042
- genl_family_rcv_msg_doit net/netlink/genetlink.c:731 [inline]
+I found that NFSD's new NFSv3 READDIRPLUS XDR encoder was screwing up
+right at the end of the page array. xdr_get_next_encode_buffer() does
+not compute the value of xdr->end correctly:
 
-- Do sanity check the attribute length for TIPC_NLA_BEARER_NAME.
-- Do not use 'illegal name' in printing message.
+ * The check to see if we're on the final available page in xdr->buf
+   needs to account for the space consumed by @nbytes.
 
-Reported-by: syzbot+e820fdc8ce362f2dea51@syzkaller.appspotmail.com
-Fixes: cb30a63384bc ("tipc: refactor function tipc_enable_bearer()")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Link: https://lore.kernel.org/r/20220602063053.5892-1-hoang.h.le@dektech.com.au
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+ * The new xdr->end value needs to account for the portion of @nbytes
+   that is to be encoded into the previous buffer.
+
+Fixes: 2825a7f90753 ("nfsd4: allow encoding across page boundaries")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: NeilBrown <neilb@suse.de>
+Reviewed-by: J. Bruce Fields <bfields@fieldses.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/bearer.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/sunrpc/xdr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/tipc/bearer.c b/net/tipc/bearer.c
-index 36b466cfd9e1..b0ad61b4b101 100644
---- a/net/tipc/bearer.c
-+++ b/net/tipc/bearer.c
-@@ -259,9 +259,8 @@ static int tipc_enable_bearer(struct net *net, const char *name,
- 	u32 i;
- 
- 	if (!bearer_name_validate(name, &b_names)) {
--		errstr = "illegal name";
- 		NL_SET_ERR_MSG(extack, "Illegal name");
--		goto rejected;
-+		return res;
- 	}
- 
- 	if (prio > TIPC_MAX_LINK_PRI && prio != TIPC_MEDIA_LINK_PRI) {
+diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
+index dd547edee59f..06b4b76edd9d 100644
+--- a/net/sunrpc/xdr.c
++++ b/net/sunrpc/xdr.c
+@@ -544,7 +544,11 @@ static __be32 *xdr_get_next_encode_buffer(struct xdr_stream *xdr,
+ 	 */
+ 	xdr->p = (void *)p + frag2bytes;
+ 	space_left = xdr->buf->buflen - xdr->buf->len;
+-	xdr->end = (void *)p + min_t(int, space_left, PAGE_SIZE);
++	if (space_left - nbytes >= PAGE_SIZE)
++		xdr->end = (void *)p + PAGE_SIZE;
++	else
++		xdr->end = (void *)p + space_left - frag1bytes;
++
+ 	xdr->buf->page_len += frag2bytes;
+ 	xdr->buf->len += nbytes;
+ 	return p;
 -- 
 2.35.1
 
