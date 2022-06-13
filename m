@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 535D45496E9
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06F1A548F90
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:23:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354553AbiFMLdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:33:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56874 "EHLO
+        id S243938AbiFMKZo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:25:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355156AbiFMLat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10B024132F;
-        Mon, 13 Jun 2022 03:46:39 -0700 (PDT)
+        with ESMTP id S1343705AbiFMKY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:24:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EC3123BEB;
+        Mon, 13 Jun 2022 03:19:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9635B80D3F;
-        Mon, 13 Jun 2022 10:46:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 228ECC34114;
-        Mon, 13 Jun 2022 10:46:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB6E760B8D;
+        Mon, 13 Jun 2022 10:19:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5A7AC3411C;
+        Mon, 13 Jun 2022 10:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117196;
-        bh=AXM9qMFCBS3L0W0YLvxJnCwpfqPIrY7ZADZ+q5pL5mU=;
+        s=korg; t=1655115564;
+        bh=EsMgRyH2Ui3b8N69KMl1Dg6EPahzTTOTDN582z6MPe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IPv3xj9G8PgT9Yt45zOmCWTCkvFxwKevkiTVnHCKDqu7vOTBNt0CkChNamQ02lYtv
-         7SKifU+ZZvuwVMYAGdgkDTwqmjwNwcwGYHRVHYdLMvUEf/zUagjYND02F0x2V0VA7U
-         KXgPDeH2pjxgnhFDqJyqsecPzzyA6rtsSWX3U7hg=
+        b=W2EKXT2Vz111GNO0zUJW823LX+CZ7lUhZsOv0JIIMevdVMhqSMBmSO316jtKb+I3F
+         QSezoYT1iohTqzl6es6SeNTsK4CkqGZ1xArmJbmv30zcKVuRDbDrXgMxkwlRnAYiTw
+         NCyNyuJCEhkKe46NFoYTCaDjo/aIZi2OfucTFfDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 320/411] ASoC: fsl_sai: Fix FSL_SAI_xDR/xFR definition
+Subject: [PATCH 4.9 119/167] serial: sh-sci: Dont allow CS5-6
 Date:   Mon, 13 Jun 2022 12:09:53 +0200
-Message-Id: <20220613094938.331346538@linuxfoundation.org>
+Message-Id: <20220613094908.655412139@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit e4dd748dc87cf431af7b3954963be0d9f6150217 ]
+[ Upstream commit 9b87162de8be26bf3156460b37deee6399fd0fcb ]
 
-There are multiple xDR and xFR registers, the index is
-from 0 to 7. FSL_SAI_xDR and FSL_SAI_xFR is abandoned,
-replace them with FSL_SAI_xDR0 and FSL_SAI_xFR0.
+Only CS7 and CS8 seem supported but CSIZE is not sanitized from
+CS5 or CS6 to CS8.
 
-Fixes: 4f7a0728b530 ("ASoC: fsl_sai: Add support for SAI new version")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1653284661-18964-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Set CSIZE correctly so that userspace knows the effective value.
+Incorrect CSIZE also results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
+
+Fixes: 1da177e4c3f4 (Linux-2.6.12-rc2)
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-6-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_sai.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/sh-sci.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/fsl_sai.h b/sound/soc/fsl/fsl_sai.h
-index 677ecfc1ec68..afaef2027234 100644
---- a/sound/soc/fsl/fsl_sai.h
-+++ b/sound/soc/fsl/fsl_sai.h
-@@ -67,8 +67,8 @@
- #define FSL_SAI_xCR3(tx, ofs)	(tx ? FSL_SAI_TCR3(ofs) : FSL_SAI_RCR3(ofs))
- #define FSL_SAI_xCR4(tx, ofs)	(tx ? FSL_SAI_TCR4(ofs) : FSL_SAI_RCR4(ofs))
- #define FSL_SAI_xCR5(tx, ofs)	(tx ? FSL_SAI_TCR5(ofs) : FSL_SAI_RCR5(ofs))
--#define FSL_SAI_xDR(tx, ofs)	(tx ? FSL_SAI_TDR(ofs) : FSL_SAI_RDR(ofs))
--#define FSL_SAI_xFR(tx, ofs)	(tx ? FSL_SAI_TFR(ofs) : FSL_SAI_RFR(ofs))
-+#define FSL_SAI_xDR0(tx)	(tx ? FSL_SAI_TDR0 : FSL_SAI_RDR0)
-+#define FSL_SAI_xFR0(tx)	(tx ? FSL_SAI_TFR0 : FSL_SAI_RFR0)
- #define FSL_SAI_xMR(tx)		(tx ? FSL_SAI_TMR : FSL_SAI_RMR)
+diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
+index 5c6243a31166..91c69fc3987a 100644
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -2206,8 +2206,12 @@ static void sci_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	unsigned long max_freq = 0;
+ 	int best_clk = -1;
  
- /* SAI Transmit/Receive Control Register */
+-	if ((termios->c_cflag & CSIZE) == CS7)
++	if ((termios->c_cflag & CSIZE) == CS7) {
+ 		smr_val |= SCSMR_CHR;
++	} else {
++		termios->c_cflag &= ~CSIZE;
++		termios->c_cflag |= CS8;
++	}
+ 	if (termios->c_cflag & PARENB)
+ 		smr_val |= SCSMR_PE;
+ 	if (termios->c_cflag & PARODD)
 -- 
 2.35.1
 
