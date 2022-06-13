@@ -2,315 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06106549FAD
+	by mail.lfdr.de (Postfix) with ESMTP id 7F777549FAF
 	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 22:45:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344741AbiFMUop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 16:44:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48756 "EHLO
+        id S1344931AbiFMUpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 16:45:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351293AbiFMUnu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 16:43:50 -0400
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2042.outbound.protection.outlook.com [40.107.244.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 880CF2E68C;
-        Mon, 13 Jun 2022 12:49:45 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=AtDEW5MmWIGw+gloGY0Tw0Q2BoKDlY3CXuhG/DZe4hwj1lm8h6FK79OOyjQriAbdRxpr+yjwIGSFKKKjLLnxtwd+oU1lwIGWMQrWv87aB8idaMjloD0L5XbSjbWSwVbJzcNnlGAuxxhSc9/dWaHzUpMb3TOp6rqyQwofZmxI7uV8P8wQ0Rw73cME2J5/5gU/JoioMOgB5g/jc6qn4bEF1tbA9x3DyntHEbYQanGCT+1PcGYL3HePThG/WSlxj+VkralRR4jub/UHZ/k4ykde7krCFOwgMOl0dRp+VYe3gqNMiqMFEd6f7SNaQGbJIe6zB7IBm0P/fssnui8UG58lkA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=WeI4Qb9Dqr5C91GVUAWLGi4LXwA2W66gqW/d0UmgyaU=;
- b=kTfoVRdXURMse8Vre/BGj4YMdYY26kSTJYJRNzXgm6+mjtu3J/9ImocPb0smiwsovRm35erTwxuleLtFBOg7jc8WOZSvdkg87Jux2acM8j27ewiHqsO7j/Yqsz+ZgjTW0Q4X2KJ7gRhmIE26yUHdz81UShLQU81GjGHnfvciZ5PqchNBUYmMdehwNx3BDic5uPmIXaXnCDZzFjPNLsakUmp3Wr7FZfHm7IBNhYDWQvlrUn4v4fpn77fuLwL7JspUlJPXxEqpNmyHWcpFvh34b4i6fg90uFL0alncU1zKvAwTtX9AuybHNt7LDixDXgyyoDiHJRI8mMfqV+F763cl1g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WeI4Qb9Dqr5C91GVUAWLGi4LXwA2W66gqW/d0UmgyaU=;
- b=Z88vBs/Sz/sMCjEt9k25S9JNV4PfaCq1FO+/QPzia/z51rCHAG1AQOomhXFRt/nO144CJsxbpbfvGOdDIdX+21QbilQDkRy5F2qXudKxtNlMDhJU9qA3wWbuOin7Q/g8435Yi2jiNmNMN4bFv8FUFfax2IxLWZ4wvr3MDwHgrJjz9qdT4mt0pXQyN2i88zLDPIsXI9lqlU8VyMvYM+E3oO2Ll7oU35A7G9hj1Eq0t3Shxr0qXf3JBpZZ5NYckyRtZI/OjPH/n+nF1u8AKlyhwADUf3pBAHGiNgWmSMoB8Ujhv1Xqo1PuWfaJGnS/FDU+ixyHbkDD7xzXf8EaT825RQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from DS7PR12MB5744.namprd12.prod.outlook.com (2603:10b6:8:73::18) by
- MN2PR12MB3821.namprd12.prod.outlook.com (2603:10b6:208:16f::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.12; Mon, 13 Jun
- 2022 19:49:41 +0000
-Received: from DS7PR12MB5744.namprd12.prod.outlook.com
- ([fe80::2030:d898:6e2f:3471]) by DS7PR12MB5744.namprd12.prod.outlook.com
- ([fe80::2030:d898:6e2f:3471%7]) with mapi id 15.20.5332.017; Mon, 13 Jun 2022
- 19:49:41 +0000
-From:   Zi Yan <ziy@nvidia.com>
-To:     Guo Ren <guoren@kernel.org>
-Cc:     Xianting Tian <xianting.tian@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Linux-MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, huanyi.xj@alibaba-inc.com,
-        zjb194813@alibaba-inc.com, tianhu.hh@alibaba-inc.com,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Laura Abbott <labbott@redhat.com>
-Subject: Re: [RESEND PATCH] mm: page_alloc: validate buddy before check the
- migratetype
-Date:   Mon, 13 Jun 2022 15:49:38 -0400
-X-Mailer: MailMate (1.14r5898)
-Message-ID: <D667F530-E286-4E75-B7CE-63E120E440C8@nvidia.com>
-In-Reply-To: <CAJF2gTQGXAubtas4wAzrg298dGQJntu38X48V2OzcK8xZ_vPJg@mail.gmail.com>
-References: <20220613131046.3009889-1-xianting.tian@linux.alibaba.com>
- <0262A4FB-5A9B-47D3-8F1A-995509F56279@nvidia.com>
- <CAJF2gTQGXAubtas4wAzrg298dGQJntu38X48V2OzcK8xZ_vPJg@mail.gmail.com>
-Content-Type: multipart/signed;
- boundary="=_MailMate_8CA5950B-8B8A-40E2-9ED1-3D2209BFC5BB_=";
- micalg=pgp-sha512; protocol="application/pgp-signature"
-X-ClientProxiedBy: BL0PR02CA0038.namprd02.prod.outlook.com
- (2603:10b6:207:3d::15) To DS7PR12MB5744.namprd12.prod.outlook.com
- (2603:10b6:8:73::18)
+        with ESMTP id S1351453AbiFMUoH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 16:44:07 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9B8E13E32
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 12:51:48 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id s12so13158784ejx.3
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 12:51:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
+        bh=4JdrATQx3rV2A5UBqaMzqBXG8qRim4/ObNTA/zRa1l8=;
+        b=Rpa670g4XZp/5fbnRsIzS1mJDMoHnVs8iZ2zFMrIl4OS6KfFk07vVc9q5HM5s/Rjcd
+         6bWzOQYVGXOOkiBIddW8AT2N7hSeWqYFxnoDtL/Sk8h3+hngFeTzPpHoLa4BGZJS/kIY
+         cyX6v8sScwYr+jHsK7CtbfaM5Bozl6d0/h/6SuiHFZ5QRSnUX3R4wySVP40jp4RJUntj
+         QztgNICCAVBb74kYqt95zbLYLzRTzc//jt4QYVB08q2xxaBRu475w72i4pkF7d0DVSii
+         vUwdCxzLMwoP37MspmpJMVg63g3qDhVtcXiDMFeqcD6xEYYkBi+Kf0BIrXSZ5JyqzqYK
+         VOsw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=4JdrATQx3rV2A5UBqaMzqBXG8qRim4/ObNTA/zRa1l8=;
+        b=GaED4vMB0sNipxHj9H9ZLR6ahz+InCwn9vXux6Akq7Jl1ynDyJ2Mly0wNWEhduUQOx
+         dm35rYJwn/SzmmijvQKATRDOfu/yGzPKD4tHGL4f/Yr/EJXcKG5BaqYlDtmBMZxhpjdT
+         MAOiyLvIjc2Zisuw8wsK+dzGhOktQ4lWM2GmrUHCOLwFIC/GSaLbRL49RA6GUN2gChQr
+         klsFp9wfzKQg760srIPAF9r11G7ZY25+GwQ7iQSUnrNA5sX12UsKHRDlB4/K5AedUYDZ
+         a251vXY6DAkoTtzDxW+4JDap0DrvK0hwEVzsAlUM6ExWDOyqhcudDITxuyIkFNGTpSH4
+         YWfw==
+X-Gm-Message-State: AOAM533dgCuNRmuml+8GLzMYI8s8WY0B0nDyOLSfshZywECXwrH2l/GV
+        fTGOhK4ySWSdIvW3YLIOyf7XrS5r73Y=
+X-Google-Smtp-Source: ABdhPJxzw1FLzveZzKlZAc+GgrqzKNPUrHp0sEiWYk/e/TLEemg7V1tjzAHJEBNp5fkfyjkoUeXZpg==
+X-Received: by 2002:a17:906:d82:b0:70d:84d3:b6df with SMTP id m2-20020a1709060d8200b0070d84d3b6dfmr1244652eji.464.1655149907308;
+        Mon, 13 Jun 2022 12:51:47 -0700 (PDT)
+Received: from debian (host-78-150-47-22.as13285.net. [78.150.47.22])
+        by smtp.gmail.com with ESMTPSA id hh14-20020a170906a94e00b00703e09dd2easm4248518ejb.147.2022.06.13.12.51.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jun 2022 12:51:46 -0700 (PDT)
+Date:   Mon, 13 Jun 2022 20:51:45 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Subject: backport of patches to fix riscv build failure in 4.19-stable and
+ 5.4-stable
+Message-ID: <YqeVUUsqCf9WPQ2S@debian>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 7c9c2ab0-b74f-4e91-96a5-08da4d75db0f
-X-MS-TrafficTypeDiagnostic: MN2PR12MB3821:EE_
-X-Microsoft-Antispam-PRVS: <MN2PR12MB38210AD8913F7BDEAACE32DAC2AB9@MN2PR12MB3821.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: yaDMs1ELs2gx81STHnvNV7XnrA6098Vs/ne5PRMC80H4Y28N+u2hR1sijS0rMzQ1sz0FzASweDgxKXhQz8IzdC4N2leJKLr762WqtBsU+28Twgi8ziH2kDPaxI+jylDCM7+N5uVdrrVPz2bBgQ+QcbJe4U9GDeRBEmqouZPUh4PYLScICVgtX9kGUjWGH5/mZ0IB9FyYaZgbWAOJ1HCmzq778FT1v4XvJfGagD2ReDM7tlHREUmC+iyEhA3wNk6ao6Iq5Kb63xkeiyy3yhZEYuAC77+jlvGbr1EhxFy/bUoj8r6ls01uEybnTeMKShUOnRefh/spATVasiLuRT7gCJWbW5lbCXlMXaX6Hr/+uewFqnu0xJnim6g/LWc1zZ+zoMTji/5vPCeGQl6fdSRho0mC1Af79neIJKpaJMJE+TJsHEKQ6VAKXiKOoCpmN19MyScxYouDJYuI+fugnMhCzHa1WZXAmTf9Dzj88NhT2ZcNkSI/iUo4+e+kdbRhmAu0X/lPDuPUpQptxyJ9iV7ub79bkSQSWXlckEIwdsnMPd8N206BQk4jDWhiSw+Yy/d8zxLryjBYyTgkMYgUpQt0ouqxOuGX9fk3HeX60vxzRwWxPDZk047ogMAwrFeGOJjTPENIBxqWDBS1ySb9emwtyxu3RgJN+ed5vllkh/2uvVrAXtFahhuNwF+O/dQN5a4ZNHQGj7mRf7evBybAJwD3pkl+dD+q4CAj15HJPl3FDZw/MV39YGIJD06OAxtNQPFFqFWHgkhQkAv9FklvyU2ErOIo44JZjfe0NsYn7O6tFZe3aBt0Jkx+xCYco5Id5ROR
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR12MB5744.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(8676002)(4326008)(66946007)(66476007)(66556008)(8936002)(2616005)(235185007)(86362001)(54906003)(508600001)(5660300002)(6486002)(966005)(53546011)(36756003)(33964004)(7416002)(6916009)(6506007)(2906002)(33656002)(26005)(186003)(21480400003)(83380400001)(6512007)(316002)(38100700002)(15650500001)(6666004)(72826004)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?cGZXbG9tMHNRcHFrMjVPM0loM1RLY1RsLzViTE9PU2hLTlpSSC9Vc2tMUktS?=
- =?utf-8?B?QmRiejh1YnJrc0luVG9LdC9TVzl2TkZGZ3RVQ29MNDg4RXFTa3BvL252empi?=
- =?utf-8?B?N0FSeFNxTHpJbUVwcHgzOHp2aHJUZlJMVnluNnJqSU9IYUVIOU9KSUtmUGQz?=
- =?utf-8?B?VHJQTk4yeUJjZkp5aEdhUnZURXZwSnE2WnBwMi84WnRsamdqaGtidGlaN1Ur?=
- =?utf-8?B?VU43UXpiNlZMYUMyRW9PaG03SUJFVlM5OWlVWkJncWNKTFQ4YmNod2hvYjZN?=
- =?utf-8?B?RzgrQTBKRnFBN3h1R2VidTZIUVNoY2c3WUQ3K1FEV1BMTCtLeTZmUjlUdEhF?=
- =?utf-8?B?ZFVSNFg0cnBJdS9xRjVpUyt5TEdmeDhJaUJHYkIzTHZoUGg4ZVpuV3NYM1NQ?=
- =?utf-8?B?S1YrVE5qUTRmTVJ4bHNGWkFJUmhsKzMyLzhtMlVna1E3S2E0V3orQXhnZldv?=
- =?utf-8?B?ZDJ3QU0rbXFlVGZ2U3F6akt4VjFwRTJJUmlPUEN4UTdBYTU5dDBKY2MwTUdi?=
- =?utf-8?B?RGVpZ0RjOWtHN1VpVmdlOUQwb2QyWnNETTZabVpUR04zVVZObEtDTlRGOHll?=
- =?utf-8?B?QStXcUpSWGR4Z0xQL1J2QTNIaXZLUlNrMFhObW92U2JMRGdYWXRDdEVxcjJW?=
- =?utf-8?B?YlZoSnRXTUlJVktNWTVkN2JUTGpBNXY0ZUR2a3NVUVRDTHc3elJLV05NR0JJ?=
- =?utf-8?B?ay9qRWxaVUNaSDFPT3NhM094dUwxTnNQdUQ1eHZaOW8xYlQ5TGhkcTVSdWM3?=
- =?utf-8?B?a3pobjdmRlhTNHloV1VmR3hSOHpOV09NcVhma0V0THZZNnFlbXNrUUFWakJq?=
- =?utf-8?B?d1NBQnJBUmNWMWZna3VDM1NUcHd3UTdKT1MzM25DMnRFNmJUYktNTzJXM0FV?=
- =?utf-8?B?ZnVyVys3QytpemptZTlyclJHbVdWS1BTa0ZYb3dSc2Rxb2pVaFZCNUYwTmdL?=
- =?utf-8?B?dThjTkE3ZUw2Slppc3hYTmNDTm5XSWtWT3BrSGlTMVZxU1FJTks0VzFHdU9I?=
- =?utf-8?B?ZXEyRjhzd0VQUDBDOUJLSXJibU5QNVRKTC9sM05SVGFDYXVKUmgzRU5mTTUw?=
- =?utf-8?B?YkNDam5qWkRFSUpEaExNYUQ3SE5rWHdib0ZGT1gwUzBqT1dWWkRTSnBWUlRT?=
- =?utf-8?B?Y3hwc0crWHNkSXU2cHhJblhyNEJ6QytWTm9qZENVanVKOXU3NGlRazF2MnVS?=
- =?utf-8?B?eHlxdmxtTktHRGsvNFFyaG9iaDhsZE9vVXNRQmRIRlR4NVVZSlU1bDIyY3g5?=
- =?utf-8?B?d1NRTDNOaUlKKzd6Q0t6OGk5NjJBSXl0OFNmVkFwMDZPY0dTaldWT0FnblFX?=
- =?utf-8?B?UTEyUmwzQmNubUpmQllERkR0bi9ZOXhSTXRlTmFOU1lmd09xWnZIcExYVlFM?=
- =?utf-8?B?ODQ1UGFDMmlVQlRFU0p5OTZFcUZVRDRJK2tYVGpoa2JQbERSUjdvVVhKRzlj?=
- =?utf-8?B?Uks2RTJiM3hQbXpTQUl5cjkwTHZYRGxqLzlFQjkxZEx1VjVEZ2hCMm4xZ0hh?=
- =?utf-8?B?WDFQa3UrTnpYZCtmR2JBKzlFbDF2aTg5QnY0UVZKUC9GNldRK0xoWTVVRmJj?=
- =?utf-8?B?bjl1RDBOV1V4eFdVZUpoWkNIaU9aQksyeTRHNTloM2Vwc2VYZE1BRnFHU3JD?=
- =?utf-8?B?T2lGMDRobEZYeUJPakdueFE5TmVFL1hDL3RGVWFFS2NXYisxcHQ2M0xFU0JN?=
- =?utf-8?B?alF6QkxSOENqeDBoNzFWTHhOdW1QRWNZdU9ET3lkQ2VBN3VpTy9MUUxKdTNT?=
- =?utf-8?B?eDZJRVY1dTRwVVAvNmhKR0NES2w2czBML3EyV2JPVmswdGFsOThyOUpNWDF3?=
- =?utf-8?B?WDRRTTdnOUdJUkVoR3llVDYvMVZZd0VZeHlsZkZaU3JBNVhmWFhucVUvcmVN?=
- =?utf-8?B?ZGR0ODNIWlE5SmNTMXlualppUTl2anZwUGJ0eWFydUtIWEtpbWliU0RDM1FQ?=
- =?utf-8?B?bDdvZkUyZXArOW1YYkkyV1J2alMwVGorVWhLRFpnMVJtS2VTSEIvL3VCbExl?=
- =?utf-8?B?OXdxVllGb201cmpRV2xDakNsNHkreHA2bTB0L1lhZnlkcVpmVWVjWnFxMFEz?=
- =?utf-8?B?ckJLZ25UNVdwZFdFZWNrTG8rVUdZLzNIZHhMQzQ3elFWMzdZZTU2My96VDBy?=
- =?utf-8?B?QU5kU3Z1WjQyaVJMQTEvczdVSU1aeEhQVWJrbTJMNlg0Y3ppNTE3VGFxRlFr?=
- =?utf-8?B?V0U5NUhJQ2VreFgxaGcxRE1hZFU4NGh5dmQreWdqQ0xsSFhYcnREVCtSR0s2?=
- =?utf-8?B?YzV1cGh3dllHSHBqZlBBV1FLV2dkOER0VmN5NUV3VWRmdFVJRjJObXV1UXFH?=
- =?utf-8?B?dnN3TzVJYjUvT0kyK05OcUwxaitYcnFHdGo2MDZFUWxVdnBuRGUwUT09?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7c9c2ab0-b74f-4e91-96a5-08da4d75db0f
-X-MS-Exchange-CrossTenant-AuthSource: DS7PR12MB5744.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jun 2022 19:49:40.9340
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: hm61HQ/D5sZ3CFJedcmJjKKYOxCjNLkri1ndFhSbpy+zatQ6cCAwx6GZHIm05TYx
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3821
-X-Spam-Status: No, score=-2.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/mixed; boundary="xPnGHc1wEKH4DRrq"
+Content-Disposition: inline
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=_MailMate_8CA5950B-8B8A-40E2-9ED1-3D2209BFC5BB_=
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-On 13 Jun 2022, at 12:32, Guo Ren wrote:
+--xPnGHc1wEKH4DRrq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> On Mon, Jun 13, 2022 at 11:23 PM Zi Yan <ziy@nvidia.com> wrote:
->>
->> Hi Xianting,
->>
->> Thanks for your patch.
->>
->> On 13 Jun 2022, at 9:10, Xianting Tian wrote:
->>
->>> Commit 787af64d05cd ("mm: page_alloc: validate buddy before check its=
- migratetype.")
->>> added buddy check code. But unfortunately, this fix isn't backported =
-to
->>> linux-5.17.y and the former stable branches. The reason is it added w=
-rong
->>> fixes message:
->>>      Fixes: 1dd214b8f21c ("mm: page_alloc: avoid merging non-fallback=
-able
->>>                          pageblocks with others")
->>
->> No, the Fixes tag is right. The commit above does need to validate bud=
-dy.
-> I think Xianting is right. The =E2=80=9CFixes:" tag is not accurate and=
- the
-> page_is_buddy() is necessary here.
->
-> This patch could be applied to the early version of the stable tree
-> (eg: Linux-5.10.y, not the master tree)
+Hi Greg,
 
-This is quite misleading. Commit 787af64d05cd applies does not mean it is=
+The build of riscv allmodconfig fails in 4.19-stable and 5.4-stable.
 
-intended to fix the preexisting bug. Also it does not apply cleanly
-to commit d9dddbf55667, there is a clear indentation mismatch. At best,
-you can say the way of 787af64d05cd fixing 1dd214b8f21c also fixes d9dddb=
-f55667.
-There is no way you can apply 787af64d05cd to earlier trees and call it a=
- day.
+4.19-stable will need:
+	30aca1bacb39 ("RISC-V: fix barrier() use in <vdso/processor.h>")
 
-You can mention 787af64d05cd that it fixes a bug in 1dd214b8f21c and ther=
-e is
-a similar bug in d9dddbf55667 that can be fixed in a similar way too. Say=
-ing
-the fixes message is wrong just misleads people, making them think there =
-is
-no bug in 1dd214b8f21c. We need to be clear about this.
+and 5.4-stable needs:
+	30aca1bacb39 ("RISC-V: fix barrier() use in <vdso/processor.h>")
+	fc585d4a5cf6 ("riscv: Less inefficient gcc tishift helpers (and export their symbols)")
 
-Also, you will need to fix the mm/page_isolation.c code too to make this =
-patch
-complete, unless you can show that PFN=3D0x1000 is never going to be enco=
-untered
-in the mm/page_isolation.c code I mentioned below.
+Backport of all are in the attached mbox.
 
->
->>
->>> Actually, this issue is involved by commit:
->>>      commit d9dddbf55667 ("mm/page_alloc: prevent merging between iso=
-lated and other pageblocks")
->>>
->>> For RISC-V arch, the first 2M is reserved for sbi, so the start PFN i=
-s 512,
->>> but it got buddy PFN 0 for PFN 0x2000:
->>>      0 =3D 0x2000 ^ (1 << 12)
->>> With the illegal buddy PFN 0, it got an illegal buddy page, which cau=
-sed
->>> crash in __get_pfnblock_flags_mask().
->>
->> It seems that the RISC-V arch reveals a similar bug from d9dddbf55667.=
-
->> Basically, this bug will only happen when PFN=3D0x2000 is merging up a=
-nd
->> there are some isolated pageblocks.
-> Not PFN=3D0x2000, it's PFN=3D0x1000, I guess.
->
-> RISC-V's first 2MB RAM could reserve for opensbi, so it would have
-> riscv_pfn_base=3D512 and mem_map began with 512th PFN when
-> CONFIG_FLATMEM=3Dy.
-> (Also, csky has the same issue: a non-zero pfn_base in some scenarios.)=
-
->
-> But __find_buddy_pfn algorithm thinks the start address is 0, it could
-> get 0 pfn or less than the pfn_base value. We need another check to
-> prevent that.
->
->>
->> BTW, what does first reserved 2MB imply? All 4KB pages from first 2MB =
-are
->> set to PageReserved?
->>
->>>
->>> With the patch, it can avoid the calling of get_pageblock_migratetype=
-() if
->>> it isn't buddy page.
->>
->> You might miss the __find_buddy_pfn() caller in unset_migratetype_isol=
-ate()
->> from mm/page_isolation.c, if you are talking about linux-5.17.y and fo=
-rmer
->> version. There, page_is_buddy() is also not called and is_migrate_isol=
-ate_page()
->> is called, which calls get_pageblock_migratetype() too.
->>
->>>
->>> Fixes: d9dddbf55667 ("mm/page_alloc: prevent merging between isolated=
- and other pageblocks")
->>> Cc: stable@vger.kernel.org
->>> Reported-by: zjb194813@alibaba-inc.com
->>> Reported-by: tianhu.hh@alibaba-inc.com
->>> Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
->>> ---
->>>  mm/page_alloc.c | 3 +++
->>>  1 file changed, 3 insertions(+)
->>>
->>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
->>> index b1caa1c6c887..5b423caa68fd 100644
->>> --- a/mm/page_alloc.c
->>> +++ b/mm/page_alloc.c
->>> @@ -1129,6 +1129,9 @@ static inline void __free_one_page(struct page =
-*page,
->>>
->>>                       buddy_pfn =3D __find_buddy_pfn(pfn, order);
->>>                       buddy =3D page + (buddy_pfn - pfn);
->>> +
->>> +                     if (!page_is_buddy(page, buddy, order))
->>> +                             goto done_merging;
->>>                       buddy_mt =3D get_pageblock_migratetype(buddy);
->>>
->>>                       if (migratetype !=3D buddy_mt
->>> --
->>> 2.17.1
->>
->> --
->> Best Regards,
->> Yan, Zi
->
->
->
-> -- =
-
-> Best Regards
->  Guo Ren
->
-> ML: https://lore.kernel.org/linux-csky/
 
 --
-Best Regards,
-Yan, Zi
+Regards
+Sudip
 
---=_MailMate_8CA5950B-8B8A-40E2-9ED1-3D2209BFC5BB_=
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-Content-Type: application/pgp-signature; name="signature.asc"
+--xPnGHc1wEKH4DRrq
+Content-Type: application/mbox
+Content-Disposition: attachment; filename="backport_4.19-stable.mbox"
+Content-Transfer-Encoding: quoted-printable
 
------BEGIN PGP SIGNATURE-----
+=46rom a5fefd64cd4795b715d3269bcd7ef7463e7138b4 Mon Sep 17 00:00:00 2001=0A=
+=46rom: Randy Dunlap <rdunlap@infradead.org>=0ADate: Mon, 16 Nov 2020 17:39=
+:51 -0800=0ASubject: [PATCH] RISC-V: fix barrier() use in <vdso/processor.h=
+>=0A=0Acommit 30aca1bacb398dec6c1ed5eeca33f355bd7b6203 upstream.=0A=0Ariscv=
+'s <vdso/processor.h> uses barrier() so it should include=0A<asm/barrier.h>=
+=0A=0AFixes this build error:=0A  CC [M]  drivers/net/ethernet/emulex/benet=
+/be_main.o=0AIn file included from ./include/vdso/processor.h:10,=0A       =
+          from ./arch/riscv/include/asm/processor.h:11,=0A                 =
+=66rom ./include/linux/prefetch.h:15,=0A                 from drivers/net/e=
+thernet/emulex/benet/be_main.c:14:=0A./arch/riscv/include/asm/vdso/processo=
+r.h: In function 'cpu_relax':=0A./arch/riscv/include/asm/vdso/processor.h:1=
+4:2: error: implicit declaration of function 'barrier' [-Werror=3Dimplicit-=
+function-declaration]=0A   14 |  barrier();=0A=0AThis happens with a total =
+of 5 networking drivers -- they all use=0A<linux/prefetch.h>.=0A=0Arv64 all=
+modconfig now builds cleanly after this patch.=0A=0AFixes fallout from:=0A8=
+15f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusi=
+ve")=0A=0AFixes: ad5d1122b82f ("riscv: use vDSO common flow to reduce the l=
+atency of the time-related functions")=0AReported-by: Andreas Schwab <schwa=
+b@linux-m68k.org>=0ASigned-off-by: Randy Dunlap <rdunlap@infradead.org>=0AA=
+cked-by: Arvind Sankar <nivedita@alum.mit.edu>=0ASigned-off-by: Palmer Dabb=
+elt <palmerdabbelt@google.com>=0AReviewed-by: Nick Desaulniers <ndesaulnier=
+s@google.com>=0ASigned-off-by: Palmer Dabbelt <palmerdabbelt@google.com>=0A=
+[sudip: change in old path]=0ASigned-off-by: Sudip Mukherjee <sudipm.mukher=
+jee@gmail.com>=0A---=0A arch/riscv/include/asm/processor.h | 2 ++=0A 1 file=
+ changed, 2 insertions(+)=0A=0Adiff --git a/arch/riscv/include/asm/processo=
+r.h b/arch/riscv/include/asm/processor.h=0Aindex c23578a37b44..fdcc34b4f65b=
+ 100644=0A--- a/arch/riscv/include/asm/processor.h=0A+++ b/arch/riscv/inclu=
+de/asm/processor.h=0A@@ -30,6 +30,8 @@=0A =0A #ifndef __ASSEMBLY__=0A =0A+#=
+include <asm/barrier.h>=0A+=0A struct task_struct;=0A struct pt_regs;=0A =
+=0A-- =0A2.30.2=0A=0A
+--xPnGHc1wEKH4DRrq
+Content-Type: application/mbox
+Content-Disposition: attachment; filename="backport_5.4-stable.mbox"
+Content-Transfer-Encoding: quoted-printable
 
-iQJDBAEBCgAtFiEE6rR4j8RuQ2XmaZol4n+egRQHKFQFAmKnlNIPHHppeUBudmlk
-aWEuY29tAAoJEOJ/noEUByhUQ2EP/1NmadZ9tPSW/UsTe/q1cwy5pWUX9vD0snmh
-UmcYBnGn95EjTXF5vaHumACth9yHDhMGJzK0xX76+4+RFioRDCZqrOB4TqN9WmXX
-z8iWhOHeTIoPtw66NnoPnMhgZ9pSgPeim1Us4cKquuBwgvs3xIsXkluiGLNNqOVj
-F8Xn50zl6JB8uSFWH5b9Tb4PoRkU7yxXBmptId98X6oF2YcCVxkCUW2YxLk1UR0/
-WbLetuDp6KRvsPlLK7kTK/p1cHFp3y0sbiYVtV05bMjRzrZdBXtFMwsS9msKrNG1
-FzbTAGW3L/G97zYDgN52MTHKs8LYo7FxvC656VV/Y7zVu6sTs1KNRqqkX+1HwF2x
-s7gmiDRFYfv60pTvfx8/HM9IdTDCREiGn8igVxxIe0nRwBg8to8vVS1Bm9gI65w7
-b7OM4ekIQNYTUMjepOCTGxGU26+fENAebEzOpyNeBsKBwIZzzwKlxUFLPAIli9nq
-s1iYb7b4TUAh2oJHDdS5Kjuh6cyQi1qZYw1NTafoF1eFEefwpS7k+EUoalOg0FlC
-9OCTLLBjzvFt4wxRiRXQ/7IJGQNhc+0MTadnhMcux0tm8qUuWwNSS+oqY4fYGLgx
-HOUxDtJVCl4HS+YMXSRNIy87HAI0UA+jnme/zxQ3JfxRP8ehXIfYGbNDSUtX2Ah5
-0tC7FN+D
-=cgWF
------END PGP SIGNATURE-----
-
---=_MailMate_8CA5950B-8B8A-40E2-9ED1-3D2209BFC5BB_=--
+=46rom d0a42b9714f30d4455ce41911e2bf463e0d8c450 Mon Sep 17 00:00:00 2001=0A=
+=46rom: Randy Dunlap <rdunlap@infradead.org>=0ADate: Mon, 16 Nov 2020 17:39=
+:51 -0800=0ASubject: [PATCH 1/2] RISC-V: fix barrier() use in <vdso/process=
+or.h>=0A=0Acommit 30aca1bacb398dec6c1ed5eeca33f355bd7b6203 upstream.=0A=0Ar=
+iscv's <vdso/processor.h> uses barrier() so it should include=0A<asm/barrie=
+r.h>=0A=0AFixes this build error:=0A  CC [M]  drivers/net/ethernet/emulex/b=
+enet/be_main.o=0AIn file included from ./include/vdso/processor.h:10,=0A   =
+              from ./arch/riscv/include/asm/processor.h:11,=0A             =
+    from ./include/linux/prefetch.h:15,=0A                 from drivers/net=
+/ethernet/emulex/benet/be_main.c:14:=0A./arch/riscv/include/asm/vdso/proces=
+sor.h: In function 'cpu_relax':=0A./arch/riscv/include/asm/vdso/processor.h=
+:14:2: error: implicit declaration of function 'barrier' [-Werror=3Dimplici=
+t-function-declaration]=0A   14 |  barrier();=0A=0AThis happens with a tota=
+l of 5 networking drivers -- they all use=0A<linux/prefetch.h>.=0A=0Arv64 a=
+llmodconfig now builds cleanly after this patch.=0A=0AFixes fallout from:=
+=0A815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exc=
+lusive")=0A=0AFixes: ad5d1122b82f ("riscv: use vDSO common flow to reduce t=
+he latency of the time-related functions")=0AReported-by: Andreas Schwab <s=
+chwab@linux-m68k.org>=0ASigned-off-by: Randy Dunlap <rdunlap@infradead.org>=
+=0AAcked-by: Arvind Sankar <nivedita@alum.mit.edu>=0ASigned-off-by: Palmer =
+Dabbelt <palmerdabbelt@google.com>=0AReviewed-by: Nick Desaulniers <ndesaul=
+niers@google.com>=0ASigned-off-by: Palmer Dabbelt <palmerdabbelt@google.com=
+>=0A[sudip: change in old path]=0ASigned-off-by: Sudip Mukherjee <sudipm.mu=
+kherjee@gmail.com>=0A---=0A arch/riscv/include/asm/processor.h | 2 ++=0A 1 =
+file changed, 2 insertions(+)=0A=0Adiff --git a/arch/riscv/include/asm/proc=
+essor.h b/arch/riscv/include/asm/processor.h=0Aindex f539149d04c2..8c5b11a6=
+40dd 100644=0A--- a/arch/riscv/include/asm/processor.h=0A+++ b/arch/riscv/i=
+nclude/asm/processor.h=0A@@ -22,6 +22,8 @@=0A =0A #ifndef __ASSEMBLY__=0A =
+=0A+#include <asm/barrier.h>=0A+=0A struct task_struct;=0A struct pt_regs;=
+=0A =0A-- =0A2.30.2=0A=0A=0AFrom 44560d34e7d1ab52956965ab94e73e13505f4b79 M=
+on Sep 17 00:00:00 2001=0AFrom: Olof Johansson <olof@lixom.net>=0ADate: Mon=
+, 16 Dec 2019 20:06:31 -0800=0ASubject: [PATCH 2/2] riscv: Less inefficient=
+ gcc tishift helpers (and export=0A their symbols)=0A=0Acommit fc585d4a5cf6=
+14727f64d86550b794bcad29d5c3 upstream.=0A=0AThe existing __lshrti3 was real=
+ly inefficient, and the other two helpers=0Aare also needed to compile some=
+ modules.=0A=0AAdd the missing versions, and export all of the symbols like=
+ arm64=0Aalready does.=0A=0AThis code is based on the assembly generated by=
+ libgcc builds.=0A=0AThis fixes a build break triggered by ubsan:=0A=0Arisc=
+v64-unknown-linux-gnu-ld: lib/ubsan.o: in function `.L2':=0Aubsan.c:(.text.=
+unlikely+0x38): undefined reference to `__ashlti3'=0Ariscv64-unknown-linux-=
+gnu-ld: ubsan.c:(.text.unlikely+0x42): undefined reference to `__ashrti3'=
+=0A=0ASigned-off-by: Olof Johansson <olof@lixom.net>=0A[paul.walmsley@sifiv=
+e.com: use SYM_FUNC_{START,END} instead of=0A ENTRY/ENDPROC; note libgcc or=
+igin]=0ASigned-off-by: Paul Walmsley <paul.walmsley@sifive.com>=0ASigned-of=
+f-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>=0A---=0A arch/riscv/incl=
+ude/asm/asm-prototypes.h |  4 ++=0A arch/riscv/lib/tishift.S               =
+ | 75 +++++++++++++++++++------=0A 2 files changed, 61 insertions(+), 18 de=
+letions(-)=0A=0Adiff --git a/arch/riscv/include/asm/asm-prototypes.h b/arch=
+/riscv/include/asm/asm-prototypes.h=0Aindex c9fecd120d18..8ae9708a8eee 1006=
+44=0A--- a/arch/riscv/include/asm/asm-prototypes.h=0A+++ b/arch/riscv/inclu=
+de/asm/asm-prototypes.h=0A@@ -4,4 +4,8 @@=0A #include <linux/ftrace.h>=0A #=
+include <asm-generic/asm-prototypes.h>=0A =0A+long long __lshrti3(long long=
+ a, int b);=0A+long long __ashrti3(long long a, int b);=0A+long long __ashl=
+ti3(long long a, int b);=0A+=0A #endif /* _ASM_RISCV_PROTOTYPES_H */=0Adiff=
+ --git a/arch/riscv/lib/tishift.S b/arch/riscv/lib/tishift.S=0Aindex 15f9d5=
+4c7db6..ef90075c4b0a 100644=0A--- a/arch/riscv/lib/tishift.S=0A+++ b/arch/r=
+iscv/lib/tishift.S=0A@@ -4,34 +4,73 @@=0A  */=0A =0A #include <linux/linkag=
+e.h>=0A+#include <asm-generic/export.h>=0A =0A-ENTRY(__lshrti3)=0A+SYM_FUNC=
+_START(__lshrti3)=0A 	beqz	a2, .L1=0A 	li	a5,64=0A 	sub	a5,a5,a2=0A-	addi	s=
+p,sp,-16=0A 	sext.w	a4,a5=0A 	blez	a5, .L2=0A 	sext.w	a2,a2=0A-	sll	a4,a1,a=
+4=0A 	srl	a0,a0,a2=0A-	srl	a1,a1,a2=0A+	sll	a4,a1,a4=0A+	srl	a2,a1,a2=0A 	o=
+r	a0,a0,a4=0A-	sd	a1,8(sp)=0A-	sd	a0,0(sp)=0A-	ld	a0,0(sp)=0A-	ld	a1,8(sp)=
+=0A-	addi	sp,sp,16=0A-	ret=0A+	mv	a1,a2=0A .L1:=0A 	ret=0A .L2:=0A-	negw	a4=
+,a4=0A-	srl	a1,a1,a4=0A-	sd	a1,0(sp)=0A-	sd	zero,8(sp)=0A-	ld	a0,0(sp)=0A-	=
+ld	a1,8(sp)=0A-	addi	sp,sp,16=0A+	negw	a0,a4=0A+	li	a2,0=0A+	srl	a0,a1,a0=
+=0A+	mv	a1,a2=0A+	ret=0A+SYM_FUNC_END(__lshrti3)=0A+EXPORT_SYMBOL(__lshrti3=
+)=0A+=0A+SYM_FUNC_START(__ashrti3)=0A+	beqz	a2, .L3=0A+	li	a5,64=0A+	sub	a5=
+,a5,a2=0A+	sext.w	a4,a5=0A+	blez	a5, .L4=0A+	sext.w	a2,a2=0A+	srl	a0,a0,a2=
+=0A+	sll	a4,a1,a4=0A+	sra	a2,a1,a2=0A+	or	a0,a0,a4=0A+	mv	a1,a2=0A+.L3:=0A+=
+	ret=0A+.L4:=0A+	negw	a0,a4=0A+	srai	a2,a1,0x3f=0A+	sra	a0,a1,a0=0A+	mv	a1,=
+a2=0A+	ret=0A+SYM_FUNC_END(__ashrti3)=0A+EXPORT_SYMBOL(__ashrti3)=0A+=0A+SY=
+M_FUNC_START(__ashlti3)=0A+	beqz	a2, .L5=0A+	li	a5,64=0A+	sub	a5,a5,a2=0A+	=
+sext.w	a4,a5=0A+	blez	a5, .L6=0A+	sext.w	a2,a2=0A+	sll	a1,a1,a2=0A+	srl	a4,=
+a0,a4=0A+	sll	a2,a0,a2=0A+	or	a1,a1,a4=0A+	mv	a0,a2=0A+.L5:=0A+	ret=0A+.L6:=
+=0A+	negw	a1,a4=0A+	li	a2,0=0A+	sll	a1,a0,a1=0A+	mv	a0,a2=0A 	ret=0A-ENDPRO=
+C(__lshrti3)=0A+SYM_FUNC_END(__ashlti3)=0A+EXPORT_SYMBOL(__ashlti3)=0A-- =
+=0A2.30.2=0A=0A
+--xPnGHc1wEKH4DRrq--
