@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43B2554989C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD04B548BEC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244919AbiFMKal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:30:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33044 "EHLO
+        id S1358595AbiFMMHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:07:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345167AbiFMK3b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:29:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C824825EAC;
-        Mon, 13 Jun 2022 03:20:39 -0700 (PDT)
+        with ESMTP id S1359307AbiFMMFi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDD89275D6;
+        Mon, 13 Jun 2022 03:59:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5A1B60C5D;
-        Mon, 13 Jun 2022 10:20:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F26CFC34114;
-        Mon, 13 Jun 2022 10:20:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B94CB80D31;
+        Mon, 13 Jun 2022 10:59:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 802D4C3411C;
+        Mon, 13 Jun 2022 10:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115638;
-        bh=FbHW7wJdsutLxte77RD+vKYaOV2opqcOLhcyd1Y6Q4U=;
+        s=korg; t=1655117994;
+        bh=3asobehzkVspHT8E/j84NOnaKjD3cMkdRZEeRZqxFeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qvUqq0TA9v6BzSBDOJmfPPXRQllP34E9Nv/zSHxGpj3IrloPKZmwh//K0HVwm/QZL
-         E6LE8CIm9QNQxMEihkbE30MPKU+8Wu+yCuGcFPrtRkLOO+UPO/8dRId5mkX+k/6zI6
-         NMFKeCnh+6JgRws65aeNzRPUdIYE3JhNMU+yI0V4=
+        b=s8Utj2Yyu/N2jkmfFKXdAAvW+B+CFquHjkSI4xhgui3HPsUnCRgTVKEEfZbnslb+u
+         EcyGtmRN2VbQuAOj+V+dZvcVc3rAf+8BNcXBwN0Gc85eZ8dygoCeTdmH2N9K9Fy9ep
+         zeNTLxDu0YwoEiijvydiMmDAKx0MhqfxEHNfACvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 147/167] usb: dwc2: gadget: dont reset gadgets driver->bus
+Subject: [PATCH 4.19 197/287] rpmsg: qcom_smd: Fix irq_of_parse_and_map() return value
 Date:   Mon, 13 Jun 2022 12:10:21 +0200
-Message-Id: <20220613094915.386585005@linuxfoundation.org>
+Message-Id: <20220613094929.836529855@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 3120aac6d0ecd9accf56894aeac0e265f74d3d5a ]
+[ Upstream commit 1a358d35066487d228a68303d808bc4721c6b1b9 ]
 
-UDC driver should not touch gadget's driver internals, especially it
-should not reset driver->bus. This wasn't harmful so far, but since
-commit fc274c1e9973 ("USB: gadget: Add a new bus for gadgets") gadget
-subsystem got it's own bus and messing with ->bus triggers the
-following NULL pointer dereference:
+The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
 
-dwc2 12480000.hsotg: bound driver g_ether
-8<--- cut here ---
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-[00000000] *pgd=00000000
-Internal error: Oops: 5 [#1] SMP ARM
-Modules linked in: ...
-CPU: 0 PID: 620 Comm: modprobe Not tainted 5.18.0-rc5-next-20220504 #11862
-Hardware name: Samsung Exynos (Flattened Device Tree)
-PC is at module_add_driver+0x44/0xe8
-LR is at sysfs_do_create_link_sd+0x84/0xe0
-...
-Process modprobe (pid: 620, stack limit = 0x(ptrval))
-...
- module_add_driver from bus_add_driver+0xf4/0x1e4
- bus_add_driver from driver_register+0x78/0x10c
- driver_register from usb_gadget_register_driver_owner+0x40/0xb4
- usb_gadget_register_driver_owner from do_one_initcall+0x44/0x1e0
- do_one_initcall from do_init_module+0x44/0x1c8
- do_init_module from load_module+0x19b8/0x1b9c
- load_module from sys_finit_module+0xdc/0xfc
- sys_finit_module from ret_fast_syscall+0x0/0x54
-Exception stack(0xf1771fa8 to 0xf1771ff0)
-...
-dwc2 12480000.hsotg: new device is high-speed
----[ end trace 0000000000000000 ]---
-
-Fix this by removing driver->bus entry reset.
-
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20220505104618.22729-1-m.szyprowski@samsung.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 53e2822e56c7 ("rpmsg: Introduce Qualcomm SMD backend")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220422105326.78713-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/rpmsg/qcom_smd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 65bcbbad6d54..44bab6727b43 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -3445,7 +3445,6 @@ static int dwc2_hsotg_udc_start(struct usb_gadget *gadget,
+diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
+index aa008fa11002..6e09fccd2e87 100644
+--- a/drivers/rpmsg/qcom_smd.c
++++ b/drivers/rpmsg/qcom_smd.c
+@@ -1388,7 +1388,7 @@ static int qcom_smd_parse_edge(struct device *dev,
+ 		edge->name = node->name;
  
- 	WARN_ON(hsotg->driver);
- 
--	driver->driver.bus = NULL;
- 	hsotg->driver = driver;
- 	hsotg->gadget.dev.of_node = hsotg->dev->of_node;
- 	hsotg->gadget.speed = USB_SPEED_UNKNOWN;
+ 	irq = irq_of_parse_and_map(node, 0);
+-	if (irq < 0) {
++	if (!irq) {
+ 		dev_err(dev, "required smd interrupt missing\n");
+ 		ret = irq;
+ 		goto put_node;
 -- 
 2.35.1
 
