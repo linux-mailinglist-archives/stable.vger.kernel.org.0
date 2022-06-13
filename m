@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60BAA549637
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3019F5491EF
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:29:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240662AbiFMMwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:52:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43694 "EHLO
+        id S1354060AbiFMLbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:31:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354154AbiFMMwS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:52:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A0EA187;
-        Mon, 13 Jun 2022 04:12:30 -0700 (PDT)
+        with ESMTP id S1354221AbiFML3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3313B3EB82;
+        Mon, 13 Jun 2022 03:43:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1938760B60;
-        Mon, 13 Jun 2022 11:12:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFE71C34114;
-        Mon, 13 Jun 2022 11:12:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3875B80D19;
+        Mon, 13 Jun 2022 10:42:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7A24C34114;
+        Mon, 13 Jun 2022 10:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118749;
-        bh=T7zgCZdrnSI9zOst5mi3apWNt045/z6rDMsSMmV8L38=;
+        s=korg; t=1655116978;
+        bh=xlCnOYMrPQdrEqV4rKXfQ3FH5oPFMqNeOf1bVNRdb1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WBpie6HSHQOj9eH2azPc0zvJLTwR04vkwYWIscf0va6FM4bSu4CMZqsZsLeC4xL2A
-         B449t8gglC4o0DmY8M4oIR4e9Zh4PJFzBifEbGbiPBDWlel3EAs8gWVy4jrgn6xzFO
-         Ig6wNtEWPjpcIdc8+HAW/7SULAZ0eHK3YxMv0n8I=
+        b=nAXVrOQ/x2MhmQbRXLpZhwx9pCGn8CP+KAaL+CfzL5KRENyih1jf2LZzAFsk/PAuG
+         EUFCUjg/Hj1HfEAYZ3BIZUSumeJ9ujNmcvBu6jyo4UFucAGzemOV/gdIWKBp4dGeXe
+         b9t4aCf/tH8eMUVmbIyqaaGzM2quZbJPjJbCnczM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Lin Ma <linma@zju.edu.cn>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 014/247] USB: storage: karma: fix rio_karma_init return
+        stable@vger.kernel.org, Guoqing Jiang <guoqing.jiang@linux.dev>,
+        Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 5.4 243/411] md: fix an incorrect NULL check in does_sb_need_changing
 Date:   Mon, 13 Jun 2022 12:08:36 +0200
-Message-Id: <20220613094923.358118068@linuxfoundation.org>
+Message-Id: <20220613094936.064605601@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit b92ffb1eddd9a66a90defc556dcbf65a43c196c7 ]
+commit fc8738343eefc4ea8afb6122826dea48eacde514 upstream.
 
-The function rio_karam_init() should return -ENOMEM instead of
-value 0 (USB_STOR_TRANSPORT_GOOD) when allocation fails.
+The bug is here:
+	if (!rdev)
 
-Similarly, it should return -EIO when rio_karma_send_command() fails.
+The list iterator value 'rdev' will *always* be set and non-NULL
+by rdev_for_each(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element found.
+Otherwise it will bypass the NULL check and lead to invalid memory
+access passing the check.
 
-Fixes: dfe0d3ba20e8 ("USB Storage: add rio karma eject support")
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220412144359.28447-1-linma@zju.edu.cn
+To fix the bug, use a new variable 'iter' as the list iterator,
+while using the original variable 'rdev' as a dedicated pointer to
+point to the found element.
+
+Cc: stable@vger.kernel.org
+Fixes: 2aa82191ac36 ("md-cluster: Perform a lazy update")
+Acked-by: Guoqing Jiang <guoqing.jiang@linux.dev>
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Acked-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/karma.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/md/md.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/storage/karma.c b/drivers/usb/storage/karma.c
-index 05cec81dcd3f..38ddfedef629 100644
---- a/drivers/usb/storage/karma.c
-+++ b/drivers/usb/storage/karma.c
-@@ -174,24 +174,25 @@ static void rio_karma_destructor(void *extra)
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -2532,14 +2532,16 @@ static void sync_sbs(struct mddev *mddev
  
- static int rio_karma_init(struct us_data *us)
+ static bool does_sb_need_changing(struct mddev *mddev)
  {
--	int ret = 0;
- 	struct karma_data *data = kzalloc(sizeof(struct karma_data), GFP_NOIO);
+-	struct md_rdev *rdev;
++	struct md_rdev *rdev = NULL, *iter;
+ 	struct mdp_superblock_1 *sb;
+ 	int role;
  
- 	if (!data)
--		goto out;
-+		return -ENOMEM;
+ 	/* Find a good rdev */
+-	rdev_for_each(rdev, mddev)
+-		if ((rdev->raid_disk >= 0) && !test_bit(Faulty, &rdev->flags))
++	rdev_for_each(iter, mddev)
++		if ((iter->raid_disk >= 0) && !test_bit(Faulty, &iter->flags)) {
++			rdev = iter;
+ 			break;
++		}
  
- 	data->recv = kmalloc(RIO_RECV_LEN, GFP_NOIO);
- 	if (!data->recv) {
- 		kfree(data);
--		goto out;
-+		return -ENOMEM;
- 	}
- 
- 	us->extra = data;
- 	us->extra_destructor = rio_karma_destructor;
--	ret = rio_karma_send_command(RIO_ENTER_STORAGE, us);
--	data->in_storage = (ret == 0);
--out:
--	return ret;
-+	if (rio_karma_send_command(RIO_ENTER_STORAGE, us))
-+		return -EIO;
-+
-+	data->in_storage = 1;
-+
-+	return 0;
- }
- 
- static struct scsi_host_template karma_host_template;
--- 
-2.35.1
-
+ 	/* No good device found. */
+ 	if (!rdev)
 
 
