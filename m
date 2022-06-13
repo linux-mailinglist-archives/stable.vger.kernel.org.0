@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D8A8548C90
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:13:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAFD65490E7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353242AbiFMMmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:42:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56234 "EHLO
+        id S1384757AbiFMOgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:36:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348306AbiFMMko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:40:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61E325F8D4;
-        Mon, 13 Jun 2022 04:10:44 -0700 (PDT)
+        with ESMTP id S1383714AbiFMOex (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:34:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE8194BFE6;
+        Mon, 13 Jun 2022 04:49:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F201FB80EB3;
-        Mon, 13 Jun 2022 11:10:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D80EC34114;
-        Mon, 13 Jun 2022 11:10:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1071D612D0;
+        Mon, 13 Jun 2022 11:49:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25166C34114;
+        Mon, 13 Jun 2022 11:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118637;
-        bh=umZimJsbPiaFCLx43rWgYrP/wkynzXdkVAJcXZZE4T8=;
+        s=korg; t=1655120959;
+        bh=2TzWjZBR22TdjW+rGvG702WH61+cTsVrA4YQiC/Wc+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VBNRJiuol/uHMV6QziU+gyeDDKQo2cN6Y55MoXaNv+MUd10Ct+JALO8JL+Tt43UKH
-         RS93JkXCnzfMqhqlC5tRw+mANHW2JfXPWxnJvWEvBXgvfhbl4OnCMLsnr05TuDq85h
-         4csSKAdYn5ow6I2XcWtwCAn6cknkdRiUCQ07HT3M=
+        b=UXkcJjdV6gK3t6JP7hFZBFbF0o/fDcpZ83LXdY8PSV3GbulT7fAc1bA9jsEgkHeh0
+         Y0nG4Tz0xzAqPufmbG79vZ6ltGrYnOKKM2a/pOekShuHpvUVuGp4nGAR/pytL+m5Hq
+         2YPyaZrhfRh/yNhxCfrHW+CWAit6/IbPYXvXZoUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Wang Cheng <wanngchenng@gmail.com>,
+        stable@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
+        Denis Ciocca <denis.ciocca@st.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 131/172] staging: rtl8712: fix uninit-value in r871xu_drv_init()
-Date:   Mon, 13 Jun 2022 12:11:31 +0200
-Message-Id: <20220613094921.228105855@linuxfoundation.org>
+Subject: [PATCH 5.17 198/298] iio: st_sensors: Add a local lock for protecting odr
+Date:   Mon, 13 Jun 2022 12:11:32 +0200
+Message-Id: <20220613094931.110983615@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,86 +56,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Cheng <wanngchenng@gmail.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 0458e5428e5e959d201a40ffe71d762a79ecedc4 ]
+[ Upstream commit 474010127e2505fc463236470908e1ff5ddb3578 ]
 
-When 'tmpU1b' returns from r8712_read8(padapter, EE_9346CR) is 0,
-'mac[6]' will not be initialized.
+Right now the (framework) mlock lock is (ab)used for multiple purposes:
+1- protecting concurrent accesses over the odr local cache
+2- avoid changing samplig frequency whilst buffer is running
 
-BUG: KMSAN: uninit-value in r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
- r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
- usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
- really_probe+0x653/0x14b0 drivers/base/dd.c:596
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_set_configuration+0x37e9/0x3ed0 drivers/usb/core/message.c:2170
- usb_generic_driver_probe+0x13c/0x300 drivers/usb/core/generic.c:238
- usb_probe_device+0x309/0x570 drivers/usb/core/driver.c:293
- really_probe+0x653/0x14b0 drivers/base/dd.c:596
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_new_device+0x1b8e/0x2950 drivers/usb/core/hub.c:2566
- hub_port_connect drivers/usb/core/hub.c:5358 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5502 [inline]
- port_event drivers/usb/core/hub.c:5660 [inline]
- hub_event+0x58e3/0x89e0 drivers/usb/core/hub.c:5742
- process_one_work+0xdb6/0x1820 kernel/workqueue.c:2307
- worker_thread+0x10b3/0x21e0 kernel/workqueue.c:2454
- kthread+0x3c7/0x500 kernel/kthread.c:377
- ret_from_fork+0x1f/0x30
+Let's start by handling situation #1 with a local lock.
 
-Local variable mac created at:
- r871xu_drv_init+0x1771/0x3070 drivers/staging/rtl8712/usb_intf.c:394
- usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
-
-KMSAN: uninit-value in r871xu_drv_init
-https://syzkaller.appspot.com/bug?id=3cd92b1d85428b128503bfa7a250294c9ae00bd8
-
-Reported-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
-Tested-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
-Link: https://lore.kernel.org/r/14c3886173dfa4597f0704547c414cfdbcd11d16.1652618244.git.wanngchenng@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Jonathan Cameron <jic23@kernel.org>
+Cc: Denis Ciocca <denis.ciocca@st.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20220207143840.707510-7-miquel.raynal@bootlin.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/usb_intf.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../iio/common/st_sensors/st_sensors_core.c   | 24 ++++++++++++++-----
+ include/linux/iio/common/st_sensors.h         |  3 +++
+ 2 files changed, 21 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
-index 77f090bdd36e..68d66c3ce2c8 100644
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -539,13 +539,13 @@ static int r871xu_drv_init(struct usb_interface *pusb_intf,
- 		} else {
- 			AutoloadFail = false;
- 		}
--		if (((mac[0] == 0xff) && (mac[1] == 0xff) &&
-+		if ((!AutoloadFail) ||
-+		    ((mac[0] == 0xff) && (mac[1] == 0xff) &&
- 		     (mac[2] == 0xff) && (mac[3] == 0xff) &&
- 		     (mac[4] == 0xff) && (mac[5] == 0xff)) ||
- 		    ((mac[0] == 0x00) && (mac[1] == 0x00) &&
- 		     (mac[2] == 0x00) && (mac[3] == 0x00) &&
--		     (mac[4] == 0x00) && (mac[5] == 0x00)) ||
--		     (!AutoloadFail)) {
-+		     (mac[4] == 0x00) && (mac[5] == 0x00))) {
- 			mac[0] = 0x00;
- 			mac[1] = 0xe0;
- 			mac[2] = 0x4c;
+diff --git a/drivers/iio/common/st_sensors/st_sensors_core.c b/drivers/iio/common/st_sensors/st_sensors_core.c
+index eb452d0c423c..5c7e4e725819 100644
+--- a/drivers/iio/common/st_sensors/st_sensors_core.c
++++ b/drivers/iio/common/st_sensors/st_sensors_core.c
+@@ -71,16 +71,18 @@ static int st_sensors_match_odr(struct st_sensor_settings *sensor_settings,
+ 
+ int st_sensors_set_odr(struct iio_dev *indio_dev, unsigned int odr)
+ {
+-	int err;
++	int err = 0;
+ 	struct st_sensor_odr_avl odr_out = {0, 0};
+ 	struct st_sensor_data *sdata = iio_priv(indio_dev);
+ 
++	mutex_lock(&sdata->odr_lock);
++
+ 	if (!sdata->sensor_settings->odr.mask)
+-		return 0;
++		goto unlock_mutex;
+ 
+ 	err = st_sensors_match_odr(sdata->sensor_settings, odr, &odr_out);
+ 	if (err < 0)
+-		goto st_sensors_match_odr_error;
++		goto unlock_mutex;
+ 
+ 	if ((sdata->sensor_settings->odr.addr ==
+ 					sdata->sensor_settings->pw.addr) &&
+@@ -103,7 +105,9 @@ int st_sensors_set_odr(struct iio_dev *indio_dev, unsigned int odr)
+ 	if (err >= 0)
+ 		sdata->odr = odr_out.hz;
+ 
+-st_sensors_match_odr_error:
++unlock_mutex:
++	mutex_unlock(&sdata->odr_lock);
++
+ 	return err;
+ }
+ EXPORT_SYMBOL(st_sensors_set_odr);
+@@ -361,6 +365,8 @@ int st_sensors_init_sensor(struct iio_dev *indio_dev,
+ 	struct st_sensors_platform_data *of_pdata;
+ 	int err = 0;
+ 
++	mutex_init(&sdata->odr_lock);
++
+ 	/* If OF/DT pdata exists, it will take precedence of anything else */
+ 	of_pdata = st_sensors_dev_probe(indio_dev->dev.parent, pdata);
+ 	if (IS_ERR(of_pdata))
+@@ -554,18 +560,24 @@ int st_sensors_read_info_raw(struct iio_dev *indio_dev,
+ 		err = -EBUSY;
+ 		goto out;
+ 	} else {
++		mutex_lock(&sdata->odr_lock);
+ 		err = st_sensors_set_enable(indio_dev, true);
+-		if (err < 0)
++		if (err < 0) {
++			mutex_unlock(&sdata->odr_lock);
+ 			goto out;
++		}
+ 
+ 		msleep((sdata->sensor_settings->bootime * 1000) / sdata->odr);
+ 		err = st_sensors_read_axis_data(indio_dev, ch, val);
+-		if (err < 0)
++		if (err < 0) {
++			mutex_unlock(&sdata->odr_lock);
+ 			goto out;
++		}
+ 
+ 		*val = *val >> ch->scan_type.shift;
+ 
+ 		err = st_sensors_set_enable(indio_dev, false);
++		mutex_unlock(&sdata->odr_lock);
+ 	}
+ out:
+ 	mutex_unlock(&indio_dev->mlock);
+diff --git a/include/linux/iio/common/st_sensors.h b/include/linux/iio/common/st_sensors.h
+index 22f67845cdd3..db4a1b260348 100644
+--- a/include/linux/iio/common/st_sensors.h
++++ b/include/linux/iio/common/st_sensors.h
+@@ -237,6 +237,7 @@ struct st_sensor_settings {
+  * @hw_irq_trigger: if we're using the hardware interrupt on the sensor.
+  * @hw_timestamp: Latest timestamp from the interrupt handler, when in use.
+  * @buffer_data: Data used by buffer part.
++ * @odr_lock: Local lock for preventing concurrent ODR accesses/changes
+  */
+ struct st_sensor_data {
+ 	struct iio_trigger *trig;
+@@ -261,6 +262,8 @@ struct st_sensor_data {
+ 	s64 hw_timestamp;
+ 
+ 	char buffer_data[ST_SENSORS_MAX_BUFFER_SIZE] ____cacheline_aligned;
++
++	struct mutex odr_lock;
+ };
+ 
+ #ifdef CONFIG_IIO_BUFFER
 -- 
 2.35.1
 
