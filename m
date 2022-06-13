@@ -2,161 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB158548B4B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF281548BFF
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377524AbiFMNdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:33:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51958 "EHLO
+        id S1356052AbiFMLvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:51:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378339AbiFMNbW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:31:22 -0400
+        with ESMTP id S1356054AbiFMLtu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:49:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 489A170344;
-        Mon, 13 Jun 2022 04:25:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B82161182C;
+        Mon, 13 Jun 2022 03:53:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 630E361120;
-        Mon, 13 Jun 2022 11:25:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73179C3411C;
-        Mon, 13 Jun 2022 11:25:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B65DF61376;
+        Mon, 13 Jun 2022 10:53:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D47EC34114;
+        Mon, 13 Jun 2022 10:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119556;
-        bh=X7YenglVW5w/0CfOMVL6Ir5FPNow7NRwNMizl+2C09c=;
+        s=korg; t=1655117621;
+        bh=nJDxXZeW4dNZBJ3xKwI5D10rJwiQ5ZFbGJpcGhfvC24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VzewI+hD1GnUZ5+c2sH9R1Eakj0OJnfpbqXoFJBtS5v12oy78iAzTlFl7N3uKMoPx
-         gsupeErlbPNVyXvLLUrdIShQ8h2wdwJIgxy/ysOHmo+a2MaGJVqiHGGaQ3GnV65lW9
-         jAVpfUS8aUrd7WrQsizrMrUPGdD+pekM+mlA70Ps=
+        b=O1gv6zEsu01v93AP+6Xuw359zSniPzTaKpA9e6yEBDjyemalX55FybgFYlVKriSAl
+         ul7nPnHKdnXm64VAUnW3vlMGiGKNl1aOJkuZMZatG+A4SHuAFmM9zndpSHXUJu4CbJ
+         rOJquD5a8KKv99iii89FsWv5Jvg9+H+M9Bp79xTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 056/339] dt-bindings: remoteproc: mediatek: Make l1tcm reg exclusive to mt819x
+Subject: [PATCH 4.19 057/287] drm: fix EDID struct for old ARM OABI format
 Date:   Mon, 13 Jun 2022 12:08:01 +0200
-Message-Id: <20220613094928.221846138@linuxfoundation.org>
+Message-Id: <20220613094925.597058510@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 6bbe1065121b8cd3b3e734ef8cd99f142bdab241 ]
+[ Upstream commit 47f15561b69e226bfc034e94ff6dbec51a4662af ]
 
-Commit ca23ecfdbd44 ("remoteproc/mediatek: support L1TCM") added support
-for the l1tcm memory region on the MT8192 SCP, adding a new da_to_va
-callback that handles l1tcm while keeping the old one for
-back-compatibility with MT8183. However, since the mt8192 compatible was
-missing from the dt-binding, the accompanying dt-binding commit
-503c64cc42f1 ("dt-bindings: remoteproc: mediatek: add L1TCM memory region")
-mistakenly added this reg as if it were for mt8183. And later
-it became common to all platforms as their compatibles were added.
+When building the kernel for arm with the "-mabi=apcs-gnu" option, gcc
+will force alignment of all structures and unions to a word boundary
+(see also STRUCTURE_SIZE_BOUNDARY and the "-mstructure-size-boundary=XX"
+option if you're a gcc person), even when the members of said structures
+do not want or need said alignment.
 
-Fix the dt-binding so that the l1tcm reg can be present only on the
-supported platforms: mt8192 and mt8195.
+This completely messes up the structure alignment of 'struct edid' on
+those targets, because even though all the embedded structures are
+marked with "__attribute__((packed))", the unions that contain them are
+not.
 
-Fixes: 503c64cc42f1 ("dt-bindings: remoteproc: mediatek: add L1TCM memory region")
-Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220511195452.871897-2-nfraprado@collabora.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+This was exposed by commit f1e4c916f97f ("drm/edid: add EDID block count
+and size helpers"), but the bug is pre-existing.  That commit just made
+the structure layout problem cause a build failure due to the addition
+of the
+
+        BUILD_BUG_ON(sizeof(*edid) != EDID_LENGTH);
+
+sanity check in drivers/gpu/drm/drm_edid.c:edid_block_data().
+
+This legacy union alignment should probably not be used in the first
+place, but we can fix the layout by adding the packed attribute to the
+union entries even when each member is already packed and it shouldn't
+matter in a sane build environment.
+
+You can see this issue with a trivial test program:
+
+  union {
+	struct {
+		char c[5];
+	};
+	struct {
+		char d;
+		unsigned e;
+	} __attribute__((packed));
+  } a = { "1234" };
+
+where building this with a normal "gcc -S" will result in the expected
+5-byte size of said union:
+
+	.type	a, @object
+	.size	a, 5
+
+but with an ARM compiler and the old ABI:
+
+    arm-linux-gnu-gcc -mabi=apcs-gnu -mfloat-abi=soft -S t.c
+
+you get
+
+	.type	a, %object
+	.size	a, 8
+
+instead, because even though each member of the union is packed, the
+union itself still gets aligned.
+
+This was reported by Sudip for the spear3xx_defconfig target.
+
+Link: https://lore.kernel.org/lkml/YpCUzStDnSgQLNFN@debian/
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../bindings/remoteproc/mtk,scp.yaml          | 44 +++++++++++++------
- 1 file changed, 30 insertions(+), 14 deletions(-)
+ include/drm/drm_edid.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/remoteproc/mtk,scp.yaml b/Documentation/devicetree/bindings/remoteproc/mtk,scp.yaml
-index 5b693a2d049c..d55b861db605 100644
---- a/Documentation/devicetree/bindings/remoteproc/mtk,scp.yaml
-+++ b/Documentation/devicetree/bindings/remoteproc/mtk,scp.yaml
-@@ -23,11 +23,13 @@ properties:
+diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
+index 53be104aab5c..8b9678bffe7b 100644
+--- a/include/drm/drm_edid.h
++++ b/include/drm/drm_edid.h
+@@ -115,7 +115,7 @@ struct detailed_data_monitor_range {
+ 			u8 supported_scalings;
+ 			u8 preferred_refresh;
+ 		} __attribute__((packed)) cvt;
+-	} formula;
++	} __attribute__((packed)) formula;
+ } __attribute__((packed));
  
-   reg:
-     description:
--      Should contain the address ranges for memory regions SRAM, CFG, and
--      L1TCM.
-+      Should contain the address ranges for memory regions SRAM, CFG, and,
-+      on some platforms, L1TCM.
-+    minItems: 2
-     maxItems: 3
+ struct detailed_data_wpindex {
+@@ -148,7 +148,7 @@ struct detailed_non_pixel {
+ 		struct detailed_data_wpindex color;
+ 		struct std_timing timings[6];
+ 		struct cvt_timing cvt[4];
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
  
-   reg-names:
-+    minItems: 2
-     items:
-       - const: sram
-       - const: cfg
-@@ -47,16 +49,30 @@ required:
-   - reg
-   - reg-names
+ #define EDID_DETAIL_EST_TIMINGS 0xf7
+@@ -166,7 +166,7 @@ struct detailed_timing {
+ 	union {
+ 		struct detailed_pixel_timing pixel_data;
+ 		struct detailed_non_pixel other_data;
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
  
--if:
--  properties:
--    compatible:
--      enum:
--        - mediatek,mt8183-scp
--        - mediatek,mt8192-scp
--then:
--  required:
--    - clocks
--    - clock-names
-+allOf:
-+  - if:
-+      properties:
-+        compatible:
-+          enum:
-+            - mediatek,mt8183-scp
-+            - mediatek,mt8192-scp
-+    then:
-+      required:
-+        - clocks
-+        - clock-names
-+
-+  - if:
-+      properties:
-+        compatible:
-+          enum:
-+            - mediatek,mt8183-scp
-+            - mediatek,mt8186-scp
-+    then:
-+      properties:
-+        reg:
-+          maxItems: 2
-+        reg-names:
-+          maxItems: 2
- 
- additionalProperties:
-   type: object
-@@ -76,10 +92,10 @@ additionalProperties:
- 
- examples:
-   - |
--    #include <dt-bindings/clock/mt8183-clk.h>
-+    #include <dt-bindings/clock/mt8192-clk.h>
- 
-     scp@10500000 {
--        compatible = "mediatek,mt8183-scp";
-+        compatible = "mediatek,mt8192-scp";
-         reg = <0x10500000 0x80000>,
-               <0x10700000 0x8000>,
-               <0x10720000 0xe0000>;
+ #define DRM_EDID_INPUT_SERRATION_VSYNC (1 << 0)
 -- 
 2.35.1
 
