@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7854548849
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FAA05487A1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383705AbiFMO1K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:27:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52228 "EHLO
+        id S1355093AbiFMNNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:13:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384030AbiFMOYb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A478447ACB;
-        Mon, 13 Jun 2022 04:46:33 -0700 (PDT)
+        with ESMTP id S1358659AbiFMNHN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:07:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55192381A0;
+        Mon, 13 Jun 2022 04:18:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2114BB80D3A;
-        Mon, 13 Jun 2022 11:46:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B51C34114;
-        Mon, 13 Jun 2022 11:46:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E8B960B6E;
+        Mon, 13 Jun 2022 11:18:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD97EC34114;
+        Mon, 13 Jun 2022 11:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120790;
-        bh=WSnIb8c1EK7S1Ug1rp1Uyxgzi6wIMQAdTOBGWLHDaWk=;
+        s=korg; t=1655119125;
+        bh=XGML3YZdCB8pHt7L9TOGhy/gKBjQ+AGJw/xGujIi+wg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ilDXSdL/CMXSJypmoKQ6v7UqDA2MndPJlbVLkPS3BmTcnDXiZn9H0Y4LdbC5RFEEh
-         oTXI9BBG6KNP1mGePKQbVmqJmOeRvQ4OQfJ/xW4qAvXOarosM6Fs3/9TkvN5ZvcJyr
-         AYp3GOztr6uPnZhFckz+iHoyYeH07ID5Z5286hR0=
+        b=vYA9cRavKcKzSQcUYeR+ozJ4hPZVWhotmZgTwrpZsOnE5JW0gjBv445a2A1oEbGm3
+         902IvonmeaQ5lhzb/XPrK8rx9rH395LentV5RSH0ZB8ebz2vXYmyNmwORmoXAuKWYV
+         xYSY1n57qxWo4jmqbFt7HtdE74OBryarTydO/QQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        NeilBrown <neilb@suse.de>,
+        "J. Bruce Fields" <bfields@fieldses.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 158/298] netfilter: nat: really support inet nat without l3 address
+Subject: [PATCH 5.15 150/247] SUNRPC: Fix the calculation of xdr->end in xdr_get_next_encode_buffer()
 Date:   Mon, 13 Jun 2022 12:10:52 +0200
-Message-Id: <20220613094929.728184662@linuxfoundation.org>
+Message-Id: <20220613094927.504464728@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 282e5f8fe907dc3f2fbf9f2103b0e62ffc3a68a5 ]
+[ Upstream commit 6c254bf3b637dd4ef4f78eb78c7447419c0161d7 ]
 
-When no l3 address is given, priv->family is set to NFPROTO_INET and
-the evaluation function isn't called.
+I found that NFSD's new NFSv3 READDIRPLUS XDR encoder was screwing up
+right at the end of the page array. xdr_get_next_encode_buffer() does
+not compute the value of xdr->end correctly:
 
-Call it too so l4-only rewrite can work.
-Also add a test case for this.
+ * The check to see if we're on the final available page in xdr->buf
+   needs to account for the space consumed by @nbytes.
 
-Fixes: a33f387ecd5aa ("netfilter: nft_nat: allow to specify layer 4 protocol NAT only")
-Reported-by: Yi Chen <yiche@redhat.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+ * The new xdr->end value needs to account for the portion of @nbytes
+   that is to be encoded into the previous buffer.
+
+Fixes: 2825a7f90753 ("nfsd4: allow encoding across page boundaries")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: NeilBrown <neilb@suse.de>
+Reviewed-by: J. Bruce Fields <bfields@fieldses.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_nat.c                      |  3 +-
- tools/testing/selftests/netfilter/nft_nat.sh | 43 ++++++++++++++++++++
- 2 files changed, 45 insertions(+), 1 deletion(-)
+ net/sunrpc/xdr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_nat.c b/net/netfilter/nft_nat.c
-index be1595d6979d..db8f9116eeb4 100644
---- a/net/netfilter/nft_nat.c
-+++ b/net/netfilter/nft_nat.c
-@@ -334,7 +334,8 @@ static void nft_nat_inet_eval(const struct nft_expr *expr,
- {
- 	const struct nft_nat *priv = nft_expr_priv(expr);
- 
--	if (priv->family == nft_pf(pkt))
-+	if (priv->family == nft_pf(pkt) ||
-+	    priv->family == NFPROTO_INET)
- 		nft_nat_eval(expr, regs, pkt);
- }
- 
-diff --git a/tools/testing/selftests/netfilter/nft_nat.sh b/tools/testing/selftests/netfilter/nft_nat.sh
-index eb8543b9a5c4..924ecb3f1f73 100755
---- a/tools/testing/selftests/netfilter/nft_nat.sh
-+++ b/tools/testing/selftests/netfilter/nft_nat.sh
-@@ -374,6 +374,45 @@ EOF
- 	return $lret
- }
- 
-+test_local_dnat_portonly()
-+{
-+	local family=$1
-+	local daddr=$2
-+	local lret=0
-+	local sr_s
-+	local sr_r
-+
-+ip netns exec "$ns0" nft -f /dev/stdin <<EOF
-+table $family nat {
-+	chain output {
-+		type nat hook output priority 0; policy accept;
-+		meta l4proto tcp dnat to :2000
-+
-+	}
-+}
-+EOF
-+	if [ $? -ne 0 ]; then
-+		if [ $family = "inet" ];then
-+			echo "SKIP: inet port test"
-+			test_inet_nat=false
-+			return
-+		fi
-+		echo "SKIP: Could not add $family dnat hook"
-+		return
-+	fi
-+
-+	echo SERVER-$family | ip netns exec "$ns1" timeout 5 socat -u STDIN TCP-LISTEN:2000 &
-+	sc_s=$!
-+
-+	result=$(ip netns exec "$ns0" timeout 1 socat TCP:$daddr:2000 STDOUT)
-+
-+	if [ "$result" = "SERVER-inet" ];then
-+		echo "PASS: inet port rewrite without l3 address"
+diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
+index ca10ba2626f2..85473264cccf 100644
+--- a/net/sunrpc/xdr.c
++++ b/net/sunrpc/xdr.c
+@@ -979,7 +979,11 @@ static __be32 *xdr_get_next_encode_buffer(struct xdr_stream *xdr,
+ 	 */
+ 	xdr->p = (void *)p + frag2bytes;
+ 	space_left = xdr->buf->buflen - xdr->buf->len;
+-	xdr->end = (void *)p + min_t(int, space_left, PAGE_SIZE);
++	if (space_left - nbytes >= PAGE_SIZE)
++		xdr->end = (void *)p + PAGE_SIZE;
 +	else
-+		echo "ERROR: inet port rewrite"
-+		ret=1
-+	fi
-+}
- 
- test_masquerade6()
- {
-@@ -1148,6 +1187,10 @@ fi
- reset_counters
- test_local_dnat ip
- test_local_dnat6 ip6
++		xdr->end = (void *)p + space_left - frag1bytes;
 +
-+reset_counters
-+test_local_dnat_portonly inet 10.0.1.99
-+
- reset_counters
- $test_inet_nat && test_local_dnat inet
- $test_inet_nat && test_local_dnat6 inet
+ 	xdr->buf->page_len += frag2bytes;
+ 	xdr->buf->len += nbytes;
+ 	return p;
 -- 
 2.35.1
 
