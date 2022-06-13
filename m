@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 909DF54967F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70D2E549057
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345810AbiFMKzm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:55:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44310 "EHLO
+        id S1379150AbiFMNrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:47:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350325AbiFMKyt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3437192A2;
-        Mon, 13 Jun 2022 03:30:50 -0700 (PDT)
+        with ESMTP id S1379168AbiFMNpa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:45:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6417665AF;
+        Mon, 13 Jun 2022 04:32:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78453B80E5E;
-        Mon, 13 Jun 2022 10:30:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFF9BC34114;
-        Mon, 13 Jun 2022 10:30:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09165B80D3A;
+        Mon, 13 Jun 2022 11:32:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F317C34114;
+        Mon, 13 Jun 2022 11:32:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116248;
-        bh=vkcV/lipG5FOBetpkGUnhWz9CuHaO+9HxBByw51zqIs=;
+        s=korg; t=1655119964;
+        bh=OXazcopcHVsshmAECbqpVbYBNTPkMGL4+VntXQPRxZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v7aoCeo3kU3nZeM6OlNFdadSilXZphKd9Yg6oGQ86mE1RxPLahgqzEEYYdpGMfCbJ
-         4yPx7+mvsQyx5CFr/3vSZyfcFwzyzHc+TW0zwZeWwUmK4aqMUC/KEPVubEosVBJLQQ
-         TLL8xbAPX1oHyaVQaRAHhZKcT/+X1mA2JFYL2vc0=
+        b=W41VsrqwgVqloPsxRzWhPs/JsjMQ3sbQDDKC2TjHub9UnNEvXmRwZZkRfk0baptLQ
+         xP6hyMLbJVPnFSc7T2xFHJJIWR0kqqlJiD3Np/z531xZKeN/csGY6l+RbtG1KVKGAP
+         zARdhxsZURy5GnzeOckohFFBpRbMnwiN2nhBdJA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 149/218] soc: rockchip: Fix refcount leak in rockchip_grf_init
+Subject: [PATCH 5.18 182/339] netfilter: nf_tables: delete flowtable hooks via transaction list
 Date:   Mon, 13 Jun 2022 12:10:07 +0200
-Message-Id: <20220613094925.109490681@linuxfoundation.org>
+Message-Id: <20220613094932.198971471@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 9b59588d8be91c96bfb0371e912ceb4f16315dbf ]
+[ Upstream commit b6d9014a3335194590abdd2a2471ef5147a67645 ]
 
-of_find_matching_node_and_match returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+Remove inactive bool field in nft_hook object that was introduced in
+abadb2f865d7 ("netfilter: nf_tables: delete devices from flowtable").
+Move stale flowtable hooks to transaction list instead.
 
-Fixes: 4c58063d4258 ("soc: rockchip: add driver handling grf setup")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220516072013.19731-1-linmq006@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Deleting twice the same device does not result in ENOENT.
+
+Fixes: abadb2f865d7 ("netfilter: nf_tables: delete devices from flowtable")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/rockchip/grf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/net/netfilter/nf_tables.h |  1 -
+ net/netfilter/nf_tables_api.c     | 31 ++++++-------------------------
+ 2 files changed, 6 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/soc/rockchip/grf.c b/drivers/soc/rockchip/grf.c
-index 0931ddb0b384..39f9a7c1d7e0 100644
---- a/drivers/soc/rockchip/grf.c
-+++ b/drivers/soc/rockchip/grf.c
-@@ -123,12 +123,14 @@ static int __init rockchip_grf_init(void)
- 		return -ENODEV;
- 	if (!match || !match->data) {
- 		pr_err("%s: missing grf data\n", __func__);
-+		of_node_put(np);
- 		return -EINVAL;
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index 20af9d3557b9..279ae0fff7ad 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -1090,7 +1090,6 @@ struct nft_stats {
+ 
+ struct nft_hook {
+ 	struct list_head	list;
+-	bool			inactive;
+ 	struct nf_hook_ops	ops;
+ 	struct rcu_head		rcu;
+ };
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index a0981e7cb211..f23c40e6caa6 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -1914,7 +1914,6 @@ static struct nft_hook *nft_netdev_hook_alloc(struct net *net,
+ 		goto err_hook_dev;
+ 	}
+ 	hook->ops.dev = dev;
+-	hook->inactive = false;
+ 
+ 	return hook;
+ 
+@@ -7612,6 +7611,7 @@ static int nft_delflowtable_hook(struct nft_ctx *ctx,
+ {
+ 	const struct nlattr * const *nla = ctx->nla;
+ 	struct nft_flowtable_hook flowtable_hook;
++	LIST_HEAD(flowtable_del_list);
+ 	struct nft_hook *this, *hook;
+ 	struct nft_trans *trans;
+ 	int err;
+@@ -7627,7 +7627,7 @@ static int nft_delflowtable_hook(struct nft_ctx *ctx,
+ 			err = -ENOENT;
+ 			goto err_flowtable_del_hook;
+ 		}
+-		hook->inactive = true;
++		list_move(&hook->list, &flowtable_del_list);
  	}
  
- 	grf_info = match->data;
+ 	trans = nft_trans_alloc(ctx, NFT_MSG_DELFLOWTABLE,
+@@ -7640,6 +7640,7 @@ static int nft_delflowtable_hook(struct nft_ctx *ctx,
+ 	nft_trans_flowtable(trans) = flowtable;
+ 	nft_trans_flowtable_update(trans) = true;
+ 	INIT_LIST_HEAD(&nft_trans_flowtable_hooks(trans));
++	list_splice(&flowtable_del_list, &nft_trans_flowtable_hooks(trans));
+ 	nft_flowtable_hook_release(&flowtable_hook);
  
- 	grf = syscon_node_to_regmap(np);
-+	of_node_put(np);
- 	if (IS_ERR(grf)) {
- 		pr_err("%s: could not get grf syscon\n", __func__);
- 		return PTR_ERR(grf);
+ 	nft_trans_commit_list_add_tail(ctx->net, trans);
+@@ -7647,13 +7648,7 @@ static int nft_delflowtable_hook(struct nft_ctx *ctx,
+ 	return 0;
+ 
+ err_flowtable_del_hook:
+-	list_for_each_entry(this, &flowtable_hook.list, list) {
+-		hook = nft_hook_list_find(&flowtable->hook_list, this);
+-		if (!hook)
+-			break;
+-
+-		hook->inactive = false;
+-	}
++	list_splice(&flowtable_del_list, &flowtable->hook_list);
+ 	nft_flowtable_hook_release(&flowtable_hook);
+ 
+ 	return err;
+@@ -8559,17 +8554,6 @@ void nft_chain_del(struct nft_chain *chain)
+ 	list_del_rcu(&chain->list);
+ }
+ 
+-static void nft_flowtable_hooks_del(struct nft_flowtable *flowtable,
+-				    struct list_head *hook_list)
+-{
+-	struct nft_hook *hook, *next;
+-
+-	list_for_each_entry_safe(hook, next, &flowtable->hook_list, list) {
+-		if (hook->inactive)
+-			list_move(&hook->list, hook_list);
+-	}
+-}
+-
+ static void nf_tables_module_autoload_cleanup(struct net *net)
+ {
+ 	struct nftables_pernet *nft_net = nft_pernet(net);
+@@ -8914,8 +8898,6 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
+ 			break;
+ 		case NFT_MSG_DELFLOWTABLE:
+ 			if (nft_trans_flowtable_update(trans)) {
+-				nft_flowtable_hooks_del(nft_trans_flowtable(trans),
+-							&nft_trans_flowtable_hooks(trans));
+ 				nf_tables_flowtable_notify(&trans->ctx,
+ 							   nft_trans_flowtable(trans),
+ 							   &nft_trans_flowtable_hooks(trans),
+@@ -8996,7 +8978,6 @@ static int __nf_tables_abort(struct net *net, enum nfnl_abort_action action)
+ 	struct nftables_pernet *nft_net = nft_pernet(net);
+ 	struct nft_trans *trans, *next;
+ 	struct nft_trans_elem *te;
+-	struct nft_hook *hook;
+ 
+ 	if (action == NFNL_ABORT_VALIDATE &&
+ 	    nf_tables_validate(net) < 0)
+@@ -9127,8 +9108,8 @@ static int __nf_tables_abort(struct net *net, enum nfnl_abort_action action)
+ 			break;
+ 		case NFT_MSG_DELFLOWTABLE:
+ 			if (nft_trans_flowtable_update(trans)) {
+-				list_for_each_entry(hook, &nft_trans_flowtable(trans)->hook_list, list)
+-					hook->inactive = false;
++				list_splice(&nft_trans_flowtable_hooks(trans),
++					    &nft_trans_flowtable(trans)->hook_list);
+ 			} else {
+ 				trans->ctx.table->use++;
+ 				nft_clear(trans->ctx.net, nft_trans_flowtable(trans));
 -- 
 2.35.1
 
