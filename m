@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5DE549234
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7FE0549568
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347514AbiFMKzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:55:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44312 "EHLO
+        id S1383285AbiFMO0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:26:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349410AbiFMKyU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D821248FC;
-        Mon, 13 Jun 2022 03:28:06 -0700 (PDT)
+        with ESMTP id S1383560AbiFMOXc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:23:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C11D46B04;
+        Mon, 13 Jun 2022 04:44:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 723D7B80E95;
-        Mon, 13 Jun 2022 10:28:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C597CC3411C;
-        Mon, 13 Jun 2022 10:28:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25068612AC;
+        Mon, 13 Jun 2022 11:44:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29715C34114;
+        Mon, 13 Jun 2022 11:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116083;
-        bh=TzLegqWaKtcXylWJBZtdaGnyCgqrSdPcY8fQTn74aqA=;
+        s=korg; t=1655120664;
+        bh=7z+N3KMvMkb3XEW6HZ1NlJrXCA4y2wOP47eUpURj/FU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sbMHPaLOEf4YgaO9ULIuRSmX423IOwCNpOesHNQmCM3Z5NFz9JLwz+0eLF3SuRAGc
-         PYSwj3hVDcIFc+gJoo8uc9pXTJArQFV9qdTQA2LuzQm4gDC2J3wXUk8YnQfe2pG5GG
-         ef5gFsNnv+eCLm/94tVr83sG58l9GqsncUf3qoqk=
+        b=lUzWmGQJAyXUWplNEH5d8iJ3bDdyvHZbSh/IIDG3HmFDGZPFXJLhD9gzA4t5gNQ5U
+         DbrOofvqhC7jFna5QYgbnXQYSIHKQQIU9bz5k+nLzepvm57sg0rqzDzWBR/Ez9ysiJ
+         kc2yDS7ZEhkmGyjOKaHv6dg7PrSgoBPwpNWOo8Io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 4.14 125/218] iommu/msm: Fix an incorrect NULL check on list iterator
+        stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 089/298] jffs2: fix memory leak in jffs2_do_fill_super
 Date:   Mon, 13 Jun 2022 12:09:43 +0200
-Message-Id: <20220613094924.364599889@linuxfoundation.org>
+Message-Id: <20220613094927.647907532@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 8b9ad480bd1dd25f4ff4854af5685fa334a2f57a upstream.
+[ Upstream commit c14adb1cf70a984ed081c67e9d27bc3caad9537c ]
 
-The bug is here:
-	if (!iommu || iommu->dev->of_node != spec->np) {
+If jffs2_iget() or d_make_root() in jffs2_do_fill_super() returns
+an error, we can observe the following kmemleak report:
 
-The list iterator value 'iommu' will *always* be set and non-NULL by
-list_for_each_entry(), so it is incorrect to assume that the iterator
-value will be NULL if the list is empty or no element is found (in fact,
-it will point to a invalid structure object containing HEAD).
+--------------------------------------------
+unreferenced object 0xffff888105a65340 (size 64):
+  comm "mount", pid 710, jiffies 4302851558 (age 58.239s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff859c45e5>] kmem_cache_alloc_trace+0x475/0x8a0
+    [<ffffffff86160146>] jffs2_sum_init+0x96/0x1a0
+    [<ffffffff86140e25>] jffs2_do_mount_fs+0x745/0x2120
+    [<ffffffff86149fec>] jffs2_do_fill_super+0x35c/0x810
+    [<ffffffff8614aae9>] jffs2_fill_super+0x2b9/0x3b0
+    [...]
+unreferenced object 0xffff8881bd7f0000 (size 65536):
+  comm "mount", pid 710, jiffies 4302851558 (age 58.239s)
+  hex dump (first 32 bytes):
+    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+  backtrace:
+    [<ffffffff858579ba>] kmalloc_order+0xda/0x110
+    [<ffffffff85857a11>] kmalloc_order_trace+0x21/0x130
+    [<ffffffff859c2ed1>] __kmalloc+0x711/0x8a0
+    [<ffffffff86160189>] jffs2_sum_init+0xd9/0x1a0
+    [<ffffffff86140e25>] jffs2_do_mount_fs+0x745/0x2120
+    [<ffffffff86149fec>] jffs2_do_fill_super+0x35c/0x810
+    [<ffffffff8614aae9>] jffs2_fill_super+0x2b9/0x3b0
+    [...]
+--------------------------------------------
 
-To fix the bug, use a new value 'iter' as the list iterator, while use
-the old value 'iommu' as a dedicated variable to point to the found one,
-and remove the unneeded check for 'iommu->dev->of_node != spec->np'
-outside the loop.
+This is because the resources allocated in jffs2_sum_init() are not
+released. Call jffs2_sum_exit() to release these resources to solve
+the problem.
 
-Cc: stable@vger.kernel.org
-Fixes: f78ebca8ff3d6 ("iommu/msm: Add support for generic master bindings")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Link: https://lore.kernel.org/r/20220501132823.12714-1-xiam0nd.tong@gmail.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e631ddba5887 ("[JFFS2] Add erase block summary support (mount time improvement)")
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/msm_iommu.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ fs/jffs2/fs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iommu/msm_iommu.c
-+++ b/drivers/iommu/msm_iommu.c
-@@ -638,16 +638,19 @@ static void insert_iommu_master(struct d
- static int qcom_iommu_of_xlate(struct device *dev,
- 			       struct of_phandle_args *spec)
- {
--	struct msm_iommu_dev *iommu;
-+	struct msm_iommu_dev *iommu = NULL, *iter;
- 	unsigned long flags;
- 	int ret = 0;
- 
- 	spin_lock_irqsave(&msm_iommu_lock, flags);
--	list_for_each_entry(iommu, &qcom_iommu_devices, dev_node)
--		if (iommu->dev->of_node == spec->np)
-+	list_for_each_entry(iter, &qcom_iommu_devices, dev_node) {
-+		if (iter->dev->of_node == spec->np) {
-+			iommu = iter;
- 			break;
-+		}
-+	}
- 
--	if (!iommu || iommu->dev->of_node != spec->np) {
-+	if (!iommu) {
- 		ret = -ENODEV;
- 		goto fail;
- 	}
+diff --git a/fs/jffs2/fs.c b/fs/jffs2/fs.c
+index 71f03a5d36ed..f83a468b6488 100644
+--- a/fs/jffs2/fs.c
++++ b/fs/jffs2/fs.c
+@@ -604,6 +604,7 @@ int jffs2_do_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	jffs2_free_raw_node_refs(c);
+ 	kvfree(c->blocks);
+ 	jffs2_clear_xattr_subsystem(c);
++	jffs2_sum_exit(c);
+  out_inohash:
+ 	kfree(c->inocache_list);
+  out_wbuf:
+-- 
+2.35.1
+
 
 
