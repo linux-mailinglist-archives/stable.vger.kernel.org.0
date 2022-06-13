@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DF13548678
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA64F54885B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358256AbiFMMGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:06:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59788 "EHLO
+        id S1348529AbiFMK5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:57:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359171AbiFMMFY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:24 -0400
+        with ESMTP id S1350383AbiFMKyv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 931F218B00;
-        Mon, 13 Jun 2022 03:59:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29AED1EC72;
+        Mon, 13 Jun 2022 03:31:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F884613EF;
-        Mon, 13 Jun 2022 10:59:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35650C34114;
-        Mon, 13 Jun 2022 10:59:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9DD160FB1;
+        Mon, 13 Jun 2022 10:31:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE4D4C34114;
+        Mon, 13 Jun 2022 10:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117967;
-        bh=vSKJlShFtifJudFMtcKg8Jn/ExM+1XIH1Zyt7CST3Jo=;
+        s=korg; t=1655116273;
+        bh=o7pGxIWwS9XsgJFBoYbgEMRnyrW1PeHRlM/SCQ7s4h8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8A1Z7ZlGuOgsUW4ko7EUApSN01xKN+MstN5Lz+aHOaIJhyGvbp109Lv4wYxOJqSW
-         2LVG9E/Dr4WLUbfyh6igWKY6x3mmvYWQO84KsMRCq5ap1vxj0mvOg21grvZ3XYB3cl
-         2Yci7nAMAInOkGFiYSGXg9Bc8OQnz5BeNyr6GU94=
+        b=WY7iocI6f6x/DjQ4wSfSwZUWrgwvt/hCzzKTRkiHM6GqcZsES9aLBQcy3iUaSYWHW
+         9A6sY3g5Kp6MPVhe4Ps3JAYcc7Q5TIjdz1K4DoH1qXeph0wfjcUAtGX4Pd5mZThXPO
+         JKYKzsVnSvEuRY+vIqMINX5KkotImlFFowXtG68E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 195/287] usb: musb: Fix missing of_node_put() in omap2430_probe
-Date:   Mon, 13 Jun 2022 12:10:19 +0200
-Message-Id: <20220613094929.778125207@linuxfoundation.org>
+Subject: [PATCH 4.14 162/218] ubi: ubi_create_volume: Fix use-after-free when volume creation failed
+Date:   Mon, 13 Jun 2022 12:10:20 +0200
+Message-Id: <20220613094925.511296129@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 424bef51fa530389b0b9008c9e144e40c10e8458 ]
+[ Upstream commit 8c03a1c21d72210f81cb369cc528e3fde4b45411 ]
 
-The device_node pointer is returned by of_parse_phandle() with refcount
-incremented. We should use of_node_put() on it when done.
+There is an use-after-free problem for 'eba_tbl' in ubi_create_volume()'s
+error handling path:
 
-Fixes: 8934d3e4d0e7 ("usb: musb: omap2430: Don't use omap_get_control_dev()")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220309111033.24487-1-linmq006@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  ubi_eba_replace_table(vol, eba_tbl)
+    vol->eba_tbl = tbl
+out_mapping:
+  ubi_eba_destroy_table(eba_tbl)   // Free 'eba_tbl'
+out_unlock:
+  put_device(&vol->dev)
+    vol_release
+      kfree(tbl->entries)	  // UAF
+
+Fix it by removing redundant 'eba_tbl' releasing.
+Fetch a reproducer in [Link].
+
+Fixes: 493cfaeaa0c9b ("mtd: utilize new cdev_device_add helper function")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215965
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/omap2430.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/ubi/vmt.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/usb/musb/omap2430.c b/drivers/usb/musb/omap2430.c
-index 24e622c05638..5f1c41e95f56 100644
---- a/drivers/usb/musb/omap2430.c
-+++ b/drivers/usb/musb/omap2430.c
-@@ -433,6 +433,7 @@ static int omap2430_probe(struct platform_device *pdev)
- 	control_node = of_parse_phandle(np, "ctrl-module", 0);
- 	if (control_node) {
- 		control_pdev = of_find_device_by_node(control_node);
-+		of_node_put(control_node);
- 		if (!control_pdev) {
- 			dev_err(&pdev->dev, "Failed to get control device\n");
- 			ret = -EINVAL;
+diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
+index 8f641448a97a..d32144c0098a 100644
+--- a/drivers/mtd/ubi/vmt.c
++++ b/drivers/mtd/ubi/vmt.c
+@@ -315,7 +315,6 @@ int ubi_create_volume(struct ubi_device *ubi, struct ubi_mkvol_req *req)
+ 	ubi->volumes[vol_id] = NULL;
+ 	ubi->vol_count -= 1;
+ 	spin_unlock(&ubi->volumes_lock);
+-	ubi_eba_destroy_table(eba_tbl);
+ out_acc:
+ 	spin_lock(&ubi->volumes_lock);
+ 	ubi->rsvd_pebs -= vol->reserved_pebs;
 -- 
 2.35.1
 
