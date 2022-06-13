@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B60D548BFE
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26BEA548B2A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355630AbiFMLqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:46:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43214 "EHLO
+        id S1354262AbiFMMQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:16:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356534AbiFMLol (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:44:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E508A4757A;
-        Mon, 13 Jun 2022 03:50:53 -0700 (PDT)
+        with ESMTP id S1358420AbiFMMOL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:14:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C178541B0;
+        Mon, 13 Jun 2022 04:01:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4876461306;
-        Mon, 13 Jun 2022 10:50:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BB77C34114;
-        Mon, 13 Jun 2022 10:50:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E2A460F9A;
+        Mon, 13 Jun 2022 11:01:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 907D9C34114;
+        Mon, 13 Jun 2022 11:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117449;
-        bh=RYGlt8XO8N6wGU/CPy6VpyAOXZydS1xA2/rRn4qKMHg=;
+        s=korg; t=1655118098;
+        bh=5fQ3hSkL/D/1M0UfCzldkCYemrSRiFzTh3P9t+OAGGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ih8inzzHF4xdwYIJS2s4cGrglz1aCbv6PaxXWgqkiiU7gpI+se3p3U8wsxz3fPTUk
-         EUuCjs8NWbzZhs0tCETEtj+TLxtEre385GWbPJbSMU6MFsM2LNmgdWNut2haaOEH4m
-         YCugKzN0y1Q7TZufFrTXK9rwM+VilnBeWZxdlUwg=
+        b=K/E7dYAmoaVeA/CO179ATM61AXMVjMLtywmHA6I5OzO1EXDLOuqlYNHz1p6s/tIC7
+         0sWvZOBSbYwmhiF+rRVaIOVbCy/sL7IDjdHhF6zDrJLtctJjUj7+GP2R1WL4dx7R/0
+         uqaiFO03Sc37DAiFS0KwPqspCUcz4TNL1XSfKUr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Wang Cheng <wanngchenng@gmail.com>,
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 380/411] staging: rtl8712: fix uninit-value in usb_read8() and friends
+Subject: [PATCH 4.19 229/287] tracing: Avoid adding tracer option before update_tracer_options
 Date:   Mon, 13 Jun 2022 12:10:53 +0200
-Message-Id: <20220613094940.063937294@linuxfoundation.org>
+Message-Id: <20220613094930.960251128@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,151 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Cheng <wanngchenng@gmail.com>
+From: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
 
-[ Upstream commit d1b57669732d09da7e13ef86d058dab0cd57f6e0 ]
+[ Upstream commit ef9188bcc6ca1d8a2ad83e826b548e6820721061 ]
 
-When r8712_usbctrl_vendorreq() returns negative, 'data' in
-usb_read{8,16,32} will not be initialized.
+To prepare for support asynchronous tracer_init_tracefs initcall,
+avoid calling create_trace_option_files before __update_tracer_options.
+Otherwise, create_trace_option_files will show warning because
+some tracers in trace_types list are already in tr->topts.
 
-BUG: KMSAN: uninit-value in string_nocheck lib/vsprintf.c:643 [inline]
-BUG: KMSAN: uninit-value in string+0x4ec/0x6f0 lib/vsprintf.c:725
- string_nocheck lib/vsprintf.c:643 [inline]
- string+0x4ec/0x6f0 lib/vsprintf.c:725
- vsnprintf+0x2222/0x3650 lib/vsprintf.c:2806
- va_format lib/vsprintf.c:1704 [inline]
- pointer+0x18e6/0x1f70 lib/vsprintf.c:2443
- vsnprintf+0x1a9b/0x3650 lib/vsprintf.c:2810
- vprintk_store+0x537/0x2150 kernel/printk/printk.c:2158
- vprintk_emit+0x28b/0xab0 kernel/printk/printk.c:2256
- dev_vprintk_emit+0x5ef/0x6d0 drivers/base/core.c:4604
- dev_printk_emit+0x1dd/0x21f drivers/base/core.c:4615
- __dev_printk+0x3be/0x440 drivers/base/core.c:4627
- _dev_info+0x1ea/0x22f drivers/base/core.c:4673
- r871xu_drv_init+0x1929/0x3070 drivers/staging/rtl8712/usb_intf.c:401
- usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
- really_probe+0x6c7/0x1350 drivers/base/dd.c:621
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_set_configuration+0x37e9/0x3ed0 drivers/usb/core/message.c:2170
- usb_generic_driver_probe+0x13c/0x300 drivers/usb/core/generic.c:238
- usb_probe_device+0x309/0x570 drivers/usb/core/driver.c:293
- really_probe+0x6c7/0x1350 drivers/base/dd.c:621
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_new_device+0x1b91/0x2950 drivers/usb/core/hub.c:2566
- hub_port_connect drivers/usb/core/hub.c:5363 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5507 [inline]
- port_event drivers/usb/core/hub.c:5665 [inline]
- hub_event+0x58e3/0x89e0 drivers/usb/core/hub.c:5747
- process_one_work+0xdb6/0x1820 kernel/workqueue.c:2289
- worker_thread+0x10d0/0x2240 kernel/workqueue.c:2436
- kthread+0x3c7/0x500 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30
+For example, hwlat_tracer call register_tracer in late_initcall,
+and global_trace.dir is already created in tracing_init_dentry,
+hwlat_tracer will be put into tr->topts.
+Then if the __update_tracer_options is executed after hwlat_tracer
+registered, create_trace_option_files find that hwlat_tracer is
+already in tr->topts.
 
-Local variable data created at:
- usb_read8+0x5d/0x130 drivers/staging/rtl8712/usb_ops.c:33
- r8712_read8+0xa5/0xd0 drivers/staging/rtl8712/rtl8712_io.c:29
+Link: https://lkml.kernel.org/r/20220426122407.17042-2-mark-pk.tsai@mediatek.com
 
-KMSAN: uninit-value in r871xu_drv_init
-https://syzkaller.appspot.com/bug?id=3cd92b1d85428b128503bfa7a250294c9ae00bd8
-
-Reported-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
-Tested-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
-Link: https://lore.kernel.org/r/b9b7a6ee02c02aa28054f5cf16129977775f3cd9.1652618244.git.wanngchenng@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/lkml/20220322133339.GA32582@xsang-OptiPlex-9020/
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/usb_ops.c | 27 ++++++++++++++++++---------
- 1 file changed, 18 insertions(+), 9 deletions(-)
+ kernel/trace/trace.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/staging/rtl8712/usb_ops.c b/drivers/staging/rtl8712/usb_ops.c
-index e64845e6adf3..af9966d03979 100644
---- a/drivers/staging/rtl8712/usb_ops.c
-+++ b/drivers/staging/rtl8712/usb_ops.c
-@@ -29,7 +29,8 @@ static u8 usb_read8(struct intf_hdl *intfhdl, u32 addr)
- 	u16 wvalue;
- 	u16 index;
- 	u16 len;
--	__le32 data;
-+	int status;
-+	__le32 data = 0;
- 	struct intf_priv *intfpriv = intfhdl->pintfpriv;
- 
- 	request = 0x05;
-@@ -37,8 +38,10 @@ static u8 usb_read8(struct intf_hdl *intfhdl, u32 addr)
- 	index = 0;
- 	wvalue = (u16)(addr & 0x0000ffff);
- 	len = 1;
--	r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index, &data, len,
--				requesttype);
-+	status = r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index,
-+					 &data, len, requesttype);
-+	if (status < 0)
-+		return 0;
- 	return (u8)(le32_to_cpu(data) & 0x0ff);
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 017c8dd46b0f..5b7a6e9b0ab6 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -5368,12 +5368,18 @@ static void tracing_set_nop(struct trace_array *tr)
+ 	tr->current_trace = &nop_trace;
  }
  
-@@ -49,7 +52,8 @@ static u16 usb_read16(struct intf_hdl *intfhdl, u32 addr)
- 	u16 wvalue;
- 	u16 index;
- 	u16 len;
--	__le32 data;
-+	int status;
-+	__le32 data = 0;
- 	struct intf_priv *intfpriv = intfhdl->pintfpriv;
++static bool tracer_options_updated;
++
+ static void add_tracer_options(struct trace_array *tr, struct tracer *t)
+ {
+ 	/* Only enable if the directory has been created already. */
+ 	if (!tr->dir)
+ 		return;
  
- 	request = 0x05;
-@@ -57,8 +61,10 @@ static u16 usb_read16(struct intf_hdl *intfhdl, u32 addr)
- 	index = 0;
- 	wvalue = (u16)(addr & 0x0000ffff);
- 	len = 2;
--	r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index, &data, len,
--				requesttype);
-+	status = r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index,
-+					 &data, len, requesttype);
-+	if (status < 0)
-+		return 0;
- 	return (u16)(le32_to_cpu(data) & 0xffff);
++	/* Only create trace option files after update_tracer_options finish */
++	if (!tracer_options_updated)
++		return;
++
+ 	create_trace_option_files(tr, t);
  }
  
-@@ -69,7 +75,8 @@ static u32 usb_read32(struct intf_hdl *intfhdl, u32 addr)
- 	u16 wvalue;
- 	u16 index;
- 	u16 len;
--	__le32 data;
-+	int status;
-+	__le32 data = 0;
- 	struct intf_priv *intfpriv = intfhdl->pintfpriv;
- 
- 	request = 0x05;
-@@ -77,8 +84,10 @@ static u32 usb_read32(struct intf_hdl *intfhdl, u32 addr)
- 	index = 0;
- 	wvalue = (u16)(addr & 0x0000ffff);
- 	len = 4;
--	r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index, &data, len,
--				requesttype);
-+	status = r8712_usbctrl_vendorreq(intfpriv, request, wvalue, index,
-+					 &data, len, requesttype);
-+	if (status < 0)
-+		return 0;
- 	return le32_to_cpu(data);
+@@ -7820,6 +7826,7 @@ static void __update_tracer_options(struct trace_array *tr)
+ static void update_tracer_options(struct trace_array *tr)
+ {
+ 	mutex_lock(&trace_types_lock);
++	tracer_options_updated = true;
+ 	__update_tracer_options(tr);
+ 	mutex_unlock(&trace_types_lock);
  }
- 
 -- 
 2.35.1
 
