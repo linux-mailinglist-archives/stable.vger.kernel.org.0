@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 620CC548CBB
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B12095498BB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344879AbiFMKuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:50:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58902 "EHLO
+        id S1353456AbiFMLbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:31:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348647AbiFMKtb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:49:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C077D2E684;
-        Mon, 13 Jun 2022 03:27:08 -0700 (PDT)
+        with ESMTP id S1354846AbiFMLaN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078FF3FBE3;
+        Mon, 13 Jun 2022 03:45:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68B7DB80E93;
-        Mon, 13 Jun 2022 10:27:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDBFDC34114;
-        Mon, 13 Jun 2022 10:27:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF6E6B80D19;
+        Mon, 13 Jun 2022 10:45:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0987CC34114;
+        Mon, 13 Jun 2022 10:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116026;
-        bh=Me9cB5A3xIns031FfP6U4PEKU1XTNrg1iFiuBemJcW8=;
+        s=korg; t=1655117151;
+        bh=BeBqk5VRdbWi7Ojglx8xzis/qKTh3Zs6eNwGThBryHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3PXrV9AZO2qAJUjbmJUdEkrhK7SqRMZdt8RFISFezni5uIgnR4vijE27Vw50OkOS
-         0nDmCQ+gx3vZ6MX5dIcxylj1pvx1oz94hfcwx2O2Zp/4ZOfxHYHgU7PRXiEi4GRmGo
-         ZlmfnwJ+0OdspjSt2DfVMeXj1pyRO5H+aJ/eV7TE=
+        b=AUojk8F988vEujsT8SCMLQiacJDkhWUi8AVjXBYugG9v7jTUaN/zrK9cff4GxMIVa
+         Yp/QRXLPUdrrt6fYG3ZiF+H8BJogGjMeRPz/uP+EnoYdNU4wwtBtFrcMyhIkyGdS1/
+         zwgFxmDJjWPeI4wmCvE4JTUB+WbAbxf0TGaXeFNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 4.14 119/218] RDMA/hfi1: Fix potential integer multiplication overflow errors
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Anup Patel <anup@brainfault.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 304/411] clocksource/drivers/riscv: Events are stopped during CPU suspend
 Date:   Mon, 13 Jun 2022 12:09:37 +0200
-Message-Id: <20220613094924.179176677@linuxfoundation.org>
+Message-Id: <20220613094937.868065045@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+From: Samuel Holland <samuel@sholland.org>
 
-commit f93e91a0372c922c20d5bee260b0f43b4b8a1bee upstream.
+[ Upstream commit 232ccac1bd9b5bfe73895f527c08623e7fa0752d ]
 
-When multiplying of different types, an overflow is possible even when
-storing the result in a larger type. This is because the conversion is
-done after the multiplication. So arithmetic overflow and thus in
-incorrect value is possible.
+Some implementations of the SBI time extension depend on hart-local
+state (for example, CSRs) that are lost or hardware that is powered
+down when a CPU is suspended. To be safe, the clockevents driver
+cannot assume that timer IRQs will be received during CPU suspend.
 
-Correct an instance of this in the inter packet delay calculation.  Fix by
-ensuring one of the operands is u64 which will promote the other to u64 as
-well ensuring no overflow.
-
-Cc: stable@vger.kernel.org
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Link: https://lore.kernel.org/r/20220520183712.48973.29855.stgit@awfm-01.cornelisnetworks.com
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 62b019436814 ("clocksource: new RISC-V SBI timer driver")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Link: https://lore.kernel.org/r/20220509012121.40031-1-samuel@sholland.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/init.c |    2 +-
+ drivers/clocksource/timer-riscv.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/hfi1/init.c
-+++ b/drivers/infiniband/hw/hfi1/init.c
-@@ -515,7 +515,7 @@ void set_link_ipg(struct hfi1_pportdata
- 	u16 shift, mult;
- 	u64 src;
- 	u32 current_egress_rate; /* Mbits /sec */
--	u32 max_pkt_time;
-+	u64 max_pkt_time;
- 	/*
- 	 * max_pkt_time is the maximum packet egress time in units
- 	 * of the fabric clock period 1/(805 MHz).
+diff --git a/drivers/clocksource/timer-riscv.c b/drivers/clocksource/timer-riscv.c
+index 4b04ffbe5e7e..e3be5c2f57b8 100644
+--- a/drivers/clocksource/timer-riscv.c
++++ b/drivers/clocksource/timer-riscv.c
+@@ -26,7 +26,7 @@ static int riscv_clock_next_event(unsigned long delta,
+ 
+ static DEFINE_PER_CPU(struct clock_event_device, riscv_clock_event) = {
+ 	.name			= "riscv_timer_clockevent",
+-	.features		= CLOCK_EVT_FEAT_ONESHOT,
++	.features		= CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_C3STOP,
+ 	.rating			= 100,
+ 	.set_next_event		= riscv_clock_next_event,
+ };
+-- 
+2.35.1
+
 
 
