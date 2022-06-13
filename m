@@ -2,120 +2,255 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A50454A2E6
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 01:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1468F54A2EB
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 01:50:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232952AbiFMXqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 19:46:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46562 "EHLO
+        id S233217AbiFMXrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 19:47:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229848AbiFMXqu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 19:46:50 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAC3432EDA
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 16:46:49 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id i1so6391169plg.7
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 16:46:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=NWnp6jh4IkeAqpnKZ+lfODjxLkR8xXkYDCufUeozcMI=;
-        b=l2DgFOPVzpt8vqockhiGQHR/UbEeui3SEsQbSBLVLtvFzGUiPGtkTJm85IAAu8ONoP
-         0Z4f35MP8HX8R9bXQ/3/aYtTp8duKv/T6/NZQse15JJAngo0LX0847p6JZ/6if3l5CHp
-         IoC+5TmdJo+tc6cgliypMPvClGUuz8yUn2DJYy22/p1bADFOIsL0tKdVv8v9H2vBL5/r
-         dk4wnu0/Vq+F9jusk4UkzW25GZztady4FRc7k86qsluZd8j7nwoFKDeauWVDii3kBd14
-         dTxScss2Tnsg9WczeZYQ8VWJUS44kACP3xqJqgCFIip8zxFzANhPJZUEfMIw69QEzHSS
-         AP8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=NWnp6jh4IkeAqpnKZ+lfODjxLkR8xXkYDCufUeozcMI=;
-        b=KPAY3+xz76XCWGYIqYXF3LdiAfLsZRLMySP2NSlqQavUoV0LzWUid6qW2CE/D8gs2U
-         CLFZxOBkA2n6bNfND4Rwy2itZK6nU6KU3NNTfmT0UHrB3jtCg4/biwtdwlXozataLDT6
-         hulfL1OMSXCbnrnlY+k6VZH3dQZH+A5DeB3SeP6PzGjq5PtUW35FdR4TYqFl05lXOKfe
-         9y4cUb3Akt5InvYXCDalCQu83H7Zzdnjito/dcejX22LYA3xJrglZrAPoTg+SqBwKj6G
-         GM22QwIUBXAoKjxBAlPVN9fwD/STYR9+XxUv6OnGs5F34cEnD/qgARD3Mw7S+iuwApsw
-         v6cw==
-X-Gm-Message-State: AJIora9qpvRjHMsmEW5yilL0n1zNIsQZdeN+dYTeUOxfgLyhw2eapzB7
-        1iHewulLOQz2EDs3WIhx21ykrH4iXJrtIg==
-X-Google-Smtp-Source: AGRyM1tESuQl21EJGN6Enph7gVp+8hZ47yjVXCGk44Bhabnu+aVDef7NGQ9dn8uLA4wZuYzAgVso8w==
-X-Received: by 2002:a17:90b:1809:b0:1e8:7495:3c6d with SMTP id lw9-20020a17090b180900b001e874953c6dmr1277920pjb.193.1655164009353;
-        Mon, 13 Jun 2022 16:46:49 -0700 (PDT)
-Received: from google.com ([2620:0:1001:7810:2423:f4b7:238e:d393])
-        by smtp.gmail.com with ESMTPSA id x25-20020a62fb19000000b005183cf12184sm5944112pfm.133.2022.06.13.16.46.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jun 2022 16:46:49 -0700 (PDT)
-Date:   Mon, 13 Jun 2022 16:46:47 -0700
-From:   Leah Rumancik <leah.rumancik@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: Re: [PATCH 5.10] nfsd: Replace use of rwsem with errseq_t
-Message-ID: <YqfMZ7ltC2+9IJmp@google.com>
-References: <20220607201036.4018806-1-lrumancik@google.com>
- <YqbuHTLVgIIzPkC6@kroah.com>
+        with ESMTP id S229848AbiFMXrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 19:47:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10EDA32EF2;
+        Mon, 13 Jun 2022 16:47:16 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8015B8168D;
+        Mon, 13 Jun 2022 23:47:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A224C341C4;
+        Mon, 13 Jun 2022 23:47:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655164033;
+        bh=ZZQG4WkdlLPvu79h3GXoHi484v8G5Ty5aPwNZxbhBbQ=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=MGwXPpqZc/vkhX22aJDu3oivlC/Il2oQ4muNEDo11DHreWbSRnKtIup3VJIWJpMOt
+         7RnwyciChi/9oVtNjUI2NgtM7ebfbBZYOMpm3XcqtgcEvPicIm9BMzRa9iSLL0pqLo
+         bRJgbRmlAvCIpefnJo4aHvnM7ePiNh+kLupgo3s5oOPiIPmuq/WLxhfDBPfI/efKsK
+         K9Zxll6RzV2KfVVn+ezG/0WIE+YZpoWHo/iTTaRNx5QteT/nMntgyXe2C2363tssSO
+         IjyGHJvCGpj938g7ehCm5jdUE1+J8jZ5gd0kTXj7h3ZNY2t5hynjBZCdi0e7FtZyoM
+         L9UWBambp1Kow==
+Received: by mail-vs1-f46.google.com with SMTP id x9so7391385vsg.13;
+        Mon, 13 Jun 2022 16:47:13 -0700 (PDT)
+X-Gm-Message-State: AJIora+8QokR9jvuJki5moZuEqcQ3XmjOASQMeQj/MdZpCmLTU+5wvOI
+        cMEJeWmOag/9l0b08L+QZYyl0xIL7yDMW8XmpYg=
+X-Google-Smtp-Source: AGRyM1skuJQAfVrZw2mzL2D+3j5zatrbkCDTKbNDOEEEwoGo3Ub8RdzfU440q0wVUVR7cbP33umAs1B4VpH4mhzpU+0=
+X-Received: by 2002:a05:6102:3562:b0:34b:9e99:1bfa with SMTP id
+ bh2-20020a056102356200b0034b9e991bfamr759699vsb.51.1655164032340; Mon, 13 Jun
+ 2022 16:47:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YqbuHTLVgIIzPkC6@kroah.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220613131046.3009889-1-xianting.tian@linux.alibaba.com>
+ <0262A4FB-5A9B-47D3-8F1A-995509F56279@nvidia.com> <CAJF2gTQGXAubtas4wAzrg298dGQJntu38X48V2OzcK8xZ_vPJg@mail.gmail.com>
+ <D667F530-E286-4E75-B7CE-63E120E440C8@nvidia.com>
+In-Reply-To: <D667F530-E286-4E75-B7CE-63E120E440C8@nvidia.com>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Tue, 14 Jun 2022 07:47:00 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTSsaaseds=T_y-Ddt5Np2rYhk3ENumzSZDZUSXFwT3u-g@mail.gmail.com>
+Message-ID: <CAJF2gTSsaaseds=T_y-Ddt5Np2rYhk3ENumzSZDZUSXFwT3u-g@mail.gmail.com>
+Subject: Re: [RESEND PATCH] mm: page_alloc: validate buddy before check the migratetype
+To:     Zi Yan <ziy@nvidia.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Xianting Tian <xianting.tian@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Linux-MM <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, huanyi.xj@alibaba-inc.com,
+        zjb194813@alibaba-inc.com, tianhu.hh@alibaba-inc.com,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Laura Abbott <labbott@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 13, 2022 at 09:58:21AM +0200, Greg KH wrote:
-> On Tue, Jun 07, 2022 at 01:10:36PM -0700, Leah Rumancik wrote:
-> > From: Trond Myklebust <trond.myklebust@hammerspace.com>
-> > 
-> > [ Upstream commit 555dbf1a9aac6d3150c8b52fa35f768a692f4eeb ]
-> > 
-> > The nfsd_file nf_rwsem is currently being used to separate file write
-> > and commit instances to ensure that we catch errors and apply them to
-> > the correct write/commit.
-> > We can improve scalability at the expense of a little accuracy (some
-> > extra false positives) by replacing the nf_rwsem with more careful
-> > use of the errseq_t mechanism to track errors across the different
-> > operations.
-> > 
-> > [Leah: This patch is for 5.10. 5011af4c698a ("nfsd: Fix stable writes")
-> > introduced a 75% performance regression on parallel random write
-> > workloads. With this commit, the performance is restored to 90% of what
-> > it was prior to 5011af4c698a. The changes to the fsync for asynchronous
-> > copies were not included in this backport version as the fsync was not
-> > added until 5.14 (eac0b17a77fb).]
-> > 
-> > Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-> > Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-> > Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
-> > [ cel: rebased on zero-verifier fix ]
-> > ---
-> >  fs/nfsd/filecache.c |  1 -
-> >  fs/nfsd/filecache.h |  1 -
-> >  fs/nfsd/nfs4proc.c  |  7 ++++---
-> >  fs/nfsd/vfs.c       | 40 +++++++++++++++-------------------------
-> >  4 files changed, 19 insertions(+), 30 deletions(-)
-> 
-> What about 5.15?  We can't take this patch for 5.10 only as if you
-> upgrade to 5.15 you would have a regression.  Can you provide a version
-> for that tree so that I can then apply this one too?
-> 
-> thanks,
-> 
-> greg k-h
+On Tue, Jun 14, 2022 at 3:49 AM Zi Yan <ziy@nvidia.com> wrote:
+>
+> On 13 Jun 2022, at 12:32, Guo Ren wrote:
+>
+> > On Mon, Jun 13, 2022 at 11:23 PM Zi Yan <ziy@nvidia.com> wrote:
+> >>
+> >> Hi Xianting,
+> >>
+> >> Thanks for your patch.
+> >>
+> >> On 13 Jun 2022, at 9:10, Xianting Tian wrote:
+> >>
+> >>> Commit 787af64d05cd ("mm: page_alloc: validate buddy before check its=
+ migratetype.")
+> >>> added buddy check code. But unfortunately, this fix isn't backported =
+to
+> >>> linux-5.17.y and the former stable branches. The reason is it added w=
+rong
+> >>> fixes message:
+> >>>      Fixes: 1dd214b8f21c ("mm: page_alloc: avoid merging non-fallback=
+able
+> >>>                          pageblocks with others")
+> >>
+> >> No, the Fixes tag is right. The commit above does need to validate bud=
+dy.
+> > I think Xianting is right. The =E2=80=9CFixes:" tag is not accurate and=
+ the
+> > page_is_buddy() is necessary here.
+> >
+> > This patch could be applied to the early version of the stable tree
+> > (eg: Linux-5.10.y, not the master tree)
+>
+> This is quite misleading. Commit 787af64d05cd applies does not mean it is
+> intended to fix the preexisting bug. Also it does not apply cleanly
+> to commit d9dddbf55667, there is a clear indentation mismatch. At best,
+> you can say the way of 787af64d05cd fixing 1dd214b8f21c also fixes d9dddb=
+f55667.
+> There is no way you can apply 787af64d05cd to earlier trees and call it a=
+ day.
+>
+> You can mention 787af64d05cd that it fixes a bug in 1dd214b8f21c and ther=
+e is
+> a similar bug in d9dddbf55667 that can be fixed in a similar way too. Say=
+ing
+> the fixes message is wrong just misleads people, making them think there =
+is
+> no bug in 1dd214b8f21c. We need to be clear about this.
+First, d9dddbf55667 is earlier than 1dd214b8f21c in Linus tree. The
+origin fixes could cover the Linux-5.0.y tree if they give the
+accurate commit number and that is the cause we want to point out.
 
-Just sent the 5.15 version. The upstream commit
-(555dbf1a9aac6d3150c8b52fa35f768a692f4eeb) actually applies cleanly on
-5.15 so you can pull that or the version I just sent with the
-justification for backporting. After applying this commit to 5.15, I
-confirmed there was no peformance regression.
+Second, if the patch is for d9dddbf55667 then it could cover any tree
+in the stable repo. Actually, we only know Linux-5.10.y has the
+problem.
 
-Best,
-Leah
+Maybe, Gregkh could help to direct us on how to deal with the issue:
+(Fixup a bug which only belongs to the former stable branch.)
+
+>
+> Also, you will need to fix the mm/page_isolation.c code too to make this =
+patch
+> complete, unless you can show that PFN=3D0x1000 is never going to be enco=
+untered
+> in the mm/page_isolation.c code I mentioned below.
+No, we needn't fix mm/page_isolation.c in linux-5.10.y, because it had
+pfn_valid_within(buddy_pfn) check after __find_buddy_pfn() to prevent
+buddy_pfn=3D0.
+The root cause comes from __find_buddy_pfn():
+return page_pfn ^ (1 << order);
+
+When page_pfn is the same as the order size, it will return the
+previous buddy not the next. That is the only exception for this
+algorithm, right?
+
+
+
+
+In fact, the bug is a very long time to reproduce and is not easy to
+debug, so we want to contribute it to the community to prevent other
+guys from wasting time. Although there is no new patch at all.
+
+>
+> >
+> >>
+> >>> Actually, this issue is involved by commit:
+> >>>      commit d9dddbf55667 ("mm/page_alloc: prevent merging between iso=
+lated and other pageblocks")
+> >>>
+> >>> For RISC-V arch, the first 2M is reserved for sbi, so the start PFN i=
+s 512,
+> >>> but it got buddy PFN 0 for PFN 0x2000:
+> >>>      0 =3D 0x2000 ^ (1 << 12)
+> >>> With the illegal buddy PFN 0, it got an illegal buddy page, which cau=
+sed
+> >>> crash in __get_pfnblock_flags_mask().
+> >>
+> >> It seems that the RISC-V arch reveals a similar bug from d9dddbf55667.
+> >> Basically, this bug will only happen when PFN=3D0x2000 is merging up a=
+nd
+> >> there are some isolated pageblocks.
+> > Not PFN=3D0x2000, it's PFN=3D0x1000, I guess.
+> >
+> > RISC-V's first 2MB RAM could reserve for opensbi, so it would have
+> > riscv_pfn_base=3D512 and mem_map began with 512th PFN when
+> > CONFIG_FLATMEM=3Dy.
+> > (Also, csky has the same issue: a non-zero pfn_base in some scenarios.)
+> >
+> > But __find_buddy_pfn algorithm thinks the start address is 0, it could
+> > get 0 pfn or less than the pfn_base value. We need another check to
+> > prevent that.
+> >
+> >>
+> >> BTW, what does first reserved 2MB imply? All 4KB pages from first 2MB =
+are
+> >> set to PageReserved?
+> >>
+> >>>
+> >>> With the patch, it can avoid the calling of get_pageblock_migratetype=
+() if
+> >>> it isn't buddy page.
+> >>
+> >> You might miss the __find_buddy_pfn() caller in unset_migratetype_isol=
+ate()
+> >> from mm/page_isolation.c, if you are talking about linux-5.17.y and fo=
+rmer
+> >> version. There, page_is_buddy() is also not called and is_migrate_isol=
+ate_page()
+> >> is called, which calls get_pageblock_migratetype() too.
+> >>
+> >>>
+> >>> Fixes: d9dddbf55667 ("mm/page_alloc: prevent merging between isolated=
+ and other pageblocks")
+> >>> Cc: stable@vger.kernel.org
+> >>> Reported-by: zjb194813@alibaba-inc.com
+> >>> Reported-by: tianhu.hh@alibaba-inc.com
+> >>> Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
+> >>> ---
+> >>>  mm/page_alloc.c | 3 +++
+> >>>  1 file changed, 3 insertions(+)
+> >>>
+> >>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> >>> index b1caa1c6c887..5b423caa68fd 100644
+> >>> --- a/mm/page_alloc.c
+> >>> +++ b/mm/page_alloc.c
+> >>> @@ -1129,6 +1129,9 @@ static inline void __free_one_page(struct page =
+*page,
+> >>>
+> >>>                       buddy_pfn =3D __find_buddy_pfn(pfn, order);
+> >>>                       buddy =3D page + (buddy_pfn - pfn);
+> >>> +
+> >>> +                     if (!page_is_buddy(page, buddy, order))
+> >>> +                             goto done_merging;
+> >>>                       buddy_mt =3D get_pageblock_migratetype(buddy);
+> >>>
+> >>>                       if (migratetype !=3D buddy_mt
+> >>> --
+> >>> 2.17.1
+> >>
+> >> --
+> >> Best Regards,
+> >> Yan, Zi
+> >
+> >
+> >
+> > --
+> > Best Regards
+> >  Guo Ren
+> >
+> > ML: https://lore.kernel.org/linux-csky/
+>
+> --
+> Best Regards,
+> Yan, Zi
+
+
+
+--=20
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
