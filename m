@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C91305497C2
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 312FB549549
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359436AbiFMNNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:13:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38488 "EHLO
+        id S1355653AbiFMMsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:48:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376437AbiFMNLC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:11:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF23D66CAC;
-        Mon, 13 Jun 2022 04:21:59 -0700 (PDT)
+        with ESMTP id S1354690AbiFMMqe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:46:34 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2086D62116;
+        Mon, 13 Jun 2022 04:11:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EE2D60B6B;
-        Mon, 13 Jun 2022 11:21:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A967C34114;
-        Mon, 13 Jun 2022 11:21:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1B078CE1185;
+        Mon, 13 Jun 2022 11:11:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11EBDC34114;
+        Mon, 13 Jun 2022 11:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119311;
-        bh=rxbr1Y6tY5vCrqN0GZ6O31nAcp1+t7/ChYjrzFVsJF0=;
+        s=korg; t=1655118689;
+        bh=kfEY3QRZjbQFex0x+RE6UPxEfcV2bewxyvgnel+V6pY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2aZWmF3EwyA62PLfKhJRvgBqQcoM+/B6UQZTqwobyg+6x9Jv9bC39NdpY7omrq/6u
-         Tl7gbECPjvC/b8SRzNAA8H+DNNDwGZ+DyYlmzFi73A/GtZyrcHTpMMHYZBLfJ2gJ3a
-         QQMtGELqNGzR5eLvFgV/CM7HIvQWLs8ZL/pV6XpM=
+        b=ESMtMJczwqEQk9ZoPRFYyF39eBaNjYdpTiYpbbTqse2XzPt7bs73RvmiBNFpzbnYp
+         M+RJcy7/2CcZLkT9Y5QoUr+MpEoHQuPeh1p/QrHdW/zEIX1jNIMcCUKm3wn+e8P6Vr
+         sgYYy9bBdQwSNyYGMvJAWMy330mZIlBzrJ0yjXHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, huangwenhui <huangwenhuia@uniontech.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 216/247] ALSA: hda/conexant - Fix loopback issue with CX20632
-Date:   Mon, 13 Jun 2022 12:11:58 +0200
-Message-Id: <20220613094929.494477223@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Faltesek <mfaltesek@google.com>,
+        Guenter Roeck <groeck@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 159/172] nfc: st21nfca: fix memory leaks in EVT_TRANSACTION handling
+Date:   Mon, 13 Jun 2022 12:11:59 +0200
+Message-Id: <20220613094923.080880654@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: huangwenhui <huangwenhuia@uniontech.com>
+From: Martin Faltesek <mfaltesek@google.com>
 
-commit d5ea7544c32ba27c2c5826248e4ff58bd50a2518 upstream.
+commit 996419e0594abb311fb958553809f24f38e7abbe upstream.
 
-On a machine with CX20632, Alsamixer doesn't have 'Loopback
-Mixing' and 'Line'.
+Error paths do not free previously allocated memory. Add devm_kfree() to
+those failure paths.
 
-Signed-off-by: huangwenhui <huangwenhuia@uniontech.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220607065631.10708-1-huangwenhuia@uniontech.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
+Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
+Cc: stable@vger.kernel.org
+Signed-off-by: Martin Faltesek <mfaltesek@google.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_conexant.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/nfc/st21nfca/se.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -1052,6 +1052,13 @@ static int patch_conexant_auto(struct hd
- 		snd_hda_pick_fixup(codec, cxt5051_fixup_models,
- 				   cxt5051_fixups, cxt_fixups);
- 		break;
-+	case 0x14f15098:
-+		codec->pin_amp_workaround = 1;
-+		spec->gen.mixer_nid = 0x22;
-+		spec->gen.add_stereo_mix_input = HDA_HINT_STEREO_MIX_AUTO;
-+		snd_hda_pick_fixup(codec, cxt5066_fixup_models,
-+				   cxt5066_fixups, cxt_fixups);
-+		break;
- 	case 0x14f150f2:
- 		codec->power_save_node = 1;
- 		fallthrough;
+--- a/drivers/nfc/st21nfca/se.c
++++ b/drivers/nfc/st21nfca/se.c
+@@ -330,22 +330,29 @@ int st21nfca_connectivity_event_received
+ 		transaction->aid_len = skb->data[1];
+ 
+ 		/* Checking if the length of the AID is valid */
+-		if (transaction->aid_len > sizeof(transaction->aid))
++		if (transaction->aid_len > sizeof(transaction->aid)) {
++			devm_kfree(dev, transaction);
+ 			return -EINVAL;
++		}
+ 
+ 		memcpy(transaction->aid, &skb->data[2],
+ 		       transaction->aid_len);
+ 
+ 		/* Check next byte is PARAMETERS tag (82) */
+ 		if (skb->data[transaction->aid_len + 2] !=
+-		    NFC_EVT_TRANSACTION_PARAMS_TAG)
++		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
++			devm_kfree(dev, transaction);
+ 			return -EPROTO;
++		}
+ 
+ 		transaction->params_len = skb->data[transaction->aid_len + 3];
+ 
+ 		/* Total size is allocated (skb->len - 2) minus fixed array members */
+-		if (transaction->params_len > ((skb->len - 2) - sizeof(struct nfc_evt_transaction)))
++		if (transaction->params_len > ((skb->len - 2) -
++		    sizeof(struct nfc_evt_transaction))) {
++			devm_kfree(dev, transaction);
+ 			return -EINVAL;
++		}
+ 
+ 		memcpy(transaction->params, skb->data +
+ 		       transaction->aid_len + 4, transaction->params_len);
 
 
