@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B33C4549418
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B9975498D2
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345043AbiFMKuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:50:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51124 "EHLO
+        id S236810AbiFMKtn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:49:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347638AbiFMKtB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:49:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68DC52D1E0;
-        Mon, 13 Jun 2022 03:26:31 -0700 (PDT)
+        with ESMTP id S1347838AbiFMKtF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:49:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887782D1FE;
+        Mon, 13 Jun 2022 03:26:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C88D060F09;
-        Mon, 13 Jun 2022 10:26:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C92C34114;
-        Mon, 13 Jun 2022 10:26:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FC0B60F09;
+        Mon, 13 Jun 2022 10:26:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31D56C34114;
+        Mon, 13 Jun 2022 10:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115990;
-        bh=bvD7gg0RMkdgrITxYxdYRb0cjIy3W2dxLRH2AWu6i1U=;
+        s=korg; t=1655115995;
+        bh=TOJbzG2XZoI2WrokbFQt+q9q4+105c+y04J+e5RILtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bpd/O7v5D6OMCs/Tumun0dBaxJ0Hm6IPQiJVoNY+LP60kCE9r30DL8uuIUu3BuGuA
-         w6+C2Cso8a+PTOcPdsk3hG14mEnp2mzel+DZTQ1/4nfzUbxrknnFSQ6zY25O5EeBzu
-         KyBbvyygqjmCwjRGkm8TO7Pq4SAMP2M0F/ro3mRs=
+        b=nvc94pM8muGnzA4sEbTg3CXxbQ6R8l6gbFWGzvhrjrtgCNrba07Mwpzfrn8gjn8Kf
+         boDNQ1La76jJ8bB7/JrJrxcjniR3vVlox3Xmg5NMZoItlqZBG+0Ux0wDDKT26l8Mv/
+         A98K2cQXPBiyLXKwitqbMhQr0D9SknsJjlQ3T+5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marios Levogiannis <marios.levogiannis@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 002/411] ALSA: hda/realtek - Fix microphone noise on ASUS TUF B550M-PLUS
-Date:   Mon, 13 Jun 2022 12:04:35 +0200
-Message-Id: <20220613094928.563032897@linuxfoundation.org>
+        stable@vger.kernel.org, Carl Yin <carl.yin@quectel.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 003/411] USB: serial: option: add Quectel BG95 modem
+Date:   Mon, 13 Jun 2022 12:04:36 +0200
+Message-Id: <20220613094928.593102679@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -54,68 +53,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Levogiannis <marios.levogiannis@gmail.com>
+From: Carl Yin(殷张成) <carl.yin@quectel.com>
 
-commit 9bfa7b36343c7d84370bc61c9ed774635b05e4eb upstream.
+commit 33b7af2f459df453feb0d44628d820c47fefe7a8 upstream.
 
-Set microphone pins 0x18 (rear) and 0x19 (front) to VREF_50 to fix the
-microphone noise on ASUS TUF B550M-PLUS which uses the ALCS1200A codec.
-The initial value was VREF_80.
+The BG95 modem has 3 USB configurations that are configurable via the AT
+command AT+QCFGEXT="usbnet",["ecm"|"modem"|"rmnet"] which make the modem
+enumerate with the following interfaces, respectively:
 
-The same issue is also present on Windows using both the default Windows
-driver and all tested Realtek drivers before version 6.0.9049.1. Comparing
-Realtek driver 6.0.9049.1 (the first one without the microphone noise) to
-Realtek driver 6.0.9047.1 (the last one with the microphone noise)
-revealed that the fix is the result of setting pins 0x18 and 0x19 to
-VREF_50.
+"modem": Diag + GNSS + Modem + Modem
+"ecm"  : Diag + GNSS + Modem + ECM
+"rmnet": Diag + GNSS + Modem + QMI
+         Don't support Full QMI messages (e.g WDS_START_NETWORK_INTERFACE)
 
-This fix may also work for other boards that have been reported to have
-the same microphone issue and use the ALC1150 and ALCS1200A codecs, since
-these codecs are similar and the fix in the Realtek driver on Windows is
-common for both. However, it is currently enabled only for ASUS TUF
-B550M-PLUS as this is the only board that could be tested.
+A detailed description of the USB configuration for each mode follows:
 
-Signed-off-by: Marios Levogiannis <marios.levogiannis@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220530074131.12258-1-marios.levogiannis@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
++QCFGEXT: "usbnet","modem"
+--------------------------
+T:  Bus=01 Lev=02 Prnt=02 Port=01 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0700 Rev= 0.00
+S:  Manufacturer=Quectel, Incorporated
+S:  Product=Quectel LPWA Module
+S:  SerialNumber=884328a2
+C:* #Ifs= 4 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fe Prot=ff Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
++QCFGEXT: "usbnet","ecm"
+------------------------
+T:  Bus=01 Lev=02 Prnt=02 Port=01 Cnt=01 Dev#=  4 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0700 Rev= 0.00
+S:  Manufacturer=Quectel, Incorporated
+S:  Product=Quectel LPWA Module
+S:  SerialNumber=884328a2
+C:* #Ifs= 5 Cfg#= 1 Atr=e0 MxPwr=500mA
+A:  FirstIf#= 3 IfCount= 2 Cls=02(comm.) Sub=00 Prot=00
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
+E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+I:  If#= 4 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+I:* If#= 4 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
++QCFGEXT: "usbnet","rmnet"
+--------------------------
+T:  Bus=01 Lev=02 Prnt=02 Port=01 Cnt=01 Dev#=  4 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0700 Rev= 0.00
+S:  Manufacturer=Quectel, Incorporated
+S:  Product=Quectel LPWA Module
+S:  SerialNumber=884328a2
+C:* #Ifs= 4 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: Carl Yin <carl.yin@quectel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -1932,6 +1932,7 @@ enum {
- 	ALC1220_FIXUP_CLEVO_PB51ED_PINS,
- 	ALC887_FIXUP_ASUS_AUDIO,
- 	ALC887_FIXUP_ASUS_HMIC,
-+	ALCS1200A_FIXUP_MIC_VREF,
- };
- 
- static void alc889_fixup_coef(struct hda_codec *codec,
-@@ -2477,6 +2478,14 @@ static const struct hda_fixup alc882_fix
- 		.chained = true,
- 		.chain_id = ALC887_FIXUP_ASUS_AUDIO,
- 	},
-+	[ALCS1200A_FIXUP_MIC_VREF] = {
-+		.type = HDA_FIXUP_PINCTLS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x18, PIN_VREF50 }, /* rear mic */
-+			{ 0x19, PIN_VREF50 }, /* front mic */
-+			{}
-+		}
-+	},
- };
- 
- static const struct snd_pci_quirk alc882_fixup_tbl[] = {
-@@ -2514,6 +2523,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1043, 0x835f, "Asus Eee 1601", ALC888_FIXUP_EEE1601),
- 	SND_PCI_QUIRK(0x1043, 0x84bc, "ASUS ET2700", ALC887_FIXUP_ASUS_BASS),
- 	SND_PCI_QUIRK(0x1043, 0x8691, "ASUS ROG Ranger VIII", ALC882_FIXUP_GPIO3),
-+	SND_PCI_QUIRK(0x1043, 0x8797, "ASUS TUF B550M-PLUS", ALCS1200A_FIXUP_MIC_VREF),
- 	SND_PCI_QUIRK(0x104d, 0x9043, "Sony Vaio VGC-LN51JGB", ALC882_FIXUP_NO_PRIMARY_HP),
- 	SND_PCI_QUIRK(0x104d, 0x9044, "Sony VAIO AiO", ALC882_FIXUP_NO_PRIMARY_HP),
- 	SND_PCI_QUIRK(0x104d, 0x9047, "Sony Vaio TT", ALC889_FIXUP_VAIO_TT),
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1137,6 +1137,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, 0x0620, 0xff, 0xff, 0x30) },	/* EM160R-GL */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, 0x0620, 0xff, 0, 0) },
++	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, 0x0700, 0xff), /* BG95 */
++	  .driver_info = RSVD(3) | ZLP },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x30) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
 
 
