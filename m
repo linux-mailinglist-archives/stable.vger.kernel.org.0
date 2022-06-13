@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A36549030
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 393ED548A0B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343906AbiFMKty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:49:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59008 "EHLO
+        id S1355980AbiFMM5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:57:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345326AbiFMKs2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:48:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4BFA2C676;
-        Mon, 13 Jun 2022 03:26:06 -0700 (PDT)
+        with ESMTP id S1355507AbiFMMzR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A9BBB4AC;
+        Mon, 13 Jun 2022 04:15:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B895460F0B;
-        Mon, 13 Jun 2022 10:26:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA411C34114;
-        Mon, 13 Jun 2022 10:26:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13785B80EAA;
+        Mon, 13 Jun 2022 11:15:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 612BCC34114;
+        Mon, 13 Jun 2022 11:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115965;
-        bh=ViJROby02GyZyQYTg0MYFcHMxaI8kXhKPs9s2mAtsnA=;
+        s=korg; t=1655118931;
+        bh=Khduy9z1D5fs1MdqY+9JrX/W2pwEvQY+bI09HiNPlUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XWskt4O/vtcWOgiMXupj3rSc8PlOL1d5zncrScHW4zLMPrHZU+WgK1wuRB69aeQAq
-         KaoX/tHvOBN8ryVywXH99mej2315zYSPx03XG1ZuaaaAzpsssYVCQuOmIH4PI0J/3Z
-         ymL4qV5tJaCWsjAn3o++NuMqVRWIUiHocZlE+aa4=
+        b=0H7tLbe2ou4TgS0nJlhkP784VE0SmvlPA0F9YUa7lVZTq34sAtGH03KR0Px3Z9w+k
+         JIEMpe5ZLN9rKpkgXQ9QXZ9NvMetwaFwMp7PpVkRoiaiSKbT/NyWvqpvpF4uZocMJh
+         u5GstjLAiC5krOlNCzjiuy7Gvom2MII2jAgCPplc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B6rn=20Ard=C3=B6?= <bjorn.ardo@axis.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        John Ogness <john.ogness@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 096/218] mailbox: forward the hrtimer if not queued and under a lock
+Subject: [PATCH 5.15 052/247] serial: meson: acquire port->lock in startup()
 Date:   Mon, 13 Jun 2022 12:09:14 +0200
-Message-Id: <20220613094923.460487927@linuxfoundation.org>
+Message-Id: <20220613094924.532927936@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,106 +58,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Ardö <bjorn.ardo@axis.com>
+From: John Ogness <john.ogness@linutronix.de>
 
-[ Upstream commit bca1a1004615efe141fd78f360ecc48c60bc4ad5 ]
+[ Upstream commit 589f892ac8ef244e47c5a00ffd8605daa1eaef8e ]
 
-This reverts commit c7dacf5b0f32957b24ef29df1207dc2cd8307743,
-"mailbox: avoid timer start from callback"
+The uart_ops startup() callback is called without interrupts
+disabled and without port->lock locked, relatively late during the
+boot process (from the call path of console_on_rootfs()). If the
+device is a console, it was already previously registered and could
+be actively printing messages.
 
-The previous commit was reverted since it lead to a race that
-caused the hrtimer to not be started at all. The check for
-hrtimer_active() in msg_submit() will return true if the
-callback function txdone_hrtimer() is currently running. This
-function could return HRTIMER_NORESTART and then the timer
-will not be restarted, and also msg_submit() will not start
-the timer. This will lead to a message actually being submitted
-but no timer will start to check for its compleation.
+Since the startup() callback is reading/writing registers used by
+the console write() callback (AML_UART_CONTROL), its access must
+be synchronized using the port->lock. Currently it is not.
 
-The original fix that added checking hrtimer_active() was added to
-avoid a warning with hrtimer_forward. Looking in the kernel
-another solution to avoid this warning is to check hrtimer_is_queued()
-before calling hrtimer_forward_now() instead. This however requires a
-lock so the timer is not started by msg_submit() inbetween this check
-and the hrtimer_forward() call.
+The startup() callback is the only function that explicitly enables
+interrupts. Without the synchronization, it is possible that
+interrupts become accidentally permanently disabled.
 
-Fixes: c7dacf5b0f32 ("mailbox: avoid timer start from callback")
-Signed-off-by: Björn Ardö <bjorn.ardo@axis.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+CPU0                           CPU1
+meson_serial_console_write     meson_uart_startup
+--------------------------     ------------------
+spin_lock(port->lock)
+val = readl(AML_UART_CONTROL)
+uart_console_write()
+                               writel(INT_EN, AML_UART_CONTROL)
+writel(val, AML_UART_CONTROL)
+spin_unlock(port->lock)
+
+Add port->lock synchronization to meson_uart_startup() to avoid
+racing with meson_serial_console_write().
+
+Also add detailed comments to meson_uart_reset() explaining why it
+is *not* using port->lock synchronization.
+
+Link: https://lore.kernel.org/lkml/2a82eae7-a256-f70c-fd82-4e510750906e@samsung.com
+Fixes: ff7693d079e5 ("ARM: meson: serial: add MesonX SoC on-chip uart driver")
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Link: https://lore.kernel.org/r/20220508103547.626355-1-john.ogness@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/mailbox.c          | 19 +++++++++++++------
- include/linux/mailbox_controller.h |  1 +
- 2 files changed, 14 insertions(+), 6 deletions(-)
+ drivers/tty/serial/meson_uart.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
-index 10a559cfb7ea..aa28fdcb81b9 100644
---- a/drivers/mailbox/mailbox.c
-+++ b/drivers/mailbox/mailbox.c
-@@ -85,11 +85,11 @@ static void msg_submit(struct mbox_chan *chan)
- exit:
- 	spin_unlock_irqrestore(&chan->lock, flags);
- 
--	/* kick start the timer immediately to avoid delays */
- 	if (!err && (chan->txdone_method & TXDONE_BY_POLL)) {
--		/* but only if not already active */
--		if (!hrtimer_active(&chan->mbox->poll_hrt))
--			hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
-+		/* kick start the timer immediately to avoid delays */
-+		spin_lock_irqsave(&chan->mbox->poll_hrt_lock, flags);
-+		hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
-+		spin_unlock_irqrestore(&chan->mbox->poll_hrt_lock, flags);
- 	}
+diff --git a/drivers/tty/serial/meson_uart.c b/drivers/tty/serial/meson_uart.c
+index efee3935917f..62e6c1af1344 100644
+--- a/drivers/tty/serial/meson_uart.c
++++ b/drivers/tty/serial/meson_uart.c
+@@ -253,6 +253,14 @@ static const char *meson_uart_type(struct uart_port *port)
+ 	return (port->type == PORT_MESON) ? "meson_uart" : NULL;
  }
  
-@@ -123,20 +123,26 @@ static enum hrtimer_restart txdone_hrtimer(struct hrtimer *hrtimer)
- 		container_of(hrtimer, struct mbox_controller, poll_hrt);
- 	bool txdone, resched = false;
- 	int i;
++/*
++ * This function is called only from probe() using a temporary io mapping
++ * in order to perform a reset before setting up the device. Since the
++ * temporarily mapped region was successfully requested, there can be no
++ * console on this port at this time. Hence it is not necessary for this
++ * function to acquire the port->lock. (Since there is no console on this
++ * port at this time, the port->lock is not initialized yet.)
++ */
+ static void meson_uart_reset(struct uart_port *port)
+ {
+ 	u32 val;
+@@ -267,9 +275,12 @@ static void meson_uart_reset(struct uart_port *port)
+ 
+ static int meson_uart_startup(struct uart_port *port)
+ {
 +	unsigned long flags;
+ 	u32 val;
+ 	int ret = 0;
  
- 	for (i = 0; i < mbox->num_chans; i++) {
- 		struct mbox_chan *chan = &mbox->chans[i];
- 
- 		if (chan->active_req && chan->cl) {
--			resched = true;
- 			txdone = chan->mbox->ops->last_tx_done(chan);
- 			if (txdone)
- 				tx_tick(chan, 0);
-+			else
-+				resched = true;
- 		}
- 	}
- 
- 	if (resched) {
--		hrtimer_forward_now(hrtimer, ms_to_ktime(mbox->txpoll_period));
-+		spin_lock_irqsave(&mbox->poll_hrt_lock, flags);
-+		if (!hrtimer_is_queued(hrtimer))
-+			hrtimer_forward_now(hrtimer, ms_to_ktime(mbox->txpoll_period));
-+		spin_unlock_irqrestore(&mbox->poll_hrt_lock, flags);
++	spin_lock_irqsave(&port->lock, flags);
 +
- 		return HRTIMER_RESTART;
- 	}
- 	return HRTIMER_NORESTART;
-@@ -473,6 +479,7 @@ int mbox_controller_register(struct mbox_controller *mbox)
- 		hrtimer_init(&mbox->poll_hrt, CLOCK_MONOTONIC,
- 			     HRTIMER_MODE_REL);
- 		mbox->poll_hrt.function = txdone_hrtimer;
-+		spin_lock_init(&mbox->poll_hrt_lock);
- 	}
+ 	val = readl(port->membase + AML_UART_CONTROL);
+ 	val |= AML_UART_CLEAR_ERR;
+ 	writel(val, port->membase + AML_UART_CONTROL);
+@@ -285,6 +296,8 @@ static int meson_uart_startup(struct uart_port *port)
+ 	val = (AML_UART_RECV_IRQ(1) | AML_UART_XMIT_IRQ(port->fifosize / 2));
+ 	writel(val, port->membase + AML_UART_MISC);
  
- 	for (i = 0; i < mbox->num_chans; i++) {
-diff --git a/include/linux/mailbox_controller.h b/include/linux/mailbox_controller.h
-index 74deadb42d76..5a4524f66ea1 100644
---- a/include/linux/mailbox_controller.h
-+++ b/include/linux/mailbox_controller.h
-@@ -83,6 +83,7 @@ struct mbox_controller {
- 				      const struct of_phandle_args *sp);
- 	/* Internal to API */
- 	struct hrtimer poll_hrt;
-+	spinlock_t poll_hrt_lock;
- 	struct list_head node;
- };
++	spin_unlock_irqrestore(&port->lock, flags);
++
+ 	ret = request_irq(port->irq, meson_uart_interrupt, 0,
+ 			  port->name, port);
  
 -- 
 2.35.1
