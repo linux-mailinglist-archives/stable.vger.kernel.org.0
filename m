@@ -2,43 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D768F548A91
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAEB654891D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354039AbiFMLbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:31:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46184 "EHLO
+        id S1377941AbiFMNl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:41:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354977AbiFMLaV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2110C40929;
-        Mon, 13 Jun 2022 03:46:12 -0700 (PDT)
+        with ESMTP id S1379214AbiFMNkD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8254CE0B;
+        Mon, 13 Jun 2022 04:30:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 700896125A;
-        Mon, 13 Jun 2022 10:46:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E10FC34114;
-        Mon, 13 Jun 2022 10:46:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 765ADB80E59;
+        Mon, 13 Jun 2022 11:30:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE9C1C3411C;
+        Mon, 13 Jun 2022 11:30:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117170;
-        bh=vQwcFYZTuk8a/owWSlhS1j4ElSisgSKd7FPvtHGCqvc=;
+        s=korg; t=1655119813;
+        bh=oPvLPVSnUwxVm9FEdOgtJaVg+07QbMxAqqkLoJz7sQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2QXFQcwghanCcAGDtACrdjUl9LiideAez2RAgKB6AM8Alxhgq92M88LEe/GvzO500
-         flvS2HOFMgWDteLdq5DVxBbmF3o316YSQuOORcJSdwOWJw90t+dg2dw4Jbvu4XaLrR
-         w1FlMXNNe4EO06MPBgsEWvxMse/hW7qDc7nl8DKg=
+        b=dEwURbCOD9Kh1dqHIqooZ9lPh2dZHWxsrZYQAEMbUBu2HdrBEYISyv8LygWuFZQ6r
+         GC41xnj289dqKg3QFpoDBGvj7K59hZ5TqFNeGFRL4kzkRXHSRUG9JuDFaFjgBwKrvz
+         N0fhunyN4DxZrwFqrn0iVC4x0fLe58jldlZr0K+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 301/411] serial: sifive: Report actual baud base rather than fixed 115200
+Subject: [PATCH 5.18 149/339] perf record: Support sample-read topdown metric group for hybrid platforms
 Date:   Mon, 13 Jun 2022 12:09:34 +0200
-Message-Id: <20220613094937.781690868@linuxfoundation.org>
+Message-Id: <20220613094931.203308064@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +61,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
 
-[ Upstream commit 0a7ff843d507ce2cca2c3b7e169ee56e28133530 ]
+[ Upstream commit 151e7d75036b4e2ac0f33730bc1a5b3ff424d9a7 ]
 
-The base baud value reported is supposed to be the highest baud rate
-that can be set for a serial port.  The SiFive FU740-C000 SOC's on-chip
-UART supports baud rates of up to 1/16 of the input clock rate, which is
-the bus clock `tlclk'[1], often at 130MHz in the case of the HiFive
-Unmatched board.
+With the hardware TopDown metrics feature, the sample-read feature should
+be supported for a TopDown group, e.g., sample a non-topdown event and read
+a Topdown metric group. But the current perf record code errors are out.
 
-However the sifive UART driver reports a fixed value of 115200 instead:
+For a TopDown metric group,the slots event must be the leader of the group,
+but the leader slots event doesn't support sampling. To support sample-read
+the TopDown metric group, uses the 2nd event of the group as the "leader"
+for the purposes of sampling.
 
-10010000.serial: ttySIF0 at MMIO 0x10010000 (irq = 1, base_baud = 115200) is a SiFive UART v0
-10011000.serial: ttySIF1 at MMIO 0x10011000 (irq = 2, base_baud = 115200) is a SiFive UART v0
+Only the platform with the TopDown metric feature supports sample-read the
+topdown group. In commit acb65150a47c ("perf record: Support sample-read
+topdown metric group"), it adds arch_topdown_sample_read() to indicate
+whether the TopDown group supports sample-read, it should only work on the
+non-hybrid systems, this patch extends the support for hybrid platforms.
 
-even though we already support setting higher baud rates, e.g.:
+Before:
 
-$ tty
-/dev/ttySIF1
-$ stty speed
-230400
+  # ./perf record -e "{cpu_core/slots/,cpu_core/cycles/,cpu_core/topdown-retiring/}:S" -a sleep 1
+  Error:
+  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (cpu_core/topdown-retiring/).
+  /bin/dmesg | grep -i perf may provide additional information.
 
-The baud base value is computed by the serial core by dividing the UART
-clock recorded in `struct uart_port' by 16, which is also the minimum
-value of the clock divider supported, so correct the baud base value
-reported by setting the UART clock recorded to the input clock rate
-rather than 115200:
+After:
 
-10010000.serial: ttySIF0 at MMIO 0x10010000 (irq = 1, base_baud = 8125000) is a SiFive UART v0
-10011000.serial: ttySIF1 at MMIO 0x10011000 (irq = 2, base_baud = 8125000) is a SiFive UART v0
+  # ./perf record -e "{cpu_core/slots/,cpu_core/cycles/,cpu_core/topdown-retiring/}:S" -a sleep 1
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.238 MB perf.data (369 samples) ]
 
-
-[1] "SiFive FU740-C000 Manual", v1p3, SiFive, Inc., August 13, 2021,
-    Section 16.9 "Baud Rate Divisor Register (div)", pp.143-144
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: 1f1496a923b6 ("riscv: Fix sifive serial driver")
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204291656280.9383@angie.orcam.me.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: acb65150a47c2bae ("perf record: Support sample-read topdown metric group")
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220602153603.1884710-1-zhengjun.xing@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sifive.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/arch/x86/util/evsel.c   |  3 ++-
+ tools/perf/arch/x86/util/evsel.h   |  7 +++++++
+ tools/perf/arch/x86/util/topdown.c | 21 ++++-----------------
+ 3 files changed, 13 insertions(+), 18 deletions(-)
+ create mode 100644 tools/perf/arch/x86/util/evsel.h
 
-diff --git a/drivers/tty/serial/sifive.c b/drivers/tty/serial/sifive.c
-index 6a2dc823ea82..ec9bd2207271 100644
---- a/drivers/tty/serial/sifive.c
-+++ b/drivers/tty/serial/sifive.c
-@@ -973,7 +973,7 @@ static int sifive_serial_probe(struct platform_device *pdev)
- 	/* Set up clock divider */
- 	ssp->clkin_rate = clk_get_rate(ssp->clk);
- 	ssp->baud_rate = SIFIVE_DEFAULT_BAUD_RATE;
--	ssp->port.uartclk = ssp->baud_rate * 16;
-+	ssp->port.uartclk = ssp->clkin_rate;
- 	__ssp_update_div(ssp);
+diff --git a/tools/perf/arch/x86/util/evsel.c b/tools/perf/arch/x86/util/evsel.c
+index ff4561b7b600..3501399cef35 100644
+--- a/tools/perf/arch/x86/util/evsel.c
++++ b/tools/perf/arch/x86/util/evsel.c
+@@ -5,6 +5,7 @@
+ #include "util/env.h"
+ #include "util/pmu.h"
+ #include "linux/string.h"
++#include "evsel.h"
  
- 	platform_set_drvdata(pdev, ssp);
+ void arch_evsel__set_sample_weight(struct evsel *evsel)
+ {
+@@ -32,7 +33,7 @@ void arch_evsel__fixup_new_cycles(struct perf_event_attr *attr)
+ }
+ 
+ /* Check whether the evsel's PMU supports the perf metrics */
+-static bool evsel__sys_has_perf_metrics(const struct evsel *evsel)
++bool evsel__sys_has_perf_metrics(const struct evsel *evsel)
+ {
+ 	const char *pmu_name = evsel->pmu_name ? evsel->pmu_name : "cpu";
+ 
+diff --git a/tools/perf/arch/x86/util/evsel.h b/tools/perf/arch/x86/util/evsel.h
+new file mode 100644
+index 000000000000..19ad1691374d
+--- /dev/null
++++ b/tools/perf/arch/x86/util/evsel.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _EVSEL_H
++#define _EVSEL_H 1
++
++bool evsel__sys_has_perf_metrics(const struct evsel *evsel);
++
++#endif
+diff --git a/tools/perf/arch/x86/util/topdown.c b/tools/perf/arch/x86/util/topdown.c
+index f4d5422e9960..f81a7cfe4d63 100644
+--- a/tools/perf/arch/x86/util/topdown.c
++++ b/tools/perf/arch/x86/util/topdown.c
+@@ -4,6 +4,7 @@
+ #include "util/pmu.h"
+ #include "util/topdown.h"
+ #include "topdown.h"
++#include "evsel.h"
+ 
+ /* Check whether there is a PMU which supports the perf metrics. */
+ bool topdown_sys_has_perf_metrics(void)
+@@ -55,33 +56,19 @@ void arch_topdown_group_warn(void)
+ 
+ #define TOPDOWN_SLOTS		0x0400
+ 
+-static bool is_topdown_slots_event(struct evsel *counter)
+-{
+-	if (!counter->pmu_name)
+-		return false;
+-
+-	if (strcmp(counter->pmu_name, "cpu"))
+-		return false;
+-
+-	if (counter->core.attr.config == TOPDOWN_SLOTS)
+-		return true;
+-
+-	return false;
+-}
+-
+ /*
+  * Check whether a topdown group supports sample-read.
+  *
+- * Only Topdown metic supports sample-read. The slots
++ * Only Topdown metric supports sample-read. The slots
+  * event must be the leader of the topdown group.
+  */
+ 
+ bool arch_topdown_sample_read(struct evsel *leader)
+ {
+-	if (!pmu_have_event("cpu", "slots"))
++	if (!evsel__sys_has_perf_metrics(leader))
+ 		return false;
+ 
+-	if (is_topdown_slots_event(leader))
++	if (leader->core.attr.config == TOPDOWN_SLOTS)
+ 		return true;
+ 
+ 	return false;
 -- 
 2.35.1
 
