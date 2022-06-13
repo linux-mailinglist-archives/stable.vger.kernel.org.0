@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18902548FA5
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0D4C548DC6
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354356AbiFMLfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:35:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40436 "EHLO
+        id S1379051AbiFMNq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:46:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354885AbiFMLeN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:34:13 -0400
+        with ESMTP id S1379258AbiFMNn4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:43:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0244242A34;
-        Mon, 13 Jun 2022 03:47:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0D923EF28;
+        Mon, 13 Jun 2022 04:31:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27853B80D3F;
-        Mon, 13 Jun 2022 10:47:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54601C3411F;
-        Mon, 13 Jun 2022 10:47:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0EC91B80EA7;
+        Mon, 13 Jun 2022 11:31:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AB3DC34114;
+        Mon, 13 Jun 2022 11:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117256;
-        bh=F0EYgoPzitgp8Y9vT+TpnbuD2i0rrUHXv1A1VLg05qg=;
+        s=korg; t=1655119911;
+        bh=mnT08aQ9pGcT/TYriH3ev0VLk1IzDUDUxRReQgPBTWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MrtJCdE/TIzGwMQEsuLdPp4NKWjK81RULXDZCvyc1PNdsXAn+hk8ymjB9E6CcwCj0
-         yjKea39WClxQ+zqekkcwqV6MR1EOvCFirJNvVCZyRMEyHfP4UY6ist62w0NhuW/NI5
-         BLVum0H0PSiaunBfzvgnMyQIcyTPWifjPiMHYbyQ=
+        b=let610Dsg6iWx6o2ssljQHcvx5e0VDj+pg7FljXX7ubjBFCtgswK2vm3ic8Re1K5t
+         pk5Z5Dys8I6lZ6ScYrlf7msTKbGFo+h5k9eTXsiCgnCY+YJnExAOXG4zEbzslEhKEa
+         siTM+2zzZHkQrSm2BnZ2GXzU8nWOt93Sbrd1qTo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e820fdc8ce362f2dea51@syzkaller.appspotmail.com,
-        Jon Maloy <jmaloy@redhat.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 335/411] tipc: check attribute length for bearer name
+Subject: [PATCH 5.18 183/339] powerpc/kasan: Force thread size increase with KASAN
 Date:   Mon, 13 Jun 2022 12:10:08 +0200
-Message-Id: <20220613094938.765432242@linuxfoundation.org>
+Message-Id: <20220613094932.228579127@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,56 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 7f36f798f89bf32c0164049cb0e3fd1af613d0bb ]
+[ Upstream commit 3e8635fb2e072672cbc650989ffedf8300ad67fb ]
 
-syzbot reported uninit-value:
-=====================================================
-BUG: KMSAN: uninit-value in string_nocheck lib/vsprintf.c:644 [inline]
-BUG: KMSAN: uninit-value in string+0x4f9/0x6f0 lib/vsprintf.c:725
- string_nocheck lib/vsprintf.c:644 [inline]
- string+0x4f9/0x6f0 lib/vsprintf.c:725
- vsnprintf+0x2222/0x3650 lib/vsprintf.c:2806
- vprintk_store+0x537/0x2150 kernel/printk/printk.c:2158
- vprintk_emit+0x28b/0xab0 kernel/printk/printk.c:2256
- vprintk_default+0x86/0xa0 kernel/printk/printk.c:2283
- vprintk+0x15f/0x180 kernel/printk/printk_safe.c:50
- _printk+0x18d/0x1cf kernel/printk/printk.c:2293
- tipc_enable_bearer net/tipc/bearer.c:371 [inline]
- __tipc_nl_bearer_enable+0x2022/0x22a0 net/tipc/bearer.c:1033
- tipc_nl_bearer_enable+0x6c/0xb0 net/tipc/bearer.c:1042
- genl_family_rcv_msg_doit net/netlink/genetlink.c:731 [inline]
+KASAN causes increased stack usage, which can lead to stack overflows.
 
-- Do sanity check the attribute length for TIPC_NLA_BEARER_NAME.
-- Do not use 'illegal name' in printing message.
+The logic in Kconfig to suggest a larger default doesn't work if a user
+has CONFIG_EXPERT enabled and has an existing .config with a smaller
+value.
 
-Reported-by: syzbot+e820fdc8ce362f2dea51@syzkaller.appspotmail.com
-Fixes: cb30a63384bc ("tipc: refactor function tipc_enable_bearer()")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Link: https://lore.kernel.org/r/20220602063053.5892-1-hoang.h.le@dektech.com.au
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Follow the lead of x86 and arm64, and force the thread size to be
+increased when KASAN is enabled.
+
+That also has the effect of enlarging the stack for 64-bit KASAN builds,
+which is also desirable.
+
+Fixes: edbadaf06710 ("powerpc/kasan: Fix stack overflow by increasing THREAD_SHIFT")
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Use MIN_THREAD_SHIFT as suggested by Christophe]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220601143114.133524-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/bearer.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/powerpc/Kconfig                   |  1 -
+ arch/powerpc/include/asm/thread_info.h | 10 ++++++++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/net/tipc/bearer.c b/net/tipc/bearer.c
-index 8bd2454cc89d..577f71dd63fb 100644
---- a/net/tipc/bearer.c
-+++ b/net/tipc/bearer.c
-@@ -248,9 +248,8 @@ static int tipc_enable_bearer(struct net *net, const char *name,
- 	u32 i;
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 174edabb74fa..efb03d8d1f8b 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -771,7 +771,6 @@ config THREAD_SHIFT
+ 	range 13 15
+ 	default "15" if PPC_256K_PAGES
+ 	default "14" if PPC64
+-	default "14" if KASAN
+ 	default "13"
+ 	help
+ 	  Used to define the stack size. The default is almost always what you
+diff --git a/arch/powerpc/include/asm/thread_info.h b/arch/powerpc/include/asm/thread_info.h
+index 125328d1b980..af58f1ed3952 100644
+--- a/arch/powerpc/include/asm/thread_info.h
++++ b/arch/powerpc/include/asm/thread_info.h
+@@ -14,10 +14,16 @@
  
- 	if (!bearer_name_validate(name, &b_names)) {
--		errstr = "illegal name";
- 		NL_SET_ERR_MSG(extack, "Illegal name");
--		goto rejected;
-+		return res;
- 	}
+ #ifdef __KERNEL__
  
- 	if (prio > TIPC_MAX_LINK_PRI && prio != TIPC_MEDIA_LINK_PRI) {
+-#if defined(CONFIG_VMAP_STACK) && CONFIG_THREAD_SHIFT < PAGE_SHIFT
++#ifdef CONFIG_KASAN
++#define MIN_THREAD_SHIFT	(CONFIG_THREAD_SHIFT + 1)
++#else
++#define MIN_THREAD_SHIFT	CONFIG_THREAD_SHIFT
++#endif
++
++#if defined(CONFIG_VMAP_STACK) && MIN_THREAD_SHIFT < PAGE_SHIFT
+ #define THREAD_SHIFT		PAGE_SHIFT
+ #else
+-#define THREAD_SHIFT		CONFIG_THREAD_SHIFT
++#define THREAD_SHIFT		MIN_THREAD_SHIFT
+ #endif
+ 
+ #define THREAD_SIZE		(1 << THREAD_SHIFT)
 -- 
 2.35.1
 
