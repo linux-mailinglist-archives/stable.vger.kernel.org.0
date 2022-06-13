@@ -2,180 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9D53549CB1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 21:02:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E752549CC9
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 21:04:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347165AbiFMTCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 15:02:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50232 "EHLO
+        id S1347314AbiFMTEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 15:04:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345425AbiFMTBf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 15:01:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C27FAA0D31;
-        Mon, 13 Jun 2022 09:32:22 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65E7F6153B;
-        Mon, 13 Jun 2022 16:32:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1529C3411C;
-        Mon, 13 Jun 2022 16:32:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655137941;
-        bh=/KQ4avZANuW/a1vawyxsqtceAy8vWzHJKM7FSDpEDE0=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=CRO3rNDWqZhKGr4aQHLjTeuRFW5RSt9ubBvyYxcc/oRg90s1EhUInLtA5NGYH4Yhn
-         jcDQYGYqdu6UjHgcgHNaEQt/ZJA0VkzrzUQVbmBsr0rY/ENDsiTs22rr9GaIdCOz1P
-         V6VBDg1MkjFGzrjyndssLgJ3toRWzTTo/guQxdBtcWByel19dAdcHB5uQiuOm7r4Df
-         Hy3t9H84eQaACkzWaMH/Rps1eNA/XBAUZm5GemUcnXKjgjfIAtpNb0VHc5ShxpDioG
-         ioU/mV2o0P0vd5q/lC1svKvhVf14Hyy1ceddYDG8JTCk260OSBHMrFqGDPlNJQEmoB
-         FKiTiTeNdWxiQ==
-Received: by mail-vs1-f54.google.com with SMTP id f1so6416161vsv.5;
-        Mon, 13 Jun 2022 09:32:21 -0700 (PDT)
-X-Gm-Message-State: AJIora+em77eO0Z4UJHS9mnw1q7Gm9bmmmkPR7n72Mr9+DjQyNfrQEsP
-        UICjOM+chVTAZuzUsxMe7iOOS9LrFakZK09ETNE=
-X-Google-Smtp-Source: AGRyM1tfN7ClzqlZh0CySrsdANEe6kYoaXK42AQPb7y+xZBud115bHG6pqdlowvl3n8yP0fu9ar3HNRATklqupla3mQ=
-X-Received: by 2002:a05:6102:184:b0:34b:9e95:14cf with SMTP id
- r4-20020a056102018400b0034b9e9514cfmr97455vsq.59.1655137940769; Mon, 13 Jun
- 2022 09:32:20 -0700 (PDT)
+        with ESMTP id S1349534AbiFMTED (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 15:04:03 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E3314C7BB
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 09:53:08 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id i64so6247570pfc.8
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 09:53:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=i01nzndchSNYOYnaTbT05QfCXnNfjJjZcYQMC2knL6E=;
+        b=fFSDJZhPd+0pq5wm1tYzuswKzPebV4mLtq6hrTwhANNGkglgc33wSm5acVylDJINHR
+         yXuzVmkZt7F+GnCaqH8RH+WGymbFiga1gNP/ibWjUhuKn0Cc9/y3wjsoEpvP/1yFTxT+
+         k11x+0GQeQRUaDi5GyJ4vVByHdiVHoip7z32uZeT5Q/3rMVyZqfq4WhD+mjd6ewgvnhH
+         uiJg/lW1bYSeJGLjwwUAmgjrJzQNB+0KPwDUzKJPI7nJJg5U3tp0eXfycYld5PiPENRr
+         Pbqi+Pv+lQYEb20hUQbzz1ehQ3891/9TAApVp+IGwWsqCWCAk0Supitv1N5NLcH5yc0/
+         3Ssw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=i01nzndchSNYOYnaTbT05QfCXnNfjJjZcYQMC2knL6E=;
+        b=vZqVMiv0lQDnCVzffH+UxnCmDTTHNpG0Vhj36ydhuRPn55UxUPDKrJG2WVyIbN/J0H
+         Z7L9zUa7C7UydI1nkyG4fXp9LTZKXJNoI4AGdOwAmt/iccvqNpsgUgR9zM5pB1/NBPxZ
+         MvHjYHETIjcnmH8o7EH2RshzYdgg22uV0E8KcBabiZygPWQ5snWW2RuCJM26D46C2Gf/
+         iYCOHuRoPnYYdZgZ8DGl+MB8ttTeySVWZduloLLDuTjIKEpisvVIloLyw6VhGV7X3Pnf
+         HFNjPMXpn1uX7SZQjWU10unH+mWP+h8pdkBn1pauFx7j5z9I8wRvkkuaZyl+pmYcT+r3
+         ugHg==
+X-Gm-Message-State: AOAM533P0/CC69mW+ILUDr2Mg9/cZ7haj37N0ifvNfQjC9+5CJ+TBj/Y
+        cTC5t0vCQfcQ7AzD9EMbpNZ2H2uS0ht25FhqEyg=
+X-Google-Smtp-Source: ABdhPJwl9Mo5izY4oWA41r+sUZibhlSO0Clj/Ca806JEiqb1KNxqu+VZLd6yqMAK84kAmdKxyc47uA==
+X-Received: by 2002:a63:8543:0:b0:401:9a45:b604 with SMTP id u64-20020a638543000000b004019a45b604mr489762pgd.202.1655139187466;
+        Mon, 13 Jun 2022 09:53:07 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g14-20020a17090a578e00b001ea90dada74sm5403657pji.12.2022.06.13.09.53.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jun 2022 09:53:06 -0700 (PDT)
+Message-ID: <62a76b72.1c69fb81.43167.63f0@mx.google.com>
+Date:   Mon, 13 Jun 2022 09:53:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220613131046.3009889-1-xianting.tian@linux.alibaba.com> <0262A4FB-5A9B-47D3-8F1A-995509F56279@nvidia.com>
-In-Reply-To: <0262A4FB-5A9B-47D3-8F1A-995509F56279@nvidia.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Tue, 14 Jun 2022 00:32:09 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTQGXAubtas4wAzrg298dGQJntu38X48V2OzcK8xZ_vPJg@mail.gmail.com>
-Message-ID: <CAJF2gTQGXAubtas4wAzrg298dGQJntu38X48V2OzcK8xZ_vPJg@mail.gmail.com>
-Subject: Re: [RESEND PATCH] mm: page_alloc: validate buddy before check the migratetype
-To:     Zi Yan <ziy@nvidia.com>
-Cc:     Xianting Tian <xianting.tian@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Linux-MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, huanyi.xj@alibaba-inc.com,
-        zjb194813@alibaba-inc.com, tianhu.hh@alibaba-inc.com,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Laura Abbott <labbott@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.45-915-gfe83bcae3c626
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 baseline: 118 runs,
+ 1 regressions (v5.15.45-915-gfe83bcae3c626)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 13, 2022 at 11:23 PM Zi Yan <ziy@nvidia.com> wrote:
->
-> Hi Xianting,
->
-> Thanks for your patch.
->
-> On 13 Jun 2022, at 9:10, Xianting Tian wrote:
->
-> > Commit 787af64d05cd ("mm: page_alloc: validate buddy before check its m=
-igratetype.")
-> > added buddy check code. But unfortunately, this fix isn't backported to
-> > linux-5.17.y and the former stable branches. The reason is it added wro=
-ng
-> > fixes message:
-> >      Fixes: 1dd214b8f21c ("mm: page_alloc: avoid merging non-fallbackab=
-le
-> >                          pageblocks with others")
->
-> No, the Fixes tag is right. The commit above does need to validate buddy.
-I think Xianting is right. The =E2=80=9CFixes:" tag is not accurate and the
-page_is_buddy() is necessary here.
+stable-rc/queue/5.15 baseline: 118 runs, 1 regressions (v5.15.45-915-gfe83b=
+cae3c626)
 
-This patch could be applied to the early version of the stable tree
-(eg: Linux-5.10.y, not the master tree)
+Regressions Summary
+-------------------
 
->
-> > Actually, this issue is involved by commit:
-> >      commit d9dddbf55667 ("mm/page_alloc: prevent merging between isola=
-ted and other pageblocks")
-> >
-> > For RISC-V arch, the first 2M is reserved for sbi, so the start PFN is =
-512,
-> > but it got buddy PFN 0 for PFN 0x2000:
-> >      0 =3D 0x2000 ^ (1 << 12)
-> > With the illegal buddy PFN 0, it got an illegal buddy page, which cause=
-d
-> > crash in __get_pfnblock_flags_mask().
->
-> It seems that the RISC-V arch reveals a similar bug from d9dddbf55667.
-> Basically, this bug will only happen when PFN=3D0x2000 is merging up and
-> there are some isolated pageblocks.
-Not PFN=3D0x2000, it's PFN=3D0x1000, I guess.
+platform   | arch | lab          | compiler | defconfig       | regressions
+-----------+------+--------------+----------+-----------------+------------
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig | 1          =
 
-RISC-V's first 2MB RAM could reserve for opensbi, so it would have
-riscv_pfn_base=3D512 and mem_map began with 512th PFN when
-CONFIG_FLATMEM=3Dy.
-(Also, csky has the same issue: a non-zero pfn_base in some scenarios.)
 
-But __find_buddy_pfn algorithm thinks the start address is 0, it could
-get 0 pfn or less than the pfn_base value. We need another check to
-prevent that.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.45-915-gfe83bcae3c626/plan/baseline/
 
->
-> BTW, what does first reserved 2MB imply? All 4KB pages from first 2MB are
-> set to PageReserved?
->
-> >
-> > With the patch, it can avoid the calling of get_pageblock_migratetype()=
- if
-> > it isn't buddy page.
->
-> You might miss the __find_buddy_pfn() caller in unset_migratetype_isolate=
-()
-> from mm/page_isolation.c, if you are talking about linux-5.17.y and forme=
-r
-> version. There, page_is_buddy() is also not called and is_migrate_isolate=
-_page()
-> is called, which calls get_pageblock_migratetype() too.
->
-> >
-> > Fixes: d9dddbf55667 ("mm/page_alloc: prevent merging between isolated a=
-nd other pageblocks")
-> > Cc: stable@vger.kernel.org
-> > Reported-by: zjb194813@alibaba-inc.com
-> > Reported-by: tianhu.hh@alibaba-inc.com
-> > Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-> > ---
-> >  mm/page_alloc.c | 3 +++
-> >  1 file changed, 3 insertions(+)
-> >
-> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> > index b1caa1c6c887..5b423caa68fd 100644
-> > --- a/mm/page_alloc.c
-> > +++ b/mm/page_alloc.c
-> > @@ -1129,6 +1129,9 @@ static inline void __free_one_page(struct page *p=
-age,
-> >
-> >                       buddy_pfn =3D __find_buddy_pfn(pfn, order);
-> >                       buddy =3D page + (buddy_pfn - pfn);
-> > +
-> > +                     if (!page_is_buddy(page, buddy, order))
-> > +                             goto done_merging;
-> >                       buddy_mt =3D get_pageblock_migratetype(buddy);
-> >
-> >                       if (migratetype !=3D buddy_mt
-> > --
-> > 2.17.1
->
-> --
-> Best Regards,
-> Yan, Zi
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.45-915-gfe83bcae3c626
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      fe83bcae3c6261e9d8d87fc67f86574266534143 =
 
 
 
---=20
-Best Regards
- Guo Ren
+Test Regressions
+---------------- =
 
-ML: https://lore.kernel.org/linux-csky/
+
+
+platform   | arch | lab          | compiler | defconfig       | regressions
+-----------+------+--------------+----------+-----------------+------------
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62a73eeec66d198373a39be7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
+915-gfe83bcae3c626/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
+tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
+915-gfe83bcae3c626/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
+tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62a73eeec66d198373a39=
+be8
+        failing since 0 day (last pass: v5.15.45-833-g04983d84c84ee, first =
+fail: v5.15.45-880-g694575c32c9b2) =
+
+ =20
