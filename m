@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4463D549902
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F76B5498BD
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355272AbiFMLkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:40:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43608 "EHLO
+        id S1351347AbiFMMJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:09:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355669AbiFMLjX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40314240AB;
-        Mon, 13 Jun 2022 03:49:41 -0700 (PDT)
+        with ESMTP id S1359096AbiFMMJB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:09:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 252F7527C6;
+        Mon, 13 Jun 2022 04:00:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0B68612C3;
-        Mon, 13 Jun 2022 10:49:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E456CC34114;
-        Mon, 13 Jun 2022 10:49:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2351AB80E92;
+        Mon, 13 Jun 2022 11:00:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DA55C34114;
+        Mon, 13 Jun 2022 11:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117380;
-        bh=7irXMfXyvExHJ0c3dYWbmjrRhnNm0R1jpcHKY/Wb8ZQ=;
+        s=korg; t=1655118019;
+        bh=7eWGIKsODgIYo+v1Hb/AwItfivhRcdJUZEWyrch25SY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oNvWwo7EpCSQwG1dAsqIAqbx6B5IdpNrbn4+MzpD4r4k9AO/37lkO9SxkdW6viuy1
-         8V4vYZhi7xe2o79eU0blR05wXDHotz3i7B79HQfSdOrAVmTbwDFLjWk8y4+zwWhvIT
-         yCclqPJwoKIH4Z5Sl87ZHDx+dwmH22CfPDxSNeRE=
+        b=w34CG3x7GKuen/gBk7wDCoVLDEmWWtih5yTV7R6hx6pHKdmm/NLSTQ2OfM2rtCCbZ
+         1+uZl6lTgXiti7q/dDkuRFk+Ws3mlUkTKUg2jrpKJGtvN63zfegeFQDrLc6NEh/e8T
+         2iHnG26g/D6OLeCbBrzLVxbRSNin3ppsUXZK8eO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 351/411] xen: unexport __init-annotated xen_xlate_map_ballooned_pages()
+Subject: [PATCH 4.19 200/287] rpmsg: qcom_smd: Fix returning 0 if irq_of_parse_and_map() fails
 Date:   Mon, 13 Jun 2022 12:10:24 +0200
-Message-Id: <20220613094939.229039192@linuxfoundation.org>
+Message-Id: <20220613094929.927697262@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,53 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit dbac14a5a05ff8e1ce7c0da0e1f520ce39ec62ea ]
+[ Upstream commit 59d6f72f6f9c92fec8757d9e29527da828e9281f ]
 
-EXPORT_SYMBOL and __init is a bad combination because the .init.text
-section is freed up after the initialization. Hence, modules cannot
-use symbols annotated __init. The access to a freed symbol may end up
-with kernel panic.
+irq_of_parse_and_map() returns 0 on failure, so this should not be
+passed further as error return code.
 
-modpost used to detect it, but it has been broken for a decade.
-
-Recently, I fixed modpost so it started to warn it again, then this
-showed up in linux-next builds.
-
-There are two ways to fix it:
-
-  - Remove __init
-  - Remove EXPORT_SYMBOL
-
-I chose the latter for this case because none of the in-tree call-sites
-(arch/arm/xen/enlighten.c, arch/x86/xen/grant-table.c) is compiled as
-modular.
-
-Fixes: 243848fc018c ("xen/grant-table: Move xlated_setup_gnttab_pages to common place")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Acked-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20220606045920.4161881-1-masahiroy@kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 1a358d350664 ("rpmsg: qcom_smd: Fix irq_of_parse_and_map() return value")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220423093932.32136-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xlate_mmu.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/rpmsg/qcom_smd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/xen/xlate_mmu.c b/drivers/xen/xlate_mmu.c
-index 7b1077f0abcb..c8aa4f5f85db 100644
---- a/drivers/xen/xlate_mmu.c
-+++ b/drivers/xen/xlate_mmu.c
-@@ -261,7 +261,6 @@ int __init xen_xlate_map_ballooned_pages(xen_pfn_t **gfns, void **virt,
+diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
+index 6e09fccd2e87..f23f10887d93 100644
+--- a/drivers/rpmsg/qcom_smd.c
++++ b/drivers/rpmsg/qcom_smd.c
+@@ -1390,7 +1390,7 @@ static int qcom_smd_parse_edge(struct device *dev,
+ 	irq = irq_of_parse_and_map(node, 0);
+ 	if (!irq) {
+ 		dev_err(dev, "required smd interrupt missing\n");
+-		ret = irq;
++		ret = -EINVAL;
+ 		goto put_node;
+ 	}
  
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(xen_xlate_map_ballooned_pages);
- 
- struct remap_pfn {
- 	struct mm_struct *mm;
 -- 
 2.35.1
 
