@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BE31548CC3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 050525492EB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241810AbiFMOp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35790 "EHLO
+        id S1380651AbiFMOG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:06:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385929AbiFMOoQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:44:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D48AB41F1;
-        Mon, 13 Jun 2022 04:51:04 -0700 (PDT)
+        with ESMTP id S1381338AbiFMOES (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:04:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68296915A5;
+        Mon, 13 Jun 2022 04:39:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4050612AC;
-        Mon, 13 Jun 2022 11:51:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C430AC3411B;
-        Mon, 13 Jun 2022 11:51:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F173560B6E;
+        Mon, 13 Jun 2022 11:39:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B41FC34114;
+        Mon, 13 Jun 2022 11:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121064;
-        bh=rxbr1Y6tY5vCrqN0GZ6O31nAcp1+t7/ChYjrzFVsJF0=;
+        s=korg; t=1655120352;
+        bh=MmMkYtXo0kaC/SGumxIQWqcUBTgb+3KADcP4UnpW0gM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRbNRL+xe1JEFT47sleWjXbdTzOkzJ415i5XVXmI3tMdLEnh7u8Og5HxlSLdVcPID
-         U8ytRqKm6FaZ6g9Z5N09qOyrddg1282ssJ0z5Ze8nUV4/iu9hbu1reccofdVQJukcc
-         lGSjqtmc/zg25J6XYHP4RQqqRS8lgi6EHZNFBLNY=
+        b=KlyEUIjEnXEesjsWiByAcJaNRpuRGTjkpi0aL0oPhzByh4Eh4Xe5e3FfmR0JOuwrl
+         B73qzvFk1ukK5hOFYX49KZn6/9X15KEtickUNtd6nWgrXls9E2QUab5oucw158FW/2
+         /RGJp9R2Iyi1mRX1SCLivOZXpTysGweXBtipFJB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, huangwenhui <huangwenhuia@uniontech.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 259/298] ALSA: hda/conexant - Fix loopback issue with CX20632
-Date:   Mon, 13 Jun 2022 12:12:33 +0200
-Message-Id: <20220613094932.931537292@linuxfoundation.org>
+        stable@vger.kernel.org, Liu Ying <victor.liu@oss.nxp.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 5.18 329/339] drm/atomic: Force bridge self-refresh-exit on CRTC switch
+Date:   Mon, 13 Jun 2022 12:12:34 +0200
+Message-Id: <20220613094936.722348733@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: huangwenhui <huangwenhuia@uniontech.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit d5ea7544c32ba27c2c5826248e4ff58bd50a2518 upstream.
+commit e54a4424925a27ed94dff046db3ce5caf4b1e748 upstream.
 
-On a machine with CX20632, Alsamixer doesn't have 'Loopback
-Mixing' and 'Line'.
+It's possible to change which CRTC is in use for a given
+connector/encoder/bridge while we're in self-refresh without fully
+disabling the connector/encoder/bridge along the way. This can confuse
+the bridge encoder/bridge, because
+(a) it needs to track the SR state (trying to perform "active"
+    operations while the panel is still in SR can be Bad(TM)); and
+(b) it tracks the SR state via the CRTC state (and after the switch, the
+    previous SR state is lost).
 
-Signed-off-by: huangwenhui <huangwenhuia@uniontech.com>
+Thus, we need to either somehow carry the self-refresh state over to the
+new CRTC, or else force an encoder/bridge self-refresh transition during
+such a switch.
+
+I choose the latter, so we disable the encoder (and exit PSR) before
+attaching it to the new CRTC (where we can continue to assume a clean
+(non-self-refresh) state).
+
+This fixes PSR issues seen on Rockchip RK3399 systems with
+drivers/gpu/drm/bridge/analogix/analogix_dp_core.c.
+
+Change in v2:
+
+- Drop "->enable" condition; this could possibly be "->active" to
+  reflect the intended hardware state, but it also is a little
+  over-specific. We want to make a transition through "disabled" any
+  time we're exiting PSR at the same time as a CRTC switch.
+  (Thanks Liu Ying)
+
+Cc: Liu Ying <victor.liu@oss.nxp.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220607065631.10708-1-huangwenhuia@uniontech.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 1452c25b0e60 ("drm: Add helpers to kick off self refresh mode in drivers")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220228122522.v2.2.Ic15a2ef69c540aee8732703103e2cff51fb9c399@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_conexant.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/drm_atomic_helper.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -1052,6 +1052,13 @@ static int patch_conexant_auto(struct hd
- 		snd_hda_pick_fixup(codec, cxt5051_fixup_models,
- 				   cxt5051_fixups, cxt_fixups);
- 		break;
-+	case 0x14f15098:
-+		codec->pin_amp_workaround = 1;
-+		spec->gen.mixer_nid = 0x22;
-+		spec->gen.add_stereo_mix_input = HDA_HINT_STEREO_MIX_AUTO;
-+		snd_hda_pick_fixup(codec, cxt5066_fixup_models,
-+				   cxt5066_fixups, cxt_fixups);
-+		break;
- 	case 0x14f150f2:
- 		codec->power_save_node = 1;
- 		fallthrough;
+--- a/drivers/gpu/drm/drm_atomic_helper.c
++++ b/drivers/gpu/drm/drm_atomic_helper.c
+@@ -1011,9 +1011,19 @@ crtc_needs_disable(struct drm_crtc_state
+ 		return drm_atomic_crtc_effectively_active(old_state);
+ 
+ 	/*
+-	 * We need to run through the crtc_funcs->disable() function if the CRTC
+-	 * is currently on, if it's transitioning to self refresh mode, or if
+-	 * it's in self refresh mode and needs to be fully disabled.
++	 * We need to disable bridge(s) and CRTC if we're transitioning out of
++	 * self-refresh and changing CRTCs at the same time, because the
++	 * bridge tracks self-refresh status via CRTC state.
++	 */
++	if (old_state->self_refresh_active &&
++	    old_state->crtc != new_state->crtc)
++		return true;
++
++	/*
++	 * We also need to run through the crtc_funcs->disable() function if
++	 * the CRTC is currently on, if it's transitioning to self refresh
++	 * mode, or if it's in self refresh mode and needs to be fully
++	 * disabled.
+ 	 */
+ 	return old_state->active ||
+ 	       (old_state->self_refresh_active && !new_state->active) ||
 
 
