@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8221B54957A
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 187B1549916
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:38:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244281AbiFMKpk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:45:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47430 "EHLO
+        id S1354404AbiFMLcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:32:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348367AbiFMKoQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:44:16 -0400
+        with ESMTP id S1354393AbiFML31 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FE623BD7;
-        Mon, 13 Jun 2022 03:25:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBC21B1DE;
+        Mon, 13 Jun 2022 03:44:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44863B80E90;
-        Mon, 13 Jun 2022 10:25:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BE74C3411C;
-        Mon, 13 Jun 2022 10:25:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95478B80D3C;
+        Mon, 13 Jun 2022 10:44:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5F56C34114;
+        Mon, 13 Jun 2022 10:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115918;
-        bh=hj2J+v5j3ZFbQEu6MDUIKw3/kjjkro8X6Gww229V7K4=;
+        s=korg; t=1655117039;
+        bh=rvUmyBmDKVZDetmF797t1nO2r9n9jDok30+qzlEMTw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+mFsPDzQyzZ40CNszwg5kmWI+kx0xqRc29uzfY7nzBprrl2MCUuX53+5z4y7btD9
-         TNsXHpm4+hAv5BoJJmxPbc9p5mca76/kh9Q8lG+jl9QNKg4RK8E9P2WvR0W7eAse86
-         Em4pagAcRPnlwp6CQfjQ+KLMoC9Rws7+8UJ36OnA=
+        b=szC1vOLR/goFAGuwK/VHTP1AQH5i2lu2Q9hLCrqdoMdUaf17mR8c2z8loTzzw6Rt2
+         4LEe6YOzEnBJvGQ2CF/3yQqIb4XdrzF2oCt0sZwm9kQkR0B/Ejyt/O9NtKfshVFGdb
+         42Ti+l1Etph4z96Vopg3MYX+XH+4G2+X0XQ5dyAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 078/218] ASoC: wm2000: fix missing clk_disable_unprepare() on error in wm2000_anc_transition()
-Date:   Mon, 13 Jun 2022 12:08:56 +0200
-Message-Id: <20220613094922.823991808@linuxfoundation.org>
+        stable@vger.kernel.org, Kathiravan T <quic_kathirav@quicinc.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.4 264/411] arm64: dts: qcom: ipq8074: fix the sleep clock frequency
+Date:   Mon, 13 Jun 2022 12:08:57 +0200
+Message-Id: <20220613094936.678159984@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Kathiravan T <quic_kathirav@quicinc.com>
 
-[ Upstream commit be2af740e2a9c7134f2d8ab4f104006e110b13de ]
+commit f607dd767f5d6800ffbdce5b99ba81763b023781 upstream.
 
-Fix the missing clk_disable_unprepare() before return
-from wm2000_anc_transition() in the error handling case.
+Sleep clock frequency should be 32768Hz. Lets fix it.
 
-Fixes: 514cfd6dd725 ("ASoC: wm2000: Integrate with clock API")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220514091053.686416-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 41dac73e243d ("arm64: dts: Add ipq8074 SoC and HK01 board support")
+Link: https://lore.kernel.org/all/e2a447f8-6024-0369-f698-2027b6edcf9e@codeaurora.org/
+Signed-off-by: Kathiravan T <quic_kathirav@quicinc.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/1644581655-11568-1-git-send-email-quic_kathirav@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wm2000.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/ipq8074.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wm2000.c b/sound/soc/codecs/wm2000.c
-index 23cde3a0dc11..73cda3c2a861 100644
---- a/sound/soc/codecs/wm2000.c
-+++ b/sound/soc/codecs/wm2000.c
-@@ -545,7 +545,7 @@ static int wm2000_anc_transition(struct wm2000_priv *wm2000,
- {
- 	struct i2c_client *i2c = wm2000->i2c;
- 	int i, j;
--	int ret;
-+	int ret = 0;
+--- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
++++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
+@@ -482,7 +482,7 @@
+ 	clocks {
+ 		sleep_clk: sleep_clk {
+ 			compatible = "fixed-clock";
+-			clock-frequency = <32000>;
++			clock-frequency = <32768>;
+ 			#clock-cells = <0>;
+ 		};
  
- 	if (wm2000->anc_mode == mode)
- 		return 0;
-@@ -575,13 +575,13 @@ static int wm2000_anc_transition(struct wm2000_priv *wm2000,
- 		ret = anc_transitions[i].step[j](i2c,
- 						 anc_transitions[i].analogue);
- 		if (ret != 0)
--			return ret;
-+			break;
- 	}
- 
- 	if (anc_transitions[i].dest == ANC_OFF)
- 		clk_disable_unprepare(wm2000->mclk);
- 
--	return 0;
-+	return ret;
- }
- 
- static int wm2000_anc_set_mode(struct wm2000_priv *wm2000)
--- 
-2.35.1
-
 
 
