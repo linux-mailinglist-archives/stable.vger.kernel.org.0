@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F28AD5497D3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C53C548DF4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352027AbiFMMJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:09:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59928 "EHLO
+        id S1349196AbiFMMbg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:31:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359106AbiFMMJB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:09:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CCA45252F;
-        Mon, 13 Jun 2022 04:00:27 -0700 (PDT)
+        with ESMTP id S1351131AbiFMMaM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:30:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA3435B3D9;
+        Mon, 13 Jun 2022 04:07:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4C16611B3;
-        Mon, 13 Jun 2022 11:00:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1632C34114;
-        Mon, 13 Jun 2022 11:00:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE293614A1;
+        Mon, 13 Jun 2022 11:06:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 070FDC34114;
+        Mon, 13 Jun 2022 11:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118025;
-        bh=mKCy2VSksGrDe/nNB/Q3+imgZ7hyqsETHFRAvYagaQ4=;
+        s=korg; t=1655118413;
+        bh=pQ9JYYcHm9GS02sX537UncrdtSqbROorluuFN+6UxEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGofcTRpX3XxW1NHwDokSBkt2OWHn3IGwqAz7e/9w17c8TUSDQi7RqLoidVgjpS2P
-         x/OUKnD1z3pDYYhx0ewBjQdQVIR75cBspztIZ9BIg2GLLB0v/hV0PC4NM4S1hSesYT
-         eeoavsKdnIObuBGVtPOx1oW65HdLVqrM5LmZbdWI=
+        b=qjIeeHp73/sHK5JEUnsEApL6YKLRAMlT/v8BjNJnb/609iV2C0OwcxDael3tuq7SZ
+         gB+Y3Sg7RvaONbttl3ZHvp+XFq40JSjK2q2Gxo4W7wlwdXwtRe1PWxTM/L3AOZE8HM
+         L2tb/mUCGfNJR6umbLGcHdpXWhc5/e+fnw6JQgTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 202/287] soc: rockchip: Fix refcount leak in rockchip_grf_init
+Subject: [PATCH 5.10 066/172] net/mlx5e: Update netdev features after changing XDP state
 Date:   Mon, 13 Jun 2022 12:10:26 +0200
-Message-Id: <20220613094929.988994727@linuxfoundation.org>
+Message-Id: <20220613094906.246763280@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-[ Upstream commit 9b59588d8be91c96bfb0371e912ceb4f16315dbf ]
+[ Upstream commit f6279f113ad593971999c877eb69dc3d36a75894 ]
 
-of_find_matching_node_and_match returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+Some features (LRO, HW GRO) conflict with XDP. If there is an attempt to
+enable such features while XDP is active, they will be set to `off
+[requested on]`. In order to activate these features after XDP is turned
+off, the driver needs to call netdev_update_features(). This commit adds
+this missing call after XDP state changes.
 
-Fixes: 4c58063d4258 ("soc: rockchip: add driver handling grf setup")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220516072013.19731-1-linmq006@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: cf6e34c8c22f ("net/mlx5e: Properly block LRO when XDP is enabled")
+Fixes: b0617e7b3500 ("net/mlx5e: Properly block HW GRO when XDP is enabled")
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/rockchip/grf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/soc/rockchip/grf.c b/drivers/soc/rockchip/grf.c
-index 3b81e1d75a97..3e7e999ee324 100644
---- a/drivers/soc/rockchip/grf.c
-+++ b/drivers/soc/rockchip/grf.c
-@@ -151,12 +151,14 @@ static int __init rockchip_grf_init(void)
- 		return -ENODEV;
- 	if (!match || !match->data) {
- 		pr_err("%s: missing grf data\n", __func__);
-+		of_node_put(np);
- 		return -EINVAL;
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index d9cc0ed6c5f7..cfc3bfcb04a2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -4576,6 +4576,11 @@ static int mlx5e_xdp_set(struct net_device *netdev, struct bpf_prog *prog)
  
- 	grf_info = match->data;
+ unlock:
+ 	mutex_unlock(&priv->state_lock);
++
++	/* Need to fix some features. */
++	if (!err)
++		netdev_update_features(netdev);
++
+ 	return err;
+ }
  
- 	grf = syscon_node_to_regmap(np);
-+	of_node_put(np);
- 	if (IS_ERR(grf)) {
- 		pr_err("%s: could not get grf syscon\n", __func__);
- 		return PTR_ERR(grf);
 -- 
 2.35.1
 
