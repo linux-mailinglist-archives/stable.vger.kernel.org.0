@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39E4B548719
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6881D5487A3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380628AbiFMN7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:59:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54030 "EHLO
+        id S1349491AbiFMMer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:34:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380150AbiFMNxm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:53:42 -0400
+        with ESMTP id S1357204AbiFMMeS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:34:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9B1B71A0B;
-        Mon, 13 Jun 2022 04:33:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D654B1A808;
+        Mon, 13 Jun 2022 04:07:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9AAF7B80E93;
-        Mon, 13 Jun 2022 11:33:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF7E3C34114;
-        Mon, 13 Jun 2022 11:33:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66D17B80EA8;
+        Mon, 13 Jun 2022 11:07:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A59C34114;
+        Mon, 13 Jun 2022 11:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120031;
-        bh=fOGyiO/Q/y/xv0Yi8FkPvSRMF+bUyYruvb+2AB7CZhw=;
+        s=korg; t=1655118458;
+        bh=ojvQO6cm4PbQqQ023UPiJ8nXEl6/BlpRnWuGVqOAcE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PkoLljmDJnhdnsO3kyscN417GtRbSbNuLbk+IEwIJphy9HdPz6KlIRxdM/Zs2Rf8Q
-         9FS0CaeK7TWaXqacNvmT7LDfkG+49Q34AyNnMNkaBh9xi5rTDNHWG4I2x/I4B3hkHx
-         Zv7gSsxQ5UzBCmlWCPcBlrgzgYmNY5r22NB3HjJg=
+        b=ySR+Awqr5AlA55qEZntgiLO7HkCrtAHow8kFtvSR/7umFsfto5I5X5kbFhEJzwaPQ
+         4/HJ7/9nYEkJzQ6tWSnDBMhJ8QUmGQsoaUsLoEQGdu29o5dXpC6iIxVhaejq0+vmoM
+         lkzMQhPzyHTMoebYcoMQ0nxaFqzuK0hU6o4Yy7zE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 218/339] tcp: use alloc_large_system_hash() to allocate table_perturb
+        stable@vger.kernel.org,
+        Lucas Tanure <tanureal@opensource.cirrus.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 083/172] i2c: cadence: Increase timeout per message if necessary
 Date:   Mon, 13 Jun 2022 12:10:43 +0200
-Message-Id: <20220613094933.272162896@linuxfoundation.org>
+Message-Id: <20220613094910.327344826@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit e67b72b90b7e19a4be4d9c29f3feea6f58ab43f8 ]
+[ Upstream commit 96789dce043f5bff8b7d62aa28d52a7c59403a84 ]
 
-In our server, there may be no high order (>= 6) memory since we reserve
-lots of HugeTLB pages when booting.  Then the system panic.  So use
-alloc_large_system_hash() to allocate table_perturb.
+Timeout as 1 second sets an upper limit on the length
+of the transfer executed, but there is no maximum length
+of a write or read message set in i2c_adapter_quirks for
+this controller.
 
-Fixes: e9261476184b ("tcp: dynamically allocate the perturb table used by source ports")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220607070214.94443-1-songmuchun@bytedance.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This upper limit affects devices that require sending
+large firmware blobs over I2C.
+
+To remove that limitation, calculate the minimal time
+necessary, plus some wiggle room, for every message and
+use it instead of the default one second, if more than
+one second.
+
+Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_hashtables.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-cadence.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index a5d57fa679ca..55654e335d43 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -917,10 +917,12 @@ void __init inet_hashinfo2_init(struct inet_hashinfo *h, const char *name,
- 	init_hashinfo_lhash2(h);
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index c1bbc4caeb5c..50e3ddba52ba 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -724,7 +724,7 @@ static void cdns_i2c_master_reset(struct i2c_adapter *adap)
+ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+ 		struct i2c_adapter *adap)
+ {
+-	unsigned long time_left;
++	unsigned long time_left, msg_timeout;
+ 	u32 reg;
  
- 	/* this one is used for source ports of outgoing connections */
--	table_perturb = kmalloc_array(INET_TABLE_PERTURB_SIZE,
--				      sizeof(*table_perturb), GFP_KERNEL);
--	if (!table_perturb)
--		panic("TCP: failed to alloc table_perturb");
-+	table_perturb = alloc_large_system_hash("Table-perturb",
-+						sizeof(*table_perturb),
-+						INET_TABLE_PERTURB_SIZE,
-+						0, 0, NULL, NULL,
-+						INET_TABLE_PERTURB_SIZE,
-+						INET_TABLE_PERTURB_SIZE);
- }
+ 	id->p_msg = msg;
+@@ -749,8 +749,16 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+ 	else
+ 		cdns_i2c_msend(id);
  
- int inet_hashinfo2_init_mod(struct inet_hashinfo *h)
++	/* Minimal time to execute this message */
++	msg_timeout = msecs_to_jiffies((1000 * msg->len * BITS_PER_BYTE) / id->i2c_clk);
++	/* Plus some wiggle room */
++	msg_timeout += msecs_to_jiffies(500);
++
++	if (msg_timeout < adap->timeout)
++		msg_timeout = adap->timeout;
++
+ 	/* Wait for the signal of completion */
+-	time_left = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
++	time_left = wait_for_completion_timeout(&id->xfer_done, msg_timeout);
+ 	if (time_left == 0) {
+ 		cdns_i2c_master_reset(adap);
+ 		dev_err(id->adap.dev.parent,
 -- 
 2.35.1
 
