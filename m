@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 951D8548F20
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 050C85491FC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384413AbiFMOlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:41:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58846 "EHLO
+        id S1380545AbiFMOAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:00:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385398AbiFMOkB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:40:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B97AAAF1E2;
-        Mon, 13 Jun 2022 04:50:03 -0700 (PDT)
+        with ESMTP id S240537AbiFMN72 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:59:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D82268CCF5;
+        Mon, 13 Jun 2022 04:37:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F2B4B80ECC;
-        Mon, 13 Jun 2022 11:50:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92433C34114;
-        Mon, 13 Jun 2022 11:50:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27F32B80EA7;
+        Mon, 13 Jun 2022 11:37:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 793E7C34114;
+        Mon, 13 Jun 2022 11:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121001;
-        bh=fED2JgPfODF6xFQb88fmPsB6fD8sXOm9jKpl0fa3psg=;
+        s=korg; t=1655120270;
+        bh=ovWdpCpgjdPMTIbsc5BY64f75f6dLt9SBIE24tqDEoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2oj8r7raDxdceIP/Ga1Yr6ayP3ksPtpQSmx2z0F1SY8+smw5/1tbsEgAuK+B/9cFb
-         IqXuklKNpDI/U7jrlesxc2nbFcKVa0Wn9nyV+V8thAoV05NlLFVTKp37Htit0yXGQK
-         rnX3a+lQBtffcqVL/oZLUvK92gnynU5jx5xDg1Po=
+        b=aLxxLu7qu5fCcQ34UsRyLRQLpMGbuYm/09On9osp+HoBHJNa8g4b/gGIwD0BTUE+m
+         5X2edPB66PAYZeSgbVgzKdl6XzofNYel/9SLUEWnJ0LrHqbQNqHSC+nHWuxtuX21VS
+         jIxQjMemMiyTao9+3VfAP2aqg9/QmTywUGP7A0MU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gong Yuanjun <ruc_gongyuanjun@163.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 235/298] drm/amd/pm: fix a potential gpu_metrics_table memory leak
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.18 304/339] scsi: lpfc: Address NULL pointer dereference after starget_to_rport()
 Date:   Mon, 13 Jun 2022 12:12:09 +0200
-Message-Id: <20220613094932.219773946@linuxfoundation.org>
+Message-Id: <20220613094935.979173117@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gong Yuanjun <ruc_gongyuanjun@163.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit d2f4460a3d9502513419f06cc376c7ade49d5753 ]
+commit 6f808bd78e8296b4ded813b7182988d57e1f6176 upstream.
 
-gpu_metrics_table is allocated in yellow_carp_init_smc_tables() but
-not freed in yellow_carp_fini_smc_tables().
+Calls to starget_to_rport() may return NULL.  Add check for NULL rport
+before dereference.
 
-Signed-off-by: Gong Yuanjun <ruc_gongyuanjun@163.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220603174329.63777-5-jsmart2021@gmail.com
+Fixes: bb21fc9911ee ("scsi: lpfc: Use fc_block_rport()")
+Cc: <stable@vger.kernel.org> # v5.18
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/lpfc/lpfc_scsi.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-index d0715927b07f..13461e28aeed 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-@@ -190,6 +190,9 @@ static int yellow_carp_fini_smc_tables(struct smu_context *smu)
- 	kfree(smu_table->watermarks_table);
- 	smu_table->watermarks_table = NULL;
+--- a/drivers/scsi/lpfc/lpfc_scsi.c
++++ b/drivers/scsi/lpfc/lpfc_scsi.c
+@@ -6316,6 +6316,9 @@ lpfc_device_reset_handler(struct scsi_cm
+ 	int status;
+ 	u32 logit = LOG_FCP;
  
-+	kfree(smu_table->gpu_metrics_table);
-+	smu_table->gpu_metrics_table = NULL;
++	if (!rport)
++		return FAILED;
 +
- 	return 0;
- }
+ 	rdata = rport->dd_data;
+ 	if (!rdata || !rdata->pnode) {
+ 		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+@@ -6394,6 +6397,9 @@ lpfc_target_reset_handler(struct scsi_cm
+ 	unsigned long flags;
+ 	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(waitq);
  
--- 
-2.35.1
-
++	if (!rport)
++		return FAILED;
++
+ 	rdata = rport->dd_data;
+ 	if (!rdata || !rdata->pnode) {
+ 		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
 
 
