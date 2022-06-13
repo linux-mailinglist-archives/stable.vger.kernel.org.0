@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7404A5496EA
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5911E549252
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377619AbiFMNdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:33:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51950 "EHLO
+        id S1356523AbiFMLuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:50:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378447AbiFMNbg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:31:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9001703DF;
-        Mon, 13 Jun 2022 04:26:07 -0700 (PDT)
+        with ESMTP id S1356863AbiFMLth (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:49:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E817A4D681;
+        Mon, 13 Jun 2022 03:53:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 571AEB80E93;
-        Mon, 13 Jun 2022 11:26:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4249C34114;
-        Mon, 13 Jun 2022 11:26:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6597061257;
+        Mon, 13 Jun 2022 10:53:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75025C34114;
+        Mon, 13 Jun 2022 10:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119565;
-        bh=rp7BVa+YdVp1no5nrT8jUWCSbXCylb1klRp57aAm3fM=;
+        s=korg; t=1655117604;
+        bh=peyZOt9jqrsMflfuz0rMN5lqyXQHAsvowKwl4RFdtC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oW8ki3qOu21usA3h1vlOrjPHCY67HR1GQ8kmcQxCuaR4diQJE4eMT8JU5Wr3JPjeo
-         641i4GXSJkd+Ss3nRSLgZHdHuad+miXyvCCa1+ID7CCh0O57gdUtkwOPUvYlWtO3GX
-         5Ij2OVcLKylyhaWUdwJZw3vbytGx+Kag33L9LSQQ=
+        b=dVJXf03yVuAdixgsiqk9jA/FkBCMs/IsfSCwFOfwD0Z2kyL0h2kFNFD1N6A18iAbg
+         WIRERc51DHxQdes+fx8MeFQW4r3NyvRCneFP/MNiguM6+us2xYVA62P3g5ynjAPYet
+         kY/+wGYw/pW7DM1kHej3UPIPpnmDnOox0i5M5Ia8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Howard Chiu <howard_chiu@aspeedtech.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 059/339] ARM: dts: aspeed: ast2600-evb: Enable RX delay for MAC0/MAC1
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 060/287] drm/bridge: adv7511: clean up CEC adapter when probe fails
 Date:   Mon, 13 Jun 2022 12:08:04 +0200
-Message-Id: <20220613094928.311639057@linuxfoundation.org>
+Message-Id: <20220613094925.689352120@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Howard Chiu <howard_chiu@aspeedtech.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 4d338ee40ba89e508c5d3e1b4af956af7cb5e12e ]
+[ Upstream commit 7ed2b0dabf7a22874cb30f8878df239ef638eb53 ]
 
-Since mac0/1 and mac2/3 are physically located on different die,
-they have different properties by nature, which is mac0/1 has smaller delay step.
+When the probe routine fails we also need to clean up the
+CEC adapter registered in adv7511_cec_init().
 
-The property 'phy-mode' on ast2600 mac0 and mac1 is recommended to set to 'rgmii-rxid'
-which enables the RX interface delay from the PHY chip.
-Refer page 45 of SDK User Guide v08.00
-https://github.com/AspeedTech-BMC/openbmc/releases/download/v08.00/SDK_User_Guide_v08.00.pdf
-
-Fixes: 2ca5646b5c2f ("ARM: dts: aspeed: Add AST2600 and EVB")
-Signed-off-by: Howard Chiu <howard_chiu@aspeedtech.com>
-Link: https://lore.kernel.org/r/SG2PR06MB23152A548AAE81140B57DD69E6E09@SG2PR06MB2315.apcprd06.prod.outlook.com
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220321104705.2804423-1-l.stach@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/aspeed-ast2600-evb.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/aspeed-ast2600-evb.dts b/arch/arm/boot/dts/aspeed-ast2600-evb.dts
-index b7eb552640cb..788448cdd6b3 100644
---- a/arch/arm/boot/dts/aspeed-ast2600-evb.dts
-+++ b/arch/arm/boot/dts/aspeed-ast2600-evb.dts
-@@ -103,7 +103,7 @@
- &mac0 {
- 	status = "okay";
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index e7ddd3e3db92..b6e7cc9082ca 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -1225,6 +1225,7 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
+ 	return 0;
  
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-rxid";
- 	phy-handle = <&ethphy0>;
- 
- 	pinctrl-names = "default";
-@@ -114,7 +114,7 @@
- &mac1 {
- 	status = "okay";
- 
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-rxid";
- 	phy-handle = <&ethphy1>;
- 
- 	pinctrl-names = "default";
+ err_unregister_cec:
++	cec_unregister_adapter(adv7511->cec_adap);
+ 	i2c_unregister_device(adv7511->i2c_cec);
+ 	if (adv7511->cec_clk)
+ 		clk_disable_unprepare(adv7511->cec_clk);
 -- 
 2.35.1
 
