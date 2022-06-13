@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B45548D15
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 044BB5488E5
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383408AbiFMO0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:26:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49928 "EHLO
+        id S236392AbiFMKaj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:30:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383680AbiFMOXq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:23:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B091047051;
-        Mon, 13 Jun 2022 04:44:49 -0700 (PDT)
+        with ESMTP id S244952AbiFMK1x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:27:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97BD824BC7;
+        Mon, 13 Jun 2022 03:20:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CC51B80D3A;
-        Mon, 13 Jun 2022 11:44:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9875CC34114;
-        Mon, 13 Jun 2022 11:44:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA9E460AE6;
+        Mon, 13 Jun 2022 10:20:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C112BC34114;
+        Mon, 13 Jun 2022 10:20:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120687;
-        bh=oX774nsjSI3FEBqXMCgRgEhsiw5DTAfuvuPkyTnsHHo=;
+        s=korg; t=1655115605;
+        bh=GC7PW6HtNVPZfXyYg+Kf383H1ixM+m9wHbZwxhKo4N4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xC9qLMFlaUdBC4J4sNCbuLpoY4hbCMJAMmMKnpPRNTrl9ms1s5Kv8WgjqRfPSWrum
-         FmSOl9CWY0aHrZVd9kBoDEPAV2sryu1WjdGjgZKZsYLVpLM9bOIjsJwiJdBpTL3fGK
-         Y8OxJn5g5/7zNBIertGbI+w4eDrk084spy/Nh9Oc=
+        b=taEYFOcp3z91UQnZkzb8UUxiJbb8I5Uhf0ZZ/528fdmyObzY1NbN9Umgb7GzZoM+8
+         9gTJTHtT6WAiajumnfFXh/NFIXaIGr5ZEcZU+JC1iHS6n2gZE3jU/5yykL/8bWaRQj
+         VDkmJoeA122blBbO+k1gtz+9hfr+QuoHYZuIMe5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
         Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 113/298] net/mlx5e: Update netdev features after changing XDP state
-Date:   Mon, 13 Jun 2022 12:10:07 +0200
-Message-Id: <20220613094928.373702356@linuxfoundation.org>
+Subject: [PATCH 4.9 134/167] net/mlx4_en: Fix wrong return value on ioctl EEPROM query failure
+Date:   Mon, 13 Jun 2022 12:10:08 +0200
+Message-Id: <20220613094912.313790852@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Gal Pressman <gal@nvidia.com>
 
-[ Upstream commit f6279f113ad593971999c877eb69dc3d36a75894 ]
+[ Upstream commit f5826c8c9d57210a17031af5527056eefdc2b7eb ]
 
-Some features (LRO, HW GRO) conflict with XDP. If there is an attempt to
-enable such features while XDP is active, they will be set to `off
-[requested on]`. In order to activate these features after XDP is turned
-off, the driver needs to call netdev_update_features(). This commit adds
-this missing call after XDP state changes.
+The ioctl EEPROM query wrongly returns success on read failures, fix
+that by returning the appropriate error code.
 
-Fixes: cf6e34c8c22f ("net/mlx5e: Properly block LRO when XDP is enabled")
-Fixes: b0617e7b3500 ("net/mlx5e: Properly block HW GRO when XDP is enabled")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 7202da8b7f71 ("ethtool, net/mlx4_en: Cable info, get_module_info/eeprom ethtool support")
+Signed-off-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Link: https://lore.kernel.org/r/20220606115718.14233-1-tariqt@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/mellanox/mlx4/en_ethtool.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 9730bd96d0de..352b5c8ae24e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4531,6 +4531,11 @@ static int mlx5e_xdp_set(struct net_device *netdev, struct bpf_prog *prog)
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+index 1569300844f0..8b0c28d4c627 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+@@ -2003,7 +2003,7 @@ static int mlx4_en_get_module_eeprom(struct net_device *dev,
+ 			en_err(priv,
+ 			       "mlx4_get_module_info i(%d) offset(%d) bytes_to_read(%d) - FAILED (0x%x)\n",
+ 			       i, offset, ee->len - i, ret);
+-			return 0;
++			return ret;
+ 		}
  
- unlock:
- 	mutex_unlock(&priv->state_lock);
-+
-+	/* Need to fix some features. */
-+	if (!err)
-+		netdev_update_features(netdev);
-+
- 	return err;
- }
- 
+ 		i += ret;
 -- 
 2.35.1
 
