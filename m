@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94DCD5480B8
+	by mail.lfdr.de (Postfix) with ESMTP id 03D365480B6
 	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229875AbiFMHiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 03:38:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48282 "EHLO
+        id S234386AbiFMHjO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 03:39:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234672AbiFMHio (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:38:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB0041D33E
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:38:43 -0700 (PDT)
+        with ESMTP id S230132AbiFMHjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:39:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4311CB3E
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:39:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4909B60F39
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:38:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 500C4C34114;
-        Mon, 13 Jun 2022 07:38:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A399B80D6E
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:39:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96D0CC34114;
+        Mon, 13 Jun 2022 07:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655105922;
-        bh=yqkfxu16uwZcd4u4i0MRjC5bhf39TxsS8i1vxI0VPqI=;
+        s=korg; t=1655105950;
+        bh=2SUgfDqJ7MJBPbeX5tkRL7Bf9l4gRJbmhgrmqaElIKc=;
         h=Subject:To:Cc:From:Date:From;
-        b=zVJbr2nxfJ5OyZOCyNKob3pcDnbIscBE8qDXpgEdT9DDfhU8DnHs5ypMzFzO0ATgr
-         3iXPFvmOTgFlg0ujvVNl1y438NskSLAQZfe+wqttTsod7oyNWWipX28AlX5vdcpS9K
-         yjGGyxETygQ5W5WTrRTAhBp4jUZY8sNGnr8CbQj8=
-Subject: FAILED: patch "[PATCH] drm/atomic: Force bridge self-refresh-exit on CRTC switch" failed to apply to 5.4-stable tree
-To:     briannorris@chromium.org, dianders@chromium.org,
-        seanpaul@chromium.org, stable@vger.kernel.org,
-        victor.liu@oss.nxp.com
+        b=gHewinH7IqwdsXjtYELN/GprayTwqL4a08ZmMRsxsY0PMGIiClL1AS9C4iSSmaFwC
+         8eYd6TDSmxNkRplvyxbf11dkkowg7VjddwI0mGgoPf5QZY/hB8P1YYK9bKZPAHCjDO
+         kf5l46m9/TLIjzNwlliiz6QuDEwdJH3wTcXxGuw8=
+Subject: FAILED: patch "[PATCH] drm/amdgpu/jpeg2: Add jpeg vmid update under IB submit" failed to apply to 5.15-stable tree
+To:     Mohammadzafar.ziya@amd.com, alexander.deucher@amd.com,
+        christian.koenig@amd.com, lijo.lazar@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Jun 2022 09:38:40 +0200
-Message-ID: <1655105920160205@kroah.com>
+Date:   Mon, 13 Jun 2022 09:38:59 +0200
+Message-ID: <1655105939195200@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -50,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,72 +60,56 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e54a4424925a27ed94dff046db3ce5caf4b1e748 Mon Sep 17 00:00:00 2001
-From: Brian Norris <briannorris@chromium.org>
-Date: Mon, 28 Feb 2022 12:25:32 -0800
-Subject: [PATCH] drm/atomic: Force bridge self-refresh-exit on CRTC switch
+From 578eb31776df57c81307fb3f96ef0781332c3c7c Mon Sep 17 00:00:00 2001
+From: Mohammad Zafar Ziya <Mohammadzafar.ziya@amd.com>
+Date: Tue, 7 Jun 2022 11:38:16 +0800
+Subject: [PATCH] drm/amdgpu/jpeg2: Add jpeg vmid update under IB submit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-It's possible to change which CRTC is in use for a given
-connector/encoder/bridge while we're in self-refresh without fully
-disabling the connector/encoder/bridge along the way. This can confuse
-the bridge encoder/bridge, because
-(a) it needs to track the SR state (trying to perform "active"
-    operations while the panel is still in SR can be Bad(TM)); and
-(b) it tracks the SR state via the CRTC state (and after the switch, the
-    previous SR state is lost).
+Add jpeg vmid update under IB submit
 
-Thus, we need to either somehow carry the self-refresh state over to the
-new CRTC, or else force an encoder/bridge self-refresh transition during
-such a switch.
+Signed-off-by: Mohammad Zafar Ziya <Mohammadzafar.ziya@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 
-I choose the latter, so we disable the encoder (and exit PSR) before
-attaching it to the new CRTC (where we can continue to assume a clean
-(non-self-refresh) state).
-
-This fixes PSR issues seen on Rockchip RK3399 systems with
-drivers/gpu/drm/bridge/analogix/analogix_dp_core.c.
-
-Change in v2:
-
-- Drop "->enable" condition; this could possibly be "->active" to
-  reflect the intended hardware state, but it also is a little
-  over-specific. We want to make a transition through "disabled" any
-  time we're exiting PSR at the same time as a CRTC switch.
-  (Thanks Liu Ying)
-
-Cc: Liu Ying <victor.liu@oss.nxp.com>
-Cc: <stable@vger.kernel.org>
-Fixes: 1452c25b0e60 ("drm: Add helpers to kick off self refresh mode in drivers")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Sean Paul <seanpaul@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220228122522.v2.2.Ic15a2ef69c540aee8732703103e2cff51fb9c399@changeid
-
-diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
-index 9603193d2fa1..987e4b212e9f 100644
---- a/drivers/gpu/drm/drm_atomic_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_helper.c
-@@ -1011,9 +1011,19 @@ crtc_needs_disable(struct drm_crtc_state *old_state,
- 		return drm_atomic_crtc_effectively_active(old_state);
+diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c
+index d2722adabd1b..f3c1af5130ab 100644
+--- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c
+@@ -535,6 +535,10 @@ void jpeg_v2_0_dec_ring_emit_ib(struct amdgpu_ring *ring,
+ {
+ 	unsigned vmid = AMDGPU_JOB_GET_VMID(job);
  
- 	/*
--	 * We need to run through the crtc_funcs->disable() function if the CRTC
--	 * is currently on, if it's transitioning to self refresh mode, or if
--	 * it's in self refresh mode and needs to be fully disabled.
-+	 * We need to disable bridge(s) and CRTC if we're transitioning out of
-+	 * self-refresh and changing CRTCs at the same time, because the
-+	 * bridge tracks self-refresh status via CRTC state.
-+	 */
-+	if (old_state->self_refresh_active &&
-+	    old_state->crtc != new_state->crtc)
-+		return true;
++	amdgpu_ring_write(ring,	PACKETJ(mmUVD_JPEG_IH_CTRL_INTERNAL_OFFSET,
++		0, 0, PACKETJ_TYPE0));
++	amdgpu_ring_write(ring, (vmid << JPEG_IH_CTRL__IH_VMID__SHIFT));
 +
-+	/*
-+	 * We also need to run through the crtc_funcs->disable() function if
-+	 * the CRTC is currently on, if it's transitioning to self refresh
-+	 * mode, or if it's in self refresh mode and needs to be fully
-+	 * disabled.
- 	 */
- 	return old_state->active ||
- 	       (old_state->self_refresh_active && !new_state->active) ||
+ 	amdgpu_ring_write(ring, PACKETJ(mmUVD_LMI_JRBC_IB_VMID_INTERNAL_OFFSET,
+ 		0, 0, PACKETJ_TYPE0));
+ 	amdgpu_ring_write(ring, (vmid | (vmid << 4)));
+@@ -768,7 +772,7 @@ static const struct amdgpu_ring_funcs jpeg_v2_0_dec_ring_vm_funcs = {
+ 		8 + /* jpeg_v2_0_dec_ring_emit_vm_flush */
+ 		18 + 18 + /* jpeg_v2_0_dec_ring_emit_fence x2 vm fence */
+ 		8 + 16,
+-	.emit_ib_size = 22, /* jpeg_v2_0_dec_ring_emit_ib */
++	.emit_ib_size = 24, /* jpeg_v2_0_dec_ring_emit_ib */
+ 	.emit_ib = jpeg_v2_0_dec_ring_emit_ib,
+ 	.emit_fence = jpeg_v2_0_dec_ring_emit_fence,
+ 	.emit_vm_flush = jpeg_v2_0_dec_ring_emit_vm_flush,
+diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.h b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.h
+index 1a03baa59755..654e43e83e2c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.h
++++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.h
+@@ -41,6 +41,7 @@
+ #define mmUVD_JRBC_RB_REF_DATA_INTERNAL_OFFSET				0x4084
+ #define mmUVD_JRBC_STATUS_INTERNAL_OFFSET				0x4089
+ #define mmUVD_JPEG_PITCH_INTERNAL_OFFSET				0x401f
++#define mmUVD_JPEG_IH_CTRL_INTERNAL_OFFSET				0x4149
+ 
+ #define JRBC_DEC_EXTERNAL_REG_WRITE_ADDR				0x18000
+ 
 
