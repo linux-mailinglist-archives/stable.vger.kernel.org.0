@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8548C54867D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E99E55487C7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384915AbiFMOps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35780 "EHLO
+        id S1376393AbiFMNVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:21:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385778AbiFMOnu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:43:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1C5EB2EB5;
-        Mon, 13 Jun 2022 04:50:56 -0700 (PDT)
+        with ESMTP id S1377232AbiFMNUJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7596A039;
+        Mon, 13 Jun 2022 04:23:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16505B80EE0;
-        Mon, 13 Jun 2022 11:50:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C28DC34114;
-        Mon, 13 Jun 2022 11:50:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1FDB61121;
+        Mon, 13 Jun 2022 11:22:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFED2C341C5;
+        Mon, 13 Jun 2022 11:22:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121039;
-        bh=fBo64BZPeJDj+fAp8E68AIy/DBb/g/71roqjCJgbJno=;
+        s=korg; t=1655119363;
+        bh=XR4pBaO0NMis/STcgabovWoFuXApSW2ZcL7eX6Yn8E4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mh1Uvroe0+8bnL9qZ9SVioSSMObXzMFzbRilKLg62Qul+hmSHHgs0W6UMM4zbWL3W
-         oIsrbRxzyv0iu1frwKjvZgx2D3M4a1UC4F0bM85B6kDQXsvco57LrKiTOa5gu/AT+x
-         G8T7HqEvv3MJ6k8FAjVRevinTZUB2THRIZMHV53k=
+        b=DVZ78e4oL1/5SNLi4xc4HjCyTKp4W14FtzDQrL+pEsLOvbSHHMr/JmL6TSLFuQWc4
+         VlrWxhkR0O7smgBLBAQPZjiZDxbHpsh+CtOmeNwdnnsulqgNtVTLXThkwT72vVxGdi
+         aRjiUM2LAGx684F/lEsmARRoQATMHqwYIer2N+PQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Yu Kuai <yukuai3@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 242/298] nbd: fix race between nbd_alloc_config() and module removal
-Date:   Mon, 13 Jun 2022 12:12:16 +0200
-Message-Id: <20220613094932.426756218@linuxfoundation.org>
+        stable@vger.kernel.org, Liu Ying <victor.liu@oss.nxp.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 5.15 236/247] drm/atomic: Force bridge self-refresh-exit on CRTC switch
+Date:   Mon, 13 Jun 2022 12:12:18 +0200
+Message-Id: <20220613094930.102199941@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,124 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit c55b2b983b0fa012942c3eb16384b2b722caa810 ]
+commit e54a4424925a27ed94dff046db3ce5caf4b1e748 upstream.
 
-When nbd module is being removing, nbd_alloc_config() may be
-called concurrently by nbd_genl_connect(), although try_module_get()
-will return false, but nbd_alloc_config() doesn't handle it.
+It's possible to change which CRTC is in use for a given
+connector/encoder/bridge while we're in self-refresh without fully
+disabling the connector/encoder/bridge along the way. This can confuse
+the bridge encoder/bridge, because
+(a) it needs to track the SR state (trying to perform "active"
+    operations while the panel is still in SR can be Bad(TM)); and
+(b) it tracks the SR state via the CRTC state (and after the switch, the
+    previous SR state is lost).
 
-The race may lead to the leak of nbd_config and its related
-resources (e.g, recv_workq) and oops in nbd_read_stat() due
-to the unload of nbd module as shown below:
+Thus, we need to either somehow carry the self-refresh state over to the
+new CRTC, or else force an encoder/bridge self-refresh transition during
+such a switch.
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000040
-  Oops: 0000 [#1] SMP PTI
-  CPU: 5 PID: 13840 Comm: kworker/u17:33 Not tainted 5.14.0+ #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-  Workqueue: knbd16-recv recv_work [nbd]
-  RIP: 0010:nbd_read_stat.cold+0x130/0x1a4 [nbd]
-  Call Trace:
-   recv_work+0x3b/0xb0 [nbd]
-   process_one_work+0x1ed/0x390
-   worker_thread+0x4a/0x3d0
-   kthread+0x12a/0x150
-   ret_from_fork+0x22/0x30
+I choose the latter, so we disable the encoder (and exit PSR) before
+attaching it to the new CRTC (where we can continue to assume a clean
+(non-self-refresh) state).
 
-Fixing it by checking the return value of try_module_get()
-in nbd_alloc_config(). As nbd_alloc_config() may return ERR_PTR(-ENODEV),
-assign nbd->config only when nbd_alloc_config() succeeds to ensure
-the value of nbd->config is binary (valid or NULL).
+This fixes PSR issues seen on Rockchip RK3399 systems with
+drivers/gpu/drm/bridge/analogix/analogix_dp_core.c.
 
-Also adding a debug message to check the reference counter
-of nbd_config during module removal.
+Change in v2:
 
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220521073749.3146892-3-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+- Drop "->enable" condition; this could possibly be "->active" to
+  reflect the intended hardware state, but it also is a little
+  over-specific. We want to make a transition through "disabled" any
+  time we're exiting PSR at the same time as a CRTC switch.
+  (Thanks Liu Ying)
+
+Cc: Liu Ying <victor.liu@oss.nxp.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 1452c25b0e60 ("drm: Add helpers to kick off self refresh mode in drivers")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220228122522.v2.2.Ic15a2ef69c540aee8732703103e2cff51fb9c399@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/nbd.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/drm_atomic_helper.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index b4d309af27dd..7af1c9dbe9f5 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1533,15 +1533,20 @@ static struct nbd_config *nbd_alloc_config(void)
- {
- 	struct nbd_config *config;
+--- a/drivers/gpu/drm/drm_atomic_helper.c
++++ b/drivers/gpu/drm/drm_atomic_helper.c
+@@ -996,9 +996,19 @@ crtc_needs_disable(struct drm_crtc_state
+ 		return drm_atomic_crtc_effectively_active(old_state);
  
-+	if (!try_module_get(THIS_MODULE))
-+		return ERR_PTR(-ENODEV);
+ 	/*
+-	 * We need to run through the crtc_funcs->disable() function if the CRTC
+-	 * is currently on, if it's transitioning to self refresh mode, or if
+-	 * it's in self refresh mode and needs to be fully disabled.
++	 * We need to disable bridge(s) and CRTC if we're transitioning out of
++	 * self-refresh and changing CRTCs at the same time, because the
++	 * bridge tracks self-refresh status via CRTC state.
++	 */
++	if (old_state->self_refresh_active &&
++	    old_state->crtc != new_state->crtc)
++		return true;
 +
- 	config = kzalloc(sizeof(struct nbd_config), GFP_NOFS);
--	if (!config)
--		return NULL;
-+	if (!config) {
-+		module_put(THIS_MODULE);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
- 	atomic_set(&config->recv_threads, 0);
- 	init_waitqueue_head(&config->recv_wq);
- 	init_waitqueue_head(&config->conn_wait);
- 	config->blksize_bits = NBD_DEF_BLKSIZE_BITS;
- 	atomic_set(&config->live_connections, 0);
--	try_module_get(THIS_MODULE);
- 	return config;
- }
- 
-@@ -1568,12 +1573,13 @@ static int nbd_open(struct block_device *bdev, fmode_t mode)
- 			mutex_unlock(&nbd->config_lock);
- 			goto out;
- 		}
--		config = nbd->config = nbd_alloc_config();
--		if (!config) {
--			ret = -ENOMEM;
-+		config = nbd_alloc_config();
-+		if (IS_ERR(config)) {
-+			ret = PTR_ERR(config);
- 			mutex_unlock(&nbd->config_lock);
- 			goto out;
- 		}
-+		nbd->config = config;
- 		refcount_set(&nbd->config_refs, 1);
- 		refcount_inc(&nbd->refs);
- 		mutex_unlock(&nbd->config_lock);
-@@ -1980,13 +1986,14 @@ static int nbd_genl_connect(struct sk_buff *skb, struct genl_info *info)
- 		nbd_put(nbd);
- 		return -EINVAL;
- 	}
--	config = nbd->config = nbd_alloc_config();
--	if (!nbd->config) {
-+	config = nbd_alloc_config();
-+	if (IS_ERR(config)) {
- 		mutex_unlock(&nbd->config_lock);
- 		nbd_put(nbd);
- 		printk(KERN_ERR "nbd: couldn't allocate config\n");
--		return -ENOMEM;
-+		return PTR_ERR(config);
- 	}
-+	nbd->config = config;
- 	refcount_set(&nbd->config_refs, 1);
- 	set_bit(NBD_RT_BOUND, &config->runtime_flags);
- 
-@@ -2559,6 +2566,9 @@ static void __exit nbd_cleanup(void)
- 	while (!list_empty(&del_list)) {
- 		nbd = list_first_entry(&del_list, struct nbd_device, list);
- 		list_del_init(&nbd->list);
-+		if (refcount_read(&nbd->config_refs))
-+			printk(KERN_ERR "nbd: possibly leaking nbd_config (ref %d)\n",
-+					refcount_read(&nbd->config_refs));
- 		if (refcount_read(&nbd->refs) != 1)
- 			printk(KERN_ERR "nbd: possibly leaking a device\n");
- 		nbd_put(nbd);
--- 
-2.35.1
-
++	/*
++	 * We also need to run through the crtc_funcs->disable() function if
++	 * the CRTC is currently on, if it's transitioning to self refresh
++	 * mode, or if it's in self refresh mode and needs to be fully
++	 * disabled.
+ 	 */
+ 	return old_state->active ||
+ 	       (old_state->self_refresh_active && !new_state->active) ||
 
 
