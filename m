@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E605496AF
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60F7C5494CF
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350957AbiFMLCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:02:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57666 "EHLO
+        id S1350099AbiFMLCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:02:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349524AbiFMLAc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:00:32 -0400
+        with ESMTP id S1350096AbiFMLBC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:01:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E879C31354;
-        Mon, 13 Jun 2022 03:33:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39A123137C;
+        Mon, 13 Jun 2022 03:33:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBB2360FB1;
-        Mon, 13 Jun 2022 10:32:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA1E6C34114;
-        Mon, 13 Jun 2022 10:32:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 800E660FDB;
+        Mon, 13 Jun 2022 10:32:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DB51C34114;
+        Mon, 13 Jun 2022 10:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116373;
-        bh=cKRrTbnI+d4+LE1Ydfu6A33V3P+MWNPCyFbzbhkVuKc=;
+        s=korg; t=1655116375;
+        bh=tiyZ3eOGweBf18A/dadGgQ0sLxVwdPM+W/Agj24C7+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UmAyAn06+6GrEUvtJFMt0MD/KyXLbnPGTOs8HTRnwWkdvnqA83oUg5B0sK2KXGI08
-         Cne3VrPHAkGw788ooMvN2nJDt00VfEux4sA1R4zYQP1d5LZoKZGcXk2B4AAtFjgTw4
-         MCIob7jnmD62FBHvDEVeVWOvO4aL8PrO7cqC2kxM=
+        b=zb9Wa/JFB2eE9fi7FMCj+h0ju8V0qB9kfe1c3uK248RAuPIvrnRgudIs+amM6P5fS
+         4ZTWNPQva+fBeBypTROtinF1bm9yHPuX9bbZ/i0jK+hjlo4X8CSvay/DOyUcxxjeMu
+         0WvwNIo8DWXOseb2f95Qp6WRWhNjanT2p1QDfPXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@openvz.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 074/411] tracing: incorrect isolate_mote_t cast in mm_vmscan_lru_isolate
-Date:   Mon, 13 Jun 2022 12:05:47 +0200
-Message-Id: <20220613094930.897166778@linuxfoundation.org>
+Subject: [PATCH 5.4 075/411] powerpc/xics: fix refcount leak in icp_opal_init()
+Date:   Mon, 13 Jun 2022 12:05:48 +0200
+Message-Id: <20220613094930.929463042@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -55,51 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@openvz.org>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit 2b132903de7124dd9a758be0c27562e91a510848 ]
+[ Upstream commit 5dd9e27ea4a39f7edd4bf81e9e70208e7ac0b7c9 ]
 
-Fixes following sparse warnings:
+The of_find_compatible_node() function returns a node pointer with
+refcount incremented, use of_node_put() on it when done.
 
-  CHECK   mm/vmscan.c
-mm/vmscan.c: note: in included file (through
-include/trace/trace_events.h, include/trace/define_trace.h,
-include/trace/events/vmscan.h):
-./include/trace/events/vmscan.h:281:1: sparse: warning:
- cast to restricted isolate_mode_t
-./include/trace/events/vmscan.h:281:1: sparse: warning:
- restricted isolate_mode_t degrades to integer
-
-Link: https://lkml.kernel.org/r/e85d7ff2-fd10-53f8-c24e-ba0458439c1b@openvz.org
-Signed-off-by: Vasily Averin <vvs@openvz.org>
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220402013419.2410298-1-lv.ruyi@zte.com.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/vmscan.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/sysdev/xics/icp-opal.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/trace/events/vmscan.h b/include/trace/events/vmscan.h
-index a5ab2973e8dc..57184c02e3b9 100644
---- a/include/trace/events/vmscan.h
-+++ b/include/trace/events/vmscan.h
-@@ -283,7 +283,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
- 		__field(unsigned long, nr_scanned)
- 		__field(unsigned long, nr_skipped)
- 		__field(unsigned long, nr_taken)
--		__field(isolate_mode_t, isolate_mode)
-+		__field(unsigned int, isolate_mode)
- 		__field(int, lru)
- 	),
+diff --git a/arch/powerpc/sysdev/xics/icp-opal.c b/arch/powerpc/sysdev/xics/icp-opal.c
+index 68fd2540b093..7fa520efcefa 100644
+--- a/arch/powerpc/sysdev/xics/icp-opal.c
++++ b/arch/powerpc/sysdev/xics/icp-opal.c
+@@ -195,6 +195,7 @@ int icp_opal_init(void)
  
-@@ -294,7 +294,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
- 		__entry->nr_scanned = nr_scanned;
- 		__entry->nr_skipped = nr_skipped;
- 		__entry->nr_taken = nr_taken;
--		__entry->isolate_mode = isolate_mode;
-+		__entry->isolate_mode = (__force unsigned int)isolate_mode;
- 		__entry->lru = lru;
- 	),
+ 	printk("XICS: Using OPAL ICP fallbacks\n");
+ 
++	of_node_put(np);
+ 	return 0;
+ }
  
 -- 
 2.35.1
