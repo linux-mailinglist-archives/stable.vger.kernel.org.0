@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7092F5498C8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5A1548B54
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357888AbiFMNAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:00:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49944 "EHLO
+        id S236961AbiFMKal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:30:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357264AbiFMM6i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:58:38 -0400
+        with ESMTP id S1345365AbiFMK3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:29:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE8AF1018;
-        Mon, 13 Jun 2022 04:17:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 757DC1E3D1;
+        Mon, 13 Jun 2022 03:20:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2D0060F2C;
-        Mon, 13 Jun 2022 11:17:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC3BAC3411C;
-        Mon, 13 Jun 2022 11:17:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E886A60AE8;
+        Mon, 13 Jun 2022 10:20:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0546CC34114;
+        Mon, 13 Jun 2022 10:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119048;
-        bh=L1r8HLUGvXW+Em1MiYhEQLcXihcy1tq/OyHD/VgTJsE=;
+        s=korg; t=1655115647;
+        bh=sXA8eHrhDiaMO3chv+YN3qGZ4+qj4uRNBHrPjyUh5X0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aVGX+zjzr8rojWOx58LokE8jU1WfCupqRCUCRQBCzQucTbSu19RflMpClhFVAd5iL
-         m4kOtYxQ7jo6SPyIWcXQJtN52boOhqDVIU76fsO8wVqTPCNcrjMn3QCZELloKAi5XC
-         mJQTjEGTKmKNza2y01P7Xie1i0CFqjimjnWuMGOA=
+        b=EZbBsxk8WsqnFDz5gSRTm3ymzNSxm3ZvLl3CCE5DS4tf6eatESI1QwGDKPDA+KxIe
+         h/eyo9deYVbOrQ/ASe+muFp/9eykYTiSpL4zqUBdQG2SjE/1jS0wnT1MBPkJK96uQm
+         9uYYyPdedNoMCx0XFAOTip6nEKKmoLJ95yXH/yiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 122/247] dmaengine: zynqmp_dma: In struct zynqmp_dma_chan fix desc_size data type
+        syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Wang Cheng <wanngchenng@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 150/167] staging: rtl8712: fix uninit-value in r871xu_drv_init()
 Date:   Mon, 13 Jun 2022 12:10:24 +0200
-Message-Id: <20220613094926.663198868@linuxfoundation.org>
+Message-Id: <20220613094916.074090220@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+From: Wang Cheng <wanngchenng@gmail.com>
 
-[ Upstream commit f9a9f43a62a04ec3183fb0da9226c7706eed0115 ]
+[ Upstream commit 0458e5428e5e959d201a40ffe71d762a79ecedc4 ]
 
-In zynqmp_dma_alloc/free_chan_resources functions there is a
-potential overflow in the below expressions.
+When 'tmpU1b' returns from r8712_read8(padapter, EE_9346CR) is 0,
+'mac[6]' will not be initialized.
 
-dma_alloc_coherent(chan->dev, (2 * chan->desc_size *
-		   ZYNQMP_DMA_NUM_DESCS),
-		   &chan->desc_pool_p, GFP_KERNEL);
+BUG: KMSAN: uninit-value in r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
+ r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
+ usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
+ really_probe+0x653/0x14b0 drivers/base/dd.c:596
+ __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
+ driver_probe_device drivers/base/dd.c:782 [inline]
+ __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
+ bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
+ __device_attach+0x593/0x8e0 drivers/base/dd.c:970
+ device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
+ bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
+ device_add+0x1fff/0x26e0 drivers/base/core.c:3405
+ usb_set_configuration+0x37e9/0x3ed0 drivers/usb/core/message.c:2170
+ usb_generic_driver_probe+0x13c/0x300 drivers/usb/core/generic.c:238
+ usb_probe_device+0x309/0x570 drivers/usb/core/driver.c:293
+ really_probe+0x653/0x14b0 drivers/base/dd.c:596
+ __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
+ driver_probe_device drivers/base/dd.c:782 [inline]
+ __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
+ bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
+ __device_attach+0x593/0x8e0 drivers/base/dd.c:970
+ device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
+ bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
+ device_add+0x1fff/0x26e0 drivers/base/core.c:3405
+ usb_new_device+0x1b8e/0x2950 drivers/usb/core/hub.c:2566
+ hub_port_connect drivers/usb/core/hub.c:5358 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5502 [inline]
+ port_event drivers/usb/core/hub.c:5660 [inline]
+ hub_event+0x58e3/0x89e0 drivers/usb/core/hub.c:5742
+ process_one_work+0xdb6/0x1820 kernel/workqueue.c:2307
+ worker_thread+0x10b3/0x21e0 kernel/workqueue.c:2454
+ kthread+0x3c7/0x500 kernel/kthread.c:377
+ ret_from_fork+0x1f/0x30
 
-dma_free_coherent(chan->dev,(2 * ZYNQMP_DMA_DESC_SIZE(chan) *
-                 ZYNQMP_DMA_NUM_DESCS),
-                chan->desc_pool_v, chan->desc_pool_p);
+Local variable mac created at:
+ r871xu_drv_init+0x1771/0x3070 drivers/staging/rtl8712/usb_intf.c:394
+ usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
 
-The arguments desc_size and ZYNQMP_DMA_NUM_DESCS were 32 bit. Though
-this overflow condition is not observed but it is a potential problem
-in the case of 32-bit multiplication. Hence fix it by changing the
-desc_size data type to size_t.
+KMSAN: uninit-value in r871xu_drv_init
+https://syzkaller.appspot.com/bug?id=3cd92b1d85428b128503bfa7a250294c9ae00bd8
 
-In addition to coverity fix it also reuse ZYNQMP_DMA_DESC_SIZE macro in
-dma_alloc_coherent API argument.
-
-Addresses-Coverity: Event overflow_before_widen.
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/1652166762-18317-2-git-send-email-radhey.shyam.pandey@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
+Tested-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
+Link: https://lore.kernel.org/r/14c3886173dfa4597f0704547c414cfdbcd11d16.1652618244.git.wanngchenng@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/zynqmp_dma.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8712/usb_intf.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/xilinx/zynqmp_dma.c b/drivers/dma/xilinx/zynqmp_dma.c
-index 97f02f8eb03a..5257bdbf77fb 100644
---- a/drivers/dma/xilinx/zynqmp_dma.c
-+++ b/drivers/dma/xilinx/zynqmp_dma.c
-@@ -232,7 +232,7 @@ struct zynqmp_dma_chan {
- 	bool is_dmacoherent;
- 	struct tasklet_struct tasklet;
- 	bool idle;
--	u32 desc_size;
-+	size_t desc_size;
- 	bool err;
- 	u32 bus_width;
- 	u32 src_burst_len;
-@@ -489,7 +489,8 @@ static int zynqmp_dma_alloc_chan_resources(struct dma_chan *dchan)
- 	}
- 
- 	chan->desc_pool_v = dma_alloc_coherent(chan->dev,
--					       (2 * chan->desc_size * ZYNQMP_DMA_NUM_DESCS),
-+					       (2 * ZYNQMP_DMA_DESC_SIZE(chan) *
-+					       ZYNQMP_DMA_NUM_DESCS),
- 					       &chan->desc_pool_p, GFP_KERNEL);
- 	if (!chan->desc_pool_v)
- 		return -ENOMEM;
+diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
+index d0ba42dfafeb..7b7cb2a7db60 100644
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -569,13 +569,13 @@ static int r871xu_drv_init(struct usb_interface *pusb_intf,
+ 		} else {
+ 			AutoloadFail = false;
+ 		}
+-		if (((mac[0] == 0xff) && (mac[1] == 0xff) &&
++		if ((!AutoloadFail) ||
++		    ((mac[0] == 0xff) && (mac[1] == 0xff) &&
+ 		     (mac[2] == 0xff) && (mac[3] == 0xff) &&
+ 		     (mac[4] == 0xff) && (mac[5] == 0xff)) ||
+ 		    ((mac[0] == 0x00) && (mac[1] == 0x00) &&
+ 		     (mac[2] == 0x00) && (mac[3] == 0x00) &&
+-		     (mac[4] == 0x00) && (mac[5] == 0x00)) ||
+-		     (!AutoloadFail)) {
++		     (mac[4] == 0x00) && (mac[5] == 0x00))) {
+ 			mac[0] = 0x00;
+ 			mac[1] = 0xe0;
+ 			mac[2] = 0x4c;
 -- 
 2.35.1
 
