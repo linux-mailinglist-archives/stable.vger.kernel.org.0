@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44C1354887A
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89E1E548CF4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352530AbiFMMwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:52:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45308 "EHLO
+        id S244132AbiFMKow (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:44:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355359AbiFMMu1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:50:27 -0400
+        with ESMTP id S244152AbiFMKmp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:42:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F99C633BA;
-        Mon, 13 Jun 2022 04:12:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D85CC2A252;
+        Mon, 13 Jun 2022 03:24:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA6CA608C3;
-        Mon, 13 Jun 2022 11:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D52C36AFF;
-        Mon, 13 Jun 2022 11:12:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E60060B8B;
+        Mon, 13 Jun 2022 10:24:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BA92C34114;
+        Mon, 13 Jun 2022 10:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118733;
-        bh=ZCUTqRz7IFjMLmE0HtszpJPuvsXC2mGDJlhmF6y6hP4=;
+        s=korg; t=1655115847;
+        bh=XCY2vbdhVb6IAOGE6zsmnRjqax0Xt+YnCNXKezmd2B0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d1SCA2PYXpHxKrrO+Dni7m68UoOcuo9NJsNwlHMDIzhLCF5f7tX0NKI7RfO5Nb9X9
-         y1PseaJtLFcxdLifjus7b5+1Hr7M54Tbm0F1ig+t2ekaXaSxr9vme0nBOIyMPdiyaG
-         G1Y97YExercKeoz1tlMF3R4S6GR+HIyT2BYuXcw4=
+        b=yLHEDUfUUoGGzHhAaBEWhtVVvH2OQNAfPCB0l5nUgf4mjhb5NjpIwq80UudmqdTCn
+         +lvDHV8aS+Aaep8/bTgY4ccbt2iunq9e5xB270cNbakj1REKwQBSUm7rQAI7X9kdmI
+         XfvrkIfSXoMOJgMg09rba/igjnZcoljrGPaLpRJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 010/247] tty: serial: fsl_lpuart: fix potential bug when using both of_alias_get_id and ida_simple_get
+Subject: [PATCH 4.14 054/218] NFC: NULL out the dev->rfkill to prevent UAF
 Date:   Mon, 13 Jun 2022 12:08:32 +0200
-Message-Id: <20220613094923.233237547@linuxfoundation.org>
+Message-Id: <20220613094920.928363798@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,115 +55,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit f398e0aa325c61fa20903833a5b534ecb8e6e418 ]
+[ Upstream commit 1b0e81416a24d6e9b8c2341e22e8bf48f8b8bfc9 ]
 
-Now fsl_lpuart driver use both of_alias_get_id() and ida_simple_get() in
-.probe(), which has the potential bug. For example, when remove the
-lpuart7 alias in dts, of_alias_get_id() will return error, then call
-ida_simple_get() to allocate the id 0 for lpuart7, this may confilct
-with the lpuart4 which has alias 0.
+Commit 3e3b5dfcd16a ("NFC: reorder the logic in nfc_{un,}register_device")
+assumes the device_is_registered() in function nfc_dev_up() will help
+to check when the rfkill is unregistered. However, this check only
+take effect when device_del(&dev->dev) is done in nfc_unregister_device().
+Hence, the rfkill object is still possible be dereferenced.
 
-    aliases {
-	...
-        serial0 = &lpuart4;
-        serial1 = &lpuart5;
-        serial2 = &lpuart6;
-        serial3 = &lpuart7;
-    }
+The crash trace in latest kernel (5.18-rc2):
 
-So remove the ida_simple_get() in .probe(), return an error directly
-when calling of_alias_get_id() fails, which is consistent with other
-uart drivers behavior.
+[   68.760105] ==================================================================
+[   68.760330] BUG: KASAN: use-after-free in __lock_acquire+0x3ec1/0x6750
+[   68.760756] Read of size 8 at addr ffff888009c93018 by task fuzz/313
+[   68.760756]
+[   68.760756] CPU: 0 PID: 313 Comm: fuzz Not tainted 5.18.0-rc2 #4
+[   68.760756] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[   68.760756] Call Trace:
+[   68.760756]  <TASK>
+[   68.760756]  dump_stack_lvl+0x57/0x7d
+[   68.760756]  print_report.cold+0x5e/0x5db
+[   68.760756]  ? __lock_acquire+0x3ec1/0x6750
+[   68.760756]  kasan_report+0xbe/0x1c0
+[   68.760756]  ? __lock_acquire+0x3ec1/0x6750
+[   68.760756]  __lock_acquire+0x3ec1/0x6750
+[   68.760756]  ? lockdep_hardirqs_on_prepare+0x410/0x410
+[   68.760756]  ? register_lock_class+0x18d0/0x18d0
+[   68.760756]  lock_acquire+0x1ac/0x4f0
+[   68.760756]  ? rfkill_blocked+0xe/0x60
+[   68.760756]  ? lockdep_hardirqs_on_prepare+0x410/0x410
+[   68.760756]  ? mutex_lock_io_nested+0x12c0/0x12c0
+[   68.760756]  ? nla_get_range_signed+0x540/0x540
+[   68.760756]  ? _raw_spin_lock_irqsave+0x4e/0x50
+[   68.760756]  _raw_spin_lock_irqsave+0x39/0x50
+[   68.760756]  ? rfkill_blocked+0xe/0x60
+[   68.760756]  rfkill_blocked+0xe/0x60
+[   68.760756]  nfc_dev_up+0x84/0x260
+[   68.760756]  nfc_genl_dev_up+0x90/0xe0
+[   68.760756]  genl_family_rcv_msg_doit+0x1f4/0x2f0
+[   68.760756]  ? genl_family_rcv_msg_attrs_parse.constprop.0+0x230/0x230
+[   68.760756]  ? security_capable+0x51/0x90
+[   68.760756]  genl_rcv_msg+0x280/0x500
+[   68.760756]  ? genl_get_cmd+0x3c0/0x3c0
+[   68.760756]  ? lock_acquire+0x1ac/0x4f0
+[   68.760756]  ? nfc_genl_dev_down+0xe0/0xe0
+[   68.760756]  ? lockdep_hardirqs_on_prepare+0x410/0x410
+[   68.760756]  netlink_rcv_skb+0x11b/0x340
+[   68.760756]  ? genl_get_cmd+0x3c0/0x3c0
+[   68.760756]  ? netlink_ack+0x9c0/0x9c0
+[   68.760756]  ? netlink_deliver_tap+0x136/0xb00
+[   68.760756]  genl_rcv+0x1f/0x30
+[   68.760756]  netlink_unicast+0x430/0x710
+[   68.760756]  ? memset+0x20/0x40
+[   68.760756]  ? netlink_attachskb+0x740/0x740
+[   68.760756]  ? __build_skb_around+0x1f4/0x2a0
+[   68.760756]  netlink_sendmsg+0x75d/0xc00
+[   68.760756]  ? netlink_unicast+0x710/0x710
+[   68.760756]  ? netlink_unicast+0x710/0x710
+[   68.760756]  sock_sendmsg+0xdf/0x110
+[   68.760756]  __sys_sendto+0x19e/0x270
+[   68.760756]  ? __ia32_sys_getpeername+0xa0/0xa0
+[   68.760756]  ? fd_install+0x178/0x4c0
+[   68.760756]  ? fd_install+0x195/0x4c0
+[   68.760756]  ? kernel_fpu_begin_mask+0x1c0/0x1c0
+[   68.760756]  __x64_sys_sendto+0xd8/0x1b0
+[   68.760756]  ? lockdep_hardirqs_on+0xbf/0x130
+[   68.760756]  ? syscall_enter_from_user_mode+0x1d/0x50
+[   68.760756]  do_syscall_64+0x3b/0x90
+[   68.760756]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   68.760756] RIP: 0033:0x7f67fb50e6b3
+...
+[   68.760756] RSP: 002b:00007f67fa91fe90 EFLAGS: 00000293 ORIG_RAX: 000000000000002c
+[   68.760756] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f67fb50e6b3
+[   68.760756] RDX: 000000000000001c RSI: 0000559354603090 RDI: 0000000000000003
+[   68.760756] RBP: 00007f67fa91ff00 R08: 00007f67fa91fedc R09: 000000000000000c
+[   68.760756] R10: 0000000000000000 R11: 0000000000000293 R12: 00007ffe824d496e
+[   68.760756] R13: 00007ffe824d496f R14: 00007f67fa120000 R15: 0000000000000003
 
-Fixes: 3bc3206e1c0f ("serial: fsl_lpuart: Remove the alias node dependence")
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20220321112211.8895-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[   68.760756]  </TASK>
+[   68.760756]
+[   68.760756] Allocated by task 279:
+[   68.760756]  kasan_save_stack+0x1e/0x40
+[   68.760756]  __kasan_kmalloc+0x81/0xa0
+[   68.760756]  rfkill_alloc+0x7f/0x280
+[   68.760756]  nfc_register_device+0xa3/0x1a0
+[   68.760756]  nci_register_device+0x77a/0xad0
+[   68.760756]  nfcmrvl_nci_register_dev+0x20b/0x2c0
+[   68.760756]  nfcmrvl_nci_uart_open+0xf2/0x1dd
+[   68.760756]  nci_uart_tty_ioctl+0x2c3/0x4a0
+[   68.760756]  tty_ioctl+0x764/0x1310
+[   68.760756]  __x64_sys_ioctl+0x122/0x190
+[   68.760756]  do_syscall_64+0x3b/0x90
+[   68.760756]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   68.760756]
+[   68.760756] Freed by task 314:
+[   68.760756]  kasan_save_stack+0x1e/0x40
+[   68.760756]  kasan_set_track+0x21/0x30
+[   68.760756]  kasan_set_free_info+0x20/0x30
+[   68.760756]  __kasan_slab_free+0x108/0x170
+[   68.760756]  kfree+0xb0/0x330
+[   68.760756]  device_release+0x96/0x200
+[   68.760756]  kobject_put+0xf9/0x1d0
+[   68.760756]  nfc_unregister_device+0x77/0x190
+[   68.760756]  nfcmrvl_nci_unregister_dev+0x88/0xd0
+[   68.760756]  nci_uart_tty_close+0xdf/0x180
+[   68.760756]  tty_ldisc_kill+0x73/0x110
+[   68.760756]  tty_ldisc_hangup+0x281/0x5b0
+[   68.760756]  __tty_hangup.part.0+0x431/0x890
+[   68.760756]  tty_release+0x3a8/0xc80
+[   68.760756]  __fput+0x1f0/0x8c0
+[   68.760756]  task_work_run+0xc9/0x170
+[   68.760756]  exit_to_user_mode_prepare+0x194/0x1a0
+[   68.760756]  syscall_exit_to_user_mode+0x19/0x50
+[   68.760756]  do_syscall_64+0x48/0x90
+[   68.760756]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+This patch just add the null out of dev->rfkill to make sure such
+dereference cannot happen. This is safe since the device_lock() already
+protect the check/write from data race.
+
+Fixes: 3e3b5dfcd16a ("NFC: reorder the logic in nfc_{un,}register_device")
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 24 ++++--------------------
- 1 file changed, 4 insertions(+), 20 deletions(-)
+ net/nfc/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 33e5eba6ff04..481107fdd69b 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -239,8 +239,6 @@
- /* IMX lpuart has four extra unused regs located at the beginning */
- #define IMX_REG_OFF	0x10
- 
--static DEFINE_IDA(fsl_lpuart_ida);
--
- enum lpuart_type {
- 	VF610_LPUART,
- 	LS1021A_LPUART,
-@@ -275,7 +273,6 @@ struct lpuart_port {
- 	int			rx_dma_rng_buf_len;
- 	unsigned int		dma_tx_nents;
- 	wait_queue_head_t	dma_wait;
--	bool			id_allocated;
- };
- 
- struct lpuart_soc_data {
-@@ -2703,23 +2700,18 @@ static int lpuart_probe(struct platform_device *pdev)
- 
- 	ret = of_alias_get_id(np, "serial");
- 	if (ret < 0) {
--		ret = ida_simple_get(&fsl_lpuart_ida, 0, UART_NR, GFP_KERNEL);
--		if (ret < 0) {
--			dev_err(&pdev->dev, "port line is full, add device failed\n");
--			return ret;
--		}
--		sport->id_allocated = true;
-+		dev_err(&pdev->dev, "failed to get alias id, errno %d\n", ret);
-+		return ret;
+diff --git a/net/nfc/core.c b/net/nfc/core.c
+index 8c38a21fb0c6..120259c2b6a7 100644
+--- a/net/nfc/core.c
++++ b/net/nfc/core.c
+@@ -1174,6 +1174,7 @@ void nfc_unregister_device(struct nfc_dev *dev)
+ 	if (dev->rfkill) {
+ 		rfkill_unregister(dev->rfkill);
+ 		rfkill_destroy(dev->rfkill);
++		dev->rfkill = NULL;
  	}
- 	if (ret >= ARRAY_SIZE(lpuart_ports)) {
- 		dev_err(&pdev->dev, "serial%d out of range\n", ret);
--		ret = -EINVAL;
--		goto failed_out_of_range;
-+		return -EINVAL;
- 	}
- 	sport->port.line = ret;
- 
- 	ret = lpuart_enable_clks(sport);
- 	if (ret)
--		goto failed_clock_enable;
-+		return ret;
- 	sport->port.uartclk = lpuart_get_baud_clk_rate(sport);
- 
- 	lpuart_ports[sport->port.line] = sport;
-@@ -2767,10 +2759,6 @@ static int lpuart_probe(struct platform_device *pdev)
- 	uart_remove_one_port(&lpuart_reg, &sport->port);
- failed_attach_port:
- 	lpuart_disable_clks(sport);
--failed_clock_enable:
--failed_out_of_range:
--	if (sport->id_allocated)
--		ida_simple_remove(&fsl_lpuart_ida, sport->port.line);
- 	return ret;
- }
- 
-@@ -2780,9 +2768,6 @@ static int lpuart_remove(struct platform_device *pdev)
- 
- 	uart_remove_one_port(&lpuart_reg, &sport->port);
- 
--	if (sport->id_allocated)
--		ida_simple_remove(&fsl_lpuart_ida, sport->port.line);
--
- 	lpuart_disable_clks(sport);
- 
- 	if (sport->dma_tx_chan)
-@@ -2912,7 +2897,6 @@ static int __init lpuart_serial_init(void)
- 
- static void __exit lpuart_serial_exit(void)
- {
--	ida_destroy(&fsl_lpuart_ida);
- 	platform_driver_unregister(&lpuart_driver);
- 	uart_unregister_driver(&lpuart_reg);
- }
+ 	dev->shutting_down = true;
+ 	device_unlock(&dev->dev);
 -- 
 2.35.1
 
