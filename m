@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 956AD548D9E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB17548B5B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380146AbiFMN5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:57:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36880 "EHLO
+        id S1353766AbiFMMY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:24:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380879AbiFMNz1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:55:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C6EF4477B;
-        Mon, 13 Jun 2022 04:36:11 -0700 (PDT)
+        with ESMTP id S1355237AbiFMMXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBC0B3152B;
+        Mon, 13 Jun 2022 04:04:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F12BB80ECC;
-        Mon, 13 Jun 2022 11:36:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D7CC3411C;
-        Mon, 13 Jun 2022 11:36:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86D5660F9A;
+        Mon, 13 Jun 2022 11:04:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97AE2C34114;
+        Mon, 13 Jun 2022 11:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120169;
-        bh=s20Pv0mbCpNv4t4N63x+0KLjF8uIVneLkO6xzMsE/gc=;
+        s=korg; t=1655118270;
+        bh=S2nyjzDsl6Qa9SKaZ1k8jiwAYyN6hsEchmkf/gZk/wI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OpqfWXGUsYXR+4EvY+WvioLB/d1E3AXJHImcbNn5EwnRDPTZZseOD+O5xkY3dmAdU
-         mtFzIQX0HB3pb9deL6gccqTlIJ7PAjePm/OMGZyaRynpJFR8+bvrXyBySl1R8stHl5
-         cyQ9se8cBuN18U50RtXO5uibSfP3spEiTatSXDz8=
+        b=a5J09sZZrSNhdDy+8VTUU++Y3UbBSPiZpyrnG4wvha6OR1UKDy6J8hUtwhGfNh75U
+         83SKqVwngDlk3pSypcHvLfQYTP+XMZw/ZZwPBsEvWbQGF1liQc+Nkbrk4sXWTUsQaK
+         l1gYHs3sl4g9OPf87+G3AZn1HbBRm8mRexgY1hSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Yu Kuai <yukuai3@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 275/339] nbd: call genl_unregister_family() first in nbd_cleanup()
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        Enzo Matsumiya <ematsumiya@suse.de>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.19 276/287] cifs: return errors during session setup during reconnects
 Date:   Mon, 13 Jun 2022 12:11:40 +0200
-Message-Id: <20220613094934.980577592@linuxfoundation.org>
+Message-Id: <20220613094932.366360146@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-[ Upstream commit 06c4da89c24e7023ea448cadf8e9daf06a0aae6e ]
+commit 8ea21823aa584b55ba4b861307093b78054b0c1b upstream.
 
-Otherwise there may be race between module removal and the handling of
-netlink command, which can lead to the oops as shown below:
+During reconnects, we check the return value from
+cifs_negotiate_protocol, and have handlers for both success
+and failures. But if that passes, and cifs_setup_session
+returns any errors other than -EACCES, we do not handle
+that. This fix adds a handler for that, so that we don't
+go ahead and try a tree_connect on a failed session.
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000098
-  Oops: 0002 [#1] SMP PTI
-  CPU: 1 PID: 31299 Comm: nbd-client Tainted: G            E     5.14.0-rc4
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-  RIP: 0010:down_write+0x1a/0x50
-  Call Trace:
-   start_creating+0x89/0x130
-   debugfs_create_dir+0x1b/0x130
-   nbd_start_device+0x13d/0x390 [nbd]
-   nbd_genl_connect+0x42f/0x748 [nbd]
-   genl_family_rcv_msg_doit.isra.0+0xec/0x150
-   genl_rcv_msg+0xe5/0x1e0
-   netlink_rcv_skb+0x55/0x100
-   genl_rcv+0x29/0x40
-   netlink_unicast+0x1a8/0x250
-   netlink_sendmsg+0x21b/0x430
-   ____sys_sendmsg+0x2a4/0x2d0
-   ___sys_sendmsg+0x81/0xc0
-   __sys_sendmsg+0x62/0xb0
-   __x64_sys_sendmsg+0x1f/0x30
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  Modules linked in: nbd(E-)
-
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220521073749.3146892-2-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Enzo Matsumiya <ematsumiya@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/nbd.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/cifs/smb2pdu.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index c860a9930855..b564942be5a3 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -2545,6 +2545,12 @@ static void __exit nbd_cleanup(void)
- 	struct nbd_device *nbd;
- 	LIST_HEAD(del_list);
- 
-+	/*
-+	 * Unregister netlink interface prior to waiting
-+	 * for the completion of netlink commands.
-+	 */
-+	genl_unregister_family(&nbd_genl_family);
-+
- 	nbd_dbg_close();
- 
- 	mutex_lock(&nbd_index_mutex);
-@@ -2563,7 +2569,6 @@ static void __exit nbd_cleanup(void)
- 	destroy_workqueue(nbd_del_wq);
- 
- 	idr_destroy(&nbd_index_idr);
--	genl_unregister_family(&nbd_genl_family);
- 	unregister_blkdev(NBD_MAJOR, "nbd");
- }
- 
--- 
-2.35.1
-
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -265,6 +265,9 @@ smb2_reconnect(__le16 smb2_command, stru
+ 			rc = -EHOSTDOWN;
+ 			mutex_unlock(&tcon->ses->session_mutex);
+ 			goto failed;
++		} else if (rc) {
++			mutex_unlock(&ses->session_mutex);
++			goto out;
+ 		}
+ 	}
+ 	if (rc || !tcon->need_reconnect) {
 
 
