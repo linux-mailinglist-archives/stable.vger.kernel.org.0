@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3EB954906B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:25:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC61C549117
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356055AbiFMM5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:57:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49962 "EHLO
+        id S1354485AbiFMLcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:32:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356281AbiFMMzR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A167B85E;
-        Mon, 13 Jun 2022 04:15:43 -0700 (PDT)
+        with ESMTP id S1354428AbiFML33 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 101FDD114;
+        Mon, 13 Jun 2022 03:44:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16B1960B6B;
-        Mon, 13 Jun 2022 11:15:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B5E3C3411E;
-        Mon, 13 Jun 2022 11:15:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE165B80D3A;
+        Mon, 13 Jun 2022 10:44:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12DE5C34114;
+        Mon, 13 Jun 2022 10:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118942;
-        bh=CrkCWVSL0i8pqXnfO+c68e2gA3PsrZBJFkdZ5anU2jE=;
+        s=korg; t=1655117058;
+        bh=ks8AUTzv45BBMdK0AfXxP1LnKPwk7Pdv4+o0tAPD4VI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dta3aNZo0lbYQ2MFPz2ao6XaoTN2+sriujcPa33sX94YZIBeh962z0umEd6BDQumo
-         cnAtcmDUInKsuJDErfx9vZXBsBe+nf8v4JLnBbxXZqxqR4QNALKyTltbh8oPdYrppn
-         291pm/nyooNWF200eVjmPR+mK5zOpCbrowTcDT6k=
+        b=JM4BY4f+iV/cZVKJ6xg+mlA6uk0D4CUxkWr9yPyb7lejs85I2rojiCNdUhlRaLqjC
+         8QDn1FG54uojmrvG+KqvpxlPLt6+vLldt1Bu9yC3XYp7fmoRvBHok06IZFMAfYfi+w
+         61e8Wkk+3IMI3gxw0EmPfylK2HE6zff6TsPgB+vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 046/247] rtc: mt6397: check return value after calling platform_get_resource()
+        "yukuai (C)" <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 275/411] bfq: Drop pointless unlock-lock pair
 Date:   Mon, 13 Jun 2022 12:09:08 +0200
-Message-Id: <20220613094924.346116045@linuxfoundation.org>
+Message-Id: <20220613094937.003901965@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit d3b43eb505bffb8e4cdf6800c15660c001553fe6 ]
+commit fc84e1f941b91221092da5b3102ec82da24c5673 upstream.
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+In bfq_insert_request() we unlock bfqd->lock only to call
+trace_block_rq_insert() and then lock bfqd->lock again. This is really
+pointless since tracing is disabled if we really care about performance
+and even if the tracepoint is enabled, it is a quick call.
 
-Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220505125043.1594771-1-yangyingliang@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org
+Tested-by: "yukuai (C)" <yukuai3@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220401102752.8599-5-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-mt6397.c | 2 ++
- 1 file changed, 2 insertions(+)
+ block/bfq-iosched.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 80dc479a6ff0..1d297af80f87 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -269,6 +269,8 @@ static int mtk_rtc_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -5529,11 +5529,8 @@ static void bfq_insert_request(struct bl
+ 		return;
+ 	}
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res)
-+		return -EINVAL;
- 	rtc->addr_base = res->start;
+-	spin_unlock_irq(&bfqd->lock);
+-
+ 	blk_mq_sched_request_inserted(rq);
  
- 	rtc->data = of_device_get_match_data(&pdev->dev);
--- 
-2.35.1
-
+-	spin_lock_irq(&bfqd->lock);
+ 	bfqq = bfq_init_rq(rq);
+ 	if (!bfqq || at_head || blk_rq_is_passthrough(rq)) {
+ 		if (at_head)
 
 
