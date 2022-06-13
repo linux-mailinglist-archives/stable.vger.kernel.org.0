@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4575491C2
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:29:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D5A65497FC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348926AbiFMKoh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:44:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58578 "EHLO
+        id S1357022AbiFMLwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347266AbiFMKlX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:41:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA1FC22B3C;
-        Mon, 13 Jun 2022 03:23:50 -0700 (PDT)
+        with ESMTP id S1356486AbiFMLuf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:50:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 939B1245B4;
+        Mon, 13 Jun 2022 03:54:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 816B2B80E2D;
-        Mon, 13 Jun 2022 10:23:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5558C34114;
-        Mon, 13 Jun 2022 10:23:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 442FAB80D3F;
+        Mon, 13 Jun 2022 10:54:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2801C34114;
+        Mon, 13 Jun 2022 10:54:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115828;
-        bh=16YFqYyhqlF8wjxC3u5YtSZGbIxxSWXzvVuA+3jo0aI=;
+        s=korg; t=1655117643;
+        bh=1sqiWTJifetRqjEHZwqLt561cgaDMu9t5D9GEacKu30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NdI/GzfLet+JOhq2sUK/RDFz/XM+F399/678cQn1tcBZAbTs5HsbsE56XtzzFkykz
-         nACB0yL9lLKKVQ1tRvdswyFb0DSbeRqTqDPF5djA0M99ry32AaLsc+72kYJfxgz5PL
-         SPYYQgqaoo7gqW2QtHDjlA2Ch3YivqNjrqTtIhW8=
+        b=hLrTzqiqmidAdQKFDIPHxkx3YW9syQP+3Fwu76cMK/3nrzJVWocBncu1Qm9zrZLRh
+         tlljs62ii0Qr4YFXZK322VrTWx86y9BRdZQsdcLBzhn48CK/5qFUsMPbH3VpRz3toB
+         9Gxpn3i1mevoTkSb3nqtzEMMUjkT1OxD35R99lag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Finn Thain <fthain@linux-m68k.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Borislav Petkov <bp@suse.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 045/218] macintosh/via-pmu: Fix build failure when CONFIG_INPUT is disabled
+Subject: [PATCH 4.19 079/287] x86/pm: Fix false positive kmemleak report in msr_build_context()
 Date:   Mon, 13 Jun 2022 12:08:23 +0200
-Message-Id: <20220613094919.085019575@linuxfoundation.org>
+Message-Id: <20220613094926.271397801@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,80 +57,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@linux-m68k.org>
+From: Matthieu Baerts <matthieu.baerts@tessares.net>
 
-[ Upstream commit 86ce436e30d86327c9f5260f718104ae7b21f506 ]
+[ Upstream commit b0b592cf08367719e1d1ef07c9f136e8c17f7ec3 ]
 
-drivers/macintosh/via-pmu-event.o: In function `via_pmu_event':
-via-pmu-event.c:(.text+0x44): undefined reference to `input_event'
-via-pmu-event.c:(.text+0x68): undefined reference to `input_event'
-via-pmu-event.c:(.text+0x94): undefined reference to `input_event'
-via-pmu-event.c:(.text+0xb8): undefined reference to `input_event'
-drivers/macintosh/via-pmu-event.o: In function `via_pmu_event_init':
-via-pmu-event.c:(.init.text+0x20): undefined reference to `input_allocate_device'
-via-pmu-event.c:(.init.text+0xc4): undefined reference to `input_register_device'
-via-pmu-event.c:(.init.text+0xd4): undefined reference to `input_free_device'
-make[1]: *** [Makefile:1155: vmlinux] Error 1
-make: *** [Makefile:350: __build_one_by_one] Error 2
+Since
 
-Don't call into the input subsystem unless CONFIG_INPUT is built-in.
+  e2a1256b17b1 ("x86/speculation: Restore speculation related MSRs during S3 resume")
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Finn Thain <fthain@linux-m68k.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/5edbe76ce68227f71e09af4614cc4c1bd61c7ec8.1649326292.git.fthain@linux-m68k.org
+kmemleak reports this issue:
+
+  unreferenced object 0xffff888009cedc00 (size 256):
+    comm "swapper/0", pid 1, jiffies 4294693823 (age 73.764s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 48 00 00 00 00 00 00 00  ........H.......
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      msr_build_context (include/linux/slab.h:621)
+      pm_check_save_msr (arch/x86/power/cpu.c:520)
+      do_one_initcall (init/main.c:1298)
+      kernel_init_freeable (init/main.c:1370)
+      kernel_init (init/main.c:1504)
+      ret_from_fork (arch/x86/entry/entry_64.S:304)
+
+Reproducer:
+
+  - boot the VM with a debug kernel config (see
+    https://github.com/multipath-tcp/mptcp_net-next/issues/268)
+  - wait ~1 minute
+  - start a kmemleak scan
+
+The root cause here is alignment within the packed struct saved_context
+(from suspend_64.h). Kmemleak only searches for pointers that are
+aligned (see how pointers are scanned in kmemleak.c), but pahole shows
+that the saved_msrs struct member and all members after it in the
+structure are unaligned:
+
+  struct saved_context {
+    struct pt_regs             regs;                 /*     0   168 */
+    /* --- cacheline 2 boundary (128 bytes) was 40 bytes ago --- */
+    u16                        ds;                   /*   168     2 */
+
+    ...
+
+    u64                        misc_enable;          /*   232     8 */
+    bool                       misc_enable_saved;    /*   240     1 */
+
+   /* Note below odd offset values for the remainder of this struct */
+
+    struct saved_msrs          saved_msrs;           /*   241    16 */
+    /* --- cacheline 4 boundary (256 bytes) was 1 bytes ago --- */
+    long unsigned int          efer;                 /*   257     8 */
+    u16                        gdt_pad;              /*   265     2 */
+    struct desc_ptr            gdt_desc;             /*   267    10 */
+    u16                        idt_pad;              /*   277     2 */
+    struct desc_ptr            idt;                  /*   279    10 */
+    u16                        ldt;                  /*   289     2 */
+    u16                        tss;                  /*   291     2 */
+    long unsigned int          tr;                   /*   293     8 */
+    long unsigned int          safety;               /*   301     8 */
+    long unsigned int          return_address;       /*   309     8 */
+
+    /* size: 317, cachelines: 5, members: 25 */
+    /* last cacheline: 61 bytes */
+  } __attribute__((__packed__));
+
+Move misc_enable_saved to the end of the struct declaration so that
+saved_msrs fits in before the cacheline 4 boundary.
+
+The comment above the saved_context declaration says to fix wakeup_64.S
+file and __save/__restore_processor_state() if the struct is modified:
+it looks like all the accesses in wakeup_64.S are done through offsets
+which are computed at build-time. Update that comment accordingly.
+
+At the end, the false positive kmemleak report is due to a limitation
+from kmemleak but it is always good to avoid unaligned members for
+optimisation purposes.
+
+Please note that it looks like this issue is not new, e.g.
+
+  https://lore.kernel.org/all/9f1bb619-c4ee-21c4-a251-870bd4db04fa@lwfinger.net/
+  https://lore.kernel.org/all/94e48fcd-1dbd-ebd2-4c91-f39941735909@molgen.mpg.de/
+
+  [ bp: Massage + cleanup commit message. ]
+
+Fixes: 7a9c2dd08ead ("x86/pm: Introduce quirk framework to save/restore extra MSR registers around suspend/resume")
+Suggested-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/20220426202138.498310-1-matthieu.baerts@tessares.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/Kconfig   | 4 ++++
- drivers/macintosh/Makefile  | 3 ++-
- drivers/macintosh/via-pmu.c | 2 +-
- 3 files changed, 7 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/suspend_32.h |  2 +-
+ arch/x86/include/asm/suspend_64.h | 12 ++++++++----
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/macintosh/Kconfig b/drivers/macintosh/Kconfig
-index 97a420c11eed..5e47d91da519 100644
---- a/drivers/macintosh/Kconfig
-+++ b/drivers/macintosh/Kconfig
-@@ -77,6 +77,10 @@ config ADB_PMU
- 	  this device; you should do so if your machine is one of those
- 	  mentioned above.
+diff --git a/arch/x86/include/asm/suspend_32.h b/arch/x86/include/asm/suspend_32.h
+index 8be6afb58471..32662cbaa27e 100644
+--- a/arch/x86/include/asm/suspend_32.h
++++ b/arch/x86/include/asm/suspend_32.h
+@@ -21,7 +21,6 @@ struct saved_context {
+ #endif
+ 	unsigned long cr0, cr2, cr3, cr4;
+ 	u64 misc_enable;
+-	bool misc_enable_saved;
+ 	struct saved_msrs saved_msrs;
+ 	struct desc_ptr gdt_desc;
+ 	struct desc_ptr idt;
+@@ -30,6 +29,7 @@ struct saved_context {
+ 	unsigned long tr;
+ 	unsigned long safety;
+ 	unsigned long return_address;
++	bool misc_enable_saved;
+ } __attribute__((packed));
  
-+config ADB_PMU_EVENT
-+	def_bool y
-+	depends on ADB_PMU && INPUT=y
-+
- config ADB_PMU_LED
- 	bool "Support for the Power/iBook front LED"
- 	depends on ADB_PMU
-diff --git a/drivers/macintosh/Makefile b/drivers/macintosh/Makefile
-index ee803638e595..ff099c7d4edd 100644
---- a/drivers/macintosh/Makefile
-+++ b/drivers/macintosh/Makefile
-@@ -12,7 +12,8 @@ obj-$(CONFIG_MAC_EMUMOUSEBTN)	+= mac_hid.o
- obj-$(CONFIG_INPUT_ADBHID)	+= adbhid.o
- obj-$(CONFIG_ANSLCD)		+= ans-lcd.o
+ #endif /* _ASM_X86_SUSPEND_32_H */
+diff --git a/arch/x86/include/asm/suspend_64.h b/arch/x86/include/asm/suspend_64.h
+index a7af9f53c0cb..b2861400c6a2 100644
+--- a/arch/x86/include/asm/suspend_64.h
++++ b/arch/x86/include/asm/suspend_64.h
+@@ -14,9 +14,13 @@
+  * Image of the saved processor state, used by the low level ACPI suspend to
+  * RAM code and by the low level hibernation code.
+  *
+- * If you modify it, fix arch/x86/kernel/acpi/wakeup_64.S and make sure that
+- * __save/__restore_processor_state(), defined in arch/x86/kernel/suspend_64.c,
+- * still work as required.
++ * If you modify it, check how it is used in arch/x86/kernel/acpi/wakeup_64.S
++ * and make sure that __save/__restore_processor_state(), defined in
++ * arch/x86/power/cpu.c, still work as required.
++ *
++ * Because the structure is packed, make sure to avoid unaligned members. For
++ * optimisation purposes but also because tools like kmemleak only search for
++ * pointers that are aligned.
+  */
+ struct saved_context {
+ 	struct pt_regs regs;
+@@ -36,7 +40,6 @@ struct saved_context {
  
--obj-$(CONFIG_ADB_PMU)		+= via-pmu.o via-pmu-event.o
-+obj-$(CONFIG_ADB_PMU)		+= via-pmu.o
-+obj-$(CONFIG_ADB_PMU_EVENT)	+= via-pmu-event.o
- obj-$(CONFIG_ADB_PMU_LED)	+= via-pmu-led.o
- obj-$(CONFIG_PMAC_BACKLIGHT)	+= via-pmu-backlight.o
- obj-$(CONFIG_ADB_CUDA)		+= via-cuda.o
-diff --git a/drivers/macintosh/via-pmu.c b/drivers/macintosh/via-pmu.c
-index f6e040fcad9a..9d6828f49779 100644
---- a/drivers/macintosh/via-pmu.c
-+++ b/drivers/macintosh/via-pmu.c
-@@ -1440,7 +1440,7 @@ pmu_handle_data(unsigned char *data, int len)
- 		pmu_pass_intr(data, len);
- 		/* len == 6 is probably a bad check. But how do I
- 		 * know what PMU versions send what events here? */
--		if (len == 6) {
-+		if (IS_ENABLED(CONFIG_ADB_PMU_EVENT) && len == 6) {
- 			via_pmu_event(PMU_EVT_POWER, !!(data[1]&8));
- 			via_pmu_event(PMU_EVT_LID, data[1]&1);
- 		}
+ 	unsigned long cr0, cr2, cr3, cr4, cr8;
+ 	u64 misc_enable;
+-	bool misc_enable_saved;
+ 	struct saved_msrs saved_msrs;
+ 	unsigned long efer;
+ 	u16 gdt_pad; /* Unused */
+@@ -48,6 +51,7 @@ struct saved_context {
+ 	unsigned long tr;
+ 	unsigned long safety;
+ 	unsigned long return_address;
++	bool misc_enable_saved;
+ } __attribute__((packed));
+ 
+ #define loaddebug(thread,register) \
 -- 
 2.35.1
 
