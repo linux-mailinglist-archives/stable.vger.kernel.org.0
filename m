@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93F56549961
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04956548A51
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240728AbiFMQ7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 12:59:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46016 "EHLO
+        id S1385626AbiFMOp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:45:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241607AbiFMQ6W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 12:58:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DBADB8BE4;
-        Mon, 13 Jun 2022 04:51:46 -0700 (PDT)
+        with ESMTP id S1386311AbiFMOpC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:45:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1DD7B82D1;
+        Mon, 13 Jun 2022 04:51:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98A67B80EA7;
-        Mon, 13 Jun 2022 11:51:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F93EC34114;
-        Mon, 13 Jun 2022 11:51:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5275614A0;
+        Mon, 13 Jun 2022 11:51:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B661CC34114;
+        Mon, 13 Jun 2022 11:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121072;
-        bh=nczovht0mv0hk19j4VPkQsnSiinkGPLMITM2RLJY19k=;
+        s=korg; t=1655121075;
+        bh=2Bnq75o17SAeC1aGnsuLEf+b1BM26FPk/fvf4u8So08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wKyaSQzuL8CxHqt/sH2sQoZSux3KXXwzBjddMOWPBvN23OVyKFtJkLdjyTND0PoCp
-         4Zi+u7lhQvvEF3QupRos/Pq/p/ryjYrht1PjksuIGnu3CjMCWb+Umn1DQMgcVcTW19
-         5INYNtwkVaSNz2iZlfDP4kniKjZX/O6jCN+Uo/DY=
+        b=DhtjVElskGIhsDchLE5cOWgiB6/6rLzFqSUGahrXMfFw/1+1IUWs9UUAvSZw36IZu
+         Hzz5ULZT0dfAOIpVHCRcuhmC1IsBiwN1Hm0DoF9PNbZFSOPYrEpfGqub0413Im4l3d
+         +LKR+EqYTX/+sfPvi20gLZnjlK45GAVslbHVxXko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Soller <jeremy@system76.com>,
-        Tim Crawford <tcrawford@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 261/298] ALSA: hda/realtek: Add quirk for HP Dev One
-Date:   Mon, 13 Jun 2022 12:12:35 +0200
-Message-Id: <20220613094932.991216170@linuxfoundation.org>
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        Enzo Matsumiya <ematsumiya@suse.de>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.17 262/298] cifs: return errors during session setup during reconnects
+Date:   Mon, 13 Jun 2022 12:12:36 +0200
+Message-Id: <20220613094933.020476728@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
 References: <20220613094924.913340374@linuxfoundation.org>
@@ -54,32 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Soller <jeremy@system76.com>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-commit 5f3d696eea916693b2d4ed7e62794653fcdd6ec0 upstream.
+commit 8ea21823aa584b55ba4b861307093b78054b0c1b upstream.
 
-Enables the audio mute LEDs and limits the mic boost to avoid picking up
-noise.
+During reconnects, we check the return value from
+cifs_negotiate_protocol, and have handlers for both success
+and failures. But if that passes, and cifs_setup_session
+returns any errors other than -EACCES, we do not handle
+that. This fix adds a handler for that, so that we don't
+go ahead and try a tree_connect on a failed session.
 
-Signed-off-by: Jeremy Soller <jeremy@system76.com>
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220608140111.23170-1-tcrawford@system76.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Enzo Matsumiya <ematsumiya@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/cifs/smb2pdu.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9056,6 +9056,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x88d0, "HP Pavilion 15-eh1xxx (mainboard 88D0)", ALC287_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x89c3, "HP", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x89ca, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
-+	SND_PCI_QUIRK(0x103c, 0x8a78, "HP Dev One", ALC285_FIXUP_HP_LIMIT_INT_MIC_BOOST),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
- 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -288,6 +288,9 @@ smb2_reconnect(__le16 smb2_command, stru
+ 			mutex_unlock(&ses->session_mutex);
+ 			rc = -EHOSTDOWN;
+ 			goto failed;
++		} else if (rc) {
++			mutex_unlock(&ses->session_mutex);
++			goto out;
+ 		}
+ 	} else {
+ 		mutex_unlock(&ses->session_mutex);
 
 
