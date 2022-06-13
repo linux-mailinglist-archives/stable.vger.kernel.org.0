@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4C6549823
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E815548D94
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355576AbiFMLto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:49:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41660 "EHLO
+        id S1346500AbiFMKkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:40:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357579AbiFMLqY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:46:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B97D26103;
-        Mon, 13 Jun 2022 03:52:52 -0700 (PDT)
+        with ESMTP id S1347341AbiFMKiz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:38:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AB6B13EBA;
+        Mon, 13 Jun 2022 03:23:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81AEDB80E93;
-        Mon, 13 Jun 2022 10:52:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCC6FC34114;
-        Mon, 13 Jun 2022 10:52:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B896CB80EA3;
+        Mon, 13 Jun 2022 10:23:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 260E8C3411C;
+        Mon, 13 Jun 2022 10:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117569;
-        bh=8YH6x0Tqyp6rJkWOfjcRIC8Y6lDqvyPZclzyU51XQPY=;
+        s=korg; t=1655115784;
+        bh=svTYRwQoEOZR9ALrZn3icahIfblnTbsuQORE2Oif/Ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rysj93qJET1Pb9U3VUuDsCpyODl88gbeKjgKV00zyaFiRn9yKGn+A3R1aulDdPlkI
-         13mG7y1w+q4qdLFzP6Nxl+uzhZbJ1u1OxwcZPR3bZCOJtq+ahtJ1pFZbL6pse1alKm
-         kdmWrpRvtow6leceEAufXWF04w95+ZRgtukh+mgw=
+        b=vaox896f9rAYvSodYoc1n/p+dg8NQdS84Z/EST5OFGvwDb+S7s8q//WhAkVyxSUXB
+         fl2eEhfDdaKTDNnVUKJJfTNiAMZLADZJ0g9nitUDR6tCiym0ov9MapsUTg2+sZxcBW
+         O6fwoq28LWOw9yLaSQmFsFlP0dLKcaV0N5G0EONg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ammar Faizi <ammarfaizi2@gnuweeb.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 063/287] x86/delay: Fix the wrong asm constraint in delay_loop()
+        stable@vger.kernel.org, Kyle Smith <kyles@hpe.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 029/218] nvme-pci: fix a NULL pointer dereference in nvme_alloc_admin_tags
 Date:   Mon, 13 Jun 2022 12:08:07 +0200
-Message-Id: <20220613094925.781139943@linuxfoundation.org>
+Message-Id: <20220613094915.157160552@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+From: Smith, Kyle Miller (Nimble Kernel) <kyles@hpe.com>
 
-[ Upstream commit b86eb74098a92afd789da02699b4b0dd3f73b889 ]
+[ Upstream commit da42761181627e9bdc37d18368b827948a583929 ]
 
-The asm constraint does not reflect the fact that the asm statement can
-modify the value of the local variable loops. Which it does.
+In nvme_alloc_admin_tags, the admin_q can be set to an error (typically
+-ENOMEM) if the blk_mq_init_queue call fails to set up the queue, which
+is checked immediately after the call. However, when we return the error
+message up the stack, to nvme_reset_work the error takes us to
+nvme_remove_dead_ctrl()
+  nvme_dev_disable()
+   nvme_suspend_queue(&dev->queues[0]).
 
-Specifying the wrong constraint may lead to undefined behavior, it may
-clobber random stuff (e.g. local variable, important temporary value in
-regs, etc.). This is especially dangerous when the compiler decides to
-inline the function and since it doesn't know that the value gets
-modified, it might decide to use it from a register directly without
-reloading it.
+Here, we only check that the admin_q is non-NULL, rather than not
+an error or NULL, and begin quiescing a queue that never existed, leading
+to bad / NULL pointer dereference.
 
-Change the constraint to "+a" to denote that the first argument is an
-input and an output argument.
-
-  [ bp: Fix typo, massage commit message. ]
-
-Fixes: e01b70ef3eb3 ("x86: fix bug in arch/i386/lib/delay.c file, delay_loop function")
-Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220329104705.65256-2-ammarfaizi2@gnuweeb.org
+Signed-off-by: Kyle Smith <kyles@hpe.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/delay.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/host/pci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/lib/delay.c b/arch/x86/lib/delay.c
-index 614c2c6b1959..68ca883abfdb 100644
---- a/arch/x86/lib/delay.c
-+++ b/arch/x86/lib/delay.c
-@@ -43,8 +43,8 @@ static void delay_loop(unsigned long loops)
- 		"	jnz 2b		\n"
- 		"3:	dec %0		\n"
- 
--		: /* we don't need output */
--		:"a" (loops)
-+		: "+a" (loops)
-+		:
- 	);
- }
- 
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 92f269a0846c..de23f2814877 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1424,6 +1424,7 @@ static int nvme_alloc_admin_tags(struct nvme_dev *dev)
+ 		dev->ctrl.admin_q = blk_mq_init_queue(&dev->admin_tagset);
+ 		if (IS_ERR(dev->ctrl.admin_q)) {
+ 			blk_mq_free_tag_set(&dev->admin_tagset);
++			dev->ctrl.admin_q = NULL;
+ 			return -ENOMEM;
+ 		}
+ 		if (!blk_get_queue(dev->ctrl.admin_q)) {
 -- 
 2.35.1
 
