@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2580548E25
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FCEE549636
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358245AbiFMMGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:06:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49570 "EHLO
+        id S1351226AbiFMMZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:25:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358656AbiFMMEb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:04:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AB64FC7E;
-        Mon, 13 Jun 2022 03:57:43 -0700 (PDT)
+        with ESMTP id S1355547AbiFMMX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:23:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E57A27B20;
+        Mon, 13 Jun 2022 04:05:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 514C9B80E5E;
-        Mon, 13 Jun 2022 10:57:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7433C34114;
-        Mon, 13 Jun 2022 10:57:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7FB860F9A;
+        Mon, 13 Jun 2022 11:05:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05BBBC34114;
+        Mon, 13 Jun 2022 11:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117860;
-        bh=OwXxyTvLpXylbZFQ6nGc0TqyMyCdzgZkcAHPcYlKQdg=;
+        s=korg; t=1655118306;
+        bh=pl/Mo2zTG3iyAG3IF2rzNQ79wq94PhZgwe/irXGYYwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eVJt5KUKqequJnbB9l9bUoO6jpKQx6u6vkea095vGfp5HCWJH5Skp23iHl73yAoSi
-         uxk7U6GkN3nHTDR+8QZehXbo7NNsbaeOjegGfbXx+7Un9pKBXQZET6fcgEXqJlcNli
-         M5xQgw27pIp8TeIgeNgWsrudQIk/fgv0A2T3b2LQ=
+        b=ri5XAINXBhLaBiaj+DqjdCUEVcmf5GfmRurfbc+X8zdeBjJk8S+IOtpdsNuJj+saf
+         dThEvfFsIWt6hezckLYi1GWAyhvmZDfKhBELhyiezhdyDTEQcZ1eCHmJPL0DBH+Fki
+         ENBebYb4+k/oS8Ae/T9DFhs17KG/9G8n/5aoRxaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Ajay Kaher <akaher@vmware.com>,
-        Aaron Adams <edg-e@nccgroup.com>
-Subject: [PATCH 4.19 146/287] netfilter: nf_tables: disallow non-stateful expression in sets earlier
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Niels Dossche <dossche.niels@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 010/172] usb: usbip: add missing device lock on tweak configuration cmd
 Date:   Mon, 13 Jun 2022 12:09:30 +0200
-Message-Id: <20220613094928.304080687@linuxfoundation.org>
+Message-Id: <20220613094852.876973328@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
+[ Upstream commit d088fabace2ca337b275d1d4b36db4fe7771e44f ]
 
-Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
-instantiation"), it is possible to attach stateful expressions to set
-elements.
+The function documentation of usb_set_configuration says that its
+callers should hold the device lock. This lock is held for all
+callsites except tweak_set_configuration_cmd. The code path can be
+executed for example when attaching a remote USB device.
+The solution is to surround the call by the device lock.
 
-cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
-and destroy phase") introduces conditional destruction on the object to
-accomodate transaction semantics.
+This bug was found using my experimental own-developed static analysis
+tool, which reported the missing lock on v5.17.2. I manually verified
+this bug report by doing code review as well. I runtime checked that
+the required lock is not held. I compiled and runtime tested this on
+x86_64 with a USB mouse. After applying this patch, my analyser no
+longer reports this potential bug.
 
-nft_expr_init() calls expr->ops->init() first, then check for
-NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
-lookup expressions which points to a set, which might lead to UAF since
-the set is not properly detached from the set->binding for this case.
-Anyway, this combination is non-sense from nf_tables perspective.
-
-This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
-expr->ops->init() is called.
-
-The reporter provides a KASAN splat and a poc reproducer (similar to
-those autogenerated by syzbot to report use-after-free errors). It is
-unknown to me if they are using syzbot or if they use similar automated
-tool to locate the bug that they are reporting.
-
-For the record, this is the KASAN splat.
-
-[   85.431824] ==================================================================
-[   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
-[   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
-[   85.434756]
-[   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
-[   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
-
-Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
-Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-[Ajay: Regenerated the patch for v4.19.y]
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Fixes: 2c8c98158946 ("staging: usbip: let client choose device configuration")
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Link: https://lore.kernel.org/r/20220412165055.257113-1-dossche.niels@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c |   16 ++++++++++------
- net/netfilter/nft_dynset.c    |    3 ---
- 2 files changed, 10 insertions(+), 9 deletions(-)
+ drivers/usb/usbip/stub_rx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -2167,27 +2167,31 @@ struct nft_expr *nft_expr_init(const str
+diff --git a/drivers/usb/usbip/stub_rx.c b/drivers/usb/usbip/stub_rx.c
+index 325c22008e53..5dd41e8215e0 100644
+--- a/drivers/usb/usbip/stub_rx.c
++++ b/drivers/usb/usbip/stub_rx.c
+@@ -138,7 +138,9 @@ static int tweak_set_configuration_cmd(struct urb *urb)
+ 	req = (struct usb_ctrlrequest *) urb->setup_packet;
+ 	config = le16_to_cpu(req->wValue);
  
- 	err = nf_tables_expr_parse(ctx, nla, &info);
- 	if (err < 0)
--		goto err1;
-+		goto err_expr_parse;
-+
-+	err = -EOPNOTSUPP;
-+	if (!(info.ops->type->flags & NFT_EXPR_STATEFUL))
-+		goto err_expr_stateful;
- 
- 	err = -ENOMEM;
- 	expr = kzalloc(info.ops->size, GFP_KERNEL);
- 	if (expr == NULL)
--		goto err2;
-+		goto err_expr_stateful;
- 
- 	err = nf_tables_newexpr(ctx, &info, expr);
- 	if (err < 0)
--		goto err3;
-+		goto err_expr_new;
- 
- 	return expr;
--err3:
-+err_expr_new:
- 	kfree(expr);
--err2:
-+err_expr_stateful:
- 	owner = info.ops->type->owner;
- 	if (info.ops->type->release_ops)
- 		info.ops->type->release_ops(info.ops);
- 
- 	module_put(owner);
--err1:
-+err_expr_parse:
- 	return ERR_PTR(err);
- }
- 
---- a/net/netfilter/nft_dynset.c
-+++ b/net/netfilter/nft_dynset.c
-@@ -193,9 +193,6 @@ static int nft_dynset_init(const struct
- 			return PTR_ERR(priv->expr);
- 
- 		err = -EOPNOTSUPP;
--		if (!(priv->expr->ops->type->flags & NFT_EXPR_STATEFUL))
--			goto err1;
--
- 		if (priv->expr->ops->type->flags & NFT_EXPR_GC) {
- 			if (set->flags & NFT_SET_TIMEOUT)
- 				goto err1;
++	usb_lock_device(sdev->udev);
+ 	err = usb_set_configuration(sdev->udev, config);
++	usb_unlock_device(sdev->udev);
+ 	if (err && err != -ENODEV)
+ 		dev_err(&sdev->udev->dev, "can't set config #%d, error %d\n",
+ 			config, err);
+-- 
+2.35.1
+
 
 
