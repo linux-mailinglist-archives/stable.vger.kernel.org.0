@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFE6454980E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8016754886F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354967AbiFMMZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:25:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34216 "EHLO
+        id S1354130AbiFMLbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:31:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356286AbiFMMYH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:24:07 -0400
+        with ESMTP id S1354775AbiFMLaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:07 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 400AD27CF9;
-        Mon, 13 Jun 2022 04:05:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D543F883;
+        Mon, 13 Jun 2022 03:45:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82561B80D31;
-        Mon, 13 Jun 2022 11:05:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D77ABC36B0A;
-        Mon, 13 Jun 2022 11:05:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8144B80D3F;
+        Mon, 13 Jun 2022 10:45:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C67DC385A5;
+        Mon, 13 Jun 2022 10:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118320;
-        bh=/FzyOH71urNZyAIOe//wJh5fam/TnFMtc33o5CDYOds=;
+        s=korg; t=1655117137;
+        bh=dbYW1G1XHi9kOOSHtZgBJpuzq61XOfENbc+JceeultI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NB1MKqc6R2oLOcyrZVLxIrmh6dyQdbaWpYWUmOPXBfMszp+t104UfS4DLFAgj7MiR
-         nV3WSo2xSO/Tj+22ViPqGMHRECMHMhvz2jcBO3L0edl+cqMgj6sQBpC3+JqcTy4mXw
-         nOsZcP45gqhjJKSYJmPY2yimfbCDax2jRhb3gkoI=
+        b=HT9M73gUaNecgfBQNQTebouEugGJ9W4QClWAP3CyqJo/A7o9nP/tkf6QtM0x1dOJL
+         DYYRw99r97N1L6hZ1Pe0wBDIw6KkuQgkRD2K5nmL+Bvkr8mowYWOeeglvQecktE6Nc
+         wIM7eqi7NfVYf/tECzFPkXvm6fK+78JtGSwp4O4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Mike Leach <mike.leach@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 015/172] rpmsg: qcom_smd: Fix irq_of_parse_and_map() return value
+Subject: [PATCH 5.4 302/411] coresight: cpu-debug: Replace mutex with mutex_trylock on panic notifier
 Date:   Mon, 13 Jun 2022 12:09:35 +0200
-Message-Id: <20220613094854.117011852@linuxfoundation.org>
+Message-Id: <20220613094937.810485181@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-[ Upstream commit 1a358d35066487d228a68303d808bc4721c6b1b9 ]
+[ Upstream commit 1adff542d67a2ed1120955cb219bfff8a9c53f59 ]
 
-The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
+The panic notifier infrastructure executes registered callbacks when
+a panic event happens - such callbacks are executed in atomic context,
+with interrupts and preemption disabled in the running CPU and all other
+CPUs disabled. That said, mutexes in such context are not a good idea.
 
-Fixes: 53e2822e56c7 ("rpmsg: Introduce Qualcomm SMD backend")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220422105326.78713-1-krzysztof.kozlowski@linaro.org
+This patch replaces a regular mutex with a mutex_trylock safer approach;
+given the nature of the mutex used in the driver, it should be pretty
+uncommon being unable to acquire such mutex in the panic path, hence
+no functional change should be observed (and if it is, that would be
+likely a deadlock with the regular mutex).
+
+Fixes: 2227b7c74634 ("coresight: add support for CPU debug module")
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Mike Leach <mike.leach@linaro.org>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20220427224924.592546-10-gpiccoli@igalia.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rpmsg/qcom_smd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwtracing/coresight/coresight-cpu-debug.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
-index 19903de6268d..db5f6009fb49 100644
---- a/drivers/rpmsg/qcom_smd.c
-+++ b/drivers/rpmsg/qcom_smd.c
-@@ -1388,7 +1388,7 @@ static int qcom_smd_parse_edge(struct device *dev,
- 		edge->name = node->name;
+diff --git a/drivers/hwtracing/coresight/coresight-cpu-debug.c b/drivers/hwtracing/coresight/coresight-cpu-debug.c
+index 96544b348c27..ebe34fd6adb0 100644
+--- a/drivers/hwtracing/coresight/coresight-cpu-debug.c
++++ b/drivers/hwtracing/coresight/coresight-cpu-debug.c
+@@ -379,9 +379,10 @@ static int debug_notifier_call(struct notifier_block *self,
+ 	int cpu;
+ 	struct debug_drvdata *drvdata;
  
- 	irq = irq_of_parse_and_map(node, 0);
--	if (irq < 0) {
-+	if (!irq) {
- 		dev_err(dev, "required smd interrupt missing\n");
- 		ret = irq;
- 		goto put_node;
+-	mutex_lock(&debug_lock);
++	/* Bail out if we can't acquire the mutex or the functionality is off */
++	if (!mutex_trylock(&debug_lock))
++		return NOTIFY_DONE;
+ 
+-	/* Bail out if the functionality is disabled */
+ 	if (!debug_enable)
+ 		goto skip_dump;
+ 
+@@ -400,7 +401,7 @@ static int debug_notifier_call(struct notifier_block *self,
+ 
+ skip_dump:
+ 	mutex_unlock(&debug_lock);
+-	return 0;
++	return NOTIFY_DONE;
+ }
+ 
+ static struct notifier_block debug_notifier = {
 -- 
 2.35.1
 
