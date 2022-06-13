@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75628548936
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70468549491
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357815AbiFMNNG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:13:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42366 "EHLO
+        id S1380434AbiFMN65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:58:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359600AbiFMNKK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:10:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12EE3AA71;
-        Mon, 13 Jun 2022 04:21:11 -0700 (PDT)
+        with ESMTP id S1380823AbiFMNzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:55:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D11F7819A3;
+        Mon, 13 Jun 2022 04:36:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0464D60FC4;
-        Mon, 13 Jun 2022 11:21:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13EDDC3411E;
-        Mon, 13 Jun 2022 11:21:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EBBFB80EC8;
+        Mon, 13 Jun 2022 11:35:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4FE6C34114;
+        Mon, 13 Jun 2022 11:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119270;
-        bh=shILPyh39w0dy8dd5dmEgIEAHhtfM2jGyeflTqQGd6Q=;
+        s=korg; t=1655120158;
+        bh=hfRMViOCfvBLVUHj4KYsbjEGrRKSChZANtWUT50oN6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EvEXmGgAoe0XulIxXvP82UokXDcMCO1sNg7CCH/CkIXsNUoOAhaY2VaxLC1SCa/Fc
-         ONhAR072vcxrAjeL/WcQ+17wKHt7wCjDcauo0BdM0c8l/BZSxpT6Q9H0qpePeLud+/
-         V8SarbL+KkNIIJm6GYunky2+X+B0qnxAmXSAHLu0=
+        b=rq2XSbZbf5TM0ALxio+1pAsZv/VJaaHug6iTItBeN0Rn2New7dOT9NbeOMIDy4o8z
+         VkFucI4srRHbvIE7DhXGWf6imduCcY+Unw5hJ6u/awUBZ2zYpurTCYx9WEPk+SlIwB
+         eGOVeqVn+LJTvN6F1OR0Ch2IVtiAgGgzLlQ1VTaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Hannes Reinecke <hare@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 194/247] scsi: myrb: Fix up null pointer access on myrb_cleanup()
+Subject: [PATCH 5.18 271/339] modpost: fix undefined behavior of is_arm_mapping_symbol()
 Date:   Mon, 13 Jun 2022 12:11:36 +0200
-Message-Id: <20220613094928.834243160@linuxfoundation.org>
+Message-Id: <20220613094934.863595158@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit f9f0a46141e2e39bedb4779c88380d1b5f018c14 ]
+[ Upstream commit d6b732666a1bae0df3c3ae06925043bba34502b1 ]
 
-When myrb_probe() fails the callback might not be set, so we need to
-validate the 'disable_intr' callback in myrb_cleanup() to not cause a null
-pointer exception. And while at it do not call myrb_cleanup() if we cannot
-enable the PCI device at all.
+The return value of is_arm_mapping_symbol() is unpredictable when "$"
+is passed in.
 
-Link: https://lore.kernel.org/r/20220523120244.99515-1-hare@suse.de
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Tested-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+strchr(3) says:
+  The strchr() and strrchr() functions return a pointer to the matched
+  character or NULL if the character is not found. The terminating null
+  byte is considered part of the string, so that if c is specified as
+  '\0', these functions return a pointer to the terminator.
+
+When str[1] is '\0', strchr("axtd", str[1]) is not NULL, and str[2] is
+referenced (i.e. buffer overrun).
+
+Test code
+---------
+
+  char str1[] = "abc";
+  char str2[] = "ab";
+
+  strcpy(str1, "$");
+  strcpy(str2, "$");
+
+  printf("test1: %d\n", is_arm_mapping_symbol(str1));
+  printf("test2: %d\n", is_arm_mapping_symbol(str2));
+
+Result
+------
+
+  test1: 0
+  test2: 1
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/myrb.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ scripts/mod/modpost.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/myrb.c b/drivers/scsi/myrb.c
-index a4a88323e020..386256369dfc 100644
---- a/drivers/scsi/myrb.c
-+++ b/drivers/scsi/myrb.c
-@@ -1239,7 +1239,8 @@ static void myrb_cleanup(struct myrb_hba *cb)
- 	myrb_unmap(cb);
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index d81019db9da4..b28344fd7408 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -1267,7 +1267,8 @@ static int secref_whitelist(const struct sectioncheck *mismatch,
  
- 	if (cb->mmio_base) {
--		cb->disable_intr(cb->io_base);
-+		if (cb->disable_intr)
-+			cb->disable_intr(cb->io_base);
- 		iounmap(cb->mmio_base);
- 	}
- 	if (cb->irq)
-@@ -3409,9 +3410,13 @@ static struct myrb_hba *myrb_detect(struct pci_dev *pdev,
- 	mutex_init(&cb->dcmd_mutex);
- 	mutex_init(&cb->dma_mutex);
- 	cb->pdev = pdev;
-+	cb->host = shost;
+ static inline int is_arm_mapping_symbol(const char *str)
+ {
+-	return str[0] == '$' && strchr("axtd", str[1])
++	return str[0] == '$' &&
++	       (str[1] == 'a' || str[1] == 'd' || str[1] == 't' || str[1] == 'x')
+ 	       && (str[2] == '\0' || str[2] == '.');
+ }
  
--	if (pci_enable_device(pdev))
--		goto failure;
-+	if (pci_enable_device(pdev)) {
-+		dev_err(&pdev->dev, "Failed to enable PCI device\n");
-+		scsi_host_put(shost);
-+		return NULL;
-+	}
- 
- 	if (privdata->hw_init == DAC960_PD_hw_init ||
- 	    privdata->hw_init == DAC960_P_hw_init) {
 -- 
 2.35.1
 
