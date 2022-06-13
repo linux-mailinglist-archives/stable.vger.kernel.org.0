@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A598549273
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 078C2548A7B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380946AbiFMOMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:12:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57898 "EHLO
+        id S1354302AbiFMMzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:55:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381103AbiFMOKg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:10:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83A882D1E3;
-        Mon, 13 Jun 2022 04:42:07 -0700 (PDT)
+        with ESMTP id S1357754AbiFMMyo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:54:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6665B6621F;
+        Mon, 13 Jun 2022 04:13:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B555B80EB2;
-        Mon, 13 Jun 2022 11:41:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E791DC34114;
-        Mon, 13 Jun 2022 11:41:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 188BE60EAE;
+        Mon, 13 Jun 2022 11:13:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21DA6C34114;
+        Mon, 13 Jun 2022 11:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120518;
-        bh=wKYQNm6xG3nOwG/8tiktpJg4CqIDjgkr82oZoP7izT4=;
+        s=korg; t=1655118796;
+        bh=u3g6ye2lF1PUMaUH3OK098oauGnVr/Y/SqRnFmjCthM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ibSR8U0fTQivdfTFvOonOyByoT7jxau/B54GXM/JEsvYLSdPdZUyDdqiUXZzMSHqr
-         up58GENHjlCsNL+sgT6yDuQJGoJShDJsz1+SFZxGlhpyqB8pVNqfVUMK3O6LR+uTxU
-         guB6xlr0U7LnhqqJYizQijfLDAVMm9L9ceHMwlJs=
+        b=OEXaYEqJT8nzVHRc8Xbq1dWlRkExoFM5pfmEyqLePn3hohjlvF1397e7gyHXmyxzN
+         EHMI6o5vq0xfa2gBTwXmJIYA9BnnRNJRgkqE5SwlV5DQFeNO9Zb1JLLi6dRFPWdQzf
+         sARGngoOd5NezZVXtlXsjzkdSTqTDy8KepWm/dPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Cixi Geng <cixi.geng1@unisoc.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 038/298] power: supply: ab8500_fg: Allocate wq in probe
-Date:   Mon, 13 Jun 2022 12:08:52 +0200
-Message-Id: <20220613094926.091998782@linuxfoundation.org>
+Subject: [PATCH 5.15 031/247] iio: adc: sc27xx: Fine tune the scale calibration values
+Date:   Mon, 13 Jun 2022 12:08:53 +0200
+Message-Id: <20220613094923.880979738@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Cixi Geng <cixi.geng1@unisoc.com>
 
-[ Upstream commit 010ddb813f3554cbbf8bd13b731452236a2c8017 ]
+[ Upstream commit 5a7a184b11c6910f47600ff5cbbee34168f701a8 ]
 
-The workqueue is allocated in bind() but all interrupts are
-registered in probe().
+Small adjustment the scale calibration value for the sc2731,
+use new name sc2731_[big|small]_scale_graph_calib, and remove
+the origin [big|small]_scale_graph_calib struct for unused.
 
-Some interrupts put work on the workqueue, which can have
-bad side effects.
-
-Allocate the workqueue in probe() instead, destroy it in
-.remove() and make unbind() simply flush the workqueue.
-
-Fixes: 1c1f13a006ed ("power: supply: ab8500: Move to componentized binding")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 8ba0dbfd07a35 (iio: adc: sc27xx: Add ADC scale calibration)
+Signed-off-by: Cixi Geng <cixi.geng1@unisoc.com>
+Link: https://lore.kernel.org/r/20220419142458.884933-4-gengcixi@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ab8500_fg.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/iio/adc/sc27xx_adc.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/power/supply/ab8500_fg.c b/drivers/power/supply/ab8500_fg.c
-index 09a4cbd69676..23adcb597ff9 100644
---- a/drivers/power/supply/ab8500_fg.c
-+++ b/drivers/power/supply/ab8500_fg.c
-@@ -2995,13 +2995,6 @@ static int ab8500_fg_bind(struct device *dev, struct device *master,
- {
- 	struct ab8500_fg *di = dev_get_drvdata(dev);
+diff --git a/drivers/iio/adc/sc27xx_adc.c b/drivers/iio/adc/sc27xx_adc.c
+index aee076c8e2b1..cfe003cc4f0b 100644
+--- a/drivers/iio/adc/sc27xx_adc.c
++++ b/drivers/iio/adc/sc27xx_adc.c
+@@ -103,14 +103,14 @@ static struct sc27xx_adc_linear_graph small_scale_graph = {
+ 	100, 341,
+ };
  
--	/* Create a work queue for running the FG algorithm */
--	di->fg_wq = alloc_ordered_workqueue("ab8500_fg_wq", WQ_MEM_RECLAIM);
--	if (di->fg_wq == NULL) {
--		dev_err(dev, "failed to create work queue\n");
--		return -ENOMEM;
--	}
--
- 	di->bat_cap.max_mah_design = di->bm->bi->charge_full_design_uah;
- 	di->bat_cap.max_mah = di->bat_cap.max_mah_design;
- 	di->vbat_nom_uv = di->bm->bi->voltage_max_design_uv;
-@@ -3025,8 +3018,7 @@ static void ab8500_fg_unbind(struct device *dev, struct device *master,
- 	if (ret)
- 		dev_err(dev, "failed to disable coulomb counter\n");
+-static const struct sc27xx_adc_linear_graph big_scale_graph_calib = {
+-	4200, 856,
+-	3600, 733,
++static const struct sc27xx_adc_linear_graph sc2731_big_scale_graph_calib = {
++	4200, 850,
++	3600, 728,
+ };
  
--	destroy_workqueue(di->fg_wq);
--	flush_scheduled_work();
-+	flush_workqueue(di->fg_wq);
- }
+-static const struct sc27xx_adc_linear_graph small_scale_graph_calib = {
+-	1000, 833,
+-	100, 80,
++static const struct sc27xx_adc_linear_graph sc2731_small_scale_graph_calib = {
++	1000, 838,
++	100, 84,
+ };
  
- static const struct component_ops ab8500_fg_component_ops = {
-@@ -3070,6 +3062,13 @@ static int ab8500_fg_probe(struct platform_device *pdev)
- 	ab8500_fg_charge_state_to(di, AB8500_FG_CHARGE_INIT);
- 	ab8500_fg_discharge_state_to(di, AB8500_FG_DISCHARGE_INIT);
+ static int sc27xx_adc_get_calib_data(u32 calib_data, int calib_adc)
+@@ -130,11 +130,11 @@ static int sc27xx_adc_scale_calibration(struct sc27xx_adc_data *data,
+ 	size_t len;
  
-+	/* Create a work queue for running the FG algorithm */
-+	di->fg_wq = alloc_ordered_workqueue("ab8500_fg_wq", WQ_MEM_RECLAIM);
-+	if (di->fg_wq == NULL) {
-+		dev_err(dev, "failed to create work queue\n");
-+		return -ENOMEM;
-+	}
-+
- 	/* Init work for running the fg algorithm instantly */
- 	INIT_WORK(&di->fg_work, ab8500_fg_instant_work);
- 
-@@ -3181,6 +3180,8 @@ static int ab8500_fg_remove(struct platform_device *pdev)
- 	int ret = 0;
- 	struct ab8500_fg *di = platform_get_drvdata(pdev);
- 
-+	destroy_workqueue(di->fg_wq);
-+	flush_scheduled_work();
- 	component_del(&pdev->dev, &ab8500_fg_component_ops);
- 	list_del(&di->node);
- 	ab8500_fg_sysfs_exit(di);
+ 	if (big_scale) {
+-		calib_graph = &big_scale_graph_calib;
++		calib_graph = &sc2731_big_scale_graph_calib;
+ 		graph = &big_scale_graph;
+ 		cell_name = "big_scale_calib";
+ 	} else {
+-		calib_graph = &small_scale_graph_calib;
++		calib_graph = &sc2731_small_scale_graph_calib;
+ 		graph = &small_scale_graph;
+ 		cell_name = "small_scale_calib";
+ 	}
 -- 
 2.35.1
 
