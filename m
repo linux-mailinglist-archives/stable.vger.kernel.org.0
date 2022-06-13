@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22938549967
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FEA254950D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234687AbiFMQ7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 12:59:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47628 "EHLO
+        id S1381199AbiFMOIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242159AbiFMQ6m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 12:58:42 -0400
+        with ESMTP id S1381251AbiFMOEO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:04:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3AA24586;
-        Mon, 13 Jun 2022 04:51:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 292184550A;
+        Mon, 13 Jun 2022 04:39:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE882B80EB2;
-        Mon, 13 Jun 2022 11:51:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 485FAC34114;
-        Mon, 13 Jun 2022 11:51:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDFABB80EA7;
+        Mon, 13 Jun 2022 11:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 572FBC34114;
+        Mon, 13 Jun 2022 11:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121110;
-        bh=mPsGNySn/Djaegr/QEJx29Yg9SM3eEAgYtMG5qqaa+4=;
+        s=korg; t=1655120341;
+        bh=r5UkIx9IQWDvAj1alAKl7AX+3z3IEBhN+N1fO7ohM8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hlB2L+8SldjFmNfjcBQUUToqyp21y/8EdW9QTlUc3a/09MQTziHtJ/AJGxN9pGa5m
-         zn40l/4BYmzFDm/5n2tEHDmSzawld/VdG08QozDQvMp+qqSfPaaLk78ld3OKGSIWyS
-         I8zTH9ahjbEBooLN8hGeF0CWOjQuNC52Op3C1CvA=
+        b=iVzKaF+qGCnfytFVDmf8ZWbuC1JqnX3qptr7FLGhgwVSeBQ4vBFnq3raxmhmXrtgc
+         CgXgN47PywI8Mjfv8BEwwLfJocQkB7eSW5gvjMPhzWb+WwxqseMMQI8GGyx8QfdcPv
+         BI2ctgXC8WvOfh3oVPcGGGwQ0j/1gKRS23qyc+TE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tyler Erickson <tyler.erickson@seagate.com>,
-        Muhammad Ahmad <muhammad.ahmad@seagate.com>,
-        Michael English <michael.english@seagate.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.17 268/298] libata: fix translation of concurrent positioning ranges
-Date:   Mon, 13 Jun 2022 12:12:42 +0200
-Message-Id: <20220613094933.201175397@linuxfoundation.org>
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Pascal Hambourg <pascal@plouf.fr.eu.org>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 5.18 338/339] md/raid0: Ignore RAID0 layout if the second zone has only one device
+Date:   Mon, 13 Jun 2022 12:12:43 +0200
+Message-Id: <20220613094936.981970809@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,37 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Erickson <tyler.erickson@seagate.com>
+From: Pascal Hambourg <pascal@plouf.fr.eu.org>
 
-commit 6d11acd452fd885ef6ace184c9c70bc863a8c72f upstream.
+commit ea23994edc4169bd90d7a9b5908c6ccefd82fa40 upstream.
 
-Fixing the page length in the SCSI translation for the concurrent
-positioning ranges VPD page. It was writing starting in offset 3
-rather than offset 2 where the MSB is supposed to start for
-the VPD page length.
+The RAID0 layout is irrelevant if all members have the same size so the
+array has only one zone. It is *also* irrelevant if the array has two
+zones and the second zone has only one device, for example if the array
+has two members of different sizes.
 
-Cc: stable@vger.kernel.org
-Fixes: fe22e1c2f705 ("libata: support concurrent positioning ranges log")
-Signed-off-by: Tyler Erickson <tyler.erickson@seagate.com>
-Reviewed-by: Muhammad Ahmad <muhammad.ahmad@seagate.com>
-Tested-by: Michael English <michael.english@seagate.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+So in that case it makes sense to allow assembly even when the layout is
+undefined, like what is done when the array has only one zone.
+
+Reviewed-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Pascal Hambourg <pascal@plouf.fr.eu.org>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-scsi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/raid0.c |   31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
---- a/drivers/ata/libata-scsi.c
-+++ b/drivers/ata/libata-scsi.c
-@@ -2119,7 +2119,7 @@ static unsigned int ata_scsiop_inq_b9(st
+--- a/drivers/md/raid0.c
++++ b/drivers/md/raid0.c
+@@ -128,21 +128,6 @@ static int create_strip_zones(struct mdd
+ 	pr_debug("md/raid0:%s: FINAL %d zones\n",
+ 		 mdname(mddev), conf->nr_strip_zones);
  
- 	/* SCSI Concurrent Positioning Ranges VPD page: SBC-5 rev 1 or later */
- 	rbuf[1] = 0xb9;
--	put_unaligned_be16(64 + (int)cpr_log->nr_cpr * 32 - 4, &rbuf[3]);
-+	put_unaligned_be16(64 + (int)cpr_log->nr_cpr * 32 - 4, &rbuf[2]);
+-	if (conf->nr_strip_zones == 1) {
+-		conf->layout = RAID0_ORIG_LAYOUT;
+-	} else if (mddev->layout == RAID0_ORIG_LAYOUT ||
+-		   mddev->layout == RAID0_ALT_MULTIZONE_LAYOUT) {
+-		conf->layout = mddev->layout;
+-	} else if (default_layout == RAID0_ORIG_LAYOUT ||
+-		   default_layout == RAID0_ALT_MULTIZONE_LAYOUT) {
+-		conf->layout = default_layout;
+-	} else {
+-		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
+-		       mdname(mddev));
+-		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
+-		err = -ENOTSUPP;
+-		goto abort;
+-	}
+ 	/*
+ 	 * now since we have the hard sector sizes, we can make sure
+ 	 * chunk size is a multiple of that sector size
+@@ -273,6 +258,22 @@ static int create_strip_zones(struct mdd
+ 			 (unsigned long long)smallest->sectors);
+ 	}
  
- 	for (i = 0; i < cpr_log->nr_cpr; i++, desc += 32) {
- 		desc[0] = cpr_log->cpr[i].num;
++	if (conf->nr_strip_zones == 1 || conf->strip_zone[1].nb_dev == 1) {
++		conf->layout = RAID0_ORIG_LAYOUT;
++	} else if (mddev->layout == RAID0_ORIG_LAYOUT ||
++		   mddev->layout == RAID0_ALT_MULTIZONE_LAYOUT) {
++		conf->layout = mddev->layout;
++	} else if (default_layout == RAID0_ORIG_LAYOUT ||
++		   default_layout == RAID0_ALT_MULTIZONE_LAYOUT) {
++		conf->layout = default_layout;
++	} else {
++		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
++		       mdname(mddev));
++		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
++		err = -EOPNOTSUPP;
++		goto abort;
++	}
++
+ 	pr_debug("md/raid0:%s: done.\n", mdname(mddev));
+ 	*private_conf = conf;
+ 
 
 
