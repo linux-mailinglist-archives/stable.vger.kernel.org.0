@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DCBF549905
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D61548A11
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:06:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378532AbiFMNnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:43:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36156 "EHLO
+        id S1354556AbiFMLdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:33:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378611AbiFMNmA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:42:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67ECE23BDE;
-        Mon, 13 Jun 2022 04:31:22 -0700 (PDT)
+        with ESMTP id S1355187AbiFMLaw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 727A62B25A;
+        Mon, 13 Jun 2022 03:46:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEF126124B;
-        Mon, 13 Jun 2022 11:31:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAEEBC34114;
-        Mon, 13 Jun 2022 11:31:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DFE9B80D3F;
+        Mon, 13 Jun 2022 10:46:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 723A2C34114;
+        Mon, 13 Jun 2022 10:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119881;
-        bh=HTO52MIx8f+xtj5n1cIJO/R2zEK3ZQZy29evrOfFB3k=;
+        s=korg; t=1655117204;
+        bh=s4bQTMOXccCEJYiOCIWRA58ppT+gbk9Jz+EYEub9ptY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+qKVJ/HpoFKbeZtwrQPyd3HDiMZ+DUGE05K3KaFzgHFUVVHw8Xdbrw2rdPu8ty9/
-         8yLEupM/3YXJtWhbm/SqYsWSbj3sG2nDtCEZt5gkTJtXO3mbynYoEHVr6KyGq0nV8B
-         MuR+GOjPPpK1y/1vVrpbkPGv9pgNSWFzm7rYQZAo=
+        b=hIYcmWjICe3Ui6yDUjggY9nOHBfpdPt8SlmFJc1xwdUklBP5ZuUwsld4C5n2o+s8+
+         eSVjnVBRya4g8HyDlAMB9hpCJKsK0kGdQWZC+2QUq9SCUAW1u6sDa3me4CMTaMHc2d
+         ja0SCAniFboPWQmHezC4qfSMXJ97yrOKjUBkMXVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 171/339] video: fbdev: pxa3xx-gcu: release the resources correctly in pxa3xx_gcu_probe/remove()
+        stable@vger.kernel.org, Vincent Ray <vray@kalrayinc.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 323/411] net: sched: fixed barrier to prevent skbuff sticking in qdisc backlog
 Date:   Mon, 13 Jun 2022 12:09:56 +0200
-Message-Id: <20220613094931.864924186@linuxfoundation.org>
+Message-Id: <20220613094938.418003432@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +55,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Vincent Ray <vray@kalrayinc.com>
 
-[ Upstream commit d87ad457f7e1b8d2492ca5b1531eb35030a1cc8f ]
+[ Upstream commit a54ce3703613e41fe1d98060b62ec09a3984dc28 ]
 
-In pxa3xx_gcu_probe(), the sequence of error lable is wrong, it will
-leads some resource leaked, so adjust the sequence to handle the error
-correctly, and if pxa3xx_gcu_add_buffer() fails, pxa3xx_gcu_free_buffers()
-need be called.
-In pxa3xx_gcu_remove(), add missing clk_disable_unpreprare().
+In qdisc_run_begin(), smp_mb__before_atomic() used before test_bit()
+does not provide any ordering guarantee as test_bit() is not an atomic
+operation. This, added to the fact that the spin_trylock() call at
+the beginning of qdisc_run_begin() does not guarantee acquire
+semantics if it does not grab the lock, makes it possible for the
+following statement :
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+if (test_bit(__QDISC_STATE_MISSED, &qdisc->state))
+
+to be executed before an enqueue operation called before
+qdisc_run_begin().
+
+As a result the following race can happen :
+
+           CPU 1                             CPU 2
+
+      qdisc_run_begin()               qdisc_run_begin() /* true */
+        set(MISSED)                            .
+      /* returns false */                      .
+          .                            /* sees MISSED = 1 */
+          .                            /* so qdisc not empty */
+          .                            __qdisc_run()
+          .                                    .
+          .                              pfifo_fast_dequeue()
+ ----> /* may be done here */                  .
+|         .                                clear(MISSED)
+|         .                                    .
+|         .                                smp_mb __after_atomic();
+|         .                                    .
+|         .                                /* recheck the queue */
+|         .                                /* nothing => exit   */
+|   enqueue(skb1)
+|         .
+|   qdisc_run_begin()
+|         .
+|     spin_trylock() /* fail */
+|         .
+|     smp_mb__before_atomic() /* not enough */
+|         .
+ ---- if (test_bit(MISSED))
+        return false;   /* exit */
+
+In the above scenario, CPU 1 and CPU 2 both try to grab the
+qdisc->seqlock at the same time. Only CPU 2 succeeds and enters the
+bypass code path, where it emits its skb then calls __qdisc_run().
+
+CPU1 fails, sets MISSED and goes down the traditionnal enqueue() +
+dequeue() code path. But when executing qdisc_run_begin() for the
+second time, after enqueuing its skbuff, it sees the MISSED bit still
+set (by itself) and consequently chooses to exit early without setting
+it again nor trying to grab the spinlock again.
+
+Meanwhile CPU2 has seen MISSED = 1, cleared it, checked the queue
+and found it empty, so it returned.
+
+At the end of the sequence, we end up with skb1 enqueued in the
+backlog, both CPUs out of __dev_xmit_skb(), the MISSED bit not set,
+and no __netif_schedule() called made. skb1 will now linger in the
+qdisc until somebody later performs a full __qdisc_run(). Associated
+to the bypass capacity of the qdisc, and the ability of the TCP layer
+to avoid resending packets which it knows are still in the qdisc, this
+can lead to serious traffic "holes" in a TCP connection.
+
+We fix this by replacing the smp_mb__before_atomic() / test_bit() /
+set_bit() / smp_mb__after_atomic() sequence inside qdisc_run_begin()
+by a single test_and_set_bit() call, which is more concise and
+enforces the needed memory barriers.
+
+Fixes: 89837eb4b246 ("net: sched: add barrier to ensure correct ordering for lockless qdisc")
+Signed-off-by: Vincent Ray <vray@kalrayinc.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220526001746.2437669-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pxa3xx-gcu.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ include/net/sch_generic.h | 36 ++++++++----------------------------
+ 1 file changed, 8 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/video/fbdev/pxa3xx-gcu.c b/drivers/video/fbdev/pxa3xx-gcu.c
-index 350b3139c863..043cc8f9ef1c 100644
---- a/drivers/video/fbdev/pxa3xx-gcu.c
-+++ b/drivers/video/fbdev/pxa3xx-gcu.c
-@@ -646,6 +646,7 @@ static int pxa3xx_gcu_probe(struct platform_device *pdev)
- 	for (i = 0; i < 8; i++) {
- 		ret = pxa3xx_gcu_add_buffer(dev, priv);
- 		if (ret) {
-+			pxa3xx_gcu_free_buffers(dev, priv);
- 			dev_err(dev, "failed to allocate DMA memory\n");
- 			goto err_disable_clk;
- 		}
-@@ -662,15 +663,15 @@ static int pxa3xx_gcu_probe(struct platform_device *pdev)
- 			SHARED_SIZE, irq);
- 	return 0;
+diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
+index ae69059ba76d..90fb413d9fd7 100644
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -160,37 +160,17 @@ static inline bool qdisc_run_begin(struct Qdisc *qdisc)
+ 		if (spin_trylock(&qdisc->seqlock))
+ 			goto nolock_empty;
  
--err_free_dma:
--	dma_free_coherent(dev, SHARED_SIZE,
--			priv->shared, priv->shared_phys);
-+err_disable_clk:
-+	clk_disable_unprepare(priv->clk);
+-		/* Paired with smp_mb__after_atomic() to make sure
+-		 * STATE_MISSED checking is synchronized with clearing
+-		 * in pfifo_fast_dequeue().
++		/* No need to insist if the MISSED flag was already set.
++		 * Note that test_and_set_bit() also gives us memory ordering
++		 * guarantees wrt potential earlier enqueue() and below
++		 * spin_trylock(), both of which are necessary to prevent races
+ 		 */
+-		smp_mb__before_atomic();
+-
+-		/* If the MISSED flag is set, it means other thread has
+-		 * set the MISSED flag before second spin_trylock(), so
+-		 * we can return false here to avoid multi cpus doing
+-		 * the set_bit() and second spin_trylock() concurrently.
+-		 */
+-		if (test_bit(__QDISC_STATE_MISSED, &qdisc->state))
++		if (test_and_set_bit(__QDISC_STATE_MISSED, &qdisc->state))
+ 			return false;
  
- err_misc_deregister:
- 	misc_deregister(&priv->misc_dev);
- 
--err_disable_clk:
--	clk_disable_unprepare(priv->clk);
-+err_free_dma:
-+	dma_free_coherent(dev, SHARED_SIZE,
-+			  priv->shared, priv->shared_phys);
- 
- 	return ret;
- }
-@@ -683,6 +684,7 @@ static int pxa3xx_gcu_remove(struct platform_device *pdev)
- 	pxa3xx_gcu_wait_idle(priv);
- 	misc_deregister(&priv->misc_dev);
- 	dma_free_coherent(dev, SHARED_SIZE, priv->shared, priv->shared_phys);
-+	clk_disable_unprepare(priv->clk);
- 	pxa3xx_gcu_free_buffers(dev, priv);
- 
- 	return 0;
+-		/* Set the MISSED flag before the second spin_trylock(),
+-		 * if the second spin_trylock() return false, it means
+-		 * other cpu holding the lock will do dequeuing for us
+-		 * or it will see the MISSED flag set after releasing
+-		 * lock and reschedule the net_tx_action() to do the
+-		 * dequeuing.
+-		 */
+-		set_bit(__QDISC_STATE_MISSED, &qdisc->state);
+-
+-		/* spin_trylock() only has load-acquire semantic, so use
+-		 * smp_mb__after_atomic() to ensure STATE_MISSED is set
+-		 * before doing the second spin_trylock().
+-		 */
+-		smp_mb__after_atomic();
+-
+-		/* Retry again in case other CPU may not see the new flag
+-		 * after it releases the lock at the end of qdisc_run_end().
++		/* Try to take the lock again to make sure that we will either
++		 * grab it or the CPU that still has it will see MISSED set
++		 * when testing it in qdisc_run_end()
+ 		 */
+ 		if (!spin_trylock(&qdisc->seqlock))
+ 			return false;
 -- 
 2.35.1
 
