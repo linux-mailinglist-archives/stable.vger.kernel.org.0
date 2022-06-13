@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83758548A6B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 112FE548ED2
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231733AbiFMM6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:58:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51256 "EHLO
+        id S1382669AbiFMOZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:25:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354394AbiFMMzk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:40 -0400
+        with ESMTP id S1383135AbiFMOWt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:22:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA67610543;
-        Mon, 13 Jun 2022 04:16:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C902346141;
+        Mon, 13 Jun 2022 04:44:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59BB060EF1;
-        Mon, 13 Jun 2022 11:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65BBEC34114;
-        Mon, 13 Jun 2022 11:16:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04FAA61236;
+        Mon, 13 Jun 2022 11:44:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16FB3C34114;
+        Mon, 13 Jun 2022 11:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118989;
-        bh=T6ZSpYjX9kIN6bdYKRnBTZugulok050C0NWTF+1U8Jk=;
+        s=korg; t=1655120653;
+        bh=XNjxLmJGu8ecZt2msTS2AZnlRK5Hazu7g1QlCE2HidA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CIpNIMmvZt5FzqNKH+veWioQKz1wYo6dHxb1KpODRPz+Bi8KYypigQvZ8+SJjX/LZ
-         UZ6MxQCq7jRZJrK+U5ljYVU0wbX0f0Vwk3j0TVOVaudLg0joXaeG5ssAsJ/Jhw2z7I
-         PUTsuW0Pbx7nBtI87rn1r6EcHc4I9AgHmltGKDbg=
+        b=Qu2gq5ZPjFI+1qSh2OyQTV/hpN6HVyS1NPkj5iyOXExOHwoNotrpmMfi8y/O9jOfU
+         aHXHuCU68yZ6gxbGDBwmqOe701AG0bQdeADBWQ/jY++cBb8nXcy44+zbZ+G/Pzai8D
+         BwZxp+Ss4xW9EvRR7uWcp8w8DyJwLzT4KyRRaE0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 100/247] vdpa: ifcvf: set pci driver data in probe
+Subject: [PATCH 5.17 108/298] net/mlx5: Dont use already freed action pointer
 Date:   Mon, 13 Jun 2022 12:10:02 +0200
-Message-Id: <20220613094925.988710920@linuxfoundation.org>
+Message-Id: <20220613094928.223823872@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit bd8bb9aed56b1814784a975e2dfea12a9adcee92 ]
+[ Upstream commit 80b2bd737d0e833e6a2b77e482e5a714a79c86a4 ]
 
-We should set the pci driver data in probe instead of the vdpa device
-adding callback. Otherwise if no vDPA device is created we will lose
-the pointer to the management device.
+The call to mlx5dr_action_destroy() releases "action" memory. That
+pointer is set to miss_action later and generates the following smatch
+error:
 
-Fixes: 6b5df347c6482 ("vDPA/ifcvf: implement management netlink framework for ifcvf")
-Tested-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Message-Id: <20220524055557.1938-1-jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+ drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c:53 set_miss_action()
+ warn: 'action' was already freed.
+
+Make sure that the pointer is always valid by setting NULL after destroy.
+
+Fixes: 6a48faeeca10 ("net/mlx5: Add direct rule fs_cmd implementation")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/ifcvf/ifcvf_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index 003530b19b4e..4fe8aa13ac68 100644
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -505,7 +505,6 @@ static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
+index 05393fe11132..caeaa3c29353 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
+@@ -44,11 +44,10 @@ static int set_miss_action(struct mlx5_flow_root_namespace *ns,
+ 	err = mlx5dr_table_set_miss_action(ft->fs_dr_table.dr_table, action);
+ 	if (err && action) {
+ 		err = mlx5dr_action_destroy(action);
+-		if (err) {
+-			action = NULL;
+-			mlx5_core_err(ns->dev, "Failed to destroy action (%d)\n",
+-				      err);
+-		}
++		if (err)
++			mlx5_core_err(ns->dev,
++				      "Failed to destroy action (%d)\n", err);
++		action = NULL;
  	}
- 
- 	ifcvf_mgmt_dev->adapter = adapter;
--	pci_set_drvdata(pdev, ifcvf_mgmt_dev);
- 
- 	vf = &adapter->vf;
- 	vf->dev_type = get_dev_type(pdev);
-@@ -620,6 +619,8 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		goto err;
- 	}
- 
-+	pci_set_drvdata(pdev, ifcvf_mgmt_dev);
-+
- 	return 0;
- 
- err:
+ 	ft->fs_dr_table.miss_action = action;
+ 	if (old_miss_action) {
 -- 
 2.35.1
 
