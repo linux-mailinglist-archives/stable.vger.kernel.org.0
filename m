@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B2EC54899B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E2EC549540
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377490AbiFMNfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:35:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49918 "EHLO
+        id S1381608AbiFMOIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377504AbiFMNc4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:32:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D94372236;
-        Mon, 13 Jun 2022 04:26:54 -0700 (PDT)
+        with ESMTP id S1381470AbiFMOEW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:04:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4664C2BB3E;
+        Mon, 13 Jun 2022 04:39:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B8BBB80E59;
-        Mon, 13 Jun 2022 11:26:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBFF9C34114;
-        Mon, 13 Jun 2022 11:26:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE33D6135C;
+        Mon, 13 Jun 2022 11:39:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9749C341CD;
+        Mon, 13 Jun 2022 11:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119612;
-        bh=BLK0FkCC59iYGwOJeMojtafFTczPpvl2QeNDU3bI/vQ=;
+        s=korg; t=1655120388;
+        bh=vZ5I9oovriQng6VNxcT+i8NCMdFdAWfl2YeDrd4tqvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t1ZYCBoIrrgfnLUjYYUjMc9ZnOL3AKey9ikBfb1X5LI1ySgr8qKyP5y68KEMKiQWC
-         o2rjixmtE0arf/gi0p7iRads4EAcTFBHVu/Z513yJN0Cb20uLpNZc7ELfKm5cFu7sL
-         KC5bBk/+A6tLgpRUpKAXZH0TpcsPUyJZhXoAuDIc=
+        b=oeXQvVPWU8NgUV9oU5dDgY+PfQe/qvGSMHEcuZG0vPmMGiYdOmjzOd+4BSSOe1mu0
+         O8S2+qfNTDl9S+VhIfabSjJzvCg4rOgI0xlD4JgAwmNRzebfK5cLvJrNeO0J58kJw8
+         cd6pJFqtktTG36tQ2Qt88p6gbogEcXxOmr3Ovehk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Romain Naour <romain.naour@smile.fr>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 076/339] bus: ti-sysc: Fix warnings for unbind for serial
+Subject: [PATCH 5.17 007/298] tty: serial: owl: Fix missing clk_disable_unprepare() in owl_uart_probe
 Date:   Mon, 13 Jun 2022 12:08:21 +0200
-Message-Id: <20220613094928.825478939@linuxfoundation.org>
+Message-Id: <20220613094925.144068187@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit c337125b8834f9719dfda0e40b25eaa266f1b8cf ]
+[ Upstream commit bcea0f547ec1a2ee44d429aaf0334633e386e67c ]
 
-We can get "failed to disable" clock_unprepare warnings on unbind at least
-for the serial console device if the unbind is done before the device has
-been idled.
+Fix the missing clk_disable_unprepare() before return
+from owl_uart_probe() in the error handling case.
 
-As some devices are using deferred idle, we must check the status for
-pending idle work to idle the device.
-
-Fixes: 76f0f772e469 ("bus: ti-sysc: Improve handling for no-reset-on-init and no-idle-on-init")
-Cc: Romain Naour <romain.naour@smile.fr>
-Reviewed-by: Romain Naour <romain.naour@smile.fr>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20220512053021.61650-1-tony@atomide.com
+Fixes: abf42d2f333b ("tty: serial: owl: add "much needed" clk_prepare_enable()")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220307105135.11698-1-linmq006@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/owl-uart.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 7a1b1f9e4933..70d00cea9d22 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -3395,7 +3395,9 @@ static int sysc_remove(struct platform_device *pdev)
- 	struct sysc *ddata = platform_get_drvdata(pdev);
- 	int error;
- 
--	cancel_delayed_work_sync(&ddata->idle_work);
-+	/* Device can still be enabled, see deferred idle quirk in probe */
-+	if (cancel_delayed_work_sync(&ddata->idle_work))
-+		ti_sysc_idle(&ddata->idle_work.work);
- 
- 	error = pm_runtime_resume_and_get(ddata->dev);
- 	if (error < 0) {
+diff --git a/drivers/tty/serial/owl-uart.c b/drivers/tty/serial/owl-uart.c
+index 91f1eb0058d7..9a6611cfc18e 100644
+--- a/drivers/tty/serial/owl-uart.c
++++ b/drivers/tty/serial/owl-uart.c
+@@ -731,6 +731,7 @@ static int owl_uart_probe(struct platform_device *pdev)
+ 	owl_port->port.uartclk = clk_get_rate(owl_port->clk);
+ 	if (owl_port->port.uartclk == 0) {
+ 		dev_err(&pdev->dev, "clock rate is zero\n");
++		clk_disable_unprepare(owl_port->clk);
+ 		return -EINVAL;
+ 	}
+ 	owl_port->port.flags = UPF_BOOT_AUTOCONF | UPF_IOREMAP | UPF_LOW_LATENCY;
 -- 
 2.35.1
 
