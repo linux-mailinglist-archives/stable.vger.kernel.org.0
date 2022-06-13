@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BB4548F62
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8757754957C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359397AbiFMNNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:13:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42642 "EHLO
+        id S1351884AbiFMMlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:41:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358973AbiFMNIq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:08:46 -0400
+        with ESMTP id S1353284AbiFMMiq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:38:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA9731FCFF;
-        Mon, 13 Jun 2022 04:19:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F865D1AA;
+        Mon, 13 Jun 2022 04:08:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA79EB80EA7;
-        Mon, 13 Jun 2022 11:19:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2BA4C34114;
-        Mon, 13 Jun 2022 11:19:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7557B80E93;
+        Mon, 13 Jun 2022 11:08:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DCC6C34114;
+        Mon, 13 Jun 2022 11:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119141;
-        bh=mMjDWJlacooFiZ2ImmHkyR7vekvzqW++iLlyOOmOz5s=;
+        s=korg; t=1655118496;
+        bh=LjqkLXe4TiAkVdoQ812veZ0hiOZkMRIo+tjBfAknxy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YD1q5cgsw4BWW8hBd/C7CPccO23/f/SUFvi0Ocw4d6GhmSTqz9SlNAa1Wgdn9Q63h
-         1faH1JDACpH9lE5S91wIESwYjMRrMyDeCFfv1rlYJTaSwpZhY7BTAILt/k6+SqeqVC
-         PgpnZ7vCdt3gx5ZHIhe2TCeA0391MjgL2cwwdaqI=
+        b=Y/1S2UecZcDJtHJRh0RcEzpwylCyyRcM+C0xjU+JO00YiHtT6QCcAxxOwsHeR7hfC
+         caBy5olUW9MYKCqNHwyB5ZgFGEGcmUJxrHaQK+mt/wFmSPCeErtNR5+/lqPgwe+EVH
+         KxvKSUwspSY2NT/IAFFyH3MawAr+UATsmc2h9kE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Maher Sanalla <msanalla@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 155/247] net/mlx5: Fix mlx5_get_next_dev() peer device matching
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 097/172] netfilter: nf_tables: memleak flow rule from commit path
 Date:   Mon, 13 Jun 2022 12:10:57 +0200
-Message-Id: <20220613094927.656795102@linuxfoundation.org>
+Message-Id: <20220613094913.714272040@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,120 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saeed Mahameed <saeedm@nvidia.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 1c5de097bea31760c3f0467ac0c84ba0dc3525d5 ]
+[ Upstream commit 9dd732e0bdf538b1b76dc7c157e2b5e560ff30d3 ]
 
-In some use-cases, mlx5 instances will need to search for their peer
-device (the other port on the same HCA). For that, mlx5 device matching
-mechanism relied on auxiliary_find_device() to search, and used a bad matching
-callback function.
+Abort path release flow rule object, however, commit path does not.
+Update code to destroy these objects before releasing the transaction.
 
-This approach has two issues:
-
-1) next_phys_dev() the matching function, assumed all devices are
-   of the type mlx5_adev (mlx5 auxiliary device) which is wrong and
-   could lead to crashes, this worked for a while, since only lately
-   other drivers started registering auxiliary devices.
-
-2) using the auxiliary class bus (auxiliary_find_device) to search for
-   mlx5_core_dev devices, who are actually PCIe device instances, is wrong.
-   This works since mlx5_core always has at least one mlx5_adev instance
-   hanging around in the aux bus.
-
-As suggested by others we can fix 1. by comparing device names prefixes
-if they have the string "mlx5_core" in them, which is not a best practice !
-but even with that fixed, still 2. needs fixing, we are trying to
-match pcie device peers so we should look in the right bus (pci bus),
-hence this fix.
-
-The fix:
-1) search the pci bus for mlx5 peer devices, instead of the aux bus
-2) to validated devices are the same type "mlx5_core_dev" compare if
-   they have the same driver, which is bulletproof.
-
-   This wouldn't have worked with the aux bus since the various mlx5 aux
-   device types don't share the same driver, even if they share the same device
-   wrapper struct (mlx5_adev) "which helped to find the parent device"
-
-Fixes: a925b5e309c9 ("net/mlx5: Register mlx5 devices to auxiliary virtual bus")
-Reported-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reported-by: Maher Sanalla <msanalla@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Reviewed-by: Maher Sanalla <msanalla@nvidia.com>
+Fixes: c9626a2cbdb2 ("netfilter: nf_tables: add hardware offload support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/dev.c | 34 +++++++++++++------
- 1 file changed, 23 insertions(+), 11 deletions(-)
+ net/netfilter/nf_tables_api.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/dev.c b/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-index 94411b34799e..949f12ede3d2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-@@ -559,18 +559,32 @@ static int _next_phys_dev(struct mlx5_core_dev *mdev,
- 	return 1;
- }
- 
-+static void *pci_get_other_drvdata(struct device *this, struct device *other)
-+{
-+	if (this->driver != other->driver)
-+		return NULL;
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 2872722488c9..8507c1bdd736 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -7587,6 +7587,9 @@ static void nft_commit_release(struct nft_trans *trans)
+ 		nf_tables_chain_destroy(&trans->ctx);
+ 		break;
+ 	case NFT_MSG_DELRULE:
++		if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
++			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
 +
-+	return pci_get_drvdata(to_pci_dev(other));
-+}
+ 		nf_tables_rule_destroy(&trans->ctx, nft_trans_rule(trans));
+ 		break;
+ 	case NFT_MSG_DELSET:
+@@ -7946,6 +7949,9 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
+ 			nf_tables_rule_notify(&trans->ctx,
+ 					      nft_trans_rule(trans),
+ 					      NFT_MSG_NEWRULE);
++			if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
++				nft_flow_rule_destroy(nft_trans_flow_rule(trans));
 +
- static int next_phys_dev(struct device *dev, const void *data)
- {
--	struct mlx5_adev *madev = container_of(dev, struct mlx5_adev, adev.dev);
--	struct mlx5_core_dev *mdev = madev->mdev;
-+	struct mlx5_core_dev *mdev, *this = (struct mlx5_core_dev *)data;
-+
-+	mdev = pci_get_other_drvdata(this->device, dev);
-+	if (!mdev)
-+		return 0;
- 
- 	return _next_phys_dev(mdev, data);
- }
- 
- static int next_phys_dev_lag(struct device *dev, const void *data)
- {
--	struct mlx5_adev *madev = container_of(dev, struct mlx5_adev, adev.dev);
--	struct mlx5_core_dev *mdev = madev->mdev;
-+	struct mlx5_core_dev *mdev, *this = (struct mlx5_core_dev *)data;
-+
-+	mdev = pci_get_other_drvdata(this->device, dev);
-+	if (!mdev)
-+		return 0;
- 
- 	if (!MLX5_CAP_GEN(mdev, vport_group_manager) ||
- 	    !MLX5_CAP_GEN(mdev, lag_master) ||
-@@ -583,19 +597,17 @@ static int next_phys_dev_lag(struct device *dev, const void *data)
- static struct mlx5_core_dev *mlx5_get_next_dev(struct mlx5_core_dev *dev,
- 					       int (*match)(struct device *dev, const void *data))
- {
--	struct auxiliary_device *adev;
--	struct mlx5_adev *madev;
-+	struct device *next;
- 
- 	if (!mlx5_core_is_pf(dev))
- 		return NULL;
- 
--	adev = auxiliary_find_device(NULL, dev, match);
--	if (!adev)
-+	next = bus_find_device(&pci_bus_type, NULL, dev, match);
-+	if (!next)
- 		return NULL;
- 
--	madev = container_of(adev, struct mlx5_adev, adev);
--	put_device(&adev->dev);
--	return madev->mdev;
-+	put_device(next);
-+	return pci_get_drvdata(to_pci_dev(next));
- }
- 
- /* Must be called with intf_mutex held */
+ 			nft_trans_destroy(trans);
+ 			break;
+ 		case NFT_MSG_DELRULE:
 -- 
 2.35.1
 
