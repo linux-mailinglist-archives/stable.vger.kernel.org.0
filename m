@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1191548931
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92535548C93
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:13:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383128AbiFMOVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:21:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41710 "EHLO
+        id S1354291AbiFMLcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:32:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383124AbiFMOT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:19:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F73145AD5;
-        Mon, 13 Jun 2022 04:43:45 -0700 (PDT)
+        with ESMTP id S1355122AbiFMLar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1F3241310;
+        Mon, 13 Jun 2022 03:46:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8490EB80D3A;
-        Mon, 13 Jun 2022 11:43:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAFC1C34114;
-        Mon, 13 Jun 2022 11:43:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF13261248;
+        Mon, 13 Jun 2022 10:46:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFD86C34114;
+        Mon, 13 Jun 2022 10:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120612;
-        bh=jFnYDH/ga59f/Td+EUa/dt0CS7+r9A8tKGC76gbt254=;
+        s=korg; t=1655117188;
+        bh=UxEwJ9Vf0nfXIgKZW6JZYJJ2nK1Zls3Fp5k0TbD0Ehk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ul2DsvLk2SnN2Ef9RORnyUxHr7ZM+r7SHue8FlxsZBrG7pTi5fzOUrxf+ZhrFaRiN
-         GvwWd5i6F+gENXj6UuvGDHumDyzyYrQbMU1SDWUw1NIO1p5PvDcZ8N2D4pT4lIY8ju
-         TecG8h6CAPewcesJq1YJ13IZpfNFgwuDmdK2/Z5E=
+        b=pOjRu/6lmt10tYzuIbgVH083fu8Sj6kpRSC7aEEs71BnmjzS7y/Mx4bYQIOhgm+xs
+         wGyaow0h7d+eGS/f1riS1jXptPztZ+2AJ95NIL8HGJDvge2QiNidKl+T9lYnc4OIKv
+         oqZwweXwr+Q84Sksphj0CkPsl4vrZEcGIZ2+wRLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 096/298] nbd: dont clear NBD_CMD_INFLIGHT flag if request is not completed
+        stable@vger.kernel.org, Schspa Shi <schspa@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 317/411] driver: base: fix UAF when driver_attach failed
 Date:   Mon, 13 Jun 2022 12:09:50 +0200
-Message-Id: <20220613094927.861650360@linuxfoundation.org>
+Message-Id: <20220613094938.244953882@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,78 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Schspa Shi <schspa@gmail.com>
 
-[ Upstream commit 2895f1831e911ca87d4efdf43e35eb72a0c7e66e ]
+[ Upstream commit 310862e574001a97ad02272bac0fd13f75f42a27 ]
 
-Otherwise io will hung because request will only be completed if the
-cmd has the flag 'NBD_CMD_INFLIGHT'.
+When driver_attach(drv); failed, the driver_private will be freed.
+But it has been added to the bus, which caused a UAF.
 
-Fixes: 07175cb1baf4 ("nbd: make sure request completion won't concurrent")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20220521073749.3146892-4-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+To fix it, we need to delete it from the bus when failed.
+
+Fixes: 190888ac01d0 ("driver core: fix possible missing of device probe")
+Signed-off-by: Schspa Shi <schspa@gmail.com>
+Link: https://lore.kernel.org/r/20220513112444.45112-1-schspa@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/base/bus.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 284557041336..ed678037ba6d 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -404,13 +404,14 @@ static enum blk_eh_timer_return nbd_xmit_timeout(struct request *req,
- 	if (!mutex_trylock(&cmd->lock))
- 		return BLK_EH_RESET_TIMER;
- 
--	if (!__test_and_clear_bit(NBD_CMD_INFLIGHT, &cmd->flags)) {
-+	if (!test_bit(NBD_CMD_INFLIGHT, &cmd->flags)) {
- 		mutex_unlock(&cmd->lock);
- 		return BLK_EH_DONE;
+diff --git a/drivers/base/bus.c b/drivers/base/bus.c
+index a1d1e8256324..7d7d28f498ed 100644
+--- a/drivers/base/bus.c
++++ b/drivers/base/bus.c
+@@ -620,7 +620,7 @@ int bus_add_driver(struct device_driver *drv)
+ 	if (drv->bus->p->drivers_autoprobe) {
+ 		error = driver_attach(drv);
+ 		if (error)
+-			goto out_unregister;
++			goto out_del_list;
  	}
+ 	module_add_driver(drv->owner, drv);
  
- 	if (!refcount_inc_not_zero(&nbd->config_refs)) {
- 		cmd->status = BLK_STS_TIMEOUT;
-+		__clear_bit(NBD_CMD_INFLIGHT, &cmd->flags);
- 		mutex_unlock(&cmd->lock);
- 		goto done;
- 	}
-@@ -479,6 +480,7 @@ static enum blk_eh_timer_return nbd_xmit_timeout(struct request *req,
- 	dev_err_ratelimited(nbd_to_dev(nbd), "Connection timed out\n");
- 	set_bit(NBD_RT_TIMEDOUT, &config->runtime_flags);
- 	cmd->status = BLK_STS_IOERR;
-+	__clear_bit(NBD_CMD_INFLIGHT, &cmd->flags);
- 	mutex_unlock(&cmd->lock);
- 	sock_shutdown(nbd);
- 	nbd_config_put(nbd);
-@@ -746,7 +748,7 @@ static struct nbd_cmd *nbd_handle_reply(struct nbd_device *nbd, int index,
- 	cmd = blk_mq_rq_to_pdu(req);
+@@ -647,6 +647,8 @@ int bus_add_driver(struct device_driver *drv)
  
- 	mutex_lock(&cmd->lock);
--	if (!__test_and_clear_bit(NBD_CMD_INFLIGHT, &cmd->flags)) {
-+	if (!test_bit(NBD_CMD_INFLIGHT, &cmd->flags)) {
- 		dev_err(disk_to_dev(nbd->disk), "Suspicious reply %d (status %u flags %lu)",
- 			tag, cmd->status, cmd->flags);
- 		ret = -ENOENT;
-@@ -855,8 +857,16 @@ static void recv_work(struct work_struct *work)
- 		}
+ 	return 0;
  
- 		rq = blk_mq_rq_from_pdu(cmd);
--		if (likely(!blk_should_fake_timeout(rq->q)))
--			blk_mq_complete_request(rq);
-+		if (likely(!blk_should_fake_timeout(rq->q))) {
-+			bool complete;
-+
-+			mutex_lock(&cmd->lock);
-+			complete = __test_and_clear_bit(NBD_CMD_INFLIGHT,
-+							&cmd->flags);
-+			mutex_unlock(&cmd->lock);
-+			if (complete)
-+				blk_mq_complete_request(rq);
-+		}
- 		percpu_ref_put(&q->q_usage_counter);
- 	}
- 
++out_del_list:
++	klist_del(&priv->knode_bus);
+ out_unregister:
+ 	kobject_put(&priv->kobj);
+ 	/* drv->p is freed in driver_release()  */
 -- 
 2.35.1
 
