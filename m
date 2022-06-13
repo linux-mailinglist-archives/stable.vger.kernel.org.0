@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3693549633
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2968A549295
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242138AbiFMKTM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:19:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60978 "EHLO
+        id S1380195AbiFMOG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:06:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242766AbiFMKSe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:18:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E5D620BDC;
-        Mon, 13 Jun 2022 03:16:21 -0700 (PDT)
+        with ESMTP id S1382353AbiFMOFq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F2995484;
+        Mon, 13 Jun 2022 04:40:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A1DC614BA;
-        Mon, 13 Jun 2022 10:16:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AE79C34114;
-        Mon, 13 Jun 2022 10:16:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4480E612AC;
+        Mon, 13 Jun 2022 11:40:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A158C34114;
+        Mon, 13 Jun 2022 11:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115380;
-        bh=ITYIFrUnHYpsV539xmrC608F3msk7H+aUAsKiM0u9Jc=;
+        s=korg; t=1655120440;
+        bh=u3g6ye2lF1PUMaUH3OK098oauGnVr/Y/SqRnFmjCthM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z917gircGH4MJFUMLm9EYW9A57O245WzE6FLUh79V7fZnKWPHtwdKN9jnMlCvUQUG
-         vzVVCZF35hty84FuDsExDvawA5yBxrIVh95cw6Bi/VZ4ZtHTsVdd5Pmw254gbBS2Hf
-         /eGEpKxedZkPRFHiPR6SCr5KagHOjtvhWlb/M0Dc=
+        b=kXdjmLS3aThY26yUmzNVuir6UZghbNbzA6iSki2WUwGsl9tPHiz5nZ7x0xwTTQ1hg
+         1N+jZCoJXJNfNoSxRx0XnQ3o5FggzpZsUyZbrk8+ZMhHbLg+HAWAzKwBEGEIHOUuiy
+         32d67qcO/h4LrBs5FGOVo3/s3oZYLsBSEJpE+7Wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Cixi Geng <cixi.geng1@unisoc.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 053/167] ASoC: mxs-saif: Fix refcount leak in mxs_saif_probe
+Subject: [PATCH 5.17 033/298] iio: adc: sc27xx: Fine tune the scale calibration values
 Date:   Mon, 13 Jun 2022 12:08:47 +0200
-Message-Id: <20220613094853.364404336@linuxfoundation.org>
+Message-Id: <20220613094925.935919427@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Cixi Geng <cixi.geng1@unisoc.com>
 
-[ Upstream commit 2be84f73785fa9ed6443e3c5b158730266f1c2ee ]
+[ Upstream commit 5a7a184b11c6910f47600ff5cbbee34168f701a8 ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
+Small adjustment the scale calibration value for the sc2731,
+use new name sc2731_[big|small]_scale_graph_calib, and remove
+the origin [big|small]_scale_graph_calib struct for unused.
 
-Fixes: 08641c7c74dd ("ASoC: mxs: add device tree support for mxs-saif")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220511133725.39039-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 8ba0dbfd07a35 (iio: adc: sc27xx: Add ADC scale calibration)
+Signed-off-by: Cixi Geng <cixi.geng1@unisoc.com>
+Link: https://lore.kernel.org/r/20220419142458.884933-4-gengcixi@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mxs/mxs-saif.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/adc/sc27xx_adc.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/sound/soc/mxs/mxs-saif.c b/sound/soc/mxs/mxs-saif.c
-index 5977a2011d9e..76e1059e7f15 100644
---- a/sound/soc/mxs/mxs-saif.c
-+++ b/sound/soc/mxs/mxs-saif.c
-@@ -748,6 +748,7 @@ static int mxs_saif_probe(struct platform_device *pdev)
- 		saif->master_id = saif->id;
+diff --git a/drivers/iio/adc/sc27xx_adc.c b/drivers/iio/adc/sc27xx_adc.c
+index aee076c8e2b1..cfe003cc4f0b 100644
+--- a/drivers/iio/adc/sc27xx_adc.c
++++ b/drivers/iio/adc/sc27xx_adc.c
+@@ -103,14 +103,14 @@ static struct sc27xx_adc_linear_graph small_scale_graph = {
+ 	100, 341,
+ };
+ 
+-static const struct sc27xx_adc_linear_graph big_scale_graph_calib = {
+-	4200, 856,
+-	3600, 733,
++static const struct sc27xx_adc_linear_graph sc2731_big_scale_graph_calib = {
++	4200, 850,
++	3600, 728,
+ };
+ 
+-static const struct sc27xx_adc_linear_graph small_scale_graph_calib = {
+-	1000, 833,
+-	100, 80,
++static const struct sc27xx_adc_linear_graph sc2731_small_scale_graph_calib = {
++	1000, 838,
++	100, 84,
+ };
+ 
+ static int sc27xx_adc_get_calib_data(u32 calib_data, int calib_adc)
+@@ -130,11 +130,11 @@ static int sc27xx_adc_scale_calibration(struct sc27xx_adc_data *data,
+ 	size_t len;
+ 
+ 	if (big_scale) {
+-		calib_graph = &big_scale_graph_calib;
++		calib_graph = &sc2731_big_scale_graph_calib;
+ 		graph = &big_scale_graph;
+ 		cell_name = "big_scale_calib";
  	} else {
- 		ret = of_alias_get_id(master, "saif");
-+		of_node_put(master);
- 		if (ret < 0)
- 			return ret;
- 		else
+-		calib_graph = &small_scale_graph_calib;
++		calib_graph = &sc2731_small_scale_graph_calib;
+ 		graph = &small_scale_graph;
+ 		cell_name = "small_scale_calib";
+ 	}
 -- 
 2.35.1
 
