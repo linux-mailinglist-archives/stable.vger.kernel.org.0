@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F27548778
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B19EA54861A
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:55:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351641AbiFMLJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:09:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45506 "EHLO
+        id S1352198AbiFMLQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:16:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351734AbiFMLIB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:08:01 -0400
+        with ESMTP id S1352404AbiFMLNU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:13:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29A64338A8;
-        Mon, 13 Jun 2022 03:35:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D83A435A82;
+        Mon, 13 Jun 2022 03:36:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36A24B80EA7;
-        Mon, 13 Jun 2022 10:35:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D74DC36AFF;
-        Mon, 13 Jun 2022 10:35:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62FE1B80E5C;
+        Mon, 13 Jun 2022 10:36:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBB7CC34114;
+        Mon, 13 Jun 2022 10:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116506;
-        bh=JsZE5AxHTbW00VZnJgu/U+JfgGO6KlUPjLQsTZoemWU=;
+        s=korg; t=1655116569;
+        bh=C4kDou8I29eIE8rVKxtjEVm2kxixY73bhMzluB54pbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DRAzjsfuakEGwXNF8g26bCy7cRS52tt4OO71l3bz9i8sCXtMyvOvBABX1pWcjCvgH
-         /fvACpHzlu5nxZCIcbw4LDPVjlcQS1DXTsEGjHQ6y8UuBiDW0RXw8pbzhfzQAxU1z2
-         TBGszImSeY0OmYCOeW8LhTnj6jhECPhMlCrwGBzw=
+        b=QMgT0x+vb8cORx7VFsWCpcc1B2Q8QSz9faDqdxJTq1EbNTlUhw4/8YGmf+d6WhXM4
+         29rluDgoApOr50bCf4IPREGL9g4FP4RcRRASXfboOvVKjuKaxd48oJ1O05Qil+G6kx
+         VF7yOUH+p5XZ2aczhmVnWqn5EMUdsRUdFJa4Y4/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 098/411] HID: hid-led: fix maximum brightness for Dream Cheeky
-Date:   Mon, 13 Jun 2022 12:06:11 +0200
-Message-Id: <20220613094931.619142292@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 110/411] x86/speculation: Add missing prototype for unpriv_ebpf_notify()
+Date:   Mon, 13 Jun 2022 12:06:23 +0200
+Message-Id: <20220613094931.972349336@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -53,36 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Teh <jonathan.teh@outlook.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 116c3f4a78ebe478d5ad5a038baf931e93e7d748 ]
+[ Upstream commit 2147c438fde135d6c145a96e373d9348e7076f7f ]
 
-Increase maximum brightness for Dream Cheeky to 63. Emperically
-determined based on testing in kernel 4.4 on this device:
+Fix the following warnings seen with "make W=1":
 
-Bus 003 Device 002: ID 1d34:0004 Dream Cheeky Webmail Notifier
+  kernel/sysctl.c:183:13: warning: no previous prototype for ‘unpriv_ebpf_notify’ [-Wmissing-prototypes]
+    183 | void __weak unpriv_ebpf_notify(int new_state)
+        |             ^~~~~~~~~~~~~~~~~~
 
-Fixes: 6c7ad07e9e05 ("HID: migrate USB LED driver from usb misc to hid")
-Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+  arch/x86/kernel/cpu/bugs.c:659:6: warning: no previous prototype for ‘unpriv_ebpf_notify’ [-Wmissing-prototypes]
+    659 | void unpriv_ebpf_notify(int new_state)
+        |      ^~~~~~~~~~~~~~~~~~
+
+Fixes: 44a3918c8245 ("x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/5689d065f739602ececaee1e05e68b8644009608.1650930000.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-led.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/bpf.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
-index c2c66ceca132..7d82f8d426bb 100644
---- a/drivers/hid/hid-led.c
-+++ b/drivers/hid/hid-led.c
-@@ -366,7 +366,7 @@ static const struct hidled_config hidled_configs[] = {
- 		.type = DREAM_CHEEKY,
- 		.name = "Dream Cheeky Webmail Notifier",
- 		.short_name = "dream_cheeky",
--		.max_brightness = 31,
-+		.max_brightness = 63,
- 		.num_leds = 1,
- 		.report_size = 9,
- 		.report_type = RAW_REQUEST,
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index a73ca7c9c7d0..5705cda3c4c4 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -929,6 +929,8 @@ void bpf_offload_dev_netdev_unregister(struct bpf_offload_dev *offdev,
+ 				       struct net_device *netdev);
+ bool bpf_offload_dev_match(struct bpf_prog *prog, struct net_device *netdev);
+ 
++void unpriv_ebpf_notify(int new_state);
++
+ #if defined(CONFIG_NET) && defined(CONFIG_BPF_SYSCALL)
+ int bpf_prog_offload_init(struct bpf_prog *prog, union bpf_attr *attr);
+ 
 -- 
 2.35.1
 
