@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33ACD548C5C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2BF45490CC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343853AbiFMKtx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:49:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47852 "EHLO
+        id S1356157AbiFMM5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:57:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347614AbiFMKtB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:49:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576192D1D9;
-        Mon, 13 Jun 2022 03:26:30 -0700 (PDT)
+        with ESMTP id S1358328AbiFMMzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FB8810B5;
+        Mon, 13 Jun 2022 04:15:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9304FB80E93;
-        Mon, 13 Jun 2022 10:26:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01982C3411C;
-        Mon, 13 Jun 2022 10:26:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07889B80EA8;
+        Mon, 13 Jun 2022 11:15:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63181C34114;
+        Mon, 13 Jun 2022 11:15:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115987;
-        bh=RH0MNiGREynDBBlITDYxTVlqFv6UzXOCXc80+4sWsmk=;
+        s=korg; t=1655118901;
+        bh=pKTkQpAxxNavDjMDwqRVRqBtgxLQrruyZOCEmjU4QY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pxb5r4zsRw5oaDdK+zPpRW3hgs7gweBiBBk6fjJ8QRNDUgJdjlUVjiISh6J3jffyq
-         mbAAjC9bMIwkhiLMX9sIUoXi0R42yCCT3maSTsnfVJOUn/hHg1rP/89EROzU4WE3Pw
-         N98q8vKDQnSnHHg+IcpBU/JsOZLpDC9ABOP6Ok0Q=
+        b=vHQ38Bzte6eqxIGJIiqJsmR4R9BgQJe6nRo0kLBjOowq4WDQ9bn/MA9S+VFyFFHG2
+         5Y0dCRHcb3TfojLuNZMLF6+brO1wl48RA6EJ6NQ/8WvBYPoXNpym2tDfrm7+7cMqUx
+         hbBv1QgrGlpfMRJtQAYaDrR2juyyZ97QnnKgU+d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 112/218] scsi: dc395x: Fix a missing check on list iterator
+        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 068/247] blk-mq: dont touch ->tagset in blk_mq_get_sq_hctx
 Date:   Mon, 13 Jun 2022 12:09:30 +0200
-Message-Id: <20220613094923.960265560@linuxfoundation.org>
+Message-Id: <20220613094925.020722924@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 036a45aa587a10fa2abbd50fbd0f6c4cfc44f69f upstream.
+[ Upstream commit 5d05426e2d5fd7df8afc866b78c36b37b00188b7 ]
 
-The bug is here:
+blk_mq_run_hw_queues() could be run when there isn't queued request and
+after queue is cleaned up, at that time tagset is freed, because tagset
+lifetime is covered by driver, and often freed after blk_cleanup_queue()
+returns.
 
-	p->target_id, p->target_lun);
+So don't touch ->tagset for figuring out current default hctx by the mapping
+built in request queue, so use-after-free on tagset can be avoided. Meantime
+this way should be fast than retrieving mapping from tagset.
 
-The list iterator 'p' will point to a bogus position containing HEAD if the
-list is empty or no element is found. This case must be checked before any
-use of the iterator, otherwise it will lead to an invalid memory access.
-
-To fix this bug, add a check. Use a new variable 'iter' as the list
-iterator, and use the original variable 'p' as a dedicated pointer to point
-to the found element.
-
-Link: https://lore.kernel.org/r/20220414040231.2662-1-xiam0nd.tong@gmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "yukuai (C)" <yukuai3@huawei.com>
+Cc: Jan Kara <jack@suse.cz>
+Fixes: b6e68ee82585 ("blk-mq: Improve performance of non-mq IO schedulers with multiple HW queues")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220522122350.743103-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/dc395x.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ block/blk-mq.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/dc395x.c
-+++ b/drivers/scsi/dc395x.c
-@@ -3775,10 +3775,19 @@ static struct DeviceCtlBlk *device_alloc
- #endif
- 	if (dcb->target_lun != 0) {
- 		/* Copy settings */
--		struct DeviceCtlBlk *p;
--		list_for_each_entry(p, &acb->dcb_list, list)
--			if (p->target_id == dcb->target_id)
-+		struct DeviceCtlBlk *p = NULL, *iter;
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 82de39926a9f..b70488e4db94 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1642,8 +1642,7 @@ static bool blk_mq_has_sqsched(struct request_queue *q)
+  */
+ static struct blk_mq_hw_ctx *blk_mq_get_sq_hctx(struct request_queue *q)
+ {
+-	struct blk_mq_hw_ctx *hctx;
+-
++	struct blk_mq_ctx *ctx = blk_mq_get_ctx(q);
+ 	/*
+ 	 * If the IO scheduler does not respect hardware queues when
+ 	 * dispatching, we just don't bother with multiple HW queues and
+@@ -1651,8 +1650,8 @@ static struct blk_mq_hw_ctx *blk_mq_get_sq_hctx(struct request_queue *q)
+ 	 * just causes lock contention inside the scheduler and pointless cache
+ 	 * bouncing.
+ 	 */
+-	hctx = blk_mq_map_queue_type(q, HCTX_TYPE_DEFAULT,
+-				     raw_smp_processor_id());
++	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, 0, ctx);
 +
-+		list_for_each_entry(iter, &acb->dcb_list, list)
-+			if (iter->target_id == dcb->target_id) {
-+				p = iter;
- 				break;
-+			}
-+
-+		if (!p) {
-+			kfree(dcb);
-+			return NULL;
-+		}
-+
- 		dprintkdbg(DBG_1, 
- 		       "device_alloc: <%02i-%i> copy from <%02i-%i>\n",
- 		       dcb->target_id, dcb->target_lun,
+ 	if (!blk_mq_hctx_stopped(hctx))
+ 		return hctx;
+ 	return NULL;
+-- 
+2.35.1
+
 
 
