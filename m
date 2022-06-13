@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAB49549233
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00F4C5492FA
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241661AbiFMKTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:19:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59694 "EHLO
+        id S243837AbiFMKpc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:45:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242121AbiFMKSO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:18:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542E1CE20;
-        Mon, 13 Jun 2022 03:16:00 -0700 (PDT)
+        with ESMTP id S1346818AbiFMKns (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:43:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A85CDEF6;
+        Mon, 13 Jun 2022 03:25:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A0F9B80E5E;
-        Mon, 13 Jun 2022 10:15:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48BD1C34114;
-        Mon, 13 Jun 2022 10:15:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F96AB80E93;
+        Mon, 13 Jun 2022 10:25:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73505C34114;
+        Mon, 13 Jun 2022 10:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115357;
-        bh=o7oS/sOw8L0o2oqz4858c3bZaslYVA88/bOpkNfI18E=;
+        s=korg; t=1655115899;
+        bh=9c7Ltc9W92l0eI8ZSKU0UekWtx57C7sgrsXJyiyANRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyS+FS5JXO/ikggBb50mBWytdzA6ojPiOeUyax/iIyYq3/+tZuCHlWje35RcG3dK7
-         2PeOSJjrurQm1r7NFBwWvEh/NQEhHSu7S9z5SQoDNcmSZgymSoueYj+6zIkerm1f7f
-         NtBnrTwzvTisOGY/SSPr3WQ/niCLhJXCEk+HfPY0=
+        b=jlTD+kqqHzQrXQfR0/rdWX+XmyQLoiofTAO6qhhgbvjmwO3XXukR+gZDVW94sTASD
+         sKyY+tpy/qTBKDWOCB2w8ptwsyxdXhJN0xtGXVbYNshyJxhNajOaS6PvQfUcf0UB9D
+         duYF6Nsg7sA8UdD1Z7r5x/hxJjYhugmCC54HidOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 055/167] media: exynos4-is: Change clk_disable to clk_disable_unprepare
+Subject: [PATCH 4.14 071/218] regulator: pfuze100: Fix refcount leak in pfuze_parse_regulators_dt
 Date:   Mon, 13 Jun 2022 12:08:49 +0200
-Message-Id: <20220613094853.836996201@linuxfoundation.org>
+Message-Id: <20220613094922.357559971@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,35 +56,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 9fadab72a6916c7507d7fedcd644859eef995078 ]
+[ Upstream commit afaa7b933ef00a2d3262f4d1252087613fb5c06d ]
 
-The corresponding API for clk_prepare_enable is clk_disable_unprepare,
-other than clk_disable.
+of_node_get() returns a node with refcount incremented.
+Calling of_node_put() to drop the reference when not needed anymore.
 
-Fix this by changing clk_disable to clk_disable_unprepare.
-
-Fixes: b4155d7d5b2c ("[media] exynos4-is: Ensure fimc-is clocks are not enabled until properly configured")
+Fixes: 3784b6d64dc5 ("regulator: pfuze100: add pfuze100 regulator driver")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://lore.kernel.org/r/20220511113506.45185-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-is.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/pfuze100-regulator.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
-index f9456f26ff4f..590ec04de827 100644
---- a/drivers/media/platform/exynos4-is/fimc-is.c
-+++ b/drivers/media/platform/exynos4-is/fimc-is.c
-@@ -144,7 +144,7 @@ static int fimc_is_enable_clocks(struct fimc_is *is)
- 			dev_err(&is->pdev->dev, "clock %s enable failed\n",
- 				fimc_is_clocks[i]);
- 			for (--i; i >= 0; i--)
--				clk_disable(is->clocks[i]);
-+				clk_disable_unprepare(is->clocks[i]);
- 			return ret;
- 		}
- 		pr_debug("enabled clock: %s\n", fimc_is_clocks[i]);
+diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
+index 4f205366d8ae..587a6bf9037b 100644
+--- a/drivers/regulator/pfuze100-regulator.c
++++ b/drivers/regulator/pfuze100-regulator.c
+@@ -431,6 +431,7 @@ static int pfuze_parse_regulators_dt(struct pfuze_chip *chip)
+ 	parent = of_get_child_by_name(np, "regulators");
+ 	if (!parent) {
+ 		dev_err(dev, "regulators node not found\n");
++		of_node_put(np);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -455,6 +456,7 @@ static int pfuze_parse_regulators_dt(struct pfuze_chip *chip)
+ 	}
+ 
+ 	of_node_put(parent);
++	of_node_put(np);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Error parsing regulator init data: %d\n",
+ 			ret);
 -- 
 2.35.1
 
