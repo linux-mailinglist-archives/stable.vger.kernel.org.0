@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1A79549354
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D66E2548BBF
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382042AbiFMOQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:16:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60012 "EHLO
+        id S1356160AbiFMM5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:57:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382755AbiFMOOr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:14:47 -0400
+        with ESMTP id S1358285AbiFMMzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DC2243EF7;
-        Mon, 13 Jun 2022 04:42:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A5C9589;
+        Mon, 13 Jun 2022 04:14:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 974CE61367;
-        Mon, 13 Jun 2022 11:42:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2DBCC34114;
-        Mon, 13 Jun 2022 11:42:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7F2760B6B;
+        Mon, 13 Jun 2022 11:14:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3AA3C3411E;
+        Mon, 13 Jun 2022 11:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120549;
-        bh=b1lknIl+kFp+TIevhQfI3vvWhmS8MpjztMwtA0fOh50=;
+        s=korg; t=1655118896;
+        bh=wBCeYx+pNV/e5mIu30VKRdK4jv593PGbP3FGh/J2fMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bzQdXipovZuH0TDaUnZcefdG377kePoOC67NlQAbaKFf6yv+3PnDuZRb1O6vrksNC
-         gm8Khgwp2BYUHurnoCUOdAhbok6onQ0CkgW1uNU7aVVej9zmxFdH5Zn31PuaGWFKnn
-         4x9dXZuDM3dY3Pjqvn2BkE7Zm8q93ewF2IXIbJAM=
+        b=ZTTaPqSY9My2GXqy/8r5IVKGV6nCCyS6BWJfjQdAFYe8IKKtAMpL8FVwAiZVC8Mjy
+         Vq7sPEf2S9IJ7aDc5tyAfWu7ZTi4+2UO1Jdymi1ajqS+1gUfA0U5Fvbo9/t4BLWCqW
+         RM8cxPgOcKlCACRqkdF3uGAO8WDzo8jiMHp7I1w4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 073/298] blk-mq: dont touch ->tagset in blk_mq_get_sq_hctx
-Date:   Mon, 13 Jun 2022 12:09:27 +0200
-Message-Id: <20220613094927.162000910@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 066/247] watchdog: rti-wdt: Fix pm_runtime_get_sync() error checking
+Date:   Mon, 13 Jun 2022 12:09:28 +0200
+Message-Id: <20220613094924.960433521@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 5d05426e2d5fd7df8afc866b78c36b37b00188b7 ]
+[ Upstream commit b3ac0c58fa8934926360268f3d89ec7680644d7b ]
 
-blk_mq_run_hw_queues() could be run when there isn't queued request and
-after queue is cleaned up, at that time tagset is freed, because tagset
-lifetime is covered by driver, and often freed after blk_cleanup_queue()
-returns.
+If the device is already in a runtime PM enabled state
+pm_runtime_get_sync() will return 1, so a test for negative
+value should be used to check for errors.
 
-So don't touch ->tagset for figuring out current default hctx by the mapping
-built in request queue, so use-after-free on tagset can be avoided. Meantime
-this way should be fast than retrieving mapping from tagset.
-
-Cc: "yukuai (C)" <yukuai3@huawei.com>
-Cc: Jan Kara <jack@suse.cz>
-Fixes: b6e68ee82585 ("blk-mq: Improve performance of non-mq IO schedulers with multiple HW queues")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220522122350.743103-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 2d63908bdbfb ("watchdog: Add K3 RTI watchdog support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220412070824.23708-1-linmq006@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/watchdog/rti_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 0aa20df31e36..6afe0cd128ac 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2114,8 +2114,7 @@ static bool blk_mq_has_sqsched(struct request_queue *q)
-  */
- static struct blk_mq_hw_ctx *blk_mq_get_sq_hctx(struct request_queue *q)
- {
--	struct blk_mq_hw_ctx *hctx;
--
-+	struct blk_mq_ctx *ctx = blk_mq_get_ctx(q);
- 	/*
- 	 * If the IO scheduler does not respect hardware queues when
- 	 * dispatching, we just don't bother with multiple HW queues and
-@@ -2123,8 +2122,8 @@ static struct blk_mq_hw_ctx *blk_mq_get_sq_hctx(struct request_queue *q)
- 	 * just causes lock contention inside the scheduler and pointless cache
- 	 * bouncing.
- 	 */
--	hctx = blk_mq_map_queue_type(q, HCTX_TYPE_DEFAULT,
--				     raw_smp_processor_id());
-+	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, 0, ctx);
-+
- 	if (!blk_mq_hctx_stopped(hctx))
- 		return hctx;
- 	return NULL;
+diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
+index ae7f9357bb87..46c2a4bd9ebe 100644
+--- a/drivers/watchdog/rti_wdt.c
++++ b/drivers/watchdog/rti_wdt.c
+@@ -227,7 +227,7 @@ static int rti_wdt_probe(struct platform_device *pdev)
+ 
+ 	pm_runtime_enable(dev);
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret) {
++	if (ret < 0) {
+ 		pm_runtime_put_noidle(dev);
+ 		pm_runtime_disable(&pdev->dev);
+ 		return dev_err_probe(dev, ret, "runtime pm failed\n");
 -- 
 2.35.1
 
