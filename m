@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 418415498BF
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAB49549233
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378097AbiFMNkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:40:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60274 "EHLO
+        id S241661AbiFMKTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:19:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378821AbiFMNjQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F7037936A;
-        Mon, 13 Jun 2022 04:28:12 -0700 (PDT)
+        with ESMTP id S242121AbiFMKSO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:18:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542E1CE20;
+        Mon, 13 Jun 2022 03:16:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AA4C9CE1192;
-        Mon, 13 Jun 2022 11:28:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BBF8C34114;
-        Mon, 13 Jun 2022 11:28:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A0F9B80E5E;
+        Mon, 13 Jun 2022 10:15:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48BD1C34114;
+        Mon, 13 Jun 2022 10:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119689;
-        bh=H7hRngXPMwAE0BVbWnal+00dHYV5bdYvCflzGFGpIE0=;
+        s=korg; t=1655115357;
+        bh=o7oS/sOw8L0o2oqz4858c3bZaslYVA88/bOpkNfI18E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7f1NW0Z4PjetxBgLrPlPF9VCaa+XZWzxF2L2dqg2ghTdDU7JT4ClctNj8MzwNVkn
-         K4ZpEXEzyYmFfZhs0AqAz5qyV8EuLWarsTzGo8X/a9ldYJ3cay1fFOvjVcgt6ZXhYb
-         jDCgfpPw8fUuG5rjwgCa/PR2fOsgsMtO0CV10EuE=
+        b=GyS+FS5JXO/ikggBb50mBWytdzA6ojPiOeUyax/iIyYq3/+tZuCHlWje35RcG3dK7
+         2PeOSJjrurQm1r7NFBwWvEh/NQEhHSu7S9z5SQoDNcmSZgymSoueYj+6zIkerm1f7f
+         NtBnrTwzvTisOGY/SSPr3WQ/niCLhJXCEk+HfPY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Menglong Dong <imagedong@tencent.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiang Biao <benbjiang@tencent.com>,
-        Hao Peng <flyingpeng@tencent.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 104/339] bpf: Fix probe read error in ___bpf_prog_run()
+Subject: [PATCH 4.9 055/167] media: exynos4-is: Change clk_disable to clk_disable_unprepare
 Date:   Mon, 13 Jun 2022 12:08:49 +0200
-Message-Id: <20220613094929.667429203@linuxfoundation.org>
+Message-Id: <20220613094853.836996201@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,93 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Menglong Dong <imagedong@tencent.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit caff1fa4118cec4dfd4336521ebd22a6408a1e3e ]
+[ Upstream commit 9fadab72a6916c7507d7fedcd644859eef995078 ]
 
-I think there is something wrong with BPF_PROBE_MEM in ___bpf_prog_run()
-in big-endian machine. Let's make a test and see what will happen if we
-want to load a 'u16' with BPF_PROBE_MEM.
+The corresponding API for clk_prepare_enable is clk_disable_unprepare,
+other than clk_disable.
 
-Let's make the src value '0x0001', the value of dest register will become
-0x0001000000000000, as the value will be loaded to the first 2 byte of
-DST with following code:
+Fix this by changing clk_disable to clk_disable_unprepare.
 
-  bpf_probe_read_kernel(&DST, SIZE, (const void *)(long) (SRC + insn->off));
-
-Obviously, the value in DST is not correct. In fact, we can compare
-BPF_PROBE_MEM with LDX_MEM_H:
-
-  DST = *(SIZE *)(unsigned long) (SRC + insn->off);
-
-If the memory load is done by LDX_MEM_H, the value in DST will be 0x1 now.
-
-And I think this error results in the test case 'test_bpf_sk_storage_map'
-failing:
-
-  test_bpf_sk_storage_map:PASS:bpf_iter_bpf_sk_storage_map__open_and_load 0 nsec
-  test_bpf_sk_storage_map:PASS:socket 0 nsec
-  test_bpf_sk_storage_map:PASS:map_update 0 nsec
-  test_bpf_sk_storage_map:PASS:socket 0 nsec
-  test_bpf_sk_storage_map:PASS:map_update 0 nsec
-  test_bpf_sk_storage_map:PASS:socket 0 nsec
-  test_bpf_sk_storage_map:PASS:map_update 0 nsec
-  test_bpf_sk_storage_map:PASS:attach_iter 0 nsec
-  test_bpf_sk_storage_map:PASS:create_iter 0 nsec
-  test_bpf_sk_storage_map:PASS:read 0 nsec
-  test_bpf_sk_storage_map:FAIL:ipv6_sk_count got 0 expected 3
-  $10/26 bpf_iter/bpf_sk_storage_map:FAIL
-
-The code of the test case is simply, it will load sk->sk_family to the
-register with BPF_PROBE_MEM and check if it is AF_INET6. With this patch,
-now the test case 'bpf_iter' can pass:
-
-  $10  bpf_iter:OK
-
-Fixes: 2a02759ef5f8 ("bpf: Add support for BTF pointers to interpreter")
-Signed-off-by: Menglong Dong <imagedong@tencent.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jiang Biao <benbjiang@tencent.com>
-Reviewed-by: Hao Peng <flyingpeng@tencent.com>
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>
-Link: https://lore.kernel.org/bpf/20220524021228.533216-1-imagedong@tencent.com
+Fixes: b4155d7d5b2c ("[media] exynos4-is: Ensure fimc-is clocks are not enabled until properly configured")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/core.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ drivers/media/platform/exynos4-is/fimc-is.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index 05e701f0da81..1e92b52fc814 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -1950,6 +1950,11 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn)
- 		CONT;							\
- 	LDX_MEM_##SIZEOP:						\
- 		DST = *(SIZE *)(unsigned long) (SRC + insn->off);	\
-+		CONT;							\
-+	LDX_PROBE_MEM_##SIZEOP:						\
-+		bpf_probe_read_kernel(&DST, sizeof(SIZE),		\
-+				      (const void *)(long) (SRC + insn->off));	\
-+		DST = *((SIZE *)&DST);					\
- 		CONT;
- 
- 	LDST(B,   u8)
-@@ -1957,15 +1962,6 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn)
- 	LDST(W,  u32)
- 	LDST(DW, u64)
- #undef LDST
--#define LDX_PROBE(SIZEOP, SIZE)							\
--	LDX_PROBE_MEM_##SIZEOP:							\
--		bpf_probe_read_kernel(&DST, SIZE, (const void *)(long) (SRC + insn->off));	\
--		CONT;
--	LDX_PROBE(B,  1)
--	LDX_PROBE(H,  2)
--	LDX_PROBE(W,  4)
--	LDX_PROBE(DW, 8)
--#undef LDX_PROBE
- 
- #define ATOMIC_ALU_OP(BOP, KOP)						\
- 		case BOP:						\
+diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
+index f9456f26ff4f..590ec04de827 100644
+--- a/drivers/media/platform/exynos4-is/fimc-is.c
++++ b/drivers/media/platform/exynos4-is/fimc-is.c
+@@ -144,7 +144,7 @@ static int fimc_is_enable_clocks(struct fimc_is *is)
+ 			dev_err(&is->pdev->dev, "clock %s enable failed\n",
+ 				fimc_is_clocks[i]);
+ 			for (--i; i >= 0; i--)
+-				clk_disable(is->clocks[i]);
++				clk_disable_unprepare(is->clocks[i]);
+ 			return ret;
+ 		}
+ 		pr_debug("enabled clock: %s\n", fimc_is_clocks[i]);
 -- 
 2.35.1
 
