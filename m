@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B50595480A2
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B4015480A0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 09:36:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229721AbiFMHgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 03:36:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42052 "EHLO
+        id S229961AbiFMHgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 03:36:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbiFMHge (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:36:34 -0400
+        with ESMTP id S229514AbiFMHgg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 03:36:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9D13DF89
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:36:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B6A8B46
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 00:36:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5506260FA9
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:36:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B16DC34114;
-        Mon, 13 Jun 2022 07:36:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 064D660FA9
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 07:36:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14892C34114;
+        Mon, 13 Jun 2022 07:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655105791;
-        bh=XSaEG8npe1jDBm90mhpE6qp1v2frNVE0PRTEJngedn0=;
+        s=korg; t=1655105794;
+        bh=zNtX4fpGbnWKqkLhZE5xXHtpwoRKEDPpQR+lg2XfUb4=;
         h=Subject:To:Cc:From:Date:From;
-        b=FVzJGixMRafAx+t/IQPI/F6YInEO0zJhX6URr1ULR6+5jPCuBxvz7YWGwwOFh1XzR
-         CFkaykjiqvOWNG3Eo/FXZ7ghOn6JKXz7JTM9snAzshbmQ0K9NB59/adwxwrV09h5ej
-         gSCnitF79SSyF8HKY6hus4MmfzedfYHeRzAcZXx4=
-Subject: FAILED: patch "[PATCH] zonefs: fix handling of explicit_open option on mount" failed to apply to 5.17-stable tree
+        b=BG37OEGy9DBLxIxMPPp5QBTz6J79WpxT2H+qEJECGzUthfIBiljKh0GI/IMQYRD4J
+         CVtV1dBejXRDxeYGfl0XFzEeqNyOI9uikgRhPMwQD7LF4SE+XZF1NlVorLRc1kfwZ0
+         zDd4Te/Wc7Hn1vd6nrdptjE4ad+nyfgMTNCJVmc0=
+Subject: FAILED: patch "[PATCH] zonefs: fix handling of explicit_open option on mount" failed to apply to 5.15-stable tree
 To:     damien.lemoal@opensource.wdc.com, hch@lst.de,
         johannes.thumshirn@wdc.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 13 Jun 2022 09:36:21 +0200
-Message-ID: <16551057814818@kroah.com>
+Message-ID: <1655105781253211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
