@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E84B55493E3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A69BB549364
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351506AbiFMLIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:08:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45152 "EHLO
+        id S1352586AbiFMMlT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:41:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350226AbiFMLG0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:06:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E08028980;
-        Mon, 13 Jun 2022 03:34:59 -0700 (PDT)
+        with ESMTP id S1354164AbiFMMix (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:38:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 338DF5D678;
+        Mon, 13 Jun 2022 04:08:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09ECE60FF9;
-        Mon, 13 Jun 2022 10:34:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12CE3C34114;
-        Mon, 13 Jun 2022 10:34:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 864ADB80EB2;
+        Mon, 13 Jun 2022 11:08:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0B9AC34114;
+        Mon, 13 Jun 2022 11:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116497;
-        bh=V6p5BQsO1+EU/j6FqgbS3TxvSYHwUNOeiBDZG2dot3E=;
+        s=korg; t=1655118505;
+        bh=lyrtj3lszdhFjS8B9+LWI462WQaxx6jyLcIwfw37xXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPaRrTAAm3sQoZQlR8TvFsCt6u3ijX9JHNwxz1rt45vUmpy0uLtJ3CAH7key4Xq9w
-         Wa1j5oIKQ59FR/x55pBzvujGWqa3D1eMGhQMqGySW1OA1nCH43SDVXBLx+NYLKxwIb
-         LUXTIFASU33WZ0IPmo5YVh7trD+e+tg3738MCXxs=
+        b=aHglEoYxjg/JlAgeFSUG5oAdAAcYXuc6ZxUbypd6p1DOg/exdWOL3yMGEGY7Bo/yI
+         40blTzbWjBz3PUaxbo6rXfyebzF/QyEz9aYDqqvzTlGkzDE9klT4gTTJxDXSnycRxZ
+         96eCf54xjpOU8tGubZtBB9xApvHlJpeuiavPxyaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Yu Kuai <yukuai3@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 202/218] nbd: fix race between nbd_alloc_config() and module removal
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 100/172] af_unix: Fix a data-race in unix_dgram_peer_wake_me().
 Date:   Mon, 13 Jun 2022 12:11:00 +0200
-Message-Id: <20220613094926.749637225@linuxfoundation.org>
+Message-Id: <20220613094914.440535898@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,122 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit c55b2b983b0fa012942c3eb16384b2b722caa810 ]
+[ Upstream commit 662a80946ce13633ae90a55379f1346c10f0c432 ]
 
-When nbd module is being removing, nbd_alloc_config() may be
-called concurrently by nbd_genl_connect(), although try_module_get()
-will return false, but nbd_alloc_config() doesn't handle it.
+unix_dgram_poll() calls unix_dgram_peer_wake_me() without `other`'s
+lock held and check if its receive queue is full.  Here we need to
+use unix_recvq_full_lockless() instead of unix_recvq_full(), otherwise
+KCSAN will report a data-race.
 
-The race may lead to the leak of nbd_config and its related
-resources (e.g, recv_workq) and oops in nbd_read_stat() due
-to the unload of nbd module as shown below:
-
-  BUG: kernel NULL pointer dereference, address: 0000000000000040
-  Oops: 0000 [#1] SMP PTI
-  CPU: 5 PID: 13840 Comm: kworker/u17:33 Not tainted 5.14.0+ #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-  Workqueue: knbd16-recv recv_work [nbd]
-  RIP: 0010:nbd_read_stat.cold+0x130/0x1a4 [nbd]
-  Call Trace:
-   recv_work+0x3b/0xb0 [nbd]
-   process_one_work+0x1ed/0x390
-   worker_thread+0x4a/0x3d0
-   kthread+0x12a/0x150
-   ret_from_fork+0x22/0x30
-
-Fixing it by checking the return value of try_module_get()
-in nbd_alloc_config(). As nbd_alloc_config() may return ERR_PTR(-ENODEV),
-assign nbd->config only when nbd_alloc_config() succeeds to ensure
-the value of nbd->config is binary (valid or NULL).
-
-Also adding a debug message to check the reference counter
-of nbd_config during module removal.
-
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220521073749.3146892-3-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 7d267278a9ec ("unix: avoid use-after-free in ep_remove_wait_queue")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Link: https://lore.kernel.org/r/20220605232325.11804-1-kuniyu@amazon.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ net/unix/af_unix.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 1c9f866d9338..9596f93d98b2 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1382,15 +1382,20 @@ static struct nbd_config *nbd_alloc_config(void)
- {
- 	struct nbd_config *config;
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index b7edca89e0ba..28721e9575b7 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -438,7 +438,7 @@ static int unix_dgram_peer_wake_me(struct sock *sk, struct sock *other)
+ 	 * -ECONNREFUSED. Otherwise, if we haven't queued any skbs
+ 	 * to other and its full, we will hang waiting for POLLOUT.
+ 	 */
+-	if (unix_recvq_full(other) && !sock_flag(other, SOCK_DEAD))
++	if (unix_recvq_full_lockless(other) && !sock_flag(other, SOCK_DEAD))
+ 		return 1;
  
-+	if (!try_module_get(THIS_MODULE))
-+		return ERR_PTR(-ENODEV);
-+
- 	config = kzalloc(sizeof(struct nbd_config), GFP_NOFS);
--	if (!config)
--		return NULL;
-+	if (!config) {
-+		module_put(THIS_MODULE);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
- 	atomic_set(&config->recv_threads, 0);
- 	init_waitqueue_head(&config->recv_wq);
- 	init_waitqueue_head(&config->conn_wait);
- 	config->blksize = NBD_DEF_BLKSIZE;
- 	atomic_set(&config->live_connections, 0);
--	try_module_get(THIS_MODULE);
- 	return config;
- }
- 
-@@ -1417,12 +1422,13 @@ static int nbd_open(struct block_device *bdev, fmode_t mode)
- 			mutex_unlock(&nbd->config_lock);
- 			goto out;
- 		}
--		config = nbd->config = nbd_alloc_config();
--		if (!config) {
--			ret = -ENOMEM;
-+		config = nbd_alloc_config();
-+		if (IS_ERR(config)) {
-+			ret = PTR_ERR(config);
- 			mutex_unlock(&nbd->config_lock);
- 			goto out;
- 		}
-+		nbd->config = config;
- 		refcount_set(&nbd->config_refs, 1);
- 		refcount_inc(&nbd->refs);
- 		mutex_unlock(&nbd->config_lock);
-@@ -1803,13 +1809,14 @@ static int nbd_genl_connect(struct sk_buff *skb, struct genl_info *info)
- 		nbd_put(nbd);
- 		return -EINVAL;
- 	}
--	config = nbd->config = nbd_alloc_config();
--	if (!nbd->config) {
-+	config = nbd_alloc_config();
-+	if (IS_ERR(config)) {
- 		mutex_unlock(&nbd->config_lock);
- 		nbd_put(nbd);
- 		printk(KERN_ERR "nbd: couldn't allocate config\n");
--		return -ENOMEM;
-+		return PTR_ERR(config);
- 	}
-+	nbd->config = config;
- 	refcount_set(&nbd->config_refs, 1);
- 	set_bit(NBD_BOUND, &config->runtime_flags);
- 
-@@ -2334,6 +2341,9 @@ static void __exit nbd_cleanup(void)
- 	while (!list_empty(&del_list)) {
- 		nbd = list_first_entry(&del_list, struct nbd_device, list);
- 		list_del_init(&nbd->list);
-+		if (refcount_read(&nbd->config_refs))
-+			printk(KERN_ERR "nbd: possibly leaking nbd_config (ref %d)\n",
-+					refcount_read(&nbd->config_refs));
- 		if (refcount_read(&nbd->refs) != 1)
- 			printk(KERN_ERR "nbd: possibly leaking a device\n");
- 		nbd_put(nbd);
+ 	if (connected)
 -- 
 2.35.1
 
