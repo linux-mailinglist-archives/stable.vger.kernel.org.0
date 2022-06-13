@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8637E549497
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6484A548E6F
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377298AbiFMN0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:26:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43754 "EHLO
+        id S1354483AbiFMLjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:39:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377295AbiFMNYu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:24:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2E346C0C8;
-        Mon, 13 Jun 2022 04:24:11 -0700 (PDT)
+        with ESMTP id S1355654AbiFMLjW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D76D32C64F;
+        Mon, 13 Jun 2022 03:49:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 597DEB80D31;
-        Mon, 13 Jun 2022 11:24:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C29CFC34114;
-        Mon, 13 Jun 2022 11:24:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A2D0B80E07;
+        Mon, 13 Jun 2022 10:49:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD16DC3411E;
+        Mon, 13 Jun 2022 10:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119449;
-        bh=T7zgCZdrnSI9zOst5mi3apWNt045/z6rDMsSMmV8L38=;
+        s=korg; t=1655117372;
+        bh=mfzOGPGDFMwBe8JQHvgneMIcB+OQk61Uas1dXZKCVjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zw3QeFh3/luXXyvZLKCxKTDqaQN17STLeW48+wsPlH+fBAPTkcvPcWmIISn3CyPbH
-         HMNMvUGeQ35FtMrhuCMfVMtMlXT2QjHLExLTGrP0jAYvXG7iv6++yYrqunT3oOJKRg
-         eDxnE9+ZtzTVlcVzx9jugdKRVZi2AU1I8367FLmQ=
+        b=X9/ny6bx1kL1rgvkD4H3IQSdgIiWnvefqIc+sZDTpgAXXGsdYPS3dTcSSujJlLtzP
+         blOa4NdYwtuPmM2n6zIZjXfHOq6l1NOPMCOkUaKLb/XSuXNmz8j3C3/RPk9QWsPBWs
+         9x2AeZ9YfhsyZt9PzWmB2qVBhFz40OEjJDxsxrQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Lin Ma <linma@zju.edu.cn>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 019/339] USB: storage: karma: fix rio_karma_init return
+        stable@vger.kernel.org, Luca Weiss <luca.weiss@fairphone.com>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 020/287] media: venus: hfi: avoid null dereference in deinit
 Date:   Mon, 13 Jun 2022 12:07:24 +0200
-Message-Id: <20220613094927.090625175@linuxfoundation.org>
+Message-Id: <20220613094924.472288107@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Luca Weiss <luca.weiss@fairphone.com>
 
-[ Upstream commit b92ffb1eddd9a66a90defc556dcbf65a43c196c7 ]
+[ Upstream commit 86594f6af867b5165d2ba7b5a71fae3a5961e56c ]
 
-The function rio_karam_init() should return -ENOMEM instead of
-value 0 (USB_STOR_TRANSPORT_GOOD) when allocation fails.
+If venus_probe fails at pm_runtime_put_sync the error handling first
+calls hfi_destroy and afterwards hfi_core_deinit. As hfi_destroy sets
+core->ops to NULL, hfi_core_deinit cannot call the core_deinit function
+anymore.
 
-Similarly, it should return -EIO when rio_karma_send_command() fails.
+Avoid this null pointer derefence by skipping the call when necessary.
 
-Fixes: dfe0d3ba20e8 ("USB Storage: add rio karma eject support")
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220412144359.28447-1-linma@zju.edu.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/karma.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/media/platform/qcom/venus/hfi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/storage/karma.c b/drivers/usb/storage/karma.c
-index 05cec81dcd3f..38ddfedef629 100644
---- a/drivers/usb/storage/karma.c
-+++ b/drivers/usb/storage/karma.c
-@@ -174,24 +174,25 @@ static void rio_karma_destructor(void *extra)
- 
- static int rio_karma_init(struct us_data *us)
- {
--	int ret = 0;
- 	struct karma_data *data = kzalloc(sizeof(struct karma_data), GFP_NOIO);
- 
- 	if (!data)
--		goto out;
-+		return -ENOMEM;
- 
- 	data->recv = kmalloc(RIO_RECV_LEN, GFP_NOIO);
- 	if (!data->recv) {
- 		kfree(data);
--		goto out;
-+		return -ENOMEM;
+diff --git a/drivers/media/platform/qcom/venus/hfi.c b/drivers/media/platform/qcom/venus/hfi.c
+index 24207829982f..8a99e2d8274a 100644
+--- a/drivers/media/platform/qcom/venus/hfi.c
++++ b/drivers/media/platform/qcom/venus/hfi.c
+@@ -113,6 +113,9 @@ int hfi_core_deinit(struct venus_core *core, bool blocking)
+ 		mutex_lock(&core->lock);
  	}
  
- 	us->extra = data;
- 	us->extra_destructor = rio_karma_destructor;
--	ret = rio_karma_send_command(RIO_ENTER_STORAGE, us);
--	data->in_storage = (ret == 0);
--out:
--	return ret;
-+	if (rio_karma_send_command(RIO_ENTER_STORAGE, us))
-+		return -EIO;
++	if (!core->ops)
++		goto unlock;
 +
-+	data->in_storage = 1;
-+
-+	return 0;
- }
+ 	ret = core->ops->core_deinit(core);
  
- static struct scsi_host_template karma_host_template;
+ 	if (!ret)
 -- 
 2.35.1
 
