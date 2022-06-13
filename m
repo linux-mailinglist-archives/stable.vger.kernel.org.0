@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5115548872
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 147135492DC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345501AbiFMKhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:37:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46306 "EHLO
+        id S1352588AbiFMLUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:20:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345601AbiFMKgL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:36:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDB7CE0BC;
-        Mon, 13 Jun 2022 03:22:39 -0700 (PDT)
+        with ESMTP id S1352886AbiFMLTB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:19:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47A0F289A5;
+        Mon, 13 Jun 2022 03:40:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FFA6B80E5E;
-        Mon, 13 Jun 2022 10:22:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12D9AC3411E;
-        Mon, 13 Jun 2022 10:22:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22347611E6;
+        Mon, 13 Jun 2022 10:40:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EDE2C34114;
+        Mon, 13 Jun 2022 10:40:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115756;
-        bh=l+X116IPdIcDhimPMpbxyK/QJ3o3fL8KICaWCEnn5fo=;
+        s=korg; t=1655116843;
+        bh=jfe85s2VWaB63elD4lJMi0XDEoLbF+zQNm8u1KsBBFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTFmuS4a4zB9HyXA/79OOvDs7n1P6zDn7VDmTJhDBfdKXqr0hahzcMuFq7ETDMele
-         nNDSeVRjy1jazo6Cn4iqQ37fbQq9aIKLV7NNh5s9KU0GDXA0hNb8lXT9vkY6eEtr8j
-         Ep6/KTB+nCjPfS9TwLQyFSp0dDBqAR+kVD0PseE8=
+        b=iiuz7m3Z6MR8dhxm6EUa80+j6OwKwNjzphMuL3K5yY6KjgLE21MFxcJDLSezT21xc
+         cicGUjKAGf3SlCZ8QWLzTOH6qV7m4VIpfeqgptNXJVpLtanGoZPXgxPPp0X2VZvsP7
+         wQJkvg1vCVVzs4oS3As/7uBFnfcFGOhRyIM+8BKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 020/218] scsi: megaraid: Fix error check return value of register_chrdev()
+        stable@vger.kernel.org,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 205/411] dmaengine: stm32-mdma: remove GISR1 register
 Date:   Mon, 13 Jun 2022 12:07:58 +0200
-Message-Id: <20220613094913.090196163@linuxfoundation.org>
+Message-Id: <20220613094934.805145200@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-[ Upstream commit c5acd61dbb32b6bda0f3a354108f2b8dcb788985 ]
+[ Upstream commit 9d6a2d92e450926c483e45eaf426080a19219f4e ]
 
-If major equals 0, register_chrdev() returns an error code when it fails.
-This function dynamically allocates a major and returns its number on
-success, so we should use "< 0" to check it instead of "!".
+GISR1 was described in a not up-to-date documentation when the stm32-mdma
+driver has been developed. This register has not been added in reference
+manual of STM32 SoC with MDMA, which have only 32 MDMA channels.
+So remove it from stm32-mdma driver.
 
-Link: https://lore.kernel.org/r/20220418105755.2558828-1-lv.ruyi@zte.com.cn
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: a4ffb13c8946 ("dmaengine: Add STM32 MDMA driver")
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/20220504155322.121431-2-amelie.delaunay@foss.st.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/stm32-mdma.c | 21 +++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/scsi/megaraid.c b/drivers/scsi/megaraid.c
-index f5c09bbf9374..eed6d45b8025 100644
---- a/drivers/scsi/megaraid.c
-+++ b/drivers/scsi/megaraid.c
-@@ -4707,7 +4707,7 @@ static int __init megaraid_init(void)
- 	 * major number allocation.
- 	 */
- 	major = register_chrdev(0, "megadev_legacy", &megadev_fops);
--	if (!major) {
-+	if (major < 0) {
- 		printk(KERN_WARNING
- 				"megaraid: failed to register char device\n");
+diff --git a/drivers/dma/stm32-mdma.c b/drivers/dma/stm32-mdma.c
+index a05355d1292e..c902c2480640 100644
+--- a/drivers/dma/stm32-mdma.c
++++ b/drivers/dma/stm32-mdma.c
+@@ -40,7 +40,6 @@
+ 					 STM32_MDMA_SHIFT(mask))
+ 
+ #define STM32_MDMA_GISR0		0x0000 /* MDMA Int Status Reg 1 */
+-#define STM32_MDMA_GISR1		0x0004 /* MDMA Int Status Reg 2 */
+ 
+ /* MDMA Channel x interrupt/status register */
+ #define STM32_MDMA_CISR(x)		(0x40 + 0x40 * (x)) /* x = 0..62 */
+@@ -196,7 +195,7 @@
+ 
+ #define STM32_MDMA_MAX_BUF_LEN		128
+ #define STM32_MDMA_MAX_BLOCK_LEN	65536
+-#define STM32_MDMA_MAX_CHANNELS		63
++#define STM32_MDMA_MAX_CHANNELS		32
+ #define STM32_MDMA_MAX_REQUESTS		256
+ #define STM32_MDMA_MAX_BURST		128
+ #define STM32_MDMA_VERY_HIGH_PRIORITY	0x11
+@@ -1351,21 +1350,11 @@ static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
+ 
+ 	/* Find out which channel generates the interrupt */
+ 	status = readl_relaxed(dmadev->base + STM32_MDMA_GISR0);
+-	if (status) {
+-		id = __ffs(status);
+-	} else {
+-		status = readl_relaxed(dmadev->base + STM32_MDMA_GISR1);
+-		if (!status) {
+-			dev_dbg(mdma2dev(dmadev), "spurious it\n");
+-			return IRQ_NONE;
+-		}
+-		id = __ffs(status);
+-		/*
+-		 * As GISR0 provides status for channel id from 0 to 31,
+-		 * so GISR1 provides status for channel id from 32 to 62
+-		 */
+-		id += 32;
++	if (!status) {
++		dev_dbg(mdma2dev(dmadev), "spurious it\n");
++		return IRQ_NONE;
  	}
++	id = __ffs(status);
+ 
+ 	chan = &dmadev->chan[id];
+ 	if (!chan) {
 -- 
 2.35.1
 
