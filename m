@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED1DA548896
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FAF7548D7E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354269AbiFMLjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:39:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43076 "EHLO
+        id S1352615AbiFMLSa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:18:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354547AbiFMLiH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:38:07 -0400
+        with ESMTP id S1353694AbiFMLQN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:16:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1FB64579A;
-        Mon, 13 Jun 2022 03:48:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEB9713DE6;
+        Mon, 13 Jun 2022 03:39:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 376DD60AEB;
-        Mon, 13 Jun 2022 10:48:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47AB4C34114;
-        Mon, 13 Jun 2022 10:48:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C7BC60AE6;
+        Mon, 13 Jun 2022 10:39:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58DB1C34114;
+        Mon, 13 Jun 2022 10:39:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117303;
-        bh=BRcNqau3w1OO6mTQECHI3eeQRClvteae1utKAvruPa4=;
+        s=korg; t=1655116746;
+        bh=TEyi3OH9X77Dmi3sI/sc/3+TjArekS69CqgUMczDuug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJEcxaMaiiHjrDjAYxnbUAIKOLv2UDR2s/GEVBJhh3y2n0YIRsmAj+46S0RQKj2SU
-         sdFSHZdliNp78G42FgrJLbB2iZ0TRSMjXZx29mxX7MREL9bsSqrYMuZAKAJy5gMbYM
-         ks0FAMzpK39D1+I53uu3EoW918dnAC26VltBicGk=
+        b=HpwPUKoCibgZKeO+eZIMch+t+sCViCgP9vVdnffV7dMIl2u42x0D1S/k/b/nNQmPA
+         BfK2GLMGueroC0pqrtJKi4ShLBEoGlk7mdz/jOkky9++qWyVCbJBOp5WK2iXpYqNIH
+         u6734xWrkAuBGNWtgHk/a9QBY8dMawPPbiubI/eI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Luca=20B=C3=A9la=20Palkovics?= 
-        <luca.bela.palkovics@gmail.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 008/287] btrfs: repair super block num_devices automatically
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 159/411] soc: qcom: smsm: Fix missing of_node_put() in smsm_parse_ipc
 Date:   Mon, 13 Jun 2022 12:07:12 +0200
-Message-Id: <20220613094924.101605421@linuxfoundation.org>
+Message-Id: <20220613094933.428875205@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,91 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit d201238ccd2f30b9bfcfadaeae0972e3a486a176 upstream.
+[ Upstream commit aad66a3c78da668f4506356c2fdb70b7a19ecc76 ]
 
-[BUG]
-There is a report that a btrfs has a bad super block num devices.
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-This makes btrfs to reject the fs completely.
-
-  BTRFS error (device sdd3): super_num_devices 3 mismatch with num_devices 2 found here
-  BTRFS error (device sdd3): failed to read chunk tree: -22
-  BTRFS error (device sdd3): open_ctree failed
-
-[CAUSE]
-During btrfs device removal, chunk tree and super block num devs are
-updated in two different transactions:
-
-  btrfs_rm_device()
-  |- btrfs_rm_dev_item(device)
-  |  |- trans = btrfs_start_transaction()
-  |  |  Now we got transaction X
-  |  |
-  |  |- btrfs_del_item()
-  |  |  Now device item is removed from chunk tree
-  |  |
-  |  |- btrfs_commit_transaction()
-  |     Transaction X got committed, super num devs untouched,
-  |     but device item removed from chunk tree.
-  |     (AKA, super num devs is already incorrect)
-  |
-  |- cur_devices->num_devices--;
-  |- cur_devices->total_devices--;
-  |- btrfs_set_super_num_devices()
-     All those operations are not in transaction X, thus it will
-     only be written back to disk in next transaction.
-
-So after the transaction X in btrfs_rm_dev_item() committed, but before
-transaction X+1 (which can be minutes away), a power loss happen, then
-we got the super num mismatch.
-
-This has been fixed by commit bbac58698a55 ("btrfs: remove device item
-and update super block in the same transaction").
-
-[FIX]
-Make the super_num_devices check less strict, converting it from a hard
-error to a warning, and reset the value to a correct one for the current
-or next transaction commit.
-
-As the number of device items is the critical information where the
-super block num_devices is only a cached value (and also useful for
-cross checking), it's safe to automatically update it. Other device
-related problems like missing device are handled after that and may
-require other means to resolve, like degraded mount. With this fix,
-potentially affected filesystems won't fail mount and require the manual
-repair by btrfs check.
-
-Reported-by: Luca Béla Palkovics <luca.bela.palkovics@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/CA+8xDSpvdm_U0QLBAnrH=zqDq_cWCOH5TiV46CKmp3igr44okQ@mail.gmail.com/
-CC: stable@vger.kernel.org # 4.14+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220308073648.24634-1-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/soc/qcom/smsm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -6925,12 +6925,12 @@ int btrfs_read_chunk_tree(struct btrfs_f
- 	 * do another round of validation checks.
- 	 */
- 	if (total_dev != fs_info->fs_devices->total_devices) {
--		btrfs_err(fs_info,
--	   "super_num_devices %llu mismatch with num_devices %llu found here",
-+		btrfs_warn(fs_info,
-+"super block num_devices %llu mismatch with DEV_ITEM count %llu, will be repaired on next transaction commit",
- 			  btrfs_super_num_devices(fs_info->super_copy),
- 			  total_dev);
--		ret = -EINVAL;
--		goto error;
-+		fs_info->fs_devices->total_devices = total_dev;
-+		btrfs_set_super_num_devices(fs_info->super_copy, total_dev);
- 	}
- 	if (btrfs_super_total_bytes(fs_info->super_copy) <
- 	    fs_info->fs_devices->total_rw_bytes) {
+diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
+index c428d0f78816..6564f15c5319 100644
+--- a/drivers/soc/qcom/smsm.c
++++ b/drivers/soc/qcom/smsm.c
+@@ -359,6 +359,7 @@ static int smsm_parse_ipc(struct qcom_smsm *smsm, unsigned host_id)
+ 		return 0;
+ 
+ 	host->ipc_regmap = syscon_node_to_regmap(syscon);
++	of_node_put(syscon);
+ 	if (IS_ERR(host->ipc_regmap))
+ 		return PTR_ERR(host->ipc_regmap);
+ 
+-- 
+2.35.1
+
 
 
