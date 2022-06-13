@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E82405495EA
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED783548BC7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347584AbiFMKzY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:55:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44360 "EHLO
+        id S1347746AbiFMKz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:55:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350104AbiFMKym (ORCPT
+        with ESMTP id S1350101AbiFMKym (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:54:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565E6DFD3;
-        Mon, 13 Jun 2022 03:29:14 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FD63DFA2;
+        Mon, 13 Jun 2022 03:29:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D36EB80E90;
-        Mon, 13 Jun 2022 10:29:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61086C34114;
-        Mon, 13 Jun 2022 10:29:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2E2960EF5;
+        Mon, 13 Jun 2022 10:29:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D312FC34114;
+        Mon, 13 Jun 2022 10:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116151;
-        bh=meTKEfhwvJQNPNSEHlua5iCIaCbkJ5tZEhnI42ZDXNY=;
+        s=korg; t=1655116157;
+        bh=c2rTSA5ShCYBJio9vtv+pHt17Edq/Fs+mrKk7uWg51g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yxuDh9qVcB8VGP6TWjvUUR+r5FMpeUE2dg5apUzw93KDwi+kGu/PTG0o3ZU1IDqwf
-         N2ujC5K4djmCdPzVVvX/nFuzLeTpzztZB+feMDUCpyKKMsT0lcN7SWSTgjAGSy/37m
-         zkbIQRa4cXeNPtgekpUXVwYv2xfBLBpug/Yh4zL0=
+        b=a80uzssLw19OCvvgMHz4zdNAPltt6lltN/ZxUoVQy4iDJ0LPlZh6pZM9re8FP0yPF
+         rnOksB0qFe1cMDArEItOWsp6cUj59lDrYFpaS6d0x0qcIIJvKA0COnJowS9pkgqUaO
+         d9+FmRDkV+jMMm57IYoigomzR3dM4sktD5u52mwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Evan Quan <evan.quan@amd.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 033/411] drm/amd/pm: fix the compile warning
-Date:   Mon, 13 Jun 2022 12:05:06 +0200
-Message-Id: <20220613094929.497844586@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 034/411] arm64: compat: Do not treat syscall number as ESR_ELx for a bad syscall
+Date:   Mon, 13 Jun 2022 12:05:07 +0200
+Message-Id: <20220613094929.527656570@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -54,49 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Alexandru Elisei <alexandru.elisei@arm.com>
 
-[ Upstream commit 555238d92ac32dbad2d77ad2bafc48d17391990c ]
+[ Upstream commit 3fed9e551417b84038b15117732ea4505eee386b ]
 
-Fix the compile warning below:
-drivers/gpu/drm/amd/amdgpu/../pm/legacy-dpm/kv_dpm.c:1641
-kv_get_acp_boot_level() warn: always true condition '(table->entries[i]->clk >= 0) => (0-u32max >= 0)'
+If a compat process tries to execute an unknown system call above the
+__ARM_NR_COMPAT_END number, the kernel sends a SIGILL signal to the
+offending process. Information about the error is printed to dmesg in
+compat_arm_syscall() -> arm64_notify_die() -> arm64_force_sig_fault() ->
+arm64_show_signal().
 
-Reported-by: kernel test robot <lkp@intel.com>
-CC: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+arm64_show_signal() interprets a non-zero value for
+current->thread.fault_code as an exception syndrome and displays the
+message associated with the ESR_ELx.EC field (bits 31:26).
+current->thread.fault_code is set in compat_arm_syscall() ->
+arm64_notify_die() with the bad syscall number instead of a valid ESR_ELx
+value. This means that the ESR_ELx.EC field has the value that the user set
+for the syscall number and the kernel can end up printing bogus exception
+messages*. For example, for the syscall number 0x68000000, which evaluates
+to ESR_ELx.EC value of 0x1A (ESR_ELx_EC_FPAC) the kernel prints this error:
+
+[   18.349161] syscall[300]: unhandled exception: ERET/ERETAA/ERETAB, ESR 0x68000000, Oops - bad compat syscall(2) in syscall[10000+50000]
+[   18.350639] CPU: 2 PID: 300 Comm: syscall Not tainted 5.18.0-rc1 #79
+[   18.351249] Hardware name: Pine64 RockPro64 v2.0 (DT)
+[..]
+
+which is misleading, as the bad compat syscall has nothing to do with
+pointer authentication.
+
+Stop arm64_show_signal() from printing exception syndrome information by
+having compat_arm_syscall() set the ESR_ELx value to 0, as it has no
+meaning for an invalid system call number. The example above now becomes:
+
+[   19.935275] syscall[301]: unhandled exception: Oops - bad compat syscall(2) in syscall[10000+50000]
+[   19.936124] CPU: 1 PID: 301 Comm: syscall Not tainted 5.18.0-rc1-00005-g7e08006d4102 #80
+[   19.936894] Hardware name: Pine64 RockPro64 v2.0 (DT)
+[..]
+
+which although shows less information because the syscall number,
+wrongfully advertised as the ESR value, is missing, it is better than
+showing plainly wrong information. The syscall number can be easily
+obtained with strace.
+
+*A 32-bit value above or equal to 0x8000_0000 is interpreted as a negative
+integer in compat_arm_syscal() and the condition scno < __ARM_NR_COMPAT_END
+evaluates to true; the syscall will exit to userspace in this case with the
+ENOSYS error code instead of arm64_notify_die() being called.
+
+Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220425114444.368693-3-alexandru.elisei@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/kv_dpm.c | 14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
+ arch/arm64/kernel/sys_compat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/kv_dpm.c b/drivers/gpu/drm/amd/amdgpu/kv_dpm.c
-index 4b3faaccecb9..c8a5a5698edd 100644
---- a/drivers/gpu/drm/amd/amdgpu/kv_dpm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/kv_dpm.c
-@@ -1609,19 +1609,7 @@ static int kv_update_samu_dpm(struct amdgpu_device *adev, bool gate)
+diff --git a/arch/arm64/kernel/sys_compat.c b/arch/arm64/kernel/sys_compat.c
+index 3c18c2454089..51274bab2565 100644
+--- a/arch/arm64/kernel/sys_compat.c
++++ b/arch/arm64/kernel/sys_compat.c
+@@ -115,6 +115,6 @@ long compat_arm_syscall(struct pt_regs *regs, int scno)
+ 		(compat_thumb_mode(regs) ? 2 : 4);
  
- static u8 kv_get_acp_boot_level(struct amdgpu_device *adev)
- {
--	u8 i;
--	struct amdgpu_clock_voltage_dependency_table *table =
--		&adev->pm.dpm.dyn_state.acp_clock_voltage_dependency_table;
--
--	for (i = 0; i < table->count; i++) {
--		if (table->entries[i].clk >= 0) /* XXX */
--			break;
--	}
--
--	if (i >= table->count)
--		i = table->count - 1;
--
--	return i;
-+	return 0;
+ 	arm64_notify_die("Oops - bad compat syscall(2)", regs,
+-			 SIGILL, ILL_ILLTRP, addr, scno);
++			 SIGILL, ILL_ILLTRP, addr, 0);
+ 	return 0;
  }
- 
- static void kv_update_acp_boot_level(struct amdgpu_device *adev)
 -- 
 2.35.1
 
