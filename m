@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3FE75489C1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D73A548DEC
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355174AbiFMLkH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:40:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46228 "EHLO
+        id S239718AbiFMNAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:00:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355630AbiFMLjV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B2A20F56;
-        Mon, 13 Jun 2022 03:49:26 -0700 (PDT)
+        with ESMTP id S1357354AbiFMM6l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:58:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4EEE2BDB;
+        Mon, 13 Jun 2022 04:17:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D42BB80E59;
-        Mon, 13 Jun 2022 10:49:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FDC1C34114;
-        Mon, 13 Jun 2022 10:49:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27968B80E59;
+        Mon, 13 Jun 2022 11:17:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7633CC36AFF;
+        Mon, 13 Jun 2022 11:17:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117364;
-        bh=zDNe4IoNLyVziODlgX+z2yo998cNoUKH66zbKZgwCW4=;
+        s=korg; t=1655119053;
+        bh=yDpd7oAWsynJGccSydOf6o7OH6T+QbeLge5NLgiCdfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NhKuWKyce5g/djBMWF5y4YIFaUUaFXCqd/Vfr2Jl/NG1OEY3CZ4ovr3U/5oKm9sE7
-         SVdmYlrMEpks/I7xpb35o57tdPPVoUtIDAsNZiOVILCtbRxQBlUvWljOcZUdOcghnG
-         eIpTUF0oQ/EyIPXGHo/zGrbVA+Vz9bvuzTY1JIZ8=
+        b=MU9eD0Mw2vO1CpsxjRiCdi8Vzna+MBpTYNWV8Ql6d8w/Qjc7v7ugayggbGRyLfyKF
+         zr8VhQM+qYAlJqpel1y81glb/U3e2B4vB7aYHous53ALBtztEcE6trBB5ctbNkrlPo
+         mj3hBv4fGSOg+IvH1TgbN1j4nzqthT0WDGpgVP9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org,
+        Saurabh Sengar <ssengar@linux.microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>, Helge Deller <deller@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 353/411] bpf, arm64: Clear prog->jited_len along prog->jited
+Subject: [PATCH 5.15 124/247] video: fbdev: hyperv_fb: Allow resolutions with size > 64 MB for Gen1
 Date:   Mon, 13 Jun 2022 12:10:26 +0200
-Message-Id: <20220613094939.286776045@linuxfoundation.org>
+Message-Id: <20220613094926.723098325@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,98 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Saurabh Sengar <ssengar@linux.microsoft.com>
 
-[ Upstream commit 10f3b29c65bb2fe0d47c2945cd0b4087be1c5218 ]
+[ Upstream commit c4b4d7047f16a8d138ce76da65faefb7165736f2 ]
 
-syzbot reported an illegal copy_to_user() attempt
-from bpf_prog_get_info_by_fd() [1]
+This patch fixes a bug where GEN1 VMs doesn't allow resolutions greater
+than 64 MB size (eg 7680x4320). Unnecessary PCI check limits Gen1 VRAM
+to legacy PCI BAR size only (ie 64MB). Thus any, resolution requesting
+greater then 64MB (eg 7680x4320) would fail. MMIO region assigning this
+memory shouldn't be limited by PCI bar size.
 
-There was no repro yet on this bug, but I think
-that commit 0aef499f3172 ("mm/usercopy: Detect vmalloc overruns")
-is exposing a prior bug in bpf arm64.
-
-bpf_prog_get_info_by_fd() looks at prog->jited_len
-to determine if the JIT image can be copied out to user space.
-
-My theory is that syzbot managed to get a prog where prog->jited_len
-has been set to 43, while prog->bpf_func has ben cleared.
-
-It is not clear why copy_to_user(uinsns, NULL, ulen) is triggering
-this particular warning.
-
-I thought find_vma_area(NULL) would not find a vm_struct.
-As we do not hold vmap_area_lock spinlock, it might be possible
-that the found vm_struct was garbage.
-
-[1]
-usercopy: Kernel memory exposure attempt detected from vmalloc (offset 792633534417210172, size 43)!
-kernel BUG at mm/usercopy.c:101!
-Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 0 PID: 25002 Comm: syz-executor.1 Not tainted 5.18.0-syzkaller-10139-g8291eaafed36 #0
-Hardware name: linux,dummy-virt (DT)
-pstate: 60400009 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : usercopy_abort+0x90/0x94 mm/usercopy.c:101
-lr : usercopy_abort+0x90/0x94 mm/usercopy.c:89
-sp : ffff80000b773a20
-x29: ffff80000b773a30 x28: faff80000b745000 x27: ffff80000b773b48
-x26: 0000000000000000 x25: 000000000000002b x24: 0000000000000000
-x23: 00000000000000e0 x22: ffff80000b75db67 x21: 0000000000000001
-x20: 000000000000002b x19: ffff80000b75db3c x18: 00000000fffffffd
-x17: 2820636f6c6c616d x16: 76206d6f72662064 x15: 6574636574656420
-x14: 74706d6574746120 x13: 2129333420657a69 x12: 73202c3237313031
-x11: 3237313434333533 x10: 3336323937207465 x9 : 657275736f707865
-x8 : ffff80000a30c550 x7 : ffff80000b773830 x6 : ffff80000b773830
-x5 : 0000000000000000 x4 : ffff00007fbbaa10 x3 : 0000000000000000
-x2 : 0000000000000000 x1 : f7ff000028fc0000 x0 : 0000000000000064
-Call trace:
- usercopy_abort+0x90/0x94 mm/usercopy.c:89
- check_heap_object mm/usercopy.c:186 [inline]
- __check_object_size mm/usercopy.c:252 [inline]
- __check_object_size+0x198/0x36c mm/usercopy.c:214
- check_object_size include/linux/thread_info.h:199 [inline]
- check_copy_size include/linux/thread_info.h:235 [inline]
- copy_to_user include/linux/uaccess.h:159 [inline]
- bpf_prog_get_info_by_fd.isra.0+0xf14/0xfdc kernel/bpf/syscall.c:3993
- bpf_obj_get_info_by_fd+0x12c/0x510 kernel/bpf/syscall.c:4253
- __sys_bpf+0x900/0x2150 kernel/bpf/syscall.c:4956
- __do_sys_bpf kernel/bpf/syscall.c:5021 [inline]
- __se_sys_bpf kernel/bpf/syscall.c:5019 [inline]
- __arm64_sys_bpf+0x28/0x40 kernel/bpf/syscall.c:5019
- __invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
- invoke_syscall+0x48/0x114 arch/arm64/kernel/syscall.c:52
- el0_svc_common.constprop.0+0x44/0xec arch/arm64/kernel/syscall.c:142
- do_el0_svc+0xa0/0xc0 arch/arm64/kernel/syscall.c:206
- el0_svc+0x44/0xb0 arch/arm64/kernel/entry-common.c:624
- el0t_64_sync_handler+0x1ac/0x1b0 arch/arm64/kernel/entry-common.c:642
- el0t_64_sync+0x198/0x19c arch/arm64/kernel/entry.S:581
-Code: aa0003e3 d00038c0 91248000 97fff65f (d4210000)
-
-Fixes: db496944fdaa ("bpf: arm64: add JIT support for multi-function programs")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20220531215113.1100754-1-eric.dumazet@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/net/bpf_jit_comp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/fbdev/hyperv_fb.c | 19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
 
-diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
-index 17a8d1484f9b..9f71ca441482 100644
---- a/arch/arm64/net/bpf_jit_comp.c
-+++ b/arch/arm64/net/bpf_jit_comp.c
-@@ -973,6 +973,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
- 			bpf_jit_binary_free(header);
- 			prog->bpf_func = NULL;
- 			prog->jited = 0;
-+			prog->jited_len = 0;
- 			goto out_off;
- 		}
- 		bpf_jit_binary_lock_ro(header);
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index c8e0ea27caf1..58c304a3b7c4 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -1009,7 +1009,6 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 	struct pci_dev *pdev  = NULL;
+ 	void __iomem *fb_virt;
+ 	int gen2vm = efi_enabled(EFI_BOOT);
+-	resource_size_t pot_start, pot_end;
+ 	phys_addr_t paddr;
+ 	int ret;
+ 
+@@ -1060,23 +1059,7 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 	dio_fb_size =
+ 		screen_width * screen_height * screen_depth / 8;
+ 
+-	if (gen2vm) {
+-		pot_start = 0;
+-		pot_end = -1;
+-	} else {
+-		if (!(pci_resource_flags(pdev, 0) & IORESOURCE_MEM) ||
+-		    pci_resource_len(pdev, 0) < screen_fb_size) {
+-			pr_err("Resource not available or (0x%lx < 0x%lx)\n",
+-			       (unsigned long) pci_resource_len(pdev, 0),
+-			       (unsigned long) screen_fb_size);
+-			goto err1;
+-		}
+-
+-		pot_end = pci_resource_end(pdev, 0);
+-		pot_start = pot_end - screen_fb_size + 1;
+-	}
+-
+-	ret = vmbus_allocate_mmio(&par->mem, hdev, pot_start, pot_end,
++	ret = vmbus_allocate_mmio(&par->mem, hdev, 0, -1,
+ 				  screen_fb_size, 0x100000, true);
+ 	if (ret != 0) {
+ 		pr_err("Unable to allocate framebuffer memory\n");
 -- 
 2.35.1
 
