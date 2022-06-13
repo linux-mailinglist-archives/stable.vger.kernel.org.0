@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 399E654944A
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CFFF548B72
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378591AbiFMNl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:41:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57900 "EHLO
+        id S1381904AbiFMORi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:17:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379220AbiFMNkD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77D2BCE12;
-        Mon, 13 Jun 2022 04:30:21 -0700 (PDT)
+        with ESMTP id S1383548AbiFMOQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:16:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6418B9EB69;
+        Mon, 13 Jun 2022 04:43:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31F80B80E59;
-        Mon, 13 Jun 2022 11:30:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AEDBC34114;
-        Mon, 13 Jun 2022 11:30:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E71A1612AB;
+        Mon, 13 Jun 2022 11:42:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03BE9C34114;
+        Mon, 13 Jun 2022 11:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119818;
-        bh=HPUnD1Dr5TmwM9pXagBlCjJ6amDxqlZFbFZkTJmijQ8=;
+        s=korg; t=1655120574;
+        bh=DusVsUi2RwJtIXTBxvquXw84b+uqbhGWMuwPzhtsFuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IaXNW8AFuqMEu0FA0I5OPccj74cy+2+j9fznAGCKQbyNjwL46Pt6nKlRzqkaK7dZy
-         3bJs7OwkAwrPMjEtSyTy0waKZP5YtYmwtHDD99wvC5adfvKJT/NO1Dry2ZepmV0zhD
-         +gKylDiO5MRMlLXyrPub8UZN5s5PGP63NknASF3M=
+        b=V2FSXIstfj4TlHO+qVWl8VFB7Y9eOw1EgFN2jt+eZ6t+ko2X/RA+R/KD+vfOXcWcl
+         rcQchtly6E89eSrMAbU9Sk8C5DRq4Mo8h5qfXNcKL8g9xGv6IeL9hD9OtsyseIAKMG
+         9gCgzl0OBffp5hpUEww+XaYjV2cz1bo2tqEVDPrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Joe Mario <jmario@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 150/339] perf c2c: Fix sorting in percent_rmt_hitm_cmp()
+Subject: [PATCH 5.17 081/298] drm/amdgpu: Off by one in dm_dmub_outbox1_low_irq()
 Date:   Mon, 13 Jun 2022 12:09:35 +0200
-Message-Id: <20220613094931.233721073@linuxfoundation.org>
+Message-Id: <20220613094927.403634386@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,47 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit b24192a17337abbf3f44aaa75e15df14a2d0016e ]
+[ Upstream commit a35faec3db0e13aac8ea720bc1a3503081dd5a3d ]
 
-The function percent_rmt_hitm_cmp() wrongly uses local HITMs for
-sorting remote HITMs.
+The > ARRAY_SIZE() should be >= ARRAY_SIZE() to prevent an out of bounds
+access.
 
-Since this function is to sort cache lines for remote HITMs, this patch
-changes to use 'rmt_hitm' field for correct sorting.
-
-Fixes: 9cb3500afc0980c5 ("perf c2c report: Add hitm/store percent related sort keys")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Joe Mario <jmario@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220530084253.750190-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: e27c41d5b068 ("drm/amd/display: Support for DMUB HPD interrupt handling")
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-c2c.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
-index 8c9ffacbdd28..157533d451e3 100644
---- a/tools/perf/builtin-c2c.c
-+++ b/tools/perf/builtin-c2c.c
-@@ -925,8 +925,8 @@ percent_rmt_hitm_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
- 	double per_left;
- 	double per_right;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 24db2297857b..edb5e72aeb66 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -767,7 +767,7 @@ static void dm_dmub_outbox1_low_irq(void *interrupt_params)
  
--	per_left  = PERCENT(left, lcl_hitm);
--	per_right = PERCENT(right, lcl_hitm);
-+	per_left  = PERCENT(left, rmt_hitm);
-+	per_right = PERCENT(right, rmt_hitm);
- 
- 	return per_left - per_right;
- }
+ 		do {
+ 			dc_stat_get_dmub_notification(adev->dm.dc, &notify);
+-			if (notify.type > ARRAY_SIZE(dm->dmub_thread_offload)) {
++			if (notify.type >= ARRAY_SIZE(dm->dmub_thread_offload)) {
+ 				DRM_ERROR("DM: notify type %d invalid!", notify.type);
+ 				continue;
+ 			}
 -- 
 2.35.1
 
