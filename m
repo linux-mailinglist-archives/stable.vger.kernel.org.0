@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 841CC5491E3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1315E548951
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351135AbiFMMhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:37:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49694 "EHLO
+        id S1354712AbiFMLj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:39:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353376AbiFMMfa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:35:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 650591C13F;
-        Mon, 13 Jun 2022 04:07:54 -0700 (PDT)
+        with ESMTP id S1355571AbiFMLjQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:39:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF3A2C121;
+        Mon, 13 Jun 2022 03:48:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 826D5608D6;
-        Mon, 13 Jun 2022 11:07:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96547C34114;
-        Mon, 13 Jun 2022 11:07:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F5D3B80E07;
+        Mon, 13 Jun 2022 10:48:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEFAFC34114;
+        Mon, 13 Jun 2022 10:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118471;
-        bh=Wvzg1eIbq/VH+8v4OxYzY979R1uuGnEZjw4IN6qm7tk=;
+        s=korg; t=1655117331;
+        bh=8sCdvYQ1+2gvup1lrj5dUg4mvoQeyApHc9ZBhju4e1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OMHvy/oVBTIaFmb9UeJF0qp13wzW3QzWMcnLgpJb8t0nyzRbxBEV0RD9w0QdJ4y6+
-         4TudnCSakhWwgII28Q+CK4arZZC4fSRwOm6FRcIWznr0tm2PtO1ojEWgOBoY17lXQA
-         ryI2TqM5I8D0hBnVuqCswLiUKnnaYnfqfhLZ9Wi4=
+        b=R6O/Fxl3LqLnD/LtbiGI1Vooa3wi/F7lDCiylsOZNTViVFKQeWj0NiPA34zEvxiE+
+         UF32iW6tDppSlf2VG5TNAx79SQ8KnIQsEAJEXbyH7bk3xbAcFFDHVPsuBP0np8NDnn
+         61aBlVUIjwgbqRH/swPOW77uhyzZhi/qGR/0t9+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 070/172] afs: Fix infinite loop found by xfstest generic/676
+Subject: [PATCH 5.4 357/411] net: mdio: unexport __init-annotated mdio_bus_init()
 Date:   Mon, 13 Jun 2022 12:10:30 +0200
-Message-Id: <20220613094907.280795648@linuxfoundation.org>
+Message-Id: <20220613094939.401437878@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 17eabd42560f4636648ad65ba5b20228071e2363 ]
+[ Upstream commit 35b42dce619701f1300fb8498dae82c9bb1f0263 ]
 
-In AFS, a directory is handled as a file that the client downloads and
-parses locally for the purposes of performing lookup and getdents
-operations.  The in-kernel afs filesystem has a number of functions that
-do this.
+EXPORT_SYMBOL and __init is a bad combination because the .init.text
+section is freed up after the initialization. Hence, modules cannot
+use symbols annotated __init. The access to a freed symbol may end up
+with kernel panic.
 
-A directory file is arranged as a series of 2K blocks divided into
-32-byte slots, where a directory entry occupies one or more slots, plus
-each block starts with one or more metadata blocks.
+modpost used to detect it, but it has been broken for a decade.
 
-When parsing a block, if the last slots are occupied by a dirent that
-occupies more than a single slot and the file position points at a slot
-that's not the initial one, the logic in afs_dir_iterate_block() that
-skips over it won't advance the file pointer to the end of it.  This
-will cause an infinite loop in getdents() as it will keep retrying that
-block and failing to advance beyond the final entry.
+Recently, I fixed modpost so it started to warn it again, then this
+showed up in linux-next builds.
 
-Fix this by advancing the file pointer if the next entry will be beyond
-it when we skip a block.
+There are two ways to fix it:
 
-This was found by the generic/676 xfstest but can also be triggered with
-something like:
+  - Remove __init
+  - Remove EXPORT_SYMBOL
 
-	~/xfstests-dev/src/t_readdir_3 /xfstest.test/z 4000 1
+I chose the latter for this case because the only in-tree call-site,
+drivers/net/phy/phy_device.c is never compiled as modular.
+(CONFIG_PHYLIB is boolean)
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: http://lore.kernel.org/r/165391973497.110268.2939296942213894166.stgit@warthog.procyon.org.uk/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 90eff9096c01 ("net: phy: Allow splitting MDIO bus/device support from PHYs")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/dir.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/phy/mdio_bus.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/afs/dir.c b/fs/afs/dir.c
-index 262c0ae505af..159795059547 100644
---- a/fs/afs/dir.c
-+++ b/fs/afs/dir.c
-@@ -412,8 +412,11 @@ static int afs_dir_iterate_block(struct afs_vnode *dvnode,
- 		}
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index b0a439248ff6..05c24db507a2 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -753,7 +753,6 @@ int __init mdio_bus_init(void)
  
- 		/* skip if starts before the current position */
--		if (offset < curr)
-+		if (offset < curr) {
-+			if (next > curr)
-+				ctx->pos = blkoff + next * sizeof(union afs_xdr_dirent);
- 			continue;
-+		}
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(mdio_bus_init);
  
- 		/* found the next entry */
- 		if (!dir_emit(ctx, dire->u.name, nlen,
+ #if IS_ENABLED(CONFIG_PHYLIB)
+ void mdio_bus_exit(void)
 -- 
 2.35.1
 
