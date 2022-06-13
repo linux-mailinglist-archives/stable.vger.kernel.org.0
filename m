@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F5B25498C1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8003954948D
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235992AbiFMKTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:19:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60922 "EHLO
+        id S1381039AbiFMOHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:07:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242139AbiFMKRy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:17:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC37DEB2;
-        Mon, 13 Jun 2022 03:15:51 -0700 (PDT)
+        with ESMTP id S1382004AbiFMOFC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3EAD92D19;
+        Mon, 13 Jun 2022 04:40:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AF091CE1106;
-        Mon, 13 Jun 2022 10:15:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C672C34114;
-        Mon, 13 Jun 2022 10:15:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 177A16136C;
+        Mon, 13 Jun 2022 11:40:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 200CFC34114;
+        Mon, 13 Jun 2022 11:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115344;
-        bh=ijCvAG5D6KxVV9sw1XIyTUNpxJ2pxD5vlmvuuYWonXA=;
+        s=korg; t=1655120407;
+        bh=m+6bIiaRSARv1WgAzQBAifc3hhldBDoDI7VROQPJIBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5vhYobMVQ91+StLHbTulK04VjjTBP1MVKByl/ylL5jeV01+RBGT4wtX7eXOleaQj
-         MuC4PrNkaa21CMNRFAwvwr/9Se0vddAYKMVzsC6bhM2tIpTT6MusiGwu7mVdiizPUW
-         wBeFfi3E7yU4seXdABcCAqEkt9KxmEQ3zk16GN40=
+        b=KHOJUhpK9pNAPNMcUvLbhyOXVGUKxjQYcQDLPIKcFDzo8i9/Nsq5JtV4/+5MJ5g5w
+         hQTPBt+dzgqebMMkit4jWqf39v1GUbfuIHgecGKZI3fmnC/yP50qzm5hn0YC4DpEpe
+         EH9VvBrKau6nt+b9IUeiMU6PiX6zsrGQovsR7FX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 042/167] HID: hid-led: fix maximum brightness for Dream Cheeky
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 022/298] usb: dwc3: pci: Fix pm_runtime_get_sync() error checking
 Date:   Mon, 13 Jun 2022 12:08:36 +0200
-Message-Id: <20220613094850.790751050@linuxfoundation.org>
+Message-Id: <20220613094925.603382410@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Teh <jonathan.teh@outlook.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 116c3f4a78ebe478d5ad5a038baf931e93e7d748 ]
+[ Upstream commit a03e2ddab8e735e2cc315609b297b300e9cc60d2 ]
 
-Increase maximum brightness for Dream Cheeky to 63. Emperically
-determined based on testing in kernel 4.4 on this device:
+If the device is already in a runtime PM enabled state
+pm_runtime_get_sync() will return 1, so a test for negative
+value should be used to check for errors.
 
-Bus 003 Device 002: ID 1d34:0004 Dream Cheeky Webmail Notifier
-
-Fixes: 6c7ad07e9e05 ("HID: migrate USB LED driver from usb misc to hid")
-Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 8eed00b237a28 ("usb: dwc3: pci: Runtime resume child device from wq")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Link: https://lore.kernel.org/r/20220422062652.10575-1-zhengyongjun3@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-led.c | 2 +-
+ drivers/usb/dwc3/dwc3-pci.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
-index d3e1ab162f7c..7fc5982a0ca4 100644
---- a/drivers/hid/hid-led.c
-+++ b/drivers/hid/hid-led.c
-@@ -369,7 +369,7 @@ static const struct hidled_config hidled_configs[] = {
- 		.type = DREAM_CHEEKY,
- 		.name = "Dream Cheeky Webmail Notifier",
- 		.short_name = "dream_cheeky",
--		.max_brightness = 31,
-+		.max_brightness = 63,
- 		.num_leds = 1,
- 		.report_size = 9,
- 		.report_type = RAW_REQUEST,
+diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
+index f08b2178fd32..9c8887615701 100644
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -256,7 +256,7 @@ static void dwc3_pci_resume_work(struct work_struct *work)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(&dwc3->dev);
+-	if (ret) {
++	if (ret < 0) {
+ 		pm_runtime_put_sync_autosuspend(&dwc3->dev);
+ 		return;
+ 	}
 -- 
 2.35.1
 
