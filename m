@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C60549207
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E75FC549502
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376330AbiFMNV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:21:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60620 "EHLO
+        id S1381567AbiFMOIl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:08:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377088AbiFMNUA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 920B06973E;
-        Mon, 13 Jun 2022 04:23:12 -0700 (PDT)
+        with ESMTP id S1381163AbiFMOEH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:04:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F23C64551E;
+        Mon, 13 Jun 2022 04:38:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84F1160F18;
-        Mon, 13 Jun 2022 11:22:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95224C3411C;
-        Mon, 13 Jun 2022 11:22:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2B5FB80D31;
+        Mon, 13 Jun 2022 11:38:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07A05C34114;
+        Mon, 13 Jun 2022 11:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119358;
-        bh=2hBjMjiZ041N5Z0Yg7mhxSGjvQprD2H+8vtm5RyJEns=;
+        s=korg; t=1655120322;
+        bh=7ZJdOB8NWztNFmJga+HULPqObVqV573O24/WNfw5IOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YgY2wEzjC2rWgYkQRF6vyOMQ631nz59nOqCJz1L20ogVEyRyFV6freIFbbOmppsUo
-         hG2KZ1rO4nqbtqi2P1w4wzZyo4U9nXbIXnQA6byhCVeZfOUDebZ0mulbBwfMhKGiaj
-         WtSVCB+GKBI5T4o6loKTw/i7eOg27/v8EC2IemRA=
+        b=MD+jXRmOeAt6m+2QfFbVhiWWjOZvujodEqgxkQiHqxawqAdqjMu2GFsagpSI/8pjs
+         eYDPvQEdyfP6fCTY1imGHnDMN1USrmCLTLNYLXi3SuxqICYQn3PXQaI2aMn2gKHxL2
+         5RW0C4up6nuBNC9IHICFGXdV3XFJtDHh5e3MGWI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 234/247] powerpc: Dont select HAVE_IRQ_EXIT_ON_IRQ_STACK
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 5.18 311/339] ata: libata-transport: fix {dma|pio|xfer}_mode sysfs files
 Date:   Mon, 13 Jun 2022 12:12:16 +0200
-Message-Id: <20220613094930.041280594@linuxfoundation.org>
+Message-Id: <20220613094936.186399776@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,52 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 1346d00e1bdfd4067f92bc14e8a6131a01de4190 upstream.
+commit 72aad489f992871e908ff6d9055b26c6366fb864 upstream.
 
-The HAVE_IRQ_EXIT_ON_IRQ_STACK option tells generic code that irq_exit()
-is called while still running on the hard irq stack (hardirq_ctx[] in
-the powerpc code).
+The {dma|pio}_mode sysfs files are incorrectly documented as having a
+list of the supported DMA/PIO transfer modes, while the corresponding
+fields of the *struct* ata_device hold the transfer mode IDs, not masks.
 
-Selecting the option means the generic code will *not* switch to the
-softirq stack before running softirqs, because the code is already
-running on the (mostly empty) hard irq stack.
+To match these docs, the {dma|pio}_mode (and even xfer_mode!) sysfs
+files are handled by the ata_bitfield_name_match() macro which leads to
+reading such kind of nonsense from them:
 
-But since commit 1b1b6a6f4cc0 ("powerpc: handle irq_enter/irq_exit in
-interrupt handler wrappers"), irq_exit() is now called on the regular task
-stack, not the hard irq stack.
+$ cat /sys/class/ata_device/dev3.0/pio_mode
+XFER_UDMA_7, XFER_UDMA_6, XFER_UDMA_5, XFER_UDMA_4, XFER_MW_DMA_4,
+XFER_PIO_6, XFER_PIO_5, XFER_PIO_4, XFER_PIO_3, XFER_PIO_2, XFER_PIO_1,
+XFER_PIO_0
 
-That's because previously irq_exit() was called in __do_irq() which is
-run on the hard irq stack, but now it is called in
-interrupt_async_exit_prepare() which is called from do_irq() constructed
-by the wrapper macro, which is after the switch back to the task stack.
+Using the correct ata_bitfield_name_search() macro fixes that:
 
-So drop HAVE_IRQ_EXIT_ON_IRQ_STACK from the Kconfig. This will mean an
-extra stack switch when processing some interrupts, but should
-significantly reduce the likelihood of stack overflow.
+$ cat /sys/class/ata_device/dev3.0/pio_mode
+XFER_PIO_4
 
-It also means the softirq stack will be used for running softirqs from
-other interrupts that don't use the hard irq stack, eg. timer interrupts.
+While fixing the file documentation, somewhat reword the {dma|pio}_mode
+file doc and add a note about being mostly useful for PATA devices to
+the xfer_mode file doc...
 
-Fixes: 1b1b6a6f4cc0 ("powerpc: handle irq_enter/irq_exit in interrupt handler wrappers")
-Cc: stable@vger.kernel.org # v5.12+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220525032639.1947280-1-mpe@ellerman.id.au
+Fixes: d9027470b886 ("[libata] Add ATA transport class")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/Kconfig |    1 -
- 1 file changed, 1 deletion(-)
+ Documentation/ABI/testing/sysfs-ata |   11 ++++++-----
+ drivers/ata/libata-transport.c      |    2 +-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -217,7 +217,6 @@ config PPC
- 	select HAVE_HARDLOCKUP_DETECTOR_PERF	if PERF_EVENTS && HAVE_PERF_EVENTS_NMI && !HAVE_HARDLOCKUP_DETECTOR_ARCH
- 	select HAVE_HW_BREAKPOINT		if PERF_EVENTS && (PPC_BOOK3S || PPC_8xx)
- 	select HAVE_IOREMAP_PROT
--	select HAVE_IRQ_EXIT_ON_IRQ_STACK
- 	select HAVE_IRQ_TIME_ACCOUNTING
- 	select HAVE_KERNEL_GZIP
- 	select HAVE_KERNEL_LZMA			if DEFAULT_UIMAGE
+--- a/Documentation/ABI/testing/sysfs-ata
++++ b/Documentation/ABI/testing/sysfs-ata
+@@ -107,13 +107,14 @@ Description:
+ 				described in ATA8 7.16 and 7.17. Only valid if
+ 				the device is not a PM.
+ 
+-		pio_mode:	(RO) Transfer modes supported by the device when
+-				in PIO mode. Mostly used by PATA device.
++		pio_mode:	(RO) PIO transfer mode used by the device.
++				Mostly used by PATA devices.
+ 
+-		xfer_mode:	(RO) Current transfer mode
++		xfer_mode:	(RO) Current transfer mode. Mostly used by
++				PATA devices.
+ 
+-		dma_mode:	(RO) Transfer modes supported by the device when
+-				in DMA mode. Mostly used by PATA device.
++		dma_mode:	(RO) DMA transfer mode used by the device.
++				Mostly used by PATA devices.
+ 
+ 		class:		(RO) Device class. Can be "ata" for disk,
+ 				"atapi" for packet device, "pmp" for PM, or
+--- a/drivers/ata/libata-transport.c
++++ b/drivers/ata/libata-transport.c
+@@ -196,7 +196,7 @@ static struct {
+ 	{ XFER_PIO_0,			"XFER_PIO_0" },
+ 	{ XFER_PIO_SLOW,		"XFER_PIO_SLOW" }
+ };
+-ata_bitfield_name_match(xfer,ata_xfer_names)
++ata_bitfield_name_search(xfer, ata_xfer_names)
+ 
+ /*
+  * ATA Port attributes
 
 
