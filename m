@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C3C5549628
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7558C548C07
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380220AbiFMN6c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:58:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33018 "EHLO
+        id S1350889AbiFMMld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:41:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381300AbiFMN4V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:56:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DF608A049;
-        Mon, 13 Jun 2022 04:36:50 -0700 (PDT)
+        with ESMTP id S1356996AbiFMMji (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:39:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 139515DD2D;
+        Mon, 13 Jun 2022 04:10:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84FA3B80EC7;
-        Mon, 13 Jun 2022 11:36:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEEB7C3411F;
-        Mon, 13 Jun 2022 11:36:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8D5A60B79;
+        Mon, 13 Jun 2022 11:09:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBFD0C34114;
+        Mon, 13 Jun 2022 11:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120207;
-        bh=gXYvlZnPFUNaM7G9ja0Y0pLazVMlcUftyKWO1ibNkxM=;
+        s=korg; t=1655118599;
+        bh=BZmku8ynkgmOkGRaWD1uCFlINFlU+hWhNKDr32It42w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=se6vbjxvqz6sPPJM7qpusnwiYJde+BL6HrvJBBOJMh5dXC8TiWtedd72E/RdKdKMY
-         2mooWW7qsyf0x86qG/5uVheNXpup2vwvTCoVBCOXIvgRGQodXq3Xzki2ni9X0K/O9B
-         adO5Fp2QthsBF6wqDEJgpcHnRNHlKzGZ359evh28=
+        b=frfmhGW1x/KUNZoAKklgWvBC/4H+XVF7D9JSjtlefRjmCJQYXRp9wYHF6RSkrRdkV
+         MYzsmKYNmlMSuVgdx0rDjzHUeyz3O5FO5NtMsHM0E/6qGYof0AxSCzEGpkM0W9fNXd
+         h6Mb2LFM7yX7ueHhLC8l9Pjcp2uslzoyWbRqRftI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Liu Xinpeng <liuxp11@chinatelecom.cn>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 269/339] drm/amd/pm: correct the metrics version for SMU 11.0.11/12/13
+Subject: [PATCH 5.10 134/172] watchdog: wdat_wdt: Stop watchdog when rebooting the system
 Date:   Mon, 13 Jun 2022 12:11:34 +0200
-Message-Id: <20220613094934.804918162@linuxfoundation.org>
+Message-Id: <20220613094921.474024787@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Liu Xinpeng <liuxp11@chinatelecom.cn>
 
-[ Upstream commit 396beb91a9eb86cbfa404e4220cca8f3ada70777 ]
+[ Upstream commit 27fdf84510a1374748904db43f6755f912736d92 ]
 
-Correct the metrics version used for SMU 11.0.11/12/13.
-Fixes misreported GPU metrics (e.g., fan speed, etc.) depending
-on which version of SMU firmware is loaded.
+Executing reboot command several times on the machine "Dell
+PowerEdge R740", UEFI security detection stopped machine
+with the following prompt:
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1925
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+UEFI0082: The system was reset due to a timeout from the watchdog
+timer. Check the System Event Log (SEL) or crash dumps from
+Operating Sysstem to identify the source that triggered the
+watchdog timer reset. Update the firmware or driver for the
+identified device.
+
+iDRAC has warning event: "The watchdog timer reset the system".
+
+This patch fixes this issue by adding the reboot notifier.
+
+Signed-off-by: Liu Xinpeng <liuxp11@chinatelecom.cn>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/1650984810-6247-3-git-send-email-liuxp11@chinatelecom.cn
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/pm/swsmu/smu11/sienna_cichlid_ppt.c   | 57 ++++++++++++++-----
- 1 file changed, 44 insertions(+), 13 deletions(-)
+ drivers/watchdog/wdat_wdt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-index 38f04836c82f..7a1e225fb823 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-@@ -586,12 +586,28 @@ static int sienna_cichlid_get_smu_metrics_data(struct smu_context *smu,
- 	uint16_t average_gfx_activity;
- 	int ret = 0;
+diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
+index 3065dd670a18..c60723f5ed99 100644
+--- a/drivers/watchdog/wdat_wdt.c
++++ b/drivers/watchdog/wdat_wdt.c
+@@ -462,6 +462,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+ 		return ret;
  
--	if ((smu->adev->ip_versions[MP1_HWIP][0] == IP_VERSION(11, 0, 7)) &&
--		(smu->smc_fw_version >= 0x3A4900))
--		use_metrics_v3 = true;
--	else if ((smu->adev->ip_versions[MP1_HWIP][0] == IP_VERSION(11, 0, 7)) &&
--		(smu->smc_fw_version >= 0x3A4300))
--		use_metrics_v2 =  true;
-+	switch (smu->adev->ip_versions[MP1_HWIP][0]) {
-+	case IP_VERSION(11, 0, 7):
-+		if (smu->smc_fw_version >= 0x3A4900)
-+			use_metrics_v3 = true;
-+		else if (smu->smc_fw_version >= 0x3A4300)
-+			use_metrics_v2 = true;
-+		break;
-+	case IP_VERSION(11, 0, 11):
-+		if (smu->smc_fw_version >= 0x412D00)
-+			use_metrics_v2 = true;
-+		break;
-+	case IP_VERSION(11, 0, 12):
-+		if (smu->smc_fw_version >= 0x3B2300)
-+			use_metrics_v2 = true;
-+		break;
-+	case IP_VERSION(11, 0, 13):
-+		if (smu->smc_fw_version >= 0x491100)
-+			use_metrics_v2 = true;
-+		break;
-+	default:
-+		break;
-+	}
+ 	watchdog_set_nowayout(&wdat->wdd, nowayout);
++	watchdog_stop_on_reboot(&wdat->wdd);
+ 	return devm_watchdog_register_device(dev, &wdat->wdd);
+ }
  
- 	ret = smu_cmn_get_metrics_table(smu,
- 					NULL,
-@@ -3701,13 +3717,28 @@ static ssize_t sienna_cichlid_get_gpu_metrics(struct smu_context *smu,
- 	uint16_t average_gfx_activity;
- 	int ret = 0;
- 
--	if ((adev->ip_versions[MP1_HWIP][0] == IP_VERSION(11, 0, 7)) &&
--		(smu->smc_fw_version >= 0x3A4900))
--		use_metrics_v3 = true;
--	else if ((adev->ip_versions[MP1_HWIP][0] == IP_VERSION(11, 0, 7)) &&
--		(smu->smc_fw_version >= 0x3A4300))
--		use_metrics_v2 = true;
--
-+	switch (smu->adev->ip_versions[MP1_HWIP][0]) {
-+	case IP_VERSION(11, 0, 7):
-+		if (smu->smc_fw_version >= 0x3A4900)
-+			use_metrics_v3 = true;
-+		else if (smu->smc_fw_version >= 0x3A4300)
-+			use_metrics_v2 = true;
-+		break;
-+	case IP_VERSION(11, 0, 11):
-+		if (smu->smc_fw_version >= 0x412D00)
-+			use_metrics_v2 = true;
-+		break;
-+	case IP_VERSION(11, 0, 12):
-+		if (smu->smc_fw_version >= 0x3B2300)
-+			use_metrics_v2 = true;
-+		break;
-+	case IP_VERSION(11, 0, 13):
-+		if (smu->smc_fw_version >= 0x491100)
-+			use_metrics_v2 = true;
-+		break;
-+	default:
-+		break;
-+	}
- 
- 	ret = smu_cmn_get_metrics_table(smu,
- 					&metrics_external,
 -- 
 2.35.1
 
