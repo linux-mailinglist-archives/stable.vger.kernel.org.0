@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD7C549296
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5115548872
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355637AbiFMLqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:46:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60828 "EHLO
+        id S1345501AbiFMKhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:37:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357271AbiFMLpz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:45:55 -0400
+        with ESMTP id S1345601AbiFMKgL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:36:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5DB54A3FE;
-        Mon, 13 Jun 2022 03:52:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDB7CE0BC;
+        Mon, 13 Jun 2022 03:22:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 684B3B80E56;
-        Mon, 13 Jun 2022 10:52:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6D93C34114;
-        Mon, 13 Jun 2022 10:51:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FFA6B80E5E;
+        Mon, 13 Jun 2022 10:22:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12D9AC3411E;
+        Mon, 13 Jun 2022 10:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117519;
-        bh=QsgEGlWyZ5KfG9+7DZ5KncemJyCDriy+OJ1G3S+RR38=;
+        s=korg; t=1655115756;
+        bh=l+X116IPdIcDhimPMpbxyK/QJ3o3fL8KICaWCEnn5fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZkT/qGhCVAovbJ5An5gkAVj7OMUODy/N2ZUpU2H0EpuSNNPR5NwWTNUMaD7s6DgS
-         cfER6x35Cr6aHAx3m7+IaOsyyrIVsEtRkHaKN+up0CiMGY2rPSjc7vQwoNBgeYE66e
-         OocV/pjur+lacbnZVSZ7MyZldxJ73gOCGpuiHArs=
+        b=FTFmuS4a4zB9HyXA/79OOvDs7n1P6zDn7VDmTJhDBfdKXqr0hahzcMuFq7ETDMele
+         nNDSeVRjy1jazo6Cn4iqQ37fbQq9aIKLV7NNh5s9KU0GDXA0hNb8lXT9vkY6eEtr8j
+         Ep6/KTB+nCjPfS9TwLQyFSp0dDBqAR+kVD0PseE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@openvz.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 053/287] tracing: incorrect isolate_mote_t cast in mm_vmscan_lru_isolate
-Date:   Mon, 13 Jun 2022 12:07:57 +0200
-Message-Id: <20220613094925.475722191@linuxfoundation.org>
+Subject: [PATCH 4.14 020/218] scsi: megaraid: Fix error check return value of register_chrdev()
+Date:   Mon, 13 Jun 2022 12:07:58 +0200
+Message-Id: <20220613094913.090196163@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@openvz.org>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit 2b132903de7124dd9a758be0c27562e91a510848 ]
+[ Upstream commit c5acd61dbb32b6bda0f3a354108f2b8dcb788985 ]
 
-Fixes following sparse warnings:
+If major equals 0, register_chrdev() returns an error code when it fails.
+This function dynamically allocates a major and returns its number on
+success, so we should use "< 0" to check it instead of "!".
 
-  CHECK   mm/vmscan.c
-mm/vmscan.c: note: in included file (through
-include/trace/trace_events.h, include/trace/define_trace.h,
-include/trace/events/vmscan.h):
-./include/trace/events/vmscan.h:281:1: sparse: warning:
- cast to restricted isolate_mode_t
-./include/trace/events/vmscan.h:281:1: sparse: warning:
- restricted isolate_mode_t degrades to integer
-
-Link: https://lkml.kernel.org/r/e85d7ff2-fd10-53f8-c24e-ba0458439c1b@openvz.org
-Signed-off-by: Vasily Averin <vvs@openvz.org>
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://lore.kernel.org/r/20220418105755.2558828-1-lv.ruyi@zte.com.cn
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/vmscan.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/megaraid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/trace/events/vmscan.h b/include/trace/events/vmscan.h
-index a1cb91342231..7add8c87fe22 100644
---- a/include/trace/events/vmscan.h
-+++ b/include/trace/events/vmscan.h
-@@ -294,7 +294,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
- 		__field(unsigned long, nr_scanned)
- 		__field(unsigned long, nr_skipped)
- 		__field(unsigned long, nr_taken)
--		__field(isolate_mode_t, isolate_mode)
-+		__field(unsigned int, isolate_mode)
- 		__field(int, lru)
- 	),
- 
-@@ -305,7 +305,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
- 		__entry->nr_scanned = nr_scanned;
- 		__entry->nr_skipped = nr_skipped;
- 		__entry->nr_taken = nr_taken;
--		__entry->isolate_mode = isolate_mode;
-+		__entry->isolate_mode = (__force unsigned int)isolate_mode;
- 		__entry->lru = lru;
- 	),
- 
+diff --git a/drivers/scsi/megaraid.c b/drivers/scsi/megaraid.c
+index f5c09bbf9374..eed6d45b8025 100644
+--- a/drivers/scsi/megaraid.c
++++ b/drivers/scsi/megaraid.c
+@@ -4707,7 +4707,7 @@ static int __init megaraid_init(void)
+ 	 * major number allocation.
+ 	 */
+ 	major = register_chrdev(0, "megadev_legacy", &megadev_fops);
+-	if (!major) {
++	if (major < 0) {
+ 		printk(KERN_WARNING
+ 				"megaraid: failed to register char device\n");
+ 	}
 -- 
 2.35.1
 
