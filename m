@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B60B7548D1C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47739548F58
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:22:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356735AbiFMM5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:57:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45750 "EHLO
+        id S243816AbiFMKZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:25:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358351AbiFMMzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D83826F4;
-        Mon, 13 Jun 2022 04:15:08 -0700 (PDT)
+        with ESMTP id S244759AbiFMKYI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:24:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79D2ABF7E;
+        Mon, 13 Jun 2022 03:18:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEA3D60B6B;
-        Mon, 13 Jun 2022 11:15:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCF50C34114;
-        Mon, 13 Jun 2022 11:15:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD799B80E5E;
+        Mon, 13 Jun 2022 10:18:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23B2AC3411E;
+        Mon, 13 Jun 2022 10:18:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118907;
-        bh=HV73AQN1kNcjmqMkArhjy0PLs8x/DcI7HaSRZwf/Jeg=;
+        s=korg; t=1655115500;
+        bh=PLII3z8k6s49qpTxgn+ynR7j/IvGloXYIOhLBRVT4+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wVexd7ii8FaqOnDmG4nYHOZaivLc1C0IhFaOF5UBjb3NWHNOWbAAoZIET1OdI2K23
-         /lHhpQbH/qAYuikpX+5ses3LErOdgfNAxgZ1zdu5BsNgpu4lXBbCKd0kg+Nsvh/15L
-         vRnAvQedXS2mCmK+lKbR21A1W4WxtXLtZQ8nfbPM=
+        b=smvjIpeye40piKCV82akIfx0BvpBWh1Cxs8Kfgpiv0Fl6Q5wCQHYybrinLjFyHAe8
+         cBeGZqH9XmpgHJ1NU6giassz5Q7EfRGSK1MZifHxSQUj/DTINvF93gYShrjqKixo42
+         Vnk7bCXdnu3WZDR/Bsy0cKK6KBoYtyNxnVlBmb88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 070/247] clocksource/drivers/oxnas-rps: Fix irq_of_parse_and_map() return value
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.9 098/167] hugetlb: fix huge_pmd_unshare address update
 Date:   Mon, 13 Jun 2022 12:09:32 +0200
-Message-Id: <20220613094925.082500845@linuxfoundation.org>
+Message-Id: <20220613094903.870291376@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-[ Upstream commit 9c04a8ff03def4df3f81219ffbe1ec9b44ff5348 ]
+commit 48381273f8734d28ef56a5bdf1966dd8530111bc upstream.
 
-The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
+The routine huge_pmd_unshare() is passed a pointer to an address
+associated with an area which may be unshared.  If unshare is successful
+this address is updated to 'optimize' callers iterating over huge page
+addresses.  For the optimization to work correctly, address should be
+updated to the last huge page in the unmapped/unshared area.  However, in
+the common case where the passed address is PUD_SIZE aligned, the address
+is incorrectly updated to the address of the preceding huge page.  That
+wastes CPU cycles as the unmapped/unshared range is scanned twice.
 
-Fixes: 89355274e1f7 ("clocksource/drivers/oxnas-rps: Add Oxford Semiconductor RPS Dual Timer")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220422104101.55754-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220524205003.126184-1-mike.kravetz@oracle.com
+Fixes: 39dde65c9940 ("shared page table for hugetlb page")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Acked-by: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/timer-oxnas-rps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/hugetlb.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/timer-oxnas-rps.c b/drivers/clocksource/timer-oxnas-rps.c
-index 56c0cc32d0ac..d514b44e67dd 100644
---- a/drivers/clocksource/timer-oxnas-rps.c
-+++ b/drivers/clocksource/timer-oxnas-rps.c
-@@ -236,7 +236,7 @@ static int __init oxnas_rps_timer_init(struct device_node *np)
- 	}
- 
- 	rps->irq = irq_of_parse_and_map(np, 0);
--	if (rps->irq < 0) {
-+	if (!rps->irq) {
- 		ret = -EINVAL;
- 		goto err_iomap;
- 	}
--- 
-2.35.1
-
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4593,7 +4593,14 @@ int huge_pmd_unshare(struct mm_struct *m
+ 	pud_clear(pud);
+ 	put_page(virt_to_page(ptep));
+ 	mm_dec_nr_pmds(mm);
+-	*addr = ALIGN(*addr, HPAGE_SIZE * PTRS_PER_PTE) - HPAGE_SIZE;
++	/*
++	 * This update of passed address optimizes loops sequentially
++	 * processing addresses in increments of huge page size (PMD_SIZE
++	 * in this case).  By clearing the pud, a PUD_SIZE area is unmapped.
++	 * Update address to the 'last page' in the cleared area so that
++	 * calling loop can move to first page past this area.
++	 */
++	*addr |= PUD_SIZE - PMD_SIZE;
+ 	return 1;
+ }
+ #define want_pmd_share()	(1)
 
 
