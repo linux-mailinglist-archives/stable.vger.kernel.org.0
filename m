@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E75FC549502
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57955548BA6
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381567AbiFMOIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:08:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43522 "EHLO
+        id S1376608AbiFMNWO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:22:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381163AbiFMOEH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:04:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F23C64551E;
-        Mon, 13 Jun 2022 04:38:44 -0700 (PDT)
+        with ESMTP id S1377502AbiFMNUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08AF06AA7F;
+        Mon, 13 Jun 2022 04:23:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2B5FB80D31;
-        Mon, 13 Jun 2022 11:38:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07A05C34114;
-        Mon, 13 Jun 2022 11:38:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3881A61046;
+        Mon, 13 Jun 2022 11:22:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A754C34114;
+        Mon, 13 Jun 2022 11:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120322;
-        bh=7ZJdOB8NWztNFmJga+HULPqObVqV573O24/WNfw5IOk=;
+        s=korg; t=1655119360;
+        bh=E4rQH1VFVcVFFMQSB2xDZNS++oZ3MPwR5If0rkwwWrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MD+jXRmOeAt6m+2QfFbVhiWWjOZvujodEqgxkQiHqxawqAdqjMu2GFsagpSI/8pjs
-         eYDPvQEdyfP6fCTY1imGHnDMN1USrmCLTLNYLXi3SuxqICYQn3PXQaI2aMn2gKHxL2
-         5RW0C4up6nuBNC9IHICFGXdV3XFJtDHh5e3MGWI4=
+        b=L/o882kbVoODy65h4MX7V0agq1DBX3LLh5PqaCE7HRbXJjjplNT2crBQiy2bvzbJr
+         o791JO20qJjIY4DJ4yLARQ4LCskOki35g7bH2MQpt9cuRCCFOdKoDYAftWjxd04sLK
+         O1vYg6v5cQc2wYGss+WZ0H+/xe26I1nhDQcbAmao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.18 311/339] ata: libata-transport: fix {dma|pio|xfer}_mode sysfs files
-Date:   Mon, 13 Jun 2022 12:12:16 +0200
-Message-Id: <20220613094936.186399776@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 5.15 235/247] drm/bridge: analogix_dp: Support PSR-exit to disable transition
+Date:   Mon, 13 Jun 2022 12:12:17 +0200
+Message-Id: <20220613094930.071901491@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 72aad489f992871e908ff6d9055b26c6366fb864 upstream.
+commit ca871659ec1606d33b1e76de8d4cf924cf627e34 upstream.
 
-The {dma|pio}_mode sysfs files are incorrectly documented as having a
-list of the supported DMA/PIO transfer modes, while the corresponding
-fields of the *struct* ata_device hold the transfer mode IDs, not masks.
+Most eDP panel functions only work correctly when the panel is not in
+self-refresh. In particular, analogix_dp_bridge_disable() tends to hit
+AUX channel errors if the panel is in self-refresh.
 
-To match these docs, the {dma|pio}_mode (and even xfer_mode!) sysfs
-files are handled by the ata_bitfield_name_match() macro which leads to
-reading such kind of nonsense from them:
+Given the above, it appears that so far, this driver assumes that we are
+never in self-refresh when it comes time to fully disable the bridge.
+Prior to commit 846c7dfc1193 ("drm/atomic: Try to preserve the crtc
+enabled state in drm_atomic_remove_fb, v2."), this tended to be true,
+because we would automatically disable the pipe when framebuffers were
+removed, and so we'd typically disable the bridge shortly after the last
+display activity.
 
-$ cat /sys/class/ata_device/dev3.0/pio_mode
-XFER_UDMA_7, XFER_UDMA_6, XFER_UDMA_5, XFER_UDMA_4, XFER_MW_DMA_4,
-XFER_PIO_6, XFER_PIO_5, XFER_PIO_4, XFER_PIO_3, XFER_PIO_2, XFER_PIO_1,
-XFER_PIO_0
+However, that is not guaranteed: an idle (self-refresh) display pipe may
+be disabled, e.g., when switching CRTCs. We need to exit PSR first.
 
-Using the correct ata_bitfield_name_search() macro fixes that:
+Stable notes: this is definitely a bugfix, and the bug has likely
+existed in some form for quite a while. It may predate the "PSR helpers"
+refactor, but the code looked very different before that, and it's
+probably not worth rewriting the fix.
 
-$ cat /sys/class/ata_device/dev3.0/pio_mode
-XFER_PIO_4
-
-While fixing the file documentation, somewhat reword the {dma|pio}_mode
-file doc and add a note about being mostly useful for PATA devices to
-the xfer_mode file doc...
-
-Fixes: d9027470b886 ("[libata] Add ATA transport class")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Cc: stable@vger.kernel.org
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 6c836d965bad ("drm/rockchip: Use the helpers for PSR")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220228122522.v2.1.I161904be17ba14526f78536ccd78b85818449b51@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/ABI/testing/sysfs-ata |   11 ++++++-----
- drivers/ata/libata-transport.c      |    2 +-
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   42 +++++++++++++++++++--
+ 1 file changed, 38 insertions(+), 4 deletions(-)
 
---- a/Documentation/ABI/testing/sysfs-ata
-+++ b/Documentation/ABI/testing/sysfs-ata
-@@ -107,13 +107,14 @@ Description:
- 				described in ATA8 7.16 and 7.17. Only valid if
- 				the device is not a PM.
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -1269,6 +1269,25 @@ static int analogix_dp_bridge_attach(str
+ }
  
--		pio_mode:	(RO) Transfer modes supported by the device when
--				in PIO mode. Mostly used by PATA device.
-+		pio_mode:	(RO) PIO transfer mode used by the device.
-+				Mostly used by PATA devices.
+ static
++struct drm_crtc *analogix_dp_get_old_crtc(struct analogix_dp_device *dp,
++					  struct drm_atomic_state *state)
++{
++	struct drm_encoder *encoder = dp->encoder;
++	struct drm_connector *connector;
++	struct drm_connector_state *conn_state;
++
++	connector = drm_atomic_get_old_connector_for_encoder(state, encoder);
++	if (!connector)
++		return NULL;
++
++	conn_state = drm_atomic_get_old_connector_state(state, connector);
++	if (!conn_state)
++		return NULL;
++
++	return conn_state->crtc;
++}
++
++static
+ struct drm_crtc *analogix_dp_get_new_crtc(struct analogix_dp_device *dp,
+ 					  struct drm_atomic_state *state)
+ {
+@@ -1448,14 +1467,16 @@ analogix_dp_bridge_atomic_disable(struct
+ {
+ 	struct drm_atomic_state *old_state = old_bridge_state->base.state;
+ 	struct analogix_dp_device *dp = bridge->driver_private;
+-	struct drm_crtc *crtc;
++	struct drm_crtc *old_crtc, *new_crtc;
++	struct drm_crtc_state *old_crtc_state = NULL;
+ 	struct drm_crtc_state *new_crtc_state = NULL;
++	int ret;
  
--		xfer_mode:	(RO) Current transfer mode
-+		xfer_mode:	(RO) Current transfer mode. Mostly used by
-+				PATA devices.
+-	crtc = analogix_dp_get_new_crtc(dp, old_state);
+-	if (!crtc)
++	new_crtc = analogix_dp_get_new_crtc(dp, old_state);
++	if (!new_crtc)
+ 		goto out;
  
--		dma_mode:	(RO) Transfer modes supported by the device when
--				in DMA mode. Mostly used by PATA device.
-+		dma_mode:	(RO) DMA transfer mode used by the device.
-+				Mostly used by PATA devices.
+-	new_crtc_state = drm_atomic_get_new_crtc_state(old_state, crtc);
++	new_crtc_state = drm_atomic_get_new_crtc_state(old_state, new_crtc);
+ 	if (!new_crtc_state)
+ 		goto out;
  
- 		class:		(RO) Device class. Can be "ata" for disk,
- 				"atapi" for packet device, "pmp" for PM, or
---- a/drivers/ata/libata-transport.c
-+++ b/drivers/ata/libata-transport.c
-@@ -196,7 +196,7 @@ static struct {
- 	{ XFER_PIO_0,			"XFER_PIO_0" },
- 	{ XFER_PIO_SLOW,		"XFER_PIO_SLOW" }
- };
--ata_bitfield_name_match(xfer,ata_xfer_names)
-+ata_bitfield_name_search(xfer, ata_xfer_names)
+@@ -1464,6 +1485,19 @@ analogix_dp_bridge_atomic_disable(struct
+ 		return;
  
- /*
-  * ATA Port attributes
+ out:
++	old_crtc = analogix_dp_get_old_crtc(dp, old_state);
++	if (old_crtc) {
++		old_crtc_state = drm_atomic_get_old_crtc_state(old_state,
++							       old_crtc);
++
++		/* When moving from PSR to fully disabled, exit PSR first. */
++		if (old_crtc_state && old_crtc_state->self_refresh_active) {
++			ret = analogix_dp_disable_psr(dp);
++			if (ret)
++				DRM_ERROR("Failed to disable psr (%d)\n", ret);
++		}
++	}
++
+ 	analogix_dp_bridge_disable(bridge);
+ }
+ 
 
 
