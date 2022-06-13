@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A82CF5493F9
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 547CC548EF0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385572AbiFMOuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:50:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42894 "EHLO
+        id S1352462AbiFMLQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:16:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386135AbiFMOtF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:49:05 -0400
+        with ESMTP id S1352664AbiFMLOK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:14:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 407EAC1ECA;
-        Mon, 13 Jun 2022 04:53:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D605B366B0;
+        Mon, 13 Jun 2022 03:36:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 206D561449;
-        Mon, 13 Jun 2022 11:48:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E1BDC34114;
-        Mon, 13 Jun 2022 11:48:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D0FA6610AB;
+        Mon, 13 Jun 2022 10:36:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B78F0C385A5;
+        Mon, 13 Jun 2022 10:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120894;
-        bh=PAF/TjJ7I6lN/081b11GH9REtxTMzr1Vb9F9Oe3Mr+M=;
+        s=korg; t=1655116599;
+        bh=VLAUu/pBbU0WbMGamu1ApVdJKC+8dNefuYHs3rDbbgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFzYhvBp9f5jeNXGDOD+ogsUC3B0PRlTk2jYYn4CZGBKgB8tXQiHPX97UCWjd2Xgv
-         3JtPrcVZPT1zhP+T98KijRLPdbIvlYF0u1mSBYTt33dEPRRPmkRrkclE347fjmcdtr
-         dmX6MxDAlcQpEn3/F41Jv+bDw/Ohk9biUdUSpaCM=
+        b=jU4nROSlNmV04WICNuK1p73iwjCy7fTLwpVDXkbo7jiyF9Pe9/F8EpFWc76cb0Mte
+         vXUzvCG/HPZNKhYlq4658UUvVz2L/Zyf0El/qkdtKdBzJ3UAoK0BaNkhnAPYBm2kVr
+         V5lzQKZPo+SUQt/hC9TzxBUHVsd/hDyFJwfpbANE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 174/298] af_unix: Fix a data-race in unix_dgram_peer_wake_me().
+        stable@vger.kernel.org, Martin Faltesek <mfaltesek@google.com>,
+        Guenter Roeck <groeck@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 210/218] nfc: st21nfca: fix memory leaks in EVT_TRANSACTION handling
 Date:   Mon, 13 Jun 2022 12:11:08 +0200
-Message-Id: <20220613094930.210946100@linuxfoundation.org>
+Message-Id: <20220613094926.993839081@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Martin Faltesek <mfaltesek@google.com>
 
-[ Upstream commit 662a80946ce13633ae90a55379f1346c10f0c432 ]
+commit 996419e0594abb311fb958553809f24f38e7abbe upstream.
 
-unix_dgram_poll() calls unix_dgram_peer_wake_me() without `other`'s
-lock held and check if its receive queue is full.  Here we need to
-use unix_recvq_full_lockless() instead of unix_recvq_full(), otherwise
-KCSAN will report a data-race.
+Error paths do not free previously allocated memory. Add devm_kfree() to
+those failure paths.
 
-Fixes: 7d267278a9ec ("unix: avoid use-after-free in ep_remove_wait_queue")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Link: https://lore.kernel.org/r/20220605232325.11804-1-kuniyu@amazon.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
+Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
+Cc: stable@vger.kernel.org
+Signed-off-by: Martin Faltesek <mfaltesek@google.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/unix/af_unix.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nfc/st21nfca/se.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index 1e7ed5829ed5..99c56922abf5 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -490,7 +490,7 @@ static int unix_dgram_peer_wake_me(struct sock *sk, struct sock *other)
- 	 * -ECONNREFUSED. Otherwise, if we haven't queued any skbs
- 	 * to other and its full, we will hang waiting for POLLOUT.
- 	 */
--	if (unix_recvq_full(other) && !sock_flag(other, SOCK_DEAD))
-+	if (unix_recvq_full_lockless(other) && !sock_flag(other, SOCK_DEAD))
- 		return 1;
+--- a/drivers/nfc/st21nfca/se.c
++++ b/drivers/nfc/st21nfca/se.c
+@@ -332,22 +332,29 @@ int st21nfca_connectivity_event_received
+ 		transaction->aid_len = skb->data[1];
  
- 	if (connected)
--- 
-2.35.1
-
+ 		/* Checking if the length of the AID is valid */
+-		if (transaction->aid_len > sizeof(transaction->aid))
++		if (transaction->aid_len > sizeof(transaction->aid)) {
++			devm_kfree(dev, transaction);
+ 			return -EINVAL;
++		}
+ 
+ 		memcpy(transaction->aid, &skb->data[2],
+ 		       transaction->aid_len);
+ 
+ 		/* Check next byte is PARAMETERS tag (82) */
+ 		if (skb->data[transaction->aid_len + 2] !=
+-		    NFC_EVT_TRANSACTION_PARAMS_TAG)
++		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
++			devm_kfree(dev, transaction);
+ 			return -EPROTO;
++		}
+ 
+ 		transaction->params_len = skb->data[transaction->aid_len + 3];
+ 
+ 		/* Total size is allocated (skb->len - 2) minus fixed array members */
+-		if (transaction->params_len > ((skb->len - 2) - sizeof(struct nfc_evt_transaction)))
++		if (transaction->params_len > ((skb->len - 2) -
++		    sizeof(struct nfc_evt_transaction))) {
++			devm_kfree(dev, transaction);
+ 			return -EINVAL;
++		}
+ 
+ 		memcpy(transaction->params, skb->data +
+ 		       transaction->aid_len + 4, transaction->params_len);
 
 
