@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0211549480
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AA3D548B18
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359425AbiFMNNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:13:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38432 "EHLO
+        id S1384872AbiFMOl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:41:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376330AbiFMNKv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:10:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCA4A666B7;
-        Mon, 13 Jun 2022 04:21:48 -0700 (PDT)
+        with ESMTP id S1385768AbiFMOko (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:40:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82AECB0A69;
+        Mon, 13 Jun 2022 04:50:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63A99B80E59;
-        Mon, 13 Jun 2022 11:21:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C34E2C34114;
-        Mon, 13 Jun 2022 11:21:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF042B80ECD;
+        Mon, 13 Jun 2022 11:50:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B77DC34114;
+        Mon, 13 Jun 2022 11:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119306;
-        bh=7RUlMWfljiidExMpp+ECfZuNrzYH/eWjg+U8SwDpDkQ=;
+        s=korg; t=1655121028;
+        bh=KgLkVpm/eCq7pTrqhy/1TWHRr1bnRifLYUD1rkYJal0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0vXT/tUBZto5483+GdJj1fD6GRe5+0N40+dzVPa8ZRAM4hq2YEpDhEO7wQZ8/wcIQ
-         rI6aPQ+JGQtqvkxQ/qwOalbpdBTAotfwhGHMBl7yguEsIdVDmBS5tia7TCQacWYQ4n
-         eC7MxqyXwvflCdTXUiZuuvk9W9Hj88m0jjmh2b/E=
+        b=xS1dLV3sbAz8O+tiJMl0Wl4Ur+eXe22Z/fKf7qvMn1ZHdzE5fO/PVh6i3yw8uM3u3
+         DQghM07KY+wvNy9Nn8tLCccOQe7BgNZcoz7OzB8u/YSjr/9f3Xytlr91X4aizoxUnK
+         1Ap3pIa1RFd/qEuCJ5524FjSAN9d7KBM9+KdYmFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        =?UTF-8?q?Andr=C3=A9=20Kapelrud?= <a.kapelrud@gmail.com>
-Subject: [PATCH 5.15 214/247] ALSA: usb-audio: Skip generic sync EP parse for secondary EP
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Petr Mladek <pmladek@suse.com>,
+        John Ogness <john.ogness@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 222/298] serial: msm_serial: disable interrupts in __msm_console_write()
 Date:   Mon, 13 Jun 2022 12:11:56 +0200
-Message-Id: <20220613094929.429570327@linuxfoundation.org>
+Message-Id: <20220613094931.833826222@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: John Ogness <john.ogness@linutronix.de>
 
-commit efb75df105e82f076a85b9f2d81410428bcb55fc upstream.
+[ Upstream commit aabdbb1b7a5819e18c403334a31fb0cc2c06ad41 ]
 
-When ep_idx is already non-zero, it means usually a capture stream
-that is set up explicity by a fixed-format quirk, and applying the
-check for generic (non-implicit-fb) sync EPs might hit incorrectly,
-resulting in a bogus sync endpoint for the capture stream.
+__msm_console_write() assumes that interrupts are disabled, but
+with threaded console printers it is possible that the write()
+callback of the console is called with interrupts enabled.
 
-This patch adds a check for the ep_idx and skip if it's a secondary
-endpoint.  It's a part of the fixes for regressions on Saffire 6.
+Explicitly disable interrupts using local_irq_save() to preserve
+the assumed context.
 
-Fixes: 7b0efea4baf0 ("ALSA: usb-audio: Add missing ep_idx in fixed EP quirks")
-Reported-and-tested-by: André Kapelrud <a.kapelrud@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220606160910.6926-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Link: https://lore.kernel.org/r/20220506213324.470461-1-john.ogness@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/pcm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/msm_serial.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-index b470404a5376..b0369df53910 100644
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -304,7 +304,7 @@ int snd_usb_audioformat_set_sync_ep(struct snd_usb_audio *chip,
- 	 * Generic sync EP handling
- 	 */
+diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
+index 23c94b927776..e676ec761f18 100644
+--- a/drivers/tty/serial/msm_serial.c
++++ b/drivers/tty/serial/msm_serial.c
+@@ -1599,6 +1599,7 @@ static inline struct uart_port *msm_get_port_from_line(unsigned int line)
+ static void __msm_console_write(struct uart_port *port, const char *s,
+ 				unsigned int count, bool is_uartdm)
+ {
++	unsigned long flags;
+ 	int i;
+ 	int num_newlines = 0;
+ 	bool replaced = false;
+@@ -1616,6 +1617,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
+ 			num_newlines++;
+ 	count += num_newlines;
  
--	if (altsd->bNumEndpoints < 2)
-+	if (fmt->ep_idx > 0 || altsd->bNumEndpoints < 2)
- 		return 0;
++	local_irq_save(flags);
++
+ 	if (port->sysrq)
+ 		locked = 0;
+ 	else if (oops_in_progress)
+@@ -1661,6 +1664,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
  
- 	is_playback = !(get_endpoint(alts, 0)->bEndpointAddress & USB_DIR_IN);
+ 	if (locked)
+ 		spin_unlock(&port->lock);
++
++	local_irq_restore(flags);
+ }
+ 
+ static void msm_console_write(struct console *co, const char *s,
 -- 
-2.36.1
+2.35.1
 
 
 
