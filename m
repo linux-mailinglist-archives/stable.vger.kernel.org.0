@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9983E548DFC
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C41F549854
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240582AbiFMNAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:00:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50348 "EHLO
+        id S1358493AbiFMMGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:06:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356294AbiFMM4L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:56:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BFF413DD3;
-        Mon, 13 Jun 2022 04:17:14 -0700 (PDT)
+        with ESMTP id S1359169AbiFMMFY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD6B9186F4;
+        Mon, 13 Jun 2022 03:59:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B554EB80EA8;
-        Mon, 13 Jun 2022 11:17:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24D5FC3411C;
-        Mon, 13 Jun 2022 11:17:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49519611B3;
+        Mon, 13 Jun 2022 10:59:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B813C34114;
+        Mon, 13 Jun 2022 10:59:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119031;
-        bh=9gm+jjQCDonsH8R3vmn6xBs3fRxgO06gKADSFOrR/4o=;
+        s=korg; t=1655117964;
+        bh=a/YkUWLxarjO73nmXr57Q4nifqFIyaO7maslcmeyWEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FQ06GGIQIfWXRFi4XrohRsWool2muSXuVfyFDWs0ivmoNXl4qGzUelf2RSa4pfp5F
-         Q8JiYh8agDAh1jJ4XX8rktX1zHEjzgbKbpExd2vjg7EyqkC5LnF+SXd9nhVQJEWBLN
-         7Ns2KxKYgQgkheGZVq/EfRC9svDA9wuKEYIN86y8=
+        b=YRwZYLOPDli3xzI6gbqWmv8r5Hwaz/9HpQ/5J3vMLerhGcqf0qDaDI6VFkPdDKwUe
+         Rbwzn5ksduC89DRGzw6YK3IajhOXOV84aFn4PILyp5l5VqVPXRqj5LiP0fE6wHkh0e
+         zBM2sfEFIH2UwKQzOZ4KGAZEKrN2NhQ4C78+mRgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 116/247] iommu/arm-smmu: fix possible null-ptr-deref in arm_smmu_device_probe()
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Lin Ma <linma@zju.edu.cn>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 194/287] USB: storage: karma: fix rio_karma_init return
 Date:   Mon, 13 Jun 2022 12:10:18 +0200
-Message-Id: <20220613094926.481486067@linuxfoundation.org>
+Message-Id: <20220613094929.748553541@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit d9ed8af1dee37f181096631fb03729ece98ba816 ]
+[ Upstream commit b92ffb1eddd9a66a90defc556dcbf65a43c196c7 ]
 
-It will cause null-ptr-deref when using 'res', if platform_get_resource()
-returns NULL, so move using 'res' after devm_ioremap_resource() that
-will check it to avoid null-ptr-deref.
-And use devm_platform_get_and_ioremap_resource() to simplify code.
+The function rio_karam_init() should return -ENOMEM instead of
+value 0 (USB_STOR_TRANSPORT_GOOD) when allocation fails.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220425114136.2649310-1-yangyingliang@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Similarly, it should return -EIO when rio_karma_send_command() fails.
+
+Fixes: dfe0d3ba20e8 ("USB Storage: add rio karma eject support")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220412144359.28447-1-linma@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm/arm-smmu/arm-smmu.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/usb/storage/karma.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-index 4bc75c4ce402..324e8f32962a 100644
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-@@ -2090,11 +2090,10 @@ static int arm_smmu_device_probe(struct platform_device *pdev)
- 	if (err)
- 		return err;
+diff --git a/drivers/usb/storage/karma.c b/drivers/usb/storage/karma.c
+index edcf2be0e0eb..09c8add5108a 100644
+--- a/drivers/usb/storage/karma.c
++++ b/drivers/usb/storage/karma.c
+@@ -172,23 +172,24 @@ static void rio_karma_destructor(void *extra)
  
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	ioaddr = res->start;
--	smmu->base = devm_ioremap_resource(dev, res);
-+	smmu->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
- 	if (IS_ERR(smmu->base))
- 		return PTR_ERR(smmu->base);
-+	ioaddr = res->start;
- 	/*
- 	 * The resource size should effectively match the value of SMMU_TOP;
- 	 * stash that temporarily until we know PAGESIZE to validate it with.
+ static int rio_karma_init(struct us_data *us)
+ {
+-	int ret = 0;
+ 	struct karma_data *data = kzalloc(sizeof(struct karma_data), GFP_NOIO);
+ 	if (!data)
+-		goto out;
++		return -ENOMEM;
+ 
+ 	data->recv = kmalloc(RIO_RECV_LEN, GFP_NOIO);
+ 	if (!data->recv) {
+ 		kfree(data);
+-		goto out;
++		return -ENOMEM;
+ 	}
+ 
+ 	us->extra = data;
+ 	us->extra_destructor = rio_karma_destructor;
+-	ret = rio_karma_send_command(RIO_ENTER_STORAGE, us);
+-	data->in_storage = (ret == 0);
+-out:
+-	return ret;
++	if (rio_karma_send_command(RIO_ENTER_STORAGE, us))
++		return -EIO;
++
++	data->in_storage = 1;
++
++	return 0;
+ }
+ 
+ static struct scsi_host_template karma_host_template;
 -- 
 2.35.1
 
