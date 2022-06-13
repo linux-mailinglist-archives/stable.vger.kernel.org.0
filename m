@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14F8D549627
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 560C254906C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354023AbiFMLba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:31:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56696 "EHLO
+        id S1348794AbiFMK4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:56:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354904AbiFMLaR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:30:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6167403C9;
-        Mon, 13 Jun 2022 03:46:00 -0700 (PDT)
+        with ESMTP id S1346651AbiFMKvL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:51:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E377D11448;
+        Mon, 13 Jun 2022 03:27:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 758396125A;
-        Mon, 13 Jun 2022 10:46:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74E73C36AFE;
-        Mon, 13 Jun 2022 10:45:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CDF97B80E95;
+        Mon, 13 Jun 2022 10:27:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 416E0C34114;
+        Mon, 13 Jun 2022 10:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117159;
-        bh=hjl61t7EgsWIOT99ZOn/GGNLbHz51dbwZfiOjuqeF+Q=;
+        s=korg; t=1655116042;
+        bh=YyyKSCE/z4DN7afLGPXBmdG056sAxbf9rYSROttyKCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VkqvoPlZWXJkbuD7cjGp3h7tCp/4gmw+NjkD9B6idDCBPJi/JfY8aZ+nR3ctBJi1P
-         5phb8cTpyNXPNDl+693o0g6e/Hh5LfReF8N4q8onbWe+uIv+Glaf/bRNXXN+GY8emu
-         rf2WxbmErgPtwV/Kq+d9DW5MIrN8HWlPBjmuRIKM=
+        b=W2Cp1m9R+AeLhoZ8RenhktdNWJbpmTdEINGz5D3u43kiwhtW8Z/dYf9YyFdP4SfEw
+         YKKNxjbJbUGhKRKqukpDAW/qOb1/8Cy+NMbqwLixQr70ZE2+z99kSpuHayNmfFe138
+         pbvN6YRBrjP6kbKkPSx+EFU7//fHd0YC2iSoBBEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 307/411] serial: 8250_fintek: Check SER_RS485_RTS_* only with RS485
+        stable@vger.kernel.org, Catrinel Catrinescu <cc@80211.de>,
+        Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 122/218] mac80211: upgrade passive scan to active scan on DFS channels after beacon rx
 Date:   Mon, 13 Jun 2022 12:09:40 +0200
-Message-Id: <20220613094937.956869232@linuxfoundation.org>
+Message-Id: <20220613094924.271799424@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit af0179270977508df6986b51242825d7edd59caf ]
+commit b041b7b9de6e1d4362de855ab90f9d03ef323edd upstream.
 
-SER_RS485_RTS_ON_SEND and SER_RS485_RTS_AFTER_SEND relate to behavior
-within RS485 operation. The driver checks if they have the same value
-which is not possible to realize with the hardware. The check is taken
-regardless of SER_RS485_ENABLED flag and -EINVAL is returned when the
-check fails, which creates problems.
+In client mode, we can't connect to hidden SSID APs or SSIDs not advertised
+in beacons on DFS channels, since we're forced to passive scan. Fix this by
+sending out a probe request immediately after the first beacon, if active
+scan was requested by the user.
 
-This check makes it unnecessarily complicated to turn RS485 mode off as
-simple zeroed serial_rs485 struct will trigger that equal values check.
-In addition, the driver itself memsets its rs485 structure to zero when
-RS485 is disabled but if userspace would try to make an TIOCSRS485
-ioctl() call with the very same struct, it would end up failing with
--EINVAL which doesn't make much sense.
-
-Resolve the problem by moving the check inside SER_RS485_ENABLED block.
-
-Fixes: 7ecc77011c6f ("serial: 8250_fintek: Return -EINVAL on invalid configuration")
-Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/035c738-8ea5-8b17-b1d7-84a7b3aeaa51@linux.intel.com
+Cc: stable@vger.kernel.org
+Reported-by: Catrinel Catrinescu <cc@80211.de>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20220420104907.36275-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_fintek.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/mac80211/ieee80211_i.h |    5 +++++
+ net/mac80211/scan.c        |   20 ++++++++++++++++++++
+ 2 files changed, 25 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250_fintek.c b/drivers/tty/serial/8250/8250_fintek.c
-index e24161004ddc..9b1cddbfc75c 100644
---- a/drivers/tty/serial/8250/8250_fintek.c
-+++ b/drivers/tty/serial/8250/8250_fintek.c
-@@ -197,12 +197,12 @@ static int fintek_8250_rs485_config(struct uart_port *port,
- 	if (!pdata)
- 		return -EINVAL;
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -1067,6 +1067,9 @@ struct tpt_led_trigger {
+  *	a scan complete for an aborted scan.
+  * @SCAN_HW_CANCELLED: Set for our scan work function when the scan is being
+  *	cancelled.
++ * @SCAN_BEACON_WAIT: Set whenever we're passive scanning because of radar/no-IR
++ *	and could send a probe request after receiving a beacon.
++ * @SCAN_BEACON_DONE: Beacon received, we can now send a probe request
+  */
+ enum {
+ 	SCAN_SW_SCANNING,
+@@ -1075,6 +1078,8 @@ enum {
+ 	SCAN_COMPLETED,
+ 	SCAN_ABORTED,
+ 	SCAN_HW_CANCELLED,
++	SCAN_BEACON_WAIT,
++	SCAN_BEACON_DONE,
+ };
  
--	/* Hardware do not support same RTS level on send and receive */
--	if (!(rs485->flags & SER_RS485_RTS_ON_SEND) ==
--			!(rs485->flags & SER_RS485_RTS_AFTER_SEND))
--		return -EINVAL;
+ /**
+--- a/net/mac80211/scan.c
++++ b/net/mac80211/scan.c
+@@ -205,6 +205,16 @@ void ieee80211_scan_rx(struct ieee80211_
+ 	if (likely(!sdata1 && !sdata2))
+ 		return;
  
- 	if (rs485->flags & SER_RS485_ENABLED) {
-+		/* Hardware do not support same RTS level on send and receive */
-+		if (!(rs485->flags & SER_RS485_RTS_ON_SEND) ==
-+		    !(rs485->flags & SER_RS485_RTS_AFTER_SEND))
-+			return -EINVAL;
- 		memset(rs485->padding, 0, sizeof(rs485->padding));
- 		config |= RS485_URA;
- 	} else {
--- 
-2.35.1
-
++	if (test_and_clear_bit(SCAN_BEACON_WAIT, &local->scanning)) {
++		/*
++		 * we were passive scanning because of radar/no-IR, but
++		 * the beacon/proberesp rx gives us an opportunity to upgrade
++		 * to active scan
++		 */
++		 set_bit(SCAN_BEACON_DONE, &local->scanning);
++		 ieee80211_queue_delayed_work(&local->hw, &local->scan_work, 0);
++	}
++
+ 	if (ieee80211_is_probe_resp(mgmt->frame_control)) {
+ 		struct cfg80211_scan_request *scan_req;
+ 		struct cfg80211_sched_scan_request *sched_scan_req;
+@@ -646,6 +656,8 @@ static int __ieee80211_start_scan(struct
+ 						IEEE80211_CHAN_RADAR)) ||
+ 		    !req->n_ssids) {
+ 			next_delay = IEEE80211_PASSIVE_CHANNEL_TIME;
++			if (req->n_ssids)
++				set_bit(SCAN_BEACON_WAIT, &local->scanning);
+ 		} else {
+ 			ieee80211_scan_state_send_probe(local, &next_delay);
+ 			next_delay = IEEE80211_CHANNEL_TIME;
+@@ -826,6 +838,8 @@ static void ieee80211_scan_state_set_cha
+ 	    !scan_req->n_ssids) {
+ 		*next_delay = IEEE80211_PASSIVE_CHANNEL_TIME;
+ 		local->next_scan_state = SCAN_DECISION;
++		if (scan_req->n_ssids)
++			set_bit(SCAN_BEACON_WAIT, &local->scanning);
+ 		return;
+ 	}
+ 
+@@ -918,6 +932,8 @@ void ieee80211_scan_work(struct work_str
+ 			goto out;
+ 	}
+ 
++	clear_bit(SCAN_BEACON_WAIT, &local->scanning);
++
+ 	/*
+ 	 * as long as no delay is required advance immediately
+ 	 * without scheduling a new work
+@@ -928,6 +944,10 @@ void ieee80211_scan_work(struct work_str
+ 			goto out_complete;
+ 		}
+ 
++		if (test_and_clear_bit(SCAN_BEACON_DONE, &local->scanning) &&
++		    local->next_scan_state == SCAN_DECISION)
++			local->next_scan_state = SCAN_SEND_PROBE;
++
+ 		switch (local->next_scan_state) {
+ 		case SCAN_DECISION:
+ 			/* if no more bands/channels left, complete scan */
 
 
