@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0CB9549476
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A029E548F8C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357392AbiFMNCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:02:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51088 "EHLO
+        id S1353003AbiFMMJy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:09:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358394AbiFMNAJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:00:09 -0400
+        with ESMTP id S1358705AbiFMMHt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:07:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D80635DE3;
-        Mon, 13 Jun 2022 04:18:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18503517D6;
+        Mon, 13 Jun 2022 04:00:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCA5C60B6B;
-        Mon, 13 Jun 2022 11:18:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAB13C34114;
-        Mon, 13 Jun 2022 11:18:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F47760F9A;
+        Mon, 13 Jun 2022 11:00:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AC44C34114;
+        Mon, 13 Jun 2022 11:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119081;
-        bh=tFd6vRnzTblSZJjJSTJSRhOuRJ6Nhzgy75wAP5XxB6o=;
+        s=korg; t=1655118011;
+        bh=Hw82Q2O+60JqvaowPdDALWlP3URJSO/5mCPrccD58/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErMS3D1+FZFo0YVs0TAqtJKWjRUe2AnO6qXIY5J62ewtT5+x8Tl681spyv3ySx7Qn
-         KvLGAzGRoaVox1BDTrLiR7bSdzrYqfzQ3h1HSQvIPV9krKhrPnaJpAlfuL8eN4OTNH
-         bgzUNDYBX0tazH4MuRK/bb8cJY1FV6pdHr9sJ71w=
+        b=JGMeSvrDAz2oOVKR1608hVABMm3MTcdJlJTy6e0LIbOHBMMMAUseztcp5QF0wkuFU
+         UKvLcSM8EwCvyBOPK4Z9D+bKvCO1ApzHyhk92qcza+y3UJoaB3FOS0VdQaYKCB00PD
+         bYWc2DYYsf5uOO455akbtODhxGOGUkQjx/g7Mr1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@st.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 133/247] netfilter: nf_tables: use kfree_rcu(ptr, rcu) to release hooks in clean_net path
+Subject: [PATCH 4.19 211/287] serial: stm32-usart: Correct CSIZE, bits, and parity
 Date:   Mon, 13 Jun 2022 12:10:35 +0200
-Message-Id: <20220613094926.994030250@linuxfoundation.org>
+Message-Id: <20220613094930.260937525@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit ab5e5c062f67c5ae8cd07f0632ffa62dc0e7d169 ]
+[ Upstream commit 1deeda8d2877c18bc2b9eeee10dd6d2628852848 ]
 
-Use kfree_rcu(ptr, rcu) variant instead as described by ae089831ff28
-("netfilter: nf_tables: prefer kfree_rcu(ptr, rcu) variant").
+Add CSIZE sanitization for unsupported CSIZE configurations. In
+addition, if parity is asked for but CSx was unsupported, the sensible
+result is CS8+parity which requires setting USART_CR1_M0 like with 9
+bits.
 
-Fixes: f9a43007d3f7 ("netfilter: nf_tables: double hook unregistration in netns path")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Incorrect CSIZE results in miscalculation of the frame bits in
+tty_get_char_size() or in its predecessor where the roughly the same
+code is directly within uart_update_timeout().
+
+Fixes: c8a9d043947b (serial: stm32: fix word length configuration)
+Cc: Erwan Le Ray <erwan.leray@st.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220519081808.3776-9-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/stm32-usart.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 79e8fc687fdd..5833fe17be43 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -7231,7 +7231,7 @@ static void __nft_unregister_flowtable_net_hooks(struct net *net,
- 		nf_unregister_net_hook(net, &hook->ops);
- 		if (release_netdev) {
- 			list_del(&hook->list);
--			kfree_rcu(hook);
-+			kfree_rcu(hook, rcu);
- 		}
- 	}
- }
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index ccaaf804df06..bb2f6f02ce23 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -688,13 +688,22 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	 * CS8 or (CS7 + parity), 8 bits word aka [M1:M0] = 0b00
+ 	 * M0 and M1 already cleared by cr1 initialization.
+ 	 */
+-	if (bits == 9)
++	if (bits == 9) {
+ 		cr1 |= USART_CR1_M0;
+-	else if ((bits == 7) && cfg->has_7bits_data)
++	} else if ((bits == 7) && cfg->has_7bits_data) {
+ 		cr1 |= USART_CR1_M1;
+-	else if (bits != 8)
++	} else if (bits != 8) {
+ 		dev_dbg(port->dev, "Unsupported data bits config: %u bits\n"
+ 			, bits);
++		cflag &= ~CSIZE;
++		cflag |= CS8;
++		termios->c_cflag = cflag;
++		bits = 8;
++		if (cflag & PARENB) {
++			bits++;
++			cr1 |= USART_CR1_M0;
++		}
++	}
+ 
+ 	if (cflag & PARODD)
+ 		cr1 |= USART_CR1_PS;
 -- 
 2.35.1
 
