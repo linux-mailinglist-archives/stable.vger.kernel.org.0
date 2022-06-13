@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB515492EF
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AFC3549721
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237968AbiFMMUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:20:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49020 "EHLO
+        id S1383885AbiFMObV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:31:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354622AbiFMMQx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:16:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C833555347;
-        Mon, 13 Jun 2022 04:02:34 -0700 (PDT)
+        with ESMTP id S1383639AbiFMO0z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:26:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 610446164;
+        Mon, 13 Jun 2022 04:47:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B97466143A;
-        Mon, 13 Jun 2022 11:02:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C069DC34114;
-        Mon, 13 Jun 2022 11:02:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40C90612A8;
+        Mon, 13 Jun 2022 11:47:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49611C34114;
+        Mon, 13 Jun 2022 11:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118153;
-        bh=4y/TH+BGvWi9BxSGtfzR9Wpn6hPZbGvg9CcdA4l6WNk=;
+        s=korg; t=1655120834;
+        bh=DP0GBlWS01HNg1sxk93PKkBpvry1tx4tPZCsHh7VcgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t0eR3BbcaGv733QUcbwZjAiDGwGnVgjbkKiU/GrJuwvV8XPE5hn7DP8NmgiKHuDe5
-         A4iyaLdFlJgLf+U26eoy6/lazS52eNZfSzWcuZs3Z1y7bJfO8N/fhuWfo67P7QI0sb
-         X8Ai87hw0YV6f1D0iHcKxgEx+X44V58lTx2wUZL8=
+        b=0n2+bJWQIRBNfzofJyWDOAGSKNtLr07p10S2PKNRPl+MJJlmw5V0xhplEblzAKhoj
+         gL84wpfGkMTAZ9xoX1wifhsJhMGYwmywxRzwyDooaJKmktDw9ySEta85dEIBaYdjK6
+         RZvlqSxND384SlTvbD5e7I1qU1GLDFnVPI3+fSvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 245/287] ip_gre: test csum_start instead of transport header
+Subject: [PATCH 5.17 175/298] x86: drop bogus "cc" clobber from __try_cmpxchg_user_asm()
 Date:   Mon, 13 Jun 2022 12:11:09 +0200
-Message-Id: <20220613094931.444438535@linuxfoundation.org>
+Message-Id: <20220613094930.241839176@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,85 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit 8d21e9963bec1aad2280cdd034c8993033ef2948 ]
+[ Upstream commit 1df931d95f4dc1c11db1123e85d4e08156e46ef9 ]
 
-GRE with TUNNEL_CSUM will apply local checksum offload on
-CHECKSUM_PARTIAL packets.
+As noted (and fixed) a couple of times in the past, "=@cc<cond>" outputs
+and clobbering of "cc" don't work well together. The compiler appears to
+mean to reject such, but doesn't - in its upstream form - quite manage
+to yet for "cc". Furthermore two similar macros don't clobber "cc", and
+clobbering "cc" is pointless in asm()-s for x86 anyway - the compiler
+always assumes status flags to be clobbered there.
 
-ipgre_xmit must validate csum_start after an optional skb_pull,
-else lco_csum may trigger an overflow. The original check was
-
-	if (csum && skb_checksum_start(skb) < skb->data)
-		return -EINVAL;
-
-This had false positives when skb_checksum_start is undefined:
-when ip_summed is not CHECKSUM_PARTIAL. A discussed refinement
-was straightforward
-
-	if (csum && skb->ip_summed == CHECKSUM_PARTIAL &&
-	    skb_checksum_start(skb) < skb->data)
-		return -EINVAL;
-
-But was eventually revised more thoroughly:
-- restrict the check to the only branch where needed, in an
-  uncommon GRE path that uses header_ops and calls skb_pull.
-- test skb_transport_header, which is set along with csum_start
-  in skb_partial_csum_set in the normal header_ops datapath.
-
-Turns out skbs can arrive in this branch without the transport
-header set, e.g., through BPF redirection.
-
-Revise the check back to check csum_start directly, and only if
-CHECKSUM_PARTIAL. Do leave the check in the updated location.
-Check field regardless of whether TUNNEL_CSUM is configured.
-
-Link: https://lore.kernel.org/netdev/YS+h%2FtqCJJiQei+W@shredder/
-Link: https://lore.kernel.org/all/20210902193447.94039-2-willemdebruijn.kernel@gmail.com/T/#u
-Fixes: 8a0ed250f911 ("ip_gre: validate csum_start only on pull")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Link: https://lore.kernel.org/r/20220606132107.3582565-1-willemdebruijn.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 989b5db215a2 ("x86/uaccess: Implement macros for CMPXCHG on user addresses")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Message-Id: <485c0c0b-a3a7-0b7c-5264-7d00c01de032@suse.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_gre.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/uaccess.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index 41d0f9bb5191..cf60d0e07965 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -678,21 +678,20 @@ static netdev_tx_t ipgre_xmit(struct sk_buff *skb,
- 	}
- 
- 	if (dev->header_ops) {
--		const int pull_len = tunnel->hlen + sizeof(struct iphdr);
--
- 		if (skb_cow_head(skb, 0))
- 			goto free_skb;
- 
- 		tnl_params = (const struct iphdr *)skb->data;
- 
--		if (pull_len > skb_transport_offset(skb))
--			goto free_skb;
--
- 		/* Pull skb since ip_tunnel_xmit() needs skb->data pointing
- 		 * to gre header.
- 		 */
--		skb_pull(skb, pull_len);
-+		skb_pull(skb, tunnel->hlen + sizeof(struct iphdr));
- 		skb_reset_mac_header(skb);
-+
-+		if (skb->ip_summed == CHECKSUM_PARTIAL &&
-+		    skb_checksum_start(skb) < skb->data)
-+			goto free_skb;
- 	} else {
- 		if (skb_cow_head(skb, dev->needed_headroom))
- 			goto free_skb;
+diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
+index 1c14bcce88f2..729ecf1e546c 100644
+--- a/arch/x86/include/asm/uaccess.h
++++ b/arch/x86/include/asm/uaccess.h
+@@ -466,7 +466,7 @@ do {									\
+ 		       [ptr] "+m" (*_ptr),				\
+ 		       [old] "+a" (__old)				\
+ 		     : [new] ltype (__new)				\
+-		     : "memory", "cc");					\
++		     : "memory");					\
+ 	if (unlikely(__err))						\
+ 		goto label;						\
+ 	if (unlikely(!success))						\
 -- 
 2.35.1
 
