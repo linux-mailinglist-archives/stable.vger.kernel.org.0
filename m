@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8631547FB2
+	by mail.lfdr.de (Postfix) with ESMTP id 8C484547FB1
 	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 08:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232095AbiFMGpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 02:45:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52828 "EHLO
+        id S232830AbiFMGpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 02:45:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231241AbiFMGo6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 02:44:58 -0400
+        with ESMTP id S231241AbiFMGpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 02:45:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 631B8FD34
-        for <stable@vger.kernel.org>; Sun, 12 Jun 2022 23:44:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94362FD34
+        for <stable@vger.kernel.org>; Sun, 12 Jun 2022 23:45:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 176AFB80D56
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 06:44:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60338C34114;
-        Mon, 13 Jun 2022 06:44:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54DE9B80D49
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 06:45:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC3FFC34114;
+        Mon, 13 Jun 2022 06:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655102694;
-        bh=rLbiA9gXbi13Ut8gG3cjAk/nKRviw8WziEUS4cLfAdk=;
+        s=korg; t=1655102703;
+        bh=U+RLs5AN0RbbNQ0CCUy84QQfqjGLqgv4lKK6/ZWwGh4=;
         h=Subject:To:Cc:From:Date:From;
-        b=OYiYIKutDNNTA5iOf4t22LMVr7Tt78LmLkA8R2iuTaKMTq9a4sHVnwj4UZFRn0PE3
-         kGFiQMEhiOmQYOa41ThBjvyRD0D1qz57cySxEww6d7eSbB6vrTnpWfG21Fn1Y7AOIc
-         RY7FwaOda3fU8PDEPbze7kQc3gs5OU1fSnLeYjGQ=
-Subject: FAILED: patch "[PATCH] random: account for arch randomness in bits" failed to apply to 5.4-stable tree
+        b=B60Q2rY80B4+DLAhwUdXaBhA/DIfFrAM15ypo+k6O/u9LhK1B2YxTNJxLEtC0tW1f
+         ZwaYn+UqmzSxxIisf18oY6piJy9h+vOGE47tHhjVBl6t7iu7dy7X8KBf7vJ3DjoKsH
+         OzC/01MZr5mr0x2qnQifkp5LZNT922b0VM5y0Q9M=
+Subject: FAILED: patch "[PATCH] random: account for arch randomness in bits" failed to apply to 5.10-stable tree
 To:     Jason@zx2c4.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 13 Jun 2022 08:44:52 +0200
-Message-ID: <1655102692104194@kroah.com>
+Message-ID: <165510269224098@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
