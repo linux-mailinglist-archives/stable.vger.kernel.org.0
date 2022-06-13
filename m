@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9260F549675
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B906548B86
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351428AbiFMLGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:06:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36510 "EHLO
+        id S1383805AbiFMO1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:27:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351683AbiFMLEw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:04:52 -0400
+        with ESMTP id S1384313AbiFMOZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:25:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32419326F8;
-        Mon, 13 Jun 2022 03:33:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA402120A8;
+        Mon, 13 Jun 2022 04:46:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8DC561021;
-        Mon, 13 Jun 2022 10:33:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C6F9C34114;
-        Mon, 13 Jun 2022 10:33:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF33A612A8;
+        Mon, 13 Jun 2022 11:46:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E112C36AFF;
+        Mon, 13 Jun 2022 11:46:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116429;
-        bh=04mpPbox/M0M1E7bmFFkKF6WQganXPbe2XFAbJrCpzk=;
+        s=korg; t=1655120815;
+        bh=MHenFnE2pLPUBKWsyxRWbIrZeJe3kvJNDY7XN5fGMQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqvfc65AWUKzGxsmJP32SVhsdiKjAuUtfrKy7nb3/kkhWx+GNP9h4NhmPIHkcLN/f
-         +40JCH65cZdb8YstdpcqAEqE+YwNX6Oap20uP5Cg2UIeZvEkdO0FroIM8fvtEAPc8V
-         fHIn8M5s0g+3ysiG+ezfc8SSrq9jX2UiieEm43Os=
+        b=jqrE1mEIV85swuDjPS1Vu710bm/APFMeQiLvEdnDnuLqLrY7wE5mFKlz9FybX1Nt9
+         OkiWezpri3xj9HPkjk2gi9UrhnF6ZipwWx8hM2NcwWPK+vwp7bOWmDdH6QKA/hRKF+
+         wjFP93umPpjjF99e0t3LiBXJcrrgwHXjU/4HuztM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+763ae12a2ede1d99d4dc@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 179/218] net: altera: Fix refcount leak in altera_tse_mdio_create
+Subject: [PATCH 5.17 143/298] f2fs: remove WARN_ON in f2fs_is_valid_blkaddr
 Date:   Mon, 13 Jun 2022 12:10:37 +0200
-Message-Id: <20220613094926.036539840@linuxfoundation.org>
+Message-Id: <20220613094929.278447752@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 11ec18b1d8d92b9df307d31950dcba0b3dd7283c ]
+[ Upstream commit dc2f78e2d4cc844a1458653d57ce1b54d4a29f21 ]
 
-Every iteration of for_each_child_of_node() decrements
-the reference count of the previous node.
-When break from a for_each_child_of_node() loop,
-we need to explicitly call of_node_put() on the child node when
-not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+Syzbot triggers two WARNs in f2fs_is_valid_blkaddr and
+__is_bitmap_valid. For example, in f2fs_is_valid_blkaddr,
+if type is DATA_GENERIC_ENHANCE or DATA_GENERIC_ENHANCE_READ,
+it invokes WARN_ON if blkaddr is not in the right range.
+The call trace is as follows:
 
-Fixes: bbd2190ce96d ("Altera TSE: Add main and header file for Altera Ethernet Driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220607041144.7553-1-linmq006@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+ f2fs_get_node_info+0x45f/0x1070
+ read_node_page+0x577/0x1190
+ __get_node_page.part.0+0x9e/0x10e0
+ __get_node_page
+ f2fs_get_node_page+0x109/0x180
+ do_read_inode
+ f2fs_iget+0x2a5/0x58b0
+ f2fs_fill_super+0x3b39/0x7ca0
+
+Fix these two WARNs by replacing WARN_ON with dump_stack.
+
+Reported-by: syzbot+763ae12a2ede1d99d4dc@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/altera/altera_tse_main.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/f2fs/checkpoint.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/altera/altera_tse_main.c b/drivers/net/ethernet/altera/altera_tse_main.c
-index 691fd194e5ea..1c0f11ec7a83 100644
---- a/drivers/net/ethernet/altera/altera_tse_main.c
-+++ b/drivers/net/ethernet/altera/altera_tse_main.c
-@@ -174,7 +174,8 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
- 	mdio = mdiobus_alloc();
- 	if (mdio == NULL) {
- 		netdev_err(dev, "Error allocating MDIO bus\n");
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto put_node;
+diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
+index bf3ba85cf325..1438ae53c73c 100644
+--- a/fs/f2fs/checkpoint.c
++++ b/fs/f2fs/checkpoint.c
+@@ -151,7 +151,7 @@ static bool __is_bitmap_valid(struct f2fs_sb_info *sbi, block_t blkaddr,
+ 		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
+ 			 blkaddr, exist);
+ 		set_sbi_flag(sbi, SBI_NEED_FSCK);
+-		WARN_ON(1);
++		dump_stack();
  	}
- 
- 	mdio->name = ALTERA_TSE_RESOURCE_NAME;
-@@ -191,6 +192,7 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
- 			   mdio->id);
- 		goto out_free_mdio;
- 	}
-+	of_node_put(mdio_node);
- 
- 	if (netif_msg_drv(priv))
- 		netdev_info(dev, "MDIO bus %s: created\n", mdio->id);
-@@ -200,6 +202,8 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
- out_free_mdio:
- 	mdiobus_free(mdio);
- 	mdio = NULL;
-+put_node:
-+	of_node_put(mdio_node);
- 	return ret;
+ 	return exist;
  }
- 
+@@ -189,7 +189,7 @@ bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
+ 			f2fs_warn(sbi, "access invalid blkaddr:%u",
+ 				  blkaddr);
+ 			set_sbi_flag(sbi, SBI_NEED_FSCK);
+-			WARN_ON(1);
++			dump_stack();
+ 			return false;
+ 		} else {
+ 			return __is_bitmap_valid(sbi, blkaddr, type);
 -- 
 2.35.1
 
