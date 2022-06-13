@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13DD254956B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4C4E5489A4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353800AbiFMM5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:57:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50226 "EHLO
+        id S1358451AbiFMMGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:06:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354814AbiFMMzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:50 -0400
+        with ESMTP id S1359289AbiFMMFh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B100711A3F;
-        Mon, 13 Jun 2022 04:16:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0A1326ADA;
+        Mon, 13 Jun 2022 03:59:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61C1DB80E93;
-        Mon, 13 Jun 2022 11:16:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B64DCC34114;
-        Mon, 13 Jun 2022 11:16:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 597C5B80E5E;
+        Mon, 13 Jun 2022 10:59:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE2F4C3411C;
+        Mon, 13 Jun 2022 10:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118998;
-        bh=l2YBfg34tk5X/O+rDM5zgYJ6lyiB2LpFE7Bnqfy9WVc=;
+        s=korg; t=1655117992;
+        bh=GQLxV/8POU2vPGE2UXLK3U8x214VuVbyQ2AyB1td30o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GxfrQvuSu9q8yR0TCzqd5s86MzeGyzAx07h8zM+LcZyIUbEqTEeGJmTSBkZn7LxUT
-         sfk1NIXC3fm6jj7AyVFHMAjt0TV0h8tV2qAB9xt07eyy7xYMykQySSFZ0eWNMkrMjh
-         WOPXWCgl8ShXILkKweQHJJUwD4twapCETSim0sq4=
+        b=ehqNy2Y6vbPtt84++KEfKXbs+hFZIgfQsiTFyqSCdBsNLUR9eAXtTJBu0O8l3Nsum
+         +AqffnYTPTJl3iyIt2jen89ppPVX03WjerRsNVi+2o6aiDcf+e/aLKO9jkLsiypL08
+         Hutiy2XGOWuiZYRdNo/Ud2OiI4mQ8+DaD6uYifQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabien Parent <fparent@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 103/247] regulator: mt6315-regulator: fix invalid allowed mode
+        stable@vger.kernel.org, Vivek Gautam <vivek.gautam@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.19 181/287] phy: qcom-qmp: fix struct clk leak on probe errors
 Date:   Mon, 13 Jun 2022 12:10:05 +0200
-Message-Id: <20220613094926.080039626@linuxfoundation.org>
+Message-Id: <20220613094929.356449136@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Parent <fparent@baylibre.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 28cbc2d4c54c09a427b18a1604740efb6b2cc2d6 ]
+commit f0a4bc38a12f5a0cc5ad68670d9480e91e6a94df upstream.
 
-In the binding example, the regulator mode 4 is shown as a valid mode,
-but the driver actually only support mode 0 to 2:
+Make sure to release the pipe clock reference in case of a late probe
+error (e.g. probe deferral).
 
-This generates an error in dmesg when copy/pasting the binding example:
-[    0.306080] vbuck1: invalid regulator-allowed-modes element 4
-[    0.307290] vbuck2: invalid regulator-allowed-modes element 4
-
-This commit fixes this error by removing the invalid mode from the
-examples.
-
-Fixes: 977fb5b58469 ("regulator: document binding for MT6315 regulator")
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
-Link: https://lore.kernel.org/r/20220529154613.337559-1-fparent@baylibre.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
+Cc: stable@vger.kernel.org      # 4.12
+Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220427063243.32576-2-johan+linaro@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../devicetree/bindings/regulator/mt6315-regulator.yaml       | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-qmp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
-index 5d2d989de893..37402c370fbb 100644
---- a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
-+++ b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
-@@ -55,7 +55,7 @@ examples:
-           regulator-min-microvolt = <300000>;
-           regulator-max-microvolt = <1193750>;
-           regulator-enable-ramp-delay = <256>;
--          regulator-allowed-modes = <0 1 2 4>;
-+          regulator-allowed-modes = <0 1 2>;
-         };
- 
-         vbuck3 {
-@@ -63,7 +63,7 @@ examples:
-           regulator-min-microvolt = <300000>;
-           regulator-max-microvolt = <1193750>;
-           regulator-enable-ramp-delay = <256>;
--          regulator-allowed-modes = <0 1 2 4>;
-+          regulator-allowed-modes = <0 1 2>;
-         };
-       };
-     };
--- 
-2.35.1
-
+--- a/drivers/phy/qualcomm/phy-qcom-qmp.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+@@ -1468,7 +1468,7 @@ int qcom_qmp_phy_create(struct device *d
+ 	 * all phys that don't need this.
+ 	 */
+ 	snprintf(prop_name, sizeof(prop_name), "pipe%d", id);
+-	qphy->pipe_clk = of_clk_get_by_name(np, prop_name);
++	qphy->pipe_clk = devm_get_clk_from_child(dev, np, prop_name);
+ 	if (IS_ERR(qphy->pipe_clk)) {
+ 		if (qmp->cfg->type == PHY_TYPE_PCIE ||
+ 		    qmp->cfg->type == PHY_TYPE_USB3) {
 
 
