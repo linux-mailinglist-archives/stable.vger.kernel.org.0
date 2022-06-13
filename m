@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8003954948D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A83BD54963B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381039AbiFMOHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:07:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51810 "EHLO
+        id S1378298AbiFMNlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:41:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382004AbiFMOFC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3EAD92D19;
-        Mon, 13 Jun 2022 04:40:10 -0700 (PDT)
+        with ESMTP id S1378994AbiFMNjf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E67F7937F;
+        Mon, 13 Jun 2022 04:28:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 177A16136C;
-        Mon, 13 Jun 2022 11:40:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 200CFC34114;
-        Mon, 13 Jun 2022 11:40:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 068D36114A;
+        Mon, 13 Jun 2022 11:28:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 122A5C3411E;
+        Mon, 13 Jun 2022 11:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120407;
-        bh=m+6bIiaRSARv1WgAzQBAifc3hhldBDoDI7VROQPJIBg=;
+        s=korg; t=1655119705;
+        bh=8PGhjs0A2YdVyurjxtWzr47UU3TE7+riO+Iw8NBZlA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KHOJUhpK9pNAPNMcUvLbhyOXVGUKxjQYcQDLPIKcFDzo8i9/Nsq5JtV4/+5MJ5g5w
-         hQTPBt+dzgqebMMkit4jWqf39v1GUbfuIHgecGKZI3fmnC/yP50qzm5hn0YC4DpEpe
-         EH9VvBrKau6nt+b9IUeiMU6PiX6zsrGQovsR7FX0=
+        b=l7ZE1NUunO3w4Sp4gwbDHLMiz6K0V/1M8WyJcY3uzW+AmNXh1+bkWPPyoIRVNUJ8c
+         OHS1FUK6aTGuvAKudIvKqLPUDg4wpL0fXc531oQ4LaqywA4QiBWs7+XHG/lwhIp/2d
+         sOOyFsllkxgJ7er0OtI9ZdXy0yyf3xEgIX8MtTBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 022/298] usb: dwc3: pci: Fix pm_runtime_get_sync() error checking
+Subject: [PATCH 5.18 091/339] drm/amdgpu: Off by one in dm_dmub_outbox1_low_irq()
 Date:   Mon, 13 Jun 2022 12:08:36 +0200
-Message-Id: <20220613094925.603382410@linuxfoundation.org>
+Message-Id: <20220613094929.275871423@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a03e2ddab8e735e2cc315609b297b300e9cc60d2 ]
+[ Upstream commit a35faec3db0e13aac8ea720bc1a3503081dd5a3d ]
 
-If the device is already in a runtime PM enabled state
-pm_runtime_get_sync() will return 1, so a test for negative
-value should be used to check for errors.
+The > ARRAY_SIZE() should be >= ARRAY_SIZE() to prevent an out of bounds
+access.
 
-Fixes: 8eed00b237a28 ("usb: dwc3: pci: Runtime resume child device from wq")
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Link: https://lore.kernel.org/r/20220422062652.10575-1-zhengyongjun3@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e27c41d5b068 ("drm/amd/display: Support for DMUB HPD interrupt handling")
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 2 +-
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index f08b2178fd32..9c8887615701 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -256,7 +256,7 @@ static void dwc3_pci_resume_work(struct work_struct *work)
- 	int ret;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 62139ff35476..8dd03de7c277 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -771,7 +771,7 @@ static void dm_dmub_outbox1_low_irq(void *interrupt_params)
  
- 	ret = pm_runtime_get_sync(&dwc3->dev);
--	if (ret) {
-+	if (ret < 0) {
- 		pm_runtime_put_sync_autosuspend(&dwc3->dev);
- 		return;
- 	}
+ 		do {
+ 			dc_stat_get_dmub_notification(adev->dm.dc, &notify);
+-			if (notify.type > ARRAY_SIZE(dm->dmub_thread_offload)) {
++			if (notify.type >= ARRAY_SIZE(dm->dmub_thread_offload)) {
+ 				DRM_ERROR("DM: notify type %d invalid!", notify.type);
+ 				continue;
+ 			}
 -- 
 2.35.1
 
