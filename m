@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E485F548E2B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:17:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35A7C549781
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245086AbiFMKo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:44:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47076 "EHLO
+        id S1354263AbiFMLc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:32:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344383AbiFMKnK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:43:10 -0400
+        with ESMTP id S1354216AbiFML3C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 803CC201AF;
-        Mon, 13 Jun 2022 03:24:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90D4C3E0C1;
+        Mon, 13 Jun 2022 03:42:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CF70B80E93;
-        Mon, 13 Jun 2022 10:24:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83086C34114;
-        Mon, 13 Jun 2022 10:24:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7549B80D3A;
+        Mon, 13 Jun 2022 10:42:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30896C34114;
+        Mon, 13 Jun 2022 10:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115855;
-        bh=fUccMmsfOzKYZd6COXAYnrw2L2WSTwWeZlgrixzSPL4=;
+        s=korg; t=1655116975;
+        bh=K2yXXrXOJc54nCTB8w/mOYOtui/+CfR7LNG+DaZIC0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DSLouAitbcv04icFK/6k4lBWLz/vqDu6mKMaxwBKidvGBSVSqJ/TtprKKjQJojuyv
-         dg/6SQHxK0LMXKOSuT3gNrdr5w0/skXZ5xGpEC5cL+8XEqTr0oblHtmmd+4Pe/waVG
-         K8gKSxYp9fI5qBATX4F+1T3BSSGoaaM/dmbJFPTY=
+        b=Sqa7NT7xL+ngWLk2NCe7CgwRfNShcjrNsE0Tg6EVexiPFeWDVItLPqGvm/hddrNgv
+         +KEiP9o4V8ISLIcRshDMrH/257o2KtmtEmUt+7W0RGGt38kXocz8gAeL5PnhpBRzad
+         aWceQLaSuPjtcfZ23Nryl2vnd9HN+dmlxpBJ5xRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 057/218] spi: img-spfi: Fix pm_runtime_get_sync() error checking
+        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 5.4 242/411] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
 Date:   Mon, 13 Jun 2022 12:08:35 +0200
-Message-Id: <20220613094921.218969567@linuxfoundation.org>
+Message-Id: <20220613094936.035742079@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit cc470d55343056d6b2a5c32e10e0aad06f324078 ]
+commit 8fb6c44fe8468f92ac7b8bbfcca4404a4e88645f upstream.
 
-If the device is already in a runtime PM enabled state
-pm_runtime_get_sync() will return 1, so a test for negative
-value should be used to check for errors.
+If the display is not enable()d, then we aren't holding a runtime PM
+reference here. Thus, it's easy to accidentally cause a hang, if user
+space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
 
-Fixes: deba25800a12b ("spi: Add driver for IMG SPFI controller")
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Link: https://lore.kernel.org/r/20220422062641.10486-1-zhengyongjun3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Let's get a runtime PM reference, and check that we "see" the panel.
+Don't force any panel power-up, etc., because that can be intrusive, and
+that's not what other drivers do (see
+drivers/gpu/drm/bridge/ti-sn65dsi86.c and
+drivers/gpu/drm/bridge/parade-ps8640.c.)
+
+Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
+Cc: <stable@vger.kernel.org>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220301181107.v4.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-img-spfi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-img-spfi.c b/drivers/spi/spi-img-spfi.c
-index 2a340234c85c..82ab1bc2196a 100644
---- a/drivers/spi/spi-img-spfi.c
-+++ b/drivers/spi/spi-img-spfi.c
-@@ -771,7 +771,7 @@ static int img_spfi_resume(struct device *dev)
- 	int ret;
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -1630,8 +1630,19 @@ static ssize_t analogix_dpaux_transfer(s
+ 				       struct drm_dp_aux_msg *msg)
+ {
+ 	struct analogix_dp_device *dp = to_dp(aux);
++	int ret;
  
- 	ret = pm_runtime_get_sync(dev);
--	if (ret) {
-+	if (ret < 0) {
- 		pm_runtime_put_noidle(dev);
- 		return ret;
- 	}
--- 
-2.35.1
-
+-	return analogix_dp_transfer(dp, msg);
++	pm_runtime_get_sync(dp->dev);
++
++	ret = analogix_dp_detect_hpd(dp);
++	if (ret)
++		goto out;
++
++	ret = analogix_dp_transfer(dp, msg);
++out:
++	pm_runtime_put(dp->dev);
++
++	return ret;
+ }
+ 
+ struct analogix_dp_device *
 
 
