@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29725549229
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2EC54899B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241948AbiFMKQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:16:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59230 "EHLO
+        id S1377490AbiFMNfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:35:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241895AbiFMKQd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:16:33 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9485DF81;
-        Mon, 13 Jun 2022 03:15:14 -0700 (PDT)
+        with ESMTP id S1377504AbiFMNc4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:32:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D94372236;
+        Mon, 13 Jun 2022 04:26:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 13BD3CE116D;
-        Mon, 13 Jun 2022 10:15:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD773C34114;
-        Mon, 13 Jun 2022 10:15:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B8BBB80E59;
+        Mon, 13 Jun 2022 11:26:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBFF9C34114;
+        Mon, 13 Jun 2022 11:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115308;
-        bh=LZSVzGm+eApsXK45dI2BFu9jzJnYL96WdCNobNzk1qI=;
+        s=korg; t=1655119612;
+        bh=BLK0FkCC59iYGwOJeMojtafFTczPpvl2QeNDU3bI/vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yandbVBhs3DMfyinrUDa5/s4uE6R8stXOSx9myXrWlTxtj4ZPcAarfBm6L4adRyWR
-         UdTpui0IDY8Jr8gAFj6TWnTqgvj5PPOnfI0ljB6xLUSTE7WdW+p7G2ag8gvnE84a+j
-         pAbJ0Lh2DKWHLEHMUD3e+T5qoElBtOgNjVNLEeeA=
+        b=t1ZYCBoIrrgfnLUjYYUjMc9ZnOL3AKey9ikBfb1X5LI1ySgr8qKyP5y68KEMKiQWC
+         o2rjixmtE0arf/gi0p7iRads4EAcTFBHVu/Z513yJN0Cb20uLpNZc7ELfKm5cFu7sL
+         KC5bBk/+A6tLgpRUpKAXZH0TpcsPUyJZhXoAuDIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Zixuan Fu <r33s3n6@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        stable@vger.kernel.org, Romain Naour <romain.naour@smile.fr>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 027/167] fs: jfs: fix possible NULL pointer dereference in dbFree()
+Subject: [PATCH 5.18 076/339] bus: ti-sysc: Fix warnings for unbind for serial
 Date:   Mon, 13 Jun 2022 12:08:21 +0200
-Message-Id: <20220613094847.160310293@linuxfoundation.org>
+Message-Id: <20220613094928.825478939@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zixuan Fu <r33s3n6@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 0d4837fdb796f99369cf7691d33de1b856bcaf1f ]
+[ Upstream commit c337125b8834f9719dfda0e40b25eaa266f1b8cf ]
 
-In our fault-injection testing, the variable "nblocks" in dbFree() can be
-zero when kmalloc_array() fails in dtSearch(). In this case, the variable
- "mp" in dbFree() would be NULL and then it is dereferenced in
-"write_metapage(mp)".
+We can get "failed to disable" clock_unprepare warnings on unbind at least
+for the serial console device if the unbind is done before the device has
+been idled.
 
-The failure log is listed as follows:
+As some devices are using deferred idle, we must check the status for
+pending idle work to idle the device.
 
-[   13.824137] BUG: kernel NULL pointer dereference, address: 0000000000000020
-...
-[   13.827416] RIP: 0010:dbFree+0x5f7/0x910 [jfs]
-[   13.834341] Call Trace:
-[   13.834540]  <TASK>
-[   13.834713]  txFreeMap+0x7b4/0xb10 [jfs]
-[   13.835038]  txUpdateMap+0x311/0x650 [jfs]
-[   13.835375]  jfs_lazycommit+0x5f2/0xc70 [jfs]
-[   13.835726]  ? sched_dynamic_update+0x1b0/0x1b0
-[   13.836092]  kthread+0x3c2/0x4a0
-[   13.836355]  ? txLockFree+0x160/0x160 [jfs]
-[   13.836763]  ? kthread_unuse_mm+0x160/0x160
-[   13.837106]  ret_from_fork+0x1f/0x30
-[   13.837402]  </TASK>
-...
-
-This patch adds a NULL check of "mp" before "write_metapage(mp)" is called.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Fixes: 76f0f772e469 ("bus: ti-sysc: Improve handling for no-reset-on-init and no-idle-on-init")
+Cc: Romain Naour <romain.naour@smile.fr>
+Reviewed-by: Romain Naour <romain.naour@smile.fr>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20220512053021.61650-1-tony@atomide.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bus/ti-sysc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index 6dac48e29d28..a07fbb60ac3c 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -398,7 +398,8 @@ int dbFree(struct inode *ip, s64 blkno, s64 nblocks)
- 	}
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 7a1b1f9e4933..70d00cea9d22 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -3395,7 +3395,9 @@ static int sysc_remove(struct platform_device *pdev)
+ 	struct sysc *ddata = platform_get_drvdata(pdev);
+ 	int error;
  
- 	/* write the last buffer. */
--	write_metapage(mp);
-+	if (mp)
-+		write_metapage(mp);
+-	cancel_delayed_work_sync(&ddata->idle_work);
++	/* Device can still be enabled, see deferred idle quirk in probe */
++	if (cancel_delayed_work_sync(&ddata->idle_work))
++		ti_sysc_idle(&ddata->idle_work.work);
  
- 	IREAD_UNLOCK(ipbmap);
- 
+ 	error = pm_runtime_resume_and_get(ddata->dev);
+ 	if (error < 0) {
 -- 
 2.35.1
 
