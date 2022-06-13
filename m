@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5258A5493F4
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A6495493A3
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241775AbiFMKTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:19:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58368 "EHLO
+        id S1380941AbiFMOHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:07:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242006AbiFMKR4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:17:56 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C23A201AF;
-        Mon, 13 Jun 2022 03:15:55 -0700 (PDT)
+        with ESMTP id S1381973AbiFMOFA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8205E92D30;
+        Mon, 13 Jun 2022 04:40:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 24A29CE1163;
-        Mon, 13 Jun 2022 10:15:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B20EC34114;
-        Mon, 13 Jun 2022 10:15:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79F0060EAE;
+        Mon, 13 Jun 2022 11:40:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8765DC34114;
+        Mon, 13 Jun 2022 11:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115349;
-        bh=zeX27Fz5CbFREmTH7EisWvyju2EjMVy2UlDeKjYszYg=;
+        s=korg; t=1655120412;
+        bh=bC8T7uT7FYJDWO5DKqqBbB+YzNhKQdkD77ypdZPon1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wnpp7ZcfbntFSHcaiqoZBTu2gW1/M5Ei1yox2RbOJZDSbtwEsQxt+Ic14bIIhz9jD
-         2ubnE8xdMkflUhTsP8Q9x2fB2iH3Shw/yMs+mXJClicBt8Xh+Eh/oqPdvvOS21owVt
-         WCv0BXnyMpal973RwG3lLvwUcLZtn4qAVrDO1Tdw=
+        b=2mQ8oP0qMNcFJwb3Chsxhjo71XoiBKCbrU7i3aJ9wGFR4ncAC3guABkxwMeWHNSKf
+         da8Z1jBthnls9HziASnvNY1A3mpCjkYgyYM8PleCeQd0tncu505q6K36mxy1sL7m+D
+         UcLnpEDqeZgSE2TiQMf2wayV3V+KmsjYpxKRi5Po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 044/167] ath9k_htc: fix potential out of bounds access with invalid rxstatus->rs_keyix
+Subject: [PATCH 5.17 024/298] misc: fastrpc: fix an incorrect NULL check on list iterator
 Date:   Mon, 13 Jun 2022 12:08:38 +0200
-Message-Id: <20220613094851.276924228@linuxfoundation.org>
+Message-Id: <20220613094925.662735700@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 2dc509305cf956381532792cb8dceef2b1504765 ]
+[ Upstream commit 5ac11fe03a0a83042d1a040dbce4fa2fb5521e23 ]
 
-The "rxstatus->rs_keyix" eventually gets passed to test_bit() so we need to
-ensure that it is within the bitmap.
+The bug is here:
+	if (!buf) {
 
-drivers/net/wireless/ath/ath9k/common.c:46 ath9k_cmn_rx_accept()
-error: passing untrusted data 'rx_stats->rs_keyix' to 'test_bit()'
+The list iterator value 'buf' will *always* be set and non-NULL
+by list_for_each_entry(), so it is incorrect to assume that the
+iterator value will be NULL if the list is empty (in this case, the
+check 'if (!buf) {' will always be false and never exit expectly).
 
-Fixes: 4ed1a8d4a257 ("ath9k_htc: use ath9k_cmn_rx_accept")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220409061225.GA5447@kili
+To fix the bug, use a new variable 'iter' as the list iterator,
+while use the original variable 'buf' as a dedicated pointer to
+point to the found element.
+
+Fixes: 2419e55e532de ("misc: fastrpc: add mmap/unmap support")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220327062202.5720-1-xiam0nd.tong@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/misc/fastrpc.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-index 6a9c9b4ef2c9..fe4491eff8ca 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -1004,6 +1004,14 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
- 		goto rx_next;
+diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
+index aa1682b94a23..45aaf54a7560 100644
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -1353,17 +1353,18 @@ static int fastrpc_req_munmap_impl(struct fastrpc_user *fl,
+ 				   struct fastrpc_req_munmap *req)
+ {
+ 	struct fastrpc_invoke_args args[1] = { [0] = { 0 } };
+-	struct fastrpc_buf *buf, *b;
++	struct fastrpc_buf *buf = NULL, *iter, *b;
+ 	struct fastrpc_munmap_req_msg req_msg;
+ 	struct device *dev = fl->sctx->dev;
+ 	int err;
+ 	u32 sc;
+ 
+ 	spin_lock(&fl->lock);
+-	list_for_each_entry_safe(buf, b, &fl->mmaps, node) {
+-		if ((buf->raddr == req->vaddrout) && (buf->size == req->size))
++	list_for_each_entry_safe(iter, b, &fl->mmaps, node) {
++		if ((iter->raddr == req->vaddrout) && (iter->size == req->size)) {
++			buf = iter;
+ 			break;
+-		buf = NULL;
++		}
  	}
+ 	spin_unlock(&fl->lock);
  
-+	if (rxstatus->rs_keyix >= ATH_KEYMAX &&
-+	    rxstatus->rs_keyix != ATH9K_RXKEYIX_INVALID) {
-+		ath_dbg(common, ANY,
-+			"Invalid keyix, dropping (keyix: %d)\n",
-+			rxstatus->rs_keyix);
-+		goto rx_next;
-+	}
-+
- 	/* Get the RX status information */
- 
- 	memset(rx_status, 0, sizeof(struct ieee80211_rx_status));
 -- 
 2.35.1
 
