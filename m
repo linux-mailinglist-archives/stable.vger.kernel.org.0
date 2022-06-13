@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A20F5488C4
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 773465495CB
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378914AbiFMNuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:50:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49730 "EHLO
+        id S1383518AbiFMO0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:26:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379189AbiFMNrT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:47:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98AB91FCF6;
-        Mon, 13 Jun 2022 04:32:56 -0700 (PDT)
+        with ESMTP id S1383852AbiFMOYK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A58F847064;
+        Mon, 13 Jun 2022 04:45:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D939B80D3A;
-        Mon, 13 Jun 2022 11:32:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C027AC3411E;
-        Mon, 13 Jun 2022 11:32:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5ED76B80EB2;
+        Mon, 13 Jun 2022 11:45:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D203C34114;
+        Mon, 13 Jun 2022 11:45:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119973;
-        bh=voYXGHQ0EmEGqrT//5SsbK1zE1x2gYhf/na/v6VV+DU=;
+        s=korg; t=1655120731;
+        bh=mNMKCj7YmZGHq44rzzYxEBmfMtk9Q5va+TOc/sbYdvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kyrNTr8jC/ltR9QvS36TYuusW92Owa7Bk5yXv1hWv4P4z88BlfOhPcH5UMQbhYauF
-         zdMbFfJeVRMpdSh0fDwi+YPqJ5VK3cxz+5dZwOpPYjTrA8ZlWwB/I8r5RIrUTsJYMr
-         DeZUojAOrXggBbUoDAN+tjY1uOL9uKWeFTesnEpA=
+        b=2Dm++/Vz97JOJyPBXtduW0DsC+PNE4RnD6IgVPMpYIB85L2iIecyDJ1O5kJfHED6U
+         wNnmUTWFgmR+jS4fIaLjMSfMKc/NICkCHFRQjW04PkGnx1gtJuiHLX+rK0+npGNiVw
+         P7iroWYTdYIX66IaOa7gllZQdw2pDTtTRKiis6s0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        NeilBrown <neilb@suse.de>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
+        stable@vger.kernel.org, Gong Yuanjun <ruc_gongyuanjun@163.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 205/339] SUNRPC: Fix the calculation of xdr->end in xdr_get_next_encode_buffer()
+Subject: [PATCH 5.17 136/298] mips: cpc: Fix refcount leak in mips_cpc_default_phys_base
 Date:   Mon, 13 Jun 2022 12:10:30 +0200
-Message-Id: <20220613094932.882613530@linuxfoundation.org>
+Message-Id: <20220613094929.068988781@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Gong Yuanjun <ruc_gongyuanjun@163.com>
 
-[ Upstream commit 6c254bf3b637dd4ef4f78eb78c7447419c0161d7 ]
+[ Upstream commit 4107fa700f314592850e2c64608f6ede4c077476 ]
 
-I found that NFSD's new NFSv3 READDIRPLUS XDR encoder was screwing up
-right at the end of the page array. xdr_get_next_encode_buffer() does
-not compute the value of xdr->end correctly:
+Add the missing of_node_put() to release the refcount incremented
+by of_find_compatible_node().
 
- * The check to see if we're on the final available page in xdr->buf
-   needs to account for the space consumed by @nbytes.
-
- * The new xdr->end value needs to account for the portion of @nbytes
-   that is to be encoded into the previous buffer.
-
-Fixes: 2825a7f90753 ("nfsd4: allow encoding across page boundaries")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Reviewed-by: NeilBrown <neilb@suse.de>
-Reviewed-by: J. Bruce Fields <bfields@fieldses.org>
+Signed-off-by: Gong Yuanjun <ruc_gongyuanjun@163.com>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xdr.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/mips/kernel/mips-cpc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
-index df194cc07035..b57cf9df4de8 100644
---- a/net/sunrpc/xdr.c
-+++ b/net/sunrpc/xdr.c
-@@ -979,7 +979,11 @@ static __be32 *xdr_get_next_encode_buffer(struct xdr_stream *xdr,
- 	 */
- 	xdr->p = (void *)p + frag2bytes;
- 	space_left = xdr->buf->buflen - xdr->buf->len;
--	xdr->end = (void *)p + min_t(int, space_left, PAGE_SIZE);
-+	if (space_left - nbytes >= PAGE_SIZE)
-+		xdr->end = (void *)p + PAGE_SIZE;
-+	else
-+		xdr->end = (void *)p + space_left - frag1bytes;
-+
- 	xdr->buf->page_len += frag2bytes;
- 	xdr->buf->len += nbytes;
- 	return p;
+diff --git a/arch/mips/kernel/mips-cpc.c b/arch/mips/kernel/mips-cpc.c
+index 17aff13cd7ce..3e386f7e1545 100644
+--- a/arch/mips/kernel/mips-cpc.c
++++ b/arch/mips/kernel/mips-cpc.c
+@@ -28,6 +28,7 @@ phys_addr_t __weak mips_cpc_default_phys_base(void)
+ 	cpc_node = of_find_compatible_node(of_root, NULL, "mti,mips-cpc");
+ 	if (cpc_node) {
+ 		err = of_address_to_resource(cpc_node, 0, &res);
++		of_node_put(cpc_node);
+ 		if (!err)
+ 			return res.start;
+ 	}
 -- 
 2.35.1
 
