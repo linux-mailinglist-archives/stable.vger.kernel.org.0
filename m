@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAE1549788
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33ACD548C5C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353885AbiFMLcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:32:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50598 "EHLO
+        id S1343853AbiFMKtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:49:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354528AbiFML3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A048201BA;
-        Mon, 13 Jun 2022 03:44:59 -0700 (PDT)
+        with ESMTP id S1347614AbiFMKtB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:49:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576192D1D9;
+        Mon, 13 Jun 2022 03:26:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39583B80E59;
-        Mon, 13 Jun 2022 10:44:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DEF5C341C5;
-        Mon, 13 Jun 2022 10:44:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9304FB80E93;
+        Mon, 13 Jun 2022 10:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01982C3411C;
+        Mon, 13 Jun 2022 10:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117097;
-        bh=aRdbOx7lSLv9D6cWiWuBrvvuoubprMwBW9czfB/JjMc=;
+        s=korg; t=1655115987;
+        bh=RH0MNiGREynDBBlITDYxTVlqFv6UzXOCXc80+4sWsmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVSsLWEfebVn7cEbPbVH2lPXlK0jqV/+v6n/WNtWhGPdxfRrleTCfsOJaq4Ha7qOY
-         kjXxMr/02MgfMjUwwoLV4o//qXsSz2X4kcoclloN2SIqYKKIfVP9orfx6RbnKGTPzD
-         gsB1y9yUv9kBwW2P1Hyn3caLzFSbNL4BxJDW1cNA=
+        b=pxb5r4zsRw5oaDdK+zPpRW3hgs7gweBiBBk6fjJ8QRNDUgJdjlUVjiISh6J3jffyq
+         mbAAjC9bMIwkhiLMX9sIUoXi0R42yCCT3maSTsnfVJOUn/hHg1rP/89EROzU4WE3Pw
+         N98q8vKDQnSnHHg+IcpBU/JsOZLpDC9ABOP6Ok0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cixi Geng <cixi.geng1@unisoc.com>,
-        Baolin Wang <baolin.wang7@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 297/411] iio: adc: sc27xx: fix read big scale voltage not right
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 112/218] scsi: dc395x: Fix a missing check on list iterator
 Date:   Mon, 13 Jun 2022 12:09:30 +0200
-Message-Id: <20220613094937.664275438@linuxfoundation.org>
+Message-Id: <20220613094923.960265560@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cixi Geng <cixi.geng1@unisoc.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit ad930a75613282400179361e220e58b87386b8c7 ]
+commit 036a45aa587a10fa2abbd50fbd0f6c4cfc44f69f upstream.
 
-Fix wrong configuration value of SC27XX_ADC_SCALE_MASK and
-SC27XX_ADC_SCALE_SHIFT by spec documetation.
+The bug is here:
 
-Fixes: 5df362a6cf49c (iio: adc: Add Spreadtrum SC27XX PMICs ADC support)
-Signed-off-by: Cixi Geng <cixi.geng1@unisoc.com>
-Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
-Link: https://lore.kernel.org/r/20220419142458.884933-3-gengcixi@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	p->target_id, p->target_lun);
+
+The list iterator 'p' will point to a bogus position containing HEAD if the
+list is empty or no element is found. This case must be checked before any
+use of the iterator, otherwise it will lead to an invalid memory access.
+
+To fix this bug, add a check. Use a new variable 'iter' as the list
+iterator, and use the original variable 'p' as a dedicated pointer to point
+to the found element.
+
+Link: https://lore.kernel.org/r/20220414040231.2662-1-xiam0nd.tong@gmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/sc27xx_adc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/dc395x.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/adc/sc27xx_adc.c b/drivers/iio/adc/sc27xx_adc.c
-index a6c046575ec3..dcc01cdcff3f 100644
---- a/drivers/iio/adc/sc27xx_adc.c
-+++ b/drivers/iio/adc/sc27xx_adc.c
-@@ -36,8 +36,8 @@
- 
- /* Bits and mask definition for SC27XX_ADC_CH_CFG register */
- #define SC27XX_ADC_CHN_ID_MASK		GENMASK(4, 0)
--#define SC27XX_ADC_SCALE_MASK		GENMASK(10, 8)
--#define SC27XX_ADC_SCALE_SHIFT		8
-+#define SC27XX_ADC_SCALE_MASK		GENMASK(10, 9)
-+#define SC27XX_ADC_SCALE_SHIFT		9
- 
- /* Bits definitions for SC27XX_ADC_INT_EN registers */
- #define SC27XX_ADC_IRQ_EN		BIT(0)
--- 
-2.35.1
-
+--- a/drivers/scsi/dc395x.c
++++ b/drivers/scsi/dc395x.c
+@@ -3775,10 +3775,19 @@ static struct DeviceCtlBlk *device_alloc
+ #endif
+ 	if (dcb->target_lun != 0) {
+ 		/* Copy settings */
+-		struct DeviceCtlBlk *p;
+-		list_for_each_entry(p, &acb->dcb_list, list)
+-			if (p->target_id == dcb->target_id)
++		struct DeviceCtlBlk *p = NULL, *iter;
++
++		list_for_each_entry(iter, &acb->dcb_list, list)
++			if (iter->target_id == dcb->target_id) {
++				p = iter;
+ 				break;
++			}
++
++		if (!p) {
++			kfree(dcb);
++			return NULL;
++		}
++
+ 		dprintkdbg(DBG_1, 
+ 		       "device_alloc: <%02i-%i> copy from <%02i-%i>\n",
+ 		       dcb->target_id, dcb->target_lun,
 
 
