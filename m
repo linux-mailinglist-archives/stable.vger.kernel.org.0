@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C546E548D57
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:15:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86A455498EF
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354193AbiFMLbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:31:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56210 "EHLO
+        id S1380912AbiFMOHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:07:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354330AbiFML3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FE8B22B20;
-        Mon, 13 Jun 2022 03:43:22 -0700 (PDT)
+        with ESMTP id S1382375AbiFMOFr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F5769549B;
+        Mon, 13 Jun 2022 04:40:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98D1360F9A;
-        Mon, 13 Jun 2022 10:43:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0640C34114;
-        Mon, 13 Jun 2022 10:43:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D139B80D31;
+        Mon, 13 Jun 2022 11:40:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F2C4C341C4;
+        Mon, 13 Jun 2022 11:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117001;
-        bh=Z2Rg58H6WDvcZdH9B/nMDIno5SexIFF77zf26ZQUojA=;
+        s=korg; t=1655120435;
+        bh=+lNjLZLQbeY+zNTSRXU8Q/ga2ssIT8vG9WFJSp3ZJkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rJU8tG/eP0lfvlxHI0jaQLVJvB9MmoeHYPpNT1zx7QwOPaG/aJa+PKuWf7+AFXyE7
-         6CJsIpRTRmGKIjI/R9JEhNuKWysyW+4ch4sWkEo539Z5UNE9vb06QuYg19Li7gF01g
-         guC1Hw+cmqfCl7xWtdgZ/DzpxvtbNP7Vy+cmxpLk=
+        b=S2669vE5t15iXhzwQfyeHWIcaiQq9/RWmM9FIfBhdg7nFYA5ZNUcTD7Slg7DSnlqF
+         oamrm9yinlb85z+grtvq+WJFcjz9bQlNwFsFFjlG+wJaNNuRMAIyxGXmDiD7EihVBw
+         CDNlC/9nDyZsiGPprkrHVi892OphKZlNuBNxHY+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 5.4 251/411] irqchip: irq-xtensa-mx: fix initial IRQ affinity
-Date:   Mon, 13 Jun 2022 12:08:44 +0200
-Message-Id: <20220613094936.297010791@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 031/298] iio: proximity: vl53l0x: Fix return value check of wait_for_completion_timeout
+Date:   Mon, 13 Jun 2022 12:08:45 +0200
+Message-Id: <20220613094925.875386367@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,62 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit a255ee29252066d621df5d6b420bf534c6ba5bc0 upstream.
+[ Upstream commit 50f2959113cb6756ffd73c4fedc712cf2661f711 ]
 
-When irq-xtensa-mx chip is used in non-SMP configuration its
-irq_set_affinity callback is not called leaving IRQ affinity set empty.
-As a result IRQ delivery does not work in that configuration.
-Initialize IRQ affinity of the xtensa MX interrupt distributor to CPU 0
-for all external IRQ lines.
+wait_for_completion_timeout() returns unsigned long not int.
+It returns 0 if timed out, and positive if completed.
+The check for <= 0 is ambiguous and should be == 0 here
+indicating timeout which is the only error case.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3cef2e31b54b ("iio: proximity: vl53l0x: Add IRQ support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220412064210.10734-1-linmq006@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-xtensa-mx.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/iio/proximity/vl53l0x-i2c.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/irqchip/irq-xtensa-mx.c
-+++ b/drivers/irqchip/irq-xtensa-mx.c
-@@ -151,14 +151,25 @@ static struct irq_chip xtensa_mx_irq_chi
- 	.irq_set_affinity = xtensa_mx_irq_set_affinity,
- };
+diff --git a/drivers/iio/proximity/vl53l0x-i2c.c b/drivers/iio/proximity/vl53l0x-i2c.c
+index cf38144b6f95..13a87d3e3544 100644
+--- a/drivers/iio/proximity/vl53l0x-i2c.c
++++ b/drivers/iio/proximity/vl53l0x-i2c.c
+@@ -104,6 +104,7 @@ static int vl53l0x_read_proximity(struct vl53l0x_data *data,
+ 	u16 tries = 20;
+ 	u8 buffer[12];
+ 	int ret;
++	unsigned long time_left;
  
-+static void __init xtensa_mx_init_common(struct irq_domain *root_domain)
-+{
-+	unsigned int i;
-+
-+	irq_set_default_host(root_domain);
-+	secondary_init_irq();
-+
-+	/* Initialize default IRQ routing to CPU 0 */
-+	for (i = 0; i < XCHAL_NUM_EXTINTERRUPTS; ++i)
-+		set_er(1, MIROUT(i));
-+}
-+
- int __init xtensa_mx_init_legacy(struct device_node *interrupt_parent)
- {
- 	struct irq_domain *root_domain =
- 		irq_domain_add_legacy(NULL, NR_IRQS - 1, 1, 0,
- 				&xtensa_mx_irq_domain_ops,
- 				&xtensa_mx_irq_chip);
--	irq_set_default_host(root_domain);
--	secondary_init_irq();
-+	xtensa_mx_init_common(root_domain);
- 	return 0;
- }
+ 	ret = i2c_smbus_write_byte_data(client, VL_REG_SYSRANGE_START, 1);
+ 	if (ret < 0)
+@@ -112,10 +113,8 @@ static int vl53l0x_read_proximity(struct vl53l0x_data *data,
+ 	if (data->client->irq) {
+ 		reinit_completion(&data->completion);
  
-@@ -168,8 +179,7 @@ static int __init xtensa_mx_init(struct
- 	struct irq_domain *root_domain =
- 		irq_domain_add_linear(np, NR_IRQS, &xtensa_mx_irq_domain_ops,
- 				&xtensa_mx_irq_chip);
--	irq_set_default_host(root_domain);
--	secondary_init_irq();
-+	xtensa_mx_init_common(root_domain);
- 	return 0;
- }
- IRQCHIP_DECLARE(xtensa_mx_irq_chip, "cdns,xtensa-mx", xtensa_mx_init);
+-		ret = wait_for_completion_timeout(&data->completion, HZ/10);
+-		if (ret < 0)
+-			return ret;
+-		else if (ret == 0)
++		time_left = wait_for_completion_timeout(&data->completion, HZ/10);
++		if (time_left == 0)
+ 			return -ETIMEDOUT;
+ 
+ 		vl53l0x_clear_irq(data);
+-- 
+2.35.1
+
 
 
