@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65D485497C8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFE0C548B58
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383926AbiFMObW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:31:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34030 "EHLO
+        id S1356710AbiFMLu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:50:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383933AbiFMO2c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:28:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E56915839;
-        Mon, 13 Jun 2022 04:47:24 -0700 (PDT)
+        with ESMTP id S1355406AbiFMLtn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:49:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17F84D691;
+        Mon, 13 Jun 2022 03:53:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82607B80EA7;
-        Mon, 13 Jun 2022 11:47:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD840C341C5;
-        Mon, 13 Jun 2022 11:47:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1065B80E59;
+        Mon, 13 Jun 2022 10:53:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 449EAC34114;
+        Mon, 13 Jun 2022 10:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120840;
-        bh=2RdyjOpU/bVFs6TeY0Oges0DITMvHapRKBYEgmiqFB8=;
+        s=korg; t=1655117607;
+        bh=XZ3DXHceYrXFRJWGQOc38JciDUeO9kXH2roFkHG6OwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EGlI3DzkvStIcZN4WlzVZleTdbyXeFbUvdhOKCEgo0dHOK4YFMFzAZC8YoZL0mrlN
-         3dLBcM3dPLQbqVulFe9ubnM01we+nXFcZC3RFQnqeKHyLkzaL0XqU9P4nZ/UI42wLx
-         VLP+Y1rew8K285tSz6ozyHzuAUUHgmzGz6erfrWM=
+        b=BFoaS6HOEwA4foEds9f8QNWcEr/k4UMFFlH/yzDUWVm28IKr3bJyxnPdEODqgo6ei
+         QbG2TWLlb3IIEsOfey7SgcZChFO9U8bN5rvR59FNjSC2ur6tvyYxDiuMw9no6qzyYa
+         ktjLKMKSZOGd1A6N6ow8l2bSa4plS9tXYhlh6hyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Fam Zheng <fam.zheng@bytedance.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 177/298] net: dsa: lantiq_gswip: Fix refcount leak in gswip_gphy_fw_list
+Subject: [PATCH 5.4 398/411] vringh: Fix loop descriptors check in the indirect cases
 Date:   Mon, 13 Jun 2022 12:11:11 +0200
-Message-Id: <20220613094930.303287409@linuxfoundation.org>
+Message-Id: <20220613094940.596787076@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 0737e018a05e2aa352828c52bdeed3b02cff2930 ]
+[ Upstream commit dbd29e0752286af74243cf891accf472b2f3edd8 ]
 
-Every iteration of for_each_available_child_of_node() decrements
-the reference count of the previous node.
-when breaking early from a for_each_available_child_of_node() loop,
-we need to explicitly call of_node_put() on the gphy_fw_np.
-Add missing of_node_put() to avoid refcount leak.
+We should use size of descriptor chain to test loop condition
+in the indirect case. And another statistical count is also introduced
+for indirect descriptors to avoid conflict with the statistical count
+of direct descriptors.
 
-Fixes: 14fceff4771e ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220605072335.11257-1-linmq006@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Signed-off-by: Fam Zheng <fam.zheng@bytedance.com>
+Message-Id: <20220505100910.137-1-xieyongji@bytedance.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/lantiq_gswip.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/vhost/vringh.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
-index 8acec33a4702..9d8db457599c 100644
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -2021,8 +2021,10 @@ static int gswip_gphy_fw_list(struct gswip_priv *priv,
- 	for_each_available_child_of_node(gphy_fw_list_np, gphy_fw_np) {
- 		err = gswip_gphy_fw_probe(priv, &priv->gphy_fw[i],
- 					  gphy_fw_np, i);
--		if (err)
-+		if (err) {
-+			of_node_put(gphy_fw_np);
- 			goto remove_gphy;
-+		}
- 		i++;
- 	}
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index 4653de001e26..264cbe385a63 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -264,7 +264,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
+ 	     gfp_t gfp,
+ 	     int (*copy)(void *dst, const void *src, size_t len))
+ {
+-	int err, count = 0, up_next, desc_max;
++	int err, count = 0, indirect_count = 0, up_next, desc_max;
+ 	struct vring_desc desc, *descs;
+ 	struct vringh_range range = { -1ULL, 0 }, slowrange;
+ 	bool slow = false;
+@@ -321,7 +321,12 @@ __vringh_iov(struct vringh *vrh, u16 i,
+ 			continue;
+ 		}
  
+-		if (count++ == vrh->vring.num) {
++		if (up_next == -1)
++			count++;
++		else
++			indirect_count++;
++
++		if (count > vrh->vring.num || indirect_count > desc_max) {
+ 			vringh_bad("Descriptor loop in %p", descs);
+ 			err = -ELOOP;
+ 			goto fail;
+@@ -383,6 +388,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
+ 				i = return_from_indirect(vrh, &up_next,
+ 							 &descs, &desc_max);
+ 				slow = false;
++				indirect_count = 0;
+ 			} else
+ 				break;
+ 		}
 -- 
 2.35.1
 
