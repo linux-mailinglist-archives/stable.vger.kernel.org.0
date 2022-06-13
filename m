@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F158F54893C
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F3A4548B4C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355423AbiFMM4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:56:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44556 "EHLO
+        id S1344862AbiFMKsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:48:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358140AbiFMMzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A076763B7;
-        Mon, 13 Jun 2022 04:14:27 -0700 (PDT)
+        with ESMTP id S244569AbiFMKqY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:46:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CF402BB08;
+        Mon, 13 Jun 2022 03:25:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A773B80EA8;
-        Mon, 13 Jun 2022 11:14:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B53B0C34114;
-        Mon, 13 Jun 2022 11:14:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B60460F13;
+        Mon, 13 Jun 2022 10:25:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41E26C3411E;
+        Mon, 13 Jun 2022 10:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118865;
-        bh=PCCk4JNQgklISFIHqCeoOkSALeamK3gJwPOwyQM9VkE=;
+        s=korg; t=1655115948;
+        bh=oApSn8bhkmu3ZHZl6cHkPXdUbNMGrllZUuT2wqqkiJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XwYm9EYipDjYyIsJt0FFrGWkrjkBFqieDlkWbNw3zmDew6/nMeiJeJXdegdexs3Ey
-         9hdjhecTHtxpvwauta/WsjT7vsnxjljRmhiK+XpklAlJ+6uD/0WilfP4/3szEUfH3G
-         iUUX7cfJuJuFGW6eFrtJrrUFYO/0i1FLklzU/Yw8=
+        b=XQRF0BoSeZWnlQ+X+4covATnaBh0VE6vi41/F50VCeM6V25wxq0XmnLpRZ0WP3kf3
+         2ElAn3gxVty5rpHYHlLIBvsSM9zuQmEM8fWefk9v0Lf2bCILatFJrY6uYXnEZATCRJ
+         QbhKwmqPs0Smnn1h1B4+TE2n8Wn0bQmJvw+PLS9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manivannan Sadhasivam <mani@kernel.org>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        stable@vger.kernel.org, Joe Mario <jmario@redhat.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 056/247] serial: rda-uart: Dont allow CS5-6
+Subject: [PATCH 4.14 100/218] perf c2c: Use stdio interface if slang is not supported
 Date:   Mon, 13 Jun 2022 12:09:18 +0200
-Message-Id: <20220613094924.655940983@linuxfoundation.org>
+Message-Id: <20220613094923.584769204@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +60,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 098333a9c7d12bb3ce44c82f08b4d810c44d31b0 ]
+[ Upstream commit c4040212bc97d16040712a410335f93bc94d2262 ]
 
-Only CS7 and CS8 are supported but CSIZE is not sanitized after
-fallthrough from CS5 or CS6 to CS7.
+If the slang lib is not installed on the system, perf c2c tool disables TUI
+mode and roll back to use stdio mode;  but the flag 'c2c.use_stdio' is
+missed to set true and thus it wrongly applies UI quirks in the function
+ui_quirks().
 
-Set CSIZE correctly so that userspace knows the effective value.
-Incorrect CSIZE also results in miscalculation of the frame bits in
-tty_get_char_size() or in its predecessor where the roughly the same
-code is directly within uart_update_timeout().
+This commit forces to use stdio interface if slang is not supported, and
+it can avoid to apply the UI quirks and show the correct metric header.
 
-Fixes: c10b13325ced (tty: serial: Add RDA8810PL UART driver)
-Cc: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220519081808.3776-4-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Before:
+
+=================================================
+      Shared Cache Line Distribution Pareto
+=================================================
+  -------------------------------------------------------------------------------
+      0        0        0       99        0        0        0      0xaaaac17d6000
+  -------------------------------------------------------------------------------
+    0.00%    0.00%    6.06%    0.00%    0.00%    0.00%   0x20   N/A       0      0xaaaac17c25ac         0         0        43       375    18469         2  [.] 0x00000000000025ac  memstress         memstress[25ac]   0
+    0.00%    0.00%   93.94%    0.00%    0.00%    0.00%   0x29   N/A       0      0xaaaac17c3e88         0         0       173       180      135         2  [.] 0x0000000000003e88  memstress         memstress[3e88]   0
+
+After:
+
+=================================================
+      Shared Cache Line Distribution Pareto
+=================================================
+  -------------------------------------------------------------------------------
+      0        0        0       99        0        0        0      0xaaaac17d6000
+  -------------------------------------------------------------------------------
+           0.00%    0.00%    6.06%    0.00%    0.00%    0.00%                0x20   N/A       0      0xaaaac17c25ac         0         0        43       375    18469         2  [.] 0x00000000000025ac  memstress         memstress[25ac]   0
+           0.00%    0.00%   93.94%    0.00%    0.00%    0.00%                0x29   N/A       0      0xaaaac17c3e88         0         0       173       180      135         2  [.] 0x0000000000003e88  memstress         memstress[3e88]   0
+
+Fixes: 5a1a99cd2e4e1557 ("perf c2c report: Add main TUI browser")
+Reported-by: Joe Mario <jmario@redhat.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20220526145400.611249-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/rda-uart.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/builtin-c2c.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/rda-uart.c b/drivers/tty/serial/rda-uart.c
-index d550d8fa2fab..a8fe1c3ebcd9 100644
---- a/drivers/tty/serial/rda-uart.c
-+++ b/drivers/tty/serial/rda-uart.c
-@@ -262,6 +262,8 @@ static void rda_uart_set_termios(struct uart_port *port,
- 		fallthrough;
- 	case CS7:
- 		ctrl &= ~RDA_UART_DBITS_8;
-+		termios->c_cflag &= ~CSIZE;
-+		termios->c_cflag |= CS7;
- 		break;
- 	default:
- 		ctrl |= RDA_UART_DBITS_8;
+diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
+index 264d458bfe2a..9cbd8b0d5b77 100644
+--- a/tools/perf/builtin-c2c.c
++++ b/tools/perf/builtin-c2c.c
+@@ -2552,9 +2552,7 @@ static int perf_c2c__report(int argc, const char **argv)
+ 		   "the input file to process"),
+ 	OPT_INCR('N', "node-info", &c2c.node_info,
+ 		 "show extra node info in report (repeat for more info)"),
+-#ifdef HAVE_SLANG_SUPPORT
+ 	OPT_BOOLEAN(0, "stdio", &c2c.use_stdio, "Use the stdio interface"),
+-#endif
+ 	OPT_BOOLEAN(0, "stats", &c2c.stats_only,
+ 		    "Display only statistic tables (implies --stdio)"),
+ 	OPT_BOOLEAN(0, "full-symbols", &c2c.symbol_full,
+@@ -2581,6 +2579,10 @@ static int perf_c2c__report(int argc, const char **argv)
+ 	if (argc)
+ 		usage_with_options(report_c2c_usage, options);
+ 
++#ifndef HAVE_SLANG_SUPPORT
++	c2c.use_stdio = true;
++#endif
++
+ 	if (c2c.stats_only)
+ 		c2c.use_stdio = true;
+ 
 -- 
 2.35.1
 
