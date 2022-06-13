@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 165B65489E1
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:06:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E59F548DB7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343568AbiFMKtw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:49:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47280 "EHLO
+        id S1378454AbiFMNlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344021AbiFMKqu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:46:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A0EE2BB3F;
-        Mon, 13 Jun 2022 03:25:54 -0700 (PDT)
+        with ESMTP id S1379160AbiFMNj4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01B4622502;
+        Mon, 13 Jun 2022 04:29:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D82C3B80E92;
-        Mon, 13 Jun 2022 10:25:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28619C34114;
-        Mon, 13 Jun 2022 10:25:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9358461036;
+        Mon, 13 Jun 2022 11:29:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A219DC34114;
+        Mon, 13 Jun 2022 11:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115951;
-        bh=lUTUaU7NK6xPI/fCw6nR7Vbxfy1nWrm8QQoc/qCEKm0=;
+        s=korg; t=1655119744;
+        bh=eDqhiksNIf+jsUY2XBvAV3uAA2+r9m8+eNfbCUe+LBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dMpbKHGfN1nBZLtofpjPd+3cbKjaJGPXw7a1arG4YZd2CRP4SjWk/05RoyF+Bm+iI
-         f26DZyX8ebffWmjS0EY0r5N+GfRS4E+b2CsuDPBkdBZZVwqz0mjd6SlET6+OfmK1Ri
-         F2cVHzATNzEHFBBW+ta+frThCq72a4ahHs5E72Ns=
+        b=mXYTmD6bvOL09S5MBcrdFw8zMerE/3Ecz8oU0J+xxZnFvQBd/sZH8ZmC7w/DHOsAf
+         P1z/0kL9dm/vaxPPIZ6neXEwSlQMxSAAnm6pVrbZ+g2Ak77JMDsiAi4ZyS5PUo+yuW
+         hEIEIQCKvb5d3tqIJE5gBXZCmAt2qNMMkqyJWzNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Zhbanov <izh1979@gmail.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 091/218] powerpc/4xx/cpm: Fix return value of __setup() handler
+Subject: [PATCH 5.18 124/339] net/mlx5: Dont use already freed action pointer
 Date:   Mon, 13 Jun 2022 12:09:09 +0200
-Message-Id: <20220613094923.300801202@linuxfoundation.org>
+Message-Id: <20220613094930.271415321@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 5bb99fd4090fe1acfdb90a97993fcda7f8f5a3d6 ]
+[ Upstream commit 80b2bd737d0e833e6a2b77e482e5a714a79c86a4 ]
 
-__setup() handlers should return 1 to obsolete_checksetup() in
-init/main.c to indicate that the boot option has been handled.
+The call to mlx5dr_action_destroy() releases "action" memory. That
+pointer is set to miss_action later and generates the following smatch
+error:
 
-A return of 0 causes the boot option/value to be listed as an Unknown
-kernel parameter and added to init's (limited) argument or environment
-strings.
+ drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c:53 set_miss_action()
+ warn: 'action' was already freed.
 
-Also, error return codes don't mean anything to obsolete_checksetup() --
-only non-zero (usually 1) or zero. So return 1 from cpm_powersave_off().
+Make sure that the pointer is always valid by setting NULL after destroy.
 
-Fixes: d164f6d4f910 ("powerpc/4xx: Add suspend and idle support")
-Reported-by: Igor Zhbanov <izh1979@gmail.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220502192941.20955-1-rdunlap@infradead.org
+Fixes: 6a48faeeca10 ("net/mlx5: Add direct rule fs_cmd implementation")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/4xx/cpm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/platforms/4xx/cpm.c b/arch/powerpc/platforms/4xx/cpm.c
-index 53ff81ca8a3c..6400ae376216 100644
---- a/arch/powerpc/platforms/4xx/cpm.c
-+++ b/arch/powerpc/platforms/4xx/cpm.c
-@@ -341,6 +341,6 @@ late_initcall(cpm_init);
- static int __init cpm_powersave_off(char *arg)
- {
- 	cpm.powersave_off = 1;
--	return 0;
-+	return 1;
- }
- __setup("powersave=off", cpm_powersave_off);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
+index 728f81882589..6a9abba92df6 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
+@@ -44,11 +44,10 @@ static int set_miss_action(struct mlx5_flow_root_namespace *ns,
+ 	err = mlx5dr_table_set_miss_action(ft->fs_dr_table.dr_table, action);
+ 	if (err && action) {
+ 		err = mlx5dr_action_destroy(action);
+-		if (err) {
+-			action = NULL;
+-			mlx5_core_err(ns->dev, "Failed to destroy action (%d)\n",
+-				      err);
+-		}
++		if (err)
++			mlx5_core_err(ns->dev,
++				      "Failed to destroy action (%d)\n", err);
++		action = NULL;
+ 	}
+ 	ft->fs_dr_table.miss_action = action;
+ 	if (old_miss_action) {
 -- 
 2.35.1
 
