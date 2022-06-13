@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8F3254949F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B93B95490B6
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378496AbiFMNln (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:41:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59052 "EHLO
+        id S243128AbiFMKVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:21:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379170AbiFMNj5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE6833DDD0;
-        Mon, 13 Jun 2022 04:29:14 -0700 (PDT)
+        with ESMTP id S243123AbiFMKUt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:20:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08CF1FA50;
+        Mon, 13 Jun 2022 03:17:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C084B80D3A;
-        Mon, 13 Jun 2022 11:29:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBA7FC34114;
-        Mon, 13 Jun 2022 11:29:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F72660AEE;
+        Mon, 13 Jun 2022 10:17:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51169C3411F;
+        Mon, 13 Jun 2022 10:17:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119752;
-        bh=C/WmO2LlukpJ69iEqbpbD30LwP2REadEzSEAWtmskFk=;
+        s=korg; t=1655115453;
+        bh=/dd+gH+h32kkhJDh0hPaL67l4m6Mqri3+Z8vaRFQAps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYOhTuYv8xdlajl3IsoOCo6474DS3CozwhZh3m6mD12niKbCZpgKlCwa+pbg4H7Cy
-         iAJ0+FnoZNaSGMw+OXyTs/NXASwwKsPRcxBpJhHn5+ZY2d67XfOhjjZ7hoyMFGBp3y
-         tVxk0nQ8C8xIFArlGWm1ptIjvZK1fZZFqaS2i2Bw=
+        b=NkZx2QioNfaZIdisZGZ9Ds46GDg0Ljkic30xL9jlZeP4JpYch50cqdtolCR6SCYTR
+         yNaJy5xzB2tCvmUUjiqt24iBxn6q7JYrYF+KPRC8x5IDeQsYxWcpZRPDJwAM7WJUhd
+         funbfWzefVmmjOubd1oOyQ0e/rzU/U4ea63V2U8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Karsten Nielsen <karsten@foo-bar.dk>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Gal Pressman <gal@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 127/339] net/mlx5e: Disable softirq in mlx5e_activate_rq to avoid race condition
-Date:   Mon, 13 Jun 2022 12:09:12 +0200
-Message-Id: <20220613094930.360893613@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.9 079/167] ext4: fix bug_on in ext4_writepages
+Date:   Mon, 13 Jun 2022 12:09:13 +0200
+Message-Id: <20220613094859.433172320@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,213 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 2e642afb61b24401a7ec819d27ddcd69c7c29784 ]
+commit ef09ed5d37b84d18562b30cf7253e57062d0db05 upstream.
 
-When the driver activates the channels, it assumes NAPI isn't running
-yet. mlx5e_activate_rq posts a NOP WQE to ICOSQ to trigger a hardware
-interrupt and start NAPI, which will run mlx5e_alloc_rx_mpwqe and post
-UMR WQEs to ICOSQ to be able to receive packets with striding RQ.
+we got issue as follows:
+EXT4-fs error (device loop0): ext4_mb_generate_buddy:1141: group 0, block bitmap and bg descriptor inconsistent: 25 vs 31513 free cls
+------------[ cut here ]------------
+kernel BUG at fs/ext4/inode.c:2708!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
+CPU: 2 PID: 2147 Comm: rep Not tainted 5.18.0-rc2-next-20220413+ #155
+RIP: 0010:ext4_writepages+0x1977/0x1c10
+RSP: 0018:ffff88811d3e7880 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 0000000000000001 RCX: ffff88811c098000
+RDX: 0000000000000000 RSI: ffff88811c098000 RDI: 0000000000000002
+RBP: ffff888128140f50 R08: ffffffffb1ff6387 R09: 0000000000000000
+R10: 0000000000000007 R11: ffffed10250281ea R12: 0000000000000001
+R13: 00000000000000a4 R14: ffff88811d3e7bb8 R15: ffff888128141028
+FS:  00007f443aed9740(0000) GS:ffff8883aef00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020007200 CR3: 000000011c2a4000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ do_writepages+0x130/0x3a0
+ filemap_fdatawrite_wbc+0x83/0xa0
+ filemap_flush+0xab/0xe0
+ ext4_alloc_da_blocks+0x51/0x120
+ __ext4_ioctl+0x1534/0x3210
+ __x64_sys_ioctl+0x12c/0x170
+ do_syscall_64+0x3b/0x90
 
-Unfortunately, a race condition is possible if NAPI is triggered by
-something else (for example, TX) at a bad timing, before
-mlx5e_activate_rq finishes. In this case, mlx5e_alloc_rx_mpwqe may post
-UMR WQEs to ICOSQ, and with the bad timing, the wqe_info of the first
-UMR may be overwritten by the wqe_info of the NOP posted by
-mlx5e_activate_rq.
+It may happen as follows:
+1. write inline_data inode
+vfs_write
+  new_sync_write
+    ext4_file_write_iter
+      ext4_buffered_write_iter
+        generic_perform_write
+          ext4_da_write_begin
+            ext4_da_write_inline_data_begin -> If inline data size too
+            small will allocate block to write, then mapping will has
+            dirty page
+                ext4_da_convert_inline_data_to_extent ->clear EXT4_STATE_MAY_INLINE_DATA
+2. fallocate
+do_vfs_ioctl
+  ioctl_preallocate
+    vfs_fallocate
+      ext4_fallocate
+        ext4_convert_inline_data
+          ext4_convert_inline_data_nolock
+            ext4_map_blocks -> fail will goto restore data
+            ext4_restore_inline_data
+              ext4_create_inline_data
+              ext4_write_inline_data
+              ext4_set_inode_state -> set inode EXT4_STATE_MAY_INLINE_DATA
+3. writepages
+__ext4_ioctl
+  ext4_alloc_da_blocks
+    filemap_flush
+      filemap_fdatawrite_wbc
+        do_writepages
+          ext4_writepages
+            if (ext4_has_inline_data(inode))
+              BUG_ON(ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA))
 
-The consequence is that icosq->db.wqe_info[0].num_wqebbs will be changed
-from MLX5E_UMR_WQEBBS to 1, disrupting the integrity of the array-based
-linked list in wqe_info[]. mlx5e_poll_ico_cq will hang in an infinite
-loop after processing wqe_info[0], because after the corruption, the
-next item to be processed will be wqe_info[1], which is filled with
-zeros, and `sqcc += wi->num_wqebbs` will never move further.
+The root cause of this issue is we destory inline data until call
+ext4_writepages under delay allocation mode.  But there maybe already
+convert from inline to extent.  To solve this issue, we call
+filemap_flush first..
 
-This commit fixes this race condition by using async_icosq to post the
-NOP and trigger the interrupt. async_icosq is always protected with a
-spinlock, eliminating the race condition.
-
-Fixes: bc77b240b3c5 ("net/mlx5e: Add fragmented memory support for RX multi packet WQE")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reported-by: Karsten Nielsen <karsten@foo-bar.dk>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Reviewed-by: Gal Pressman <gal@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220516122634.1690462-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h  |  4 ++++
- .../net/ethernet/mellanox/mlx5/core/en/ptp.c  |  1 +
- .../mellanox/mlx5/core/en/reporter_rx.c       |  6 +++++
- .../net/ethernet/mellanox/mlx5/core/en/trap.c |  1 +
- .../ethernet/mellanox/mlx5/core/en/xsk/pool.c |  1 +
- .../mellanox/mlx5/core/en/xsk/setup.c         |  5 +---
- .../net/ethernet/mellanox/mlx5/core/en_main.c | 24 +++++++++++++------
- 7 files changed, 31 insertions(+), 11 deletions(-)
+ fs/ext4/inline.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index ee34e861d3af..d0d14325a0d9 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -765,6 +765,7 @@ struct mlx5e_rq {
- 	u8                     wq_type;
- 	u32                    rqn;
- 	struct mlx5_core_dev  *mdev;
-+	struct mlx5e_channel  *channel;
- 	u32  umr_mkey;
- 	struct mlx5e_dma_info  wqe_overflow;
- 
-@@ -1077,6 +1078,9 @@ void mlx5e_close_cq(struct mlx5e_cq *cq);
- int mlx5e_open_locked(struct net_device *netdev);
- int mlx5e_close_locked(struct net_device *netdev);
- 
-+void mlx5e_trigger_napi_icosq(struct mlx5e_channel *c);
-+void mlx5e_trigger_napi_sched(struct napi_struct *napi);
-+
- int mlx5e_open_channels(struct mlx5e_priv *priv,
- 			struct mlx5e_channels *chs);
- void mlx5e_close_channels(struct mlx5e_channels *chs);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
-index 335b20b6383b..047f88f09203 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
-@@ -736,6 +736,7 @@ void mlx5e_ptp_activate_channel(struct mlx5e_ptp *c)
- 	if (test_bit(MLX5E_PTP_STATE_RX, c->state)) {
- 		mlx5e_ptp_rx_set_fs(c->priv);
- 		mlx5e_activate_rq(&c->rq);
-+		mlx5e_trigger_napi_sched(&c->napi);
- 	}
- }
- 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
-index 2684e9da9f41..fc366e66d0b0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
-@@ -123,6 +123,8 @@ static int mlx5e_rx_reporter_err_icosq_cqe_recover(void *ctx)
- 		xskrq->stats->recover++;
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -1984,6 +1984,18 @@ int ext4_convert_inline_data(struct inod
+ 	if (!ext4_has_inline_data(inode)) {
+ 		ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+ 		return 0;
++	} else if (!ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)) {
++		/*
++		 * Inode has inline data but EXT4_STATE_MAY_INLINE_DATA is
++		 * cleared. This means we are in the middle of moving of
++		 * inline data to delay allocated block. Just force writeout
++		 * here to finish conversion.
++		 */
++		error = filemap_flush(inode->i_mapping);
++		if (error)
++			return error;
++		if (!ext4_has_inline_data(inode))
++			return 0;
  	}
  
-+	mlx5e_trigger_napi_icosq(icosq->channel);
-+
- 	mutex_unlock(&icosq->channel->icosq_recovery_lock);
- 
- 	return 0;
-@@ -166,6 +168,10 @@ static int mlx5e_rx_reporter_err_rq_cqe_recover(void *ctx)
- 	clear_bit(MLX5E_RQ_STATE_RECOVERING, &rq->state);
- 	mlx5e_activate_rq(rq);
- 	rq->stats->recover++;
-+	if (rq->channel)
-+		mlx5e_trigger_napi_icosq(rq->channel);
-+	else
-+		mlx5e_trigger_napi_sched(rq->cq.napi);
- 	return 0;
- out:
- 	clear_bit(MLX5E_RQ_STATE_RECOVERING, &rq->state);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/trap.c b/drivers/net/ethernet/mellanox/mlx5/core/en/trap.c
-index 857840ab1e91..11f2a7fb72a9 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/trap.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/trap.c
-@@ -179,6 +179,7 @@ static void mlx5e_activate_trap(struct mlx5e_trap *trap)
- {
- 	napi_enable(&trap->napi);
- 	mlx5e_activate_rq(&trap->rq);
-+	mlx5e_trigger_napi_sched(&trap->napi);
- }
- 
- void mlx5e_deactivate_trap(struct mlx5e_priv *priv)
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/pool.c b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/pool.c
-index 279cd8f4e79f..2c520394aa1d 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/pool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/pool.c
-@@ -117,6 +117,7 @@ static int mlx5e_xsk_enable_locked(struct mlx5e_priv *priv,
- 		goto err_remove_pool;
- 
- 	mlx5e_activate_xsk(c);
-+	mlx5e_trigger_napi_icosq(c);
- 
- 	/* Don't wait for WQEs, because the newer xdpsock sample doesn't provide
- 	 * any Fill Ring entries at the setup stage.
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
-index 3ad7f1301fa8..98ed9ef3a6bd 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
-@@ -64,6 +64,7 @@ static int mlx5e_init_xsk_rq(struct mlx5e_channel *c,
- 	rq->clock        = &mdev->clock;
- 	rq->icosq        = &c->icosq;
- 	rq->ix           = c->ix;
-+	rq->channel      = c;
- 	rq->mdev         = mdev;
- 	rq->hw_mtu       = MLX5E_SW2HW_MTU(params, params->sw_mtu);
- 	rq->xdpsq        = &c->rq_xdpsq;
-@@ -179,10 +180,6 @@ void mlx5e_activate_xsk(struct mlx5e_channel *c)
- 	mlx5e_reporter_icosq_resume_recovery(c);
- 
- 	/* TX queue is created active. */
--
--	spin_lock_bh(&c->async_icosq_lock);
--	mlx5e_trigger_irq(&c->async_icosq);
--	spin_unlock_bh(&c->async_icosq_lock);
- }
- 
- void mlx5e_deactivate_xsk(struct mlx5e_channel *c)
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 72867a8ff48b..6a35af2c2c8b 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -478,6 +478,7 @@ static int mlx5e_init_rxq_rq(struct mlx5e_channel *c, struct mlx5e_params *param
- 	rq->clock        = &mdev->clock;
- 	rq->icosq        = &c->icosq;
- 	rq->ix           = c->ix;
-+	rq->channel      = c;
- 	rq->mdev         = mdev;
- 	rq->hw_mtu       = MLX5E_SW2HW_MTU(params, params->sw_mtu);
- 	rq->xdpsq        = &c->rq_xdpsq;
-@@ -1072,13 +1073,6 @@ int mlx5e_open_rq(struct mlx5e_params *params, struct mlx5e_rq_param *param,
- void mlx5e_activate_rq(struct mlx5e_rq *rq)
- {
- 	set_bit(MLX5E_RQ_STATE_ENABLED, &rq->state);
--	if (rq->icosq) {
--		mlx5e_trigger_irq(rq->icosq);
--	} else {
--		local_bh_disable();
--		napi_schedule(rq->cq.napi);
--		local_bh_enable();
--	}
- }
- 
- void mlx5e_deactivate_rq(struct mlx5e_rq *rq)
-@@ -2233,6 +2227,20 @@ static int mlx5e_channel_stats_alloc(struct mlx5e_priv *priv, int ix, int cpu)
- 	return 0;
- }
- 
-+void mlx5e_trigger_napi_icosq(struct mlx5e_channel *c)
-+{
-+	spin_lock_bh(&c->async_icosq_lock);
-+	mlx5e_trigger_irq(&c->async_icosq);
-+	spin_unlock_bh(&c->async_icosq_lock);
-+}
-+
-+void mlx5e_trigger_napi_sched(struct napi_struct *napi)
-+{
-+	local_bh_disable();
-+	napi_schedule(napi);
-+	local_bh_enable();
-+}
-+
- static int mlx5e_open_channel(struct mlx5e_priv *priv, int ix,
- 			      struct mlx5e_params *params,
- 			      struct mlx5e_channel_param *cparam,
-@@ -2314,6 +2322,8 @@ static void mlx5e_activate_channel(struct mlx5e_channel *c)
- 
- 	if (test_bit(MLX5E_CHANNEL_STATE_XSK, c->state))
- 		mlx5e_activate_xsk(c);
-+
-+	mlx5e_trigger_napi_icosq(c);
- }
- 
- static void mlx5e_deactivate_channel(struct mlx5e_channel *c)
--- 
-2.35.1
-
+ 	needed_blocks = ext4_writepage_trans_blocks(inode);
 
 
