@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EBE354955E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93F56549961
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381098AbiFMOHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:07:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51938 "EHLO
+        id S240728AbiFMQ7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 12:59:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381392AbiFMOET (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:04:19 -0400
+        with ESMTP id S241607AbiFMQ6W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 12:58:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB4BF4553C;
-        Mon, 13 Jun 2022 04:39:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DBADB8BE4;
+        Mon, 13 Jun 2022 04:51:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 613B7B80E2C;
-        Mon, 13 Jun 2022 11:39:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD2D3C3411B;
-        Mon, 13 Jun 2022 11:39:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98A67B80EA7;
+        Mon, 13 Jun 2022 11:51:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F93EC34114;
+        Mon, 13 Jun 2022 11:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120355;
-        bh=i5fKpp80z6wDEA2rNJ1KQb7U1RDqRijDRcCP4XwkONk=;
+        s=korg; t=1655121072;
+        bh=nczovht0mv0hk19j4VPkQsnSiinkGPLMITM2RLJY19k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGfK5iY1HY2HJMtgMy5AxD1iDYKixMXVN4Th8mebjW8skECAf68obOCdSbdinxrSM
-         uuICwY7tRK54/cQ7lEXj4803DbRHgQwoLknwF6NbeueQstcJ9X8lWSKaTP+raJTRYQ
-         bMMq3AQZexESKSbJfYtioTrxzpmk0JqYdWEKciRE=
+        b=wKyaSQzuL8CxHqt/sH2sQoZSux3KXXwzBjddMOWPBvN23OVyKFtJkLdjyTND0PoCp
+         4Zi+u7lhQvvEF3QupRos/Pq/p/ryjYrht1PjksuIGnu3CjMCWb+Umn1DQMgcVcTW19
+         5INYNtwkVaSNz2iZlfDP4kniKjZX/O6jCN+Uo/DY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mohammad Zafar Ziya <Mohammadzafar.ziya@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Lijo Lazar <lijo.lazar@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.18 330/339] drm/amdgpu/jpeg2: Add jpeg vmid update under IB submit
+        stable@vger.kernel.org, Jeremy Soller <jeremy@system76.com>,
+        Tim Crawford <tcrawford@system76.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 261/298] ALSA: hda/realtek: Add quirk for HP Dev One
 Date:   Mon, 13 Jun 2022 12:12:35 +0200
-Message-Id: <20220613094936.751239315@linuxfoundation.org>
+Message-Id: <20220613094932.991216170@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohammad Zafar Ziya <Mohammadzafar.ziya@amd.com>
+From: Jeremy Soller <jeremy@system76.com>
 
-commit 578eb31776df57c81307fb3f96ef0781332c3c7c upstream.
+commit 5f3d696eea916693b2d4ed7e62794653fcdd6ec0 upstream.
 
-Add jpeg vmid update under IB submit
+Enables the audio mute LEDs and limits the mic boost to avoid picking up
+noise.
 
-Signed-off-by: Mohammad Zafar Ziya <Mohammadzafar.ziya@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Jeremy Soller <jeremy@system76.com>
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220608140111.23170-1-tcrawford@system76.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c |    6 +++++-
- drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.h |    1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c
-@@ -535,6 +535,10 @@ void jpeg_v2_0_dec_ring_emit_ib(struct a
- {
- 	unsigned vmid = AMDGPU_JOB_GET_VMID(job);
- 
-+	amdgpu_ring_write(ring,	PACKETJ(mmUVD_JPEG_IH_CTRL_INTERNAL_OFFSET,
-+		0, 0, PACKETJ_TYPE0));
-+	amdgpu_ring_write(ring, (vmid << JPEG_IH_CTRL__IH_VMID__SHIFT));
-+
- 	amdgpu_ring_write(ring, PACKETJ(mmUVD_LMI_JRBC_IB_VMID_INTERNAL_OFFSET,
- 		0, 0, PACKETJ_TYPE0));
- 	amdgpu_ring_write(ring, (vmid | (vmid << 4)));
-@@ -768,7 +772,7 @@ static const struct amdgpu_ring_funcs jp
- 		8 + /* jpeg_v2_0_dec_ring_emit_vm_flush */
- 		18 + 18 + /* jpeg_v2_0_dec_ring_emit_fence x2 vm fence */
- 		8 + 16,
--	.emit_ib_size = 22, /* jpeg_v2_0_dec_ring_emit_ib */
-+	.emit_ib_size = 24, /* jpeg_v2_0_dec_ring_emit_ib */
- 	.emit_ib = jpeg_v2_0_dec_ring_emit_ib,
- 	.emit_fence = jpeg_v2_0_dec_ring_emit_fence,
- 	.emit_vm_flush = jpeg_v2_0_dec_ring_emit_vm_flush,
---- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.h
-+++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.h
-@@ -41,6 +41,7 @@
- #define mmUVD_JRBC_RB_REF_DATA_INTERNAL_OFFSET				0x4084
- #define mmUVD_JRBC_STATUS_INTERNAL_OFFSET				0x4089
- #define mmUVD_JPEG_PITCH_INTERNAL_OFFSET				0x401f
-+#define mmUVD_JPEG_IH_CTRL_INTERNAL_OFFSET				0x4149
- 
- #define JRBC_DEC_EXTERNAL_REG_WRITE_ADDR				0x18000
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9056,6 +9056,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x88d0, "HP Pavilion 15-eh1xxx (mainboard 88D0)", ALC287_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x89c3, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x89ca, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
++	SND_PCI_QUIRK(0x103c, 0x8a78, "HP Dev One", ALC285_FIXUP_HP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
+ 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
 
 
