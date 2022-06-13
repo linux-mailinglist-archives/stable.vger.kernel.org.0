@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9823548B7B
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42973548B0C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359022AbiFMNVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:21:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60720 "EHLO
+        id S1355539AbiFMMuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:50:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377030AbiFMNT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:19:56 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8270E694B0;
-        Mon, 13 Jun 2022 04:23:10 -0700 (PDT)
+        with ESMTP id S1357946AbiFMMtQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:49:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF78662CEB;
+        Mon, 13 Jun 2022 04:12:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7C32DCE118D;
-        Mon, 13 Jun 2022 11:22:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CA99C34114;
-        Mon, 13 Jun 2022 11:22:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF8BB60B6F;
+        Mon, 13 Jun 2022 11:11:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 094EEC3411C;
+        Mon, 13 Jun 2022 11:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119349;
-        bh=9uKvnoG4B7uUYhEFbCpI+laNOBVB1oTWCNAqi04Sf4U=;
+        s=korg; t=1655118719;
+        bh=mx3pn1YskJhKscmJKJAUboZ3tuQwZvcQyJ2kGO9cZds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBse8UTQcdzoZJFjUZC51Q1j4h7Gy4KQ5xiBYxcBUGR3q/ugXbuVejv6yEvSw5yn4
-         xhkMGGA3o0wBTAE9QfV1Lx6cbYvqc7onizF45hHutMP9OBf+UIpxH0cSZ6DZqoVcAu
-         zu8BWdr24A9YI//aWw+0oB9qpzaIpAx6LBAXhT/0=
+        b=hYez+POy2ZWuRJMLSqtD6lf/RQcrlBLRlYcSc6t0JtxAB6A7ASSWcgY/zolx2J7sZ
+         A4iHyw5cW96kCEW4YN648J59V56ZB0G8wBQEj90AwYSaJMDl1ipzcEEjqIQ4IInivc
+         XM5r+i1MOqYcxGWw4dOkIm7E8uIkbdKgGn7hBW4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 223/247] mmc: block: Fix CQE recovery reset success
+        stable@vger.kernel.org, Liu Ying <victor.liu@oss.nxp.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 5.10 165/172] drm/atomic: Force bridge self-refresh-exit on CRTC switch
 Date:   Mon, 13 Jun 2022 12:12:05 +0200
-Message-Id: <20220613094929.709034893@linuxfoundation.org>
+Message-Id: <20220613094923.273674277@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit a051246b786af7e4a9d9219cc7038a6e8a411531 upstream.
+commit e54a4424925a27ed94dff046db3ce5caf4b1e748 upstream.
 
-The intention of the use of mmc_blk_reset_success() in
-mmc_blk_cqe_recovery() was to prevent repeated resets when retrying and
-getting the same error. However, that may not be the case - any amount
-of time and I/O may pass before another recovery is needed, in which
-case there would be no reason to deny it the opportunity to recover via
-a reset if necessary. CQE recovery is expected seldom and failure to
-recover (if the clear tasks command fails), even more seldom, so it is
-better to allow the reset always, which can be done by calling
-mmc_blk_reset_success() always.
+It's possible to change which CRTC is in use for a given
+connector/encoder/bridge while we're in self-refresh without fully
+disabling the connector/encoder/bridge along the way. This can confuse
+the bridge encoder/bridge, because
+(a) it needs to track the SR state (trying to perform "active"
+    operations while the panel is still in SR can be Bad(TM)); and
+(b) it tracks the SR state via the CRTC state (and after the switch, the
+    previous SR state is lost).
 
-Fixes: 1e8e55b67030c6 ("mmc: block: Add CQE support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20220531171922.76080-1-adrian.hunter@intel.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Thus, we need to either somehow carry the self-refresh state over to the
+new CRTC, or else force an encoder/bridge self-refresh transition during
+such a switch.
+
+I choose the latter, so we disable the encoder (and exit PSR) before
+attaching it to the new CRTC (where we can continue to assume a clean
+(non-self-refresh) state).
+
+This fixes PSR issues seen on Rockchip RK3399 systems with
+drivers/gpu/drm/bridge/analogix/analogix_dp_core.c.
+
+Change in v2:
+
+- Drop "->enable" condition; this could possibly be "->active" to
+  reflect the intended hardware state, but it also is a little
+  over-specific. We want to make a transition through "disabled" any
+  time we're exiting PSR at the same time as a CRTC switch.
+  (Thanks Liu Ying)
+
+Cc: Liu Ying <victor.liu@oss.nxp.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 1452c25b0e60 ("drm: Add helpers to kick off self refresh mode in drivers")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220228122522.v2.2.Ic15a2ef69c540aee8732703103e2cff51fb9c399@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/block.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/drm_atomic_helper.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -1482,8 +1482,7 @@ void mmc_blk_cqe_recovery(struct mmc_que
- 	err = mmc_cqe_recovery(host);
- 	if (err)
- 		mmc_blk_reset(mq->blkdata, host, MMC_BLK_CQE_RECOVERY);
--	else
--		mmc_blk_reset_success(mq->blkdata, MMC_BLK_CQE_RECOVERY);
-+	mmc_blk_reset_success(mq->blkdata, MMC_BLK_CQE_RECOVERY);
+--- a/drivers/gpu/drm/drm_atomic_helper.c
++++ b/drivers/gpu/drm/drm_atomic_helper.c
+@@ -996,9 +996,19 @@ crtc_needs_disable(struct drm_crtc_state
+ 		return drm_atomic_crtc_effectively_active(old_state);
  
- 	pr_debug("%s: CQE recovery done\n", mmc_hostname(host));
- }
+ 	/*
+-	 * We need to run through the crtc_funcs->disable() function if the CRTC
+-	 * is currently on, if it's transitioning to self refresh mode, or if
+-	 * it's in self refresh mode and needs to be fully disabled.
++	 * We need to disable bridge(s) and CRTC if we're transitioning out of
++	 * self-refresh and changing CRTCs at the same time, because the
++	 * bridge tracks self-refresh status via CRTC state.
++	 */
++	if (old_state->self_refresh_active &&
++	    old_state->crtc != new_state->crtc)
++		return true;
++
++	/*
++	 * We also need to run through the crtc_funcs->disable() function if
++	 * the CRTC is currently on, if it's transitioning to self refresh
++	 * mode, or if it's in self refresh mode and needs to be fully
++	 * disabled.
+ 	 */
+ 	return old_state->active ||
+ 	       (old_state->self_refresh_active && !new_state->enable) ||
 
 
