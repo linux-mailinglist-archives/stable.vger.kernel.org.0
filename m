@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67D18548E92
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C43DA548DF5
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:16:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355385AbiFMLe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:34:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56844 "EHLO
+        id S1347836AbiFMMam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:30:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354487AbiFMLcw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:32:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9738FDF73;
-        Mon, 13 Jun 2022 03:47:24 -0700 (PDT)
+        with ESMTP id S1353582AbiFMM1p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:27:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A2C58E55;
+        Mon, 13 Jun 2022 04:06:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0BB26125C;
-        Mon, 13 Jun 2022 10:47:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C77C9C34114;
-        Mon, 13 Jun 2022 10:47:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C76FCB80E92;
+        Mon, 13 Jun 2022 11:05:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26B0DC34114;
+        Mon, 13 Jun 2022 11:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117243;
-        bh=p9LAIdd8z0hn26BqqnEUtXo7j+0h6wN8DowSzt00xtg=;
+        s=korg; t=1655118350;
+        bh=FW9vedLK+UgK0iFW3Wb9k2OYR5Brh62myF1UZRa+n90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hqz5DN0c0JmFCbzfMX/AIXHDbx94DTGxvTf6zOV3bgqm1r6zwoGgyLOKo64SPYgu/
-         c9u+wKkj5mEqZL45DTz/4ToMuypJKtTWIKWdT0NSWsMhTL5GvzylyI/uana2QFIMCY
-         w4NdgPS9rmEgDsGBuqFA2RjZvwei0WuWsT6Olg5w=
+        b=izZBDpSzoz6jykx+lvsVXUuBrXBdPTsFGuVGHmyu0LkRQxZI/nSr3yeiquK8WmcWA
+         8lG+dTvTirdfh8fTjmeUwbcy+laYsjV51h4PUsimREuz9W+DqVu+UAVEAhXzPvz9mT
+         lkntuP36u9No1LAh4jyEV7z/+awgtitW1W7RRCHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Zhang Wensheng <zhangwensheng5@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 331/411] net/mlx5e: Update netdev features after changing XDP state
+Subject: [PATCH 5.10 044/172] driver core: fix deadlock in __device_attach
 Date:   Mon, 13 Jun 2022 12:10:04 +0200
-Message-Id: <20220613094938.650118465@linuxfoundation.org>
+Message-Id: <20220613094900.980500360@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
+References: <20220613094850.166931805@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Zhang Wensheng <zhangwensheng5@huawei.com>
 
-[ Upstream commit f6279f113ad593971999c877eb69dc3d36a75894 ]
+[ Upstream commit b232b02bf3c205b13a26dcec08e53baddd8e59ed ]
 
-Some features (LRO, HW GRO) conflict with XDP. If there is an attempt to
-enable such features while XDP is active, they will be set to `off
-[requested on]`. In order to activate these features after XDP is turned
-off, the driver needs to call netdev_update_features(). This commit adds
-this missing call after XDP state changes.
+In __device_attach function, The lock holding logic is as follows:
+...
+__device_attach
+device_lock(dev)      // get lock dev
+  async_schedule_dev(__device_attach_async_helper, dev); // func
+    async_schedule_node
+      async_schedule_node_domain(func)
+        entry = kzalloc(sizeof(struct async_entry), GFP_ATOMIC);
+	/* when fail or work limit, sync to execute func, but
+	   __device_attach_async_helper will get lock dev as
+	   well, which will lead to A-A deadlock.  */
+	if (!entry || atomic_read(&entry_count) > MAX_WORK) {
+	  func;
+	else
+	  queue_work_node(node, system_unbound_wq, &entry->work)
+  device_unlock(dev)
 
-Fixes: cf6e34c8c22f ("net/mlx5e: Properly block LRO when XDP is enabled")
-Fixes: b0617e7b3500 ("net/mlx5e: Properly block HW GRO when XDP is enabled")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+As shown above, when it is allowed to do async probes, because of
+out of memory or work limit, async work is not allowed, to do
+sync execute instead. it will lead to A-A deadlock because of
+__device_attach_async_helper getting lock dev.
+
+To fix the deadlock, move the async_schedule_dev outside device_lock,
+as we can see, in async_schedule_node_domain, the parameter of
+queue_work_node is system_unbound_wq, so it can accept concurrent
+operations. which will also not change the code logic, and will
+not lead to deadlock.
+
+Fixes: 765230b5f084 ("driver-core: add asynchronous probing support for drivers")
+Signed-off-by: Zhang Wensheng <zhangwensheng5@huawei.com>
+Link: https://lore.kernel.org/r/20220518074516.1225580-1-zhangwensheng5@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/base/dd.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 73291051808f..35630b538c82 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4638,6 +4638,11 @@ static int mlx5e_xdp_set(struct net_device *netdev, struct bpf_prog *prog)
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 2728223c1fbc..4f4e8aedbd2c 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -897,6 +897,7 @@ static void __device_attach_async_helper(void *_dev, async_cookie_t cookie)
+ static int __device_attach(struct device *dev, bool allow_async)
+ {
+ 	int ret = 0;
++	bool async = false;
  
- unlock:
- 	mutex_unlock(&priv->state_lock);
-+
-+	/* Need to fix some features. */
-+	if (!err)
-+		netdev_update_features(netdev);
-+
- 	return err;
+ 	device_lock(dev);
+ 	if (dev->p->dead) {
+@@ -935,7 +936,7 @@ static int __device_attach(struct device *dev, bool allow_async)
+ 			 */
+ 			dev_dbg(dev, "scheduling asynchronous probe\n");
+ 			get_device(dev);
+-			async_schedule_dev(__device_attach_async_helper, dev);
++			async = true;
+ 		} else {
+ 			pm_request_idle(dev);
+ 		}
+@@ -945,6 +946,8 @@ static int __device_attach(struct device *dev, bool allow_async)
+ 	}
+ out_unlock:
+ 	device_unlock(dev);
++	if (async)
++		async_schedule_dev(__device_attach_async_helper, dev);
+ 	return ret;
  }
  
 -- 
