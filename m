@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 242255496DF
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 407D7548CA5
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:14:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351801AbiFMMp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:45:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56616 "EHLO
+        id S240955AbiFMN72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:59:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354704AbiFMMoG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:44:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D3160AA8;
-        Mon, 13 Jun 2022 04:11:01 -0700 (PDT)
+        with ESMTP id S1380431AbiFMN65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:58:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14D088BD17;
+        Mon, 13 Jun 2022 04:37:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA5F7B80EA8;
-        Mon, 13 Jun 2022 11:10:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BDDDC34114;
-        Mon, 13 Jun 2022 11:10:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C18B16130D;
+        Mon, 13 Jun 2022 11:37:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F72C34114;
+        Mon, 13 Jun 2022 11:37:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118648;
-        bh=ua+LlB7d4j6pczyE2flMrBxTn4ieE98JQ4SQv/GOwMU=;
+        s=korg; t=1655120254;
+        bh=2Ql0a/vPelV0bL+jBTjKjr1EkxwWCwzwREcV0w+3uFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WRahkgiCxGbuT0u8vW/n7Uuw4lksUfh2jYsPiCUqd9WLP30uKmuXQZfymaPJpZ5tQ
-         sR97YMcXEEhpxK+1O+uiSp5+s14A3DRKb6mqS+IS0/WpMal47K445aW/vkvKdLmNNG
-         Gn458QPmNwa+HIsoqgdbFjQ1KOtcWoF9XtiX9Xjc=
+        b=q6mirt2lVIMd+uHkHxv2vuVERIdW/mei+YTW91H0Vj6jqKBiMLtZhTNAbE1VNqwUJ
+         ryi0lDRuTF3GAdCwYqrcW02/jtw/DHKMUzpf4M+lIUagWJOhnlnaIwL+syL7QBZgGX
+         BSvuxDE6O5EnxD7tAvly7Nd5mTWy2PHwPTFZaj5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cameron Berkenpas <cam@neo-zeon.de>,
-        Takashi Iwai <tiwai@suse.de>,
-        Songine <donglingluoying@gmail.com>
-Subject: [PATCH 5.10 152/172] ALSA: hda/realtek: Fix for quirk to enable speaker output on the Lenovo Yoga DuetITL 2021
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 287/339] scsi: lpfc: Correct BDE type for XMIT_SEQ64_WQE in lpfc_ct_reject_event()
 Date:   Mon, 13 Jun 2022 12:11:52 +0200
-Message-Id: <20220613094922.794764649@linuxfoundation.org>
+Message-Id: <20220613094935.336834991@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cameron Berkenpas <cam@neo-zeon.de>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 85743a847caeab696dafc4ce1a7e1e2b7e29a0f6 upstream.
+[ Upstream commit 44ba9786b67345dc4e5eabe537c9ef2bfd889888 ]
 
-Enables the ALC287_FIXUP_YOGA7_14ITL_SPEAKERS quirk for the Lenovo
-Yoga DuetITL 2021 laptop to fix speaker output.
+A previous commit assumed all XMIT_SEQ64_WQEs are prepped with the correct
+BDE type in word 0-2.  However, lpfc_ct_reject_event() routine was missed
+and is still filling out the incorrect BDE type.
 
-[ re-sorted in the SSID order by tiwai ]
+Fix lpfc_ct_reject_event() routine so that type BUFF_TYPE_BDE_64 is set
+instead of BUFF_TYPE_BLP_64.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208555
-Signed-off-by: Cameron Berkenpas <cam@neo-zeon.de>
-Co-authored-by: Songine <donglingluoying@gmail.com>
-Cc: stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220606002329.215330-1-cam@neo-zeon.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220603174329.63777-2-jsmart2021@gmail.com
+Fixes: 596fc8adb171 ("scsi: lpfc: Fix dmabuf ptr assignment in lpfc_ct_reject_event()")
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/lpfc/lpfc_ct.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8977,6 +8977,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x3176, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3178, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x31af, "ThinkCentre Station", ALC623_FIXUP_LENOVO_THINKSTATION_P340),
-+	SND_PCI_QUIRK(0x17aa, 0x3802, "Lenovo Yoga DuetITL 2021", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3813, "Legion 7i 15IMHG05", ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
- 	SND_PCI_QUIRK(0x17aa, 0x3819, "Lenovo 13s Gen2 ITL", ALC287_FIXUP_13S_GEN2_SPEAKERS),
+diff --git a/drivers/scsi/lpfc/lpfc_ct.c b/drivers/scsi/lpfc/lpfc_ct.c
+index 4b024aa03c1b..87124fd65272 100644
+--- a/drivers/scsi/lpfc/lpfc_ct.c
++++ b/drivers/scsi/lpfc/lpfc_ct.c
+@@ -197,7 +197,7 @@ lpfc_ct_reject_event(struct lpfc_nodelist *ndlp,
+ 	memset(bpl, 0, sizeof(struct ulp_bde64));
+ 	bpl->addrHigh = le32_to_cpu(putPaddrHigh(mp->phys));
+ 	bpl->addrLow = le32_to_cpu(putPaddrLow(mp->phys));
+-	bpl->tus.f.bdeFlags = BUFF_TYPE_BLP_64;
++	bpl->tus.f.bdeFlags = BUFF_TYPE_BDE_64;
+ 	bpl->tus.f.bdeSize = (LPFC_CT_PREAMBLE - 4);
+ 	bpl->tus.w = le32_to_cpu(bpl->tus.w);
+ 
+-- 
+2.35.1
+
 
 
