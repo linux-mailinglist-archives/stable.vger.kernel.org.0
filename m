@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 726DE54B947
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:46:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 411DA54B955
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:46:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357308AbiFNSpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 14:45:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58736 "EHLO
+        id S1357492AbiFNSpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 14:45:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357330AbiFNSoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:44:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5AEC4B434;
-        Tue, 14 Jun 2022 11:43:02 -0700 (PDT)
+        with ESMTP id S1357464AbiFNSpS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:45:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3183C60F1;
+        Tue, 14 Jun 2022 11:43:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4BA01B81A3D;
-        Tue, 14 Jun 2022 18:43:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0DA4C385A9;
-        Tue, 14 Jun 2022 18:42:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C20C0617C2;
+        Tue, 14 Jun 2022 18:43:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEF35C3411B;
+        Tue, 14 Jun 2022 18:43:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655232180;
-        bh=PMA6q2h30lO0FbLSFNjRKTI2OnCZ8zsfL7bXYUgk0RA=;
+        s=korg; t=1655232230;
+        bh=AmbzYWMdZ9HQiq/D2lcT/+Nsk8U6UCZ53USOoSdm6Gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WBDQpDK9vYFOI/GJgrjn500a0FHuJlXe0H+F6dqQX6IFHWZ5C33oAK6O3ZqoauBEJ
-         QKjw+SeTbhR9jHU0qTZaWem3viWjVffcM6RAJ4twUg0n4ixD/9N6QxcNOSNyu7MDjL
-         Y/FqjJpcb082hPlNSlRHtlV1gogVJsf9OcLv7Cz4=
+        b=jKnkwQnWT7RHseQ2TxciTST5COBbd+UPB1hzxToTIO9kANgfNhrAfHH2pLfyD/F8M
+         yLKinMQK0K9Gq4ehUnyJY7T3juvVUTDkN5E26M3mKjeKN2I46HhKyON/IHI4KgyKxi
+         VnHkNgqnxrUp2G48XLDve/u7BWwxSli2m9el1LM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 4.19 11/16] x86/speculation/mmio: Enable CPU Fill buffer clearing on idle
-Date:   Tue, 14 Jun 2022 20:40:12 +0200
-Message-Id: <20220614183723.605401444@linuxfoundation.org>
+        Gayatri Kammela <gayatri.kammela@intel.com>,
+        Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 04/15] x86/cpu: Add another Alder Lake CPU to the Intel family
+Date:   Tue, 14 Jun 2022 20:40:13 +0200
+Message-Id: <20220614183722.785202206@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220614183720.928818645@linuxfoundation.org>
-References: <20220614183720.928818645@linuxfoundation.org>
+In-Reply-To: <20220614183721.656018793@linuxfoundation.org>
+References: <20220614183721.656018793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,69 +55,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Gayatri Kammela <gayatri.kammela@intel.com>
 
-commit 99a83db5a605137424e1efe29dc0573d6a5b6316 upstream
+commit 6e1239c13953f3c2a76e70031f74ddca9ae57cd3 upstream.
 
-When the CPU is affected by Processor MMIO Stale Data vulnerabilities,
-Fill Buffer Stale Data Propagator (FBSDP) can propagate stale data out
-of Fill buffer to uncore buffer when CPU goes idle. Stale data can then
-be exploited with other variants using MMIO operations.
+Add Alder Lake mobile CPU model number to Intel family.
 
-Mitigate it by clearing the Fill buffer before entering idle state.
-
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Co-developed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Gayatri Kammela <gayatri.kammela@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Link: https://lkml.kernel.org/r/20210121215004.11618-1-tony.luck@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/intel-family.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -417,6 +417,14 @@ static void __init mmio_select_mitigatio
- 		static_branch_enable(&mmio_stale_data_clear);
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -92,6 +92,7 @@
  
- 	/*
-+	 * If Processor-MMIO-Stale-Data bug is present and Fill Buffer data can
-+	 * be propagated to uncore buffers, clearing the Fill buffers on idle
-+	 * is required irrespective of SMT state.
-+	 */
-+	if (!(ia32_cap & ARCH_CAP_FBSDP_NO))
-+		static_branch_enable(&mds_idle_clear);
-+
-+	/*
- 	 * Check if the system has the right microcode.
- 	 *
- 	 * CPU Fill buffer clear mitigation is enumerated by either an explicit
-@@ -1182,6 +1190,8 @@ static void update_indir_branch_cond(voi
- /* Update the static key controlling the MDS CPU buffer clear in idle */
- static void update_mds_branch_idle(void)
- {
-+	u64 ia32_cap = x86_read_arch_cap_msr();
-+
- 	/*
- 	 * Enable the idle clearing if SMT is active on CPUs which are
- 	 * affected only by MSBDS and not any other MDS variant.
-@@ -1193,10 +1203,12 @@ static void update_mds_branch_idle(void)
- 	if (!boot_cpu_has_bug(X86_BUG_MSBDS_ONLY))
- 		return;
+ #define	INTEL_FAM6_LAKEFIELD		0x8A
+ #define INTEL_FAM6_ALDERLAKE		0x97
++#define INTEL_FAM6_ALDERLAKE_L		0x9A
  
--	if (sched_smt_active())
-+	if (sched_smt_active()) {
- 		static_branch_enable(&mds_idle_clear);
--	else
-+	} else if (mmio_mitigation == MMIO_MITIGATION_OFF ||
-+		   (ia32_cap & ARCH_CAP_FBSDP_NO)) {
- 		static_branch_disable(&mds_idle_clear);
-+	}
- }
+ /* "Small Core" Processors (Atom) */
  
- #define MDS_MSG_SMT "MDS CPU bug present and SMT on, data leak possible. See https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/mds.html for more details.\n"
 
 
