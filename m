@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8409C54B9B9
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 21:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8F1B54B99C
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 21:00:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358142AbiFNSwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 14:52:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43130 "EHLO
+        id S1358427AbiFNSwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 14:52:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358148AbiFNSvq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:51:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE9574FC73;
-        Tue, 14 Jun 2022 11:45:54 -0700 (PDT)
+        with ESMTP id S1358374AbiFNSvs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:51:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1469450010;
+        Tue, 14 Jun 2022 11:45:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C35AEB81AEC;
-        Tue, 14 Jun 2022 18:45:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AE79C341C0;
-        Tue, 14 Jun 2022 18:45:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E861B81AEE;
+        Tue, 14 Jun 2022 18:45:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2187C3411E;
+        Tue, 14 Jun 2022 18:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655232351;
-        bh=j4lFb4yq0BeaQiUH/m95Ux29RehTiuihGV7HK7RLQb4=;
+        s=korg; t=1655232354;
+        bh=4qHYTPTdS9eXb3OIXhyVUMeHpTYvDlF6vHoS7ywSKZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BI2Ty/lR4XtfqkkfmkKWMAdOv/0kKETHm3CnzqgmgvheAzSuqc8QW/ZtxfF98tx9M
-         BkQH0qQa3fnkKmi39Uy8nzqlSBfuwCYB7Ld0VKoHjxO0ABy6WNw53jZdwp9bM0qZeo
-         5Nv0Iqzq7eDBNFm7XJ+jeZkzNCb+xMlEVJswA74E=
+        b=LRaz7/+ZYcMMv7Jr5Y5X/J+rOrtznWPnW0/perFMgG2d/NHRFRmJVjcBc51zVSLU3
+         GLg3lvliUmXt3CZ0Z0wB6b9673qc8qM+6IGI6g62xhaDb822zczjYPX6mX5cozTRyG
+         URsy/a6/Mcowp36URi7QJdWrAc5ByUj1iSjg/ygs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.18 06/11] x86/speculation/mmio: Enable CPU Fill buffer clearing on idle
-Date:   Tue, 14 Jun 2022 20:40:43 +0200
-Message-Id: <20220614183722.451816914@linuxfoundation.org>
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.18 07/11] x86/speculation/mmio: Add sysfs reporting for Processor MMIO Stale Data
+Date:   Tue, 14 Jun 2022 20:40:44 +0200
+Message-Id: <20220614183722.702142021@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220614183720.861582392@linuxfoundation.org>
 References: <20220614183720.861582392@linuxfoundation.org>
@@ -58,66 +57,118 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit 99a83db5a605137424e1efe29dc0573d6a5b6316 upstream
+commit 8d50cdf8b8341770bc6367bce40c0c1bb0e1d5b3 upstream
 
-When the CPU is affected by Processor MMIO Stale Data vulnerabilities,
-Fill Buffer Stale Data Propagator (FBSDP) can propagate stale data out
-of Fill buffer to uncore buffer when CPU goes idle. Stale data can then
-be exploited with other variants using MMIO operations.
-
-Mitigate it by clearing the Fill buffer before entering idle state.
+Add the sysfs reporting file for Processor MMIO Stale Data
+vulnerability. It exposes the vulnerability and mitigation state similar
+to the existing files for the other hardware vulnerabilities.
 
 Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Co-developed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ Documentation/ABI/testing/sysfs-devices-system-cpu |    1 
+ arch/x86/kernel/cpu/bugs.c                         |   22 +++++++++++++++++++++
+ drivers/base/cpu.c                                 |    8 +++++++
+ include/linux/cpu.h                                |    3 ++
+ 4 files changed, 34 insertions(+)
 
+--- a/Documentation/ABI/testing/sysfs-devices-system-cpu
++++ b/Documentation/ABI/testing/sysfs-devices-system-cpu
+@@ -526,6 +526,7 @@ What:		/sys/devices/system/cpu/vulnerabi
+ 		/sys/devices/system/cpu/vulnerabilities/srbds
+ 		/sys/devices/system/cpu/vulnerabilities/tsx_async_abort
+ 		/sys/devices/system/cpu/vulnerabilities/itlb_multihit
++		/sys/devices/system/cpu/vulnerabilities/mmio_stale_data
+ Date:		January 2018
+ Contact:	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+ Description:	Information about CPU vulnerabilities
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -434,6 +434,14 @@ static void __init mmio_select_mitigatio
- 		static_branch_enable(&mmio_stale_data_clear);
- 
- 	/*
-+	 * If Processor-MMIO-Stale-Data bug is present and Fill Buffer data can
-+	 * be propagated to uncore buffers, clearing the Fill buffers on idle
-+	 * is required irrespective of SMT state.
-+	 */
-+	if (!(ia32_cap & ARCH_CAP_FBSDP_NO))
-+		static_branch_enable(&mds_idle_clear);
-+
-+	/*
- 	 * Check if the system has the right microcode.
- 	 *
- 	 * CPU Fill buffer clear mitigation is enumerated by either an explicit
-@@ -1225,6 +1233,8 @@ static void update_indir_branch_cond(voi
- /* Update the static key controlling the MDS CPU buffer clear in idle */
- static void update_mds_branch_idle(void)
- {
-+	u64 ia32_cap = x86_read_arch_cap_msr();
-+
- 	/*
- 	 * Enable the idle clearing if SMT is active on CPUs which are
- 	 * affected only by MSBDS and not any other MDS variant.
-@@ -1236,10 +1246,12 @@ static void update_mds_branch_idle(void)
- 	if (!boot_cpu_has_bug(X86_BUG_MSBDS_ONLY))
- 		return;
- 
--	if (sched_smt_active())
-+	if (sched_smt_active()) {
- 		static_branch_enable(&mds_idle_clear);
--	else
-+	} else if (mmio_mitigation == MMIO_MITIGATION_OFF ||
-+		   (ia32_cap & ARCH_CAP_FBSDP_NO)) {
- 		static_branch_disable(&mds_idle_clear);
-+	}
+@@ -1902,6 +1902,20 @@ static ssize_t tsx_async_abort_show_stat
+ 		       sched_smt_active() ? "vulnerable" : "disabled");
  }
  
- #define MDS_MSG_SMT "MDS CPU bug present and SMT on, data leak possible. See https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/mds.html for more details.\n"
++static ssize_t mmio_stale_data_show_state(char *buf)
++{
++	if (mmio_mitigation == MMIO_MITIGATION_OFF)
++		return sysfs_emit(buf, "%s\n", mmio_strings[mmio_mitigation]);
++
++	if (boot_cpu_has(X86_FEATURE_HYPERVISOR)) {
++		return sysfs_emit(buf, "%s; SMT Host state unknown\n",
++				  mmio_strings[mmio_mitigation]);
++	}
++
++	return sysfs_emit(buf, "%s; SMT %s\n", mmio_strings[mmio_mitigation],
++			  sched_smt_active() ? "vulnerable" : "disabled");
++}
++
+ static char *stibp_state(void)
+ {
+ 	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
+@@ -2002,6 +2016,9 @@ static ssize_t cpu_show_common(struct de
+ 	case X86_BUG_SRBDS:
+ 		return srbds_show_state(buf);
+ 
++	case X86_BUG_MMIO_STALE_DATA:
++		return mmio_stale_data_show_state(buf);
++
+ 	default:
+ 		break;
+ 	}
+@@ -2053,4 +2070,9 @@ ssize_t cpu_show_srbds(struct device *de
+ {
+ 	return cpu_show_common(dev, attr, buf, X86_BUG_SRBDS);
+ }
++
++ssize_t cpu_show_mmio_stale_data(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
++}
+ #endif
+--- a/drivers/base/cpu.c
++++ b/drivers/base/cpu.c
+@@ -564,6 +564,12 @@ ssize_t __weak cpu_show_srbds(struct dev
+ 	return sysfs_emit(buf, "Not affected\n");
+ }
+ 
++ssize_t __weak cpu_show_mmio_stale_data(struct device *dev,
++					struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "Not affected\n");
++}
++
+ static DEVICE_ATTR(meltdown, 0444, cpu_show_meltdown, NULL);
+ static DEVICE_ATTR(spectre_v1, 0444, cpu_show_spectre_v1, NULL);
+ static DEVICE_ATTR(spectre_v2, 0444, cpu_show_spectre_v2, NULL);
+@@ -573,6 +579,7 @@ static DEVICE_ATTR(mds, 0444, cpu_show_m
+ static DEVICE_ATTR(tsx_async_abort, 0444, cpu_show_tsx_async_abort, NULL);
+ static DEVICE_ATTR(itlb_multihit, 0444, cpu_show_itlb_multihit, NULL);
+ static DEVICE_ATTR(srbds, 0444, cpu_show_srbds, NULL);
++static DEVICE_ATTR(mmio_stale_data, 0444, cpu_show_mmio_stale_data, NULL);
+ 
+ static struct attribute *cpu_root_vulnerabilities_attrs[] = {
+ 	&dev_attr_meltdown.attr,
+@@ -584,6 +591,7 @@ static struct attribute *cpu_root_vulner
+ 	&dev_attr_tsx_async_abort.attr,
+ 	&dev_attr_itlb_multihit.attr,
+ 	&dev_attr_srbds.attr,
++	&dev_attr_mmio_stale_data.attr,
+ 	NULL
+ };
+ 
+--- a/include/linux/cpu.h
++++ b/include/linux/cpu.h
+@@ -65,6 +65,9 @@ extern ssize_t cpu_show_tsx_async_abort(
+ extern ssize_t cpu_show_itlb_multihit(struct device *dev,
+ 				      struct device_attribute *attr, char *buf);
+ extern ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr, char *buf);
++extern ssize_t cpu_show_mmio_stale_data(struct device *dev,
++					struct device_attribute *attr,
++					char *buf);
+ 
+ extern __printf(4, 5)
+ struct device *cpu_device_create(struct device *parent, void *drvdata,
 
 
