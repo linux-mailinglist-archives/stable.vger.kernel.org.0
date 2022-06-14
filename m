@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E457D54A57A
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C442454A55D
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:21:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353542AbiFNCQo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:16:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54734 "EHLO
+        id S1353765AbiFNCQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:16:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353168AbiFNCPU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:15:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B5E23D49A;
-        Mon, 13 Jun 2022 19:09:15 -0700 (PDT)
+        with ESMTP id S1354871AbiFNCPK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:15:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF87935DE0;
+        Mon, 13 Jun 2022 19:09:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88A9FB816A3;
-        Tue, 14 Jun 2022 02:09:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63B7CC341C5;
-        Tue, 14 Jun 2022 02:08:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA7B3B81699;
+        Tue, 14 Jun 2022 02:09:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E49EC34114;
+        Tue, 14 Jun 2022 02:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172539;
-        bh=WfV5UKv776FqMnNvo9Wlw5GDgirC1sg9WoBQpTZM3NE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cju5CstmPi32xFs7Z3bYVX4MZwAqY/Drn1Ds/kndUblG6mrPpOm7FzD2GOxoYsX5K
-         AnCItzEn/jwgdnzWDtOvo0QTB/o5sdsPdcy7I3Vj4qy5hNFJslKLmP4LMTSHDWpY8N
-         hp9A5haVt/lFPu2mI0dWYuQL9TF7+rlWHTtxeAP0+bvmCBKp/ajRAxZoIho50ro+U4
-         a+E8Hq0KU8otZ8MCiKp0iqU34JdHM/DQzGLOjIwebsRuwUFnoESo6vL65WdcHY6ShA
-         qO2zTPSt9y55f2hppfAb1/6bCZr29S7BusBemam4KnSXSAEu1fv8OQCfjfcQv2v5p0
-         IBcx8LD6/SBog==
+        s=k20201202; t=1655172543;
+        bh=PnwFDSr0QbHhkvmwmnkK4Kuu2ybmHtpHvkQaBoGakRs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XnddG+eqPhyZ6nZ0oU1zK4gzhwC0xvkVtbRvu6iwTVfe9795wbD4pCljtWFr90LrP
+         /5AUSJL5piglDvtnCcjyBt0r9Bbol4jTYaMS0stjD4S/n0DikfOC5WrCb6THmW3DI7
+         RlS903sEX0WiiY5CfJiV0VAxTorRrykJinBgHPCqsk6gDwflbeZ5T7itUtzC2KwGTw
+         +yFMZEwBos3n4Cq+bra5sVUMVrNgx2FZsHeN1iPThKo5FZiCwAamp8+H7oA1Xj7VLr
+         BcBbqlDqbhRE7ZubvCY3RggKpsW0jmdP44MLoIEbEPSdS2BZlQkIgp/d5eO1i8BJ1o
+         ep7GH+zASUg/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>, linus.walleij@linaro.org,
-        gnurou@gmail.com, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 29/29] gpio: dwapb: Don't print error on -EPROBE_DEFER
-Date:   Mon, 13 Jun 2022 22:08:15 -0400
-Message-Id: <20220614020815.1099999-29-sashal@kernel.org>
+Cc:     He Ying <heying24@huawei.com>, Wanming Hu <huwanming@huaweil.com>,
+        Chen Jingwen <chenjingwen6@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, benh@kernel.crashing.org,
+        paulus@samba.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 01/23] powerpc/kasan: Silence KASAN warnings in __get_wchan()
+Date:   Mon, 13 Jun 2022 22:08:37 -0400
+Message-Id: <20220614020900.1100401-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220614020815.1099999-1-sashal@kernel.org>
-References: <20220614020815.1099999-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,45 +57,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: He Ying <heying24@huawei.com>
 
-[ Upstream commit 77006f6edc0e0f58617eb25e53731f78641e820d ]
+[ Upstream commit a1b29ba2f2c171b9bea73be993bfdf0a62d37d15 ]
 
-Currently if the APB or Debounce clocks aren't yet ready to be requested
-the DW GPIO driver will correctly handle that by deferring the probe
-procedure, but the error is still printed to the system log. It needlessly
-pollutes the log since there was no real error but a request to postpone
-the clock request procedure since the clocks subsystem hasn't been fully
-initialized yet. Let's fix that by using the dev_err_probe method to print
-the APB/clock request error status. It will correctly handle the deferred
-probe situation and print the error if it actually happens.
+The following KASAN warning was reported in our kernel.
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+  BUG: KASAN: stack-out-of-bounds in get_wchan+0x188/0x250
+  Read of size 4 at addr d216f958 by task ps/14437
+
+  CPU: 3 PID: 14437 Comm: ps Tainted: G           O      5.10.0 #1
+  Call Trace:
+  [daa63858] [c0654348] dump_stack+0x9c/0xe4 (unreliable)
+  [daa63888] [c035cf0c] print_address_description.constprop.3+0x8c/0x570
+  [daa63908] [c035d6bc] kasan_report+0x1ac/0x218
+  [daa63948] [c00496e8] get_wchan+0x188/0x250
+  [daa63978] [c0461ec8] do_task_stat+0xce8/0xe60
+  [daa63b98] [c0455ac8] proc_single_show+0x98/0x170
+  [daa63bc8] [c03cab8c] seq_read_iter+0x1ec/0x900
+  [daa63c38] [c03cb47c] seq_read+0x1dc/0x290
+  [daa63d68] [c037fc94] vfs_read+0x164/0x510
+  [daa63ea8] [c03808e4] ksys_read+0x144/0x1d0
+  [daa63f38] [c005b1dc] ret_from_syscall+0x0/0x38
+  --- interrupt: c00 at 0x8fa8f4
+      LR = 0x8fa8cc
+
+  The buggy address belongs to the page:
+  page:98ebcdd2 refcount:0 mapcount:0 mapping:00000000 index:0x2 pfn:0x1216f
+  flags: 0x0()
+  raw: 00000000 00000000 01010122 00000000 00000002 00000000 ffffffff 00000000
+  raw: 00000000
+  page dumped because: kasan: bad access detected
+
+  Memory state around the buggy address:
+   d216f800: 00 00 00 00 00 f1 f1 f1 f1 00 00 00 00 00 00 00
+   d216f880: f2 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  >d216f900: 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00
+                                            ^
+   d216f980: f2 f2 f2 f2 f2 f2 f2 00 00 00 00 00 00 00 00 00
+   d216fa00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+After looking into this issue, I find the buggy address belongs
+to the task stack region. It seems KASAN has something wrong.
+I look into the code of __get_wchan in x86 architecture and
+find the same issue has been resolved by the commit
+f7d27c35ddff ("x86/mm, kasan: Silence KASAN warnings in get_wchan()").
+The solution could be applied to powerpc architecture too.
+
+As Andrey Ryabinin said, get_wchan() is racy by design, it may
+access volatile stack of running task, thus it may access
+redzone in a stack frame and cause KASAN to warn about this.
+
+Use READ_ONCE_NOCHECK() to silence these warnings.
+
+Reported-by: Wanming Hu <huwanming@huaweil.com>
+Signed-off-by: He Ying <heying24@huawei.com>
+Signed-off-by: Chen Jingwen <chenjingwen6@huawei.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220121014418.155675-1-heying24@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-dwapb.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/process.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-dwapb.c b/drivers/gpio/gpio-dwapb.c
-index 4275c18a097a..ea2e2618b794 100644
---- a/drivers/gpio/gpio-dwapb.c
-+++ b/drivers/gpio/gpio-dwapb.c
-@@ -646,10 +646,9 @@ static int dwapb_get_clks(struct dwapb_gpio *gpio)
- 	gpio->clks[1].id = "db";
- 	err = devm_clk_bulk_get_optional(gpio->dev, DWAPB_NR_CLOCKS,
- 					 gpio->clks);
--	if (err) {
--		dev_err(gpio->dev, "Cannot get APB/Debounce clocks\n");
--		return err;
--	}
-+	if (err)
-+		return dev_err_probe(gpio->dev, err,
-+				     "Cannot get APB/Debounce clocks\n");
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index c94bba9142e7..832663f21422 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -2001,12 +2001,12 @@ static unsigned long __get_wchan(struct task_struct *p)
+ 		return 0;
  
- 	err = clk_bulk_prepare_enable(DWAPB_NR_CLOCKS, gpio->clks);
- 	if (err) {
+ 	do {
+-		sp = *(unsigned long *)sp;
++		sp = READ_ONCE_NOCHECK(*(unsigned long *)sp);
+ 		if (!validate_sp(sp, p, STACK_FRAME_OVERHEAD) ||
+ 		    p->state == TASK_RUNNING)
+ 			return 0;
+ 		if (count > 0) {
+-			ip = ((unsigned long *)sp)[STACK_FRAME_LR_SAVE];
++			ip = READ_ONCE_NOCHECK(((unsigned long *)sp)[STACK_FRAME_LR_SAVE]);
+ 			if (!in_sched_functions(ip))
+ 				return ip;
+ 		}
 -- 
 2.35.1
 
