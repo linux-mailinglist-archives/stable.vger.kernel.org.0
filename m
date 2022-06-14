@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1E6854A6E7
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:38:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7CF954A6C6
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:38:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354891AbiFNC1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:27:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58814 "EHLO
+        id S1354084AbiFNCcG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:32:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354974AbiFNCZn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:25:43 -0400
+        with ESMTP id S1356443AbiFNCbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:31:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ED5637003;
-        Mon, 13 Jun 2022 19:11:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E6943AFA;
+        Mon, 13 Jun 2022 19:12:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85E16611A6;
-        Tue, 14 Jun 2022 02:11:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF672C385A5;
-        Tue, 14 Jun 2022 02:11:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08B7260AD8;
+        Tue, 14 Jun 2022 02:11:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66621C3411B;
+        Tue, 14 Jun 2022 02:11:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172681;
-        bh=ddHJc4QFsYP8rXNlyEhlD0XlaF0STqcZTxwNBm0blys=;
+        s=k20201202; t=1655172685;
+        bh=IBCeAButYsRtNeRmHz0Nr8ebRIHdO/EQ3qn0BXhofwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AFr48vIvddL2lwATDzSMCp2F7/DIZ1IzSOVFzXHT34XLzslJTvhdCxGxFfjIU0LpW
-         4Vasy0gh0dm1gpkAHA7C1MITtbdEud3GZrZE+/iZbnQUTKUeUfLvszX2+4UOXOI0yZ
-         i0oCnaK/KLnZr+T7deVY79rJpZ0EUZFklfN9l2X+/6JSMhnappknC+rAF2Ps24JERd
-         etTkvoEk56SIvppW6d2h2Uf0WqZXkSoCh+bIr8lbKf46vi8AYHS6vYLaze+pQyBlht
-         2C917yHaZ9nGAYnDY7IqEwnXLWsyz8CUT01oN/18nrMm26Hmuw96tN5GSXgMS9dMDG
-         ejSb1Nsbl7ybg==
+        b=M1On4L+fWL7wvaH3ZGjA7W4y8ckiGBSVVdbGwrGbIHO7YihuOgsv2IwLFVSu91aos
+         YqFSp12qZ7tRjbr/DC01dFxVGxcuU1eMbFJdCYzhwuftzdrpi+OKMXEFMAZ79Ohu59
+         o/jil8afMkfmRuqEjsdW+dwMV6qU9ILilOnbjjK80WibSkUF0bSbWbSGMz4yuDlBLL
+         eCw7YNU2NUkR2kNBrMOFmt07PClKazT7auy741m8SPbfpFjJQ6HrcM7+nCszTryQAP
+         cUP9Y/EwDgPiOPw6PFIZVYZIaV6r6LzkMaXe3FB1rcs8mAp2fOW1P8U6MMYwAhzD9i
+         DiZlSEOFYBVOg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.18 2/6] KVM: x86: do not set st->preempted when going back to user space
-Date:   Mon, 13 Jun 2022 22:11:11 -0400
-Message-Id: <20220614021116.1101331-2-sashal@kernel.org>
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        seanjc@google.com, kvm@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH MANUALSEL 5.18 3/6] KVM: selftests: Make hyperv_clock selftest more stable
+Date:   Mon, 13 Jun 2022 22:11:12 -0400
+Message-Id: <20220614021116.1101331-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614021116.1101331-1-sashal@kernel.org>
 References: <20220614021116.1101331-1-sashal@kernel.org>
@@ -58,79 +59,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 54aa83c90198e68eee8b0850c749bc70efb548da ]
+[ Upstream commit eae260be3a0111a28fe95923e117a55dddec0384 ]
 
-Similar to the Xen path, only change the vCPU's reported state if the vCPU
-was actually preempted.  The reason for KVM's behavior is that for example
-optimistic spinning might not be a good idea if the guest is doing repeated
-exits to userspace; however, it is confusing and unlikely to make a difference,
-because well-tuned guests will hardly ever exit KVM_RUN in the first place.
+hyperv_clock doesn't always give a stable test result, especially with
+AMD CPUs. The test compares Hyper-V MSR clocksource (acquired either
+with rdmsr() from within the guest or KVM_GET_MSRS from the host)
+against rdtsc(). To increase the accuracy, increase the measured delay
+(done with nop loop) by two orders of magnitude and take the mean rdtsc()
+value before and after rdmsr()/KVM_GET_MSRS.
 
-Suggested-by: Sean Christopherson <seanjc@google.com>
+Reported-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Tested-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220601144322.1968742-1-vkuznets@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 26 ++++++++++++++------------
- arch/x86/kvm/xen.h |  6 ++++--
- 2 files changed, 18 insertions(+), 14 deletions(-)
+ tools/testing/selftests/kvm/x86_64/hyperv_clock.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 36453517e847..165e2912995f 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -4648,19 +4648,21 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+diff --git a/tools/testing/selftests/kvm/x86_64/hyperv_clock.c b/tools/testing/selftests/kvm/x86_64/hyperv_clock.c
+index e0b2bb1339b1..3330fb183c68 100644
+--- a/tools/testing/selftests/kvm/x86_64/hyperv_clock.c
++++ b/tools/testing/selftests/kvm/x86_64/hyperv_clock.c
+@@ -44,7 +44,7 @@ static inline void nop_loop(void)
  {
- 	int idx;
+ 	int i;
  
--	if (vcpu->preempted && !vcpu->arch.guest_state_protected)
--		vcpu->arch.preempted_in_kernel = !static_call(kvm_x86_get_cpl)(vcpu);
-+	if (vcpu->preempted) {
-+		if (!vcpu->arch.guest_state_protected)
-+			vcpu->arch.preempted_in_kernel = !static_call(kvm_x86_get_cpl)(vcpu);
- 
--	/*
--	 * Take the srcu lock as memslots will be accessed to check the gfn
--	 * cache generation against the memslots generation.
--	 */
--	idx = srcu_read_lock(&vcpu->kvm->srcu);
--	if (kvm_xen_msr_enabled(vcpu->kvm))
--		kvm_xen_runstate_set_preempted(vcpu);
--	else
--		kvm_steal_time_set_preempted(vcpu);
--	srcu_read_unlock(&vcpu->kvm->srcu, idx);
-+		/*
-+		 * Take the srcu lock as memslots will be accessed to check the gfn
-+		 * cache generation against the memslots generation.
-+		 */
-+		idx = srcu_read_lock(&vcpu->kvm->srcu);
-+		if (kvm_xen_msr_enabled(vcpu->kvm))
-+			kvm_xen_runstate_set_preempted(vcpu);
-+		else
-+			kvm_steal_time_set_preempted(vcpu);
-+		srcu_read_unlock(&vcpu->kvm->srcu, idx);
-+	}
- 
- 	static_call(kvm_x86_vcpu_put)(vcpu);
- 	vcpu->arch.last_host_tsc = rdtsc();
-diff --git a/arch/x86/kvm/xen.h b/arch/x86/kvm/xen.h
-index adbcc9ed59db..fda1413f8af9 100644
---- a/arch/x86/kvm/xen.h
-+++ b/arch/x86/kvm/xen.h
-@@ -103,8 +103,10 @@ static inline void kvm_xen_runstate_set_preempted(struct kvm_vcpu *vcpu)
- 	 * behalf of the vCPU. Only if the VMM does actually block
- 	 * does it need to enter RUNSTATE_blocked.
- 	 */
--	if (vcpu->preempted)
--		kvm_xen_update_runstate_guest(vcpu, RUNSTATE_runnable);
-+	if (WARN_ON_ONCE(!vcpu->preempted))
-+		return;
-+
-+	kvm_xen_update_runstate_guest(vcpu, RUNSTATE_runnable);
+-	for (i = 0; i < 1000000; i++)
++	for (i = 0; i < 100000000; i++)
+ 		asm volatile("nop");
  }
  
- /* 32-bit compatibility definitions, also used natively in 32-bit build */
+@@ -56,12 +56,14 @@ static inline void check_tsc_msr_rdtsc(void)
+ 	tsc_freq = rdmsr(HV_X64_MSR_TSC_FREQUENCY);
+ 	GUEST_ASSERT(tsc_freq > 0);
+ 
+-	/* First, check MSR-based clocksource */
++	/* For increased accuracy, take mean rdtsc() before and afrer rdmsr() */
+ 	r1 = rdtsc();
+ 	t1 = rdmsr(HV_X64_MSR_TIME_REF_COUNT);
++	r1 = (r1 + rdtsc()) / 2;
+ 	nop_loop();
+ 	r2 = rdtsc();
+ 	t2 = rdmsr(HV_X64_MSR_TIME_REF_COUNT);
++	r2 = (r2 + rdtsc()) / 2;
+ 
+ 	GUEST_ASSERT(r2 > r1 && t2 > t1);
+ 
+@@ -181,12 +183,14 @@ static void host_check_tsc_msr_rdtsc(struct kvm_vm *vm)
+ 	tsc_freq = vcpu_get_msr(vm, VCPU_ID, HV_X64_MSR_TSC_FREQUENCY);
+ 	TEST_ASSERT(tsc_freq > 0, "TSC frequency must be nonzero");
+ 
+-	/* First, check MSR-based clocksource */
++	/* For increased accuracy, take mean rdtsc() before and afrer ioctl */
+ 	r1 = rdtsc();
+ 	t1 = vcpu_get_msr(vm, VCPU_ID, HV_X64_MSR_TIME_REF_COUNT);
++	r1 = (r1 + rdtsc()) / 2;
+ 	nop_loop();
+ 	r2 = rdtsc();
+ 	t2 = vcpu_get_msr(vm, VCPU_ID, HV_X64_MSR_TIME_REF_COUNT);
++	r2 = (r2 + rdtsc()) / 2;
+ 
+ 	TEST_ASSERT(t2 > t1, "Time reference MSR is not monotonic (%ld <= %ld)", t1, t2);
+ 
 -- 
 2.35.1
 
