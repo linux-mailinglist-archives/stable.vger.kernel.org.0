@@ -2,155 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 130B054BCE8
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 23:41:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFCD254BCF1
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 23:46:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234419AbiFNVkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 17:40:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37294 "EHLO
+        id S244040AbiFNVqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 17:46:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232915AbiFNVkj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 17:40:39 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 75B6B13CDA;
-        Tue, 14 Jun 2022 14:40:38 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 319DB152B;
-        Tue, 14 Jun 2022 14:40:38 -0700 (PDT)
-Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id D6EC93F66F;
-        Tue, 14 Jun 2022 14:40:36 -0700 (PDT)
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-To:     coresight@lists.linaro.org
-Cc:     linux-arm-kernel@lists.infradead.org, anshuman.khandual@arm.com,
-        linux-kernel@vger.kernel.org,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>
-Subject: [PATCH] coresight: Clear the connection field properly
-Date:   Tue, 14 Jun 2022 22:40:24 +0100
-Message-Id: <20220614214024.3005275-1-suzuki.poulose@arm.com>
-X-Mailer: git-send-email 2.35.3
+        with ESMTP id S231695AbiFNVqs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 17:46:48 -0400
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24E613F8BF;
+        Tue, 14 Jun 2022 14:46:48 -0700 (PDT)
+Received: by mail-pf1-x432.google.com with SMTP id u37so1302805pfg.3;
+        Tue, 14 Jun 2022 14:46:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=1eNdPfvX38pax2FY+qXXzY6vFul3pxSs3QGey2LtONc=;
+        b=JT8D/VVDh2+09qUONO0frctb5saZdLIvyZ0loPRYkU5lXeIx7e9TxzZWhcB5kW2tJY
+         KFGr15tY4M/N/0XmMH6aDWlbmvi/4CF8OsorSSJjRJMAWTzgXNTdxrWvxLg1yqGNoQ5E
+         0QvLUOdFmsPOdApg+6tj3SLNnvgG6ovzlyG8OgyVsA1eHgEtgHfla4AsVhUGDTu50Ouv
+         iM0rKmS9Czn+2zNqI7pAUVElRalvZf2cWWcSKRrRo1rmMKWr5nKpeeOkCcpxmexePlO+
+         wWRAvbjrFZr1N6JCQ7/mTohD6mePS6eU5nYYFz8YfXVBLK7L1tOPxByvx8IKsSe/mWyy
+         ccMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=1eNdPfvX38pax2FY+qXXzY6vFul3pxSs3QGey2LtONc=;
+        b=sSW2Aa5JfSi36Vm25avYs47z6tExKuHlDWgM2I8wSPuAnCcFnRPvUF6C+j5QH+thgs
+         3/v5ptQ3XKqFW+e0H3gea+W7Xv3LaIarsI7FkImhHNEnCjlF1Dj+Uoqq3BpQl/5Zburj
+         za/Aim5fvAHB0wiAtuYPAGcS10y62tQXAEXYgnQacN+HMa+3vn1rbdkUU7yfurLw6ytS
+         /HF5nQeoFd9vO8ZCQbrR1LVy07DSJsVgChi1fqOnq50s3dMM92/xK5L7L0J1WflMgwYp
+         0Gc76D0fEtAYAalIXaIz5mBuOASby0bjkMsiCXCG2MEve+kX0hcWKJEzRgJA4TqFTgS5
+         h1UQ==
+X-Gm-Message-State: AOAM532VEWtF7v1J3AsRpNB2PiKvz3jG+NdPbSx0M8zP+jgD49rPoBmH
+        YqqNqYGGEG+HuOHG++aElrvC72l/SSI=
+X-Google-Smtp-Source: ABdhPJzNTPFlWQyFD3KD66VHQTaKvSHsM4tuvUqpTAxq/WOSiEPFJRp3ra5YRin6ZS7tXyslsvIgEw==
+X-Received: by 2002:a05:6a00:1513:b0:51c:3ca8:47a4 with SMTP id q19-20020a056a00151300b0051c3ca847a4mr6672048pfu.48.1655243207552;
+        Tue, 14 Jun 2022 14:46:47 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id w76-20020a627b4f000000b0051bc5f4df1csm8106616pfc.154.2022.06.14.14.46.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Jun 2022 14:46:47 -0700 (PDT)
+Message-ID: <8afce56d-6c50-de85-0a98-6a6c46b63270@gmail.com>
+Date:   Tue, 14 Jun 2022 14:46:44 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 5.10 00/11] 5.10.123-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220614183719.878453780@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220614183719.878453780@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-coresight devices track their connections (output connections) and
-hold a reference to the fwnode. When a device goes away, we walk through
-the devices on the coresight bus and make sure that the references
-are dropped. This happens both ways:
- a) For all output connections from the device, drop the reference to
-    the target device via coresight_release_platform_data()
+On 6/14/22 11:40, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.123 release.
+> There are 11 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 16 Jun 2022 18:37:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.123-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-b) Iterate over all the devices on the coresight bus and drop the
-   reference to fwnode if *this* device is the target of the output
-   connection, via coresight_remove_conns()->coresight_remove_match().
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-However, the coresight_remove_match() doesn't clear the fwnode field,
-after dropping the reference, this causes use-after-free and
-additional refcount drops on the fwnode.
-
-e.g., if we have two devices, A and B, with a connection, A -> B.
-If we remove B first, B would clear the reference on B, from A
-via coresight_remove_match(). But when A is removed, it still has
-a connection with fwnode still pointing to B. Thus it tries to  drops
-the reference in coresight_release_platform_data(), raising the bells
-like :
-
-[   91.990153] ------------[ cut here ]------------
-[   91.990163] refcount_t: addition on 0; use-after-free.
-[   91.990212] WARNING: CPU: 0 PID: 461 at lib/refcount.c:25 refcount_warn_saturate+0xa0/0x144
-[   91.990260] Modules linked in: coresight_funnel coresight_replicator coresight_etm4x(-)
- crct10dif_ce coresight ip_tables x_tables ipv6 [last unloaded: coresight_cpu_debug]
-[   91.990398] CPU: 0 PID: 461 Comm: rmmod Tainted: G        W       T 5.19.0-rc2+ #53
-[   91.990418] Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development Platform, BIOS EDK II Feb  1 2019
-[   91.990434] pstate: 600000c5 (nZCv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[   91.990454] pc : refcount_warn_saturate+0xa0/0x144
-[   91.990476] lr : refcount_warn_saturate+0xa0/0x144
-[   91.990496] sp : ffff80000c843640
-[   91.990509] x29: ffff80000c843640 x28: ffff800009957c28 x27: ffff80000c8439a8
-[   91.990560] x26: ffff00097eff1990 x25: ffff8000092b6ad8 x24: ffff00097eff19a8
-[   91.990610] x23: ffff80000c8439a8 x22: 0000000000000000 x21: ffff80000c8439c2
-[   91.990659] x20: 0000000000000000 x19: ffff00097eff1a10 x18: ffff80000ab99c40
-[   91.990708] x17: 0000000000000000 x16: 0000000000000000 x15: ffff80000abf6fa0
-[   91.990756] x14: 000000000000001d x13: 0a2e656572662d72 x12: 657466612d657375
-[   91.990805] x11: 203b30206e6f206e x10: 6f69746964646120 x9 : ffff8000081aba28
-[   91.990854] x8 : 206e6f206e6f6974 x7 : 69646461203a745f x6 : 746e756f63666572
-[   91.990903] x5 : ffff00097648ec58 x4 : 0000000000000000 x3 : 0000000000000027
-[   91.990952] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff00080260ba00
-[   91.991000] Call trace:
-[   91.991012]  refcount_warn_saturate+0xa0/0x144
-[   91.991034]  kobject_get+0xac/0xb0
-[   91.991055]  of_node_get+0x2c/0x40
-[   91.991076]  of_fwnode_get+0x40/0x60
-[   91.991094]  fwnode_handle_get+0x3c/0x60
-[   91.991116]  fwnode_get_nth_parent+0xf4/0x110
-[   91.991137]  fwnode_full_name_string+0x48/0xc0
-[   91.991158]  device_node_string+0x41c/0x530
-[   91.991178]  pointer+0x320/0x3ec
-[   91.991198]  vsnprintf+0x23c/0x750
-[   91.991217]  vprintk_store+0x104/0x4b0
-[   91.991238]  vprintk_emit+0x8c/0x360
-[   91.991257]  vprintk_default+0x44/0x50
-[   91.991276]  vprintk+0xcc/0xf0
-[   91.991295]  _printk+0x68/0x90
-[   91.991315]  of_node_release+0x13c/0x14c
-[   91.991334]  kobject_put+0x98/0x114
-[   91.991354]  of_node_put+0x24/0x34
-[   91.991372]  of_fwnode_put+0x40/0x5c
-[   91.991390]  fwnode_handle_put+0x38/0x50
-[   91.991411]  coresight_release_platform_data+0x74/0xb0 [coresight]
-[   91.991472]  coresight_unregister+0x64/0xcc [coresight]
-[   91.991525]  etm4_remove_dev+0x64/0x78 [coresight_etm4x]
-[   91.991563]  etm4_remove_amba+0x1c/0x2c [coresight_etm4x]
-[   91.991598]  amba_remove+0x3c/0x19c
-
-Reproducible by: (Build all coresight components as modules):
-
-  #!/bin/sh
-  while true
-  do
-     for m in tmc stm cpu_debug etm4x replicator funnel
-     do
-     	modprobe coresight_${m}
-     done
-
-     for m in tmc stm cpu_debug etm4x replicator funnel
-     do
-     	rmmode coresight_${m}
-     done
-  done
-
-Cc: stable@vger.kernel.org
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
----
- drivers/hwtracing/coresight/coresight-core.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/hwtracing/coresight/coresight-core.c b/drivers/hwtracing/coresight/coresight-core.c
-index ee6ce92ab4c3..1edfec1e9d18 100644
---- a/drivers/hwtracing/coresight/coresight-core.c
-+++ b/drivers/hwtracing/coresight/coresight-core.c
-@@ -1424,6 +1424,7 @@ static int coresight_remove_match(struct device *dev, void *data)
- 			 * platform data.
- 			 */
- 			fwnode_handle_put(conn->child_fwnode);
-+			conn->child_fwnode = NULL;
- 			/* No need to continue */
- 			break;
- 		}
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.35.3
-
+Florian
