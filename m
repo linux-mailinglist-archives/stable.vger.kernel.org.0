@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C889C54A559
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76A0C54A60B
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:23:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353283AbiFNCQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:16:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57482 "EHLO
+        id S1353719AbiFNCQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:16:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354374AbiFNCOm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:14:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 684AD3BBD6;
-        Mon, 13 Jun 2022 19:08:40 -0700 (PDT)
+        with ESMTP id S1354491AbiFNCOr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:14:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AF8D3BFBD;
+        Mon, 13 Jun 2022 19:08:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8CCC60C15;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2822AB816A9;
+        Tue, 14 Jun 2022 02:08:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C36F2C341C6;
         Tue, 14 Jun 2022 02:08:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 847ACC341C5;
-        Tue, 14 Jun 2022 02:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172481;
-        bh=suCPL6dcluZTjvTZvMxdMWiAaxLWueSgtm4nQ+15xg0=;
+        s=k20201202; t=1655172482;
+        bh=UnIZZF/f9YY9ipzH+JMh2mrm+6EHbHRc5zK6zXLOvBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qrMAx5ktujE2rMqR/xfnmQhcTC5OSveh4d8aGz7Jdiseq0eRgec63trjmsKEfvLKq
-         SA345lxChijc2DNMuJxMsUf+SQ6wU8pmfJ5v52ltX38a7BmlTcyO++0eyydknMkRw8
-         WcfxJ3TZXb77/bqyxTlRSXcFva2aGP+1mZttW3JvnO3fo4I+1CiSxwFW+8F+gg5s8z
-         tYL4my2mg+bdfgylXjploIhIZIvRwT0BaiAyShfGcQJKQnWqEZ547r711+BkQpMmb1
-         3PKjc5/9y4+LnMFS0uTMnL2ihrrF2A8dh1uhs4lE59cyPDHZB9xBfFX8+jn1dlXPWP
-         TLZdSu/oSu+uw==
+        b=gbpic1XHNqZRSd52L2TDgmQUhgO33spR37qycGOjaqgBWyoRuviuXwv7H3VyzAEb5
+         hOeV+dmRgU11TZ+cJam8OkG0u9dKXeeLsE4Cev6meY8uDB322A9hMF+jNVKPs8IsUA
+         U8GCmpMWA3NnEDq/FnSUyRYrb/f3dTzQ7tKYfjHmI4Jy4nbp/L0M01gnFwztjo++sR
+         Vh7rTMObofInQo2hf7mQN9ba+twc+6ZT7d5Yyal9XGH7iGfjcXEqWIXzX8+7QmLmrI
+         ymkgklQB9G0+TfTie0fROj6cR/c4qWVvt+TTeoegZkLifYb906ApPYNkzcOQs4mr/7
+         YMzlGt8u8QZww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, mmarek@suse.com,
-        linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 32/41] gcc-12: disable '-Wdangling-pointer' warning for now
-Date:   Mon, 13 Jun 2022 22:06:57 -0400
-Message-Id: <20220614020707.1099487-32-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, saeedm@mellanox.com,
+        matanb@mellanox.com, leonro@mellanox.com, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 33/41] mellanox: mlx5: avoid uninitialized variable warning with gcc-12
+Date:   Mon, 13 Jun 2022 22:06:58 -0400
+Message-Id: <20220614020707.1099487-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614020707.1099487-1-sashal@kernel.org>
 References: <20220614020707.1099487-1-sashal@kernel.org>
@@ -59,62 +60,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 49beadbd47c270a00754c107a837b4f29df4c822 ]
+[ Upstream commit 842c3b3ddc5f4d17275edbaa09e23d712bf8b915 ]
 
-While the concept of checking for dangling pointers to local variables
-at function exit is really interesting, the gcc-12 implementation is not
-compatible with reality, and results in false positives.
+gcc-12 started warning about 'tracker' being used uninitialized:
 
-For example, gcc sees us putting things on a local list head allocated
-on the stack, which involves exactly those kinds of pointers to the
-local stack entry:
+  drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c: In function ‘mlx5_do_bond’:
+  drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c:786:28: warning: ‘tracker’ is used uninitialized [-Wuninitialized]
+    786 |         struct lag_tracker tracker;
+        |                            ^~~~~~~
 
-  In function ‘__list_add’,
-      inlined from ‘list_add_tail’ at include/linux/list.h:102:2,
-      inlined from ‘rebuild_snap_realms’ at fs/ceph/snap.c:434:2:
-  include/linux/list.h:74:19: warning: storing the address of local variable ‘realm_queue’ in ‘*&realm_27(D)->rebuild_item.prev’ [-Wdangling-pointer=]
-     74 |         new->prev = prev;
-        |         ~~~~~~~~~~^~~~~~
+which seems to be because it doesn't track how the use (and
+initialization) is bound by the 'do_bond' flag.
 
-But then gcc - understandably - doesn't really understand the big
-picture how the doubly linked list works, so doesn't see how we then end
-up emptying said list head in a loop and the pointer we added has been
-removed.
+But admittedly that 'do_bond' usage is fairly complicated, and involves
+passing it around as an argument to helper functions, so it's somewhat
+understandable that gcc doesn't see how that all works.
 
-Gcc also complains about us (intentionally) using this as a way to store
-a kind of fake stack trace, eg
-
-  drivers/acpi/acpica/utdebug.c:40:38: warning: storing the address of local variable ‘current_sp’ in ‘acpi_gbl_entry_stack_pointer’ [-Wdangling-pointer=]
-     40 |         acpi_gbl_entry_stack_pointer = &current_sp;
-        |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
-
-which is entirely reasonable from a compiler standpoint, and we may want
-to change those kinds of patterns, but not not.
-
-So this is one of those "it would be lovely if the compiler were to
-complain about us leaving dangling pointers to the stack", but not this
-way.
+This function could be rewritten to make the use of that tracker
+variable more obviously safe, but for now I'm just adding the forced
+initialization of it.
 
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/lag.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Makefile b/Makefile
-index ce943bc3eda4..aee9309bb3e1 100644
---- a/Makefile
-+++ b/Makefile
-@@ -811,6 +811,9 @@ endif
- KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
- KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
+index c19d9327095b..bf1c5dc419c3 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lag.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
+@@ -435,7 +435,7 @@ static void mlx5_do_bond(struct mlx5_lag *ldev)
+ {
+ 	struct mlx5_core_dev *dev0 = ldev->pf[MLX5_LAG_P1].dev;
+ 	struct mlx5_core_dev *dev1 = ldev->pf[MLX5_LAG_P2].dev;
+-	struct lag_tracker tracker;
++	struct lag_tracker tracker = { };
+ 	bool do_bond, roce_lag;
+ 	int err;
  
-+# These result in bogus false positives
-+KBUILD_CFLAGS += $(call cc-disable-warning, dangling-pointer)
-+
- ifdef CONFIG_FRAME_POINTER
- KBUILD_CFLAGS	+= -fno-omit-frame-pointer -fno-optimize-sibling-calls
- else
 -- 
 2.35.1
 
