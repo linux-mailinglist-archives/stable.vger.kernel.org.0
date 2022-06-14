@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D572A54B9B7
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 21:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B90ED54B956
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:46:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357517AbiFNSt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 14:49:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43080 "EHLO
+        id S1357414AbiFNSp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 14:45:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357632AbiFNSqx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:46:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE2464BBAE;
-        Tue, 14 Jun 2022 11:44:28 -0700 (PDT)
+        with ESMTP id S1357725AbiFNSpU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:45:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0B5614036;
+        Tue, 14 Jun 2022 11:43:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DD89B81AEC;
-        Tue, 14 Jun 2022 18:44:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77712C3411B;
-        Tue, 14 Jun 2022 18:44:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DBA4617C6;
+        Tue, 14 Jun 2022 18:43:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66CFCC3411B;
+        Tue, 14 Jun 2022 18:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655232265;
-        bh=stE68uuJ8/LMaPjCR/795Fml1qkvQS3J17IZarbMJpo=;
+        s=korg; t=1655232235;
+        bh=/v/hSBPhCGd+H+SY47EEBC4xkjKOtIVV3YMqxeN4L2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s9vYQfdXZEV0KDdH8dA5DaX7CXkbf+4B6EDqpoYuJs6EbJB3vD5Nmr87WVHYopsLc
-         EGpxeIULWoW5FLYEZT36Wga0RKo9Zus3fbiMVSzlZfrFx/vQvFaaBWGgkdic7o9tA/
-         eP2c8VmPCsZLjOTVRUPuEpUQtkvkhWY1McRudgq8=
+        b=R/4YWaKww8UcLkD6m04VdRc5vsG/p1CU91Gqb7pQ5jWEngEKB3w+N5W1jbqKTy3WN
+         2283Ks9XEpJz10D+/1Ke09rtAJaI+fytria8224eSU6j/ZQ04bVkJaR4OBoUXD5xam
+         LamqQdsP/FydFIboLh0wsHmqnxMoH0sGYZiZQOFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,15 +35,13 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
         Borislav Petkov <bp@suse.de>,
         Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.10 01/11] Documentation: Add documentation for Processor MMIO Stale Data
+Subject: [PATCH 5.4 14/15] KVM: x86/speculation: Disable Fill buffer clear within guests
 Date:   Tue, 14 Jun 2022 20:40:23 +0200
-Message-Id: <20220614183720.221807016@linuxfoundation.org>
+Message-Id: <20220614183725.078080213@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220614183719.878453780@linuxfoundation.org>
-References: <20220614183719.878453780@linuxfoundation.org>
+In-Reply-To: <20220614183721.656018793@linuxfoundation.org>
+References: <20220614183721.656018793@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,275 +57,215 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit 4419470191386456e0b8ed4eb06a70b0021798a6 upstream
+commit 027bbb884be006b05d9c577d6401686053aa789e upstream
 
-Add the admin guide for Processor MMIO stale data vulnerabilities.
+The enumeration of MD_CLEAR in CPUID(EAX=7,ECX=0).EDX{bit 10} is not an
+accurate indicator on all CPUs of whether the VERW instruction will
+overwrite fill buffers. FB_CLEAR enumeration in
+IA32_ARCH_CAPABILITIES{bit 17} covers the case of CPUs that are not
+vulnerable to MDS/TAA, indicating that microcode does overwrite fill
+buffers.
+
+Guests running in VMM environments may not be aware of all the
+capabilities/vulnerabilities of the host CPU. Specifically, a guest may
+apply MDS/TAA mitigations when a virtual CPU is enumerated as vulnerable
+to MDS/TAA even when the physical CPU is not. On CPUs that enumerate
+FB_CLEAR_CTRL the VMM may set FB_CLEAR_DIS to skip overwriting of fill
+buffers by the VERW instruction. This is done by setting FB_CLEAR_DIS
+during VMENTER and resetting on VMEXIT. For guests that enumerate
+FB_CLEAR (explicitly asking for fill buffer clear capability) the VMM
+will not use FB_CLEAR_DIS.
+
+Irrespective of guest state, host overwrites CPU buffers before VMENTER
+to protect itself from an MMIO capable guest, as part of mitigation for
+MMIO Stale Data vulnerabilities.
 
 Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/hw-vuln/index.rst                     |    1 
- Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst |  246 ++++++++++
- 2 files changed, 247 insertions(+)
- create mode 100644 Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
+ arch/x86/include/asm/msr-index.h |    6 +++
+ arch/x86/kvm/vmx/vmx.c           |   72 ++++++++++++++++++++++++++++++++++++++-
+ arch/x86/kvm/vmx/vmx.h           |    3 +
+ arch/x86/kvm/x86.c               |    4 ++
+ 4 files changed, 84 insertions(+), 1 deletion(-)
 
---- a/Documentation/admin-guide/hw-vuln/index.rst
-+++ b/Documentation/admin-guide/hw-vuln/index.rst
-@@ -15,3 +15,4 @@ are configurable at compile, boot or run
-    tsx_async_abort
-    multihit.rst
-    special-register-buffer-data-sampling.rst
-+   processor_mmio_stale_data.rst
---- /dev/null
-+++ b/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
-@@ -0,0 +1,246 @@
-+=========================================
-+Processor MMIO Stale Data Vulnerabilities
-+=========================================
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -124,6 +124,11 @@
+ 						 * VERW clears CPU fill buffer
+ 						 * even on MDS_NO CPUs.
+ 						 */
++#define ARCH_CAP_FB_CLEAR_CTRL		BIT(18)	/*
++						 * MSR_IA32_MCU_OPT_CTRL[FB_CLEAR_DIS]
++						 * bit available to control VERW
++						 * behavior.
++						 */
+ 
+ #define MSR_IA32_FLUSH_CMD		0x0000010b
+ #define L1D_FLUSH			BIT(0)	/*
+@@ -141,6 +146,7 @@
+ /* SRBDS support */
+ #define MSR_IA32_MCU_OPT_CTRL		0x00000123
+ #define RNGDS_MITG_DIS			BIT(0)
++#define FB_CLEAR_DIS			BIT(3)	/* CPU Fill buffer clear disable */
+ 
+ #define MSR_IA32_SYSENTER_CS		0x00000174
+ #define MSR_IA32_SYSENTER_ESP		0x00000175
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -204,6 +204,9 @@ static const struct {
+ #define L1D_CACHE_ORDER 4
+ static void *vmx_l1d_flush_pages;
+ 
++/* Control for disabling CPU Fill buffer clear */
++static bool __read_mostly vmx_fb_clear_ctrl_available;
 +
-+Processor MMIO Stale Data Vulnerabilities are a class of memory-mapped I/O
-+(MMIO) vulnerabilities that can expose data. The sequences of operations for
-+exposing data range from simple to very complex. Because most of the
-+vulnerabilities require the attacker to have access to MMIO, many environments
-+are not affected. System environments using virtualization where MMIO access is
-+provided to untrusted guests may need mitigation. These vulnerabilities are
-+not transient execution attacks. However, these vulnerabilities may propagate
-+stale data into core fill buffers where the data can subsequently be inferred
-+by an unmitigated transient execution attack. Mitigation for these
-+vulnerabilities includes a combination of microcode update and software
-+changes, depending on the platform and usage model. Some of these mitigations
-+are similar to those used to mitigate Microarchitectural Data Sampling (MDS) or
-+those used to mitigate Special Register Buffer Data Sampling (SRBDS).
+ static int vmx_setup_l1d_flush(enum vmx_l1d_flush_state l1tf)
+ {
+ 	struct page *page;
+@@ -335,6 +338,60 @@ static int vmentry_l1d_flush_get(char *s
+ 	return sprintf(s, "%s\n", vmentry_l1d_param[l1tf_vmx_mitigation].option);
+ }
+ 
++static void vmx_setup_fb_clear_ctrl(void)
++{
++	u64 msr;
 +
-+Data Propagators
-+================
-+Propagators are operations that result in stale data being copied or moved from
-+one microarchitectural buffer or register to another. Processor MMIO Stale Data
-+Vulnerabilities are operations that may result in stale data being directly
-+read into an architectural, software-visible state or sampled from a buffer or
-+register.
++	if (boot_cpu_has(X86_FEATURE_ARCH_CAPABILITIES) &&
++	    !boot_cpu_has_bug(X86_BUG_MDS) &&
++	    !boot_cpu_has_bug(X86_BUG_TAA)) {
++		rdmsrl(MSR_IA32_ARCH_CAPABILITIES, msr);
++		if (msr & ARCH_CAP_FB_CLEAR_CTRL)
++			vmx_fb_clear_ctrl_available = true;
++	}
++}
 +
-+Fill Buffer Stale Data Propagator (FBSDP)
-+-----------------------------------------
-+Stale data may propagate from fill buffers (FB) into the non-coherent portion
-+of the uncore on some non-coherent writes. Fill buffer propagation by itself
-+does not make stale data architecturally visible. Stale data must be propagated
-+to a location where it is subject to reading or sampling.
++static __always_inline void vmx_disable_fb_clear(struct vcpu_vmx *vmx)
++{
++	u64 msr;
 +
-+Sideband Stale Data Propagator (SSDP)
-+-------------------------------------
-+The sideband stale data propagator (SSDP) is limited to the client (including
-+Intel Xeon server E3) uncore implementation. The sideband response buffer is
-+shared by all client cores. For non-coherent reads that go to sideband
-+destinations, the uncore logic returns 64 bytes of data to the core, including
-+both requested data and unrequested stale data, from a transaction buffer and
-+the sideband response buffer. As a result, stale data from the sideband
-+response and transaction buffers may now reside in a core fill buffer.
++	if (!vmx->disable_fb_clear)
++		return;
 +
-+Primary Stale Data Propagator (PSDP)
-+------------------------------------
-+The primary stale data propagator (PSDP) is limited to the client (including
-+Intel Xeon server E3) uncore implementation. Similar to the sideband response
-+buffer, the primary response buffer is shared by all client cores. For some
-+processors, MMIO primary reads will return 64 bytes of data to the core fill
-+buffer including both requested data and unrequested stale data. This is
-+similar to the sideband stale data propagator.
++	rdmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
++	msr |= FB_CLEAR_DIS;
++	wrmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
++	/* Cache the MSR value to avoid reading it later */
++	vmx->msr_ia32_mcu_opt_ctrl = msr;
++}
 +
-+Vulnerabilities
-+===============
-+Device Register Partial Write (DRPW) (CVE-2022-21166)
-+-----------------------------------------------------
-+Some endpoint MMIO registers incorrectly handle writes that are smaller than
-+the register size. Instead of aborting the write or only copying the correct
-+subset of bytes (for example, 2 bytes for a 2-byte write), more bytes than
-+specified by the write transaction may be written to the register. On
-+processors affected by FBSDP, this may expose stale data from the fill buffers
-+of the core that created the write transaction.
++static __always_inline void vmx_enable_fb_clear(struct vcpu_vmx *vmx)
++{
++	if (!vmx->disable_fb_clear)
++		return;
 +
-+Shared Buffers Data Sampling (SBDS) (CVE-2022-21125)
-+----------------------------------------------------
-+After propagators may have moved data around the uncore and copied stale data
-+into client core fill buffers, processors affected by MFBDS can leak data from
-+the fill buffer. It is limited to the client (including Intel Xeon server E3)
-+uncore implementation.
++	vmx->msr_ia32_mcu_opt_ctrl &= ~FB_CLEAR_DIS;
++	wrmsrl(MSR_IA32_MCU_OPT_CTRL, vmx->msr_ia32_mcu_opt_ctrl);
++}
 +
-+Shared Buffers Data Read (SBDR) (CVE-2022-21123)
-+------------------------------------------------
-+It is similar to Shared Buffer Data Sampling (SBDS) except that the data is
-+directly read into the architectural software-visible state. It is limited to
-+the client (including Intel Xeon server E3) uncore implementation.
++static void vmx_update_fb_clear_dis(struct kvm_vcpu *vcpu, struct vcpu_vmx *vmx)
++{
++	vmx->disable_fb_clear = vmx_fb_clear_ctrl_available;
 +
-+Affected Processors
-+===================
-+Not all the CPUs are affected by all the variants. For instance, most
-+processors for the server market (excluding Intel Xeon E3 processors) are
-+impacted by only Device Register Partial Write (DRPW).
++	/*
++	 * If guest will not execute VERW, there is no need to set FB_CLEAR_DIS
++	 * at VMEntry. Skip the MSR read/write when a guest has no use case to
++	 * execute VERW.
++	 */
++	if ((vcpu->arch.arch_capabilities & ARCH_CAP_FB_CLEAR) ||
++	   ((vcpu->arch.arch_capabilities & ARCH_CAP_MDS_NO) &&
++	    (vcpu->arch.arch_capabilities & ARCH_CAP_TAA_NO) &&
++	    (vcpu->arch.arch_capabilities & ARCH_CAP_PSDP_NO) &&
++	    (vcpu->arch.arch_capabilities & ARCH_CAP_FBSDP_NO) &&
++	    (vcpu->arch.arch_capabilities & ARCH_CAP_SBDR_SSDP_NO)))
++		vmx->disable_fb_clear = false;
++}
 +
-+Below is the list of affected Intel processors [#f1]_:
+ static const struct kernel_param_ops vmentry_l1d_flush_ops = {
+ 	.set = vmentry_l1d_flush_set,
+ 	.get = vmentry_l1d_flush_get,
+@@ -2167,9 +2224,13 @@ static int vmx_set_msr(struct kvm_vcpu *
+ 			}
+ 			break;
+ 		}
+-		ret = kvm_set_msr_common(vcpu, msr_info);
++			ret = kvm_set_msr_common(vcpu, msr_info);
+ 	}
+ 
++	/* FB_CLEAR may have changed, also update the FB_CLEAR_DIS behavior */
++	if (msr_index == MSR_IA32_ARCH_CAPABILITIES)
++		vmx_update_fb_clear_dis(vcpu, vmx);
 +
-+   ===================  ============  =========
-+   Common name          Family_Model  Steppings
-+   ===================  ============  =========
-+   HASWELL_X            06_3FH        2,4
-+   SKYLAKE_L            06_4EH        3
-+   BROADWELL_X          06_4FH        All
-+   SKYLAKE_X            06_55H        3,4,6,7,11
-+   BROADWELL_D          06_56H        3,4,5
-+   SKYLAKE              06_5EH        3
-+   ICELAKE_X            06_6AH        4,5,6
-+   ICELAKE_D            06_6CH        1
-+   ICELAKE_L            06_7EH        5
-+   ATOM_TREMONT_D       06_86H        All
-+   LAKEFIELD            06_8AH        1
-+   KABYLAKE_L           06_8EH        9 to 12
-+   ATOM_TREMONT         06_96H        1
-+   ATOM_TREMONT_L       06_9CH        0
-+   KABYLAKE             06_9EH        9 to 13
-+   COMETLAKE            06_A5H        2,3,5
-+   COMETLAKE_L          06_A6H        0,1
-+   ROCKETLAKE           06_A7H        1
-+   ===================  ============  =========
+ 	return ret;
+ }
+ 
+@@ -4362,6 +4423,8 @@ static void vmx_vcpu_reset(struct kvm_vc
+ 	vpid_sync_context(vmx->vpid);
+ 	if (init_event)
+ 		vmx_clear_hlt(vcpu);
 +
-+If a CPU is in the affected processor list, but not affected by a variant, it
-+is indicated by new bits in MSR IA32_ARCH_CAPABILITIES. As described in a later
-+section, mitigation largely remains the same for all the variants, i.e. to
-+clear the CPU fill buffers via VERW instruction.
++	vmx_update_fb_clear_dis(vcpu, vmx);
+ }
+ 
+ static void enable_irq_window(struct kvm_vcpu *vcpu)
+@@ -6559,6 +6622,8 @@ static void vmx_vcpu_run(struct kvm_vcpu
+ 		 kvm_arch_has_assigned_device(vcpu->kvm))
+ 		mds_clear_cpu_buffers();
+ 
++	vmx_disable_fb_clear(vmx);
 +
-+New bits in MSRs
-+================
-+Newer processors and microcode update on existing affected processors added new
-+bits to IA32_ARCH_CAPABILITIES MSR. These bits can be used to enumerate
-+specific variants of Processor MMIO Stale Data vulnerabilities and mitigation
-+capability.
+ 	if (vcpu->arch.cr2 != read_cr2())
+ 		write_cr2(vcpu->arch.cr2);
+ 
+@@ -6567,6 +6632,8 @@ static void vmx_vcpu_run(struct kvm_vcpu
+ 
+ 	vcpu->arch.cr2 = read_cr2();
+ 
++	vmx_enable_fb_clear(vmx);
 +
-+MSR IA32_ARCH_CAPABILITIES
-+--------------------------
-+Bit 13 - SBDR_SSDP_NO - When set, processor is not affected by either the
-+	 Shared Buffers Data Read (SBDR) vulnerability or the sideband stale
-+	 data propagator (SSDP).
-+Bit 14 - FBSDP_NO - When set, processor is not affected by the Fill Buffer
-+	 Stale Data Propagator (FBSDP).
-+Bit 15 - PSDP_NO - When set, processor is not affected by Primary Stale Data
-+	 Propagator (PSDP).
-+Bit 17 - FB_CLEAR - When set, VERW instruction will overwrite CPU fill buffer
-+	 values as part of MD_CLEAR operations. Processors that do not
-+	 enumerate MDS_NO (meaning they are affected by MDS) but that do
-+	 enumerate support for both L1D_FLUSH and MD_CLEAR implicitly enumerate
-+	 FB_CLEAR as part of their MD_CLEAR support.
-+Bit 18 - FB_CLEAR_CTRL - Processor supports read and write to MSR
-+	 IA32_MCU_OPT_CTRL[FB_CLEAR_DIS]. On such processors, the FB_CLEAR_DIS
-+	 bit can be set to cause the VERW instruction to not perform the
-+	 FB_CLEAR action. Not all processors that support FB_CLEAR will support
-+	 FB_CLEAR_CTRL.
+ 	/*
+ 	 * We do not use IBRS in the kernel. If this vCPU has used the
+ 	 * SPEC_CTRL MSR it may have left it on; save the value and
+@@ -8041,8 +8108,11 @@ static int __init vmx_init(void)
+ 		return r;
+ 	}
+ 
++	vmx_setup_fb_clear_ctrl();
 +
-+MSR IA32_MCU_OPT_CTRL
-+---------------------
-+Bit 3 - FB_CLEAR_DIS - When set, VERW instruction does not perform the FB_CLEAR
-+action. This may be useful to reduce the performance impact of FB_CLEAR in
-+cases where system software deems it warranted (for example, when performance
-+is more critical, or the untrusted software has no MMIO access). Note that
-+FB_CLEAR_DIS has no impact on enumeration (for example, it does not change
-+FB_CLEAR or MD_CLEAR enumeration) and it may not be supported on all processors
-+that enumerate FB_CLEAR.
+ 	for_each_possible_cpu(cpu) {
+ 		INIT_LIST_HEAD(&per_cpu(loaded_vmcss_on_cpu, cpu));
 +
-+Mitigation
-+==========
-+Like MDS, all variants of Processor MMIO Stale Data vulnerabilities  have the
-+same mitigation strategy to force the CPU to clear the affected buffers before
-+an attacker can extract the secrets.
+ 		INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
+ 		spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
+ 	}
+--- a/arch/x86/kvm/vmx/vmx.h
++++ b/arch/x86/kvm/vmx/vmx.h
+@@ -280,8 +280,11 @@ struct vcpu_vmx {
+ 	u64 msr_ia32_feature_control;
+ 	u64 msr_ia32_feature_control_valid_bits;
+ 	u64 ept_pointer;
++	u64 msr_ia32_mcu_opt_ctrl;
++	bool disable_fb_clear;
+ 
+ 	struct pt_desc pt_desc;
 +
-+This is achieved by using the otherwise unused and obsolete VERW instruction in
-+combination with a microcode update. The microcode clears the affected CPU
-+buffers when the VERW instruction is executed.
+ };
+ 
+ enum ept_pointers_status {
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1403,6 +1403,10 @@ static u64 kvm_get_arch_capabilities(voi
+ 
+ 	/* KVM does not emulate MSR_IA32_TSX_CTRL.  */
+ 	data &= ~ARCH_CAP_TSX_CTRL_MSR;
 +
-+Kernel reuses the MDS function to invoke the buffer clearing:
++	/* Guests don't need to know "Fill buffer clear control" exists */
++	data &= ~ARCH_CAP_FB_CLEAR_CTRL;
 +
-+	mds_clear_cpu_buffers()
-+
-+On MDS affected CPUs, the kernel already invokes CPU buffer clear on
-+kernel/userspace, hypervisor/guest and C-state (idle) transitions. No
-+additional mitigation is needed on such CPUs.
-+
-+For CPUs not affected by MDS or TAA, mitigation is needed only for the attacker
-+with MMIO capability. Therefore, VERW is not required for kernel/userspace. For
-+virtualization case, VERW is only needed at VMENTER for a guest with MMIO
-+capability.
-+
-+Mitigation points
-+-----------------
-+Return to user space
-+^^^^^^^^^^^^^^^^^^^^
-+Same mitigation as MDS when affected by MDS/TAA, otherwise no mitigation
-+needed.
-+
-+C-State transition
-+^^^^^^^^^^^^^^^^^^
-+Control register writes by CPU during C-state transition can propagate data
-+from fill buffer to uncore buffers. Execute VERW before C-state transition to
-+clear CPU fill buffers.
-+
-+Guest entry point
-+^^^^^^^^^^^^^^^^^
-+Same mitigation as MDS when processor is also affected by MDS/TAA, otherwise
-+execute VERW at VMENTER only for MMIO capable guests. On CPUs not affected by
-+MDS/TAA, guest without MMIO access cannot extract secrets using Processor MMIO
-+Stale Data vulnerabilities, so there is no need to execute VERW for such guests.
-+
-+Mitigation control on the kernel command line
-+---------------------------------------------
-+The kernel command line allows to control the Processor MMIO Stale Data
-+mitigations at boot time with the option "mmio_stale_data=". The valid
-+arguments for this option are:
-+
-+  ==========  =================================================================
-+  full        If the CPU is vulnerable, enable mitigation; CPU buffer clearing
-+              on exit to userspace and when entering a VM. Idle transitions are
-+              protected as well. It does not automatically disable SMT.
-+  full,nosmt  Same as full, with SMT disabled on vulnerable CPUs. This is the
-+              complete mitigation.
-+  off         Disables mitigation completely.
-+  ==========  =================================================================
-+
-+If the CPU is affected and mmio_stale_data=off is not supplied on the kernel
-+command line, then the kernel selects the appropriate mitigation.
-+
-+Mitigation status information
-+-----------------------------
-+The Linux kernel provides a sysfs interface to enumerate the current
-+vulnerability status of the system: whether the system is vulnerable, and
-+which mitigations are active. The relevant sysfs file is:
-+
-+	/sys/devices/system/cpu/vulnerabilities/mmio_stale_data
-+
-+The possible values in this file are:
-+
-+  .. list-table::
-+
-+     * - 'Not affected'
-+       - The processor is not vulnerable
-+     * - 'Vulnerable'
-+       - The processor is vulnerable, but no mitigation enabled
-+     * - 'Vulnerable: Clear CPU buffers attempted, no microcode'
-+       - The processor is vulnerable, but microcode is not updated. The
-+         mitigation is enabled on a best effort basis.
-+     * - 'Mitigation: Clear CPU buffers'
-+       - The processor is vulnerable and the CPU buffer clearing mitigation is
-+         enabled.
-+
-+If the processor is vulnerable then the following information is appended to
-+the above information:
-+
-+  ========================  ===========================================
-+  'SMT vulnerable'          SMT is enabled
-+  'SMT disabled'            SMT is disabled
-+  'SMT Host state unknown'  Kernel runs in a VM, Host SMT state unknown
-+  ========================  ===========================================
-+
-+References
-+----------
-+.. [#f1] Affected Processors
-+   https://www.intel.com/content/www/us/en/developer/topic-technology/software-security-guidance/processors-affected-consolidated-product-cpu-model.html
+ 	return data;
+ }
+ 
 
 
