@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6755854A5B2
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA71054A56E
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353648AbiFNCQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:16:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57168 "EHLO
+        id S1353196AbiFNCQC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:16:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353898AbiFNCOJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:14:09 -0400
+        with ESMTP id S1353870AbiFNCOI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:14:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393BA3B030;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD4D83B034;
         Mon, 13 Jun 2022 19:08:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C065DB816AA;
-        Tue, 14 Jun 2022 02:08:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 997D5C385A9;
-        Tue, 14 Jun 2022 02:08:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 149FEB816B7;
+        Tue, 14 Jun 2022 02:08:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFE53C3411E;
+        Tue, 14 Jun 2022 02:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172490;
-        bh=LUqjWhd2x19oH7kQGPvqJsFKkYqV5H/4feAZdzzEdv0=;
+        s=k20201202; t=1655172491;
+        bh=QDZWRKLomtgTCOUp44KOpz7Tt4UYzs/H9LN7NegqbCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iK32ZxHY70ql6v1Zj3KCgydR+CRQXY/9fMZeJAAEmqv4pz0MmvwijFhJtsmzpG77Q
-         AudfUolyZdSfWR2K1K2Vk7+pLudQpg3z6zcWNrQOYc1pI8Oifaxdp5Gw0ug6VX0Jou
-         VJmwzkvDQHdq4KnwROhTpQ4M+06DYstnbtorDeauE2gcRqFVs6ZIPx/Rw/afn15URV
-         82+Hrr9iHF+gXD1kFlVVJpgUPhoXlszKRAEQmkrRzBOp7ngL7CaAZYruCjELse7YvD
-         xK/8VsBuNCqq8/dybo0KZBqrNSfD1K2BI5S+jw8A43bPr10tllN8M1IBIDZCye1Aoo
-         F82K0Ef69wQaQ==
+        b=MAuySe0dtPjmQJ8MxO7iUJpKTSm9bPrHtkH/YuGK0s/Jq8SWIfEiY8e0rREK5I34n
+         jepcReFxxGBB/FvxGQl2XU5goG6pnRiGtezrZ84V8YSHKh5RoLek3CGt8Ters27AXo
+         LPivgdKquXI5ZaTwCmNqA2aVb1vSa7OaMxLRx0eQJbA96mtoVnAma2IAJlPeGU02Xz
+         1mUCu0WiDIwZFOfKqN7W0vB/eQRtuK66SVFIA1AG5px4tEd17zTOLFqqDmMBUdSS3Y
+         T/gs6B2tofNvKwRXCVlJ01vfQHlDT61AOVsDj+PTWfZMszwmOrGKta6UGBAWUTbcGA
+         +smloo6Yi6ynA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     George D Sworo <george.d.sworo@intel.com>,
-        "David E . Box" <david.e.box@linux.intel.com>,
+Cc:     Piotr Chmura <chmooreck@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>, dvhart@infradead.org,
         platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 38/41] platform/x86/intel: pmc: Support Intel Raptorlake P
-Date:   Mon, 13 Jun 2022 22:07:03 -0400
-Message-Id: <20220614020707.1099487-38-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 39/41] platform/x86: gigabyte-wmi: Add Z690M AORUS ELITE AX DDR4 support
+Date:   Mon, 13 Jun 2022 22:07:04 -0400
+Message-Id: <20220614020707.1099487-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614020707.1099487-1-sashal@kernel.org>
 References: <20220614020707.1099487-1-sashal@kernel.org>
@@ -58,33 +57,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George D Sworo <george.d.sworo@intel.com>
+From: Piotr Chmura <chmooreck@gmail.com>
 
-[ Upstream commit 552f3b801de6eb062b225a76e140995483a0609c ]
+[ Upstream commit 8a041afe3e774bedd3e0a9b96f65e48a1299a595 ]
 
-Add Raptorlake P to the list of the platforms that intel_pmc_core driver
-supports for pmc_core device. Raptorlake P PCH is based on Alderlake P
-PCH.
+Add dmi_system_id of Gigabyte Z690M AORUS ELITE AX DDR4 board.
+Tested on my PC.
 
-Signed-off-by: George D Sworo <george.d.sworo@intel.com>
-Reviewed-by: David E. Box <david.e.box@linux.intel.com>
-Link: https://lore.kernel.org/r/20220602012617.20100-1-george.d.sworo@intel.com
+Signed-off-by: Piotr Chmura <chmooreck@gmail.com>
+Link: https://lore.kernel.org/r/bd83567e-ebf5-0b31-074b-5f6dc7f7c147@gmail.com
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel/pmc/core.c | 1 +
+ drivers/platform/x86/gigabyte-wmi.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/intel/pmc/core.c b/drivers/platform/x86/intel/pmc/core.c
-index ac19fcc9abbf..8ee15a7252c7 100644
---- a/drivers/platform/x86/intel/pmc/core.c
-+++ b/drivers/platform/x86/intel/pmc/core.c
-@@ -1912,6 +1912,7 @@ static const struct x86_cpu_id intel_pmc_core_ids[] = {
- 	X86_MATCH_INTEL_FAM6_MODEL(ROCKETLAKE,		&tgl_reg_map),
- 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_L,		&tgl_reg_map),
- 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE,		&adl_reg_map),
-+	X86_MATCH_INTEL_FAM6_MODEL(RAPTORLAKE_P,        &tgl_reg_map),
- 	{}
+diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
+index 658bab4b7964..ad4f789309d6 100644
+--- a/drivers/platform/x86/gigabyte-wmi.c
++++ b/drivers/platform/x86/gigabyte-wmi.c
+@@ -153,6 +153,7 @@ static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 GAMING X"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 I AORUS PRO WIFI"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 UD"),
++	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("Z690M AORUS ELITE AX DDR4"),
+ 	{ }
  };
  
 -- 
