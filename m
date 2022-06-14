@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A0C54A60B
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:23:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A199C54A5B8
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353719AbiFNCQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:16:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57144 "EHLO
+        id S1351523AbiFNCP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:15:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354491AbiFNCOr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:14:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AF8D3BFBD;
-        Mon, 13 Jun 2022 19:08:48 -0700 (PDT)
+        with ESMTP id S1353633AbiFNCN6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:13:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AE873A5E5;
+        Mon, 13 Jun 2022 19:08:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2822AB816A9;
-        Tue, 14 Jun 2022 02:08:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C36F2C341C6;
-        Tue, 14 Jun 2022 02:08:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43EE760B76;
+        Tue, 14 Jun 2022 02:08:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61733C3411B;
+        Tue, 14 Jun 2022 02:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172482;
-        bh=UnIZZF/f9YY9ipzH+JMh2mrm+6EHbHRc5zK6zXLOvBY=;
+        s=k20201202; t=1655172484;
+        bh=oQsea3d6+jlOdY/dy8UGPuBU1fISG0mgP6bNaoD2Nfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gbpic1XHNqZRSd52L2TDgmQUhgO33spR37qycGOjaqgBWyoRuviuXwv7H3VyzAEb5
-         hOeV+dmRgU11TZ+cJam8OkG0u9dKXeeLsE4Cev6meY8uDB322A9hMF+jNVKPs8IsUA
-         U8GCmpMWA3NnEDq/FnSUyRYrb/f3dTzQ7tKYfjHmI4Jy4nbp/L0M01gnFwztjo++sR
-         Vh7rTMObofInQo2hf7mQN9ba+twc+6ZT7d5Yyal9XGH7iGfjcXEqWIXzX8+7QmLmrI
-         ymkgklQB9G0+TfTie0fROj6cR/c4qWVvt+TTeoegZkLifYb906ApPYNkzcOQs4mr/7
-         YMzlGt8u8QZww==
+        b=WXbMQcMPJyUIj5MuK8H3RIEf3tiUBUvpAmxFuTonc192UnTcCyBarKI30PlnbajxX
+         67Sd8NX8+Y/oogs64BbXZUl6kQuCVoKgnrbWnNYNskqBz/WXUiyDhrldTKh2BmhxW/
+         KYF3UV6vXHILFeO+ywALyJ415fXuuBxYhHcBly3Xsld91Q9cKeGHaCMpVCXBEyGYTX
+         q2sWHp4vbHTGcbTlIjWc670yxN/Gcmx/ISZOSnhALf0LKcmEeR3jrX+QbIuIdyN26N
+         E7K8GvdtiOuzx3VTrjnoQo79EYujwnXeBdxRLLTouHFyT+7BywYIk/TkQ33dZY1OWx
+         Z5mkFKfhxww5A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, saeedm@mellanox.com,
-        matanb@mellanox.com, leonro@mellanox.com, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 33/41] mellanox: mlx5: avoid uninitialized variable warning with gcc-12
-Date:   Mon, 13 Jun 2022 22:06:58 -0400
-Message-Id: <20220614020707.1099487-33-sashal@kernel.org>
+        Kees Cook <keescook@chromium.org>,
+        David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, zyan@redhat.com,
+        sage@redhat.com, idryomov@gmail.com, linux-afs@lists.infradead.org,
+        ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 34/41] netfs: gcc-12: temporarily disable '-Wattribute-warning' for now
+Date:   Mon, 13 Jun 2022 22:06:59 -0400
+Message-Id: <20220614020707.1099487-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614020707.1099487-1-sashal@kernel.org>
 References: <20220614020707.1099487-1-sashal@kernel.org>
@@ -60,45 +62,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 842c3b3ddc5f4d17275edbaa09e23d712bf8b915 ]
+[ Upstream commit 507160f46c55913955d272ebf559d63809a8e560 ]
 
-gcc-12 started warning about 'tracker' being used uninitialized:
+This is a pure band-aid so that I can continue merging stuff from people
+while some of the gcc-12 fallout gets sorted out.
 
-  drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c: In function ‘mlx5_do_bond’:
-  drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c:786:28: warning: ‘tracker’ is used uninitialized [-Wuninitialized]
-    786 |         struct lag_tracker tracker;
-        |                            ^~~~~~~
+In particular, gcc-12 is very unhappy about the kinds of pointer
+arithmetic tricks that netfs does, and that makes the fortify checks
+trigger in afs and ceph:
 
-which seems to be because it doesn't track how the use (and
-initialization) is bound by the 'do_bond' flag.
+  In function ‘fortify_memset_chk’,
+      inlined from ‘netfs_i_context_init’ at include/linux/netfs.h:327:2,
+      inlined from ‘afs_set_netfs_context’ at fs/afs/inode.c:61:2,
+      inlined from ‘afs_root_iget’ at fs/afs/inode.c:543:2:
+  include/linux/fortify-string.h:258:25: warning: call to ‘__write_overflow_field’ declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
+    258 |                         __write_overflow_field(p_size_field, size);
+        |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-But admittedly that 'do_bond' usage is fairly complicated, and involves
-passing it around as an argument to helper functions, so it's somewhat
-understandable that gcc doesn't see how that all works.
+and the reason is that netfs_i_context_init() is passed a 'struct inode'
+pointer, and then it does
 
-This function could be rewritten to make the use of that tracker
-variable more obviously safe, but for now I'm just adding the forced
-initialization of it.
+        struct netfs_i_context *ctx = netfs_i_context(inode);
 
+        memset(ctx, 0, sizeof(*ctx));
+
+where that netfs_i_context() function just does pointer arithmetic on
+the inode pointer, knowing that the netfs_i_context is laid out
+immediately after it in memory.
+
+This is all truly disgusting, since the whole "netfs_i_context is laid
+out immediately after it in memory" is not actually remotely true in
+general, but is just made to be that way for afs and ceph.
+
+See for example fs/cifs/cifsglob.h:
+
+  struct cifsInodeInfo {
+        struct {
+                /* These must be contiguous */
+                struct inode    vfs_inode;      /* the VFS's inode record */
+                struct netfs_i_context netfs_ctx; /* Netfslib context */
+        };
+	[...]
+
+and realize that this is all entirely wrong, and the pointer arithmetic
+that netfs_i_context() is doing is also very very wrong and wouldn't
+give the right answer if netfs_ctx had different alignment rules from a
+'struct inode', for example).
+
+Anyway, that's just a long-winded way to say "the gcc-12 warning is
+actually quite reasonable, and our code happens to work but is pretty
+disgusting".
+
+This is getting fixed properly, but for now I made the mistake of
+thinking "the week right after the merge window tends to be calm for me
+as people take a breather" and I did a sustem upgrade.  And I got gcc-12
+as a result, so to continue merging fixes from people and not have the
+end result drown in warnings, I am fixing all these gcc-12 issues I hit.
+
+Including with these kinds of temporary fixes.
+
+Cc: Kees Cook <keescook@chromium.org>
+Cc: David Howells <dhowells@redhat.com>
+Link: https://lore.kernel.org/all/AEEBCF5D-8402-441D-940B-105AA718C71F@chromium.org/
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/afs/inode.c  | 3 +++
+ fs/ceph/inode.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-index c19d9327095b..bf1c5dc419c3 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-@@ -435,7 +435,7 @@ static void mlx5_do_bond(struct mlx5_lag *ldev)
- {
- 	struct mlx5_core_dev *dev0 = ldev->pf[MLX5_LAG_P1].dev;
- 	struct mlx5_core_dev *dev1 = ldev->pf[MLX5_LAG_P2].dev;
--	struct lag_tracker tracker;
-+	struct lag_tracker tracker = { };
- 	bool do_bond, roce_lag;
- 	int err;
+diff --git a/fs/afs/inode.c b/fs/afs/inode.c
+index a47666ba48f5..5c5b3cb05a5f 100644
+--- a/fs/afs/inode.c
++++ b/fs/afs/inode.c
+@@ -25,6 +25,9 @@
+ #include "internal.h"
+ #include "afs_fs.h"
  
++// Temporary: netfs does disgusting things with inode pointers
++#pragma GCC diagnostic ignored "-Wattribute-warning"
++
+ static const struct inode_operations afs_symlink_inode_operations = {
+ 	.get_link	= page_get_link,
+ };
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 42e449d3f18b..2fc5ea85f08d 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -20,6 +20,9 @@
+ #include "cache.h"
+ #include <linux/ceph/decode.h>
+ 
++// Temporary: netfs does disgusting things with inode pointers
++#pragma GCC diagnostic ignored "-Wattribute-warning"
++
+ /*
+  * Ceph inode operations
+  *
 -- 
 2.35.1
 
