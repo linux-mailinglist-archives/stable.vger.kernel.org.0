@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D940D54B939
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 305F954B94B
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:46:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236673AbiFNSp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 14:45:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59192 "EHLO
+        id S1357412AbiFNSpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 14:45:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357557AbiFNSnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:43:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C8724C427;
-        Tue, 14 Jun 2022 11:42:39 -0700 (PDT)
+        with ESMTP id S234310AbiFNSpH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:45:07 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83E2F4BB83;
+        Tue, 14 Jun 2022 11:43:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC5BF617B3;
-        Tue, 14 Jun 2022 18:42:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBE22C3411B;
-        Tue, 14 Jun 2022 18:42:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C1A64CE1C16;
+        Tue, 14 Jun 2022 18:43:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5B09C3411B;
+        Tue, 14 Jun 2022 18:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655232158;
-        bh=BCQ+CBR2j0aI2tWAtEWTf0uFGj9R1Qr5poi6U2kqCaw=;
+        s=korg; t=1655232208;
+        bh=39kRTCXjxG+6omLpX2d9jRF2OOAe/np4h4XxJuM6/oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1TkCgPf0xEdcrA22HbUK3iTp7chRiLIUGNguDm20dzZzcoQ/ia1L5tghnUYg1vPl
-         3TCqejwNFgp146PNK6RB2id4VJP1Utt5mme4p3wBznM3lsGC96hJGwBnbxQbjCLsh3
-         zfckUIM5fAowBvLuD4rZ1rYUqYruiZn+4jYCNbNA=
+        b=SltamFWClFEj/LP1VzWXTguZ5ECoywryBGLN5uyolfdEDsfWpYSd4wor1dI4AWnbQ
+         sRw3vwgJkVtsYiDnr/fk3+svCavN/B++c+WZHl+qoBiCwHPcxGkbbVBKgw7m/97/50
+         7PBYw7R5x+Q0kjwPhDr+zD8Kzr2o6o9QSpngHkPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>,
         Thomas Gleixner <tglx@linutronix.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 4.14 16/20] x86/speculation/mmio: Add sysfs reporting for Processor MMIO Stale Data
-Date:   Tue, 14 Jun 2022 20:40:07 +0200
-Message-Id: <20220614183727.285136608@linuxfoundation.org>
+Subject: [PATCH 4.19 07/16] x86/speculation/mmio: Enumerate Processor MMIO Stale Data bug
+Date:   Tue, 14 Jun 2022 20:40:08 +0200
+Message-Id: <20220614183722.631762010@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220614183723.328825625@linuxfoundation.org>
-References: <20220614183723.328825625@linuxfoundation.org>
+In-Reply-To: <20220614183720.928818645@linuxfoundation.org>
+References: <20220614183720.928818645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,119 +58,139 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit 8d50cdf8b8341770bc6367bce40c0c1bb0e1d5b3 upstream
+commit 51802186158c74a0304f51ab963e7c2b3a2b046f upstream
 
-Add the sysfs reporting file for Processor MMIO Stale Data
-vulnerability. It exposes the vulnerability and mitigation state similar
-to the existing files for the other hardware vulnerabilities.
+Processor MMIO Stale Data is a class of vulnerabilities that may
+expose data after an MMIO operation. For more details please refer to
+Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
+
+Add the Processor MMIO Stale Data bug enumeration. A microcode update
+adds new bits to the MSR IA32_ARCH_CAPABILITIES, define them.
 
 Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+[cascardo: adapted family names to the ones in v4.19]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/ABI/testing/sysfs-devices-system-cpu |    1 
- arch/x86/kernel/cpu/bugs.c                         |   22 +++++++++++++++++++++
- drivers/base/cpu.c                                 |    8 +++++++
- include/linux/cpu.h                                |    3 ++
- 4 files changed, 34 insertions(+)
+ arch/x86/include/asm/cpufeatures.h |    1 
+ arch/x86/include/asm/msr-index.h   |   19 ++++++++++++++++
+ arch/x86/kernel/cpu/common.c       |   43 +++++++++++++++++++++++++++++++++++--
+ 3 files changed, 61 insertions(+), 2 deletions(-)
 
---- a/Documentation/ABI/testing/sysfs-devices-system-cpu
-+++ b/Documentation/ABI/testing/sysfs-devices-system-cpu
-@@ -384,6 +384,7 @@ What:		/sys/devices/system/cpu/vulnerabi
- 		/sys/devices/system/cpu/vulnerabilities/srbds
- 		/sys/devices/system/cpu/vulnerabilities/tsx_async_abort
- 		/sys/devices/system/cpu/vulnerabilities/itlb_multihit
-+		/sys/devices/system/cpu/vulnerabilities/mmio_stale_data
- Date:		January 2018
- Contact:	Linux kernel mailing list <linux-kernel@vger.kernel.org>
- Description:	Information about CPU vulnerabilities
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1808,6 +1808,20 @@ static ssize_t tsx_async_abort_show_stat
- 		       sched_smt_active() ? "vulnerable" : "disabled");
- }
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -394,5 +394,6 @@
+ #define X86_BUG_TAA			X86_BUG(22) /* CPU is affected by TSX Async Abort(TAA) */
+ #define X86_BUG_ITLB_MULTIHIT		X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
+ #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
++#define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
  
-+static ssize_t mmio_stale_data_show_state(char *buf)
-+{
-+	if (mmio_mitigation == MMIO_MITIGATION_OFF)
-+		return sysfs_emit(buf, "%s\n", mmio_strings[mmio_mitigation]);
-+
-+	if (boot_cpu_has(X86_FEATURE_HYPERVISOR)) {
-+		return sysfs_emit(buf, "%s; SMT Host state unknown\n",
-+				  mmio_strings[mmio_mitigation]);
-+	}
-+
-+	return sysfs_emit(buf, "%s; SMT %s\n", mmio_strings[mmio_mitigation],
-+			  sched_smt_active() ? "vulnerable" : "disabled");
-+}
-+
- static char *stibp_state(void)
- {
- 	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
-@@ -1905,6 +1919,9 @@ static ssize_t cpu_show_common(struct de
- 	case X86_BUG_SRBDS:
- 		return srbds_show_state(buf);
+ #endif /* _ASM_X86_CPUFEATURES_H */
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -96,6 +96,25 @@
+ 						 * Not susceptible to
+ 						 * TSX Async Abort (TAA) vulnerabilities.
+ 						 */
++#define ARCH_CAP_SBDR_SSDP_NO		BIT(13)	/*
++						 * Not susceptible to SBDR and SSDP
++						 * variants of Processor MMIO stale data
++						 * vulnerabilities.
++						 */
++#define ARCH_CAP_FBSDP_NO		BIT(14)	/*
++						 * Not susceptible to FBSDP variant of
++						 * Processor MMIO stale data
++						 * vulnerabilities.
++						 */
++#define ARCH_CAP_PSDP_NO		BIT(15)	/*
++						 * Not susceptible to PSDP variant of
++						 * Processor MMIO stale data
++						 * vulnerabilities.
++						 */
++#define ARCH_CAP_FB_CLEAR		BIT(17)	/*
++						 * VERW clears CPU fill buffer
++						 * even on MDS_NO CPUs.
++						 */
  
-+	case X86_BUG_MMIO_STALE_DATA:
-+		return mmio_stale_data_show_state(buf);
-+
- 	default:
- 		break;
- 	}
-@@ -1956,4 +1973,9 @@ ssize_t cpu_show_srbds(struct device *de
- {
- 	return cpu_show_common(dev, attr, buf, X86_BUG_SRBDS);
- }
-+
-+ssize_t cpu_show_mmio_stale_data(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
-+}
- #endif
---- a/drivers/base/cpu.c
-+++ b/drivers/base/cpu.c
-@@ -558,6 +558,12 @@ ssize_t __weak cpu_show_srbds(struct dev
- 	return sprintf(buf, "Not affected\n");
- }
+ #define MSR_IA32_FLUSH_CMD		0x0000010b
+ #define L1D_FLUSH			BIT(0)	/*
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1019,18 +1019,39 @@ static const __initconst struct x86_cpu_
+ 					    X86_FEATURE_ANY, issues)
  
-+ssize_t __weak cpu_show_mmio_stale_data(struct device *dev,
-+					struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "Not affected\n");
-+}
-+
- static DEVICE_ATTR(meltdown, 0444, cpu_show_meltdown, NULL);
- static DEVICE_ATTR(spectre_v1, 0444, cpu_show_spectre_v1, NULL);
- static DEVICE_ATTR(spectre_v2, 0444, cpu_show_spectre_v2, NULL);
-@@ -567,6 +573,7 @@ static DEVICE_ATTR(mds, 0444, cpu_show_m
- static DEVICE_ATTR(tsx_async_abort, 0444, cpu_show_tsx_async_abort, NULL);
- static DEVICE_ATTR(itlb_multihit, 0444, cpu_show_itlb_multihit, NULL);
- static DEVICE_ATTR(srbds, 0444, cpu_show_srbds, NULL);
-+static DEVICE_ATTR(mmio_stale_data, 0444, cpu_show_mmio_stale_data, NULL);
+ #define SRBDS		BIT(0)
++/* CPU is affected by X86_BUG_MMIO_STALE_DATA */
++#define MMIO		BIT(1)
  
- static struct attribute *cpu_root_vulnerabilities_attrs[] = {
- 	&dev_attr_meltdown.attr,
-@@ -578,6 +585,7 @@ static struct attribute *cpu_root_vulner
- 	&dev_attr_tsx_async_abort.attr,
- 	&dev_attr_itlb_multihit.attr,
- 	&dev_attr_srbds.attr,
-+	&dev_attr_mmio_stale_data.attr,
- 	NULL
+ static const struct x86_cpu_id cpu_vuln_blacklist[] __initconst = {
+ 	VULNBL_INTEL_STEPPINGS(IVYBRIDGE,	X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(HASWELL_CORE,	X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(HASWELL_ULT,	X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(HASWELL_GT3E,	X86_STEPPING_ANY,		SRBDS),
++	VULNBL_INTEL_STEPPINGS(HASWELL_X,	BIT(2) | BIT(4),		MMIO),
++	VULNBL_INTEL_STEPPINGS(BROADWELL_XEON_D,X86_STEPPINGS(0x3, 0x5),	MMIO),
+ 	VULNBL_INTEL_STEPPINGS(BROADWELL_GT3E,	X86_STEPPING_ANY,		SRBDS),
++	VULNBL_INTEL_STEPPINGS(BROADWELL_X,	X86_STEPPING_ANY,		MMIO),
+ 	VULNBL_INTEL_STEPPINGS(BROADWELL_CORE,	X86_STEPPING_ANY,		SRBDS),
++	VULNBL_INTEL_STEPPINGS(SKYLAKE_MOBILE,	X86_STEPPINGS(0x3, 0x3),	SRBDS | MMIO),
+ 	VULNBL_INTEL_STEPPINGS(SKYLAKE_MOBILE,	X86_STEPPING_ANY,		SRBDS),
++	VULNBL_INTEL_STEPPINGS(SKYLAKE_X,	BIT(3) | BIT(4) | BIT(6) |
++						BIT(7) | BIT(0xB),              MMIO),
++	VULNBL_INTEL_STEPPINGS(SKYLAKE_DESKTOP,	X86_STEPPINGS(0x3, 0x3),	SRBDS | MMIO),
+ 	VULNBL_INTEL_STEPPINGS(SKYLAKE_DESKTOP,	X86_STEPPING_ANY,		SRBDS),
+-	VULNBL_INTEL_STEPPINGS(KABYLAKE_MOBILE,	X86_STEPPINGS(0x0, 0xC),	SRBDS),
+-	VULNBL_INTEL_STEPPINGS(KABYLAKE_DESKTOP,X86_STEPPINGS(0x0, 0xD),	SRBDS),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE_MOBILE,	X86_STEPPINGS(0x9, 0xC),	SRBDS | MMIO),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE_MOBILE,	X86_STEPPINGS(0x0, 0x8),	SRBDS),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE_DESKTOP,X86_STEPPINGS(0x9, 0xD),	SRBDS | MMIO),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE_DESKTOP,X86_STEPPINGS(0x0, 0x8),	SRBDS),
++	VULNBL_INTEL_STEPPINGS(ICELAKE_MOBILE,	X86_STEPPINGS(0x5, 0x5),	MMIO),
++	VULNBL_INTEL_STEPPINGS(ICELAKE_XEON_D,	X86_STEPPINGS(0x1, 0x1),	MMIO),
++	VULNBL_INTEL_STEPPINGS(ICELAKE_X,	X86_STEPPINGS(0x4, 0x6),	MMIO),
++	VULNBL_INTEL_STEPPINGS(COMETLAKE,	BIT(2) | BIT(3) | BIT(5),	MMIO),
++	VULNBL_INTEL_STEPPINGS(COMETLAKE_L,	X86_STEPPINGS(0x0, 0x1),	MMIO),
++	VULNBL_INTEL_STEPPINGS(LAKEFIELD,	X86_STEPPINGS(0x1, 0x1),	MMIO),
++	VULNBL_INTEL_STEPPINGS(ROCKETLAKE,	X86_STEPPINGS(0x1, 0x1),	MMIO),
++	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT,	X86_STEPPINGS(0x1, 0x1),	MMIO),
++	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_X,	X86_STEPPING_ANY,		MMIO),
++	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_L,	X86_STEPPINGS(0x0, 0x0),	MMIO),
+ 	{}
  };
  
---- a/include/linux/cpu.h
-+++ b/include/linux/cpu.h
-@@ -65,6 +65,9 @@ extern ssize_t cpu_show_tsx_async_abort(
- extern ssize_t cpu_show_itlb_multihit(struct device *dev,
- 				      struct device_attribute *attr, char *buf);
- extern ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr, char *buf);
-+extern ssize_t cpu_show_mmio_stale_data(struct device *dev,
-+					struct device_attribute *attr,
-+					char *buf);
+@@ -1051,6 +1072,13 @@ u64 x86_read_arch_cap_msr(void)
+ 	return ia32_cap;
+ }
  
- extern __printf(4, 5)
- struct device *cpu_device_create(struct device *parent, void *drvdata,
++static bool arch_cap_mmio_immune(u64 ia32_cap)
++{
++	return (ia32_cap & ARCH_CAP_FBSDP_NO &&
++		ia32_cap & ARCH_CAP_PSDP_NO &&
++		ia32_cap & ARCH_CAP_SBDR_SSDP_NO);
++}
++
+ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+ {
+ 	u64 ia32_cap = x86_read_arch_cap_msr();
+@@ -1108,6 +1136,17 @@ static void __init cpu_set_bug_bits(stru
+ 	    cpu_matches(cpu_vuln_blacklist, SRBDS))
+ 		    setup_force_cpu_bug(X86_BUG_SRBDS);
+ 
++	/*
++	 * Processor MMIO Stale Data bug enumeration
++	 *
++	 * Affected CPU list is generally enough to enumerate the vulnerability,
++	 * but for virtualization case check for ARCH_CAP MSR bits also, VMM may
++	 * not want the guest to enumerate the bug.
++	 */
++	if (cpu_matches(cpu_vuln_blacklist, MMIO) &&
++	    !arch_cap_mmio_immune(ia32_cap))
++		setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
++
+ 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
+ 		return;
+ 
 
 
