@@ -2,95 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73AD654B171
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 14:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24BF654B17B
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 14:55:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238198AbiFNMq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 08:46:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57282 "EHLO
+        id S242734AbiFNMqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 08:46:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230242AbiFNMq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 08:46:26 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC37A25C5;
-        Tue, 14 Jun 2022 05:46:25 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 57CCDCE1A61;
-        Tue, 14 Jun 2022 12:46:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29EC6C3411B;
-        Tue, 14 Jun 2022 12:46:22 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="WMWq0Q9+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1655210780;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=a24vScTvDuME+U5MDKRIsojxatkHN7usJ0fFarEAOCY=;
-        b=WMWq0Q9+Kr2x7BTbvPrsKUi68ujqgjV+JGFj0tYuvAVoS+eBVw3TO4KNpzQScFppRRbBF6
-        PDvHsxE8NGzv7vMCGq7zUPX2uMhIkDg6xmVVW9UK+XmHyO3UI9vBQmMwLpM32pGh7XaNng
-        PeLoe4R49NxS/5MX4g5/hMS2mehnkBk=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 54afb29e (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Tue, 14 Jun 2022 12:46:20 +0000 (UTC)
-Received: by mail-yb1-f171.google.com with SMTP id u99so14926003ybi.11;
-        Tue, 14 Jun 2022 05:46:19 -0700 (PDT)
-X-Gm-Message-State: AJIora+vxzcCyCZm8PCCxcni8zvbjRtzXUA8YGR/HocGudoy6CrFnzKr
-        NTiRPS4l5liGaO9tt3CYOZdJeY6Kvr3phBvLwzs=
-X-Google-Smtp-Source: AGRyM1uX4casWjYd97Aut7HmBEw607jL45IC028epDHI6yKq25txGW144MeVgT50n2RxIxRCb8PW1oA/d4w/xat42Xs=
-X-Received: by 2002:a5b:dcf:0:b0:64a:6923:bbba with SMTP id
- t15-20020a5b0dcf000000b0064a6923bbbamr4978842ybr.398.1655210778879; Tue, 14
- Jun 2022 05:46:18 -0700 (PDT)
+        with ESMTP id S243000AbiFNMqd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 08:46:33 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C9E2511461;
+        Tue, 14 Jun 2022 05:46:32 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A47261650;
+        Tue, 14 Jun 2022 05:46:32 -0700 (PDT)
+Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 70F723F73B;
+        Tue, 14 Jun 2022 05:46:31 -0700 (PDT)
+From:   Suzuki K Poulose <suzuki.poulose@arm.com>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        stable@vger.kernel.org, Jchao Sun <sunjunchao2870@gmail.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH] writeback: Avoid grabbing the wb if the we don't add it to dirty list
+Date:   Tue, 14 Jun 2022 13:46:18 +0100
+Message-Id: <20220614124618.2830569-1-suzuki.poulose@arm.com>
+X-Mailer: git-send-email 2.35.3
 MIME-Version: 1.0
-References: <20220614020602.1098943-1-sashal@kernel.org> <20220614020602.1098943-37-sashal@kernel.org>
- <YqhMLdFUi9ioVuam@zx2c4.com>
-In-Reply-To: <YqhMLdFUi9ioVuam@zx2c4.com>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Tue, 14 Jun 2022 14:46:07 +0200
-X-Gmail-Original-Message-ID: <CAHmME9ptd4eGs_=J8DYPi5Kh_MgFQeO1WoRn=kzu-=PQVdSYpg@mail.gmail.com>
-Message-ID: <CAHmME9ptd4eGs_=J8DYPi5Kh_MgFQeO1WoRn=kzu-=PQVdSYpg@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.17 37/43] random: credit cpu and bootloader
- seeds by default
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+Commit 10e14073107d moved grabbing the wb for an inode early enough,
+skipping the checks whether if this inode needs to be really added
+to the dirty list (backed by blockdev or unhashed inode). This causes
+a crash with kdevtmpfs as below, on an arm64 Juno board, as below:
 
-Small mistake in my comment:
+[    1.446493] printk: console [ttyAMA0] printing thread started
+[    1.447195] printk: bootconsole [pl11] printing thread stopped
+[    1.467193] Unable to handle kernel paging request at virtual address ffff800871242000
+[    1.467793] Mem abort info:
+[    1.468093]   ESR = 0x0000000096000005
+[    1.468413]   EC = 0x25: DABT (current EL), IL = 32 bits
+[    1.468741]   SET = 0, FnV = 0
+[    1.469093]   EA = 0, S1PTW = 0
+[    1.469396]   FSC = 0x05: level 1 translation fault
+[    1.470493] Data abort info:
+[    1.470793]   ISV = 0, ISS = 0x00000005
+[    1.471093]   CM = 0, WnR = 0
+[    1.471444] swapper pgtable: 4k pages, 48-bit VAs, 	pgdp=0000000081c10000
+[    1.471798] [ffff800871242000] pgd=10000008fffff003,
+p4d=10000008fffff003, pud=0000000000000000
+[    1.472836] Internal error: Oops: 96000005 [#1] PREEMPT SMP
+[    1.472918] Modules linked in:
+[    1.473085] CPU: 1 PID: 35 Comm: kdevtmpfs Tainted: G T 5.19.0-rc1+ #49
+[    1.473246] Hardware name: Foundation-v8A (DT)
+[    1.473345] pstate: 40400009 (nZcv daif +PAN -UAO -TCO -DIT 	-SSBS BTYPE=--)
+[    1.473493] pc : locked_inode_to_wb_and_lock_list+0xbc/0x2a4
+[    1.473656] lr : locked_inode_to_wb_and_lock_list+0x8c/0x2a4
+[    1.473820] sp : ffff80000b77bc10
+[    1.473901] x29: ffff80000b77bc10 x28: 0000000000000001 x27: 0000000000000004
+[    1.474193] x26: 0000000000000000 x25: ffff000800888600 x24: ffff0008008885e8
+[    1.474393] x23: ffff80000848ddd4 x22: ffff80000a754f30 x21: ffff80000a7eaaf0
+[    1.474693] x20: ffff000800888150 x19: ffff80000b6a4150 x18: ffff80000ac3ac00
+[    1.474917] x17: 0000000070526bee x16: 000000003ac581ee x15: ffff80000ac42660
+[    1.475195] x14: 0000000000000000 x13: 0000000000007a60 x12: 0000000000000002
+[    1.475428] x11: ffff80000a7eaaf0 x10: 0000000000000004 x9 : 000000008845fe88
+[    1.475622] x8 : ffff000800868000 x7 : ffff80000ab98000 x6 : 00000000114514e2
+[    1.475893] x5 : 0000000000000000 x4 : 0000000000020019 x3 : 0000000000000001
+[    1.476113] x2 : ffff800871242000 x1 : ffff800871242000 x0 : ffff000800868000
+[    1.476393] Call trace:
+[    1.476493]  locked_inode_to_wb_and_lock_list+0xbc/0x2a4
+[    1.476605]  __mark_inode_dirty+0x3d8/0x6e0
+[    1.476793]  simple_setattr+0x5c/0x84
+[    1.476933]  notify_change+0x3ec/0x470
+[    1.477096]  handle_create+0x1b8/0x224
+[    1.477193]  devtmpfsd+0x98/0xf8
+[    1.477342]  kthread+0x124/0x130
+[    1.477512]  ret_from_fork+0x10/0x20
+[    1.477670] Code: b9000802 d2800023 d53cd042 8b020021 (f823003f)
+[    1.477793] ---[ end trace 0000000000000000 ]---
+[    1.478093] note: kdevtmpfs[35] exited with preempt_count 2
 
-On Tue, Jun 14, 2022 at 10:52 AM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
->
-> Hi Sasha,
->
-> On Mon, Jun 13, 2022 at 10:05:56PM -0400, Sasha Levin wrote:
-> > From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-> >
-> > [ Upstream commit 846bb97e131d7938847963cca00657c995b1fce1 ]
->
-> Two things regarding this commit:
->
-> 1) If you're going to AUTOSEL this for 5.18, 5.17, and 5.15, then you
->    also need to do the same for 5.10 also.
+The problem was bisected to the above commit and moving the bail check
+early solves the problem for me.
 
-This is correct.
+Fixes: 10e14073107d ("writeback: Fix inode->i_io_list not be protected by inode->i_lock error")
+CC: stable@vger.kernel.org
+Cc: Jchao Sun <sunjunchao2870@gmail.com>
+Cc: Jan Kara <jack@suse.cz>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+---
+ fs/fs-writeback.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
->
-> 2) If you're going to pick this commit, please also pick its follow-up,
->    e052a478a7daeca67664f7addd308ff51dd40654, which likewise should apply
->    to all four versions.
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 05221366a16d..cf68114af68b 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -2416,6 +2416,14 @@ void __mark_inode_dirty(struct inode *inode, int flags)
+ 			inode->i_state &= ~I_DIRTY_TIME;
+ 		inode->i_state |= flags;
+ 
++		/*
++		 * Only add valid (hashed) inodes to the superblock's
++		 * dirty list.  Add blockdev inodes as well.
++		 */
++		if (!S_ISBLK(inode->i_mode)) {
++			if (inode_unhashed(inode))
++				goto out_unlock_inode;
++		}
+ 		/*
+ 		 * Grab inode's wb early because it requires dropping i_lock and we
+ 		 * need to make sure following checks happen atomically with dirty
+@@ -2436,14 +2444,6 @@ void __mark_inode_dirty(struct inode *inode, int flags)
+ 		if (inode->i_state & I_SYNC_QUEUED)
+ 			goto out_unlock;
+ 
+-		/*
+-		 * Only add valid (hashed) inodes to the superblock's
+-		 * dirty list.  Add blockdev inodes as well.
+-		 */
+-		if (!S_ISBLK(inode->i_mode)) {
+-			if (inode_unhashed(inode))
+-				goto out_unlock;
+-		}
+ 		if (inode->i_state & I_FREEING)
+ 			goto out_unlock;
+ 
+-- 
+2.35.3
 
-This is incorrect.
-
-Jason
