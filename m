@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D471C54A5C0
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4BC554A57B
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351414AbiFNCP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:15:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57658 "EHLO
+        id S1353614AbiFNCQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:16:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353785AbiFNCOF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:14:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A75B3AA58;
-        Mon, 13 Jun 2022 19:08:13 -0700 (PDT)
+        with ESMTP id S1353946AbiFNCOK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:14:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C2DB3B289;
+        Mon, 13 Jun 2022 19:08:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3BE260F1C;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20E61B80AC1;
+        Tue, 14 Jun 2022 02:08:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4C21C36B00;
         Tue, 14 Jun 2022 02:08:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42CC0C341C4;
-        Tue, 14 Jun 2022 02:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172493;
-        bh=7lHSFtUY1PHqrzclwXoAD8WLofsBbD+ZxJnchOu5vQQ=;
+        s=k20201202; t=1655172494;
+        bh=8el3SqLdZcIbqsykJyEZKxNlrqeGOrQgzCDXMo6yEMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M8AQVi4GtfG4hbw3ye4XkZfdjYB+tBXomqDsaeq7x3ErouQV8BeiMJLr6bAekZyog
-         /Artt8I+iS+fKCiv/BD01DVyD/RQLMyQ/aZuCvU3XUYFYD3sMmA4FJ38+a9yMvgMGM
-         KiEKPss6WqxMFEWzzEofMgXZofsMBUSJMM9A9elQrsth81/+xiIju8Omhe7HOlzlJD
-         55VngVP7D1HwXjJaX9CzXiw4dRuriCT2XpVB33P9mnXgRTw2QJX0usfDy1G3ky02Wy
-         mbS6gnUm7XveWdhZJpCzRJLyJJza4tFPxAXqX95UaMH366yPhsqq2stnrFDfENpFwm
-         uHIxF1QubIPzA==
+        b=p0j16W7EGkbAEGjvsJHnnmfQp5oB4O4/Nua0rutk5sm0C1yM31wE0ujRloW55sw5u
+         htfz+BnB8fJ4EAnF3u5JAXwm7KPIJPHVAo42mn5m9bs5VPIAcWRnyuy4wMM5fbByxB
+         SaKkq6fia6UcNOWOPAh5ocfqN3pG7Ae/vB2GqTxsdnMxGBlbYiRX3YSAoUcAEkSh+F
+         UOD117EP03A8tVZ9QqDwvg1M6rIbbrxe9ppjYH8UjvWDhqmZMYvuNowbLnh0b+C3o3
+         zJYMOPszoCytu1ndMEG9H8q5E4RT6xFV2TcfM/ZDBukFrePITQGQhHs4GV0U6smGCq
+         XY1QR3DBf+/hA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     August Wikerfors <git@augustwikerfors.se>,
+Cc:     Duke Lee <krnhotwings@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>, dvhart@infradead.org,
         platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 40/41] platform/x86: gigabyte-wmi: Add support for B450M DS3H-CF
-Date:   Mon, 13 Jun 2022 22:07:05 -0400
-Message-Id: <20220614020707.1099487-40-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 41/41] platform/x86/intel: hid: Add Surface Go to VGBS allow list
+Date:   Mon, 13 Jun 2022 22:07:06 -0400
+Message-Id: <20220614020707.1099487-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614020707.1099487-1-sashal@kernel.org>
 References: <20220614020707.1099487-1-sashal@kernel.org>
@@ -57,32 +58,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: August Wikerfors <git@augustwikerfors.se>
+From: Duke Lee <krnhotwings@gmail.com>
 
-[ Upstream commit c6bc7e8ee90845556a90faf8b043cbefd77b8903 ]
+[ Upstream commit d4fe9cc4ff8656704b58cfd9363d7c3c9d65e519 ]
 
-Tested and works on my system.
+The Surface Go reports Chassis Type 9 (Laptop,) so the device needs to be
+added to dmi_vgbs_allow_list to enable tablet mode when an attached Type
+Cover is folded back.
 
-Signed-off-by: August Wikerfors <git@augustwikerfors.se>
-Link: https://lore.kernel.org/r/20220608212028.28307-1-git@augustwikerfors.se
+BugLink: https://github.com/linux-surface/linux-surface/issues/837
+Signed-off-by: Duke Lee <krnhotwings@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220607213654.5567-1-krnhotwings@gmail.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/gigabyte-wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/x86/intel/hid.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
-index ad4f789309d6..ebd15c1d13ec 100644
---- a/drivers/platform/x86/gigabyte-wmi.c
-+++ b/drivers/platform/x86/gigabyte-wmi.c
-@@ -140,6 +140,7 @@ static u8 gigabyte_wmi_detect_sensor_usability(struct wmi_device *wdev)
- 	}}
+diff --git a/drivers/platform/x86/intel/hid.c b/drivers/platform/x86/intel/hid.c
+index e9e8554147e0..d7d6782c40c2 100644
+--- a/drivers/platform/x86/intel/hid.c
++++ b/drivers/platform/x86/intel/hid.c
+@@ -129,6 +129,12 @@ static const struct dmi_system_id dmi_vgbs_allow_list[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Convertible 15-df0xxx"),
+ 		},
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Surface Go"),
++		},
++	},
+ 	{ }
+ };
  
- static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
-+	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M DS3H-CF"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M S2H V2"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE AX V2"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE"),
 -- 
 2.35.1
 
