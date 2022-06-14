@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C59AD54A5D0
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E8CA54A5E8
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:23:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353194AbiFNCTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:19:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43360 "EHLO
+        id S1354037AbiFNCVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:21:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354602AbiFNCT0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:19:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A7523ED3B;
-        Mon, 13 Jun 2022 19:09:56 -0700 (PDT)
+        with ESMTP id S1354961AbiFNCTg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:19:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47C923F334;
+        Mon, 13 Jun 2022 19:10:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A88E9B8169E;
-        Tue, 14 Jun 2022 02:09:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 268D2C34114;
-        Tue, 14 Jun 2022 02:09:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F9B060F1C;
+        Tue, 14 Jun 2022 02:09:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB1E2C3411E;
+        Tue, 14 Jun 2022 02:09:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172594;
-        bh=R/DU5ussio9VSKRaz4p16oSabeAx7muJAL9aw2UUGzQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=p3kv65/sGCfvp+lWIhyNs7qXEUFpLRnA9eTBye/+FDomA/o9MrI3aU8kHC3aT/aq4
-         oyMv9o+6R/qXovf/cOclFpKaBgAiezt8lRYjH4Q6NKdbs5pRUXyTxbbfImuKcAvVuM
-         vEnMO4gScWyN3CNmqfKYgG4lu+KxWTy+Ez4u+7O3w9N5liI70vU1+s2p7Ev9HwM3TA
-         g6YCrFK3ZepB0uR5T1MEaP13XBeuUA3cwQSB7JSNrPRY770ZJob/Z/bnIOL3CM7n2W
-         nsQqLBVhnMl9FyBTz+qke1KhZtUpgYO4kEsoImAmO4Y6kRyAunfSQ4RTF6DsLoJgxK
-         wCvlWNJBCE2Fw==
+        s=k20201202; t=1655172596;
+        bh=c3ud9S4vhjy1BsuMLPZWl1hEAv4mc5Zqf23XgggN7A0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=mENqxUggdMY7kvtByQycsmNqSpJeoZpvRPfpxe/sNPSue4sdbClf4b5Erye+8N8Gg
+         9Ih0JBoEX6Qz7LOQvE5gkUxC/j86h3uLCD0QFq6POqRRlu4Rma0AsTnzycHn+jmF30
+         r7HowlGHVHHkj0kGeLmb+cOllFIMhM9YeanA/raL1huIyF/2PzoF1D9lm8fTQG/Tqc
+         Qllj5svjRifBH65A7AWVIRQgE2qI+aui8TMywFAweKquZR4VIqrpP4wesU5gJE2UKA
+         byRMlBdkSiHCKqxrhrMV6hyHxjv6jg3Hc7euFxv2oqWqX4KwnxoD2uYhxXX6csFHMM
+         3kGDqagUWMQeA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     He Ying <heying24@huawei.com>, Wanming Hu <huwanming@huaweil.com>,
-        Chen Jingwen <chenjingwen6@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, benh@kernel.crashing.org,
-        paulus@samba.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 01/18] powerpc/kasan: Silence KASAN warnings in __get_wchan()
-Date:   Mon, 13 Jun 2022 22:09:24 -0400
-Message-Id: <20220614020941.1100702-1-sashal@kernel.org>
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, brian.austin@cirrus.com,
+        Paul.Handrigan@cirrus.com, lgirdwood@gmail.com, perex@perex.cz,
+        tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 02/18] ASoC: cs42l52: Fix TLV scales for mixer controls
+Date:   Mon, 13 Jun 2022 22:09:25 -0400
+Message-Id: <20220614020941.1100702-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220614020941.1100702-1-sashal@kernel.org>
+References: <20220614020941.1100702-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,89 +58,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: He Ying <heying24@huawei.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit a1b29ba2f2c171b9bea73be993bfdf0a62d37d15 ]
+[ Upstream commit 8bf5aabf524eec61013e506f764a0b2652dc5665 ]
 
-The following KASAN warning was reported in our kernel.
+The datasheet specifies the range of the mixer volumes as between
+-51.5dB and 12dB with a 0.5dB step. Update the TLVs for this.
 
-  BUG: KASAN: stack-out-of-bounds in get_wchan+0x188/0x250
-  Read of size 4 at addr d216f958 by task ps/14437
-
-  CPU: 3 PID: 14437 Comm: ps Tainted: G           O      5.10.0 #1
-  Call Trace:
-  [daa63858] [c0654348] dump_stack+0x9c/0xe4 (unreliable)
-  [daa63888] [c035cf0c] print_address_description.constprop.3+0x8c/0x570
-  [daa63908] [c035d6bc] kasan_report+0x1ac/0x218
-  [daa63948] [c00496e8] get_wchan+0x188/0x250
-  [daa63978] [c0461ec8] do_task_stat+0xce8/0xe60
-  [daa63b98] [c0455ac8] proc_single_show+0x98/0x170
-  [daa63bc8] [c03cab8c] seq_read_iter+0x1ec/0x900
-  [daa63c38] [c03cb47c] seq_read+0x1dc/0x290
-  [daa63d68] [c037fc94] vfs_read+0x164/0x510
-  [daa63ea8] [c03808e4] ksys_read+0x144/0x1d0
-  [daa63f38] [c005b1dc] ret_from_syscall+0x0/0x38
-  --- interrupt: c00 at 0x8fa8f4
-      LR = 0x8fa8cc
-
-  The buggy address belongs to the page:
-  page:98ebcdd2 refcount:0 mapcount:0 mapping:00000000 index:0x2 pfn:0x1216f
-  flags: 0x0()
-  raw: 00000000 00000000 01010122 00000000 00000002 00000000 ffffffff 00000000
-  raw: 00000000
-  page dumped because: kasan: bad access detected
-
-  Memory state around the buggy address:
-   d216f800: 00 00 00 00 00 f1 f1 f1 f1 00 00 00 00 00 00 00
-   d216f880: f2 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  >d216f900: 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00
-                                            ^
-   d216f980: f2 f2 f2 f2 f2 f2 f2 00 00 00 00 00 00 00 00 00
-   d216fa00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-After looking into this issue, I find the buggy address belongs
-to the task stack region. It seems KASAN has something wrong.
-I look into the code of __get_wchan in x86 architecture and
-find the same issue has been resolved by the commit
-f7d27c35ddff ("x86/mm, kasan: Silence KASAN warnings in get_wchan()").
-The solution could be applied to powerpc architecture too.
-
-As Andrey Ryabinin said, get_wchan() is racy by design, it may
-access volatile stack of running task, thus it may access
-redzone in a stack frame and cause KASAN to warn about this.
-
-Use READ_ONCE_NOCHECK() to silence these warnings.
-
-Reported-by: Wanming Hu <huwanming@huaweil.com>
-Signed-off-by: He Ying <heying24@huawei.com>
-Signed-off-by: Chen Jingwen <chenjingwen6@huawei.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220121014418.155675-1-heying24@huawei.com
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220602162119.3393857-2-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/process.c | 4 ++--
+ sound/soc/codecs/cs42l52.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
-index 02b69a68139c..56c33285b1df 100644
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -2017,12 +2017,12 @@ unsigned long get_wchan(struct task_struct *p)
- 		return 0;
+diff --git a/sound/soc/codecs/cs42l52.c b/sound/soc/codecs/cs42l52.c
+index 3d83c1be1292..9a3180e71bd8 100644
+--- a/sound/soc/codecs/cs42l52.c
++++ b/sound/soc/codecs/cs42l52.c
+@@ -141,7 +141,7 @@ static DECLARE_TLV_DB_SCALE(mic_tlv, 1600, 100, 0);
  
- 	do {
--		sp = *(unsigned long *)sp;
-+		sp = READ_ONCE_NOCHECK(*(unsigned long *)sp);
- 		if (!validate_sp(sp, p, STACK_FRAME_OVERHEAD) ||
- 		    p->state == TASK_RUNNING)
- 			return 0;
- 		if (count > 0) {
--			ip = ((unsigned long *)sp)[STACK_FRAME_LR_SAVE];
-+			ip = READ_ONCE_NOCHECK(((unsigned long *)sp)[STACK_FRAME_LR_SAVE]);
- 			if (!in_sched_functions(ip))
- 				return ip;
- 		}
+ static DECLARE_TLV_DB_SCALE(pga_tlv, -600, 50, 0);
+ 
+-static DECLARE_TLV_DB_SCALE(mix_tlv, -50, 50, 0);
++static DECLARE_TLV_DB_SCALE(mix_tlv, -5150, 50, 0);
+ 
+ static DECLARE_TLV_DB_SCALE(beep_tlv, -56, 200, 0);
+ 
+@@ -368,7 +368,7 @@ static const struct snd_kcontrol_new cs42l52_snd_controls[] = {
+ 			      CS42L52_ADCB_VOL, 0, 0xA0, 0x78, ipd_tlv),
+ 	SOC_DOUBLE_R_SX_TLV("ADC Mixer Volume",
+ 			     CS42L52_ADCA_MIXER_VOL, CS42L52_ADCB_MIXER_VOL,
+-				0, 0x19, 0x7F, ipd_tlv),
++				0, 0x19, 0x7F, mix_tlv),
+ 
+ 	SOC_DOUBLE("ADC Switch", CS42L52_ADC_MISC_CTL, 0, 1, 1, 0),
+ 
 -- 
 2.35.1
 
