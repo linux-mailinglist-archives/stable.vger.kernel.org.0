@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DC4D54A5F5
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:23:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC37154A553
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:21:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353787AbiFNCQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:16:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57144 "EHLO
+        id S1353014AbiFNCQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:16:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354864AbiFNCPK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:15:10 -0400
+        with ESMTP id S1354918AbiFNCPM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:15:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFEA53CFEC;
-        Mon, 13 Jun 2022 19:09:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F1E3D1C1;
+        Mon, 13 Jun 2022 19:09:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61CDD60AD8;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E3A560ED5;
+        Tue, 14 Jun 2022 02:09:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 477C8C385A2;
         Tue, 14 Jun 2022 02:09:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A7BC34114;
-        Tue, 14 Jun 2022 02:09:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172546;
-        bh=Dp+X6o7JGXE3l8yXNOOVGEEyGNzj/eM27todlgKYe/A=;
+        s=k20201202; t=1655172548;
+        bh=L4eD9J0MTtWeGzYMeXFppIGyk1FWZFElAdCvuNUix20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1xz12UZtO2vVC3awubzS0Fgmo/+fs2+M6VLouAfSa2tGHKxpmxF69S7ATEI17Xkl
-         CmyPUhYfdYarDdtq3oaj5Ov1aXN4dJ77+zAaJ+8gBQCriTP5Hm65TG4jMGaZn3Hgri
-         n3pJUqEVnktEdtnhT46cwHTk0ALOMXGQQc6dmG4RPXJerRk0k8fFf8KwS64vkBdSP6
-         BZV5+aYaj17s2UR+BV45qVo0IgBOZCZ/0D31Kv9WI0e6qzw8VixrhYcxuJ3sDhTmbg
-         /xC/rrCUhejpVOmxkaIb99MMztIXB2ejBOO4ZitIQOJWPf2F1A368lIsshnrG+/8Vt
-         IdZyW5Ao0mFfQ==
+        b=Q4c/KqM7fW+4W2Kd24MPGnaxzFBRvwevHq0fGAGvbx73zi00jH6jYwiBq0V2EnMHN
+         U6hs6vd2eMd8G/w9ez16rIWU9gjPWkPUGSJgo7295S0w8WsWhNHXYEJNFYKVfO6yKu
+         GV0yzfC9ihfGFeiS8EZ8gxzsPE0W5zzupQfXTXe94ZuXbpQ5y4xgBWEbNPgQqUwmaR
+         tKkWUIoJhznnsQhphxwSxZ3MLbJkcaeR3ghFEQ0QRvlp3f3dcL3ADUhq9XK5C8OmnB
+         iM6DoFph2+DUar2Vhqfc2Fersj2l2XbqsRPFLA1+W9XCwl83VcyPRwikx0H0p7Of7Z
+         7iq4asjbzwS5g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Clark <robdclark@chromium.org>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 03/23] dma-debug: make things less spammy under memory pressure
-Date:   Mon, 13 Jun 2022 22:08:39 -0400
-Message-Id: <20220614020900.1100401-3-sashal@kernel.org>
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, brian.austin@cirrus.com,
+        Paul.Handrigan@cirrus.com, lgirdwood@gmail.com, perex@perex.cz,
+        tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 04/23] ASoC: cs42l52: Fix TLV scales for mixer controls
+Date:   Mon, 13 Jun 2022 22:08:40 -0400
+Message-Id: <20220614020900.1100401-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614020900.1100401-1-sashal@kernel.org>
 References: <20220614020900.1100401-1-sashal@kernel.org>
@@ -55,35 +58,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit e19f8fa6ce1ca9b8b934ba7d2e8f34c95abc6e60 ]
+[ Upstream commit 8bf5aabf524eec61013e506f764a0b2652dc5665 ]
 
-Limit the error msg to avoid flooding the console.  If you have a lot of
-threads hitting this at once, they could have already gotten passed the
-dma_debug_disabled() check before they get to the point of allocation
-failure, resulting in quite a lot of this error message spamming the
-log.  Use pr_err_once() to limit that.
+The datasheet specifies the range of the mixer volumes as between
+-51.5dB and 12dB with a 0.5dB step. Update the TLVs for this.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220602162119.3393857-2-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/cs42l52.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index 4dc3bbfd3e3f..e1a7d55ee33a 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -616,7 +616,7 @@ static void add_dma_entry(struct dma_debug_entry *entry)
+diff --git a/sound/soc/codecs/cs42l52.c b/sound/soc/codecs/cs42l52.c
+index 2ea4cba3be2a..0daa3b4c68ca 100644
+--- a/sound/soc/codecs/cs42l52.c
++++ b/sound/soc/codecs/cs42l52.c
+@@ -137,7 +137,7 @@ static DECLARE_TLV_DB_SCALE(mic_tlv, 1600, 100, 0);
  
- 	rc = active_cacheline_insert(entry);
- 	if (rc == -ENOMEM) {
--		pr_err("cacheline tracking ENOMEM, dma-debug disabled\n");
-+		pr_err_once("cacheline tracking ENOMEM, dma-debug disabled\n");
- 		global_disable = true;
- 	}
+ static DECLARE_TLV_DB_SCALE(pga_tlv, -600, 50, 0);
+ 
+-static DECLARE_TLV_DB_SCALE(mix_tlv, -50, 50, 0);
++static DECLARE_TLV_DB_SCALE(mix_tlv, -5150, 50, 0);
+ 
+ static DECLARE_TLV_DB_SCALE(beep_tlv, -56, 200, 0);
+ 
+@@ -364,7 +364,7 @@ static const struct snd_kcontrol_new cs42l52_snd_controls[] = {
+ 			      CS42L52_ADCB_VOL, 0, 0xA0, 0x78, ipd_tlv),
+ 	SOC_DOUBLE_R_SX_TLV("ADC Mixer Volume",
+ 			     CS42L52_ADCA_MIXER_VOL, CS42L52_ADCB_MIXER_VOL,
+-				0, 0x19, 0x7F, ipd_tlv),
++				0, 0x19, 0x7F, mix_tlv),
+ 
+ 	SOC_DOUBLE("ADC Switch", CS42L52_ADC_MISC_CTL, 0, 1, 1, 0),
  
 -- 
 2.35.1
