@@ -2,63 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD11F54B55B
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 18:07:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F60D54B628
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 18:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245561AbiFNQGN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 12:06:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46798 "EHLO
+        id S244790AbiFNQ3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 12:29:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350666AbiFNQGL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 12:06:11 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886D7403F3;
-        Tue, 14 Jun 2022 09:06:06 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id E569321BBA;
-        Tue, 14 Jun 2022 16:06:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1655222764; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ht6Whw6ioPLeueQTxC9Ha3h0V8Ww4XjvIrqxSFuLjqw=;
-        b=GMisu2vHmv72WyDbujf2KPzsM13U+k9nvHoaWocI0Oc0YhkuV2p+uFNG+oP/YtfDV3SaOR
-        IU1oL0KdpzDxFXz43an85TuBXCJYBS+3B3WkJDBBLlOfPxoNh6cADTCoFvZ9D3s05ItnwS
-        MlVN/5XiPggkeEMbLHX61U5wlW3r/ic=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1655222764;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ht6Whw6ioPLeueQTxC9Ha3h0V8Ww4XjvIrqxSFuLjqw=;
-        b=UvyrlFMEupjWSn04+fdi3nd37N+XJ89puaf2z0dKSNQjfHq1G8lMVYBjFSw3D53zYtXJnL
-        PzitJrsOt4aEXfDA==
-Received: from quack3.suse.cz (unknown [10.163.28.18])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id CE62A2C141;
-        Tue, 14 Jun 2022 16:06:04 +0000 (UTC)
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id DBA6CA0639; Tue, 14 Jun 2022 18:06:03 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     <linux-ext4@vger.kernel.org>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
-Subject: [PATCH 05/10] ext4: Fix race when reusing xattr blocks
-Date:   Tue, 14 Jun 2022 18:05:19 +0200
-Message-Id: <20220614160603.20566-5-jack@suse.cz>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220614124146.21594-1-jack@suse.cz>
-References: <20220614124146.21594-1-jack@suse.cz>
+        with ESMTP id S1343944AbiFNQ2Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 12:28:25 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCDDF1E3ED
+        for <stable@vger.kernel.org>; Tue, 14 Jun 2022 09:28:24 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25EGSJ3S014303;
+        Tue, 14 Jun 2022 16:28:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=EHA1hEUxvXe/uTslOlpJbTg+SimmOwvnQX97fqVVgxY=;
+ b=njmpRKKMZ3ou2IYwAdefyBN8s992JRjnWxJ+RvaN4w2I5nWgnc0DEXD+CSgkAWYL546b
+ RuwYCngGWNYykJEidId5Gg+Z2vCYGRrZ92yVCHiIkZpeJKmx2Yv8Vc+CaiGlYWqqPgjT
+ Xi0HuDYUgn5T6E4L13hW2RQXuDInR+zinVwxoQPBkBoJHNZCQx0RSz5ZAKoD+7aHFZaw
+ tfZxdF+Tw17U4DWlJACI7GcxXqw4D9ciH9IrR/+CnFF6nll00qluaeCUMOJqsVfiS8EB
+ ZKDftcy8IBHq2gRZ8T4kwgnKchO4LVps+9s0rHTCffCdqwQ2f+SxNbR70sKXPmhJ8uk2 Dw== 
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gppw36e7y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Jun 2022 16:28:19 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25EG5dnu012346;
+        Tue, 14 Jun 2022 16:28:14 GMT
+Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
+        by ppma04dal.us.ibm.com with ESMTP id 3gmjpa2t92-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Jun 2022 16:28:14 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25EGSDb963832464
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 14 Jun 2022 16:28:13 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0B4F5AC05B;
+        Tue, 14 Jun 2022 16:28:13 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 288E5AC059;
+        Tue, 14 Jun 2022 16:28:12 +0000 (GMT)
+Received: from [9.160.59.133] (unknown [9.160.59.133])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 14 Jun 2022 16:28:12 +0000 (GMT)
+Message-ID: <ffbb07bc-b4f7-d0ae-1b0b-3a2ea76cffd4@linux.ibm.com>
+Date:   Tue, 14 Jun 2022 09:28:11 -0700
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=6212; h=from:subject; bh=7kHxMVOOMAlrU9u0MZrKUFvG7KhECCvLPtZsyfBYjbA=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBiqLG/VlxcS0Z4cHSmXorZvodXi+80TcEqhLwNQvbQ fowmf/+JATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYqixvwAKCRCcnaoHP2RA2Tb4CA DiUUxwzy7TB2ijmSd8osUNkhIzjPRi0V1hTGCmndn+C6ftLAW6l5WWrv8l91RPsY0u2IYN9CfzpYZV 2+Q1yuVo6Rbiz0cMznzSb2wzw2sXZ3qhkQH2l1uaK8eXF1p+Euc7o6gJit2+XOjQIoIWhWbju02PTl l364NnQwHPVygjLnSXDpGnmsagZvAkFRXTre/JP29Be+HsJ00N0jnUku8hzmBUmKGPEzRHv+12LfKK bmHkJtiaIzHK0wrf4jXtFWeuVJqFsP87+Jh/SDr63AOetkAVR48Tl+w9J2yXbupHbxyKDhkflD+A3o 2Pd2oJhZVLkL9C008NEN/nitjnYvcC
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH] powerpc/rtas: Allow ibm,platform-dump RTAS call with null
+ buffer address
+Content-Language: en-US
+To:     Andrew Donnellan <ajd@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org
+Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
+        Sathvika Vasireddy <sathvika@linux.ibm.com>,
+        stable@vger.kernel.org
+References: <20220614134952.156010-1-ajd@linux.ibm.com>
+From:   Tyrel Datwyler <tyreld@linux.ibm.com>
+In-Reply-To: <20220614134952.156010-1-ajd@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 8FJ0UALKts09i3LjsUmmpp4jNLUZEXcN
+X-Proofpoint-ORIG-GUID: 8FJ0UALKts09i3LjsUmmpp4jNLUZEXcN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-14_06,2022-06-13_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 bulkscore=0 adultscore=0 phishscore=0
+ spamscore=0 clxscore=1011 mlxscore=0 impostorscore=0 mlxlogscore=999
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206140062
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -67,170 +88,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When ext4_xattr_block_set() decides to remove xattr block the following
-race can happen:
+On 6/14/22 06:49, Andrew Donnellan wrote:
+> Add a special case to block_rtas_call() to allow the ibm,platform-dump RTAS
+> call through the RTAS filter if the buffer address is 0.
+> 
+> According to PAPR, ibm,platform-dump is called with a null buffer address
+> to notify the platform firmware that processing of a particular dump is
+> finished.
+> 
+> Without this, on a pseries machine with CONFIG_PPC_RTAS_FILTER enabled, an
+> application such as rtas_errd that is attempting to retrieve a dump will
+> encounter an error at the end of the retrieval process.
+> 
+> Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
+> Cc: stable@vger.kernel.org
+> Reported-by: Sathvika Vasireddy <sathvika@linux.ibm.com>
+> Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
 
-CPU1                                    CPU2
-ext4_xattr_block_set()                  ext4_xattr_release_block()
-  new_bh = ext4_xattr_block_cache_find()
+Similar to what is done for ibm,configure-connector with idx_buf2 and a NULL
+address.
 
-                                          lock_buffer(bh);
-                                          ref = le32_to_cpu(BHDR(bh)->h_refcount);
-                                          if (ref == 1) {
-                                            ...
-                                            mb_cache_entry_delete();
-                                            unlock_buffer(bh);
-                                            ext4_free_blocks();
-                                              ...
-                                              ext4_forget(..., bh, ...);
-                                                jbd2_journal_revoke(..., bh);
+Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-  ext4_journal_get_write_access(..., new_bh, ...)
-    do_get_write_access()
-      jbd2_journal_cancel_revoke(..., new_bh);
-
-Later the code in ext4_xattr_block_set() finds out the block got freed
-and cancels reusal of the block but the revoke stays canceled and so in
-case of block reuse and journal replay the filesystem can get corrupted.
-If the race works out slightly differently, we can also hit assertions
-in the jbd2 code.
-
-Fix the problem by making sure that once matching mbcache entry is
-found, code dropping the last xattr block reference (or trying to modify
-xattr block in place) waits until the mbcache entry reference is
-dropped. This way code trying to reuse xattr block is protected from
-someone trying to drop the last reference to xattr block.
-
-Reported-by: Ritesh Harjani <ritesh.list@gmail.com>
-CC: stable@vger.kernel.org
-Fixes: 82939d7999df ("ext4: convert to mbcache2")
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/ext4/xattr.c | 67 +++++++++++++++++++++++++++++++++----------------
- 1 file changed, 45 insertions(+), 22 deletions(-)
-
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index aadfae53d055..0c42c0e22cd2 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -439,9 +439,16 @@ static int ext4_xattr_inode_iget(struct inode *parent, unsigned long ea_ino,
- /* Remove entry from mbcache when EA inode is getting evicted */
- void ext4_evict_ea_inode(struct inode *inode)
- {
--	if (EA_INODE_CACHE(inode))
--		mb_cache_entry_delete(EA_INODE_CACHE(inode),
--			ext4_xattr_inode_get_hash(inode), inode->i_ino);
-+	struct mb_cache_entry *oe;
-+
-+	if (!EA_INODE_CACHE(inode))
-+		return;
-+	/* Wait for entry to get unused so that we can remove it */
-+	while ((oe = mb_cache_entry_try_delete(EA_INODE_CACHE(inode),
-+			ext4_xattr_inode_get_hash(inode), inode->i_ino))) {
-+		mb_cache_entry_wait_unused(oe);
-+		mb_cache_entry_put(EA_INODE_CACHE(inode), oe);
-+	}
- }
- 
- static int
-@@ -1229,6 +1236,7 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
- 	if (error)
- 		goto out;
- 
-+retry_ref:
- 	lock_buffer(bh);
- 	hash = le32_to_cpu(BHDR(bh)->h_hash);
- 	ref = le32_to_cpu(BHDR(bh)->h_refcount);
-@@ -1238,9 +1246,18 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
- 		 * This must happen under buffer lock for
- 		 * ext4_xattr_block_set() to reliably detect freed block
- 		 */
--		if (ea_block_cache)
--			mb_cache_entry_delete(ea_block_cache, hash,
--					      bh->b_blocknr);
-+		if (ea_block_cache) {
-+			struct mb_cache_entry *oe;
-+
-+			oe = mb_cache_entry_try_delete(ea_block_cache, hash,
-+						       bh->b_blocknr);
-+			if (oe) {
-+				unlock_buffer(bh);
-+				mb_cache_entry_wait_unused(oe);
-+				mb_cache_entry_put(ea_block_cache, oe);
-+				goto retry_ref;
-+			}
-+		}
- 		get_bh(bh);
- 		unlock_buffer(bh);
- 
-@@ -1867,9 +1884,20 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
- 			 * ext4_xattr_block_set() to reliably detect modified
- 			 * block
- 			 */
--			if (ea_block_cache)
--				mb_cache_entry_delete(ea_block_cache, hash,
--						      bs->bh->b_blocknr);
-+			if (ea_block_cache) {
-+				struct mb_cache_entry *oe;
-+
-+				oe = mb_cache_entry_try_delete(ea_block_cache,
-+					hash, bs->bh->b_blocknr);
-+				if (oe) {
-+					/*
-+					 * Xattr block is getting reused. Leave
-+					 * it alone.
-+					 */
-+					mb_cache_entry_put(ea_block_cache, oe);
-+					goto clone_block;
-+				}
-+			}
- 			ea_bdebug(bs->bh, "modifying in-place");
- 			error = ext4_xattr_set_entry(i, s, handle, inode,
- 						     true /* is_block */);
-@@ -1885,6 +1913,7 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
- 				goto cleanup;
- 			goto inserted;
- 		}
-+clone_block:
- 		unlock_buffer(bs->bh);
- 		ea_bdebug(bs->bh, "cloning");
- 		s->base = kmalloc(bs->bh->b_size, GFP_NOFS);
-@@ -1991,18 +2020,13 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
- 				lock_buffer(new_bh);
- 				/*
- 				 * We have to be careful about races with
--				 * freeing, rehashing or adding references to
--				 * xattr block. Once we hold buffer lock xattr
--				 * block's state is stable so we can check
--				 * whether the block got freed / rehashed or
--				 * not.  Since we unhash mbcache entry under
--				 * buffer lock when freeing / rehashing xattr
--				 * block, checking whether entry is still
--				 * hashed is reliable. Same rules hold for
--				 * e_reusable handling.
-+				 * adding references to xattr block. Once we
-+				 * hold buffer lock xattr block's state is
-+				 * stable so we can check the additional
-+				 * reference fits.
- 				 */
--				if (hlist_bl_unhashed(&ce->e_hash_list) ||
--				    !ce->e_reusable) {
-+				ref = le32_to_cpu(BHDR(new_bh)->h_refcount) + 1;
-+				if (ref > EXT4_XATTR_REFCOUNT_MAX) {
- 					/*
- 					 * Undo everything and check mbcache
- 					 * again.
-@@ -2017,9 +2041,8 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
- 					new_bh = NULL;
- 					goto inserted;
- 				}
--				ref = le32_to_cpu(BHDR(new_bh)->h_refcount) + 1;
- 				BHDR(new_bh)->h_refcount = cpu_to_le32(ref);
--				if (ref >= EXT4_XATTR_REFCOUNT_MAX)
-+				if (ref == EXT4_XATTR_REFCOUNT_MAX)
- 					ce->e_reusable = 0;
- 				ea_bdebug(new_bh, "reusing; refcount now=%d",
- 					  ref);
--- 
-2.35.3
+> ---
+>  arch/powerpc/kernel/rtas.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+> index a6fce3106e02..693133972294 100644
+> --- a/arch/powerpc/kernel/rtas.c
+> +++ b/arch/powerpc/kernel/rtas.c
+> @@ -1071,7 +1071,7 @@ static struct rtas_filter rtas_filters[] __ro_after_init = {
+>  	{ "get-time-of-day", -1, -1, -1, -1, -1 },
+>  	{ "ibm,get-vpd", -1, 0, -1, 1, 2 },
+>  	{ "ibm,lpar-perftools", -1, 2, 3, -1, -1 },
+> -	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },
+> +	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },		/* Special cased */
+>  	{ "ibm,read-slot-reset-state", -1, -1, -1, -1, -1 },
+>  	{ "ibm,scan-log-dump", -1, 0, 1, -1, -1 },
+>  	{ "ibm,set-dynamic-indicator", -1, 2, -1, -1, -1 },
+> @@ -1120,6 +1120,15 @@ static bool block_rtas_call(int token, int nargs,
+>  				size = 1;
+> 
+>  			end = base + size - 1;
+> +
+> +			/*
+> +			 * Special case for ibm,platform-dump - NULL buffer
+> +			 * address is used to indicate end of dump processing
+> +			 */
+> +			if (!strcmp(f->name, "ibm,platform-dump") &&
+> +			    base == 0)
+> +				return false;
+> +
+>  			if (!in_rmo_buf(base, end))
+>  				goto err;
+>  		}
 
