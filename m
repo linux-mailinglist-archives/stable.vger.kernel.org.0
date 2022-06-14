@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3DE754B90B
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:45:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AEE854B91A
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357359AbiFNSpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 14:45:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57934 "EHLO
+        id S1357457AbiFNSoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 14:44:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357387AbiFNSoq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:44:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A6DF4E396;
-        Tue, 14 Jun 2022 11:43:20 -0700 (PDT)
+        with ESMTP id S1357501AbiFNSnm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:43:42 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 348954BFE6;
+        Tue, 14 Jun 2022 11:42:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DD8A617C6;
-        Tue, 14 Jun 2022 18:43:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66C9CC3411B;
-        Tue, 14 Jun 2022 18:43:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5A35ECE1C16;
+        Tue, 14 Jun 2022 18:42:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54A8DC36AFF;
+        Tue, 14 Jun 2022 18:42:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655232199;
-        bh=v6tyCml7FfJkwTFH6AlnhJ95VEHLTGyWFavFm+kaXVs=;
+        s=korg; t=1655232152;
+        bh=c/QsobrJhUFIvslD7/dHX1lTZ1qyCmkodEy3yTDnmwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VB9TKKEvjkci0lhfOqy8M9lYdahUPSFDm5m7B/XeOwnAkZ9GRgvDHE/UECLE+Vor0
-         bsv7lxXHz+nyQd/8ykaxFoonbRXiNIXVO0Ii8lImAl/9dKLWKp5kJC0PCG8y6nWWNt
-         s8r4kHXXd4y0JqLN/z9yULD9z1QPBob4OdfDC6RI=
+        b=1QSm2Rf1eHS1aUFIDbIys7prEPNIlJbdYXZ9qecgeHzNMYHbwdz7PLf7xIq2iHxjr
+         +FpyA1G+8CjQeZ37KIQUapqft2PGLYp6eYsj+NQrjpvRew7xjJwV2TxPLudXyjzAeV
+         iXdrKVkIxJx2TctGuhEPH17C1RiDzjNhUPMJZizQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-        Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
         Thomas Gleixner <tglx@linutronix.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 4.19 04/16] x86/cpu: Add Lakefield, Alder Lake and Rocket Lake models to the to Intel CPU family
+Subject: [PATCH 4.14 14/20] x86/bugs: Group MDS, TAA & Processor MMIO Stale Data mitigations
 Date:   Tue, 14 Jun 2022 20:40:05 +0200
-Message-Id: <20220614183721.908731091@linuxfoundation.org>
+Message-Id: <20220614183726.782080943@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220614183720.928818645@linuxfoundation.org>
-References: <20220614183720.928818645@linuxfoundation.org>
+In-Reply-To: <20220614183723.328825625@linuxfoundation.org>
+References: <20220614183723.328825625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +56,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit e00b62f0b06d0ae2b844049f216807617aff0cdb upstream.
+commit e5925fb867290ee924fcf2fe3ca887b792714366 upstream
 
-Add three new Intel CPU models.
+MDS, TAA and Processor MMIO Stale Data mitigations rely on clearing CPU
+buffers. Moreover, status of these mitigations affects each other.
+During boot, it is important to maintain the order in which these
+mitigations are selected. This is especially true for
+md_clear_update_mitigation() that needs to be called after MDS, TAA and
+Processor MMIO Stale Data mitigation selection is done.
 
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Introduce md_clear_select_mitigation(), and select all these mitigations
+from there. This reflects relationships between these mitigations and
+ensures proper ordering.
+
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20200721043749.31567-1-tony.luck@intel.com
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/intel-family.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/kernel/cpu/bugs.c |   26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -64,6 +64,13 @@
- #define INTEL_FAM6_COMETLAKE		0xA5
- #define INTEL_FAM6_COMETLAKE_L		0xA6
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -41,6 +41,7 @@ static void __init ssb_select_mitigation
+ static void __init l1tf_select_mitigation(void);
+ static void __init mds_select_mitigation(void);
+ static void __init md_clear_update_mitigation(void);
++static void __init md_clear_select_mitigation(void);
+ static void __init taa_select_mitigation(void);
+ static void __init mmio_select_mitigation(void);
+ static void __init srbds_select_mitigation(void);
+@@ -113,18 +114,9 @@ void __init check_bugs(void)
+ 	spectre_v2_select_mitigation();
+ 	ssb_select_mitigation();
+ 	l1tf_select_mitigation();
+-	mds_select_mitigation();
+-	taa_select_mitigation();
+-	mmio_select_mitigation();
++	md_clear_select_mitigation();
+ 	srbds_select_mitigation();
  
-+#define INTEL_FAM6_ROCKETLAKE		0xA7
-+
-+/* Hybrid Core/Atom Processors */
-+
-+#define	INTEL_FAM6_LAKEFIELD		0x8A
-+#define INTEL_FAM6_ALDERLAKE		0x97
-+
- /* "Small Core" Processors (Atom) */
+-	/*
+-	 * As MDS, TAA and MMIO Stale Data mitigations are inter-related, update
+-	 * and print their mitigation after MDS, TAA and MMIO Stale Data
+-	 * mitigation selection is done.
+-	 */
+-	md_clear_update_mitigation();
+-
+ 	arch_smt_update();
  
- #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
+ #ifdef CONFIG_X86_32
+@@ -503,6 +495,20 @@ out:
+ 		pr_info("MMIO Stale Data: %s\n", mmio_strings[mmio_mitigation]);
+ }
+ 
++static void __init md_clear_select_mitigation(void)
++{
++	mds_select_mitigation();
++	taa_select_mitigation();
++	mmio_select_mitigation();
++
++	/*
++	 * As MDS, TAA and MMIO Stale Data mitigations are inter-related, update
++	 * and print their mitigation after MDS, TAA and MMIO Stale Data
++	 * mitigation selection is done.
++	 */
++	md_clear_update_mitigation();
++}
++
+ #undef pr_fmt
+ #define pr_fmt(fmt)	"SRBDS: " fmt
+ 
 
 
