@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ABD354A6E3
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E239754A6B4
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:38:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355993AbiFNCdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:33:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40084 "EHLO
+        id S1355564AbiFNCcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:32:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357128AbiFNCbq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:31:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A382457BB;
-        Mon, 13 Jun 2022 19:12:43 -0700 (PDT)
+        with ESMTP id S1356489AbiFNCbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:31:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A459E43EEC;
+        Mon, 13 Jun 2022 19:12:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C05756114C;
-        Tue, 14 Jun 2022 02:11:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B83DC341C0;
-        Tue, 14 Jun 2022 02:11:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A964B816A2;
+        Tue, 14 Jun 2022 02:11:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83DB4C3411B;
+        Tue, 14 Jun 2022 02:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172715;
-        bh=+35HzUDBzWDmuJJwatR1Q4D5ggHiaXyT+HsNG6pXQTg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eg/ioAlY69y+1TabcBJFxdRE6ojSv4Q89M3DrYzdFbhe88XcK6SmJNWmPmnCwwJtz
-         5/bFJvKEgWM3doV+OWf6ow+ZL8EHGJk5iENpqMrYJ1jgqoA3/32sG/qqdjaXhELGxT
-         MKmH3Mpmo2V4/vlp7ACTZF0Q252pIvP+z5ThrMJWvPpAYUrLSBEGTph6HF7sFFmdjz
-         tecrfQAoMlAzYyjxLaLkFGabAj2wmI4d4ze0o8u5A5qD0c+s9uGXUcNulrue8azE2N
-         PU/SH0MeaH7AEnZ78uO3evhjwaUhmC45vUQbuDiB+PJqZxDux7dKoQVC3LPmIVxBcg
-         i3pZDy8EjroMA==
+        s=k20201202; t=1655172718;
+        bh=jRePl6IBUwv4oBT3cJekRpFGZ3m5jS29OBAig9JoJl4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=C/wNFqK9QLYNEWPHOogfjNN6rcJyFcgNZRqNG2iPWx6ri+yBDcBuHR1WyKrVGqsxv
+         h3I1APkfPx/XL5Ym+OAc4Ff8FR942/EGtfrvK0+RwDGJ2G9J1k6rTMcabqQoK4NmF8
+         AljZ33W78BzF6bEBb23/Jb9Uf3oYLzdT0otrbTPrCwjnufBkdsYV7CQKg8l60tU3J+
+         7lWfilz9jUUzW8lbImcMDhayddr9Yr+kI2qZOo7T94F/TINwlrDQTKzGV//jppSVEn
+         YJ2Na3zFKZpd9fg2Mh58/dY+Vy9AKfKyESSU5gXPEPvcrpM+T2At063/C7rlSm5OXA
+         dOMisbI0l90DA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.15 4/4] KVM: Don't null dereference ops->destroy
-Date:   Mon, 13 Jun 2022 22:11:40 -0400
-Message-Id: <20220614021141.1101486-4-sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.10] KVM: Don't null dereference ops->destroy
+Date:   Mon, 13 Jun 2022 22:11:55 -0400
+Message-Id: <20220614021155.1101549-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220614021141.1101486-1-sashal@kernel.org>
-References: <20220614021141.1101486-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -84,10 +82,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index fefdf3a6dae3..b9de910a86d8 100644
+index 9cd8ca2d8bc1..c5dbac10c372 100644
 --- a/virt/kvm/kvm_main.c
 +++ b/virt/kvm/kvm_main.c
-@@ -4166,8 +4166,11 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
+@@ -3644,8 +3644,11 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
  		kvm_put_kvm_no_destroy(kvm);
  		mutex_lock(&kvm->lock);
  		list_del(&dev->vm_node);
