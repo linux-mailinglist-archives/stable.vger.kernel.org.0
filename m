@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2654D54B9AE
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 21:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63B1C54B993
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 21:00:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358217AbiFNSv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 14:51:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46270 "EHLO
+        id S1357995AbiFNSvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 14:51:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357476AbiFNSuj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:50:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8984F1D2;
-        Tue, 14 Jun 2022 11:45:36 -0700 (PDT)
+        with ESMTP id S1358011AbiFNSum (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:50:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F59E4F46F;
+        Tue, 14 Jun 2022 11:45:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F380617F4;
-        Tue, 14 Jun 2022 18:45:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C77FC3411B;
-        Tue, 14 Jun 2022 18:45:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 265D1617C6;
+        Tue, 14 Jun 2022 18:45:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33FEBC3411D;
+        Tue, 14 Jun 2022 18:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655232334;
-        bh=PWYIycLuIk+LVAj3E08Rpndv+j3oIM13aR7ocMPGGlw=;
+        s=korg; t=1655232337;
+        bh=NwbFDdR/g+6S1n2EfYrR5uXDC3U6sc0OJF0Mf+8i7GI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i8bVKAY2q+gjlo5A+wMeSfi01Q0f84S3LRqsdr521mDzu1qGcHEGeNmEhI8Pjhu43
-         ORtxdWHPk2nmseJqQHYuKO9GhrKCmR0bs5JgXbOl9BuZR3eN0+HtHRNeJaupjbYssc
-         9O4852A1OuuU8FYYGJZD3b01jQXa7jbx1tdk7cGA=
+        b=IFJ+Q+7gC6KwSGHpseE1DJR+je2i5+fWNuZ8shiEJ9nb49jJX5XR4Q8mnuJ4H3L7J
+         KiKbjmw0WkcQOrXlmwcPVcxsoewO2c1QpWUY4zb7VKY/tnF0TT2tor6VYGl0g809lU
+         Gmj4M38ixZteJA50rGpEHgaZMqcqkQd+iYn+5TYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
         Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.18 10/11] KVM: x86/speculation: Disable Fill buffer clear within guests
-Date:   Tue, 14 Jun 2022 20:40:47 +0200
-Message-Id: <20220614183723.425100040@linuxfoundation.org>
+Subject: [PATCH 5.18 11/11] x86/speculation/mmio: Print SMT warning
+Date:   Tue, 14 Jun 2022 20:40:48 +0200
+Message-Id: <20220614183723.622139878@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220614183720.861582392@linuxfoundation.org>
 References: <20220614183720.861582392@linuxfoundation.org>
@@ -55,229 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 027bbb884be006b05d9c577d6401686053aa789e upstream
+commit 1dc6ff02c8bf77d71b9b5d11cbc9df77cfb28626 upstream
 
-The enumeration of MD_CLEAR in CPUID(EAX=7,ECX=0).EDX{bit 10} is not an
-accurate indicator on all CPUs of whether the VERW instruction will
-overwrite fill buffers. FB_CLEAR enumeration in
-IA32_ARCH_CAPABILITIES{bit 17} covers the case of CPUs that are not
-vulnerable to MDS/TAA, indicating that microcode does overwrite fill
-buffers.
+Similar to MDS and TAA, print a warning if SMT is enabled for the MMIO
+Stale Data vulnerability.
 
-Guests running in VMM environments may not be aware of all the
-capabilities/vulnerabilities of the host CPU. Specifically, a guest may
-apply MDS/TAA mitigations when a virtual CPU is enumerated as vulnerable
-to MDS/TAA even when the physical CPU is not. On CPUs that enumerate
-FB_CLEAR_CTRL the VMM may set FB_CLEAR_DIS to skip overwriting of fill
-buffers by the VERW instruction. This is done by setting FB_CLEAR_DIS
-during VMENTER and resetting on VMEXIT. For guests that enumerate
-FB_CLEAR (explicitly asking for fill buffer clear capability) the VMM
-will not use FB_CLEAR_DIS.
-
-Irrespective of guest state, host overwrites CPU buffers before VMENTER
-to protect itself from an MMIO capable guest, as part of mitigation for
-MMIO Stale Data vulnerabilities.
-
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/msr-index.h       |    6 ++
- arch/x86/kvm/vmx/vmx.c                 |   69 +++++++++++++++++++++++++++++++++
- arch/x86/kvm/vmx/vmx.h                 |    2 
- arch/x86/kvm/x86.c                     |    3 +
- tools/arch/x86/include/asm/msr-index.h |    6 ++
- 5 files changed, 86 insertions(+)
+ arch/x86/kernel/cpu/bugs.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -133,6 +133,11 @@
- 						 * VERW clears CPU fill buffer
- 						 * even on MDS_NO CPUs.
- 						 */
-+#define ARCH_CAP_FB_CLEAR_CTRL		BIT(18)	/*
-+						 * MSR_IA32_MCU_OPT_CTRL[FB_CLEAR_DIS]
-+						 * bit available to control VERW
-+						 * behavior.
-+						 */
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1258,6 +1258,7 @@ static void update_mds_branch_idle(void)
  
- #define MSR_IA32_FLUSH_CMD		0x0000010b
- #define L1D_FLUSH			BIT(0)	/*
-@@ -150,6 +155,7 @@
- #define MSR_IA32_MCU_OPT_CTRL		0x00000123
- #define RNGDS_MITG_DIS			BIT(0)	/* SRBDS support */
- #define RTM_ALLOW			BIT(1)	/* TSX development mode */
-+#define FB_CLEAR_DIS			BIT(3)	/* CPU Fill buffer clear disable */
+ #define MDS_MSG_SMT "MDS CPU bug present and SMT on, data leak possible. See https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/mds.html for more details.\n"
+ #define TAA_MSG_SMT "TAA CPU bug present and SMT on, data leak possible. See https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/tsx_async_abort.html for more details.\n"
++#define MMIO_MSG_SMT "MMIO Stale Data CPU bug present and SMT on, data leak possible. See https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/processor_mmio_stale_data.html for more details.\n"
  
- #define MSR_IA32_SYSENTER_CS		0x00000174
- #define MSR_IA32_SYSENTER_ESP		0x00000175
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -229,6 +229,9 @@ static const struct {
- #define L1D_CACHE_ORDER 4
- static void *vmx_l1d_flush_pages;
- 
-+/* Control for disabling CPU Fill buffer clear */
-+static bool __read_mostly vmx_fb_clear_ctrl_available;
-+
- static int vmx_setup_l1d_flush(enum vmx_l1d_flush_state l1tf)
+ void cpu_bugs_smt_update(void)
  {
- 	struct page *page;
-@@ -360,6 +363,60 @@ static int vmentry_l1d_flush_get(char *s
- 	return sprintf(s, "%s\n", vmentry_l1d_param[l1tf_vmx_mitigation].option);
- }
+@@ -1302,6 +1303,16 @@ void cpu_bugs_smt_update(void)
+ 		break;
+ 	}
  
-+static void vmx_setup_fb_clear_ctrl(void)
-+{
-+	u64 msr;
-+
-+	if (boot_cpu_has(X86_FEATURE_ARCH_CAPABILITIES) &&
-+	    !boot_cpu_has_bug(X86_BUG_MDS) &&
-+	    !boot_cpu_has_bug(X86_BUG_TAA)) {
-+		rdmsrl(MSR_IA32_ARCH_CAPABILITIES, msr);
-+		if (msr & ARCH_CAP_FB_CLEAR_CTRL)
-+			vmx_fb_clear_ctrl_available = true;
++	switch (mmio_mitigation) {
++	case MMIO_MITIGATION_VERW:
++	case MMIO_MITIGATION_UCODE_NEEDED:
++		if (sched_smt_active())
++			pr_warn_once(MMIO_MSG_SMT);
++		break;
++	case MMIO_MITIGATION_OFF:
++		break;
 +	}
-+}
 +
-+static __always_inline void vmx_disable_fb_clear(struct vcpu_vmx *vmx)
-+{
-+	u64 msr;
-+
-+	if (!vmx->disable_fb_clear)
-+		return;
-+
-+	rdmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
-+	msr |= FB_CLEAR_DIS;
-+	wrmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
-+	/* Cache the MSR value to avoid reading it later */
-+	vmx->msr_ia32_mcu_opt_ctrl = msr;
-+}
-+
-+static __always_inline void vmx_enable_fb_clear(struct vcpu_vmx *vmx)
-+{
-+	if (!vmx->disable_fb_clear)
-+		return;
-+
-+	vmx->msr_ia32_mcu_opt_ctrl &= ~FB_CLEAR_DIS;
-+	wrmsrl(MSR_IA32_MCU_OPT_CTRL, vmx->msr_ia32_mcu_opt_ctrl);
-+}
-+
-+static void vmx_update_fb_clear_dis(struct kvm_vcpu *vcpu, struct vcpu_vmx *vmx)
-+{
-+	vmx->disable_fb_clear = vmx_fb_clear_ctrl_available;
-+
-+	/*
-+	 * If guest will not execute VERW, there is no need to set FB_CLEAR_DIS
-+	 * at VMEntry. Skip the MSR read/write when a guest has no use case to
-+	 * execute VERW.
-+	 */
-+	if ((vcpu->arch.arch_capabilities & ARCH_CAP_FB_CLEAR) ||
-+	   ((vcpu->arch.arch_capabilities & ARCH_CAP_MDS_NO) &&
-+	    (vcpu->arch.arch_capabilities & ARCH_CAP_TAA_NO) &&
-+	    (vcpu->arch.arch_capabilities & ARCH_CAP_PSDP_NO) &&
-+	    (vcpu->arch.arch_capabilities & ARCH_CAP_FBSDP_NO) &&
-+	    (vcpu->arch.arch_capabilities & ARCH_CAP_SBDR_SSDP_NO)))
-+		vmx->disable_fb_clear = false;
-+}
-+
- static const struct kernel_param_ops vmentry_l1d_flush_ops = {
- 	.set = vmentry_l1d_flush_set,
- 	.get = vmentry_l1d_flush_get,
-@@ -2252,6 +2309,10 @@ static int vmx_set_msr(struct kvm_vcpu *
- 			ret = kvm_set_msr_common(vcpu, msr_info);
- 	}
- 
-+	/* FB_CLEAR may have changed, also update the FB_CLEAR_DIS behavior */
-+	if (msr_index == MSR_IA32_ARCH_CAPABILITIES)
-+		vmx_update_fb_clear_dis(vcpu, vmx);
-+
- 	return ret;
+ 	mutex_unlock(&spec_ctrl_mutex);
  }
  
-@@ -4553,6 +4614,8 @@ static void vmx_vcpu_reset(struct kvm_vc
- 	kvm_make_request(KVM_REQ_APIC_PAGE_RELOAD, vcpu);
- 
- 	vpid_sync_context(vmx->vpid);
-+
-+	vmx_update_fb_clear_dis(vcpu, vmx);
- }
- 
- static void vmx_enable_irq_window(struct kvm_vcpu *vcpu)
-@@ -6777,6 +6840,8 @@ static noinstr void vmx_vcpu_enter_exit(
- 		 kvm_arch_has_assigned_device(vcpu->kvm))
- 		mds_clear_cpu_buffers();
- 
-+	vmx_disable_fb_clear(vmx);
-+
- 	if (vcpu->arch.cr2 != native_read_cr2())
- 		native_write_cr2(vcpu->arch.cr2);
- 
-@@ -6785,6 +6850,8 @@ static noinstr void vmx_vcpu_enter_exit(
- 
- 	vcpu->arch.cr2 = native_read_cr2();
- 
-+	vmx_enable_fb_clear(vmx);
-+
- 	guest_state_exit_irqoff();
- }
- 
-@@ -8185,6 +8252,8 @@ static int __init vmx_init(void)
- 		return r;
- 	}
- 
-+	vmx_setup_fb_clear_ctrl();
-+
- 	for_each_possible_cpu(cpu) {
- 		INIT_LIST_HEAD(&per_cpu(loaded_vmcss_on_cpu, cpu));
- 
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -348,6 +348,8 @@ struct vcpu_vmx {
- 	u64 msr_ia32_feature_control_valid_bits;
- 	/* SGX Launch Control public key hash */
- 	u64 msr_ia32_sgxlepubkeyhash[4];
-+	u64 msr_ia32_mcu_opt_ctrl;
-+	bool disable_fb_clear;
- 
- 	struct pt_desc pt_desc;
- 	struct lbr_desc lbr_desc;
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1587,6 +1587,9 @@ static u64 kvm_get_arch_capabilities(voi
- 		 */
- 	}
- 
-+	/* Guests don't need to know "Fill buffer clear control" exists */
-+	data &= ~ARCH_CAP_FB_CLEAR_CTRL;
-+
- 	return data;
- }
- 
---- a/tools/arch/x86/include/asm/msr-index.h
-+++ b/tools/arch/x86/include/asm/msr-index.h
-@@ -133,6 +133,11 @@
- 						 * VERW clears CPU fill buffer
- 						 * even on MDS_NO CPUs.
- 						 */
-+#define ARCH_CAP_FB_CLEAR_CTRL		BIT(18)	/*
-+						 * MSR_IA32_MCU_OPT_CTRL[FB_CLEAR_DIS]
-+						 * bit available to control VERW
-+						 * behavior.
-+						 */
- 
- #define MSR_IA32_FLUSH_CMD		0x0000010b
- #define L1D_FLUSH			BIT(0)	/*
-@@ -150,6 +155,7 @@
- #define MSR_IA32_MCU_OPT_CTRL		0x00000123
- #define RNGDS_MITG_DIS			BIT(0)	/* SRBDS support */
- #define RTM_ALLOW			BIT(1)	/* TSX development mode */
-+#define FB_CLEAR_DIS			BIT(3)	/* CPU Fill buffer clear disable */
- 
- #define MSR_IA32_SYSENTER_CS		0x00000174
- #define MSR_IA32_SYSENTER_ESP		0x00000175
 
 
