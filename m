@@ -2,131 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AFF654B2CF
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 16:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B66C54B322
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 16:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234697AbiFNOLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 10:11:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54282 "EHLO
+        id S245054AbiFNO0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 10:26:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236262AbiFNOLq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 10:11:46 -0400
-Received: from kylie.crudebyte.com (kylie.crudebyte.com [5.189.157.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC6F344C8;
-        Tue, 14 Jun 2022 07:11:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=crudebyte.com; s=kylie; h=Content-Type:Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
-        Content-ID:Content-Description;
-        bh=0up0HQhrsxc90C88YMmJQmlVHMrBI86sKQklFU28KR8=; b=Hp1+8w4PUY58i0Tlkd3yeyLr1t
-        d+416tMt71AkGKbx1PRjrgGubVu2CXrnBDpBbOFaBdEqpkvYB8C6w0aNophxcs4gWQR/KIi23kUYS
-        eqjPJOORRCQ6F8TvdPT1A4BrmbM94f4UU15NqaO8OhfRs9kLxSkms6mHkPz0uGdIBaAkgiPHvSLs4
-        ODNsEb4eEx0Z5cMEzrgDmqfDAA9slhFg/jpbigImbW9YKf+EKQHLrU961QQpO96oP5oz4GgzE9G0Y
-        rSE0lUykUF5rhIZ/Mtf2q8mCxqjJO5cfB2r/YAeutwggT/qTVApUrNSQtSyZk1V0iOte8BdAD1PQc
-        yvesVwal19dT9zYIdQ56uNLn9Kurfr7tiBLrfQC1upVxd/OkXfVJJ3OMskAf8O61wVRlGWUwH8exR
-        MUge0IC5VloTMaquBTx2Ar46bMg1RyoRrYfyeLUj+MwtwbvwN3SdgGRXwbjS6nQ6/DnS9cC8RuCeT
-        NuSia+FFUU/KTMyKGeQQ4t1ufx4/736ogVnN3cIkPnDkm+jnMVMpdElh9vrOQeOw1DrUxSs81vwyJ
-        h4PRMK2TxpwLa+4YAkGqSNjsSr5tmjpddr7jWVsakCBVVZcaVjRpq/shELYc6KDRLkvWr1jRQds5L
-        VzX8eOOz15rMBARpKWHy3gPVUNq1YCLWDmZv6YE9c=;
-From:   Christian Schoenebeck <linux_oss@crudebyte.com>
-To:     Dominique Martinet <asmadeus@codewreck.org>
-Cc:     Eric Van Hensbergen <ericvh@gmail.com>,
-        Latchesar Ionkov <lucho@ionkov.net>,
-        David Howells <dhowells@redhat.com>,
-        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        v9fs-developer@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 9p: fix EBADF errors in cached mode
-Date:   Tue, 14 Jun 2022 16:11:35 +0200
-Message-ID: <1796737.mFSqR1lx0c@silver>
-In-Reply-To: <YqiC8luskkxUftQl@codewreck.org>
-References: <YqW5s+GQZwZ/DP5q@codewreck.org> <19026878.01OTk6HtWb@silver>
- <YqiC8luskkxUftQl@codewreck.org>
+        with ESMTP id S244867AbiFNO0n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 10:26:43 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92632FFF8;
+        Tue, 14 Jun 2022 07:26:42 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id 184so8624332pga.12;
+        Tue, 14 Jun 2022 07:26:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=HX6j/JD0P8ViHMlHg7WyYldgm56QAZWdqgVJ9jnPJgM=;
+        b=ppu8W0HHefaAqCG7W5h72lu9tapfC3y65tgq+at8TKkuYvzp5WLB4XE5P7z3MtA+mr
+         5RdO2qcuh2GpPFvg1Pbkm2aZWP4RqGnN5b66blbsvnXH5RfPVkwCYhC2B0nro210nse2
+         HcRjubRYwB4jN3+zy0ikMhzqL4/DpsFtM77dBQEF2STszGm/oHuphGNucTY3FF7dUBAd
+         VaQInJDu+x9Z9E3umk6UhUjH0A3YFptxM6ihJ6UinvvMd46kXGldy8VvG5W3JKpwTNOz
+         d91e+lLgtjSvW9TVYh3LeV6YBM7Y1XFZukSegBA7uk6PCEy4BpQzRLhGvr5oSFJxdTEi
+         JW8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=HX6j/JD0P8ViHMlHg7WyYldgm56QAZWdqgVJ9jnPJgM=;
+        b=58LxRdtION2OodgE7qiggqRmHATZrda2bc6VxnYOQl8FSLWsayJvUlcG/+IHsuzGhU
+         jLFU5cMBx3McD4VPCdbXPOS6+gxnai0Ea3ubQLkvScY7sPsseIiOa5H3omjq1OY46p74
+         rONDDxAinwSA08CZt+frIPtVd7NH6HEjcAZlj9kqsMO76FUXyqaC59SE49k89b65J0Vu
+         /tmvMARcaeCblUy28ns5VSLbL7D90J7vKjDawaDTy1clGhFWcRCVz/xtdURLDzHSdfni
+         8e9jnF0+5aBjUNkiq7TRyTnw8d2XGEwHRyx1vOJbljSs3zVD2XbQOj6cIoCUnqxvbeTG
+         6xuQ==
+X-Gm-Message-State: AOAM531rQe3q3KB6DO56zTRf0J0nq2aeqJlS3NxU9dfPf82Pe8X0a+6g
+        gbCg9Ro0W1BWPoafbd/teag=
+X-Google-Smtp-Source: ABdhPJwDYOdewme8SussyfdqonnOtEyn4v66iA7GLe/qy65ln/zKk85TLwbfZ6knvbX59HXs/kr+Cg==
+X-Received: by 2002:a62:d045:0:b0:51b:fcf6:3add with SMTP id p66-20020a62d045000000b0051bfcf63addmr5088275pfg.68.1655216802241;
+        Tue, 14 Jun 2022 07:26:42 -0700 (PDT)
+Received: from localhost.localdomain ([43.132.141.9])
+        by smtp.gmail.com with ESMTPSA id m25-20020a637119000000b003f6ba49bc57sm7806752pgc.71.2022.06.14.07.26.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jun 2022 07:26:41 -0700 (PDT)
+From:   Yuntao Wang <ytcoode@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     daniel@iogearbox.net, linux-kernel@vger.kernel.org, pavel@denx.de,
+        sashal@kernel.org, stable@vger.kernel.org, ytcoode@gmail.com,
+        ast@kernel.org, andrii@kernel.org, kafai@fb.com,
+        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
+        kpsingh@kernel.org, bpf@vger.kernel.org
+Subject: [PATCH] bpf: Fix incorrect memory charge cost calculation in stack_map_alloc()
+Date:   Tue, 14 Jun 2022 22:26:22 +0800
+Message-Id: <20220614142622.998611-1-ytcoode@gmail.com>
+X-Mailer: git-send-email 2.36.0
+In-Reply-To: <YqbunqapIFiIVqOb@kroah.com>
+References: <YqbunqapIFiIVqOb@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Dienstag, 14. Juni 2022 14:45:38 CEST Dominique Martinet wrote:
-> Christian Schoenebeck wrote on Tue, Jun 14, 2022 at 02:10:01PM +0200:
-> > It definitely goes into the right direction, but I think it's going a bit
-> > too far by using writeback_fid also in cases where it is not necessary
-> > and wasn't used before in the past.
-> 
-> Would help if I had an idea of what was used where in the past.. :)
-> 
-> From a quick look at the code, checking out v5.10,
-> v9fs_vfs_writepage_locked() used the writeback fid always for all writes
-> v9fs_vfs_readpages is a bit more complex but only seems to be using the
-> "direct" private_data fid for reads...
-> It took me a bit of time but I think the reads you were seeing on
-> writeback fid come from v9fs_write_begin that does some readpage on the
-> writeback fid to populate the page before a non-filling write happens.
+commit b45043192b3e481304062938a6561da2ceea46a6 upstream.
 
-Yes, the overall picture in the past was not clear to me either.
+This is a backport of the original upstream patch for 5.4/5.10.
 
-To be more specific, I was reading your patch as if it would e.g. also use the 
-writeback_fid if somebody explicitly called read() (i.e. not an implied read 
-caused by a partial write back), and was concerned about a potential privilege 
-escalation. Maybe it's just a theoretical issue, as this case is probably 
-already catched on a higher, general fs handling level, but worth 
-consideration.
+The original upstream patch has been applied to 5.4/5.10 branches, which
+simply removed the line:
 
-> > What about something like this in v9fs_init_request() (yet untested):
-> >     /* writeback_fid is always opened O_RDWR (instead of just O_WRONLY)
-> >     
-> >      * explicitly for this case: partial write backs that require a read
-> >      * prior to actual write and therefore requires a fid with read
-> >      * capability.
-> >      */
-> >     
-> >     if (rreq->origin == NETFS_READ_FOR_WRITE)
-> >     
-> >         fid = v9inode->writeback_fid;
-> 
-> ... Which seems to be exactly what this origin is about, so if that
-> works I'm all for it.
-> 
-> > If desired, this could be further constrained later on like:
-> >     if (rreq->origin == NETFS_READ_FOR_WRITE &&
-> >     
-> >         (fid->mode & O_ACCMODE) == O_WRONLY)
-> >     
-> >     {
-> >     
-> >         fid = v9inode->writeback_fid;
-> >     
-> >     }
-> 
-> That also makes sense, if the fid mode has read permissions we might as
-> well use these as the writeback fid would needlessly be doing root IOs.
-> 
-> > I will definitely give these options some test spins here, a short
-> > feedback
-> > ahead would be appreciated though.
-> 
-> Please let me know how that works out, I'd be happy to use either of
-> your versions instead of mine.
-> If I can be greedy though I'd like to post it together with the other
-> couple of fixes next week, so having something before the end of the
-> week would be great -- I think even my first overkill version early and
-> building on it would make sense at this point.
-> 
-> But I think you've got the right end, so hopefully won't be needing to
-> delay
+  cost += n_buckets * (value_size + sizeof(struct stack_map_bucket));
 
-I need a day or two for testing, then I will report back for sure. So it 
-should perfectly fit into your intended schedule.
+This is correct for upstream branch but incorrect for 5.4/5.10 branches,
+as the 5.4/5.10 branches do not have the commit 370868107bf6 ("bpf:
+Eliminate rlimit-based memory accounting for stackmap maps"), so the
+bpf_map_charge_init() function has not been removed.
 
-Thanks!
+Currently the bpf_map_charge_init() function in 5.4/5.10 branches takes a
+wrong memory charge cost, the
 
-Best regards,
-Christian Schoenebeck
+  attr->max_entries * (sizeof(struct stack_map_bucket) + (u64)value_size))
 
+part is missing, let's fix it.
+
+Cc: <stable@vger.kernel.org> # 5.4.y
+Cc: <stable@vger.kernel.org> # 5.10.y
+Signed-off-by: Yuntao Wang <ytcoode@gmail.com>
+---
+Note that the original upstream patch is currently applied to
+linux-stable-rc/linux-5.4.y branch, not linux/linux-5.4.y, this patch
+depends on that patch.
+
+ kernel/bpf/stackmap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
+index c19e669afba0..0c5bf98d5576 100644
+--- a/kernel/bpf/stackmap.c
++++ b/kernel/bpf/stackmap.c
+@@ -121,7 +121,8 @@ static struct bpf_map *stack_map_alloc(union bpf_attr *attr)
+ 		return ERR_PTR(-E2BIG);
+ 
+ 	cost = n_buckets * sizeof(struct stack_map_bucket *) + sizeof(*smap);
+-	err = bpf_map_charge_init(&mem, cost);
++	err = bpf_map_charge_init(&mem, cost + attr->max_entries *
++			   (sizeof(struct stack_map_bucket) + (u64)value_size));
+ 	if (err)
+ 		return ERR_PTR(err);
+ 
+-- 
+2.36.0
 
