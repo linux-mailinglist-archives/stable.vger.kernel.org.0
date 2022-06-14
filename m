@@ -2,76 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0DB254BC54
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 22:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4547B54BC7A
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 23:05:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234872AbiFNUwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 16:52:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38610 "EHLO
+        id S1344911AbiFNVAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 17:00:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358346AbiFNUw1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 16:52:27 -0400
-Received: from mail-oa1-x2d.google.com (mail-oa1-x2d.google.com [IPv6:2001:4860:4864:20::2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27AD252B0B
-        for <stable@vger.kernel.org>; Tue, 14 Jun 2022 13:51:39 -0700 (PDT)
-Received: by mail-oa1-x2d.google.com with SMTP id 586e51a60fabf-100eb6f7782so14095965fac.2
-        for <stable@vger.kernel.org>; Tue, 14 Jun 2022 13:51:39 -0700 (PDT)
+        with ESMTP id S245736AbiFNVAj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 17:00:39 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A1A650068;
+        Tue, 14 Jun 2022 14:00:38 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id n18so8752767plg.5;
+        Tue, 14 Jun 2022 14:00:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=RGAdkjxIXJg+0+B+nkHeGHsO8ZAxwuJMEt5nBIQXQi4=;
-        b=z8XbfANxfef8zCOjgMw6n0IEGLtNAnAK9fU4Tvz8GFdyGKJ3Qh2Wbnphdf1Wa+QjB2
-         RxxdvKQR6Dwd9N+WMRBSfggYLc+30bhyA30WaRPkCmeNPxXXhSPS81jWvxssBT3mk78m
-         8NPvEOpCrYvVdHRwq1e3gHw1Y9XzdAy2t5+JgYxCLkb6g5HAXFCP0s89Hb++2L//Ndy9
-         9AILcrkbnuxfez407sm0U0pDXO1CIYvWyv4hwEE1MinAD6dLYIo4LDFAxOBRdbi/ilIL
-         cjF0WMGSHJXPly1lnpb/yEWryQ2oIQMAYpIj4IjFG4M8sDcDRid3qIt2XeWffTxNiGHG
-         spcw==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=ABIwjsN01avoXfixhqq/nhjZOdRVdPjlrbZog4E+a0w=;
+        b=SXD+jodpYCjHDny4B7tRwLnzq4pE6143JPpRCp4NCkoL7nzyoQmGQmw7OmUiSiNC6m
+         oCCGfwwNMef3wp7EGzL46Y52yIGsrTz0lJvJGL4Dsh+PXKONnBETq9QoP1miLi/Qs6e9
+         UzDzVtbDFQ2SJJuXFIkexc/7N969vfzXVSMvo0syt5UKGhul3LN1vJb6l0Z8jX/EbjrZ
+         2zFMg1fOeFsX4LKGQ8fG9L2M2CCu1YXjCOtkjMKA8Z87H2FUBVPVv2cAExZmrg4h1pNA
+         hdVzdgnLdKFAYvIARiZ6fJmEYv0GaM6pL2ZjYDHaU/zhWH8bZ4VzXhAEnUI2mjf1+Gya
+         Utdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=RGAdkjxIXJg+0+B+nkHeGHsO8ZAxwuJMEt5nBIQXQi4=;
-        b=7Hfm7CVpDhbzTPZxqEODvGH8MpbKOtLIjkYM+j7KGV0Omreg/ZKOz8hKvjQ3t2HISo
-         TXIEkJbi91z7D7O9bL7Z7Q1eR2O3zfvYThdqEJwMYZDVzU4zOEDza9VXIwxKSCFV4dOg
-         KBq1kexV80koWslM0mi63RvXOdaXSxUdu3Tn4m/5D8BE2qlTiT6eQDSnp/oc6NpwLrSR
-         uaDwoUOAtUXNPDHJAJAKrSBJhpJfDIJaRLnfN/gI2CZvSBH1e7oYzcO2hZIPFnjtym46
-         UAwya0Xen03VXBAcUedC2cPyBwkun5xXBaq+glwpjNkDp+cdwjdxR8/XpUQzehYc3A75
-         VrJw==
-X-Gm-Message-State: AJIora/QDVALjl2gcAP1iRC7n66YvA+RwMLr8S1fUn4ytf/26HOJ1XgZ
-        9hgpLG8FSzN7Mr7LkYCMvRZ3nxWLX9njg86/H3vrmvLiy5eEgQ==
-X-Google-Smtp-Source: AGRyM1toDzc7vrHco5eSKSVBFtfOY2v3t2qxnagaRr76i8DW9Rdyn4pQiObZ4yjSNL7E9HSIUsK0aDPY8i6TWc3xFes=
-X-Received: by 2002:a05:6871:686:b0:f8:85a9:9268 with SMTP id
- l6-20020a056871068600b000f885a99268mr3553834oao.219.1655239898228; Tue, 14
- Jun 2022 13:51:38 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=ABIwjsN01avoXfixhqq/nhjZOdRVdPjlrbZog4E+a0w=;
+        b=N+sgkUQHC1HCVfN3oN2hqya4Mr+kQHlx6Uok3uPTyJegB4N77XKS7ZuPahb1PkTFdC
+         K8Y3FG6BRzGfAA5Bj7+BNLnHKVvFT66sdczU8lgsyrxRsGjsxFX6MBb1rP/x5rMblvYc
+         o6e2/HJHo9Am+qdjRHhRJKjaWOmZgnhBP/cy/+oU1kSOdNuX0LnZWt1FRLinUNOB97eA
+         Ea3SnZ2FvLVmJXrIjF4EOk0bqGZXvZQZC4AMlmPz8f2vWz5B/p91yAtq380CZPgyXPhh
+         VkHN2H4sUvF+v0omLPvS3otsh+Efw7yM1HMbzxaMdwGvxz8elOHRrPkNb0yZlNxGFvgL
+         dXpw==
+X-Gm-Message-State: AJIora+OvjNc0gFOKGn5ShQmmY3ELgDSS384WaHvMZKj39BSNp3oOSdY
+        vvSFALMBxTJVi1EqF4Wh+AU=
+X-Google-Smtp-Source: AGRyM1uXICEcEKElb5h6IOEsUSAw3dY1Pt+rc53YxufnNf9GLR0TeRwtnHO5tz/ZtIUz46pEPUoGKw==
+X-Received: by 2002:a17:90b:4c06:b0:1e3:17fa:e387 with SMTP id na6-20020a17090b4c0600b001e317fae387mr6469302pjb.53.1655240437933;
+        Tue, 14 Jun 2022 14:00:37 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id a15-20020a1709027e4f00b00161e50e2245sm7701671pln.178.2022.06.14.14.00.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Jun 2022 14:00:37 -0700 (PDT)
+Message-ID: <8156508f-71d5-3ed5-ccba-bed6062fdbf3@gmail.com>
+Date:   Tue, 14 Jun 2022 14:00:35 -0700
 MIME-Version: 1.0
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-Date:   Tue, 14 Jun 2022 13:51:27 -0700
-Message-ID: <CALP4L7TLME-ZqOBK_k-voFbiym5PdWga_1iPGTqOu8ac0=DD0g@mail.gmail.com>
-Subject: Apply commit "9p: missing chunk of fs/9p: Don't update file type when
- updating file attributes" to stable
-To:     stable <stable@vger.kernel.org>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 4.9 00/20] 4.9.319-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220614183722.061550591@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220614183722.061550591@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-Please apply upstream commit b577d0cd2104 ("9p: missing chunk of
-"fs/9p: Don't update file type when updating file attributes"") to
-stable versions v4.9, v4.14, v4.19, v5.4, and v5.10.
+On 6/14/22 11:39, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.319 release.
+> There are 20 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 16 Jun 2022 18:37:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.319-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-It fixes an issue found by syzbot:
-https://syzkaller.appspot.com/bug?id=7830d7214570b38391194d814a625dbbfd569eb4
-The commit applies cleanly to all the versions listed above.
-Please also add:
-Reported-by: syzbot+16342c5db3ef64c0f60a@syzkaller.appspotmail.com
-Tested-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-Thanks,
-Tadeusz
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
