@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C49FC54B91B
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6D8354B8DC
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:41:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233411AbiFNSoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 14:44:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59320 "EHLO
+        id S1344780AbiFNSlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 14:41:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357284AbiFNSm7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:42:59 -0400
+        with ESMTP id S1345367AbiFNSlJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:41:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 064DD4BB86;
-        Tue, 14 Jun 2022 11:42:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 550BB46642;
+        Tue, 14 Jun 2022 11:41:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8EC8FB81AF7;
-        Tue, 14 Jun 2022 18:42:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE5C4C3411B;
-        Tue, 14 Jun 2022 18:42:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AF0CB81AEE;
+        Tue, 14 Jun 2022 18:41:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63D02C3411B;
+        Tue, 14 Jun 2022 18:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655232128;
-        bh=A7/0sohCu0X08Zhzq0tXG6PcuGS3Dfs/yF2CI1GMr9g=;
+        s=korg; t=1655232063;
+        bh=CYC3+IkmGso2EMOY3RlRvGGjclAmqPdJj+eBXsPXQ9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YbQK/4cEJVn3wNnjpla3iqv3ZbUi/7+tCDaXFHcN2mD/9NLYC1kMD49RNJvRZ6Fl6
-         xNeW6EEEyVYSwG+rNegDw0iQr9i7jAUAFmaCpVOk6kUD4Zp81ak35ylGVnuohx3zf/
-         ugWNPg2KGKgeeDPs4hxbL8D+1L9f6rvEso2RPuK0=
+        b=oKtPWn+CQ7CjbiGHhP/hQUKIP1EeF7N1GxsWmFQi8LJtykNEVSNbgiApgN7SccZWY
+         JsaXHmTOoDVOjZXxaO2Fv4tfaDFpeiQZdxzkg3kSSoBhqzKZazUsNKJBW+QBvM/xEY
+         udOt8ZQL0ZGXoAvHQr7S5r9tfj06KfgD6yoOkRck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
         Thomas Gleixner <tglx@linutronix.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 4.14 03/20] x86/cpu: Add Jasper Lake to Intel family
+Subject: [PATCH 4.9 11/20] x86/speculation/mmio: Enumerate Processor MMIO Stale Data bug
 Date:   Tue, 14 Jun 2022 20:39:54 +0200
-Message-Id: <20220614183724.158324074@linuxfoundation.org>
+Message-Id: <20220614183724.735199092@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220614183723.328825625@linuxfoundation.org>
-References: <20220614183723.328825625@linuxfoundation.org>
+In-Reply-To: <20220614183722.061550591@linuxfoundation.org>
+References: <20220614183722.061550591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,32 +56,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Rui <rui.zhang@intel.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit b2d32af0bff402b4c1fce28311759dd1f6af058a upstream.
+commit 51802186158c74a0304f51ab963e7c2b3a2b046f upstream
 
-Japser Lake is an Atom family processor.
-It uses Tremont cores and is targeted at mobile platforms.
+Processor MMIO Stale Data is a class of vulnerabilities that may
+expose data after an MMIO operation. For more details please refer to
+Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
 
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Add the Processor MMIO Stale Data bug enumeration. A microcode update
+adds new bits to the MSR IA32_ARCH_CAPABILITIES, define them.
+
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+[cascardo: adapted family names to the ones in v4.19]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/intel-family.h |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/cpufeatures.h |    1 
+ arch/x86/include/asm/msr-index.h   |   19 ++++++++++++++++
+ arch/x86/kernel/cpu/common.c       |   43 +++++++++++++++++++++++++++++++++++--
+ 3 files changed, 61 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -71,6 +71,7 @@
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -362,5 +362,6 @@
+ #define X86_BUG_TAA			X86_BUG(22) /* CPU is affected by TSX Async Abort(TAA) */
+ #define X86_BUG_ITLB_MULTIHIT		X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
+ #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
++#define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
  
- #define INTEL_FAM6_ATOM_TREMONT_X	0x86 /* Jacobsville */
- #define INTEL_FAM6_ATOM_TREMONT		0x96 /* Elkhart Lake */
-+#define INTEL_FAM6_ATOM_TREMONT_L	0x9C /* Jasper Lake */
+ #endif /* _ASM_X86_CPUFEATURES_H */
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -89,6 +89,25 @@
+ 						 * Not susceptible to
+ 						 * TSX Async Abort (TAA) vulnerabilities.
+ 						 */
++#define ARCH_CAP_SBDR_SSDP_NO		BIT(13)	/*
++						 * Not susceptible to SBDR and SSDP
++						 * variants of Processor MMIO stale data
++						 * vulnerabilities.
++						 */
++#define ARCH_CAP_FBSDP_NO		BIT(14)	/*
++						 * Not susceptible to FBSDP variant of
++						 * Processor MMIO stale data
++						 * vulnerabilities.
++						 */
++#define ARCH_CAP_PSDP_NO		BIT(15)	/*
++						 * Not susceptible to PSDP variant of
++						 * Processor MMIO stale data
++						 * vulnerabilities.
++						 */
++#define ARCH_CAP_FB_CLEAR		BIT(17)	/*
++						 * VERW clears CPU fill buffer
++						 * even on MDS_NO CPUs.
++						 */
  
- /* Xeon Phi */
+ #define MSR_IA32_FLUSH_CMD		0x0000010b
+ #define L1D_FLUSH			BIT(0)	/*
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -962,18 +962,39 @@ static const __initconst struct x86_cpu_
+ 					    X86_FEATURE_ANY, issues)
+ 
+ #define SRBDS		BIT(0)
++/* CPU is affected by X86_BUG_MMIO_STALE_DATA */
++#define MMIO		BIT(1)
+ 
+ static const struct x86_cpu_id cpu_vuln_blacklist[] __initconst = {
+ 	VULNBL_INTEL_STEPPINGS(IVYBRIDGE,	X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(HASWELL_CORE,	X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(HASWELL_ULT,	X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(HASWELL_GT3E,	X86_STEPPING_ANY,		SRBDS),
++	VULNBL_INTEL_STEPPINGS(HASWELL_X,	BIT(2) | BIT(4),		MMIO),
++	VULNBL_INTEL_STEPPINGS(BROADWELL_XEON_D,X86_STEPPINGS(0x3, 0x5),	MMIO),
+ 	VULNBL_INTEL_STEPPINGS(BROADWELL_GT3E,	X86_STEPPING_ANY,		SRBDS),
++	VULNBL_INTEL_STEPPINGS(BROADWELL_X,	X86_STEPPING_ANY,		MMIO),
+ 	VULNBL_INTEL_STEPPINGS(BROADWELL_CORE,	X86_STEPPING_ANY,		SRBDS),
++	VULNBL_INTEL_STEPPINGS(SKYLAKE_MOBILE,	X86_STEPPINGS(0x3, 0x3),	SRBDS | MMIO),
+ 	VULNBL_INTEL_STEPPINGS(SKYLAKE_MOBILE,	X86_STEPPING_ANY,		SRBDS),
++	VULNBL_INTEL_STEPPINGS(SKYLAKE_X,	BIT(3) | BIT(4) | BIT(6) |
++						BIT(7) | BIT(0xB),              MMIO),
++	VULNBL_INTEL_STEPPINGS(SKYLAKE_DESKTOP,	X86_STEPPINGS(0x3, 0x3),	SRBDS | MMIO),
+ 	VULNBL_INTEL_STEPPINGS(SKYLAKE_DESKTOP,	X86_STEPPING_ANY,		SRBDS),
+-	VULNBL_INTEL_STEPPINGS(KABYLAKE_MOBILE,	X86_STEPPINGS(0x0, 0xC),	SRBDS),
+-	VULNBL_INTEL_STEPPINGS(KABYLAKE_DESKTOP,X86_STEPPINGS(0x0, 0xD),	SRBDS),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE_MOBILE,	X86_STEPPINGS(0x9, 0xC),	SRBDS | MMIO),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE_MOBILE,	X86_STEPPINGS(0x0, 0x8),	SRBDS),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE_DESKTOP,X86_STEPPINGS(0x9, 0xD),	SRBDS | MMIO),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE_DESKTOP,X86_STEPPINGS(0x0, 0x8),	SRBDS),
++	VULNBL_INTEL_STEPPINGS(ICELAKE_MOBILE,	X86_STEPPINGS(0x5, 0x5),	MMIO),
++	VULNBL_INTEL_STEPPINGS(ICELAKE_XEON_D,	X86_STEPPINGS(0x1, 0x1),	MMIO),
++	VULNBL_INTEL_STEPPINGS(ICELAKE_X,	X86_STEPPINGS(0x4, 0x6),	MMIO),
++	VULNBL_INTEL_STEPPINGS(COMETLAKE,	BIT(2) | BIT(3) | BIT(5),	MMIO),
++	VULNBL_INTEL_STEPPINGS(COMETLAKE_L,	X86_STEPPINGS(0x0, 0x1),	MMIO),
++	VULNBL_INTEL_STEPPINGS(LAKEFIELD,	X86_STEPPINGS(0x1, 0x1),	MMIO),
++	VULNBL_INTEL_STEPPINGS(ROCKETLAKE,	X86_STEPPINGS(0x1, 0x1),	MMIO),
++	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT,	X86_STEPPINGS(0x1, 0x1),	MMIO),
++	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_X,	X86_STEPPING_ANY,		MMIO),
++	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_L,	X86_STEPPINGS(0x0, 0x0),	MMIO),
+ 	{}
+ };
+ 
+@@ -994,6 +1015,13 @@ u64 x86_read_arch_cap_msr(void)
+ 	return ia32_cap;
+ }
+ 
++static bool arch_cap_mmio_immune(u64 ia32_cap)
++{
++	return (ia32_cap & ARCH_CAP_FBSDP_NO &&
++		ia32_cap & ARCH_CAP_PSDP_NO &&
++		ia32_cap & ARCH_CAP_SBDR_SSDP_NO);
++}
++
+ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+ {
+ 	u64 ia32_cap = x86_read_arch_cap_msr();
+@@ -1051,6 +1079,17 @@ static void __init cpu_set_bug_bits(stru
+ 	    cpu_matches(cpu_vuln_blacklist, SRBDS))
+ 		    setup_force_cpu_bug(X86_BUG_SRBDS);
+ 
++	/*
++	 * Processor MMIO Stale Data bug enumeration
++	 *
++	 * Affected CPU list is generally enough to enumerate the vulnerability,
++	 * but for virtualization case check for ARCH_CAP MSR bits also, VMM may
++	 * not want the guest to enumerate the bug.
++	 */
++	if (cpu_matches(cpu_vuln_blacklist, MMIO) &&
++	    !arch_cap_mmio_immune(ia32_cap))
++		setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
++
+ 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
+ 		return;
  
 
 
