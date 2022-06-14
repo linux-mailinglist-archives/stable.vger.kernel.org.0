@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC2654B8D2
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:41:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0DCD54B907
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345175AbiFNSlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 14:41:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57800 "EHLO
+        id S1357170AbiFNSmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 14:42:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344780AbiFNSlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:41:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECAAB48E65;
-        Tue, 14 Jun 2022 11:41:01 -0700 (PDT)
+        with ESMTP id S1347374AbiFNSls (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:41:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D1594A918;
+        Tue, 14 Jun 2022 11:41:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87C0C617BA;
-        Tue, 14 Jun 2022 18:41:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 948EFC3411B;
-        Tue, 14 Jun 2022 18:41:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFC5C617C1;
+        Tue, 14 Jun 2022 18:41:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE2E2C3411B;
+        Tue, 14 Jun 2022 18:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655232060;
-        bh=/toawXixZnJbTpKsGyjEpXL+h5RveDfzDka39oMDCUQ=;
+        s=korg; t=1655232092;
+        bh=Ji1Sndb5sEdNz4okiXUxRbPTXMSEoXeX0mSgQzcisgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qrgQ/Kk4LJe4dkxQsU43QOgf6j0VGlPSgOIoiMp2UuPm5VPX5/eyPRSErN70hzOfP
-         8O7rdJQkf043Qu17615v7at37q3QeA3W9Xsooh8pmaGcACTLmVRVkg4xac0QTDR1wU
-         G1jp/KzXRzeiZ/HdaJ0K+7mOAAvgZcZgZubjHIb0=
+        b=DmbrkLo6w0Fea3Urt10aRt3tVS2qsf0iRoTuLfA2HmnqgK3fPWGI1lbKHMN1JF/5f
+         FXbiuzmwPTiGPMxycYs+M9jfXn1p3c/hMnU0WU2CqKxepaWo3OyXh0UnnY8KVuq3E9
+         tB5F+qzs6UBoq2LNUrvzXz87NohSeeumLXc+Cnns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 4.9 02/20] cpu/speculation: Add prototype for cpu_show_srbds()
-Date:   Tue, 14 Jun 2022 20:39:45 +0200
-Message-Id: <20220614183722.671286042@linuxfoundation.org>
+Subject: [PATCH 4.9 03/20] x86/cpu: Add Jasper Lake to Intel family
+Date:   Tue, 14 Jun 2022 20:39:46 +0200
+Message-Id: <20220614183722.905713879@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220614183722.061550591@linuxfoundation.org>
 References: <20220614183722.061550591@linuxfoundation.org>
@@ -56,35 +56,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Zhang Rui <rui.zhang@intel.com>
 
-commit 2accfa69050c2a0d6fc6106f609208b3e9622b26 upstream.
+commit b2d32af0bff402b4c1fce28311759dd1f6af058a upstream.
 
-0-day is not happy that there is no prototype for cpu_show_srbds():
+Japser Lake is an Atom family processor.
+It uses Tremont cores and is targeted at mobile platforms.
 
-drivers/base/cpu.c:565:16: error: no previous prototype for 'cpu_show_srbds'
-
-Fixes: 7e5b3c267d25 ("x86/speculation: Add Special Register Buffer Data Sampling (SRBDS) mitigation")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20200617141410.93338-1-linux@roeck-us.net
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/cpu.h |    1 +
+ arch/x86/include/asm/intel-family.h |    1 +
  1 file changed, 1 insertion(+)
 
---- a/include/linux/cpu.h
-+++ b/include/linux/cpu.h
-@@ -61,6 +61,7 @@ extern ssize_t cpu_show_tsx_async_abort(
- 					char *buf);
- extern ssize_t cpu_show_itlb_multihit(struct device *dev,
- 				      struct device_attribute *attr, char *buf);
-+extern ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr, char *buf);
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -70,6 +70,7 @@
  
- extern __printf(4, 5)
- struct device *cpu_device_create(struct device *parent, void *drvdata,
+ #define INTEL_FAM6_ATOM_TREMONT_X	0x86 /* Jacobsville */
+ #define INTEL_FAM6_ATOM_TREMONT		0x96 /* Elkhart Lake */
++#define INTEL_FAM6_ATOM_TREMONT_L	0x9C /* Jasper Lake */
+ 
+ /* Xeon Phi */
+ 
 
 
