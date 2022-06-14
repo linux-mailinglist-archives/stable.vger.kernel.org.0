@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3171E54B8F4
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:45:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 523EB54B913
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:46:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357063AbiFNSlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 14:41:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58458 "EHLO
+        id S1357407AbiFNSoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 14:44:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356711AbiFNSlZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:41:25 -0400
+        with ESMTP id S1357389AbiFNSng (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:43:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F167A49909;
-        Tue, 14 Jun 2022 11:41:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DA501AF05;
+        Tue, 14 Jun 2022 11:42:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E6C4617C2;
-        Tue, 14 Jun 2022 18:41:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A891C3411D;
-        Tue, 14 Jun 2022 18:41:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0460A617C4;
+        Tue, 14 Jun 2022 18:42:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15C05C36AFE;
+        Tue, 14 Jun 2022 18:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655232081;
-        bh=o8lUshtwV6A8yIw598SaYBt6OQxFa+3oR479FU/UOwk=;
+        s=korg; t=1655232144;
+        bh=Bc7hEeqMzUBsfUqq5iS8Hq58ngTWCNdXjlT5U8mj9WU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zTt7qmfZ1scSr58nLDrCOiovxV1N2kqAPNDSKWRzHh/xyA0kYme1xrtPs3fYZeuR1
-         6r4F+fqOSNdFeXXGvb9RWuL61WxwjoXwtaogpOuNq5q1JJAsKZ5wna6HjwCmg9BQ+N
-         qW+WdYHTC0oTsNUQ65CcZgzlmEAJHjuimhqAGV+w=
+        b=sVVshz5vGno1YCH4PFwWRDkrW2yW9ba/gD46pj7dykSWgp2XXkC5f7V8FvFXJkq1X
+         OQ4zZJoiXCA6blZJpyn1mpFuYN62RlYuTKOSKqGVhzssCQSG5XJCQlu/DXQtkmysMP
+         GF9qD69fNolRxYEhWJSvYvpsXLVax0P/iMVEjBr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
+        Gayatri Kammela <gayatri.kammela@intel.com>,
+        Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>,
         Thomas Gleixner <tglx@linutronix.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 4.9 17/20] x86/speculation/srbds: Update SRBDS mitigation selection
+Subject: [PATCH 4.14 09/20] x86/cpu: Add another Alder Lake CPU to the Intel family
 Date:   Tue, 14 Jun 2022 20:40:00 +0200
-Message-Id: <20220614183726.151810525@linuxfoundation.org>
+Message-Id: <20220614183725.563972837@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220614183722.061550591@linuxfoundation.org>
-References: <20220614183722.061550591@linuxfoundation.org>
+In-Reply-To: <20220614183723.328825625@linuxfoundation.org>
+References: <20220614183723.328825625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +56,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Gayatri Kammela <gayatri.kammela@intel.com>
 
-commit 22cac9c677c95f3ac5c9244f8ca0afdc7c8afb19 upstream
+commit 6e1239c13953f3c2a76e70031f74ddca9ae57cd3 upstream.
 
-Currently, Linux disables SRBDS mitigation on CPUs not affected by
-MDS and have the TSX feature disabled. On such CPUs, secrets cannot
-be extracted from CPU fill buffers using MDS or TAA. Without SRBDS
-mitigation, Processor MMIO Stale Data vulnerabilities can be used to
-extract RDRAND, RDSEED, and EGETKEY data.
+Add Alder Lake mobile CPU model number to Intel family.
 
-Do not disable SRBDS mitigation by default when CPU is also affected by
-Processor MMIO Stale Data vulnerabilities.
-
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Gayatri Kammela <gayatri.kammela@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20210121215004.11618-1-tony.luck@intel.com
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/intel-family.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -577,11 +577,13 @@ static void __init srbds_select_mitigati
- 		return;
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -69,6 +69,7 @@
  
- 	/*
--	 * Check to see if this is one of the MDS_NO systems supporting
--	 * TSX that are only exposed to SRBDS when TSX is enabled.
-+	 * Check to see if this is one of the MDS_NO systems supporting TSX that
-+	 * are only exposed to SRBDS when TSX is enabled or when CPU is affected
-+	 * by Processor MMIO Stale Data vulnerability.
- 	 */
- 	ia32_cap = x86_read_arch_cap_msr();
--	if ((ia32_cap & ARCH_CAP_MDS_NO) && !boot_cpu_has(X86_FEATURE_RTM))
-+	if ((ia32_cap & ARCH_CAP_MDS_NO) && !boot_cpu_has(X86_FEATURE_RTM) &&
-+	    !boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA))
- 		srbds_mitigation = SRBDS_MITIGATION_TSX_OFF;
- 	else if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
- 		srbds_mitigation = SRBDS_MITIGATION_HYPERVISOR;
+ #define	INTEL_FAM6_LAKEFIELD		0x8A
+ #define INTEL_FAM6_ALDERLAKE		0x97
++#define INTEL_FAM6_ALDERLAKE_L		0x9A
+ 
+ /* "Small Core" Processors (Atom) */
+ 
 
 
