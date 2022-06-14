@@ -2,120 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AC3154ACEF
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 11:09:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DEAD54ACFC
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 11:11:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353790AbiFNJHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 05:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46360 "EHLO
+        id S1351069AbiFNJKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 05:10:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354344AbiFNJH2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 05:07:28 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7329541F93;
-        Tue, 14 Jun 2022 02:06:52 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id gd1so7954807pjb.2;
-        Tue, 14 Jun 2022 02:06:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=urc88U4jINF/LMrnPPXmV/iTF0lewPTLBo6jj1gLwoE=;
-        b=qU8snO6p1TpZvRrgGAyRUd+2iHHC7PMghN1ZNjsWqP5h3jEII4PWknvk2nJZjuhICp
-         1sR4lbq3/kyC4AJNGzc0K5Q5D3w/OYVJ1HELZQ6/CFi2u6B7eMQ43N4pS4fZN0zrq1gI
-         +NvaO4ltMiiQngypVhJcuL23aJRuIxHpCKQ762+QzxGyXe3Ta3UFQdrcFDSkADyxn4Gu
-         4RC3Rh+NVIGcKGBwoqyzlL6KVK0Uy7RtRHEtQFsY8xJp6lcwSPABsXiEnZASDeCH9ar2
-         OJWHlKfyKu5TL0ZcAiqJWhTqfpQMwjW18/17DoTNKbIVV1Ye/nksOP5I3VIrrz3Tw0C0
-         39NQ==
+        with ESMTP id S1353832AbiFNJKt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 05:10:49 -0400
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E659942A38;
+        Tue, 14 Jun 2022 02:10:45 -0700 (PDT)
+Received: by mail-wr1-f44.google.com with SMTP id c21so10364250wrb.1;
+        Tue, 14 Jun 2022 02:10:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=urc88U4jINF/LMrnPPXmV/iTF0lewPTLBo6jj1gLwoE=;
-        b=FfRkWY385DpPL0VaDhVFFNklLOdkN02auxHiSPRXKipxvo+EC1GUlqgxoU4O3LJ/FC
-         80777TgcqFkq4uT7gqsb9G/HNIK1ZzNra9TymyB3ihvuyi2TZoV/6Jy5ABH31jXO9ABT
-         3FsXZ7F5hYLdMditZ6wOn18IyJXLxiTZjagQorstARB0Byf68yqdDgHrkoDV/kjBMIlj
-         g4bBzYOvUu7OUiEDGHZJXdcAjQ583iWP/u+YuR1fsQyZ1geM7XFl/ITSJLHNjHfRpdF4
-         /KrYCtv3ZbBiyYsg6L5jg63yw3zfbqftArGF2E8QToTNXbhK0PDzIKFRf6cawdNRxcVb
-         vejg==
-X-Gm-Message-State: AJIora/MgKJDg2eroTicsoqJtRUjvFizMFJzH4diCqqx5RBd0HDQ+WN2
-        HW2O+0PcuZamgU3GNR09gH8=
-X-Google-Smtp-Source: AGRyM1vmXjjmsk9QBzZxDERFGj6j8VFL1i4u5KBc6KrSgaV8/ZOIAvXPBwSDsXd3turNJh7DY0QTVw==
-X-Received: by 2002:a17:90a:3182:b0:1e3:530d:6994 with SMTP id j2-20020a17090a318200b001e3530d6994mr3483998pjb.69.1655197611813;
-        Tue, 14 Jun 2022 02:06:51 -0700 (PDT)
-Received: from localhost.localdomain ([47.242.114.172])
-        by smtp.gmail.com with ESMTPSA id z5-20020a170902ccc500b0015e8d4eb2aesm6621153ple.248.2022.06.14.02.06.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jun 2022 02:06:51 -0700 (PDT)
-From:   Chuang W <nashuiliang@gmail.com>
-Cc:     Chuang W <nashuiliang@gmail.com>, stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, Jessica Yu <jeyu@kernel.org>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] kprobes: Rollback post_handler on failed arm_kprobe()
-Date:   Tue, 14 Jun 2022 17:06:33 +0800
-Message-Id: <20220614090633.43832-1-nashuiliang@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        bh=oqq//sNQTRKFksgXq8/+ru1bUeOh2rtemmad4D/w0ow=;
+        b=A3OvpXPt47T3UXdjehTEAqNaT/jsOgFwnaS+OBlPB0BqxaUJkr0GmuiBDRvGoJhDK1
+         UtKbYMmpHspmOz6pS1L+sExzkygQgQPnRji0moPyJMjNI/hZQg0yLEFQWIJ+h9pw7Xmc
+         x6behffJ0qRF/V0p2fBIHjQ7ChIgJTTsm55FQpE1iXTydN5RRQh7CjBOGyXzz7wsycLk
+         lJ9yZOXYo7YjlQGXODO1/n6/QYATP2/mnHWOePlCiH7P/ahwjSYTm6RucYRifiHG5XJk
+         XzUptef4SdSNMNEPwFRwAJglp3/9of/c7AvgRUVmMoVpebeCG1KuJFlTR7mO5MdOAGh7
+         D7Kg==
+X-Gm-Message-State: AJIora8wvvGtd+9U1ZXXGeHS3YSszy+xDXlmHkWDpm1hEBDyBeshl1+/
+        qlBEOxd3JEbG2TTl06itSo4=
+X-Google-Smtp-Source: AGRyM1vosJxqNeMBdLNP5fYIzkmDB3QHTeVR30D+2ItJMhmRH1aJiWiu/eC15R49D38cStWlTE8Mrg==
+X-Received: by 2002:a5d:6daf:0:b0:218:4f53:5810 with SMTP id u15-20020a5d6daf000000b002184f535810mr3875109wrs.43.1655197844334;
+        Tue, 14 Jun 2022 02:10:44 -0700 (PDT)
+Received: from ?IPV6:2a0b:e7c0:0:107::70f? ([2a0b:e7c0:0:107::70f])
+        by smtp.gmail.com with ESMTPSA id g7-20020a5d4887000000b002184a3a3641sm11042522wrq.100.2022.06.14.02.10.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Jun 2022 02:10:43 -0700 (PDT)
+Message-ID: <db8b5375-1f09-2000-cb83-d939e2018d0f@kernel.org>
+Date:   Tue, 14 Jun 2022 11:10:42 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH 5.18 000/343] 5.18.4-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220613181233.078148768@linuxfoundation.org>
+From:   Jiri Slaby <jirislaby@kernel.org>
+In-Reply-To: <20220613181233.078148768@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In a scenario where livepatch and aggrprobe coexist, if arm_kprobe()
-returns an error, ap.post_handler, while has been modified to
-p.post_handler, is not rolled back.
+On 13. 06. 22, 20:18, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.18.4 release.
+> There are 343 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 15 Jun 2022 18:11:39 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.4-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
 
-When ap.post_handler is not NULL (not rolled back), the caller (e.g.
-register_kprobe/enable_kprobe) of arm_kprobe_ftrace() will always fail.
+openSUSE configs¹⁾ all green.
 
-Fixes: 12310e343755 ("kprobes: Propagate error from arm_kprobe_ftrace()")
-Signed-off-by: Chuang W <nashuiliang@gmail.com>
-Cc: <stable@vger.kernel.org>
----
- kernel/kprobes.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Tested-by: Jiri Slaby <jirislaby@kernel.org>
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index f214f8c088ed..0610b02a3a05 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1300,6 +1300,7 @@ static int register_aggr_kprobe(struct kprobe *orig_p, struct kprobe *p)
- {
- 	int ret = 0;
- 	struct kprobe *ap = orig_p;
-+	kprobe_post_handler_t old_post_handler = NULL;
- 
- 	cpus_read_lock();
- 
-@@ -1351,6 +1352,9 @@ static int register_aggr_kprobe(struct kprobe *orig_p, struct kprobe *p)
- 
- 	/* Copy the insn slot of 'p' to 'ap'. */
- 	copy_kprobe(ap, p);
-+
-+	/* save the old post_handler */
-+	old_post_handler = ap->post_handler;
- 	ret = add_new_kprobe(ap, p);
- 
- out:
-@@ -1365,6 +1369,7 @@ static int register_aggr_kprobe(struct kprobe *orig_p, struct kprobe *p)
- 			ret = arm_kprobe(ap);
- 			if (ret) {
- 				ap->flags |= KPROBE_FLAG_DISABLED;
-+				ap->post_handler = old_post_handler;
- 				list_del_rcu(&p->list);
- 				synchronize_rcu();
- 			}
+¹⁾ armv6hl armv7hl arm64 i386 ppc64 ppc64le riscv64 s390x x86_64
+
 -- 
-2.34.1
-
+js
+suse labs
