@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B56354A5AD
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E457D54A57A
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353526AbiFNCQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:16:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55874 "EHLO
+        id S1353542AbiFNCQo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:16:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352691AbiFNCPR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:15:17 -0400
+        with ESMTP id S1353168AbiFNCPU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:15:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2873D1ED;
-        Mon, 13 Jun 2022 19:09:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B5E23D49A;
+        Mon, 13 Jun 2022 19:09:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40E32B80AC1;
-        Tue, 14 Jun 2022 02:08:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39223C3411B;
-        Tue, 14 Jun 2022 02:08:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88A9FB816A3;
+        Tue, 14 Jun 2022 02:09:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63B7CC341C5;
+        Tue, 14 Jun 2022 02:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172538;
-        bh=u6BCNLTrsZoIKbQqERzMMZ5VeSUX1G5hq5Lifk5rhkk=;
+        s=k20201202; t=1655172539;
+        bh=WfV5UKv776FqMnNvo9Wlw5GDgirC1sg9WoBQpTZM3NE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LCMrWfnTQdBjb4RkbJI8CkTLpnYXRgpEAenu1yLtSd5V55zhv9zkbRoOzsU8bB2lU
-         k35M1pGNXVHp1mp8g/yYtrsWuu3kyHEI926o5Ok1WbE42viyKcK5Lh1/sWw1tSXPI1
-         pBDC5vPXUvl278j7qz0s8Xc0e82dhzhEwYSVGcT01Jkc+vGNNqOxy/r36g+SDR6d1I
-         WDeZZGzHyZ67WOvoz5DTvtyrJvZrAdhaIyIZoPKem3ChPgCHAHRCS/uUo+xtIAuGic
-         VDgjU9AejGuWXxpH9yC/GAI+yMrpl5IAg8ZRv3bDsyy68pgVF7tKIQ2rOutZ1QB0Sv
-         whMIp9HR6MPCA==
+        b=cju5CstmPi32xFs7Z3bYVX4MZwAqY/Drn1Ds/kndUblG6mrPpOm7FzD2GOxoYsX5K
+         AnCItzEn/jwgdnzWDtOvo0QTB/o5sdsPdcy7I3Vj4qy5hNFJslKLmP4LMTSHDWpY8N
+         hp9A5haVt/lFPu2mI0dWYuQL9TF7+rlWHTtxeAP0+bvmCBKp/ajRAxZoIho50ro+U4
+         a+E8Hq0KU8otZ8MCiKp0iqU34JdHM/DQzGLOjIwebsRuwUFnoESo6vL65WdcHY6ShA
+         qO2zTPSt9y55f2hppfAb1/6bCZr29S7BusBemam4KnSXSAEu1fv8OQCfjfcQv2v5p0
+         IBcx8LD6/SBog==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yupeng Li <liyupeng@zbhlos.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 28/29] MIPS: Loongson-3: fix compile mips cpu_hwmon as module build error.
-Date:   Mon, 13 Jun 2022 22:08:14 -0400
-Message-Id: <20220614020815.1099999-28-sashal@kernel.org>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>, linus.walleij@linaro.org,
+        gnurou@gmail.com, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 29/29] gpio: dwapb: Don't print error on -EPROBE_DEFER
+Date:   Mon, 13 Jun 2022 22:08:15 -0400
+Message-Id: <20220614020815.1099999-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614020815.1099999-1-sashal@kernel.org>
 References: <20220614020815.1099999-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,50 +58,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yupeng Li <liyupeng@zbhlos.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 41e456400212803704e82691716e1d7b0865114a ]
+[ Upstream commit 77006f6edc0e0f58617eb25e53731f78641e820d ]
 
-  set cpu_hwmon as a module build with loongson_sysconf, loongson_chiptemp
-  undefined error,fix cpu_hwmon compile options to be bool.Some kernel
-  compilation error information is as follows:
+Currently if the APB or Debounce clocks aren't yet ready to be requested
+the DW GPIO driver will correctly handle that by deferring the probe
+procedure, but the error is still printed to the system log. It needlessly
+pollutes the log since there was no real error but a request to postpone
+the clock request procedure since the clocks subsystem hasn't been fully
+initialized yet. Let's fix that by using the dev_err_probe method to print
+the APB/clock request error status. It will correctly handle the deferred
+probe situation and print the error if it actually happens.
 
-  Checking missing-syscalls for N32
-  CALL    scripts/checksyscalls.sh
-  Checking missing-syscalls for O32
-  CALL    scripts/checksyscalls.sh
-  CALL    scripts/checksyscalls.sh
-  CHK     include/generated/compile.h
-  CC [M]  drivers/platform/mips/cpu_hwmon.o
-  Building modules, stage 2.
-  MODPOST 200 modules
-ERROR: "loongson_sysconf" [drivers/platform/mips/cpu_hwmon.ko] undefined!
-ERROR: "loongson_chiptemp" [drivers/platform/mips/cpu_hwmon.ko] undefined!
-make[1]: *** [scripts/Makefile.modpost:92：__modpost] 错误 1
-make: *** [Makefile:1261：modules] 错误 2
-
-Signed-off-by: Yupeng Li <liyupeng@zbhlos.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Huacai Chen <chenhuacai@kernel.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/mips/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-dwapb.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/platform/mips/Kconfig b/drivers/platform/mips/Kconfig
-index 8ac149173c64..495da331ca2d 100644
---- a/drivers/platform/mips/Kconfig
-+++ b/drivers/platform/mips/Kconfig
-@@ -17,7 +17,7 @@ menuconfig MIPS_PLATFORM_DEVICES
- if MIPS_PLATFORM_DEVICES
+diff --git a/drivers/gpio/gpio-dwapb.c b/drivers/gpio/gpio-dwapb.c
+index 4275c18a097a..ea2e2618b794 100644
+--- a/drivers/gpio/gpio-dwapb.c
++++ b/drivers/gpio/gpio-dwapb.c
+@@ -646,10 +646,9 @@ static int dwapb_get_clks(struct dwapb_gpio *gpio)
+ 	gpio->clks[1].id = "db";
+ 	err = devm_clk_bulk_get_optional(gpio->dev, DWAPB_NR_CLOCKS,
+ 					 gpio->clks);
+-	if (err) {
+-		dev_err(gpio->dev, "Cannot get APB/Debounce clocks\n");
+-		return err;
+-	}
++	if (err)
++		return dev_err_probe(gpio->dev, err,
++				     "Cannot get APB/Debounce clocks\n");
  
- config CPU_HWMON
--	tristate "Loongson-3 CPU HWMon Driver"
-+	bool "Loongson-3 CPU HWMon Driver"
- 	depends on MACH_LOONGSON64
- 	select HWMON
- 	default y
+ 	err = clk_bulk_prepare_enable(DWAPB_NR_CLOCKS, gpio->clks);
+ 	if (err) {
 -- 
 2.35.1
 
