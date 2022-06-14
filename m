@@ -2,102 +2,637 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E06654B47F
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 17:22:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE5A954B484
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 17:27:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237783AbiFNPVx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 11:21:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54006 "EHLO
+        id S238069AbiFNPZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 11:25:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231856AbiFNPVw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 11:21:52 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E804E3C489
-        for <stable@vger.kernel.org>; Tue, 14 Jun 2022 08:21:51 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25EFBuxw004488;
-        Tue, 14 Jun 2022 15:21:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : in-reply-to : references : date : message-id : mime-version :
- content-type; s=pp1; bh=21lpP9JTQRAj1ITO6rdeXuuAe+mToT52HieBzrIyNnQ=;
- b=aEAQ3ibcDdcge+zaYrwQ5JRrrJZhjGv5AqbBw1KOwLiUAjrSnAD+xg7kkwQFTlu2wHMA
- uD3OUrX5P5XGLap/ecb43Xoon85K+D1maOqT0jpEjbsqFL4fWbwLI0hZLCWVE0mEfIOz
- RLYxlfoOabRMZkdc4w5wumIaX9IdUYSfD+BL865kDX4UbD5dljmZsAOS6+hyCI2aCNEx
- Tq2RDXXuTaAs3iLAihB/R7z/+LerxvMcT4nsmfrlIKkW7JdK91+JFzbSunSp57T6kYC+
- RgG/lgkgRwd4VOv6dgjlswJAil879GfAwcVukGN8CW4SiqZseyx5Y8tpjyYoWsgxEuCU 3Q== 
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gpbuqfy35-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Jun 2022 15:21:46 +0000
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25EF5jht019101;
-        Tue, 14 Jun 2022 15:21:45 GMT
-Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
-        by ppma04wdc.us.ibm.com with ESMTP id 3gmjp9n72n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Jun 2022 15:21:45 +0000
-Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
-        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25EFLiXe25231760
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Jun 2022 15:21:44 GMT
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C07ED6A051;
-        Tue, 14 Jun 2022 15:21:44 +0000 (GMT)
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9DDAE6A047;
-        Tue, 14 Jun 2022 15:21:44 +0000 (GMT)
-Received: from localhost (unknown [9.163.13.123])
-        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Jun 2022 15:21:44 +0000 (GMT)
-From:   Nathan Lynch <nathanl@linux.ibm.com>
-To:     Andrew Donnellan <ajd@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org
-Cc:     stable@vger.kernel.org, Sathvika Vasireddy <sathvika@linux.ibm.com>
-Subject: Re: [PATCH] powerpc/rtas: Allow ibm,platform-dump RTAS call with
- null buffer address
-In-Reply-To: <20220614134952.156010-1-ajd@linux.ibm.com>
-References: <20220614134952.156010-1-ajd@linux.ibm.com>
-Date:   Tue, 14 Jun 2022 10:21:44 -0500
-Message-ID: <87bkuv8e47.fsf@linux.ibm.com>
+        with ESMTP id S1344213AbiFNPZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 11:25:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCB32222AA;
+        Tue, 14 Jun 2022 08:25:12 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78415B81987;
+        Tue, 14 Jun 2022 15:25:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EC26C3411B;
+        Tue, 14 Jun 2022 15:25:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1655220310;
+        bh=cEIZVfq+nj6g/U1cs/TaFm7tb/V0LQr2HmkuB7fXnLw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BipYB0XwSIq2FMK7esM4wuElF66/oxiHHzRw3gGQBEekrUZ/9yzWWxYUYULmK48ty
+         mRz8D5Zfv2EyWKDkK+LkFl7JfKkjpjbmBHSa4TtzcZ3MRtjVyn3uVuHuQ9YENSL3JB
+         sRigyz1cK0x09PibAVxycKxfxVX22GjYLUd3/KvE=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.9.318
+Date:   Tue, 14 Jun 2022 17:25:06 +0200
+Message-Id: <16552203061109@kroah.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: DbMc3a7co7PNOi6UKZoopSp1Iw4lhkTD
-X-Proofpoint-ORIG-GUID: DbMc3a7co7PNOi6UKZoopSp1Iw4lhkTD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-14_05,2022-06-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
- priorityscore=1501 impostorscore=0 mlxscore=0 malwarescore=0
- mlxlogscore=926 suspectscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
- adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206140059
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Andrew Donnellan <ajd@linux.ibm.com> writes:
-> Add a special case to block_rtas_call() to allow the ibm,platform-dump RTAS
-> call through the RTAS filter if the buffer address is 0.
->
-> According to PAPR, ibm,platform-dump is called with a null buffer address
-> to notify the platform firmware that processing of a particular dump is
-> finished.
->
-> Without this, on a pseries machine with CONFIG_PPC_RTAS_FILTER enabled, an
-> application such as rtas_errd that is attempting to retrieve a dump will
-> encounter an error at the end of the retrieval process.
->
-> Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
-> Cc: stable@vger.kernel.org
-> Reported-by: Sathvika Vasireddy <sathvika@linux.ibm.com>
-> Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+I'm announcing the release of the 4.9.318 kernel.
 
-I agree this allows ibm,platform-dump to work without weakening the
-filter for other calls. Thanks.
+All users of the 4.9 kernel series must upgrade.
 
-Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Documentation/ABI/testing/sysfs-ata                     |    5 
+ Documentation/conf.py                                   |    2 
+ Documentation/devicetree/bindings/gpio/gpio-altera.txt  |    5 
+ Makefile                                                |    2 
+ arch/arm/boot/dts/exynos5250-smdk5250.dts               |    4 
+ arch/arm/mach-hisi/platsmp.c                            |    4 
+ arch/arm/mach-omap1/clock.c                             |    2 
+ arch/arm/mach-vexpress/dcscb.c                          |    1 
+ arch/m68k/Kconfig.cpu                                   |    2 
+ arch/m68k/Kconfig.machine                               |    1 
+ arch/m68k/include/asm/pgtable_no.h                      |    3 
+ arch/mips/include/asm/mach-ip27/cpu-feature-overrides.h |    1 
+ arch/openrisc/include/asm/timex.h                       |    1 
+ arch/openrisc/kernel/head.S                             |    9 +
+ arch/powerpc/kernel/idle.c                              |    2 
+ arch/powerpc/kernel/ptrace.c                            |   18 ++-
+ arch/powerpc/sysdev/cpm1.c                              |    1 
+ arch/powerpc/sysdev/ppc4xx_cpm.c                        |    2 
+ arch/powerpc/sysdev/xics/icp-opal.c                     |    1 
+ arch/um/drivers/chan_user.c                             |    9 -
+ arch/x86/include/asm/acenv.h                            |   14 ++
+ arch/x86/include/asm/suspend_32.h                       |    2 
+ arch/x86/include/asm/suspend_64.h                       |   12 +-
+ arch/x86/kernel/step.c                                  |    3 
+ arch/x86/kernel/sys_x86_64.c                            |    7 -
+ arch/x86/lib/delay.c                                    |    4 
+ arch/x86/um/ldt.c                                       |    6 -
+ arch/xtensa/kernel/ptrace.c                             |    4 
+ arch/xtensa/kernel/signal.c                             |    4 
+ drivers/ata/libata-transport.c                          |    2 
+ drivers/ata/pata_octeon_cf.c                            |    3 
+ drivers/base/node.c                                     |    1 
+ drivers/char/ipmi/ipmi_ssif.c                           |   23 +++
+ drivers/clocksource/timer-oxnas-rps.c                   |    2 
+ drivers/clocksource/timer-sp804.c                       |   10 -
+ drivers/firmware/dmi-sysfs.c                            |    2 
+ drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c                  |    2 
+ drivers/gpu/drm/amd/amdgpu/kv_dpm.c                     |   14 --
+ drivers/gpu/drm/amd/amdgpu/si_dpm.c                     |    8 -
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c      |   13 ++
+ drivers/gpu/drm/gma500/psb_intel_display.c              |    7 -
+ drivers/gpu/drm/mediatek/mtk_cec.c                      |    2 
+ drivers/gpu/drm/msm/dsi/dsi_host.c                      |   21 ++-
+ drivers/gpu/drm/msm/hdmi/hdmi.c                         |    4 
+ drivers/gpu/drm/msm/msm_gem_prime.c                     |    2 
+ drivers/gpu/drm/radeon/radeon_connectors.c              |    4 
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c             |    2 
+ drivers/gpu/drm/virtio/virtgpu_display.c                |    2 
+ drivers/hid/hid-led.c                                   |    2 
+ drivers/i2c/busses/i2c-cadence.c                        |   12 +-
+ drivers/iio/dummy/iio_simple_dummy.c                    |   20 ++-
+ drivers/infiniband/hw/hfi1/init.c                       |    2 
+ drivers/infiniband/sw/rxe/rxe_req.c                     |    2 
+ drivers/input/misc/sparcspkr.c                          |    1 
+ drivers/input/mouse/bcm5974.c                           |    7 +
+ drivers/iommu/amd_iommu_init.c                          |    2 
+ drivers/iommu/msm_iommu.c                               |   11 +
+ drivers/irqchip/irq-armada-370-xp.c                     |   11 +
+ drivers/irqchip/irq-xtensa-mx.c                         |   18 ++-
+ drivers/macintosh/Kconfig                               |    4 
+ drivers/macintosh/Makefile                              |    3 
+ drivers/macintosh/via-pmu.c                             |    2 
+ drivers/md/md.c                                         |   33 +++--
+ drivers/media/pci/cx25821/cx25821-core.c                |    2 
+ drivers/media/platform/exynos4-is/fimc-is.c             |    2 
+ drivers/media/platform/exynos4-is/fimc-isp-video.h      |    2 
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c                 |    7 -
+ drivers/media/usb/uvc/uvc_v4l2.c                        |   20 +--
+ drivers/mfd/ipaq-micro.c                                |    2 
+ drivers/mfd/rtsx_usb.c                                  |    1 
+ drivers/misc/lkdtm_usercopy.c                           |   17 ++
+ drivers/mtd/chips/cfi_cmdset_0002.c                     |   93 +++++++++-------
+ drivers/net/ethernet/altera/altera_tse_main.c           |    6 -
+ drivers/net/ethernet/broadcom/Makefile                  |    5 
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c             |    3 
+ drivers/net/ethernet/mellanox/mlx4/en_ethtool.c         |    2 
+ drivers/net/wireless/ath/ath9k/ar9003_phy.h             |    2 
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c           |    8 +
+ drivers/net/wireless/ath/carl9170/tx.c                  |    3 
+ drivers/net/wireless/broadcom/b43/phy_n.c               |    2 
+ drivers/net/wireless/broadcom/b43legacy/phy.c           |    2 
+ drivers/net/wireless/intel/ipw2x00/libipw_tx.c          |    2 
+ drivers/net/wireless/intel/iwlwifi/mvm/power.c          |    3 
+ drivers/net/wireless/marvell/mwifiex/11h.c              |    2 
+ drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c      |    8 +
+ drivers/nfc/st21nfca/se.c                               |   15 +-
+ drivers/nvme/host/pci.c                                 |    1 
+ drivers/pci/host/pcie-qcom.c                            |    7 +
+ drivers/pci/pci.c                                       |   10 -
+ drivers/pcmcia/Kconfig                                  |    2 
+ drivers/pwm/pwm-lp3943.c                                |    1 
+ drivers/regulator/pfuze100-regulator.c                  |    2 
+ drivers/rpmsg/qcom_smd.c                                |    2 
+ drivers/rtc/rtc-mt6397.c                                |    2 
+ drivers/scsi/dc395x.c                                   |   15 ++
+ drivers/scsi/fcoe/fcoe_ctlr.c                           |    2 
+ drivers/scsi/megaraid.c                                 |    2 
+ drivers/scsi/ufs/ufs-qcom.c                             |    7 -
+ drivers/soc/qcom/smp2p.c                                |    1 
+ drivers/soc/qcom/smsm.c                                 |    1 
+ drivers/spi/spi-img-spfi.c                              |    2 
+ drivers/spi/spi-ti-qspi.c                               |    5 
+ drivers/staging/greybus/audio_codec.c                   |    4 
+ drivers/staging/rtl8192e/rtllib_softmac.c               |    2 
+ drivers/staging/rtl8712/usb_intf.c                      |    6 -
+ drivers/tty/serial/digicolor-usart.c                    |    2 
+ drivers/tty/serial/icom.c                               |    2 
+ drivers/tty/serial/meson_uart.c                         |   13 ++
+ drivers/tty/serial/msm_serial.c                         |    5 
+ drivers/tty/serial/sa1100.c                             |    4 
+ drivers/tty/serial/serial_txx9.c                        |    2 
+ drivers/tty/serial/sh-sci.c                             |    6 -
+ drivers/tty/serial/st-asc.c                             |    4 
+ drivers/tty/synclink_gt.c                               |    2 
+ drivers/tty/tty_buffer.c                                |    3 
+ drivers/usb/core/hcd-pci.c                              |    4 
+ drivers/usb/core/quirks.c                               |    3 
+ drivers/usb/dwc2/gadget.c                               |    1 
+ drivers/usb/host/isp116x-hcd.c                          |    6 -
+ drivers/usb/host/oxu210hp-hcd.c                         |    2 
+ drivers/usb/storage/karma.c                             |   15 +-
+ drivers/usb/usbip/stub_dev.c                            |    2 
+ drivers/usb/usbip/stub_rx.c                             |    2 
+ drivers/vhost/vringh.c                                  |   10 +
+ drivers/video/fbdev/amba-clcd.c                         |    5 
+ drivers/video/fbdev/pxa3xx-gcu.c                        |   12 +-
+ fs/btrfs/disk-io.c                                      |    4 
+ fs/cifs/smb2pdu.c                                       |    3 
+ fs/dlm/lock.c                                           |   11 +
+ fs/dlm/plock.c                                          |   12 --
+ fs/ext4/inline.c                                        |   12 ++
+ fs/ext4/namei.c                                         |   62 ++++++++--
+ fs/fat/fatent.c                                         |    7 -
+ fs/fs-writeback.c                                       |   13 +-
+ fs/jffs2/fs.c                                           |    1 
+ fs/jfs/jfs_dmap.c                                       |    3 
+ fs/notify/fdinfo.c                                      |   11 -
+ fs/notify/inotify/inotify.h                             |   12 ++
+ fs/notify/inotify/inotify_user.c                        |    2 
+ fs/ocfs2/dlmfs/userdlm.c                                |   16 ++
+ include/drm/drm_edid.h                                  |    6 -
+ include/linux/mtd/cfi.h                                 |    1 
+ include/linux/nodemask.h                                |   51 ++++----
+ include/linux/ptrace.h                                  |    6 -
+ include/scsi/libfcoe.h                                  |    3 
+ include/sound/jack.h                                    |    1 
+ kernel/ptrace.c                                         |    5 
+ kernel/trace/trace.c                                    |    7 +
+ lib/dma-debug.c                                         |    2 
+ lib/nlattr.c                                            |    2 
+ lib/nodemask.c                                          |    4 
+ mm/hugetlb.c                                            |    9 +
+ net/bluetooth/sco.c                                     |   21 ++-
+ net/ipv4/tcp_input.c                                    |   11 +
+ net/ipv4/tcp_output.c                                   |    4 
+ net/ipv4/xfrm4_protocol.c                               |    1 
+ net/ipv6/addrconf.c                                     |    3 
+ net/key/af_key.c                                        |   10 +
+ net/mac80211/chan.c                                     |    7 -
+ net/mac80211/ieee80211_i.h                              |    5 
+ net/mac80211/scan.c                                     |   20 +++
+ net/netfilter/nf_tables_api.c                           |   16 +-
+ net/netfilter/nft_dynset.c                              |    3 
+ net/nfc/core.c                                          |    1 
+ net/rxrpc/call_event.c                                  |    3 
+ net/rxrpc/sendmsg.c                                     |    6 +
+ net/rxrpc/sysctl.c                                      |    4 
+ net/sctp/input.c                                        |    4 
+ net/sunrpc/xdr.c                                        |    6 -
+ scripts/mod/modpost.c                                   |    5 
+ sound/core/jack.c                                       |   34 ++++-
+ sound/pci/hda/patch_conexant.c                          |    7 +
+ sound/soc/codecs/rt5514.c                               |    2 
+ sound/soc/codecs/rt5645.c                               |    6 +
+ sound/soc/codecs/wm2000.c                               |    6 -
+ sound/soc/mediatek/mt8173/mt8173-max98090.c             |    5 
+ sound/soc/mxs/mxs-saif.c                                |    1 
+ sound/soc/soc-dapm.c                                    |    2 
+ 178 files changed, 846 insertions(+), 386 deletions(-)
+
+Akira Yokosawa (1):
+      docs/conf.py: Cope with removal of language=None in Sphinx 5.0.0
+
+Alexander Aring (2):
+      dlm: fix plock invalid read
+      dlm: fix missing lkb refcount handling
+
+Alexander Lobakin (1):
+      modpost: fix removing numeric suffixes
+
+Alexander Wetzel (1):
+      rtl818x: Prevent using not initialized queues
+
+Amadeusz Sławiński (1):
+      ALSA: jack: Access input_dev under mutex
+
+Amir Goldstein (1):
+      inotify: show inotify mask flags in proc fdinfo
+
+Ammar Faizi (1):
+      x86/delay: Fix the wrong asm constraint in delay_loop()
+
+Andre Przywara (1):
+      clocksource/drivers/sp804: Avoid error on multiple instances
+
+Baokun Li (1):
+      jffs2: fix memory leak in jffs2_do_fill_super
+
+Brian Norris (1):
+      drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
+
+Christophe de Dinechin (1):
+      nodemask.h: fix compilation error with GCC12
+
+Chuck Lever (1):
+      SUNRPC: Fix the calculation of xdr->end in xdr_get_next_encode_buffer()
+
+Corey Minyard (1):
+      ipmi:ssif: Check for NULL msg when handling events and messages
+
+Dan Carpenter (3):
+      ath9k_htc: fix potential out of bounds access with invalid rxstatus->rs_keyix
+      drm/msm: return an error pointer in msm_gem_prime_get_sg_table()
+      net: ethernet: mtk_eth_soc: out of bounds read in mtk_hwlro_get_fdir_entry()
+
+Dave Airlie (1):
+      drm/amdgpu/cs: make commands with 0 chunks illegal behaviour.
+
+David Howells (3):
+      rxrpc: Return an error to sendmsg if call failed
+      rxrpc: Fix listen() setting the bar too high for the prealloc rings
+      rxrpc: Don't try to resend the request if we're receiving the reply
+
+Dennis Dalessandro (1):
+      RDMA/hfi1: Fix potential integer multiplication overflow errors
+
+Dinh Nguyen (1):
+      dt-bindings: gpio: altera: correct interrupt-cells
+
+Dmitry Baryshkov (1):
+      drm/msm/dsi: fix error checks and return values for DSI xmit functions
+
+Duoming Zhou (3):
+      drivers: staging: rtl8192e: Fix deadlock in rtllib_beacons_stop()
+      drivers: tty: serial: Fix deadlock in sa1100_set_termios()
+      drivers: usb: host: Fix deadlock in oxu_bus_suspend()
+
+Emmanuel Grumbach (1):
+      iwlwifi: mvm: fix assert 1F04 upon reconfig
+
+Eric Dumazet (3):
+      sctp: read sk->sk_bound_dev_if once in sctp_rcv()
+      tcp: tcp_rtx_synack() can be called from process context
+      tcp: fix tcp_mtup_probe_success vs wrong snd_cwnd
+
+Eric W. Biederman (2):
+      ptrace/xtensa: Replace PT_SINGLESTEP with TIF_SINGLESTEP
+      ptrace: Reimplement PTRACE_KILL by always sending SIGKILL
+
+Evan Green (1):
+      USB: hcd-pci: Fully suspend across freeze/thaw cycle
+
+Evan Quan (1):
+      drm/amd/pm: fix the compile warning
+
+Felix Fietkau (1):
+      mac80211: upgrade passive scan to active scan on DFS channels after beacon rx
+
+Finn Thain (1):
+      macintosh/via-pmu: Fix build failure when CONFIG_INPUT is disabled
+
+Gal Pressman (1):
+      net/mlx4_en: Fix wrong return value on ioctl EEPROM query failure
+
+Geert Uytterhoeven (1):
+      m68k: math-emu: Fix dependencies of math emulation support
+
+Gong Yuanjun (1):
+      drm/radeon: fix a possible null pointer dereference
+
+Greg Kroah-Hartman (1):
+      Linux 4.9.318
+
+Greg Ungerer (2):
+      m68knommu: set ZERO_PAGE() to the allocated zeroed page
+      m68knommu: fix undefined reference to `_init_sp'
+
+Guoqing Jiang (1):
+      md: protect md_unregister_thread from reentrancy
+
+Gustavo A. R. Silva (1):
+      scsi: fcoe: Fix Wstringop-overflow warnings in fcoe_wwn_from_mac()
+
+Hangyu Hua (1):
+      usb: usbip: fix a refcount leak in stub_probe()
+
+Haowen Bai (3):
+      b43legacy: Fix assigning negative value to unsigned variable
+      b43: Fix assigning negative value to unsigned variable
+      ipw2x00: Fix potential NULL dereference in libipw_xmit()
+
+Huang Guobin (1):
+      tty: Fix a possible resource leak in icom_probe
+
+Ilpo Järvinen (4):
+      serial: digicolor-usart: Don't allow CS5-6
+      serial: txx9: Don't allow CS5-6
+      serial: sh-sci: Don't allow CS5-6
+      serial: st-asc: Sanitize CSIZE and correct PARENB for CS7
+
+Jakob Koschel (1):
+      staging: greybus: codecs: fix type confusion of list iterator variable
+
+Jakub Kicinski (1):
+      eth: tg3: silence the GCC 12 array-bounds warning
+
+Jan Kara (1):
+      ext4: verify dir block before splitting it
+
+Janusz Krzysztofik (1):
+      ARM: OMAP1: clock: Fix UART rate reporting algorithm
+
+Jason A. Donenfeld (1):
+      openrisc: start CPU timer early in boot
+
+Joerg Roedel (1):
+      iommu/amd: Increase timeout waiting for GA log enablement
+
+Johan Hovold (1):
+      PCI: qcom: Fix unbalanced PHY init on probe errors
+
+Johannes Berg (2):
+      wifi: mac80211: fix use-after-free in chanctx code
+      um: chan_user: Fix winch_tramp() return value
+
+John Ogness (2):
+      serial: meson: acquire port->lock in startup()
+      serial: msm_serial: disable interrupts in __msm_console_write()
+
+Jonathan Teh (1):
+      HID: hid-led: fix maximum brightness for Dream Cheeky
+
+Junxiao Bi via Ocfs2-devel (1):
+      ocfs2: dlmfs: fix error handling of user_dlm_destroy_lock
+
+Kees Cook (2):
+      lkdtm/usercopy: Expand size of "out of frame" object
+      nodemask: Fix return values to be unsigned
+
+Keita Suzuki (1):
+      drm/amd/pm: fix double free in si_parse_power_table()
+
+Kirill A. Shutemov (1):
+      ACPICA: Avoid cache flush inside virtual machines
+
+Krzysztof Kozlowski (3):
+      ARM: dts: exynos: add atmel,24c128 fallback to Samsung EEPROM
+      rpmsg: qcom_smd: Fix irq_of_parse_and_map() return value
+      clocksource/drivers/oxnas-rps: Fix irq_of_parse_and_map() return value
+
+Kwanghoon Son (1):
+      media: exynos4-is: Fix compile warning
+
+Lin Ma (3):
+      ASoC: rt5645: Fix errorenous cleanup order
+      NFC: NULL out the dev->rfkill to prevent UAF
+      USB: storage: karma: fix rio_karma_init return
+
+Linus Torvalds (1):
+      drm: fix EDID struct for old ARM OABI format
+
+Liu Zixian (1):
+      drm/virtio: fix NULL pointer dereference in virtio_gpu_conn_get_modes
+
+Lucas Tanure (1):
+      i2c: cadence: Increase timeout per message if necessary
+
+Lv Ruyi (3):
+      scsi: megaraid: Fix error check return value of register_chrdev()
+      powerpc/xics: fix refcount leak in icp_opal_init()
+      mfd: ipaq-micro: Fix error check return value of platform_get_irq()
+
+Maciej W. Rozycki (1):
+      MIPS: IP27: Remove incorrect `cpu_has_fpu' override
+
+Maciej Żenczykowski (1):
+      net: fix nla_strcmp to handle more then one trailing null character
+
+Manivannan Sadhasivam (1):
+      scsi: ufs: qcom: Add a readl() to make sure ref_clk gets enabled
+
+Marek Szyprowski (1):
+      usb: dwc2: gadget: don't reset gadget's driver->bus
+
+Mark Brown (2):
+      ASoC: dapm: Don't fold register value changes into notifications
+      ASoC: rt5514: Fix event generation for "DSP Voice Wake Up" control
+
+Mark-PK Tsai (1):
+      tracing: Avoid adding tracer option before update_tracer_options
+
+Martin Faltesek (2):
+      nfc: st21nfca: fix incorrect validating logic in EVT_TRANSACTION
+      nfc: st21nfca: fix memory leaks in EVT_TRANSACTION handling
+
+Masahiro Yamada (2):
+      net: xfrm: unexport __init-annotated xfrm4_protocol_init()
+      modpost: fix undefined behavior of is_arm_mapping_symbol()
+
+Mathias Nyman (1):
+      Input: bcm5974 - set missing URB_NO_TRANSFER_DMA_MAP urb flag
+
+Matthieu Baerts (1):
+      x86/pm: Fix false positive kmemleak report in msr_build_context()
+
+Max Filippov (1):
+      irqchip: irq-xtensa-mx: fix initial IRQ affinity
+
+Miaohe Lin (1):
+      drivers/base/node.c: fix compaction sysfs file leak
+
+Miaoqian Lin (12):
+      ASoC: mediatek: Fix error handling in mt8173_max98090_dev_probe
+      spi: spi-ti-qspi: Fix return value handling of wait_for_completion_timeout
+      ASoC: mxs-saif: Fix refcount leak in mxs_saif_probe
+      regulator: pfuze100: Fix refcount leak in pfuze_parse_regulators_dt
+      media: exynos4-is: Change clk_disable to clk_disable_unprepare
+      soc: qcom: smp2p: Fix missing of_node_put() in smp2p_parse_ipc
+      soc: qcom: smsm: Fix missing of_node_put() in smsm_parse_ipc
+      Input: sparcspkr - fix refcount leak in bbc_beep_probe
+      video: fbdev: clcdfb: Fix refcount leak in clcdfb_of_vram_setup
+      firmware: dmi-sysfs: Fix memory leak in dmi_sysfs_register_handle
+      ata: pata_octeon_cf: Fix refcount leak in octeon_cf_probe
+      net: altera: Fix refcount leak in altera_tse_mdio_create
+
+Michael Ellerman (1):
+      powerpc/32: Fix overread/overwrite of thread_struct via ptrace
+
+Michal Kubecek (1):
+      Revert "net: af_key: add check for pfkey_broadcast in function pfkey_process"
+
+Mike Kravetz (1):
+      hugetlb: fix huge_pmd_unshare address update
+
+Mikulas Patocka (1):
+      dma-debug: change allocation mode from GFP_NOWAIT to GFP_ATIOMIC
+
+Miles Chen (1):
+      drm/mediatek: Fix mtk_cec_mask()
+
+Monish Kumar R (1):
+      USB: new quirk for Dell Gen 2 devices
+
+Niels Dossche (2):
+      mwifiex: add mutex lock for call in mwifiex_dfs_chan_sw_work_queue
+      usb: usbip: add missing device lock on tweak configuration cmd
+
+OGAWA Hirofumi (1):
+      fat: add ratelimit to fat*_ent_bread()
+
+Pablo Neira Ayuso (1):
+      netfilter: nf_tables: disallow non-stateful expression in sets earlier
+
+Pali Rohár (1):
+      irqchip/armada-370-xp: Do not touch Performance Counter Overflow on A375, A38x, A39x
+
+Pavel Skripkin (1):
+      media: pvrusb2: fix array-index-out-of-bounds in pvr2_i2c_core_init
+
+Peng Wu (2):
+      ARM: versatile: Add missing of_node_put in dcscb_init
+      ARM: hisi: Add missing of_node_put after of_find_compatible_node
+
+Qi Zheng (1):
+      tty: fix deadlock caused by calling printk() under tty_port->lock
+
+Qu Wenruo (1):
+      btrfs: add "0x" prefix for unsupported optional features
+
+Randy Dunlap (5):
+      x86/mm: Cleanup the control_va_addr_alignment() __setup handler
+      powerpc/8xx: export 'cpm_setbrg' for modules
+      powerpc/idle: Fix return value of __setup() handler
+      powerpc/4xx/cpm: Fix return value of __setup() handler
+      pcmcia: db1xxx_ss: restrict to MIPS_DB1XXX boards
+
+Sergey Shtylyov (1):
+      ata: libata-transport: fix {dma|pio|xfer}_mode sysfs files
+
+Shuah Khan (1):
+      misc: rtsx: set NULL intfdata when probe fails
+
+Shyam Prasad N (1):
+      cifs: return errors during session setup during reconnects
+
+Smith, Kyle Miller (Nimble Kernel) (1):
+      nvme-pci: fix a NULL pointer dereference in nvme_alloc_admin_tags
+
+Thibaut VARÈNE (1):
+      ath9k: fix QCA9561 PA bias level
+
+Tokunori Ikegami (2):
+      mtd: cfi_cmdset_0002: Move and rename chip_check/chip_ready/chip_good_for_write
+      mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
+
+Uwe Kleine-König (1):
+      pwm: lp3943: Fix duty calculation in case period was clamped
+
+Vincent Whitchurch (1):
+      um: Fix out-of-bounds read in LDT setup
+
+Wang Cheng (1):
+      staging: rtl8712: fix uninit-value in r871xu_drv_init()
+
+Xiao Yang (1):
+      RDMA/rxe: Generate a completion for unsupported/invalid opcode
+
+Xiaoke Wang (1):
+      iio: dummy: iio_simple_dummy: check the return value of kstrdup()
+
+Xiaomeng Tong (7):
+      media: uvcvideo: Fix missing check to determine if element is found in list
+      scsi: dc395x: Fix a missing check on list iterator
+      md: fix an incorrect NULL check in does_sb_need_changing
+      md: fix an incorrect NULL check in md_reload_sb
+      iommu/msm: Fix an incorrect NULL check on list iterator
+      carl9170: tx: fix an incorrect use of list iterator
+      gma500: fix an incorrect NULL check on list iterator
+
+Xie Yongji (1):
+      vringh: Fix loop descriptors check in the indirect cases
+
+Yang Yingliang (5):
+      drm/msm/hdmi: check return value after calling platform_get_resource_byname()
+      drm/rockchip: vop: fix possible null-ptr-deref in vop_bind()
+      ASoC: wm2000: fix missing clk_disable_unprepare() on error in wm2000_anc_transition()
+      rtc: mt6397: check return value after calling platform_get_resource()
+      video: fbdev: pxa3xx-gcu: release the resources correctly in pxa3xx_gcu_probe/remove()
+
+Ye Bin (2):
+      ext4: fix use-after-free in ext4_rename_dir_prepare
+      ext4: fix bug_on in ext4_writepages
+
+Yicong Yang (1):
+      PCI: Avoid pci_dev_lock() AB/BA deadlock with sriov_numvfs_store()
+
+Ying Hsu (1):
+      Bluetooth: fix dangling sco_conn and use-after-free in sco_sock_timeout
+
+Zhen Ni (1):
+      USB: host: isp116x: check return value after calling platform_get_resource()
+
+Zheng Yongjun (1):
+      spi: img-spfi: Fix pm_runtime_get_sync() error checking
+
+Zheyu Ma (2):
+      media: cx25821: Fix the warning when removing the module
+      tty: synclink_gt: Fix null-pointer-dereference in slgt_clean()
+
+Zhihao Cheng (1):
+      fs-writeback: writeback_sb_inodes：Recalculate 'wrote' according skipped pages
+
+Zixuan Fu (1):
+      fs: jfs: fix possible NULL pointer dereference in dbFree()
+
+huangwenhui (1):
+      ALSA: hda/conexant - Fix loopback issue with CX20632
+
+jianghaoran (1):
+      ipv6: Don't send rs packets to the interface of ARPHRD_TUNNEL
+
