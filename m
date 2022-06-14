@@ -2,201 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D52BE54B45A
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 17:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E06654B47F
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 17:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236865AbiFNPRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 11:17:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48426 "EHLO
+        id S237783AbiFNPVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 11:21:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356485AbiFNPRq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 11:17:46 -0400
-Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B212F624F
-        for <stable@vger.kernel.org>; Tue, 14 Jun 2022 08:17:44 -0700 (PDT)
-Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-30c143c41e5so33342517b3.3
-        for <stable@vger.kernel.org>; Tue, 14 Jun 2022 08:17:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=7DyoEzjGV1GYmzGysGFZNBfKhzd5r8NUEg0vY6kJrI0=;
-        b=c5vsjZWcrvQMdJMihCATHQ26NxYx3zk7FgpMXe2lt8ToOICDMZEX2yNNAPzCh4+/ft
-         R57jTDXcFivzHj7eYcWa+c8/qNo83v0HrTyBUvLY5xV5zDeiOIp2F7n/ncwCJx0T1FDF
-         oVCm0X0LzTv5p9CL8/7bKn4ZHLjrzN7mMVPwX3wisjBGo2Gf5CUURPS993A5PEuyFUlp
-         YnueA3nvSsk8viR+FaT5FHdA/ast5WQltjHD/ttPtIPiw613JZsvS9byorZgvwRLeX6p
-         qlpL+ojlblTlZvCz6imfTD+o631xtSXEfZeRSJDjlEixAQ1g8fBH4p59rxZJkIIorCUa
-         oQ8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=7DyoEzjGV1GYmzGysGFZNBfKhzd5r8NUEg0vY6kJrI0=;
-        b=at8QyTquEaKaEuEd4vanAbk7WoYrQDFGUNYIUX3n6S2uyJX4foMNXxqJa1U03xvbDp
-         qmrtSqc/hH6Ra9rkNN89tCIjbMaDYEWRm9AoZMB1tBmuqC6SZTVnhuOCZG/3Pu+pOSs9
-         v0MEdH1WMi6wN9AlNSir2YCLJF2Y7Pw9ZfXX4naaYvAUzXZdDurPAMwCetHpD82/Rz/o
-         1YPPc0FarfEv0sHWAO5G+krSzpfPxLg55Fnus11VOenLx3UbkgmHRylE4nMFpIBO40Vd
-         DB1AXPMxVsP3XWL++pwQjXjgWs7QlC1Ay2cTJUn4lVZgvlfPkTV3eugTuMpwLxoiiOSQ
-         /47A==
-X-Gm-Message-State: AJIora8qwA1lw2aDnThf/hg8qXgjQdHGPTQ8N2Vzgkcn4wnUjYeT9mTX
-        5jLyArZi/9+kRfuOnEA/j/NCI9a19ZYMehtmCUmUuw==
-X-Google-Smtp-Source: AGRyM1va1fPs9lpvQ8NxlplELbvn5d4WYQXs4FC20dWLWFtAzDyQWKVsUDMncwhK6GjYdh1QzAaeF7kxbaMSAZVp4MI=
-X-Received: by 2002:a81:3a50:0:b0:313:7539:3420 with SMTP id
- h77-20020a813a50000000b0031375393420mr6417968ywa.366.1655219863652; Tue, 14
- Jun 2022 08:17:43 -0700 (PDT)
+        with ESMTP id S231856AbiFNPVw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 11:21:52 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E804E3C489
+        for <stable@vger.kernel.org>; Tue, 14 Jun 2022 08:21:51 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25EFBuxw004488;
+        Tue, 14 Jun 2022 15:21:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : in-reply-to : references : date : message-id : mime-version :
+ content-type; s=pp1; bh=21lpP9JTQRAj1ITO6rdeXuuAe+mToT52HieBzrIyNnQ=;
+ b=aEAQ3ibcDdcge+zaYrwQ5JRrrJZhjGv5AqbBw1KOwLiUAjrSnAD+xg7kkwQFTlu2wHMA
+ uD3OUrX5P5XGLap/ecb43Xoon85K+D1maOqT0jpEjbsqFL4fWbwLI0hZLCWVE0mEfIOz
+ RLYxlfoOabRMZkdc4w5wumIaX9IdUYSfD+BL865kDX4UbD5dljmZsAOS6+hyCI2aCNEx
+ Tq2RDXXuTaAs3iLAihB/R7z/+LerxvMcT4nsmfrlIKkW7JdK91+JFzbSunSp57T6kYC+
+ RgG/lgkgRwd4VOv6dgjlswJAil879GfAwcVukGN8CW4SiqZseyx5Y8tpjyYoWsgxEuCU 3Q== 
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gpbuqfy35-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Jun 2022 15:21:46 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25EF5jht019101;
+        Tue, 14 Jun 2022 15:21:45 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma04wdc.us.ibm.com with ESMTP id 3gmjp9n72n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Jun 2022 15:21:45 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25EFLiXe25231760
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 14 Jun 2022 15:21:44 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C07ED6A051;
+        Tue, 14 Jun 2022 15:21:44 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9DDAE6A047;
+        Tue, 14 Jun 2022 15:21:44 +0000 (GMT)
+Received: from localhost (unknown [9.163.13.123])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 14 Jun 2022 15:21:44 +0000 (GMT)
+From:   Nathan Lynch <nathanl@linux.ibm.com>
+To:     Andrew Donnellan <ajd@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org
+Cc:     stable@vger.kernel.org, Sathvika Vasireddy <sathvika@linux.ibm.com>
+Subject: Re: [PATCH] powerpc/rtas: Allow ibm,platform-dump RTAS call with
+ null buffer address
+In-Reply-To: <20220614134952.156010-1-ajd@linux.ibm.com>
+References: <20220614134952.156010-1-ajd@linux.ibm.com>
+Date:   Tue, 14 Jun 2022 10:21:44 -0500
+Message-ID: <87bkuv8e47.fsf@linux.ibm.com>
 MIME-Version: 1.0
-References: <20220613094928.482772422@linuxfoundation.org>
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 14 Jun 2022 20:47:32 +0530
-Message-ID: <CA+G9fYsGRjjfyj6Qw+VtpJ363N46hZLba5X3PHz_yX3QxcQVSg@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/411] 5.4.198-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: DbMc3a7co7PNOi6UKZoopSp1Iw4lhkTD
+X-Proofpoint-ORIG-GUID: DbMc3a7co7PNOi6UKZoopSp1Iw4lhkTD
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-14_05,2022-06-13_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ priorityscore=1501 impostorscore=0 mlxscore=0 malwarescore=0
+ mlxlogscore=926 suspectscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
+ adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206140059
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 13 Jun 2022 at 15:57, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+Andrew Donnellan <ajd@linux.ibm.com> writes:
+> Add a special case to block_rtas_call() to allow the ibm,platform-dump RTAS
+> call through the RTAS filter if the buffer address is 0.
 >
-> This is the start of the stable review cycle for the 5.4.198 release.
-> There are 411 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> According to PAPR, ibm,platform-dump is called with a null buffer address
+> to notify the platform firmware that processing of a particular dump is
+> finished.
 >
-> Responses should be made by Wed, 15 Jun 2022 09:47:08 +0000.
-> Anything received after that time might be too late.
+> Without this, on a pseries machine with CONFIG_PPC_RTAS_FILTER enabled, an
+> application such as rtas_errd that is attempting to retrieve a dump will
+> encounter an error at the end of the retrieval process.
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.198-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
+> Cc: stable@vger.kernel.org
+> Reported-by: Sathvika Vasireddy <sathvika@linux.ibm.com>
+> Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I agree this allows ibm,platform-dump to work without weakening the
+filter for other calls. Thanks.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 5.4.198-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.4.y
-* git commit: deacfea5b2321cbcf23622a0f37317ddabfdf76b
-* git describe: v5.4.197-412-gdeacfea5b232
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-97-412-gdeacfea5b232
-
-## Test Regressions (compared to v5.4.196-11-g04a2bb5e4a0b)
-No test regressions found.
-
-## Metric Regressions (compared to v5.4.196-11-g04a2bb5e4a0b)
-No metric regressions found.
-
-## Test Fixes (compared to v5.4.196-11-g04a2bb5e4a0b)
-No test fixes found.
-
-## Metric Fixes (compared to v5.4.196-11-g04a2bb5e4a0b)
-No metric fixes found.
-
-## Test result summary
-total: 119666, pass: 106701, fail: 219, skip: 11909, xfail: 837
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 313 total, 313 passed, 0 failed
-* arm64: 57 total, 53 passed, 4 failed
-* i386: 28 total, 25 passed, 3 failed
-* mips: 37 total, 37 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 54 total, 54 passed, 0 failed
-* riscv: 27 total, 27 passed, 0 failed
-* s390: 12 total, 12 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 55 total, 54 passed, 1 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-cap_bounds-tests
-* ltp-commands
-* ltp-commands-tests
-* ltp-containers
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps
-* ltp-filecaps-tests
-* ltp-fs
-* ltp-fs-tests
-* ltp-fs_bind
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple
-* ltp-fs_perms_simple-tests
-* ltp-fsx
-* ltp-fsx-tests
-* ltp-hugetlb
-* ltp-hugetlb-tests
-* ltp-io
-* ltp-io-tests
-* ltp-ipc
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-pty-tests
-* ltp-sched
-* ltp-sched-tests
-* ltp-securebits
-* ltp-securebits-tests
-* ltp-smoke
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
