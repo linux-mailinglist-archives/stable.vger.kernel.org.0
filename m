@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C334954B8F0
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:45:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1871854B94E
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:46:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345462AbiFNSpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 14:45:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59286 "EHLO
+        id S1357403AbiFNSps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 14:45:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357602AbiFNSns (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:43:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9F734C7A3;
-        Tue, 14 Jun 2022 11:42:43 -0700 (PDT)
+        with ESMTP id S1357458AbiFNSpS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:45:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F3AA1093;
+        Tue, 14 Jun 2022 11:43:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20B3AB81AF7;
-        Tue, 14 Jun 2022 18:42:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73654C3411D;
-        Tue, 14 Jun 2022 18:42:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B287CB8186A;
+        Tue, 14 Jun 2022 18:43:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E878FC3411B;
+        Tue, 14 Jun 2022 18:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655232160;
-        bh=3dsMAznn1B6DoeOIvyo2p957q7i+qY4LOqwKuKo6vpY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zVkfRh/CTpv9BHx9lnlh2fYPhJAQdbLpSZSZo+oxQiNF56wdESSOFZY0lcs6sCCiL
-         i+k05tMcmnnyMuJ8U7UfcPAdU225lhse/W6lBmyb2tB5TBQVLRIVk0APOXqF8tvczn
-         sv6TRMHM1KeVtSUPoO49fbVgGggrq3CDewdQMeSc=
+        s=korg; t=1655232227;
+        bh=+C2iRvF2iZzG1ZikcJTKk76FroC9eh1AhRqJ3d7/g+k=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Dq+MJ/vZfP+JS9NIc8U/FMoYvOSDTQXVj6fCl2Q5Yp7Z41sh3l3vnf5mmxdyOi1Dh
+         wbBDnPBl9YwsIiecG/V7hINVFafYI0mAL8bMMvBgG2yTQUYfii5E/FV9+OseYr4Yga
+         hU1ulA5ZFL/SbuciGSUdCjdt3xIh6fIGplwbXxfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 4.14 17/20] x86/speculation/srbds: Update SRBDS mitigation selection
-Date:   Tue, 14 Jun 2022 20:40:08 +0200
-Message-Id: <20220614183727.515024248@linuxfoundation.org>
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.4 00/15] 5.4.199-rc1 review
+Date:   Tue, 14 Jun 2022 20:40:09 +0200
+Message-Id: <20220614183721.656018793@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220614183723.328825625@linuxfoundation.org>
-References: <20220614183723.328825625@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.199-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.199-rc1
+X-KernelTest-Deadline: 2022-06-16T18:37+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -56,46 +61,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+This is the start of the stable review cycle for the 5.4.199 release.
+There are 15 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 22cac9c677c95f3ac5c9244f8ca0afdc7c8afb19 upstream
+Responses should be made by Thu, 16 Jun 2022 18:37:02 +0000.
+Anything received after that time might be too late.
 
-Currently, Linux disables SRBDS mitigation on CPUs not affected by
-MDS and have the TSX feature disabled. On such CPUs, secrets cannot
-be extracted from CPU fill buffers using MDS or TAA. Without SRBDS
-mitigation, Processor MMIO Stale Data vulnerabilities can be used to
-extract RDRAND, RDSEED, and EGETKEY data.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.199-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-Do not disable SRBDS mitigation by default when CPU is also affected by
-Processor MMIO Stale Data vulnerabilities.
+thanks,
 
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/kernel/cpu/bugs.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+greg k-h
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -578,11 +578,13 @@ static void __init srbds_select_mitigati
- 		return;
- 
- 	/*
--	 * Check to see if this is one of the MDS_NO systems supporting
--	 * TSX that are only exposed to SRBDS when TSX is enabled.
-+	 * Check to see if this is one of the MDS_NO systems supporting TSX that
-+	 * are only exposed to SRBDS when TSX is enabled or when CPU is affected
-+	 * by Processor MMIO Stale Data vulnerability.
- 	 */
- 	ia32_cap = x86_read_arch_cap_msr();
--	if ((ia32_cap & ARCH_CAP_MDS_NO) && !boot_cpu_has(X86_FEATURE_RTM))
-+	if ((ia32_cap & ARCH_CAP_MDS_NO) && !boot_cpu_has(X86_FEATURE_RTM) &&
-+	    !boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA))
- 		srbds_mitigation = SRBDS_MITIGATION_TSX_OFF;
- 	else if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
- 		srbds_mitigation = SRBDS_MITIGATION_HYPERVISOR;
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.199-rc1
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation/mmio: Print SMT warning
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    KVM: x86/speculation: Disable Fill buffer clear within guests
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/speculation/mmio: Reuse SRBDS mitigation for SBDS
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/speculation/srbds: Update SRBDS mitigation selection
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/speculation/mmio: Add sysfs reporting for Processor MMIO Stale Data
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/speculation/mmio: Enable CPU Fill buffer clearing on idle
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/bugs: Group MDS, TAA & Processor MMIO Stale Data mitigations
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/speculation/mmio: Add mitigation for Processor MMIO Stale Data
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/speculation: Add a common function for MD_CLEAR mitigation update
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/speculation/mmio: Enumerate Processor MMIO Stale Data bug
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    Documentation: Add documentation for Processor MMIO Stale Data
+
+Gayatri Kammela <gayatri.kammela@intel.com>
+    x86/cpu: Add another Alder Lake CPU to the Intel family
+
+Tony Luck <tony.luck@intel.com>
+    x86/cpu: Add Lakefield, Alder Lake and Rocket Lake models to the to Intel CPU family
+
+Zhang Rui <rui.zhang@intel.com>
+    x86/cpu: Add Jasper Lake to Intel family
+
+Guenter Roeck <linux@roeck-us.net>
+    cpu/speculation: Add prototype for cpu_show_srbds()
+
+
+-------------
+
+Diffstat:
+
+ Documentation/ABI/testing/sysfs-devices-system-cpu |   1 +
+ Documentation/admin-guide/hw-vuln/index.rst        |   1 +
+ .../hw-vuln/processor_mmio_stale_data.rst          | 246 +++++++++++++++++++++
+ Documentation/admin-guide/kernel-parameters.txt    |  36 +++
+ Makefile                                           |   4 +-
+ arch/x86/include/asm/cpufeatures.h                 |   1 +
+ arch/x86/include/asm/intel-family.h                |   9 +
+ arch/x86/include/asm/msr-index.h                   |  25 +++
+ arch/x86/include/asm/nospec-branch.h               |   2 +
+ arch/x86/kernel/cpu/bugs.c                         | 235 +++++++++++++++++---
+ arch/x86/kernel/cpu/common.c                       |  52 ++++-
+ arch/x86/kvm/vmx/vmx.c                             |  75 ++++++-
+ arch/x86/kvm/vmx/vmx.h                             |   3 +
+ arch/x86/kvm/x86.c                                 |   4 +
+ drivers/base/cpu.c                                 |   8 +
+ include/linux/cpu.h                                |   4 +
+ 16 files changed, 664 insertions(+), 42 deletions(-)
 
 
