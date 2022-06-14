@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB4254A66E
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:37:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C61F54A6E9
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:38:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354869AbiFNCZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:25:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53614 "EHLO
+        id S1354712AbiFNCZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:25:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354883AbiFNCX4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:23:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1F5840A3F;
-        Mon, 13 Jun 2022 19:10:41 -0700 (PDT)
+        with ESMTP id S1355379AbiFNCYT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:24:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C32ED36B72;
+        Mon, 13 Jun 2022 19:11:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41D66B8168A;
-        Tue, 14 Jun 2022 02:10:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D10C3C385A2;
-        Tue, 14 Jun 2022 02:10:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 550FE60EE1;
+        Tue, 14 Jun 2022 02:10:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6510DC3411E;
+        Tue, 14 Jun 2022 02:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172640;
-        bh=uFtGcef05qaubXjffqXmiRE1GCLUtZTkvbdmKXBCgDA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=frXeeaPQ1iII3mT7bZw4Q/px8vuMLsxjKyPjxgEXcG52JeBginpTcYdcvgqeYZOFE
-         GF/zRB2hMh4Zs8a30gdNO3fpv/DIj0+8tvHJWYVBU6FNIIvqIbtPNA0etYcrhF94AM
-         3swFLnanv+ZHYqPu1R/eOA2KkknzOru+e87t2ts+I4Xv6XOVk2qps+aS9R52fVTGkA
-         WqBeoMeAzhmwsyx1jscjl2uC9c5c5s73zmp8myhnU20zMtMCSBcDLpbh264a6FlLTW
-         CdE8+J6KdGoT6a+wx+trVDeSb+O6gLZSi7QuXtiCnE3BfswQ3MmLUlGwLgK0xaE5sn
-         irFPhdXd707cw==
+        s=k20201202; t=1655172643;
+        bh=WQMR5DGa47oOkx5CuOK54+4aPVYFBjBoAkNKHqKp0QU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=c5L48gcm22zKsbcbL3hnEyLYzFL8ES/DV4qrKExLWJ/d4bLLqPIswr7mahvaaLZRF
+         oG1toygNRooXe+xDpUlSVrGKoBkh1FoATXuOLNmSEdVsQEtCxAKx2fQTQiFB16jlLD
+         4nZfq/VA3g3pZJddedVnOFbPvfGNHZLZzbQEHpFgrH+Te1vVb7I3VIEbt88kKEvUcU
+         jlM34zyxkrkS4fZiC9xyrsSLJpk2mxsNMBTBpwSNJmKWwCaLUJ88HjOKyNbmAxVmBb
+         t405wjXNWe8URRy+sO1fbArFr59XVln8Kwxs+doCEtIOwHQ5HMWUTDi6L6gfVLm7YF
+         rQiP6gnwA7eoA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen Lin <chen45464546@163.com>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, nbd@openwrt.org,
-        blogic@openwrt.org, matthias.bgg@gmail.com, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 14/14] net: ethernet: mtk_eth_soc: fix misuse of mem alloc interface netdev[napi]_alloc_frag
-Date:   Mon, 13 Jun 2022 22:10:19 -0400
-Message-Id: <20220614021019.1100929-14-sashal@kernel.org>
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, brian.austin@cirrus.com,
+        Paul.Handrigan@cirrus.com, lgirdwood@gmail.com, perex@perex.cz,
+        tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.9 01/12] ASoC: cs42l52: Fix TLV scales for mixer controls
+Date:   Mon, 13 Jun 2022 22:10:29 -0400
+Message-Id: <20220614021040.1101131-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220614021019.1100929-1-sashal@kernel.org>
-References: <20220614021019.1100929-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,71 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Lin <chen45464546@163.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 2f2c0d2919a14002760f89f4e02960c735a316d2 ]
+[ Upstream commit 8bf5aabf524eec61013e506f764a0b2652dc5665 ]
 
-When rx_flag == MTK_RX_FLAGS_HWLRO,
-rx_data_len = MTK_MAX_LRO_RX_LENGTH(4096 * 3) > PAGE_SIZE.
-netdev_alloc_frag is for alloction of page fragment only.
-Reference to other drivers and Documentation/vm/page_frags.rst
+The datasheet specifies the range of the mixer volumes as between
+-51.5dB and 12dB with a 0.5dB step. Update the TLVs for this.
 
-Branch to use __get_free_pages when ring->frag_size > PAGE_SIZE.
-
-Signed-off-by: Chen Lin <chen45464546@163.com>
-Link: https://lore.kernel.org/r/1654692413-2598-1-git-send-email-chen45464546@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220602162119.3393857-2-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ sound/soc/codecs/cs42l52.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index dbd16dd5aa04..5fc6f4fd0f26 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -596,6 +596,17 @@ static inline void mtk_rx_get_desc(struct mtk_rx_dma *rxd,
- 	rxd->rxd4 = READ_ONCE(dma_rxd->rxd4);
- }
+diff --git a/sound/soc/codecs/cs42l52.c b/sound/soc/codecs/cs42l52.c
+index 0d9c4a57301b..f733f6b42b53 100644
+--- a/sound/soc/codecs/cs42l52.c
++++ b/sound/soc/codecs/cs42l52.c
+@@ -141,7 +141,7 @@ static DECLARE_TLV_DB_SCALE(mic_tlv, 1600, 100, 0);
  
-+static void *mtk_max_lro_buf_alloc(gfp_t gfp_mask)
-+{
-+	unsigned int size = mtk_max_frag_size(MTK_MAX_LRO_RX_LENGTH);
-+	unsigned long data;
-+
-+	data = __get_free_pages(gfp_mask | __GFP_COMP | __GFP_NOWARN,
-+				get_order(size));
-+
-+	return (void *)data;
-+}
-+
- /* the qdma core needs scratch memory to be setup */
- static int mtk_init_fq_dma(struct mtk_eth *eth)
- {
-@@ -1005,7 +1016,10 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
- 			goto release_desc;
+ static DECLARE_TLV_DB_SCALE(pga_tlv, -600, 50, 0);
  
- 		/* alloc new buffer */
--		new_data = napi_alloc_frag(ring->frag_size);
-+		if (ring->frag_size <= PAGE_SIZE)
-+			new_data = napi_alloc_frag(ring->frag_size);
-+		else
-+			new_data = mtk_max_lro_buf_alloc(GFP_ATOMIC);
- 		if (unlikely(!new_data)) {
- 			netdev->stats.rx_dropped++;
- 			goto release_desc;
-@@ -1315,7 +1329,10 @@ static int mtk_rx_alloc(struct mtk_eth *eth, int ring_no, int rx_flag)
- 		return -ENOMEM;
+-static DECLARE_TLV_DB_SCALE(mix_tlv, -50, 50, 0);
++static DECLARE_TLV_DB_SCALE(mix_tlv, -5150, 50, 0);
  
- 	for (i = 0; i < rx_dma_size; i++) {
--		ring->data[i] = netdev_alloc_frag(ring->frag_size);
-+		if (ring->frag_size <= PAGE_SIZE)
-+			ring->data[i] = netdev_alloc_frag(ring->frag_size);
-+		else
-+			ring->data[i] = mtk_max_lro_buf_alloc(GFP_KERNEL);
- 		if (!ring->data[i])
- 			return -ENOMEM;
- 	}
+ static DECLARE_TLV_DB_SCALE(beep_tlv, -56, 200, 0);
+ 
+@@ -368,7 +368,7 @@ static const struct snd_kcontrol_new cs42l52_snd_controls[] = {
+ 			      CS42L52_ADCB_VOL, 0, 0xA0, 0x78, ipd_tlv),
+ 	SOC_DOUBLE_R_SX_TLV("ADC Mixer Volume",
+ 			     CS42L52_ADCA_MIXER_VOL, CS42L52_ADCB_MIXER_VOL,
+-				0, 0x19, 0x7F, ipd_tlv),
++				0, 0x19, 0x7F, mix_tlv),
+ 
+ 	SOC_DOUBLE("ADC Switch", CS42L52_ADC_MISC_CTL, 0, 1, 1, 0),
+ 
 -- 
 2.35.1
 
