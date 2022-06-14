@@ -2,144 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E5C54A79C
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 05:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 169C054A7A9
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 05:51:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237026AbiFNDmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 23:42:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37862 "EHLO
+        id S1348863AbiFNDvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 23:51:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231129AbiFNDmD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 23:42:03 -0400
-X-Greylist: delayed 154066 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 13 Jun 2022 20:42:02 PDT
-Received: from nautica.notk.org (ipv6.notk.org [IPv6:2001:41d0:1:7a93::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F293F36315;
-        Mon, 13 Jun 2022 20:42:01 -0700 (PDT)
-Received: by nautica.notk.org (Postfix, from userid 108)
-        id B9F35C01D; Tue, 14 Jun 2022 05:42:00 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-        t=1655178120; bh=kMhrbHmtDy8FgmIFOYrbI1pKa88ais5XYanlCNmLm+4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EJfWrgZ3HXfWO/UQCWGDmW7ZCSuYL8dR9Lmc2kF710OpYtEWfGZ5UMNFnWsGUYdSJ
-         BvqwzFNePwZRalWakPC25IN8crVstzf9mmlO98v+o7X+IWIrucEOLzxr8WDOIn3XCP
-         wPlE/SZtCrtAhnHmC6shrJhXzkPpbj3xUNRnvnyXUQHlK3o4MoL4S5jyqbdxSbACq5
-         cOIR9zlE5lPOZDo/6eaVHmPaE83/QfVGe+3RYpT74j7P0QwxuGtSB4b0Wv5mLmBdgy
-         A4LP36pSTbhlT1HscCfxuGn3XuHkxoLsO6H2P/R1V1wtI3HoE4bQK5Xl2ICvdF75zv
-         f+Ut48QSmErpw==
+        with ESMTP id S1349498AbiFNDvh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 23:51:37 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAC8039161
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 20:51:33 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id 31so5739690pgv.11
+        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 20:51:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=QLRSnLdvydnD794EmOTnObaI+vzrdherlIejBGdtDzE=;
+        b=Alkz0e75KjCBD8Nc50/8C+qYPCZ3vtTprGIKQ3Oo2zBsg2ST42F5biGuewcTpKvmKW
+         CgrhDJSI1/J42EAVKFh1yYCcJtfobKAxEYFMbB36ioFn8dU4BdcpBrlv8gWshqL5KGuH
+         Ikh2hNz0et1j8b8nVul1yGjdBV61jiCppPvoHfOqdkTdxdLeqA4DI7ok+aQ4DR5g97zd
+         VgQo1e7PiAoPvXT35HIlCdcpsv3g9kX+o0Df6wjmN6GiMx9v53njxvuMn2+enZIydcvN
+         vO20jV/fk/CjIXSDgf7xZhwcuHavVGivl7ZkgaWaIQSxvJw0hj9jw6IFJVp556SZQjv7
+         8x/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=QLRSnLdvydnD794EmOTnObaI+vzrdherlIejBGdtDzE=;
+        b=PfavctZSz9IcT8asUN1xxcMjKEvNKe1akJEJ0pSsp3+f8zQixG9rE1k1ryeFFb1hKH
+         PAduXiKQjR1amd5BQJ42lc6QLUojEtTaEND0DMkANFwlKq+xcakL4yDxld8FVyvdhm7Z
+         OCAYhr5MnAXwXV0eL2C72a80RH5lK6AEAb005C+tmdyuLWFelvyUabixZ9zU2laR55Ue
+         g6huy1XY0nHKTN1jw06MxwznyzshBzrQD3p/KMuAYrqQg3qJgdW2YZhtiivhpwmrEUQM
+         8hN1wKEjcLEXO5YO1p4U0OBEW4c9vCe/MBq93z1gjEsQ8jHlD8MHAo7Uv53RjnIrLQLA
+         Ik8A==
+X-Gm-Message-State: AOAM533tN44Cnbe+KpX7ndRZ9Uv2wZHAuoydjfwUd9AgLN7dFUKwHjCp
+        87XnQfFiiH2wf5t4D7ey63uJMkxwalH829f4GGM=
+X-Google-Smtp-Source: AGRyM1tr9xXjMBCrPdBiJy0k3J2ibm89S37nlzYS3unlEQxg6iS/JB0CLMp70nqysdIiJkOUHjS5NA==
+X-Received: by 2002:a05:6a00:170b:b0:51b:cf4b:9187 with SMTP id h11-20020a056a00170b00b0051bcf4b9187mr2660046pfc.15.1655178692285;
+        Mon, 13 Jun 2022 20:51:32 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 19-20020a170902e9d300b001677fa34a4fsm5943087plk.72.2022.06.13.20.51.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jun 2022 20:51:31 -0700 (PDT)
+Message-ID: <62a805c3.1c69fb81.19bb7.7806@mx.google.com>
+Date:   Mon, 13 Jun 2022 20:51:31 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.17.13-1076-ga554a1e2ef7fa
+X-Kernelci-Branch: linux-5.17.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.17.y baseline: 175 runs,
+ 3 regressions (v5.17.13-1076-ga554a1e2ef7fa)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
-Received: from odin.codewreck.org (localhost [127.0.0.1])
-        by nautica.notk.org (Postfix) with ESMTPS id AE1E6C009;
-        Tue, 14 Jun 2022 05:41:57 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-        t=1655178120; bh=kMhrbHmtDy8FgmIFOYrbI1pKa88ais5XYanlCNmLm+4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EJfWrgZ3HXfWO/UQCWGDmW7ZCSuYL8dR9Lmc2kF710OpYtEWfGZ5UMNFnWsGUYdSJ
-         BvqwzFNePwZRalWakPC25IN8crVstzf9mmlO98v+o7X+IWIrucEOLzxr8WDOIn3XCP
-         wPlE/SZtCrtAhnHmC6shrJhXzkPpbj3xUNRnvnyXUQHlK3o4MoL4S5jyqbdxSbACq5
-         cOIR9zlE5lPOZDo/6eaVHmPaE83/QfVGe+3RYpT74j7P0QwxuGtSB4b0Wv5mLmBdgy
-         A4LP36pSTbhlT1HscCfxuGn3XuHkxoLsO6H2P/R1V1wtI3HoE4bQK5Xl2ICvdF75zv
-         f+Ut48QSmErpw==
-Received: from localhost (odin.codewreck.org [local])
-        by odin.codewreck.org (OpenSMTPD) with ESMTPA id dfc027e7;
-        Tue, 14 Jun 2022 03:41:55 +0000 (UTC)
-Date:   Tue, 14 Jun 2022 12:41:40 +0900
-From:   Dominique Martinet <asmadeus@codewreck.org>
-To:     Eric Van Hensbergen <ericvh@gmail.com>,
-        Latchesar Ionkov <lucho@ionkov.net>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        David Howells <dhowells@redhat.com>
-Cc:     linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        v9fs-developer@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 9p: fix EBADF errors in cached mode
-Message-ID: <YqgDdNUxC0hV6KR9@codewreck.org>
-References: <YqW5s+GQZwZ/DP5q@codewreck.org>
- <20220614033802.1606738-1-asmadeus@codewreck.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20220614033802.1606738-1-asmadeus@codewreck.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dominique Martinet wrote on Tue, Jun 14, 2022 at 12:38:02PM +0900:
-> cached operations sometimes need to do invalid operations (e.g. read
-> on a write only file)
-> Historic fscache had added a "writeback fid" for this, but the conversion
-> to new fscache somehow lost usage of it: use the writeback fid instead
-> of normal one.
-> 
-> Note that the way this works (writeback fid being linked to inode) means
-> we might use overprivileged fid for some operations, e.g. write as root
-> when we shouldn't.
-> Ideally we should keep both fids handy, and only use the writeback fid
-> when really required e.g. reads to a write-only file to fill in the page
-> cache (read-modify-write); but this is the situation we've always had
-> and this commit only fixes an issue we've had for too long.
-> 
-> Fixes: eb497943fa21 ("9p: Convert to using the netfs helper lib to do reads and caching")
-> Cc: stable@vger.kernel.org
-> Cc: David Howells <dhowells@redhat.com>
-> Reported-By: Christian Schoenebeck <linux_oss@crudebyte.com>
-> Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-> ---
-> Ok so finally had time to look at this, and it's not a lot so this is
-> the most straight forward way to do: just reverting to how the old
-> fscache worked.
-> 
-> This appears to work from quick testing, Chiristian could you test it?
-> 
-> I think the warnings you added in p9_client_read/write that check
-> fid->mode might a lot of sense, if you care to resend it as
-> WARN_ON((fid->mode & ACCMODE) == O_xyz);
-> instead I'll queue that for 5.20
-> 
-> 
-> @Stable people, I've checked it applies to 5.17 and 5.18 so should be
-> good to grab once I submit it for inclusion (that commit was included in
-> 5.16, which is no longer stable)
-> 
-> 
->  fs/9p/vfs_addr.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/fs/9p/vfs_addr.c b/fs/9p/vfs_addr.c
-> index 7382c5227e94..262968d02f55 100644
-> --- a/fs/9p/vfs_addr.c
-> +++ b/fs/9p/vfs_addr.c
-> @@ -58,7 +58,11 @@ static void v9fs_issue_read(struct netfs_io_subrequest *subreq)
->   */
->  static int v9fs_init_request(struct netfs_io_request *rreq, struct file *file)
->  {
-> -	struct p9_fid *fid = file->private_data;
-> +	struct inode *inode = file_inode(file);
-> +	struct v9fs_inode *v9inode = V9FS_I(inode);
-> +	struct p9_fid *fid = v9inode->writeback_fid;
-> +
+stable-rc/linux-5.17.y baseline: 175 runs, 3 regressions (v5.17.13-1076-ga5=
+54a1e2ef7fa)
 
-Sorry for mails back-to-back (grmbl I hate git commit --amend not
-warning I only have unstaged changes), this is missing the following
-here:
+Regressions Summary
+-------------------
 
-+    /* If there is no writeback fid this file only ever has had
-+     * read-only opens, so we can use file's fid which should
-+     * always be set instead */
-+    if (!fid)
-+        fid = file->private_data;
+platform                | arch  | lab          | compiler | defconfig      =
+    | regressions
+------------------------+-------+--------------+----------+----------------=
+----+------------
+jetson-tk1              | arm   | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-Christian, you can find it here to test:
-https://github.com/martinetd/linux/commit/a6e033c41cc9f0ec105f5d208b0a820118e2bda8
+kontron-pitx-imx8m      | arm64 | lab-kontron  | gcc-10   | defconfig      =
+    | 1          =
 
-> +	BUG_ON(!fid);
->  
->  	p9_fid_get(fid);
->  	rreq->netfs_priv = fid;
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-10   | defconfig      =
+    | 1          =
 
-Thanks,
--- 
-Dominique
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.17.y/ker=
+nel/v5.17.13-1076-ga554a1e2ef7fa/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.17.y
+  Describe: v5.17.13-1076-ga554a1e2ef7fa
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a554a1e2ef7fa48cebd9cc2349804974247c0958 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab          | compiler | defconfig      =
+    | regressions
+------------------------+-------+--------------+----------+----------------=
+----+------------
+jetson-tk1              | arm   | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62a7d070c21889d198a39be2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
+3-1076-ga554a1e2ef7fa/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-j=
+etson-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
+3-1076-ga554a1e2ef7fa/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-j=
+etson-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62a7d070c21889d198a39=
+be3
+        failing since 19 days (last pass: v5.17.10, first fail: v5.17.11) =
+
+ =
+
+
+
+platform                | arch  | lab          | compiler | defconfig      =
+    | regressions
+------------------------+-------+--------------+----------+----------------=
+----+------------
+kontron-pitx-imx8m      | arm64 | lab-kontron  | gcc-10   | defconfig      =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62a7ceb9bdadbb14aaa39c60
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
+3-1076-ga554a1e2ef7fa/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-p=
+itx-imx8m.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
+3-1076-ga554a1e2ef7fa/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-p=
+itx-imx8m.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62a7ceb9bdadbb14aaa39=
+c61
+        new failure (last pass: v5.17.13-1071-gfcf11988907a1) =
+
+ =
+
+
+
+platform                | arch  | lab          | compiler | defconfig      =
+    | regressions
+------------------------+-------+--------------+----------+----------------=
+----+------------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-10   | defconfig      =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62a7ceb4bdadbb14aaa39c54
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
+3-1076-ga554a1e2ef7fa/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64=
+-bananapi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
+3-1076-ga554a1e2ef7fa/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64=
+-bananapi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62a7ceb4bdadbb14aaa39=
+c55
+        new failure (last pass: v5.17.13-1071-gfcf11988907a1) =
+
+ =20
