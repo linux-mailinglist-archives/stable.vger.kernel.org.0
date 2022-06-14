@@ -2,205 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 169C054A7A9
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 05:51:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD06754A839
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 06:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348863AbiFNDvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 23:51:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47068 "EHLO
+        id S230178AbiFNEi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 00:38:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349498AbiFNDvh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 23:51:37 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAC8039161
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 20:51:33 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id 31so5739690pgv.11
-        for <stable@vger.kernel.org>; Mon, 13 Jun 2022 20:51:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=QLRSnLdvydnD794EmOTnObaI+vzrdherlIejBGdtDzE=;
-        b=Alkz0e75KjCBD8Nc50/8C+qYPCZ3vtTprGIKQ3Oo2zBsg2ST42F5biGuewcTpKvmKW
-         CgrhDJSI1/J42EAVKFh1yYCcJtfobKAxEYFMbB36ioFn8dU4BdcpBrlv8gWshqL5KGuH
-         Ikh2hNz0et1j8b8nVul1yGjdBV61jiCppPvoHfOqdkTdxdLeqA4DI7ok+aQ4DR5g97zd
-         VgQo1e7PiAoPvXT35HIlCdcpsv3g9kX+o0Df6wjmN6GiMx9v53njxvuMn2+enZIydcvN
-         vO20jV/fk/CjIXSDgf7xZhwcuHavVGivl7ZkgaWaIQSxvJw0hj9jw6IFJVp556SZQjv7
-         8x/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=QLRSnLdvydnD794EmOTnObaI+vzrdherlIejBGdtDzE=;
-        b=PfavctZSz9IcT8asUN1xxcMjKEvNKe1akJEJ0pSsp3+f8zQixG9rE1k1ryeFFb1hKH
-         PAduXiKQjR1amd5BQJ42lc6QLUojEtTaEND0DMkANFwlKq+xcakL4yDxld8FVyvdhm7Z
-         OCAYhr5MnAXwXV0eL2C72a80RH5lK6AEAb005C+tmdyuLWFelvyUabixZ9zU2laR55Ue
-         g6huy1XY0nHKTN1jw06MxwznyzshBzrQD3p/KMuAYrqQg3qJgdW2YZhtiivhpwmrEUQM
-         8hN1wKEjcLEXO5YO1p4U0OBEW4c9vCe/MBq93z1gjEsQ8jHlD8MHAo7Uv53RjnIrLQLA
-         Ik8A==
-X-Gm-Message-State: AOAM533tN44Cnbe+KpX7ndRZ9Uv2wZHAuoydjfwUd9AgLN7dFUKwHjCp
-        87XnQfFiiH2wf5t4D7ey63uJMkxwalH829f4GGM=
-X-Google-Smtp-Source: AGRyM1tr9xXjMBCrPdBiJy0k3J2ibm89S37nlzYS3unlEQxg6iS/JB0CLMp70nqysdIiJkOUHjS5NA==
-X-Received: by 2002:a05:6a00:170b:b0:51b:cf4b:9187 with SMTP id h11-20020a056a00170b00b0051bcf4b9187mr2660046pfc.15.1655178692285;
-        Mon, 13 Jun 2022 20:51:32 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 19-20020a170902e9d300b001677fa34a4fsm5943087plk.72.2022.06.13.20.51.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jun 2022 20:51:31 -0700 (PDT)
-Message-ID: <62a805c3.1c69fb81.19bb7.7806@mx.google.com>
-Date:   Mon, 13 Jun 2022 20:51:31 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229611AbiFNEix (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 00:38:53 -0400
+Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CCE02E9F1;
+        Mon, 13 Jun 2022 21:38:52 -0700 (PDT)
+Received: from in02.mta.xmission.com ([166.70.13.52]:33452)
+        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1o0yKD-009rqF-7K; Mon, 13 Jun 2022 22:38:45 -0600
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:40370 helo=email.froward.int.ebiederm.org.xmission.com)
+        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1o0yKC-008XSK-1u; Mon, 13 Jun 2022 22:38:44 -0600
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Seth Forshee <sforshee@digitalocean.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, tglx@linutronix.de,
+        peterz@infradead.org, luto@kernel.org
+References: <20220614021116.1101331-1-sashal@kernel.org>
+        <20220614021116.1101331-5-sashal@kernel.org>
+Date:   Mon, 13 Jun 2022 23:38:37 -0500
+In-Reply-To: <20220614021116.1101331-5-sashal@kernel.org> (Sasha Levin's
+        message of "Mon, 13 Jun 2022 22:11:14 -0400")
+Message-ID: <87edzrzwoi.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.17.13-1076-ga554a1e2ef7fa
-X-Kernelci-Branch: linux-5.17.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.17.y baseline: 175 runs,
- 3 regressions (v5.17.13-1076-ga554a1e2ef7fa)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-XM-SPF: eid=1o0yKC-008XSK-1u;;;mid=<87edzrzwoi.fsf@email.froward.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
+X-XM-AID: U2FsdGVkX19hJcz2jzzt3lJfRIeFyelpahjNOpDMtP0=
+X-SA-Exim-Connect-IP: 68.227.174.4
+X-SA-Exim-Mail-From: ebiederm@xmission.com
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
+X-Spam-DCC: XMission; sa06 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: ***;Sasha Levin <sashal@kernel.org>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 593 ms - load_scoreonly_sql: 0.10 (0.0%),
+        signal_user_changed: 12 (2.0%), b_tie_ro: 10 (1.8%), parse: 1.22
+        (0.2%), extract_message_metadata: 21 (3.5%), get_uri_detail_list: 2.6
+        (0.4%), tests_pri_-1000: 40 (6.7%), tests_pri_-950: 1.20 (0.2%),
+        tests_pri_-900: 1.00 (0.2%), tests_pri_-90: 220 (37.1%), check_bayes:
+        219 (36.8%), b_tokenize: 8 (1.3%), b_tok_get_all: 103 (17.4%),
+        b_comp_prob: 3.3 (0.6%), b_tok_touch_all: 100 (16.9%), b_finish: 1.02
+        (0.2%), tests_pri_0: 281 (47.3%), check_dkim_signature: 0.53 (0.1%),
+        check_dkim_adsp: 3.3 (0.6%), poll_dns_idle: 1.31 (0.2%), tests_pri_10:
+        3.1 (0.5%), tests_pri_500: 10 (1.7%), rewrite_mail: 0.00 (0.0%)
+Subject: Re: [PATCH MANUALSEL 5.18 5/6] entry/kvm: Exit to user mode when
+ TIF_NOTIFY_SIGNAL is set
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.17.y baseline: 175 runs, 3 regressions (v5.17.13-1076-ga5=
-54a1e2ef7fa)
 
-Regressions Summary
--------------------
+Starting with v5.18 TIF_NOTIFY_SIGNAL and task_work_run are separated,
+so backporting this to v5.18 looks safe.
 
-platform                | arch  | lab          | compiler | defconfig      =
-    | regressions
-------------------------+-------+--------------+----------+----------------=
-----+------------
-jetson-tk1              | arm   | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+For anyone considering backporting this any farther please be aware
+that TIF_NOTIFY_SIGNAL and task_work were all mixed together and
+to backport this also likely requires backporting my cleanups that
+separated them.
 
-kontron-pitx-imx8m      | arm64 | lab-kontron  | gcc-10   | defconfig      =
-    | 1          =
-
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-10   | defconfig      =
-    | 1          =
+Eric
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.17.y/ker=
-nel/v5.17.13-1076-ga554a1e2ef7fa/plan/baseline/
+Sasha Levin <sashal@kernel.org> writes:
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.17.y
-  Describe: v5.17.13-1076-ga554a1e2ef7fa
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a554a1e2ef7fa48cebd9cc2349804974247c0958 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-    | regressions
-------------------------+-------+--------------+----------+----------------=
-----+------------
-jetson-tk1              | arm   | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62a7d070c21889d198a39be2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
-3-1076-ga554a1e2ef7fa/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-j=
-etson-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
-3-1076-ga554a1e2ef7fa/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-j=
-etson-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62a7d070c21889d198a39=
-be3
-        failing since 19 days (last pass: v5.17.10, first fail: v5.17.11) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-    | regressions
-------------------------+-------+--------------+----------+----------------=
-----+------------
-kontron-pitx-imx8m      | arm64 | lab-kontron  | gcc-10   | defconfig      =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62a7ceb9bdadbb14aaa39c60
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
-3-1076-ga554a1e2ef7fa/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-p=
-itx-imx8m.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
-3-1076-ga554a1e2ef7fa/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-p=
-itx-imx8m.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62a7ceb9bdadbb14aaa39=
-c61
-        new failure (last pass: v5.17.13-1071-gfcf11988907a1) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-    | regressions
-------------------------+-------+--------------+----------+----------------=
-----+------------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-10   | defconfig      =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62a7ceb4bdadbb14aaa39c54
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
-3-1076-ga554a1e2ef7fa/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64=
--bananapi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
-3-1076-ga554a1e2ef7fa/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64=
--bananapi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62a7ceb4bdadbb14aaa39=
-c55
-        new failure (last pass: v5.17.13-1071-gfcf11988907a1) =
-
- =20
+> From: Seth Forshee <sforshee@digitalocean.com>
+>
+> [ Upstream commit 3e684903a8574ffc9475fdf13c4780a7adb506ad ]
+>
+> A livepatch transition may stall indefinitely when a kvm vCPU is heavily
+> loaded. To the host, the vCPU task is a user thread which is spending a
+> very long time in the ioctl(KVM_RUN) syscall. During livepatch
+> transition, set_notify_signal() will be called on such tasks to
+> interrupt the syscall so that the task can be transitioned. This
+> interrupts guest execution, but when xfer_to_guest_mode_work() sees that
+> TIF_NOTIFY_SIGNAL is set but not TIF_SIGPENDING it concludes that an
+> exit to user mode is unnecessary, and guest execution is resumed without
+> transitioning the task for the livepatch.
+>
+> This handling of TIF_NOTIFY_SIGNAL is incorrect, as set_notify_signal()
+> is expected to break tasks out of interruptible kernel loops and cause
+> them to return to userspace. Change xfer_to_guest_mode_work() to handle
+> TIF_NOTIFY_SIGNAL the same as TIF_SIGPENDING, signaling to the vCPU run
+> loop that an exit to userpsace is needed. Any pending task_work will be
+> run when get_signal() is called from exit_to_user_mode_loop(), so there
+> is no longer any need to run task work from xfer_to_guest_mode_work().
+>
+> Suggested-by: "Eric W. Biederman" <ebiederm@xmission.com>
+> Cc: Petr Mladek <pmladek@suse.com>
+> Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
+> Message-Id: <20220504180840.2907296-1-sforshee@digitalocean.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  kernel/entry/kvm.c | 6 ------
+>  1 file changed, 6 deletions(-)
+>
+> diff --git a/kernel/entry/kvm.c b/kernel/entry/kvm.c
+> index 9d09f489b60e..2e0f75bcb7fd 100644
+> --- a/kernel/entry/kvm.c
+> +++ b/kernel/entry/kvm.c
+> @@ -9,12 +9,6 @@ static int xfer_to_guest_mode_work(struct kvm_vcpu *vcpu, unsigned long ti_work)
+>  		int ret;
+>  
+>  		if (ti_work & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL)) {
+> -			clear_notify_signal();
+> -			if (task_work_pending(current))
+> -				task_work_run();
+> -		}
+> -
+> -		if (ti_work & _TIF_SIGPENDING) {
+>  			kvm_handle_signal_exit(vcpu);
+>  			return -EINTR;
+>  		}
