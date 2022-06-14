@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B639B54A650
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:24:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C229954A6E4
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:38:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354107AbiFNCYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:24:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54444 "EHLO
+        id S1354684AbiFNCZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:25:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354530AbiFNCXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:23:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2053E40900;
-        Mon, 13 Jun 2022 19:10:34 -0700 (PDT)
+        with ESMTP id S1354716AbiFNCXm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:23:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22BF540933;
+        Mon, 13 Jun 2022 19:10:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1C5A60F1C;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4148B80AC1;
+        Tue, 14 Jun 2022 02:10:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE113C3411E;
         Tue, 14 Jun 2022 02:10:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E138C34114;
-        Tue, 14 Jun 2022 02:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172633;
-        bh=6rhygkd6Oy5L/KrV0UrhH/iU7JA+Qqh+u3r+bK1jBU0=;
+        s=k20201202; t=1655172634;
+        bh=WXzatfo1Gdzn71E2kMuzfXun5GozS4HNJ2f2i7o2MU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z/1WQZutNzhdToCSdSyiEIswUeHUojuFOnrchEnrQPwAifIeDg4AUXjt5glvnU+gL
-         AhUafI4aTO7lbu8maqUlWJQXJRAmGpW22SzW7+E3q3E2EwUxn8rZKFEBk2LKeo6I8E
-         ktO29jJC/iVLqfhIgrHdH7zWDNiWVKbFVt8w0ez3F4+uaT1vRrlYPeuiHkEKZZgqN+
-         P1kUYlQGaSB8YTzVrpPzw22U3LScLJlkJzyQMr+vKC1zR8CzGBG91adz7OGf95lqPT
-         pylCaG3jWpvSnX7w0Dd/wLXPMbEHJIokC05q5k2T+0bb4KbpgDZhBfWPK3StCWAOLM
-         +nHpDDqk/+oNw==
+        b=KGeQYonL61Phkqid0Y0rXyqxM3psHCsN370t7NwcwnVkWaIlx+SwPzxz1zsQoMdJC
+         v0ZwzLjcKL3yLlc3LmKj6+3rHrXnKoadjVPbroBWcbI3nIe7zwJJxgBKqNAZvRUlT0
+         Pc1K+m85b6rVsxPUd7qTbrG6oP3w/wndh6eEaswd9EefdZJTDq+OINosy/qV2Ql9wD
+         laJMx7jL4xeLQNsM1+j7RcSzYSdjaAm3mooKrL2iKebAmV/STdFQEgBz4jBDf2f5RV
+         6ohjHFQ9rHTnUaX/uVsyiVmvbjQDIdm2WJAN/fThNZKtnnQe14XP731d/A8YdJNhxy
+         EaClvJDA5PKLA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chengguang Xu <cgxu519@mykernel.net>,
         Dan Carpenter <dan.carpenter@oracle.com>,
-        Brian King <brking@linux.vnet.ibm.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, jejb@linux.vnet.ibm.com,
         linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/14] scsi: ipr: Fix missing/incorrect resource cleanup in error case
-Date:   Mon, 13 Jun 2022 22:10:14 -0400
-Message-Id: <20220614021019.1100929-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 10/14] scsi: pmcraid: Fix missing resource cleanup in error case
+Date:   Mon, 13 Jun 2022 22:10:15 -0400
+Message-Id: <20220614021019.1100929-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614021019.1100929-1-sashal@kernel.org>
 References: <20220614021019.1100929-1-sashal@kernel.org>
@@ -61,45 +60,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chengguang Xu <cgxu519@mykernel.net>
 
-[ Upstream commit d64c491911322af1dcada98e5b9ee0d87e8c8fee ]
+[ Upstream commit ec1e8adcbdf661c57c395bca342945f4f815add7 ]
 
 Fix missing resource cleanup (when '(--i) == 0') for error case in
-ipr_alloc_mem() and skip incorrect resource cleanup (when '(--i) == 0') for
-error case in ipr_request_other_msi_irqs() because variable i started from
-1.
+pmcraid_register_interrupt_handler().
 
-Link: https://lore.kernel.org/r/20220529153456.4183738-4-cgxu519@mykernel.net
+Link: https://lore.kernel.org/r/20220529153456.4183738-6-cgxu519@mykernel.net
 Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Brian King <brking@linux.vnet.ibm.com>
 Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ipr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/pmcraid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
-index b172f0a02083..99b37e19feca 100644
---- a/drivers/scsi/ipr.c
-+++ b/drivers/scsi/ipr.c
-@@ -9788,7 +9788,7 @@ static int ipr_alloc_mem(struct ipr_ioa_cfg *ioa_cfg)
- 					GFP_KERNEL);
+diff --git a/drivers/scsi/pmcraid.c b/drivers/scsi/pmcraid.c
+index b4d6cd8cd1ad..d27ae937ff68 100644
+--- a/drivers/scsi/pmcraid.c
++++ b/drivers/scsi/pmcraid.c
+@@ -4601,7 +4601,7 @@ pmcraid_register_interrupt_handler(struct pmcraid_instance *pinstance)
+ 	return 0;
  
- 		if (!ioa_cfg->hrrq[i].host_rrq)  {
--			while (--i > 0)
-+			while (--i >= 0)
- 				dma_free_coherent(&pdev->dev,
- 					sizeof(u32) * ioa_cfg->hrrq[i].size,
- 					ioa_cfg->hrrq[i].host_rrq,
-@@ -10060,7 +10060,7 @@ static int ipr_request_other_msi_irqs(struct ipr_ioa_cfg *ioa_cfg,
- 			ioa_cfg->vectors_info[i].desc,
- 			&ioa_cfg->hrrq[i]);
- 		if (rc) {
--			while (--i >= 0)
-+			while (--i > 0)
- 				free_irq(pci_irq_vector(pdev, i),
- 					&ioa_cfg->hrrq[i]);
- 			return rc;
+ out_unwind:
+-	while (--i > 0)
++	while (--i >= 0)
+ 		free_irq(pci_irq_vector(pdev, i), &pinstance->hrrq_vector[i]);
+ 	pci_free_irq_vectors(pdev);
+ 	return rc;
 -- 
 2.35.1
 
