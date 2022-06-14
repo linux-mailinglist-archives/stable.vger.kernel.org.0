@@ -2,145 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F60D54B628
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 18:31:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D4C54B658
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 18:40:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244790AbiFNQ3T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 12:29:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43062 "EHLO
+        id S244494AbiFNQko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 12:40:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343944AbiFNQ2Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 12:28:25 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCDDF1E3ED
-        for <stable@vger.kernel.org>; Tue, 14 Jun 2022 09:28:24 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25EGSJ3S014303;
-        Tue, 14 Jun 2022 16:28:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=EHA1hEUxvXe/uTslOlpJbTg+SimmOwvnQX97fqVVgxY=;
- b=njmpRKKMZ3ou2IYwAdefyBN8s992JRjnWxJ+RvaN4w2I5nWgnc0DEXD+CSgkAWYL546b
- RuwYCngGWNYykJEidId5Gg+Z2vCYGRrZ92yVCHiIkZpeJKmx2Yv8Vc+CaiGlYWqqPgjT
- Xi0HuDYUgn5T6E4L13hW2RQXuDInR+zinVwxoQPBkBoJHNZCQx0RSz5ZAKoD+7aHFZaw
- tfZxdF+Tw17U4DWlJACI7GcxXqw4D9ciH9IrR/+CnFF6nll00qluaeCUMOJqsVfiS8EB
- ZKDftcy8IBHq2gRZ8T4kwgnKchO4LVps+9s0rHTCffCdqwQ2f+SxNbR70sKXPmhJ8uk2 Dw== 
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gppw36e7y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Jun 2022 16:28:19 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25EG5dnu012346;
-        Tue, 14 Jun 2022 16:28:14 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma04dal.us.ibm.com with ESMTP id 3gmjpa2t92-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Jun 2022 16:28:14 +0000
-Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25EGSDb963832464
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Jun 2022 16:28:13 GMT
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0B4F5AC05B;
-        Tue, 14 Jun 2022 16:28:13 +0000 (GMT)
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 288E5AC059;
-        Tue, 14 Jun 2022 16:28:12 +0000 (GMT)
-Received: from [9.160.59.133] (unknown [9.160.59.133])
-        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Jun 2022 16:28:12 +0000 (GMT)
-Message-ID: <ffbb07bc-b4f7-d0ae-1b0b-3a2ea76cffd4@linux.ibm.com>
-Date:   Tue, 14 Jun 2022 09:28:11 -0700
+        with ESMTP id S244022AbiFNQkn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 12:40:43 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0B54835AAC;
+        Tue, 14 Jun 2022 09:40:42 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D9BF716F3;
+        Tue, 14 Jun 2022 09:40:41 -0700 (PDT)
+Received: from [10.57.84.132] (unknown [10.57.84.132])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9F61E3F66F;
+        Tue, 14 Jun 2022 09:40:40 -0700 (PDT)
+Message-ID: <65477f82-cb48-7f4c-db2f-d7e359fe2144@arm.com>
+Date:   Tue, 14 Jun 2022 17:40:39 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH] powerpc/rtas: Allow ibm,platform-dump RTAS call with null
- buffer address
-Content-Language: en-US
-To:     Andrew Donnellan <ajd@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org
-Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
-        Sathvika Vasireddy <sathvika@linux.ibm.com>,
-        stable@vger.kernel.org
-References: <20220614134952.156010-1-ajd@linux.ibm.com>
-From:   Tyrel Datwyler <tyreld@linux.ibm.com>
-In-Reply-To: <20220614134952.156010-1-ajd@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.10.0
+Subject: Re: [PATCH] writeback: Avoid grabbing the wb if the we don't add it
+ to dirty list
+To:     Jan Kara <jack@suse.cz>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        Jchao Sun <sunjunchao2870@gmail.com>
+References: <20220614124618.2830569-1-suzuki.poulose@arm.com>
+ <20220614142955.7wvv5dfqdcwp5ftw@quack3.lan>
+From:   Suzuki K Poulose <suzuki.poulose@arm.com>
+In-Reply-To: <20220614142955.7wvv5dfqdcwp5ftw@quack3.lan>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8FJ0UALKts09i3LjsUmmpp4jNLUZEXcN
-X-Proofpoint-ORIG-GUID: 8FJ0UALKts09i3LjsUmmpp4jNLUZEXcN
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-14_06,2022-06-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 bulkscore=0 adultscore=0 phishscore=0
- spamscore=0 clxscore=1011 mlxscore=0 impostorscore=0 mlxlogscore=999
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206140062
-X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-8.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/14/22 06:49, Andrew Donnellan wrote:
-> Add a special case to block_rtas_call() to allow the ibm,platform-dump RTAS
-> call through the RTAS filter if the buffer address is 0.
+On 14/06/2022 15:29, Jan Kara wrote:
+> On Tue 14-06-22 13:46:18, Suzuki K Poulose wrote:
+>> Commit 10e14073107d moved grabbing the wb for an inode early enough,
+>> skipping the checks whether if this inode needs to be really added
+>> to the dirty list (backed by blockdev or unhashed inode). This causes
+>> a crash with kdevtmpfs as below, on an arm64 Juno board, as below:
+>>
+>> [    1.446493] printk: console [ttyAMA0] printing thread started
+>> [    1.447195] printk: bootconsole [pl11] printing thread stopped
+>> [    1.467193] Unable to handle kernel paging request at virtual address ffff800871242000
+>> [    1.467793] Mem abort info:
+>> [    1.468093]   ESR = 0x0000000096000005
+>> [    1.468413]   EC = 0x25: DABT (current EL), IL = 32 bits
+>> [    1.468741]   SET = 0, FnV = 0
+>> [    1.469093]   EA = 0, S1PTW = 0
+>> [    1.469396]   FSC = 0x05: level 1 translation fault
+>> [    1.470493] Data abort info:
+>> [    1.470793]   ISV = 0, ISS = 0x00000005
+>> [    1.471093]   CM = 0, WnR = 0
+>> [    1.471444] swapper pgtable: 4k pages, 48-bit VAs, 	pgdp=0000000081c10000
+>> [    1.471798] [ffff800871242000] pgd=10000008fffff003,
+>> p4d=10000008fffff003, pud=0000000000000000
+>> [    1.472836] Internal error: Oops: 96000005 [#1] PREEMPT SMP
+>> [    1.472918] Modules linked in:
+>> [    1.473085] CPU: 1 PID: 35 Comm: kdevtmpfs Tainted: G T 5.19.0-rc1+ #49
+>> [    1.473246] Hardware name: Foundation-v8A (DT)
+>> [    1.473345] pstate: 40400009 (nZcv daif +PAN -UAO -TCO -DIT 	-SSBS BTYPE=--)
+>> [    1.473493] pc : locked_inode_to_wb_and_lock_list+0xbc/0x2a4
+>> [    1.473656] lr : locked_inode_to_wb_and_lock_list+0x8c/0x2a4
+>> [    1.473820] sp : ffff80000b77bc10
+>> [    1.473901] x29: ffff80000b77bc10 x28: 0000000000000001 x27: 0000000000000004
+>> [    1.474193] x26: 0000000000000000 x25: ffff000800888600 x24: ffff0008008885e8
+>> [    1.474393] x23: ffff80000848ddd4 x22: ffff80000a754f30 x21: ffff80000a7eaaf0
+>> [    1.474693] x20: ffff000800888150 x19: ffff80000b6a4150 x18: ffff80000ac3ac00
+>> [    1.474917] x17: 0000000070526bee x16: 000000003ac581ee x15: ffff80000ac42660
+>> [    1.475195] x14: 0000000000000000 x13: 0000000000007a60 x12: 0000000000000002
+>> [    1.475428] x11: ffff80000a7eaaf0 x10: 0000000000000004 x9 : 000000008845fe88
+>> [    1.475622] x8 : ffff000800868000 x7 : ffff80000ab98000 x6 : 00000000114514e2
+>> [    1.475893] x5 : 0000000000000000 x4 : 0000000000020019 x3 : 0000000000000001
+>> [    1.476113] x2 : ffff800871242000 x1 : ffff800871242000 x0 : ffff000800868000
+>> [    1.476393] Call trace:
+>> [    1.476493]  locked_inode_to_wb_and_lock_list+0xbc/0x2a4
+>> [    1.476605]  __mark_inode_dirty+0x3d8/0x6e0
+>> [    1.476793]  simple_setattr+0x5c/0x84
+>> [    1.476933]  notify_change+0x3ec/0x470
+>> [    1.477096]  handle_create+0x1b8/0x224
+>> [    1.477193]  devtmpfsd+0x98/0xf8
+>> [    1.477342]  kthread+0x124/0x130
+>> [    1.477512]  ret_from_fork+0x10/0x20
+>> [    1.477670] Code: b9000802 d2800023 d53cd042 8b020021 (f823003f)
+>> [    1.477793] ---[ end trace 0000000000000000 ]---
+>> [    1.478093] note: kdevtmpfs[35] exited with preempt_count 2
+>>
+>> The problem was bisected to the above commit and moving the bail check
+>> early solves the problem for me.
+>>
+>> Fixes: 10e14073107d ("writeback: Fix inode->i_io_list not be protected by inode->i_lock error")
+>> CC: stable@vger.kernel.org
+>> Cc: Jchao Sun <sunjunchao2870@gmail.com>
+>> Cc: Jan Kara <jack@suse.cz>
+>> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 > 
-> According to PAPR, ibm,platform-dump is called with a null buffer address
-> to notify the platform firmware that processing of a particular dump is
-> finished.
-> 
-> Without this, on a pseries machine with CONFIG_PPC_RTAS_FILTER enabled, an
-> application such as rtas_errd that is attempting to retrieve a dump will
-> encounter an error at the end of the retrieval process.
-> 
-> Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
-> Cc: stable@vger.kernel.org
-> Reported-by: Sathvika Vasireddy <sathvika@linux.ibm.com>
-> Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+> Thanks for debugging this! The problem actually is not that we cannot call
+> locked_inode_to_wb_and_lock_list() for devtmpfs inode. The problem is that
+> we get called so early during boot that noop_backing_dev_info is not
+> initialized yet and that breaks the code. But I agree the quick fix for
+> this breakage is to exclude unhashed inodes early in __mark_inode_dirty().
+> I'll update the changelog and code comment (and cleanup the condition when
+> moving it) and push the result to my tree.
 
-Similar to what is done for ibm,configure-connector with idx_buf2 and a NULL
-address.
+Thanks for the clarification. Btw, here is another report, that is fixed 
+with the same patch [0].
 
-Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+[0] 
+https://lore.kernel.org/linux-arm-kernel/YqiJH1phG%2FLWu9bs@monolith.localdoman/
 
-> ---
->  arch/powerpc/kernel/rtas.c | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-> index a6fce3106e02..693133972294 100644
-> --- a/arch/powerpc/kernel/rtas.c
-> +++ b/arch/powerpc/kernel/rtas.c
-> @@ -1071,7 +1071,7 @@ static struct rtas_filter rtas_filters[] __ro_after_init = {
->  	{ "get-time-of-day", -1, -1, -1, -1, -1 },
->  	{ "ibm,get-vpd", -1, 0, -1, 1, 2 },
->  	{ "ibm,lpar-perftools", -1, 2, 3, -1, -1 },
-> -	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },
-> +	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },		/* Special cased */
->  	{ "ibm,read-slot-reset-state", -1, -1, -1, -1, -1 },
->  	{ "ibm,scan-log-dump", -1, 0, 1, -1, -1 },
->  	{ "ibm,set-dynamic-indicator", -1, 2, -1, -1, -1 },
-> @@ -1120,6 +1120,15 @@ static bool block_rtas_call(int token, int nargs,
->  				size = 1;
-> 
->  			end = base + size - 1;
-> +
-> +			/*
-> +			 * Special case for ibm,platform-dump - NULL buffer
-> +			 * address is used to indicate end of dump processing
-> +			 */
-> +			if (!strcmp(f->name, "ibm,platform-dump") &&
-> +			    base == 0)
-> +				return false;
-> +
->  			if (!in_rmo_buf(base, end))
->  				goto err;
->  		}
-
+Suzuki
