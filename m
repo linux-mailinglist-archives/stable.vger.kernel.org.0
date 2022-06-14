@@ -2,173 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C2854B2A0
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 15:57:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B522254B2BF
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 16:06:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231223AbiFNN5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 09:57:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43124 "EHLO
+        id S236030AbiFNOFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 10:05:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229447AbiFNN5t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 09:57:49 -0400
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on20607.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe59::607])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13C3C27FD0
-        for <stable@vger.kernel.org>; Tue, 14 Jun 2022 06:57:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RqRcx6S++5g2ItsCsRB7E1h5jgxpPIYjcATdtE9+Ou4qVPGOvoJsnBZ3LnU7+a13zGqPNgrvxnJuld5WNpjlguigtXFCBtfS8GDsxP43dit5jAcTRLMutF1E+D8YdSk1Hk22FSkNbzB64BUyGkK9a5S6TNUycJiLNv/0AygPG+k6hdXcptDpHlhvF/6mRY9p8FOR12PfAEqVKfuQZQ/rQ4HJolcs+1Vq51hCTEavwWaIhvrE0nMy30iyJREVI1L1MtzHAcD+fRmdmYQv36T9Q4dHCfCmyl1UcbKbvgO2Oh5l7c5iPIpf+eHwD2SwTeu5EBY3lIKcQYJOBbc0fXgLnQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=+iAjMBZjXSNlV7k7R5ro159IcTkFFIqAgGX376PVugM=;
- b=KdYHBmGrQN4evZz6gm2pjbX4sSaSafy3YhbXkOD1vISzOxmupw6ywSeznrvuqaYYPB4GbAQ8M9xvHWTzPYITM9JBfdBQrMLUYaPEbbADOLttdNR9ma2BOlAHHCeuWfHk8tHSs6+ZGjPKsUD+E7zi5ZFJ0DM0bzKOscmYVrcC/yHh37XHHsk/9yNEo6uJZjCU4+KHPMGD3ut76yQJEawmfG4QKJPel9FHUcR0X0fi61pobeCl7Jaf/GFTfMXz7H5/xZYmwRYszlGQXNRNmpPwpr7mmm+VGg37GKlBbOJRBzkU1eBqrDuiI7pRWhf1/nNM/NKdcDq4RzLKICGdK6i2WA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+iAjMBZjXSNlV7k7R5ro159IcTkFFIqAgGX376PVugM=;
- b=WrBOacuryfPcdO64rFsCxF175bDE/AWKpBcJyYqWXqsEbkdAx9/+XcY9+tNfhwPlqHSxWAzhCR6VNu5v9c5B5P+hqwaf10uDFSqUGHW0qQ5NgdY7omxCzDGZbl9CyB0VcnXF77zHv9IBCj/II9zv9lhC1mZv3u2NtS5lOColFCc=
-Received: from BN0PR03CA0009.namprd03.prod.outlook.com (2603:10b6:408:e6::14)
- by DM5PR1201MB0123.namprd12.prod.outlook.com (2603:10b6:4:50::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.16; Tue, 14 Jun
- 2022 13:57:43 +0000
-Received: from BN8NAM11FT013.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:e6:cafe::65) by BN0PR03CA0009.outlook.office365.com
- (2603:10b6:408:e6::14) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.13 via Frontend
- Transport; Tue, 14 Jun 2022 13:57:43 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- BN8NAM11FT013.mail.protection.outlook.com (10.13.176.182) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.5332.12 via Frontend Transport; Tue, 14 Jun 2022 13:57:43 +0000
-Received: from Philip-Dev.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.28; Tue, 14 Jun
- 2022 08:57:42 -0500
-From:   Philip Yang <Philip.Yang@amd.com>
-To:     <stable@vger.kernel.org>, <Felix.Kuehling@amd.com>,
-        <alexander.deucher@amd.com>
-CC:     Philip Yang <Philip.Yang@amd.com>
-Subject: [PATCH 1/1] drm/amdkfd: Fix partial migration bugs
-Date:   Tue, 14 Jun 2022 09:57:09 -0400
-Message-ID: <20220614135709.7186-1-Philip.Yang@amd.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S235951AbiFNOFg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 10:05:36 -0400
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D063A724;
+        Tue, 14 Jun 2022 07:05:34 -0700 (PDT)
+Received: from fraeml735-chm.china.huawei.com (unknown [172.18.147.226])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4LMqt66rQzz67ZGL;
+        Tue, 14 Jun 2022 22:03:58 +0800 (CST)
+Received: from lhreml710-chm.china.huawei.com (10.201.108.61) by
+ fraeml735-chm.china.huawei.com (10.206.15.216) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Tue, 14 Jun 2022 16:05:32 +0200
+Received: from localhost (10.81.210.75) by lhreml710-chm.china.huawei.com
+ (10.201.108.61) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Tue, 14 Jun
+ 2022 15:05:31 +0100
+Date:   Tue, 14 Jun 2022 15:05:29 +0100
+From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Denis Ciocca <denis.ciocca@st.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.15 167/247] iio: st_sensors: Add a local lock for
+ protecting odr
+Message-ID: <20220614150529.00004e13@Huawei.com>
+In-Reply-To: <20220613094928.023172711@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
+        <20220613094928.023172711@linuxfoundation.org>
+Organization: Huawei Technologies Research and Development (UK) Ltd.
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.29; i686-w64-mingw32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b52248c1-db7b-4cca-34f4-08da4e0dda58
-X-MS-TrafficTypeDiagnostic: DM5PR1201MB0123:EE_
-X-Microsoft-Antispam-PRVS: <DM5PR1201MB01230F13EE3098C83F652C5BE6AA9@DM5PR1201MB0123.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: jIKt+RcTBMwnnkK37i8b3jT0IAVkg3VLh02LNEzOcqGtgnQ/jxNfIuP7Z+sLMTrsV4Rf2unCkUyY+QH5B+Ykry/AEzcxtE310uUr54k4Rc3uT93uJiDNT8OHGcqac6G2tKADP4n71q4y5H+TwWu8JYnKzHDLKBuAEVsukOsaKuIQ4DCHChXpOlN/fwRvAutO+yFsMpI3YsxdB7mYl8raXxW/yBnWTFdB4vf/OP3ZvTf6vAjV/qCDdNfG0KBcXgU9siG6ZJNaeeU6hU6I3zppiFq305aoAeSU0kk1x/d2BJ78tiM7xr5zP7QhvKzoCSJkdZwfHGv7Q8mbkUiCz7pn42fJyxQiLJlp7zefG+YKvLQRlY01duW12GttL43GD8gjxvj8wFqPAhr4rKjmvP52hSiiODo05Tu46bW5jVU4pX0MFMkFhcwjLfx+eLBGkWgthXB0wgnpnI/ifMsuAFzbL63kJeiATX59k9Jq2JOM7+UuiOd+m+j8bu649mJ3olYhnLnu6ATdkA60mN2OXKDVhoHgP7gSQnPgi9Ek0lS6K6Kgv234+T5DHKP8sdNDQXqTYcswtou4fHKqv1SIUwgEBGzjJJagCQFyW+2QaJv68mF4dFgtQHw8OVy1cBWwiyvXtGanl5hrpXeb+wk76/cEXDIQ49PucYmPQQKajfi4fGuSeEOfGE6/XBY46EE4SAtjlvV9qEt80zbjFdrlNbcJ6g==
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230016)(4636009)(46966006)(40470700004)(36840700001)(47076005)(1076003)(40460700003)(186003)(16526019)(2616005)(426003)(336012)(356005)(81166007)(36860700001)(70206006)(8936002)(5660300002)(70586007)(316002)(82310400005)(8676002)(2906002)(7696005)(6666004)(110136005)(6636002)(26005)(4326008)(508600001)(83380400001)(86362001)(36756003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jun 2022 13:57:43.0320
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: b52248c1-db7b-4cca-34f4-08da4e0dda58
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT013.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR1201MB0123
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.81.210.75]
+X-ClientProxiedBy: lhreml740-chm.china.huawei.com (10.201.108.190) To
+ lhreml710-chm.china.huawei.com (10.201.108.61)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit <88467db6e2f46a2e79b1b67ce6873c284e4cf417> upstream
+On Mon, 13 Jun 2022 12:11:09 +0200
+Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 
-Backport from upstream to match function amdgpu_vm_bo_update_mapping
-change.
+> From: Miquel Raynal <miquel.raynal@bootlin.com>
+> 
+> [ Upstream commit 474010127e2505fc463236470908e1ff5ddb3578 ]
+> 
+> Right now the (framework) mlock lock is (ab)used for multiple purposes:
+> 1- protecting concurrent accesses over the odr local cache
+> 2- avoid changing samplig frequency whilst buffer is running
+> 
+> Let's start by handling situation #1 with a local lock.
 
-Migration range from system memory to VRAM, if system page can not be
-locked or unmapped, we do partial migration and leave some pages in
-system memory. Several bugs found to copy pages and update GPU mapping
-for this situation:
+This is harmless, but not a fix but rather part of a long running
+effort to abstract away the use of iio_dev->mlock.
 
-1. copy to vram should use migrate->npage which is total pages of range
-as npages, not migrate->cpages which is number of pages can be migrated.
+What's there before this isn't broken, but rather isn't the way
+we would do it today.
 
-2. After partial copy, set VRAM res cursor as j + 1, j is number of
-system pages copied plus 1 page to skip copy.
+Thanks,
 
-3. copy to ram, should collect all continuous VRAM pages and copy
-together.
+Jonathan
 
-4. Call amdgpu_vm_update_range, should pass in offset as bytes, not
-as number of pages.
-
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
----
- drivers/gpu/drm/amd/amdkfd/kfd_migrate.c | 6 +++---
- drivers/gpu/drm/amd/amdkfd/kfd_svm.c     | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-index ed5385137f48..9d5324b6298c 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-@@ -299,7 +299,7 @@ svm_migrate_copy_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
- 			 struct migrate_vma *migrate, struct dma_fence **mfence,
- 			 dma_addr_t *scratch)
- {
--	uint64_t npages = migrate->cpages;
-+	uint64_t npages = migrate->npages;
- 	struct device *dev = adev->dev;
- 	struct amdgpu_res_cursor cursor;
- 	dma_addr_t *src;
-@@ -346,7 +346,7 @@ svm_migrate_copy_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
- 						mfence);
- 				if (r)
- 					goto out_free_vram_pages;
--				amdgpu_res_next(&cursor, j << PAGE_SHIFT);
-+				amdgpu_res_next(&cursor, (j + 1) << PAGE_SHIFT);
- 				j = 0;
- 			} else {
- 				amdgpu_res_next(&cursor, PAGE_SIZE);
-@@ -593,7 +593,7 @@ svm_migrate_copy_to_ram(struct amdgpu_device *adev, struct svm_range *prange,
- 			continue;
- 		}
- 		src[i] = svm_migrate_addr(adev, spage);
--		if (i > 0 && src[i] != src[i - 1] + PAGE_SIZE) {
-+		if (j > 0 && src[i] != src[i - 1] + PAGE_SIZE) {
- 			r = svm_migrate_copy_memory_gart(adev, dst + i - j,
- 							 src + i - j, j,
- 							 FROM_VRAM_TO_RAM,
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-index f2805ba74c80..6d108dbbabdc 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-@@ -1275,7 +1275,7 @@ svm_range_map_to_gpu(struct amdgpu_device *adev, struct amdgpu_vm *vm,
- 		r = amdgpu_vm_bo_update_mapping(adev, bo_adev, vm, false, false,
- 						NULL, last_start,
- 						prange->start + i, pte_flags,
--						last_start - prange->start,
-+						(last_start - prange->start) << PAGE_SHIFT,
- 						NULL, dma_addr,
- 						&vm->last_update,
- 						&table_freed);
--- 
-2.35.1
+> 
+> Suggested-by: Jonathan Cameron <jic23@kernel.org>
+> Cc: Denis Ciocca <denis.ciocca@st.com>
+> Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+> Link: https://lore.kernel.org/r/20220207143840.707510-7-miquel.raynal@bootlin.com
+> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  .../iio/common/st_sensors/st_sensors_core.c   | 24 ++++++++++++++-----
+>  include/linux/iio/common/st_sensors.h         |  3 +++
+>  2 files changed, 21 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/iio/common/st_sensors/st_sensors_core.c b/drivers/iio/common/st_sensors/st_sensors_core.c
+> index 0bbb090b108c..aff981551617 100644
+> --- a/drivers/iio/common/st_sensors/st_sensors_core.c
+> +++ b/drivers/iio/common/st_sensors/st_sensors_core.c
+> @@ -71,16 +71,18 @@ static int st_sensors_match_odr(struct st_sensor_settings *sensor_settings,
+>  
+>  int st_sensors_set_odr(struct iio_dev *indio_dev, unsigned int odr)
+>  {
+> -	int err;
+> +	int err = 0;
+>  	struct st_sensor_odr_avl odr_out = {0, 0};
+>  	struct st_sensor_data *sdata = iio_priv(indio_dev);
+>  
+> +	mutex_lock(&sdata->odr_lock);
+> +
+>  	if (!sdata->sensor_settings->odr.mask)
+> -		return 0;
+> +		goto unlock_mutex;
+>  
+>  	err = st_sensors_match_odr(sdata->sensor_settings, odr, &odr_out);
+>  	if (err < 0)
+> -		goto st_sensors_match_odr_error;
+> +		goto unlock_mutex;
+>  
+>  	if ((sdata->sensor_settings->odr.addr ==
+>  					sdata->sensor_settings->pw.addr) &&
+> @@ -103,7 +105,9 @@ int st_sensors_set_odr(struct iio_dev *indio_dev, unsigned int odr)
+>  	if (err >= 0)
+>  		sdata->odr = odr_out.hz;
+>  
+> -st_sensors_match_odr_error:
+> +unlock_mutex:
+> +	mutex_unlock(&sdata->odr_lock);
+> +
+>  	return err;
+>  }
+>  EXPORT_SYMBOL(st_sensors_set_odr);
+> @@ -365,6 +369,8 @@ int st_sensors_init_sensor(struct iio_dev *indio_dev,
+>  	struct st_sensors_platform_data *of_pdata;
+>  	int err = 0;
+>  
+> +	mutex_init(&sdata->odr_lock);
+> +
+>  	/* If OF/DT pdata exists, it will take precedence of anything else */
+>  	of_pdata = st_sensors_dev_probe(indio_dev->dev.parent, pdata);
+>  	if (IS_ERR(of_pdata))
+> @@ -558,18 +564,24 @@ int st_sensors_read_info_raw(struct iio_dev *indio_dev,
+>  		err = -EBUSY;
+>  		goto out;
+>  	} else {
+> +		mutex_lock(&sdata->odr_lock);
+>  		err = st_sensors_set_enable(indio_dev, true);
+> -		if (err < 0)
+> +		if (err < 0) {
+> +			mutex_unlock(&sdata->odr_lock);
+>  			goto out;
+> +		}
+>  
+>  		msleep((sdata->sensor_settings->bootime * 1000) / sdata->odr);
+>  		err = st_sensors_read_axis_data(indio_dev, ch, val);
+> -		if (err < 0)
+> +		if (err < 0) {
+> +			mutex_unlock(&sdata->odr_lock);
+>  			goto out;
+> +		}
+>  
+>  		*val = *val >> ch->scan_type.shift;
+>  
+>  		err = st_sensors_set_enable(indio_dev, false);
+> +		mutex_unlock(&sdata->odr_lock);
+>  	}
+>  out:
+>  	mutex_unlock(&indio_dev->mlock);
+> diff --git a/include/linux/iio/common/st_sensors.h b/include/linux/iio/common/st_sensors.h
+> index 8bdbaf3f3796..69f4a1f6b536 100644
+> --- a/include/linux/iio/common/st_sensors.h
+> +++ b/include/linux/iio/common/st_sensors.h
+> @@ -238,6 +238,7 @@ struct st_sensor_settings {
+>   * @hw_irq_trigger: if we're using the hardware interrupt on the sensor.
+>   * @hw_timestamp: Latest timestamp from the interrupt handler, when in use.
+>   * @buffer_data: Data used by buffer part.
+> + * @odr_lock: Local lock for preventing concurrent ODR accesses/changes
+>   */
+>  struct st_sensor_data {
+>  	struct device *dev;
+> @@ -263,6 +264,8 @@ struct st_sensor_data {
+>  	s64 hw_timestamp;
+>  
+>  	char buffer_data[ST_SENSORS_MAX_BUFFER_SIZE] ____cacheline_aligned;
+> +
+> +	struct mutex odr_lock;
+>  };
+>  
+>  #ifdef CONFIG_IIO_BUFFER
 
