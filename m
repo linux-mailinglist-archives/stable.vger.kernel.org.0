@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AC9954A6BB
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:38:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CA8E54A68D
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355215AbiFNCcL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:32:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53826 "EHLO
+        id S1354709AbiFNCZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:25:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355188AbiFNC0f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:26:35 -0400
+        with ESMTP id S1355304AbiFNCYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:24:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4729427D7;
-        Mon, 13 Jun 2022 19:11:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A933A41982;
+        Mon, 13 Jun 2022 19:10:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81F3FB816B9;
-        Tue, 14 Jun 2022 02:10:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DEAAC341C4;
-        Tue, 14 Jun 2022 02:10:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A570B816C0;
+        Tue, 14 Jun 2022 02:10:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02DDC34114;
+        Tue, 14 Jun 2022 02:10:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172656;
-        bh=o/jyu2ROdm31y2b8cgGf9XEmM2oEVHame+hPgu7jdd4=;
+        s=k20201202; t=1655172658;
+        bh=r8lvdLrTRpr0JO0BJ5yTk+PV/xkIpP+MsXfGHsZLz0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=URndEBjW5YScMKRngGXuXPQEkDmSxmdxM8wES0Nk5nZjlnQNywW6RUm8ybwtL2ydn
-         BeO+Bhy8t5asb1V3V8TUMUp4EX8qMlGAjtKceWYZdTM0669DhkXtrmRe4pDwTCgOu+
-         n8BkoRHQ42W+tJhufkRpBh/BsiK8dniO2DKJQxnAz4Mh3Pky1GwELd7YlAp4Wuqr7s
-         TdGlFyWTKXb/a7bfv+OCFOei+vyS9z/oQkPATcq/RsYKj3hXuUrqA+E6rIGYh/rSlF
-         kd0TrkPOyfRl+T7DBUwO+SUwd2Cf6uhpn6wcqsGhO1KuKc9r1xzNlKnuI8bOLbz3vG
-         aR9iJ9ypgUz/g==
+        b=Jk57c/5BkWOS67zOF672XbutnIJSHoCYf8LTwBQ9Rj5KjpD6gRXLeJI9+fPYL6ght
+         wrNhc1hAvKrlprsqiQg25MD3FNUhti+FXxHpmHbtjlLrwt572RwdVgAh1hwvyBsNLR
+         5r1s3Uqkb17/QBSd8aa9UlqMrGvaFwYPcJGAsw31ZdHxM238Uquq9DwDcQSnvHgLXV
+         HwHqEmI4GM3RmUJWlFvLoRa1T3GY1k/R3aPn6jkLDWmsSbbmnBEmjXn1IIczmsEjvK
+         AAVXYbZpCcy/DkJI2N+1NJAtvv8rSo4iENPT9+uyDvmA5IaQG7oAn5yaHnRNKvuyi4
+         Pfi5Qa8+v1wJg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     chengkaitao <pilgrimtao@gmail.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.9 09/12] virtio-mmio: fix missing put_device() when vm_cmdline_parent registration failed
-Date:   Mon, 13 Jun 2022 22:10:37 -0400
-Message-Id: <20220614021040.1101131-9-sashal@kernel.org>
+Cc:     Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lauro.venancio@openbossa.org,
+        aloisio.almeida@openbossa.org, sameo@linux.intel.com,
+        linux-wireless@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 10/12] nfc: nfcmrvl: Fix memory leak in nfcmrvl_play_deferred
+Date:   Mon, 13 Jun 2022 22:10:38 -0400
+Message-Id: <20220614021040.1101131-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614021040.1101131-1-sashal@kernel.org>
 References: <20220614021040.1101131-1-sashal@kernel.org>
@@ -58,34 +59,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chengkaitao <pilgrimtao@gmail.com>
+From: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
 
-[ Upstream commit a58a7f97ba11391d2d0d408e0b24f38d86ae748e ]
+[ Upstream commit 8a4d480702b71184fabcf379b80bf7539716752e ]
 
-The reference must be released when device_register(&vm_cmdline_parent)
-failed. Add the corresponding 'put_device()' in the error handling path.
+Similar to the handling of play_deferred in commit 19cfe912c37b
+("Bluetooth: btusb: Fix memory leak in play_deferred"), we thought
+a patch might be needed here as well.
 
-Signed-off-by: chengkaitao <pilgrimtao@gmail.com>
-Message-Id: <20220602005542.16489-1-chengkaitao@didiglobal.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Currently usb_submit_urb is called directly to submit deferred tx
+urbs after unanchor them.
+
+So the usb_giveback_urb_bh would failed to unref it in usb_unanchor_urb
+and cause memory leak.
+
+Put those urbs in tx_anchor to avoid the leak, and also fix the error
+handling.
+
+Signed-off-by: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220607083230.6182-1-xiaohuizhang@ruc.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_mmio.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nfc/nfcmrvl/usb.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 50840984fbfa..f62da3b7c27b 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -630,6 +630,7 @@ static int vm_cmdline_set(const char *device,
- 	if (!vm_cmdline_parent_registered) {
- 		err = device_register(&vm_cmdline_parent);
- 		if (err) {
-+			put_device(&vm_cmdline_parent);
- 			pr_err("Failed to register parent device!\n");
- 			return err;
- 		}
+diff --git a/drivers/nfc/nfcmrvl/usb.c b/drivers/nfc/nfcmrvl/usb.c
+index 585a0f20835b..3263e2a2bdfd 100644
+--- a/drivers/nfc/nfcmrvl/usb.c
++++ b/drivers/nfc/nfcmrvl/usb.c
+@@ -401,13 +401,25 @@ static void nfcmrvl_play_deferred(struct nfcmrvl_usb_drv_data *drv_data)
+ 	int err;
+ 
+ 	while ((urb = usb_get_from_anchor(&drv_data->deferred))) {
++		usb_anchor_urb(urb, &drv_data->tx_anchor);
++
+ 		err = usb_submit_urb(urb, GFP_ATOMIC);
+-		if (err)
++		if (err) {
++			kfree(urb->setup_packet);
++			usb_unanchor_urb(urb);
++			usb_free_urb(urb);
+ 			break;
++		}
+ 
+ 		drv_data->tx_in_flight++;
++		usb_free_urb(urb);
++	}
++
++	/* Cleanup the rest deferred urbs. */
++	while ((urb = usb_get_from_anchor(&drv_data->deferred))) {
++		kfree(urb->setup_packet);
++		usb_free_urb(urb);
+ 	}
+-	usb_scuttle_anchored_urbs(&drv_data->deferred);
+ }
+ 
+ static int nfcmrvl_resume(struct usb_interface *intf)
 -- 
 2.35.1
 
