@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A5D454A59B
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAB4354A51A
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:13:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352758AbiFNCPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:15:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54940 "EHLO
+        id S1352539AbiFNCNM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:13:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353769AbiFNCOE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:14:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F6E93AA4A;
-        Mon, 13 Jun 2022 19:08:12 -0700 (PDT)
+        with ESMTP id S1352803AbiFNCMu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:12:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0444E2FE45;
+        Mon, 13 Jun 2022 19:07:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACB0160F18;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C0DE60AF2;
+        Tue, 14 Jun 2022 02:07:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92714C385A2;
         Tue, 14 Jun 2022 02:07:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCFB4C385A5;
-        Tue, 14 Jun 2022 02:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172441;
-        bh=sQibBj59stp4hCGLyB0NmNThh+E78SK0QzT/7J/IQME=;
+        s=k20201202; t=1655172442;
+        bh=4seMafuumCFqNw+bDTbGN5XERJrkspwfxmcEylUX7QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2aiVpCQU/DUfw1UwWgwtsLF5w8I/Sgzmjo4aRLMR1viWQDGkSHqF38pyhh1echEf
-         LJ5WVX5YQBq27pMCQt8KyzcEkf3bmqI8WvRB2e0squSXEGidf4M7UMtONjW66oQTVQ
-         OT8gsiwlE68nP7aC7Fm5tetVW09yHC22zwHwFfurw6X/Oez6LKaXNpioVJiVKIaesT
-         pGzpufUSCfuvAeUYbLDmmQEcV1leLbdXEMnvdvQ+MWBPNCz7GStmbkmjFQ7hkQw49j
-         4ULrCV1JNW1ZeHTQkUKZp+agp6//TFa5QLJAF8RxfOGxJNINQ7Mao5CaQy0AXKHKrV
-         +d85wtZ8H6nLw==
+        b=DAX+vGGhlo34Eh9VR0dukyTGBEaiZyplLL3xjBuRnXazDejsMAot8SLCKL2fQTJNG
+         WULweSdXbdce5wjhj6h3lFK7p3wFo69oyGmLLZeEVJcFnyPtTGjH85ac0ErNde2bas
+         ifQvczgFoxc3vBUdzWF1wc14aY15eRChPeuPbRWzJFuNIo+7XlS1IbYBbkjd+VY28X
+         lc85T7rGdbRgSV2ekCAYuS0IGW0r3noKPWBhOTkRZuzjSTGU5/xpd5XJNEShZA7iWr
+         FrmR6URhuwefsXQmHxrCl9v07NSmv8yywg3Xaes2vc99v8J7yMsJKnGfnqM355Bx8k
+         skC1sjF70klnQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
@@ -38,9 +38,9 @@ Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
         Sasha Levin <sashal@kernel.org>, brian.austin@cirrus.com,
         Paul.Handrigan@cirrus.com, lgirdwood@gmail.com, perex@perex.cz,
         tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 07/41] ASoC: cs42l52: Fix TLV scales for mixer controls
-Date:   Mon, 13 Jun 2022 22:06:32 -0400
-Message-Id: <20220614020707.1099487-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 08/41] ASoC: cs35l36: Update digital volume TLV
+Date:   Mon, 13 Jun 2022 22:06:33 -0400
+Message-Id: <20220614020707.1099487-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614020707.1099487-1-sashal@kernel.org>
 References: <20220614020707.1099487-1-sashal@kernel.org>
@@ -60,41 +60,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 8bf5aabf524eec61013e506f764a0b2652dc5665 ]
+[ Upstream commit 5005a2345825eb8346546d99bfe669f73111b5c5 ]
 
-The datasheet specifies the range of the mixer volumes as between
--51.5dB and 12dB with a 0.5dB step. Update the TLVs for this.
+The digital volume TLV specifies the step as 0.25dB but the actual step
+of the control is 0.125dB. Update the TLV to correct this.
 
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220602162119.3393857-2-ckeepax@opensource.cirrus.com
+Link: https://lore.kernel.org/r/20220602162119.3393857-3-ckeepax@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l52.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/cs35l36.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/cs42l52.c b/sound/soc/codecs/cs42l52.c
-index 80161151b3f2..785caba3f653 100644
---- a/sound/soc/codecs/cs42l52.c
-+++ b/sound/soc/codecs/cs42l52.c
-@@ -137,7 +137,7 @@ static DECLARE_TLV_DB_SCALE(mic_tlv, 1600, 100, 0);
+diff --git a/sound/soc/codecs/cs35l36.c b/sound/soc/codecs/cs35l36.c
+index d83c1b318c1c..0accdb45ed72 100644
+--- a/sound/soc/codecs/cs35l36.c
++++ b/sound/soc/codecs/cs35l36.c
+@@ -444,7 +444,8 @@ static bool cs35l36_volatile_reg(struct device *dev, unsigned int reg)
+ 	}
+ }
  
- static DECLARE_TLV_DB_SCALE(pga_tlv, -600, 50, 0);
+-static DECLARE_TLV_DB_SCALE(dig_vol_tlv, -10200, 25, 0);
++static const DECLARE_TLV_DB_RANGE(dig_vol_tlv, 0, 912,
++				  TLV_DB_MINMAX_ITEM(-10200, 1200));
+ static DECLARE_TLV_DB_SCALE(amp_gain_tlv, 0, 1, 1);
  
--static DECLARE_TLV_DB_SCALE(mix_tlv, -50, 50, 0);
-+static DECLARE_TLV_DB_SCALE(mix_tlv, -5150, 50, 0);
- 
- static DECLARE_TLV_DB_SCALE(beep_tlv, -56, 200, 0);
- 
-@@ -364,7 +364,7 @@ static const struct snd_kcontrol_new cs42l52_snd_controls[] = {
- 			      CS42L52_ADCB_VOL, 0, 0xA0, 0x78, ipd_tlv),
- 	SOC_DOUBLE_R_SX_TLV("ADC Mixer Volume",
- 			     CS42L52_ADCA_MIXER_VOL, CS42L52_ADCB_MIXER_VOL,
--				0, 0x19, 0x7F, ipd_tlv),
-+				0, 0x19, 0x7F, mix_tlv),
- 
- 	SOC_DOUBLE("ADC Switch", CS42L52_ADC_MISC_CTL, 0, 1, 1, 0),
- 
+ static const char * const cs35l36_pcm_sftramp_text[] =  {
 -- 
 2.35.1
 
