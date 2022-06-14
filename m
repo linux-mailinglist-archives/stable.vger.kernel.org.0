@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D495E54A48B
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:09:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C51854A48F
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352299AbiFNCHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:07:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43258 "EHLO
+        id S1351928AbiFNCIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:08:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351900AbiFNCGg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:06:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 433DF34BBE;
-        Mon, 13 Jun 2022 19:05:48 -0700 (PDT)
+        with ESMTP id S1351993AbiFNCGt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:06:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A96C434663;
+        Mon, 13 Jun 2022 19:05:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF20160AD8;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DE8CB8169E;
+        Tue, 14 Jun 2022 02:05:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEB35C36AFE;
         Tue, 14 Jun 2022 02:05:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81050C3411E;
-        Tue, 14 Jun 2022 02:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172347;
-        bh=57NhVFpYxRLlqyB8Qsgm3/53dA0OyIDmVza9kHI/wMY=;
+        s=k20201202; t=1655172349;
+        bh=g6hV2nEfu4q7fWk0v9EQw/74GXzsuzsOm5CE2k8SdLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bb4iko7oNXrhx0FaXwrKBKATSgdcPW7HvElVha4oHwOrjxJzpSAC4iv6w63tcE+IL
-         491kIBGpUAvWZy3GFl96Qk4DA6nPpgBkleOjZuYoQqQph7jX3ugrPXLxLK/2jWMz9j
-         0MRjwgBizoWHK/kGtiV71phLOApWC4dM6yMX0HHDLBXbVt5Vr+Auc1kdiSZP35GUxr
-         RJP1POpvU7D4Dhv/F7c0nup5I8hMUAkIAU+c3miHcrkyaFwqS/yKQMpsLdUzC+kmBn
-         4ceqEB7S+uIuhQJ0JlbNL49MqblaIr6Ye8u8fRcDFNknoh9qZAL9+sMopMoO+YGUXK
-         d4vsBCsu2d+5A==
+        b=WV1B3BWjnbbp+ZS6bZVCISSJik1qJVQtada5i2i/slHyhSKgftk3wwTyqBCa48Oa6
+         D1VI3htojaAIT1K9wDDSpXJh4KJEtBitMcGxRnza5BzrE8ybVg0Dc0BbKLAF42KQfC
+         qlNmQdpzWwjfDkgjCz2XifXHM9xAzzFwrSOMpy4wDHbPUO86g16mGWxcUWND2u8H7u
+         uGWYCtllPGp/VCeW4FycWdt7254FVzNOuT40RPPkt5o+qCV98Q/rrGkvCB0dInlpR3
+         varYv69PBQJleT3V6Du49UleAvFeFuktu/pcP/LWt2oEcqznJ4SHF6nhCHI5mo6Djq
+         drSk/tqaThQNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, mmarek@suse.com,
-        schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com,
-        daniel@iogearbox.net, ast@kernel.org, gregkh@linuxfoundation.org,
-        fllinden@amazon.com, linux-kbuild@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 38/47] gcc-12: disable '-Warray-bounds' universally for now
-Date:   Mon, 13 Jun 2022 22:04:31 -0400
-Message-Id: <20220614020441.1098348-38-sashal@kernel.org>
+        David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, zyan@redhat.com,
+        sage@redhat.com, idryomov@gmail.com, linux-afs@lists.infradead.org,
+        ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 39/47] netfs: gcc-12: temporarily disable '-Wattribute-warning' for now
+Date:   Mon, 13 Jun 2022 22:04:32 -0400
+Message-Id: <20220614020441.1098348-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614020441.1098348-1-sashal@kernel.org>
 References: <20220614020441.1098348-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -63,116 +62,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit f0be87c42cbd341d436d06da4792e6b0c83c3aeb ]
+[ Upstream commit 507160f46c55913955d272ebf559d63809a8e560 ]
 
-In commit 8b202ee21839 ("s390: disable -Warray-bounds") the s390 people
-disabled the '-Warray-bounds' warning for gcc-12, because the new logic
-in gcc would cause warnings for their use of the S390_lowcore macro,
-which accesses absolute pointers.
+This is a pure band-aid so that I can continue merging stuff from people
+while some of the gcc-12 fallout gets sorted out.
 
-It turns out gcc-12 has many other issues in this area, so this takes
-that s390 warning disable logic, and turns it into a kernel build config
-entry instead.
+In particular, gcc-12 is very unhappy about the kinds of pointer
+arithmetic tricks that netfs does, and that makes the fortify checks
+trigger in afs and ceph:
 
-Part of the intent is that we can make this all much more targeted, and
-use this conflig flag to disable it in only particular configurations
-that cause problems, with the s390 case as an example:
+  In function ‘fortify_memset_chk’,
+      inlined from ‘netfs_i_context_init’ at include/linux/netfs.h:327:2,
+      inlined from ‘afs_set_netfs_context’ at fs/afs/inode.c:61:2,
+      inlined from ‘afs_root_iget’ at fs/afs/inode.c:543:2:
+  include/linux/fortify-string.h:258:25: warning: call to ‘__write_overflow_field’ declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
+    258 |                         __write_overflow_field(p_size_field, size);
+        |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        select GCC12_NO_ARRAY_BOUNDS
+and the reason is that netfs_i_context_init() is passed a 'struct inode'
+pointer, and then it does
 
-and we could do that for other configuration cases that cause issues.
+        struct netfs_i_context *ctx = netfs_i_context(inode);
 
-Or we could possibly use the CONFIG_CC_NO_ARRAY_BOUNDS thing in a more
-targeted way, and disable the warning only for particular uses: again
-the s390 case as an example:
+        memset(ctx, 0, sizeof(*ctx));
 
-  KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_CC_NO_ARRAY_BOUNDS),-Wno-array-bounds)
+where that netfs_i_context() function just does pointer arithmetic on
+the inode pointer, knowing that the netfs_i_context is laid out
+immediately after it in memory.
 
-but this ends up just doing it globally in the top-level Makefile, since
-the current issues are spread fairly widely all over:
+This is all truly disgusting, since the whole "netfs_i_context is laid
+out immediately after it in memory" is not actually remotely true in
+general, but is just made to be that way for afs and ceph.
 
-  KBUILD_CFLAGS-$(CONFIG_CC_NO_ARRAY_BOUNDS) += -Wno-array-bounds
+See for example fs/cifs/cifsglob.h:
 
-We'll try to limit this later, since the gcc-12 problems are rare enough
-that *much* of the kernel can be built with it without disabling this
-warning.
+  struct cifsInodeInfo {
+        struct {
+                /* These must be contiguous */
+                struct inode    vfs_inode;      /* the VFS's inode record */
+                struct netfs_i_context netfs_ctx; /* Netfslib context */
+        };
+	[...]
+
+and realize that this is all entirely wrong, and the pointer arithmetic
+that netfs_i_context() is doing is also very very wrong and wouldn't
+give the right answer if netfs_ctx had different alignment rules from a
+'struct inode', for example).
+
+Anyway, that's just a long-winded way to say "the gcc-12 warning is
+actually quite reasonable, and our code happens to work but is pretty
+disgusting".
+
+This is getting fixed properly, but for now I made the mistake of
+thinking "the week right after the merge window tends to be calm for me
+as people take a breather" and I did a sustem upgrade.  And I got gcc-12
+as a result, so to continue merging fixes from people and not have the
+end result drown in warnings, I am fixing all these gcc-12 issues I hit.
+
+Including with these kinds of temporary fixes.
 
 Cc: Kees Cook <keescook@chromium.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: David Howells <dhowells@redhat.com>
+Link: https://lore.kernel.org/all/AEEBCF5D-8402-441D-940B-105AA718C71F@chromium.org/
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile           |  1 +
- arch/s390/Kconfig  |  1 +
- arch/s390/Makefile | 10 +---------
- init/Kconfig       |  9 +++++++++
- 4 files changed, 12 insertions(+), 9 deletions(-)
+ fs/afs/inode.c  | 3 +++
+ fs/ceph/inode.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/Makefile b/Makefile
-index a8de148aeb04..86b16e0bd19a 100644
---- a/Makefile
-+++ b/Makefile
-@@ -787,6 +787,7 @@ stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
- KBUILD_CFLAGS += $(stackp-flags-y)
+diff --git a/fs/afs/inode.c b/fs/afs/inode.c
+index 30b066299d39..65b439cd53d2 100644
+--- a/fs/afs/inode.c
++++ b/fs/afs/inode.c
+@@ -25,6 +25,9 @@
+ #include "internal.h"
+ #include "afs_fs.h"
  
- KBUILD_CFLAGS-$(CONFIG_WERROR) += -Werror
-+KBUILD_CFLAGS-$(CONFIG_CC_NO_ARRAY_BOUNDS) += -Wno-array-bounds
- KBUILD_CFLAGS += $(KBUILD_CFLAGS-y) $(CONFIG_CC_IMPLICIT_FALLTHROUGH)
- 
- ifdef CONFIG_CC_IS_CLANG
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index e084c72104f8..359b0cc0dc35 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -125,6 +125,7 @@ config S390
- 	select CLONE_BACKWARDS2
- 	select DMA_OPS if PCI
- 	select DYNAMIC_FTRACE if FUNCTION_TRACER
-+	select GCC12_NO_ARRAY_BOUNDS
- 	select GENERIC_ALLOCATOR
- 	select GENERIC_CPU_AUTOPROBE
- 	select GENERIC_CPU_VULNERABILITIES
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index df325eacf62d..eba70d585cb2 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -30,15 +30,7 @@ KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
- KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
--
--ifdef CONFIG_CC_IS_GCC
--	ifeq ($(call cc-ifversion, -ge, 1200, y), y)
--		ifeq ($(call cc-ifversion, -lt, 1300, y), y)
--			KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
--			KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, array-bounds)
--		endif
--	endif
--endif
-+KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_CC_NO_ARRAY_BOUNDS),-Wno-array-bounds)
- 
- UTS_MACHINE	:= s390x
- STACK_SIZE	:= $(if $(CONFIG_KASAN),65536,16384)
-diff --git a/init/Kconfig b/init/Kconfig
-index b19e2eeaae80..fa63cc019ebf 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -899,6 +899,15 @@ config CC_IMPLICIT_FALLTHROUGH
- 	default "-Wimplicit-fallthrough=5" if CC_IS_GCC && $(cc-option,-Wimplicit-fallthrough=5)
- 	default "-Wimplicit-fallthrough" if CC_IS_CLANG && $(cc-option,-Wunreachable-code-fallthrough)
- 
-+# Currently, disable gcc-12 array-bounds globally.
-+# We may want to target only particular configurations some day.
-+config GCC12_NO_ARRAY_BOUNDS
-+	def_bool y
++// Temporary: netfs does disgusting things with inode pointers
++#pragma GCC diagnostic ignored "-Wattribute-warning"
 +
-+config CC_NO_ARRAY_BOUNDS
-+	bool
-+	default y if CC_IS_GCC && GCC_VERSION >= 120000 && GCC_VERSION < 130000 && GCC12_NO_ARRAY_BOUNDS
+ static const struct inode_operations afs_symlink_inode_operations = {
+ 	.get_link	= page_get_link,
+ };
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 63113e2a4890..83739dae5268 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -20,6 +20,9 @@
+ #include "cache.h"
+ #include <linux/ceph/decode.h>
+ 
++// Temporary: netfs does disgusting things with inode pointers
++#pragma GCC diagnostic ignored "-Wattribute-warning"
 +
- #
- # For architectures that know their GCC __int128 support is sound
- #
+ /*
+  * Ceph inode operations
+  *
 -- 
 2.35.1
 
