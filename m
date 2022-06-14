@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 630BF54A59E
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 871A654A584
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353439AbiFNCT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:19:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40254 "EHLO
+        id S1352572AbiFNCTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:19:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354754AbiFNCTb (ORCPT
+        with ESMTP id S1354744AbiFNCTb (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:19:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AF7636689;
-        Mon, 13 Jun 2022 19:10:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B26A3F30F;
+        Mon, 13 Jun 2022 19:10:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D266461016;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B3046112F;
+        Tue, 14 Jun 2022 02:10:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2A62C34114;
         Tue, 14 Jun 2022 02:09:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23644C341C4;
-        Tue, 14 Jun 2022 02:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172599;
-        bh=Hwo8q9zw5YEMb8z+GLJ3vvn58zoeMsu/HFXHomQvAEA=;
+        s=k20201202; t=1655172600;
+        bh=JCx7/IyEdd6Ij0vX/viGyNtj1HbeC0/aQeu4/QO3Frc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GKJygIjk12cz+q0vOPG83zYutX+SbdMumh1NSFZ++tQWS0SnQSThqIs7q6QUuMg2g
-         3g3i5/XXf/2I/5hW3ciBSv1DT9EXw60xnmOuMJI2clgwl0VnJ45XaG07YMs7ItShA+
-         xHB1FNz8dFbXxU+SgNDaVAyaN/RWMQ1GdYoIYAZSeA6WHfQtCQWC+YZjfJA/27BIiM
-         vSKaCKbjR7bqv7oChl+UWLjLdv6dIDooYbQuuQXyK9an659y25/QCHwF5BIg45foOW
-         3zZo8Tlng8ffAsUBEME8qbIAbs1d4I/QUdUPGLWSYnK0KZV6gxZM6JTue7I6kS4p/e
-         Hf14A/+B8G+Lg==
+        b=GVECwEY8+ehZXZPn503KXi4kUC0I/af3ivRYugbg/qUqMoKyyTienRVwnTEFCOoyQ
+         VpvKTX03rIx4PQ6Ngvcjtp6XwYMT6heW7yTF5JWDMrVOji1E++BJzeF+8R2lY/SvBv
+         BCk+S924Xuj4D47Gregjg4zXj5Q7ROlQVzfAFMxlJLap8ZzQ9RwFyJyxmk6rRsV7fi
+         XkLroXKzJmzDya/LbZFdajO2+YpIgY7NulF0tE3c7apUFoNQFzlFy80tS52NPOPGbG
+         dFIeEvB8CgSywzuVptQ/Ncy/YtOoE6WIPnhZKl9BK3bC0BYqnIk9IV02JYDDtKrNBQ
+         pJWO96HYi7D0Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
@@ -38,9 +38,9 @@ Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
         Sasha Levin <sashal@kernel.org>, brian.austin@cirrus.com,
         Paul.Handrigan@cirrus.com, lgirdwood@gmail.com, perex@perex.cz,
         tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 04/18] ASoC: cs42l52: Correct TLV for Bypass Volume
-Date:   Mon, 13 Jun 2022 22:09:27 -0400
-Message-Id: <20220614020941.1100702-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 05/18] ASoC: cs42l56: Correct typo in minimum level for SX volume controls
+Date:   Mon, 13 Jun 2022 22:09:28 -0400
+Message-Id: <20220614020941.1100702-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614020941.1100702-1-sashal@kernel.org>
 References: <20220614020941.1100702-1-sashal@kernel.org>
@@ -60,41 +60,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 91e90c712fade0b69cdff7cc6512f6099bd18ae5 ]
+[ Upstream commit a8928ada9b96944cadd8b65d191e33199fd38782 ]
 
-The Bypass Volume is accidentally using a -6dB minimum TLV rather than
-the correct -60dB minimum. Add a new TLV to correct this.
+A couple of the SX volume controls specify 0x84 as the lowest volume
+value, however the correct value from the datasheet is 0x44. The
+datasheet don't include spaces in the value it displays as binary so
+this was almost certainly just a typo reading 1000100.
 
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220602162119.3393857-5-ckeepax@opensource.cirrus.com
+Link: https://lore.kernel.org/r/20220602162119.3393857-6-ckeepax@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l52.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/codecs/cs42l56.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l52.c b/sound/soc/codecs/cs42l52.c
-index 9a3180e71bd8..de311299432b 100644
---- a/sound/soc/codecs/cs42l52.c
-+++ b/sound/soc/codecs/cs42l52.c
-@@ -141,6 +141,8 @@ static DECLARE_TLV_DB_SCALE(mic_tlv, 1600, 100, 0);
+diff --git a/sound/soc/codecs/cs42l56.c b/sound/soc/codecs/cs42l56.c
+index 04f89b751304..deaad703a7db 100644
+--- a/sound/soc/codecs/cs42l56.c
++++ b/sound/soc/codecs/cs42l56.c
+@@ -403,9 +403,9 @@ static const struct snd_kcontrol_new cs42l56_snd_controls[] = {
+ 	SOC_DOUBLE("ADC Boost Switch", CS42L56_GAIN_BIAS_CTL, 3, 2, 1, 1),
  
- static DECLARE_TLV_DB_SCALE(pga_tlv, -600, 50, 0);
+ 	SOC_DOUBLE_R_SX_TLV("Headphone Volume", CS42L56_HPA_VOLUME,
+-			      CS42L56_HPB_VOLUME, 0, 0x84, 0x48, hl_tlv),
++			      CS42L56_HPB_VOLUME, 0, 0x44, 0x48, hl_tlv),
+ 	SOC_DOUBLE_R_SX_TLV("LineOut Volume", CS42L56_LOA_VOLUME,
+-			      CS42L56_LOB_VOLUME, 0, 0x84, 0x48, hl_tlv),
++			      CS42L56_LOB_VOLUME, 0, 0x44, 0x48, hl_tlv),
  
-+static DECLARE_TLV_DB_SCALE(pass_tlv, -6000, 50, 0);
-+
- static DECLARE_TLV_DB_SCALE(mix_tlv, -5150, 50, 0);
- 
- static DECLARE_TLV_DB_SCALE(beep_tlv, -56, 200, 0);
-@@ -355,7 +357,7 @@ static const struct snd_kcontrol_new cs42l52_snd_controls[] = {
- 			      CS42L52_SPKB_VOL, 0, 0x40, 0xC0, hl_tlv),
- 
- 	SOC_DOUBLE_R_SX_TLV("Bypass Volume", CS42L52_PASSTHRUA_VOL,
--			      CS42L52_PASSTHRUB_VOL, 0, 0x88, 0x90, pga_tlv),
-+			      CS42L52_PASSTHRUB_VOL, 0, 0x88, 0x90, pass_tlv),
- 
- 	SOC_DOUBLE("Bypass Mute", CS42L52_MISC_CTL, 4, 5, 1, 0),
- 
+ 	SOC_SINGLE_TLV("Bass Shelving Volume", CS42L56_TONE_CTL,
+ 			0, 0x00, 1, tone_tlv),
 -- 
 2.35.1
 
