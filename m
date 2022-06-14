@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19B4A54A55E
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E05554A5A6
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 04:22:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353696AbiFNCUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 22:20:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40666 "EHLO
+        id S1351913AbiFNCTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 22:19:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354823AbiFNCTc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:19:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1712D3F308;
-        Mon, 13 Jun 2022 19:10:00 -0700 (PDT)
+        with ESMTP id S1353820AbiFNCRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 22:17:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD4183EAA2;
+        Mon, 13 Jun 2022 19:09:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C753B816A1;
-        Tue, 14 Jun 2022 02:09:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63AC4C3411E;
-        Tue, 14 Jun 2022 02:09:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D97D9B81699;
+        Tue, 14 Jun 2022 02:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B4B0C341C0;
+        Tue, 14 Jun 2022 02:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172578;
-        bh=9DxZ9Z8KuJ6bNlC9KwxdXezx5ONbebC6I+hrSLivx6s=;
+        s=k20201202; t=1655172580;
+        bh=iDY4arXZnyHYHq65woHslZHWS2GnD5hC8l1NrQ/eu2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/GehDfoKMDWfju28iEjhOUuxS0FAL9oOmak15V4j6oipLXLcaiVescTLxGNS0/g7
-         eU396yJsYrL05BSZ65KxbP436id+obtGtHRpa8iLIV4ZiY90hC2JYI10HyvrzRiAJS
-         UuJDrAVUeVpzfcfpfTFOJLwjHU4Lc47WaQlwV7z/h3e1Hj0rca6QDRB1knnzBcGTep
-         +7XpEEBHKLBZBO4Wp7a/iDBo/mVlYwcXYaAi5N/G7yxhW9jDLaBX2RM3cUsVeKqOZb
-         bTP3nBFiuSeX1C2j4gsGaIGlC127EXks3PCFvNRn3bOp3HwYs9QKWO0MbEWcz9wvTd
-         RJpM6nqBw3ANQ==
+        b=OTUjhAoca/PdL3QHk7ea3DpkCw+VU2Ah1HSTdvwmG/c5JL0YFVUUcJV80bkFE0f/N
+         AYR/Sx2B/qWGcqaw8fQ5Ods30VK5oDDevPwhIfx/0xcrYLIBGNbV17ncGhPQwWd/yt
+         uQkgsbD6byph11nSrrE1xI6WOxTB0l7LgfjZ0Evm5UAj947NfUKa0l6eH4vlGDCgb6
+         Ej11AgZ5qBhPGqbHoOh4yZOW/UB+LrdQp/HLWXPqWZc6nyVp0C6SL9PU/E1LkqqKiv
+         QF6K4Y3EkOTLUgDvBPkET/cZrc2vNUEZ/9ul8j9EHs5FBBP7EAcVOhmO5JS4Eq190q
+         uSbuKcXgMPBVw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen Lin <chen45464546@163.com>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, nbd@openwrt.org,
-        blogic@openwrt.org, matthias.bgg@gmail.com, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 22/23] net: ethernet: mtk_eth_soc: fix misuse of mem alloc interface netdev[napi]_alloc_frag
-Date:   Mon, 13 Jun 2022 22:08:58 -0400
-Message-Id: <20220614020900.1100401-22-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Kees Cook <keescook@chromium.org>,
+        David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, zyan@redhat.com,
+        sage@redhat.com, idryomov@gmail.com, linux-afs@lists.infradead.org,
+        ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 23/23] netfs: gcc-12: temporarily disable '-Wattribute-warning' for now
+Date:   Mon, 13 Jun 2022 22:08:59 -0400
+Message-Id: <20220614020900.1100401-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220614020900.1100401-1-sashal@kernel.org>
 References: <20220614020900.1100401-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,71 +60,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Lin <chen45464546@163.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 2f2c0d2919a14002760f89f4e02960c735a316d2 ]
+[ Upstream commit 507160f46c55913955d272ebf559d63809a8e560 ]
 
-When rx_flag == MTK_RX_FLAGS_HWLRO,
-rx_data_len = MTK_MAX_LRO_RX_LENGTH(4096 * 3) > PAGE_SIZE.
-netdev_alloc_frag is for alloction of page fragment only.
-Reference to other drivers and Documentation/vm/page_frags.rst
+This is a pure band-aid so that I can continue merging stuff from people
+while some of the gcc-12 fallout gets sorted out.
 
-Branch to use __get_free_pages when ring->frag_size > PAGE_SIZE.
+In particular, gcc-12 is very unhappy about the kinds of pointer
+arithmetic tricks that netfs does, and that makes the fortify checks
+trigger in afs and ceph:
 
-Signed-off-by: Chen Lin <chen45464546@163.com>
-Link: https://lore.kernel.org/r/1654692413-2598-1-git-send-email-chen45464546@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+  In function ‘fortify_memset_chk’,
+      inlined from ‘netfs_i_context_init’ at include/linux/netfs.h:327:2,
+      inlined from ‘afs_set_netfs_context’ at fs/afs/inode.c:61:2,
+      inlined from ‘afs_root_iget’ at fs/afs/inode.c:543:2:
+  include/linux/fortify-string.h:258:25: warning: call to ‘__write_overflow_field’ declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
+    258 |                         __write_overflow_field(p_size_field, size);
+        |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+and the reason is that netfs_i_context_init() is passed a 'struct inode'
+pointer, and then it does
+
+        struct netfs_i_context *ctx = netfs_i_context(inode);
+
+        memset(ctx, 0, sizeof(*ctx));
+
+where that netfs_i_context() function just does pointer arithmetic on
+the inode pointer, knowing that the netfs_i_context is laid out
+immediately after it in memory.
+
+This is all truly disgusting, since the whole "netfs_i_context is laid
+out immediately after it in memory" is not actually remotely true in
+general, but is just made to be that way for afs and ceph.
+
+See for example fs/cifs/cifsglob.h:
+
+  struct cifsInodeInfo {
+        struct {
+                /* These must be contiguous */
+                struct inode    vfs_inode;      /* the VFS's inode record */
+                struct netfs_i_context netfs_ctx; /* Netfslib context */
+        };
+	[...]
+
+and realize that this is all entirely wrong, and the pointer arithmetic
+that netfs_i_context() is doing is also very very wrong and wouldn't
+give the right answer if netfs_ctx had different alignment rules from a
+'struct inode', for example).
+
+Anyway, that's just a long-winded way to say "the gcc-12 warning is
+actually quite reasonable, and our code happens to work but is pretty
+disgusting".
+
+This is getting fixed properly, but for now I made the mistake of
+thinking "the week right after the merge window tends to be calm for me
+as people take a breather" and I did a sustem upgrade.  And I got gcc-12
+as a result, so to continue merging fixes from people and not have the
+end result drown in warnings, I am fixing all these gcc-12 issues I hit.
+
+Including with these kinds of temporary fixes.
+
+Cc: Kees Cook <keescook@chromium.org>
+Cc: David Howells <dhowells@redhat.com>
+Link: https://lore.kernel.org/all/AEEBCF5D-8402-441D-940B-105AA718C71F@chromium.org/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ fs/afs/inode.c  | 3 +++
+ fs/ceph/inode.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index 3351d4f9363a..c9041508d284 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -802,6 +802,17 @@ static inline void mtk_rx_get_desc(struct mtk_rx_dma *rxd,
- 	rxd->rxd4 = READ_ONCE(dma_rxd->rxd4);
- }
+diff --git a/fs/afs/inode.c b/fs/afs/inode.c
+index 90eac3ec01cb..243ba4e0ab1f 100644
+--- a/fs/afs/inode.c
++++ b/fs/afs/inode.c
+@@ -25,6 +25,9 @@
+ #include "internal.h"
+ #include "afs_fs.h"
  
-+static void *mtk_max_lro_buf_alloc(gfp_t gfp_mask)
-+{
-+	unsigned int size = mtk_max_frag_size(MTK_MAX_LRO_RX_LENGTH);
-+	unsigned long data;
++// Temporary: netfs does disgusting things with inode pointers
++#pragma GCC diagnostic ignored "-Wattribute-warning"
 +
-+	data = __get_free_pages(gfp_mask | __GFP_COMP | __GFP_NOWARN,
-+				get_order(size));
-+
-+	return (void *)data;
-+}
-+
- /* the qdma core needs scratch memory to be setup */
- static int mtk_init_fq_dma(struct mtk_eth *eth)
- {
-@@ -1299,7 +1310,10 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
- 			goto release_desc;
+ static const struct inode_operations afs_symlink_inode_operations = {
+ 	.get_link	= page_get_link,
+ };
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index af85a7237604..d7e0f7cd3768 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -20,6 +20,9 @@
+ #include "cache.h"
+ #include <linux/ceph/decode.h>
  
- 		/* alloc new buffer */
--		new_data = napi_alloc_frag(ring->frag_size);
-+		if (ring->frag_size <= PAGE_SIZE)
-+			new_data = napi_alloc_frag(ring->frag_size);
-+		else
-+			new_data = mtk_max_lro_buf_alloc(GFP_ATOMIC);
- 		if (unlikely(!new_data)) {
- 			netdev->stats.rx_dropped++;
- 			goto release_desc;
-@@ -1696,7 +1710,10 @@ static int mtk_rx_alloc(struct mtk_eth *eth, int ring_no, int rx_flag)
- 		return -ENOMEM;
- 
- 	for (i = 0; i < rx_dma_size; i++) {
--		ring->data[i] = netdev_alloc_frag(ring->frag_size);
-+		if (ring->frag_size <= PAGE_SIZE)
-+			ring->data[i] = netdev_alloc_frag(ring->frag_size);
-+		else
-+			ring->data[i] = mtk_max_lro_buf_alloc(GFP_KERNEL);
- 		if (!ring->data[i])
- 			return -ENOMEM;
- 	}
++// Temporary: netfs does disgusting things with inode pointers
++#pragma GCC diagnostic ignored "-Wattribute-warning"
++
+ /*
+  * Ceph inode operations
+  *
 -- 
 2.35.1
 
