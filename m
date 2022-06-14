@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 603C954B917
-	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:46:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D9354B94C
+	for <lists+stable@lfdr.de>; Tue, 14 Jun 2022 20:46:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357265AbiFNSpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 14:45:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57926 "EHLO
+        id S1357427AbiFNSpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 14:45:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357641AbiFNSnv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:43:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 582A74CD4D;
-        Tue, 14 Jun 2022 11:42:47 -0700 (PDT)
+        with ESMTP id S1357394AbiFNSpJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 14:45:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF7914BB84;
+        Tue, 14 Jun 2022 11:43:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA016617B3;
-        Tue, 14 Jun 2022 18:42:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D917BC3411B;
-        Tue, 14 Jun 2022 18:42:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CD4E617C4;
+        Tue, 14 Jun 2022 18:43:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FB1FC3411B;
+        Tue, 14 Jun 2022 18:43:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655232166;
-        bh=W8uI6BCgXFdQiUEWvuJ1hku2KQfPhTVnZDLNpHvXggE=;
+        s=korg; t=1655232213;
+        bh=JwsjzBgDufXU/XsC5Q1XNslMuKM7rLMuDdbTls9Weyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lk7l1hd70Yal9AoEW4ZnBSgOR6YMAmL10GT9/BPb2tbFRcuDXSiGSR9fnJk9vA9HJ
-         InW2W4stSqX6Y81QOMQQzTHc6vmqSk+J4koBDZnZ5Ljc5uSM7CwlXrwibITDJQaV6/
-         BSKmNlJFDLAJkzkZYsmDj9UeCAa9wkc+n64EizeI=
+        b=SCV9dErwqDH+yqHShtsQE3OjRnwRdSscecdRzagZis2IYZw9BlGT/yX1qjuZ7lgk8
+         ZWbHPwNdpMQwvN4MUwSoNImIfebuieLnu+wf/GN/iObwgjh4KZV6ItrXKfVORjcKWg
+         sNFrk5bB5kUaOw/KmQ3SR9cBq0e745eH2CzDY+OE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>,
         Thomas Gleixner <tglx@linutronix.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 4.14 19/20] KVM: x86/speculation: Disable Fill buffer clear within guests
+Subject: [PATCH 4.19 09/16] x86/speculation/mmio: Add mitigation for Processor MMIO Stale Data
 Date:   Tue, 14 Jun 2022 20:40:10 +0200
-Message-Id: <20220614183728.004188568@linuxfoundation.org>
+Message-Id: <20220614183723.105558075@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220614183723.328825625@linuxfoundation.org>
-References: <20220614183723.328825625@linuxfoundation.org>
+In-Reply-To: <20220614183720.928818645@linuxfoundation.org>
+References: <20220614183720.928818645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,215 +58,302 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit 027bbb884be006b05d9c577d6401686053aa789e upstream
+commit 8cb861e9e3c9a55099ad3d08e1a3b653d29c33ca upstream
 
-The enumeration of MD_CLEAR in CPUID(EAX=7,ECX=0).EDX{bit 10} is not an
-accurate indicator on all CPUs of whether the VERW instruction will
-overwrite fill buffers. FB_CLEAR enumeration in
-IA32_ARCH_CAPABILITIES{bit 17} covers the case of CPUs that are not
-vulnerable to MDS/TAA, indicating that microcode does overwrite fill
-buffers.
+Processor MMIO Stale Data is a class of vulnerabilities that may
+expose data after an MMIO operation. For details please refer to
+Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst.
 
-Guests running in VMM environments may not be aware of all the
-capabilities/vulnerabilities of the host CPU. Specifically, a guest may
-apply MDS/TAA mitigations when a virtual CPU is enumerated as vulnerable
-to MDS/TAA even when the physical CPU is not. On CPUs that enumerate
-FB_CLEAR_CTRL the VMM may set FB_CLEAR_DIS to skip overwriting of fill
-buffers by the VERW instruction. This is done by setting FB_CLEAR_DIS
-during VMENTER and resetting on VMEXIT. For guests that enumerate
-FB_CLEAR (explicitly asking for fill buffer clear capability) the VMM
-will not use FB_CLEAR_DIS.
+These vulnerabilities are broadly categorized as:
 
-Irrespective of guest state, host overwrites CPU buffers before VMENTER
-to protect itself from an MMIO capable guest, as part of mitigation for
-MMIO Stale Data vulnerabilities.
+Device Register Partial Write (DRPW):
+  Some endpoint MMIO registers incorrectly handle writes that are
+  smaller than the register size. Instead of aborting the write or only
+  copying the correct subset of bytes (for example, 2 bytes for a 2-byte
+  write), more bytes than specified by the write transaction may be
+  written to the register. On some processors, this may expose stale
+  data from the fill buffers of the core that created the write
+  transaction.
+
+Shared Buffers Data Sampling (SBDS):
+  After propagators may have moved data around the uncore and copied
+  stale data into client core fill buffers, processors affected by MFBDS
+  can leak data from the fill buffer.
+
+Shared Buffers Data Read (SBDR):
+  It is similar to Shared Buffer Data Sampling (SBDS) except that the
+  data is directly read into the architectural software-visible state.
+
+An attacker can use these vulnerabilities to extract data from CPU fill
+buffers using MDS and TAA methods. Mitigate it by clearing the CPU fill
+buffers using the VERW instruction before returning to a user or a
+guest.
+
+On CPUs not affected by MDS and TAA, user application cannot sample data
+from CPU fill buffers using MDS or TAA. A guest with MMIO access can
+still use DRPW or SBDR to extract data architecturally. Mitigate it with
+VERW instruction to clear fill buffers before VMENTER for MMIO capable
+guests.
+
+Add a kernel parameter mmio_stale_data={off|full|full,nosmt} to control
+the mitigation.
 
 Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-[cascardo: arch/x86/kvm/vmx.c has been split and context adjustment at
- vmx_vcpu_run]
-[cascardo: moved functions so they are after struct vcpu_vmx definition]
-[cascardo: fb_clear is disabled/enabled around __vmx_vcpu_run]
-[cascardo: conflict context fixups]
+[cascardo: arch/x86/kvm/vmx.c has been moved]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/msr-index.h |    6 +++
- arch/x86/kvm/vmx.c               |   74 ++++++++++++++++++++++++++++++++++++++-
- arch/x86/kvm/x86.c               |    4 ++
- 3 files changed, 83 insertions(+), 1 deletion(-)
+ Documentation/admin-guide/kernel-parameters.txt |   36 +++++++
+ arch/x86/include/asm/nospec-branch.h            |    2 
+ arch/x86/kernel/cpu/bugs.c                      |  111 +++++++++++++++++++++++-
+ arch/x86/kvm/vmx.c                              |    3 
+ 4 files changed, 148 insertions(+), 4 deletions(-)
 
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -115,6 +115,11 @@
- 						 * VERW clears CPU fill buffer
- 						 * even on MDS_NO CPUs.
- 						 */
-+#define ARCH_CAP_FB_CLEAR_CTRL		BIT(18)	/*
-+						 * MSR_IA32_MCU_OPT_CTRL[FB_CLEAR_DIS]
-+						 * bit available to control VERW
-+						 * behavior.
-+						 */
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -2574,6 +2574,7 @@
+ 					       kvm.nx_huge_pages=off [X86]
+ 					       no_entry_flush [PPC]
+ 					       no_uaccess_flush [PPC]
++					       mmio_stale_data=off [X86]
  
- #define MSR_IA32_FLUSH_CMD		0x0000010b
- #define L1D_FLUSH			BIT(0)	/*
-@@ -132,6 +137,7 @@
- /* SRBDS support */
- #define MSR_IA32_MCU_OPT_CTRL		0x00000123
- #define RNGDS_MITG_DIS			BIT(0)
-+#define FB_CLEAR_DIS			BIT(3)	/* CPU Fill buffer clear disable */
+ 				Exceptions:
+ 					       This does not have any effect on
+@@ -2595,6 +2596,7 @@
+ 				Equivalent to: l1tf=flush,nosmt [X86]
+ 					       mds=full,nosmt [X86]
+ 					       tsx_async_abort=full,nosmt [X86]
++					       mmio_stale_data=full,nosmt [X86]
  
- #define MSR_IA32_SYSENTER_CS		0x00000174
- #define MSR_IA32_SYSENTER_ESP		0x00000175
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -214,6 +214,9 @@ static const struct {
- #define L1D_CACHE_ORDER 4
- static void *vmx_l1d_flush_pages;
+ 	mminit_loglevel=
+ 			[KNL] When CONFIG_DEBUG_MEMORY_INIT is set, this
+@@ -2604,6 +2606,40 @@
+ 			log everything. Information is printed at KERN_DEBUG
+ 			so loglevel=8 may also need to be specified.
  
-+/* Control for disabling CPU Fill buffer clear */
-+static bool __read_mostly vmx_fb_clear_ctrl_available;
++	mmio_stale_data=
++			[X86,INTEL] Control mitigation for the Processor
++			MMIO Stale Data vulnerabilities.
 +
- static int vmx_setup_l1d_flush(enum vmx_l1d_flush_state l1tf)
++			Processor MMIO Stale Data is a class of
++			vulnerabilities that may expose data after an MMIO
++			operation. Exposed data could originate or end in
++			the same CPU buffers as affected by MDS and TAA.
++			Therefore, similar to MDS and TAA, the mitigation
++			is to clear the affected CPU buffers.
++
++			This parameter controls the mitigation. The
++			options are:
++
++			full       - Enable mitigation on vulnerable CPUs
++
++			full,nosmt - Enable mitigation and disable SMT on
++				     vulnerable CPUs.
++
++			off        - Unconditionally disable mitigation
++
++			On MDS or TAA affected machines,
++			mmio_stale_data=off can be prevented by an active
++			MDS or TAA mitigation as these vulnerabilities are
++			mitigated with the same mechanism so in order to
++			disable this mitigation, you need to specify
++			mds=off and tsx_async_abort=off too.
++
++			Not specifying this option is equivalent to
++			mmio_stale_data=full.
++
++			For details see:
++			Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
++
+ 	module.sig_enforce
+ 			[KNL] When CONFIG_MODULE_SIG is set, this means that
+ 			modules without (valid) signatures will fail to load.
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -323,6 +323,8 @@ DECLARE_STATIC_KEY_FALSE(switch_mm_alway
+ DECLARE_STATIC_KEY_FALSE(mds_user_clear);
+ DECLARE_STATIC_KEY_FALSE(mds_idle_clear);
+ 
++DECLARE_STATIC_KEY_FALSE(mmio_stale_data_clear);
++
+ #include <asm/segment.h>
+ 
+ /**
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -42,6 +42,7 @@ static void __init l1tf_select_mitigatio
+ static void __init mds_select_mitigation(void);
+ static void __init md_clear_update_mitigation(void);
+ static void __init taa_select_mitigation(void);
++static void __init mmio_select_mitigation(void);
+ static void __init srbds_select_mitigation(void);
+ 
+ /* The base value of the SPEC_CTRL MSR that always has to be preserved. */
+@@ -76,6 +77,10 @@ EXPORT_SYMBOL_GPL(mds_user_clear);
+ DEFINE_STATIC_KEY_FALSE(mds_idle_clear);
+ EXPORT_SYMBOL_GPL(mds_idle_clear);
+ 
++/* Controls CPU Fill buffer clear before KVM guest MMIO accesses */
++DEFINE_STATIC_KEY_FALSE(mmio_stale_data_clear);
++EXPORT_SYMBOL_GPL(mmio_stale_data_clear);
++
+ void __init check_bugs(void)
  {
- 	struct page *page;
-@@ -820,6 +823,8 @@ struct vcpu_vmx {
+ 	identify_boot_cpu();
+@@ -110,11 +115,13 @@ void __init check_bugs(void)
+ 	l1tf_select_mitigation();
+ 	mds_select_mitigation();
+ 	taa_select_mitigation();
++	mmio_select_mitigation();
+ 	srbds_select_mitigation();
+ 
+ 	/*
+-	 * As MDS and TAA mitigations are inter-related, update and print their
+-	 * mitigation after TAA mitigation selection is done.
++	 * As MDS, TAA and MMIO Stale Data mitigations are inter-related, update
++	 * and print their mitigation after MDS, TAA and MMIO Stale Data
++	 * mitigation selection is done.
  	 */
- 	u64 msr_ia32_feature_control;
- 	u64 msr_ia32_feature_control_valid_bits;
-+	u64 msr_ia32_mcu_opt_ctrl;
-+	bool disable_fb_clear;
- };
+ 	md_clear_update_mitigation();
  
- enum segment_cache_field {
-@@ -1628,6 +1633,60 @@ static inline void __invept(unsigned lon
- 			: : "a" (&operand), "c" (ext) : "cc", "memory");
- }
+@@ -374,6 +381,90 @@ static int __init tsx_async_abort_parse_
+ early_param("tsx_async_abort", tsx_async_abort_parse_cmdline);
  
-+static void vmx_setup_fb_clear_ctrl(void)
-+{
-+	u64 msr;
+ #undef pr_fmt
++#define pr_fmt(fmt)	"MMIO Stale Data: " fmt
 +
-+	if (boot_cpu_has(X86_FEATURE_ARCH_CAPABILITIES) &&
-+	    !boot_cpu_has_bug(X86_BUG_MDS) &&
-+	    !boot_cpu_has_bug(X86_BUG_TAA)) {
-+		rdmsrl(MSR_IA32_ARCH_CAPABILITIES, msr);
-+		if (msr & ARCH_CAP_FB_CLEAR_CTRL)
-+			vmx_fb_clear_ctrl_available = true;
++enum mmio_mitigations {
++	MMIO_MITIGATION_OFF,
++	MMIO_MITIGATION_UCODE_NEEDED,
++	MMIO_MITIGATION_VERW,
++};
++
++/* Default mitigation for Processor MMIO Stale Data vulnerabilities */
++static enum mmio_mitigations mmio_mitigation __ro_after_init = MMIO_MITIGATION_VERW;
++static bool mmio_nosmt __ro_after_init = false;
++
++static const char * const mmio_strings[] = {
++	[MMIO_MITIGATION_OFF]		= "Vulnerable",
++	[MMIO_MITIGATION_UCODE_NEEDED]	= "Vulnerable: Clear CPU buffers attempted, no microcode",
++	[MMIO_MITIGATION_VERW]		= "Mitigation: Clear CPU buffers",
++};
++
++static void __init mmio_select_mitigation(void)
++{
++	u64 ia32_cap;
++
++	if (!boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA) ||
++	    cpu_mitigations_off()) {
++		mmio_mitigation = MMIO_MITIGATION_OFF;
++		return;
 +	}
-+}
 +
-+static __always_inline void vmx_disable_fb_clear(struct vcpu_vmx *vmx)
-+{
-+	u64 msr;
-+
-+	if (!vmx->disable_fb_clear)
++	if (mmio_mitigation == MMIO_MITIGATION_OFF)
 +		return;
 +
-+	rdmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
-+	msr |= FB_CLEAR_DIS;
-+	wrmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
-+	/* Cache the MSR value to avoid reading it later */
-+	vmx->msr_ia32_mcu_opt_ctrl = msr;
-+}
-+
-+static __always_inline void vmx_enable_fb_clear(struct vcpu_vmx *vmx)
-+{
-+	if (!vmx->disable_fb_clear)
-+		return;
-+
-+	vmx->msr_ia32_mcu_opt_ctrl &= ~FB_CLEAR_DIS;
-+	wrmsrl(MSR_IA32_MCU_OPT_CTRL, vmx->msr_ia32_mcu_opt_ctrl);
-+}
-+
-+static void vmx_update_fb_clear_dis(struct kvm_vcpu *vcpu, struct vcpu_vmx *vmx)
-+{
-+	vmx->disable_fb_clear = vmx_fb_clear_ctrl_available;
++	ia32_cap = x86_read_arch_cap_msr();
 +
 +	/*
-+	 * If guest will not execute VERW, there is no need to set FB_CLEAR_DIS
-+	 * at VMEntry. Skip the MSR read/write when a guest has no use case to
-+	 * execute VERW.
++	 * Enable CPU buffer clear mitigation for host and VMM, if also affected
++	 * by MDS or TAA. Otherwise, enable mitigation for VMM only.
 +	 */
-+	if ((vcpu->arch.arch_capabilities & ARCH_CAP_FB_CLEAR) ||
-+	   ((vcpu->arch.arch_capabilities & ARCH_CAP_MDS_NO) &&
-+	    (vcpu->arch.arch_capabilities & ARCH_CAP_TAA_NO) &&
-+	    (vcpu->arch.arch_capabilities & ARCH_CAP_PSDP_NO) &&
-+	    (vcpu->arch.arch_capabilities & ARCH_CAP_FBSDP_NO) &&
-+	    (vcpu->arch.arch_capabilities & ARCH_CAP_SBDR_SSDP_NO)))
-+		vmx->disable_fb_clear = false;
++	if (boot_cpu_has_bug(X86_BUG_MDS) || (boot_cpu_has_bug(X86_BUG_TAA) &&
++					      boot_cpu_has(X86_FEATURE_RTM)))
++		static_branch_enable(&mds_user_clear);
++	else
++		static_branch_enable(&mmio_stale_data_clear);
++
++	/*
++	 * Check if the system has the right microcode.
++	 *
++	 * CPU Fill buffer clear mitigation is enumerated by either an explicit
++	 * FB_CLEAR or by the presence of both MD_CLEAR and L1D_FLUSH on MDS
++	 * affected systems.
++	 */
++	if ((ia32_cap & ARCH_CAP_FB_CLEAR) ||
++	    (boot_cpu_has(X86_FEATURE_MD_CLEAR) &&
++	     boot_cpu_has(X86_FEATURE_FLUSH_L1D) &&
++	     !(ia32_cap & ARCH_CAP_MDS_NO)))
++		mmio_mitigation = MMIO_MITIGATION_VERW;
++	else
++		mmio_mitigation = MMIO_MITIGATION_UCODE_NEEDED;
++
++	if (mmio_nosmt || cpu_mitigations_auto_nosmt())
++		cpu_smt_disable(false);
 +}
 +
- static struct shared_msr_entry *find_msr_entry(struct vcpu_vmx *vmx, u32 msr)
- {
- 	int i;
-@@ -3700,9 +3759,13 @@ static int vmx_set_msr(struct kvm_vcpu *
- 			}
- 			break;
- 		}
--		ret = kvm_set_msr_common(vcpu, msr_info);
-+			ret = kvm_set_msr_common(vcpu, msr_info);
- 	}
- 
-+	/* FB_CLEAR may have changed, also update the FB_CLEAR_DIS behavior */
-+	if (msr_index == MSR_IA32_ARCH_CAPABILITIES)
-+		vmx_update_fb_clear_dis(vcpu, vmx);
++static int __init mmio_stale_data_parse_cmdline(char *str)
++{
++	if (!boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA))
++		return 0;
 +
- 	return ret;
- }
- 
-@@ -6008,6 +6071,8 @@ static void vmx_vcpu_reset(struct kvm_vc
- 	update_exception_bitmap(vcpu);
- 
- 	vpid_sync_context(vmx->vpid);
++	if (!str)
++		return -EINVAL;
 +
-+	vmx_update_fb_clear_dis(vcpu, vmx);
- }
- 
- /*
-@@ -9783,6 +9848,8 @@ static void __noclone vmx_vcpu_run(struc
- 		 kvm_arch_has_assigned_device(vcpu->kvm))
- 		mds_clear_cpu_buffers();
- 
-+	vmx_disable_fb_clear(vmx);
++	if (!strcmp(str, "off")) {
++		mmio_mitigation = MMIO_MITIGATION_OFF;
++	} else if (!strcmp(str, "full")) {
++		mmio_mitigation = MMIO_MITIGATION_VERW;
++	} else if (!strcmp(str, "full,nosmt")) {
++		mmio_mitigation = MMIO_MITIGATION_VERW;
++		mmio_nosmt = true;
++	}
 +
- 	asm(
- 		/* Store host registers */
- 		"push %%" _ASM_DX "; push %%" _ASM_BP ";"
-@@ -9900,6 +9967,8 @@ static void __noclone vmx_vcpu_run(struc
- #endif
- 	      );
- 
-+	vmx_enable_fb_clear(vmx);
++	return 0;
++}
++early_param("mmio_stale_data", mmio_stale_data_parse_cmdline);
 +
++#undef pr_fmt
+ #define pr_fmt(fmt)     "" fmt
+ 
+ static void __init md_clear_update_mitigation(void)
+@@ -385,19 +476,31 @@ static void __init md_clear_update_mitig
+ 		goto out;
+ 
  	/*
- 	 * We do not use IBRS in the kernel. If this vCPU has used the
- 	 * SPEC_CTRL MSR it may have left it on; save the value and
-@@ -12924,8 +12993,11 @@ static int __init vmx_init(void)
- 		}
+-	 * mds_user_clear is now enabled. Update MDS mitigation, if
+-	 * necessary.
++	 * mds_user_clear is now enabled. Update MDS, TAA and MMIO Stale Data
++	 * mitigation, if necessary.
+ 	 */
+ 	if (mds_mitigation == MDS_MITIGATION_OFF &&
+ 	    boot_cpu_has_bug(X86_BUG_MDS)) {
+ 		mds_mitigation = MDS_MITIGATION_FULL;
+ 		mds_select_mitigation();
  	}
- 
-+	vmx_setup_fb_clear_ctrl();
-+
- 	for_each_possible_cpu(cpu) {
- 		INIT_LIST_HEAD(&per_cpu(loaded_vmcss_on_cpu, cpu));
-+
- 		INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
- 		spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
- 	}
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1127,6 +1127,10 @@ u64 kvm_get_arch_capabilities(void)
- 
- 	/* KVM does not emulate MSR_IA32_TSX_CTRL.  */
- 	data &= ~ARCH_CAP_TSX_CTRL_MSR;
-+
-+	/* Guests don't need to know "Fill buffer clear control" exists */
-+	data &= ~ARCH_CAP_FB_CLEAR_CTRL;
-+
- 	return data;
++	if (taa_mitigation == TAA_MITIGATION_OFF &&
++	    boot_cpu_has_bug(X86_BUG_TAA)) {
++		taa_mitigation = TAA_MITIGATION_VERW;
++		taa_select_mitigation();
++	}
++	if (mmio_mitigation == MMIO_MITIGATION_OFF &&
++	    boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA)) {
++		mmio_mitigation = MMIO_MITIGATION_VERW;
++		mmio_select_mitigation();
++	}
+ out:
+ 	if (boot_cpu_has_bug(X86_BUG_MDS))
+ 		pr_info("MDS: %s\n", mds_strings[mds_mitigation]);
+ 	if (boot_cpu_has_bug(X86_BUG_TAA))
+ 		pr_info("TAA: %s\n", taa_strings[taa_mitigation]);
++	if (boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA))
++		pr_info("MMIO Stale Data: %s\n", mmio_strings[mmio_mitigation]);
  }
  
+ #undef pr_fmt
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -10773,6 +10773,9 @@ static void __noclone vmx_vcpu_run(struc
+ 		vmx_l1d_flush(vcpu);
+ 	else if (static_branch_unlikely(&mds_user_clear))
+ 		mds_clear_cpu_buffers();
++	else if (static_branch_unlikely(&mmio_stale_data_clear) &&
++		 kvm_arch_has_assigned_device(vcpu->kvm))
++		mds_clear_cpu_buffers();
+ 
+ 	asm volatile (
+ 		/* Store host registers */
 
 
