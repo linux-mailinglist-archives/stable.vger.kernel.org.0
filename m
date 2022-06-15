@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 678BE54D0B4
-	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 20:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4482554D176
+	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 21:18:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346215AbiFOSNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jun 2022 14:13:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54350 "EHLO
+        id S233117AbiFOTSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jun 2022 15:18:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231737AbiFOSNA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 14:13:00 -0400
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 172DF1FCC1
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 11:12:55 -0700 (PDT)
-Received: by mail-yb1-xb34.google.com with SMTP id h27so21940522ybj.4
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 11:12:55 -0700 (PDT)
+        with ESMTP id S231149AbiFOTSy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 15:18:54 -0400
+Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DCC73A1A0
+        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 12:18:50 -0700 (PDT)
+Received: by mail-yb1-xb2a.google.com with SMTP id t1so22238941ybd.2
+        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 12:18:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=Z16pRFrlVSPEJ9xrRNhHHI7LBf4bDfmCRp35UKvSt4k=;
-        b=VtyKmitPcYg09JDzUVBPZ5S6YIFz+6XPx9B0hLW3bW2qQhyex8WgwfIRtF1/yr2XsH
-         TbqLRCneP/SNdXsZpEcPik0sjLzLAPZ7hrBV6BNbYpcU9BKUHtLSxO+t+SsnZ3HKT4Dq
-         TBJXZ7KB6kZljE9nylvVCmaRl1PHG0ZfMaLZtGM/ZMFPa+/JX0z2t4P4raOsz/qJGwNH
-         1ZZ6pxqW6Z72rgouQd764O6w2DID43cIlK/wtgu8Vr09F/foL+askZvuhzoqqFyVSXX9
-         h9pkmUJzOuWkKBXeFgnh/NtiZ9hAqshYLUKbED6rT3qIqlXdklYzQU6q97RO4MOFWiTK
-         t3hw==
+        bh=H12t+DHpyBhOw3R4oFHJncs9g9Nr7NDEBiREhzQ1jWc=;
+        b=ExYmd7/awgJyRNU3Y3Ai3d/7y2raEmJbvx1f8aokN6dwPhEfxj0A1OVBsXKi+7G2RV
+         5lUy0IaqLEzjQsu4BZsrdL1fcjEjwXT2WmD1ZTc3iT0CUreVOMRZ4OnamILI8Y36MIdW
+         71fTaNNBIRxbV+h6VqCO78bLshEAHc3miJahBhnUKir1KOQ2sPohAOXcN6bHXkzJKsct
+         UKOTivQMJuX3xWxgBkEOU68KzttnuBvDQ+eHAI9K8i4SVk7Dqq7W/FV3G5qoBjEvq3PH
+         FwPjxCz9ibthCUmQo6DVec+c4emmb9pTqY/tt7jGOEEdKZOtFiiZasgTqj2afpUw+o+F
+         9aVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Z16pRFrlVSPEJ9xrRNhHHI7LBf4bDfmCRp35UKvSt4k=;
-        b=kizZguu2a0GDQrc/OWtZW0EUvicsFC0z91tEzEto9ZJhAYVGwD4de7QwttjWUioAx4
-         UIsPwEePDUGPhnlDrclchI/3eyUZJRuHrz5yIfV2z7D9uQ8/5yyPnd9auDrIuzbBB3ca
-         Taeocxo95XaJ8puxlBhQ0kn9PvvCh5RylZ+zGbZXlCoFZpPCDNS7qmY3aKLRs3fKqZj0
-         CXGNtupqFBpzn8IL9NJeFDV9Z5pYonmXdEEFxjrmRsInK80AP34UFoCgGeR4u6FoFKgj
-         ogH84F3bE8BBfV1qzu8bnDK64fprwPaVeZ7YkxHNpyTvWhXkuUd5GeOaZ1B4Ew9TSowZ
-         S3WA==
-X-Gm-Message-State: AJIora87XNa8TqZQkAAm2xY7qg3aMCg8L7UIIRqejSiEWAGXjXasfeY0
-        8NDHxhI3ZkqaMa6ShKXtGOXpqQCjSh/nq7AwNodYt0HY3ITVwprv
-X-Google-Smtp-Source: AGRyM1tJLtrGpehLrr2n0Fe53ACsL/DTs7nIGPdRBRUjYBRB5lguCaNgS5P5xgX1OhBN63gsXLn61AZR7kNeVBdquzU=
-X-Received: by 2002:a25:d913:0:b0:664:67a5:29e3 with SMTP id
- q19-20020a25d913000000b0066467a529e3mr1310128ybg.592.1655316774128; Wed, 15
- Jun 2022 11:12:54 -0700 (PDT)
+        bh=H12t+DHpyBhOw3R4oFHJncs9g9Nr7NDEBiREhzQ1jWc=;
+        b=G4a4hoD4AFnUnwzBBcdI/fMQE9Tg+z/MCMweU3LqJtM5dwyMAqznk2AHQp7w3/vMK7
+         aS3l5nOPdkyXcfnIGew2d1mqo1NMQ3o2DmaV9BG9S3kK3v59RemyiJNzOGmxiETiRD9q
+         zL0iLVGdLw519yIg7uBFXaDwQli9JNedcrlfx29MXxtj5t9yyx4RRdfl4D7RSg+4gktq
+         RO4RcpfnJHvYg0PoutZoR88X0OTNHbdwmKjssQqOZg1+VmjRmFB5O1Js5Txpk+robJH0
+         nyHJ8Q45Zv/A1zQePNYSGqSVNf8pMVHFmdYKO4ZxWhRl37kHi0hUAdI3hvVlYSpCe5B8
+         LKmQ==
+X-Gm-Message-State: AJIora+0x4fV1yHmrpndbuwCU17SecRkbV867ZNrN51upmohlGaF7i3q
+        Cp2Yzhi1YD5wxBBz8hcJgSwEf45z3vomPlqWhI7RAA==
+X-Google-Smtp-Source: AGRyM1ss0oJH0J3kS2j8J9C66FhtVMoaeocW0loaGvC+VbV7+FxsMqHLMSWJojsNu25QbMr4O1hu7I+yY/7DBn/7uWY=
+X-Received: by 2002:a25:3b52:0:b0:665:f89b:708b with SMTP id
+ i79-20020a253b52000000b00665f89b708bmr1391775yba.483.1655320729250; Wed, 15
+ Jun 2022 12:18:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220614183720.861582392@linuxfoundation.org>
-In-Reply-To: <20220614183720.861582392@linuxfoundation.org>
+References: <20220614183721.656018793@linuxfoundation.org>
+In-Reply-To: <20220614183721.656018793@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 15 Jun 2022 23:42:43 +0530
-Message-ID: <CA+G9fYu6voXw7-DKw6+un4yaKwx7Uw4BB9GeuR-gMYJX6CM1Jw@mail.gmail.com>
-Subject: Re: [PATCH 5.18 00/11] 5.18.5-rc1 review
+Date:   Thu, 16 Jun 2022 00:48:38 +0530
+Message-ID: <CA+G9fYu0T78fGSRiaANnb5iyNhMNDDMrwuVcdcoLdOVrhL2F9g@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/15] 5.4.199-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
@@ -70,11 +70,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 15 Jun 2022 at 00:16, Greg Kroah-Hartman
+On Wed, 15 Jun 2022 at 00:13, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.18.5 release.
-> There are 11 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.4.199 release.
+> There are 15 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -83,15 +83,16 @@ On Wed, 15 Jun 2022 at 00:16, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.18.5-rc1.gz
+5.4.199-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.18.y
+-rc.git linux-5.4.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
+
 
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
@@ -99,97 +100,48 @@ No regressions on arm64, arm, x86_64, and i386.
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 ## Build
-* kernel: 5.18.5-rc1
+* kernel: 5.4.199-rc1
 * git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.18.y
-* git commit: 0e32b2c68ea4d90e0ecca45afd07dcf5d594de7e
-* git describe: v5.18.4-12-g0e32b2c68ea4
+* git branch: linux-5.4.y
+* git commit: d05ea6389e7ee572e3cf5bc2438811c06b8f7bc3
+* git describe: v5.4.198-16-gd05ea6389e7e
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.18.y/build/v5.18=
-.4-12-g0e32b2c68ea4
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
+98-16-gd05ea6389e7e
 
-## Test Regressions (compared to v5.18.4)
+## Test Regressions (compared to v5.4.198)
 No test regressions found.
 
-## Metric Regressions (compared to v5.18.4)
+## Metric Regressions (compared to v5.4.198)
 No metric regressions found.
 
-## Test Fixes (compared to v5.18.4)
+## Test Fixes (compared to v5.4.198)
 No test fixes found.
 
-## Metric Fixes (compared to v5.18.4)
+## Metric Fixes (compared to v5.4.198)
 No metric fixes found.
 
 ## Test result summary
-total: 127841, pass: 115630, fail: 544, skip: 10874, xfail: 793
+total: 114397, pass: 101834, fail: 267, skip: 11254, xfail: 1042
 
 ## Build Summary
 * arc: 10 total, 10 passed, 0 failed
-* arm: 319 total, 316 passed, 3 failed
-* arm64: 64 total, 62 passed, 2 failed
-* i386: 57 total, 50 passed, 7 failed
-* mips: 41 total, 38 passed, 3 failed
-* parisc: 14 total, 14 passed, 0 failed
-* powerpc: 65 total, 56 passed, 9 failed
-* riscv: 32 total, 27 passed, 5 failed
-* s390: 23 total, 20 passed, 3 failed
-* sh: 26 total, 24 passed, 2 failed
-* sparc: 14 total, 14 passed, 0 failed
-* x86_64: 62 total, 58 passed, 4 failed
+* arm: 313 total, 313 passed, 0 failed
+* arm64: 57 total, 53 passed, 4 failed
+* i386: 28 total, 25 passed, 3 failed
+* mips: 37 total, 37 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 54 total, 54 passed, 0 failed
+* riscv: 27 total, 27 passed, 0 failed
+* s390: 12 total, 12 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 55 total, 54 passed, 1 failed
 
 ## Test suites summary
 * fwts
 * igt-gpu-tools
-* kselftest-android
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-gpio
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-lib
-* kselftest-membarrier
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-zram
 * kunit
-* kunit/15
-* kunit/261
-* kunit/3
-* kunit/427
-* kunit/90
 * kvm-unit-tests
 * libgpiod
 * libhugetlbfs
