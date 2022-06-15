@@ -2,173 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59FEE54D060
-	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 19:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C432254D07B
+	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 19:57:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344042AbiFORun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jun 2022 13:50:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35020 "EHLO
+        id S1347636AbiFOR5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jun 2022 13:57:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358002AbiFORul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 13:50:41 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5356541B7
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 10:50:35 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id gc3-20020a17090b310300b001e33092c737so2723758pjb.3
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 10:50:35 -0700 (PDT)
+        with ESMTP id S1345731AbiFOR5P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 13:57:15 -0400
+Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2AA1544C9
+        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 10:57:14 -0700 (PDT)
+Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-30fdbe7467cso69372287b3.1
+        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 10:57:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=QfCF2UsmU1Pniv5Pf4uVgOiwJRRieSBYhaM8CMSmQ3U=;
-        b=Pdshfu1RKVhPNis08umwmUUzhrIzuI1qOJCBow86aXNtlNrNUkQkaCWDO89gmAgj6v
-         PoUjEwLg6MO5uM5qbb4DM5WmtipAbO4F/NrF7yjVysoPoGDCANnsAlG5f8A4TIkPgAnr
-         ZX3rmGkJHMi0g1gmWoEXhtwYVEJdKAmVAGmT2pgQ+WjgZnFJRHc9Uy0zkzI3K9PMma7K
-         MXuDZ3DtadPA/iculyZSRPJxHQXMg9lvYR/nSaej8PqYXcPEhFS1othMR7b1sJxvqbQX
-         KbkApuBpzlgRt7lA3TmFwIM+PaXj7jNMYGyv2PiJT5fl3fLOFlr5cvnyf7FinSFNGMcu
-         K2hg==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=RZ4j6+UZQmxdYRalU5SjpHfrfkE6Udb2BhN1j/8KSKg=;
+        b=KF4FZg8X4Jv4NMEZAKO/4taSUCxS43l1wQWkaiLCXkLec5w4y6eWd9rpbEnxn1j4wx
+         jSL8yRwL+mEoHeNkWi2ky7kVV35/AOjtxxNe6GOQJBFMUZhAAf1vtQThEWkUqYSPEX7k
+         2w+6fdLpUBQFPhuyZSm0R5sj1UjeAUPRQZeSGHrq4R+c+DWRi/mL730vjiVyi9sxqM9i
+         Wl9/JTJXIXwVAt1HWeulmXZRamc07/gX9ZapXpAhFehJEsfZ8a1T5A5VMFeGkVOcYKWE
+         /wQHuyeof+qT42qYRvavigeXQeU8xu8zpdnXRlFhiozyP6CwYG2B8S6JrqnPlgCJFe6u
+         W0Qw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
-         :subject:content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=QfCF2UsmU1Pniv5Pf4uVgOiwJRRieSBYhaM8CMSmQ3U=;
-        b=Xsty1T9E8YhBUm02aMfURjnEc+Wp+OG4+TQN+gRFWl07NG6c/DXMfT8+MlzoQIL/06
-         qPTkbUTN/I+oCjzeT47KOqkfViLQgKHbzuhxx0xJDqzWrkbfaCpgy4ngXIlcsIYrwueM
-         XkyqCQig2dEpMasLTA6FwS5pUovCMt0OeTDk/geOtP2vQkX+aBoKcsVQ4TIfiDc8aW++
-         +uipfi91wxwLWUL/wbIz16r4xxLFVTwFnVcnO9aJtJyAgM5dqT0RryoaufhyoS/5tHsX
-         O21l1HeGKgo9S2pCoQ9wnV1iqujnKpmPjA3Bz8/VVbvvzFbN3lC93N0GHTmHzgqC68Uu
-         nYtg==
-X-Gm-Message-State: AJIora8QKpINqBqVAHkWdkuvoBwFcltPC1nq8iLYxWj0S9yt14o6GABQ
-        64W6t7KKIqD2WLx+G0jAKYw=
-X-Google-Smtp-Source: AGRyM1tuUWVOE9TzgSzU74eaIcQ/ZeNW5GN0XVRmVm0PRdEBUdPkL2L0CmPF+4r9OP3XWrBQYluWYQ==
-X-Received: by 2002:a17:90b:3654:b0:1ea:4540:d32 with SMTP id nh20-20020a17090b365400b001ea45400d32mr11452858pjb.92.1655315435252;
-        Wed, 15 Jun 2022 10:50:35 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id h13-20020a17090a3d0d00b001ea5d9ae7d9sm2067433pjc.40.2022.06.15.10.50.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Jun 2022 10:50:34 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <50eeff2e-45c5-5eb2-c41d-3e0092a84483@roeck-us.net>
-Date:   Wed, 15 Jun 2022 10:50:32 -0700
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=RZ4j6+UZQmxdYRalU5SjpHfrfkE6Udb2BhN1j/8KSKg=;
+        b=4JoPgljPmPZDnDRMheELM/nUc6qk55yht+l3qb6iIcBwomyrPeXzXtECcISQhzkdzh
+         yRJZinYbSYouF4aiRZNTRtLAJnE9MTmgNC23h3/+LHf82iPpay3HkK6Q06F09HOcMSHV
+         BCNyOzISQZXtOpGysuJlrHJSNoXdjXfSXFUXY3Fpu0YT/w64NMYPoFvdgLMKIO9kH3Rm
+         yKPGMJZStsfWo/7eTn6CyXfqjS0hWyXXDyHbHI0w64rawVZvSZe1MVetmFTWGKjGDluv
+         UcogZneJGs/KyNDwKJ0Lp5ARaWeFYwfrrMbPBCXNPj9X3lrFIGv6zrNJMpe47zUr1dOQ
+         iFaA==
+X-Gm-Message-State: AJIora/6KCk/U4PyQpUUl3Oia22acHkFv3ojXsU4vicbqc7tJt+kPrbs
+        h0Ny6WV2T4wL4I4HIT+ddnHqMoK6ZYYCyVgYuLJSvA==
+X-Google-Smtp-Source: AGRyM1uSg4FBVLtypacBG1ovM8+4v+aoJP/1QA/fc/TH2gumJq3Sfr6vgDtYLnuEdjSiVBOr0kL2aB8yLMxpetozh1Y=
+X-Received: by 2002:a05:690c:442:b0:313:fb25:3a6a with SMTP id
+ bj2-20020a05690c044200b00313fb253a6amr980054ywb.376.1655315833863; Wed, 15
+ Jun 2022 10:57:13 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH 5.4 26/34] dm verity: set DM_TARGET_IMMUTABLE feature flag
-Content-Language: en-US
-To:     Mike Snitzer <snitzer@kernel.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, keescook@chromium.org,
-        sarthakkukreti@google.com, stable@vger.kernel.org,
-        Oleksandr Tymoshenko <ovt@google.com>, dm-devel@redhat.com,
-        regressions@lists.linux.dev
-References: <20220603173816.944766454@linuxfoundation.org>
- <20220610042200.2561917-1-ovt@google.com> <YqLTV+5Q72/jBeOG@kroah.com>
- <YqNfBMOR9SE2TuCm@redhat.com> <Yqb/sT205Lrhl6Bv@kroah.com>
- <20220615143642.GA2386944@roeck-us.net> <Yqn64AMwoIzQXwXM@redhat.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <Yqn64AMwoIzQXwXM@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220614183719.878453780@linuxfoundation.org>
+In-Reply-To: <20220614183719.878453780@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 15 Jun 2022 23:27:02 +0530
+Message-ID: <CA+G9fYt_7QO+ZLMxPg-xbYgOtCZ0UPdgrKB4wYM2m_jY3zxRRg@mail.gmail.com>
+Subject: Re: [PATCH 5.10 00/11] 5.10.123-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/15/22 08:29, Mike Snitzer wrote:
-> On Wed, Jun 15 2022 at 10:36P -0400,
-> Guenter Roeck <linux@roeck-us.net> wrote:
-> 
->> On Mon, Jun 13, 2022 at 11:13:21AM +0200, Greg KH wrote:
->>> On Fri, Jun 10, 2022 at 11:11:00AM -0400, Mike Snitzer wrote:
->>>> On Fri, Jun 10 2022 at  1:15P -0400,
->>>> Greg KH <gregkh@linuxfoundation.org> wrote:
->>>>
->>>>> On Fri, Jun 10, 2022 at 04:22:00AM +0000, Oleksandr Tymoshenko wrote:
->>>>>> I believe this commit introduced a regression in dm verity on systems
->>>>>> where data device is an NVME one. Loading table fails with the
->>>>>> following diagnostics:
->>>>>>
->>>>>> device-mapper: table: table load rejected: including non-request-stackable devices
->>>>>>
->>>>>> The same kernel works with the same data drive on the SCSI interface.
->>>>>> NVME-backed dm verity works with just this commit reverted.
->>>>>>
->>>>>> I believe the presence of the immutable partition is used as an indicator
->>>>>> of special case NVME configuration and if the data device's name starts
->>>>>> with "nvme" the code tries to switch the target type to
->>>>>> DM_TYPE_NVME_BIO_BASED (drivers/md/dm-table.c lines 1003-1010).
->>>>>>
->>>>>> The special NVME optimization case was removed in
->>>>>> 5.10 by commit 9c37de297f6590937f95a28bec1b7ac68a38618f, so only 5.4 is
->>>>>> affected.
->>>>>>
->>>>>
->>>>> Why wouldn't 4.9, 4.14, and 4.19 also be affected here?  Should I also
->>>>> just queue up 9c37de297f65 ("dm: remove special-casing of bio-based
->>>>> immutable singleton target on NVMe") to those older kernels?  If so,
->>>>> have you tested this and verified that it worked?
->>>>
->>>> Sorry for the unforeseen stable@ troubles here!
->>>>
->>>> In general we'd be fine to apply commit 9c37de297f65 but to do it
->>>> properly would require also making sure commits that remove
->>>> "DM_TYPE_NVME_BIO_BASED", like 8d47e65948dd ("dm mpath: remove
->>>> unnecessary NVMe branching in favor of scsi_dh checks") are applied --
->>>> basically any lingering references to DM_TYPE_NVME_BIO_BASED need to
->>>> be removed.
->>>>
->>>> The commit header for 8d47e65948dd documents what
->>>> DM_TYPE_NVME_BIO_BASED was used for.. it was dm-mpath specific and
->>>> "nvme" mode really never got used by any userspace that I'm aware of.
->>>>
->>>> Sadly I currently don't have the time to do this backport for all N
->>>> stable kernels... :(
->>>>
->>>> But if that backport gets out of control: A simpler, albeit stable@
->>>> unicorn, way to resolve this is to simply revert 9c37de297f65 and make
->>
->> 9c37de297f65 can not be reverted in 5.4 and older because it isn't there,
->> and trying to apply it results in conflicts which at least I can not
->> resolve.
->>
->>>> it so that DM-mpath and DM core just used bio-based if "nvme" is
->>>> requested by dm-mpath, so also in drivers/md/dm-mpath.c e.g.:
->>>>
->>>> @@ -1091,8 +1088,6 @@ static int parse_features(struct dm_arg_set *as, struct multipath *m)
->>>>
->>>>                          if (!strcasecmp(queue_mode_name, "bio"))
->>>>                                  m->queue_mode = DM_TYPE_BIO_BASED;
->>>> 			else if (!strcasecmp(queue_mode_name, "nvme"))
->>>> -                               m->queue_mode = DM_TYPE_NVME_BIO_BASED;
->>>> +                               m->queue_mode = DM_TYPE_BIO_BASED;
->>>>                          else if (!strcasecmp(queue_mode_name, "rq"))
->>>>                                  m->queue_mode = DM_TYPE_REQUEST_BASED;
->>>>                          else if (!strcasecmp(queue_mode_name, "mq"))
->>>>
->>>> Mike
->>>>
->>>
->>> Ok, please submit a working patch for the kernels that need it so that
->>> we can review and apply it to solve this regression.
->>>
->>
->> So, effectively, v5.4.y and older are broken right now for use cases
->> with dm on NVME drives.
->>
->> Given that the regression does affect older branches, and given that we
->> have to revert this patch to avoid regressions in ChromeOS, would it be
->> possible to revert it from v5.4.y and older until a fix is found ?
-> 
-> I obviously would prefer to not have this false-start.
-> 
-The false start has already happened since we had to revert the patch
-from chromeos-5.4 and older branches.
+On Wed, 15 Jun 2022 at 00:15, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.123 release.
+> There are 11 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 16 Jun 2022 18:37:02 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.123-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Guenter
+
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 5.10.123-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.10.y
+* git commit: f67ea0f670870facb37c20f19e483ec74a2cba63
+* git describe: v5.10.122-12-gf67ea0f67087
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.122-12-gf67ea0f67087
+
+## Test Regressions (compared to v5.10.118)
+No test regressions found.
+
+## Metric Regressions (compared to v5.10.118)
+No metric regressions found.
+
+## Test Fixes (compared to v5.10.118)
+No test fixes found.
+
+## Metric Fixes (compared to v5.10.118)
+No metric fixes found.
+
+## Test result summary
+total: 123351, pass: 110941, fail: 243, skip: 11563, xfail: 604
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 314 total, 314 passed, 0 failed
+* arm64: 58 total, 58 passed, 0 failed
+* i386: 52 total, 49 passed, 3 failed
+* mips: 37 total, 37 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 51 total, 51 passed, 0 failed
+* riscv: 27 total, 27 passed, 0 failed
+* s390: 21 total, 21 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 56 total, 55 passed, 1 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-cap_bounds-tests
+* ltp-commands
+* ltp-commands-tests
+* ltp-containers
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps
+* ltp-filecaps-tests
+* ltp-fs
+* ltp-fs-tests
+* ltp-fs_bind
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple
+* ltp-fs_perms_simple-tests
+* ltp-fsx
+* ltp-fsx-tests
+* ltp-hugetlb
+* ltp-hugetlb-tests
+* ltp-io
+* ltp-io-tests
+* ltp-ipc
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits
+* ltp-securebits-tests
+* ltp-smoke
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* perf/Zstd-perf.data-compression
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
