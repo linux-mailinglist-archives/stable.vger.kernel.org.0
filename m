@@ -2,125 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD49354BEC2
-	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 02:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A67A54BF10
+	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 03:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237400AbiFOAed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 20:34:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44110 "EHLO
+        id S229908AbiFOBGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 21:06:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232753AbiFOAed (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 20:34:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0889435DDF;
-        Tue, 14 Jun 2022 17:34:30 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 615C461939;
-        Wed, 15 Jun 2022 00:34:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BB1AC3411B;
-        Wed, 15 Jun 2022 00:34:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655253269;
-        bh=Yz13IgKOC0iptK56o8LR0wiHGkxHflnnEptjcBA8JLw=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=tmV7wIidivjbcMYZ1hU1aTj9NB/A1MRCBVya/3tpreqni8hYFTx913TzD1NS8JXzo
-         7yfglVwuTvYpw2EBONC4IqG7Qtnl28CanSp6+3xRhBnJG6By8uYCcvThL1H0kyaOIb
-         Y1TG1oVICzZ69U54EejXLTINvPLTLZ0MhanhQosB3nppl1C96/A2bGlpoySXWo61s+
-         tdzeedOKE9kJl8OO1hWVBeLNBSntRl7/wS8d2mNyV2LezzrsgBr75Jd95vG4vKbrM/
-         KQ79GkATvcNvu3c3s6SUp9oEnpDqkpo4QUN4W5MVZ5cUtfx4xPmuUS8ERy9NG/KjHg
-         Dh2sVTlY4r3Zg==
-Date:   Wed, 15 Jun 2022 09:34:24 +0900
-From:   Masami Hiramatsu (Google) <mhiramat@kernel.org>
-To:     Chuang W <nashuiliang@gmail.com>
-Cc:     stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, Jessica Yu <jeyu@kernel.org>,
+        with ESMTP id S231489AbiFOBGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 21:06:44 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 608D03EBA4;
+        Tue, 14 Jun 2022 18:06:44 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id 31so8360125pgv.11;
+        Tue, 14 Jun 2022 18:06:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=hsIakku4FnVx99K8632PhAPuzZKXQqxNFY60mWq6fhY=;
+        b=PZtwOpTSO8PjeTx6/6jNFf+M4XWpL8halrvUQJjg8NTHIByf/qy+RGIEjbmGMJq+d7
+         zuMqo/2vMqMYH2tLYpZrPFoPmZnSuzhbxymRY7ZV8+ugj5Jd6EGFRHEGtjRDsYoUJ4sm
+         aeGOr3WJO827uNDIQh1i4FRbvlNot95n/LcEx+jnzavIwhFn5bg7bi+lJRVppzE220ua
+         kkqLDgnD9hBc4T1MGUGc7eKu62A5RbgTJi+nJMUKaDgckC/iQh6zmCJFUBdRhv5YoP/u
+         VcGAgTigIIgXZ7t3BaF1PFIquuynKMtr41a8W7BiiMJttzkopQQpw3kwwpM7Qfp7FHj8
+         J0ZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=hsIakku4FnVx99K8632PhAPuzZKXQqxNFY60mWq6fhY=;
+        b=5hS2oYeHDrd2ntfLlNsxLjXw0kUEAEJhpqH80hQm1IXdb8+D9fqWLq3wmkI6yCk8Ol
+         sUsediadt+7qrqTAqAjQIx4+0vEW4Dd6xwwgdCsK4lapjQZCCyuEu//8ns+pA0mQN4Sm
+         mb4GG/+VEQ8ihEts2B8/hl+XPAOj0p+KmNJ0gX0TAbsxAThRSEmg/kuVUUj70w5iOzwk
+         NS8noR4UX5ZUbdORCKEUSA8IBvlas/21C896Z6NNtnovgo/Z7Fe+lTRVjb0eFNvWjQ6M
+         F+HOLsmzbgbpjWlHShL0UdmqwEXy4zC1zBngwHhbvs8kcDEGbfJMli+xoN3TJRKr3Iwd
+         7lHA==
+X-Gm-Message-State: AOAM530B0zXCou34luKZILSAYh/GIacm5e07GMbvxNkTjaMCiYmfL1yO
+        R8WFppmNNWx4II2/xtT63s/jbp9Ue20=
+X-Google-Smtp-Source: ABdhPJxNlZaPX57z0XJyh3gcPU4N3Iqz2gzpfXQUutDHW8rM86PpNhgK8+6Ksu19MbeMEVwsVTx0xg==
+X-Received: by 2002:a63:5fc3:0:b0:3fd:f15d:5df6 with SMTP id t186-20020a635fc3000000b003fdf15d5df6mr6512040pgb.573.1655255203857;
+        Tue, 14 Jun 2022 18:06:43 -0700 (PDT)
+Received: from [192.168.43.80] (subs02-180-214-232-7.three.co.id. [180.214.232.7])
+        by smtp.gmail.com with ESMTPSA id v11-20020a1709028d8b00b001616e19537esm7821759plo.213.2022.06.14.18.06.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Jun 2022 18:06:42 -0700 (PDT)
+Message-ID: <94468546-5571-b61f-0d98-8501626e30e3@gmail.com>
+Date:   Wed, 15 Jun 2022 08:06:37 +0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH 5.18 01/11] Documentation: Add documentation for Processor
+ MMIO Stale Data
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kprobes: Rollback post_handler on failed arm_kprobe()
-Message-Id: <20220615093424.961cfa58eae0a8ce601e7af6@kernel.org>
-In-Reply-To: <20220614090633.43832-1-nashuiliang@gmail.com>
-References: <20220614090633.43832-1-nashuiliang@gmail.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Cc:     stable@vger.kernel.org,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linux Doc Mailing List <linux-doc@vger.kernel.org>
+References: <20220614183720.861582392@linuxfoundation.org>
+ <20220614183721.248466580@linuxfoundation.org>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <20220614183721.248466580@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-9.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Chuang,
-
-On Tue, 14 Jun 2022 17:06:33 +0800
-Chuang W <nashuiliang@gmail.com> wrote:
-
-> In a scenario where livepatch and aggrprobe coexist, if arm_kprobe()
-> returns an error, ap.post_handler, while has been modified to
-> p.post_handler, is not rolled back.
-
-Would you mean 'coexist' on the same function?
-
-> 
-> When ap.post_handler is not NULL (not rolled back), the caller (e.g.
-> register_kprobe/enable_kprobe) of arm_kprobe_ftrace() will always fail.
-
-It seems this explanation and the actual code does not
-match. Can you tell me what actually you observed?
-
-Thank you,
-
-> 
-> Fixes: 12310e343755 ("kprobes: Propagate error from arm_kprobe_ftrace()")
-> Signed-off-by: Chuang W <nashuiliang@gmail.com>
-> Cc: <stable@vger.kernel.org>
-> ---
->  kernel/kprobes.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-> index f214f8c088ed..0610b02a3a05 100644
-> --- a/kernel/kprobes.c
-> +++ b/kernel/kprobes.c
-> @@ -1300,6 +1300,7 @@ static int register_aggr_kprobe(struct kprobe *orig_p, struct kprobe *p)
->  {
->  	int ret = 0;
->  	struct kprobe *ap = orig_p;
-> +	kprobe_post_handler_t old_post_handler = NULL;
->  
->  	cpus_read_lock();
->  
-> @@ -1351,6 +1352,9 @@ static int register_aggr_kprobe(struct kprobe *orig_p, struct kprobe *p)
->  
->  	/* Copy the insn slot of 'p' to 'ap'. */
->  	copy_kprobe(ap, p);
+On 6/15/22 01:40, Greg Kroah-Hartman wrote:
+> +  .. list-table::
 > +
-> +	/* save the old post_handler */
-> +	old_post_handler = ap->post_handler;
->  	ret = add_new_kprobe(ap, p);
->  
->  out:
-> @@ -1365,6 +1369,7 @@ static int register_aggr_kprobe(struct kprobe *orig_p, struct kprobe *p)
->  			ret = arm_kprobe(ap);
->  			if (ret) {
->  				ap->flags |= KPROBE_FLAG_DISABLED;
-> +				ap->post_handler = old_post_handler;
->  				list_del_rcu(&p->list);
->  				synchronize_rcu();
->  			}
-> -- 
-> 2.34.1
-> 
+> +     * - 'Not affected'
+> +       - The processor is not vulnerable
+> +     * - 'Vulnerable'
+> +       - The processor is vulnerable, but no mitigation enabled
+> +     * - 'Vulnerable: Clear CPU buffers attempted, no microcode'
+> +       - The processor is vulnerable, but microcode is not updated. The
+> +         mitigation is enabled on a best effort basis.
+> +     * - 'Mitigation: Clear CPU buffers'
+> +       - The processor is vulnerable and the CPU buffer clearing mitigation is
+> +         enabled.
+> +
+> +If the processor is vulnerable then the following information is appended to
+> +the above information:
+> +
+> +  ========================  ===========================================
+> +  'SMT vulnerable'          SMT is enabled
+> +  'SMT disabled'            SMT is disabled
+> +  'SMT Host state unknown'  Kernel runs in a VM, Host SMT state unknown
+> +  ========================  ===========================================
+> +
 
+Why is list-table used in sysfs table instead of usual ASCII table in SMT
+vulnerabilities list above? I think using ASCII table in both cases is enough
+for the purpose.
 
 -- 
-Masami Hiramatsu (Google) <mhiramat@kernel.org>
+An old man doll... just what I always wanted! - Clara
