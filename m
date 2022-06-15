@@ -2,120 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC26754CC53
-	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 17:14:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C322654CCEB
+	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 17:29:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245501AbiFOPN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jun 2022 11:13:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35048 "EHLO
+        id S1348683AbiFOP3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jun 2022 11:29:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348160AbiFOPNh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 11:13:37 -0400
-Received: from qproxy4-pub.mail.unifiedlayer.com (qproxy4-pub.mail.unifiedlayer.com [66.147.248.250])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0AC824952
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 08:13:36 -0700 (PDT)
-Received: from alt-proxy28.mail.unifiedlayer.com (alt-proxy28.mail.unifiedlayer.com [74.220.216.123])
-        by qproxy4.mail.unifiedlayer.com (Postfix) with ESMTP id 0B610802E079
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 15:13:36 +0000 (UTC)
-Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
-        by progateway1.mail.pro1.eigbox.com (Postfix) with ESMTP id 9448B1003C221
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 15:13:34 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id 1Ui6oVNsANVEz1Ui6o8JN2; Wed, 15 Jun 2022 15:13:34 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=I5+g+Psg c=1 sm=1 tr=0 ts=62a9f71e
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=JPEYwPQDsx4A:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=ieWZb2X5Nz3z-Wn_6k4A:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=Z4nPqYG2TqBqwwPo2qCf6x7FPw6Tk77VRbXS8wdJFmc=; b=T28ShSbhcU6PdtJGIJkAvMHO0q
-        38PI6Qsn97PQhDk3+lK9uSpwOmYyZ6L+dk+h5QWL2Lu3ng0jMiNW9T6wQLzpmil2Vme7gn+W2X6af
-        CY86PVJ4mVmny6jLgv5DlPEmrPpgpfDw3r4/qEMPyIWhHBhVR/YZHAFhYN90ocB17BtLlDxqbXHlH
-        PttyQu3aWIBeR+ytwSxi3hoLMuoErnfaPbAPG5MACK1TgVRliAzdhMNQEOdOmEaL+7h96dyFQSdjw
-        nzrcMHC+493nIQkNEEwjVq+8bYgPv9IavCvhvlZ0ufXj9QGlkzIVzZpHZQXOO60GOpWGEI6U+Plqt
-        OVbiUYLw==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:44454 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1o1Ui5-002CBC-4X;
-        Wed, 15 Jun 2022 09:13:33 -0600
-Subject: Re: [PATCH 5.15 00/11] 5.15.48-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220614183720.512073672@linuxfoundation.org>
-In-Reply-To: <20220614183720.512073672@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <1b8232d8-ec31-f192-0ba8-a1481c64fd8a@w6rz.net>
-Date:   Wed, 15 Jun 2022 08:13:31 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S1355337AbiFOP2i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 11:28:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CA917A8E;
+        Wed, 15 Jun 2022 08:27:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6F90616B1;
+        Wed, 15 Jun 2022 15:27:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3672C385A2;
+        Wed, 15 Jun 2022 15:27:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655306866;
+        bh=nX1w5nyKD3K3Gw/ZF5PMRaXHVZxvYBa3oXkY2JHQUN0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=iyea28kx9k5ypeyLzp7cl1Ekca/aVGlkg75Bt3ZbxKPGTXSxU2vKgZ8XIjqXitRPW
+         5H/QWhoNVlftRm8xtMxFKzTFvb3+5FAulFoYwyuq6PTJtUbITk4V2Bq82d1H8kTmB6
+         QNp00KVxH49Z2PIgW1iWNFlcNAKcgfHNvWHG0GqwEtti8EUo5zTPzIHK/ksGGLL23S
+         mohEEiyyP0AAxyro4qjdSFiw2litXaNf8u5fGvHIyVdW8Ka8CWwKiRNS10bIBNA658
+         ksgmxr6fGW3QfqzSjjT+JNh4fzUt3CaZX+qIvOZ1MfF0+4Jlvnpe45SC9fT+dgXX5t
+         IO2UvEwRD8+aQ==
+Received: from mchehab by mail.kernel.org with local (Exim 4.95)
+        (envelope-from <mchehab@kernel.org>)
+        id 1o1Uvm-00A4Jd-Cq;
+        Wed, 15 Jun 2022 16:27:42 +0100
+From:   Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     Chris Wilson <chris.p.wilson@intel.com>,
+        "Fei Yang" <fei.yang@intel.com>,
+        =?UTF-8?q?Micha=C5=82=20Winiarski?= <michal.winiarski@intel.com>,
+        "Thomas Hellstrom" <thomas.hellstrom@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Dave Airlie <airlied@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Ekstrand <jason@jlekstrand.net>,
+        John Harrison <John.C.Harrison@Intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Ramalingam C <ramalingam.c@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, mauro.chehab@linux.intel.com,
+        stable@vger.kernel.org
+Subject: [PATCH 1/6] drm/i915/gt: Ignore TLB invalidations on idle engines
+Date:   Wed, 15 Jun 2022 16:27:35 +0100
+Message-Id: <ce7ddc900a5421e577ef446b6834ee69663c2d9a.1655306128.git.mchehab@kernel.org>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <cover.1655306128.git.mchehab@kernel.org>
+References: <cover.1655306128.git.mchehab@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1o1Ui5-002CBC-4X
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:44454
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/14/22 11:40 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.48 release.
-> There are 11 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 16 Jun 2022 18:37:02 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.48-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+From: Chris Wilson <chris.p.wilson@intel.com>
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+As an extension of the current skip TLB invalidations,
+check if the device is powered down prior to any engine activity,
 
-Tested-by: Ron Economos <re@w6rz.net>
+as, on such cases, all the TLBs were already invalidated, so an
+explicit TLB invalidation is not needed.
+
+This becomes more significant  with GuC, as it can only do so when
+the connection to the GuC is awake.
+
+Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
+
+Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
+Cc: Fei Yang <fei.yang@intel.com>
+Cc: Andi Shyti <andi.shyti@linux.intel.com>
+Cc: stable@vger.kernel.org
+Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+---
+
+See [PATCH 0/6] at: https://lore.kernel.org/all/cover.1655306128.git.mchehab@kernel.org/
+
+ drivers/gpu/drm/i915/gem/i915_gem_pages.c | 10 +++++----
+ drivers/gpu/drm/i915/gt/intel_gt.c        | 26 +++++++++++++++++------
+ drivers/gpu/drm/i915/gt/intel_gt_pm.h     |  3 +++
+ 3 files changed, 28 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+index 97c820eee115..6835279943df 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+@@ -6,14 +6,15 @@
+ 
+ #include <drm/drm_cache.h>
+ 
++#include "gt/intel_gt.h"
++#include "gt/intel_gt_pm.h"
++
+ #include "i915_drv.h"
+ #include "i915_gem_object.h"
+ #include "i915_scatterlist.h"
+ #include "i915_gem_lmem.h"
+ #include "i915_gem_mman.h"
+ 
+-#include "gt/intel_gt.h"
+-
+ void __i915_gem_object_set_pages(struct drm_i915_gem_object *obj,
+ 				 struct sg_table *pages,
+ 				 unsigned int sg_page_sizes)
+@@ -217,10 +218,11 @@ __i915_gem_object_unset_pages(struct drm_i915_gem_object *obj)
+ 
+ 	if (test_and_clear_bit(I915_BO_WAS_BOUND_BIT, &obj->flags)) {
+ 		struct drm_i915_private *i915 = to_i915(obj->base.dev);
++		struct intel_gt *gt = to_gt(i915);
+ 		intel_wakeref_t wakeref;
+ 
+-		with_intel_runtime_pm_if_active(&i915->runtime_pm, wakeref)
+-			intel_gt_invalidate_tlbs(to_gt(i915));
++		with_intel_gt_pm_if_awake(gt, wakeref)
++			intel_gt_invalidate_tlbs(gt);
+ 	}
+ 
+ 	return pages;
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
+index f33290358c51..d5ed6a6ac67c 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt.c
+@@ -11,6 +11,7 @@
+ 
+ #include "i915_drv.h"
+ #include "intel_context.h"
++#include "intel_engine_pm.h"
+ #include "intel_engine_regs.h"
+ #include "intel_gt.h"
+ #include "intel_gt_buffer_pool.h"
+@@ -1216,6 +1217,7 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
+ 	struct drm_i915_private *i915 = gt->i915;
+ 	struct intel_uncore *uncore = gt->uncore;
+ 	struct intel_engine_cs *engine;
++	intel_engine_mask_t awake, tmp;
+ 	enum intel_engine_id id;
+ 	const i915_reg_t *regs;
+ 	unsigned int num = 0;
+@@ -1239,12 +1241,27 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
+ 
+ 	GEM_TRACE("\n");
+ 
+-	assert_rpm_wakelock_held(&i915->runtime_pm);
+-
+ 	mutex_lock(&gt->tlb_invalidate_lock);
+ 	intel_uncore_forcewake_get(uncore, FORCEWAKE_ALL);
+ 
++	awake = 0;
+ 	for_each_engine(engine, gt, id) {
++		struct reg_and_bit rb;
++
++		if (!intel_engine_pm_is_awake(engine))
++			continue;
++
++		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
++		if (!i915_mmio_reg_offset(rb.reg))
++			continue;
++
++		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
++		awake |= engine->mask;
++	}
++
++	for_each_engine_masked(engine, gt, awake, tmp) {
++		struct reg_and_bit rb;
++
+ 		/*
+ 		 * HW architecture suggest typical invalidation time at 40us,
+ 		 * with pessimistic cases up to 100us and a recommendation to
+@@ -1252,13 +1269,8 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
+ 		 */
+ 		const unsigned int timeout_us = 100;
+ 		const unsigned int timeout_ms = 4;
+-		struct reg_and_bit rb;
+ 
+ 		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
+-		if (!i915_mmio_reg_offset(rb.reg))
+-			continue;
+-
+-		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
+ 		if (__intel_wait_for_register_fw(uncore,
+ 						 rb.reg, rb.bit, 0,
+ 						 timeout_us, timeout_ms,
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt_pm.h b/drivers/gpu/drm/i915/gt/intel_gt_pm.h
+index bc898df7a48c..a334787a4939 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt_pm.h
++++ b/drivers/gpu/drm/i915/gt/intel_gt_pm.h
+@@ -55,6 +55,9 @@ static inline void intel_gt_pm_might_put(struct intel_gt *gt)
+ 	for (tmp = 1, intel_gt_pm_get(gt); tmp; \
+ 	     intel_gt_pm_put(gt), tmp = 0)
+ 
++#define with_intel_gt_pm_if_awake(gt, wf) \
++	for (wf = intel_gt_pm_get_if_awake(gt); wf; intel_gt_pm_put_async(gt), wf = 0)
++
+ static inline int intel_gt_pm_wait_for_idle(struct intel_gt *gt)
+ {
+ 	return intel_wakeref_wait_for_idle(&gt->wakeref);
+-- 
+2.36.1
 
