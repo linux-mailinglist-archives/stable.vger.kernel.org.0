@@ -2,82 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 019E354BFEC
-	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 04:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 100C054C000
+	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 05:09:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345762AbiFOC7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jun 2022 22:59:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46156 "EHLO
+        id S231722AbiFODJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jun 2022 23:09:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233181AbiFOC7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 22:59:54 -0400
-Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576E746675;
-        Tue, 14 Jun 2022 19:59:53 -0700 (PDT)
-Received: by mail-qk1-x735.google.com with SMTP id l192so5692099qke.13;
-        Tue, 14 Jun 2022 19:59:53 -0700 (PDT)
+        with ESMTP id S231685AbiFODJa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jun 2022 23:09:30 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B6AF4C413;
+        Tue, 14 Jun 2022 20:09:29 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id m20so20568619ejj.10;
+        Tue, 14 Jun 2022 20:09:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=C3J+GQznuUXQiI93tyU1L6VthWT10VpFAq9aJ2OnWJU=;
-        b=VxJHgVuTjo2QD8B+BMaw/XmEu/z4sSdLVz7HNg6xmOpYjwn3pGdVQI7lQCwRks73/I
-         1KjHe0NB2gRsWl4+hPX4OhKVJyktyBMLnd2LT8juToOmEO5i3rvmtB+++fza7ToBxrQt
-         5NeeJ5cakoQNoZB12wMYgYTCIU19/FDw+LH9tWV9R5EIoFyFTsq55nWj2KBAIR3OI5H+
-         79r9rrjnDPyu+IV8GJFsAIqE0Y6pADHlW6V4fwV5Vqk202mKvPwPgl/GwMyZE34t3EmT
-         QBZP0ntWkjGNdPep+XEH5HuL1rvtQ2KtDtr4AaudCmLcNdAcis2BQv5b5fLr4f7hSY1U
-         NrGQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=PZdjTiMB2cT7RGXSEMxyEsUGs5PUBdVqhv7g3Zq8KIQ=;
+        b=ODtrmNvbPKBXS+8TmcmX9gSI0b/1rw5ShjzVEGHpDFOfb5gzZc8QDbKvBKq69s4gMk
+         Dk/VIY3wPaTpiBO2wcoF+vf5sNBmbiE1ehJ7Z9/uXAFfzQl/zm5Fl+vTiBb+6t/BBdph
+         OfCkaFmQ8HPlBYvS6XxYdOh5vIHFY6LuzjIHvMskTGtUWFzZRqC3JbJ3iGNlq/sri341
+         H9idDSn0UYljrmS5W/FZo+R+U8eIpjy2xau2GBe6rCXicmufxMk9XsWTDB52eQeW9cZz
+         A1NUhi6EOKFk8xF2ESSbDDNruSaCsZtv4LpM6eqRQSEpIeLVrcpugg80kvctQXF7tM6h
+         AcAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=C3J+GQznuUXQiI93tyU1L6VthWT10VpFAq9aJ2OnWJU=;
-        b=MWNPOOz+GWlDIIBFITVJYDMPrYJ7YU6Hc90Kt/3t84QKN9EhLEGmN5k42zTwhPkj9h
-         BpYESyO8TC7R0wJPLKGpuU8E+1uH1iJQG7jSSo0fSTYGPYhtyM15hfHVFhNC47t404QK
-         af/gSiWZEEjy6kt3iC6MkN97IC3c2Bz5p5FIwQROmxi4XlVeVaDkTOx77pLuT0u81c+E
-         kj+b/xh6HnIlyyEdv4dcCMY1yKARItc2GUI4H934l80ogASZvlIW0Ft+es0FI6XkddSu
-         gjiSw3ebiI3sbi0T3DFpFnmO8PZ6r0O4iU6i5mV5uljOQHNaJ2QLsOQWuz3srZYtE3RV
-         8vuA==
-X-Gm-Message-State: AOAM530+BLm9DP8VkYsOGxy77lniAt19XfBGQmyAdKtULGhTFDG5Goqw
-        98Q6Db9woz2s9qifuiWkeLQ=
-X-Google-Smtp-Source: ABdhPJzU8UAXP0IkfOy4H9sUURlLpB9LpqUnFHG7i620UZ67oCnA8AaZDn3plz6a+1qNFEgF+ryr8g==
-X-Received: by 2002:a05:620a:2910:b0:6a6:bb03:ade0 with SMTP id m16-20020a05620a291000b006a6bb03ade0mr6544520qkp.655.1655261992417;
-        Tue, 14 Jun 2022 19:59:52 -0700 (PDT)
-Received: from localhost ([2601:4c1:c100:1230:6d39:b768:5789:ec2a])
-        by smtp.gmail.com with ESMTPSA id t16-20020ac87390000000b00304edcfa109sm8239554qtp.33.2022.06.14.19.59.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jun 2022 19:59:52 -0700 (PDT)
-Date:   Tue, 14 Jun 2022 19:59:51 -0700
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matt Turner <mattst88@gmail.com>,
-        Brian Cain <bcain@quicinc.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Kees Cook <keescook@chromium.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>,
-        Tony Luck <tony.luck@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH v2 1/6] ia64, processor: fix -Wincompatible-pointer-types
- in ia64_get_irr()
-Message-ID: <YqlLJ2IHAIn4kv8Z@yury-laptop>
-References: <20220610113427.908751-1-alexandr.lobakin@intel.com>
- <20220610113427.908751-2-alexandr.lobakin@intel.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PZdjTiMB2cT7RGXSEMxyEsUGs5PUBdVqhv7g3Zq8KIQ=;
+        b=FRww7QBc1WutBsmHJfAX/QeqTNoPwS/S6zxdhj16kUjN6qp1g2k73/uWXEzW6NeFqN
+         xCqFQ8SoIYpM0FvVEN7eN+4gEBl1B2jZvfh/GrLcEiJcRq4gtnypQzqU9vKa2ejDIoXt
+         ofkOKLBeTh3iCdI0eteZukl8Pb52GsF0NfhzeCqQJJAMF/OTmHSmncnjU5qHOZNxkKRh
+         RIzQU0B+kjsubpr246Xc8GXEG4lmnMYRMwkQ1nkcfJbatox9WIkVsrI0EpEp+mceJrIC
+         EkA42hNxka/dVLLGtXoFW6//hT5xctPW4OXkz3lxXOv45eTN9NoH3G8w3BJi+83aaKnX
+         r0Mg==
+X-Gm-Message-State: AOAM530fadI3QeOVZgW7N84Bwxi+Ab0RyAJJAuKhQ+eh9Mg5xyvYedWX
+        gxb9dg2L6I64G4kza0zZkaFDhABlvTWMTThnwW0=
+X-Google-Smtp-Source: ABdhPJxt9GVPA9DjVN9pjyBVoaZOf5BMUo0nAuBMyDRzbdXHIL3molT65W9iQPzeBKVpMYv9c28iqyLgPEvmJ4M12Ck=
+X-Received: by 2002:a17:906:649b:b0:711:fde7:be43 with SMTP id
+ e27-20020a170906649b00b00711fde7be43mr7174456ejm.294.1655262567782; Tue, 14
+ Jun 2022 20:09:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220610113427.908751-2-alexandr.lobakin@intel.com>
+References: <20220614090633.43832-1-nashuiliang@gmail.com> <20220615093424.961cfa58eae0a8ce601e7af6@kernel.org>
+In-Reply-To: <20220615093424.961cfa58eae0a8ce601e7af6@kernel.org>
+From:   chuang <nashuiliang@gmail.com>
+Date:   Wed, 15 Jun 2022 11:09:16 +0800
+Message-ID: <CACueBy7Q6TenVFGau7Y+8nuo9ZLqruC1Pijw1YuMgyOUhjULMA@mail.gmail.com>
+Subject: Re: [PATCH] kprobes: Rollback post_handler on failed arm_kprobe()
+To:     Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ingo Molnar <mingo@kernel.org>, Jessica Yu <jeyu@kernel.org>,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -88,42 +69,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 10, 2022 at 01:34:22PM +0200, Alexander Lobakin wrote:
-> test_bit(), as any other bitmap op, takes `unsigned long *` as a
-> second argument (pointer to the actual bitmap), as any bitmap
-> itself is an array of unsigned longs. However, the ia64_get_irr()
-> code passes a ref to `u64` as a second argument.
-> This works with the ia64 bitops implementation due to that they
-> have `void *` as the second argument and then cast it later on.
-> This works with the bitmap API itself due to that `unsigned long`
-> has the same size on ia64 as `u64` (`unsigned long long`), but
-> from the compiler PoV those two are different.
-> Define @irr as `unsigned long` to fix that. That implies no
-> functional changes. Has been hidden for 16 years!
-> 
-> Fixes: a58786917ce2 ("[IA64] avoid broken SAL_CACHE_FLUSH implementations")
-> Cc: stable@vger.kernel.org # 2.6.16+
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+On Wed, Jun 15, 2022 at 8:34 AM Masami Hiramatsu <mhiramat@kernel.org> wrote:
+>
+> Hi Chuang,
+>
+> On Tue, 14 Jun 2022 17:06:33 +0800
+> Chuang W <nashuiliang@gmail.com> wrote:
+>
+> > In a scenario where livepatch and aggrprobe coexist, if arm_kprobe()
+> > returns an error, ap.post_handler, while has been modified to
+> > p.post_handler, is not rolled back.
+>
+> Would you mean 'coexist' on the same function?
 
-Reviewed-by: Yury Norov <yury.norov@gmail.com>
+Yes, It's the same function.
 
-> ---
->  arch/ia64/include/asm/processor.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/ia64/include/asm/processor.h b/arch/ia64/include/asm/processor.h
-> index 7cbce290f4e5..757c2f6d8d4b 100644
-> --- a/arch/ia64/include/asm/processor.h
-> +++ b/arch/ia64/include/asm/processor.h
-> @@ -538,7 +538,7 @@ ia64_get_irr(unsigned int vector)
->  {
->  	unsigned int reg = vector / 64;
->  	unsigned int bit = vector % 64;
-> -	u64 irr;
-> +	unsigned long irr;
->  
->  	switch (reg) {
->  	case 0: irr = ia64_getreg(_IA64_REG_CR_IRR0); break;
-> -- 
-> 2.36.1
+>
+> >
+> > When ap.post_handler is not NULL (not rolled back), the caller (e.g.
+> > register_kprobe/enable_kprobe) of arm_kprobe_ftrace() will always fail.
+>
+> It seems this explanation and the actual code does not
+> match. Can you tell me what actually you observed?
+>
+> Thank you,
+>
+
+I briefly describe the steps involved, a patch (kprobes: Rollback
+kprobe flags on failed arm_kprobe,
+https://lore.kernel.org/all/20220612213156.1323776351ee1be3cabc7fcc@kernel.org/T/)
+must be added, otherwise it will panic:
+
+1) add a livepatch
+
+$ insmod livepatch-XXX.ko
+
+2) add a kprobe using tracefs API
+
+$ echo 'p:mykprobe XXX' > /sys/kernel/debug/tracing/kprobe_events
+
+At this time, XXX is a simple kprobe, kprobe->post_handler = NULL.
+
+3) add a second kprobe using raw kprobe API (i.e. register_kprobe),
+the new kprobe->post_handler != NULL
+
+$ insmod kprobe_XXX.ko
+$ insmod: ERROR: could not insert module kprobe_XXX.ko: Device or resource busy
+
+This will fail (as expected). However, XXX is modified to an
+aggrprobe. agKprobe->post_handler = aggr_post_handler, it's not rolled
+back on failed arm_kprobe().
+
+4) add a third kprobe using bpftrace/bcc tool
+
+$ bpftrace -e 'kprobe:XXX {printf("%s", kstack());}'
+Attaching 1 probe...
+perf_event_open(/sys/kernel/debug/tracing/events/kprobes/p_XXX_0_1_bcc_440/id):
+Device or resource busy
+Error attaching probe: 'kprobe:blkcg_destroy_blkgs'
+$ bpftrace -e 'kprobe:XXX {printf("%s", kstack());}'
+Attaching 1 probe...
+perf_event_open(/sys/kernel/debug/tracing/events/kprobes/p_XXX_0_1_bcc_440/id):
+Device or resource busy
+Error attaching probe: 'kprobe:blkcg_destroy_blkgs'
+
+This will always fail (not as expected).
+
+> >
+> > Fixes: 12310e343755 ("kprobes: Propagate error from arm_kprobe_ftrace()")
+> > Signed-off-by: Chuang W <nashuiliang@gmail.com>
+> > Cc: <stable@vger.kernel.org>
+> > ---
+> >  kernel/kprobes.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> >
+> > diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+> > index f214f8c088ed..0610b02a3a05 100644
+> > --- a/kernel/kprobes.c
+> > +++ b/kernel/kprobes.c
+> > @@ -1300,6 +1300,7 @@ static int register_aggr_kprobe(struct kprobe *orig_p, struct kprobe *p)
+> >  {
+> >       int ret = 0;
+> >       struct kprobe *ap = orig_p;
+> > +     kprobe_post_handler_t old_post_handler = NULL;
+> >
+> >       cpus_read_lock();
+> >
+> > @@ -1351,6 +1352,9 @@ static int register_aggr_kprobe(struct kprobe *orig_p, struct kprobe *p)
+> >
+> >       /* Copy the insn slot of 'p' to 'ap'. */
+> >       copy_kprobe(ap, p);
+> > +
+> > +     /* save the old post_handler */
+> > +     old_post_handler = ap->post_handler;
+> >       ret = add_new_kprobe(ap, p);
+> >
+> >  out:
+> > @@ -1365,6 +1369,7 @@ static int register_aggr_kprobe(struct kprobe *orig_p, struct kprobe *p)
+> >                       ret = arm_kprobe(ap);
+> >                       if (ret) {
+> >                               ap->flags |= KPROBE_FLAG_DISABLED;
+> > +                             ap->post_handler = old_post_handler;
+> >                               list_del_rcu(&p->list);
+> >                               synchronize_rcu();
+> >                       }
+> > --
+> > 2.34.1
+> >
+>
+>
+> --
+> Masami Hiramatsu (Google) <mhiramat@kernel.org>
