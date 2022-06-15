@@ -2,98 +2,244 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E273F54C711
-	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 13:03:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83E1554C816
+	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 14:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348481AbiFOLCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jun 2022 07:02:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52570 "EHLO
+        id S1347417AbiFOMEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jun 2022 08:04:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349180AbiFOLA2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 07:00:28 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B373527EB;
-        Wed, 15 Jun 2022 04:00:24 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 4B5871F385;
-        Wed, 15 Jun 2022 11:00:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1655290823; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=r4Xgkiz28fr7+QgqidS11r+u0JdfTJrBzbaVks+Q0jM=;
-        b=zg/rOjLLT2fpOGRhWYY2YGBT979qo85Ocm1hqui8j5X4gOs7RjAckvWGBLOY+SV4Mjjo4s
-        D2+xY3C1Bys8xpXIbAMrhKzIrxhHtI/WTJCojuxaOcDPA7jrsknnFuO9qDfbxYjaOB6KMx
-        Qe/BCbHo5XMDXLGBB9/+qLe1+hu36XA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1655290823;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=r4Xgkiz28fr7+QgqidS11r+u0JdfTJrBzbaVks+Q0jM=;
-        b=PzX0gwI6ZxCo8Mip8nRs3IhgpusPyUyUhWNDs1rXPD1M9Sbwyub346IboU1/K/10EW8vvS
-        uUh1OQYXh7gG9GBQ==
-Received: from quack3.suse.cz (unknown [10.163.28.18])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 223792C141;
-        Wed, 15 Jun 2022 11:00:23 +0000 (UTC)
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id B3F52A062E; Wed, 15 Jun 2022 13:00:22 +0200 (CEST)
-Date:   Wed, 15 Jun 2022 13:00:22 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Thomas Backlund <tmb@tmb.nu>, Jan Kara <jack@suse.cz>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Slade Watkins <slade@sladewatkins.com>
-Subject: Re: [PATCH 5.15 000/251] 5.15.47-rc2 review
-Message-ID: <20220615110022.yifrsvzxjsz2wky5@quack3.lan>
-References: <bd80cd0d-a364-4ebd-2a89-933f79eaf4c7@tmb.nu>
- <CAHk-=wix7+mGzS-hANyk7DZsZ1NgGMHjPzSQKggEomYrRCrP_Q@mail.gmail.com>
- <CAHk-=wgfFhwMP0=QQY_iZvf0kveR5=VGK919Ayn+ZSUADs9mag@mail.gmail.com>
+        with ESMTP id S245324AbiFOMEn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 08:04:43 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17B019285
+        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 05:04:42 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id h192so11193535pgc.4
+        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 05:04:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=YesflcJYsWBOzCND56/Lvvn1Y9qifX2GU6PjqnSYcFI=;
+        b=Pnc8iAGpDQwt/0fGXEegBX9iwrnzAuyu3nHbNYAmx0UF+ZDaFrqBB1ICIWdal3V7vu
+         EQXT7PwXyTpcdLAaDuG5HCFh75MHuQdIWuCR380POLXNKCRrJt/rtrMk1rEOGJyFRn9d
+         C6aYoNVW3VZZkExMb7m2kq0z5unVx01NuSJCBsWf7wSrsChDoHHSAThfWoyYeUfxInQz
+         fBDaW9W702u2oSSL85tbH7Zxku+FkfMxC2JgD5a2qfuH4ciT+WXodlIDF0J6yEDl3g7/
+         IYhlHuHU8YAMUyqRAoFKjEnBsBalfuB2G8/xUlBCzTJ85kjT++y88P2u3vpK6duGIScf
+         6yRw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=YesflcJYsWBOzCND56/Lvvn1Y9qifX2GU6PjqnSYcFI=;
+        b=3/UUMWGeamzWFNW1RcBxn/o0Y7mf1EKmxhdcWZXs4+qOcz7NR1s4lxmBCqyn0SSnx/
+         86BXhUXS/4SHbARPHQ5eJZhhJSRKT18DSCQQ8Hlqt1PU5K4hNiBa4X5tfwP7HderEbLm
+         MaHjaQE7IHs7PQu1p82eP+lUfWJAgiqZR2aUBlwVmFVe7qUXb4SQi8zaDSy6fJKuVYO9
+         uxtd9vJ+MJBvjLjWbNeO3cWHqPqq7inpEX969uz/bHqLV/TROCChhFEMufxiiFIGWOnO
+         eFT+wBH9OzENFLaCDT91EsVOmQIDZIPO1n6scfjG3VPsbKVfYG4q+0oaDtUaHiKuD7dM
+         7JeQ==
+X-Gm-Message-State: AOAM532xeBQcuWD7926yhgZpQc33x8HkI1zcchiRP/oMzWZIP9oiE3EX
+        a/lM4rG+oD8YctUJjDJkcoNjHtsyBRWsKaJlMwI=
+X-Google-Smtp-Source: ABdhPJxjkGyB/mWiwq3BbYKPiDwO+vzX1TaefbdQZq+ICyN9s2B3vj9IBNSsiNDMFyt0OjFQ99OX8w==
+X-Received: by 2002:a63:6806:0:b0:3fc:3b43:52d5 with SMTP id d6-20020a636806000000b003fc3b4352d5mr8662101pgc.319.1655294682195;
+        Wed, 15 Jun 2022 05:04:42 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y7-20020a637d07000000b003fdef4f7447sm9718857pgc.6.2022.06.15.05.04.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jun 2022 05:04:41 -0700 (PDT)
+Message-ID: <62a9cad9.1c69fb81.769f9.b80a@mx.google.com>
+Date:   Wed, 15 Jun 2022 05:04:41 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wgfFhwMP0=QQY_iZvf0kveR5=VGK919Ayn+ZSUADs9mag@mail.gmail.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.282-218-gf105a730fc00e
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.14 baseline: 91 runs,
+ 4 regressions (v4.14.282-218-gf105a730fc00e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 14-06-22 12:00:22, Linus Torvalds wrote:
-> On Tue, Jun 14, 2022 at 11:51 AM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> >
-> > Or just make sure that noop_backing_dev_info is fully initialized
-> > before it's used.
-> 
-> I don't see any real reason why that
-> 
->     err = bdi_init(&noop_backing_dev_info);
-> 
-> couldn't just be done very early. Maybe as the first call in
-> driver_init(), before the whole devtmpfs_init() etc.
+stable-rc/queue/4.14 baseline: 91 runs, 4 regressions (v4.14.282-218-gf105a=
+730fc00e)
 
-I've checked the dependencies and cgroups (which are the only non-trivial
-dependency besides per-CPU infrastructure) are initialized early enough so
-it should work fine. So let's try that.
+Regressions Summary
+-------------------
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+jetson-tk1        | arm  | lab-baylibre  | gcc-10   | multi_v7_defconfig | =
+1          =
+
+jetson-tk1        | arm  | lab-baylibre  | gcc-10   | tegra_defconfig    | =
+1          =
+
+tegra124-nyan-big | arm  | lab-collabora | gcc-10   | multi_v7_defconfig | =
+1          =
+
+tegra124-nyan-big | arm  | lab-collabora | gcc-10   | tegra_defconfig    | =
+1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.282-218-gf105a730fc00e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.282-218-gf105a730fc00e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f105a730fc00ea32f8570b9a9a2b9e99b7d18361 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+jetson-tk1        | arm  | lab-baylibre  | gcc-10   | multi_v7_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62a74baa6cb2ef32d7a39be2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.282=
+-218-gf105a730fc00e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jet=
+son-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.282=
+-218-gf105a730fc00e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jet=
+son-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62a74baa6cb2ef32d7a39=
+be3
+        failing since 20 days (last pass: v4.14.278-4-g95c4f04a529a, first =
+fail: v4.14.280-33-gfbdef5eaf17e4) =
+
+ =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+jetson-tk1        | arm  | lab-baylibre  | gcc-10   | tegra_defconfig    | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62a74b1e45508ea4b1a39bda
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.282=
+-218-gf105a730fc00e/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson=
+-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.282=
+-218-gf105a730fc00e/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson=
+-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62a74b1e45508ea4b1a39=
+bdb
+        failing since 8 days (last pass: v4.14.281-23-ga0c33ef6408ce, first=
+ fail: v4.14.281-23-g903e234594714) =
+
+ =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+tegra124-nyan-big | arm  | lab-collabora | gcc-10   | multi_v7_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62a76e7727435ea8fda39bfe
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.282=
+-218-gf105a730fc00e/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-te=
+gra124-nyan-big.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.282=
+-218-gf105a730fc00e/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-te=
+gra124-nyan-big.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62a76e7727435ea8fda39=
+bff
+        new failure (last pass: v4.14.282-216-g5d7ca74b4bbf5) =
+
+ =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+tegra124-nyan-big | arm  | lab-collabora | gcc-10   | tegra_defconfig    | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62a76beb310dbd7d3ba39bda
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.282=
+-218-gf105a730fc00e/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra=
+124-nyan-big.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.282=
+-218-gf105a730fc00e/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra=
+124-nyan-big.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62a76beb310dbd7d3ba39=
+bdb
+        failing since 9 days (last pass: v4.14.281-6-gec5e3fd5e6c8b, first =
+fail: v4.14.281-23-ga0c33ef6408ce) =
+
+ =20
