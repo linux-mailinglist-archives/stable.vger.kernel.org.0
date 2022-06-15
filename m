@@ -2,103 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E09854CADC
-	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 16:06:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED42E54CB52
+	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 16:28:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356085AbiFOOGV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jun 2022 10:06:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52710 "EHLO
+        id S231605AbiFOO24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jun 2022 10:28:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356050AbiFOOGU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 10:06:20 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6202B4A3EF
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 07:06:18 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id m14so107428plg.5
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 07:06:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=IVesxa57uPyCmDKceh3S6ZA+HPxkujqnZlbQCvL788w=;
-        b=kAUlZaKOBfDV3AdLf++qBXp1upBc7IOUGLVYelDV97TyfoAVZp1rH00B7Jn6RKcaSG
-         +z+B53UFSmIjNkQu31FidB9Eq9Oau3etD+MI39kcAyr2AbuTEpV5g6G2cnAzi5iOdT0L
-         rk+lq5GkK8+otEXOfITH3+BRrcT71FwKz60Dk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=IVesxa57uPyCmDKceh3S6ZA+HPxkujqnZlbQCvL788w=;
-        b=dw4nSHVCiatoHUbx1BXSwuu9+/B59IPQ+cJ1kMJLZK77dvUlR1S5528xRObjto+JCK
-         CjgGLB78XjBAgnAWIviPFsHNx5hPK80xaFkGTdD4ky5SzAwZGOtKpLf0sQkqjrlG8Ikj
-         8RFZ3PHqIbnZlEsKBzalzrB+9SEUvLXEqteDh81C5cvUZW47C9kZvnwj+WalQUlc+Mpu
-         Ws8xQ5SYiLnIc30ewe2FQDCk7uls7liW2LTILCV7QIP8hN1T5H5Pk0P/iq5SfBoVgM0O
-         mLdYNErzhNEyeyVOaq20RDyblrVT+PH6M+E8x6ADNGKfQap/UKC1PXmgpDed9fEBG8gl
-         gPBA==
-X-Gm-Message-State: AJIora+PAlsphaGUJSotpy4owvvkKcT6vSSwIvQqZZZkTJdwbCf0KSI8
-        trczy5zOd5tRl0NOYq3oI5NAKA==
-X-Google-Smtp-Source: AGRyM1tvkzLYTMIHf6UoHPxsX7fjLCny8f1n40NPVSD1y35zDhqRrr1LZmZuIHqJLOzaIzkRAiKP8w==
-X-Received: by 2002:a17:902:e88e:b0:163:ee82:ffb with SMTP id w14-20020a170902e88e00b00163ee820ffbmr10068210plg.142.1655301977634;
-        Wed, 15 Jun 2022 07:06:17 -0700 (PDT)
-Received: from d7a01fc38f5e (194-193-162-175.tpgi.com.au. [194.193.162.175])
-        by smtp.gmail.com with ESMTPSA id u16-20020a17090a891000b001e31fea8c85sm1787286pjn.14.2022.06.15.07.06.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jun 2022 07:06:16 -0700 (PDT)
-Date:   Wed, 15 Jun 2022 14:06:03 +0000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.18 00/11] 5.18.5-rc1 review
-Message-ID: <20220615140603.GA8@d7a01fc38f5e>
+        with ESMTP id S1347416AbiFOO23 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 10:28:29 -0400
+Received: from ms.lwn.net (ms.lwn.net [IPv6:2600:3c01:e000:3a1::42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DB051D321
+        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 07:28:29 -0700 (PDT)
+Received: from localhost (unknown [IPv6:2601:281:8300:73::5f6])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ms.lwn.net (Postfix) with ESMTPSA id 15D5335F;
+        Wed, 15 Jun 2022 14:28:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 ms.lwn.net 15D5335F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lwn.net; s=20201203;
+        t=1655303308; bh=vC9CwTdZm/z4Pz05ijVwgi0T285E+Nc749dDtbDBeGA=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=DTHl2fuVd21n0ootoa07lZCvZ5aKSDBF0aoRrd9rhFyjwXKJHTmTJBAzJWDOYnhv0
+         4xsBdLyrQKe+YrCXn7j8fzRN6wbyYbCvrnfBSiYxJiz1mvMipb9cAsPDVfXLldLKsR
+         ZbdnPTRdppX5NMLE2TFuS363wVccn6ZpxIts2UkL0umlG23cCge/+/D8BtprRIwBSZ
+         5YhIZJaTj1slK+fdIdj/KupZzp3JzpJsjo1o/CTmsAaswXpMAC8M0vSwVibiWuZWto
+         upyxO2fLkjDUSWM8Tdl3c4+ytFpTT6/l8X/wOHB2hJkvI6EwilQ9V5wuUI5LM2RiN3
+         M3RJ5yzaIiMtQ==
+From:   Jonathan Corbet <corbet@lwn.net>
+To:     Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Bagas Sanjaya <bagasdotme@gmail.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Subject: Re: [PATCH 5.18 01/11] Documentation: Add documentation for
+ Processor MMIO Stale Data
+In-Reply-To: <20220615032507.go6t24dyzotpe3xv@guptapa-desk>
 References: <20220614183720.861582392@linuxfoundation.org>
+ <20220614183721.248466580@linuxfoundation.org>
+ <94468546-5571-b61f-0d98-8501626e30e3@gmail.com>
+ <20220615032507.go6t24dyzotpe3xv@guptapa-desk>
+Date:   Wed, 15 Jun 2022 08:28:27 -0600
+Message-ID: <87tu8muhkk.fsf@meer.lwn.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220614183720.861582392@linuxfoundation.org>
+Content-Type: text/plain
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 14, 2022 at 08:40:37PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.18.5 release.
-> There are 11 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 16 Jun 2022 18:37:02 +0000.
-> Anything received after that time might be too late.
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com> writes:
 
-Hi Greg,
+> On Wed, Jun 15, 2022 at 08:06:37AM +0700, Bagas Sanjaya wrote:
+>>On 6/15/22 01:40, Greg Kroah-Hartman wrote:
+>>> +  .. list-table::
+>>> +
+>>> +     * - 'Not affected'
+>>> +       - The processor is not vulnerable
+>>> +     * - 'Vulnerable'
+>>> +       - The processor is vulnerable, but no mitigation enabled
+>>> +     * - 'Vulnerable: Clear CPU buffers attempted, no microcode'
+>>> +       - The processor is vulnerable, but microcode is not updated. The
+>>> +         mitigation is enabled on a best effort basis.
+>>> +     * - 'Mitigation: Clear CPU buffers'
+>>> +       - The processor is vulnerable and the CPU buffer clearing mitigation is
+>>> +         enabled.
+>>> +
+>>> +If the processor is vulnerable then the following information is appended to
+>>> +the above information:
+>>> +
+>>> +  ========================  ===========================================
+>>> +  'SMT vulnerable'          SMT is enabled
+>>> +  'SMT disabled'            SMT is disabled
+>>> +  'SMT Host state unknown'  Kernel runs in a VM, Host SMT state unknown
+>>> +  ========================  ===========================================
+>>> +
+>>
+>>Why is list-table used in sysfs table instead of usual ASCII table in SMT
+>>vulnerabilities list above? I think using ASCII table in both cases is enough
+>>for the purpose.
+>
+> Maybe you are right (and I am no expert in this), but quite a few
+> documents use list-table for sysfs status:
+>
+>    https://www.kernel.org/doc/Documentation/admin-guide/hw-vuln/mds.rst
+>    https://www.kernel.org/doc/Documentation/admin-guide/hw-vuln/spectre.rst
+>    https://www.kernel.org/doc/Documentation/admin-guide/hw-vuln/tsx_async_abort.rst
 
-5.18.5-rc1 tested.
+List-table should really be avoided whenever possible; it makes reading
+the plain-text files difficult at best.  I'd like to see the existing
+uses taken out over time.
 
-Run tested on:
-- Intel Tiger Lake x86_64 (nuc11 i7-1165G7)
-- Allwinner H6 (Tanix TX6)
+This isn't really something to be addressed in the stable updates,
+though.
 
-In addition - build tested for:
-- Allwinner A64
-- Allwinner H3
-- Allwinner H5
-- NXP iMX6
-- NXP iMX8
-- Qualcomm Dragonboard
-- Rockchip RK3288
-- Rockchip RK3328
-- Rockchip RK3399pro
-- Samsung Exynos
-
-Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
---
-Rudi
+jon
