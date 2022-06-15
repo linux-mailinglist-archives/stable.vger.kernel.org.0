@@ -2,112 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4762C54CBFD
-	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 16:58:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC26754CC53
+	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 17:14:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242506AbiFOO6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jun 2022 10:58:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47484 "EHLO
+        id S245501AbiFOPN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jun 2022 11:13:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234002AbiFOO6m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 10:58:42 -0400
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDDD333EBB
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 07:58:40 -0700 (PDT)
-Received: by mail-lf1-x12b.google.com with SMTP id p18so19386756lfr.1
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 07:58:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=p5WjwBxoG8hcN2wNzdX82aRVBrLb67GAEmI1dQxMZy0=;
-        b=r4gnFG1k9OgfmQ7EP/1Y+kdN2g5zJ3GOyFpW2D2CfDDrt/w87w3TdP8K++zTRXmZ1O
-         BUsJ3h/tq/C3iprUij5d3WqyvOGMw/I5Nw2LzaFWW8Kk0jJmwkKplMI+l41JN3y5PSh4
-         fnlFCyTAhS1yp+NaBsuAeFVDg+5EuG0LyQq5/dUn8T7aUi5OZPsYHQCp1xCWXpUZPDXd
-         rJIptAm7vdcpJ/0G+qLHiC/f1LoLW2Sc6al5aQ3TJyiMG5BWUbqQ6aJ5ktnFyy06b9xI
-         vu0WMbDHRbaiTdW1pIt4zXGO7csAzT3AsR+uTXqQIKxq3R7RPeMvVGoqtPSHqpYKJYto
-         cxjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=p5WjwBxoG8hcN2wNzdX82aRVBrLb67GAEmI1dQxMZy0=;
-        b=LNI/Md0GWNvmyw8ocY9fuSY1g6CTr0tM4wluLatsauVm3jk8iYainrNpiyAf6aPrZI
-         1vHfOIhsdT6+iX5heM0welZMACXKzO1vSc+aV7YaGQWIdZCUCJvxOx5Ydhe3RCgniL/Z
-         8sj6rfMNobBaxm2CMipuQVeiS56i1RdZ6FczbzXtIS6PcfKQ2qZ1qgBViJ8gg72sEOWj
-         B/+zBeNGcklAkFwQdet5FuEUTsOVW8rMmOGD6fJ2fWbNvPPYsrTDhhg5EX0fpc4V6l3f
-         R5IepFbvo9rrbV+a6O7d4YCI02qpwNEfQR2ZQZJkylyzg0pYtWC5icc7ua1IVSbsSuhU
-         YfEg==
-X-Gm-Message-State: AJIora/ay2s4imzSgJdM49gN20KmK8rFsDu2armyvV0TrLgP4O6qwG5m
-        5eUrVz5W6zTDuAuewKO81yyz0/JlyyG4KyU81/lJIw==
-X-Google-Smtp-Source: AGRyM1tsa7MGR5pQIMXjpltWXkrdU447D/S/FlKYW140feHY76B0SAzLsFd6ea6D8NUxYt63ZdD7D4DNCzgzKnVlH+0=
-X-Received: by 2002:a05:6512:ba6:b0:47d:a6e3:ab37 with SMTP id
- b38-20020a0565120ba600b0047da6e3ab37mr6168253lfv.157.1655305118992; Wed, 15
- Jun 2022 07:58:38 -0700 (PDT)
+        with ESMTP id S1348160AbiFOPNh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 11:13:37 -0400
+Received: from qproxy4-pub.mail.unifiedlayer.com (qproxy4-pub.mail.unifiedlayer.com [66.147.248.250])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0AC824952
+        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 08:13:36 -0700 (PDT)
+Received: from alt-proxy28.mail.unifiedlayer.com (alt-proxy28.mail.unifiedlayer.com [74.220.216.123])
+        by qproxy4.mail.unifiedlayer.com (Postfix) with ESMTP id 0B610802E079
+        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 15:13:36 +0000 (UTC)
+Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
+        by progateway1.mail.pro1.eigbox.com (Postfix) with ESMTP id 9448B1003C221
+        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 15:13:34 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id 1Ui6oVNsANVEz1Ui6o8JN2; Wed, 15 Jun 2022 15:13:34 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=I5+g+Psg c=1 sm=1 tr=0 ts=62a9f71e
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=JPEYwPQDsx4A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=ieWZb2X5Nz3z-Wn_6k4A:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=Z4nPqYG2TqBqwwPo2qCf6x7FPw6Tk77VRbXS8wdJFmc=; b=T28ShSbhcU6PdtJGIJkAvMHO0q
+        38PI6Qsn97PQhDk3+lK9uSpwOmYyZ6L+dk+h5QWL2Lu3ng0jMiNW9T6wQLzpmil2Vme7gn+W2X6af
+        CY86PVJ4mVmny6jLgv5DlPEmrPpgpfDw3r4/qEMPyIWhHBhVR/YZHAFhYN90ocB17BtLlDxqbXHlH
+        PttyQu3aWIBeR+ytwSxi3hoLMuoErnfaPbAPG5MACK1TgVRliAzdhMNQEOdOmEaL+7h96dyFQSdjw
+        nzrcMHC+493nIQkNEEwjVq+8bYgPv9IavCvhvlZ0ufXj9QGlkzIVzZpHZQXOO60GOpWGEI6U+Plqt
+        OVbiUYLw==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:44454 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1o1Ui5-002CBC-4X;
+        Wed, 15 Jun 2022 09:13:33 -0600
+Subject: Re: [PATCH 5.15 00/11] 5.15.48-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220614183720.512073672@linuxfoundation.org>
+In-Reply-To: <20220614183720.512073672@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <1b8232d8-ec31-f192-0ba8-a1481c64fd8a@w6rz.net>
+Date:   Wed, 15 Jun 2022 08:13:31 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-References: <20220614021141.1101486-1-sashal@kernel.org> <CAG48ez1bRMCUzmkP2zpQ_4Jx0sqRw=b9-sDa-0QSqoGHpqZVJA@mail.gmail.com>
-In-Reply-To: <CAG48ez1bRMCUzmkP2zpQ_4Jx0sqRw=b9-sDa-0QSqoGHpqZVJA@mail.gmail.com>
-From:   Jann Horn <jannh@google.com>
-Date:   Wed, 15 Jun 2022 16:58:02 +0200
-Message-ID: <CAG48ez3nxe32Hv3dXO27_rK3qrSGZUW8Pp1sxLDxwKWkL1BaoQ@mail.gmail.com>
-Subject: Re: [PATCH MANUALSEL 5.15 1/4] KVM: x86: do not report a vCPU as
- preempted outside instruction boundaries
-To:     Sasha Levin <sashal@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, kvm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1o1Ui5-002CBC-4X
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:44454
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 15, 2022 at 4:53 PM Jann Horn <jannh@google.com> wrote:
+On 6/14/22 11:40 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.48 release.
+> There are 11 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> On Tue, Jun 14, 2022 at 4:11 AM Sasha Levin <sashal@kernel.org> wrote:
-> >
-> > From: Paolo Bonzini <pbonzini@redhat.com>
-> >
-> > [ Upstream commit 6cd88243c7e03845a450795e134b488fc2afb736 ]
-> >
-> > If a vCPU is outside guest mode and is scheduled out, it might be in the
-> > process of making a memory access.  A problem occurs if another vCPU uses
-> > the PV TLB flush feature during the period when the vCPU is scheduled
-> > out, and a virtual address has already been translated but has not yet
-> > been accessed, because this is equivalent to using a stale TLB entry.
-> >
-> > To avoid this, only report a vCPU as preempted if sure that the guest
-> > is at an instruction boundary.  A rescheduling request will be delivered
-> > to the host physical CPU as an external interrupt, so for simplicity
-> > consider any vmexit *not* instruction boundary except for external
-> > interrupts.
-> >
-> > It would in principle be okay to report the vCPU as preempted also
-> > if it is sleeping in kvm_vcpu_block(): a TLB flush IPI will incur the
-> > vmentry/vmexit overhead unnecessarily, and optimistic spinning is
-> > also unlikely to succeed.  However, leave it for later because right
-> > now kvm_vcpu_check_block() is doing memory accesses.  Even
-> > though the TLB flush issue only applies to virtual memory address,
-> > it's very much preferrable to be conservative.
-> >
-> > Reported-by: Jann Horn <jannh@google.com>
-> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> Responses should be made by Thu, 16 Jun 2022 18:37:02 +0000.
+> Anything received after that time might be too late.
 >
-> This feature was introduced in commit f38a7b75267f1f (first in 4.16).
-> I think the fix has to be applied all the way back to there (so
-> additionally to what you already did, it'd have to be added to 4.19,
-> 5.4 and 5.10)?
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.48-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
 >
-> But it doesn't seem to apply cleanly to those older branches. Paolo,
-> are you going to send stable backports of this?
+> thanks,
+>
+> greg k-h
 
-Also, I think the same thing applies for "KVM: x86: do not set
-st->preempted when going back to user space"?
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+
+Tested-by: Ron Economos <re@w6rz.net>
+
