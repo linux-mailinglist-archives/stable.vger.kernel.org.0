@@ -2,208 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 700FA54D8EA
-	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 05:29:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3185554DB9D
+	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 09:31:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358385AbiFPD33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jun 2022 23:29:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52046 "EHLO
+        id S229630AbiFPHbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jun 2022 03:31:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358435AbiFPD31 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 23:29:27 -0400
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 124A359BAE
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 20:29:26 -0700 (PDT)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-30c99cb3d4dso2318977b3.6
-        for <stable@vger.kernel.org>; Wed, 15 Jun 2022 20:29:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=M/POJcqn9ITpqmIH2wqZ32ppEzx88Qp+XfArNnn0GaM=;
-        b=h1Tf+ySweEiAdgvwZq/adDSzp6dZ6qfuV7UzTJGep83VBCtWrHxdi9YpffNlkBYXz/
-         CyiglkK+foGZ50ZfKY7AkqpA8a3cVkWkmI1W/HCSjKcJCgcVN0PyeUmrDtfSwtCr56O3
-         VIJ+bVrK3TZOACty27wKq8MRpm0ZCFHDs/jrpAGB0em5m5T0q6cbETQ/fa4+p6EDS740
-         pkTrROBkM2uSaf2tTlvRMMEGDku0uBPzJozdGVBLztMwa7oKydiN5QYopOyAPTu/ISqh
-         if9aRE3nhuPbXEZP60FLvM3+DKKKpyUKBLv6D2M8ffWoV1WfSdn0GxIy/lcWJ6R4Lv4n
-         Mn0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=M/POJcqn9ITpqmIH2wqZ32ppEzx88Qp+XfArNnn0GaM=;
-        b=qns1f+jZOz6V2xC1Xlj1RocJJrb+9AUwMvewnHecU1YyB63Tv1TuPG3MiiY/mhhi+A
-         chz3XjLh503HjAsfBdRK4iTUyp/rXCByYS0Y/9sG/2THY87gnfZfZmtiUelMeaqRsDK5
-         dpobkB7FRfQwPYs0Ow64goP3eeC9OstJmmVC2Eb03FL27m2hFD8QlPkrUjhBinuXmzOD
-         A/mCGtonfSjn1pKtqMxW/MvjmxbqW+ERHK7nBKmpEKDtaRfH3Q7ntC8l16Qbh/6ouOhU
-         TOPCo7pECnecaf3Yl5Kid2hqs+XDVU6DcwNk9Ax2GDmKia9EREysLTj382yq9+Sy68Fi
-         RWJw==
-X-Gm-Message-State: AJIora+Md6yegMr6gKrX/lU9QfqQPQBRiT1fYBs95fDNQITTtLEtfIeS
-        4YpNooPg/rkznqjs4f7XHbREKDFKOg1m8VkOEHbiv2egjhgMvplGJFm1Xe10iJZoODgsoDaqFRE
-        bgiBfI/jXrPLw4EfZ1hRxqSWapfr4UpO/jsLzkzUPXRYr7raga65BEUyR0qO9zIWCsET7yw==
-X-Google-Smtp-Source: AGRyM1v1DBRcxStpwx2ybgSicixf0ZF9xpNufBx4ebvvVTn8AvyenaXryRxWcGTDnkDAQvA8XYoOMNSDTYzmwE4=
-X-Received: from sunrising.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:fb8])
- (user=mfaltesek job=sendgmr) by 2002:a81:12d6:0:b0:314:6097:b272 with SMTP id
- 205-20020a8112d6000000b003146097b272mr3366471yws.159.1655350165229; Wed, 15
- Jun 2022 20:29:25 -0700 (PDT)
-Date:   Wed, 15 Jun 2022 22:29:24 -0500
-Message-Id: <20220616032924.3726425-1-mfaltesek@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.36.1.476.g0c4daa206d-goog
-Subject: [PATCH] nfc: st21nfca: fix incorrect sizing calculations in EVT_TRANSACTION
-From:   Martin Faltesek <mfaltesek@google.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Cc:     mfaltesek@google.com, groeck@google.com,
-        krzysztof.kozlowski@linaro.org, kuba@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S230084AbiFPHbr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 03:31:47 -0400
+Received: from me-region.ru (email.me-region.ru [178.238.126.75])
+        by lindbergh.monkeyblade.net (Postfix) with SMTP id 0B6945C66B
+        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 00:31:46 -0700 (PDT)
+Received: from rmail.major-express.ru (rmail [127.0.0.1])
+        by me-region.ru (Postfix) with ESMTP id E7F442BE791
+        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 10:31:45 +0300 (MSK)
+Authentication-Results: rmail.major-express.ru (amavisd-new); dkim=pass
+        reason="pass (just generated, assumed good)" header.d=me-region.ru
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=me-region.ru; h=
+        reply-to:date:date:from:from:to:subject:subject
+        :content-description:content-transfer-encoding:mime-version
+        :content-type:content-type; s=dkim; t=1655364704; x=1656228705;
+         bh=q+AB6wTcFowTQDN3yBj6V7w56hj7BQnkh6i5A0MwiTQ=; b=hESx/ADrYK5X
+        Q6No7qGI0Z3utzMd6ThZ+zvlGAYxWiixZMT7MwZ4Cy+wOer8GwvDZ5xmSEQ9XOT6
+        +MUfNs4ZyfXokN1b8ycUABx4mzjk3GH2yVNu1vMRccCo+GHIR2xnzw1roEpetGvC
+        aQT1+7+pLbwSpZ5wkGNHh/sdqwR0hg4=
+X-Virus-Scanned: Debian amavisd-new at rmail
+Received: from me-region.ru ([127.0.0.1])
+        by rmail.major-express.ru (rmail.major-express.ru [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id HGYEm_pUqAFB for <stable@vger.kernel.org>;
+        Thu, 16 Jun 2022 10:31:44 +0300 (MSK)
+Received: from [2.56.59.106] (unknown [2.56.59.106])
+        by me-region.ru (Postfix) with ESMTPSA id AACB32AEBF1;
+        Wed, 15 Jun 2022 12:32:58 +0300 (MSK)
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: Good day, 93.189.94.68
+To:     Recipients <postmaster@me-region.ru>
+From:   "Lynn Page" <postmaster@me-region.ru>
+Date:   Wed, 15 Jun 2022 02:32:46 -0700
+Reply-To: lewislekan@outlook.com
+Message-Id: <20220616073145.E7F442BE791@me-region.ru>
+X-Spam-Status: Yes, score=5.7 required=5.0 tests=BAYES_50,DKIM_INVALID,
+        DKIM_SIGNED,FREEMAIL_FORGED_REPLYTO,RCVD_IN_BL_SPAMCOP_NET,
+        RCVD_IN_MSPIKE_H2,RCVD_IN_VALIDITY_RPBL,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: *  1.3 RCVD_IN_BL_SPAMCOP_NET RBL: Received via a relay in
+        *      bl.spamcop.net
+        *      [Blocked - see <https://www.spamcop.net/bl.shtml?2.56.59.106>]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  1.3 RCVD_IN_VALIDITY_RPBL RBL: Relay in Validity RPBL,
+        *      https://senderscore.org/blocklistlookup/
+        *      [178.238.126.75 listed in bl.score.senderscore.com]
+        * -0.0 RCVD_IN_MSPIKE_H2 RBL: Average reputation (+2)
+        *      [178.238.126.75 listed in wl.mailspike.net]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        * -0.0 SPF_HELO_PASS SPF: HELO matches SPF record
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  0.1 DKIM_INVALID DKIM or DK signature exists, but is not valid
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit f2e19b36593caed4c977c2f55aeba7408aeb2132 upstream.
+Good day,
 
-The transaction buffer is allocated by using the size of the packet buf,
-and subtracting two which seem intended to remove the two tags which are
-not present in the target structure. This calculation leads to under
-counting memory because of differences between the packet contents and the
-target structure. The aid_len field is a u8 in the packet, but a u32 in
-the structure, resulting in at least 3 bytes always being under counted.
-Further, the aid data is a variable length field in the packet, but fixed
-in the structure, so if this field is less than the max, the difference is
-added to the under counting.
+This email will come to your as surprise, i will like to discuss Business P=
+roposal with u Kindly get back to me asap
 
-The last validation check for transaction->params_len is also incorrect
-since it employs the same accounting error.
-
-To fix, perform validation checks progressively to safely reach the
-next field, to determine the size of both buffers and verify both tags.
-Once all validation checks pass, allocate the buffer and copy the data.
-This eliminates freeing memory on the error path, as those checks are
-moved ahead of memory allocation.
-
-Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
-Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
-Cc: stable@vger.kernel.org
-Signed-off-by: Martin Faltesek <mfaltesek@google.com>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Change-Id: I22f9d58293b64566c43a7ba254d9e0e8c4dc35fe
----
- drivers/nfc/st21nfca/se.c | 61 +++++++++++++++++++--------------------
- 1 file changed, 30 insertions(+), 31 deletions(-)
-
-This patch cleanly applies in stable kernels 4.9 through 5.4.
-
-The following difference between upstream and 4.9 though 5.4
-caused the upstream patch to fail applying:
-
-< -             transaction = devm_kzalloc(dev, skb->len - 2, GFP_KERNEL);
----
-> -             transaction = (struct nfc_evt_transaction *)devm_kzalloc(dev,
-> -                                                skb->len - 2, GFP_KERNEL);
-
-This is the only change made in this patch from the original.
-
-diff --git a/drivers/nfc/st21nfca/se.c b/drivers/nfc/st21nfca/se.c
-index ccaace2a5b0e..d41636504246 100644
---- a/drivers/nfc/st21nfca/se.c
-+++ b/drivers/nfc/st21nfca/se.c
-@@ -304,6 +304,8 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
- 	int r = 0;
- 	struct device *dev = &hdev->ndev->dev;
- 	struct nfc_evt_transaction *transaction;
-+	u32 aid_len;
-+	u8 params_len;
- 
- 	pr_debug("connectivity gate event: %x\n", event);
- 
-@@ -312,51 +314,48 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
- 		r = nfc_se_connectivity(hdev->ndev, host);
- 	break;
- 	case ST21NFCA_EVT_TRANSACTION:
--		/*
--		 * According to specification etsi 102 622
-+		/* According to specification etsi 102 622
- 		 * 11.2.2.4 EVT_TRANSACTION Table 52
- 		 * Description	Tag	Length
- 		 * AID		81	5 to 16
- 		 * PARAMETERS	82	0 to 255
-+		 *
-+		 * The key differences are aid storage length is variably sized
-+		 * in the packet, but fixed in nfc_evt_transaction, and that the aid_len
-+		 * is u8 in the packet, but u32 in the structure, and the tags in
-+		 * the packet are not included in nfc_evt_transaction.
-+		 *
-+		 * size in bytes: 1          1       5-16 1             1           0-255
-+		 * offset:        0          1       2    aid_len + 2   aid_len + 3 aid_len + 4
-+		 * member name:   aid_tag(M) aid_len aid  params_tag(M) params_len  params
-+		 * example:       0x81       5-16    X    0x82 0-255    X
- 		 */
--		if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
--		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
-+		if (skb->len < 2 || skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
- 			return -EPROTO;
- 
--		transaction = (struct nfc_evt_transaction *)devm_kzalloc(dev,
--						   skb->len - 2, GFP_KERNEL);
--		if (!transaction)
--			return -ENOMEM;
--
--		transaction->aid_len = skb->data[1];
-+		aid_len = skb->data[1];
- 
--		/* Checking if the length of the AID is valid */
--		if (transaction->aid_len > sizeof(transaction->aid)) {
--			devm_kfree(dev, transaction);
--			return -EINVAL;
--		}
-+		if (skb->len < aid_len + 4 || aid_len > sizeof(transaction->aid))
-+			return -EPROTO;
- 
--		memcpy(transaction->aid, &skb->data[2],
--		       transaction->aid_len);
-+		params_len = skb->data[aid_len + 3];
- 
--		/* Check next byte is PARAMETERS tag (82) */
--		if (skb->data[transaction->aid_len + 2] !=
--		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
--			devm_kfree(dev, transaction);
-+		/* Verify PARAMETERS tag is (82), and final check that there is enough
-+		 * space in the packet to read everything.
-+		 */
-+		if ((skb->data[aid_len + 2] != NFC_EVT_TRANSACTION_PARAMS_TAG) ||
-+		    (skb->len < aid_len + 4 + params_len))
- 			return -EPROTO;
--		}
- 
--		transaction->params_len = skb->data[transaction->aid_len + 3];
-+		transaction = devm_kzalloc(dev, sizeof(*transaction) + params_len, GFP_KERNEL);
-+		if (!transaction)
-+			return -ENOMEM;
- 
--		/* Total size is allocated (skb->len - 2) minus fixed array members */
--		if (transaction->params_len > ((skb->len - 2) -
--		    sizeof(struct nfc_evt_transaction))) {
--			devm_kfree(dev, transaction);
--			return -EINVAL;
--		}
-+		transaction->aid_len = aid_len;
-+		transaction->params_len = params_len;
- 
--		memcpy(transaction->params, skb->data +
--		       transaction->aid_len + 4, transaction->params_len);
-+		memcpy(transaction->aid, &skb->data[2], aid_len);
-+		memcpy(transaction->params, &skb->data[aid_len + 4], params_len);
- 
- 		r = nfc_se_transaction(hdev->ndev, host, transaction);
- 	break;
-
-base-commit: 9d6e67bf50908cc661972969e8f073ec1d1bc97d
--- 
-2.36.1.476.g0c4daa206d-goog
-
+Mrs.Lynn Page
