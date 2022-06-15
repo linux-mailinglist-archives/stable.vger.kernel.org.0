@@ -2,114 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A9054D3EC
-	for <lists+stable@lfdr.de>; Wed, 15 Jun 2022 23:47:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA1DF54D41A
+	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 00:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348291AbiFOVrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jun 2022 17:47:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38280 "EHLO
+        id S1344621AbiFOWBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jun 2022 18:01:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243995AbiFOVrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 17:47:35 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50FB1B65;
-        Wed, 15 Jun 2022 14:47:33 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 84B061FA34;
-        Wed, 15 Jun 2022 21:47:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1655329652; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=89CXqCbcWeJccBkwcSVEPJeJy8Az1fwhDi+ncrVChzM=;
-        b=eMBCn7CtVihAlZKW/qaEL8rmGKPgFBhlKRKGxs4NIPSpFsL9dhkzPaIDw8SZQLPDbbXdci
-        bv/6g0IhypoyHQZdAPMnWxOCuynVc+Uz+infRzoCQzBVFN0XXuawZFxmAXa/dS6bqFeG82
-        rE49ucZA8cF01Y2TyQbVFhwwZAPkc6g=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1655329652;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=89CXqCbcWeJccBkwcSVEPJeJy8Az1fwhDi+ncrVChzM=;
-        b=+q38inbsR4Eov72uC2BveZ7yYSmEQCt3DoHYTiQl+Y6/+jFxhCEnLylOnTPP7zcPu1RTjZ
-        nsbmLGdYH3dXQvAw==
-Received: from quack3.suse.cz (unknown [10.163.28.18])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 184D62C141;
-        Wed, 15 Jun 2022 21:47:32 +0000 (UTC)
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 5C055A062E; Wed, 15 Jun 2022 23:47:26 +0200 (CEST)
-Date:   Wed, 15 Jun 2022 23:47:26 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Jan Kara <jack@suse.cz>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Backlund <tmb@tmb.nu>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Slade Watkins <slade@sladewatkins.com>
-Subject: Re: [PATCH 5.15 000/251] 5.15.47-rc2 review
-Message-ID: <20220615214726.iklfsv676ked4z7u@quack3.lan>
-References: <bd80cd0d-a364-4ebd-2a89-933f79eaf4c7@tmb.nu>
- <CAHk-=wix7+mGzS-hANyk7DZsZ1NgGMHjPzSQKggEomYrRCrP_Q@mail.gmail.com>
- <CAHk-=wgfFhwMP0=QQY_iZvf0kveR5=VGK919Ayn+ZSUADs9mag@mail.gmail.com>
- <20220615110022.yifrsvzxjsz2wky5@quack3.lan>
- <20220615133845.o2lzfe5s4dzdfvtg@quack3.lan>
- <20220615180026.GA2146974@roeck-us.net>
+        with ESMTP id S235490AbiFOWBd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 18:01:33 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03A7D55490;
+        Wed, 15 Jun 2022 15:01:33 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id y13-20020a17090a154d00b001eaaa3b9b8dso36746pja.2;
+        Wed, 15 Jun 2022 15:01:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Jw0DXKgtV9MyiD0A+UBYYijA5y5Gd/3cuiWJODz/nhc=;
+        b=Nvl/qY2zmd7vo0xkTo4tZVDlMbCFFb/K0xrF6Cr6g57ZMpXqDqoL4T0vusq5ygQHNT
+         Lmi4L1A2/XifKYHoSqvPrnl1bS5zhetTjyEp7TBjVVuOpq0G2cAtaDalU7ku1kWRoDT9
+         7bC6vEpDgeEjcqdcmkhkQIywYRus5u1XRFrmK30rjA4UQCEBWDEX5YQynzBSjS7ho0rp
+         78jjCE16pAJZzpXeyoVQAhrjjN37kQrEY40XYucaYjTNb3eAynn5W50lXYPjbDkBcbil
+         VDmJPu4tEnurhsOlhpkJlS2LjjX+TO1tNw8G0cOBtym+rVA2ZI2UIAdDcKaXv3/bgL8g
+         wUrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=Jw0DXKgtV9MyiD0A+UBYYijA5y5Gd/3cuiWJODz/nhc=;
+        b=jW4A2tJWC+bEN6sr6qipC+t2jOw+vXZLJeItKUn5TKlh91FMt66DQKhdQhfIxSxH1a
+         3sLPq+YLuKEku0F8q+w6o1xdVD1ulHloVgg4AsveNQApvSFRsW8EZ77AnCYuDJnMxcEt
+         vmpTKzI+m6ac5aL7qNEFFx53qtWDh8vjky9OOQvZWw1gTPToapWK7RToEyas9A6h98FU
+         yDbap6TZJ6FhzXGidkhroXwEuulsMg5yjH2uBS8i5xOnpXxcdoK7hvuDMSWWX6ue8QL7
+         OkVaPyqSLh21qsrs38FwMXQPZR0KSHzc9rw4b7EGFBBSFdkZK8osGjzZIeJcI55gYUsp
+         vtiA==
+X-Gm-Message-State: AJIora+/yhsSgLvJEGqmk1NNwHtPg83dgk/hpFs5YOeafNAtNyX3YgsF
+        u6O/e3tP807v2vG+ZEKM6eg=
+X-Google-Smtp-Source: AGRyM1tMcNpTwEJC6el5Vb99RGU8zajOmd8ZSA2FftyoKPPcoddBy3gehpv08bNIenTp5kRpT1u6uQ==
+X-Received: by 2002:a17:903:248:b0:168:cf03:eefe with SMTP id j8-20020a170903024800b00168cf03eefemr1414916plh.124.1655330492461;
+        Wed, 15 Jun 2022 15:01:32 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id w22-20020a1709026f1600b001663e1881ecsm80590plk.306.2022.06.15.15.01.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jun 2022 15:01:31 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 15 Jun 2022 15:01:30 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 4.9 00/20] 4.9.319-rc1 review
+Message-ID: <20220615220130.GA1229939@roeck-us.net>
+References: <20220614183722.061550591@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220615180026.GA2146974@roeck-us.net>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20220614183722.061550591@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 15-06-22 11:00:26, Guenter Roeck wrote:
-> On Wed, Jun 15, 2022 at 03:38:45PM +0200, Jan Kara wrote:
-> > On Wed 15-06-22 13:00:22, Jan Kara wrote:
-> > > On Tue 14-06-22 12:00:22, Linus Torvalds wrote:
-> > > > On Tue, Jun 14, 2022 at 11:51 AM Linus Torvalds
-> > > > <torvalds@linux-foundation.org> wrote:
-> > > > >
-> > > > > Or just make sure that noop_backing_dev_info is fully initialized
-> > > > > before it's used.
-> > > > 
-> > > > I don't see any real reason why that
-> > > > 
-> > > >     err = bdi_init(&noop_backing_dev_info);
-> > > > 
-> > > > couldn't just be done very early. Maybe as the first call in
-> > > > driver_init(), before the whole devtmpfs_init() etc.
-> > > 
-> > > I've checked the dependencies and cgroups (which are the only non-trivial
-> > > dependency besides per-CPU infrastructure) are initialized early enough so
-> > > it should work fine. So let's try that.
-> > 
-> > Attached patch boots for me. Guys, who was able to reproduce the failure: Can
-> > you please confirm this patch fixes your problem?
-> > 
+On Tue, Jun 14, 2022 at 08:39:43PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.319 release.
+> There are 20 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> It does for me.
+> Responses should be made by Thu, 16 Jun 2022 18:37:02 +0000.
+> Anything received after that time might be too late.
+> 
 
-Thanks for confirmation! I'll send the patch with proper tags etc. and also
-push it to Linus if nobody objects.
+Build results:
+	total: 164 pass: 164 fail: 0
+Qemu test results:
+	total: 397 pass: 397 fail: 0
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
