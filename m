@@ -2,93 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DED354E0EF
-	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 14:41:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 876CD54E126
+	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 14:54:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232743AbiFPMly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jun 2022 08:41:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49528 "EHLO
+        id S233220AbiFPMyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jun 2022 08:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232662AbiFPMly (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 08:41:54 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28426517D3
-        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 05:41:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1655383313; x=1686919313;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=+Wo21Vemf8CrXxLRiwYw2qTyCSIcv/Kcjr2rGQeCvrU=;
-  b=MIwrXh5fMMJaVXMXBMCLQm57UX+kbbVYvd/WMTjz4xoSfv6rhQaVSmnd
-   cSLwVGf8jgG/0U9KF7Wkzo7Cve8cZLCFxloEQN2xCGyb+u3MU4hAE1caD
-   xy179ttnJ9YKjbOWtZTVpiwVImP5vYdxAx2takbF+VCT9sg5VMzpn/k3j
-   7NNF2DuHC1TKudsDFtz8ZRRy/mpC0MnWNJYmO+MANzuOIRbsAg4A/J3vN
-   pUWOacwXHzvvmtvUZ8I6X+Tgayx4O1rF37zC3c6XXXp5W3rma1yQ+Q1gt
-   Lo8UAEzJTBl/hKoJbfM3Ktxf9XHj103A3ZG5H5MrrG5aEhqYRboHCokcD
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10379"; a="262258174"
-X-IronPort-AV: E=Sophos;i="5.91,305,1647327600"; 
-   d="scan'208";a="262258174"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2022 05:41:44 -0700
-X-IronPort-AV: E=Sophos;i="5.91,305,1647327600"; 
-   d="scan'208";a="831544143"
-Received: from malashi-mobl2.ger.corp.intel.com (HELO localhost) ([10.252.57.133])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2022 05:41:42 -0700
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     jani.nikula@intel.com,
-        Diego Santa Cruz <Diego.SantaCruz@spinetix.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/i915/glk: ECS Liva Q2 needs GLK HDMI port timing quirk
-Date:   Thu, 16 Jun 2022 15:41:37 +0300
-Message-Id: <20220616124137.3184371-1-jani.nikula@intel.com>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S232908AbiFPMyw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 08:54:52 -0400
+Received: from mail-oa1-x2e.google.com (mail-oa1-x2e.google.com [IPv6:2001:4860:4864:20::2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 689233A5CE
+        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 05:54:50 -0700 (PDT)
+Received: by mail-oa1-x2e.google.com with SMTP id 586e51a60fabf-fe15832ce5so1756785fac.8
+        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 05:54:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=+60kb7Jq0Ft63tpD8oZlYpWYfkxxSFBSQY8N/T0Hz5M=;
+        b=GGBRnc5NAsPV9pSvXj3TWryUafn6St16NwJv/QTfQ2m4job2hZvC0YdOBzpqyUUPnn
+         wt/abIcQpqvd/JPh8lHTmfrPYDF489B0C985ow1yl44G38bWUWaecJwhYFdVQUCm50WU
+         fVm86SzU00ET0NNx/+SMO8+4bKZwQNQsWmBV0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=+60kb7Jq0Ft63tpD8oZlYpWYfkxxSFBSQY8N/T0Hz5M=;
+        b=djPLP6I5WjM29yOPtKK26woPXYNBUF7c5QmJmKtEguOW8W5BNKGmAacFKx5kOnl+kA
+         ryNaQSFhOIO1vqWfhVL+De5ZJInUtFuKE1DZqf3wnJt1B67D0P0CTZgUBQf2nafBX7Es
+         KbF4UqE1VVIX0/u9Aabf07wQGmBYy7WGSLW4KFwqbg9i57Fb8N2Lza750iTtZ2HMSGRG
+         HU/LvNmcvoZt6YkFfGV/oEka7FRP5AetszetQRig2L4pdSQhwGVkQegXjFTzGVaUCdrh
+         Kl7lEMALzs3shl/mOhlacKmgrZp+rah+gnpzo8rkwXjOGSy5s3M/k9wXLQ+4VcDdKfgA
+         iLhw==
+X-Gm-Message-State: AJIora9xr/xsb0da7CLmuI3xpIsJCMmNocSYGTC/+j1J2RwOkYUYGNct
+        12sylBT8HykwG6esUbeEWPnAEQ==
+X-Google-Smtp-Source: AGRyM1vfK2fVN9wsZ+r1rjRy8l70N3Ep7eu0AL5Bfe5UDTH73mGOvYUXdxUb1wRKj+TY91Aox+Hn4A==
+X-Received: by 2002:a05:6870:8311:b0:100:ef5f:77b6 with SMTP id p17-20020a056870831100b00100ef5f77b6mr8048060oae.157.1655384089622;
+        Thu, 16 Jun 2022 05:54:49 -0700 (PDT)
+Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
+        by smtp.gmail.com with ESMTPSA id r187-20020acaa8c4000000b0032ec0af21a7sm795995oie.10.2022.06.16.05.54.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Jun 2022 05:54:48 -0700 (PDT)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Thu, 16 Jun 2022 07:54:47 -0500
+From:   Justin Forbes <jforbes@fedoraproject.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.18 00/11] 5.18.5-rc1 review
+Message-ID: <YqsoF2SHMmgW7wSq@fedora64.linuxtx.org>
+References: <20220614183720.861582392@linuxfoundation.org>
 MIME-Version: 1.0
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220614183720.861582392@linuxfoundation.org>
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Diego Santa Cruz <Diego.SantaCruz@spinetix.com>
+On Tue, Jun 14, 2022 at 08:40:37PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.18.5 release.
+> There are 11 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 16 Jun 2022 18:37:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.5-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-The quirk added in upstream commit 90c3e2198777 ("drm/i915/glk: Add
-Quirk for GLK NUC HDMI port issues.") is also required on the ECS Liva
-Q2.
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-Note: Would be nicer to figure out the extra delay required for the
-retimer without quirks, however don't know how to check for that.
-
-Cc: stable@vger.kernel.org
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1326
-Signed-off-by: Diego Santa Cruz <Diego.SantaCruz@spinetix.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
----
- drivers/gpu/drm/i915/display/intel_quirks.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/gpu/drm/i915/display/intel_quirks.c b/drivers/gpu/drm/i915/display/intel_quirks.c
-index c8488f5ebd04..e415cd7c0b84 100644
---- a/drivers/gpu/drm/i915/display/intel_quirks.c
-+++ b/drivers/gpu/drm/i915/display/intel_quirks.c
-@@ -191,6 +191,9 @@ static struct intel_quirk intel_quirks[] = {
- 	/* ASRock ITX*/
- 	{ 0x3185, 0x1849, 0x2212, quirk_increase_ddi_disabled_time },
- 	{ 0x3184, 0x1849, 0x2212, quirk_increase_ddi_disabled_time },
-+	/* ECS Liva Q2 */
-+	{ 0x3185, 0x1019, 0xa94d, quirk_increase_ddi_disabled_time },
-+	{ 0x3184, 0x1019, 0xa94d, quirk_increase_ddi_disabled_time },
- };
- 
- void intel_init_quirks(struct drm_i915_private *i915)
--- 
-2.30.2
-
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
