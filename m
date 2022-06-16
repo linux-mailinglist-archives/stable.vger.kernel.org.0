@@ -2,66 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D64E454EDD2
-	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 01:19:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA9D754EDDB
+	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 01:22:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379361AbiFPXTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jun 2022 19:19:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50350 "EHLO
+        id S1378617AbiFPXWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jun 2022 19:22:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229917AbiFPXTM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 19:19:12 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BF7662A1C
-        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 16:19:11 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id k7so2454712plg.7
-        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 16:19:11 -0700 (PDT)
+        with ESMTP id S1347180AbiFPXWy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 19:22:54 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3D9410553
+        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 16:22:51 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id m14so2463240plg.5
+        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 16:22:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=mcRQLQ2Ug5FJ7L06h/oQIuQNPmR0z19CdC4BvfRf0C4=;
-        b=PV9JCOra6Arl83NFr/AJ4j0jTON14zm9L4VbDn1pnZw2p48Y8ON+DpeY/DSKp4WSiL
-         uXP6lvclZd6tC0VLHxFTnMSgc4wadng/6QrgUPmHmeJir7cWODQa2sO1m2STYFvafpOz
-         nZen8VntJUZ3XQpEvu3vgqs7+GmaJtdsB9MRrePI64kjC9EdqnDL1d6GrOtlLcQE76ic
-         J3QR+ldibjcdAJhHqyeQWTW96cmOhVW5sWJZFFa+hWLWLbTyzUoG7TW1bOzsb30v0uOu
-         JmYn+jouV7GumbnABEQpEP3xrL8Vp65hhe8PfcU0zhCie7QE9ZCgtlWe5N54sgXhk2cb
-         C5kA==
+        d=gmail.com; s=20210112;
+        h=sender:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=vEPJBv7ZDxrHR7ZAcqh+zUDigzG12PdvkXyHMsJ/iio=;
+        b=SEy+5s6j4h5isDM4errr2RS3z5Kr26ZtVDI7VyEuk/kte6k0mszcG7J/D4Go7a2RJ7
+         Dvw3wkIXHN7yQBByZ0LXLaIJ/zX+gp3RnGab91uC7Haj7QdpDUM53U0m71CZXttjQcOh
+         o0sBDlFfQ2rBtQE8BxssYmDLdu9HnpLwafr965PyxeJSNh+1wuRtq8rMM8rbh9EskETa
+         YBWZdpLZ+cwoC8AlklPphig1e+D9QabNWwJVVyL01IiKLaPho9Ix2Q+00Qo7WsxbSXLK
+         R8k4iFxLtQa9Sn77JJBavgWKMOPrOFV+utwzPPd+ZWKinoNUXMNE0jC7wP9C6En35hVD
+         88ZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=mcRQLQ2Ug5FJ7L06h/oQIuQNPmR0z19CdC4BvfRf0C4=;
-        b=sSorXmF/f+bH6rohjRvFWyX1FbUAdDvKEd8u8ezjTuzDSIf4YtPYcr6n59+E3r3K5A
-         cAmyYjWN4YQHI++i44QO9/RxhNA+GlOG4oLzXJa/JQ/11SEAvzTw594vtehjXP2LThd8
-         ZdVXkFZjmvuznxBAz3eCowSMMVAhVkbA3vEwXbpY7rLMH8dGtCgA+pFoxyrJuOu4+YnU
-         p+osuvQSSE/TjSeKyUQc3OHBlg2FdZs+1dXTiKxj6/rWXT83COsOJ4fQf9PkjptcW4Xr
-         fJhcMLYStlhGebWGv5ul8aaYdGrh4nI2VPUm14qU3Sh0f0/bGq+Utat6v++HSWcInSUt
-         4Q7A==
-X-Gm-Message-State: AJIora/QwIRHyQY3DptPkHdwiJQB1Z7ZIjQpQzMFBiRstrWQrebW4iGe
-        JTr+dU1BuIQqtNsFNn/5VQzUITGY9SeOnvC9MsY=
-X-Google-Smtp-Source: AGRyM1tTKTRLdPOeaUBH9I+IZhwwDocO+DEbiHMnDoqMbzSsW2LKHLckD9wCBrweMWuDag+naEURHw==
-X-Received: by 2002:a17:90b:33c4:b0:1e8:6e2f:97a2 with SMTP id lk4-20020a17090b33c400b001e86e2f97a2mr7491779pjb.165.1655421550552;
-        Thu, 16 Jun 2022 16:19:10 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j1-20020aa783c1000000b0051be585ab1dsm2220198pfn.200.2022.06.16.16.19.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jun 2022 16:19:10 -0700 (PDT)
-Message-ID: <62abba6e.1c69fb81.f4ab4.3330@mx.google.com>
-Date:   Thu, 16 Jun 2022 16:19:10 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
+         :subject:content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=vEPJBv7ZDxrHR7ZAcqh+zUDigzG12PdvkXyHMsJ/iio=;
+        b=uMBd6080W+Yo7Fa0N2B5XusABZ93FNWQ5aA1aM0QoO3I5rbSNsnA+OV09vBF8j6CSb
+         ogk7mt8K4PyiQoXjfXFxvNz4zar1Y5SDH/HSpPg6ecXaaV2rGBDwLtBOinKHSoarrgW2
+         JiBs36p4WtFh58bulqA31JfXk6X8NrD5+WmrPln0PkqoI0+fL9KD6JSM99FZ514eUwZC
+         fIk+Va2RldWF7BFiJ2+qzw+KSToV1JL2IHW34mkS6MEEqz1X1Ti5aKwhFom7eLFGwKOl
+         0AqIHI3Z7GGsqcpRrRFbtZGLo0Hv8rJT1C5k44E5g9yywv0zGgCdUdMWuZzt689w541J
+         wdUA==
+X-Gm-Message-State: AJIora8G/hhBK70ucKIk74c+Wp69L2uAkjhy6MxS2VttRaz2Wq6h7mxq
+        v2a58CYwMA+MrUdF0EfvBc0iBHskFZI=
+X-Google-Smtp-Source: AGRyM1u4yI/uwqVN5gcqJzjWQZTFdmC4nMGQdIfdQlWEbRBPTAjKQBtGlYC1tRj8kC2Qcm641Nk5tg==
+X-Received: by 2002:a17:903:18a:b0:166:ba97:8b19 with SMTP id z10-20020a170903018a00b00166ba978b19mr6618160plg.62.1655421771178;
+        Thu, 16 Jun 2022 16:22:51 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id i6-20020a626d06000000b0051c09cdd71fsm2308753pfc.72.2022.06.16.16.22.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Jun 2022 16:22:50 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <4dea87ca-b478-829e-2337-3d82725b6aec@roeck-us.net>
+Date:   Thu, 16 Jun 2022 16:22:48 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.123
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.10.y baseline: 152 runs, 11 regressions (v5.10.123)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 5.4 26/34] dm verity: set DM_TARGET_IMMUTABLE feature flag
+Content-Language: en-US
+To:     Mike Snitzer <snitzer@redhat.com>
+Cc:     Mike Snitzer <snitzer@kernel.org>, keescook@chromium.org,
+        sarthakkukreti@google.com, Greg KH <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Oleksandr Tymoshenko <ovt@google.com>,
+        dm-devel@redhat.com, regressions@lists.linux.dev
+References: <20220603173816.944766454@linuxfoundation.org>
+ <20220610042200.2561917-1-ovt@google.com> <YqLTV+5Q72/jBeOG@kroah.com>
+ <YqNfBMOR9SE2TuCm@redhat.com> <Yqb/sT205Lrhl6Bv@kroah.com>
+ <20220615143642.GA2386944@roeck-us.net> <Yqn64AMwoIzQXwXM@redhat.com>
+ <50eeff2e-45c5-5eb2-c41d-3e0092a84483@roeck-us.net>
+ <Yqo63CvFpTDFnH3x@redhat.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <Yqo63CvFpTDFnH3x@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,422 +83,337 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 152 runs, 11 regressions (v5.10.123)
+On 6/15/22 13:02, Mike Snitzer wrote:
+> On Wed, Jun 15 2022 at  1:50P -0400,
+> Guenter Roeck <linux@roeck-us.net> wrote:
+> 
+>> On 6/15/22 08:29, Mike Snitzer wrote:
+>>> On Wed, Jun 15 2022 at 10:36P -0400,
+>>> Guenter Roeck <linux@roeck-us.net> wrote:
+>>>
+>>>> On Mon, Jun 13, 2022 at 11:13:21AM +0200, Greg KH wrote:
+>>>>> On Fri, Jun 10, 2022 at 11:11:00AM -0400, Mike Snitzer wrote:
+>>>>>> On Fri, Jun 10 2022 at  1:15P -0400,
+>>>>>> Greg KH <gregkh@linuxfoundation.org> wrote:
+>>>>>>
+>>>>>>> On Fri, Jun 10, 2022 at 04:22:00AM +0000, Oleksandr Tymoshenko wrote:
+>>>>>>>> I believe this commit introduced a regression in dm verity on systems
+>>>>>>>> where data device is an NVME one. Loading table fails with the
+>>>>>>>> following diagnostics:
+>>>>>>>>
+>>>>>>>> device-mapper: table: table load rejected: including non-request-stackable devices
+>>>>>>>>
+>>>>>>>> The same kernel works with the same data drive on the SCSI interface.
+>>>>>>>> NVME-backed dm verity works with just this commit reverted.
+>>>>>>>>
+>>>>>>>> I believe the presence of the immutable partition is used as an indicator
+>>>>>>>> of special case NVME configuration and if the data device's name starts
+>>>>>>>> with "nvme" the code tries to switch the target type to
+>>>>>>>> DM_TYPE_NVME_BIO_BASED (drivers/md/dm-table.c lines 1003-1010).
+>>>>>>>>
+>>>>>>>> The special NVME optimization case was removed in
+>>>>>>>> 5.10 by commit 9c37de297f6590937f95a28bec1b7ac68a38618f, so only 5.4 is
+>>>>>>>> affected.
+>>>>>>>>
+>>>>>>>
+>>>>>>> Why wouldn't 4.9, 4.14, and 4.19 also be affected here?  Should I also
+>>>>>>> just queue up 9c37de297f65 ("dm: remove special-casing of bio-based
+>>>>>>> immutable singleton target on NVMe") to those older kernels?  If so,
+>>>>>>> have you tested this and verified that it worked?
+>>>>>>
+>>>>>> Sorry for the unforeseen stable@ troubles here!
+>>>>>>
+>>>>>> In general we'd be fine to apply commit 9c37de297f65 but to do it
+>>>>>> properly would require also making sure commits that remove
+>>>>>> "DM_TYPE_NVME_BIO_BASED", like 8d47e65948dd ("dm mpath: remove
+>>>>>> unnecessary NVMe branching in favor of scsi_dh checks") are applied --
+>>>>>> basically any lingering references to DM_TYPE_NVME_BIO_BASED need to
+>>>>>> be removed.
+>>>>>>
+>>>>>> The commit header for 8d47e65948dd documents what
+>>>>>> DM_TYPE_NVME_BIO_BASED was used for.. it was dm-mpath specific and
+>>>>>> "nvme" mode really never got used by any userspace that I'm aware of.
+>>>>>>
+>>>>>> Sadly I currently don't have the time to do this backport for all N
+>>>>>> stable kernels... :(
+>>>>>>
+>>>>>> But if that backport gets out of control: A simpler, albeit stable@
+>>>>>> unicorn, way to resolve this is to simply revert 9c37de297f65 and make
+>>>>
+>>>> 9c37de297f65 can not be reverted in 5.4 and older because it isn't there,
+>>>> and trying to apply it results in conflicts which at least I can not
+>>>> resolve.
+>>>>
+>>>>>> it so that DM-mpath and DM core just used bio-based if "nvme" is
+>>>>>> requested by dm-mpath, so also in drivers/md/dm-mpath.c e.g.:
+>>>>>>
+>>>>>> @@ -1091,8 +1088,6 @@ static int parse_features(struct dm_arg_set *as, struct multipath *m)
+>>>>>>
+>>>>>>                           if (!strcasecmp(queue_mode_name, "bio"))
+>>>>>>                                   m->queue_mode = DM_TYPE_BIO_BASED;
+>>>>>> 			else if (!strcasecmp(queue_mode_name, "nvme"))
+>>>>>> -                               m->queue_mode = DM_TYPE_NVME_BIO_BASED;
+>>>>>> +                               m->queue_mode = DM_TYPE_BIO_BASED;
+>>>>>>                           else if (!strcasecmp(queue_mode_name, "rq"))
+>>>>>>                                   m->queue_mode = DM_TYPE_REQUEST_BASED;
+>>>>>>                           else if (!strcasecmp(queue_mode_name, "mq"))
+>>>>>>
+>>>>>> Mike
+>>>>>>
+>>>>>
+>>>>> Ok, please submit a working patch for the kernels that need it so that
+>>>>> we can review and apply it to solve this regression.
+>>>>>
+>>>>
+>>>> So, effectively, v5.4.y and older are broken right now for use cases
+>>>> with dm on NVME drives.
+>>>>
+>>>> Given that the regression does affect older branches, and given that we
+>>>> have to revert this patch to avoid regressions in ChromeOS, would it be
+>>>> possible to revert it from v5.4.y and older until a fix is found ?
+>>>
+>>> I obviously would prefer to not have this false-start.
+>>>
+>> The false start has already happened since we had to revert the patch
+>> from chromeos-5.4 and older branches.
+> 
+> OK, well this is pretty easy to fix in general.  If there are slight
+> differences across older trees they are easily resolved.  Fact that
+> stable@ couldn't cope with backporting 9c37de297f65 is.. what it is.
+> 
+> But this will fix the issue on 5.4.y:
+> 
+> From: Mike Snitzer <snitzer@kernel.org>
+> Date: Wed, 15 Jun 2022 14:07:09 -0400
+> Subject: [5.4.y PATCH] dm: remove special-casing of bio-based immutable singleton target on NVMe
+> 
+> Commit 9c37de297f6590937f95a28bec1b7ac68a38618f upstream.
+> 
+> There is no benefit to DM special-casing NVMe. Remove all code used to
+> establish DM_TYPE_NVME_BIO_BASED.
+> 
+> Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+
+This patch passes our tests after I removed the unused variable.
+
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Thanks a lot for the backport!
+
+Guenter
+
+> ---
+>   drivers/md/dm-table.c         | 32 ++----------------
+>   drivers/md/dm.c               | 64 +++--------------------------------
+>   include/linux/device-mapper.h |  1 -
+>   3 files changed, 7 insertions(+), 90 deletions(-)
+> 
+> diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+> index 06b382304d92..81bc36a43b32 100644
+> --- a/drivers/md/dm-table.c
+> +++ b/drivers/md/dm-table.c
+> @@ -872,8 +872,7 @@ EXPORT_SYMBOL(dm_consume_args);
+>   static bool __table_type_bio_based(enum dm_queue_mode table_type)
+>   {
+>   	return (table_type == DM_TYPE_BIO_BASED ||
+> -		table_type == DM_TYPE_DAX_BIO_BASED ||
+> -		table_type == DM_TYPE_NVME_BIO_BASED);
+> +		table_type == DM_TYPE_DAX_BIO_BASED);
+>   }
+>   
+>   static bool __table_type_request_based(enum dm_queue_mode table_type)
+> @@ -929,8 +928,6 @@ bool dm_table_supports_dax(struct dm_table *t,
+>   	return true;
+>   }
+>   
+> -static bool dm_table_does_not_support_partial_completion(struct dm_table *t);
+> -
+>   static int device_is_rq_stackable(struct dm_target *ti, struct dm_dev *dev,
+>   				  sector_t start, sector_t len, void *data)
+>   {
+> @@ -960,7 +957,6 @@ static int dm_table_determine_type(struct dm_table *t)
+>   			goto verify_bio_based;
+>   		}
+>   		BUG_ON(t->type == DM_TYPE_DAX_BIO_BASED);
+> -		BUG_ON(t->type == DM_TYPE_NVME_BIO_BASED);
+>   		goto verify_rq_based;
+>   	}
+>   
+> @@ -999,15 +995,6 @@ static int dm_table_determine_type(struct dm_table *t)
+>   		if (dm_table_supports_dax(t, device_not_dax_capable, &page_size) ||
+>   		    (list_empty(devices) && live_md_type == DM_TYPE_DAX_BIO_BASED)) {
+>   			t->type = DM_TYPE_DAX_BIO_BASED;
+> -		} else {
+> -			/* Check if upgrading to NVMe bio-based is valid or required */
+> -			tgt = dm_table_get_immutable_target(t);
+> -			if (tgt && !tgt->max_io_len && dm_table_does_not_support_partial_completion(t)) {
+> -				t->type = DM_TYPE_NVME_BIO_BASED;
+> -				goto verify_rq_based; /* must be stacked directly on NVMe (blk-mq) */
+> -			} else if (list_empty(devices) && live_md_type == DM_TYPE_NVME_BIO_BASED) {
+> -				t->type = DM_TYPE_NVME_BIO_BASED;
+> -			}
+>   		}
+>   		return 0;
+>   	}
+> @@ -1024,8 +1011,7 @@ static int dm_table_determine_type(struct dm_table *t)
+>   	 * (e.g. request completion process for partial completion.)
+>   	 */
+>   	if (t->num_targets > 1) {
+> -		DMERR("%s DM doesn't support multiple targets",
+> -		      t->type == DM_TYPE_NVME_BIO_BASED ? "nvme bio-based" : "request-based");
+> +		DMERR("request-based DM doesn't support multiple targets");
+>   		return -EINVAL;
+>   	}
+>   
+> @@ -1714,20 +1700,6 @@ static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
+>   	return q && !blk_queue_add_random(q);
+>   }
+>   
+> -static int device_is_partial_completion(struct dm_target *ti, struct dm_dev *dev,
+> -					sector_t start, sector_t len, void *data)
+> -{
+> -	char b[BDEVNAME_SIZE];
+> -
+> -	/* For now, NVMe devices are the only devices of this class */
+> -	return (strncmp(bdevname(dev->bdev, b), "nvme", 4) != 0);
+> -}
+> -
+> -static bool dm_table_does_not_support_partial_completion(struct dm_table *t)
+> -{
+> -	return !dm_table_any_dev_attr(t, device_is_partial_completion, NULL);
+> -}
+> -
+>   static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
+>   					 sector_t start, sector_t len, void *data)
+>   {
+> diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+> index 37b8bb4d80f0..3c45c389ded9 100644
+> --- a/drivers/md/dm.c
+> +++ b/drivers/md/dm.c
+> @@ -1000,7 +1000,7 @@ static void clone_endio(struct bio *bio)
+>   	struct mapped_device *md = tio->io->md;
+>   	dm_endio_fn endio = tio->ti->type->end_io;
+>   
+> -	if (unlikely(error == BLK_STS_TARGET) && md->type != DM_TYPE_NVME_BIO_BASED) {
+> +	if (unlikely(error == BLK_STS_TARGET)) {
+>   		if (bio_op(bio) == REQ_OP_DISCARD &&
+>   		    !bio->bi_disk->queue->limits.max_discard_sectors)
+>   			disable_discard(md);
+> @@ -1340,10 +1340,7 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
+>   		/* the bio has been remapped so dispatch it */
+>   		trace_block_bio_remap(clone->bi_disk->queue, clone,
+>   				      bio_dev(io->orig_bio), sector);
+> -		if (md->type == DM_TYPE_NVME_BIO_BASED)
+> -			ret = direct_make_request(clone);
+> -		else
+> -			ret = generic_make_request(clone);
+> +		ret = generic_make_request(clone);
+>   		break;
+>   	case DM_MAPIO_KILL:
+>   		if (unlikely(swap_bios_limit(ti, clone))) {
+> @@ -1732,51 +1729,6 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
+>   	return ret;
+>   }
+>   
+> -/*
+> - * Optimized variant of __split_and_process_bio that leverages the
+> - * fact that targets that use it do _not_ have a need to split bios.
+> - */
+> -static blk_qc_t __process_bio(struct mapped_device *md, struct dm_table *map,
+> -			      struct bio *bio, struct dm_target *ti)
+> -{
+> -	struct clone_info ci;
+> -	blk_qc_t ret = BLK_QC_T_NONE;
+> -	int error = 0;
+> -
+> -	init_clone_info(&ci, md, map, bio);
+> -
+> -	if (bio->bi_opf & REQ_PREFLUSH) {
+> -		struct bio flush_bio;
+> -
+> -		/*
+> -		 * Use an on-stack bio for this, it's safe since we don't
+> -		 * need to reference it after submit. It's just used as
+> -		 * the basis for the clone(s).
+> -		 */
+> -		bio_init(&flush_bio, NULL, 0);
+> -		flush_bio.bi_opf = REQ_OP_WRITE | REQ_PREFLUSH | REQ_SYNC;
+> -		ci.bio = &flush_bio;
+> -		ci.sector_count = 0;
+> -		error = __send_empty_flush(&ci);
+> -		bio_uninit(ci.bio);
+> -		/* dec_pending submits any data associated with flush */
+> -	} else {
+> -		struct dm_target_io *tio;
+> -
+> -		ci.bio = bio;
+> -		ci.sector_count = bio_sectors(bio);
+> -		if (__process_abnormal_io(&ci, ti, &error))
+> -			goto out;
+> -
+> -		tio = alloc_tio(&ci, ti, 0, GFP_NOIO);
+> -		ret = __clone_and_map_simple_bio(&ci, tio, NULL);
+> -	}
+> -out:
+> -	/* drop the extra reference count */
+> -	dec_pending(ci.io, errno_to_blk_status(error));
+> -	return ret;
+> -}
+> -
+>   static blk_qc_t dm_process_bio(struct mapped_device *md,
+>   			       struct dm_table *map, struct bio *bio)
+>   {
+> @@ -1807,8 +1759,6 @@ static blk_qc_t dm_process_bio(struct mapped_device *md,
+>   		/* regular IO is split by __split_and_process_bio */
+>   	}
+>   
+> -	if (dm_get_md_type(md) == DM_TYPE_NVME_BIO_BASED)
+> -		return __process_bio(md, map, bio, ti);
+>   	return __split_and_process_bio(md, map, bio);
+>   }
+>   
+> @@ -2200,12 +2150,10 @@ static struct dm_table *__bind(struct mapped_device *md, struct dm_table *t,
+>   	if (request_based)
+>   		dm_stop_queue(q);
+>   
+> -	if (request_based || md->type == DM_TYPE_NVME_BIO_BASED) {
+> +	if (request_based) {
+>   		/*
+> -		 * Leverage the fact that request-based DM targets and
+> -		 * NVMe bio based targets are immutable singletons
+> -		 * - used to optimize both dm_request_fn and dm_mq_queue_rq;
+> -		 *   and __process_bio.
+> +		 * Leverage the fact that request-based DM targets are
+> +		 * immutable singletons - used to optimize dm_mq_queue_rq.
+>   		 */
+>   		md->immutable_target = dm_table_get_immutable_target(t);
+>   	}
+> @@ -2334,7 +2282,6 @@ int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t)
+>   		break;
+>   	case DM_TYPE_BIO_BASED:
+>   	case DM_TYPE_DAX_BIO_BASED:
+> -	case DM_TYPE_NVME_BIO_BASED:
+>   		dm_init_congested_fn(md);
+>   		break;
+>   	case DM_TYPE_NONE:
+> @@ -3070,7 +3017,6 @@ struct dm_md_mempools *dm_alloc_md_mempools(struct mapped_device *md, enum dm_qu
+>   	switch (type) {
+>   	case DM_TYPE_BIO_BASED:
+>   	case DM_TYPE_DAX_BIO_BASED:
+> -	case DM_TYPE_NVME_BIO_BASED:
+>   		pool_size = max(dm_get_reserved_bio_based_ios(), min_pool_size);
+>   		front_pad = roundup(per_io_data_size, __alignof__(struct dm_target_io)) + offsetof(struct dm_target_io, clone);
+>   		io_front_pad = roundup(front_pad,  __alignof__(struct dm_io)) + offsetof(struct dm_io, tio);
+> diff --git a/include/linux/device-mapper.h b/include/linux/device-mapper.h
+> index a53d7d2c2d95..60631f3abddb 100644
+> --- a/include/linux/device-mapper.h
+> +++ b/include/linux/device-mapper.h
+> @@ -28,7 +28,6 @@ enum dm_queue_mode {
+>   	DM_TYPE_BIO_BASED	 = 1,
+>   	DM_TYPE_REQUEST_BASED	 = 2,
+>   	DM_TYPE_DAX_BIO_BASED	 = 3,
+> -	DM_TYPE_NVME_BIO_BASED	 = 4,
+>   };
+>   
+>   typedef enum { STATUSTYPE_INFO, STATUSTYPE_TABLE } status_type_t;
 
-Regressions Summary
--------------------
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-imx6q-var-dt6customboard   | arm   | lab-baylibre | gcc-10   | multi_v7_def=
-config | 1          =
-
-jetson-tk1                 | arm   | lab-baylibre | gcc-10   | multi_v7_def=
-config | 1          =
-
-jetson-tk1                 | arm   | lab-baylibre | gcc-10   | tegra_defcon=
-fig    | 1          =
-
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-       | 1          =
-
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-       | 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-       | 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-       | 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-       | 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-       | 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-       | 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-       | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.123/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.123
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2a59239b22e0a39736b47c22462b3faa2c46b729 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-imx6q-var-dt6customboard   | arm   | lab-baylibre | gcc-10   | multi_v7_def=
-config | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ab86e9a11ecbe109a39bcf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6q-var-dt6customb=
-oard.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6q-var-dt6customb=
-oard.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ab86e9a11ecbe109a39=
-bd0
-        new failure (last pass: v5.10.120-624-g355f12b39acea) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-jetson-tk1                 | arm   | lab-baylibre | gcc-10   | multi_v7_def=
-config | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ab8896c9fa32ab15a39bf6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ab8896c9fa32ab15a39=
-bf7
-        failing since 2 days (last pass: v5.10.120-623-g6690b0cb74729, firs=
-t fail: v5.10.120-624-g355f12b39acea) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-jetson-tk1                 | arm   | lab-baylibre | gcc-10   | tegra_defcon=
-fig    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ab86198a3550db50a39be6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ab86198a3550db50a39=
-be7
-        failing since 9 days (last pass: v5.10.118-218-g22be67db7d53, first=
- fail: v5.10.120) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ab82c6ff61fcbc77a39be9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ab82c6ff61fcbc77a39=
-bea
-        failing since 38 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
-t fail: v5.10.113-187-g3dca4fac0d16) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ab8318d3ba769a8fa39be3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ab8318d3ba769a8fa39=
-be4
-        failing since 38 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
-t fail: v5.10.113-187-g3dca4fac0d16) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ab82d6b990a45c42a39bfb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2-uefi.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2-uefi.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ab82d6b990a45c42a39=
-bfc
-        failing since 38 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
-t fail: v5.10.113-187-g3dca4fac0d16) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ab832cb9e7a953d9a39bcd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ab832cb9e7a953d9a39=
-bce
-        failing since 38 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
-t fail: v5.10.113-187-g3dca4fac0d16) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ab82c5e3ac9c6166a39bf5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ab82c5e3ac9c6166a39=
-bf6
-        failing since 38 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
-t fail: v5.10.113-187-g3dca4fac0d16) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ab8304858cdb5e07a39bfc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ab8304858cdb5e07a39=
-bfd
-        failing since 38 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
-t fail: v5.10.113-187-g3dca4fac0d16) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ab82c7fc7a30dec0a39be2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3-uefi.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3-uefi.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ab82c7fc7a30dec0a39=
-be3
-        failing since 38 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
-t fail: v5.10.113-187-g3dca4fac0d16) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-       | regressions
----------------------------+-------+--------------+----------+-------------=
--------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ab832db9e7a953d9a39bd0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-23/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ab832db9e7a953d9a39=
-bd1
-        failing since 38 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
-t fail: v5.10.113-187-g3dca4fac0d16) =
-
- =20
