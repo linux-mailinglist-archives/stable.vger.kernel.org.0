@@ -2,22 +2,22 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4BAE54E6CD
-	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 18:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A0AD54E6CE
+	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 18:18:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378118AbiFPQSB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jun 2022 12:18:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52430 "EHLO
+        id S1377942AbiFPQSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jun 2022 12:18:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378102AbiFPQR7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 12:17:59 -0400
-Received: from out30-45.freemail.mail.aliyun.com (out30-45.freemail.mail.aliyun.com [115.124.30.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A7224595;
-        Thu, 16 Jun 2022 09:17:53 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R491e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xianting.tian@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0VGamLNn_1655396269;
-Received: from localhost(mailfrom:xianting.tian@linux.alibaba.com fp:SMTPD_---0VGamLNn_1655396269)
+        with ESMTP id S1378104AbiFPQSC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 12:18:02 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD4D11153;
+        Thu, 16 Jun 2022 09:17:54 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=xianting.tian@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0VGaoY40_1655396270;
+Received: from localhost(mailfrom:xianting.tian@linux.alibaba.com fp:SMTPD_---0VGaoY40_1655396270)
           by smtp.aliyun-inc.com;
-          Fri, 17 Jun 2022 00:17:49 +0800
+          Fri, 17 Jun 2022 00:17:51 +0800
 From:   Xianting Tian <xianting.tian@linux.alibaba.com>
 To:     akpm@linux-foundation.org, ziy@nvidia.com,
         gregkh@linuxfoundation.org, stable@vger.kernel.org,
@@ -26,9 +26,9 @@ Cc:     huanyi.xj@alibaba-inc.com, guohanjun@huawei.com,
         zjb194813@alibaba-inc.com, tianhu.hh@alibaba-inc.com,
         linux-mm@kvack.org, linux-kernel@vger.kernel.org,
         Xianting Tian <xianting.tian@linux.alibaba.com>
-Subject: [PATCH 4.14] mm: page_alloc: validate buddy page before using
-Date:   Fri, 17 Jun 2022 00:17:41 +0800
-Message-Id: <20220616161746.3565225-2-xianting.tian@linux.alibaba.com>
+Subject: [PATCH 4.19] mm: page_alloc: validate buddy page before using
+Date:   Fri, 17 Jun 2022 00:17:42 +0800
+Message-Id: <20220616161746.3565225-3-xianting.tian@linux.alibaba.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220616161746.3565225-1-xianting.tian@linux.alibaba.com>
 References: <20220616161746.3565225-1-xianting.tian@linux.alibaba.com>
@@ -63,10 +63,10 @@ Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
  1 file changed, 3 insertions(+)
 
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index bfbccc739332..6e994a2013aa 100644
+index 9c35403d9646..8fc7f1803976 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -866,6 +866,9 @@ static inline void __free_one_page(struct page *page,
+@@ -858,6 +858,9 @@ static inline void __free_one_page(struct page *page,
  
  			buddy_pfn = __find_buddy_pfn(pfn, order);
  			buddy = page + (buddy_pfn - pfn);
