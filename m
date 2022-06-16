@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83AAE54D7AA
+	by mail.lfdr.de (Postfix) with ESMTP id 3860A54D7A9
 	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 03:59:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236140AbiFPB5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jun 2022 21:57:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33664 "EHLO
+        id S244252AbiFPB6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jun 2022 21:58:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236015AbiFPB5Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 21:57:25 -0400
+        with ESMTP id S242636AbiFPB6P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 21:58:15 -0400
 Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442C659092;
-        Wed, 15 Jun 2022 18:57:24 -0700 (PDT)
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4LNlcW25ZlzgZQX;
-        Thu, 16 Jun 2022 09:55:23 +0800 (CST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2909126ACA;
+        Wed, 15 Jun 2022 18:58:15 -0700 (PDT)
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4LNldV31XBzgZNL;
+        Thu, 16 Jun 2022 09:56:14 +0800 (CST)
 Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Thu, 16 Jun 2022 09:56:56 +0800
+ 15.1.2375.24; Thu, 16 Jun 2022 09:58:13 +0800
 Received: from [10.174.178.208] (10.174.178.208) by
  kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Thu, 16 Jun 2022 09:56:55 +0800
-Subject: Re: [PATCH 5.10 00/11] 5.10.123-rc1 review
+ 15.1.2375.24; Thu, 16 Jun 2022 09:58:12 +0800
+Subject: Re: [PATCH 4.19 00/16] 4.19.248-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <linux-kernel@vger.kernel.org>
 CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
@@ -34,19 +34,19 @@ CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
         <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
         <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
         <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
-References: <20220614183719.878453780@linuxfoundation.org>
+References: <20220614183720.928818645@linuxfoundation.org>
 From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <53a93564-7f2b-e439-db8a-a37396c73b55@huawei.com>
-Date:   Thu, 16 Jun 2022 09:56:54 +0800
+Message-ID: <d6130bc7-a2df-aa52-a2e9-60db64e8ea92@huawei.com>
+Date:   Thu, 16 Jun 2022 09:58:11 +0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <20220614183719.878453780@linuxfoundation.org>
+In-Reply-To: <20220614183720.928818645@linuxfoundation.org>
 Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
  kwepemm600013.china.huawei.com (7.193.23.68)
 X-CFilter-Loop: Reflected
 X-Spam-Status: No, score=-5.4 required=5.0 tests=BAYES_00,NICE_REPLY_A,
@@ -61,8 +61,8 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 On 2022/6/15 2:40, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.123 release.
-> There are 11 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.19.248 release.
+> There are 16 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -70,9 +70,9 @@ On 2022/6/15 2:40, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.123-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.248-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -80,20 +80,20 @@ On 2022/6/15 2:40, Greg Kroah-Hartman wrote:
 > greg k-h
 > 
 
-Tested on arm64 and x86 for 5.10.123-rc1,
+Tested on arm64 and x86 for 4.19.248-rc1,
 
 Kernel repo:
 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.123-rc1
-Commit: f67ea0f670870facb37c20f19e483ec74a2cba63
+Branch: linux-4.19.y
+Version: 4.19.248-rc1
+Commit: 3a3ddc084a29f6b9346b3f7de410b1c5353cbcd0
 Compiler: gcc version 7.3.0 (GCC)
 
 arm64:
 --------------------------------------------------------------------
 Testcase Result Summary:
-total: 9033
-passed: 9033
+total: 8956
+passed: 8956
 failed: 0
 timeout: 0
 --------------------------------------------------------------------
@@ -101,8 +101,8 @@ timeout: 0
 x86:
 --------------------------------------------------------------------
 Testcase Result Summary:
-total: 9033
-passed: 9033
+total: 8956
+passed: 8956
 failed: 0
 timeout: 0
 --------------------------------------------------------------------
