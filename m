@@ -2,208 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7533354DBE4
-	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 09:36:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FE2054DC6D
+	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 10:05:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359489AbiFPHf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jun 2022 03:35:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55606 "EHLO
+        id S1359160AbiFPIFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jun 2022 04:05:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359008AbiFPHf4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 03:35:56 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E79112DE6;
-        Thu, 16 Jun 2022 00:35:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1655364955; x=1686900955;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=tGxxL6Ozay1esf8g8lTKwUO8uO7QkHG2DiuqpgEUeWU=;
-  b=fB2ceX+OnOquh+BDSW0L3OfKsfrxtSJ8xiSoAi8mkXe2ksXjkSK7BqKG
-   oyyWjC1kMO7RUCc6RljVpF6lZA4F3RSi/Y2Pq8MzwvkdDSdvca1COPY0D
-   NJM+9bKASVQa044hLSXuxpnI0uQ1fY/99kvl3OwFa92DQ7TpRQiKSDiTa
-   PNzphukU9x5GrEW/hdF0d2P5Tt4/y8PfnfFOHu6FkNWF53AnYxM+8Z+7U
-   B5RBSh2Gx5ORcN+umhjv7kPoim0MWBCBsN5VgnhKYtZ9ITlQ3kcGacg5g
-   uuQ74fmr7UWC1buS2lneyhubQ5vRPixpbVrnJsaYop7iM0zuSK9mJurBm
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10379"; a="259652216"
-X-IronPort-AV: E=Sophos;i="5.91,304,1647327600"; 
-   d="scan'208";a="259652216"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2022 00:35:55 -0700
-X-IronPort-AV: E=Sophos;i="5.91,304,1647327600"; 
-   d="scan'208";a="912048645"
-Received: from mstokes1-mobl.ger.corp.intel.com (HELO [10.213.198.82]) ([10.213.198.82])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2022 00:35:51 -0700
-Message-ID: <8b9ae441-a291-fe45-ceac-be8c211a4f73@linux.intel.com>
-Date:   Thu, 16 Jun 2022 08:35:49 +0100
+        with ESMTP id S230045AbiFPIFD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 04:05:03 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E8CE95D18F;
+        Thu, 16 Jun 2022 01:05:02 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A6EC112FC;
+        Thu, 16 Jun 2022 01:05:02 -0700 (PDT)
+Received: from [10.57.84.206] (unknown [10.57.84.206])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1D3173F7F5;
+        Thu, 16 Jun 2022 01:04:59 -0700 (PDT)
+Message-ID: <7c86f5fb-93fc-b765-8070-35ad21ab8820@arm.com>
+Date:   Thu, 16 Jun 2022 09:04:58 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH 5/6] drm/i915/gt: Serialize GRDOM access between multiple
- engine resets
-Content-Language: en-US
-To:     Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     Chris Wilson <chris.p.wilson@intel.com>,
-        Fei Yang <fei.yang@intel.com>,
-        Thomas Hellstrom <thomas.hellstrom@intel.com>,
-        Bruce Chang <yu.bruce.chang@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Dave Airlie <airlied@redhat.com>,
-        David Airlie <airlied@linux.ie>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Matthew Brost <matthew.brost@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>,
-        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
-        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, mauro.chehab@linux.intel.com,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Andi Shyti <andi.shyti@intel.com>, stable@vger.kernel.org,
-        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
-        <thomas.hellstrom@linux.intel.com>
-References: <cover.1655306128.git.mchehab@kernel.org>
- <5ee647f243a774927ec328bfca8212abc4957909.1655306128.git.mchehab@kernel.org>
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Organization: Intel Corporation UK Plc
-In-Reply-To: <5ee647f243a774927ec328bfca8212abc4957909.1655306128.git.mchehab@kernel.org>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.10.0
+Subject: Re: [PATCH 5.15 000/251] 5.15.47-rc2 review
+To:     Jan Kara <jack@suse.cz>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Thomas Backlund <tmb@tmb.nu>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Slade Watkins <slade@sladewatkins.com>
+References: <bd80cd0d-a364-4ebd-2a89-933f79eaf4c7@tmb.nu>
+ <CAHk-=wix7+mGzS-hANyk7DZsZ1NgGMHjPzSQKggEomYrRCrP_Q@mail.gmail.com>
+ <CAHk-=wgfFhwMP0=QQY_iZvf0kveR5=VGK919Ayn+ZSUADs9mag@mail.gmail.com>
+ <20220615110022.yifrsvzxjsz2wky5@quack3.lan>
+ <20220615133845.o2lzfe5s4dzdfvtg@quack3.lan>
+From:   Suzuki K Poulose <suzuki.poulose@arm.com>
+In-Reply-To: <20220615133845.o2lzfe5s4dzdfvtg@quack3.lan>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,
-        NICE_REPLY_A,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-9.5 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 15/06/2022 16:27, Mauro Carvalho Chehab wrote:
-> From: Chris Wilson <chris.p.wilson@intel.com>
+On 15/06/2022 14:38, Jan Kara wrote:
+> On Wed 15-06-22 13:00:22, Jan Kara wrote:
+>> On Tue 14-06-22 12:00:22, Linus Torvalds wrote:
+>>> On Tue, Jun 14, 2022 at 11:51 AM Linus Torvalds
+>>> <torvalds@linux-foundation.org> wrote:
+>>>>
+>>>> Or just make sure that noop_backing_dev_info is fully initialized
+>>>> before it's used.
+>>>
+>>> I don't see any real reason why that
+>>>
+>>>      err = bdi_init(&noop_backing_dev_info);
+>>>
+>>> couldn't just be done very early. Maybe as the first call in
+>>> driver_init(), before the whole devtmpfs_init() etc.
+>>
+>> I've checked the dependencies and cgroups (which are the only non-trivial
+>> dependency besides per-CPU infrastructure) are initialized early enough so
+>> it should work fine. So let's try that.
 > 
-> Don't allow two engines to be reset in parallel, as they would both
-> try to select a reset bit (and send requests to common registers)
-> and wait on that register, at the same time. Serialize control of
-> the reset requests/acks using the uncore->lock, which will also ensure
-> that no other GT state changes at the same time as the actual reset.
+> Attached patch boots for me. Guys, who was able to reproduce the failure: Can
+> you please confirm this patch fixes your problem?
 > 
-> Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
+> 								Honza
 
-Ah okay I get it, the fixes tag was applied indiscriminately to the 
-whole series. :) It definitely does not belong in this patch.
+Works for me too
 
-Otherwise LGTM:
-
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-
-Regards,
-
-Tvrtko
-
-> Reported-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-> Cc: Andi Shyti <andi.shyti@intel.com>
-> Cc: stable@vger.kernel.org
-> Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-> ---
-> 
-> See [PATCH 0/6] at: https://lore.kernel.org/all/cover.1655306128.git.mchehab@kernel.org/
-> 
->   drivers/gpu/drm/i915/gt/intel_reset.c | 37 ++++++++++++++++++++-------
->   1 file changed, 28 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gt/intel_reset.c b/drivers/gpu/drm/i915/gt/intel_reset.c
-> index a5338c3fde7a..c68d36fb5bbd 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_reset.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_reset.c
-> @@ -300,9 +300,9 @@ static int gen6_hw_domain_reset(struct intel_gt *gt, u32 hw_domain_mask)
->   	return err;
->   }
->   
-> -static int gen6_reset_engines(struct intel_gt *gt,
-> -			      intel_engine_mask_t engine_mask,
-> -			      unsigned int retry)
-> +static int __gen6_reset_engines(struct intel_gt *gt,
-> +				intel_engine_mask_t engine_mask,
-> +				unsigned int retry)
->   {
->   	struct intel_engine_cs *engine;
->   	u32 hw_mask;
-> @@ -321,6 +321,20 @@ static int gen6_reset_engines(struct intel_gt *gt,
->   	return gen6_hw_domain_reset(gt, hw_mask);
->   }
->   
-> +static int gen6_reset_engines(struct intel_gt *gt,
-> +			      intel_engine_mask_t engine_mask,
-> +			      unsigned int retry)
-> +{
-> +	unsigned long flags;
-> +	int ret;
-> +
-> +	spin_lock_irqsave(&gt->uncore->lock, flags);
-> +	ret = __gen6_reset_engines(gt, engine_mask, retry);
-> +	spin_unlock_irqrestore(&gt->uncore->lock, flags);
-> +
-> +	return ret;
-> +}
-> +
->   static struct intel_engine_cs *find_sfc_paired_vecs_engine(struct intel_engine_cs *engine)
->   {
->   	int vecs_id;
-> @@ -487,9 +501,9 @@ static void gen11_unlock_sfc(struct intel_engine_cs *engine)
->   	rmw_clear_fw(uncore, sfc_lock.lock_reg, sfc_lock.lock_bit);
->   }
->   
-> -static int gen11_reset_engines(struct intel_gt *gt,
-> -			       intel_engine_mask_t engine_mask,
-> -			       unsigned int retry)
-> +static int __gen11_reset_engines(struct intel_gt *gt,
-> +				 intel_engine_mask_t engine_mask,
-> +				 unsigned int retry)
->   {
->   	struct intel_engine_cs *engine;
->   	intel_engine_mask_t tmp;
-> @@ -583,8 +597,11 @@ static int gen8_reset_engines(struct intel_gt *gt,
->   	struct intel_engine_cs *engine;
->   	const bool reset_non_ready = retry >= 1;
->   	intel_engine_mask_t tmp;
-> +	unsigned long flags;
->   	int ret;
->   
-> +	spin_lock_irqsave(&gt->uncore->lock, flags);
-> +
->   	for_each_engine_masked(engine, gt, engine_mask, tmp) {
->   		ret = gen8_engine_reset_prepare(engine);
->   		if (ret && !reset_non_ready)
-> @@ -612,17 +629,19 @@ static int gen8_reset_engines(struct intel_gt *gt,
->   	 * This is best effort, so ignore any error from the initial reset.
->   	 */
->   	if (IS_DG2(gt->i915) && engine_mask == ALL_ENGINES)
-> -		gen11_reset_engines(gt, gt->info.engine_mask, 0);
-> +		__gen11_reset_engines(gt, gt->info.engine_mask, 0);
->   
->   	if (GRAPHICS_VER(gt->i915) >= 11)
-> -		ret = gen11_reset_engines(gt, engine_mask, retry);
-> +		ret = __gen11_reset_engines(gt, engine_mask, retry);
->   	else
-> -		ret = gen6_reset_engines(gt, engine_mask, retry);
-> +		ret = __gen6_reset_engines(gt, engine_mask, retry);
->   
->   skip_reset:
->   	for_each_engine_masked(engine, gt, engine_mask, tmp)
->   		gen8_engine_reset_cancel(engine);
->   
-> +	spin_unlock_irqrestore(&gt->uncore->lock, flags);
-> +
->   	return ret;
->   }
->   
+Tested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
