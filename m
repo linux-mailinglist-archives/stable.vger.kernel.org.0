@@ -2,160 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF1E54E8A5
-	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 19:30:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5944C54E8B3
+	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 19:36:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233727AbiFPRax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jun 2022 13:30:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40566 "EHLO
+        id S235499AbiFPRgx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jun 2022 13:36:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233698AbiFPRaw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 13:30:52 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F672C66E;
-        Thu, 16 Jun 2022 10:30:50 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 9052E21CA4;
-        Thu, 16 Jun 2022 17:30:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1655400649; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=iM8FR9fOrMDEAPeEbNG2sNIxibqQuAn4USfLuMIYlW0=;
-        b=upQNrf3UupIEdjC023xU4QUUrxSul4OSZL1IWh1EwUASw27oWhHFdNGoSlf4g3h8OzK7p/
-        MfFFl5C+FnvbhgVZMWXE6+u3TdJaMabhtXT3gGwsb4Gksll4mXQdMJ3NEz8QcH/ykwcV27
-        GRpRxKZNLR5Eb6fi4L8S+SY7eTecaS0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1655400649;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=iM8FR9fOrMDEAPeEbNG2sNIxibqQuAn4USfLuMIYlW0=;
-        b=wdeWedgyjP4Xnsfp6mpFzJQi0qodKF7KEseyxD6GQjaSzDT3gTdRDoHrnarZfnbNlO3RRt
-        3zLj4XJIbfS+VlCA==
-Received: from quack3.suse.cz (unknown [10.163.28.18])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 7CC782C141;
-        Thu, 16 Jun 2022 17:30:49 +0000 (UTC)
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 38566A062E; Thu, 16 Jun 2022 19:30:49 +0200 (CEST)
-Date:   Thu, 16 Jun 2022 19:30:49 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Ritesh Harjani <ritesh.list@gmail.com>
-Cc:     Jan Kara <jack@suse.cz>, Ted Tso <tytso@mit.edu>,
-        linux-ext4@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 03/10] ext4: Remove EA inode entry from mbcache on inode
- eviction
-Message-ID: <20220616173049.7gt2w2ah3dzyipab@quack3.lan>
-References: <20220614124146.21594-1-jack@suse.cz>
- <20220614160603.20566-3-jack@suse.cz>
- <20220616150118.bgwmibp6q7dy6wgi@riteshh-domain>
+        with ESMTP id S231295AbiFPRgv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 13:36:51 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4F42D1DF
+        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 10:36:51 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id m14so1816923plg.5
+        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 10:36:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=5Udr9DCr6Ytws2m50HoIYG52v9qCEqxBe4Ri+nmOR+Y=;
+        b=vUw8Y/EZ4BKi/tulgcRJgvH4HLsLKvOfkqM9Ttr70I1WnUhzYBvVt5wLobx0v4VuM0
+         GVGQd9WDeif6xvfq9I0cXJUqawFfiD2APVjEnoBt7Hscj9j2HTE7AzAAqC6uQaC9ZKi7
+         +kbs07XV7g9y0lFBtXXFuKc30tfkSyWQhCLRX66pyrymAY8CYKmRz6KrYUSuuiOLNxYk
+         s6Zm8dAKc6uGgg4KnvI7QAymkYZmmky5caDq2xLPONO56dTrgkGYIPPMNaVEiTWHkxqt
+         wjLpzgz/xUMDwq7c7IRuLKcVGpPluNw0cZmyxwZ7lmM5Vshd/+CM4no+8ZiS+9wcywCv
+         n5ow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=5Udr9DCr6Ytws2m50HoIYG52v9qCEqxBe4Ri+nmOR+Y=;
+        b=ajOVReSexmrZ7dYkBbEpYVDH40YPHSBeeyK/qvixkfca/LqfE8bgbZxADMMG3TyPc3
+         E6VmRfX8nryW+gmhdkR+DysgfkSA0ESbIeQRiXb/qJU5KNqTF+fkvBy3G0Glh//A6PQG
+         ZGAhk2iG/gQK+MOf2I+YnNBmUf/0GeANEZROUpupoJJdT6txXtwo+i+ghRalHGUEXGNv
+         xOsy+B4I1x+icJ6q55wz+oT+4WBbuIDOvEiq4jG8k118fcQ/Ky6aLkTM5JoCYeXwkxsh
+         yMvQtmNdLi/M67k7m1ZbD+Xa3XQnScxf9EF93g5JVtrVj2GuRF9mwE6cddSLiYUPK+OS
+         AOuw==
+X-Gm-Message-State: AJIora8j+7jNQGQsg3yxbSIUpsBnPe/e3+Kog+TzCtB+Aj82nLMchw/3
+        NRej5E/tm69MjfWP0E891uhTOnsPv3s0Kmvqk8o=
+X-Google-Smtp-Source: AGRyM1tmuwJv7uX0cNfPszlJjctW/oq5AH10C1rbYnKa/I1to330nU95aEqB8Dt8qy1+XNWu0rzcZQ==
+X-Received: by 2002:a17:90a:e7d2:b0:1e8:97ac:da0b with SMTP id kb18-20020a17090ae7d200b001e897acda0bmr16907295pjb.242.1655401010235;
+        Thu, 16 Jun 2022 10:36:50 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i64-20020a62c143000000b00522c365225csm2100346pfg.3.2022.06.16.10.36.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Jun 2022 10:36:48 -0700 (PDT)
+Message-ID: <62ab6a30.1c69fb81.0270.2f52@mx.google.com>
+Date:   Thu, 16 Jun 2022 10:36:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220616150118.bgwmibp6q7dy6wgi@riteshh-domain>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.48
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.15.y baseline: 163 runs, 2 regressions (v5.15.48)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 16-06-22 20:31:18, Ritesh Harjani wrote:
-> On 22/06/14 06:05PM, Jan Kara wrote:
-> > Currently we remove EA inode from mbcache as soon as its xattr refcount
-> > drops to zero. However there can be pending attempts to reuse the inode
-> > and thus refcount handling code has to handle the situation when
-> > refcount increases from zero anyway. So save some work and just keep EA
-> > inode in mbcache until it is getting evicted. At that moment we are sure
-> > following iget() of EA inode will fail anyway (or wait for eviction to
-> > finish and load things from the disk again) and so removing mbcache
-> > entry at that moment is fine and simplifies the code a bit.
-> >
-> > CC: stable@vger.kernel.org
-> > Fixes: 82939d7999df ("ext4: convert to mbcache2")
-> > Signed-off-by: Jan Kara <jack@suse.cz>
-> > ---
-> >  fs/ext4/inode.c |  2 ++
-> >  fs/ext4/xattr.c | 24 ++++++++----------------
-> >  fs/ext4/xattr.h |  1 +
-> >  3 files changed, 11 insertions(+), 16 deletions(-)
-> >
-> > diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-> > index 3dce7d058985..7450ee734262 100644
-> > --- a/fs/ext4/inode.c
-> > +++ b/fs/ext4/inode.c
-> > @@ -177,6 +177,8 @@ void ext4_evict_inode(struct inode *inode)
-> >
-> >  	trace_ext4_evict_inode(inode);
-> >
-> > +	if (EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL)
-> > +		ext4_evict_ea_inode(inode);
-> >  	if (inode->i_nlink) {
-> >  		/*
-> >  		 * When journalling data dirty buffers are tracked only in the
-> > diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-> > index 042325349098..7fc40fb1e6b3 100644
-> > --- a/fs/ext4/xattr.c
-> > +++ b/fs/ext4/xattr.c
-> > @@ -436,6 +436,14 @@ static int ext4_xattr_inode_iget(struct inode *parent, unsigned long ea_ino,
-> >  	return err;
-> >  }
-> >
-> > +/* Remove entry from mbcache when EA inode is getting evicted */
-> > +void ext4_evict_ea_inode(struct inode *inode)
-> > +{
-> > +	if (EA_INODE_CACHE(inode))
-> > +		mb_cache_entry_delete(EA_INODE_CACHE(inode),
-> > +			ext4_xattr_inode_get_hash(inode), inode->i_ino);
-> > +}
-> > +
-> >  static int
-> >  ext4_xattr_inode_verify_hashes(struct inode *ea_inode,
-> >  			       struct ext4_xattr_entry *entry, void *buffer,
-> > @@ -976,10 +984,8 @@ int __ext4_xattr_set_credits(struct super_block *sb, struct inode *inode,
-> >  static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
-> >  				       int ref_change)
-> >  {
-> > -	struct mb_cache *ea_inode_cache = EA_INODE_CACHE(ea_inode);
-> >  	struct ext4_iloc iloc;
-> >  	s64 ref_count;
-> > -	u32 hash;
-> >  	int ret;
-> >
-> >  	inode_lock(ea_inode);
-> > @@ -1002,14 +1008,6 @@ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
-> >
-> >  			set_nlink(ea_inode, 1);
-> >  			ext4_orphan_del(handle, ea_inode);
-> > -
-> > -			if (ea_inode_cache) {
-> > -				hash = ext4_xattr_inode_get_hash(ea_inode);
-> > -				mb_cache_entry_create(ea_inode_cache,
-> > -						      GFP_NOFS, hash,
-> > -						      ea_inode->i_ino,
-> > -						      true /* reusable */);
-> > -			}
-> 
-> Ok, so if I understand this correctly, since we are not immediately removing the
-> ea_inode_cache entry when the recount reaches 0, hence when the refcount is
-> reaches 1 from 0, we need not create mb_cache entry is it?
-> Is this since the entry never got deleted in the first place?
+stable/linux-5.15.y baseline: 163 runs, 2 regressions (v5.15.48)
 
-Correct.
+Regressions Summary
+-------------------
 
-> But what happens when the entry is created the very first time?
-> I might need to study xattr code to understand how this condition is
-> taken care.
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
 
-There are other places that take care of creating the entry in that case.
-E.g. ext4_xattr_inode_get() or ext4_xattr_inode_lookup_create().
+jetson-tk1         | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig=
+  | 1          =
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.15.y/kernel=
+/v5.15.48/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.15.y
+  Describe: v5.15.48
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      e1dd58c995daf8b632344b61df9d3cbed26454dc =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62ab35186ef78548e5a39c0d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.48/a=
+rm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx6ul-pico-hobbit.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.48/a=
+rm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx6ul-pico-hobbit.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62ab35186ef78548e5a39=
+c0e
+        new failure (last pass: v5.15.44) =
+
+ =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+jetson-tk1         | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig=
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62ab36f5636dee6c59a39beb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.48/a=
+rm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.48/a=
+rm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62ab36f5636dee6c59a39=
+bec
+        failing since 22 days (last pass: v5.15.39, first fail: v5.15.42) =
+
+ =20
