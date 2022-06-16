@@ -2,22 +2,22 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0637C54E6D4
-	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 18:18:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A3A054E6CB
+	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 18:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378145AbiFPQSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jun 2022 12:18:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52698 "EHLO
+        id S1378061AbiFPQSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jun 2022 12:18:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378130AbiFPQSE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 12:18:04 -0400
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F8292CE2D;
-        Thu, 16 Jun 2022 09:17:58 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xianting.tian@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0VGamLOd_1655396273;
-Received: from localhost(mailfrom:xianting.tian@linux.alibaba.com fp:SMTPD_---0VGamLOd_1655396273)
+        with ESMTP id S1378117AbiFPQSB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 12:18:01 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865562DA85;
+        Thu, 16 Jun 2022 09:17:59 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R821e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xianting.tian@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0VGamLOw_1655396275;
+Received: from localhost(mailfrom:xianting.tian@linux.alibaba.com fp:SMTPD_---0VGamLOw_1655396275)
           by smtp.aliyun-inc.com;
-          Fri, 17 Jun 2022 00:17:54 +0800
+          Fri, 17 Jun 2022 00:17:55 +0800
 From:   Xianting Tian <xianting.tian@linux.alibaba.com>
 To:     akpm@linux-foundation.org, ziy@nvidia.com,
         gregkh@linuxfoundation.org, stable@vger.kernel.org,
@@ -26,9 +26,9 @@ Cc:     huanyi.xj@alibaba-inc.com, guohanjun@huawei.com,
         zjb194813@alibaba-inc.com, tianhu.hh@alibaba-inc.com,
         linux-mm@kvack.org, linux-kernel@vger.kernel.org,
         Xianting Tian <xianting.tian@linux.alibaba.com>
-Subject: [PATCH 5.15] mm: validate buddy page before using
-Date:   Fri, 17 Jun 2022 00:17:45 +0800
-Message-Id: <20220616161746.3565225-6-xianting.tian@linux.alibaba.com>
+Subject: [PATCH 5.17] mm: validate buddy page before using
+Date:   Fri, 17 Jun 2022 00:17:46 +0800
+Message-Id: <20220616161746.3565225-7-xianting.tian@linux.alibaba.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220616161746.3565225-1-xianting.tian@linux.alibaba.com>
 References: <20220616161746.3565225-1-xianting.tian@linux.alibaba.com>
@@ -68,10 +68,10 @@ Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
  3 files changed, 39 insertions(+), 35 deletions(-)
 
 diff --git a/mm/internal.h b/mm/internal.h
-index cf3cb933eba3..e838d825cfaa 100644
+index d80300392a19..dfa80bdfe5c6 100644
 --- a/mm/internal.h
 +++ b/mm/internal.h
-@@ -340,6 +340,40 @@ static inline bool is_data_mapping(vm_flags_t flags)
+@@ -386,6 +386,40 @@ static inline bool is_data_mapping(vm_flags_t flags)
  	return (flags & (VM_WRITE | VM_SHARED | VM_STACK)) == VM_WRITE;
  }
  
@@ -113,10 +113,10 @@ index cf3cb933eba3..e838d825cfaa 100644
  void __vma_link_list(struct mm_struct *mm, struct vm_area_struct *vma,
  		struct vm_area_struct *prev);
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index a0b7afae59e9..8a29c0ff1c7b 100644
+index b1caa1c6c887..78ada8dedefb 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -875,40 +875,6 @@ static inline void set_buddy_order(struct page *page, unsigned int order)
+@@ -886,40 +886,6 @@ static inline void set_buddy_order(struct page *page, unsigned int order)
  	__SetPageBuddy(page);
  }
  
@@ -157,7 +157,7 @@ index a0b7afae59e9..8a29c0ff1c7b 100644
  #ifdef CONFIG_COMPACTION
  static inline struct capture_control *task_capc(struct zone *zone)
  {
-@@ -1118,6 +1084,9 @@ static inline void __free_one_page(struct page *page,
+@@ -1129,6 +1095,9 @@ static inline void __free_one_page(struct page *page,
  
  			buddy_pfn = __find_buddy_pfn(pfn, order);
  			buddy = page + (buddy_pfn - pfn);
@@ -168,7 +168,7 @@ index a0b7afae59e9..8a29c0ff1c7b 100644
  
  			if (migratetype != buddy_mt
 diff --git a/mm/page_isolation.c b/mm/page_isolation.c
-index a95c2c6562d0..70c1870e786b 100644
+index f67c4c70f17f..5d14cef812ee 100644
 --- a/mm/page_isolation.c
 +++ b/mm/page_isolation.c
 @@ -93,7 +93,8 @@ static void unset_migratetype_isolate(struct page *page, unsigned migratetype)
@@ -178,9 +178,9 @@ index a95c2c6562d0..70c1870e786b 100644
 -			if (!is_migrate_isolate_page(buddy)) {
 +			if (page_is_buddy(page, buddy, order) &&
 +			    !is_migrate_isolate_page(buddy)) {
- 				__isolate_free_page(page, order);
- 				isolated_page = true;
- 			}
+ 				isolated_page = !!__isolate_free_page(page, order);
+ 				/*
+ 				 * Isolating a free page in an isolated pageblock
 -- 
 2.17.1
 
