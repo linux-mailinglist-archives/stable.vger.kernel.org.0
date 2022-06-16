@@ -2,219 +2,287 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7BB354E5D3
-	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 17:16:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B2B54E62F
+	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 17:39:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234914AbiFPPQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jun 2022 11:16:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53706 "EHLO
+        id S1377428AbiFPPjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jun 2022 11:39:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233390AbiFPPQr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 11:16:47 -0400
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 890C135DEA;
-        Thu, 16 Jun 2022 08:16:45 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R311e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xianting.tian@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0VGagCqD_1655392599;
-Received: from B-LB6YLVDL-0141.local(mailfrom:xianting.tian@linux.alibaba.com fp:SMTPD_---0VGagCqD_1655392599)
-          by smtp.aliyun-inc.com;
-          Thu, 16 Jun 2022 23:16:40 +0800
-Subject: Re: [RESEND PATCH] mm: page_alloc: validate buddy before check the
- migratetype
-To:     David Hildenbrand <david@redhat.com>, Zi Yan <ziy@nvidia.com>
-Cc:     Guo Ren <guoren@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Linux-MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, huanyi.xj@alibaba-inc.com,
-        zjb194813@alibaba-inc.com, tianhu.hh@alibaba-inc.com,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Laura Abbott <labbott@redhat.com>
-References: <20220613131046.3009889-1-xianting.tian@linux.alibaba.com>
- <0262A4FB-5A9B-47D3-8F1A-995509F56279@nvidia.com>
- <CAJF2gTQGXAubtas4wAzrg298dGQJntu38X48V2OzcK8xZ_vPJg@mail.gmail.com>
- <D667F530-E286-4E75-B7CE-63E120E440C8@nvidia.com>
- <CAJF2gTSsaaseds=T_y-Ddt5Np2rYhk3ENumzSZDZUSXFwT3u-g@mail.gmail.com>
- <435B45C3-E6A5-43B2-A5A2-318C748691FC@nvidia.com>
- <b65b9edd-ff3e-aa44-029a-49fa5ba66b47@linux.alibaba.com>
- <18330D9A-F433-4136-A226-F24173293BF3@nvidia.com>
- <5526fab6-c7e1-bddc-912b-e4d9b2769d4e@linux.alibaba.com>
- <417EC421-DC05-4B35-954B-35DF873A2C40@nvidia.com>
- <20f49e70-32e0-a141-907c-5f58c543d70b@redhat.com>
-From:   Xianting Tian <xianting.tian@linux.alibaba.com>
-Message-ID: <c363ceb5-62ad-1538-614d-eb07afaaa3a3@linux.alibaba.com>
-Date:   Thu, 16 Jun 2022 23:16:39 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.10.1
+        with ESMTP id S233674AbiFPPjt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jun 2022 11:39:49 -0400
+Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB8724BFD
+        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 08:39:47 -0700 (PDT)
+Received: by mail-il1-x130.google.com with SMTP id s1so1205520ilj.0
+        for <stable@vger.kernel.org>; Thu, 16 Jun 2022 08:39:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=KfRNo/YwIwNda2KEaxY7ZASDtmqyGAhDFFd/w93Iq8A=;
+        b=uxL6QHJuc4aDVQRFoepCzMGwWTr/glxsu25G21BHX8fkeIqydk0ocnhFo0bchmRqFo
+         krMLtEXG6SPWO7ajj8rz6dQRyunOyKMT0iPwPJUDTjlVEUGxlMx27dyq63oTNioFZ3RY
+         2LxkBDLOroNwazblz5l6XpAeD9zetjxEvywBvLopD1VErGf33D1XtGQAbh0GU1G5JVhS
+         UOovDpGhKLnx7SNLFbXAu50NySVJ+s8526Xa1Pdp10OpgHYM2REm/sBByHqyWfmxqQxw
+         VzwmzyY4X1H8PGaj0b8NqlGNixZVdKiODNbnW75zyQhP8pjsotpwPcR/IkxLYfZ/dA2W
+         rl0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=KfRNo/YwIwNda2KEaxY7ZASDtmqyGAhDFFd/w93Iq8A=;
+        b=4FJBTPjSqfMXgP8+iIchCvtwu1Ch3sj9ez9sBgnZgOcRad0xDPCl3c89FjpCOF9wGC
+         Da2fogQgCemCmxZXcM6HjHg3dQxCSXxpuQRNgHuGDpijm1SgslSjwNUo/roIG29beHlP
+         z1vsSCAnmKGxJTbKSKW7TFlBoDTBTyftVAtmEyqlTzqkKpW5duhqLvtd4XANf9S0cZwF
+         IcWBgFEYfRwFkgzaHTfUZxvXbFD8O+7eTeCkCrOwDVtM00yv1HZ5clNod+v2/a9B6h5i
+         GMKdHc6WA/Zx/MK8Q/7ShHanJ7c1ETMj2JRdT94LAv1xGBO7X7AK/wpJref6/Ay7OBsi
+         auow==
+X-Gm-Message-State: AJIora+8b/Eso2G0QjFPPQP5IO3XFE9tbeauDnCeYMtvX7sPrgM20rev
+        oRzpQlBQjKEuegIeV3mbKPfN2GVGwYGaEg==
+X-Google-Smtp-Source: AGRyM1vnX3EFjyTFaX/ht+drxwO+kA87rJSFWYYch2/wcwGMx4UvpUXSErl6qM09Mj/YRY3WFkiGVA==
+X-Received: by 2002:a05:6e02:792:b0:2d7:ae5d:e2fd with SMTP id q18-20020a056e02079200b002d7ae5de2fdmr3207921ils.315.1655393986930;
+        Thu, 16 Jun 2022 08:39:46 -0700 (PDT)
+Received: from [192.168.1.172] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id q81-20020a6b8e54000000b006657596977fsm1305966iod.4.2022.06.16.08.39.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Jun 2022 08:39:46 -0700 (PDT)
+Message-ID: <7a0b40ae-4b1a-a512-1fdc-abfd8ffc56e8@kernel.dk>
+Date:   Thu, 16 Jun 2022 09:39:43 -0600
 MIME-Version: 1.0
-In-Reply-To: <20f49e70-32e0-a141-907c-5f58c543d70b@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-12.5 required=5.0 tests=BAYES_00,
-        ENV_AND_HDR_SPF_MATCH,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: FAILED: patch "[PATCH] io_uring: reinstate the inflight tracking"
+ failed to apply to 5.18-stable tree
+Content-Language: en-US
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org
+References: <1655384994105244@kroah.com>
+From:   Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <1655384994105244@kroah.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 6/16/22 7:09 AM, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.18-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-在 2022/6/16 下午11:04, David Hildenbrand 写道:
-> On 16.06.22 16:01, Zi Yan wrote:
->> On 15 Jun 2022, at 12:15, Xianting Tian wrote:
->>
->>> 在 2022/6/15 下午9:55, Zi Yan 写道:
->>>> On 15 Jun 2022, at 2:47, Xianting Tian wrote:
->>>>
->>>>> 在 2022/6/14 上午8:14, Zi Yan 写道:
->>>>>> On 13 Jun 2022, at 19:47, Guo Ren wrote:
->>>>>>
->>>>>>> On Tue, Jun 14, 2022 at 3:49 AM Zi Yan <ziy@nvidia.com> wrote:
->>>>>>>> On 13 Jun 2022, at 12:32, Guo Ren wrote:
->>>>>>>>
->>>>>>>>> On Mon, Jun 13, 2022 at 11:23 PM Zi Yan <ziy@nvidia.com> wrote:
->>>>>>>>>> Hi Xianting,
->>>>>>>>>>
->>>>>>>>>> Thanks for your patch.
->>>>>>>>>>
->>>>>>>>>> On 13 Jun 2022, at 9:10, Xianting Tian wrote:
->>>>>>>>>>
->>>>>>>>>>> Commit 787af64d05cd ("mm: page_alloc: validate buddy before check its migratetype.")
->>>>>>>>>>> added buddy check code. But unfortunately, this fix isn't backported to
->>>>>>>>>>> linux-5.17.y and the former stable branches. The reason is it added wrong
->>>>>>>>>>> fixes message:
->>>>>>>>>>>         Fixes: 1dd214b8f21c ("mm: page_alloc: avoid merging non-fallbackable
->>>>>>>>>>>                             pageblocks with others")
->>>>>>>>>> No, the Fixes tag is right. The commit above does need to validate buddy.
->>>>>>>>> I think Xianting is right. The “Fixes:" tag is not accurate and the
->>>>>>>>> page_is_buddy() is necessary here.
->>>>>>>>>
->>>>>>>>> This patch could be applied to the early version of the stable tree
->>>>>>>>> (eg: Linux-5.10.y, not the master tree)
->>>>>>>> This is quite misleading. Commit 787af64d05cd applies does not mean it is
->>>>>>>> intended to fix the preexisting bug. Also it does not apply cleanly
->>>>>>>> to commit d9dddbf55667, there is a clear indentation mismatch. At best,
->>>>>>>> you can say the way of 787af64d05cd fixing 1dd214b8f21c also fixes d9dddbf55667.
->>>>>>>> There is no way you can apply 787af64d05cd to earlier trees and call it a day.
->>>>>>>>
->>>>>>>> You can mention 787af64d05cd that it fixes a bug in 1dd214b8f21c and there is
->>>>>>>> a similar bug in d9dddbf55667 that can be fixed in a similar way too. Saying
->>>>>>>> the fixes message is wrong just misleads people, making them think there is
->>>>>>>> no bug in 1dd214b8f21c. We need to be clear about this.
->>>>>>> First, d9dddbf55667 is earlier than 1dd214b8f21c in Linus tree. The
->>>>>>> origin fixes could cover the Linux-5.0.y tree if they give the
->>>>>>> accurate commit number and that is the cause we want to point out.
->>>>>> Yes, I got that d9dddbf55667 is earlier and commit 787af64d05cd fixes
->>>>>> the issue introduced by d9dddbf55667. But my point is that 787af64d05cd
->>>>>> is not intended to fix d9dddbf55667 and saying it has a wrong fixes
->>>>>> message is misleading. This is the point I want to make.
->>>>>>
->>>>>>> Second, if the patch is for d9dddbf55667 then it could cover any tree
->>>>>>> in the stable repo. Actually, we only know Linux-5.10.y has the
->>>>>>> problem.
->>>>>> But it is not and does not apply to d9dddbf55667 cleanly.
->>>>>>
->>>>>>> Maybe, Gregkh could help to direct us on how to deal with the issue:
->>>>>>> (Fixup a bug which only belongs to the former stable branch.)
->>>>>>>
->>>>>> I think you just need to send this patch without saying “commit
->>>>>> 787af64d05cd fixes message is wrong” would be a good start. You also
->>>>>> need extra fix to mm/page_isolation.c for kernels between 5.15 and 5.17
->>>>>> (inclusive). So there will need to be two patches:
->>>>>>
->>>>>> 1) your patch to stable tree prior to 5.15 and
->>>>>>
->>>>>> 2) your patch with an additional mm/page_isolation.c fix to stable tree
->>>>>> between 5.15 and 5.17.
->>>>>>
->>>>>>>> Also, you will need to fix the mm/page_isolation.c code too to make this patch
->>>>>>>> complete, unless you can show that PFN=0x1000 is never going to be encountered
->>>>>>>> in the mm/page_isolation.c code I mentioned below.
->>>>>>> No, we needn't fix mm/page_isolation.c in linux-5.10.y, because it had
->>>>>>> pfn_valid_within(buddy_pfn) check after __find_buddy_pfn() to prevent
->>>>>>> buddy_pfn=0.
->>>>>>> The root cause comes from __find_buddy_pfn():
->>>>>>> return page_pfn ^ (1 << order);
->>>>>> Right. But pfn_valid_within() was removed since 5.15. So your fix is
->>>>>> required for kernels between 5.15 and 5.17 (inclusive).
->>>>>>
->>>>>>> When page_pfn is the same as the order size, it will return the
->>>>>>> previous buddy not the next. That is the only exception for this
->>>>>>> algorithm, right?
->>>>>>>
->>>>>>>
->>>>>>>
->>>>>>>
->>>>>>> In fact, the bug is a very long time to reproduce and is not easy to
->>>>>>> debug, so we want to contribute it to the community to prevent other
->>>>>>> guys from wasting time. Although there is no new patch at all.
->>>>>> Thanks for your reporting and sending out the patch. I really
->>>>>> appreciate it. We definitely need your inputs. Throughout the email
->>>>>> thread, I am trying to help you clarify the bug and how to fix it
->>>>>> properly:
->>>>>>
->>>>>> 1. The commit 787af64d05cd does not apply cleanly to commits
->>>>>> d9dddbf55667, meaning you cannot just cherry-pick that commit to
->>>>>> fix the issue. That is why we need your patch to fix the issue.
->>>>>> And saying it has a wrong fixes message in this patch’s git log is
->>>>>> misleading.
->>>>>>
->>>>>> 2. For kernels between 5.15 and 5.17 (inclusive), an additional fix
->>>>>> to mm/page_isolation.c is also needed, since pfn_valid_within() was
->>>>>> removed since 5.15 and the issue can appear during page isolation.
->>>>>>
->>>>>> 3. For kernels before 5.15, this patch will apply.
->>>>> Zi Yan, Guo Ren,
->>>>>
->>>>> I think we still need some imporvemnt for MASTER branch, as we discussed above, we will get an illegal buddy page if buddy_pfn is 0,
->>>>>
->>>>> within page_is_buddy(), it still use the illegal buddy page to do the check. I think in most of cases, page_is_buddy() can return false,  but it still may return true with very low probablity.
->>>> Can you elaborate more on this? What kind of page can lead to page_is_buddy()
->>>> returning true? You said it is buddy_pfn is 0, but if the page is reserved,
->>>> if (!page_is_guard(buddy) && !PageBuddy(buddy)) should return false.
->>>> Maybe show us the dump_page() that offending page.
->>>>
->>>> Thanks.
->>> Let‘s take the issue we met on RISC-V arch for example,
->>>
->>> pfn_base is 512 as we reserved 2M RAM for opensbi, mem_map's value is 0xffffffe07e205000, which is the page address of PFN 512.
->>>
->>> __find_buddy_pfn() returned 0 for PFN 0x2000 with order 0xd.
->>> We know PFN 0 is not a valid pfn for buddy system, because 512 is the first PFN for buddy system.
->>>
->>> Then it use below code to get buddy page with buddy_pfn 0:
->>> buddy = page + (buddy_pfn - pfn);
->>> So buddy page address is:
->>> 0xffffffe07e1fe000 = (struct page*)0xffffffe07e26e000 + (0 - 0x2000)
->>>
->>> we can know this buddy page's address is less than mem_map(0xffffffe07e1fe000 < 0xffffffe07e205000),
->>> actually 0xffffffe07e1fe000 is not a valid page's address. If we use 0xffffffe07e1fe000
->>> as the page's address to extract the value of a member in 'struct page', we may get an uncertain value.
->>> That's why I say page_is_buddy() may return true with very low probablity.
->>>
->>> So I think we need to add the code the verify buddy_pfn in the first place:
->>> 	pfn_valid(buddy_pfn)
->>>
->> +DavidH on how memory section works.
->>
->> This 2MB RAM reservation does not sound right to me. How does it work in sparsemem?
->> RISC-V has SECTION_SIZE_BITS=27, i.e., 128MB a section. All pages within
->> a section should have their corresponding struct page (mem_map). So in this case,
->> the first 2MB pages should have mem_map and can be marked as PageReserved. As a
->> result, page_is_buddy() will return false.
-> Yes. Unless there is a BUG :)
->
-> init_unavailable_range() is supposed to initialize the memap of
-> unavailable ranges and mark it reserved.
->
-> I wonder if we're missing a case in memmap_init(), to also initialize
-> holes at the beginning of a section, before RAM (we do handle sections
-> in a special way if the end of RAM falls in the middle of a section).
->
-> If it's not initialized, it might contain garbage.
-Thanks for the comments, I will check it for RISC-V arch.
->
+Here's the stable backport, thanks.
+
+
+commit db647876ffdec5d2c3d0f4bfd92b9fe81cf1f231
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   Thu Jun 16 09:37:57 2022 -0600
+
+    io_uring: reinstate the inflight tracking
+    
+    commit 9cae36a094e7e9d6e5fe8b6dcd4642138b3eb0c7 upstream
+    
+    After some debugging, it was realized that we really do still need the
+    old inflight tracking for any file type that has io_uring_fops assigned.
+    If we don't, then trivial circular references will mean that we never get
+    the ctx cleaned up and hence it'll leak.
+    
+    Just bring back the inflight tracking, which then also means we can
+    eliminate the conditional dropping of the file when task_work is queued.
+    
+    Fixes: d5361233e9ab ("io_uring: drop the old style inflight file tracking")
+    Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 9e247335e70d..3582db014aad 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -111,7 +111,8 @@
+ 			IOSQE_IO_DRAIN | IOSQE_CQE_SKIP_SUCCESS)
+ 
+ #define IO_REQ_CLEAN_FLAGS (REQ_F_BUFFER_SELECTED | REQ_F_NEED_CLEANUP | \
+-				REQ_F_POLLED | REQ_F_CREDS | REQ_F_ASYNC_DATA)
++				REQ_F_POLLED | REQ_F_INFLIGHT | REQ_F_CREDS | \
++				REQ_F_ASYNC_DATA)
+ 
+ #define IO_TCTX_REFS_CACHE_NR	(1U << 10)
+ 
+@@ -493,6 +494,7 @@ struct io_uring_task {
+ 	const struct io_ring_ctx *last;
+ 	struct io_wq		*io_wq;
+ 	struct percpu_counter	inflight;
++	atomic_t		inflight_tracked;
+ 	atomic_t		in_idle;
+ 
+ 	spinlock_t		task_lock;
+@@ -1186,8 +1188,6 @@ static void io_clean_op(struct io_kiocb *req);
+ static inline struct file *io_file_get_fixed(struct io_kiocb *req, int fd,
+ 					     unsigned issue_flags);
+ static inline struct file *io_file_get_normal(struct io_kiocb *req, int fd);
+-static void io_drop_inflight_file(struct io_kiocb *req);
+-static bool io_assign_file(struct io_kiocb *req, unsigned int issue_flags);
+ static void __io_queue_sqe(struct io_kiocb *req);
+ static void io_rsrc_put_work(struct work_struct *work);
+ 
+@@ -1435,9 +1435,29 @@ static bool io_match_task(struct io_kiocb *head, struct task_struct *task,
+ 			  bool cancel_all)
+ 	__must_hold(&req->ctx->timeout_lock)
+ {
++	struct io_kiocb *req;
++
+ 	if (task && head->task != task)
+ 		return false;
+-	return cancel_all;
++	if (cancel_all)
++		return true;
++
++	io_for_each_link(req, head) {
++		if (req->flags & REQ_F_INFLIGHT)
++			return true;
++	}
++	return false;
++}
++
++static bool io_match_linked(struct io_kiocb *head)
++{
++	struct io_kiocb *req;
++
++	io_for_each_link(req, head) {
++		if (req->flags & REQ_F_INFLIGHT)
++			return true;
++	}
++	return false;
+ }
+ 
+ /*
+@@ -1447,9 +1467,24 @@ static bool io_match_task(struct io_kiocb *head, struct task_struct *task,
+ static bool io_match_task_safe(struct io_kiocb *head, struct task_struct *task,
+ 			       bool cancel_all)
+ {
++	bool matched;
++
+ 	if (task && head->task != task)
+ 		return false;
+-	return cancel_all;
++	if (cancel_all)
++		return true;
++
++	if (head->flags & REQ_F_LINK_TIMEOUT) {
++		struct io_ring_ctx *ctx = head->ctx;
++
++		/* protect against races with linked timeouts */
++		spin_lock_irq(&ctx->timeout_lock);
++		matched = io_match_linked(head);
++		spin_unlock_irq(&ctx->timeout_lock);
++	} else {
++		matched = io_match_linked(head);
++	}
++	return matched;
+ }
+ 
+ static inline bool req_has_async_data(struct io_kiocb *req)
+@@ -1608,6 +1643,14 @@ static inline bool io_req_ffs_set(struct io_kiocb *req)
+ 	return req->flags & REQ_F_FIXED_FILE;
+ }
+ 
++static inline void io_req_track_inflight(struct io_kiocb *req)
++{
++	if (!(req->flags & REQ_F_INFLIGHT)) {
++		req->flags |= REQ_F_INFLIGHT;
++		atomic_inc(&current->io_uring->inflight_tracked);
++	}
++}
++
+ static struct io_kiocb *__io_prep_linked_timeout(struct io_kiocb *req)
+ {
+ 	if (WARN_ON_ONCE(!req->link))
+@@ -2516,8 +2559,6 @@ static void io_req_task_work_add(struct io_kiocb *req, bool priority)
+ 
+ 	WARN_ON_ONCE(!tctx);
+ 
+-	io_drop_inflight_file(req);
+-
+ 	spin_lock_irqsave(&tctx->task_lock, flags);
+ 	if (priority)
+ 		wq_list_add_tail(&req->io_task_work.node, &tctx->prior_task_list);
+@@ -5869,10 +5910,6 @@ static int io_poll_check_events(struct io_kiocb *req, bool locked)
+ 
+ 		if (!req->result) {
+ 			struct poll_table_struct pt = { ._key = req->apoll_events };
+-			unsigned flags = locked ? 0 : IO_URING_F_UNLOCKED;
+-
+-			if (unlikely(!io_assign_file(req, flags)))
+-				return -EBADF;
+ 			req->result = vfs_poll(req->file, &pt) & req->apoll_events;
+ 		}
+ 
+@@ -7097,6 +7134,11 @@ static void io_clean_op(struct io_kiocb *req)
+ 		kfree(req->apoll);
+ 		req->apoll = NULL;
+ 	}
++	if (req->flags & REQ_F_INFLIGHT) {
++		struct io_uring_task *tctx = req->task->io_uring;
++
++		atomic_dec(&tctx->inflight_tracked);
++	}
+ 	if (req->flags & REQ_F_CREDS)
+ 		put_cred(req->creds);
+ 	if (req->flags & REQ_F_ASYNC_DATA) {
+@@ -7393,19 +7435,6 @@ static inline struct file *io_file_get_fixed(struct io_kiocb *req, int fd,
+ 	return file;
+ }
+ 
+-/*
+- * Drop the file for requeue operations. Only used of req->file is the
+- * io_uring descriptor itself.
+- */
+-static void io_drop_inflight_file(struct io_kiocb *req)
+-{
+-	if (unlikely(req->flags & REQ_F_INFLIGHT)) {
+-		fput(req->file);
+-		req->file = NULL;
+-		req->flags &= ~REQ_F_INFLIGHT;
+-	}
+-}
+-
+ static struct file *io_file_get_normal(struct io_kiocb *req, int fd)
+ {
+ 	struct file *file = fget(fd);
+@@ -7414,7 +7443,7 @@ static struct file *io_file_get_normal(struct io_kiocb *req, int fd)
+ 
+ 	/* we don't allow fixed io_uring files */
+ 	if (file && file->f_op == &io_uring_fops)
+-		req->flags |= REQ_F_INFLIGHT;
++		io_req_track_inflight(req);
+ 	return file;
+ }
+ 
+@@ -9211,6 +9240,7 @@ static __cold int io_uring_alloc_task_context(struct task_struct *task,
+ 	xa_init(&tctx->xa);
+ 	init_waitqueue_head(&tctx->wait);
+ 	atomic_set(&tctx->in_idle, 0);
++	atomic_set(&tctx->inflight_tracked, 0);
+ 	task->io_uring = tctx;
+ 	spin_lock_init(&tctx->task_lock);
+ 	INIT_WQ_LIST(&tctx->task_list);
+@@ -10402,7 +10432,7 @@ static __cold void io_uring_clean_tctx(struct io_uring_task *tctx)
+ static s64 tctx_inflight(struct io_uring_task *tctx, bool tracked)
+ {
+ 	if (tracked)
+-		return 0;
++		return atomic_read(&tctx->inflight_tracked);
+ 	return percpu_counter_sum(&tctx->inflight);
+ }
+ 
+
+-- 
+Jens Axboe
+
