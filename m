@@ -2,57 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1863E54D76B
-	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 03:52:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83AAE54D7AA
+	for <lists+stable@lfdr.de>; Thu, 16 Jun 2022 03:59:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351000AbiFPBwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jun 2022 21:52:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55700 "EHLO
+        id S236140AbiFPB5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jun 2022 21:57:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350870AbiFPBwG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 21:52:06 -0400
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCECD580F7;
-        Wed, 15 Jun 2022 18:52:03 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xianting.tian@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VGVKdqq_1655344318;
-Received: from B-LB6YLVDL-0141.local(mailfrom:xianting.tian@linux.alibaba.com fp:SMTPD_---0VGVKdqq_1655344318)
-          by smtp.aliyun-inc.com;
-          Thu, 16 Jun 2022 09:51:59 +0800
-Subject: Re: [RESEND PATCH] mm: page_alloc: validate buddy before check the
- migratetype
-From:   Xianting Tian <xianting.tian@linux.alibaba.com>
-To:     Zi Yan <ziy@nvidia.com>
-Cc:     Guo Ren <guoren@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Linux-MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, huanyi.xj@alibaba-inc.com,
-        zjb194813@alibaba-inc.com, tianhu.hh@alibaba-inc.com,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Laura Abbott <labbott@redhat.com>
-References: <20220613131046.3009889-1-xianting.tian@linux.alibaba.com>
- <0262A4FB-5A9B-47D3-8F1A-995509F56279@nvidia.com>
- <CAJF2gTQGXAubtas4wAzrg298dGQJntu38X48V2OzcK8xZ_vPJg@mail.gmail.com>
- <D667F530-E286-4E75-B7CE-63E120E440C8@nvidia.com>
- <CAJF2gTSsaaseds=T_y-Ddt5Np2rYhk3ENumzSZDZUSXFwT3u-g@mail.gmail.com>
- <435B45C3-E6A5-43B2-A5A2-318C748691FC@nvidia.com>
- <b65b9edd-ff3e-aa44-029a-49fa5ba66b47@linux.alibaba.com>
- <18330D9A-F433-4136-A226-F24173293BF3@nvidia.com>
- <5526fab6-c7e1-bddc-912b-e4d9b2769d4e@linux.alibaba.com>
-Message-ID: <ff86cef4-d58c-dedc-8bed-7f5a989f3dc1@linux.alibaba.com>
-Date:   Thu, 16 Jun 2022 09:51:58 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.10.1
+        with ESMTP id S236015AbiFPB5Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jun 2022 21:57:25 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442C659092;
+        Wed, 15 Jun 2022 18:57:24 -0700 (PDT)
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.53])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4LNlcW25ZlzgZQX;
+        Thu, 16 Jun 2022 09:55:23 +0800 (CST)
+Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Thu, 16 Jun 2022 09:56:56 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Thu, 16 Jun 2022 09:56:55 +0800
+Subject: Re: [PATCH 5.10 00/11] 5.10.123-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
+References: <20220614183719.878453780@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <53a93564-7f2b-e439-db8a-a37396c73b55@huawei.com>
+Date:   Thu, 16 Jun 2022 09:56:54 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <5526fab6-c7e1-bddc-912b-e4d9b2769d4e@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-11.1 required=5.0 tests=BAYES_00,
-        ENV_AND_HDR_SPF_MATCH,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL
+In-Reply-To: <20220614183719.878453780@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ kwepemm600013.china.huawei.com (7.193.23.68)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-5.4 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,317 +59,52 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-在 2022/6/16 上午12:15, Xianting Tian 写道:
->
-> 在 2022/6/15 下午9:55, Zi Yan 写道:
->> On 15 Jun 2022, at 2:47, Xianting Tian wrote:
->>
->>> 在 2022/6/14 上午8:14, Zi Yan 写道:
->>>> On 13 Jun 2022, at 19:47, Guo Ren wrote:
->>>>
->>>>> On Tue, Jun 14, 2022 at 3:49 AM Zi Yan <ziy@nvidia.com> wrote:
->>>>>> On 13 Jun 2022, at 12:32, Guo Ren wrote:
->>>>>>
->>>>>>> On Mon, Jun 13, 2022 at 11:23 PM Zi Yan <ziy@nvidia.com> wrote:
->>>>>>>> Hi Xianting,
->>>>>>>>
->>>>>>>> Thanks for your patch.
->>>>>>>>
->>>>>>>> On 13 Jun 2022, at 9:10, Xianting Tian wrote:
->>>>>>>>
->>>>>>>>> Commit 787af64d05cd ("mm: page_alloc: validate buddy before 
->>>>>>>>> check its migratetype.")
->>>>>>>>> added buddy check code. But unfortunately, this fix isn't 
->>>>>>>>> backported to
->>>>>>>>> linux-5.17.y and the former stable branches. The reason is it 
->>>>>>>>> added wrong
->>>>>>>>> fixes message:
->>>>>>>>>        Fixes: 1dd214b8f21c ("mm: page_alloc: avoid merging 
->>>>>>>>> non-fallbackable
->>>>>>>>>                            pageblocks with others")
->>>>>>>> No, the Fixes tag is right. The commit above does need to 
->>>>>>>> validate buddy.
->>>>>>> I think Xianting is right. The “Fixes:" tag is not accurate and the
->>>>>>> page_is_buddy() is necessary here.
->>>>>>>
->>>>>>> This patch could be applied to the early version of the stable tree
->>>>>>> (eg: Linux-5.10.y, not the master tree)
->>>>>> This is quite misleading. Commit 787af64d05cd applies does not 
->>>>>> mean it is
->>>>>> intended to fix the preexisting bug. Also it does not apply cleanly
->>>>>> to commit d9dddbf55667, there is a clear indentation mismatch. At 
->>>>>> best,
->>>>>> you can say the way of 787af64d05cd fixing 1dd214b8f21c also 
->>>>>> fixes d9dddbf55667.
->>>>>> There is no way you can apply 787af64d05cd to earlier trees and 
->>>>>> call it a day.
->>>>>>
->>>>>> You can mention 787af64d05cd that it fixes a bug in 1dd214b8f21c 
->>>>>> and there is
->>>>>> a similar bug in d9dddbf55667 that can be fixed in a similar way 
->>>>>> too. Saying
->>>>>> the fixes message is wrong just misleads people, making them 
->>>>>> think there is
->>>>>> no bug in 1dd214b8f21c. We need to be clear about this.
->>>>> First, d9dddbf55667 is earlier than 1dd214b8f21c in Linus tree. The
->>>>> origin fixes could cover the Linux-5.0.y tree if they give the
->>>>> accurate commit number and that is the cause we want to point out.
->>>> Yes, I got that d9dddbf55667 is earlier and commit 787af64d05cd fixes
->>>> the issue introduced by d9dddbf55667. But my point is that 
->>>> 787af64d05cd
->>>> is not intended to fix d9dddbf55667 and saying it has a wrong fixes
->>>> message is misleading. This is the point I want to make.
->>>>
->>>>> Second, if the patch is for d9dddbf55667 then it could cover any tree
->>>>> in the stable repo. Actually, we only know Linux-5.10.y has the
->>>>> problem.
->>>> But it is not and does not apply to d9dddbf55667 cleanly.
->>>>
->>>>> Maybe, Gregkh could help to direct us on how to deal with the issue:
->>>>> (Fixup a bug which only belongs to the former stable branch.)
->>>>>
->>>> I think you just need to send this patch without saying “commit
->>>> 787af64d05cd fixes message is wrong” would be a good start. You also
->>>> need extra fix to mm/page_isolation.c for kernels between 5.15 and 
->>>> 5.17
->>>> (inclusive). So there will need to be two patches:
->>>>
->>>> 1) your patch to stable tree prior to 5.15 and
->>>>
->>>> 2) your patch with an additional mm/page_isolation.c fix to stable 
->>>> tree
->>>> between 5.15 and 5.17.
->>>>
->>>>>> Also, you will need to fix the mm/page_isolation.c code too to 
->>>>>> make this patch
->>>>>> complete, unless you can show that PFN=0x1000 is never going to 
->>>>>> be encountered
->>>>>> in the mm/page_isolation.c code I mentioned below.
->>>>> No, we needn't fix mm/page_isolation.c in linux-5.10.y, because it 
->>>>> had
->>>>> pfn_valid_within(buddy_pfn) check after __find_buddy_pfn() to prevent
->>>>> buddy_pfn=0.
->>>>> The root cause comes from __find_buddy_pfn():
->>>>> return page_pfn ^ (1 << order);
->>>> Right. But pfn_valid_within() was removed since 5.15. So your fix is
->>>> required for kernels between 5.15 and 5.17 (inclusive).
->>>>
->>>>> When page_pfn is the same as the order size, it will return the
->>>>> previous buddy not the next. That is the only exception for this
->>>>> algorithm, right?
->>>>>
->>>>>
->>>>>
->>>>>
->>>>> In fact, the bug is a very long time to reproduce and is not easy to
->>>>> debug, so we want to contribute it to the community to prevent other
->>>>> guys from wasting time. Although there is no new patch at all.
->>>> Thanks for your reporting and sending out the patch. I really
->>>> appreciate it. We definitely need your inputs. Throughout the email
->>>> thread, I am trying to help you clarify the bug and how to fix it
->>>> properly:
->>>>
->>>> 1. The commit 787af64d05cd does not apply cleanly to commits
->>>> d9dddbf55667, meaning you cannot just cherry-pick that commit to
->>>> fix the issue. That is why we need your patch to fix the issue.
->>>> And saying it has a wrong fixes message in this patch’s git log is
->>>> misleading.
->>>>
->>>> 2. For kernels between 5.15 and 5.17 (inclusive), an additional fix
->>>> to mm/page_isolation.c is also needed, since pfn_valid_within() was
->>>> removed since 5.15 and the issue can appear during page isolation.
->>>>
->>>> 3. For kernels before 5.15, this patch will apply.
->>> Zi Yan, Guo Ren,
->>>
->>> I think we still need some imporvemnt for MASTER branch, as we 
->>> discussed above, we will get an illegal buddy page if buddy_pfn is 0,
->>>
->>> within page_is_buddy(), it still use the illegal buddy page to do 
->>> the check. I think in most of cases, page_is_buddy() can return 
->>> false,  but it still may return true with very low probablity.
->> Can you elaborate more on this? What kind of page can lead to 
->> page_is_buddy()
->> returning true? You said it is buddy_pfn is 0, but if the page is 
->> reserved,
->> if (!page_is_guard(buddy) && !PageBuddy(buddy)) should return false.
->> Maybe show us the dump_page() that offending page.
->>
->> Thanks.
->
-> Let‘s take the issue we met on RISC-V arch for example,
->
-> pfn_base is 512 as we reserved 2M RAM for opensbi, mem_map's value is 
-> 0xffffffe07e205000, which is the page address of PFN 512.
->
-> __find_buddy_pfn() returned 0 for PFN 0x2000 with order 0xd.
-> We know PFN 0 is not a valid pfn for buddy system, because 512 is the 
-> first PFN for buddy system.
->
-> Then it use below code to get buddy page with buddy_pfn 0:
-> buddy = page + (buddy_pfn - pfn);
-> So buddy page address is:
-> 0xffffffe07e1fe000 = (struct page*)0xffffffe07e26e000 + (0 - 0x2000)
->
-> we can know this buddy page's address is less than 
-> mem_map(0xffffffe07e1fe000 < 0xffffffe07e205000),
-> actually 0xffffffe07e1fe000 is not a valid page's address. If we use 
-> 0xffffffe07e1fe000
-> as the page's address to extract the value of a member in 'struct 
-> page', we may get an uncertain value.
-> That's why I say page_is_buddy() may return true with very low 
-> probablity.
->
-> So I think we need to add the code the verify buddy_pfn in the first 
-> place:
->     pfn_valid(buddy_pfn)
->
-The contents of the invalid page as below, all 0 in contents, but it may 
-diff next time.
 
-(gdb) p /x *(struct page *)0xffffffe07e1fe000
+On 2022/6/15 2:40, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.123 release.
+> There are 11 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 16 Jun 2022 18:37:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.123-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-$15 = {flags = 0x0, {{lru = {next = 0x0, prev = 0x0}, mapping = 0x0, 
-index = 0x0, private = 0x0}, {dma_addr = {0x0, 0x0}}, {{slab_list = 
-{next = 0x0, prev = 0
-           x0}, {next = 0x0, pages = 0x0, pobjects = 0x0}}, slab_cache = 
-0x0, freelist = 0x0, {s_mem = 0x0, counters = 0x0, {inuse = 0x0, objects 
-= 0x0
-           , frozen = 0x0}}}, {compound_head = 0x0, compound_dtor = 0x0, 
-compound_order = 0x0, compound_mapcount = {counter = 0x0}, compound_nr =
-       0x0}, {_compound_pad_1 = 0x0, hpage_pinned_refcount = {counter = 
-0x0}, deferred_list = {next = 0x0, prev = 0x0}}, {_pt_pad_1 = 0x0, pmd_hu
-       ge_pte = 0x0, _pt_pad_2 = 0x0, {pt_mm = 0x0, pt_frag_refcount = 
-{counter = 0x0}}, ptl = {{rlock = {raw_lock = {lock = 0x0}}}}}, {pgmap = 
-0x0, zone
-       _device_data = 0x0}, callback_head = {next = 0x0, func = 0x0}}, 
-{_mapcount = {counter = 0x0}, page_type = 0x0, active = 0x0, units = 
-0x0}, _refcount
+Tested on arm64 and x86 for 5.10.123-rc1,
 
-    = {counter = 0x0}}
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.10.y
+Version: 5.10.123-rc1
+Commit: f67ea0f670870facb37c20f19e483ec74a2cba63
+Compiler: gcc version 7.3.0 (GCC)
 
-This is the first normal page in mem_map,
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9033
+passed: 9033
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-(gdb) p /x *(struct page *)0xffffffe07e26e000
-$16 = {flags = 0x0, {{lru = {next = 0x100, prev = 0x122}, mapping = 0x0, 
-index = 0x0, private = 0x0}, {dma_addr = {0x100, 0x122}}, {{slab_list = 
-{next = 0x100
-           , prev = 0x122}, {next = 0x100, pages = 0x122, pobjects = 
-0x0}}, slab_cache = 0x0, freelist = 0x0, {s_mem = 0x0, counters = 0x0, 
-{inuse
-           = 0x0, objects = 0x0, frozen = 0x0}}}, {compound_head = 
-0x100, compound_dtor = 0x22, compound_order = 0x1, compound_mapcount = 
-{counter = 0x0}
-         , compound_nr = 0x0}, {_compound_pad_1 = 0x100, 
-hpage_pinned_refcount = {counter = 0x122}, deferred_list = {next = 0x0, 
-prev = 0x0}}, {_
-       pt_pad_1 = 0x100, pmd_huge_pte = 0x122, _pt_pad_2 = 0x0, {pt_mm = 
-0x0, pt_frag_refcount = {counter = 0x0}}, ptl = {{rlock = {raw_lock = 
-{lock = 0x0}}}}
-               }, {pgmap = 0x100, zone_device_data = 0x122}, 
-callback_head = {next = 0x100, func = 0x122}}, {_mapcount = {counter = 
-0xffffffff},
-       page_type = 0xffffffff, active = 0xffffffff, units = 0xffffffff}, 
-_refcount = {counter = 0x0}}
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9033
+passed: 9033
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
->>> I think we need to add some code to verify buddy_pfn in the first 
->>> place.
->>>
->>> Could you give some suggestions for this idea?
->>>
->>>>>>>>> Actually, this issue is involved by commit:
->>>>>>>>>        commit d9dddbf55667 ("mm/page_alloc: prevent merging 
->>>>>>>>> between isolated and other pageblocks")
->>>>>>>>>
->>>>>>>>> For RISC-V arch, the first 2M is reserved for sbi, so the 
->>>>>>>>> start PFN is 512,
->>>>>>>>> but it got buddy PFN 0 for PFN 0x2000:
->>>>>>>>>        0 = 0x2000 ^ (1 << 12)
->>>>>>>>> With the illegal buddy PFN 0, it got an illegal buddy page, 
->>>>>>>>> which caused
->>>>>>>>> crash in __get_pfnblock_flags_mask().
->>>>>>>> It seems that the RISC-V arch reveals a similar bug from 
->>>>>>>> d9dddbf55667.
->>>>>>>> Basically, this bug will only happen when PFN=0x2000 is merging 
->>>>>>>> up and
->>>>>>>> there are some isolated pageblocks.
->>>>>>> Not PFN=0x2000, it's PFN=0x1000, I guess.
->>>>>>>
->>>>>>> RISC-V's first 2MB RAM could reserve for opensbi, so it would have
->>>>>>> riscv_pfn_base=512 and mem_map began with 512th PFN when
->>>>>>> CONFIG_FLATMEM=y.
->>>>>>> (Also, csky has the same issue: a non-zero pfn_base in some 
->>>>>>> scenarios.)
->>>>>>>
->>>>>>> But __find_buddy_pfn algorithm thinks the start address is 0, it 
->>>>>>> could
->>>>>>> get 0 pfn or less than the pfn_base value. We need another check to
->>>>>>> prevent that.
->>>>>>>
->>>>>>>> BTW, what does first reserved 2MB imply? All 4KB pages from 
->>>>>>>> first 2MB are
->>>>>>>> set to PageReserved?
->>>>>>>>
->>>>>>>>> With the patch, it can avoid the calling of 
->>>>>>>>> get_pageblock_migratetype() if
->>>>>>>>> it isn't buddy page.
->>>>>>>> You might miss the __find_buddy_pfn() caller in 
->>>>>>>> unset_migratetype_isolate()
->>>>>>>> from mm/page_isolation.c, if you are talking about linux-5.17.y 
->>>>>>>> and former
->>>>>>>> version. There, page_is_buddy() is also not called and 
->>>>>>>> is_migrate_isolate_page()
->>>>>>>> is called, which calls get_pageblock_migratetype() too.
->>>>>>>>
->>>>>>>>> Fixes: d9dddbf55667 ("mm/page_alloc: prevent merging between 
->>>>>>>>> isolated and other pageblocks")
->>>>>>>>> Cc: stable@vger.kernel.org
->>>>>>>>> Reported-by: zjb194813@alibaba-inc.com
->>>>>>>>> Reported-by: tianhu.hh@alibaba-inc.com
->>>>>>>>> Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
->>>>>>>>> ---
->>>>>>>>>    mm/page_alloc.c | 3 +++
->>>>>>>>>    1 file changed, 3 insertions(+)
->>>>>>>>>
->>>>>>>>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
->>>>>>>>> index b1caa1c6c887..5b423caa68fd 100644
->>>>>>>>> --- a/mm/page_alloc.c
->>>>>>>>> +++ b/mm/page_alloc.c
->>>>>>>>> @@ -1129,6 +1129,9 @@ static inline void 
->>>>>>>>> __free_one_page(struct page *page,
->>>>>>>>>
->>>>>>>>>                         buddy_pfn = __find_buddy_pfn(pfn, order);
->>>>>>>>>                         buddy = page + (buddy_pfn - pfn);
->>>>>>>>> +
->>>>>>>>> +                     if (!page_is_buddy(page, buddy, order))
->>>>>>>>> +                             goto done_merging;
->>>>>>>>>                         buddy_mt = 
->>>>>>>>> get_pageblock_migratetype(buddy);
->>>>>>>>>
->>>>>>>>>                         if (migratetype != buddy_mt
->>>>>>>>> -- 
->>>>>>>>> 2.17.1
->>>>>>>> -- 
->>>>>>>> Best Regards,
->>>>>>>> Yan, Zi
->>>>>>>
->>>>>>> -- 
->>>>>>> Best Regards
->>>>>>>    Guo Ren
->>>>>>>
->>>>>>> ML: https://lore.kernel.org/linux-csky/
->>>>>> -- 
->>>>>> Best Regards,
->>>>>> Yan, Zi
->>>>>
->>>>> -- 
->>>>> Best Regards
->>>>>    Guo Ren
->>>>>
->>>>> ML: https://lore.kernel.org/linux-csky/
->>>> -- 
->>>> Best Regards,
->>>> Yan, Zi
->> -- 
->> Best Regards,
->> Yan, Zi
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
