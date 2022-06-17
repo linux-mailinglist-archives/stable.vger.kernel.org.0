@@ -2,83 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC2C754FB05
-	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 18:28:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1926C54FB1E
+	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 18:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383115AbiFQQ17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jun 2022 12:27:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40758 "EHLO
+        id S230210AbiFQQcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jun 2022 12:32:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229602AbiFQQ16 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 12:27:58 -0400
-Received: from mail1.bemta35.messagelabs.com (mail1.bemta35.messagelabs.com [67.219.250.113])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E20321583F;
-        Fri, 17 Jun 2022 09:27:56 -0700 (PDT)
+        with ESMTP id S229602AbiFQQcV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 12:32:21 -0400
+Received: from mail1.bemta33.messagelabs.com (mail1.bemta33.messagelabs.com [67.219.247.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32C6B443CA;
+        Fri, 17 Jun 2022 09:32:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com;
-        s=Selector; t=1655483276; i=@motorola.com;
-        bh=2kDYzt/VGbsG0nzURDxax2rcRa5S2Q9ZXehQBx7o2So=;
-        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-         Content-Type:In-Reply-To;
-        b=FyELOb68bKc/Wx57kMVFf2Pn1se1hE1RevDfi+7XKFNEf4htk16C6iEJjRbqbZjZn
-         uM420vq/B/KUchC/iKdbUdUiFWdp+yPsi5bu/Bp6X9stCXyPD1uuNSkVrvNTOcYMVA
-         T01iR8jSYDJF5mgbOQsNQiE7g5dxR9bgQdlFlQq9sx8C2CBFX7E1hveTZv3w9h63U8
-         4pjTnJPA709rQOXPNxnk+hb1TMtf3N+/xlsimeXoCWDEcdGgvD7TxjOEQiPJdcG9L+
-         jyYRThGk+7Od690ZGmkZzMqv1aQlXhUbfqz60/NslQsQjy9w44DDsmq2olXWXqtt+p
-         ElnRVZ5KIIhDQ==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrGIsWRWlGSWpSXmKPExsUyYU+Ds2736jV
-  JBjtfylkca3vCbtG8eD2bRefEJewWl3fNYbNYtKyV2WJL2xUmix9/+pgtFmx8xOjA4TG7Yyar
-  x6ZVnWwe++euYffo/2vg8XmTXABrFGtmXlJ+RQJrxo65Z5gKJgtV7GroZ2lgvMTXxcjFISQwm
-  Uli+ZqpzBDOQiaJRc1P2bsYOTlYBFQlHsyZwgJiswmoSSx4vYoZxBYRsJDoXTSdEcRmFmhhkj
-  hzURjEFhbwlTg4fw9YnFdAWeLn+glsILaQQIbEm4YT7BBxQYmTM5+wQPRqSdz495Kpi5EDyJa
-  WWP6PAyTMKWAlce35V6YJjLyzkHTMQtIxC6FjASPzKkbrpKLM9IyS3MTMHF1DAwNdQ0MTXUtL
-  XUMTM73EKt1EvdJi3fLU4hJdI73E8mK91OJiveLK3OScFL281JJNjMAgTylKnrSD8XvfT71Dj
-  JIcTEqivGVL1yQJ8SXlp1RmJBZnxBeV5qQWH2KU4eBQkuD9uwIoJ1iUmp5akZaZA4w4mLQEB4
-  +SCK/scqA0b3FBYm5xZjpE6hSjLkfn/q4DzEIsefl5qVLivLtXARUJgBRllObBjYBF/yVGWSl
-  hXkYGBgYhnoLUotzMElT5V4ziHIxKwrznQS7hycwrgdv0CugIJqAjGvetADmiJBEhJdXAlNtj
-  9S3pZofHhKtnJ54usHJLmhgZYrZvwdXpTP1Xps/u3jqBSVB0Unb8bv77fccXKgmFbK9UuGFSu
-  vN5iDfjvfCXUZ/uN+9eJcO6TCiOV7vg3s3WTWIZzHtKZBc36u5aEqXXuGfidcWSztu3DSb8WC
-  +xYIdRvVDO1+0rHt7Re8b2I+yZ/P/ze3QYa2bEeBlPj53Ra57yZZlc9zLnPj+h1LtxUX68jvI
-  3BX2482frbXOzF3o5banZI/FnG1bMebM/163eO/rHGovs4MVPUmw7Gi1vWxSruyx2W1a/NWE7
-  f97PlO7ZzmcFV1dOqbz0zYB/p6bZyQdSbW2c+lNPBeRfiTC/0XnOI0AleV+MlXOpEktxRqKhF
-  nNRcSIAqyBdWHkDAAA=
+        s=Selector; t=1655483539; i=@motorola.com;
+        bh=4qhNSaWDIEzNmKnIquOhI5GtN3EyttOwc2Krhh8v2vo=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:
+         Content-Transfer-Encoding;
+        b=lN+WWqcbFNChEvGubcO1wl9kVXZyvG+K4LzbODYd+FSOA8JawsqkpD9ufKIToyu0g
+         B+Venf+Po+DA7WaSms6kb0OMmuPP6jWEykwgxS3TDXSgL+fMBRlFeypTfUYoKHaYIa
+         N/zAQQ9ImkXMWoYDbmFrAOiZZIOPSqHlF8MHCP4qFqm29fyPAzZDKP0WBoBrCHD1es
+         e6N6SspHgRBfrcVXvaw/dirvQ4XxcBQaINL406ylPg10yPL+zdNPeSlZVd0R2lvbft
+         Yu5fBpsHqynnti8V2+eFjB8Sqb23kVDxddEsktT/LSasL6/RjyTiIlFqFMjq/BtKIf
+         qyHUC97VGf21g==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrCIsWRWlGSWpSXmKPExsUyYU+Di+6kNWu
+  SDP6elbc41vaE3aJ58Xo2i86JS9gtLu+aw2axaFkrs8WWtitMFj/+9DFbLNj4iNGBw2N2x0xW
+  j02rOtk89s9dw+7R/9fA4/MmuQDWKNbMvKT8igTWjKub37EWbOOt6Phq3MC4n7uLkYtDSGAyk
+  8Sr7h9MEM5iJonLdxezdTFycrAJqEkseL2KGcQWEZCVOHzlNzNIEbPAYSaJd5/Ps4MkhAV8JP
+  Zu7WQCsVkEVCU2XepnBbF5BSwkds3aBmZLCMhL7D94lhkiLihxcuYTFhCbGSjevHU28wRG7ll
+  IUrOQpBYwMq1itE4qykzPKMlNzMzRNTQw0DU0NNE1M9U1MrHUS6zSTdQrLdZNTSwu0TXSSywv
+  1kstLtYrrsxNzknRy0st2cQIDNCUIsefOxh7Vv3UO8QoycGkJMpbtnRNkhBfUn5KZUZicUZ8U
+  WlOavEhRhkODiUJ3turgXKCRanpqRVpmTnAaIFJS3DwKInwyi4HSvMWFyTmFmemQ6ROMepydO
+  7vOsAsxJKXn5cqJc67DGSGAEhRRmke3AhY5F5ilJUS5mVkYGAQ4ilILcrNLEGVf8UozsGoJMy
+  bAjKFJzOvBG7TK6AjmICOaNy3AuSIkkSElFQDU4WD58PMQ/nHOgwm+/2riNh5UuP+8tfb1af2
+  7qkvDl0my+U6SeDq6udfniazr919YKXc3AXt8kJLxKryrlhfFXjw4rvc8vjLRbw311xYzNmQJ
+  thRrZqur+upsb9n5gR7rcpuVo1Zf3Nmngg/3HtiY2OQvtTnp+/4PV9XOd60Wm5m3rtF+ZKfXJ
+  RBc6iK0LHCG8dsuLcn5119d3/tyye+C/4eCNeu5DvAGFtqnbdka8tLBpO5DamLMz4Wtws7NFp
+  b27X9cXHb1VW+/ewplw7RrZdXSWaHS/RxbCxlWX/SWv39mvvxm8pOqX8+Fd/2ffLfUvW6qM0L
+  1zn/2fVlW6vtSrljiy09p3LZRGcX1uyYoMRSnJFoqMVcVJwIAImL4sFXAwAA
 X-Env-Sender: w36195@motorola.com
-X-Msg-Ref: server-13.tower-636.messagelabs.com!1655483274!23406!1
-X-Originating-IP: [144.188.128.67]
+X-Msg-Ref: server-3.tower-715.messagelabs.com!1655483538!7014!1
+X-Originating-IP: [144.188.128.68]
 X-SYMC-ESS-Client-Auth: outbound-route-from=pass
 X-StarScan-Received: 
 X-StarScan-Version: 9.86.7; banners=-,-,-
 X-VirusChecked: Checked
-Received: (qmail 18209 invoked from network); 17 Jun 2022 16:27:55 -0000
-Received: from unknown (HELO ilclpfpp01.lenovo.com) (144.188.128.67)
-  by server-13.tower-636.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 17 Jun 2022 16:27:55 -0000
+Received: (qmail 2923 invoked from network); 17 Jun 2022 16:32:18 -0000
+Received: from unknown (HELO ilclpfpp02.lenovo.com) (144.188.128.68)
+  by server-3.tower-715.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 17 Jun 2022 16:32:18 -0000
 Received: from ilclmmrp02.lenovo.com (ilclmmrp02.mot.com [100.65.83.26])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ilclpfpp01.lenovo.com (Postfix) with ESMTPS id 4LPkwp5DcFzfBZq;
-        Fri, 17 Jun 2022 16:27:54 +0000 (UTC)
-Received: from p1g3 (unknown [10.45.6.83])
+        by ilclpfpp02.lenovo.com (Postfix) with ESMTPS id 4LPl1t0S4hzbrVK;
+        Fri, 17 Jun 2022 16:32:18 +0000 (UTC)
+Received: from p1g3.. (unknown [10.45.6.83])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
         (Authenticated sender: w36195)
-        by ilclmmrp02.lenovo.com (Postfix) with ESMTPSA id 4LPkwp3x5XzbrlP;
-        Fri, 17 Jun 2022 16:27:54 +0000 (UTC)
-Date:   Fri, 17 Jun 2022 11:27:35 -0500
+        by ilclmmrp02.lenovo.com (Postfix) with ESMTPSA id 4LPl1s5yXSzbrlQ;
+        Fri, 17 Jun 2022 16:32:17 +0000 (UTC)
 From:   Dan Vacura <w36195@motorola.com>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
+To:     linux-usb@vger.kernel.org
+Cc:     Dan Vacura <w36195@motorola.com>, stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Felipe Balbi <balbi@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Paul Elder <paul.elder@ideasonboard.com>,
         Michael Grzeschik <m.grzeschik@pengutronix.de>,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] usb: gadget: uvc: fix list double add in uvcg_video_pump
-Message-ID: <Yqyrd6vY/rdhAONd@p1g3>
-References: <20220616030915.149238-1-w36195@motorola.com>
- <Yqx4vPp78Sl2I3nU@pendragon.ideasonboard.com>
+Subject: [PATCH v2] usb: gadget: uvc: fix list double add in uvcg_video_pump
+Date:   Fri, 17 Jun 2022 11:31:53 -0500
+Message-Id: <20220617163154.16621-1-w36195@motorola.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yqx4vPp78Sl2I3nU@pendragon.ideasonboard.com>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -89,76 +86,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Laurent,
+A panic can occur if the endpoint becomes disabled and the
+uvcg_video_pump adds the request back to the req_free list after it has
+already been queued to the endpoint. The endpoint complete will add the
+request back to the req_free list. Invalidate the local request handle
+once it's been queued.
 
-Thanks for the review!
+<6>[  246.796704][T13726] configfs-gadget gadget: uvc: uvc_function_set_alt(1, 0)
+<3>[  246.797078][   T26] list_add double add: new=ffffff878bee5c40, prev=ffffff878bee5c40, next=ffffff878b0f0a90.
+<6>[  246.797213][   T26] ------------[ cut here ]------------
+<2>[  246.797224][   T26] kernel BUG at lib/list_debug.c:31!
+<6>[  246.807073][   T26] Call trace:
+<6>[  246.807180][   T26]  uvcg_video_pump+0x364/0x38c
+<6>[  246.807366][   T26]  process_one_work+0x2a4/0x544
+<6>[  246.807394][   T26]  worker_thread+0x350/0x784
+<6>[  246.807442][   T26]  kthread+0x2ac/0x320
 
-On Fri, Jun 17, 2022 at 03:51:08PM +0300, Laurent Pinchart wrote:
-> Hi Dan,
-> 
-> Thank you for the patch.
-> 
-> On Wed, Jun 15, 2022 at 10:09:15PM -0500, Dan Vacura wrote:
-> > A panic can occur if the endpoint becomes disabled and the
-> > uvcg_video_pump adds the request back to the req_free list after it has
-> > already been queued to the endpoint. The endpoint complete will add the
-> > request back to the req_free list. Invalidate the local request handle
-> > once it's been queued.
-> 
-> Good catch !
-> 
-> > <6>[  246.796704][T13726] configfs-gadget gadget: uvc: uvc_function_set_alt(1, 0)
-> > <3>[  246.797078][   T26] list_add double add: new=ffffff878bee5c40, prev=ffffff878bee5c40, next=ffffff878b0f0a90.
-> > <6>[  246.797213][   T26] ------------[ cut here ]------------
-> > <2>[  246.797224][   T26] kernel BUG at lib/list_debug.c:31!
-> > <6>[  246.807073][   T26] Call trace:
-> > <6>[  246.807180][   T26]  uvcg_video_pump+0x364/0x38c
-> > <6>[  246.807366][   T26]  process_one_work+0x2a4/0x544
-> > <6>[  246.807394][   T26]  worker_thread+0x350/0x784
-> > <6>[  246.807442][   T26]  kthread+0x2ac/0x320
-> > 
-> > Fixes: f9897ec0f6d3 ("usb: gadget: uvc: only pump video data if necessary")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Dan Vacura <w36195@motorola.com>
-> > ---
-> >  drivers/usb/gadget/function/uvc_video.c | 3 +++
-> >  1 file changed, 3 insertions(+)
-> > 
-> > diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-> > index 93f42c7f800d..59e2f51b53a5 100644
-> > --- a/drivers/usb/gadget/function/uvc_video.c
-> > +++ b/drivers/usb/gadget/function/uvc_video.c
-> > @@ -427,6 +427,9 @@ static void uvcg_video_pump(struct work_struct *work)
-> >  		if (ret < 0) {
-> >  			uvcg_queue_cancel(queue, 0);
-> >  			break;
-> > +		} else {
-> > +			/* Endpoint now owns the request */
-> > +			req = NULL;
-> >  		}
-> >  		video->req_int_count++;
-> 
-> I'd write it as
-> 
-> 		if (ret < 0) {
-> 			uvcg_queue_cancel(queue, 0);
-> 			break;
-> 		}
-> 
-> 		/* Endpoint now owns the request. */
-> 		req = NULL;
-> 		video->req_int_count++;
+Fixes: f9897ec0f6d3 ("usb: gadget: uvc: only pump video data if necessary")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dan Vacura <w36195@motorola.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+---
+V1 -> V2:
+- update logic flow per review recommendation
+- add review by for Laurent Pinchart
 
-This is cleaner. I'll send a v2 with this suggestion.
+ drivers/usb/gadget/function/uvc_video.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-> 
-> Apart from that,
-> 
-> Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> 
-> >  	}
-> 
-> -- 
-> Regards,
-> 
-> Laurent Pinchart
+diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
+index 93f42c7f800d..c00ce0e91f5d 100644
+--- a/drivers/usb/gadget/function/uvc_video.c
++++ b/drivers/usb/gadget/function/uvc_video.c
+@@ -428,6 +428,9 @@ static void uvcg_video_pump(struct work_struct *work)
+ 			uvcg_queue_cancel(queue, 0);
+ 			break;
+ 		}
++
++		/* Endpoint now owns the request */
++		req = NULL;
+ 		video->req_int_count++;
+ 	}
+ 
+-- 
+2.34.1
+
