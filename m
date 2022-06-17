@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C99E54FAA8
-	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 17:52:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B7B554FAAA
+	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 17:54:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237187AbiFQPwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jun 2022 11:52:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
+        id S237052AbiFQPys (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jun 2022 11:54:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234143AbiFQPwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 11:52:47 -0400
-Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::223])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31C4017047
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 08:52:44 -0700 (PDT)
+        with ESMTP id S234143AbiFQPyr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 11:54:47 -0400
+Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3453721273
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 08:54:46 -0700 (PDT)
 Received: (Authenticated sender: i.maximets@ovn.org)
-        by mail.gandi.net (Postfix) with ESMTPSA id EACB860009;
-        Fri, 17 Jun 2022 15:52:38 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id AA84940007;
+        Fri, 17 Jun 2022 15:54:43 +0000 (UTC)
 From:   Ilya Maximets <i.maximets@ovn.org>
 To:     stable@vger.kernel.org
 Cc:     Ilya Maximets <i.maximets@ovn.org>,
         =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
         Aaron Conole <aconole@redhat.com>,
         "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4] net: openvswitch: fix leak of nested actions
-Date:   Fri, 17 Jun 2022 17:52:34 +0200
-Message-Id: <20220617155234.237994-1-i.maximets@ovn.org>
+Subject: [PATCH 4.19] net: openvswitch: fix leak of nested actions
+Date:   Fri, 17 Jun 2022 17:54:40 +0200
+Message-Id: <20220617155440.238054-1-i.maximets@ovn.org>
 X-Mailer: git-send-email 2.34.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -41,9 +41,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 commit 1f30fb9166d4f15a1aa19449b9da871fe0ed4796 upstream
 
-[Backport for 5.4: Removed handling of OVS_ACTION_ATTR_DEC_TTL as it
- doesn't exist in this version.  BUILD_BUG_ON condition adjusted
- accordingly.]
+[Backport for 4.19: Removed handling of OVS_ACTION_ATTR_DEC_TTL
+ and OVS_ACTION_ATTR_CHECK_PKT_LEN as these actions do not exist
+ in this version.  BUILD_BUG_ON condition adjusted accordingly.]
 
 While parsing user-provided actions, openvswitch module may dynamically
 allocate memory and store pointers in the internal copy of the actions.
@@ -85,36 +85,21 @@ Acked-by: Aaron Conole <aconole@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
 
-The fix was already backported down to 5.10.  Sending this slightly modified
-version that works on 5.4.
+The fix was already backported down to 5.10.  This adjusted version will
+work on 4.19.  The version for 5.4 was sent separately.
 
- net/openvswitch/flow_netlink.c | 80 +++++++++++++++++++++++++++++++---
- 1 file changed, 75 insertions(+), 5 deletions(-)
+ net/openvswitch/flow_netlink.c | 61 +++++++++++++++++++++++++++++++---
+ 1 file changed, 56 insertions(+), 5 deletions(-)
 
 diff --git a/net/openvswitch/flow_netlink.c b/net/openvswitch/flow_netlink.c
-index 8461de79f67b..67125939d7ee 100644
+index 180f5feb7717..eba94cf3d2d0 100644
 --- a/net/openvswitch/flow_netlink.c
 +++ b/net/openvswitch/flow_netlink.c
-@@ -2266,6 +2266,51 @@ static struct sw_flow_actions *nla_alloc_flow_actions(int size)
+@@ -2253,6 +2253,36 @@ static struct sw_flow_actions *nla_alloc_flow_actions(int size)
  	return sfa;
  }
  
 +static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len);
-+
-+static void ovs_nla_free_check_pkt_len_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a;
-+	int rem;
-+
-+	nla_for_each_nested(a, action, rem) {
-+		switch (nla_type(a)) {
-+		case OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL:
-+		case OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER:
-+			ovs_nla_free_nested_actions(nla_data(a), nla_len(a));
-+			break;
-+		}
-+	}
-+}
 +
 +static void ovs_nla_free_clone_action(const struct nlattr *action)
 +{
@@ -147,7 +132,7 @@ index 8461de79f67b..67125939d7ee 100644
  static void ovs_nla_free_set_action(const struct nlattr *a)
  {
  	const struct nlattr *ovs_key = nla_data(a);
-@@ -2279,25 +2324,50 @@ static void ovs_nla_free_set_action(const struct nlattr *a)
+@@ -2266,25 +2296,46 @@ static void ovs_nla_free_set_action(const struct nlattr *a)
  	}
  }
  
@@ -161,7 +146,7 @@ index 8461de79f67b..67125939d7ee 100644
 +	/* Whenever new actions are added, the need to update this
 +	 * function should be considered.
 +	 */
-+	BUILD_BUG_ON(OVS_ACTION_ATTR_MAX != 21);
++	BUILD_BUG_ON(OVS_ACTION_ATTR_MAX != 20);
 +
 +	if (!actions)
  		return;
@@ -171,13 +156,9 @@ index 8461de79f67b..67125939d7ee 100644
  		switch (nla_type(a)) {
 -		case OVS_ACTION_ATTR_SET:
 -			ovs_nla_free_set_action(a);
-+		case OVS_ACTION_ATTR_CHECK_PKT_LEN:
-+			ovs_nla_free_check_pkt_len_action(a);
- 			break;
-+
 +		case OVS_ACTION_ATTR_CLONE:
 +			ovs_nla_free_clone_action(a);
-+			break;
+ 			break;
 +
  		case OVS_ACTION_ATTR_CT:
  			ovs_ct_free_action(a);
