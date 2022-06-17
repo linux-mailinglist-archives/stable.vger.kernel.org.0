@@ -2,100 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27A9354F11B
-	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 08:39:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3048F54F204
+	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 09:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234346AbiFQGjE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jun 2022 02:39:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50604 "EHLO
+        id S1380451AbiFQHc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jun 2022 03:32:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbiFQGjD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 02:39:03 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBC6E56F9B;
-        Thu, 16 Jun 2022 23:39:01 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id d14so130089pjs.3;
-        Thu, 16 Jun 2022 23:39:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=3nq0sEVdb/x1ukcdXtYcrvwvNzqDSLocc4o0m2aVSjk=;
-        b=dPPVfjCWxsXxpFGOHcqPC1fV/pXZ22W1hnFF4jLJBIkdlTzQPC4jQnXeALFShf5UXP
-         Viml177LUX8WdXFfPhqlGOweqgVY+2mDCh3j/jZP7z04R8pggPhjAPzX/OAgN7C/b3pV
-         9gnIUYYPygjp6S24Cz6oL6nJSlA56+fYY3chmnnx+GESAAlmIm2/hmCK6GPhfVN0lvvf
-         dAtTfPRfNrNu354w3i/JVwUoTGPir8GmZjw3dfyyu+ZyRr06kbfDTsnQ+6qgWuhXp+3l
-         l+Cy/WvN4ius6CCYO/Rx4ge0E9/RwEqrM3UTgzwhezMS6mFg4jm7Je/idEJKemYV9R7e
-         an0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=3nq0sEVdb/x1ukcdXtYcrvwvNzqDSLocc4o0m2aVSjk=;
-        b=SHp5j6Q0Ya9OS4Q4XagsbIVzjN9BLas3RJqGj7e7SDv+R5OwKLBP+rpBOe1hXFVCll
-         lnTIkMPCZYX5ZEPfesE5MUzQVvrqsjLRbBQRRBabqS1eDQxkIA9wrOUCA/4OvMVomU1+
-         MJofTNuUXCasc5CEikr0Isyfv1Np4UCAda4h7MXSZMUfoQq1qQux3H9gidOgs5pGCPwO
-         wtJgDeXmSxkK7P/Vwkli0gqNm7+TfMuByoa18kmVoSZVtQAMGi2Kqp7Wn9j5kIW7Fu4g
-         AzdqFlzOajflc2Z9oJmx41mrTih5Sg1gVxWmSEQ0mrLF6hQZOSmidzCl7xM52rJYfxGw
-         i2pQ==
-X-Gm-Message-State: AJIora9t0gpumCxliMYMKUfbfnCNPSYvfTCEE5bFKbCUi8cKMTbirYMN
-        m3sbIGqARm9Bqali98t0/H0MYZey4BV3B4L2
-X-Google-Smtp-Source: AGRyM1ubEnpcjWuy2vE5xi70Fmbu5aLG0TLkWtOCP3AWGVcX09v8zJplUrZBh470nxoZgU1bVMBm3g==
-X-Received: by 2002:a17:902:aa0c:b0:168:faa0:50a1 with SMTP id be12-20020a170902aa0c00b00168faa050a1mr8271195plb.57.1655447941168;
-        Thu, 16 Jun 2022 23:39:01 -0700 (PDT)
-Received: from VM-155-146-centos.localdomain ([43.132.141.8])
-        by smtp.gmail.com with ESMTPSA id o1-20020a62f901000000b0052285857864sm2937781pfh.97.2022.06.16.23.38.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jun 2022 23:39:00 -0700 (PDT)
-From:   Yuntao Wang <ytcoode@gmail.com>
-To:     dave.hansen@intel.com
-Cc:     bhe@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        hpa@zytor.com, kirill@shutemov.name, linux-kernel@vger.kernel.org,
-        luto@kernel.org, mingo@redhat.com, peterz@infradead.org,
-        stable@vger.kernel.org, tglx@linutronix.de, x86@kernel.org,
-        ytcoode@gmail.com
-Subject: Re: [PATCH] x86/mm: Fix possible index overflow when creating page table mapping
-Date:   Fri, 17 Jun 2022 14:38:55 +0800
-Message-Id: <20220617063855.1999092-1-ytcoode@gmail.com>
-X-Mailer: git-send-email 2.36.0
-In-Reply-To: <8e2c9b2b-d8ad-5e9a-7aa6-23e0c599c2e9@intel.com>
-References: <8e2c9b2b-d8ad-5e9a-7aa6-23e0c599c2e9@intel.com>
+        with ESMTP id S1380297AbiFQHcz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 03:32:55 -0400
+Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9D371057D
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 00:32:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1655451173; x=1686987173;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=AGN9iam9OVUBe+emJURBvw7lAJ/RYEcPsdW9ccb3QPw=;
+  b=QAbqOhncNCtP6+IAn17jb2CpQAkyeMCd+vr2ZOwHQtonfro6DjgHnnL8
+   iiJYjifMr/IVw7yCE6IfGm7oxhg78IQ3ql5gDoL+1hCUedcNK6C0kYCEu
+   ClQ3MpNhEqFy7RIgboDBShOmJVw9XEJwL29jpLzIQ1lKEgZmAbHv2q/p6
+   lGxtKYgegBYO3DHUc4DxxaFTwQWvUhRl5vmVZjkyMl/G18CdXDjMUzTvh
+   oHYTYRI6b0KbBXa2mAnSyZnynkfjApRJOPfhwKDgzcQhkPbZOHWFDRznA
+   g0H3FbV3J85MDKR4JDOg9hgwQwGLRUAu3aZh26UW796oN02kATQAPnEFu
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.92,306,1650902400"; 
+   d="scan'208";a="315492921"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 17 Jun 2022 15:32:46 +0800
+IronPort-SDR: sC39Rl4Q4nGIm8yCbWa4smWh539OfdCdzfVzR0iBPM5akhps6t8GWzIqrwJpdqlfhYPt+o0TS8
+ fOFFG0JyL5thSkByo48yeSRE1BDc+Lo6G1OxQDuDE+Z6lNVvPZm1CkS/lF2J56qcuNITKdQtas
+ YFOlLXXSSqnc6INs9wEZK8cYCkx+laTOya5LEuv9mW1Cg2/oPPJfIxqkTc41iUo4HFUWR8Jhph
+ TVaT7NW+dTyavxApif8BgAScOzB+IYzo+DVN3jh/skT7fAtrg8Zv8w9/Xjxvw2vsE7nj19T15w
+ FsIPDN8HPvBSJz60FfO8VAuT
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 16 Jun 2022 23:55:22 -0700
+IronPort-SDR: TefaQHWkdqBNgcp7czbD3ziC0XZQwMA2xDUQkKv5XnBcYSt1zgpndECjw7f6PhkV6DPvyQJyyC
+ rC5KIvRTpkx8/aQWoVQS3CqvVWKbkJMC7J6A2AA6aXm+HlC27I0OP9O/ptzxbZUGxAIECrWsCg
+ q33RI6TuET+uNddn7wdVUfSOFgTCegxRL98g32AReUucPwlekMLNURgWXBXPdDxEmeQPu+zYDX
+ GICIuB+QGC+zK24EWWKf+byub05Am8dU48qVOZ7oNH6yTSKyNoJ53whfngGDVRRpZSnPj7Xl+k
+ 6zc=
+WDCIronportException: Internal
+Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
+  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 17 Jun 2022 00:32:46 -0700
+Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4LPW3L32Khz1SVp2
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 00:32:46 -0700 (PDT)
+Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
+        reason="pass (just generated, assumed good)"
+        header.d=opensource.wdc.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+        opensource.wdc.com; h=content-transfer-encoding:content-type
+        :in-reply-to:organization:from:references:to:content-language
+        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
+        1655451165; x=1658043166; bh=AGN9iam9OVUBe+emJURBvw7lAJ/RYEcPsdW
+        9ccb3QPw=; b=nsuz0R9+VvgOjUFhD2WdHST7UJx0g5mjukF2CpQndUZwlvj1u/0
+        3c9bLNKR90G6isAcA2E3GmYTOAE7Kzt7MHN4Zkp/PXQoIboF7ge3qd7PirT+dB4f
+        41UNhPvYdKwKykAKObSP1e0jfwV2gNJYqR2tz/+fr58j3XamR7GxBmkD7O2Pt0DC
+        hR97Rr6hKhXTyoMd5/CnkHL2s5i+u/REHXRAdDZ0yT9pTgLUvZXlaKPX/Mj/ucIX
+        0GDszV8hQ27aYT1BkDQKHct8teZBZ0X613Dp2gS5uyAH4HIrh2gRJyiDdZ2nGtmo
+        LjGL7/GOiisfeVyGICVVc3hUddnRHLow0dA==
+X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
+Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
+        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id M6PWf3AMNBeY for <stable@vger.kernel.org>;
+        Fri, 17 Jun 2022 00:32:45 -0700 (PDT)
+Received: from [10.225.163.84] (unknown [10.225.163.84])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4LPW3J3r3vz1Rvlc;
+        Fri, 17 Jun 2022 00:32:44 -0700 (PDT)
+Message-ID: <84b454f7-3c84-541f-ff9a-4f247b178c69@opensource.wdc.com>
+Date:   Fri, 17 Jun 2022 16:32:43 +0900
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v4] ata: libata: add qc->flags in ata_qc_complete_template
+ tracepoint
+Content-Language: en-US
+To:     Edward Wu <edwardwu@realtek.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>, Hannes Reinecke <hare@suse.de>,
+        Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20220616001615.11636-1-edwardwu@realtek.com>
+ <20220617033221.22049-1-edwardwu@realtek.com>
+From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Organization: Western Digital Research
+In-Reply-To: <20220617033221.22049-1-edwardwu@realtek.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 16 Jun 2022 07:20:40 -0700, Dave Hansen wrote:
-> On 6/16/22 07:15, Yuntao Wang wrote:
-> > On Thu, 16 Jun 2022 07:02:56 -0700, Dave Hansen wrote:
-> >> On 6/16/22 06:55, Yuntao Wang wrote:
-> >>> There are two issues in phys_p4d_init():
-> >>>
-> >>> - The __kernel_physical_mapping_init() does not do boundary-checking for
-> >>>   paddr_end and passes it directly to phys_p4d_init(), phys_p4d_init() does
-> >>>   not do bounds checking either, so if the physical memory to be mapped is
-> >>>   large enough, 'p4d_page + p4d_index(vaddr)' will wrap around to the
-> >>>   beginning entry of the P4D table and its data will be overwritten.
-> >>>
-> >>> - The for loop body will be executed only when 'vaddr < vaddr_end'
-> >>>   evaluates to true, but if that condition is true, 'paddr >= paddr_end'
-> >>>   will evaluate to false, thus the 'if (paddr >= paddr_end) {}' block will
-> >>>   never be executed and become dead code.
-> >> Could you explain a bit how you found this?  Was this encountered in
-> >> practice and debugged or was it found by inspection?
-> > I found it by inspection.
->
-> Dare I ask how this was tested?
+On 6/17/22 12:32, Edward Wu wrote:
+> Add flags value to check the result of ata completion
+> 
+> Fixes: 255c03d15a29 ("libata: Add tracepoints")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Edward Wu <edwardwu@realtek.com>
+> ---
+> Fixed, thanks again
+> 
+>  include/trace/events/libata.h | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/include/trace/events/libata.h b/include/trace/events/libata.h
+> index d4e631aa976f..6025dd8ba4aa 100644
+> --- a/include/trace/events/libata.h
+> +++ b/include/trace/events/libata.h
+> @@ -288,6 +288,7 @@ DECLARE_EVENT_CLASS(ata_qc_complete_template,
+>  		__entry->hob_feature	= qc->result_tf.hob_feature;
+>  		__entry->nsect		= qc->result_tf.nsect;
+>  		__entry->hob_nsect	= qc->result_tf.hob_nsect;
+> +		__entry->flags		= qc->flags;
+>  	),
+>  
+>  	TP_printk("ata_port=%u ata_dev=%u tag=%d flags=%s status=%s " \
 
-Due to some limitations, I didn't test the changes thoroughly, I just built
-the kernel and booted it in QEMU.
+Applied to for-5.19-fixes. Thanks !
 
-Considering that the patch was not fully tested, I spent a lot of time
-reviewing the code I changed and tried my best to make it correct.
+-- 
+Damien Le Moal
+Western Digital Research
