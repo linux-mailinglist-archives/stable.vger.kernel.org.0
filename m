@@ -2,114 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7A1D54FFF5
-	for <lists+stable@lfdr.de>; Sat, 18 Jun 2022 00:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD5035500F2
+	for <lists+stable@lfdr.de>; Sat, 18 Jun 2022 01:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235481AbiFQWbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jun 2022 18:31:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42192 "EHLO
+        id S237164AbiFQXqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jun 2022 19:46:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235060AbiFQWbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 18:31:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3352C62125;
-        Fri, 17 Jun 2022 15:31:23 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3374B82B1E;
-        Fri, 17 Jun 2022 22:31:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB69C3411B;
-        Fri, 17 Jun 2022 22:31:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655505080;
-        bh=Jp4eIONtSs6CWILka62alidYJLIpx9VDEl4Ouzu1iBE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=cfe2aC3SsNv0taX/O9yxiekxXZfxv7Xte5M7lNEsPf9x0mhp1IskXj9gxyIHxJQeM
-         SMXqmYDl6hCotPpO7UIzpuF5kXqA/b561wOipbmHC6YV1wYklHKqHaZmmi1HGGnajd
-         Mxhthm91pBBjLjNK2knc9Royz6jSdAjxwpTtwQFWE8UYt9hnGD5e6IcSn6qIx+aRyi
-         qMvIReINpOQ++H5QLWm4pDap7NU8sZiiBCagoXMnDWeFOrH1lg5c0lkj1pIlEnWWm+
-         OaYHWWY6rsZRtmxOZLoDYNkTvhR10qy1yj/rBNEsN+Rn248lpISKV7bKA6ND7yPRla
-         3uIeLQYhieXBg==
-From:   Jaegeuk Kim <jaegeuk@kernel.org>
-To:     linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH 1/3] f2fs: attach inline_data after setting compression
-Date:   Fri, 17 Jun 2022 15:31:04 -0700
-Message-Id: <20220617223106.3517374-1-jaegeuk@kernel.org>
-X-Mailer: git-send-email 2.36.1.476.g0c4daa206d-goog
+        with ESMTP id S236835AbiFQXqI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 19:46:08 -0400
+Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9836962CE2
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 16:46:04 -0700 (PDT)
+Received: by mail-io1-xd36.google.com with SMTP id b1so1572106iot.7
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 16:46:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=v+CtxF5jqTCvHtrkh/Tp3q/wyDmiOTtwUhSwgsvpJ3w=;
+        b=YGI/OqaRkadQXXxsJnM8uGyOtjDZ6+A5GQjelvB1B3X6TwS5V3C66lWgNbx51CvUWU
+         XgSrKKU9DJpc5ofYqMNNzNijwDz7Cwd7HiQ1xSTNhmQieX3/tAsb7n8oQTpgU1kOP7hR
+         cHflRSYq3M56cSGCoG6//ypA+QjlZMq+AIONrdqck9QbHFG1+PBfZbEXvYZo5NeUnbSj
+         g2hATSAaX/qsS7h9BFS3x3XNSS5hMAAPigWi8nUMDnL21PHTh4043HEssgBvTKaaIpeT
+         QfdoAN1HGyHbpbC9hbw7N6fugvvOPBStQP9iMGtqvnOAdZsXHLT6VNM8VMy+RtkTDwGO
+         LikQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=v+CtxF5jqTCvHtrkh/Tp3q/wyDmiOTtwUhSwgsvpJ3w=;
+        b=6687rj4bud672yw84a1FJwOoInIQsrPMdb1SCJGZVxa56wHy+TAsyR6XhbrMOQVyD5
+         EAnN5qX02DL+APv2egMtpdBRoE2pfVSGmueyqoxyw94i1nMFDeqf6fzxVM/hI4O5R03e
+         m9ZK9dPSPEzRDdIhAJBYK64Mi+T8FZWYh+A73PbXbCVOXj4A+3NIfXXcXv5di9mOk4hi
+         hxwar4kKM4jYNJ905AxfnFtdRUdivcdkW1MOUttXMoj4Rmue0tzWfuK1dqgrTWQbBybS
+         wsC/Nd3HHUGb0oVulSwZUpMNS68E5/PUAl4E6ToEmkqj83MMl8OoT3/E/XlUwp0Hj4UH
+         AVag==
+X-Gm-Message-State: AJIora+egOK4k8aPmVNQYMN5rF9/GOqnPAW7sEyhpmasghlfgzW2e3+6
+        j8fhCvbT/4uwzuWuY3CPz1T0WD6CUHqY9AP9ndWIUw==
+X-Google-Smtp-Source: AGRyM1voqSRNK9+66QbW2UwaqOdOzzUm4CcNFzFX9HbLBxFWAOlUpdCA0GV41UPO+AKUQpFtMdRJ0et8XJJ2K7EEugI=
+X-Received: by 2002:a02:90ce:0:b0:32e:e2ce:b17c with SMTP id
+ c14-20020a0290ce000000b0032ee2ceb17cmr6926427jag.268.1655509563773; Fri, 17
+ Jun 2022 16:46:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220617085435.193319-1-pbl@bestov.io> <165546541315.12170.9716012665055247467.git-patchwork-notify@kernel.org>
+In-Reply-To: <165546541315.12170.9716012665055247467.git-patchwork-notify@kernel.org>
+From:   =?UTF-8?Q?Maciej_=C5=BBenczykowski?= <maze@google.com>
+Date:   Fri, 17 Jun 2022 16:45:52 -0700
+Message-ID: <CANP3RGcMqXH2+g1=40zwpzbpDORjDpyo4cVYZWS_tfVR8A_6CQ@mail.gmail.com>
+Subject: Re: [PATCH v2] ipv4: ping: fix bind address validity check
+To:     patchwork-bot+netdevbpf@kernel.org, stable@vger.kernel.org
+Cc:     Riccardo Paolo Bestetti <pbl@bestov.io>,
+        Carlos Llamas <cmllamas@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        David Ahern <dsahern@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, kernel-team@android.com,
+        Kernel hackers <linux-kernel@vger.kernel.org>,
+        Linux NetDev <netdev@vger.kernel.org>,
+        Miaohe Lin <linmiaohe@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This fixes the below corruption.
+On Fri, Jun 17, 2022 at 4:30 AM <patchwork-bot+netdevbpf@kernel.org> wrote:
+>
+> Hello:
+>
+> This patch was applied to netdev/net.git (master)
+> by David S. Miller <davem@davemloft.net>:
+>
+> On Fri, 17 Jun 2022 10:54:35 +0200 you wrote:
+> > Commit 8ff978b8b222 ("ipv4/raw: support binding to nonlocal addresses")
+> > introduced a helper function to fold duplicated validity checks of bind
+> > addresses into inet_addr_valid_or_nonlocal(). However, this caused an
+> > unintended regression in ping_check_bind_addr(), which previously would
+> > reject binding to multicast and broadcast addresses, but now these are
+> > both incorrectly allowed as reported in [1].
+> >
+> > [...]
+>
+> Here is the summary with links:
+>   - [v2] ipv4: ping: fix bind address validity check
+>     https://git.kernel.org/netdev/net/c/b4a028c4d031
+>
+> You are awesome, thank you!
+> --
+> Deet-doot-dot, I am a bot.
+> https://korg.docs.kernel.org/patchwork/pwbot.html
 
-[345393.335389] F2FS-fs (vdb): sanity_check_inode: inode (ino=6d0, mode=33206) should not have inline_data, run fsck to fix
-
-Cc: <stable@vger.kernel.org>
-Fixes: 677a82b44ebf ("f2fs: fix to do sanity check for inline inode")
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
----
- fs/f2fs/namei.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
-
-diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
-index c549acb52ac4..a841abe6a071 100644
---- a/fs/f2fs/namei.c
-+++ b/fs/f2fs/namei.c
-@@ -89,8 +89,6 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
- 	if (test_opt(sbi, INLINE_XATTR))
- 		set_inode_flag(inode, FI_INLINE_XATTR);
- 
--	if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
--		set_inode_flag(inode, FI_INLINE_DATA);
- 	if (f2fs_may_inline_dentry(inode))
- 		set_inode_flag(inode, FI_INLINE_DENTRY);
- 
-@@ -107,10 +105,6 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
- 
- 	f2fs_init_extent_tree(inode, NULL);
- 
--	stat_inc_inline_xattr(inode);
--	stat_inc_inline_inode(inode);
--	stat_inc_inline_dir(inode);
--
- 	F2FS_I(inode)->i_flags =
- 		f2fs_mask_flags(mode, F2FS_I(dir)->i_flags & F2FS_FL_INHERITED);
- 
-@@ -127,6 +121,14 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
- 			set_compress_context(inode);
- 	}
- 
-+	/* Should enable inline_data after compression set */
-+	if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
-+		set_inode_flag(inode, FI_INLINE_DATA);
-+
-+	stat_inc_inline_xattr(inode);
-+	stat_inc_inline_inode(inode);
-+	stat_inc_inline_dir(inode);
-+
- 	f2fs_set_inode_flags(inode);
- 
- 	trace_f2fs_new_inode(inode, 0);
-@@ -325,6 +327,8 @@ static void set_compress_inode(struct f2fs_sb_info *sbi, struct inode *inode,
- 		if (!is_extension_exist(name, ext[i], false))
- 			continue;
- 
-+		/* Do not use inline_data with compression */
-+		clear_inode_flag(inode, FI_INLINE_DATA);
- 		set_compress_context(inode);
- 		return;
- 	}
--- 
-2.36.1.476.g0c4daa206d-goog
-
+I believe this [
+https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=b4a028c4d031
+] needs to end up in 5.17+ LTS (though I guess 5.17 is eol, so
+probably just 5.18)
