@@ -2,121 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C7554F856
-	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 15:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A29854F8BF
+	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 15:59:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234792AbiFQNd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jun 2022 09:33:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44888 "EHLO
+        id S1382500AbiFQN6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jun 2022 09:58:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381281AbiFQNdY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 09:33:24 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9ACE62181E
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 06:33:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1655472798;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=WzahfMaPmnANRHPxxm6NQ/wV/0KKtFLMz1x3YRdqAFI=;
-        b=OuUsOmSGMts+jicd/PXTYEWXRhWj/j5aFYRQHC/dvm9nbgEAW2h+Ok7gk6YzmJA1fy6Z7s
-        dgPFm08/ghxWp0/c43OoEeFZdOQGcjXlOiWWomMhSAfg+JKaZLL6TXwgJk6ReIlE62e1EI
-        q2t8BQpyyHI+QE0SA/azdLWLX7HWn/8=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-138-OZRdQ-eiOLeO3235Q9-LCg-1; Fri, 17 Jun 2022 09:33:15 -0400
-X-MC-Unique: OZRdQ-eiOLeO3235Q9-LCg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 291EB2A5955B;
-        Fri, 17 Jun 2022 13:33:15 +0000 (UTC)
-Received: from dcaratti.users.ipa.redhat.com (unknown [10.40.193.75])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 285151415106;
-        Fri, 17 Jun 2022 13:33:14 +0000 (UTC)
-From:   Davide Caratti <dcaratti@redhat.com>
-To:     stable@vger.kernel.org
-Cc:     Greg KH <gregkh@linuxfoundation.org>, echaudro@redhat.com,
-        i.maximets@ovn.org
-Subject: [PATCH 5.4] net/sched: act_police: more accurate MTU policing
-Date:   Fri, 17 Jun 2022 15:33:00 +0200
-Message-Id: <ac9dcb41e5b94fd47e2e00dd1f0d3260dbdb597d.1655470562.git.dcaratti@redhat.com>
+        with ESMTP id S1382496AbiFQN6E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 09:58:04 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 193AD31DC2
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 06:57:58 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id w17so5871404wrg.7
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 06:57:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=pSKuz9BJS/Qwel4yBJUKsJP++c1z8gtIosTtEbMtN5I=;
+        b=lW2zUG8BmTFEvhpMiRIz4x0bqTkZp6EAwXwN8nSZfCQYZF62eJBvtZ6L1vL2SGHYdX
+         E4pZomuLSA96BR5z6lougmWbWIol1dichss3YfG0QREhnk8WlpktcY7oUZGZKN49UH2n
+         biMjP6DD++/dyY+fnvQuW8+D2y7p9YYr/yOaqMEe5Vy95101KcEgrB+UrHikXyL072O0
+         GV25bFpFN7Fa4czNiFk1SGnJZajhecYyEkhFgvqUJ+DexmMoYLDFA2Wxl1b+dLvCpqS5
+         QIaC2WuHij1bvY8zQF8sxEui+2ZZv4oYo3GTQiHiHUOaQMnLnFS0sFKXop8/d4x3RJji
+         AQ6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=pSKuz9BJS/Qwel4yBJUKsJP++c1z8gtIosTtEbMtN5I=;
+        b=pLaIhh3ERg7J5ItPDeZOoTzbzgfwV4BmRMwupuZAD2x93IXyFvmqa3afVQCVdyLVau
+         8KnwabYJY3NXOD/9veXYb/wHXhZWNSwYiPmeaNilR1ufI4lavyjz1U9ItJKnPDNFGZbX
+         Sh4lV37Lk1cCt84kjPx0lpWG3oAVAvnWVQ3uxFO+FhbWOuFK6jzWL5YIEoOvMvXiiXcN
+         CP8z/XIlPXc2z8VJ/JCxzw35l/shdaLuuWT1/EL5+sZ5EKvnKl6TNaKS4Ewm5ksJ5PPB
+         yvuO2hCC/VGkqcKzS7t+y3I8bGDShwEvxsjWpYDGOGqnAeq+Uv+lNmuHYFxp+3Qt0Ney
+         NvNQ==
+X-Gm-Message-State: AJIora+Pe+D1tr4yHlaBm8bQu/wJBGoMSDFWDRhX68ZPgU1lto4sqNO/
+        1wbdFjBa0DgvGEg5vuu7TGgvZIpzryLzDdeMD/U=
+X-Google-Smtp-Source: AGRyM1vPiIAuOzzAbqpVz7KasHqEkFvZUpO8KMXDuYsDMR1JUKntFWJmxqAd/a8sLKbfzRTAB4bYj6i+TJ0xa114ceM=
+X-Received: by 2002:a5d:4708:0:b0:215:d1fa:1b9e with SMTP id
+ y8-20020a5d4708000000b00215d1fa1b9emr9651787wrq.202.1655474277412; Fri, 17
+ Jun 2022 06:57:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.7
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Received: by 2002:a05:6000:156b:0:0:0:0 with HTTP; Fri, 17 Jun 2022 06:57:57
+ -0700 (PDT)
+Reply-To: davidnelson7702626@gmail.com
+From:   dedi mark <dedi788877@gmail.com>
+Date:   Fri, 17 Jun 2022 14:57:57 +0100
+Message-ID: <CAF3O_y1fPgF7n520eVpJ2a2Zv1k65JvB+Kxn6apU3v4Zrpf57g@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.3 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 4ddc844eb81da59bfb816d8d52089aba4e59e269 upstream.
-
-in current Linux, MTU policing does not take into account that packets at
-the TC ingress have the L2 header pulled. Thus, the same TC police action
-(with the same value of tcfp_mtu) behaves differently for ingress/egress.
-In addition, the full GSO size is compared to tcfp_mtu: as a consequence,
-the policer drops GSO packets even when individual segments have the L2 +
-L3 + L4 + payload length below the configured valued of tcfp_mtu.
-
-Improve the accuracy of MTU policing as follows:
- - account for mac_len for non-GSO packets at TC ingress.
- - compare MTU threshold with the segmented size for GSO packets.
-
-[dcaratti: fix conflicts due to lack of the following commits:
- - commit 2ffe0395288a ("net/sched: act_police: add support for
-   packet-per-second policing")
- - commit afe231d32eb5 ("selftests: forwarding: Add tc-police tests")
- - commit 53b61f29367d ("selftests: forwarding: Add tc-police tests for
-   packets per second")]
-Link: https://lore.kernel.org/netdev/876d597a0ff55f6ba786f73c5a9fd9eb8d597a03.1644514748.git.dcaratti@redhat.com
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
----
- net/sched/act_police.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
-
-diff --git a/net/sched/act_police.c b/net/sched/act_police.c
-index 8fd23a8b88a5..a7660b602237 100644
---- a/net/sched/act_police.c
-+++ b/net/sched/act_police.c
-@@ -213,6 +213,20 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
- 	return err;
- }
- 
-+static bool tcf_police_mtu_check(struct sk_buff *skb, u32 limit)
-+{
-+	u32 len;
-+
-+	if (skb_is_gso(skb))
-+		return skb_gso_validate_mac_len(skb, limit);
-+
-+	len = qdisc_pkt_len(skb);
-+	if (skb_at_tc_ingress(skb))
-+		len += skb->mac_len;
-+
-+	return len <= limit;
-+}
-+
- static int tcf_police_act(struct sk_buff *skb, const struct tc_action *a,
- 			  struct tcf_result *res)
- {
-@@ -235,7 +249,7 @@ static int tcf_police_act(struct sk_buff *skb, const struct tc_action *a,
- 			goto inc_overlimits;
- 	}
- 
--	if (qdisc_pkt_len(skb) <= p->tcfp_mtu) {
-+	if (tcf_police_mtu_check(skb, p->tcfp_mtu)) {
- 		if (!p->rate_present) {
- 			ret = p->tcfp_result;
- 			goto end;
--- 
-2.35.3
-
+Hello friend, I want to send money to you to enable me invest in your
+country get back to me if you are interested.
