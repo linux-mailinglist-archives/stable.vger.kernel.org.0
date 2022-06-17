@@ -2,170 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAA6954FC96
-	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 19:56:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 464E554FCD3
+	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 20:15:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383354AbiFQR4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jun 2022 13:56:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32796 "EHLO
+        id S1383613AbiFQSPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jun 2022 14:15:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383446AbiFQR4I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 13:56:08 -0400
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 683CE4F9E2
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 10:56:05 -0700 (PDT)
-Received: by mail-pl1-x631.google.com with SMTP id a17so2513540pls.6
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 10:56:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=81z0utBi6yIB/MKOIvJASGOp/IffL0+aFKjqg8ThkjA=;
-        b=ZKUjvQ3naeSz/t7Lvk2r2zyPurV1wreICkBYLUptOctl17K62NVy9/In6Z+X+cq5i5
-         YNJ6CcVDjyNReuBHvyyEUmJOxOl+FWNYPIwVj7T2rjHR/BxdL1ip63q4ne0KcbqnD12k
-         LhBkrr4HO3BDuoO2HuLEQ0xlj7fcfpKRz2RuLbazN7uOzRqgBpwubvSkNEzM7CE+a4el
-         v6pnMkIpD5IduxHdvAo09E2xLZOEFQZP1FLxe349oo0MQjeENlNFzDGO53f8wDTsGZG9
-         Yto9KXpgKSh4IYEDRHqTBOg/YJl/4YFlDheC9tgYiL2lyw7OLh/PBynNcV0u9FOUl5De
-         5d1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=81z0utBi6yIB/MKOIvJASGOp/IffL0+aFKjqg8ThkjA=;
-        b=fKXXUTBkITTbCy/8CdQcBkacwhcF2y5sYKiJrVbt+hS3V6gu6F0O4Rt61kTZCUJTk3
-         5fOcuQLcBXatMZsgvdQkf1Fow0eW9tvaFpRE1ZPnx9a+XuvwVwbA9pOUGOTVEYHpuVzX
-         DLjY3/iFwhtnJBIEGwYTOoQJ8GzR97O6N1Q0aeOjT4PD3Z0VPbydKkdVk/kQB7WdHTFx
-         EfzvPHns9tbPx04lbXuQgtXrSANx1HC/+ln2yE09aJpRMHX18bJPV5Y6oP7Ojvx0HXPP
-         gsmqzi/3uZ1k3FSiSgEXnjCwHgq7JBRxJ6fvi3v1fKhAU+XA6fPfvT9ZTH6vKSFsOZYF
-         ZcWA==
-X-Gm-Message-State: AJIora/+up2V1LvQP5NzpwqrzcxqqKwuZzoh3XKc2jU70pDBbEpv4lSH
-        G2JdsgndKUUrCxDYf9KlHgVCPIVP51nYEavwAAI=
-X-Google-Smtp-Source: AGRyM1tQPxnKugZn4F8FDGobbHpbVtxaOeOPjXvh9GXKGjYBzdfHDrgdDV8lJ+caq60Ant3cBU6Qbg==
-X-Received: by 2002:a17:902:e84b:b0:164:8ba3:9cd9 with SMTP id t11-20020a170902e84b00b001648ba39cd9mr10717770plg.49.1655488564760;
-        Fri, 17 Jun 2022 10:56:04 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h189-20020a62dec6000000b0050dc762813csm4050556pfg.22.2022.06.17.10.56.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jun 2022 10:56:04 -0700 (PDT)
-Message-ID: <62acc034.1c69fb81.72126.5c22@mx.google.com>
-Date:   Fri, 17 Jun 2022 10:56:04 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1383168AbiFQSPF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 14:15:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B77B13D49;
+        Fri, 17 Jun 2022 11:15:05 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC41061F3D;
+        Fri, 17 Jun 2022 18:15:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75B7EC3411B;
+        Fri, 17 Jun 2022 18:15:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655489704;
+        bh=QUh4kC7NXGm1YEXl3pKZXaJzSvNx6+iaW+R315T3U6U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QgZ5tfMIqGFau4nNzCvsqcbXS4Qeth6Xu/MxBTR34OtX0oITanNZUiKgHXIvqx77P
+         fQaFNIBsEdeCvzAXC02upYo+kSY/xuyAXeW2lsdTS8hxoFrVM5GxndNEPAtX/aw4Tt
+         KnwljZzltunV6Ny+OKAKWV53igJoiXdaEmN5F+Fh2LD0rvnJP+P2QzvicHBozyQIHE
+         I8Q/FwQib+OCJ9AvjKhAjqJ/eddzlgUQgnlepxSJebMcbQrxBw9dbJsLKolSWFjXW+
+         GDdSalz/bhjOvgYBYOjlPTMLsgXboLgljM3tRPgS0TmigorIOXePej19rLiLAyCkic
+         T6Ob51Cv+YXQg==
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org
+Cc:     "H. Peter Anvin" <hpa@zytor.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tom Rix <trix@redhat.com>,
+        Daniel Kolesa <daniel@octaforge.org>,
+        linux-kernel@vger.kernel.org, patches@lists.linux.dev,
+        llvm@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] x86/Kconfig: Fix CONFIG_CC_HAS_SANE_STACKPROTECTOR when cross compiling with clang
+Date:   Fri, 17 Jun 2022 11:08:46 -0700
+Message-Id: <20220617180845.2788442-1-nathan@kernel.org>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.5-4-g941f74bf03b86
-X-Kernelci-Branch: queue/5.18
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.18 baseline: 146 runs,
- 2 regressions (v5.18.5-4-g941f74bf03b86)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.18 baseline: 146 runs, 2 regressions (v5.18.5-4-g941f74bf=
-03b86)
+Chimera Linux notes that CONFIG_CC_HAS_SANE_STACKPROTECTOR cannot be
+enabled when cross compiling an x86_64 kernel with clang, even though it
+does work when natively compiling.
 
-Regressions Summary
--------------------
+When building on aarch64:
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-jetson-tk1        | arm  | lab-baylibre  | gcc-10   | multi_v7_defconfig | =
-1          =
+  $ make -sj"$(nproc)" ARCH=x86_64 LLVM=1 defconfig
 
-tegra124-nyan-big | arm  | lab-collabora | gcc-10   | multi_v7_defconfig | =
-1          =
+  $ grep STACKPROTECTOR .config
 
+When building on x86_64:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
-nel/v5.18.5-4-g941f74bf03b86/plan/baseline/
+  $ make -sj"$(nproc)" ARCH=x86_64 LLVM=1 defconfig
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.18
-  Describe: v5.18.5-4-g941f74bf03b86
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      941f74bf03b865871757bd36c5d680f8528b23aa =
+  $ grep STACKPROTECTOR .config
+  CONFIG_CC_HAS_SANE_STACKPROTECTOR=y
+  CONFIG_HAVE_STACKPROTECTOR=y
+  CONFIG_STACKPROTECTOR=y
+  CONFIG_STACKPROTECTOR_STRONG=y
 
+When clang is invoked without a '--target' flag, code is generated for
+the default target, which is usually the host (it is configurable via
+cmake). As a result, the has-stack-protector scripts will generate code
+for the default target but check for x86 specific segment registers,
+which cannot succeed if the default target is not x86.
 
+$(CLANG_FLAGS) contains an explicit '--target' flag so pass that
+variable along to the has-stack-protector scripts so that the stack
+protector can be enabled when cross compiling with clang. The 32-bit
+stack protector cannot currently be enabled with clang, as it does not
+support '-mstack-protector-guard-symbol', so this results in no
+functional change for ARCH=i386 when cross compiling.
 
-Test Regressions
----------------- =
+Link: https://github.com/chimera-linux/cports/commit/0fb7e506d5f83fdf2104feb22cdac34934561226
+Link: https://github.com/llvm/llvm-project/issues/48553
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
 
+Fixes: 2a61f4747eea ("stack-protector: test compiler capability in Kconfig and drop AUTO mode")
 
+might be appropriate; I am conflicted on fixes tags for problems that
+that arise due to use cases that were not considered at the time of a
+change, as it feels wrong to blame the commit for not looking far enough
+into the future where it might be common for people to have workstations
+running another architecture other than x86_64.
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-jetson-tk1        | arm  | lab-baylibre  | gcc-10   | multi_v7_defconfig | =
-1          =
+Chimera appears to use a 5.15 kernel so a
 
+Cc: stable@vger.kernel.org
 
-  Details:     https://kernelci.org/test/plan/id/62ac8ae4dfd678622ea39bdb
+might be nice but some maintainers are picky about that so I leave it up
+to you all.
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.5-4=
--g941f74bf03b86/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.5-4=
--g941f74bf03b86/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/armel/rootfs.cpio.gz =
+ arch/x86/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index be0b95e51df6..076adde7ead9 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -391,8 +391,8 @@ config PGTABLE_LEVELS
+ 
+ config CC_HAS_SANE_STACKPROTECTOR
+ 	bool
+-	default $(success,$(srctree)/scripts/gcc-x86_64-has-stack-protector.sh $(CC)) if 64BIT
+-	default $(success,$(srctree)/scripts/gcc-x86_32-has-stack-protector.sh $(CC))
++	default $(success,$(srctree)/scripts/gcc-x86_64-has-stack-protector.sh $(CC) $(CLANG_FLAGS)) if 64BIT
++	default $(success,$(srctree)/scripts/gcc-x86_32-has-stack-protector.sh $(CC) $(CLANG_FLAGS))
+ 	help
+ 	  We have to make sure stack protector is unconditionally disabled if
+ 	  the compiler produces broken code or if it does not let us control
 
+base-commit: b13baccc3850ca8b8cccbf8ed9912dbaa0fdf7f3
+-- 
+2.36.1
 
-  * baseline.login: https://kernelci.org/test/case/id/62ac8ae4dfd678622ea39=
-bdc
-        failing since 6 days (last pass: v5.18.2-866-g0f77def0f4d00, first =
-fail: v5.18.2-1057-gd2f82031e36a5) =
-
- =
-
-
-
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-tegra124-nyan-big | arm  | lab-collabora | gcc-10   | multi_v7_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ac98a819f051dec8a39be2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.5-4=
--g941f74bf03b86/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegra1=
-24-nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.5-4=
--g941f74bf03b86/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegra1=
-24-nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ac98a819f051dec8a39=
-be3
-        new failure (last pass: v5.18.2-1057-gd2f82031e36a5) =
-
- =20
