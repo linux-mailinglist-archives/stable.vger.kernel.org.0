@@ -2,188 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B7B554FAAA
-	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 17:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C7B254FAAE
+	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 17:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237052AbiFQPys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jun 2022 11:54:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
+        id S1383101AbiFQP5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jun 2022 11:57:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234143AbiFQPyr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 11:54:47 -0400
-Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3453721273
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 08:54:46 -0700 (PDT)
+        with ESMTP id S234143AbiFQP5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 11:57:01 -0400
+Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::222])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D37DA2F006
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 08:56:59 -0700 (PDT)
 Received: (Authenticated sender: i.maximets@ovn.org)
-        by mail.gandi.net (Postfix) with ESMTPSA id AA84940007;
-        Fri, 17 Jun 2022 15:54:43 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 7574C4000F;
+        Fri, 17 Jun 2022 15:56:57 +0000 (UTC)
 From:   Ilya Maximets <i.maximets@ovn.org>
 To:     stable@vger.kernel.org
 Cc:     Ilya Maximets <i.maximets@ovn.org>,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        Aaron Conole <aconole@redhat.com>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19] net: openvswitch: fix leak of nested actions
-Date:   Fri, 17 Jun 2022 17:54:40 +0200
-Message-Id: <20220617155440.238054-1-i.maximets@ovn.org>
+        Frode Nordahl <frode.nordahl@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10] net: openvswitch: fix misuse of the cached connection on tuple changes
+Date:   Fri, 17 Jun 2022 17:56:49 +0200
+Message-Id: <20220617155649.238255-1-i.maximets@ovn.org>
 X-Mailer: git-send-email 2.34.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 1f30fb9166d4f15a1aa19449b9da871fe0ed4796 upstream
+commit 2061ecfdf2350994e5b61c43e50e98a7a70e95ee upstream
 
-[Backport for 4.19: Removed handling of OVS_ACTION_ATTR_DEC_TTL
- and OVS_ACTION_ATTR_CHECK_PKT_LEN as these actions do not exist
- in this version.  BUILD_BUG_ON condition adjusted accordingly.]
+[Backport to 5.10: minor rebase in ovs_ct_clear function.
+ This version also applicable to and tested on 5.4 and 4.19.]
 
-While parsing user-provided actions, openvswitch module may dynamically
-allocate memory and store pointers in the internal copy of the actions.
-So this memory has to be freed while destroying the actions.
+If packet headers changed, the cached nfct is no longer relevant
+for the packet and attempt to re-use it leads to the incorrect packet
+classification.
 
-Currently there are only two such actions: ct() and set().  However,
-there are many actions that can hold nested lists of actions and
-ovs_nla_free_flow_actions() just jumps over them leaking the memory.
+This issue is causing broken connectivity in OpenStack deployments
+with OVS/OVN due to hairpin traffic being unexpectedly dropped.
 
-For example, removal of the flow with the following actions will lead
-to a leak of the memory allocated by nf_ct_tmpl_alloc():
+The setup has datapath flows with several conntrack actions and tuple
+changes between them:
 
-  actions:clone(ct(commit),0)
+  actions:ct(commit,zone=8,mark=0/0x1,nat(src)),
+          set(eth(src=00:00:00:00:00:01,dst=00:00:00:00:00:06)),
+          set(ipv4(src=172.18.2.10,dst=192.168.100.6,ttl=62)),
+          ct(zone=8),recirc(0x4)
 
-Non-freed set() action may also leak the 'dst' structure for the
-tunnel info including device references.
+After the first ct() action the packet headers are almost fully
+re-written.  The next ct() tries to re-use the existing nfct entry
+and marks the packet as invalid, so it gets dropped later in the
+pipeline.
 
-Under certain conditions with a high rate of flow rotation that may
-cause significant memory leak problem (2MB per second in reporter's
-case).  The problem is also hard to mitigate, because the user doesn't
-have direct control over the datapath flows generated by OVS.
+Clearing the cached conntrack entry whenever packet tuple is changed
+to avoid the issue.
 
-Fix that by iterating over all the nested actions and freeing
-everything that needs to be freed recursively.
+The flow key should not be cleared though, because we should still
+be able to match on the ct_state if the recirculation happens after
+the tuple change but before the next ct() action.
 
-New build time assertion should protect us from this problem if new
-actions will be added in the future.
-
-Unfortunately, openvswitch module doesn't use NLA_F_NESTED, so all
-attributes has to be explicitly checked.  sample() and clone() actions
-are mixing extra attributes into the user-provided action list.  That
-prevents some code generalization too.
-
-Fixes: 34ae932a4036 ("openvswitch: Make tunnel set action attach a metadata dst")
-Link: https://mail.openvswitch.org/pipermail/ovs-dev/2022-March/392922.html
-Reported-by: Stéphane Graber <stgraber@ubuntu.com>
+Cc: stable@vger.kernel.org
+Fixes: 7f8a436eaa2c ("openvswitch: Add conntrack action")
+Reported-by: Frode Nordahl <frode.nordahl@canonical.com>
+Link: https://mail.openvswitch.org/pipermail/ovs-discuss/2022-May/051829.html
+Link: https://bugs.launchpad.net/ubuntu/+source/ovn/+bug/1967856
 Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
-Acked-by: Aaron Conole <aconole@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20220606221140.488984-1-i.maximets@ovn.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 ---
 
-The fix was already backported down to 5.10.  This adjusted version will
-work on 4.19.  The version for 5.4 was sent separately.
+The patch was already backported down to 5.15.
+This version was adjusted to work on 5.10, 5.4 and 4.19.
 
- net/openvswitch/flow_netlink.c | 61 +++++++++++++++++++++++++++++++---
- 1 file changed, 56 insertions(+), 5 deletions(-)
+ net/openvswitch/actions.c   | 6 ++++++
+ net/openvswitch/conntrack.c | 3 ++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/net/openvswitch/flow_netlink.c b/net/openvswitch/flow_netlink.c
-index 180f5feb7717..eba94cf3d2d0 100644
---- a/net/openvswitch/flow_netlink.c
-+++ b/net/openvswitch/flow_netlink.c
-@@ -2253,6 +2253,36 @@ static struct sw_flow_actions *nla_alloc_flow_actions(int size)
- 	return sfa;
+diff --git a/net/openvswitch/actions.c b/net/openvswitch/actions.c
+index 6d8d70021666..80fee9d118ee 100644
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -372,6 +372,7 @@ static void set_ip_addr(struct sk_buff *skb, struct iphdr *nh,
+ 	update_ip_l4_checksum(skb, nh, *addr, new_addr);
+ 	csum_replace4(&nh->check, *addr, new_addr);
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
+ 	*addr = new_addr;
  }
  
-+static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len);
-+
-+static void ovs_nla_free_clone_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a = nla_data(action);
-+	int rem = nla_len(action);
-+
-+	switch (nla_type(a)) {
-+	case OVS_CLONE_ATTR_EXEC:
-+		/* The real list of actions follows this attribute. */
-+		a = nla_next(a, &rem);
-+		ovs_nla_free_nested_actions(a, rem);
-+		break;
-+	}
-+}
-+
-+static void ovs_nla_free_sample_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a = nla_data(action);
-+	int rem = nla_len(action);
-+
-+	switch (nla_type(a)) {
-+	case OVS_SAMPLE_ATTR_ARG:
-+		/* The real list of actions follows this attribute. */
-+		a = nla_next(a, &rem);
-+		ovs_nla_free_nested_actions(a, rem);
-+		break;
-+	}
-+}
-+
- static void ovs_nla_free_set_action(const struct nlattr *a)
+@@ -419,6 +420,7 @@ static void set_ipv6_addr(struct sk_buff *skb, u8 l4_proto,
+ 		update_ipv6_checksum(skb, l4_proto, addr, new_addr);
+ 
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
+ 	memcpy(addr, new_addr, sizeof(__be32[4]));
+ }
+ 
+@@ -659,6 +661,7 @@ static int set_nsh(struct sk_buff *skb, struct sw_flow_key *flow_key,
+ static void set_tp_port(struct sk_buff *skb, __be16 *port,
+ 			__be16 new_port, __sum16 *check)
  {
- 	const struct nlattr *ovs_key = nla_data(a);
-@@ -2266,25 +2296,46 @@ static void ovs_nla_free_set_action(const struct nlattr *a)
- 	}
++	ovs_ct_clear(skb, NULL);
+ 	inet_proto_csum_replace2(check, skb, *port, new_port, false);
+ 	*port = new_port;
  }
- 
--void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
-+static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len)
- {
- 	const struct nlattr *a;
- 	int rem;
- 
--	if (!sf_acts)
-+	/* Whenever new actions are added, the need to update this
-+	 * function should be considered.
-+	 */
-+	BUILD_BUG_ON(OVS_ACTION_ATTR_MAX != 20);
-+
-+	if (!actions)
- 		return;
- 
--	nla_for_each_attr(a, sf_acts->actions, sf_acts->actions_len, rem) {
-+	nla_for_each_attr(a, actions, len, rem) {
- 		switch (nla_type(a)) {
--		case OVS_ACTION_ATTR_SET:
--			ovs_nla_free_set_action(a);
-+		case OVS_ACTION_ATTR_CLONE:
-+			ovs_nla_free_clone_action(a);
- 			break;
-+
- 		case OVS_ACTION_ATTR_CT:
- 			ovs_ct_free_action(a);
- 			break;
-+
-+		case OVS_ACTION_ATTR_SAMPLE:
-+			ovs_nla_free_sample_action(a);
-+			break;
-+
-+		case OVS_ACTION_ATTR_SET:
-+			ovs_nla_free_set_action(a);
-+			break;
- 		}
+@@ -698,6 +701,7 @@ static int set_udp(struct sk_buff *skb, struct sw_flow_key *flow_key,
+ 		uh->dest = dst;
+ 		flow_key->tp.src = src;
+ 		flow_key->tp.dst = dst;
++		ovs_ct_clear(skb, NULL);
  	}
-+}
+ 
+ 	skb_clear_hash(skb);
+@@ -760,6 +764,8 @@ static int set_sctp(struct sk_buff *skb, struct sw_flow_key *flow_key,
+ 	sh->checksum = old_csum ^ old_correct_csum ^ new_csum;
+ 
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
 +
-+void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
-+{
-+	if (!sf_acts)
-+		return;
+ 	flow_key->tp.src = sh->source;
+ 	flow_key->tp.dst = sh->dest;
  
-+	ovs_nla_free_nested_actions(sf_acts->actions, sf_acts->actions_len);
- 	kfree(sf_acts);
- }
+diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
+index 7ff98d39ec94..41f248895a87 100644
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -1324,7 +1324,8 @@ int ovs_ct_clear(struct sk_buff *skb, struct sw_flow_key *key)
+ 	if (skb_nfct(skb)) {
+ 		nf_conntrack_put(skb_nfct(skb));
+ 		nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
+-		ovs_ct_fill_key(skb, key);
++		if (key)
++			ovs_ct_fill_key(skb, key);
+ 	}
  
+ 	return 0;
 -- 
 2.34.3
 
