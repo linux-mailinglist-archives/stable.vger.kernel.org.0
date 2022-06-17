@@ -2,209 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6FD754FF2F
-	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 23:11:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 998DB54FF66
+	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 23:35:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245608AbiFQVLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jun 2022 17:11:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44302 "EHLO
+        id S232790AbiFQVfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jun 2022 17:35:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234370AbiFQVLT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 17:11:19 -0400
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B163C6B
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 14:11:18 -0700 (PDT)
-Received: by mail-wm1-x32b.google.com with SMTP id z9so2867769wmf.3
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 14:11:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=s5R4dLx0zTRzfKtEc/EKgarYNUnjBGlLpOI4VpmW3/Q=;
-        b=ikdPt/aodxNKrWPGYniaNwAKgkEBJ77U0AlBSWVRpobF37BQ+UeH+jrNndapO0faY1
-         zvINVsoAGhiegkg7rNhb4BYH97obokmjWz9ULFVLmVMfeBgX1RW5HEw+Vnkl6vbTglhu
-         0sQ43c+DEJF9n1aPPfMWYoYnbmXzz2a2gTFYHkAHZSO5N4cy7Dmv15PQJFBVARzYBbsf
-         Lxj2rl1sEjLMhEx3LUr8gbGH/7JldFSlpwyrYbJjfKlFfz5WLxNrjCODym3LFb6v71eK
-         5WjqWVMpYFvJyAlgBN5fOLkdtIFjSXNi3+vabJiU4Q8LTfKyBCjkY7D0cAAOMgqULFKl
-         hrfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=s5R4dLx0zTRzfKtEc/EKgarYNUnjBGlLpOI4VpmW3/Q=;
-        b=0bx0s/a2lYsKsKET6L00Qu4QXn0OsxIMmMq58AJ2eYL9g8Xyc/Bh1vCQUmLWT59bxo
-         eAoXUDalZuR88UC+6nHNN2ZUZcZE6AoeudTV3Jemfgtm1f6xCLTIV3VImX45kwA3grV9
-         29pnldJyfnQI1RrI0da8H3GsoDfI1uTX38AkicRI4nDbvDPriItFdOIU3Qp2tfAaITyL
-         wPZsBLd5sdGGe8A768cGnr3c+3YkgT6gfMdrL7z6iMUPfTJlo6lCja/UeDw86uHqgXUD
-         3xJi4GwdgHngglMXi2ksXz/ncEmlIcaFlWPuInCPRFX2Zo+XhcgQMMco7YpOwn6tSByI
-         32CQ==
-X-Gm-Message-State: AJIora92aJlK3Kq3YDbzhOaC4PF5or15Wjg0iPnO6K1YSKVcZ1rigjxq
-        CsVNkZIQAP4w33arrkfAncg=
-X-Google-Smtp-Source: AGRyM1vLlFMeCpKTs+TJDO0y3hkWnLHXc9HL9gAxsD/pe45sFYDZ65PORtv9BgpdEUKiNYG6LSm9/A==
-X-Received: by 2002:a7b:c758:0:b0:39c:44ce:f00f with SMTP id w24-20020a7bc758000000b0039c44cef00fmr11883173wmk.167.1655500277043;
-        Fri, 17 Jun 2022 14:11:17 -0700 (PDT)
-Received: from debian (host-78-150-47-22.as13285.net. [78.150.47.22])
-        by smtp.gmail.com with ESMTPSA id e18-20020adfe7d2000000b00219f9829b71sm5551715wrn.56.2022.06.17.14.11.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jun 2022 14:11:16 -0700 (PDT)
-Date:   Fri, 17 Jun 2022 22:11:14 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     andy.chi@canonical.com, stable@vger.kernel.org, tiwai@suse.de
-Subject: Re: FAILED: patch "[PATCH] ALSA: hda/realtek: fix right sounds and
- mute/micmute LEDs for" failed to apply to 5.4-stable tree
-Message-ID: <Yqzt8pYoRsesFB8o@debian>
-References: <1652970571161147@kroah.com>
+        with ESMTP id S231941AbiFQVfK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 17:35:10 -0400
+Received: from fllv0016.ext.ti.com (fllv0016.ext.ti.com [198.47.19.142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6784942488
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 14:35:09 -0700 (PDT)
+Received: from lelv0266.itg.ti.com ([10.180.67.225])
+        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 25HLZ7j5074867
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 16:35:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1655501707;
+        bh=hgbzgVrSZOFXI6edkMYQtyhHMOrZPrVQzXWEdlwt1Sk=;
+        h=From:To:Subject:Date;
+        b=QoRJKwVzCfc0QOpNU81VHsbZ/0dQt2XXagx8hXihJrSaiRhAWei/u8SjofxD6wsQ1
+         yV3sUf8BJMqdDaLhjQuTmF6xopAckTiMhV/rxdztdrZkpxUDVGZf4+HN5ZGYQtJbpJ
+         RfATTjxWsxSDeRzxESlfcJaMuI6q101FXJDceaOw=
+Received: from DFLE105.ent.ti.com (dfle105.ent.ti.com [10.64.6.26])
+        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 25HLZ7sI046161
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL)
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 16:35:07 -0500
+Received: from DFLE102.ent.ti.com (10.64.6.23) by DFLE105.ent.ti.com
+ (10.64.6.26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14; Fri, 17
+ Jun 2022 16:35:07 -0500
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DFLE102.ent.ti.com
+ (10.64.6.23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14 via
+ Frontend Transport; Fri, 17 Jun 2022 16:35:07 -0500
+Received: from ubuntu.ent.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 25HLZ3tq124810
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 16:35:05 -0500
+From:   Matt Ranostay <mranostay@ti.com>
+To:     <stable@vger.kernel.org>
+Subject: [PATCH v3] arm64: dts: ti: k3-j721s2: fix overlapping GICD memory region
+Date:   Fri, 17 Jun 2022 14:35:01 -0700
+Message-ID: <20220617213501.451061-1-mranostay@ti.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="pnFGr+TN7heEyPOM"
-Content-Disposition: inline
-In-Reply-To: <1652970571161147@kroah.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+GICD region was overlapping with GICR causing the latter to not map
+successfully, and in turn the gic-v3 driver would fail to initialize.
 
---pnFGr+TN7heEyPOM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This issue was hidden till commit 2b2cd74a06c3 ("irqchip/gic-v3: Claim
+iomem resources") replaced of_iomap() calls with of_io_request_and_map()
+that internally called request_mem_region().
 
-Hi Greg,
+Respective console output before this patchset:
 
-On Thu, May 19, 2022 at 04:29:31PM +0200, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+[    0.000000] GICv3: /bus@100000/interrupt-controller@1800000: couldn't map region 0
 
-Here is the backport which will also need e7d66cf79939 ("ALSA: hda/realtek:
-fix mute/micmute LEDs for HP 440 G8").
-
-
---
-Regards
-Sudip
-
---pnFGr+TN7heEyPOM
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-ALSA-hda-realtek-fix-mute-micmute-LEDs-for-HP-440-G8.patch"
-
-From b5a4382b115f47232c2e7f996db1b2d8113a2ffa Mon Sep 17 00:00:00 2001
-From: Jeremy Szu <jeremy.szu@canonical.com>
-Date: Tue, 16 Mar 2021 15:46:24 +0800
-Subject: [PATCH 1/2] ALSA: hda/realtek: fix mute/micmute LEDs for HP 440 G8
-
-commit e7d66cf799390166e90f9a5715f2eede4fe06d51 upstream.
-
-The HP EliteBook 840 G8 Notebook PC is using ALC236 codec which is
-using 0x02 to control mute LED and 0x01 to control micmute LED.
-Therefore, add a quirk to make it works.
-
-Signed-off-by: Jeremy Szu <jeremy.szu@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210316074626.79895-1-jeremy.szu@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: b8545f9d3a54 ("arm64: dts: ti: Add initial support for J721S2 SoC")
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Nishanth Menon <nm@ti.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Matt Ranostay <mranostay@ti.com>
 ---
- sound/pci/hda/patch_realtek.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 8a221866ab01b..bd32da5c5fec4 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4292,6 +4292,12 @@ static void alc_fixup_hp_gpio_led(struct hda_codec *codec,
- 	}
- }
- 
-+static void alc236_fixup_hp_gpio_led(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
-+{
-+	alc_fixup_hp_gpio_led(codec, action, 0x02, 0x01);
-+}
-+
- static void alc269_fixup_hp_gpio_led(struct hda_codec *codec,
- 				const struct hda_fixup *fix, int action)
- {
-@@ -6465,6 +6471,7 @@ enum {
- 	ALC294_FIXUP_ASUS_GU502_VERBS,
- 	ALC285_FIXUP_HP_GPIO_LED,
- 	ALC285_FIXUP_HP_MUTE_LED,
-+	ALC236_FIXUP_HP_GPIO_LED,
- 	ALC236_FIXUP_HP_MUTE_LED,
- 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
- 	ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
-@@ -7741,6 +7748,10 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc285_fixup_hp_mute_led,
- 	},
-+	[ALC236_FIXUP_HP_GPIO_LED] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc236_fixup_hp_gpio_led,
-+	},
- 	[ALC236_FIXUP_HP_MUTE_LED] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc236_fixup_hp_mute_led,
-@@ -8162,6 +8173,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x8760, "HP", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x877d, "HP", ALC236_FIXUP_HP_MUTE_LED),
-+	SND_PCI_QUIRK(0x103c, 0x87e5, "HP ProBook 440 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
- 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+Changes from v1:
+* Add missing Fixes: in commit messages
+
+Changes from v2:
+* Corrected Fixes: tag to actual commit that introduced the issue
+* Fixed word wrapping in commit message
+
+NOTE: incorrect linux stable address was used for v3, resubmitted to only
+this list with the Marc's Acked-By
+
+diff --git a/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi
+index be7f39299894..19966f72c5b3 100644
+--- a/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi
+@@ -33,7 +33,7 @@ gic500: interrupt-controller@1800000 {
+ 		ranges;
+ 		#interrupt-cells = <3>;
+ 		interrupt-controller;
+-		reg = <0x00 0x01800000 0x00 0x200000>, /* GICD */
++		reg = <0x00 0x01800000 0x00 0x100000>, /* GICD */
+ 		      <0x00 0x01900000 0x00 0x100000>, /* GICR */
+ 		      <0x00 0x6f000000 0x00 0x2000>,   /* GICC */
+ 		      <0x00 0x6f010000 0x00 0x1000>,   /* GICH */
 -- 
-2.30.2
+2.36.1
 
-
---pnFGr+TN7heEyPOM
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0002-ALSA-hda-realtek-fix-right-sounds-and-mute-micmute-L.patch"
-
-From 7aadd367b5b51fb445b450bf1efb5b970de20434 Mon Sep 17 00:00:00 2001
-From: Andy Chi <andy.chi@canonical.com>
-Date: Fri, 13 May 2022 20:16:45 +0800
-Subject: [PATCH 2/2] ALSA: hda/realtek: fix right sounds and mute/micmute LEDs
- for HP machine
-
-commit 024a7ad9eb4df626ca8c77fef4f67fd0ebd559d2 upstream.
-
-The HP EliteBook 630 is using ALC236 codec which used 0x02 to control mute LED
-and 0x01 to control micmute LED. Therefore, add a quirk to make it works.
-
-Signed-off-by: Andy Chi <andy.chi@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220513121648.28584-1-andy.chi@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- sound/pci/hda/patch_realtek.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index bd32da5c5fec4..128313a1ae13f 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8174,6 +8174,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x877d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87e5, "HP ProBook 440 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x89aa, "HP EliteBook 630 G9", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
- 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
--- 
-2.30.2
-
-
---pnFGr+TN7heEyPOM--
