@@ -2,99 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3048F54F204
-	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 09:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 939CE54F29E
+	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 10:16:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380451AbiFQHc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jun 2022 03:32:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45268 "EHLO
+        id S1380357AbiFQIQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jun 2022 04:16:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380297AbiFQHcz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 03:32:55 -0400
-Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9D371057D
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 00:32:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1655451173; x=1686987173;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=AGN9iam9OVUBe+emJURBvw7lAJ/RYEcPsdW9ccb3QPw=;
-  b=QAbqOhncNCtP6+IAn17jb2CpQAkyeMCd+vr2ZOwHQtonfro6DjgHnnL8
-   iiJYjifMr/IVw7yCE6IfGm7oxhg78IQ3ql5gDoL+1hCUedcNK6C0kYCEu
-   ClQ3MpNhEqFy7RIgboDBShOmJVw9XEJwL29jpLzIQ1lKEgZmAbHv2q/p6
-   lGxtKYgegBYO3DHUc4DxxaFTwQWvUhRl5vmVZjkyMl/G18CdXDjMUzTvh
-   oHYTYRI6b0KbBXa2mAnSyZnynkfjApRJOPfhwKDgzcQhkPbZOHWFDRznA
-   g0H3FbV3J85MDKR4JDOg9hgwQwGLRUAu3aZh26UW796oN02kATQAPnEFu
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.92,306,1650902400"; 
-   d="scan'208";a="315492921"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 17 Jun 2022 15:32:46 +0800
-IronPort-SDR: sC39Rl4Q4nGIm8yCbWa4smWh539OfdCdzfVzR0iBPM5akhps6t8GWzIqrwJpdqlfhYPt+o0TS8
- fOFFG0JyL5thSkByo48yeSRE1BDc+Lo6G1OxQDuDE+Z6lNVvPZm1CkS/lF2J56qcuNITKdQtas
- YFOlLXXSSqnc6INs9wEZK8cYCkx+laTOya5LEuv9mW1Cg2/oPPJfIxqkTc41iUo4HFUWR8Jhph
- TVaT7NW+dTyavxApif8BgAScOzB+IYzo+DVN3jh/skT7fAtrg8Zv8w9/Xjxvw2vsE7nj19T15w
- FsIPDN8HPvBSJz60FfO8VAuT
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 16 Jun 2022 23:55:22 -0700
-IronPort-SDR: TefaQHWkdqBNgcp7czbD3ziC0XZQwMA2xDUQkKv5XnBcYSt1zgpndECjw7f6PhkV6DPvyQJyyC
- rC5KIvRTpkx8/aQWoVQS3CqvVWKbkJMC7J6A2AA6aXm+HlC27I0OP9O/ptzxbZUGxAIECrWsCg
- q33RI6TuET+uNddn7wdVUfSOFgTCegxRL98g32AReUucPwlekMLNURgWXBXPdDxEmeQPu+zYDX
- GICIuB+QGC+zK24EWWKf+byub05Am8dU48qVOZ7oNH6yTSKyNoJ53whfngGDVRRpZSnPj7Xl+k
- 6zc=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 17 Jun 2022 00:32:46 -0700
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4LPW3L32Khz1SVp2
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 00:32:46 -0700 (PDT)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:from:references:to:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1655451165; x=1658043166; bh=AGN9iam9OVUBe+emJURBvw7lAJ/RYEcPsdW
-        9ccb3QPw=; b=nsuz0R9+VvgOjUFhD2WdHST7UJx0g5mjukF2CpQndUZwlvj1u/0
-        3c9bLNKR90G6isAcA2E3GmYTOAE7Kzt7MHN4Zkp/PXQoIboF7ge3qd7PirT+dB4f
-        41UNhPvYdKwKykAKObSP1e0jfwV2gNJYqR2tz/+fr58j3XamR7GxBmkD7O2Pt0DC
-        hR97Rr6hKhXTyoMd5/CnkHL2s5i+u/REHXRAdDZ0yT9pTgLUvZXlaKPX/Mj/ucIX
-        0GDszV8hQ27aYT1BkDQKHct8teZBZ0X613Dp2gS5uyAH4HIrh2gRJyiDdZ2nGtmo
-        LjGL7/GOiisfeVyGICVVc3hUddnRHLow0dA==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id M6PWf3AMNBeY for <stable@vger.kernel.org>;
-        Fri, 17 Jun 2022 00:32:45 -0700 (PDT)
-Received: from [10.225.163.84] (unknown [10.225.163.84])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4LPW3J3r3vz1Rvlc;
-        Fri, 17 Jun 2022 00:32:44 -0700 (PDT)
-Message-ID: <84b454f7-3c84-541f-ff9a-4f247b178c69@opensource.wdc.com>
-Date:   Fri, 17 Jun 2022 16:32:43 +0900
+        with ESMTP id S1380242AbiFQIQx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 04:16:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 266CE6830F
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 01:16:53 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF169B8213C
+        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 08:16:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2087FC3411B;
+        Fri, 17 Jun 2022 08:16:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1655453810;
+        bh=nECfD3+zSMgN9sC0W52jYAuHzZmNWwa0MjxWHZmOFMI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aMBS3j0mT8A9iHrTbB16yuOfKuW/pi8opOjHF5oeoovkrwv5ze+loRQ8MgXPn9ot/
+         Ce+fkm+5q0JoOeRhL+ZBxoS9mwqdQTYUfZrtBxXuxeqoOv5VzmoYkyateAgJabRmnC
+         mS9BMLsEyM0/GeTHaI6nCbehqq55x70WmC2gBpMc=
+Date:   Fri, 17 Jun 2022 10:16:47 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     sashal@kernel.org, stable@vger.kernel.org
+Subject: Re: random.c backports for 5.18, 5.17, 5.15, and prior
+Message-ID: <Yqw4bzhjziySN54f@kroah.com>
+References: <YouECCoUA6eZEwKf@zx2c4.com>
+ <YouNwkU/8+hRwz9s@kroah.com>
+ <YpR8SHUGRFNyWEaT@kroah.com>
+ <YpSel6PD4eKSToi8@zx2c4.com>
+ <YqMJdDqMuq7hOilq@zx2c4.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v4] ata: libata: add qc->flags in ata_qc_complete_template
- tracepoint
-Content-Language: en-US
-To:     Edward Wu <edwardwu@realtek.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>, Hannes Reinecke <hare@suse.de>,
-        Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20220616001615.11636-1-edwardwu@realtek.com>
- <20220617033221.22049-1-edwardwu@realtek.com>
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital Research
-In-Reply-To: <20220617033221.22049-1-edwardwu@realtek.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YqMJdDqMuq7hOilq@zx2c4.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -102,33 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/17/22 12:32, Edward Wu wrote:
-> Add flags value to check the result of ata completion
+On Fri, Jun 10, 2022 at 11:05:56AM +0200, Jason A. Donenfeld wrote:
+> Hi Greg,
 > 
-> Fixes: 255c03d15a29 ("libata: Add tracepoints")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Edward Wu <edwardwu@realtek.com>
-> ---
-> Fixed, thanks again
+> On Mon, May 30, 2022 at 12:38:15PM +0200, Jason A. Donenfeld wrote:
+> > Hey Greg,
+> > 
+> > I think if it's in 5.10, it makes sense to at least try to get it into
+> > 5.4 and below for the same reasons. I'm traveling over the next week or
+> > so, but I think I'll attempt to do a straight backport of it (sans-wg)
+> > like I did for 5.10. As mentioned, it's harder, but that doesn't mean
+> > it's impossible. I might give up in exasperation or perhaps find it too
+> > onerous. But hopefully I'll be able to reuse the work I did for the
+> > Android wg backports. Anyway, no guarantees -- it's not a trivial walk
+> > in the park -- but I'll give it a shot and let you know if I can make it
+> > work.
 > 
->  include/trace/events/libata.h | 1 +
->  1 file changed, 1 insertion(+)
+> I'm glad I tried, because that turned out to be really easy, and none of
+> the concerns I had about the crypto turned out to be valid at all. A lot
+> of the hairiness with the 5.6-era crypto code was the way that
+> lib/crypto/ interacted with kconfig and crypto/, and the way arch crypto
+> interacted with that. But for blake2s, there was just a single commit to
+> backport, which didn't need to interact with anything else, because
+> there was nothing prior in the kernel regarding blake2s. So it wound up
+> just being a boring lib/ commit, with no complications.
 > 
-> diff --git a/include/trace/events/libata.h b/include/trace/events/libata.h
-> index d4e631aa976f..6025dd8ba4aa 100644
-> --- a/include/trace/events/libata.h
-> +++ b/include/trace/events/libata.h
-> @@ -288,6 +288,7 @@ DECLARE_EVENT_CLASS(ata_qc_complete_template,
->  		__entry->hob_feature	= qc->result_tf.hob_feature;
->  		__entry->nsect		= qc->result_tf.nsect;
->  		__entry->hob_nsect	= qc->result_tf.hob_nsect;
-> +		__entry->flags		= qc->flags;
->  	),
->  
->  	TP_printk("ata_port=%u ata_dev=%u tag=%d flags=%s status=%s " \
+> So with that out of the way, I succeeded in doing the remaining
+> backports. You can pull from
+> https://git.kernel.org/pub/scm/linux/kernel/git/crng/random.git/ the
+> following branches, with a linear series of commits on top of your
+> latest:
+> 
+>     - linux-4.9.y
+>     - linux-4.14.y
+>     - linux-4.19.y
+>     - linux-5.4.y
+> 
+> I've done an `allmodconfig` build test on these, and I've also booted a
+> system on each of them. They contain the fixes that have landed since
+> the previous tranche of backports, so that should bring all the
+> backports up to date with each other.
+> 
+> And that means that moving forward, a `Cc: stable@vger.kernel.org` tag
+> will hopefully apply evenly and without hassle to everything. More
+> globally, I noticed when doing these backports what had been already
+> backported and what hadn't, and it looks like a lot didn't easily apply
+> before and so was dropped without being reworked, so over time fixes
+> were lost. So I'm very happy to bring everything up to date finally.
 
-Applied to for-5.19-fixes. Thanks !
+All now queued up, thanks.
 
--- 
-Damien Le Moal
-Western Digital Research
+greg k-h
