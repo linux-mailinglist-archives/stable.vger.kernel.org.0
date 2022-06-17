@@ -2,73 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0032D54FAE0
-	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 18:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94DF054FADA
+	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 18:10:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383145AbiFQQKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jun 2022 12:10:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57418 "EHLO
+        id S1383129AbiFQQJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jun 2022 12:09:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383204AbiFQQKm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 12:10:42 -0400
-Received: from mail.altsetonline.com (mail.altsetonline.com [51.254.119.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27485381B5
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 09:10:42 -0700 (PDT)
-Received: by mail.altsetonline.com (Postfix, from userid 1002)
-        id 4D56B25F81; Fri, 17 Jun 2022 16:08:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=altsetonline.com;
-        s=mail; t=1655482132;
-        bh=ZWOA/1seUbDdknp7vWPZTi/LTxkJxgWJ33h0PDOotrA=;
-        h=Date:From:To:Subject:From;
-        b=P4bzCSKgmBw7kbOPlY62zOtJ6suNkPsu+YvPvNXDt35yyLFFc3iMxvxtUpUjN23Gg
-         e3ZVT1KuSLhdpPvyEU563jLvHHRck9OqwoEDhIV+oh2Um5tp2yHVpll4tfxTmiet3l
-         KTlGHERcLclceybR56mGd9Myq3E0uUqO9rOwlonI66auQSKlWUOM7YhffF45lb6ssS
-         Jl7irs+fM7dWvZq5fvk3A+fbw2z7U9w0ssAL1IdFqsB+jaZ1UNvMcelBBUMuuqU50d
-         P9MmRyzEv+IvgVCqFqp4Qpetz14Rz3HKBbgwERRtebxB5EivIot3QNKXxi0kNQ+bKZ
-         63n159H6cbWoA==
-Received: by mail.altsetonline.com for <stable@vger.kernel.org>; Fri, 17 Jun 2022 16:07:57 GMT
-Message-ID: <20220617141500-0.1.13.5akz.0.5umkgiw3r8@altsetonline.com>
-Date:   Fri, 17 Jun 2022 16:07:57 GMT
-From:   "Walker Cooney" <walker.cooney@altsetonline.com>
-To:     <stable@vger.kernel.org>
-Subject: SEO analysis 
-X-Mailer: mail.altsetonline.com
+        with ESMTP id S1383127AbiFQQJ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 12:09:59 -0400
+Received: from www62.your-server.de (www62.your-server.de [213.133.104.62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1C7835DC9;
+        Fri, 17 Jun 2022 09:09:57 -0700 (PDT)
+Received: from sslproxy03.your-server.de ([88.198.220.132])
+        by www62.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92.3)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1o2EXZ-0007dE-0c; Fri, 17 Jun 2022 18:09:45 +0200
+Received: from [2001:1620:665:0:5795:5b0a:e5d5:5944] (helo=linux-3.fritz.box)
+        by sslproxy03.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1o2EXY-000MyH-P3; Fri, 17 Jun 2022 18:09:44 +0200
+Subject: Re: [PATCH] tracing/kprobes: Check whether get_kretprobe() returns
+ NULL in kretprobe_dispatcher()
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Yonghong Song <yhs@fb.com>,
+        bpf <bpf@vger.kernel.org>, Kernel Team <kernel-team@fb.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <165366693881.797669.16926184644089588731.stgit@devnote2>
+ <0204f480-cdb0-e49f-9034-602eced02966@iogearbox.net>
+ <7619DB57-C39B-4A49-808C-7ACF12D58592@goodmis.org>
+ <d28e1548-98fb-a533-4fdc-ae4f4568fb75@iogearbox.net>
+ <20220608091017.0596dade@gandalf.local.home>
+ <3d535ae1-69cd-dbae-32f6-7d571a88c2d8@iogearbox.net>
+ <20220617120254.30bb0f15@gandalf.local.home>
+From:   Daniel Borkmann <daniel@iogearbox.net>
+Message-ID: <26a91f26-8d9c-e5e4-0a2f-4f17746c28b8@iogearbox.net>
+Date:   Fri, 17 Jun 2022 18:09:44 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=0.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220617120254.30bb0f15@gandalf.local.home>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: daniel@iogearbox.net
+X-Virus-Scanned: Clear (ClamAV 0.103.6/26575/Fri Jun 17 10:08:05 2022)
+X-Spam-Status: No, score=-4.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On 6/17/22 6:02 PM, Steven Rostedt wrote:
+> On Fri, 17 Jun 2022 10:26:40 +0200
+> Daniel Borkmann <daniel@iogearbox.net> wrote:
+> 
+>> Steven, we still have this in our patchwork for tracking so it doesn't fall
+>> off the radar. The patch is 3 weeks old by now. Has this been picked up yet,
+>> or do you want to Ack and we ship the fix via bpf tree? Just asking as I
+>> didn't see any further updates ever since.
+> 
+> Sorry, between traveling for conferences and PTO I fell behind. I'll pull
+> this into my urgent queue and start running my tests on it.
 
-would you like to reach more clients?
-
-As one of the first SEO agencies in Europe, we=E2=80=99ve introduced SEO =
-360 service (SEO, UX, and SEM), which assures a multidimensional approach=
- to optimising company=E2=80=99s visibility online and increasing website=
- traffic.
-
-We provide a free consultation with our specialist, during which we will =
-conduct a detailed analysis of your website or e-shop, positioning indica=
-tors and check the actions and results achieved by your competitors.
-
-Our clients gain notable results by using a dedicated strategy, extensive=
- website analytics, technical optimisation, adding new subpages and link =
-building.
-
-With 14 years of experience and the skills of over 350 specialists workin=
-g on 3 continents, you can increase your sales and become an industry lea=
-der.
-
-Please let us know if you want to learn more about our methods and possib=
-le results.
-
-Yours sincerely,
-
-Walker Cooney
+Okay, if you pick these fixes up today then I'll toss them from our bpf patchwork.
