@@ -2,153 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C9854F7CF
-	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 14:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD67F54F7D8
+	for <lists+stable@lfdr.de>; Fri, 17 Jun 2022 14:51:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235556AbiFQMqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jun 2022 08:46:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37638 "EHLO
+        id S236198AbiFQMvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jun 2022 08:51:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232477AbiFQMqy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 08:46:54 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0D08E2ED51
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 05:46:53 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A69A51474
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 05:46:53 -0700 (PDT)
-Received: from e121345-lin.cambridge.arm.com (e121345-lin.cambridge.arm.com [10.1.196.40])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 36F4F3F7F5
-        for <stable@vger.kernel.org>; Fri, 17 Jun 2022 05:46:53 -0700 (PDT)
-From:   Robin Murphy <robin.murphy@arm.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH 5.10] dma-direct: don't over-decrypt memory
-Date:   Fri, 17 Jun 2022 13:46:49 +0100
-Message-Id: <5de33f5cb5e1f80497b898e4690d36ed85ad396a.1655468052.git.robin.murphy@arm.com>
-X-Mailer: git-send-email 2.36.1.dirty
+        with ESMTP id S232477AbiFQMvY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jun 2022 08:51:24 -0400
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80DC137A84;
+        Fri, 17 Jun 2022 05:51:23 -0700 (PDT)
+Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 192342A5;
+        Fri, 17 Jun 2022 14:51:21 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1655470281;
+        bh=6044Ae7YHS8XgtS8M1tFoHpK4NiU+wwOXC2x7BQ7Z78=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=COaincPjdXKl1B+/5mkNRMn6kFQ0raht3IJWuZ1+RxMFAYBQ1Fpk+blOKhy2VPFIP
+         wcMEOHgGxalCoUiO33fS7JrK9xfBVY2VQ2CEnYmVR+kF992v+Me3UWHrEg4f8KQpii
+         DMLmJ7laRYi2GnE74q7+Cz+j87s8nCqnvFczrMCE=
+Date:   Fri, 17 Jun 2022 15:51:08 +0300
+From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To:     Dan Vacura <w36195@motorola.com>
+Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Paul Elder <paul.elder@ideasonboard.com>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] usb: gadget: uvc: fix list double add in uvcg_video_pump
+Message-ID: <Yqx4vPp78Sl2I3nU@pendragon.ideasonboard.com>
+References: <20220616030915.149238-1-w36195@motorola.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220616030915.149238-1-w36195@motorola.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4a37f3dd9a83186cb88d44808ab35b78375082c9 ]
+Hi Dan,
 
-The original x86 sev_alloc() only called set_memory_decrypted() on
-memory returned by alloc_pages_node(), so the page order calculation
-fell out of that logic. However, the common dma-direct code has several
-potential allocators, not all of which are guaranteed to round up the
-underlying allocation to a power-of-two size, so carrying over that
-calculation for the encryption/decryption size was a mistake. Fix it by
-rounding to a *number* of pages, rather than an order.
+Thank you for the patch.
 
-Until recently there was an even worse interaction with DMA_DIRECT_REMAP
-where we could have ended up decrypting part of the next adjacent
-vmalloc area, only averted by no architecture actually supporting both
-configs at once. Don't ask how I found that one out...
+On Wed, Jun 15, 2022 at 10:09:15PM -0500, Dan Vacura wrote:
+> A panic can occur if the endpoint becomes disabled and the
+> uvcg_video_pump adds the request back to the req_free list after it has
+> already been queued to the endpoint. The endpoint complete will add the
+> request back to the req_free list. Invalidate the local request handle
+> once it's been queued.
 
-Fixes: c10f07aa27da ("dma/direct: Handle force decryption for DMA coherent buffers in common code")
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: David Rientjes <rientjes@google.com>
-[ backport the functional change without all the prior refactoring ]
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
----
+Good catch !
 
-Hi Greg, Sasha,
+> <6>[  246.796704][T13726] configfs-gadget gadget: uvc: uvc_function_set_alt(1, 0)
+> <3>[  246.797078][   T26] list_add double add: new=ffffff878bee5c40, prev=ffffff878bee5c40, next=ffffff878b0f0a90.
+> <6>[  246.797213][   T26] ------------[ cut here ]------------
+> <2>[  246.797224][   T26] kernel BUG at lib/list_debug.c:31!
+> <6>[  246.807073][   T26] Call trace:
+> <6>[  246.807180][   T26]  uvcg_video_pump+0x364/0x38c
+> <6>[  246.807366][   T26]  process_one_work+0x2a4/0x544
+> <6>[  246.807394][   T26]  worker_thread+0x350/0x784
+> <6>[  246.807442][   T26]  kthread+0x2ac/0x320
+> 
+> Fixes: f9897ec0f6d3 ("usb: gadget: uvc: only pump video data if necessary")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Dan Vacura <w36195@motorola.com>
+> ---
+>  drivers/usb/gadget/function/uvc_video.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
+> index 93f42c7f800d..59e2f51b53a5 100644
+> --- a/drivers/usb/gadget/function/uvc_video.c
+> +++ b/drivers/usb/gadget/function/uvc_video.c
+> @@ -427,6 +427,9 @@ static void uvcg_video_pump(struct work_struct *work)
+>  		if (ret < 0) {
+>  			uvcg_queue_cancel(queue, 0);
+>  			break;
+> +		} else {
+> +			/* Endpoint now owns the request */
+> +			req = NULL;
+>  		}
+>  		video->req_int_count++;
 
-I see you managed to resolve this back as far as 5.15 already, so please
-consider this backport to complete the set. This may need to end up in
-the Android 5.10 kernel in future for unpleasant reasons, but as an
-upstream fix I figure it may as well take the upstream stable route too.
+I'd write it as
 
-Thanks,
-Robin.
+		if (ret < 0) {
+			uvcg_queue_cancel(queue, 0);
+			break;
+		}
 
- kernel/dma/direct.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+		/* Endpoint now owns the request. */
+		req = NULL;
+		video->req_int_count++;
 
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index 8ca84610d4d4..944fdadb5a64 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -191,7 +191,7 @@ void *dma_direct_alloc(struct device *dev, size_t size,
- 			goto out_free_pages;
- 		if (force_dma_unencrypted(dev)) {
- 			err = set_memory_decrypted((unsigned long)ret,
--						   1 << get_order(size));
-+						   PFN_UP(size));
- 			if (err)
- 				goto out_free_pages;
- 		}
-@@ -213,7 +213,7 @@ void *dma_direct_alloc(struct device *dev, size_t size,
- 	ret = page_address(page);
- 	if (force_dma_unencrypted(dev)) {
- 		err = set_memory_decrypted((unsigned long)ret,
--					   1 << get_order(size));
-+					   PFN_UP(size));
- 		if (err)
- 			goto out_free_pages;
- 	}
-@@ -234,7 +234,7 @@ void *dma_direct_alloc(struct device *dev, size_t size,
- out_encrypt_pages:
- 	if (force_dma_unencrypted(dev)) {
- 		err = set_memory_encrypted((unsigned long)page_address(page),
--					   1 << get_order(size));
-+					   PFN_UP(size));
- 		/* If memory cannot be re-encrypted, it must be leaked */
- 		if (err)
- 			return NULL;
-@@ -247,8 +247,6 @@ void *dma_direct_alloc(struct device *dev, size_t size,
- void dma_direct_free(struct device *dev, size_t size,
- 		void *cpu_addr, dma_addr_t dma_addr, unsigned long attrs)
- {
--	unsigned int page_order = get_order(size);
--
- 	if ((attrs & DMA_ATTR_NO_KERNEL_MAPPING) &&
- 	    !force_dma_unencrypted(dev)) {
- 		/* cpu_addr is a struct page cookie, not a kernel address */
-@@ -269,7 +267,7 @@ void dma_direct_free(struct device *dev, size_t size,
- 		return;
- 
- 	if (force_dma_unencrypted(dev))
--		set_memory_encrypted((unsigned long)cpu_addr, 1 << page_order);
-+		set_memory_encrypted((unsigned long)cpu_addr, PFN_UP(size));
- 
- 	if (IS_ENABLED(CONFIG_DMA_REMAP) && is_vmalloc_addr(cpu_addr))
- 		vunmap(cpu_addr);
-@@ -305,8 +303,7 @@ struct page *dma_direct_alloc_pages(struct device *dev, size_t size,
- 
- 	ret = page_address(page);
- 	if (force_dma_unencrypted(dev)) {
--		if (set_memory_decrypted((unsigned long)ret,
--				1 << get_order(size)))
-+		if (set_memory_decrypted((unsigned long)ret, PFN_UP(size)))
- 			goto out_free_pages;
- 	}
- 	memset(ret, 0, size);
-@@ -322,7 +319,6 @@ void dma_direct_free_pages(struct device *dev, size_t size,
- 		struct page *page, dma_addr_t dma_addr,
- 		enum dma_data_direction dir)
- {
--	unsigned int page_order = get_order(size);
- 	void *vaddr = page_address(page);
- 
- 	/* If cpu_addr is not from an atomic pool, dma_free_from_pool() fails */
-@@ -331,7 +327,7 @@ void dma_direct_free_pages(struct device *dev, size_t size,
- 		return;
- 
- 	if (force_dma_unencrypted(dev))
--		set_memory_encrypted((unsigned long)vaddr, 1 << page_order);
-+		set_memory_encrypted((unsigned long)vaddr, PFN_UP(size));
- 
- 	dma_free_contiguous(dev, page, size);
- }
+Apart from that,
+
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+
+>  	}
+
 -- 
-2.36.1.dirty
+Regards,
 
+Laurent Pinchart
