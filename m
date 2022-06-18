@@ -2,152 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DA00550458
-	for <lists+stable@lfdr.de>; Sat, 18 Jun 2022 13:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51158550461
+	for <lists+stable@lfdr.de>; Sat, 18 Jun 2022 14:14:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233424AbiFRL5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Jun 2022 07:57:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33726 "EHLO
+        id S232215AbiFRMNt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Jun 2022 08:13:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230213AbiFRL5N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Jun 2022 07:57:13 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1A9211147;
-        Sat, 18 Jun 2022 04:57:12 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 29E8121B71;
-        Sat, 18 Jun 2022 11:57:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1655553431; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+5gUbZKbWvo49PKciu8+d42cmuCqpds779UDQWH0oCE=;
-        b=Pgu8AR6w8Xv6QWo5qaWBLpqWYCTOdD5aQPMXFgzazcZNJ0kvYbnkg4LRmb6K+aac5Eqx5Z
-        WUi2wknXg9HHUQSCZCaLUnzA+J2ARMC+28+O0p4N8LDVleO8IjeBSF+fyW62zkhrOCvJol
-        aJzS684I6rFeixMLoTGjKz2MNkFDd3U=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1655553431;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+5gUbZKbWvo49PKciu8+d42cmuCqpds779UDQWH0oCE=;
-        b=HSs0Dl61dRIojTsbIKQfMSltuEKzoRGyuusjofYKmIzRNd4OWaXE4kcozDeZqCmHnNz6+y
-        WxD8rseTNeA5KnDQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 53B441342C;
-        Sat, 18 Jun 2022 11:57:04 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id /3yUCJC9rWL8OwAAMHmgww
-        (envelope-from <colyli@suse.de>); Sat, 18 Jun 2022 11:57:04 +0000
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.100.31\))
-Subject: Re: [PATCH 5.17 000/772] 5.17.14-rc1 review
-From:   Coly Li <colyli@suse.de>
-In-Reply-To: <20220618113703.GA10888@duo.ucw.cz>
-Date:   Sat, 18 Jun 2022 19:57:01 +0800
-Cc:     Pavel Machek <pavel@denx.de>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        baijiaju1990@gmail.com, oslab@tsinghua.edu.cn,
-        Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Daniel Latypov <dlatypov@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        kunit-dev@googlegroups.com,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <186E5519-55D4-48EE-8599-2C863BEC3918@suse.de>
-References: <20220607164948.980838585@linuxfoundation.org>
- <CA+G9fYui20CoDeqa6OrCYB+CGpgoFkhXtkdMDFJd1H55efCm6Q@mail.gmail.com>
- <CA+G9fYt47PBfbOK77eiH3qP2QH0iWQ=p12NELpL+R_k7O678=g@mail.gmail.com>
- <20220618104925.GA3644@duo.ucw.cz>
- <6497730E-D4D2-4FB3-B95B-E1DAB2C2B287@suse.de>
- <20220618113703.GA10888@duo.ucw.cz>
-To:     Pavel Machek <pavel@ucw.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-X-Mailer: Apple Mail (2.3696.100.31)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S234268AbiFRMNa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Jun 2022 08:13:30 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F134140C9
+        for <stable@vger.kernel.org>; Sat, 18 Jun 2022 05:13:29 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id h192so6220657pgc.4
+        for <stable@vger.kernel.org>; Sat, 18 Jun 2022 05:13:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=m/SyI1p4NJYzpPMsKBP0cxFgB8yxm6H3Ocv4yjXObDY=;
+        b=QqNME9A+WqNR6fsZ+dF0fXNlB32+GtkP2Caj/nPkz+KRJC5xm7mcLzMaHUfqkXk5H9
+         atblqaRNNd/E0SxLVAbeOkamHuv0t3ujBYofCbWc0D/kl/51KlLNaDy1EjWwT8X9dVF2
+         EW2yxHMMbP8doUxgJTlS+dl1AxEF4ih4a4ASHz/YCqcZNSl7qJ7xkYdRnnIM3dc22c4t
+         /jDYVRlXnffhEcBGyJSL1egxAYAGAR+FRFs7YfscQcInXvAmJeZnlbrKaROINvtOjoZL
+         Wzco15ftbSF1GE4UjA8lb7R5bEPgFo+6d3Kegk9Th/gDfvJaUM3cGAo0ALBo0PGNTKSi
+         3KNw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=m/SyI1p4NJYzpPMsKBP0cxFgB8yxm6H3Ocv4yjXObDY=;
+        b=Bx8IWD0JZV6EuXjtEssrTk1wjTlr5LheWkcJQMwDV6OPNwU5dH3jjTiXAHSYgz2X6d
+         IW48G8ZIkDMFXS7hlBtwFpIRhGCgwSg0/rNw0U9ow+c1vMx7UdBDMtdataYnmtzqSfMp
+         LYHrkWrE7ySv0tL0xQ+w6Zgq63z1mOC+UtTdyfIeSZL/il27a/xW1IQ7iZwFTPrvYDBw
+         4hfw3lBvV4W+D2MazuuvRy1om64TZG4uE1QTeHXNiHu1c9xSvkpf1ych2WqtlygyRWhX
+         PwiFZbSOxCcrW4xg0eO+/EQIv0QcvqEGrMt03wuoHt7vCMUnfxqivjIXV8/9usXu4Iai
+         VhdQ==
+X-Gm-Message-State: AJIora9nHfEPyvtYUhCtxZ9/V+lMQAmkvYtiufTbMeIRtmQwDrIPzXar
+        UYCBSJRolElyvE+1xP7zuLguWFjqYFI8Ah1m1vQ=
+X-Google-Smtp-Source: AGRyM1snaQ9tC8oBhAm/454JfR8gx4xxxXddNFIpALKsjEbu8x7iTk3YQBqCdhxhrl99mB4rvcriDRqIcsnpGJh7RkM=
+X-Received: by 2002:a63:7744:0:b0:408:a74f:ec4f with SMTP id
+ s65-20020a637744000000b00408a74fec4fmr12908075pgc.551.1655554408987; Sat, 18
+ Jun 2022 05:13:28 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a05:7022:6621:b0:40:f299:6c42 with HTTP; Sat, 18 Jun 2022
+ 05:13:28 -0700 (PDT)
+Reply-To: cosme.mossou@hotmail.com
+From:   "Mr.Cosme" <onlinecustomerc@gmail.com>
+Date:   Sat, 18 Jun 2022 05:13:28 -0700
+Message-ID: <CAPsZxQEhQq+Bf03hy8=D0dmowi9Ho_KfLerxK70WPA8bM1FJKg@mail.gmail.com>
+Subject: Re;
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=6.8 required=5.0 tests=ADVANCE_FEE_4_NEW,BAYES_50,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_HK_NAME_FM_MR_MRS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM,UNDISC_MONEY
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:544 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [onlinecustomerc[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
+        *  2.3 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+        *  2.2 ADVANCE_FEE_4_NEW Appears to be advance fee fraud (Nigerian
+        *      419)
+        *  0.7 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
 
+My name is Mr.Cosme Amossou, I apologize for contacting you in this
+manner but the situation at hand demands urgent attention from all
+presumed beneficiaries. I have an important subject to share with you,
+regarding my late client Mr. Peter fund's domicile in his bank. Write
+back to me for more detailed information.
 
-> 2022=E5=B9=B46=E6=9C=8818=E6=97=A5 19:37=EF=BC=8CPavel Machek =
-<pavel@ucw.cz> =E5=86=99=E9=81=93=EF=BC=9A
->=20
-> Hi!
->=20
->>>>   Fixes: bc082a55d25c ("bcache: fix inaccurate io state for =
-detached
->>> ...
->>>=20
->>>> +++ b/drivers/md/bcache/request.c
->>>> @@ -1107,6 +1107,12 @@ static void detached_dev_do_request(struct
->>>> bcache_device *d, struct bio *bio,
->>>>        * which would call closure_get(&dc->disk.cl)
->>>>        */
->>>>       ddip =3D kzalloc(sizeof(struct detached_dev_io_private), =
-GFP_NOIO);
->>>> +       if (!ddip) {
->>>> +               bio->bi_status =3D BLK_STS_RESOURCE;
->>>> +               bio->bi_end_io(bio);
->>>> +               return;
->>>> +       }
->>>> +
->>>>       ddip->d =3D d;
->>>>       /* Count on the bcache device */
->>>>       ddip->orig_bdev =3D orig_bdev;
->>>>=20
->>>=20
->>> So... for patch to make any difference, memory allocation has to =
-fail
->>> and ddip has to be NULL.
->>>=20
->>> Before the patch, it would oops in "ddip->d =3D d;". With the patch, =
-you
->>> do some kind of error handling. Even if it is buggy, it should not =
-do
->>> more harm than immediate oops.
->>=20
->> I just receive this single email and don=E2=80=99t have any idea for =
-the context and what the problem is. Where can I see the whole =
-conversation?
->>=20
->=20
-> Discussion happened on stable@vger.kernel.org mailing lists, archives
-> should be easily available. Copy went to lkml, too.
-
-Hi Pavel and Greg,
-
-Thanks for the hint, I see the context. I cannot tell the direct reason =
-of the kfence regression, but it is worthy to have this patch in,
-- commit 7d6b902ea0e0 ("bcache: memset on stack variables in =
-bch_btree_check() and bch_sectors_dirty_init()=E2=80=9D)
-
-I am not sure whether it is directly related to the kfence issue, it =
-corrects potential unexpected stack state in some condition. Hope it may =
-help a bit.
-
-Thanks.
-
-Coly Li=
+Best regards
+Mr.Cosme
