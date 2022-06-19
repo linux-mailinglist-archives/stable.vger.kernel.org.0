@@ -2,118 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CED5507D6
-	for <lists+stable@lfdr.de>; Sun, 19 Jun 2022 03:10:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 490985507E7
+	for <lists+stable@lfdr.de>; Sun, 19 Jun 2022 03:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232887AbiFSBKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Jun 2022 21:10:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55922 "EHLO
+        id S229690AbiFSBro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Jun 2022 21:47:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232535AbiFSBKR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Jun 2022 21:10:17 -0400
-Received: from mail-vk1-xa42.google.com (mail-vk1-xa42.google.com [IPv6:2607:f8b0:4864:20::a42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D3D1E099
-        for <stable@vger.kernel.org>; Sat, 18 Jun 2022 18:10:16 -0700 (PDT)
-Received: by mail-vk1-xa42.google.com with SMTP id bj33so3615408vkb.12
-        for <stable@vger.kernel.org>; Sat, 18 Jun 2022 18:10:16 -0700 (PDT)
+        with ESMTP id S229446AbiFSBrn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Jun 2022 21:47:43 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB6B25F0
+        for <stable@vger.kernel.org>; Sat, 18 Jun 2022 18:47:41 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id u18so6892655plb.3
+        for <stable@vger.kernel.org>; Sat, 18 Jun 2022 18:47:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=r9s45iLFR7996ZhX6f5bROMLZTrx/NqqeK2ijAW5crg=;
-        b=Yber1q4yh6ni2nLdd9KGeMx0PTFZFvCbqjsvq28C5/6s2oueoVELbyox2au110GcAG
-         tuWyvC+HhXiEcFw+EFOkZyhpir7p1fAJb2Go+wVYSfQK3b/xR3+ON6e9QIU2WEnNRtzN
-         5imACl3fmkc4g1INvd/pCUpfuYg9ELyoQbmrINgVw8AlAE+vTf9QNeR9j8pAjpfXW8g4
-         Z8RyolNzalXQUGuZI5XN529/jMVULm1GXXgaMXu1P6nQb4pssCdCnPpFTeIyNFQ2uiGU
-         l7+ComVEQdt7QwdvFJ9NSAYkMg/H3XvnQodwl8nFgmlxecaosNWj/WcKlbAOqI1U7x5o
-         +m4w==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=dga3utEiplCvuVJKMRiyBOYMea2D/Un0NnspqWKyIgk=;
+        b=mpLDy5P1MZ3RhQFXiOhp6o8WhlSrYlpR81nosLLLGtQd1uyBdn57vxF9m3r/Pld0vA
+         6OlwPnDi4R9JLBF5PJPUK8SvSvk49zyLXdDwjPxQyc0zdkJuh4FOxZufXLDgy+14V1g0
+         Af461iRhi8dzjGLQJHRCii0kJkVJcbeyMYLUes6HpSQfGF5jaqOutWpjzJSCspTQusKs
+         HJrfg0Uf8QAfi8doECdf2Qb3Vi1GcjPuugSQdB7G+ZY3Qnid4JrlPrPtn3N0gSL1AY5F
+         DdJWobdXBOOty6fR38VLQFuNIR1wY8CCBqXExQgHWA4S9+cmex26nrh4fObAGGYT2GXp
+         CHfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=r9s45iLFR7996ZhX6f5bROMLZTrx/NqqeK2ijAW5crg=;
-        b=KgMRRgSX8thCcI1qdxuZRZXfXR8f6FSclrepY71sFxYK6tdIGJjMbAu/mVFOUhppWv
-         Tc5vH2ap+YZMb/Uo4iYtPWxNFMJiwK2nGNC8fl7kTqVnjFzfweyQQjgDy+lHVZdxx+sB
-         E0VB4efubqDx29t5xgHJ5l3NlfCMvsbdJBlkgFKRgzah9fqPNngpgQLaE1tyGX4oQiYs
-         ARrqSzvswufCj1nN9tUPu4lqhgNbomzczEa1tqrN/lOsM+I6fs8ySrFnZLnTEUCd72RW
-         hyOtFeNPU5RhYwNbSVMH7ZfQrjSPfE0GzvVUU5cgrUSFFA45qXIs6TGXcxI5TwIm9TPt
-         YD0w==
-X-Gm-Message-State: AJIora8LROR15Wgmd+xdsP0JZXkBUb5yDH9o1CLJhzCTmHD3PFg9j20E
-        jFRPibx0+BQNcPXM815OVulamdD9609XV1OiR9Q=
-X-Google-Smtp-Source: AGRyM1v5AViNdrTwmiEQi7fry6C2MgXWWiagDUI1144i4G6Hu/GiaPIvbVer3OFLqjTZ9mMyb88Ft8+WLgbosxLrudU=
-X-Received: by 2002:a05:6122:4f:b0:365:2b10:5b1e with SMTP id
- q15-20020a056122004f00b003652b105b1emr6875044vkn.40.1655601015529; Sat, 18
- Jun 2022 18:10:15 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=dga3utEiplCvuVJKMRiyBOYMea2D/Un0NnspqWKyIgk=;
+        b=6PVplad9i0LABNCAQWwmA2DiOwKLoZazRovDXcBoe/Ev3MVdOFbBLJJH3LkGCI6mOn
+         Ry6/fg8Myhr44phg89/YjeAzPoTmUj1VMRVm9lV5Bw8ZKCDGZQ90i6p2KZe2d+4mAntO
+         nNWm7sNSVnDIbkRqA2y20xhH2e/v/NefuucBZKEkGU7lE1kbHCOep5kXUMnLSNI7ts/V
+         r94raBScwlqfA7at969Yj2JJGS7xwwLWAxp14+W5ZISWBpVtY/AAK7GUxN2lcIi+Xfu+
+         HKEac6Vrndh2RCcaHRJvg9ybsojypAiC+65EUNzLGds4HqV7HTo2or+iDjI4vez1BPPf
+         tk+A==
+X-Gm-Message-State: AJIora+Q+WkPJdVn12LHLMZCH7lcTKlUlXAZKuHaypS8CMGf72zqqvVz
+        Ual1icGqGhZeMZOcjcgPWsD59HtY6sNViR04rYA=
+X-Google-Smtp-Source: AGRyM1tl2xJ+9/rXawO/cawqidZJjBDLcTjzRw2KdozaOMT4LoUCIPvRiLaPtHuvc7ln+kd2dcVG+Q==
+X-Received: by 2002:a17:90b:4b10:b0:1e8:3609:7fc7 with SMTP id lx16-20020a17090b4b1000b001e836097fc7mr29725983pjb.150.1655603260255;
+        Sat, 18 Jun 2022 18:47:40 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p11-20020a170903248b00b001618b70dcc9sm5954746plw.101.2022.06.18.18.47.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Jun 2022 18:47:39 -0700 (PDT)
+Message-ID: <62ae803b.1c69fb81.765f.835c@mx.google.com>
+Date:   Sat, 18 Jun 2022 18:47:39 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Sender: hamzaafarizaa@gmail.com
-Received: by 2002:a05:612c:2220:b0:2cd:51e8:669d with HTTP; Sat, 18 Jun 2022
- 18:10:15 -0700 (PDT)
-From:   "Mrs. Hamza Farizaa" <hamzmrsfari@gmail.com>
-Date:   Sat, 18 Jun 2022 18:10:15 -0700
-X-Google-Sender-Auth: u_69MpIaid8ODr3WMouv69_BNvc
-Message-ID: <CAHw4SCWGPYnUA8R7rU+-cGTd3hOV-fC9vAUsKxdWm7h+-hE5nA@mail.gmail.com>
-Subject: I think you can
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=5.3 required=5.0 tests=ADVANCE_FEE_5_NEW_MONEY,
-        BAYES_50,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_FROM,FREEMAIL_REPLY,HK_SCAM,LOTS_OF_MONEY,MONEY_FRAUD_8,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
-        T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:a42 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5697]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [hamzmrsfari[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
-        *  0.0 HK_SCAM No description available.
-        *  1.0 FREEMAIL_REPLY From and body contain different freemails
-        *  0.0 MONEY_FRAUD_8 Lots of money and very many fraud phrases
-        *  3.0 ADVANCE_FEE_5_NEW_MONEY Advance Fee fraud and lots of money
-        *  0.7 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *****
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.123-34-g2f9d93aa50b2b
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.10 baseline: 132 runs,
+ 3 regressions (v5.10.123-34-g2f9d93aa50b2b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-May peace be with you,
+stable-rc/queue/5.10 baseline: 132 runs, 3 regressions (v5.10.123-34-g2f9d9=
+3aa50b2b)
 
-My Greetings in the name of our family, This is the second time i am
-contacting you with regards to the charity work. I am Mrs. Fariza
-Hamza, an aging widow suffering from longtime illness. I am currently
-admitted in a private hospital here in the capital city of
-Coted=E2=80=99Ivoire.
+Regressions Summary
+-------------------
 
-I have sum amounts of US$17.500 Million dollars i inherited from my
-late husband Late Mr. Mohamed Hamza, the sum will be disclosed to you
-for security purpose which he deposited in one of a Bank here and I
-need a very honest and God fearing person that can use this funds for
-God's work and purpose, 15% out of the total funds will be for your
-compensation for doing this work of God. I found your email address
-and i decided to contact you.
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+jetson-tk1        | arm  | lab-baylibre  | gcc-10   | multi_v7_defconfig | =
+1          =
 
-Please if you would be able to use these funds for the purpose and
-God's work kindly reply me back. on ( hamzamrs027@gmail.com )
+jetson-tk1        | arm  | lab-baylibre  | gcc-10   | tegra_defconfig    | =
+1          =
 
-Yours Sister.
+tegra124-nyan-big | arm  | lab-collabora | gcc-10   | tegra_defconfig    | =
+1          =
 
-Mrs. Fariza Hamza.
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.123-34-g2f9d93aa50b2b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.123-34-g2f9d93aa50b2b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2f9d93aa50b2b6bcbf3060a72318c48a9bd951a9 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+jetson-tk1        | arm  | lab-baylibre  | gcc-10   | multi_v7_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62ae4ca1a42ed7afbea39bce
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.123=
+-34-g2f9d93aa50b2b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jets=
+on-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.123=
+-34-g2f9d93aa50b2b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jets=
+on-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62ae4ca1a42ed7afbea39=
+bcf
+        failing since 7 days (last pass: v5.10.120-452-g766cc4f88a25c, firs=
+t fail: v5.10.120-541-g35309659a1f22) =
+
+ =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+jetson-tk1        | arm  | lab-baylibre  | gcc-10   | tegra_defconfig    | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62ae4a83e44edd0baca39bd2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.123=
+-34-g2f9d93aa50b2b/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
+tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.123=
+-34-g2f9d93aa50b2b/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
+tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62ae4a83e44edd0baca39=
+bd3
+        new failure (last pass: v5.10.123-4-gc586992bf6805) =
+
+ =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+tegra124-nyan-big | arm  | lab-collabora | gcc-10   | tegra_defconfig    | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62ae491b1ee9bf5837a39bcd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.123=
+-34-g2f9d93aa50b2b/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra1=
+24-nyan-big.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.123=
+-34-g2f9d93aa50b2b/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra1=
+24-nyan-big.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220610.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62ae491b1ee9bf5837a39=
+bce
+        failing since 22 days (last pass: v5.10.117-97-g901121443947, first=
+ fail: v5.10.118-10-gb5ec0c22a820f) =
+
+ =20
