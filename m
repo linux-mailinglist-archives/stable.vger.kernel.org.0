@@ -2,131 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDC3F55079E
-	for <lists+stable@lfdr.de>; Sun, 19 Jun 2022 02:03:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17BC25507C1
+	for <lists+stable@lfdr.de>; Sun, 19 Jun 2022 02:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbiFSAC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Jun 2022 20:02:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54544 "EHLO
+        id S232887AbiFSAf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Jun 2022 20:35:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229446AbiFSAC7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Jun 2022 20:02:59 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E712E0E0
-        for <stable@vger.kernel.org>; Sat, 18 Jun 2022 17:02:57 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id fu3so14875818ejc.7
-        for <stable@vger.kernel.org>; Sat, 18 Jun 2022 17:02:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=DsUpTMVy3AnG06ab2HPPYE6VPm25Tedt2mleq6KKBcw=;
-        b=abggI590yJ8sKGkDZ96YAH4zNpvfk59wudXHsLIIF0XHJvgsF1E7BsQEGeJ9ZAFjuZ
-         GOwCvTeXtoZ37eMYK0tDRemIDEcDd3jQrPcCJUuHJLuR+0UGTYUZ7VvDDVgACCpPorjM
-         TUvkp1qsQbMyR1zDpnLREopTwhpgoUd9gZHln3i+qMuIZoPJ41CR0RnK8zxxlFPHEAJL
-         azUSmwigHitXe3THWGo7OKMhnh8OrSwS7M2GK3XC+/uje6oQwWacQN7udoi7LehglAb2
-         ziHm7oXwjozKwUSkSX/u0nKeZ+tOKwxl4RgvAnwfij3e8k7G7HrpkAd073dvPz3OBE3P
-         EVsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=DsUpTMVy3AnG06ab2HPPYE6VPm25Tedt2mleq6KKBcw=;
-        b=NOfIl44xH/2IHFst71Ovh5wCuo2PZaagCIbN44TEw4Xf3c1W44cf49oNimqdJRV7M2
-         JV4uGkRNn42hzB8jIhgNHcDamzqGR+RrZjtOS/uOZYf7KrEuk4DMTkcBPvmra3KaZAUu
-         3zt8x2S/vVy1r+1j95tEXJ3ny116RbHYDEkcbHDT/+j3QvzJETEiwNL1yX3KnB7APA8M
-         Hh+ptZCm8zW6RCb6AwQVN5/NyG1mDVTzU1uCguH5oKiAibipcGxsDLc1fa6FVprP4hJS
-         QL5GsUIu+aIJbTkWB7XRMDZ0bhk2Z7/eQAwF1bn6Cywwj4WZq7WegnGQ3zBx8gCYHkhE
-         qhZg==
-X-Gm-Message-State: AJIora8kilslqoGylv7HaguR6KHz2aom9KWghKMVankJQrgrGGAHerPF
-        anD2AR7Om4dDRIZyds261z+UIdCoUPvZRBT78dY=
-X-Google-Smtp-Source: AGRyM1uZaY++iSW1qcz3mUUgiQopt/hvXpcaRyhdrHD1LSuuI/KcSBYpf6bAjIUlZ1kzjQceo3k8pJXwHue8ULvU2Rs=
-X-Received: by 2002:a17:906:b:b0:718:d0ff:fcbf with SMTP id
- 11-20020a170906000b00b00718d0fffcbfmr15265780eja.717.1655596976134; Sat, 18
- Jun 2022 17:02:56 -0700 (PDT)
+        with ESMTP id S231978AbiFSAfZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Jun 2022 20:35:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21866101F3;
+        Sat, 18 Jun 2022 17:35:24 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B066060E04;
+        Sun, 19 Jun 2022 00:35:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61531C3411A;
+        Sun, 19 Jun 2022 00:35:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655598923;
+        bh=JvhSdmaU8CkX1kionMrJZINyzM9zc4yNPpJWqKS7g2k=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=eQe20mOTH5uO8hNt8ucEZ04Pr7OO8kSatvZvQVMv5xXhnDC34BaZQm9Ff3o6/mu0r
+         OgCJcWw6RwM5R0Chvvp3Y0Pq9sv+ekNMZJyBiA2LSJrv0h7Q8JvoON6pS26K8bPdQm
+         UU0X7doUX6lXlPRJ/znUo7tGUsOaR63WKjb7ICN9MAxrUYjagsJ8PpBODkjNMrfZvg
+         4AnTIccESlQtlSl+xDn2Fu8E1RYd7oukB1HU5+hA5Ij4PRqbfpVvZU/Lg8DTzkCofe
+         fzFv0Uo9WeM5lvvM+s9I9fIOuyEArEByZVor8TlRTqGkVzqJYTkDlEOKwjULqNniuy
+         +PZYqUyC22yvg==
+Message-ID: <ae324c70-8671-8878-5854-c0910c744379@kernel.org>
+Date:   Sun, 19 Jun 2022 08:35:21 +0800
 MIME-Version: 1.0
-Sender: mrslila67haber@gmail.com
-Received: by 2002:a05:6f02:c185:b0:1e:31fd:f475 with HTTP; Sat, 18 Jun 2022
- 17:02:55 -0700 (PDT)
-From:   Mrs Lila Haber <mrslilahabe2016@gmail.com>
-Date:   Sun, 19 Jun 2022 00:02:55 +0000
-X-Google-Sender-Auth: _iqSZDUEfsQjfFI3PdDplt_unyo
-Message-ID: <CADVoOvhijT+YemVsgNQOkw+C98gu=o_pB3z=N1c8Zx+VZSjtzw@mail.gmail.com>
-Subject: Dear Child of God
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.2 required=5.0 tests=ADVANCE_FEE_5_NEW_MONEY,
-        BAYES_50,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_FROM,HK_SCAM,LOTS_OF_MONEY,MONEY_FRAUD_8,RCVD_IN_DNSWL_NONE,
-        RISK_FREE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
-        T_SCC_BODY_TEXT_LINE,UNDISC_MONEY,URG_BIZ autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5055]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:644 listed in]
-        [list.dnswl.org]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [mrslila67haber[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.6 URG_BIZ Contains urgent matter
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
-        *  0.0 HK_SCAM No description available.
-        *  0.3 RISK_FREE No risk!
-        *  0.0 MONEY_FRAUD_8 Lots of money and very many fraud phrases
-        *  3.0 ADVANCE_FEE_5_NEW_MONEY Advance Fee fraud and lots of money
-        *  0.7 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *****
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [f2fs-dev] [PATCH 1/3] f2fs: attach inline_data after setting
+ compression
+Content-Language: en-US
+To:     Jaegeuk Kim <jaegeuk@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net
+Cc:     stable@vger.kernel.org
+References: <20220617223106.3517374-1-jaegeuk@kernel.org>
+From:   Chao Yu <chao@kernel.org>
+In-Reply-To: <20220617223106.3517374-1-jaegeuk@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-9.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Child of God,
+On 2022/6/18 6:31, Jaegeuk Kim wrote:
+> This fixes the below corruption.
+> 
+> [345393.335389] F2FS-fs (vdb): sanity_check_inode: inode (ino=6d0, mode=33206) should not have inline_data, run fsck to fix
+> 
+> Cc: <stable@vger.kernel.org>
+> Fixes: 677a82b44ebf ("f2fs: fix to do sanity check for inline inode")
+> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> ---
+>   fs/f2fs/namei.c | 16 ++++++++++------
+>   1 file changed, 10 insertions(+), 6 deletions(-)
+> 
+> diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+> index c549acb52ac4..a841abe6a071 100644
+> --- a/fs/f2fs/namei.c
+> +++ b/fs/f2fs/namei.c
+> @@ -89,8 +89,6 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
+>   	if (test_opt(sbi, INLINE_XATTR))
+>   		set_inode_flag(inode, FI_INLINE_XATTR);
+>   
+> -	if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
+> -		set_inode_flag(inode, FI_INLINE_DATA);
+>   	if (f2fs_may_inline_dentry(inode))
+>   		set_inode_flag(inode, FI_INLINE_DENTRY);
+>   
+> @@ -107,10 +105,6 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
+>   
+>   	f2fs_init_extent_tree(inode, NULL);
+>   
+> -	stat_inc_inline_xattr(inode);
+> -	stat_inc_inline_inode(inode);
+> -	stat_inc_inline_dir(inode);
+> -
+>   	F2FS_I(inode)->i_flags =
+>   		f2fs_mask_flags(mode, F2FS_I(dir)->i_flags & F2FS_FL_INHERITED);
+>   
+> @@ -127,6 +121,14 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
+>   			set_compress_context(inode);
+>   	}
+>   
+> +	/* Should enable inline_data after compression set */
+> +	if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
+> +		set_inode_flag(inode, FI_INLINE_DATA);
+> +
+> +	stat_inc_inline_xattr(inode);
+> +	stat_inc_inline_inode(inode);
+> +	stat_inc_inline_dir(inode);
+> +
+>   	f2fs_set_inode_flags(inode);
+>   
+>   	trace_f2fs_new_inode(inode, 0);
+> @@ -325,6 +327,8 @@ static void set_compress_inode(struct f2fs_sb_info *sbi, struct inode *inode,
+>   		if (!is_extension_exist(name, ext[i], false))
+>   			continue;
+>   
+> +		/* Do not use inline_data with compression */
+> +		clear_inode_flag(inode, FI_INLINE_DATA);
 
-Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS
-CHRIST the giver of every good thing. Good day and compliments of the
-seasons, i know this letter will definitely come to you as a huge
-surprise, but I implore you to take the time to go through it
-carefully as the decision you make will go off a long way to determine
-my future and continued existence. I am Mrs Lila Haber aging widow of
-57 years old suffering from long time illness.I have some funds I
-inherited from my late husband, the sum of (7.2Million Dollars) and I
-needed a very honest and God fearing who can withdraw this money then
-use the funds for Charity works. I WISH TO GIVE THIS FUNDS TO YOU FOR
-CHARITY WORKS. I found your email address from the internet after
-honest prayers to the LORD to bring me a helper and i decided to
-contact you if you may be willing and interested to handle these trust
-funds in good faith before anything happens to me.
+if (is_inode_set_flag()) {
+	clear_inode_flag();
+	stat_dec_inline_inode();
+}
 
-I accept this decision because I do not have any child who will
-inherit this money after I die. I want your urgent reply to me so that
-I will give you the deposit receipt which the SECURITY COMPANY issued
-to me as next of kin for immediate transfer of the money to your
-account in your country, to start the good work of God, I want you to
-use the 25/percent of the total amount to help yourself in doing the
-project. I am desperately in keen need of assistance and I have
-summoned up courage to contact you for this task, you must not fail me
-and the millions of the poor people in our todays WORLD. This is no
-stolen money and there are no dangers involved,100% RISK FREE with
-full legal proof. Please if you would be able to use the funds for the
-Charity works kindly let me know immediately.I will appreciate your
-utmost confidentiality and trust in this matter to accomplish my heart
-desire, as I don't want anything that will jeopardize my last wish.
+Thanks,
 
-Please kindly respond quickly for further details.
-
-Warmest Regards,
-Mrs Lila Haber
+>   		set_compress_context(inode);
+>   		return;
+>   	}
