@@ -2,110 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C671C550AD2
-	for <lists+stable@lfdr.de>; Sun, 19 Jun 2022 15:18:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC2AA550B16
+	for <lists+stable@lfdr.de>; Sun, 19 Jun 2022 16:11:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236608AbiFSNRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jun 2022 09:17:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54302 "EHLO
+        id S231493AbiFSOLc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jun 2022 10:11:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234547AbiFSNRm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jun 2022 09:17:42 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 726F4E70;
-        Sun, 19 Jun 2022 06:17:40 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id y13-20020a17090a154d00b001eaaa3b9b8dso7962210pja.2;
-        Sun, 19 Jun 2022 06:17:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=Y4ZAlYmM9NAh7Jy0y3cENEFi8vBtUGBTB65jZWB6h3U=;
-        b=OZsHniZMtdGjvsLZPZjk70X2jr5ejROLKEYS5vnH5YtqShPVDPMR1S6ArEWQYpabqg
-         pyTycf0FHIvLGxzN5Tvn0qy8DwnvCdi2KKaw6+p2c6m5BZFRRmyUO7WJ66EWINNrEg/w
-         Pqr5JuJAEtVxTID63AxUZZPqeq2H0fs0wkb67Ur2k2BN1SMr/Fgwz/Xufuw64YLtwAzy
-         Sp3KZ4cGB7XpQeV+eZTydwSXLryL6AcM2fdkRCZ5JgTjJ+JFeXN6LjvOAJXr9ArW1KG6
-         EfBEz1h26p2heOT6oFSYKQvsyia1iuBrZabO3UJXUTTDFo1qoJL3EeHHNPNQ95437vvu
-         kN1Q==
+        with ESMTP id S229637AbiFSOLa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Jun 2022 10:11:30 -0400
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFEC4B7E9;
+        Sun, 19 Jun 2022 07:11:29 -0700 (PDT)
+Received: by mail-pj1-f51.google.com with SMTP id 73-20020a17090a0fcf00b001eaee69f600so8024782pjz.1;
+        Sun, 19 Jun 2022 07:11:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Y4ZAlYmM9NAh7Jy0y3cENEFi8vBtUGBTB65jZWB6h3U=;
-        b=SnTr5VqCqk1V7AP9PdWcwweysRemwmn49SBQ3q4r7Olufs3klYGDYC4DD67YK3EEB3
-         H/RpTfPbRhbYxiTwVNWcZK42+H8J27dwY1Z0u+ewabs3Qvi9yz+L00meZsSSc5ARb5Xa
-         6R2h30ItP+BOrJAw0uRUBGvCoVlR9bQ1Wvn9j67K2yjFM/OMW26E4fi586TWxr/zEHzI
-         WVAP/a8ug10xr+ixbPCXI8BqNUOwI0Ilf/F5tvvYmw9QOluBCyKqxI1NG+JLtWBuA3EG
-         8c6fW/kXXByyNx+DMvdfESFEGHsLdHGAac/Jj1UGOw/NPRoC8JJDS4fLRhqgaqlYwEUH
-         vTDA==
-X-Gm-Message-State: AJIora8iExUlnZXDtY0Q4cnBZjwi7NXgTMjOl87v4u9hX/aGKeknE8BD
-        L7t6R/dH9ODMV//hjVr+Wy9d9mQ8kieCtw==
-X-Google-Smtp-Source: AGRyM1u7CzSJW3yJ78YxHDUNN5NfBxasYkkYQxLo01XtsDUQsdfe4dFutwGF5AJdsTMbmZUSUpn6Gw==
-X-Received: by 2002:a17:90a:e503:b0:1ec:84b2:6404 with SMTP id t3-20020a17090ae50300b001ec84b26404mr10237512pjy.169.1655644659738;
-        Sun, 19 Jun 2022 06:17:39 -0700 (PDT)
-Received: from guoguo-omen.lan ([2401:c080:1400:4da2:b701:47d5:9291:4cf9])
-        by smtp.gmail.com with ESMTPSA id g1-20020a1709026b4100b001635f7a54e8sm6771857plt.1.2022.06.19.06.17.36
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=FX9OqpFe7Pfnfmb+wnGlyvrvJuLGJWbixl9jf/rQVVM=;
+        b=gZ88wRysS2SirnaGIh01KSdkNPmDcMiFSL1OaWRj6Kog1WUxwNg8p/A/h+c29/+1O/
+         2WAQdRGARxmBXP1FieISekfFbI9eCx5Q38o5p8YmQXCpoUW3Ec7Kf/l9R/65hbgn/C10
+         kAXEziistHTk6tzEtoDCRixhh05cB8wQnhdvaZ48GFDzOS/4l92iKIk+6KPTQbcXMHuF
+         xIAEHZVznRBTt/y/dsy4KeSzjrKer/RR+1usPYp0FWP7WavIYfYlyedntc6RqQGBkWRe
+         ubHDH8sjS/98Q6PKvww82p5n6Id8n5fSFWHkS/SNBmneXyTrROyX8mjEjE11ryohIlVl
+         Fi1g==
+X-Gm-Message-State: AJIora+roOD+x45SCGWFrIOknQVH8AdIy07DEAduQP6n055GxsH10kvp
+        QIgG+ZScfoJNmQqMvo0AFyBwfixpwJlXWw==
+X-Google-Smtp-Source: AGRyM1vg8ExynVihVHvkTNCfjkxiSq1+kmn6k80B3CXsRXBPwmH6Z4yNK0ICQxlXrz3u6+2eGdXCTg==
+X-Received: by 2002:a17:90a:1c02:b0:1e0:df7:31f2 with SMTP id s2-20020a17090a1c0200b001e00df731f2mr33089602pjs.222.1655647888799;
+        Sun, 19 Jun 2022 07:11:28 -0700 (PDT)
+Received: from localhost.localdomain ([211.49.23.9])
+        by smtp.gmail.com with ESMTPSA id o17-20020a170903301100b0016223016d79sm3473156pla.90.2022.06.19.07.11.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Jun 2022 06:17:39 -0700 (PDT)
-From:   Chuanhong Guo <gch981213@gmail.com>
-To:     linux-acpi@vger.kernel.org
-Cc:     Chuanhong Guo <gch981213@gmail.com>, stable@vger.kernel.org,
-        Tighe Donnelly <tighe.donnelly@protonmail.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Len Brown <lenb@kernel.org>,
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v2 2/2] ACPI: skip IRQ1 override on Redmi Book Pro 15 2022
-Date:   Sun, 19 Jun 2022 21:16:57 +0800
-Message-Id: <20220619131657.37067-3-gch981213@gmail.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220619131657.37067-1-gch981213@gmail.com>
-References: <20220619131657.37067-1-gch981213@gmail.com>
+        Sun, 19 Jun 2022 07:11:27 -0700 (PDT)
+From:   Namjae Jeon <linkinjeon@kernel.org>
+To:     linux-cifs@vger.kernel.org
+Cc:     smfrench@gmail.com, hyc.lee@gmail.com, senozhatsky@chromium.org,
+        Namjae Jeon <linkinjeon@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH 1/2] ksmbd: set the range of bytes to zero without extending file size in FSCTL_ZERO_DATA
+Date:   Sun, 19 Jun 2022 23:11:19 +0900
+Message-Id: <20220619141120.12760-1-linkinjeon@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tighe Donnelly <tighe.donnelly@protonmail.com>
+generic/091, 263 test failed since commit f66f8b94e7f2 ("cifs: when
+extending a file with falloc we should make files not-sparse").
+FSCTL_ZERO_DATA sets the range of bytes to zero without extending file
+size. The VFS_FALLOCATE_FL_KEEP_SIZE flag should be used even on
+non-sparse files.
 
-The IRQ is described as (Edge, ActiveLow, Shared, ) in ACPI DSDT and
-it's correct. The override makes the keyboard interrupt polarity
-inverted, resulting in non-functional keyboard.
-Add an entry for skipping the override.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tighe Donnelly <tighe.donnelly@protonmail.com>
-Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 ---
-Change since v1: new patch
+ fs/ksmbd/vfs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
- drivers/acpi/resource.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
-index b69c229b23dd..d9d8d546f340 100644
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -407,6 +407,13 @@ static const struct dmi_system_id irq1_edge_low_shared[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D0"),
- 		},
- 	},
-+	{
-+		.ident = "Redmi Book Pro 15 2022",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "TIMI"),
-+			DMI_MATCH(DMI_BOARD_NAME, "TM2113"),
-+		},
-+	},
- 	{ }
- };
+diff --git a/fs/ksmbd/vfs.c b/fs/ksmbd/vfs.c
+index dcdd07c6efff..f194bf764f9f 100644
+--- a/fs/ksmbd/vfs.c
++++ b/fs/ksmbd/vfs.c
+@@ -1015,7 +1015,9 @@ int ksmbd_vfs_zero_data(struct ksmbd_work *work, struct ksmbd_file *fp,
+ 				     FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
+ 				     off, len);
  
+-	return vfs_fallocate(fp->filp, FALLOC_FL_ZERO_RANGE, off, len);
++	return vfs_fallocate(fp->filp,
++			     FALLOC_FL_ZERO_RANGE | FALLOC_FL_KEEP_SIZE,
++			     off, len);
+ }
+ 
+ int ksmbd_vfs_fqar_lseek(struct ksmbd_file *fp, loff_t start, loff_t length,
 -- 
-2.36.1
+2.25.1
 
