@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF7FE551A74
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B21B551AA3
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:10:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242853AbiFTNDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:03:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47426 "EHLO
+        id S236574AbiFTNKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:10:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244033AbiFTNCT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:02:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3E91902F;
-        Mon, 20 Jun 2022 05:57:39 -0700 (PDT)
+        with ESMTP id S244476AbiFTNHF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:07:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB931B788;
+        Mon, 20 Jun 2022 06:00:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63819614EB;
-        Mon, 20 Jun 2022 12:57:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59688C3411B;
-        Mon, 20 Jun 2022 12:57:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABBB761542;
+        Mon, 20 Jun 2022 13:00:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A23D1C341C4;
+        Mon, 20 Jun 2022 13:00:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729858;
-        bh=6Ww8T925plAXP9KXKy5Qsr7chuYGPuqQ/V8sF+0yUnE=;
+        s=korg; t=1655730037;
+        bh=m++Hn3Fk2NwdqAxL7YXJgjX3tvqr/94r7cEDTL6dAr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u4ilDCj7ddwso7TeA2G79YvI1qsnVXiDhC3i6L10/hPRyNAO54pqUWyIHqdG864dM
-         x4oefS1ekeAs3tUK0QXHbzKrU+nb1GDjTwyuu4HeP1Av1fckH7W/6JyQzV//KfXA0i
-         0iFNyFmBZHvdT2v4e4AQHOCMwIhzQjYj5W0IlsO0=
+        b=xcCJsoFnEkYBOMiaers5lppmu81xqABjbc9VI4pCwjLeUrnyrHnF7+Hg5aIE2uGIG
+         gzZQwtAi+2hMHtacXDWOEAD3mFfcYp4rGKxWZvf44ok4RrSSPd/LrgrgbG9opOhqis
+         XkX7cIT76OGm+ASegVUeXf/f6KWSwsSw7yCzsMDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 098/141] i2c: designware: Use standard optional ref clock implementation
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 13/84] ASoC: cs42l51: Correct minimum value for SX volume control
 Date:   Mon, 20 Jun 2022 14:50:36 +0200
-Message-Id: <20220620124732.441524559@linuxfoundation.org>
+Message-Id: <20220620124721.282891966@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,78 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 27071b5cbca59d8e8f8750c199a6cbf8c9799963 ]
+[ Upstream commit fcb3b5a58926d16d9a338841b74af06d4c29be15 ]
 
-Even though the DW I2C controller reference clock source is requested by
-the method devm_clk_get() with non-optional clock requirement the way the
-clock handler is used afterwards has a pure optional clock semantic
-(though in some circumstances we can get a warning about the clock missing
-printed in the system console). There is no point in reimplementing that
-functionality seeing the kernel clock framework already supports the
-optional interface from scratch. Thus let's convert the platform driver to
-using it.
+The minimum value for the PGA Volume is given as 0x1A, however the
+values from there to 0x19 are all the same volume and this is not
+represented in the TLV structure. The number of volumes given is correct
+so this leads to all the volumes being shifted. Move the minimum value
+up to 0x19 to fix this.
 
-Note by providing this commit we get to fix two problems. The first one
-was introduced in commit c62ebb3d5f0d ("i2c: designware: Add support for
-an interface clock"). It causes not having the interface clock (pclk)
-enabled/disabled in case if the reference clock isn't provided. The second
-problem was first introduced in commit b33af11de236 ("i2c: designware: Do
-not require clock when SSCN and FFCN are provided"). Since that
-modification the deferred probe procedure has been unsupported in case if
-the interface clock isn't ready.
-
-Fixes: c62ebb3d5f0d ("i2c: designware: Add support for an interface clock")
-Fixes: b33af11de236 ("i2c: designware: Do not require clock when SSCN and FFCN are provided")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220602162119.3393857-7-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-designware-common.c  |  3 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 13 +++++++++++--
- 2 files changed, 11 insertions(+), 5 deletions(-)
+ sound/soc/codecs/cs42l51.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 9f8574320eb2..b08e5bc2b64c 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -477,9 +477,6 @@ int i2c_dw_prepare_clk(struct dw_i2c_dev *dev, bool prepare)
- {
- 	int ret;
- 
--	if (IS_ERR(dev->clk))
--		return PTR_ERR(dev->clk);
--
- 	if (prepare) {
- 		/* Optional interface clock */
- 		ret = clk_prepare_enable(dev->pclk);
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 70ade5306e45..ba043b547393 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -320,8 +320,17 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 		goto exit_reset;
- 	}
- 
--	dev->clk = devm_clk_get(&pdev->dev, NULL);
--	if (!i2c_dw_prepare_clk(dev, true)) {
-+	dev->clk = devm_clk_get_optional(&pdev->dev, NULL);
-+	if (IS_ERR(dev->clk)) {
-+		ret = PTR_ERR(dev->clk);
-+		goto exit_reset;
-+	}
-+
-+	ret = i2c_dw_prepare_clk(dev, true);
-+	if (ret)
-+		goto exit_reset;
-+
-+	if (dev->clk) {
- 		u64 clk_khz;
- 
- 		dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
+diff --git a/sound/soc/codecs/cs42l51.c b/sound/soc/codecs/cs42l51.c
+index c61b17dc2af8..fc6a2bc311b4 100644
+--- a/sound/soc/codecs/cs42l51.c
++++ b/sound/soc/codecs/cs42l51.c
+@@ -146,7 +146,7 @@ static const struct snd_kcontrol_new cs42l51_snd_controls[] = {
+ 			0, 0xA0, 96, adc_att_tlv),
+ 	SOC_DOUBLE_R_SX_TLV("PGA Volume",
+ 			CS42L51_ALC_PGA_CTL, CS42L51_ALC_PGB_CTL,
+-			0, 0x1A, 30, pga_tlv),
++			0, 0x19, 30, pga_tlv),
+ 	SOC_SINGLE("Playback Deemphasis Switch", CS42L51_DAC_CTL, 3, 1, 0),
+ 	SOC_SINGLE("Auto-Mute Switch", CS42L51_DAC_CTL, 2, 1, 0),
+ 	SOC_SINGLE("Soft Ramp Switch", CS42L51_DAC_CTL, 1, 1, 0),
 -- 
 2.35.1
 
