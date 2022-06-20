@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CDEF551BD9
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF7FE551A74
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345271AbiFTN06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:26:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44944 "EHLO
+        id S242853AbiFTNDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:03:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344778AbiFTNZ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:25:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78D841AF25;
-        Mon, 20 Jun 2022 06:10:27 -0700 (PDT)
+        with ESMTP id S244033AbiFTNCT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:02:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3E91902F;
+        Mon, 20 Jun 2022 05:57:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9308B811BF;
-        Mon, 20 Jun 2022 13:05:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F9DCC3411B;
-        Mon, 20 Jun 2022 13:05:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63819614EB;
+        Mon, 20 Jun 2022 12:57:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59688C3411B;
+        Mon, 20 Jun 2022 12:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730318;
-        bh=SG0d8nWr1NNbbxqYsCX7Km3fIjZdag3mvPeMHmSGtAs=;
+        s=korg; t=1655729858;
+        bh=6Ww8T925plAXP9KXKy5Qsr7chuYGPuqQ/V8sF+0yUnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pzkWEp+7nXNQjOFDi2KodghsLpXr9fPVPaTLquxj1EUSL0Oot0BxAXJuQZyutPsKM
-         Gu5dKnHDz6rul1jQtM9GVnjgK6AkE7oMzqnUOmIaUCppEjWqZLep+LlA1Pwr18iBuo
-         PfGt+itfUdIEw9OWOjW9/jMcHpKqO3x8hS0xPqMk=
+        b=u4ilDCj7ddwso7TeA2G79YvI1qsnVXiDhC3i6L10/hPRyNAO54pqUWyIHqdG864dM
+         x4oefS1ekeAs3tUK0QXHbzKrU+nb1GDjTwyuu4HeP1Av1fckH7W/6JyQzV//KfXA0i
+         0iFNyFmBZHvdT2v4e4AQHOCMwIhzQjYj5W0IlsO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lang Yu <Lang.Yu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 016/106] drm/amdkfd: add pinned BOs to kfd_bo_list
-Date:   Mon, 20 Jun 2022 14:50:35 +0200
-Message-Id: <20220620124724.867369793@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 098/141] i2c: designware: Use standard optional ref clock implementation
+Date:   Mon, 20 Jun 2022 14:50:36 +0200
+Message-Id: <20220620124732.441524559@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lang Yu <Lang.Yu@amd.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 4fac4fcf4500bce515b0f32195e7bb86aa0246c6 ]
+[ Upstream commit 27071b5cbca59d8e8f8750c199a6cbf8c9799963 ]
 
-The kfd_bo_list is used to restore process BOs after
-evictions. As page tables could be destroyed during
-evictions, we should also update pinned BOs' page tables
-during restoring to make sure they are valid.
+Even though the DW I2C controller reference clock source is requested by
+the method devm_clk_get() with non-optional clock requirement the way the
+clock handler is used afterwards has a pure optional clock semantic
+(though in some circumstances we can get a warning about the clock missing
+printed in the system console). There is no point in reimplementing that
+functionality seeing the kernel clock framework already supports the
+optional interface from scratch. Thus let's convert the platform driver to
+using it.
 
-So for pinned BOs,
-1, Validate them and update their page tables.
-2, Don't add eviction fence for them.
+Note by providing this commit we get to fix two problems. The first one
+was introduced in commit c62ebb3d5f0d ("i2c: designware: Add support for
+an interface clock"). It causes not having the interface clock (pclk)
+enabled/disabled in case if the reference clock isn't provided. The second
+problem was first introduced in commit b33af11de236 ("i2c: designware: Do
+not require clock when SSCN and FFCN are provided"). Since that
+modification the deferred probe procedure has been unsupported in case if
+the interface clock isn't ready.
 
-v2:
- - Don't handle pinned ones specially in BO validation.(Felix)
-
-Signed-off-by: Lang Yu <Lang.Yu@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: c62ebb3d5f0d ("i2c: designware: Add support for an interface clock")
+Fixes: b33af11de236 ("i2c: designware: Do not require clock when SSCN and FFCN are provided")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-designware-common.c  |  3 ---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 13 +++++++++++--
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index ab36cce59d2e..21c02f817a84 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -1828,9 +1828,6 @@ int amdgpu_amdkfd_gpuvm_map_gtt_bo_to_kernel(struct kgd_dev *kgd,
- 		return -EINVAL;
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index 9f8574320eb2..b08e5bc2b64c 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -477,9 +477,6 @@ int i2c_dw_prepare_clk(struct dw_i2c_dev *dev, bool prepare)
+ {
+ 	int ret;
+ 
+-	if (IS_ERR(dev->clk))
+-		return PTR_ERR(dev->clk);
+-
+ 	if (prepare) {
+ 		/* Optional interface clock */
+ 		ret = clk_prepare_enable(dev->pclk);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 70ade5306e45..ba043b547393 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -320,8 +320,17 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 		goto exit_reset;
  	}
  
--	/* delete kgd_mem from kfd_bo_list to avoid re-validating
--	 * this BO in BO's restoring after eviction.
--	 */
- 	mutex_lock(&mem->process_info->lock);
- 
- 	ret = amdgpu_bo_reserve(bo, true);
-@@ -1853,7 +1850,6 @@ int amdgpu_amdkfd_gpuvm_map_gtt_bo_to_kernel(struct kgd_dev *kgd,
- 
- 	amdgpu_amdkfd_remove_eviction_fence(
- 		bo, mem->process_info->eviction_fence);
--	list_del_init(&mem->validate_list.head);
- 
- 	if (size)
- 		*size = amdgpu_bo_size(bo);
-@@ -2399,12 +2395,15 @@ int amdgpu_amdkfd_gpuvm_restore_process_bos(void *info, struct dma_fence **ef)
- 	process_info->eviction_fence = new_fence;
- 	*ef = dma_fence_get(&new_fence->base);
- 
--	/* Attach new eviction fence to all BOs */
-+	/* Attach new eviction fence to all BOs except pinned ones */
- 	list_for_each_entry(mem, &process_info->kfd_bo_list,
--		validate_list.head)
-+		validate_list.head) {
-+		if (mem->bo->tbo.pin_count)
-+			continue;
-+
- 		amdgpu_bo_fence(mem->bo,
- 			&process_info->eviction_fence->base, true);
--
+-	dev->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (!i2c_dw_prepare_clk(dev, true)) {
++	dev->clk = devm_clk_get_optional(&pdev->dev, NULL);
++	if (IS_ERR(dev->clk)) {
++		ret = PTR_ERR(dev->clk);
++		goto exit_reset;
 +	}
- 	/* Attach eviction fence to PD / PT BOs */
- 	list_for_each_entry(peer_vm, &process_info->vm_list_head,
- 			    vm_list_node) {
++
++	ret = i2c_dw_prepare_clk(dev, true);
++	if (ret)
++		goto exit_reset;
++
++	if (dev->clk) {
+ 		u64 clk_khz;
+ 
+ 		dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
 -- 
 2.35.1
 
