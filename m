@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD786551DD9
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF75551DD0
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346232AbiFTOCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:02:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44188 "EHLO
+        id S239495AbiFTODi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:03:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352226AbiFTN4G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:56:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFE3634670;
-        Mon, 20 Jun 2022 06:22:04 -0700 (PDT)
+        with ESMTP id S1352139AbiFTNz7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:55:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2276CCD;
+        Mon, 20 Jun 2022 06:22:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 525DFB811C7;
-        Mon, 20 Jun 2022 13:21:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B415C3411B;
-        Mon, 20 Jun 2022 13:21:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53D6160AC0;
+        Mon, 20 Jun 2022 13:22:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE85AC3411C;
+        Mon, 20 Jun 2022 13:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731317;
-        bh=ZLWtYiPwCWSGsQ8dzdmrX8pc4cWQXJbunsRoPvlRbaw=;
+        s=korg; t=1655731320;
+        bh=dah1VrpcId8Z+u4nGQ7YFJhY+zDgfrwXLh8LQLGIoDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ehNPWVNer7PEPls1iZb1OsnF1gWglcP9X4gWd3QvoNdXBeZFs4lKMX/0InrsIKc7
-         HzbfuGwAOdfYOcSzv06xaPgPmDeWd1xk/FgNyGAomrlRTul2JS9f6CRmy6ieVfE2Ry
-         CpmgMTgWSwLm/+7hyaF3b1YloZR+xZ1nbPBLizTE=
+        b=G/ZKoJy9e5GPcqY0lLHX2Ijkzbepd01GEDggVHJsGUFdLdm/n2o0X/dMJeiyJJ7Pf
+         gc6DQG6K32lRSj65BvFY9E+kEaZUyuv2SEQKLE+ErV4Dmj6xZS8WDK6av8d5UUZAcM
+         4eU2547BVAEcBBt6up9j4EkibOykO1aUgW2oYTa0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 220/240] i2c: designware: Use standard optional ref clock implementation
-Date:   Mon, 20 Jun 2022 14:52:01 +0200
-Message-Id: <20220620124745.342017356@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.4 221/240] comedi: vmk80xx: fix expression for tx buffer size
+Date:   Mon, 20 Jun 2022 14:52:02 +0200
+Message-Id: <20220620124745.370312726@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -56,80 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-[ Upstream commit 27071b5cbca59d8e8f8750c199a6cbf8c9799963 ]
+commit 242439f7e279d86b3f73b5de724bc67b2f8aeb07 upstream.
 
-Even though the DW I2C controller reference clock source is requested by
-the method devm_clk_get() with non-optional clock requirement the way the
-clock handler is used afterwards has a pure optional clock semantic
-(though in some circumstances we can get a warning about the clock missing
-printed in the system console). There is no point in reimplementing that
-functionality seeing the kernel clock framework already supports the
-optional interface from scratch. Thus let's convert the platform driver to
-using it.
+The expression for setting the size of the allocated bulk TX buffer
+(`devpriv->usb_tx_buf`) is calling `usb_endpoint_maxp(devpriv->ep_rx)`,
+which is using the wrong endpoint (should be `devpriv->ep_tx`).  Fix it.
 
-Note by providing this commit we get to fix two problems. The first one
-was introduced in commit c62ebb3d5f0d ("i2c: designware: Add support for
-an interface clock"). It causes not having the interface clock (pclk)
-enabled/disabled in case if the reference clock isn't provided. The second
-problem was first introduced in commit b33af11de236 ("i2c: designware: Do
-not require clock when SSCN and FFCN are provided"). Since that
-modification the deferred probe procedure has been unsupported in case if
-the interface clock isn't ready.
-
-Fixes: c62ebb3d5f0d ("i2c: designware: Add support for an interface clock")
-Fixes: b33af11de236 ("i2c: designware: Do not require clock when SSCN and FFCN are provided")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a23461c47482 ("comedi: vmk80xx: fix transfer-buffer overflow")
+Cc: Johan Hovold <johan@kernel.org>
+Cc: stable@vger.kernel.org # 4.9+
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20220607171819.4121-1-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-designware-common.c  |  3 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 13 +++++++++++--
- 2 files changed, 11 insertions(+), 5 deletions(-)
+ drivers/staging/comedi/drivers/vmk80xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 2de7452fcd6d..c9036675bd77 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -253,9 +253,6 @@ int i2c_dw_prepare_clk(struct dw_i2c_dev *dev, bool prepare)
- {
- 	int ret;
+--- a/drivers/staging/comedi/drivers/vmk80xx.c
++++ b/drivers/staging/comedi/drivers/vmk80xx.c
+@@ -685,7 +685,7 @@ static int vmk80xx_alloc_usb_buffers(str
+ 	if (!devpriv->usb_rx_buf)
+ 		return -ENOMEM;
  
--	if (IS_ERR(dev->clk))
--		return PTR_ERR(dev->clk);
--
- 	if (prepare) {
- 		/* Optional interface clock */
- 		ret = clk_prepare_enable(dev->pclk);
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 0c55c54372d7..75313c80f132 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -349,8 +349,17 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 		goto exit_reset;
- 	}
- 
--	dev->clk = devm_clk_get(&pdev->dev, NULL);
--	if (!i2c_dw_prepare_clk(dev, true)) {
-+	dev->clk = devm_clk_get_optional(&pdev->dev, NULL);
-+	if (IS_ERR(dev->clk)) {
-+		ret = PTR_ERR(dev->clk);
-+		goto exit_reset;
-+	}
-+
-+	ret = i2c_dw_prepare_clk(dev, true);
-+	if (ret)
-+		goto exit_reset;
-+
-+	if (dev->clk) {
- 		u64 clk_khz;
- 
- 		dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
--- 
-2.35.1
-
+-	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
++	size = max(usb_endpoint_maxp(devpriv->ep_tx), MIN_BUF_SIZE);
+ 	devpriv->usb_tx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_tx_buf)
+ 		return -ENOMEM;
 
 
