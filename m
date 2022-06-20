@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7B97551CB5
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FA5B551D28
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346134AbiFTNee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:34:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55374 "EHLO
+        id S1348204AbiFTNrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:47:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346163AbiFTNcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:32:36 -0400
+        with ESMTP id S1348290AbiFTNqr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:46:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E53F26110;
-        Mon, 20 Jun 2022 06:12:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95C242E0B9;
+        Mon, 20 Jun 2022 06:17:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA18F60A52;
-        Mon, 20 Jun 2022 13:11:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E97B6C3411C;
-        Mon, 20 Jun 2022 13:11:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24ABA60C95;
+        Mon, 20 Jun 2022 13:11:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 219D5C3411B;
+        Mon, 20 Jun 2022 13:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730689;
-        bh=1+E2pDWYvJHF8rDS+xtktmcYX3zlcPQWkYN/rPnJ1g0=;
+        s=korg; t=1655730692;
+        bh=z+WuQkY4e+UrmvGonoUQsXvQSkK+LF64I52WUPmEjRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkOOSidIhi2XBls6qULvaSSzBsuJ5iwREIdw+nebsE7283cO+56ffgHF8bdj8RXYh
-         U2pVXLfWV6nwpyBmeBmWnnyGhKDEHqewL7P35MfnQoGiZB3MrWpG8VP7/mwFfnO6Vc
-         rCcW3QoHiwKEkjLwd0H7ExZDnCrTJgnRi8HF6WsU=
+        b=w7wwmcpwIo+tpd1UyCm5/61jJaL4pYorhDKo5MyPEfMCTrYRu0cLCuuAyP3pW2S31
+         NphNM+6GS157kI0TVmDLWJdEVX0OwIzPbj7JWJ0IxUh5iCnUyMN9Mf3vAZr++0SHUo
+         o6hpC747OTBtSubo4IHXIB6FI7x7wupdremlPxN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 008/240] random: dont forget compat_ioctl on urandom
-Date:   Mon, 20 Jun 2022 14:48:29 +0200
-Message-Id: <20220620124738.048034618@linuxfoundation.org>
+Subject: [PATCH 5.4 009/240] random: Dont wake crng_init_wait when crng_init == 1
+Date:   Mon, 20 Jun 2022 14:48:30 +0200
+Message-Id: <20220620124738.077045092@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -53,36 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit 4aa37c463764052c68c5c430af2a67b5d784c1e0 upstream.
+commit 4c8d062186d9923c09488716b2fb1b829b5b8006 upstream.
 
-Recently, there's been some compat ioctl cleanup, in which large
-hardcoded lists were replaced with compat_ptr_ioctl. One of these
-changes involved removing the random.c hardcoded list entries and adding
-a compat ioctl function pointer to the random.c fops. In the process,
-urandom was forgotten about, so this commit fixes that oversight.
+crng_init_wait is only used to wayt for crng_init to be set to 2, so
+there's no point to waking it when crng_init is set to 1.  Remove the
+unnecessary wake_up_interruptible() call.
 
-Fixes: 507e4e2b430b ("compat_ioctl: remove /dev/random commands")
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Link: https://lore.kernel.org/r/20191217172455.186395-1-Jason@zx2c4.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Link: https://lore.kernel.org/r/6fbc0bfcbfc1fa2c76fd574f5b6f552b11be7fde.1577088521.git.luto@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/random.c |    1 -
+ 1 file changed, 1 deletion(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -2199,6 +2199,7 @@ const struct file_operations urandom_fop
- 	.read  = urandom_read,
- 	.write = random_write,
- 	.unlocked_ioctl = random_ioctl,
-+	.compat_ioctl = compat_ptr_ioctl,
- 	.fasync = random_fasync,
- 	.llseek = noop_llseek,
- };
+@@ -999,7 +999,6 @@ static size_t crng_fast_load(const char
+ 	if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
+ 		invalidate_batched_entropy();
+ 		crng_init = 1;
+-		wake_up_interruptible(&crng_init_wait);
+ 		pr_notice("random: fast init done\n");
+ 	}
+ 	return ret;
 
 
