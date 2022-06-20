@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E3245519F4
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B324551CA8
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243512AbiFTNAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:00:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38652 "EHLO
+        id S1348219AbiFTNpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:45:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244424AbiFTM7f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:59:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 513BB1CB10;
-        Mon, 20 Jun 2022 05:56:29 -0700 (PDT)
+        with ESMTP id S1350014AbiFTNon (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:44:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B7D42CE22;
+        Mon, 20 Jun 2022 06:16:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C9B1614CA;
-        Mon, 20 Jun 2022 12:56:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C061C3411B;
-        Mon, 20 Jun 2022 12:56:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9346B811DC;
+        Mon, 20 Jun 2022 13:16:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27AFCC341C0;
+        Mon, 20 Jun 2022 13:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729785;
-        bh=jnvaKL2ylP9hoy1It4rGwhTXwZO5J+36jAw+FL5Cfcs=;
+        s=korg; t=1655730962;
+        bh=Wf5YjyGS/Miwbxm5fWl0FgB1C4SqltlK0Q2dh7YVefI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzfYTxNbt2tVhybMSFjta95oT6HtqzPp/1mCzMAn9JaiEKZu6zzJ/kxx7zo45sIwk
-         Nm3RSOjC4OFiX1HMyogITIYE1q1wAa/9u2hBDPLal0iJ4Vj+H97TADqTeMC5i7Mk7J
-         QH/pxsD7CqpYZVA4L/OLUrHyEy5XuGLwmNX1iWYs=
+        b=po6bLrejzGSsDoO6QCFd2hGF5kQ6NQZQUAWL0xOp+WcgKR4N7C8Wrz8nqkO+TocYJ
+         WO6aBk0P9v85scOnFim/dyL6ONGgJ1chN7mPF7XmESVScFeB8ib0UjmGxJIFjKeqTG
+         3it5gMbaBk9GD0WJ/4+goK+Ly7Rrh4yziOUIguOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Chengguang Xu <cgxu519@mykernel.net>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 033/141] scsi: pmcraid: Fix missing resource cleanup in error case
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 070/240] random: remove use_input_pool parameter from crng_reseed()
 Date:   Mon, 20 Jun 2022 14:49:31 +0200
-Message-Id: <20220620124730.511907555@linuxfoundation.org>
+Message-Id: <20220620124740.466737563@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit ec1e8adcbdf661c57c395bca342945f4f815add7 ]
+commit 5d58ea3a31cc98b9fa563f6921d3d043bf0103d1 upstream.
 
-Fix missing resource cleanup (when '(--i) == 0') for error case in
-pmcraid_register_interrupt_handler().
+The primary_crng is always reseeded from the input_pool, while the NUMA
+crngs are always reseeded from the primary_crng.  Remove the redundant
+'use_input_pool' parameter from crng_reseed() and just directly check
+whether the crng is the primary_crng.
 
-Link: https://lore.kernel.org/r/20220529153456.4183738-6-cgxu519@mykernel.net
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/pmcraid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/random.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/pmcraid.c b/drivers/scsi/pmcraid.c
-index fd674ed1febe..6d94837c9049 100644
---- a/drivers/scsi/pmcraid.c
-+++ b/drivers/scsi/pmcraid.c
-@@ -4031,7 +4031,7 @@ pmcraid_register_interrupt_handler(struct pmcraid_instance *pinstance)
- 	return 0;
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -365,7 +365,7 @@ static struct {
  
- out_unwind:
--	while (--i > 0)
-+	while (--i >= 0)
- 		free_irq(pci_irq_vector(pdev, i), &pinstance->hrrq_vector[i]);
- 	pci_free_irq_vectors(pdev);
- 	return rc;
--- 
-2.35.1
-
+ static void extract_entropy(void *buf, size_t nbytes);
+ 
+-static void crng_reseed(struct crng_state *crng, bool use_input_pool);
++static void crng_reseed(struct crng_state *crng);
+ 
+ /*
+  * This function adds bytes into the entropy "pool".  It does not
+@@ -464,7 +464,7 @@ static void credit_entropy_bits(int nbit
+ 	trace_credit_entropy_bits(nbits, entropy_count, _RET_IP_);
+ 
+ 	if (crng_init < 2 && entropy_count >= POOL_MIN_BITS)
+-		crng_reseed(&primary_crng, true);
++		crng_reseed(&primary_crng);
+ }
+ 
+ /*********************************************************************
+@@ -701,7 +701,7 @@ static int crng_slow_load(const u8 *cp,
+ 	return 1;
+ }
+ 
+-static void crng_reseed(struct crng_state *crng, bool use_input_pool)
++static void crng_reseed(struct crng_state *crng)
+ {
+ 	unsigned long flags;
+ 	int i;
+@@ -710,7 +710,7 @@ static void crng_reseed(struct crng_stat
+ 		u32 key[8];
+ 	} buf;
+ 
+-	if (use_input_pool) {
++	if (crng == &primary_crng) {
+ 		int entropy_count;
+ 		do {
+ 			entropy_count = READ_ONCE(input_pool.entropy_count);
+@@ -748,7 +748,7 @@ static void _extract_crng(struct crng_st
+ 		init_time = READ_ONCE(crng->init_time);
+ 		if (time_after(READ_ONCE(crng_global_init_time), init_time) ||
+ 		    time_after(jiffies, init_time + CRNG_RESEED_INTERVAL))
+-			crng_reseed(crng, crng == &primary_crng);
++			crng_reseed(crng);
+ 	}
+ 	spin_lock_irqsave(&crng->lock, flags);
+ 	chacha20_block(&crng->state[0], out);
+@@ -1547,7 +1547,7 @@ static long random_ioctl(struct file *f,
+ 			return -EPERM;
+ 		if (crng_init < 2)
+ 			return -ENODATA;
+-		crng_reseed(&primary_crng, true);
++		crng_reseed(&primary_crng);
+ 		WRITE_ONCE(crng_global_init_time, jiffies - 1);
+ 		return 0;
+ 	default:
 
 
