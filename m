@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49F3D551D4F
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73E655519FF
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348435AbiFTNu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36700 "EHLO
+        id S243615AbiFTNC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:02:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350471AbiFTNtT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:49:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE472FFE5;
-        Mon, 20 Jun 2022 06:18:11 -0700 (PDT)
+        with ESMTP id S243622AbiFTNBl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:01:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339AB1A805;
+        Mon, 20 Jun 2022 05:57:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5B2060FF1;
-        Mon, 20 Jun 2022 13:17:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7EDCC3411B;
-        Mon, 20 Jun 2022 13:17:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71472B811B3;
+        Mon, 20 Jun 2022 12:57:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A09BEC3411B;
+        Mon, 20 Jun 2022 12:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731023;
-        bh=BevbwWX2OSD1W1/1qk/rCqhmGFAAMpSJAO781kxqSM8=;
+        s=korg; t=1655729839;
+        bh=0NiU3q04Yw7ZAx4tls9RQONgYiwgPEBbj0htnP3IXHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tmdx3iktU6gXyVnlpq4cfz1+vEZiM8v2k5kI2dNPzsfQYKvPSyYkTlSrKZpTR8Og/
-         lJaQbH6KLr9vfShoE1SQQKllDerD3Im69a4QJwXjTRSBTkpTpwIIEeNV+i3Qcfx/CO
-         tH3c5Z0yWwxYEg13PWWcU2DuB50yFmW6dJpvowKM=
+        b=gikJ4s+gkI3NjHhaxKF5kQfolC0UMqPQPtkZRGV9wuJRZw3f0QNercwYD7cHWpHDd
+         8gyHysfT0W+b69UXfklhHiDGTH7UykzF1T+n9XAj/UgyF0/Rv+nWwUKQou715SiYYy
+         lmvco4ee1qzDP6+LnZvInTTz+G9nEI1KjZD7kMdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 129/240] random: fix sysctl documentation nits
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 092/141] irqchip/apple-aic: Fix refcount leak in build_fiq_affinity
 Date:   Mon, 20 Jun 2022 14:50:30 +0200
-Message-Id: <20220620124742.750178728@linuxfoundation.org>
+Message-Id: <20220620124732.264561958@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 069c4ea6871c18bd368f27756e0f91ffb524a788 upstream.
+[ Upstream commit b1ac803f47cb1615468f35cf1ccb553c52087301 ]
 
-A semicolon was missing, and the almost-alphabetical-but-not ordering
-was confusing, so regroup these by category instead.
+of_find_node_by_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a5e8801202b3 ("irqchip/apple-aic: Parse FIQ affinities from device-tree")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220601080930.31005-3-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/sysctl/kernel.rst |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/irqchip/irq-apple-aic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/Documentation/admin-guide/sysctl/kernel.rst
-+++ b/Documentation/admin-guide/sysctl/kernel.rst
-@@ -876,6 +876,9 @@ This is a directory, with the following
- * ``boot_id``: a UUID generated the first time this is retrieved, and
-   unvarying after that;
+diff --git a/drivers/irqchip/irq-apple-aic.c b/drivers/irqchip/irq-apple-aic.c
+index 12dd48727a15..478d0af16d9f 100644
+--- a/drivers/irqchip/irq-apple-aic.c
++++ b/drivers/irqchip/irq-apple-aic.c
+@@ -1035,6 +1035,7 @@ static void build_fiq_affinity(struct aic_irq_chip *ic, struct device_node *aff)
+ 			continue;
  
-+* ``uuid``: a UUID generated every time this is retrieved (this can
-+  thus be used to generate UUIDs at will);
-+
- * ``entropy_avail``: the pool's entropy count, in bits;
+ 		cpu = of_cpu_node_to_id(cpu_node);
++		of_node_put(cpu_node);
+ 		if (WARN_ON(cpu < 0))
+ 			continue;
  
- * ``poolsize``: the entropy pool size, in bits;
-@@ -883,10 +886,7 @@ This is a directory, with the following
- * ``urandom_min_reseed_secs``: obsolete (used to determine the minimum
-   number of seconds between urandom pool reseeding). This file is
-   writable for compatibility purposes, but writing to it has no effect
--  on any RNG behavior.
--
--* ``uuid``: a UUID generated every time this is retrieved (this can
--  thus be used to generate UUIDs at will);
-+  on any RNG behavior;
- 
- * ``write_wakeup_threshold``: when the entropy count drops below this
-   (as a number of bits), processes waiting to write to ``/dev/random``
+-- 
+2.35.1
+
 
 
