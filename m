@@ -2,115 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53BE1550F6C
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 06:33:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A5DF550F84
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 06:50:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231288AbiFTEdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 00:33:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57480 "EHLO
+        id S237715AbiFTEuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 00:50:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229998AbiFTEdH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 00:33:07 -0400
-Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BEB41133
-        for <stable@vger.kernel.org>; Sun, 19 Jun 2022 21:33:06 -0700 (PDT)
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id B76C45C00EA;
-        Mon, 20 Jun 2022 00:33:03 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 20 Jun 2022 00:33:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=traverse.com.au;
-         h=cc:cc:content-transfer-encoding:date:date:from:from
-        :in-reply-to:message-id:mime-version:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1655699583; x=1655785983; bh=+AI340Wird
-        kCNj2daU0dhzcNsCD3h4uVmVS2Tv0hb9s=; b=EdEE421SMaNmEO4D/AdwaLjP7Z
-        EKz/olBcsjFjGI2bjhKCodGShwOVwIY41js2tkJvkI9SWv65EzDRAVJ6WU5KBakz
-        P7ySKKVOsO5QPss5buWI7xeD99fOuayD8KQY3sTfUvY2GHIpuG8bs12JeeJZs141
-        ArjvK4yy6TrWUtFPo7I3FDX011kfnMAnSBm/CzrGr0qvoUB27/4WaRjcil1HYfo5
-        Q3yXjIlv1wqTujCIjeGkMhLEOx8XfbSjPT5NgHNN3DHlxWEGfP4h7sbweJU9IwSe
-        cw0Cg3qntRut2cr0Sb/lg2FFQt0WvlZwIwC/mz9VeI3SIucij22YSgMRylcA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-        1655699583; x=1655785983; bh=+AI340WirdkCNj2daU0dhzcNsCD3h4uVmVS
-        2Tv0hb9s=; b=oIwDd5g67Mg95NtSVXZHJqX+Pva8w8DRFev5h+f5md5vhjhkztw
-        hcWiSLbzwunwxgqDE1xswKunR05WNRM2qhtX20QJwVZFof0cmn+4IyywlcvUFyJQ
-        TaDIC0lDp4MTyrFDfPvLmSFZaXzGby2DGivl8Yxnvc9npO9/GWy52SE8yZUNoqRp
-        FMB2tXKPRdlMdFpERPRYULFT0l0MCfM7D4sErgPgk/VhNYXU+2qYy/RBqsCKLaYp
-        kEOPMdd59TJsTlEDELQ/Mxp4v11hsSmOo4u8iFR7zNPQy8BjH60fQJZ9tPObXuWs
-        45/64yFqGhNU+v9dAJB61qnRsUfg4GBaZQQ==
-X-ME-Sender: <xms:f_ivYs0BqAkFRmp60tQmWnMVOijMIYzFdGOmzXsjMbmXcux286eFFw>
-    <xme:f_ivYnEOGcVXSgpW9h6zWzuq0FGDv3uQ2WcECo0FHTl4Hj3U6yiX1Uc6uoyRfxPUh
-    WNMm2UVtzxEwy5Bq3c>
-X-ME-Received: <xmr:f_ivYk4EMbSK4yCxrrTk1MIm37UQ8i5eLhR9ejFt88f07qnOgv0GwDmFbYOSdxOUTGAZq8wm5eECE6AxPtR2zop-0N68IH873A9m2g_GJQBHglvF9uDJ_EB5xqD1_j8>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudeftddgkeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomhepofgrthhhvgif
-    ucfotgeurhhiuggvuceomhgrthhtsehtrhgrvhgvrhhsvgdrtghomhdrrghuqeenucggtf
-    frrghtthgvrhhnpefgkeetgedufffgtdevvdejjefftdfghfetfefgueehhfeljeffgfef
-    ueeujeelffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehmrghtthesthhrrghvvghrshgvrdgtohhmrdgruh
-X-ME-Proxy: <xmx:f_ivYl1ViKNE2eeJ1-e0rkumhvnQE2wAomMuTYom8A7tweImtTCdjw>
-    <xmx:f_ivYvGqvbEPWDEx0kGeR_2Z4DgtMlD2mp1LJUiowK-KLBbUdfNLBA>
-    <xmx:f_ivYu_qaCpqDDcAaDfw6nDqewJ3ySpfNU3Jidzqd2nFv1sf-kBq6A>
-    <xmx:f_ivYnAfpOyBvVJsRtE69sAM_nTI4RMx63pSttWsSYvy_c20aeCzqw>
-Feedback-ID: i426947f3:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 20 Jun 2022 00:33:01 -0400 (EDT)
-From:   Mathew McBride <matt@traverse.com.au>
-To:     Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Li Yang <leoyang.li@nxp.com>,
-        linux-arm-kernel@lists.infradead.org
-Cc:     Mathew McBride <matt@traverse.com.au>, stable@vger.kernel.org
-Subject: [PATCH] soc: fsl: select FSL_GUTS driver for DPIO
-Date:   Mon, 20 Jun 2022 04:32:43 +0000
-Message-Id: <20220620043243.32235-1-matt@traverse.com.au>
-X-Mailer: git-send-email 2.30.1
+        with ESMTP id S231288AbiFTEuQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 00:50:16 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E4232DF;
+        Sun, 19 Jun 2022 21:50:15 -0700 (PDT)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1o39MZ-0007A2-Mm; Mon, 20 Jun 2022 06:50:11 +0200
+Message-ID: <1198479a-ed0a-ae45-4aef-d750113aa3b0@leemhuis.info>
+Date:   Mon, 20 Jun 2022 06:50:10 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Content-Language: en-US
+To:     Andrea Mayer <andrea.mayer@uniroma2.it>,
+        Anton Makarov <am@3a-alliance.com>
+Cc:     David Ahern <dsahern@kernel.org>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, david.lebrun@uclouvain.be,
+        regressions@lists.linux.dev, stable@vger.kernel.org,
+        Stefano Salsano <stefano.salsano@uniroma2.it>,
+        Paolo Lungaroni <paolo.lungaroni@uniroma2.it>,
+        Ahmed Abdelsalam <ahabdels.dev@gmail.com>
+References: <7e315ff1-e172-16c3-44b5-0c83c4c92779@3a-alliance.com>
+ <20220606143338.91df592bbb7dc2f7db4747e6@uniroma2.it>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: Re: [REGRESSION] net: SRv6 End.DT6 function is broken in VRF mode
+In-Reply-To: <20220606143338.91df592bbb7dc2f7db4747e6@uniroma2.it>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1655700615;6ebfc65e;
+X-HE-SMSGID: 1o39MZ-0007A2-Mm
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The soc/fsl/dpio driver will perform a soc_device_match()
-to determine the optimal cache settings for a given CPU core.
+On 06.06.22 14:33, Andrea Mayer wrote:
+> On Fri, 3 Jun 2022 15:23:26 +0300
+> Anton Makarov <am@3a-alliance.com> wrote:
+> 
+>> #regzbot introduced: b9132c32e01976686efa26252cc246944a0d2cab
+>>
+>> Seems there is a regression of SRv6 End.DT6 function in VRF mode. In the 
+>> following scenario packet is decapsulated successfully on vrf10 
+>> interface but not forwarded to vrf10's slave interface:
+>>
+>> ip netns exec r4 ip -6 nexthop add id 1004 encap seg6local action 
+>> End.DT6 vrftable 10 dev vrf10
+>>
+>> ip netns exec r4 ip -6 route add fcff:0:4:200:: nhid 1004
 
-If FSL_GUTS is not enabled, this search will fail and
-the driver will not configure cache stashing for the given
-DPIO, and a string of "unknown SoC" messages will appear:
+#regzbot fixed-by: a3bd2102e4642
 
-fsl_mc_dpio dpio.7: unknown SoC version
-fsl_mc_dpio dpio.6: unknown SoC version
-fsl_mc_dpio dpio.5: unknown SoC version
+> thank you for reporting this issue. I am already working on a fix patch which I
+> will send shortly.
 
-Signed-off-by: Mathew McBride <matt@traverse.com.au>
-Fixes: 51da14e96e9b ("soc: fsl: dpio: configure cache stashing destination")
-Cc: stable@vger.kernel.org
----
- drivers/soc/fsl/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+@Andrea: when you fix a reported issue, next time please include a
+"Link: <url>" that links to the report, as explained in the
+documentation (see submitting-patches.rst). Linus wants these tags(¹)
+and my regression tracking efforts rely on them (that'S why I had to
+write this mail to tell regression tracking bot with above command that
+the issue has been fixed). tia!
 
-diff --git a/drivers/soc/fsl/Kconfig b/drivers/soc/fsl/Kconfig
-index 07d52cafbb31..fcec6ed83d5e 100644
---- a/drivers/soc/fsl/Kconfig
-+++ b/drivers/soc/fsl/Kconfig
-@@ -24,6 +24,7 @@ config FSL_MC_DPIO
-         tristate "QorIQ DPAA2 DPIO driver"
-         depends on FSL_MC_BUS
-         select SOC_BUS
-+        select FSL_GUTS
-         select DIMLIB
-         help
- 	  Driver for the DPAA2 DPIO object.  A DPIO provides queue and
--- 
-2.30.1
+Ciao, Thorsten
 
+(¹) see for example:
+https://lore.kernel.org/all/CAHk-=wjMmSZzMJ3Xnskdg4+GGz=5p5p+GSYyFBTh0f-DgvdBWg@mail.gmail.com/
+https://lore.kernel.org/all/CAHk-=wgs38ZrfPvy=nOwVkVzjpM3VFU1zobP37Fwd_h9iAD5JQ@mail.gmail.com/
