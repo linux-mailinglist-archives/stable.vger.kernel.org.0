@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CB83551B6D
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 644C9551CE6
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238728AbiFTNLL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58276 "EHLO
+        id S1343856AbiFTNVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:21:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343958AbiFTNJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8E0F1AF22;
-        Mon, 20 Jun 2022 06:04:58 -0700 (PDT)
+        with ESMTP id S1345014AbiFTNTi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:19:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC0915FFA;
+        Mon, 20 Jun 2022 06:08:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BD8AB811A5;
-        Mon, 20 Jun 2022 13:04:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7AD3C341C4;
-        Mon, 20 Jun 2022 13:04:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 174E6B811C0;
+        Mon, 20 Jun 2022 13:08:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4683DC3411B;
+        Mon, 20 Jun 2022 13:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730292;
-        bh=k6te6UvAhWV0pHOaWU9Llx1ueM872wXXeKd2sw/X/WE=;
+        s=korg; t=1655730481;
+        bh=M/2gDY7ZzNb/oAKKkhfnwbKWyEObv/vJS66e1WXjz3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zY18myHD+F+h115W7yCDn7kN9NcfXJQZ4tbkDe+CAKbPBNHLhSpakJV3wcGMVamHz
-         Oi1O2OovHsUfcJXpTgrEvaCvuXt1BmM3Spyguk512pKQvdXOaDWca2tb5S+7sLfEW0
-         wC7V1L2UE8gq70z3wUn8ju2K/V8AVH2m4ao3RcX8=
+        b=sYrpzT9y4QQTVvwsHcHZ9R3+qbVOievosRg485IYWSiXi+W1Ql7Eclp2Orccf3f0E
+         ju07exjUaaS83xZuCxoD/FKEcGbKE632Qa+DZg6ERzazqJtZPertNfoDocymrPmfsL
+         H1j55vlUneGTt9osBVMMPf5kuRvfcUnM7QwCSa4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.10 60/84] mei: me: add raptor lake point S DID
-Date:   Mon, 20 Jun 2022 14:51:23 +0200
-Message-Id: <20220620124722.664826739@linuxfoundation.org>
+        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 065/106] mlxsw: spectrum_cnt: Reorder counter pools
+Date:   Mon, 20 Jun 2022 14:51:24 +0200
+Message-Id: <20220620124726.323272076@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Petr Machata <petrm@nvidia.com>
 
-commit 3ed8c7d39cfef831fe508fc1308f146912fa72e6 upstream.
+[ Upstream commit 4b7a632ac4e7101ceefee8484d5c2ca505d347b3 ]
 
-Add Raptor (Point) Lake S device id.
+Both RIF and ACL flow counters use a 24-bit SW-managed counter address to
+communicate which counter they want to bind.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20220606144225.282375-3-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In a number of Spectrum FW releases, binding a RIF counter is broken and
+slices the counter index to 16 bits. As a result, on Spectrum-2 and above,
+no more than about 410 RIF counters can be effectively used. This
+translates to 205 netdevices for which L3 HW stats can be enabled. (This
+does not happen on Spectrum-1, because there are fewer counters available
+overall and the counter index never exceeds 16 bits.)
+
+Binding counters to ACLs does not have this issue. Therefore reorder the
+counter allocation scheme so that RIF counters come first and therefore get
+lower indices that are below the 16-bit barrier.
+
+Fixes: 98e60dce4da1 ("Merge branch 'mlxsw-Introduce-initial-Spectrum-2-support'")
+Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20220613125017.2018162-1-idosch@nvidia.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mei/hw-me-regs.h |    2 ++
- drivers/misc/mei/pci-me.c     |    2 ++
- 2 files changed, 4 insertions(+)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -109,6 +109,8 @@
- #define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
- #define MEI_DEV_ID_ADP_N      0x54E0  /* Alder Lake Point N */
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
+index a68d931090dd..15c8d4de8350 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
+@@ -8,8 +8,8 @@
+ #include "spectrum.h"
  
-+#define MEI_DEV_ID_RPL_S      0x7A68  /* Raptor Lake Point S */
-+
- /*
-  * MEI HW Section
-  */
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -115,6 +115,8 @@ static const struct pci_device_id mei_me
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_P, MEI_ME_PCH15_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_N, MEI_ME_PCH15_CFG)},
- 
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_RPL_S, MEI_ME_PCH15_CFG)},
-+
- 	/* required last entry */
- 	{0, }
+ enum mlxsw_sp_counter_sub_pool_id {
+-	MLXSW_SP_COUNTER_SUB_POOL_FLOW,
+ 	MLXSW_SP_COUNTER_SUB_POOL_RIF,
++	MLXSW_SP_COUNTER_SUB_POOL_FLOW,
  };
+ 
+ int mlxsw_sp_counter_alloc(struct mlxsw_sp *mlxsw_sp,
+-- 
+2.35.1
+
 
 
