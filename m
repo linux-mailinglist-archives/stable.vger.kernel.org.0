@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3EF2551AF2
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ACE7551C6A
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245299AbiFTNLI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54220 "EHLO
+        id S1344301AbiFTNY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:24:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343868AbiFTNJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF5C1AF00;
-        Mon, 20 Jun 2022 06:04:54 -0700 (PDT)
+        with ESMTP id S1345926AbiFTNYM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A50FA237D9;
+        Mon, 20 Jun 2022 06:09:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F65FB811BF;
-        Mon, 20 Jun 2022 13:04:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4161C3411B;
-        Mon, 20 Jun 2022 13:04:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2720060ABA;
+        Mon, 20 Jun 2022 13:09:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24488C341C0;
+        Mon, 20 Jun 2022 13:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730283;
-        bh=vCrupNsbC1wjKS0rXH/B0/XNATIHGWVlhCDr/zbA33k=;
+        s=korg; t=1655730539;
+        bh=uEpUtwXwDKVwNJL5fKwFW99VGHu3YWKGDMYGzY2woJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ded2t5LMfB8JLSMCHTfl+9WLm08signK21VYCIHeXlWAIAVjXuduOPWmxkDDNVRSO
-         mfh+/B+K/96vsw/Js/JeQ2wtCLTpRAf6kT9Ej67xCsGPNCEiYCWSWa/m7FBgIYTQgO
-         IImYWb8JAAfk0yhyEa5unUcC2r5KlYTAMWHBx/1c=
+        b=LwjrxOKNw0M65RIWn2JOmg5cvlVjQ5Eu8ylNfiWLouHONRuTP3GJYVLUxsYpQzRNF
+         J8cyUqxiWtV4phaaNkmB5ZsDzaPIOiUeFAYlCV9yA5eTSrdRJMhsHIcnAi5xQIOvfF
+         bcF+WWvoKNKB9Sjvpm1/JHzNtFweAx/UXV9X8SU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@penugtronix.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 5.10 67/84] serial: 8250: Store to lsr_save_flags after lsr read
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.15 071/106] init: Initialize noop_backing_dev_info early
 Date:   Mon, 20 Jun 2022 14:51:30 +0200
-Message-Id: <20220620124722.871093451@linuxfoundation.org>
+Message-Id: <20220620124726.503235304@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +56,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Jan Kara <jack@suse.cz>
 
-commit be03b0651ffd8bab69dfd574c6818b446c0753ce upstream.
+[ Upstream commit 4bca7e80b6455772b4bf3f536dcbc19aac424d6a ]
 
-Not all LSR register flags are preserved across reads. Therefore, LSR
-readers must store the non-preserved bits into lsr_save_flags.
+noop_backing_dev_info is used by superblocks of various
+pseudofilesystems such as kdevtmpfs. After commit 10e14073107d
+("writeback: Fix inode->i_io_list not be protected by inode->i_lock
+error") this broke because __mark_inode_dirty() started to access more
+fields from noop_backing_dev_info and this led to crashes inside
+locked_inode_to_wb_and_lock_list() called from __mark_inode_dirty().
+Fix the problem by initializing noop_backing_dev_info before the
+filesystems get mounted.
 
-This fix was initially mixed into feature commit f6f586102add ("serial:
-8250: Handle UART without interrupt on TEMT using em485"). However,
-that feature change had a flaw and it was reverted to make room for
-simpler approach providing the same feature. The embedded fix got
-reverted with the feature change.
-
-Re-add the lsr_save_flags fix and properly mark it's a fix.
-
-Link: https://lore.kernel.org/all/1d6c31d-d194-9e6a-ddf9-5f29af829f3@linux.intel.com/T/#m1737eef986bd20cf19593e344cebd7b0244945fc
-Fixes: e490c9144cfa ("tty: Add software emulated RS485 support for 8250")
-Cc: stable <stable@kernel.org>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@penugtronix.de>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/f4d774be-1437-a550-8334-19d8722ab98c@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 10e14073107d ("writeback: Fix inode->i_io_list not be protected by inode->i_lock error")
+Reported-and-tested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reported-and-tested-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Reported-and-tested-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/base/init.c         |  2 ++
+ include/linux/backing-dev.h |  2 ++
+ mm/backing-dev.c            | 11 ++---------
+ 3 files changed, 6 insertions(+), 9 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1532,6 +1532,8 @@ static inline void __stop_tx(struct uart
+diff --git a/drivers/base/init.c b/drivers/base/init.c
+index a9f57c22fb9e..dab8aa5d2888 100644
+--- a/drivers/base/init.c
++++ b/drivers/base/init.c
+@@ -8,6 +8,7 @@
+ #include <linux/init.h>
+ #include <linux/memory.h>
+ #include <linux/of.h>
++#include <linux/backing-dev.h>
  
- 	if (em485) {
- 		unsigned char lsr = serial_in(p, UART_LSR);
-+		p->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
+ #include "base.h"
+ 
+@@ -20,6 +21,7 @@
+ void __init driver_init(void)
+ {
+ 	/* These are the core pieces */
++	bdi_init(&noop_backing_dev_info);
+ 	devtmpfs_init();
+ 	devices_init();
+ 	buses_init();
+diff --git a/include/linux/backing-dev.h b/include/linux/backing-dev.h
+index ac7f231b8825..eed9a98eae0d 100644
+--- a/include/linux/backing-dev.h
++++ b/include/linux/backing-dev.h
+@@ -121,6 +121,8 @@ int bdi_set_max_ratio(struct backing_dev_info *bdi, unsigned int max_ratio);
+ 
+ extern struct backing_dev_info noop_backing_dev_info;
+ 
++int bdi_init(struct backing_dev_info *bdi);
 +
- 		/*
- 		 * To provide required timeing and allow FIFO transfer,
- 		 * __stop_tx_rs485() must be called only when both FIFO and
+ /**
+  * writeback_in_progress - determine whether there is writeback in progress
+  * @wb: bdi_writeback of interest
+diff --git a/mm/backing-dev.c b/mm/backing-dev.c
+index 02ff66f86358..02c9d5c7276e 100644
+--- a/mm/backing-dev.c
++++ b/mm/backing-dev.c
+@@ -229,20 +229,13 @@ static __init int bdi_class_init(void)
+ }
+ postcore_initcall(bdi_class_init);
+ 
+-static int bdi_init(struct backing_dev_info *bdi);
+-
+ static int __init default_bdi_init(void)
+ {
+-	int err;
+-
+ 	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_UNBOUND |
+ 				 WQ_SYSFS, 0);
+ 	if (!bdi_wq)
+ 		return -ENOMEM;
+-
+-	err = bdi_init(&noop_backing_dev_info);
+-
+-	return err;
++	return 0;
+ }
+ subsys_initcall(default_bdi_init);
+ 
+@@ -784,7 +777,7 @@ static void cgwb_remove_from_bdi_list(struct bdi_writeback *wb)
+ 
+ #endif	/* CONFIG_CGROUP_WRITEBACK */
+ 
+-static int bdi_init(struct backing_dev_info *bdi)
++int bdi_init(struct backing_dev_info *bdi)
+ {
+ 	int ret;
+ 
+-- 
+2.35.1
+
 
 
