@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6DD1551D36
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 140B5551B95
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348879AbiFTNsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:48:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59298 "EHLO
+        id S1345322AbiFTN1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:27:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348893AbiFTNrZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:47:25 -0400
+        with ESMTP id S1344823AbiFTNZp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:25:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 114722E084;
-        Mon, 20 Jun 2022 06:17:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB3C192BA;
+        Mon, 20 Jun 2022 06:10:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC5F4B811CB;
-        Mon, 20 Jun 2022 13:17:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08C6EC3411B;
-        Mon, 20 Jun 2022 13:17:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29D1DB811C3;
+        Mon, 20 Jun 2022 13:05:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38F04C341C4;
+        Mon, 20 Jun 2022 13:05:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731042;
-        bh=bGEyYtbZs2EMcJdC+qe7X9Ls+GlfrYnEojWdFuENIgk=;
+        s=korg; t=1655730321;
+        bh=viO+JQqdOeguQ9qNe8xiV1tZu4HFPpWs46BHApHPB8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UoXkTjXBzasLW0S1qhd3Fl59BVvPZQTWxc7+sxACN1Gc2Emvl4dRsrBzfZCBMs6Gd
-         W/QBvwanbsUXcBSgfDDY2Vn+wnuVfILhFsxxsqFs1bN1gwwMxWGPuUtJTWNqXqfLgl
-         G7OZIL2rb7VQqXrrlZzJOcW2cg67e6SqfxrJzWTQ=
+        b=X+Sa86+RNSpN7Kwb1CL2ltTJilEj7c+Fw+I5JVrArADSE05LiQa3jdhvtwMZfxoR3
+         3T3H54ZoMs2i0e+CG7/dr2EAZBBEUPjUEQAQtGmkX4Nj7O8In61pFdcQJl81+HZuT8
+         Oj+bCyv+PCZVIC4RP7EXSUrIYDjtm0k0Xaq5yx5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@ozlabs.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 135/240] powerpc: define get_cycles macro for arch-override
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 017/106] ata: libata-core: fix NULL pointer deref in ata_host_alloc_pinfo()
 Date:   Mon, 20 Jun 2022 14:50:36 +0200
-Message-Id: <20220620124742.920621228@linuxfoundation.org>
+Message-Id: <20220620124724.896210538@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,37 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 408835832158df0357e18e96da7f2d1ed6b80e7f upstream.
+[ Upstream commit bf476fe22aa1851bab4728e0c49025a6a0bea307 ]
 
-PowerPC defines a get_cycles() function, but it does not do the usual
-`#define get_cycles get_cycles` dance, making it impossible for generic
-code to see if an arch-specific function was defined. While the
-get_cycles() ifdef is not currently used, the following timekeeping
-patch in this series will depend on the macro existing (or not existing)
-when defining random_get_entropy().
+In an unlikely (and probably wrong?) case that the 'ppi' parameter of
+ata_host_alloc_pinfo() points to an array starting with a NULL pointer,
+there's going to be a kernel oops as the 'pi' local variable won't get
+reassigned from the initial value of NULL. Initialize 'pi' instead to
+'&ata_dummy_port_info' to fix the possible kernel oops for good...
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Benjamin Herrenschmidt <benh@ozlabs.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Found by Linux Verification Center (linuxtesting.org) with the SVACE static
+analysis tool.
+
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/timex.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/ata/libata-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/include/asm/timex.h
-+++ b/arch/powerpc/include/asm/timex.h
-@@ -22,6 +22,7 @@ static inline cycles_t get_cycles(void)
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index a0343b7c9add..413faa9330b2 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -5500,7 +5500,7 @@ struct ata_host *ata_host_alloc_pinfo(struct device *dev,
+ 				      const struct ata_port_info * const * ppi,
+ 				      int n_ports)
+ {
+-	const struct ata_port_info *pi;
++	const struct ata_port_info *pi = &ata_dummy_port_info;
+ 	struct ata_host *host;
+ 	int i, j;
  
- 	return mftb();
- }
-+#define get_cycles get_cycles
+@@ -5508,7 +5508,7 @@ struct ata_host *ata_host_alloc_pinfo(struct device *dev,
+ 	if (!host)
+ 		return NULL;
  
- #endif	/* __KERNEL__ */
- #endif	/* _ASM_POWERPC_TIMEX_H */
+-	for (i = 0, j = 0, pi = NULL; i < host->n_ports; i++) {
++	for (i = 0, j = 0; i < host->n_ports; i++) {
+ 		struct ata_port *ap = host->ports[i];
+ 
+ 		if (ppi[j])
+-- 
+2.35.1
+
 
 
