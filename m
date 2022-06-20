@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 208A0551270
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 10:19:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4FA2551277
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 10:19:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239857AbiFTITd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 04:19:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37216 "EHLO
+        id S239866AbiFTITl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 04:19:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239275AbiFTITd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 04:19:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC44B11829
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 01:19:32 -0700 (PDT)
+        with ESMTP id S239275AbiFTITl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 04:19:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA9BF11829
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 01:19:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6460E6124E
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 08:19:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32BFFC3411B;
-        Mon, 20 Jun 2022 08:19:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4899961291
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 08:19:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 413E7C3411B;
+        Mon, 20 Jun 2022 08:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655713171;
-        bh=uORoi/mnPcBFWku8B0ji0/9B/cpN3stII8mtrMrBsPs=;
+        s=korg; t=1655713179;
+        bh=Y5zzA+DYcAL7HjeN++xtp7IiyEyEYjrNaM3vNKXA8Ac=;
         h=Subject:To:Cc:From:Date:From;
-        b=PaSUA8zNlR/PvHvcOqqiFWIkEwVwEz3yibD7tdKdmCuhswqaNxEBRxyldFwswvP2H
-         SH5Nzr7Chv7m4zWX3KnWY862o+4UXsOlhqqQR/ze4YQrKp2vqFNNtzHKnFvXG3zeNO
-         q1qsFu0Y/PB+cKvzqCdxoY/TaqPpRQCmyQRZW0qM=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Fix IN endpoint max packet size allocation" failed to apply to 5.15-stable tree
+        b=AxvICvNuGvRH6W73ek7HbnH1i6DZVdmAJV4AA9dJBsQaRfKsPuFWeMtoV1MqoLimr
+         g8nbh6zgE3UAowEJlLc9gnkTcuHrJVjeCfUZfDdOdErVcicN9/U+bSwyJfrSG28mQB
+         ZhaM1QFPAX1AJEsl8Wj6YHYb3hD/xITAjB6taPMs=
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Fix IN endpoint max packet size allocation" failed to apply to 5.10-stable tree
 To:     quic_wcheng@quicinc.com, gregkh@linuxfoundation.org,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 20 Jun 2022 10:19:28 +0200
-Message-ID: <1655713168175104@kroah.com>
+Message-ID: <165571316881187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
