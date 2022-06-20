@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89066551EA0
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D35DE551E41
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233661AbiFTOBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:01:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45250 "EHLO
+        id S1349197AbiFTOAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:00:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351755AbiFTNzR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:55:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9C5733E17;
-        Mon, 20 Jun 2022 06:21:26 -0700 (PDT)
+        with ESMTP id S1351697AbiFTNzL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:55:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F64A33E29;
+        Mon, 20 Jun 2022 06:21:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9D26B81157;
-        Mon, 20 Jun 2022 13:21:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30168C3411B;
-        Mon, 20 Jun 2022 13:21:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32D2D60FF1;
+        Mon, 20 Jun 2022 13:21:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 267AEC3411B;
+        Mon, 20 Jun 2022 13:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731283;
-        bh=4YG/mLz04w7Z3iVgwRBUHl1vEuxLOBCOG6D0oHMrmAA=;
+        s=korg; t=1655731286;
+        bh=AlClyu+GjL/SoVXz6DUGT+j8OYRuamyCPoBUwuhZJGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v1tu+yzNvTBdAbmITEg/9ZGCCgrAf21CxM+l2VRIDnpWzY4Xkm45AfvO/u1lBIc4v
-         NfWs4Be64S0EnDAVfgPCvPjroZham8zBcmatHAg1yV0XraV7OKnTA5Oil5LGtO0CqH
-         QM0E3HzZblGCo30BG5XtgsDqoO19q0Jb8MJ7+LPs=
+        b=zQc9ONZP0eWUH/f6QS2yL9ibOEcnEhtajqeUWwC5edRS1i/2iuaxXVul8Dygjs+e7
+         oOdi7ibegqTMFLY2tVm8HNGicqEMc/7ZLP/cWxavuW/d+yjNKFzxiSo13R2Shyr0po
+         5U9wfMIWzJ3FV5ZfXT0W+a538aD71toFzU96dTMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 212/240] mlxsw: spectrum_cnt: Reorder counter pools
-Date:   Mon, 20 Jun 2022 14:51:53 +0200
-Message-Id: <20220620124745.119114358@linuxfoundation.org>
+Subject: [PATCH 5.4 213/240] net: bgmac: Fix an erroneous kfree() in bgmac_remove()
+Date:   Mon, 20 Jun 2022 14:51:54 +0200
+Message-Id: <20220620124745.147018699@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -56,49 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 4b7a632ac4e7101ceefee8484d5c2ca505d347b3 ]
+[ Upstream commit d7dd6eccfbc95ac47a12396f84e7e1b361db654b ]
 
-Both RIF and ACL flow counters use a 24-bit SW-managed counter address to
-communicate which counter they want to bind.
+'bgmac' is part of a managed resource allocated with bgmac_alloc(). It
+should not be freed explicitly.
 
-In a number of Spectrum FW releases, binding a RIF counter is broken and
-slices the counter index to 16 bits. As a result, on Spectrum-2 and above,
-no more than about 410 RIF counters can be effectively used. This
-translates to 205 netdevices for which L3 HW stats can be enabled. (This
-does not happen on Spectrum-1, because there are fewer counters available
-overall and the counter index never exceeds 16 bits.)
+Remove the erroneous kfree() from the .remove() function.
 
-Binding counters to ACLs does not have this issue. Therefore reorder the
-counter allocation scheme so that RIF counters come first and therefore get
-lower indices that are below the 16-bit barrier.
-
-Fixes: 98e60dce4da1 ("Merge branch 'mlxsw-Introduce-initial-Spectrum-2-support'")
-Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/20220613125017.2018162-1-idosch@nvidia.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 34a5102c3235 ("net: bgmac: allocate struct bgmac just once & don't copy it")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/a026153108dd21239036a032b95c25b5cece253b.1655153616.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bgmac-bcma.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
-index 81465e267b10..b7eb3674e285 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
-@@ -7,8 +7,8 @@
- #include "spectrum.h"
+diff --git a/drivers/net/ethernet/broadcom/bgmac-bcma.c b/drivers/net/ethernet/broadcom/bgmac-bcma.c
+index 34d18302b1a3..2d52754afc33 100644
+--- a/drivers/net/ethernet/broadcom/bgmac-bcma.c
++++ b/drivers/net/ethernet/broadcom/bgmac-bcma.c
+@@ -323,7 +323,6 @@ static void bgmac_remove(struct bcma_device *core)
+ 	bcma_mdio_mii_unregister(bgmac->mii_bus);
+ 	bgmac_enet_remove(bgmac);
+ 	bcma_set_drvdata(core, NULL);
+-	kfree(bgmac);
+ }
  
- enum mlxsw_sp_counter_sub_pool_id {
--	MLXSW_SP_COUNTER_SUB_POOL_FLOW,
- 	MLXSW_SP_COUNTER_SUB_POOL_RIF,
-+	MLXSW_SP_COUNTER_SUB_POOL_FLOW,
- };
- 
- int mlxsw_sp_counter_alloc(struct mlxsw_sp *mlxsw_sp,
+ static struct bcma_driver bgmac_bcma_driver = {
 -- 
 2.35.1
 
