@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B39551C8B
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:49:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97CE3551B77
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346913AbiFTNkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:40:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43656 "EHLO
+        id S1346266AbiFTNej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:34:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347419AbiFTNi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:38:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 157C61F622;
-        Mon, 20 Jun 2022 06:14:18 -0700 (PDT)
+        with ESMTP id S1346350AbiFTNcx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:32:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2509B2613F;
+        Mon, 20 Jun 2022 06:12:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27A9B61541;
-        Mon, 20 Jun 2022 13:02:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D54C3411B;
-        Mon, 20 Jun 2022 13:02:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B04EB811DA;
+        Mon, 20 Jun 2022 13:06:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F41C3411B;
+        Mon, 20 Jun 2022 13:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730170;
-        bh=G9sVT9BCC2t1SfzLQZXZjkGeZ3YE+zHFK85LE1yWtJo=;
+        s=korg; t=1655730418;
+        bh=PkqkrDz7EiznkeuOMswvSLdRA7mpt5+yw/0olC7jZys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FNKt68WDn4HkBxT+1OZeYlK93xRnmF8+zLHzS61nT0/mqGnwgD86+0yEbXpdX4Vls
-         fH2mmGwHB3rMtUUunkkv/VksFiKyfXMfRNRG86mwWHmQnvtBClEIb6vXLx3elaOWMx
-         +4S8sps9cvkWv9BJm0z8Pxr4aCHuMgNjo5tY1p7E=
+        b=Wdzty7E9sfmRMDs28IIvHnqCqk16qnm6oyMLabEQtu4HPhox0B2VVvCKlfkoTZS4e
+         6X1ms/SnZObXBAlzuUGtAi+8wGqYIuTBly9T1tsE+5joExJy2xv45C34etdKfA5MBL
+         rMuYzQpu0I8uPgta1gIVWY5ImZr+1lumNtyU2Mr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Miaoqian Lin <linmq006@gmail.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 43/84] misc: atmel-ssc: Fix IRQ check in ssc_probe
+Subject: [PATCH 5.15 047/106] pNFS: Dont keep retrying if the server replied NFS4ERR_LAYOUTUNAVAILABLE
 Date:   Mon, 20 Jun 2022 14:51:06 +0200
-Message-Id: <20220620124722.164498710@linuxfoundation.org>
+Message-Id: <20220620124725.781072299@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 1c245358ce0b13669f6d1625f7a4e05c41f28980 ]
+[ Upstream commit fe44fb23d6ccde4c914c44ef74ab8d9d9ba02bea ]
 
-platform_get_irq() returns negative error number instead 0 on failure.
-And the doc of platform_get_irq() provides a usage example:
+If the server tells us that a pNFS layout is not available for a
+specific file, then we should not keep pounding it with further
+layoutget requests.
 
-    int irq = platform_get_irq(pdev, 0);
-    if (irq < 0)
-        return irq;
-
-Fix the check of return value to catch errors correctly.
-
-Fixes: eb1f2930609b ("Driver for the Atmel on-chip SSC on AT32AP and AT91")
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220601123026.7119-1-linmq006@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 183d9e7b112a ("pnfs: rework LAYOUTGET retry handling")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/atmel-ssc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nfs/pnfs.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/misc/atmel-ssc.c b/drivers/misc/atmel-ssc.c
-index d6cd5537126c..69f9b0336410 100644
---- a/drivers/misc/atmel-ssc.c
-+++ b/drivers/misc/atmel-ssc.c
-@@ -232,9 +232,9 @@ static int ssc_probe(struct platform_device *pdev)
- 	clk_disable_unprepare(ssc->clk);
- 
- 	ssc->irq = platform_get_irq(pdev, 0);
--	if (!ssc->irq) {
-+	if (ssc->irq < 0) {
- 		dev_dbg(&pdev->dev, "could not get irq\n");
--		return -ENXIO;
-+		return ssc->irq;
- 	}
- 
- 	mutex_lock(&user_lock);
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index 1b4dd8b828de..9b2549222391 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -2152,6 +2152,12 @@ pnfs_update_layout(struct inode *ino,
+ 		case -ERECALLCONFLICT:
+ 		case -EAGAIN:
+ 			break;
++		case -ENODATA:
++			/* The server returned NFS4ERR_LAYOUTUNAVAILABLE */
++			pnfs_layout_set_fail_bit(
++				lo, pnfs_iomode_to_fail_bit(iomode));
++			lseg = NULL;
++			goto out_put_layout_hdr;
+ 		default:
+ 			if (!nfs_error_is_fatal(PTR_ERR(lseg))) {
+ 				pnfs_layout_clear_fail_bit(lo, pnfs_iomode_to_fail_bit(iomode));
 -- 
 2.35.1
 
