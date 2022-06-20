@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83C95551AF6
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54FCA5519DA
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344682AbiFTNWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:22:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54442 "EHLO
+        id S244712AbiFTNFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:05:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346303AbiFTNUg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:20:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF2662251A;
-        Mon, 20 Jun 2022 06:08:47 -0700 (PDT)
+        with ESMTP id S244038AbiFTNEc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9287E186E4;
+        Mon, 20 Jun 2022 05:59:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3F45B811E3;
-        Mon, 20 Jun 2022 13:07:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A300C341C4;
-        Mon, 20 Jun 2022 13:07:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51755B811BE;
+        Mon, 20 Jun 2022 12:59:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9990C3411B;
+        Mon, 20 Jun 2022 12:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730446;
-        bh=ogNGfTtMduZfmwm18K2XT8ql8Ti1rZIdNpSg/M1cZ6A=;
+        s=korg; t=1655729978;
+        bh=R1/XwB4xM2LGN1vbIhBm7hfqiiYghXeGUIAqoxloBZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJuKIlYgMj+vyHOgKUlZr77KqQcyFRvZ0Q3BFq65e/sJKa4eBzPGgiTd3dHk6LoqH
-         9V8ed/uxRwzV1fGbz/0DyMRGd0jXvKhFA9bPq38IGRDmm9n5uLESTCma8nSv8YHvAi
-         9Ew6RBf5+wgWSsRy3Dk0xdyUBGOMbsH5Xss2RMnA=
+        b=tTkUtg/5UnIxt8Rq6kXOwzsIlRB9bh5+zCmU3EkicGYf3ltBKMUC0a3pvEyhwEvl6
+         KW53B1WN1TNTd3uB2GSBjUhcRjF8ynjkZxOYfaNN624Qh6IJklHHSmIfajySSxfmlB
+         MqIcREOBMPKJZ9QCUSRMCkyaFZu3eNDUWIQ6mcfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 055/106] tty: goldfish: Fix free_irq() on remove
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.18 136/141] bpf: Use safer kvmalloc_array() where possible
 Date:   Mon, 20 Jun 2022 14:51:14 +0200
-Message-Id: <20220620124726.030250381@linuxfoundation.org>
+Message-Id: <20220620124733.580621777@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 499e13aac6c762e1e828172b0f0f5275651d6512 ]
+commit fd58f7df2415ef747782e01f94880fefad1247cf upstream.
 
-Pass the correct dev_id to free_irq() to fix this splat when the driver
-is unbound:
+The kvmalloc_array() function is safer because it has a check for
+integer overflows.  These sizes come from the user and I was not
+able to see any bounds checking so an integer overflow seems like a
+realistic concern.
 
- WARNING: CPU: 0 PID: 30 at kernel/irq/manage.c:1895 free_irq
- Trying to free already-free IRQ 65
- Call Trace:
-  warn_slowpath_fmt
-  free_irq
-  goldfish_tty_remove
-  platform_remove
-  device_remove
-  device_release_driver_internal
-  device_driver_detach
-  unbind_store
-  drv_attr_store
-  ...
-
-Fixes: 465893e18878e119 ("tty: goldfish: support platform_device with id -1")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/20220609141704.1080024-1-vincent.whitchurch@axis.com
+Fixes: 0dcac2725406 ("bpf: Add multi kprobe link")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/Yo9VRVMeHbALyjUH@kili
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/goldfish.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/bpf_trace.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
-index 0dc9a6a36ce0..0e32920af10d 100644
---- a/drivers/tty/goldfish.c
-+++ b/drivers/tty/goldfish.c
-@@ -428,7 +428,7 @@ static int goldfish_tty_remove(struct platform_device *pdev)
- 	tty_unregister_device(goldfish_tty_driver, qtty->console.index);
- 	iounmap(qtty->base);
- 	qtty->base = NULL;
--	free_irq(qtty->irq, pdev);
-+	free_irq(qtty->irq, qtty);
- 	tty_port_destroy(&qtty->port);
- 	goldfish_tty_current_line_count--;
- 	if (goldfish_tty_current_line_count == 0)
--- 
-2.35.1
-
+--- a/kernel/trace/bpf_trace.c
++++ b/kernel/trace/bpf_trace.c
+@@ -2433,7 +2433,7 @@ int bpf_kprobe_multi_link_attach(const u
+ 		return -EINVAL;
+ 
+ 	size = cnt * sizeof(*addrs);
+-	addrs = kvmalloc(size, GFP_KERNEL);
++	addrs = kvmalloc_array(cnt, sizeof(*addrs), GFP_KERNEL);
+ 	if (!addrs)
+ 		return -ENOMEM;
+ 
+@@ -2450,7 +2450,7 @@ int bpf_kprobe_multi_link_attach(const u
+ 
+ 	ucookies = u64_to_user_ptr(attr->link_create.kprobe_multi.cookies);
+ 	if (ucookies) {
+-		cookies = kvmalloc(size, GFP_KERNEL);
++		cookies = kvmalloc_array(cnt, sizeof(*addrs), GFP_KERNEL);
+ 		if (!cookies) {
+ 			err = -ENOMEM;
+ 			goto error;
 
 
