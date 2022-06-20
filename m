@@ -2,136 +2,945 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8289B55193D
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B257B551BDD
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238541AbiFTMre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:47:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58806 "EHLO
+        id S1346201AbiFTNbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:31:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237161AbiFTMre (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:47:34 -0400
-Received: from kylie.crudebyte.com (kylie.crudebyte.com [5.189.157.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6B9120A4;
-        Mon, 20 Jun 2022 05:47:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=crudebyte.com; s=kylie; h=Content-Type:Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
-        Content-ID:Content-Description;
-        bh=1Qtj9avAPxxxcxlS9R24X+qIn7gqwbxWq3fY/ZtZ/r0=; b=QlKX47fxikFPWZhUCHG1+dih53
-        +IQ1EPYovRtFDHyFK51GCH+/ADR1j/xK2zZVc+lRnViEosZ0+hVbFHjGr4epb/e4IQ/A/XD5qyi3P
-        31JWYdCVF4pvM2OuUhiXPrmrdCjBREULJaYQM2JBlmxCuCEbi9quzpa0GlYPiOqRreh5mfYExqNF0
-        PzKsF6VDKUiS3lmP9uncFN+a4GujEfno7m6R0wUc/C+aaEwnWd0Ux1O+8sY8RWHa8jTPhU9fYNUDT
-        FX3dwzudZySs8lZAOPgW7hdh7NZ3ChRSRbJ9JHVq6u7owMgK5Hz8USfRRX90/HxHxxRm/ZZz08xjL
-        /IemGjqeXVnfxarAMwvNlSX0lg2t43yaJ7KweIKPytdqLxHiCkUlq/jnDrIGQyd/NKm+27yH4bJIO
-        nEJDTkAei3fYeuZSl58CImb6ArNRPexjSn49WxS1pIWQIvahpU3DYdahmLVcLpgNBs4M6Vu5PW175
-        WR89O7dvixywSsXXcmgTE/4Q4fYWz+b+rMJzYr7YMzyTKa9YqxeWl2oKi6l6Y5ZBtDtCyBA9FQt22
-        ftZMJ3LeBzedMjOwbp6PhqBpBMzj7FlWKH5NqMRP0vNi67Z/muNBZovTLZuGl9cujvClzVuLlzosY
-        GrF4WyrvZ3iSKfEoMklGnypWIV/lcL+y5rcF8+5E4=;
-From:   Christian Schoenebeck <linux_oss@crudebyte.com>
-To:     Eric Van Hensbergen <ericvh@gmail.com>,
-        Latchesar Ionkov <lucho@ionkov.net>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        David Howells <dhowells@redhat.com>, stable@vger.kernel.org
-Cc:     v9fs-developer@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] 9p: fix EBADF errors in cached mode
-Date:   Mon, 20 Jun 2022 14:47:24 +0200
-Message-ID: <1902408.H94Nh90b8Q@silver>
-In-Reply-To: <20220616211025.1790171-1-asmadeus@codewreck.org>
-References: <15767273.MGizftpLG7@silver>
- <20220616211025.1790171-1-asmadeus@codewreck.org>
+        with ESMTP id S1347627AbiFTN3w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:29:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 047852529B;
+        Mon, 20 Jun 2022 06:12:17 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41C24B811BD;
+        Mon, 20 Jun 2022 13:11:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DBD0C3411C;
+        Mon, 20 Jun 2022 13:11:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1655730696;
+        bh=v7WJlVKXWXQFOvLReMfCnA8YCoRxqsGHthqvYfZOYBM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=0fcM0+rcUTe82lJyd2jQVqin2qFmEOCE16KFV2bJ0uPthf6GhvELn17L0SMEan8G/
+         V/TBmNaVtfkGpK3R9wbJBRhClOIttp/8csQreyCcqmuqbjp4JmhIaudKH6+Whlb+gD
+         waK6/hvLdPXCsOlWBHAl26H9evIMNO+4Nrp0C7SU=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.4 000/240] 5.4.200-rc1 review
+Date:   Mon, 20 Jun 2022 14:48:21 +0200
+Message-Id: <20220620124737.799371052@linuxfoundation.org>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.200-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.200-rc1
+X-KernelTest-Deadline: 2022-06-22T12:47+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Donnerstag, 16. Juni 2022 23:10:25 CEST Dominique Martinet wrote:
-> cached operations sometimes need to do invalid operations (e.g. read
-> on a write only file)
-> Historic fscache had added a "writeback fid", a special handle opened
-> RW as root, for this. The conversion to new fscache missed that bit.
-> 
-> This commit reinstates a slightly lesser variant of the original code
-> that uses the writeback fid for partial pages backfills if the regular
-> user fid had been open as WRONLY, and thus would lack read permissions.
-> 
-> Link:
-> https://lkml.kernel.org/r/20220614033802.1606738-1-asmadeus@codewreck.org
-> Fixes: eb497943fa21 ("9p: Convert to using the netfs helper lib to do reads
-> and caching") Cc: stable@vger.kernel.org
-> Cc: David Howells <dhowells@redhat.com>
-> Reported-By: Christian Schoenebeck <linux_oss@crudebyte.com>
-> Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-> Tested-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-> Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-> ---
-> v3: use the least permissive version of the patch that only uses
-> writeback fid when really required
-> 
-> If no problem shows up by then I'll post this patch around Wed 23 (next
-> week) with the other stable fixes.
-> 
->  fs/9p/vfs_addr.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
-> 
-> diff --git a/fs/9p/vfs_addr.c b/fs/9p/vfs_addr.c
-> index a8f512b44a85..d0833fa69faf 100644
-> --- a/fs/9p/vfs_addr.c
-> +++ b/fs/9p/vfs_addr.c
-> @@ -58,8 +58,21 @@ static void v9fs_issue_read(struct netfs_io_subrequest
-> *subreq) */
->  static int v9fs_init_request(struct netfs_io_request *rreq, struct file
-> *file) {
-> +	struct inode *inode = file_inode(file);
-> +	struct v9fs_inode *v9inode = V9FS_I(inode);
->  	struct p9_fid *fid = file->private_data;
-> 
-> +	BUG_ON(!fid);
-> +
-> +	/* we might need to read from a fid that was opened write-only
-> +	 * for read-modify-write of page cache, use the writeback fid
-> +	 * for that */
-> +	if (rreq->origin == NETFS_READ_FOR_WRITE &&
-> +			(fid->mode & O_ACCMODE) == O_WRONLY) {
-> +		fid = v9inode->writeback_fid;
-> +		BUG_ON(!fid);
-> +	}
-> +
->  	refcount_inc(&fid->count);
->  	rreq->netfs_priv = fid;
->  	return 0;
+This is the start of the stable review cycle for the 5.4.200 release.
+There are 240 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Some more tests this weekend; all looks fine. It appears that this also fixed
-the performance degradation that I reported early in this thread. Again,
-benchmarks compiling a bunch of sources:
+Responses should be made by Wed, 22 Jun 2022 12:47:02 +0000.
+Anything received after that time might be too late.
 
-Case  Linux kernel version         msize   cache  duration (average)
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.200-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-A)    EBADF fix only [1]           512000  loose  31m 14s
-B)    EBADF fix only [1]           512000  mmap   44m 1s
-C)    EBADF fix + clunk fixes [2]  512000  loose  29m 32s
-D)    EBADF fix + clunk fixes [2]  512000  mmap   44m 0s
-E)    5.10.84                      512000  loose  35m 5s
-F)    5.10.84                      512000  mmap   65m 5s
+thanks,
 
-[1] 5.19.0-rc2 + EBADF fix v3 patch (alone):
-https://lore.kernel.org/lkml/20220616211025.1790171-1-asmadeus@codewreck.org/
+greg k-h
 
-[2] 5.19.0-rc2 + EBADF fix v3 patch + clunk fix patches, a.k.a. 9p-next:
-https://github.com/martinetd/linux/commit/b0017602fdf6bd3f344dd49eaee8b6ffeed6dbac
+-------------
+Pseudo-Shortlog of commits:
 
-Conclusion: all thumbs in my possession pointing upwards. :)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.200-rc1
 
-Thanks Dominique!
+Alexey Kardashevskiy <aik@ozlabs.ru>
+    powerpc/mm: Switch obsolete dssall to .long
 
-Best regards,
-Christian Schoenebeck
+Olof Johansson <olof@lixom.net>
+    riscv: Less inefficient gcc tishift helpers (and export their symbols)
+
+Randy Dunlap <rdunlap@infradead.org>
+    RISC-V: fix barrier() use in <vdso/processor.h>
+
+Jean-Philippe Brucker <jean-philippe@linaro.org>
+    arm64: kprobes: Use BRK instead of single-step when executing instructions out-of-line
+
+Ilya Maximets <i.maximets@ovn.org>
+    net: openvswitch: fix leak of nested actions
+
+Ilya Maximets <i.maximets@ovn.org>
+    net: openvswitch: fix misuse of the cached connection on tuple changes
+
+Davide Caratti <dcaratti@redhat.com>
+    net/sched: act_police: more accurate MTU policing
+
+Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
+    virtio-pci: Remove wrong address verification in vp_del_vqs()
+
+Andy Chi <andy.chi@canonical.com>
+    ALSA: hda/realtek: fix right sounds and mute/micmute LEDs for HP machine
+
+Jeremy Szu <jeremy.szu@canonical.com>
+    ALSA: hda/realtek: fix mute/micmute LEDs for HP 440 G8
+
+Zhang Yi <yi.zhang@huawei.com>
+    ext4: add reserved GDT blocks check
+
+Ding Xiang <dingxiang@cmss.chinamobile.com>
+    ext4: make variable "count" signed
+
+Baokun Li <libaokun1@huawei.com>
+    ext4: fix bug_on ext4_mb_use_inode_pa
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm mirror log: round up region bitmap size to BITS_PER_LONG
+
+Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+    serial: 8250: Store to lsr_save_flags after lsr read
+
+Miaoqian Lin <linmq006@gmail.com>
+    usb: gadget: lpc32xx_udc: Fix refcount leak in lpc32xx_udc_probe
+
+Miaoqian Lin <linmq006@gmail.com>
+    usb: dwc2: Fix memory leak in dwc2_hcd_init
+
+Robert Eckelmann <longnoserob@gmail.com>
+    USB: serial: io_ti: add Agilent E5805A support
+
+Slark Xiao <slark_xiao@163.com>
+    USB: serial: option: add support for Cinterion MV31 with new baseline
+
+Ian Abbott <abbotti@mev.co.uk>
+    comedi: vmk80xx: fix expression for tx buffer size
+
+Serge Semin <Sergey.Semin@baikalelectronics.ru>
+    i2c: designware: Use standard optional ref clock implementation
+
+Miaoqian Lin <linmq006@gmail.com>
+    irqchip/gic-v3: Fix refcount leak in gic_populate_ppi_partitions
+
+Miaoqian Lin <linmq006@gmail.com>
+    irqchip/gic-v3: Fix error handling in gic_populate_ppi_partitions
+
+Miaoqian Lin <linmq006@gmail.com>
+    irqchip/gic/realview: Fix refcount leak in realview_gic_of_init
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    faddr2line: Fix overlapping text section failures, the sequel
+
+Masahiro Yamada <masahiroy@kernel.org>
+    certs/blacklist_hashes.c: fix const confusion in certs blacklist
+
+Mark Rutland <mark.rutland@arm.com>
+    arm64: ftrace: fix branch range checks
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    net: bgmac: Fix an erroneous kfree() in bgmac_remove()
+
+Petr Machata <petrm@nvidia.com>
+    mlxsw: spectrum_cnt: Reorder counter pools
+
+Miaoqian Lin <linmq006@gmail.com>
+    misc: atmel-ssc: Fix IRQ check in ssc_probe
+
+Vincent Whitchurch <vincent.whitchurch@axis.com>
+    tty: goldfish: Fix free_irq() on remove
+
+Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+    i40e: Fix call trace in setup_tx_descriptors
+
+Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+    i40e: Fix calculating the number of queue pairs
+
+Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+    i40e: Fix adding ADQ filter to TC0
+
+Masahiro Yamada <masahiroy@kernel.org>
+    clocksource: hyper-v: unexport __init-annotated hv_init_clocksource()
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    pNFS: Don't keep retrying if the server replied NFS4ERR_LAYOUTUNAVAILABLE
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: credit cpu and bootloader seeds by default
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    netfs: gcc-12: temporarily disable '-Wattribute-warning' for now
+
+Chen Lin <chen45464546@163.com>
+    net: ethernet: mtk_eth_soc: fix misuse of mem alloc interface netdev[napi]_alloc_frag
+
+Wang Yufen <wangyufen@huawei.com>
+    ipv6: Fix signed integer overflow in l2tp_ip6_sendmsg
+
+Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
+    nfc: nfcmrvl: Fix memory leak in nfcmrvl_play_deferred
+
+chengkaitao <pilgrimtao@gmail.com>
+    virtio-mmio: fix missing put_device() when vm_cmdline_parent registration failed
+
+huangwenhui <huangwenhuia@uniontech.com>
+    ALSA: hda/realtek - Add HW8326 support
+
+Chengguang Xu <cgxu519@mykernel.net>
+    scsi: pmcraid: Fix missing resource cleanup in error case
+
+Chengguang Xu <cgxu519@mykernel.net>
+    scsi: ipr: Fix missing/incorrect resource cleanup in error case
+
+James Smart <jsmart2021@gmail.com>
+    scsi: lpfc: Allow reduced polling rate for nvme_admin_async_event cmd completion
+
+James Smart <jsmart2021@gmail.com>
+    scsi: lpfc: Fix port stuck in bypassed state after LIP in PT2PT topology
+
+Wentao Wang <wwentao@vmware.com>
+    scsi: vmw_pvscsi: Expand vcpuHint to 16 bits
+
+Mark Brown <broonie@kernel.org>
+    ASoC: wm_adsp: Fix event generation for wm_adsp_fw_put()
+
+Mark Brown <broonie@kernel.org>
+    ASoC: es8328: Fix event generation for deemphasis control
+
+Adam Ford <aford173@gmail.com>
+    ASoC: wm8962: Fix suspend while playing music
+
+Sergey Shtylyov <s.shtylyov@omp.ru>
+    ata: libata-core: fix NULL pointer deref in ata_host_alloc_pinfo()
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs42l56: Correct typo in minimum level for SX volume controls
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs42l52: Correct TLV for Bypass Volume
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs53l30: Correct number of volume levels on SX controls
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs35l36: Update digital volume TLV
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs42l52: Fix TLV scales for mixer controls
+
+Rob Clark <robdclark@chromium.org>
+    dma-debug: make things less spammy under memory pressure
+
+Hui Wang <hui.wang@canonical.com>
+    ASoC: nau8822: Add operation for internal PLL off and on
+
+He Ying <heying24@huawei.com>
+    powerpc/kasan: Silence KASAN warnings in __get_wchan()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: account for arch randomness in bits
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: mark bootloader randomness code as __init
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: avoid checking crng_ready() twice in random_init()
+
+Nicolai Stange <nstange@suse.de>
+    crypto: drbg - make reseeding from get_random_bytes() synchronous
+
+Stephan Müller <smueller@chronox.de>
+    crypto: drbg - always try to free Jitter RNG instance
+
+Nicolai Stange <nstange@suse.de>
+    crypto: drbg - move dynamic ->reseed_threshold adjustments to __drbg_seed()
+
+Nicolai Stange <nstange@suse.de>
+    crypto: drbg - track whether DRBG was seeded with !rng_is_initialized()
+
+Nicolai Stange <nstange@suse.de>
+    crypto: drbg - prepare for more fine-grained tracking of seeding state
+
+Stephan Müller <smueller@chronox.de>
+    crypto: drbg - always seeded with SP800-90B compliant noise source
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    Revert "random: use static branch for crng_ready()"
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: check for signals after page of pool writes
+
+Jens Axboe <axboe@kernel.dk>
+    random: wire up fops->splice_{read,write}_iter()
+
+Jens Axboe <axboe@kernel.dk>
+    random: convert to using fops->write_iter()
+
+Jens Axboe <axboe@kernel.dk>
+    random: convert to using fops->read_iter()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: unify batched entropy implementations
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: move randomize_page() into mm where it belongs
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: move initialization functions out of hot pages
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: make consistent use of buf and len
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use proper return types on get_random_{int,long}_wait()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: remove extern from functions in header
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use static branch for crng_ready()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: credit architectural init the exact amount
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: handle latent entropy and command line from random_init()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use proper jiffies comparison macro
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: remove ratelimiting for in-kernel unseeded randomness
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: move initialization out of reseeding hot path
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: avoid initializing twice in credit race
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use symbolic constants for crng_init states
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    siphash: use one source of truth for siphash permutations
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: help compiler out with fast_mix() by using simpler arguments
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: do not use input pool from hard IRQs
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: order timer entropy functions below interrupt functions
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: do not pretend to handle premature next security model
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use first 128 bits of input as fast init
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: do not use batches when !crng_ready()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: insist on random_get_entropy() existing in order to simplify
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    xtensa: use fallback for random_get_entropy() instead of zero
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    sparc: use fallback for random_get_entropy() instead of zero
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    um: use fallback for random_get_entropy() instead of zero
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    x86/tsc: Use fallback for random_get_entropy() instead of zero
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    nios2: use fallback for random_get_entropy() instead of zero
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    arm: use fallback for random_get_entropy() instead of zero
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    mips: use fallback for random_get_entropy() instead of just c0 random
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    m68k: use fallback for random_get_entropy() instead of zero
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    timekeeping: Add raw clock fallback for random_get_entropy()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    powerpc: define get_cycles macro for arch-override
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    alpha: define get_cycles macro for arch-override
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    parisc: define get_cycles macro for arch-override
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    s390: define get_cycles macro for arch-override
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    ia64: define get_cycles macro for arch-override
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    init: call time_init() before rand_initialize()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: fix sysctl documentation nits
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: document crng_fast_key_erasure() destination possibility
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: make random_get_entropy() return an unsigned long
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: allow partial reads if later user copies fail
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: check for signals every PAGE_SIZE chunk of /dev/[u]random
+
+Jann Horn <jannh@google.com>
+    random: check for signal_pending() outside of need_resched() check
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: do not allow user to keep crng key around on stack
+
+Jan Varho <jan.varho@gmail.com>
+    random: do not split fast init input in add_hwgenerator_randomness()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: mix build-time latent entropy into pool at init
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: re-add removed comment about get_random_{u32,u64} reseeding
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: treat bootloader trust toggle the same way as cpu trust toggle
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: skip fast_init if hwrng provides large chunk of entropy
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: check for signal and try earlier when generating entropy
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: reseed more often immediately after booting
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: make consistent usage of crng_ready()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use SipHash as interrupt entropy accumulator
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: replace custom notifier chain with standard one
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: don't let 644 read-only sysctls be written to
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: give sysctl_random_min_urandom_seed a more sensible value
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: do crng pre-init loading in worker rather than irq
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: unify cycles_t and jiffies usage and types
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: cleanup UUID handling
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: only wake up writers after zap if threshold was passed
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: round-robin registers as ulong, not u32
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: clear fast pool, crng, and batches in cpuhp bring up
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: pull add_hwgenerator_randomness() declaration into random.h
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: check for crng_init == 0 in add_device_randomness()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: unify early init crng load accounting
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: do not take pool spinlock at boot
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: defer fast pool mixing to worker
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: rewrite header introductory comment
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: group sysctl functions
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: group userspace read/write functions
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: group entropy collection functions
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: group entropy extraction functions
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: group crng functions
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: group initialization wait functions
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: remove whitespace and reorder includes
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: remove useless header comment
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: introduce drain_entropy() helper to declutter crng_reseed()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: deobfuscate irq u32/u64 contributions
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: add proper SPDX header
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: remove unused tracepoints
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: remove ifdef'd out interrupt bench
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: tie batched entropy generation to base_crng generation
+
+Dominik Brodowski <linux@dominikbrodowski.net>
+    random: fix locking for crng_init in crng_reseed()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: zero buffer after reading entropy from userspace
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: remove outdated INT_MAX >> 6 check in urandom_read()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: make more consistent use of integer types
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use hash function for crng_slow_load()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use simpler fast key erasure flow on per-cpu keys
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: absorb fast pool into input pool after fast load
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: do not xor RDRAND when writing into /dev/random
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: ensure early RDSEED goes through mixer on init
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: inline leaves of rand_initialize()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: get rid of secondary crngs
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use RDSEED instead of RDRAND in entropy extraction
+
+Dominik Brodowski <linux@dominikbrodowski.net>
+    random: fix locking in crng_fast_load()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: remove batched entropy locking
+
+Eric Biggers <ebiggers@google.com>
+    random: remove use_input_pool parameter from crng_reseed()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: make credit_entropy_bits() always safe
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: always wake up entropy writers after extraction
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use linear min-entropy accumulation crediting
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: simplify entropy debiting
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use computational hash for entropy extraction
+
+Dominik Brodowski <linux@dominikbrodowski.net>
+    random: only call crng_finalize_init() for primary_crng
+
+Dominik Brodowski <linux@dominikbrodowski.net>
+    random: access primary_pool directly rather than through pointer
+
+Dominik Brodowski <linux@dominikbrodowski.net>
+    random: continually use hwgenerator randomness
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: simplify arithmetic function flow in account()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: selectively clang-format where it makes sense
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: access input_pool_data directly rather than through pointer
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: cleanup fractional entropy shift constants
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: prepend remaining pool constants with POOL_
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: de-duplicate INPUT_POOL constants
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: remove unused OUTPUT_POOL constants
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: rather than entropy_store abstraction, use global
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: remove unused extract_entropy() reserved argument
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: remove incomplete last_data logic
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: cleanup integer types
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: cleanup poolinfo abstraction
+
+Schspa Shi <schspa@gmail.com>
+    random: fix typo in comments
+
+Jann Horn <jannh@google.com>
+    random: don't reset crng_init_cnt on urandom_read()
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: avoid superfluous call to RDRAND in CRNG extraction
+
+Dominik Brodowski <linux@dominikbrodowski.net>
+    random: early initialization of ChaCha constants
+
+Eric Biggers <ebiggers@google.com>
+    random: initialize ChaCha20 constants with correct endianness
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use IS_ENABLED(CONFIG_NUMA) instead of ifdefs
+
+Dominik Brodowski <linux@dominikbrodowski.net>
+    random: harmonize "crng init done" messages
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: mix bootloader randomness into pool
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: do not re-init if crng_reseed completes before primary init
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: do not sign extend bytes for rotation when mixing
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: use BLAKE2s instead of SHA1 in extraction
+
+Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+    random: remove unused irq_flags argument from add_interrupt_randomness()
+
+Mark Brown <broonie@kernel.org>
+    random: document add_hwgenerator_randomness() with other input functions
+
+Eric Biggers <ebiggers@google.com>
+    crypto: blake2s - adjust include guard naming
+
+Eric Biggers <ebiggers@google.com>
+    crypto: blake2s - include <linux/bug.h> instead of <asm/bug.h>
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    MAINTAINERS: co-maintain random.c
+
+Eric Biggers <ebiggers@google.com>
+    random: remove dead code left over from blocking pool
+
+Ard Biesheuvel <ardb@kernel.org>
+    random: avoid arch_get_random_seed_long() when collecting IRQ randomness
+
+Mark Rutland <mark.rutland@arm.com>
+    random: add arch_get_random_*long_early()
+
+Richard Henderson <richard.henderson@linaro.org>
+    powerpc: Use bool in archrandom.h
+
+Richard Henderson <richard.henderson@linaro.org>
+    linux/random.h: Mark CONFIG_ARCH_RANDOM functions __must_check
+
+Richard Henderson <richard.henderson@linaro.org>
+    linux/random.h: Use false with bool
+
+Richard Henderson <richard.henderson@linaro.org>
+    linux/random.h: Remove arch_has_random, arch_has_random_seed
+
+Richard Henderson <richard.henderson@linaro.org>
+    s390: Remove arch_has_random, arch_has_random_seed
+
+Richard Henderson <richard.henderson@linaro.org>
+    powerpc: Remove arch_has_random, arch_has_random_seed
+
+Richard Henderson <richard.henderson@linaro.org>
+    x86: Remove arch_has_random, arch_has_random_seed
+
+Mark Rutland <mark.rutland@arm.com>
+    random: avoid warnings for !CONFIG_NUMA builds
+
+Mark Rutland <mark.rutland@arm.com>
+    random: split primary/secondary crng init paths
+
+Yangtao Li <tiny.windzz@gmail.com>
+    random: remove some dead code of poolinfo
+
+Yangtao Li <tiny.windzz@gmail.com>
+    random: fix typo in add_timer_randomness()
+
+Yangtao Li <tiny.windzz@gmail.com>
+    random: Add and use pr_fmt()
+
+Yangtao Li <tiny.windzz@gmail.com>
+    random: convert to ENTROPY_BITS for better code readability
+
+Yangtao Li <tiny.windzz@gmail.com>
+    random: remove unnecessary unlikely()
+
+Andy Lutomirski <luto@kernel.org>
+    random: remove kernel.random.read_wakeup_threshold
+
+Andy Lutomirski <luto@kernel.org>
+    random: delete code to pull data into pools
+
+Andy Lutomirski <luto@kernel.org>
+    random: remove the blocking pool
+
+Andy Lutomirski <luto@kernel.org>
+    random: make /dev/random be almost like /dev/urandom
+
+Andy Lutomirski <luto@kernel.org>
+    random: ignore GRND_RANDOM in getentropy(2)
+
+Andy Lutomirski <luto@kernel.org>
+    random: add GRND_INSECURE to return best-effort non-cryptographic bytes
+
+Andy Lutomirski <luto@kernel.org>
+    random: Add a urandom_read_nowait() for random APIs that don't warn
+
+Andy Lutomirski <luto@kernel.org>
+    random: Don't wake crng_init_wait when crng_init == 1
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: don't forget compat_ioctl on urandom
+
+Arnd Bergmann <arnd@arndb.de>
+    compat_ioctl: remove /dev/random commands
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    lib/crypto: sha1: re-roll loops to reduce code size
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    lib/crypto: blake2s: move hmac construction into wireguard
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    crypto: blake2s - generic C library implementation and selftest
+
+Martin Faltesek <mfaltesek@google.com>
+    nfc: st21nfca: fix incorrect sizing calculations in EVT_TRANSACTION
+
+Yuntao Wang <ytcoode@gmail.com>
+    bpf: Fix incorrect memory charge cost calculation in stack_map_alloc()
+
+Al Viro <viro@zeniv.linux.org.uk>
+    9p: missing chunk of "fs/9p: Don't update file type when updating file attributes"
+
+
+-------------
+
+Diffstat:
+
+ Documentation/admin-guide/kernel-parameters.txt    |    6 +
+ Documentation/admin-guide/sysctl/kernel.rst        |   35 +-
+ MAINTAINERS                                        |    1 +
+ Makefile                                           |    4 +-
+ arch/alpha/include/asm/timex.h                     |    1 +
+ arch/arm/include/asm/timex.h                       |    1 +
+ arch/arm64/include/asm/brk-imm.h                   |    2 +
+ arch/arm64/include/asm/debug-monitors.h            |    1 +
+ arch/arm64/include/asm/kprobes.h                   |    2 +-
+ arch/arm64/kernel/ftrace.c                         |    4 +-
+ arch/arm64/kernel/probes/kprobes.c                 |   69 +-
+ arch/ia64/include/asm/timex.h                      |    1 +
+ arch/m68k/include/asm/timex.h                      |    2 +-
+ arch/mips/include/asm/timex.h                      |   17 +-
+ arch/nios2/include/asm/timex.h                     |    3 +
+ arch/parisc/include/asm/timex.h                    |    3 +-
+ arch/powerpc/include/asm/archrandom.h              |   27 +-
+ arch/powerpc/include/asm/ppc-opcode.h              |    2 +
+ arch/powerpc/include/asm/timex.h                   |    1 +
+ arch/powerpc/kernel/idle_6xx.S                     |    2 +-
+ arch/powerpc/kernel/l2cr_6xx.S                     |    6 +-
+ arch/powerpc/kernel/process.c                      |    4 +-
+ arch/powerpc/kernel/swsusp_32.S                    |    2 +-
+ arch/powerpc/kernel/swsusp_asm64.S                 |    2 +-
+ arch/powerpc/mm/mmu_context.c                      |    2 +-
+ arch/powerpc/platforms/powermac/cache.S            |    4 +-
+ arch/riscv/include/asm/asm-prototypes.h            |    4 +
+ arch/riscv/include/asm/processor.h                 |    2 +
+ arch/riscv/lib/tishift.S                           |   75 +-
+ arch/s390/include/asm/archrandom.h                 |   12 -
+ arch/s390/include/asm/timex.h                      |    1 +
+ arch/sparc/include/asm/timex_32.h                  |    4 +-
+ arch/um/include/asm/timex.h                        |    9 +-
+ arch/x86/include/asm/archrandom.h                  |   12 +-
+ arch/x86/include/asm/timex.h                       |    9 +
+ arch/x86/include/asm/tsc.h                         |    7 +-
+ arch/x86/kernel/cpu/mshyperv.c                     |    2 +-
+ arch/xtensa/include/asm/timex.h                    |    6 +-
+ certs/blacklist_hashes.c                           |    2 +-
+ crypto/drbg.c                                      |  135 +-
+ drivers/ata/libata-core.c                          |    4 +-
+ drivers/char/Kconfig                               |   53 +-
+ drivers/char/hw_random/core.c                      |    1 +
+ drivers/char/random.c                              | 3213 +++++++-------------
+ drivers/clocksource/hyperv_timer.c                 |    1 -
+ drivers/hv/vmbus_drv.c                             |    2 +-
+ drivers/i2c/busses/i2c-designware-common.c         |    3 -
+ drivers/i2c/busses/i2c-designware-platdrv.c        |   13 +-
+ drivers/irqchip/irq-gic-realview.c                 |    1 +
+ drivers/irqchip/irq-gic-v3.c                       |    7 +-
+ drivers/md/dm-log.c                                |    3 +-
+ drivers/misc/atmel-ssc.c                           |    4 +-
+ drivers/net/ethernet/broadcom/bgmac-bcma.c         |    1 -
+ drivers/net/ethernet/intel/i40e/i40e_ethtool.c     |   25 +-
+ drivers/net/ethernet/intel/i40e/i40e_main.c        |    5 +
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |    2 +-
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c        |   21 +-
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h |    2 +-
+ drivers/nfc/nfcmrvl/usb.c                          |   16 +-
+ drivers/nfc/st21nfca/se.c                          |   61 +-
+ drivers/scsi/ipr.c                                 |    4 +-
+ drivers/scsi/lpfc/lpfc_hw4.h                       |    3 +
+ drivers/scsi/lpfc/lpfc_nportdisc.c                 |    3 +-
+ drivers/scsi/lpfc/lpfc_nvme.c                      |   11 +-
+ drivers/scsi/pmcraid.c                             |    2 +-
+ drivers/scsi/vmw_pvscsi.h                          |    4 +-
+ drivers/staging/comedi/drivers/vmk80xx.c           |    2 +-
+ drivers/tty/goldfish.c                             |    2 +-
+ drivers/tty/serial/8250/8250_port.c                |    2 +
+ drivers/usb/dwc2/hcd.c                             |    2 +-
+ drivers/usb/gadget/udc/lpc32xx_udc.c               |    1 +
+ drivers/usb/serial/io_ti.c                         |    2 +
+ drivers/usb/serial/io_usbvend.h                    |    1 +
+ drivers/usb/serial/option.c                        |    6 +
+ drivers/virtio/virtio_mmio.c                       |    1 +
+ drivers/virtio/virtio_pci_common.c                 |    3 +-
+ fs/9p/vfs_inode_dotl.c                             |   10 +-
+ fs/afs/inode.c                                     |    3 +
+ fs/ceph/inode.c                                    |    3 +
+ fs/compat_ioctl.c                                  |    7 -
+ fs/ext4/mballoc.c                                  |    9 +
+ fs/ext4/namei.c                                    |    3 +-
+ fs/ext4/resize.c                                   |   10 +
+ fs/nfs/pnfs.c                                      |    6 +
+ include/crypto/blake2s.h                           |  102 +
+ include/crypto/chacha.h                            |   15 +
+ include/crypto/drbg.h                              |   16 +-
+ include/crypto/internal/blake2s.h                  |   19 +
+ include/linux/cpuhotplug.h                         |    2 +
+ include/linux/hw_random.h                          |    2 -
+ include/linux/mm.h                                 |    1 +
+ include/linux/prandom.h                            |   23 +-
+ include/linux/random.h                             |  122 +-
+ include/linux/siphash.h                            |   28 +
+ include/linux/timex.h                              |   10 +-
+ include/trace/events/random.h                      |  313 --
+ include/uapi/linux/random.h                        |    4 +-
+ init/main.c                                        |   13 +-
+ kernel/bpf/stackmap.c                              |    3 +-
+ kernel/cpu.c                                       |   11 +
+ kernel/dma/debug.c                                 |    2 +-
+ kernel/irq/handle.c                                |    2 +-
+ kernel/time/timekeeping.c                          |   15 +
+ lib/Kconfig.debug                                  |    3 +-
+ lib/crypto/Makefile                                |    6 +
+ lib/crypto/blake2s-generic.c                       |  111 +
+ lib/crypto/blake2s-selftest.c                      |  591 ++++
+ lib/crypto/blake2s.c                               |   78 +
+ lib/random32.c                                     |   15 +-
+ lib/sha1.c                                         |   95 +-
+ lib/siphash.c                                      |   32 +-
+ lib/vsprintf.c                                     |   10 +-
+ mm/util.c                                          |   32 +
+ net/l2tp/l2tp_ip6.c                                |    5 +-
+ net/openvswitch/actions.c                          |    6 +
+ net/openvswitch/conntrack.c                        |    3 +-
+ net/openvswitch/flow_netlink.c                     |   80 +-
+ net/sched/act_police.c                             |   16 +-
+ scripts/faddr2line                                 |   45 +-
+ sound/hda/hdac_device.c                            |    1 +
+ sound/pci/hda/patch_realtek.c                      |   27 +
+ sound/soc/codecs/cs35l36.c                         |    3 +-
+ sound/soc/codecs/cs42l52.c                         |    8 +-
+ sound/soc/codecs/cs42l56.c                         |    4 +-
+ sound/soc/codecs/cs53l30.c                         |   16 +-
+ sound/soc/codecs/es8328.c                          |    5 +-
+ sound/soc/codecs/nau8822.c                         |    4 +
+ sound/soc/codecs/nau8822.h                         |    3 +
+ sound/soc/codecs/wm8962.c                          |    1 +
+ sound/soc/codecs/wm_adsp.c                         |    2 +-
+ 130 files changed, 2914 insertions(+), 3013 deletions(-)
 
 
