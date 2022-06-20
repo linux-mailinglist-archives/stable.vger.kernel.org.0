@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C14E55199C
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9A08551D50
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242548AbiFTNEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:04:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47424 "EHLO
+        id S245627AbiFTNu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:50:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243690AbiFTNCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:02:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BEF718E26;
-        Mon, 20 Jun 2022 05:57:43 -0700 (PDT)
+        with ESMTP id S1350636AbiFTNto (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:49:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A762FFF9;
+        Mon, 20 Jun 2022 06:18:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA45861534;
-        Mon, 20 Jun 2022 12:57:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71322C3411C;
-        Mon, 20 Jun 2022 12:57:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA215B81200;
+        Mon, 20 Jun 2022 13:17:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F64BC3411C;
+        Mon, 20 Jun 2022 13:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729862;
-        bh=2EXsQNU5hkSqQ9HUC7uN4v7vu7aEWBJKHFfKwSsQtMs=;
+        s=korg; t=1655731045;
+        bh=x2D9DlfT0qTyz/nfR0Zj5P0AZC9Wk3MKs7Z+ijB8Ris=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4BpmIm/RdnwcIx0XRmTaKmpjHbiHbVC9axFh4/5bx/j68FVrgDWF4q0QZHx5B1vt
-         A3yjhEelvH4bEVpLWp/Rmvbev8KfToXD9qdGT8WUGOapYa6KsdXCVDBIMEOgQIaqB2
-         82pflJjcV68bwoCpK5yNVIhuoYn8mIFHrd3LHiy4=
+        b=W4Ud8SpuHbGPIDm+fEE7hfMYxyJqZyCm27boDooE+BMx9jK3u6jjKhHtn3QPGX9ZA
+         ze9TErJOITM0fax4d54+ieeli1Nf+lCWFGLpN5xUiNEzSb1vNYpFBJa4JBWcpYASk8
+         b7eeT1TfVYMWnAY9XCRJLz1ofJiJQLGztNx1mWxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Qii Wang <qii.wang@mediatek.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 099/141] i2c: mediatek: Fix an error handling path in mtk_i2c_probe()
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Arnd Bergmann <arnd@arndb.de>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 136/240] timekeeping: Add raw clock fallback for random_get_entropy()
 Date:   Mon, 20 Jun 2022 14:50:37 +0200
-Message-Id: <20220620124732.471475976@linuxfoundation.org>
+Message-Id: <20220620124742.949340094@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,57 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit de87b603b0919e31578c8fa312a3541f1fb37e1c ]
+commit 1366992e16bddd5e2d9a561687f367f9f802e2e4 upstream.
 
-The clsk are prepared, enabled, then disabled. So if an error occurs after
-the disable step, they are still prepared.
+The addition of random_get_entropy_fallback() provides access to
+whichever time source has the highest frequency, which is useful for
+gathering entropy on platforms without available cycle counters. It's
+not necessarily as good as being able to quickly access a cycle counter
+that the CPU has, but it's still something, even when it falls back to
+being jiffies-based.
 
-Add an error handling path to unprepare the clks in such a case, as already
-done in the .remove function.
+In the event that a given arch does not define get_cycles(), falling
+back to the get_cycles() default implementation that returns 0 is really
+not the best we can do. Instead, at least calling
+random_get_entropy_fallback() would be preferable, because that always
+needs to return _something_, even falling back to jiffies eventually.
+It's not as though random_get_entropy_fallback() is super high precision
+or guaranteed to be entropic, but basically anything that's not zero all
+the time is better than returning zero all the time.
 
-Fixes: 8b4fc246c3ff ("i2c: mediatek: Optimize master_xfer() and avoid circular locking")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Qii Wang <qii.wang@mediatek.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Finally, since random_get_entropy_fallback() is used during extremely
+early boot when randomizing freelists in mm_init(), it can be called
+before timekeeping has been initialized. In that case there really is
+nothing we can do; jiffies hasn't even started ticking yet. So just give
+up and return 0.
+
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ include/linux/timex.h     |    8 ++++++++
+ kernel/time/timekeeping.c |   15 +++++++++++++++
+ 2 files changed, 23 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index bdecb78bfc26..8e6985354fd5 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -1420,17 +1420,22 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 	if (ret < 0) {
- 		dev_err(&pdev->dev,
- 			"Request I2C IRQ %d fail\n", irq);
--		return ret;
-+		goto err_bulk_unprepare;
- 	}
+--- a/include/linux/timex.h
++++ b/include/linux/timex.h
+@@ -62,6 +62,8 @@
+ #include <linux/types.h>
+ #include <linux/param.h>
  
- 	i2c_set_adapdata(&i2c->adap, i2c);
- 	ret = i2c_add_adapter(&i2c->adap);
- 	if (ret)
--		return ret;
-+		goto err_bulk_unprepare;
++unsigned long random_get_entropy_fallback(void);
++
+ #include <asm/timex.h>
  
- 	platform_set_drvdata(pdev, i2c);
+ #ifndef random_get_entropy
+@@ -74,8 +76,14 @@
+  *
+  * By default we use get_cycles() for this purpose, but individual
+  * architectures may override this in their asm/timex.h header file.
++ * If a given arch does not have get_cycles(), then we fallback to
++ * using random_get_entropy_fallback().
+  */
++#ifdef get_cycles
+ #define random_get_entropy()	((unsigned long)get_cycles())
++#else
++#define random_get_entropy()	random_get_entropy_fallback()
++#endif
+ #endif
  
+ /*
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -17,6 +17,7 @@
+ #include <linux/clocksource.h>
+ #include <linux/jiffies.h>
+ #include <linux/time.h>
++#include <linux/timex.h>
+ #include <linux/tick.h>
+ #include <linux/stop_machine.h>
+ #include <linux/pvclock_gtod.h>
+@@ -2304,6 +2305,20 @@ static int timekeeping_validate_timex(co
  	return 0;
-+
-+err_bulk_unprepare:
-+	clk_bulk_unprepare(I2C_MT65XX_CLK_MAX, i2c->clocks);
-+
-+	return ret;
  }
  
- static int mtk_i2c_remove(struct platform_device *pdev)
--- 
-2.35.1
-
++/**
++ * random_get_entropy_fallback - Returns the raw clock source value,
++ * used by random.c for platforms with no valid random_get_entropy().
++ */
++unsigned long random_get_entropy_fallback(void)
++{
++	struct tk_read_base *tkr = &tk_core.timekeeper.tkr_mono;
++	struct clocksource *clock = READ_ONCE(tkr->clock);
++
++	if (unlikely(timekeeping_suspended || !clock))
++		return 0;
++	return clock->read(clock);
++}
++EXPORT_SYMBOL_GPL(random_get_entropy_fallback);
+ 
+ /**
+  * do_adjtimex() - Accessor function to NTP __do_adjtimex function
 
 
