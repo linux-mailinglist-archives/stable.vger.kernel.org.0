@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02AC15519D1
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86FBD551BD7
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241963AbiFTMxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:53:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36576 "EHLO
+        id S1346909AbiFTNfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:35:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241906AbiFTMxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:53:12 -0400
+        with ESMTP id S1347873AbiFTNeT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:34:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A6BBDFC2;
-        Mon, 20 Jun 2022 05:53:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 896531D327;
+        Mon, 20 Jun 2022 06:13:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA174614CA;
-        Mon, 20 Jun 2022 12:53:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B759EC3411C;
-        Mon, 20 Jun 2022 12:53:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B496F60FF2;
+        Mon, 20 Jun 2022 13:12:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BBA4C3411B;
+        Mon, 20 Jun 2022 13:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729591;
-        bh=2Z1+VyDmSP217IlxogHI6k4uHyug/J80iBfbbftIv3M=;
+        s=korg; t=1655730766;
+        bh=vPRTMm+R+ACCNBJFw2ofXGsoF9uzS5IfdoIy6DONyu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/ARWKSPp5St//vX9o8yyuyPtIdbN1L/74a1h09IduMTVwIY3Q/Ilix5g15IurTfd
-         gnraYrbu4BDCGUTiXblBJV3S4rQI1wZH1OH6fUM4q+EayAfS/aHHolUWIvBnwrk9C6
-         E4H+xor8EpEYQmUy0evjMzYEWRwp/Nrt2aX15JA0=
+        b=PifwZyozUkL8EIKQGxYVDqTUBjl/V44+wOHBN3w0UVnUpfR3u7/40lIyu3db7qbpo
+         dG8n7sW3PcROaj0p+zUrl8vf4lxUXQi4BS2z5TeAj5yHpErKO/5y07/AGoE9gi5YeD
+         ti+iMJnm6Hwk1I2+1mP9lh1quMnjXdY+76kX9C9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xliu <xiang.liu@cirrus.com>,
-        Brent Lu <brent.lu@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 012/141] ASoC: Intel: cirrus-common: fix incorrect channel mapping
+        stable@vger.kernel.org, Schspa Shi <schspa@gmail.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 049/240] random: fix typo in comments
 Date:   Mon, 20 Jun 2022 14:49:10 +0200
-Message-Id: <20220620124729.882789615@linuxfoundation.org>
+Message-Id: <20220620124739.556186349@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,104 +53,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xliu <xiang.liu@cirrus.com>
+From: Schspa Shi <schspa@gmail.com>
 
-[ Upstream commit d69a155555c9d57463b788c400f6b452d976bacd ]
+commit c0a8a61e7abbf66729687ee63659ee25983fbb1e upstream.
 
-The default mapping of ASPRX1 (DAC source) is slot 0. Change the slot
-mapping of right amplifiers (WR and TR) to slot 1 to receive right
-channel data. Also update the ACPI instance ID mapping according to HW
-configuration.
+s/or/for
 
-Signed-off-by: xliu <xiang.liu@cirrus.com>
-Signed-off-by: Brent Lu <brent.lu@intel.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220602051922.1232457-1-brent.lu@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Schspa Shi <schspa@gmail.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/sof_cirrus_common.c | 40 +++++++++++++++++++---
- 1 file changed, 36 insertions(+), 4 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/sof_cirrus_common.c b/sound/soc/intel/boards/sof_cirrus_common.c
-index e71d74ec1b0b..f4192df962d6 100644
---- a/sound/soc/intel/boards/sof_cirrus_common.c
-+++ b/sound/soc/intel/boards/sof_cirrus_common.c
-@@ -54,22 +54,29 @@ static struct snd_soc_dai_link_component cs35l41_components[] = {
- 	},
- };
- 
-+/*
-+ * Mapping between ACPI instance id and speaker position.
-+ *
-+ * Four speakers:
-+ *         0: Tweeter left, 1: Woofer left
-+ *         2: Tweeter right, 3: Woofer right
-+ */
- static struct snd_soc_codec_conf cs35l41_codec_conf[] = {
- 	{
- 		.dlc = COMP_CODEC_CONF(CS35L41_DEV0_NAME),
--		.name_prefix = "WL",
-+		.name_prefix = "TL",
- 	},
- 	{
- 		.dlc = COMP_CODEC_CONF(CS35L41_DEV1_NAME),
--		.name_prefix = "WR",
-+		.name_prefix = "WL",
- 	},
- 	{
- 		.dlc = COMP_CODEC_CONF(CS35L41_DEV2_NAME),
--		.name_prefix = "TL",
-+		.name_prefix = "TR",
- 	},
- 	{
- 		.dlc = COMP_CODEC_CONF(CS35L41_DEV3_NAME),
--		.name_prefix = "TR",
-+		.name_prefix = "WR",
- 	},
- };
- 
-@@ -101,6 +108,21 @@ static int cs35l41_init(struct snd_soc_pcm_runtime *rtd)
- 	return ret;
- }
- 
-+/*
-+ * Channel map:
-+ *
-+ * TL/WL: ASPRX1 on slot 0, ASPRX2 on slot 1 (default)
-+ * TR/WR: ASPRX1 on slot 1, ASPRX2 on slot 0
-+ */
-+static const struct {
-+	unsigned int rx[2];
-+} cs35l41_channel_map[] = {
-+	{.rx = {0, 1}}, /* TL */
-+	{.rx = {0, 1}}, /* WL */
-+	{.rx = {1, 0}}, /* TR */
-+	{.rx = {1, 0}}, /* WR */
-+};
-+
- static int cs35l41_hw_params(struct snd_pcm_substream *substream,
- 			     struct snd_pcm_hw_params *params)
- {
-@@ -134,6 +156,16 @@ static int cs35l41_hw_params(struct snd_pcm_substream *substream,
- 				ret);
- 			return ret;
- 		}
-+
-+		/* setup channel map */
-+		ret = snd_soc_dai_set_channel_map(codec_dai, 0, NULL,
-+						  ARRAY_SIZE(cs35l41_channel_map[i].rx),
-+						  (unsigned int *)cs35l41_channel_map[i].rx);
-+		if (ret < 0) {
-+			dev_err(codec_dai->dev, "fail to set channel map, ret %d\n",
-+				ret);
-+			return ret;
-+		}
- 	}
- 
- 	return 0;
--- 
-2.35.1
-
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -101,7 +101,7 @@
+  * ===============================
+  *
+  * There are four exported interfaces; two for use within the kernel,
+- * and two or use from userspace.
++ * and two for use from userspace.
+  *
+  * Exported interfaces ---- userspace output
+  * -----------------------------------------
 
 
