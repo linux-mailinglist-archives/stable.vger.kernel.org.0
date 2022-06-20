@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26A2F551C1E
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56170551D43
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244778AbiFTNLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33752 "EHLO
+        id S245256AbiFTNuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:50:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244669AbiFTNKi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:10:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039941D304;
-        Mon, 20 Jun 2022 06:05:38 -0700 (PDT)
+        with ESMTP id S1348867AbiFTNsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:48:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17B302F00E;
+        Mon, 20 Jun 2022 06:17:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B871861542;
-        Mon, 20 Jun 2022 13:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0915C3411B;
-        Mon, 20 Jun 2022 13:05:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F0E2B811A0;
+        Mon, 20 Jun 2022 13:17:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB656C3411C;
+        Mon, 20 Jun 2022 13:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730338;
-        bh=Wb9zf+MdbLEL6269vRZQ5BnfGJNFA8u3ASZMRlx1A2o=;
+        s=korg; t=1655731058;
+        bh=YAaAnfdN5DGX6izEPZPLbxRmKyDvGykDk8xyS2lO+OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wTQhq5uvtbFcOn6OqDsb5Rr6PnA3UhH4WSqCrLJAtdnTtD+REwcgM5Wax873b5bd+
-         OwHEvwgJlUHp4Onc46zwx5iOO+OoRw2bjXgMFyJPZ0bgiw9JugezyS6nRFHFiDK+7U
-         6xgrH5L8QJQSdeG+UjebOSvADZoMNO5jbjODHXEQ=
+        b=XPZPaPFRuxbHbAWO0rX8oU+xPbUXuv/HkF1CTsHJ1+iIW7Vhe36bCHLCET6jyv15l
+         s0RsmER1Q4VK41CJtJWoxC04XPnsxjMqWL8I3D29LquOCan5j4NfFS3DOn+kvbs/sR
+         egCbvS6KWIpc/L0BA8g66Iuk4eXSfTll/3TAQQ2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/106] ASoC: wm_adsp: Fix event generation for wm_adsp_fw_put()
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 139/240] arm: use fallback for random_get_entropy() instead of zero
 Date:   Mon, 20 Jun 2022 14:50:40 +0200
-Message-Id: <20220620124725.010349246@linuxfoundation.org>
+Message-Id: <20220620124743.036424435@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 2abdf9f80019e8244d3806ed0e1c9f725e50b452 ]
+commit ff8a8f59c99f6a7c656387addc4d9f2247d75077 upstream.
 
-Currently wm_adsp_fw_put() returns 0 rather than 1 when updating the value
-of the control, meaning that no event is generated to userspace. Fix this
-by setting the default return value to 1, the code already exits early with
-a return value of 0 if the value is unchanged.
+In the event that random_get_entropy() can't access a cycle counter or
+similar, falling back to returning 0 is really not the best we can do.
+Instead, at least calling random_get_entropy_fallback() would be
+preferable, because that always needs to return _something_, even
+falling back to jiffies eventually. It's not as though
+random_get_entropy_fallback() is super high precision or guaranteed to
+be entropic, but basically anything that's not zero all the time is
+better than returning zero all the time.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220603115003.3865834-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wm_adsp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/include/asm/timex.h |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
-index f7c800927cb2..08fc1a025b1a 100644
---- a/sound/soc/codecs/wm_adsp.c
-+++ b/sound/soc/codecs/wm_adsp.c
-@@ -794,7 +794,7 @@ int wm_adsp_fw_put(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
- 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
- 	struct wm_adsp *dsp = snd_soc_component_get_drvdata(component);
--	int ret = 0;
-+	int ret = 1;
+--- a/arch/arm/include/asm/timex.h
++++ b/arch/arm/include/asm/timex.h
+@@ -11,5 +11,6 @@
  
- 	if (ucontrol->value.enumerated.item[0] == dsp[e->shift_l].fw)
- 		return 0;
--- 
-2.35.1
-
+ typedef unsigned long cycles_t;
+ #define get_cycles()	({ cycles_t c; read_current_timer(&c) ? 0 : c; })
++#define random_get_entropy() (((unsigned long)get_cycles()) ?: random_get_entropy_fallback())
+ 
+ #endif
 
 
