@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74BEB551CF6
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0C36551CE7
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244631AbiFTNLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52760 "EHLO
+        id S241448AbiFTNV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:21:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245699AbiFTNJV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95E463D5;
-        Mon, 20 Jun 2022 06:04:00 -0700 (PDT)
+        with ESMTP id S242548AbiFTNUa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:20:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856651B7B0;
+        Mon, 20 Jun 2022 06:08:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0ED56B811D5;
-        Mon, 20 Jun 2022 13:02:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ADF2C341C4;
-        Mon, 20 Jun 2022 13:02:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 493AA61546;
+        Mon, 20 Jun 2022 13:06:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A54EC3411C;
+        Mon, 20 Jun 2022 13:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730159;
-        bh=kO5U/4nrteTwo8hU3LdQpFlYmYPlmRjaszQnTgg4vXU=;
+        s=korg; t=1655730411;
+        bh=IZenuG6VcAy/vwb5NTPWmJ0UMfDIybVEzJVA13pGHcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BF/bN58Iu0eoT11X4TWfBEa1Xz7MUqF2U7CfcaoRnw2QdKmzZ5zdkPRj47yRkr+rP
-         DOBlaExUM+7VYR07PGd2x825EO5GdCyoiMmGlJ1aNnz44eENRq8y2/jb5jpHZxxIfi
-         XHFobSzK9MhLNAj+Et89osRWFeCermYMbXtpECmU=
+        b=Q+calw3JlOjTrLYyKwP0xBrxPFrcAfRzJt4KIuv4DzK6/2bXU5bDQiTwaQkS9vc/P
+         Nqh+5xtWZSuARlZJr/P6Y/gopKMBeVmrgQr/glh7HLNJxIQlaS7BUe1Qjg4/b3oS1w
+         ZUhW/uCmkoyVR41myuoYUjqihqJnUYPuO8vtpQOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.10 40/84] i40e: Fix call trace in setup_tx_descriptors
-Date:   Mon, 20 Jun 2022 14:51:03 +0200
-Message-Id: <20220620124722.076200599@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 045/106] staging: r8188eu: Use zeroing allocator in wpa_set_encryption()
+Date:   Mon, 20 Jun 2022 14:51:04 +0200
+Message-Id: <20220620124725.721015507@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,81 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-[ Upstream commit fd5855e6b1358e816710afee68a1d2bc685176ca ]
+[ Upstream commit c82462f124df06a0a34793f1a1dafe5c146a2a6f ]
 
-After PF reset and ethtool -t there was call trace in dmesg
-sometimes leading to panic. When there was some time, around 5
-seconds, between reset and test there were no errors.
+Use zeroing allocator rather than allocator followed by memset with 0.
 
-Problem was that pf reset calls i40e_vsi_close in prep_for_reset
-and ethtool -t calls i40e_vsi_close in diag_test. If there was not
-enough time between those commands the second i40e_vsi_close starts
-before previous i40e_vsi_close was done which leads to crash.
+This issue was detected with the help of Coccinelle.
 
-Add check to diag_test if pf is in reset and don't start offline
-tests if it is true.
-Add netif_info("testing failed") into unhappy path of i40e_diag_test()
-
-Fixes: e17bc411aea8 ("i40e: Disable offline diagnostics if VFs are enabled")
-Fixes: 510efb2682b3 ("i40e: Fix ethtool offline diagnostic with netqueues")
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Link: https://lore.kernel.org/r/20211012024624.GA1062447@embeddedor
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/intel/i40e/i40e_ethtool.c    | 25 +++++++++++++------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ drivers/staging/r8188eu/os_dep/ioctl_linux.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index a2bdb2906519..63054061966e 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -2582,15 +2582,16 @@ static void i40e_diag_test(struct net_device *netdev,
+diff --git a/drivers/staging/r8188eu/os_dep/ioctl_linux.c b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
+index fbfce4481ffe..3e9325d89afc 100644
+--- a/drivers/staging/r8188eu/os_dep/ioctl_linux.c
++++ b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
+@@ -466,11 +466,10 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param,
+ 		if (wep_key_len > 0) {
+ 			wep_key_len = wep_key_len <= 5 ? 5 : 13;
+ 			wep_total_len = wep_key_len + FIELD_OFFSET(struct ndis_802_11_wep, KeyMaterial);
+-			pwep = kmalloc(wep_total_len, GFP_KERNEL);
++			pwep = kzalloc(wep_total_len, GFP_KERNEL);
+ 			if (!pwep)
+ 				goto exit;
  
- 		set_bit(__I40E_TESTING, pf->state);
- 
-+		if (test_bit(__I40E_RESET_RECOVERY_PENDING, pf->state) ||
-+		    test_bit(__I40E_RESET_INTR_RECEIVED, pf->state)) {
-+			dev_warn(&pf->pdev->dev,
-+				 "Cannot start offline testing when PF is in reset state.\n");
-+			goto skip_ol_tests;
-+		}
-+
- 		if (i40e_active_vfs(pf) || i40e_active_vmdqs(pf)) {
- 			dev_warn(&pf->pdev->dev,
- 				 "Please take active VFs and Netqueues offline and restart the adapter before running NIC diagnostics\n");
--			data[I40E_ETH_TEST_REG]		= 1;
--			data[I40E_ETH_TEST_EEPROM]	= 1;
--			data[I40E_ETH_TEST_INTR]	= 1;
--			data[I40E_ETH_TEST_LINK]	= 1;
--			eth_test->flags |= ETH_TEST_FL_FAILED;
--			clear_bit(__I40E_TESTING, pf->state);
- 			goto skip_ol_tests;
- 		}
- 
-@@ -2637,9 +2638,17 @@ static void i40e_diag_test(struct net_device *netdev,
- 		data[I40E_ETH_TEST_INTR] = 0;
- 	}
- 
--skip_ol_tests:
--
- 	netif_info(pf, drv, netdev, "testing finished\n");
-+	return;
-+
-+skip_ol_tests:
-+	data[I40E_ETH_TEST_REG]		= 1;
-+	data[I40E_ETH_TEST_EEPROM]	= 1;
-+	data[I40E_ETH_TEST_INTR]	= 1;
-+	data[I40E_ETH_TEST_LINK]	= 1;
-+	eth_test->flags |= ETH_TEST_FL_FAILED;
-+	clear_bit(__I40E_TESTING, pf->state);
-+	netif_info(pf, drv, netdev, "testing failed\n");
- }
- 
- static void i40e_get_wol(struct net_device *netdev,
+-			memset(pwep, 0, wep_total_len);
+ 			pwep->KeyLength = wep_key_len;
+ 			pwep->Length = wep_total_len;
+ 			if (wep_key_len == 13) {
 -- 
 2.35.1
 
