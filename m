@@ -2,82 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5DF550F84
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 06:50:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25FC0551075
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 08:38:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237715AbiFTEuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 00:50:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35858 "EHLO
+        id S238629AbiFTGig convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 20 Jun 2022 02:38:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231288AbiFTEuQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 00:50:16 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E4232DF;
-        Sun, 19 Jun 2022 21:50:15 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1o39MZ-0007A2-Mm; Mon, 20 Jun 2022 06:50:11 +0200
-Message-ID: <1198479a-ed0a-ae45-4aef-d750113aa3b0@leemhuis.info>
-Date:   Mon, 20 Jun 2022 06:50:10 +0200
+        with ESMTP id S238740AbiFTGi1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 02:38:27 -0400
+X-Greylist: delayed 858 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 19 Jun 2022 23:38:21 PDT
+Received: from mail.pgj.campeche.gob.mx (unknown [187.157.28.107])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748F81173;
+        Sun, 19 Jun 2022 23:38:19 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.pgj.campeche.gob.mx (Postfix) with ESMTP id 4AFCA1BC0CB3;
+        Mon, 20 Jun 2022 01:18:41 -0500 (CDT)
+Received: from mail.pgj.campeche.gob.mx ([127.0.0.1])
+        by localhost (mail.pgj.campeche.gob.mx [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id H-9SJIqV6nE5; Mon, 20 Jun 2022 01:18:33 -0500 (CDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.pgj.campeche.gob.mx (Postfix) with ESMTP id 670E31BC0CB5;
+        Mon, 20 Jun 2022 01:18:29 -0500 (CDT)
+X-Virus-Scanned: amavisd-new at pgj.campeche.gob.mx
+Received: from mail.pgj.campeche.gob.mx ([127.0.0.1])
+        by localhost (mail.pgj.campeche.gob.mx [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 1YSDgk3MrDxn; Mon, 20 Jun 2022 01:18:23 -0500 (CDT)
+Received: from mail.pgj.campeche.gob.mx (mail.pgj.campeche.gob.mx [172.24.1.108])
+        by mail.pgj.campeche.gob.mx (Postfix) with ESMTP id 2DBF81BC0C9D;
+        Mon, 20 Jun 2022 01:18:15 -0500 (CDT)
+Date:   Mon, 20 Jun 2022 01:18:14 -0500 (CDT)
+From:   =?utf-8?B?0YHQuNGB0YLQtdC80L3QuNC5INCw0LTQvNGW0L3RltGB0YLRgNCw0YLQvtGA?= 
+        <vfgcontrolinterno@pgj.campeche.gob.mx>
+Reply-To: sistemassadmins@mail2engineer.com
+Message-ID: <2077113903.96537.1655705894599.JavaMail.zimbra@pgj.campeche.gob.mx>
+Subject: 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Content-Language: en-US
-To:     Andrea Mayer <andrea.mayer@uniroma2.it>,
-        Anton Makarov <am@3a-alliance.com>
-Cc:     David Ahern <dsahern@kernel.org>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, david.lebrun@uclouvain.be,
-        regressions@lists.linux.dev, stable@vger.kernel.org,
-        Stefano Salsano <stefano.salsano@uniroma2.it>,
-        Paolo Lungaroni <paolo.lungaroni@uniroma2.it>,
-        Ahmed Abdelsalam <ahabdels.dev@gmail.com>
-References: <7e315ff1-e172-16c3-44b5-0c83c4c92779@3a-alliance.com>
- <20220606143338.91df592bbb7dc2f7db4747e6@uniroma2.it>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-Subject: Re: [REGRESSION] net: SRv6 End.DT6 function is broken in VRF mode
-In-Reply-To: <20220606143338.91df592bbb7dc2f7db4747e6@uniroma2.it>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1655700615;6ebfc65e;
-X-HE-SMSGID: 1o39MZ-0007A2-Mm
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Type: text/plain; charset=utf-8
+X-Originating-IP: [172.24.1.254]
+X-Mailer: Zimbra 8.8.15_GA_4304 (zclient/8.8.15_GA_4304)
+Thread-Index: 4Ew2CQhC+eGtKTdqcoCXQXVPd5NZpg==
+Thread-Topic: 
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: Yes, score=6.5 required=5.0 tests=BAYES_50,
+        FREEMAIL_FORGED_REPLYTO,KHOP_HELO_FCRDNS,MISSING_HEADERS,
+        RCVD_IN_MSPIKE_H2,RDNS_DYNAMIC,REPLYTO_WITHOUT_TO_CC,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE,UPPERCASE_50_75 autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5559]
+        * -0.0 RCVD_IN_MSPIKE_H2 RBL: Average reputation (+2)
+        *      [187.157.28.107 listed in wl.mailspike.net]
+        *  0.0 SPF_NONE SPF: sender does not publish an SPF Record
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  1.0 MISSING_HEADERS Missing To: header
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  1.6 REPLYTO_WITHOUT_TO_CC No description available.
+        *  1.0 RDNS_DYNAMIC Delivered to internal network by host with
+        *      dynamic-looking rDNS
+        *  0.0 UPPERCASE_50_75 message body is 50-75% uppercase
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+        *  0.0 KHOP_HELO_FCRDNS Relay HELO differs from its IP's reverse DNS
+X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06.06.22 14:33, Andrea Mayer wrote:
-> On Fri, 3 Jun 2022 15:23:26 +0300
-> Anton Makarov <am@3a-alliance.com> wrote:
-> 
->> #regzbot introduced: b9132c32e01976686efa26252cc246944a0d2cab
->>
->> Seems there is a regression of SRv6 End.DT6 function in VRF mode. In the 
->> following scenario packet is decapsulated successfully on vrf10 
->> interface but not forwarded to vrf10's slave interface:
->>
->> ip netns exec r4 ip -6 nexthop add id 1004 encap seg6local action 
->> End.DT6 vrftable 10 dev vrf10
->>
->> ip netns exec r4 ip -6 route add fcff:0:4:200:: nhid 1004
+увага;
 
-#regzbot fixed-by: a3bd2102e4642
+Ваша електронна пошта перевищила обмеження пам'яті, яке становить 5 ГБ, визначене адміністратором, яке в даний час працює на 10,9 ГБ. Ви не зможете надсилати або отримувати нову пошту, доки не перевірите поштову скриньку "Вхідні". Щоб відновити справність поштової скриньки, надішліть такі відомості
+нижче:
 
-> thank you for reporting this issue. I am already working on a fix patch which I
-> will send shortly.
+Ім'я:
+Ім'я користувача:
+пароль:
+Підтвердження пароля:
+Адреса електронної пошти:
+телефон:
 
-@Andrea: when you fix a reported issue, next time please include a
-"Link: <url>" that links to the report, as explained in the
-documentation (see submitting-patches.rst). Linus wants these tags(¹)
-and my regression tracking efforts rely on them (that'S why I had to
-write this mail to tell regression tracking bot with above command that
-the issue has been fixed). tia!
+Якщо не вдається повторно перевірити повідомлення, ваша поштова скринька буде
+Вимкнуто!
 
-Ciao, Thorsten
-
-(¹) see for example:
-https://lore.kernel.org/all/CAHk-=wjMmSZzMJ3Xnskdg4+GGz=5p5p+GSYyFBTh0f-DgvdBWg@mail.gmail.com/
-https://lore.kernel.org/all/CAHk-=wgs38ZrfPvy=nOwVkVzjpM3VFU1zobP37Fwd_h9iAD5JQ@mail.gmail.com/
+Приносимо вибачення за незручності.
+Код підтвердження: UA:@UAWEBADMIN716539.WEB.UA
+Технічна підтримка Пошти Системний адміністратор © 2022
