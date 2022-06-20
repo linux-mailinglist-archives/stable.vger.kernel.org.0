@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCFCD551E8A
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89066551EA0
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237431AbiFTOCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:02:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44742 "EHLO
+        id S233661AbiFTOBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:01:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351858AbiFTNzc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:55:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01134344D0;
-        Mon, 20 Jun 2022 06:21:39 -0700 (PDT)
+        with ESMTP id S1351755AbiFTNzR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:55:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9C5733E17;
+        Mon, 20 Jun 2022 06:21:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9A2FB811C5;
-        Mon, 20 Jun 2022 13:21:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B212C3411B;
-        Mon, 20 Jun 2022 13:21:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9D26B81157;
+        Mon, 20 Jun 2022 13:21:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30168C3411B;
+        Mon, 20 Jun 2022 13:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731280;
-        bh=G9sVT9BCC2t1SfzLQZXZjkGeZ3YE+zHFK85LE1yWtJo=;
+        s=korg; t=1655731283;
+        bh=4YG/mLz04w7Z3iVgwRBUHl1vEuxLOBCOG6D0oHMrmAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RvP5nJhK3w1iHzlrvFzSL4zAbccP+949PfZgUa/swB9ZT0dsq3QEawr4t3T8o9/m9
-         BzhoFLUn9wDV9Yf/RjhHh1cZW4HkiL54dnKkxloOXIhv/qNGmdH6Ja3hnrzBEezd6x
-         eajAC/p20GH59MiSt/4rIQj2mLTN5dGuIWfXy+us=
+        b=v1tu+yzNvTBdAbmITEg/9ZGCCgrAf21CxM+l2VRIDnpWzY4Xkm45AfvO/u1lBIc4v
+         NfWs4Be64S0EnDAVfgPCvPjroZham8zBcmatHAg1yV0XraV7OKnTA5Oil5LGtO0CqH
+         QM0E3HzZblGCo30BG5XtgsDqoO19q0Jb8MJ7+LPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 211/240] misc: atmel-ssc: Fix IRQ check in ssc_probe
-Date:   Mon, 20 Jun 2022 14:51:52 +0200
-Message-Id: <20220620124745.091587762@linuxfoundation.org>
+Subject: [PATCH 5.4 212/240] mlxsw: spectrum_cnt: Reorder counter pools
+Date:   Mon, 20 Jun 2022 14:51:53 +0200
+Message-Id: <20220620124745.119114358@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -55,45 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Petr Machata <petrm@nvidia.com>
 
-[ Upstream commit 1c245358ce0b13669f6d1625f7a4e05c41f28980 ]
+[ Upstream commit 4b7a632ac4e7101ceefee8484d5c2ca505d347b3 ]
 
-platform_get_irq() returns negative error number instead 0 on failure.
-And the doc of platform_get_irq() provides a usage example:
+Both RIF and ACL flow counters use a 24-bit SW-managed counter address to
+communicate which counter they want to bind.
 
-    int irq = platform_get_irq(pdev, 0);
-    if (irq < 0)
-        return irq;
+In a number of Spectrum FW releases, binding a RIF counter is broken and
+slices the counter index to 16 bits. As a result, on Spectrum-2 and above,
+no more than about 410 RIF counters can be effectively used. This
+translates to 205 netdevices for which L3 HW stats can be enabled. (This
+does not happen on Spectrum-1, because there are fewer counters available
+overall and the counter index never exceeds 16 bits.)
 
-Fix the check of return value to catch errors correctly.
+Binding counters to ACLs does not have this issue. Therefore reorder the
+counter allocation scheme so that RIF counters come first and therefore get
+lower indices that are below the 16-bit barrier.
 
-Fixes: eb1f2930609b ("Driver for the Atmel on-chip SSC on AT32AP and AT91")
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220601123026.7119-1-linmq006@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 98e60dce4da1 ("Merge branch 'mlxsw-Introduce-initial-Spectrum-2-support'")
+Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20220613125017.2018162-1-idosch@nvidia.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/atmel-ssc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/atmel-ssc.c b/drivers/misc/atmel-ssc.c
-index d6cd5537126c..69f9b0336410 100644
---- a/drivers/misc/atmel-ssc.c
-+++ b/drivers/misc/atmel-ssc.c
-@@ -232,9 +232,9 @@ static int ssc_probe(struct platform_device *pdev)
- 	clk_disable_unprepare(ssc->clk);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
+index 81465e267b10..b7eb3674e285 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
+@@ -7,8 +7,8 @@
+ #include "spectrum.h"
  
- 	ssc->irq = platform_get_irq(pdev, 0);
--	if (!ssc->irq) {
-+	if (ssc->irq < 0) {
- 		dev_dbg(&pdev->dev, "could not get irq\n");
--		return -ENXIO;
-+		return ssc->irq;
- 	}
+ enum mlxsw_sp_counter_sub_pool_id {
+-	MLXSW_SP_COUNTER_SUB_POOL_FLOW,
+ 	MLXSW_SP_COUNTER_SUB_POOL_RIF,
++	MLXSW_SP_COUNTER_SUB_POOL_FLOW,
+ };
  
- 	mutex_lock(&user_lock);
+ int mlxsw_sp_counter_alloc(struct mlxsw_sp *mlxsw_sp,
 -- 
 2.35.1
 
