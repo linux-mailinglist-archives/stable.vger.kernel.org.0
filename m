@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6406E551B2B
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0D65551B3B
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245287AbiFTNLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54218 "EHLO
+        id S1344219AbiFTNYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:24:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343884AbiFTNJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E5061AF05;
-        Mon, 20 Jun 2022 06:04:55 -0700 (PDT)
+        with ESMTP id S1345014AbiFTNXg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:23:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B082D1BEA4;
+        Mon, 20 Jun 2022 06:09:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDBD66159D;
-        Mon, 20 Jun 2022 13:03:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4881C3411B;
-        Mon, 20 Jun 2022 13:03:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D160B811D6;
+        Mon, 20 Jun 2022 13:09:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B87BC3411B;
+        Mon, 20 Jun 2022 13:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730223;
-        bh=NteclWDXlePxh1H5eTA08WagvvdgxSblS2/fwoaoEsg=;
+        s=korg; t=1655730555;
+        bh=FtJiRPyJWX2EPJzIXWZsSu47I4I/Ey0p+O3BG8xpC6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qTBxmaGBvN9aAsltlwoQKlSVZcC7Rv3VKp1u2/0ktLVncVgJEZh7yTK7/K8clGrje
-         EoVOpAu+YIDgawsPlVLOwWHkDwD2AjEW/6tHj/4R0Ors6V3Ze1cA1q3mY1Gy/iuVIs
-         EIRJWDKCjVwqYJ3sQ4ohre9Eh+4jcF3xRcwzl9YQ=
+        b=ZAwQMtiomaAf/Ik5Sd2FvNsKUa22MXD8hTJXyuorIoHbdiCVV83f33POU1KrsFBGL
+         HBO/rtDNoa+lkVjUtCuXWZXQUIpreU+FUXLTRSpb5sPshr1kw0ZTZZQGhCga7MAvkz
+         gtooxV8urc86vZovZooie0x+M6gGOwbL6twZ7ahE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ding Xiang <dingxiang@cmss.chinamobile.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 71/84] ext4: make variable "count" signed
-Date:   Mon, 20 Jun 2022 14:51:34 +0200
-Message-Id: <20220620124722.991011427@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 076/106] irqchip/gic-v3: Fix error handling in gic_populate_ppi_partitions
+Date:   Mon, 20 Jun 2022 14:51:35 +0200
+Message-Id: <20220620124726.647239090@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Xiang <dingxiang@cmss.chinamobile.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit bc75a6eb856cb1507fa907bf6c1eda91b3fef52f upstream.
+[ Upstream commit ec8401a429ffee34ccf38cebf3443f8d5ae6cb0d ]
 
-Since dx_make_map() may return -EFSCORRUPTED now, so change "count" to
-be a signed integer so we can correctly check for an error code returned
-by dx_make_map().
+of_get_child_by_name() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+When kcalloc fails, it missing of_node_put() and results in refcount
+leak. Fix this by goto out_put_node label.
 
-Fixes: 46c116b920eb ("ext4: verify dir block before splitting it")
-Cc: stable@kernel.org
-Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
-Link: https://lore.kernel.org/r/20220530100047.537598-1-dingxiang@cmss.chinamobile.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 52085d3f2028 ("irqchip/gic-v3: Dynamically allocate PPI partition descriptors")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220601080930.31005-5-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-gic-v3.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -1841,7 +1841,8 @@ static struct ext4_dir_entry_2 *do_split
- 			struct dx_hash_info *hinfo)
- {
- 	unsigned blocksize = dir->i_sb->s_blocksize;
--	unsigned count, continued;
-+	unsigned continued;
-+	int count;
- 	struct buffer_head *bh2;
- 	ext4_lblk_t newblock;
- 	u32 hash2;
+diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
+index 1269284461da..867a45aa0698 100644
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -1864,7 +1864,7 @@ static void __init gic_populate_ppi_partitions(struct device_node *gic_node)
+ 
+ 	gic_data.ppi_descs = kcalloc(gic_data.ppi_nr, sizeof(*gic_data.ppi_descs), GFP_KERNEL);
+ 	if (!gic_data.ppi_descs)
+-		return;
++		goto out_put_node;
+ 
+ 	nr_parts = of_get_child_count(parts_node);
+ 
+-- 
+2.35.1
+
 
 
