@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5EC7551A17
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EE1E551D23
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243556AbiFTNAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:00:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45902 "EHLO
+        id S1348581AbiFTNqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:46:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244080AbiFTM7O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:59:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F147C183A7;
-        Mon, 20 Jun 2022 05:56:16 -0700 (PDT)
+        with ESMTP id S1348768AbiFTNqH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:46:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 146172DD51;
+        Mon, 20 Jun 2022 06:17:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16F0AB811A6;
-        Mon, 20 Jun 2022 12:56:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62DC9C3411B;
-        Mon, 20 Jun 2022 12:56:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12456B811A6;
+        Mon, 20 Jun 2022 13:15:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 580E2C3411B;
+        Mon, 20 Jun 2022 13:15:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729769;
-        bh=wW0qIChg5DhZAZiynCS13PgfmFZjwtltvi+ebPMRs+Q=;
+        s=korg; t=1655730949;
+        bh=16LFNup+v25/VvNo3CxgLkxi4CTpG2cxX/qybxkt+Iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BnvP7rEBk53BAVCI/P0Hd3Wr5y/sAeUUFV1ZMfW5DmFYS8oz2Lx9Qkk7LmTn7IAVu
-         3QX+INAEORNgN1Jvfojbf3aXZEiTWveGecQtLsLmr5Eq82DM3eFg5izbzawGrWBy8T
-         UBFMHKdaJvEmTW3KyPIHDNpv7qLOczKH9u4G0Nz8=
+        b=kQcO4f2uhvvJVDe7JiEtosGXtOEsFQWsgS+b3jktlLFQETbxh+iP9psgzWP8sn51+
+         WzmzZAVqYaFAw+Ug7K/NxOW9txSRMbqm2gQqDsJsPPuEd+zKpMgMJxyvx3+OSqQa1M
+         dqe4iPjFK+n9RFpgT2eNl7KqpYiqtLsa9Di2d5yg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        van fantasy <g1042620637@gmail.com>
-Subject: [PATCH 5.18 067/141] io_uring: fix races with buffer table unregister
+        stable@vger.kernel.org, Matt Mackall <mpm@selenic.com>,
+        Theodore Tso <tytso@mit.edu>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Eric Biggers <ebiggers@google.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 104/240] random: pull add_hwgenerator_randomness() declaration into random.h
 Date:   Mon, 20 Jun 2022 14:50:05 +0200
-Message-Id: <20220620124731.519623762@linuxfoundation.org>
+Message-Id: <20220620124742.030172183@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +57,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit d11d31fc5d8a96f707facee0babdcffaafa38de2 ]
+commit b777c38239fec5a528e59f55b379e31b1a187524 upstream.
 
-Fixed buffer table quiesce might unlock ->uring_lock, potentially
-letting new requests to be submitted, don't allow those requests to
-use the table as they will race with unregistration.
+add_hwgenerator_randomness() is a function implemented and documented
+inside of random.c. It is the way that hardware RNGs push data into it.
+Therefore, it should be declared in random.h. Otherwise sparse complains
+with:
 
-Reported-and-tested-by: van fantasy <g1042620637@gmail.com>
-Fixes: bd54b6fe3316ec ("io_uring: implement fixed buffers registration similar to fixed files")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+random.c:1137:6: warning: symbol 'add_hwgenerator_randomness' was not declared. Should it be static?
+
+The alternative would be to include hw_random.h into random.c, but that
+wouldn't really be good for anything except slowing down compile time.
+
+Cc: Matt Mackall <mpm@selenic.com>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/char/hw_random/core.c |    1 +
+ include/linux/hw_random.h     |    2 --
+ include/linux/random.h        |    2 ++
+ 3 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 0a9f9000fc80..3d123ca028c9 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -9495,12 +9495,19 @@ static void __io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -15,6 +15,7 @@
+ #include <linux/err.h>
+ #include <linux/fs.h>
+ #include <linux/hw_random.h>
++#include <linux/random.h>
+ #include <linux/kernel.h>
+ #include <linux/kthread.h>
+ #include <linux/sched/signal.h>
+--- a/include/linux/hw_random.h
++++ b/include/linux/hw_random.h
+@@ -60,7 +60,5 @@ extern int devm_hwrng_register(struct de
+ /** Unregister a Hardware Random Number Generator driver. */
+ extern void hwrng_unregister(struct hwrng *rng);
+ extern void devm_hwrng_unregister(struct device *dve, struct hwrng *rng);
+-/** Feed random bits into the pool. */
+-extern void add_hwgenerator_randomness(const void *buffer, size_t count, size_t entropy);
  
- static int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
- {
-+	unsigned nr = ctx->nr_user_bufs;
- 	int ret;
+ #endif /* LINUX_HWRANDOM_H_ */
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -32,6 +32,8 @@ static inline void add_latent_entropy(vo
+ extern void add_input_randomness(unsigned int type, unsigned int code,
+ 				 unsigned int value) __latent_entropy;
+ extern void add_interrupt_randomness(int irq) __latent_entropy;
++extern void add_hwgenerator_randomness(const void *buffer, size_t count,
++				       size_t entropy);
  
- 	if (!ctx->buf_data)
- 		return -ENXIO;
- 
-+	/*
-+	 * Quiesce may unlock ->uring_lock, and while it's not held
-+	 * prevent new requests using the table.
-+	 */
-+	ctx->nr_user_bufs = 0;
- 	ret = io_rsrc_ref_quiesce(ctx->buf_data, ctx);
-+	ctx->nr_user_bufs = nr;
- 	if (!ret)
- 		__io_sqe_buffers_unregister(ctx);
- 	return ret;
--- 
-2.35.1
-
+ extern void get_random_bytes(void *buf, size_t nbytes);
+ extern int wait_for_random_bytes(void);
 
 
