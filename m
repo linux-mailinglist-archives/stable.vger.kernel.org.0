@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D706D551DA3
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABE1C551DD6
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350144AbiFTOBN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:01:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45244 "EHLO
+        id S1349410AbiFTOCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:02:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347222AbiFTN5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:57:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DABA9286D9;
-        Mon, 20 Jun 2022 06:22:57 -0700 (PDT)
+        with ESMTP id S1352842AbiFTN5J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:57:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78B5736B63;
+        Mon, 20 Jun 2022 06:23:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 268BC6120B;
-        Mon, 20 Jun 2022 13:22:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DDF1C341C0;
-        Mon, 20 Jun 2022 13:22:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1357EB80E78;
+        Mon, 20 Jun 2022 13:22:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62310C341CA;
+        Mon, 20 Jun 2022 13:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731374;
-        bh=IiE6DsO7wRh8gXcLpAM57kA/m1iI5R75km7uKaNCuz4=;
+        s=korg; t=1655731377;
+        bh=OGbCoJXUuZjhdXifhTqNW6HdfxPMFypJMYAS7DP509w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mwwk9Fjd6Ry7Dz/syTIM4QfRRw5JHksfE/PFCqFp059s8luQygcv5FsN+ARXM/h18
-         dDCPDB+u03mrkOyPVox1BB6VShYgP3cV12Hs8lkF0lGWRXpofk2eWzMLop/1wG0slk
-         HdpQd6dVAUqlaPgmsSbOUkJM6Q/exMboeQJUefcI=
+        b=enaDXNcgDYE12zAZcUR/nAF8jZGwsMZegzMf1EdthbyZtMoJNr7tdT6emz6b7tvL6
+         QjdJjlD+LfoDF/PkioBfPcoi/x0auNChk6G7eTR7yYvHgOaqWVisuHnQ+05XffbePs
+         So/lCl2fK16XUUfDqwW48q3Il5PTBMjqg93ogIyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        Ilya Maximets <i.maximets@ovn.org>,
-        Aaron Conole <aconole@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 236/240] net: openvswitch: fix leak of nested actions
-Date:   Mon, 20 Jun 2022 14:52:17 +0200
-Message-Id: <20220620124745.790602845@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Subject: [PATCH 5.4 237/240] arm64: kprobes: Use BRK instead of single-step when executing instructions out-of-line
+Date:   Mon, 20 Jun 2022 14:52:18 +0200
+Message-Id: <20220620124745.818296028@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -56,165 +55,235 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Maximets <i.maximets@ovn.org>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-commit 1f30fb9166d4f15a1aa19449b9da871fe0ed4796 upstream.
+commit 7ee31a3aa8f490c6507bc4294df6b70bed1c593e upstream.
 
-While parsing user-provided actions, openvswitch module may dynamically
-allocate memory and store pointers in the internal copy of the actions.
-So this memory has to be freed while destroying the actions.
+Commit 36dadef23fcc ("kprobes: Init kprobes in early_initcall") enabled
+using kprobes from early_initcall. Unfortunately at this point the
+hardware debug infrastructure is not operational. The OS lock may still
+be locked, and the hardware watchpoints may have unknown values when
+kprobe enables debug monitors to single-step instructions.
 
-Currently there are only two such actions: ct() and set().  However,
-there are many actions that can hold nested lists of actions and
-ovs_nla_free_flow_actions() just jumps over them leaking the memory.
+Rather than using hardware single-step, append a BRK instruction after
+the instruction to be executed out-of-line.
 
-For example, removal of the flow with the following actions will lead
-to a leak of the memory allocated by nf_ct_tmpl_alloc():
-
-  actions:clone(ct(commit),0)
-
-Non-freed set() action may also leak the 'dst' structure for the
-tunnel info including device references.
-
-Under certain conditions with a high rate of flow rotation that may
-cause significant memory leak problem (2MB per second in reporter's
-case).  The problem is also hard to mitigate, because the user doesn't
-have direct control over the datapath flows generated by OVS.
-
-Fix that by iterating over all the nested actions and freeing
-everything that needs to be freed recursively.
-
-New build time assertion should protect us from this problem if new
-actions will be added in the future.
-
-Unfortunately, openvswitch module doesn't use NLA_F_NESTED, so all
-attributes has to be explicitly checked.  sample() and clone() actions
-are mixing extra attributes into the user-provided action list.  That
-prevents some code generalization too.
-
-Fixes: 34ae932a4036 ("openvswitch: Make tunnel set action attach a metadata dst")
-Link: https://mail.openvswitch.org/pipermail/ovs-dev/2022-March/392922.html
-Reported-by: Stéphane Graber <stgraber@ubuntu.com>
-Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
-Acked-by: Aaron Conole <aconole@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[Backport for 5.4: Removed handling of OVS_ACTION_ATTR_DEC_TTL as it
- doesn't exist in this version.  BUILD_BUG_ON condition adjusted
- accordingly.]
+Fixes: 36dadef23fcc ("kprobes: Init kprobes in early_initcall")
+Suggested-by: Will Deacon <will@kernel.org>
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Link: https://lore.kernel.org/r/20201103134900.337243-1-jean-philippe@linaro.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/flow_netlink.c |   80 ++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 75 insertions(+), 5 deletions(-)
+ arch/arm64/include/asm/brk-imm.h        |    2 
+ arch/arm64/include/asm/debug-monitors.h |    1 
+ arch/arm64/include/asm/kprobes.h        |    2 
+ arch/arm64/kernel/probes/kprobes.c      |   69 ++++++++++----------------------
+ 4 files changed, 27 insertions(+), 47 deletions(-)
 
---- a/net/openvswitch/flow_netlink.c
-+++ b/net/openvswitch/flow_netlink.c
-@@ -2266,6 +2266,51 @@ static struct sw_flow_actions *nla_alloc
- 	return sfa;
- }
+--- a/arch/arm64/include/asm/brk-imm.h
++++ b/arch/arm64/include/asm/brk-imm.h
+@@ -10,6 +10,7 @@
+  * #imm16 values used for BRK instruction generation
+  * 0x004: for installing kprobes
+  * 0x005: for installing uprobes
++ * 0x006: for kprobe software single-step
+  * Allowed values for kgdb are 0x400 - 0x7ff
+  * 0x100: for triggering a fault on purpose (reserved)
+  * 0x400: for dynamic BRK instruction
+@@ -19,6 +20,7 @@
+  */
+ #define KPROBES_BRK_IMM			0x004
+ #define UPROBES_BRK_IMM			0x005
++#define KPROBES_BRK_SS_IMM		0x006
+ #define FAULT_BRK_IMM			0x100
+ #define KGDB_DYN_DBG_BRK_IMM		0x400
+ #define KGDB_COMPILED_DBG_BRK_IMM	0x401
+--- a/arch/arm64/include/asm/debug-monitors.h
++++ b/arch/arm64/include/asm/debug-monitors.h
+@@ -53,6 +53,7 @@
  
-+static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len);
-+
-+static void ovs_nla_free_check_pkt_len_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a;
-+	int rem;
-+
-+	nla_for_each_nested(a, action, rem) {
-+		switch (nla_type(a)) {
-+		case OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL:
-+		case OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER:
-+			ovs_nla_free_nested_actions(nla_data(a), nla_len(a));
-+			break;
-+		}
-+	}
-+}
-+
-+static void ovs_nla_free_clone_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a = nla_data(action);
-+	int rem = nla_len(action);
-+
-+	switch (nla_type(a)) {
-+	case OVS_CLONE_ATTR_EXEC:
-+		/* The real list of actions follows this attribute. */
-+		a = nla_next(a, &rem);
-+		ovs_nla_free_nested_actions(a, rem);
-+		break;
-+	}
-+}
-+
-+static void ovs_nla_free_sample_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a = nla_data(action);
-+	int rem = nla_len(action);
-+
-+	switch (nla_type(a)) {
-+	case OVS_SAMPLE_ATTR_ARG:
-+		/* The real list of actions follows this attribute. */
-+		a = nla_next(a, &rem);
-+		ovs_nla_free_nested_actions(a, rem);
-+		break;
-+	}
-+}
-+
- static void ovs_nla_free_set_action(const struct nlattr *a)
+ /* kprobes BRK opcodes with ESR encoding  */
+ #define BRK64_OPCODE_KPROBES	(AARCH64_BREAK_MON | (KPROBES_BRK_IMM << 5))
++#define BRK64_OPCODE_KPROBES_SS	(AARCH64_BREAK_MON | (KPROBES_BRK_SS_IMM << 5))
+ /* uprobes BRK opcodes with ESR encoding  */
+ #define BRK64_OPCODE_UPROBES	(AARCH64_BREAK_MON | (UPROBES_BRK_IMM << 5))
+ 
+--- a/arch/arm64/include/asm/kprobes.h
++++ b/arch/arm64/include/asm/kprobes.h
+@@ -16,7 +16,7 @@
+ #include <linux/percpu.h>
+ 
+ #define __ARCH_WANT_KPROBES_INSN_SLOT
+-#define MAX_INSN_SIZE			1
++#define MAX_INSN_SIZE			2
+ 
+ #define flush_insn_slot(p)		do { } while (0)
+ #define kretprobe_blacklist_size	0
+--- a/arch/arm64/kernel/probes/kprobes.c
++++ b/arch/arm64/kernel/probes/kprobes.c
+@@ -36,25 +36,16 @@ DEFINE_PER_CPU(struct kprobe_ctlblk, kpr
+ static void __kprobes
+ post_kprobe_handler(struct kprobe_ctlblk *, struct pt_regs *);
+ 
+-static int __kprobes patch_text(kprobe_opcode_t *addr, u32 opcode)
+-{
+-	void *addrs[1];
+-	u32 insns[1];
+-
+-	addrs[0] = addr;
+-	insns[0] = opcode;
+-
+-	return aarch64_insn_patch_text(addrs, insns, 1);
+-}
+-
+ static void __kprobes arch_prepare_ss_slot(struct kprobe *p)
  {
- 	const struct nlattr *ovs_key = nla_data(a);
-@@ -2279,25 +2324,50 @@ static void ovs_nla_free_set_action(cons
- 	}
- }
++	kprobe_opcode_t *addr = p->ainsn.api.insn;
++	void *addrs[] = {addr, addr + 1};
++	u32 insns[] = {p->opcode, BRK64_OPCODE_KPROBES_SS};
++
+ 	/* prepare insn slot */
+-	patch_text(p->ainsn.api.insn, p->opcode);
++	aarch64_insn_patch_text(addrs, insns, 2);
  
--void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
-+static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len)
+-	flush_icache_range((uintptr_t) (p->ainsn.api.insn),
+-			   (uintptr_t) (p->ainsn.api.insn) +
+-			   MAX_INSN_SIZE * sizeof(kprobe_opcode_t));
++	flush_icache_range((uintptr_t)addr, (uintptr_t)(addr + MAX_INSN_SIZE));
+ 
+ 	/*
+ 	 * Needs restoring of return address after stepping xol.
+@@ -134,13 +125,18 @@ void *alloc_insn_page(void)
+ /* arm kprobe: install breakpoint in text */
+ void __kprobes arch_arm_kprobe(struct kprobe *p)
  {
- 	const struct nlattr *a;
- 	int rem;
- 
--	if (!sf_acts)
-+	/* Whenever new actions are added, the need to update this
-+	 * function should be considered.
-+	 */
-+	BUILD_BUG_ON(OVS_ACTION_ATTR_MAX != 21);
+-	patch_text(p->addr, BRK64_OPCODE_KPROBES);
++	void *addr = p->addr;
++	u32 insn = BRK64_OPCODE_KPROBES;
 +
-+	if (!actions)
- 		return;
- 
--	nla_for_each_attr(a, sf_acts->actions, sf_acts->actions_len, rem) {
-+	nla_for_each_attr(a, actions, len, rem) {
- 		switch (nla_type(a)) {
--		case OVS_ACTION_ATTR_SET:
--			ovs_nla_free_set_action(a);
-+		case OVS_ACTION_ATTR_CHECK_PKT_LEN:
-+			ovs_nla_free_check_pkt_len_action(a);
- 			break;
-+
-+		case OVS_ACTION_ATTR_CLONE:
-+			ovs_nla_free_clone_action(a);
-+			break;
-+
- 		case OVS_ACTION_ATTR_CT:
- 			ovs_ct_free_action(a);
- 			break;
-+
-+		case OVS_ACTION_ATTR_SAMPLE:
-+			ovs_nla_free_sample_action(a);
-+			break;
-+
-+		case OVS_ACTION_ATTR_SET:
-+			ovs_nla_free_set_action(a);
-+			break;
- 		}
- 	}
-+}
-+
-+void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
-+{
-+	if (!sf_acts)
-+		return;
- 
-+	ovs_nla_free_nested_actions(sf_acts->actions, sf_acts->actions_len);
- 	kfree(sf_acts);
++	aarch64_insn_patch_text(&addr, &insn, 1);
  }
  
+ /* disarm kprobe: remove breakpoint from text */
+ void __kprobes arch_disarm_kprobe(struct kprobe *p)
+ {
+-	patch_text(p->addr, p->opcode);
++	void *addr = p->addr;
++
++	aarch64_insn_patch_text(&addr, &p->opcode, 1);
+ }
+ 
+ void __kprobes arch_remove_kprobe(struct kprobe *p)
+@@ -169,20 +165,15 @@ static void __kprobes set_current_kprobe
+ }
+ 
+ /*
+- * Interrupts need to be disabled before single-step mode is set, and not
+- * reenabled until after single-step mode ends.
+- * Without disabling interrupt on local CPU, there is a chance of
+- * interrupt occurrence in the period of exception return and  start of
+- * out-of-line single-step, that result in wrongly single stepping
+- * into the interrupt handler.
++ * Mask all of DAIF while executing the instruction out-of-line, to keep things
++ * simple and avoid nesting exceptions. Interrupts do have to be disabled since
++ * the kprobe state is per-CPU and doesn't get migrated.
+  */
+ static void __kprobes kprobes_save_local_irqflag(struct kprobe_ctlblk *kcb,
+ 						struct pt_regs *regs)
+ {
+ 	kcb->saved_irqflag = regs->pstate & DAIF_MASK;
+-	regs->pstate |= PSR_I_BIT;
+-	/* Unmask PSTATE.D for enabling software step exceptions. */
+-	regs->pstate &= ~PSR_D_BIT;
++	regs->pstate |= DAIF_MASK;
+ }
+ 
+ static void __kprobes kprobes_restore_local_irqflag(struct kprobe_ctlblk *kcb,
+@@ -225,10 +216,7 @@ static void __kprobes setup_singlestep(s
+ 		slot = (unsigned long)p->ainsn.api.insn;
+ 
+ 		set_ss_context(kcb, slot);	/* mark pending ss */
+-
+-		/* IRQs and single stepping do not mix well. */
+ 		kprobes_save_local_irqflag(kcb, regs);
+-		kernel_enable_single_step(regs);
+ 		instruction_pointer_set(regs, slot);
+ 	} else {
+ 		/* insn simulation */
+@@ -279,12 +267,8 @@ post_kprobe_handler(struct kprobe_ctlblk
+ 	}
+ 	/* call post handler */
+ 	kcb->kprobe_status = KPROBE_HIT_SSDONE;
+-	if (cur->post_handler)	{
+-		/* post_handler can hit breakpoint and single step
+-		 * again, so we enable D-flag for recursive exception.
+-		 */
++	if (cur->post_handler)
+ 		cur->post_handler(cur, regs, 0);
+-	}
+ 
+ 	reset_current_kprobe();
+ }
+@@ -308,8 +292,6 @@ int __kprobes kprobe_fault_handler(struc
+ 		if (!instruction_pointer(regs))
+ 			BUG();
+ 
+-		kernel_disable_single_step();
+-
+ 		if (kcb->kprobe_status == KPROBE_REENTER)
+ 			restore_previous_kprobe(kcb);
+ 		else
+@@ -371,10 +353,6 @@ static void __kprobes kprobe_handler(str
+ 			 * pre-handler and it returned non-zero, it will
+ 			 * modify the execution path and no need to single
+ 			 * stepping. Let's just reset current kprobe and exit.
+-			 *
+-			 * pre_handler can hit a breakpoint and can step thru
+-			 * before return, keep PSTATE D-flag enabled until
+-			 * pre_handler return back.
+ 			 */
+ 			if (!p->pre_handler || !p->pre_handler(p, regs)) {
+ 				setup_singlestep(p, regs, kcb, 0);
+@@ -405,7 +383,7 @@ kprobe_ss_hit(struct kprobe_ctlblk *kcb,
+ }
+ 
+ static int __kprobes
+-kprobe_single_step_handler(struct pt_regs *regs, unsigned int esr)
++kprobe_breakpoint_ss_handler(struct pt_regs *regs, unsigned int esr)
+ {
+ 	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
+ 	int retval;
+@@ -415,16 +393,15 @@ kprobe_single_step_handler(struct pt_reg
+ 
+ 	if (retval == DBG_HOOK_HANDLED) {
+ 		kprobes_restore_local_irqflag(kcb, regs);
+-		kernel_disable_single_step();
+-
+ 		post_kprobe_handler(kcb, regs);
+ 	}
+ 
+ 	return retval;
+ }
+ 
+-static struct step_hook kprobes_step_hook = {
+-	.fn = kprobe_single_step_handler,
++static struct break_hook kprobes_break_ss_hook = {
++	.imm = KPROBES_BRK_SS_IMM,
++	.fn = kprobe_breakpoint_ss_handler,
+ };
+ 
+ static int __kprobes
+@@ -568,7 +545,7 @@ int __kprobes arch_trampoline_kprobe(str
+ int __init arch_init_kprobes(void)
+ {
+ 	register_kernel_break_hook(&kprobes_break_hook);
+-	register_kernel_step_hook(&kprobes_step_hook);
++	register_kernel_break_hook(&kprobes_break_ss_hook);
+ 
+ 	return 0;
+ }
 
 
