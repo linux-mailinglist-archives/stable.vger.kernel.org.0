@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7636551894
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:14:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E22F7551899
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:15:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240777AbiFTMN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:13:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33126 "EHLO
+        id S235801AbiFTMOO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:14:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242439AbiFTMNv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:13:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B749312AB6
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:13:50 -0700 (PDT)
+        with ESMTP id S242384AbiFTMOM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:14:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB28D9FF8
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:14:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78F57B81109
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 12:13:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E5DC3411B;
-        Mon, 20 Jun 2022 12:13:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7509961447
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 12:14:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BD98C341C4;
+        Mon, 20 Jun 2022 12:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655727228;
-        bh=zsMZO1VfjhnekvCN0xKRHGkkxTseKqpDfnHrc27xP1A=;
+        s=korg; t=1655727250;
+        bh=5Cci41duwUV0If1SMKEV4n7LuL5yvexlRdjH0sdfIuk=;
         h=Subject:To:Cc:From:Date:From;
-        b=lFBk1yH65LzIpY8liiJRGlSDRusFUzZwmxnY5Orco05Pj28LcSI/UlETF6Cknzdtt
-         G9pdp3uhd9UncKrwglqvu0O+YsVLRpCAYxosYIb9Qo6OXJPyT7haZT2Il7zx3Aoj56
-         DIbHr1zJ5Uc5+/qUWvdRaMoFmaH0tE9XsIyRQGSo=
-Subject: FAILED: patch "[PATCH] drm/i915: Individualize fences before adding to dma_resv obj" failed to apply to 5.18-stable tree
-To:     nirmoy.das@intel.com, andrzej.hajda@intel.com,
-        jani.nikula@intel.com, matthew.auld@intel.com,
-        stable@vger.kernel.org
+        b=Xl6CeGZhsEmg+bCHgRMCwXB6jwXLxYcA6HKyBOsJzLLvH299f+B34rFeoVajq7z9i
+         hbw4TjYQ0bwQItoikFq7keKfffgUI/0VHAtuo2BKKkR/kz9oTQvZoRMkwCGRy8orFx
+         hCwgEMJMB7B55TuEr9ypFFZVricZVWTjpkOnktB4=
+Subject: FAILED: patch "[PATCH] io_uring: fix not locked access to fixed buf table" failed to apply to 5.18-stable tree
+To:     asml.silence@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jun 2022 14:13:45 +0200
-Message-ID: <16557272252337@kroah.com>
+Date:   Mon, 20 Jun 2022 14:14:07 +0200
+Message-ID: <1655727247208205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,125 +59,83 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 842d9346b2fdda4d2fb8ccb5b87faef1ac01ab51 Mon Sep 17 00:00:00 2001
-From: Nirmoy Das <nirmoy.das@intel.com>
-Date: Wed, 25 May 2022 11:59:55 +0200
-Subject: [PATCH] drm/i915: Individualize fences before adding to dma_resv obj
+From 05b538c1765f8d14a71ccf5f85258dcbeaf189f7 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Thu, 9 Jun 2022 08:34:35 +0100
+Subject: [PATCH] io_uring: fix not locked access to fixed buf table
 
-_i915_vma_move_to_active() can receive > 1 fences for
-multiple batch buffers submission. Because dma_resv_add_fence()
-can only accept one fence at a time, change _i915_vma_move_to_active()
-to be aware of multiple fences so that it can add individual
-fences to the dma resv object.
+We can look inside the fixed buffer table only while holding
+->uring_lock, however in some cases we don't do the right async prep for
+IORING_OP_{WRITE,READ}_FIXED ending up with NULL req->imu forcing making
+an io-wq worker to try to resolve the fixed buffer without proper
+locking.
 
-v6: fix multi-line comment.
-v5: remove double fence reservation for batch VMAs.
-v4: Reserve fences for composite_fence on multi-batch contexts and
-    also reserve fence slots to composite_fence for each VMAs.
-v3: dma_resv_reserve_fences is not cumulative so pass num_fences.
-v2: make sure to reserve enough fence slots before adding.
+Move req->imu setup into early req init paths, i.e. io_prep_rw(), which
+is called unconditionally for rw requests and under uring_lock.
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5614
-Fixes: 544460c33821 ("drm/i915: Multi-BB execbuf")
-Cc: <stable@vger.kernel.org> # v5.16+
-Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220525095955.15371-1-nirmoy.das@intel.com
-(cherry picked from commit 420a07b841d03f6a436d8c06571c69aa5c783897)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: 634d00df5e1cf ("io_uring: add full-fledged dynamic buffers support")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index c326bd2b444f..30fe847c6664 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -999,7 +999,8 @@ static int eb_validate_vmas(struct i915_execbuffer *eb)
- 			}
- 		}
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index be05f375a776..fd8a1ffe6a1a 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3636,6 +3636,20 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	int ret;
  
--		err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
-+		/* Reserve enough slots to accommodate composite fences */
-+		err = dma_resv_reserve_fences(vma->obj->base.resv, eb->num_batches);
- 		if (err)
- 			return err;
- 
-diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
-index 4f6db539571a..0bffb70b3c5f 100644
---- a/drivers/gpu/drm/i915/i915_vma.c
-+++ b/drivers/gpu/drm/i915/i915_vma.c
-@@ -23,6 +23,7 @@
-  */
- 
- #include <linux/sched/mm.h>
-+#include <linux/dma-fence-array.h>
- #include <drm/drm_gem.h>
- 
- #include "display/intel_frontbuffer.h"
-@@ -1823,6 +1824,21 @@ int _i915_vma_move_to_active(struct i915_vma *vma,
- 	if (unlikely(err))
- 		return err;
- 
-+	/*
-+	 * Reserve fences slot early to prevent an allocation after preparing
-+	 * the workload and associating fences with dma_resv.
-+	 */
-+	if (fence && !(flags & __EXEC_OBJECT_NO_RESERVE)) {
-+		struct dma_fence *curr;
-+		int idx;
+ 	kiocb->ki_pos = READ_ONCE(sqe->off);
++	/* used for fixed read/write too - just read unconditionally */
++	req->buf_index = READ_ONCE(sqe->buf_index);
 +
-+		dma_fence_array_for_each(curr, idx, fence)
-+			;
-+		err = dma_resv_reserve_fences(vma->obj->base.resv, idx);
-+		if (unlikely(err))
-+			return err;
-+	}
++	if (req->opcode == IORING_OP_READ_FIXED ||
++	    req->opcode == IORING_OP_WRITE_FIXED) {
++		struct io_ring_ctx *ctx = req->ctx;
++		u16 index;
 +
- 	if (flags & EXEC_OBJECT_WRITE) {
- 		struct intel_frontbuffer *front;
- 
-@@ -1832,31 +1848,23 @@ int _i915_vma_move_to_active(struct i915_vma *vma,
- 				i915_active_add_request(&front->write, rq);
- 			intel_frontbuffer_put(front);
- 		}
++		if (unlikely(req->buf_index >= ctx->nr_user_bufs))
++			return -EFAULT;
++		index = array_index_nospec(req->buf_index, ctx->nr_user_bufs);
++		req->imu = ctx->user_bufs[index];
++		io_req_set_rsrc_node(req, ctx, 0);
 +	}
  
--		if (!(flags & __EXEC_OBJECT_NO_RESERVE)) {
--			err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
--			if (unlikely(err))
--				return err;
--		}
-+	if (fence) {
-+		struct dma_fence *curr;
-+		enum dma_resv_usage usage;
-+		int idx;
- 
--		if (fence) {
--			dma_resv_add_fence(vma->obj->base.resv, fence,
--					   DMA_RESV_USAGE_WRITE);
-+		obj->read_domains = 0;
-+		if (flags & EXEC_OBJECT_WRITE) {
-+			usage = DMA_RESV_USAGE_WRITE;
- 			obj->write_domain = I915_GEM_DOMAIN_RENDER;
--			obj->read_domains = 0;
--		}
--	} else {
--		if (!(flags & __EXEC_OBJECT_NO_RESERVE)) {
--			err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
--			if (unlikely(err))
--				return err;
-+		} else {
-+			usage = DMA_RESV_USAGE_READ;
- 		}
- 
--		if (fence) {
--			dma_resv_add_fence(vma->obj->base.resv, fence,
--					   DMA_RESV_USAGE_READ);
--			obj->write_domain = 0;
--		}
-+		dma_fence_array_for_each(curr, idx, fence)
-+			dma_resv_add_fence(vma->obj->base.resv, curr, usage);
+ 	ioprio = READ_ONCE(sqe->ioprio);
+ 	if (ioprio) {
+@@ -3648,12 +3662,9 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 		kiocb->ki_ioprio = get_current_ioprio();
  	}
  
- 	if (flags & EXEC_OBJECT_NEEDS_FENCE && vma->fence)
+-	req->imu = NULL;
+ 	req->rw.addr = READ_ONCE(sqe->addr);
+ 	req->rw.len = READ_ONCE(sqe->len);
+ 	req->rw.flags = READ_ONCE(sqe->rw_flags);
+-	/* used for fixed read/write too - just read unconditionally */
+-	req->buf_index = READ_ONCE(sqe->buf_index);
+ 	return 0;
+ }
+ 
+@@ -3785,20 +3796,9 @@ static int __io_import_fixed(struct io_kiocb *req, int rw, struct iov_iter *iter
+ static int io_import_fixed(struct io_kiocb *req, int rw, struct iov_iter *iter,
+ 			   unsigned int issue_flags)
+ {
+-	struct io_mapped_ubuf *imu = req->imu;
+-	u16 index, buf_index = req->buf_index;
+-
+-	if (likely(!imu)) {
+-		struct io_ring_ctx *ctx = req->ctx;
+-
+-		if (unlikely(buf_index >= ctx->nr_user_bufs))
+-			return -EFAULT;
+-		io_req_set_rsrc_node(req, ctx, issue_flags);
+-		index = array_index_nospec(buf_index, ctx->nr_user_bufs);
+-		imu = READ_ONCE(ctx->user_bufs[index]);
+-		req->imu = imu;
+-	}
+-	return __io_import_fixed(req, rw, iter, imu);
++	if (WARN_ON_ONCE(!req->imu))
++		return -EFAULT;
++	return __io_import_fixed(req, rw, iter, req->imu);
+ }
+ 
+ static int io_buffer_add_list(struct io_ring_ctx *ctx,
 
