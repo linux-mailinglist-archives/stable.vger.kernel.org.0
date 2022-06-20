@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23746551C35
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2A13551D08
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245594AbiFTNLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53616 "EHLO
+        id S244674AbiFTNLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:11:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344502AbiFTNKT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:10:19 -0400
+        with ESMTP id S1344026AbiFTNJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D16F31CB21;
-        Mon, 20 Jun 2022 06:05:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D7641C103;
+        Mon, 20 Jun 2022 06:05:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 256A96158C;
-        Mon, 20 Jun 2022 13:05:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11399C3411B;
-        Mon, 20 Jun 2022 13:05:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ED1661534;
+        Mon, 20 Jun 2022 13:01:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A70D6C3411B;
+        Mon, 20 Jun 2022 13:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730302;
-        bh=4seMafuumCFqNw+bDTbGN5XERJrkspwfxmcEylUX7QY=;
+        s=korg; t=1655730072;
+        bh=Zzb5/gr7v+HM61U+99KSrd0cawCpe1xPsCdEb4c6n2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xbKP62y0XKyWVtxeUTIE5drGk057HjbuYUf1RIM8P4c9TJEuOtRVmcYzXb/JxAXX9
-         EI1RCfAX1kQGre/9BJSj6ymJ7UNmt/t/SOY5fAcWcRgfQORBSb/t97G0g2cM8i98lP
-         tDoCtGhrY/cwggcYKmHyp4cZ1cKmV+wYUpK+zl/w=
+        b=TOjg6wwCaXK3U7T9HKiXKPSFJ0hFtvKp6ywIm061W5BU0CSAZlopEobhXgIuCD2Vg
+         WTv3E1G9Tc7uaf2CWArxaJT9nKmzhfrS/hayudKPzzcwu0y7U7QaDVX8oCKg2OrBln
+         mi0vRomTrzhX7gXQWIKsYH9JaSyRHdO2cf4zylLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 011/106] ASoC: cs35l36: Update digital volume TLV
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 07/84] dma-debug: make things less spammy under memory pressure
 Date:   Mon, 20 Jun 2022 14:50:30 +0200
-Message-Id: <20220620124724.723758864@linuxfoundation.org>
+Message-Id: <20220620124721.105946956@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 5005a2345825eb8346546d99bfe669f73111b5c5 ]
+[ Upstream commit e19f8fa6ce1ca9b8b934ba7d2e8f34c95abc6e60 ]
 
-The digital volume TLV specifies the step as 0.25dB but the actual step
-of the control is 0.125dB. Update the TLV to correct this.
+Limit the error msg to avoid flooding the console.  If you have a lot of
+threads hitting this at once, they could have already gotten passed the
+dma_debug_disabled() check before they get to the point of allocation
+failure, resulting in quite a lot of this error message spamming the
+log.  Use pr_err_once() to limit that.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220602162119.3393857-3-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs35l36.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/dma/debug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/cs35l36.c b/sound/soc/codecs/cs35l36.c
-index d83c1b318c1c..0accdb45ed72 100644
---- a/sound/soc/codecs/cs35l36.c
-+++ b/sound/soc/codecs/cs35l36.c
-@@ -444,7 +444,8 @@ static bool cs35l36_volatile_reg(struct device *dev, unsigned int reg)
+diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
+index ee7da1f2462f..ae9fc1ee6d20 100644
+--- a/kernel/dma/debug.c
++++ b/kernel/dma/debug.c
+@@ -564,7 +564,7 @@ static void add_dma_entry(struct dma_debug_entry *entry)
+ 
+ 	rc = active_cacheline_insert(entry);
+ 	if (rc == -ENOMEM) {
+-		pr_err("cacheline tracking ENOMEM, dma-debug disabled\n");
++		pr_err_once("cacheline tracking ENOMEM, dma-debug disabled\n");
+ 		global_disable = true;
  	}
- }
  
--static DECLARE_TLV_DB_SCALE(dig_vol_tlv, -10200, 25, 0);
-+static const DECLARE_TLV_DB_RANGE(dig_vol_tlv, 0, 912,
-+				  TLV_DB_MINMAX_ITEM(-10200, 1200));
- static DECLARE_TLV_DB_SCALE(amp_gain_tlv, 0, 1, 1);
- 
- static const char * const cs35l36_pcm_sftramp_text[] =  {
 -- 
 2.35.1
 
