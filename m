@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 555C5551967
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:53:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 327F6551A67
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234455AbiFTMxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:53:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36350 "EHLO
+        id S242901AbiFTMxk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:53:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241345AbiFTMxF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:53:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 823FBDEE;
-        Mon, 20 Jun 2022 05:53:04 -0700 (PDT)
+        with ESMTP id S242877AbiFTMxi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:53:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D443DFC2;
+        Mon, 20 Jun 2022 05:53:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F65CB811A2;
-        Mon, 20 Jun 2022 12:53:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65B82C3411B;
-        Mon, 20 Jun 2022 12:53:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF266B811A2;
+        Mon, 20 Jun 2022 12:53:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E812C3411B;
+        Mon, 20 Jun 2022 12:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729581;
-        bh=pKqvNCdZg3v1ahitohlcLAY3SfAkUAhwKbCU6xelYlQ=;
+        s=korg; t=1655729615;
+        bh=0T5pLQ2jcyVXZqHu1Zl2epmxPE4gtirDF3BkhxV0uDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=faanviX1/uLAtjAxmT2fS/7N6fGIPLM/Z52mQhuGWVwi18i5eMhK+89SAN/fT1d1/
-         fCiMPr1cbnpDY0tN/ZJf3l5swnqAywGzPrdIffvAeQsQEqfnhscFokHzAqDQkwVZ4g
-         lhBsnSZZNXe1K8Ls55+8EyikWmA84q7comM6PeyU=
+        b=wAocZ3n59j3tnYWH3tT726u9IwGu0Hbmr0wp5gKpUZuYztjpYZtp5iM+fxBz4Ld7j
+         5FmX9O//fNp8b3plIsPq8v0z8E62GkgCP9ZwWfTqtOVQIVVFG1ZsVUpLxcn6uXOt2t
+         cOk+xuZeXA5Gba+5DP3SpImvXn/9+Ffw88Lp/6pA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stylon Wang <stylon.wang@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.18 001/141] Revert "drm/amd/display: Fix DCN3 B0 DP Alt Mapping"
-Date:   Mon, 20 Jun 2022 14:48:59 +0200
-Message-Id: <20220620124729.555038849@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.18 002/141] arm64: dts: imx8mm-beacon: Enable RTS-CTS on UART3
+Date:   Mon, 20 Jun 2022 14:49:00 +0200
+Message-Id: <20220620124729.585626370@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
 References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,41 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stylon Wang <stylon.wang@amd.com>
+From: Adam Ford <aford173@gmail.com>
 
-commit 1039188806d4cfdf9c412bb4ddb51b4d8cd15478 upstream.
+commit 4ce01ce36d77137cf60776b320babed89de6bd4c upstream.
 
-This reverts commit 4b7786d87fb3adf3e534c4f1e4f824d8700b786b.
+There is a header for a DB9 serial port, but any attempts to use
+hardware handshaking fail.  Enable RTS and CTS pin muxing and enable
+handshaking in the uart node.
 
-Commit 4b7786d87fb3 ("drm/amd/display: Fix DCN3 B0 DP Alt Mapping")
-is causing 2nd USB-C display not lighting up.
-Phy id remapping is done differently than is assumed in this
-patch.
-
-Signed-off-by: Stylon Wang <stylon.wang@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c |    6 ------
- 1 file changed, 6 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-@@ -1392,12 +1392,6 @@ static struct stream_encoder *dcn31_stre
- 		return NULL;
- 	}
+--- a/arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi
+@@ -278,6 +278,7 @@
+ 	pinctrl-0 = <&pinctrl_uart3>;
+ 	assigned-clocks = <&clk IMX8MM_CLK_UART3>;
+ 	assigned-clock-parents = <&clk IMX8MM_SYS_PLL1_80M>;
++	uart-has-rtscts;
+ 	status = "okay";
+ };
  
--	if (ctx->asic_id.chip_family == FAMILY_YELLOW_CARP &&
--			ctx->asic_id.hw_internal_rev == YELLOW_CARP_B0) {
--		if ((eng_id == ENGINE_ID_DIGC) || (eng_id == ENGINE_ID_DIGD))
--			eng_id = eng_id + 3; // For B0 only. C->F, D->G.
--	}
--
- 	dcn30_dio_stream_encoder_construct(enc1, ctx, ctx->dc_bios,
- 					eng_id, vpg, afmt,
- 					&stream_enc_regs[eng_id],
+@@ -386,6 +387,8 @@
+ 		fsl,pins = <
+ 			MX8MM_IOMUXC_ECSPI1_SCLK_UART3_DCE_RX	0x40
+ 			MX8MM_IOMUXC_ECSPI1_MOSI_UART3_DCE_TX	0x40
++			MX8MM_IOMUXC_ECSPI1_MISO_UART3_DCE_CTS_B	0x40
++			MX8MM_IOMUXC_ECSPI1_SS0_UART3_DCE_RTS_B	0x40
+ 		>;
+ 	};
+ 
 
 
