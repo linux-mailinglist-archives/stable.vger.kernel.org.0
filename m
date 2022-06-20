@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0702E5511E4
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 413095511D9
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239574AbiFTHvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 03:51:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46768 "EHLO
+        id S239573AbiFTHvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 03:51:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239573AbiFTHvk (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B5E8DEEF
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:39 -0700 (PDT)
+        with ESMTP id S239579AbiFTHvo (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A52810540
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 171A16120F
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0602FC341C4;
-        Mon, 20 Jun 2022 07:51:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C89B4B80EB5
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 244EEC3411B;
+        Mon, 20 Jun 2022 07:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655711498;
-        bh=P2laqlEXszMXQV9th4LABDPogidpjmqIdYcUduqiiW4=;
+        s=korg; t=1655711501;
+        bh=FWneyhzLb551Iiqb6ThF8o3W4fEs1K4B0M9efLtHx6k=;
         h=Subject:To:From:Date:From;
-        b=P3CAEzD9F2BdLmKvIKKqEy0cm++r/aMg3IGrrfbmrblUifsv5hDEwKr22pjJqWGpA
-         /sgqUs0fIscJzLzaEaGWWyntHcxSfMKrJXT3EacolXeIaWlOeOknGSK9KaQYMSCqua
-         4JiZqqOGwWbItfEDd16hKmwjrASbdXy/sx/PtKXE=
-Subject: patch "iio: adc: adi-axi-adc: Fix refcount leak in adi_axi_adc_attach_client" added to char-misc-linus
-To:     linmq006@gmail.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=B1rRhdEjQY4YIXxWljVCT7m0P3URY+HJ3tMX3NVk9jr6a6qGgBfwutpUOVzf4wiTB
+         9ZgyIATvzmA7IG3IbLfgwZojH7eqb05uhr5/pFbel6M/SrQ5YgcIUWwb6j18GTRjpj
+         XDwju7BGrPWJ/b3fNECVQJLmipmrthjnIeCegOnc=
+Subject: patch "iio: test: fix missing MODULE_LICENSE for IIO_RESCALE=m" added to char-misc-linus
+To:     liambeguin@gmail.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, masahiroy@kernel.org, rdunlap@infradead.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 20 Jun 2022 09:50:48 +0200
-Message-ID: <165571144894173@kroah.com>
+Message-ID: <1655711448239249@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: adi-axi-adc: Fix refcount leak in adi_axi_adc_attach_client
+    iio: test: fix missing MODULE_LICENSE for IIO_RESCALE=m
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,48 +65,59 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From ada7b0c0dedafd7d059115adf49e48acba3153a8 Mon Sep 17 00:00:00 2001
-From: Miaoqian Lin <linmq006@gmail.com>
-Date: Tue, 24 May 2022 11:45:17 +0400
-Subject: iio: adc: adi-axi-adc: Fix refcount leak in adi_axi_adc_attach_client
+From 7a2f6f61e8ee016b75e1b1dd62fbd03e6d6db37d Mon Sep 17 00:00:00 2001
+From: Liam Beguin <liambeguin@gmail.com>
+Date: Wed, 1 Jun 2022 10:21:38 -0400
+Subject: iio: test: fix missing MODULE_LICENSE for IIO_RESCALE=m
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+When IIO_RESCALE_KUNIT_TEST=y and IIO_RESCALE=m,
+drivers/iio/afe/iio-rescale.o is built twice causing the
+MODULE_LICENSE() to be lost, as shown by:
 
-Fixes: ef04070692a2 ("iio: adc: adi-axi-adc: add support for AXI ADC IP core")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220524074517.45268-1-linmq006@gmail.com
+  ERROR: modpost: missing MODULE_LICENSE() in drivers/iio/afe/iio-rescale.o
+
+Rework the build configuration to have the dependency specified in the
+Kconfig.
+
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Fixes: 8e74a48d17d5 ("iio: test: add basic tests for the iio-rescale driver")
+Signed-off-by: Liam Beguin <liambeguin@gmail.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
+Link: https://lore.kernel.org/r/20220601142138.3331278-1-liambeguin@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/adi-axi-adc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iio/test/Kconfig  | 2 +-
+ drivers/iio/test/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/adc/adi-axi-adc.c b/drivers/iio/adc/adi-axi-adc.c
-index a73e3c2d212f..a9e655e69eaa 100644
---- a/drivers/iio/adc/adi-axi-adc.c
-+++ b/drivers/iio/adc/adi-axi-adc.c
-@@ -322,16 +322,19 @@ static struct adi_axi_adc_client *adi_axi_adc_attach_client(struct device *dev)
+diff --git a/drivers/iio/test/Kconfig b/drivers/iio/test/Kconfig
+index 56ca0ad7e77a..4c66c3f18c34 100644
+--- a/drivers/iio/test/Kconfig
++++ b/drivers/iio/test/Kconfig
+@@ -6,7 +6,7 @@
+ # Keep in alphabetical order
+ config IIO_RESCALE_KUNIT_TEST
+ 	bool "Test IIO rescale conversion functions"
+-	depends on KUNIT=y && !IIO_RESCALE
++	depends on KUNIT=y && IIO_RESCALE=y
+ 	default KUNIT_ALL_TESTS
+ 	help
+ 	  If you want to run tests on the iio-rescale code say Y here.
+diff --git a/drivers/iio/test/Makefile b/drivers/iio/test/Makefile
+index f15ae0a6394f..880360f8d02c 100644
+--- a/drivers/iio/test/Makefile
++++ b/drivers/iio/test/Makefile
+@@ -4,6 +4,6 @@
+ #
  
- 		if (!try_module_get(cl->dev->driver->owner)) {
- 			mutex_unlock(&registered_clients_lock);
-+			of_node_put(cln);
- 			return ERR_PTR(-ENODEV);
- 		}
- 
- 		get_device(cl->dev);
- 		cl->info = info;
- 		mutex_unlock(&registered_clients_lock);
-+		of_node_put(cln);
- 		return cl;
- 	}
- 
- 	mutex_unlock(&registered_clients_lock);
-+	of_node_put(cln);
- 
- 	return ERR_PTR(-EPROBE_DEFER);
- }
+ # Keep in alphabetical order
+-obj-$(CONFIG_IIO_RESCALE_KUNIT_TEST) += iio-test-rescale.o ../afe/iio-rescale.o
++obj-$(CONFIG_IIO_RESCALE_KUNIT_TEST) += iio-test-rescale.o
+ obj-$(CONFIG_IIO_TEST_FORMAT) += iio-test-format.o
+ CFLAGS_iio-test-format.o += $(DISABLE_STRUCTLEAK_PLUGIN)
 -- 
 2.36.1
 
