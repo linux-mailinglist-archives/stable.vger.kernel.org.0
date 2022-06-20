@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB596551DA5
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18B9F551E8D
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242485AbiFTODz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:03:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44238 "EHLO
+        id S236870AbiFTOC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:02:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238901AbiFTNxk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:53:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82BB126C7;
-        Mon, 20 Jun 2022 06:19:59 -0700 (PDT)
+        with ESMTP id S1350868AbiFTNxy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:53:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DC871A079;
+        Mon, 20 Jun 2022 06:20:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29D406120F;
-        Mon, 20 Jun 2022 13:19:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35248C3411B;
-        Mon, 20 Jun 2022 13:19:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E0D5B81157;
+        Mon, 20 Jun 2022 13:20:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A41ABC3411B;
+        Mon, 20 Jun 2022 13:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731187;
-        bh=lwXQxd2K9Q97pqAUgIqUv8sO/YrRROiEdLqyQ+NwxUg=;
+        s=korg; t=1655731223;
+        bh=75vFRHIikGYO/QtNKHB0M5xgdQl5SQfHUhFw9fZ9tHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HfftRlRNE3w3Nqv23f220xN2wY+UsEDiGK6fOHvsbRJIRGclr+9tHPPp21DYqskIy
-         T5c/GeOYy3csxaQA7BiCo1cJ7L0Pncd1p/0GL3LqSU9hj78KhW53eg4MLNss0XI+S+
-         vTF+txKwQIe2EbojMdPyQzoOmMeJv6rf/ej4/IDY=
+        b=VvZ25zrrzMOoT/Do5KlYK5IavOxrm2wt23xtbXpeoTZPAvwhAJNVWXJUJu40DHcMp
+         4vNrFs0OleypBPpPxYszt6iA8LVQbkKrVadWEGECiwc17igvWShgsXYSvcKa6DP6VQ
+         uKCcYsZ4jwPo6wC5a0kG0eZav4HKhhEdt+B3bbBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 154/240] random: avoid initializing twice in credit race
-Date:   Mon, 20 Jun 2022 14:50:55 +0200
-Message-Id: <20220620124743.473011632@linuxfoundation.org>
+Subject: [PATCH 5.4 155/240] random: move initialization out of reseeding hot path
+Date:   Mon, 20 Jun 2022 14:50:56 +0200
+Message-Id: <20220620124743.501057483@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -56,52 +56,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit fed7ef061686cc813b1f3d8d0edc6c35b4d3537b upstream.
+commit 68c9c8b192c6dae9be6278e98ee44029d5da2d31 upstream.
 
-Since all changes of crng_init now go through credit_init_bits(), we can
-fix a long standing race in which two concurrent callers of
-credit_init_bits() have the new bit count >= some threshold, but are
-doing so with crng_init as a lower threshold, checked outside of a lock,
-resulting in crng_reseed() or similar being called twice.
+Initialization happens once -- by way of credit_init_bits() -- and then
+it never happens again. Therefore, it doesn't need to be in
+crng_reseed(), which is a hot path that is called multiple times. It
+also doesn't make sense to have there, as initialization activity is
+better associated with initialization routines.
 
-In order to fix this, we can use the original cmpxchg value of the bit
-count, and only change crng_init when the bit count transitions from
-below a threshold to meeting the threshold.
+After the prior commit, crng_reseed() now won't be called by multiple
+concurrent callers, which means that we can safely move the
+"finialize_init" logic into crng_init_bits() unconditionally.
 
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/char/random.c |   42 +++++++++++++++++++-----------------------
+ 1 file changed, 19 insertions(+), 23 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -818,7 +818,7 @@ static void extract_entropy(void *buf, s
- 
- static void credit_init_bits(size_t nbits)
- {
--	unsigned int init_bits, orig, add;
-+	unsigned int new, orig, add;
+@@ -264,7 +264,6 @@ static void crng_reseed(void)
  	unsigned long flags;
+ 	unsigned long next_gen;
+ 	u8 key[CHACHA_KEY_SIZE];
+-	bool finalize_init = false;
  
- 	if (crng_ready() || !nbits)
-@@ -828,12 +828,12 @@ static void credit_init_bits(size_t nbit
+ 	extract_entropy(key, sizeof(key));
  
- 	do {
- 		orig = READ_ONCE(input_pool.init_bits);
--		init_bits = min_t(unsigned int, POOL_BITS, orig + add);
--	} while (cmpxchg(&input_pool.init_bits, orig, init_bits) != orig);
-+		new = min_t(unsigned int, POOL_BITS, orig + add);
-+	} while (cmpxchg(&input_pool.init_bits, orig, new) != orig);
+@@ -281,28 +280,10 @@ static void crng_reseed(void)
+ 		++next_gen;
+ 	WRITE_ONCE(base_crng.generation, next_gen);
+ 	WRITE_ONCE(base_crng.birth, jiffies);
+-	if (!crng_ready()) {
++	if (!crng_ready())
+ 		crng_init = CRNG_READY;
+-		finalize_init = true;
+-	}
+ 	spin_unlock_irqrestore(&base_crng.lock, flags);
+ 	memzero_explicit(key, sizeof(key));
+-	if (finalize_init) {
+-		process_random_ready_list();
+-		wake_up_interruptible(&crng_init_wait);
+-		kill_fasync(&fasync, SIGIO, POLL_IN);
+-		pr_notice("crng init done\n");
+-		if (unseeded_warning.missed) {
+-			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
+-				  unseeded_warning.missed);
+-			unseeded_warning.missed = 0;
+-		}
+-		if (urandom_warning.missed) {
+-			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
+-				  urandom_warning.missed);
+-			urandom_warning.missed = 0;
+-		}
+-	}
+ }
  
--	if (!crng_ready() && init_bits >= POOL_READY_BITS)
-+	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS)
- 		crng_reseed();
--	else if (unlikely(crng_init == CRNG_EMPTY && init_bits >= POOL_EARLY_BITS)) {
-+	else if (orig < POOL_EARLY_BITS && new >= POOL_EARLY_BITS) {
+ /*
+@@ -831,10 +812,25 @@ static void credit_init_bits(size_t nbit
+ 		new = min_t(unsigned int, POOL_BITS, orig + add);
+ 	} while (cmpxchg(&input_pool.init_bits, orig, new) != orig);
+ 
+-	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS)
+-		crng_reseed();
+-	else if (orig < POOL_EARLY_BITS && new >= POOL_EARLY_BITS) {
++	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS) {
++		crng_reseed(); /* Sets crng_init to CRNG_READY under base_crng.lock. */
++		process_random_ready_list();
++		wake_up_interruptible(&crng_init_wait);
++		kill_fasync(&fasync, SIGIO, POLL_IN);
++		pr_notice("crng init done\n");
++		if (unseeded_warning.missed) {
++			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
++				  unseeded_warning.missed);
++			unseeded_warning.missed = 0;
++		}
++		if (urandom_warning.missed) {
++			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
++				  urandom_warning.missed);
++			urandom_warning.missed = 0;
++		}
++	} else if (orig < POOL_EARLY_BITS && new >= POOL_EARLY_BITS) {
  		spin_lock_irqsave(&base_crng.lock, flags);
++		/* Check if crng_init is CRNG_EMPTY, to avoid race with crng_reseed(). */
  		if (crng_init == CRNG_EMPTY) {
  			extract_entropy(base_crng.key, sizeof(base_crng.key));
+ 			crng_init = CRNG_EARLY;
 
 
