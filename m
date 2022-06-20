@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CC06551C55
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 338125519C4
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245580AbiFTNLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53638 "EHLO
+        id S243877AbiFTNEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:04:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344296AbiFTNKG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:10:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 885511C93D;
-        Mon, 20 Jun 2022 06:05:15 -0700 (PDT)
+        with ESMTP id S244706AbiFTND4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:03:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EDD21AF0E;
+        Mon, 20 Jun 2022 05:58:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7100B811AE;
-        Mon, 20 Jun 2022 13:02:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DD32C341C6;
-        Mon, 20 Jun 2022 13:02:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5FA561531;
+        Mon, 20 Jun 2022 12:58:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E033AC3411B;
+        Mon, 20 Jun 2022 12:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730128;
-        bh=kY7M+cF6jVAw2h72tzuT6A72g36+rLAemXxLHPg6FwY=;
+        s=korg; t=1655729911;
+        bh=KSTBBIw5SEmWnx7td8ycDPE2VFjcDDTcRH8moZ/RsiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCIWO2QUba9G+cUty7/PiQbU2QvQYyypep+ijp2QyXShoIPowSikldQK2ZKKRFA3j
-         8slVLuF0Ah8jZgcPssQ1TV6WH+wKB4MOag3XA7MRBRCmKZZMMZrfnlQVOMVi3AzXBT
-         vkGovQumyFTrrV8WG4E/YkXxoMjwpSTfef37eC3Q=
+        b=WiD5CkGImPcynkrKlSmdpKd9YYqGv173fv2h8ueHGkjGT81EQVTG9p533IiAIlMlk
+         a7ZSMyJ19a+ypDUl9n3zldL4pC8j/cPUlL8Ckt++yBTMP2+c030B0zjJPKzZy/eQ+q
+         rZ0cMrPmwuFEJLmtCbT2Pmsk3Sw3OLquLi823/MI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 28/84] ipv6: Fix signed integer overflow in l2tp_ip6_sendmsg
+        stable@vger.kernel.org, Michael Wu <michael@allwinnertech.com>,
+        John Keeping <john@metanate.com>,
+        Linyu Yuan <quic_linyyuan@quicinc.com>
+Subject: [PATCH 5.18 113/141] usb: gadget: f_fs: change ep->status safe in ffs_epfile_io()
 Date:   Mon, 20 Jun 2022 14:50:51 +0200
-Message-Id: <20220620124721.728418933@linuxfoundation.org>
+Message-Id: <20220620124732.883603343@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Linyu Yuan <quic_linyyuan@quicinc.com>
 
-[ Upstream commit f638a84afef3dfe10554c51820c16e39a278c915 ]
+commit fb1f16d74e263baa4ad11e31e28b68f144aa55ed upstream.
 
-When len >= INT_MAX - transhdrlen, ulen = len + transhdrlen will be
-overflow. To fix, we can follow what udpv6 does and subtract the
-transhdrlen from the max.
+If a task read/write data in blocking mode, it will wait the completion
+in ffs_epfile_io(), if function unbind occurs, ffs_func_unbind() will
+kfree ffs ep, once the task wake up, it still dereference the ffs ep to
+obtain the request status.
 
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/20220607120028.845916-2-wangyufen@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix it by moving the request status to io_data which is stack-safe.
+
+Cc: <stable@vger.kernel.org> # 5.15
+Reported-by: Michael Wu <michael@allwinnertech.com>
+Tested-by: Michael Wu <michael@allwinnertech.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Linyu Yuan <quic_linyyuan@quicinc.com>
+Link: https://lore.kernel.org/r/1654863478-26228-2-git-send-email-quic_linyyuan@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/l2tp/l2tp_ip6.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/f_fs.c |   34 +++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
 
-diff --git a/net/l2tp/l2tp_ip6.c b/net/l2tp/l2tp_ip6.c
-index 96f975777438..d54dbd01d86f 100644
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -502,14 +502,15 @@ static int l2tp_ip6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 	struct ipcm6_cookie ipc6;
- 	int addr_len = msg->msg_namelen;
- 	int transhdrlen = 4; /* zero session-id */
--	int ulen = len + transhdrlen;
-+	int ulen;
- 	int err;
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -122,8 +122,6 @@ struct ffs_ep {
+ 	struct usb_endpoint_descriptor	*descs[3];
  
- 	/* Rough check on arithmetic overflow,
- 	 * better check is made in ip6_append_data().
- 	 */
--	if (len > INT_MAX)
-+	if (len > INT_MAX - transhdrlen)
- 		return -EMSGSIZE;
-+	ulen = len + transhdrlen;
+ 	u8				num;
+-
+-	int				status;	/* P: epfile->mutex */
+ };
  
- 	/* Mirror BSD error message compatibility */
- 	if (msg->msg_flags & MSG_OOB)
--- 
-2.35.1
-
+ struct ffs_epfile {
+@@ -227,6 +225,9 @@ struct ffs_io_data {
+ 	bool use_sg;
+ 
+ 	struct ffs_data *ffs;
++
++	int status;
++	struct completion done;
+ };
+ 
+ struct ffs_desc_helper {
+@@ -707,12 +708,15 @@ static const struct file_operations ffs_
+ 
+ static void ffs_epfile_io_complete(struct usb_ep *_ep, struct usb_request *req)
+ {
++	struct ffs_io_data *io_data = req->context;
++
+ 	ENTER();
+-	if (req->context) {
+-		struct ffs_ep *ep = _ep->driver_data;
+-		ep->status = req->status ? req->status : req->actual;
+-		complete(req->context);
+-	}
++	if (req->status)
++		io_data->status = req->status;
++	else
++		io_data->status = req->actual;
++
++	complete(&io_data->done);
+ }
+ 
+ static ssize_t ffs_copy_to_iter(void *data, int data_len, struct iov_iter *iter)
+@@ -1050,7 +1054,6 @@ static ssize_t ffs_epfile_io(struct file
+ 		WARN(1, "%s: data_len == -EINVAL\n", __func__);
+ 		ret = -EINVAL;
+ 	} else if (!io_data->aio) {
+-		DECLARE_COMPLETION_ONSTACK(done);
+ 		bool interrupted = false;
+ 
+ 		req = ep->req;
+@@ -1066,7 +1069,8 @@ static ssize_t ffs_epfile_io(struct file
+ 
+ 		io_data->buf = data;
+ 
+-		req->context  = &done;
++		init_completion(&io_data->done);
++		req->context  = io_data;
+ 		req->complete = ffs_epfile_io_complete;
+ 
+ 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
+@@ -1075,7 +1079,7 @@ static ssize_t ffs_epfile_io(struct file
+ 
+ 		spin_unlock_irq(&epfile->ffs->eps_lock);
+ 
+-		if (wait_for_completion_interruptible(&done)) {
++		if (wait_for_completion_interruptible(&io_data->done)) {
+ 			/*
+ 			 * To avoid race condition with ffs_epfile_io_complete,
+ 			 * dequeue the request first then check
+@@ -1083,17 +1087,17 @@ static ssize_t ffs_epfile_io(struct file
+ 			 * condition with req->complete callback.
+ 			 */
+ 			usb_ep_dequeue(ep->ep, req);
+-			wait_for_completion(&done);
+-			interrupted = ep->status < 0;
++			wait_for_completion(&io_data->done);
++			interrupted = io_data->status < 0;
+ 		}
+ 
+ 		if (interrupted)
+ 			ret = -EINTR;
+-		else if (io_data->read && ep->status > 0)
+-			ret = __ffs_epfile_read_data(epfile, data, ep->status,
++		else if (io_data->read && io_data->status > 0)
++			ret = __ffs_epfile_read_data(epfile, data, io_data->status,
+ 						     &io_data->data);
+ 		else
+-			ret = ep->status;
++			ret = io_data->status;
+ 		goto error_mutex;
+ 	} else if (!(req = usb_ep_alloc_request(ep->ep, GFP_ATOMIC))) {
+ 		ret = -ENOMEM;
 
 
