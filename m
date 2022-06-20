@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 611BE551DC7
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F098551EC8
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244329AbiFTOEO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:04:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47770 "EHLO
+        id S1349905AbiFTOA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:00:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245588AbiFTOC2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 10:02:28 -0400
+        with ESMTP id S1352050AbiFTNzw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:55:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCB4D1AF25;
-        Mon, 20 Jun 2022 06:26:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C47834BB6;
+        Mon, 20 Jun 2022 06:21:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91724B811E1;
-        Mon, 20 Jun 2022 13:16:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E07F9C3411B;
-        Mon, 20 Jun 2022 13:16:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C215B811BE;
+        Mon, 20 Jun 2022 13:06:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E62C3411B;
+        Mon, 20 Jun 2022 13:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731003;
-        bh=OpoznZMK1Ok1ZJg+f5Ff1jh+Gv+HjqOFJILFgEo6XZU=;
+        s=korg; t=1655730392;
+        bh=jpahqU4Ez2Jv2ovq+6xWJVXthFohCC2sf6mGPWztRhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abEahYSbBqCdwkUfUpaH1/KuJt+MypLZIH8PxF9a/i1nrVXMVKbWrEMGnC4BFStiP
-         u+N8fpIpTYJglAuFsC7rQvbjJ4Z9G+zXwdipEL3xsoSGDf9fhbH9IYWrHh5kJh7D8G
-         pxzLVDUyobDuv/JuDp0olzC7maahvyM4uGu/rxSs=
+        b=IFAuV7G/f+6zTJQPUhzke/gdpUoZDyTfXfgW7QNqMsFlqedrMTF9kssAmWV+jJ/1q
+         IGmvNMiKaqBi3kYuSuvbuBfoGinaTIRkdetYgMij1xuFh8VzIB74S1yiBmLtQNKcYN
+         Flc+Q79dm5nLr51/06MFkDCZjSV2Bg+O0wluDA4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 124/240] random: check for signal_pending() outside of need_resched() check
-Date:   Mon, 20 Jun 2022 14:50:25 +0200
-Message-Id: <20220620124742.606072992@linuxfoundation.org>
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 009/106] dma-debug: make things less spammy under memory pressure
+Date:   Mon, 20 Jun 2022 14:50:28 +0200
+Message-Id: <20220620124724.664633495@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Rob Clark <robdclark@chromium.org>
 
-commit 1448769c9cdb69ad65287f4f7ab58bc5f2f5d7ba upstream.
+[ Upstream commit e19f8fa6ce1ca9b8b934ba7d2e8f34c95abc6e60 ]
 
-signal_pending() checks TIF_NOTIFY_SIGNAL and TIF_SIGPENDING, which
-signal that the task should bail out of the syscall when possible. This
-is a separate concept from need_resched(), which checks
-TIF_NEED_RESCHED, signaling that the task should preempt.
+Limit the error msg to avoid flooding the console.  If you have a lot of
+threads hitting this at once, they could have already gotten passed the
+dma_debug_disabled() check before they get to the point of allocation
+failure, resulting in quite a lot of this error message spamming the
+log.  Use pr_err_once() to limit that.
 
-In particular, with the current code, the signal_pending() bailout
-probably won't work reliably.
-
-Change this to look like other functions that read lots of data, such as
-read_zero().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/dma/debug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -549,13 +549,13 @@ static ssize_t get_random_bytes_user(voi
- 	}
+diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
+index ac740630c79c..2caafd13f8aa 100644
+--- a/kernel/dma/debug.c
++++ b/kernel/dma/debug.c
+@@ -564,7 +564,7 @@ static void add_dma_entry(struct dma_debug_entry *entry, unsigned long attrs)
  
- 	do {
--		if (large_request && need_resched()) {
-+		if (large_request) {
- 			if (signal_pending(current)) {
- 				if (!ret)
- 					ret = -ERESTARTSYS;
- 				break;
- 			}
--			schedule();
-+			cond_resched();
- 		}
- 
- 		chacha20_block(chacha_state, output);
+ 	rc = active_cacheline_insert(entry);
+ 	if (rc == -ENOMEM) {
+-		pr_err("cacheline tracking ENOMEM, dma-debug disabled\n");
++		pr_err_once("cacheline tracking ENOMEM, dma-debug disabled\n");
+ 		global_disable = true;
+ 	} else if (rc == -EEXIST && !(attrs & DMA_ATTR_SKIP_CPU_SYNC)) {
+ 		err_printk(entry->dev, entry,
+-- 
+2.35.1
+
 
 
