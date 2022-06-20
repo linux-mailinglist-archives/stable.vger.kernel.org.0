@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03EF8551CFA
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D456F551A19
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346413AbiFTNer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:34:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55338 "EHLO
+        id S241906AbiFTMxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:53:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346950AbiFTNdx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:33:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C21F27147;
-        Mon, 20 Jun 2022 06:13:04 -0700 (PDT)
+        with ESMTP id S242672AbiFTMx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:53:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2424DB7F;
+        Mon, 20 Jun 2022 05:53:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8AE09B80E2F;
-        Mon, 20 Jun 2022 13:13:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBF32C3411B;
-        Mon, 20 Jun 2022 13:13:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB52DB811A9;
+        Mon, 20 Jun 2022 12:53:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 043FCC3411B;
+        Mon, 20 Jun 2022 12:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730782;
-        bh=aOprigIcG/hpSAFQqHtR2NrqFIOQ6+qE+2D3VkQdaoU=;
+        s=korg; t=1655729603;
+        bh=+PYrvTFnip/gg9TheCSfPkipohp84RZ+kbpGq3MpCVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJhACC2fQ49rlma/mWWLfbBWD73wI2BaYHVax7ZULETUbihbXEfnGil0KMRuq145Z
-         7z687vAnqcT81SLTmZQS4ZLu14KLrbyIm31+tnPT1EX8gDjWdAaD+F8dFm9kJdBSgs
-         i0nf6F3MtQ7V6QwAymancvnmpBDZFmUMnC69p2ok=
+        b=ifUcpygrAomcG8s32c/pbrva2RoxrIpEC1nPRSFPedU85M5i9Q4y3a6FVunQNWopt
+         6y67EA9gxfSf6eg2Rxc5uBMcoFgEKGD30KTZ2ZTxYnwdza9BE3Fh0qbrEAHqsrqTWX
+         T7ie12PYOTpkAUIiQhoTOeviRs2G/OXazNjLok90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 053/240] random: remove unused extract_entropy() reserved argument
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 016/141] ASoC: cs42l52: Correct TLV for Bypass Volume
 Date:   Mon, 20 Jun 2022 14:49:14 +0200
-Message-Id: <20220620124739.708025777@linuxfoundation.org>
+Message-Id: <20220620124729.999667573@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-commit 8b2d953b91e7f60200c24067ab17b77cc7bfd0d4 upstream.
+[ Upstream commit 91e90c712fade0b69cdff7cc6512f6099bd18ae5 ]
 
-This argument is always set to zero, as a result of us not caring about
-keeping a certain amount reserved in the pool these days. So just remove
-it and cleanup the function signatures.
+The Bypass Volume is accidentally using a -6dB minimum TLV rather than
+the correct -60dB minimum. Add a new TLV to correct this.
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220602162119.3393857-5-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ sound/soc/codecs/cs42l52.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -519,7 +519,7 @@ struct entropy_store {
- };
+diff --git a/sound/soc/codecs/cs42l52.c b/sound/soc/codecs/cs42l52.c
+index 785caba3f653..c19ad3c24702 100644
+--- a/sound/soc/codecs/cs42l52.c
++++ b/sound/soc/codecs/cs42l52.c
+@@ -137,6 +137,8 @@ static DECLARE_TLV_DB_SCALE(mic_tlv, 1600, 100, 0);
  
- static ssize_t extract_entropy(struct entropy_store *r, void *buf,
--			       size_t nbytes, int min, int rsvd);
-+			       size_t nbytes, int min);
- static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
- 				size_t nbytes);
+ static DECLARE_TLV_DB_SCALE(pga_tlv, -600, 50, 0);
  
-@@ -989,7 +989,7 @@ static void crng_reseed(struct crng_stat
- 	} buf;
++static DECLARE_TLV_DB_SCALE(pass_tlv, -6000, 50, 0);
++
+ static DECLARE_TLV_DB_SCALE(mix_tlv, -5150, 50, 0);
  
- 	if (r) {
--		num = extract_entropy(r, &buf, 32, 16, 0);
-+		num = extract_entropy(r, &buf, 32, 16);
- 		if (num == 0)
- 			return;
- 	} else {
-@@ -1327,8 +1327,7 @@ EXPORT_SYMBOL_GPL(add_disk_randomness);
-  * This function decides how many bytes to actually take from the
-  * given pool, and also debits the entropy count accordingly.
-  */
--static size_t account(struct entropy_store *r, size_t nbytes, int min,
--		      int reserved)
-+static size_t account(struct entropy_store *r, size_t nbytes, int min)
- {
- 	int entropy_count, orig, have_bytes;
- 	size_t ibytes, nfrac;
-@@ -1342,7 +1341,7 @@ retry:
- 	/* never pull more than available */
- 	have_bytes = entropy_count >> (ENTROPY_SHIFT + 3);
+ static DECLARE_TLV_DB_SCALE(beep_tlv, -56, 200, 0);
+@@ -351,7 +353,7 @@ static const struct snd_kcontrol_new cs42l52_snd_controls[] = {
+ 			      CS42L52_SPKB_VOL, 0, 0x40, 0xC0, hl_tlv),
  
--	if ((have_bytes -= reserved) < 0)
-+	if (have_bytes < 0)
- 		have_bytes = 0;
- 	ibytes = min_t(size_t, ibytes, have_bytes);
- 	if (ibytes < min)
-@@ -1448,15 +1447,13 @@ static ssize_t _extract_entropy(struct e
-  * returns it in a buffer.
-  *
-  * The min parameter specifies the minimum amount we can pull before
-- * failing to avoid races that defeat catastrophic reseeding while the
-- * reserved parameter indicates how much entropy we must leave in the
-- * pool after each pull to avoid starving other readers.
-+ * failing to avoid races that defeat catastrophic reseeding.
-  */
- static ssize_t extract_entropy(struct entropy_store *r, void *buf,
--				 size_t nbytes, int min, int reserved)
-+				 size_t nbytes, int min)
- {
- 	trace_extract_entropy(r->name, nbytes, ENTROPY_BITS(r), _RET_IP_);
--	nbytes = account(r, nbytes, min, reserved);
-+	nbytes = account(r, nbytes, min);
- 	return _extract_entropy(r, buf, nbytes);
- }
+ 	SOC_DOUBLE_R_SX_TLV("Bypass Volume", CS42L52_PASSTHRUA_VOL,
+-			      CS42L52_PASSTHRUB_VOL, 0, 0x88, 0x90, pga_tlv),
++			      CS42L52_PASSTHRUB_VOL, 0, 0x88, 0x90, pass_tlv),
  
+ 	SOC_DOUBLE("Bypass Mute", CS42L52_MISC_CTL, 4, 5, 1, 0),
+ 
+-- 
+2.35.1
+
 
 
