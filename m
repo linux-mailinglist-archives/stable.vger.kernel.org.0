@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80541551BD2
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 907CF551BE5
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344941AbiFTN0B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:26:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43140 "EHLO
+        id S1345131AbiFTN0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:26:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346420AbiFTNYi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5107819FB7;
-        Mon, 20 Jun 2022 06:09:58 -0700 (PDT)
+        with ESMTP id S1344460AbiFTNY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7071ADBD;
+        Mon, 20 Jun 2022 06:10:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13436B811D6;
-        Mon, 20 Jun 2022 13:09:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61F03C3411B;
-        Mon, 20 Jun 2022 13:09:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADBF560ABE;
+        Mon, 20 Jun 2022 13:09:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A365CC3411B;
+        Mon, 20 Jun 2022 13:09:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730592;
-        bh=TpR7rYFca5qcMT0TIx4vS44R5eD8U8/ZUYNSvppjk7U=;
+        s=korg; t=1655730596;
+        bh=3R++zcar7zR6TsDlEHyNXHwewnX2b38K5TREgitHZyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nP4GFiuHmbsR3PtRH/Dn3b2EhmVukBME2s1tIMOJJvZwOLBVCF8FDRzvPVJMnEuWF
-         OGV9cCV+akreoSvCUIEsaeaQob3DKKvgdNMGlQC4E5KLhaYQY2Xy55IDrnMC6vC/do
-         8197oUBF8bNmLZ8lPJBRyNhrDkK2fXGXSh7K1glU=
+        b=Uii0L9uXRPpPO5bv78VQD6WyKTUrsuFXLerHxPCrW0c1Bddc2p0kPasM8wviNl+qd
+         Z74kVcfKKSJ1oQDCjPGPeIFKRRtl5wnKuxS4ccSN6ktflIUUXtfDDKmEOECGlH2cQB
+         +PdAEOrKXYJ4kwJ+tD+ydI8g30SonSAa5zOMSfu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.15 102/106] KVM: arm64: Dont read a HW interrupt pending state in user context
-Date:   Mon, 20 Jun 2022 14:52:01 +0200
-Message-Id: <20220620124727.403673709@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Chi <andy.chi@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.15 103/106] ALSA: hda/realtek: fix right sounds and mute/micmute LEDs for HP machine
+Date:   Mon, 20 Jun 2022 14:52:02 +0200
+Message-Id: <20220620124727.432412555@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
 References: <20220620124724.380838401@linuxfoundation.org>
@@ -53,106 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Andy Chi <andy.chi@canonical.com>
 
-commit 2cdea19a34c2340b3aa69508804efe4e3750fcec upstream.
+commit 024a7ad9eb4df626ca8c77fef4f67fd0ebd559d2 upstream.
 
-Since 5bfa685e62e9 ("KVM: arm64: vgic: Read HW interrupt pending state
-from the HW"), we're able to source the pending bit for an interrupt
-that is stored either on the physical distributor or on a device.
+The HP EliteBook 630 is using ALC236 codec which used 0x02 to control mute LED
+and 0x01 to control micmute LED. Therefore, add a quirk to make it works.
 
-However, this state is only available when the vcpu is loaded,
-and is not intended to be accessed from userspace. Unfortunately,
-the GICv2 emulation doesn't provide specific userspace accessors,
-and we fallback with the ones that are intended for the guest,
-with fatal consequences.
-
-Add a new vgic_uaccess_read_pending() accessor for userspace
-to use, build on top of the existing vgic_mmio_read_pending().
-
-Reported-by: Eric Auger <eric.auger@redhat.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Tested-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Fixes: 5bfa685e62e9 ("KVM: arm64: vgic: Read HW interrupt pending state from the HW")
-Link: https://lore.kernel.org/r/20220607131427.1164881-2-maz@kernel.org
-Cc: stable@vger.kernel.org
+Signed-off-by: Andy Chi <andy.chi@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220513121648.28584-1-andy.chi@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/vgic/vgic-mmio-v2.c |    4 ++--
- arch/arm64/kvm/vgic/vgic-mmio.c    |   19 ++++++++++++++++---
- arch/arm64/kvm/vgic/vgic-mmio.h    |    3 +++
- 3 files changed, 21 insertions(+), 5 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/kvm/vgic/vgic-mmio-v2.c
-+++ b/arch/arm64/kvm/vgic/vgic-mmio-v2.c
-@@ -418,11 +418,11 @@ static const struct vgic_register_region
- 		VGIC_ACCESS_32bit),
- 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_PENDING_SET,
- 		vgic_mmio_read_pending, vgic_mmio_write_spending,
--		NULL, vgic_uaccess_write_spending, 1,
-+		vgic_uaccess_read_pending, vgic_uaccess_write_spending, 1,
- 		VGIC_ACCESS_32bit),
- 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_PENDING_CLEAR,
- 		vgic_mmio_read_pending, vgic_mmio_write_cpending,
--		NULL, vgic_uaccess_write_cpending, 1,
-+		vgic_uaccess_read_pending, vgic_uaccess_write_cpending, 1,
- 		VGIC_ACCESS_32bit),
- 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_ACTIVE_SET,
- 		vgic_mmio_read_active, vgic_mmio_write_sactive,
---- a/arch/arm64/kvm/vgic/vgic-mmio.c
-+++ b/arch/arm64/kvm/vgic/vgic-mmio.c
-@@ -226,8 +226,9 @@ int vgic_uaccess_write_cenable(struct kv
- 	return 0;
- }
- 
--unsigned long vgic_mmio_read_pending(struct kvm_vcpu *vcpu,
--				     gpa_t addr, unsigned int len)
-+static unsigned long __read_pending(struct kvm_vcpu *vcpu,
-+				    gpa_t addr, unsigned int len,
-+				    bool is_user)
- {
- 	u32 intid = VGIC_ADDR_TO_INTID(addr, 1);
- 	u32 value = 0;
-@@ -248,7 +249,7 @@ unsigned long vgic_mmio_read_pending(str
- 						    IRQCHIP_STATE_PENDING,
- 						    &val);
- 			WARN_RATELIMIT(err, "IRQ %d", irq->host_irq);
--		} else if (vgic_irq_is_mapped_level(irq)) {
-+		} else if (!is_user && vgic_irq_is_mapped_level(irq)) {
- 			val = vgic_get_phys_line_level(irq);
- 		} else {
- 			val = irq_is_pending(irq);
-@@ -263,6 +264,18 @@ unsigned long vgic_mmio_read_pending(str
- 	return value;
- }
- 
-+unsigned long vgic_mmio_read_pending(struct kvm_vcpu *vcpu,
-+				     gpa_t addr, unsigned int len)
-+{
-+	return __read_pending(vcpu, addr, len, false);
-+}
-+
-+unsigned long vgic_uaccess_read_pending(struct kvm_vcpu *vcpu,
-+					gpa_t addr, unsigned int len)
-+{
-+	return __read_pending(vcpu, addr, len, true);
-+}
-+
- static bool is_vgic_v2_sgi(struct kvm_vcpu *vcpu, struct vgic_irq *irq)
- {
- 	return (vgic_irq_is_sgi(irq->intid) &&
---- a/arch/arm64/kvm/vgic/vgic-mmio.h
-+++ b/arch/arm64/kvm/vgic/vgic-mmio.h
-@@ -149,6 +149,9 @@ int vgic_uaccess_write_cenable(struct kv
- unsigned long vgic_mmio_read_pending(struct kvm_vcpu *vcpu,
- 				     gpa_t addr, unsigned int len);
- 
-+unsigned long vgic_uaccess_read_pending(struct kvm_vcpu *vcpu,
-+					gpa_t addr, unsigned int len);
-+
- void vgic_mmio_write_spending(struct kvm_vcpu *vcpu,
- 			      gpa_t addr, unsigned int len,
- 			      unsigned long val);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8857,6 +8857,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x8896, "HP EliteBook 855 G8 Notebook PC", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8898, "HP EliteBook 845 G8 Notebook PC", ALC285_FIXUP_HP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x103c, 0x88d0, "HP Pavilion 15-eh1xxx (mainboard 88D0)", ALC287_FIXUP_HP_GPIO_LED),
++	SND_PCI_QUIRK(0x103c, 0x89aa, "HP EliteBook 630 G9", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x89c3, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x89ca, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
+ 	SND_PCI_QUIRK(0x103c, 0x8a78, "HP Dev One", ALC285_FIXUP_HP_LIMIT_INT_MIC_BOOST),
 
 
