@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AE22551E4C
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 611BE551DC7
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244001AbiFTOD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:03:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45310 "EHLO
+        id S244329AbiFTOEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:04:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351816AbiFTNz1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:55:27 -0400
+        with ESMTP id S245588AbiFTOC2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 10:02:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D6EB340CA;
-        Mon, 20 Jun 2022 06:21:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCB4D1AF25;
+        Mon, 20 Jun 2022 06:26:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C519B811F5;
-        Mon, 20 Jun 2022 13:16:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BB00C3411B;
-        Mon, 20 Jun 2022 13:16:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91724B811E1;
+        Mon, 20 Jun 2022 13:16:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E07F9C3411B;
+        Mon, 20 Jun 2022 13:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730991;
-        bh=0gBkQ6wLl5EpKBmIFvV+KeU4l2koaTdbhqt98TGAaLc=;
+        s=korg; t=1655731003;
+        bh=OpoznZMK1Ok1ZJg+f5Ff1jh+Gv+HjqOFJILFgEo6XZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zkx+YQa7+GHml5TyiLLY2HP56NOKVvsn/DNJer2k7luuLmSMIkmqlmL2rodkjgw4c
-         SgwOf3y/HP/f3gOWD6cokdLJ3GkCpiB96Jrv+/Gt8SxC9jpPr/fJU+flaYMbm+RGY+
-         YIXCtYu5tCq2FSO31Uhjs1c4bp3Z6YW3F3rj/KCQ=
+        b=abEahYSbBqCdwkUfUpaH1/KuJt+MypLZIH8PxF9a/i1nrVXMVKbWrEMGnC4BFStiP
+         u+N8fpIpTYJglAuFsC7rQvbjJ4Z9G+zXwdipEL3xsoSGDf9fhbH9IYWrHh5kJh7D8G
+         pxzLVDUyobDuv/JuDp0olzC7maahvyM4uGu/rxSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 120/240] random: re-add removed comment about get_random_{u32,u64} reseeding
-Date:   Mon, 20 Jun 2022 14:50:21 +0200
-Message-Id: <20220620124742.489236313@linuxfoundation.org>
+Subject: [PATCH 5.4 124/240] random: check for signal_pending() outside of need_resched() check
+Date:   Mon, 20 Jun 2022 14:50:25 +0200
+Message-Id: <20220620124742.606072992@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -54,37 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Jann Horn <jannh@google.com>
 
-commit dd7aa36e535797926d8eb311da7151919130139d upstream.
+commit 1448769c9cdb69ad65287f4f7ab58bc5f2f5d7ba upstream.
 
-The comment about get_random_{u32,u64}() not invoking reseeding got
-added in an unrelated commit, that then was recently reverted by
-0313bc278dac ("Revert "random: block in /dev/urandom""). So this adds
-that little comment snippet back, and improves the wording a bit too.
+signal_pending() checks TIF_NOTIFY_SIGNAL and TIF_SIGPENDING, which
+signal that the task should bail out of the syscall when possible. This
+is a separate concept from need_resched(), which checks
+TIF_NEED_RESCHED, signaling that the task should preempt.
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+In particular, with the current code, the signal_pending() bailout
+probably won't work reliably.
+
+Change this to look like other functions that read lots of data, such as
+read_zero().
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Jann Horn <jannh@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/char/random.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -226,9 +226,10 @@ static void _warn_unseeded_randomness(co
-  *
-  * These interfaces will return the requested number of random bytes
-  * into the given buffer or as a return value. This is equivalent to
-- * a read from /dev/urandom. The integer family of functions may be
-- * higher performance for one-off random integers, because they do a
-- * bit of buffering.
-+ * a read from /dev/urandom. The u32, u64, int, and long family of
-+ * functions may be higher performance for one-off random integers,
-+ * because they do a bit of buffering and do not invoke reseeding
-+ * until the buffer is emptied.
-  *
-  *********************************************************************/
+@@ -549,13 +549,13 @@ static ssize_t get_random_bytes_user(voi
+ 	}
  
+ 	do {
+-		if (large_request && need_resched()) {
++		if (large_request) {
+ 			if (signal_pending(current)) {
+ 				if (!ret)
+ 					ret = -ERESTARTSYS;
+ 				break;
+ 			}
+-			schedule();
++			cond_resched();
+ 		}
+ 
+ 		chacha20_block(chacha_state, output);
 
 
