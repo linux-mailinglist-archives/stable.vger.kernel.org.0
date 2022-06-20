@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38CC6551C59
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65B61551C05
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245617AbiFTNLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53510 "EHLO
+        id S244488AbiFTNV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:21:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344454AbiFTNKQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:10:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A93DD1CFC4;
-        Mon, 20 Jun 2022 06:05:24 -0700 (PDT)
+        with ESMTP id S1346214AbiFTNUX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:20:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 088632A1;
+        Mon, 20 Jun 2022 06:08:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3011B811CC;
-        Mon, 20 Jun 2022 13:02:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAC80C3411B;
-        Mon, 20 Jun 2022 13:02:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1316F615C3;
+        Mon, 20 Jun 2022 13:07:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06000C341C8;
+        Mon, 20 Jun 2022 13:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730147;
-        bh=9iz+eAWx5+Ws2N52jR5JJFMW77Zr3QxK4wBKjTOUjec=;
+        s=korg; t=1655730440;
+        bh=v+1O8n4EHE6XlM6AtNFoQ+Jtk79q239zVi5gqrD+RAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6Xf7WN4z1fsZe/JUj1fCXtFSMGXrKdGlTcHj6BYWlOaoY1aJSPBbF1vCsqUB+1rz
-         msVjX7GMwUQtAhD6AXHhizaMb834QOVn70ogj5YdxV9Un8pfUTLNHIU2diGV8umUbn
-         a06sNAZ9HE2CIQCHb+UnvZmyMP6DiFNL7zPaxVOs=
+        b=AJWUPVXy3dNdYwyRhxslPq9VNE6Yl+2UlIc1KYrsOiCPDPN3CPvNEA0VC3kigyHcO
+         aqRw07BKUkuz7356ecoGzWYHxZaITEpn5Z+19qGcLpfN3DcjhSvMY81nz3dWo8rZhS
+         tVqPvG9O59VzMDRfoninwBIzN5ivpC4qyfuGtvi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 48/84] net: bgmac: Fix an erroneous kfree() in bgmac_remove()
-Date:   Mon, 20 Jun 2022 14:51:11 +0200
-Message-Id: <20220620124722.309628108@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 053/106] i40e: Fix call trace in setup_tx_descriptors
+Date:   Mon, 20 Jun 2022 14:51:12 +0200
+Message-Id: <20220620124725.964612780@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +56,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-[ Upstream commit d7dd6eccfbc95ac47a12396f84e7e1b361db654b ]
+[ Upstream commit fd5855e6b1358e816710afee68a1d2bc685176ca ]
 
-'bgmac' is part of a managed resource allocated with bgmac_alloc(). It
-should not be freed explicitly.
+After PF reset and ethtool -t there was call trace in dmesg
+sometimes leading to panic. When there was some time, around 5
+seconds, between reset and test there were no errors.
 
-Remove the erroneous kfree() from the .remove() function.
+Problem was that pf reset calls i40e_vsi_close in prep_for_reset
+and ethtool -t calls i40e_vsi_close in diag_test. If there was not
+enough time between those commands the second i40e_vsi_close starts
+before previous i40e_vsi_close was done which leads to crash.
 
-Fixes: 34a5102c3235 ("net: bgmac: allocate struct bgmac just once & don't copy it")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/a026153108dd21239036a032b95c25b5cece253b.1655153616.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Add check to diag_test if pf is in reset and don't start offline
+tests if it is true.
+Add netif_info("testing failed") into unhappy path of i40e_diag_test()
+
+Fixes: e17bc411aea8 ("i40e: Disable offline diagnostics if VFs are enabled")
+Fixes: 510efb2682b3 ("i40e: Fix ethtool offline diagnostic with netqueues")
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bgmac-bcma.c | 1 -
- 1 file changed, 1 deletion(-)
+ .../net/ethernet/intel/i40e/i40e_ethtool.c    | 25 +++++++++++++------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bgmac-bcma.c b/drivers/net/ethernet/broadcom/bgmac-bcma.c
-index a5fd161ab5ee..26746197515f 100644
---- a/drivers/net/ethernet/broadcom/bgmac-bcma.c
-+++ b/drivers/net/ethernet/broadcom/bgmac-bcma.c
-@@ -323,7 +323,6 @@ static void bgmac_remove(struct bcma_device *core)
- 	bcma_mdio_mii_unregister(bgmac->mii_bus);
- 	bgmac_enet_remove(bgmac);
- 	bcma_set_drvdata(core, NULL);
--	kfree(bgmac);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index 513ba6974355..0e13ce9b4d00 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -2576,15 +2576,16 @@ static void i40e_diag_test(struct net_device *netdev,
+ 
+ 		set_bit(__I40E_TESTING, pf->state);
+ 
++		if (test_bit(__I40E_RESET_RECOVERY_PENDING, pf->state) ||
++		    test_bit(__I40E_RESET_INTR_RECEIVED, pf->state)) {
++			dev_warn(&pf->pdev->dev,
++				 "Cannot start offline testing when PF is in reset state.\n");
++			goto skip_ol_tests;
++		}
++
+ 		if (i40e_active_vfs(pf) || i40e_active_vmdqs(pf)) {
+ 			dev_warn(&pf->pdev->dev,
+ 				 "Please take active VFs and Netqueues offline and restart the adapter before running NIC diagnostics\n");
+-			data[I40E_ETH_TEST_REG]		= 1;
+-			data[I40E_ETH_TEST_EEPROM]	= 1;
+-			data[I40E_ETH_TEST_INTR]	= 1;
+-			data[I40E_ETH_TEST_LINK]	= 1;
+-			eth_test->flags |= ETH_TEST_FL_FAILED;
+-			clear_bit(__I40E_TESTING, pf->state);
+ 			goto skip_ol_tests;
+ 		}
+ 
+@@ -2631,9 +2632,17 @@ static void i40e_diag_test(struct net_device *netdev,
+ 		data[I40E_ETH_TEST_INTR] = 0;
+ 	}
+ 
+-skip_ol_tests:
+-
+ 	netif_info(pf, drv, netdev, "testing finished\n");
++	return;
++
++skip_ol_tests:
++	data[I40E_ETH_TEST_REG]		= 1;
++	data[I40E_ETH_TEST_EEPROM]	= 1;
++	data[I40E_ETH_TEST_INTR]	= 1;
++	data[I40E_ETH_TEST_LINK]	= 1;
++	eth_test->flags |= ETH_TEST_FL_FAILED;
++	clear_bit(__I40E_TESTING, pf->state);
++	netif_info(pf, drv, netdev, "testing failed\n");
  }
  
- static struct bcma_driver bgmac_bcma_driver = {
+ static void i40e_get_wol(struct net_device *netdev,
 -- 
 2.35.1
 
