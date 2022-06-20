@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE615519F8
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D1DC551AE7
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238416AbiFTNFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:05:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50936 "EHLO
+        id S245149AbiFTNKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:10:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244839AbiFTNED (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3936E192BD;
-        Mon, 20 Jun 2022 05:58:52 -0700 (PDT)
+        with ESMTP id S1343523AbiFTNJZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F217E19286;
+        Mon, 20 Jun 2022 06:04:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF6CEB811A3;
-        Mon, 20 Jun 2022 12:58:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60E09C3411C;
-        Mon, 20 Jun 2022 12:58:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 189B26154E;
+        Mon, 20 Jun 2022 13:00:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 054A9C3411B;
+        Mon, 20 Jun 2022 13:00:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729929;
-        bh=zF1v78wE+V4e5SLuD5aljk/ixD5fd8h/4NWR5z4xJPQ=;
+        s=korg; t=1655730056;
+        bh=nRfTL5ZkQ+5mZ9EPEQF64YRRBhpq8ICgD3DAt2Fm7es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x2j74huuUY0aZPS+bESw+2XaSSDrWjOrc9u2iNdsH4o7pxG8iKEOEDhZZ1EF6arc0
-         0SSTGvJ/E9uUwm3qCnp1Eh65lwJbdAhgSHEWTXyB+Xo+5IoT83BfzCaj1zjF/QDNJB
-         m2JOuCsc8BAmGeSJut5nClKAhpQEounH/BaWqxUw=
+        b=GQ4JFhrDu+NEHHQSOFKRzvlZIVgqFYflLQcC0jXUJUbuLA5kbos5iWBW0hVcQW0sT
+         J3wX00JZ2eqFoZivkyR/0iixOh3qf4emZLPEc6T8mJllv8VGIl1LWhNNHc9dJKylJe
+         2VVxSihQd1iAcRfCAQOz8LgXpAzv7hJXNxKhbMtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 087/141] block: Fix handling of offline queues in blk_mq_alloc_request_hctx()
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Leah Rumancik <leah.rumancik@gmail.com>
+Subject: [PATCH 5.10 02/84] nfsd: Replace use of rwsem with errseq_t
 Date:   Mon, 20 Jun 2022 14:50:25 +0200
-Message-Id: <20220620124732.116921788@linuxfoundation.org>
+Message-Id: <20220620124720.957926070@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +55,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 14dc7a18abbe4176f5626c13c333670da8e06aa1 ]
+commit 555dbf1a9aac6d3150c8b52fa35f768a692f4eeb upstream.
 
-This patch prevents that test nvme/004 triggers the following:
+The nfsd_file nf_rwsem is currently being used to separate file write
+and commit instances to ensure that we catch errors and apply them to
+the correct write/commit.
+We can improve scalability at the expense of a little accuracy (some
+extra false positives) by replacing the nf_rwsem with more careful
+use of the errseq_t mechanism to track errors across the different
+operations.
 
-UBSAN: array-index-out-of-bounds in block/blk-mq.h:135:9
-index 512 is out of range for type 'long unsigned int [512]'
-Call Trace:
- show_stack+0x52/0x58
- dump_stack_lvl+0x49/0x5e
- dump_stack+0x10/0x12
- ubsan_epilogue+0x9/0x3b
- __ubsan_handle_out_of_bounds.cold+0x44/0x49
- blk_mq_alloc_request_hctx+0x304/0x310
- __nvme_submit_sync_cmd+0x70/0x200 [nvme_core]
- nvmf_connect_io_queue+0x23e/0x2a0 [nvme_fabrics]
- nvme_loop_connect_io_queues+0x8d/0xb0 [nvme_loop]
- nvme_loop_create_ctrl+0x58e/0x7d0 [nvme_loop]
- nvmf_create_ctrl+0x1d7/0x4d0 [nvme_fabrics]
- nvmf_dev_write+0xae/0x111 [nvme_fabrics]
- vfs_write+0x144/0x560
- ksys_write+0xb7/0x140
- __x64_sys_write+0x42/0x50
- do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+[ cel: rebased on zero-verifier fix ]
+Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Ming Lei <ming.lei@redhat.com>
-Fixes: 20e4d8139319 ("blk-mq: simplify queue mapping & schedule with each possisble CPU")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20220615210004.1031820-1-bvanassche@acm.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfsd/filecache.c |    1 -
+ fs/nfsd/filecache.h |    1 -
+ fs/nfsd/nfs4proc.c  |    7 ++++---
+ fs/nfsd/vfs.c       |   40 +++++++++++++++-------------------------
+ 4 files changed, 19 insertions(+), 30 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index de7fc6957271..631fb87b4976 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -579,6 +579,8 @@ struct request *blk_mq_alloc_request_hctx(struct request_queue *q,
- 	if (!blk_mq_hw_queue_mapped(data.hctx))
- 		goto out_queue_exit;
- 	cpu = cpumask_first_and(data.hctx->cpumask, cpu_online_mask);
-+	if (cpu >= nr_cpu_ids)
-+		goto out_queue_exit;
- 	data.ctx = __blk_mq_get_ctx(q, cpu);
+--- a/fs/nfsd/filecache.c
++++ b/fs/nfsd/filecache.c
+@@ -194,7 +194,6 @@ nfsd_file_alloc(struct inode *inode, uns
+ 				__set_bit(NFSD_FILE_BREAK_READ, &nf->nf_flags);
+ 		}
+ 		nf->nf_mark = NULL;
+-		init_rwsem(&nf->nf_rwsem);
+ 		trace_nfsd_file_alloc(nf);
+ 	}
+ 	return nf;
+--- a/fs/nfsd/filecache.h
++++ b/fs/nfsd/filecache.h
+@@ -46,7 +46,6 @@ struct nfsd_file {
+ 	refcount_t		nf_ref;
+ 	unsigned char		nf_may;
+ 	struct nfsd_file_mark	*nf_mark;
+-	struct rw_semaphore	nf_rwsem;
+ };
  
- 	if (!q->elevator)
--- 
-2.35.1
-
+ int nfsd_file_cache_init(void);
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -1380,6 +1380,8 @@ static void nfsd4_init_copy_res(struct n
+ 
+ static ssize_t _nfsd_copy_file_range(struct nfsd4_copy *copy)
+ {
++	struct file *dst = copy->nf_dst->nf_file;
++	struct file *src = copy->nf_src->nf_file;
+ 	ssize_t bytes_copied = 0;
+ 	size_t bytes_total = copy->cp_count;
+ 	u64 src_pos = copy->cp_src_pos;
+@@ -1388,9 +1390,8 @@ static ssize_t _nfsd_copy_file_range(str
+ 	do {
+ 		if (kthread_should_stop())
+ 			break;
+-		bytes_copied = nfsd_copy_file_range(copy->nf_src->nf_file,
+-				src_pos, copy->nf_dst->nf_file, dst_pos,
+-				bytes_total);
++		bytes_copied = nfsd_copy_file_range(src, src_pos, dst, dst_pos,
++						    bytes_total);
+ 		if (bytes_copied <= 0)
+ 			break;
+ 		bytes_total -= bytes_copied;
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -535,10 +535,11 @@ __be32 nfsd4_clone_file_range(struct nfs
+ {
+ 	struct file *src = nf_src->nf_file;
+ 	struct file *dst = nf_dst->nf_file;
++	errseq_t since;
+ 	loff_t cloned;
+ 	__be32 ret = 0;
+ 
+-	down_write(&nf_dst->nf_rwsem);
++	since = READ_ONCE(dst->f_wb_err);
+ 	cloned = vfs_clone_file_range(src, src_pos, dst, dst_pos, count, 0);
+ 	if (cloned < 0) {
+ 		ret = nfserrno(cloned);
+@@ -553,6 +554,8 @@ __be32 nfsd4_clone_file_range(struct nfs
+ 		int status = vfs_fsync_range(dst, dst_pos, dst_end, 0);
+ 
+ 		if (!status)
++			status = filemap_check_wb_err(dst->f_mapping, since);
++		if (!status)
+ 			status = commit_inode_metadata(file_inode(src));
+ 		if (status < 0) {
+ 			nfsd_reset_boot_verifier(net_generic(nf_dst->nf_net,
+@@ -561,7 +564,6 @@ __be32 nfsd4_clone_file_range(struct nfs
+ 		}
+ 	}
+ out_err:
+-	up_write(&nf_dst->nf_rwsem);
+ 	return ret;
+ }
+ 
+@@ -980,6 +982,7 @@ nfsd_vfs_write(struct svc_rqst *rqstp, s
+ 	struct file		*file = nf->nf_file;
+ 	struct svc_export	*exp;
+ 	struct iov_iter		iter;
++	errseq_t		since;
+ 	__be32			nfserr;
+ 	int			host_err;
+ 	int			use_wgather;
+@@ -1009,21 +1012,18 @@ nfsd_vfs_write(struct svc_rqst *rqstp, s
+ 		flags |= RWF_SYNC;
+ 
+ 	iov_iter_kvec(&iter, WRITE, vec, vlen, *cnt);
++	since = READ_ONCE(file->f_wb_err);
+ 	if (flags & RWF_SYNC) {
+-		down_write(&nf->nf_rwsem);
+ 		host_err = vfs_iter_write(file, &iter, &pos, flags);
+ 		if (host_err < 0)
+ 			nfsd_reset_boot_verifier(net_generic(SVC_NET(rqstp),
+ 						 nfsd_net_id));
+-		up_write(&nf->nf_rwsem);
+ 	} else {
+-		down_read(&nf->nf_rwsem);
+ 		if (verf)
+ 			nfsd_copy_boot_verifier(verf,
+ 					net_generic(SVC_NET(rqstp),
+ 					nfsd_net_id));
+ 		host_err = vfs_iter_write(file, &iter, &pos, flags);
+-		up_read(&nf->nf_rwsem);
+ 	}
+ 	if (host_err < 0) {
+ 		nfsd_reset_boot_verifier(net_generic(SVC_NET(rqstp),
+@@ -1033,6 +1033,9 @@ nfsd_vfs_write(struct svc_rqst *rqstp, s
+ 	*cnt = host_err;
+ 	nfsdstats.io_write += *cnt;
+ 	fsnotify_modify(file);
++	host_err = filemap_check_wb_err(file->f_mapping, since);
++	if (host_err < 0)
++		goto out_nfserr;
+ 
+ 	if (stable && use_wgather) {
+ 		host_err = wait_for_concurrent_writes(file);
+@@ -1113,19 +1116,6 @@ out:
+ }
+ 
+ #ifdef CONFIG_NFSD_V3
+-static int
+-nfsd_filemap_write_and_wait_range(struct nfsd_file *nf, loff_t offset,
+-				  loff_t end)
+-{
+-	struct address_space *mapping = nf->nf_file->f_mapping;
+-	int ret = filemap_fdatawrite_range(mapping, offset, end);
+-
+-	if (ret)
+-		return ret;
+-	filemap_fdatawait_range_keep_errors(mapping, offset, end);
+-	return 0;
+-}
+-
+ /*
+  * Commit all pending writes to stable storage.
+  *
+@@ -1156,25 +1146,25 @@ nfsd_commit(struct svc_rqst *rqstp, stru
+ 	if (err)
+ 		goto out;
+ 	if (EX_ISSYNC(fhp->fh_export)) {
+-		int err2 = nfsd_filemap_write_and_wait_range(nf, offset, end);
++		errseq_t since = READ_ONCE(nf->nf_file->f_wb_err);
++		int err2;
+ 
+-		down_write(&nf->nf_rwsem);
+-		if (!err2)
+-			err2 = vfs_fsync_range(nf->nf_file, offset, end, 0);
++		err2 = vfs_fsync_range(nf->nf_file, offset, end, 0);
+ 		switch (err2) {
+ 		case 0:
+ 			nfsd_copy_boot_verifier(verf, net_generic(nf->nf_net,
+ 						nfsd_net_id));
++			err2 = filemap_check_wb_err(nf->nf_file->f_mapping,
++						    since);
+ 			break;
+ 		case -EINVAL:
+ 			err = nfserr_notsupp;
+ 			break;
+ 		default:
+-			err = nfserrno(err2);
+ 			nfsd_reset_boot_verifier(net_generic(nf->nf_net,
+ 						 nfsd_net_id));
+ 		}
+-		up_write(&nf->nf_rwsem);
++		err = nfserrno(err2);
+ 	} else
+ 		nfsd_copy_boot_verifier(verf, net_generic(nf->nf_net,
+ 					nfsd_net_id));
 
 
