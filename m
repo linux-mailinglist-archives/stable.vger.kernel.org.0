@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E25C75519DD
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D25AE551C3A
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244210AbiFTNF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:05:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47752 "EHLO
+        id S242659AbiFTNUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:20:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244090AbiFTNEe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 575AA193E1;
-        Mon, 20 Jun 2022 05:59:51 -0700 (PDT)
+        with ESMTP id S245664AbiFTNRg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:17:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33235E21;
+        Mon, 20 Jun 2022 06:07:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3873E6153E;
-        Mon, 20 Jun 2022 12:59:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4388DC3411C;
-        Mon, 20 Jun 2022 12:59:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E192B811E1;
+        Mon, 20 Jun 2022 13:07:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA6B4C3411B;
+        Mon, 20 Jun 2022 13:07:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729990;
-        bh=aSD1zz0+mNqeznv6haUaGQ071TTWhczN1/kvaqFFRsI=;
+        s=korg; t=1655730456;
+        bh=js67p3A6r8bSQ11UmhXkeDmQ7ZxE7A+ttl3hqzllPQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyxZxVS95C9+kvGt/Jk6ry3g1DxDZLSlZIJOy1F3tiVtHlUTd8vwRO+K2++S0pUIB
-         Uc8tC9+KhJpMNkzBO33xI5SdhSkisJH8SIKEJzgkRWiZtrJde2RS0BmmzHe9q9wt0B
-         Iwj5WoYO6u+CSJLg0Gg0uOm6iAubNvfrK+HLT3TM=
+        b=I/m0D60Ay7Exds4qRfFkeOUrx62T4WQU9rwrobUgoxTCuwgf9A5JoYVS0/S4Jel5e
+         TsVPCg4JC3JRdyqIKCyfRPE2mFVb3hIa+KtHmuXiyQMhLia/UNWGctunB2+lToPbCg
+         VXcbePNzI0EzCdk4vNEphM8xPg5Nm4Zr7CPyYMWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.18 139/141] dt-bindings: interrupt-controller: update brcm,l2-intc.yaml reference
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        van fantasy <g1042620637@gmail.com>
+Subject: [PATCH 5.15 058/106] io_uring: fix races with buffer table unregister
 Date:   Mon, 20 Jun 2022 14:51:17 +0200
-Message-Id: <20220620124733.667779397@linuxfoundation.org>
+Message-Id: <20220620124726.120555527@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@kernel.org>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 7e40381d8a33e41e347cea5bdd000091653000c6 upstream.
+[ Upstream commit d11d31fc5d8a96f707facee0babdcffaafa38de2 ]
 
-Changeset 539d25b21fe8 ("dt-bindings: interrupt-controller: Convert Broadcom STB L2 to YAML")
-renamed: Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.txt
-to: Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.yaml.
+Fixed buffer table quiesce might unlock ->uring_lock, potentially
+letting new requests to be submitted, don't allow those requests to
+use the table as they will race with unregistration.
 
-Update its cross-reference accordingly.
-
-Fixes: 539d25b21fe8 ("dt-bindings: interrupt-controller: Convert Broadcom STB L2 to YAML")
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/a40c02a7aaea91ea7b6ce24b6bc574ae5bcf4cf6.1654529011.git.mchehab@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-and-tested-by: van fantasy <g1042620637@gmail.com>
+Fixes: bd54b6fe3316ec ("io_uring: implement fixed buffers registration similar to fixed files")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/cpufreq/brcm,stb-avs-cpu-freq.txt |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/Documentation/devicetree/bindings/cpufreq/brcm,stb-avs-cpu-freq.txt
-+++ b/Documentation/devicetree/bindings/cpufreq/brcm,stb-avs-cpu-freq.txt
-@@ -16,7 +16,7 @@ has been processed. See [2] for more inf
- firmware. On some SoCs, this firmware supports DFS and DVFS in addition to
- Adaptive Voltage Scaling.
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 5f111a660fff..be2176575353 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8905,12 +8905,19 @@ static void __io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
  
--[2] Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.txt
-+[2] Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.yaml
+ static int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
+ {
++	unsigned nr = ctx->nr_user_bufs;
+ 	int ret;
  
+ 	if (!ctx->buf_data)
+ 		return -ENXIO;
  
- Node brcm,avs-cpu-data-mem
++	/*
++	 * Quiesce may unlock ->uring_lock, and while it's not held
++	 * prevent new requests using the table.
++	 */
++	ctx->nr_user_bufs = 0;
+ 	ret = io_rsrc_ref_quiesce(ctx->buf_data, ctx);
++	ctx->nr_user_bufs = nr;
+ 	if (!ret)
+ 		__io_sqe_buffers_unregister(ctx);
+ 	return ret;
+-- 
+2.35.1
+
 
 
