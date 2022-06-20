@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFF925511E3
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0702E5511E4
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239570AbiFTHvh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 03:51:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46740 "EHLO
+        id S239574AbiFTHvl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 03:51:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239573AbiFTHvg (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D049DEEF
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:36 -0700 (PDT)
+        with ESMTP id S239573AbiFTHvk (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B5E8DEEF
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFF6D61202
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7DE2C3411B;
-        Mon, 20 Jun 2022 07:51:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 171A16120F
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0602FC341C4;
+        Mon, 20 Jun 2022 07:51:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655711495;
-        bh=gh+Lml8AvNmwGTBbUMg105DnMume1LrJJCblmYCibPc=;
+        s=korg; t=1655711498;
+        bh=P2laqlEXszMXQV9th4LABDPogidpjmqIdYcUduqiiW4=;
         h=Subject:To:From:Date:From;
-        b=qO0TFTOPzoOz6k8u80XNq3a6V9nhtdnYJx7OSCBuCR/WOB7yQ/3DaZt+jUh0PKKKZ
-         +1lX/98nzPw9SbSvYSOl1WX8epYU24Fve77MwW2KCOBTaKolgRSCI2A+M/WwMqOVIs
-         mXDz1yUx/lxxbtxbokAa9Ni+Fl7+i2AhWght8YLA=
-Subject: patch "iio:humidity:hts221: rearrange iio trigger get and register" added to char-misc-linus
-To:     DDRokosov@sberdevices.ru, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, andy.shevchenko@gmail.com,
-        ddrokosov@sberdevices.ru
+        b=P3CAEzD9F2BdLmKvIKKqEy0cm++r/aMg3IGrrfbmrblUifsv5hDEwKr22pjJqWGpA
+         /sgqUs0fIscJzLzaEaGWWyntHcxSfMKrJXT3EacolXeIaWlOeOknGSK9KaQYMSCqua
+         4JiZqqOGwWbItfEDd16hKmwjrASbdXy/sx/PtKXE=
+Subject: patch "iio: adc: adi-axi-adc: Fix refcount leak in adi_axi_adc_attach_client" added to char-misc-linus
+To:     linmq006@gmail.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jun 2022 09:50:47 +0200
-Message-ID: <1655711447133231@kroah.com>
+Date:   Mon, 20 Jun 2022 09:50:48 +0200
+Message-ID: <165571144894173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio:humidity:hts221: rearrange iio trigger get and register
+    iio: adc: adi-axi-adc: Fix refcount leak in adi_axi_adc_attach_client
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -66,48 +65,48 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 10b9c2c33ac706face458feab8965f11743c98c0 Mon Sep 17 00:00:00 2001
-From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
-Date: Tue, 24 May 2022 18:14:46 +0000
-Subject: iio:humidity:hts221: rearrange iio trigger get and register
+From ada7b0c0dedafd7d059115adf49e48acba3153a8 Mon Sep 17 00:00:00 2001
+From: Miaoqian Lin <linmq006@gmail.com>
+Date: Tue, 24 May 2022 11:45:17 +0400
+Subject: iio: adc: adi-axi-adc: Fix refcount leak in adi_axi_adc_attach_client
 
-IIO trigger interface function iio_trigger_get() should be called after
-iio_trigger_register() (or its devm analogue) strictly, because of
-iio_trigger_get() acquires module refcnt based on the trigger->owner
-pointer, which is initialized inside iio_trigger_register() to
-THIS_MODULE.
-If this call order is wrong, the next iio_trigger_put() (from sysfs
-callback or "delete module" path) will dereference "default" module
-refcnt, which is incorrect behaviour.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: e4a70e3e7d84 ("iio: humidity: add support to hts221 rh/temp combo device")
-Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220524181150.9240-6-ddrokosov@sberdevices.ru
+Fixes: ef04070692a2 ("iio: adc: adi-axi-adc: add support for AXI ADC IP core")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220524074517.45268-1-linmq006@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/humidity/hts221_buffer.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/iio/adc/adi-axi-adc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iio/humidity/hts221_buffer.c b/drivers/iio/humidity/hts221_buffer.c
-index f29692b9d2db..66b32413cf5e 100644
---- a/drivers/iio/humidity/hts221_buffer.c
-+++ b/drivers/iio/humidity/hts221_buffer.c
-@@ -135,9 +135,12 @@ int hts221_allocate_trigger(struct iio_dev *iio_dev)
+diff --git a/drivers/iio/adc/adi-axi-adc.c b/drivers/iio/adc/adi-axi-adc.c
+index a73e3c2d212f..a9e655e69eaa 100644
+--- a/drivers/iio/adc/adi-axi-adc.c
++++ b/drivers/iio/adc/adi-axi-adc.c
+@@ -322,16 +322,19 @@ static struct adi_axi_adc_client *adi_axi_adc_attach_client(struct device *dev)
  
- 	iio_trigger_set_drvdata(hw->trig, iio_dev);
- 	hw->trig->ops = &hts221_trigger_ops;
-+
-+	err = devm_iio_trigger_register(hw->dev, hw->trig);
-+
- 	iio_dev->trig = iio_trigger_get(hw->trig);
+ 		if (!try_module_get(cl->dev->driver->owner)) {
+ 			mutex_unlock(&registered_clients_lock);
++			of_node_put(cln);
+ 			return ERR_PTR(-ENODEV);
+ 		}
  
--	return devm_iio_trigger_register(hw->dev, hw->trig);
-+	return err;
+ 		get_device(cl->dev);
+ 		cl->info = info;
+ 		mutex_unlock(&registered_clients_lock);
++		of_node_put(cln);
+ 		return cl;
+ 	}
+ 
+ 	mutex_unlock(&registered_clients_lock);
++	of_node_put(cln);
+ 
+ 	return ERR_PTR(-EPROBE_DEFER);
  }
- 
- static int hts221_buffer_preenable(struct iio_dev *iio_dev)
 -- 
 2.36.1
 
