@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A7B7551C29
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7572551CE9
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344164AbiFTNYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1344175AbiFTNYt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 20 Jun 2022 09:24:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59008 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345905AbiFTNYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:11 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA4FE13D49;
-        Mon, 20 Jun 2022 06:09:36 -0700 (PDT)
+        with ESMTP id S1346102AbiFTNYW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1963C237E0;
+        Mon, 20 Jun 2022 06:09:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2465BCE1395;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3890A60A5F;
+        Mon, 20 Jun 2022 13:08:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E24BC3411B;
         Mon, 20 Jun 2022 13:08:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3467BC3411B;
-        Mon, 20 Jun 2022 13:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730529;
-        bh=k6te6UvAhWV0pHOaWU9Llx1ueM872wXXeKd2sw/X/WE=;
+        s=korg; t=1655730532;
+        bh=4n0Wzlr6YB1MgU7Df3hf9T2VUmmmf5Q3AuPkSwfTp6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gPTwFKUm5/lm3iHp7VegnEaFOI7o4hkvPSk4uW2wBKNykcwCg15oExXaxSS3VTGo1
-         6H2cm3cguQ+PKg4VfIQcXXskOG9noauDpvHwRclT2AT/klfV56wBylImz1rXwwS5qQ
-         1Ecym5T8Tc3eUwz2ScIhG6rJSRDaJam455aU+EoU=
+        b=qz7kYYx1vGK5RJuaeUS5oymcJx4Bg4yf7k3t49fo7TnLbyLqTft/0srWhSXGR0Gzn
+         RK763bKuodyLA46XLdyssucsPloydoPeldkEmPJ66WJj/FJVfytClCXh+1CKvS08Wm
+         +oswDtRlH4OOxT7bgMdBIwG3H6b/hLut/5ZfQmNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.15 082/106] mei: me: add raptor lake point S DID
-Date:   Mon, 20 Jun 2022 14:51:41 +0200
-Message-Id: <20220620124726.819126808@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.15 083/106] comedi: vmk80xx: fix expression for tx buffer size
+Date:   Mon, 20 Jun 2022 14:51:42 +0200
+Message-Id: <20220620124726.847387907@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
 References: <20220620124724.380838401@linuxfoundation.org>
@@ -54,43 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit 3ed8c7d39cfef831fe508fc1308f146912fa72e6 upstream.
+commit 242439f7e279d86b3f73b5de724bc67b2f8aeb07 upstream.
 
-Add Raptor (Point) Lake S device id.
+The expression for setting the size of the allocated bulk TX buffer
+(`devpriv->usb_tx_buf`) is calling `usb_endpoint_maxp(devpriv->ep_rx)`,
+which is using the wrong endpoint (should be `devpriv->ep_tx`).  Fix it.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20220606144225.282375-3-tomas.winkler@intel.com
+Fixes: a23461c47482 ("comedi: vmk80xx: fix transfer-buffer overflow")
+Cc: Johan Hovold <johan@kernel.org>
+Cc: stable@vger.kernel.org # 4.9+
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20220607171819.4121-1-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/hw-me-regs.h |    2 ++
- drivers/misc/mei/pci-me.c     |    2 ++
- 2 files changed, 4 insertions(+)
+ drivers/comedi/drivers/vmk80xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -109,6 +109,8 @@
- #define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
- #define MEI_DEV_ID_ADP_N      0x54E0  /* Alder Lake Point N */
+--- a/drivers/comedi/drivers/vmk80xx.c
++++ b/drivers/comedi/drivers/vmk80xx.c
+@@ -685,7 +685,7 @@ static int vmk80xx_alloc_usb_buffers(str
+ 	if (!devpriv->usb_rx_buf)
+ 		return -ENOMEM;
  
-+#define MEI_DEV_ID_RPL_S      0x7A68  /* Raptor Lake Point S */
-+
- /*
-  * MEI HW Section
-  */
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -115,6 +115,8 @@ static const struct pci_device_id mei_me
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_P, MEI_ME_PCH15_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_N, MEI_ME_PCH15_CFG)},
- 
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_RPL_S, MEI_ME_PCH15_CFG)},
-+
- 	/* required last entry */
- 	{0, }
- };
+-	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
++	size = max(usb_endpoint_maxp(devpriv->ep_tx), MIN_BUF_SIZE);
+ 	devpriv->usb_tx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_tx_buf)
+ 		return -ENOMEM;
 
 
