@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82D24551BA1
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0DFB5519F9
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244710AbiFTNO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:14:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35874 "EHLO
+        id S243762AbiFTNEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:04:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343519AbiFTNNM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:13:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C7AF1E3DA;
-        Mon, 20 Jun 2022 06:05:54 -0700 (PDT)
+        with ESMTP id S244553AbiFTNDn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:03:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AA041E3DB;
+        Mon, 20 Jun 2022 05:58:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C44DB61535;
-        Mon, 20 Jun 2022 13:05:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB706C3411C;
-        Mon, 20 Jun 2022 13:05:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7AB061449;
+        Mon, 20 Jun 2022 12:58:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C508EC341C6;
+        Mon, 20 Jun 2022 12:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730354;
-        bh=ToUh3uw+d6OuQ3xQsEOfSMJFmNh46l4CiJEgdqIQs3w=;
+        s=korg; t=1655729890;
+        bh=KJ2SapzxlRMwj2wOaVCg3xVM4XQkTl/+A3xCbWmz0Ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/M96afLJtI2moiWabkrbF84zM3YWL8xBr+H3m1gcCv7mswXed5mc2d2sxV8U2EED
-         NP3BdOIPHJCL0aU1bRla+HPlrze1uP5jFNyRcaInJj7yNPFGO3aEIf+sspRFccnNuS
-         h/BJzv4SaHILgPptX+FA6c4r0amL1Y3tk+Umr10w=
+        b=zwq3XoJsTtp50Jks7sEpSIi/toPXX7nGAUAiNuyAAsOP3jUp1TSmktnyDZAfRGRFQ
+         gwL5V/eDfCrlfyEZdy5mqNJpj10m5aldQgqlZSqrF4i7EzJ5WtxM0J0jS5LTpkETFt
+         ijYG5DoavehZLo2jZ2SW/ucOxbsY1Tlj3cB7qR5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 026/106] scsi: lpfc: Allow reduced polling rate for nvme_admin_async_event cmd completion
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Minas Harutyunyan <hminas@synopsys.com>,
+        Miaoqian Lin <linmq006@gmail.com>
+Subject: [PATCH 5.18 107/141] usb: dwc2: Fix memory leak in dwc2_hcd_init
 Date:   Mon, 20 Jun 2022 14:50:45 +0200
-Message-Id: <20220620124725.159383225@linuxfoundation.org>
+Message-Id: <20220620124732.706983940@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 2e7e9c0c1ec05f18d320ecc8a31eec59d2af1af9 ]
+commit 3755278f078460b021cd0384562977bf2039a57a upstream.
 
-NVMe Asynchronous Event Request commands have no command timeout value per
-specifications.
+usb_create_hcd will alloc memory for hcd, and we should
+call usb_put_hcd to free it when platform_get_resource()
+fails to prevent memory leak.
+goto error2 label instead error1 to fix this.
 
-Set WQE option to allow a reduced FLUSH polling rate for I/O error
-detection specifically for nvme_admin_async_event commands.
-
-Link: https://lore.kernel.org/r/20220603174329.63777-9-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 856e6e8e0f93 ("usb: dwc2: check return value after calling platform_get_resource()")
+Cc: stable <stable@kernel.org>
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220530085413.44068-1-linmq006@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_hw4.h  |  3 +++
- drivers/scsi/lpfc/lpfc_nvme.c | 11 +++++++++--
- 2 files changed, 12 insertions(+), 2 deletions(-)
+ drivers/usb/dwc2/hcd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_hw4.h b/drivers/scsi/lpfc/lpfc_hw4.h
-index 7359505e6041..824fc8c08840 100644
---- a/drivers/scsi/lpfc/lpfc_hw4.h
-+++ b/drivers/scsi/lpfc/lpfc_hw4.h
-@@ -4448,6 +4448,9 @@ struct wqe_common {
- #define wqe_sup_SHIFT         6
- #define wqe_sup_MASK          0x00000001
- #define wqe_sup_WORD          word11
-+#define wqe_ffrq_SHIFT         6
-+#define wqe_ffrq_MASK          0x00000001
-+#define wqe_ffrq_WORD          word11
- #define wqe_wqec_SHIFT        7
- #define wqe_wqec_MASK         0x00000001
- #define wqe_wqec_WORD         word11
-diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
-index 66cb66aea2cf..4fb3dc5092f5 100644
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -1182,7 +1182,8 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
- {
- 	struct lpfc_hba *phba = vport->phba;
- 	struct nvmefc_fcp_req *nCmd = lpfc_ncmd->nvmeCmd;
--	struct lpfc_iocbq *pwqeq = &(lpfc_ncmd->cur_iocbq);
-+	struct nvme_common_command *sqe;
-+	struct lpfc_iocbq *pwqeq = &lpfc_ncmd->cur_iocbq;
- 	union lpfc_wqe128 *wqe = &pwqeq->wqe;
- 	uint32_t req_len;
- 
-@@ -1239,8 +1240,14 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
- 		cstat->control_requests++;
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -5190,7 +5190,7 @@ int dwc2_hcd_init(struct dwc2_hsotg *hso
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!res) {
+ 		retval = -EINVAL;
+-		goto error1;
++		goto error2;
  	}
- 
--	if (pnode->nlp_nvme_info & NLP_NVME_NSLER)
-+	if (pnode->nlp_nvme_info & NLP_NVME_NSLER) {
- 		bf_set(wqe_erp, &wqe->generic.wqe_com, 1);
-+		sqe = &((struct nvme_fc_cmd_iu *)
-+			nCmd->cmdaddr)->sqe.common;
-+		if (sqe->opcode == nvme_admin_async_event)
-+			bf_set(wqe_ffrq, &wqe->generic.wqe_com, 1);
-+	}
-+
- 	/*
- 	 * Finish initializing those WQE fields that are independent
- 	 * of the nvme_cmnd request_buffer
--- 
-2.35.1
-
+ 	hcd->rsrc_start = res->start;
+ 	hcd->rsrc_len = resource_size(res);
 
 
