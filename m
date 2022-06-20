@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 668DC551B1F
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C31B4551A78
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245121AbiFTNKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:10:53 -0400
+        id S244457AbiFTNGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:06:03 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245682AbiFTNJV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65062263F;
-        Mon, 20 Jun 2022 06:03:55 -0700 (PDT)
+        with ESMTP id S244194AbiFTNEm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACDB1193F4;
+        Mon, 20 Jun 2022 06:00:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FD4FB811A2;
-        Mon, 20 Jun 2022 13:02:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D280FC3411B;
-        Mon, 20 Jun 2022 13:02:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A1516153E;
+        Mon, 20 Jun 2022 13:00:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5067FC3411C;
+        Mon, 20 Jun 2022 13:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730150;
-        bh=O1OHMBqUZvchCY9nx0LeY5KaecCnKrJUpkJ5Xf1RCl8=;
+        s=korg; t=1655730005;
+        bh=pSRUrrJVSkmqn3e99bE13Jtw6ybKL9gmtfLgF359Uqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fuicsGkDKKby+4w4YWj7hpvdmIGTuwRYtXLDuXQd5arpRyC/TJyfZDOtCc0fM6z9y
-         n3BEt47gknT+e6WFQLd7ysIzCCDrHGBs0dksVIdffbf0wKH4cxE1RdBf3JS2TtHBLg
-         1I3DLFnVrwSbOcN4LmvcDd8FEs90ISYDDeFHUeLw=
+        b=yBjg27uku6aTBxmhfz3UkgfyfwxYcjCqEM3ODMona/WDj2ASTs1rekzLsVKJW8hqB
+         l+12x3B+Ce9xZuO07nZFvkT/ZBmsWn36zXCG8011ppeRF/eduBTF1Tm5v2Kh+M1h5F
+         L0QRatGImbJXKvBnyQkU9fSFHdJzXS5svKKku9pM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 37/84] clocksource: hyper-v: unexport __init-annotated hv_init_clocksource()
-Date:   Mon, 20 Jun 2022 14:51:00 +0200
-Message-Id: <20220620124721.989633894@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.18 123/141] audit: free module name
+Date:   Mon, 20 Jun 2022 14:51:01 +0200
+Message-Id: <20220620124733.188036063@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,52 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Christian Göttsche <cgzones@googlemail.com>
 
-[ Upstream commit 245b993d8f6c4e25f19191edfbd8080b645e12b1 ]
+commit ef79c396c664be99d0c5660dc75fe863c1e20315 upstream.
 
-EXPORT_SYMBOL and __init is a bad combination because the .init.text
-section is freed up after the initialization. Hence, modules cannot
-use symbols annotated __init. The access to a freed symbol may end up
-with kernel panic.
+Reset the type of the record last as the helper `audit_free_module()`
+depends on it.
 
-modpost used to detect it, but it has been broken for a decade.
+    unreferenced object 0xffff888153b707f0 (size 16):
+      comm "modprobe", pid 1319, jiffies 4295110033 (age 1083.016s)
+      hex dump (first 16 bytes):
+        62 69 6e 66 6d 74 5f 6d 69 73 63 00 6b 6b 6b a5  binfmt_misc.kkk.
+      backtrace:
+        [<ffffffffa07dbf9b>] kstrdup+0x2b/0x50
+        [<ffffffffa04b0a9d>] __audit_log_kern_module+0x4d/0xf0
+        [<ffffffffa03b6664>] load_module+0x9d4/0x2e10
+        [<ffffffffa03b8f44>] __do_sys_finit_module+0x114/0x1b0
+        [<ffffffffa1f47124>] do_syscall_64+0x34/0x80
+        [<ffffffffa200007e>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Recently, I fixed modpost so it started to warn it again, then this
-showed up in linux-next builds.
-
-There are two ways to fix it:
-
-  - Remove __init
-  - Remove EXPORT_SYMBOL
-
-I chose the latter for this case because the only in-tree call-site,
-arch/x86/kernel/cpu/mshyperv.c is never compiled as modular.
-(CONFIG_HYPERVISOR_GUEST is boolean)
-
-Fixes: dd2cb348613b ("clocksource/drivers: Continue making Hyper-V clocksource ISA agnostic")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20220606050238.4162200-1-masahiroy@kernel.org
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 12c5e81d3fd0 ("audit: prepare audit_context for use in calling contexts beyond syscalls")
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/hyperv_timer.c | 1 -
- 1 file changed, 1 deletion(-)
+ kernel/auditsc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
-index ba04cb381cd3..7c617d8dff3f 100644
---- a/drivers/clocksource/hyperv_timer.c
-+++ b/drivers/clocksource/hyperv_timer.c
-@@ -472,4 +472,3 @@ void __init hv_init_clocksource(void)
- 	hv_sched_clock_offset = hv_read_reference_counter();
- 	hv_setup_sched_clock(read_hv_sched_clock_msr);
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -1014,10 +1014,10 @@ static void audit_reset_context(struct a
+ 	ctx->target_comm[0] = '\0';
+ 	unroll_tree_refs(ctx, NULL, 0);
+ 	WARN_ON(!list_empty(&ctx->killed_trees));
+-	ctx->type = 0;
+ 	audit_free_module(ctx);
+ 	ctx->fds[0] = -1;
+ 	audit_proctitle_free(ctx);
++	ctx->type = 0; /* reset last for audit_free_*() */
  }
--EXPORT_SYMBOL_GPL(hv_init_clocksource);
--- 
-2.35.1
-
+ 
+ static inline struct audit_context *audit_alloc_context(enum audit_state state)
 
 
