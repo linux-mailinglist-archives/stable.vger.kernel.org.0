@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14976551E25
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4310551E57
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242839AbiFTOD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:03:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36862 "EHLO
+        id S232891AbiFTOUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:20:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350511AbiFTNxk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:53:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B86DB6311;
-        Mon, 20 Jun 2022 06:19:58 -0700 (PDT)
+        with ESMTP id S1351115AbiFTOSc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 10:18:32 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2490938D93;
+        Mon, 20 Jun 2022 06:33:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E58E761149;
-        Mon, 20 Jun 2022 13:19:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8FE1C3411C;
-        Mon, 20 Jun 2022 13:19:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 427B4CE1394;
+        Mon, 20 Jun 2022 13:07:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E093C3411B;
+        Mon, 20 Jun 2022 13:07:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731181;
-        bh=0FJWfLoW8P5fpPUhXZhjrPk7ihopk+wbSWD3MHtf1pc=;
+        s=korg; t=1655730465;
+        bh=P9YpZFue1tW+UBDOFxFwfnTgZzInENd113+wr2whioA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nDSY3/qPy+Ugi9dgVGPp66dlAZPNf1yB7F0azL1O7CsIC32xCk9Y36c8jubupZDmd
-         bR2v1fKvkDnj8a+JkCeISa0k/W3laI7RaRndihlJypQdvfPn3MUmLZAclKjmiqzGC1
-         hkm6ZenN0N0/cRuBjsyRpIqQdvh8Q7bis4Iey+qg=
+        b=lVwGh1DDG7rLM4weRD4EMLBGTmJtjBHSSDliPbpXu5c9bbGYoZwRAWBfFT3yZtZ2p
+         C/7VsOmnoIQvxMOWcP5XiKKlwIBpsgXJ/sk7l/o/IuarGyaI7fDCmleAmbpXQRsuet
+         ybE/t/qsBQus6TBGVD8/49eVQWfMIm9kDG3kigfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 179/240] random: mark bootloader randomness code as __init
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 061/106] net: hns3: set port base vlan tbl_sta to false before removing old vlan
 Date:   Mon, 20 Jun 2022 14:51:20 +0200
-Message-Id: <20220620124744.182495936@linuxfoundation.org>
+Message-Id: <20220620124726.205777811@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,62 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-commit 39e0f991a62ed5efabd20711a7b6e7da92603170 upstream.
+[ Upstream commit 9eda7d8bcbdb6909f202edeedff51948f1cad1e5 ]
 
-add_bootloader_randomness() and the variables it touches are only used
-during __init and not after, so mark these as __init. At the same time,
-unexport this, since it's only called by other __init code that's
-built-in.
+When modify port base vlan, the port base vlan tbl_sta needs to set to
+false before removing old vlan, to indicate this operation is not finish.
 
-Cc: stable@vger.kernel.org
-Fixes: 428826f5358c ("fdt: add support for rng-seed")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c0f46de30c96 ("net: hns3: fix port base vlan add fail when concurrent with reset")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c  |    7 +++----
- include/linux/random.h |    2 +-
- 2 files changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -785,8 +785,8 @@ static void __cold _credit_init_bits(siz
-  *
-  **********************************************************************/
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index cdd1d2ebdde2..15098570047b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -10411,6 +10411,7 @@ static int hclge_modify_port_base_vlan_tag(struct hclge_vport *vport,
+ 	if (ret)
+ 		return ret;
  
--static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
--static bool trust_bootloader __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
-+static bool trust_cpu __initdata = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
-+static bool trust_bootloader __initdata = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
- static int __init parse_trust_cpu(char *arg)
- {
- 	return kstrtobool(arg, &trust_cpu);
-@@ -882,13 +882,12 @@ EXPORT_SYMBOL_GPL(add_hwgenerator_random
-  * Handle random seed passed by bootloader, and credit it if
-  * CONFIG_RANDOM_TRUST_BOOTLOADER is set.
-  */
--void __cold add_bootloader_randomness(const void *buf, size_t len)
-+void __init add_bootloader_randomness(const void *buf, size_t len)
- {
- 	mix_pool_bytes(buf, len);
- 	if (trust_bootloader)
- 		credit_init_bits(len * 8);
- }
--EXPORT_SYMBOL_GPL(add_bootloader_randomness);
- 
- struct fast_pool {
- 	struct work_struct mix;
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -13,7 +13,7 @@
- struct notifier_block;
- 
- void add_device_randomness(const void *buf, size_t len);
--void add_bootloader_randomness(const void *buf, size_t len);
-+void __init add_bootloader_randomness(const void *buf, size_t len);
- void add_input_randomness(unsigned int type, unsigned int code,
- 			  unsigned int value) __latent_entropy;
- void add_interrupt_randomness(int irq) __latent_entropy;
++	vport->port_base_vlan_cfg.tbl_sta = false;
+ 	/* remove old VLAN tag */
+ 	if (old_info->vlan_tag == 0)
+ 		ret = hclge_set_vf_vlan_common(hdev, vport->vport_id,
+-- 
+2.35.1
+
 
 
