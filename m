@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 138F05519A0
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0762B5519CA
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243485AbiFTNBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:01:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47678 "EHLO
+        id S243785AbiFTNBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242756AbiFTNAA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:00:00 -0400
+        with ESMTP id S244928AbiFTNAF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:00:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DEAB1CFFB;
-        Mon, 20 Jun 2022 05:56:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E0941A06F;
+        Mon, 20 Jun 2022 05:56:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D3F0C614CE;
-        Mon, 20 Jun 2022 12:56:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A486C341C4;
-        Mon, 20 Jun 2022 12:56:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB88F614CA;
+        Mon, 20 Jun 2022 12:56:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D74C3411B;
+        Mon, 20 Jun 2022 12:56:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729814;
-        bh=NY3J8kQlVXglfPf8Lzkwc6k5b+VTjHUvUCXI5tTtqKM=;
+        s=korg; t=1655729817;
+        bh=M/2gDY7ZzNb/oAKKkhfnwbKWyEObv/vJS66e1WXjz3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ndOSjepOD/n9C6YSGdiz8QwKSniZ+aKI79UXFUPYcsIKTJ/fhgbxV7xRasANb+VRq
-         t0u79cCHAUWdtp3pd7e/3zqDlLmRj3ZoYicswcMFWNT/S9nNAnM/5ANgaFK8KkqFsN
-         wD465avCm650Ck1HrUuSsS3aUFO1bBk+24hBGmEg=
+        b=pDXUbGlm7deDfcERBx55dInoM51EKmoyR2mYRS84A7yLTPtjkj6o9dJ17KhfPP2OP
+         WAiiE8cR8aRznDnBjTQteA8iALAPTZS5UOyYP8gX2emHu4uJQV4Ci1Tl2N/BtCTjCF
+         VPz0Cdn24hgDkq9qZcmY51RXV+Ib7kXykzS3YtPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 074/141] nvme: add device name to warning in uuid_show()
-Date:   Mon, 20 Jun 2022 14:50:12 +0200
-Message-Id: <20220620124731.726537509@linuxfoundation.org>
+        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 075/141] mlxsw: spectrum_cnt: Reorder counter pools
+Date:   Mon, 20 Jun 2022 14:50:13 +0200
+Message-Id: <20220620124731.755588962@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
 References: <20220620124729.509745706@linuxfoundation.org>
@@ -54,43 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Petr Machata <petrm@nvidia.com>
 
-[ Upstream commit 1fc766b5c08417248e0008bca14c3572ac0f1c26 ]
+[ Upstream commit 4b7a632ac4e7101ceefee8484d5c2ca505d347b3 ]
 
-This provides more context to users.
+Both RIF and ACL flow counters use a 24-bit SW-managed counter address to
+communicate which counter they want to bind.
 
-Old message:
+In a number of Spectrum FW releases, binding a RIF counter is broken and
+slices the counter index to 16 bits. As a result, on Spectrum-2 and above,
+no more than about 410 RIF counters can be effectively used. This
+translates to 205 netdevices for which L3 HW stats can be enabled. (This
+does not happen on Spectrum-1, because there are fewer counters available
+overall and the counter index never exceeds 16 bits.)
 
-[   00.000000] No UUID available providing old NGUID
+Binding counters to ACLs does not have this issue. Therefore reorder the
+counter allocation scheme so that RIF counters come first and therefore get
+lower indices that are below the 16-bit barrier.
 
-New message:
-
-[   00.000000] block nvme0n1: No UUID available providing old NGUID
-
-Fixes: d934f9848a77 ("nvme: provide UUID value to userspace")
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 98e60dce4da1 ("Merge branch 'mlxsw-Introduce-initial-Spectrum-2-support'")
+Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20220613125017.2018162-1-idosch@nvidia.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 2d6a01853109..1ea85c88d795 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3226,8 +3226,8 @@ static ssize_t uuid_show(struct device *dev, struct device_attribute *attr,
- 	 * we have no UUID set
- 	 */
- 	if (uuid_is_null(&ids->uuid)) {
--		printk_ratelimited(KERN_WARNING
--				   "No UUID available providing old NGUID\n");
-+		dev_warn_ratelimited(dev,
-+			"No UUID available providing old NGUID\n");
- 		return sysfs_emit(buf, "%pU\n", ids->nguid);
- 	}
- 	return sysfs_emit(buf, "%pU\n", &ids->uuid);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
+index a68d931090dd..15c8d4de8350 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h
+@@ -8,8 +8,8 @@
+ #include "spectrum.h"
+ 
+ enum mlxsw_sp_counter_sub_pool_id {
+-	MLXSW_SP_COUNTER_SUB_POOL_FLOW,
+ 	MLXSW_SP_COUNTER_SUB_POOL_RIF,
++	MLXSW_SP_COUNTER_SUB_POOL_FLOW,
+ };
+ 
+ int mlxsw_sp_counter_alloc(struct mlxsw_sp *mlxsw_sp,
 -- 
 2.35.1
 
