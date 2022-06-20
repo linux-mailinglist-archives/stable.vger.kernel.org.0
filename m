@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7011A551A33
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22868551B50
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244689AbiFTNFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:05:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51006 "EHLO
+        id S1343801AbiFTNQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:16:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244923AbiFTNEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:09 -0400
+        with ESMTP id S1343789AbiFTNO6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:14:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3698186FE;
-        Mon, 20 Jun 2022 05:59:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DDCE1FCF3;
+        Mon, 20 Jun 2022 06:07:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BC82B811B9;
-        Mon, 20 Jun 2022 12:59:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2628C3411C;
-        Mon, 20 Jun 2022 12:59:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E9D7B811C0;
+        Mon, 20 Jun 2022 13:07:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 600B9C3411C;
+        Mon, 20 Jun 2022 13:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729960;
-        bh=V0hnx/OqzswVYqIqJ7kc+Fe522IaypFMS8wlfWSPkHI=;
+        s=korg; t=1655730427;
+        bh=ZDUqt44bbeOu9tG6SfC5lmwbRy4fFSZTfMu/NpoAug8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=roJIL/2SRH52DPl0lVBlGRAJAa7j+W9STncuOYTZnu8nu7vZ9DkJQYQi1X1W3VNRC
-         PXrYxwYlpWh15XA6uY04OH2leH4PHVtsfVTG8ZVzaUX+eZ/zDAtU0OTo0Zt/DmUyT2
-         I/GvDp1eIgbidgSkQUB9HdBW3buJnngoOQAk7mrU=
+        b=bU1dXaUsV3sxDtJOAtF4ygOoDDk56O3pXTMRAvic+Aza5ZzETQ7Envd7g706qWl1v
+         8SOfuGqbYffNCUFL/dFcUza9EkrgvNtASbolpVPatBqFK77XBq4LriXcsvxfuvXA81
+         CglMxo6yliUsKpIxWI8172If1j/kT34Oo3AZ4wV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.18 131/141] KVM: arm64: Always start with clearing SVE flag on load
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 050/106] clocksource: hyper-v: unexport __init-annotated hv_init_clocksource()
 Date:   Mon, 20 Jun 2022 14:51:09 +0200
-Message-Id: <20220620124733.428882608@linuxfoundation.org>
+Message-Id: <20220620124725.870459142@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit d52d165d67c5aa26c8c89909003c94a66492d23d upstream.
+[ Upstream commit 245b993d8f6c4e25f19191edfbd8080b645e12b1 ]
 
-On each vcpu load, we set the KVM_ARM64_HOST_SVE_ENABLED
-flag if SVE is enabled for EL0 on the host. This is used to restore
-the correct state on vpcu put.
+EXPORT_SYMBOL and __init is a bad combination because the .init.text
+section is freed up after the initialization. Hence, modules cannot
+use symbols annotated __init. The access to a freed symbol may end up
+with kernel panic.
 
-However, it appears that nothing ever clears this flag. Once
-set, it will stick until the vcpu is destroyed, which has the
-potential to spuriously enable SVE for userspace.
+modpost used to detect it, but it has been broken for a decade.
 
-We probably never saw the issue because no VMM uses SVE, but
-that's still pretty bad. Unconditionally clearing the flag
-on vcpu load addresses the issue.
+Recently, I fixed modpost so it started to warn it again, then this
+showed up in linux-next builds.
 
-Fixes: 8383741ab2e7 ("KVM: arm64: Get rid of host SVE tracking/saving")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Reviewed-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220528113829.1043361-2-maz@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+There are two ways to fix it:
+
+  - Remove __init
+  - Remove EXPORT_SYMBOL
+
+I chose the latter for this case because the only in-tree call-site,
+arch/x86/kernel/cpu/mshyperv.c is never compiled as modular.
+(CONFIG_HYPERVISOR_GUEST is boolean)
+
+Fixes: dd2cb348613b ("clocksource/drivers: Continue making Hyper-V clocksource ISA agnostic")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20220606050238.4162200-1-masahiroy@kernel.org
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/fpsimd.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/clocksource/hyperv_timer.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/arm64/kvm/fpsimd.c
-+++ b/arch/arm64/kvm/fpsimd.c
-@@ -80,6 +80,7 @@ void kvm_arch_vcpu_load_fp(struct kvm_vc
- 	vcpu->arch.flags &= ~KVM_ARM64_FP_ENABLED;
- 	vcpu->arch.flags |= KVM_ARM64_FP_HOST;
- 
-+	vcpu->arch.flags &= ~KVM_ARM64_HOST_SVE_ENABLED;
- 	if (read_sysreg(cpacr_el1) & CPACR_EL1_ZEN_EL0EN)
- 		vcpu->arch.flags |= KVM_ARM64_HOST_SVE_ENABLED;
+diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
+index ff188ab68496..bb47610bbd1c 100644
+--- a/drivers/clocksource/hyperv_timer.c
++++ b/drivers/clocksource/hyperv_timer.c
+@@ -565,4 +565,3 @@ void __init hv_init_clocksource(void)
+ 	hv_sched_clock_offset = hv_read_reference_counter();
+ 	hv_setup_sched_clock(read_hv_sched_clock_msr);
  }
+-EXPORT_SYMBOL_GPL(hv_init_clocksource);
+-- 
+2.35.1
+
 
 
