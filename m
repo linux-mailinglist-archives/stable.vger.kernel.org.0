@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 350995511E2
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 531705511D6
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239562AbiFTHvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 03:51:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46530 "EHLO
+        id S239569AbiFTHvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 03:51:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239560AbiFTHvO (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C055DEEF
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:14 -0700 (PDT)
+        with ESMTP id S239567AbiFTHvY (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2CA8DEEF
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB55E611FB
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ACF4C3411B;
-        Mon, 20 Jun 2022 07:51:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E94B61210
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FF4FC3411B;
+        Mon, 20 Jun 2022 07:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655711473;
-        bh=A3sljhsoxJ0n/Phn9N9j0eIM+2LvwgENmC1UOzof12Q=;
+        s=korg; t=1655711482;
+        bh=CrGaWCi+uKJIbrlyd7wh/c5DvfKEr2T1qP42vGe3zKQ=;
         h=Subject:To:From:Date:From;
-        b=DZvifct5xwCdLs+N7+3yz43H97aV6cs6fVvPerurnzYV3BzHK+lE/NVtK0LI6b6y/
-         lSht8GOB+PA57ThzlUIKoZ5PPixX+6/Oz5d50QMAGixDLAdfYLL85n3SMsLzdS+LGL
-         1HOAVMrIutIwE6vqZscEKAoRGlBbZUsMT0nZCLxU=
-Subject: patch "iio: adc: aspeed: Fix refcount leak in aspeed_adc_set_trim_data" added to char-misc-linus
-To:     linmq006@gmail.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=CRo746kmSFm1Zw/0KPzFzYEYMhn7Y4F/QSBLP359fJO/nSJFryQWAy0PL2NisWUGo
+         8cHF5ZplDA6CM5/hFBY3D81tKsUlTDFmqtREnaoyzR2QpfVHakFPD6kdGskozinfSF
+         S5XfAORSf1lMDlxSsKVf98TYW7p/bM64vDXGNDMA=
+Subject: patch "iio:accel:bma180: rearrange iio trigger get and register" added to char-misc-linus
+To:     DDRokosov@sberdevices.ru, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, andy.shevchenko@gmail.com,
+        ddrokosov@sberdevices.ru
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jun 2022 09:50:42 +0200
-Message-ID: <165571144261109@kroah.com>
+Date:   Mon, 20 Jun 2022 09:50:44 +0200
+Message-ID: <165571144423495@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +51,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: aspeed: Fix refcount leak in aspeed_adc_set_trim_data
+    iio:accel:bma180: rearrange iio trigger get and register
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,36 +66,48 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 8a2b6b5687984a010ed094b4f436a2f091987758 Mon Sep 17 00:00:00 2001
-From: Miaoqian Lin <linmq006@gmail.com>
-Date: Mon, 16 May 2022 11:52:02 +0400
-Subject: iio: adc: aspeed: Fix refcount leak in aspeed_adc_set_trim_data
+From e5f3205b04d7f95a2ef43bce4b454a7f264d6923 Mon Sep 17 00:00:00 2001
+From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
+Date: Tue, 24 May 2022 18:14:39 +0000
+Subject: iio:accel:bma180: rearrange iio trigger get and register
 
-of_find_node_by_name() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+IIO trigger interface function iio_trigger_get() should be called after
+iio_trigger_register() (or its devm analogue) strictly, because of
+iio_trigger_get() acquires module refcnt based on the trigger->owner
+pointer, which is initialized inside iio_trigger_register() to
+THIS_MODULE.
+If this call order is wrong, the next iio_trigger_put() (from sysfs
+callback or "delete module" path) will dereference "default" module
+refcnt, which is incorrect behaviour.
 
-Fixes: d0a4c17b4073 ("iio: adc: aspeed: Get and set trimming data.")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220516075206.34580-1-linmq006@gmail.com
+Fixes: 0668a4e4d297 ("iio: accel: bma180: Fix indio_dev->trig assignment")
+Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220524181150.9240-2-ddrokosov@sberdevices.ru
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/aspeed_adc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/accel/bma180.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/aspeed_adc.c b/drivers/iio/adc/aspeed_adc.c
-index 0793d2474cdc..9341e0e0eb55 100644
---- a/drivers/iio/adc/aspeed_adc.c
-+++ b/drivers/iio/adc/aspeed_adc.c
-@@ -186,6 +186,7 @@ static int aspeed_adc_set_trim_data(struct iio_dev *indio_dev)
- 		return -EOPNOTSUPP;
+diff --git a/drivers/iio/accel/bma180.c b/drivers/iio/accel/bma180.c
+index 4f73bc827eec..9c9e98578667 100644
+--- a/drivers/iio/accel/bma180.c
++++ b/drivers/iio/accel/bma180.c
+@@ -1006,11 +1006,12 @@ static int bma180_probe(struct i2c_client *client,
+ 
+ 		data->trig->ops = &bma180_trigger_ops;
+ 		iio_trigger_set_drvdata(data->trig, indio_dev);
+-		indio_dev->trig = iio_trigger_get(data->trig);
+ 
+ 		ret = iio_trigger_register(data->trig);
+ 		if (ret)
+ 			goto err_trigger_free;
++
++		indio_dev->trig = iio_trigger_get(data->trig);
  	}
- 	scu = syscon_node_to_regmap(syscon);
-+	of_node_put(syscon);
- 	if (IS_ERR(scu)) {
- 		dev_warn(data->dev, "Failed to get syscon regmap\n");
- 		return -EOPNOTSUPP;
+ 
+ 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
 -- 
 2.36.1
 
