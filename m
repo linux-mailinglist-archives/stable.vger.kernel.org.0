@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 338125519C4
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CD44551B53
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243877AbiFTNEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:04:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47308 "EHLO
+        id S245380AbiFTNLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:11:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244706AbiFTND4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:03:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EDD21AF0E;
-        Mon, 20 Jun 2022 05:58:32 -0700 (PDT)
+        with ESMTP id S1343967AbiFTNJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F7A1AF2B;
+        Mon, 20 Jun 2022 06:05:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5FA561531;
-        Mon, 20 Jun 2022 12:58:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E033AC3411B;
-        Mon, 20 Jun 2022 12:58:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EABA861551;
+        Mon, 20 Jun 2022 13:01:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04810C3411C;
+        Mon, 20 Jun 2022 13:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729911;
-        bh=KSTBBIw5SEmWnx7td8ycDPE2VFjcDDTcRH8moZ/RsiY=;
+        s=korg; t=1655730087;
+        bh=7vMKYqA2uVfaA0yUhTgjlH82eRxvtG8EkdSBzwJxYAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WiD5CkGImPcynkrKlSmdpKd9YYqGv173fv2h8ueHGkjGT81EQVTG9p533IiAIlMlk
-         a7ZSMyJ19a+ypDUl9n3zldL4pC8j/cPUlL8Ckt++yBTMP2+c030B0zjJPKzZy/eQ+q
-         rZ0cMrPmwuFEJLmtCbT2Pmsk3Sw3OLquLi823/MI=
+        b=DmXw7bC8OfOPjC/mh6VGc6XMNaO0jm2lhX2tWj6bHbyIYFYQdnLN+77UWlHsOg/2Q
+         36f6U8/lxunwUgY4Xi2ZZpXtMYpoeNwVZhJao2wd2KsHKv6+4F34/ySqJ87JrjbTNu
+         JcZ5vKF6wlA7Lk3/Bo2GoThdTFGnj+b4dfWWpp/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Wu <michael@allwinnertech.com>,
-        John Keeping <john@metanate.com>,
-        Linyu Yuan <quic_linyyuan@quicinc.com>
-Subject: [PATCH 5.18 113/141] usb: gadget: f_fs: change ep->status safe in ffs_epfile_io()
-Date:   Mon, 20 Jun 2022 14:50:51 +0200
-Message-Id: <20220620124732.883603343@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Lin <chen45464546@163.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 29/84] net: ethernet: mtk_eth_soc: fix misuse of mem alloc interface netdev[napi]_alloc_frag
+Date:   Mon, 20 Jun 2022 14:50:52 +0200
+Message-Id: <20220620124721.756342025@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linyu Yuan <quic_linyyuan@quicinc.com>
+From: Chen Lin <chen45464546@163.com>
 
-commit fb1f16d74e263baa4ad11e31e28b68f144aa55ed upstream.
+[ Upstream commit 2f2c0d2919a14002760f89f4e02960c735a316d2 ]
 
-If a task read/write data in blocking mode, it will wait the completion
-in ffs_epfile_io(), if function unbind occurs, ffs_func_unbind() will
-kfree ffs ep, once the task wake up, it still dereference the ffs ep to
-obtain the request status.
+When rx_flag == MTK_RX_FLAGS_HWLRO,
+rx_data_len = MTK_MAX_LRO_RX_LENGTH(4096 * 3) > PAGE_SIZE.
+netdev_alloc_frag is for alloction of page fragment only.
+Reference to other drivers and Documentation/vm/page_frags.rst
 
-Fix it by moving the request status to io_data which is stack-safe.
+Branch to use __get_free_pages when ring->frag_size > PAGE_SIZE.
 
-Cc: <stable@vger.kernel.org> # 5.15
-Reported-by: Michael Wu <michael@allwinnertech.com>
-Tested-by: Michael Wu <michael@allwinnertech.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Linyu Yuan <quic_linyyuan@quicinc.com>
-Link: https://lore.kernel.org/r/1654863478-26228-2-git-send-email-quic_linyyuan@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chen Lin <chen45464546@163.com>
+Link: https://lore.kernel.org/r/1654692413-2598-1-git-send-email-chen45464546@163.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c |   34 +++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 15 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -122,8 +122,6 @@ struct ffs_ep {
- 	struct usb_endpoint_descriptor	*descs[3];
- 
- 	u8				num;
--
--	int				status;	/* P: epfile->mutex */
- };
- 
- struct ffs_epfile {
-@@ -227,6 +225,9 @@ struct ffs_io_data {
- 	bool use_sg;
- 
- 	struct ffs_data *ffs;
-+
-+	int status;
-+	struct completion done;
- };
- 
- struct ffs_desc_helper {
-@@ -707,12 +708,15 @@ static const struct file_operations ffs_
- 
- static void ffs_epfile_io_complete(struct usb_ep *_ep, struct usb_request *req)
- {
-+	struct ffs_io_data *io_data = req->context;
-+
- 	ENTER();
--	if (req->context) {
--		struct ffs_ep *ep = _ep->driver_data;
--		ep->status = req->status ? req->status : req->actual;
--		complete(req->context);
--	}
-+	if (req->status)
-+		io_data->status = req->status;
-+	else
-+		io_data->status = req->actual;
-+
-+	complete(&io_data->done);
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index 789642647cd3..c7aff89141e1 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -806,6 +806,17 @@ static inline void mtk_rx_get_desc(struct mtk_rx_dma *rxd,
+ 	rxd->rxd4 = READ_ONCE(dma_rxd->rxd4);
  }
  
- static ssize_t ffs_copy_to_iter(void *data, int data_len, struct iov_iter *iter)
-@@ -1050,7 +1054,6 @@ static ssize_t ffs_epfile_io(struct file
- 		WARN(1, "%s: data_len == -EINVAL\n", __func__);
- 		ret = -EINVAL;
- 	} else if (!io_data->aio) {
--		DECLARE_COMPLETION_ONSTACK(done);
- 		bool interrupted = false;
++static void *mtk_max_lro_buf_alloc(gfp_t gfp_mask)
++{
++	unsigned int size = mtk_max_frag_size(MTK_MAX_LRO_RX_LENGTH);
++	unsigned long data;
++
++	data = __get_free_pages(gfp_mask | __GFP_COMP | __GFP_NOWARN,
++				get_order(size));
++
++	return (void *)data;
++}
++
+ /* the qdma core needs scratch memory to be setup */
+ static int mtk_init_fq_dma(struct mtk_eth *eth)
+ {
+@@ -1303,7 +1314,10 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
+ 			goto release_desc;
  
- 		req = ep->req;
-@@ -1066,7 +1069,8 @@ static ssize_t ffs_epfile_io(struct file
+ 		/* alloc new buffer */
+-		new_data = napi_alloc_frag(ring->frag_size);
++		if (ring->frag_size <= PAGE_SIZE)
++			new_data = napi_alloc_frag(ring->frag_size);
++		else
++			new_data = mtk_max_lro_buf_alloc(GFP_ATOMIC);
+ 		if (unlikely(!new_data)) {
+ 			netdev->stats.rx_dropped++;
+ 			goto release_desc;
+@@ -1700,7 +1714,10 @@ static int mtk_rx_alloc(struct mtk_eth *eth, int ring_no, int rx_flag)
+ 		return -ENOMEM;
  
- 		io_data->buf = data;
- 
--		req->context  = &done;
-+		init_completion(&io_data->done);
-+		req->context  = io_data;
- 		req->complete = ffs_epfile_io_complete;
- 
- 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
-@@ -1075,7 +1079,7 @@ static ssize_t ffs_epfile_io(struct file
- 
- 		spin_unlock_irq(&epfile->ffs->eps_lock);
- 
--		if (wait_for_completion_interruptible(&done)) {
-+		if (wait_for_completion_interruptible(&io_data->done)) {
- 			/*
- 			 * To avoid race condition with ffs_epfile_io_complete,
- 			 * dequeue the request first then check
-@@ -1083,17 +1087,17 @@ static ssize_t ffs_epfile_io(struct file
- 			 * condition with req->complete callback.
- 			 */
- 			usb_ep_dequeue(ep->ep, req);
--			wait_for_completion(&done);
--			interrupted = ep->status < 0;
-+			wait_for_completion(&io_data->done);
-+			interrupted = io_data->status < 0;
- 		}
- 
- 		if (interrupted)
- 			ret = -EINTR;
--		else if (io_data->read && ep->status > 0)
--			ret = __ffs_epfile_read_data(epfile, data, ep->status,
-+		else if (io_data->read && io_data->status > 0)
-+			ret = __ffs_epfile_read_data(epfile, data, io_data->status,
- 						     &io_data->data);
- 		else
--			ret = ep->status;
-+			ret = io_data->status;
- 		goto error_mutex;
- 	} else if (!(req = usb_ep_alloc_request(ep->ep, GFP_ATOMIC))) {
- 		ret = -ENOMEM;
+ 	for (i = 0; i < rx_dma_size; i++) {
+-		ring->data[i] = netdev_alloc_frag(ring->frag_size);
++		if (ring->frag_size <= PAGE_SIZE)
++			ring->data[i] = netdev_alloc_frag(ring->frag_size);
++		else
++			ring->data[i] = mtk_max_lro_buf_alloc(GFP_KERNEL);
+ 		if (!ring->data[i])
+ 			return -ENOMEM;
+ 	}
+-- 
+2.35.1
+
 
 
