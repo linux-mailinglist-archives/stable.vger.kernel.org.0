@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC8E1551C4D
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7011A551A33
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244927AbiFTNKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:10:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54236 "EHLO
+        id S244689AbiFTNFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:05:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245443AbiFTNIt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:08:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21ABE1158;
-        Mon, 20 Jun 2022 06:02:55 -0700 (PDT)
+        with ESMTP id S244923AbiFTNEJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3698186FE;
+        Mon, 20 Jun 2022 05:59:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5649EB811C3;
-        Mon, 20 Jun 2022 13:02:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB693C3411B;
-        Mon, 20 Jun 2022 13:02:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8BC82B811B9;
+        Mon, 20 Jun 2022 12:59:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2628C3411C;
+        Mon, 20 Jun 2022 12:59:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730141;
-        bh=oHiwHdoUO5CBq2IjZNlhMYGwF/ud+rJyMoj6ci3EN3Q=;
+        s=korg; t=1655729960;
+        bh=V0hnx/OqzswVYqIqJ7kc+Fe522IaypFMS8wlfWSPkHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YzzjfpLRFxJoZkVsnHW7AeDrojrYaN5o3ErSz3oBLnXBcpv5xFeTSIqrtJtUlulyA
-         M6RyjrHu93kG56mX38WKQWJ79yCGahSU8YVoyuEwiTDpbnU4ZRpK960FJQjDl65bIU
-         BuRnBCKg3T/JN9JpgLYNJv106PqUgg7zbjMQfNMg=
+        b=roJIL/2SRH52DPl0lVBlGRAJAa7j+W9STncuOYTZnu8nu7vZ9DkJQYQi1X1W3VNRC
+         PXrYxwYlpWh15XA6uY04OH2leH4PHVtsfVTG8ZVzaUX+eZ/zDAtU0OTo0Zt/DmUyT2
+         I/GvDp1eIgbidgSkQUB9HdBW3buJnngoOQAk7mrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 46/84] nvme: add device name to warning in uuid_show()
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.18 131/141] KVM: arm64: Always start with clearing SVE flag on load
 Date:   Mon, 20 Jun 2022 14:51:09 +0200
-Message-Id: <20220620124722.251314913@linuxfoundation.org>
+Message-Id: <20220620124733.428882608@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 1fc766b5c08417248e0008bca14c3572ac0f1c26 ]
+commit d52d165d67c5aa26c8c89909003c94a66492d23d upstream.
 
-This provides more context to users.
+On each vcpu load, we set the KVM_ARM64_HOST_SVE_ENABLED
+flag if SVE is enabled for EL0 on the host. This is used to restore
+the correct state on vpcu put.
 
-Old message:
+However, it appears that nothing ever clears this flag. Once
+set, it will stick until the vcpu is destroyed, which has the
+potential to spuriously enable SVE for userspace.
 
-[   00.000000] No UUID available providing old NGUID
+We probably never saw the issue because no VMM uses SVE, but
+that's still pretty bad. Unconditionally clearing the flag
+on vcpu load addresses the issue.
 
-New message:
-
-[   00.000000] block nvme0n1: No UUID available providing old NGUID
-
-Fixes: d934f9848a77 ("nvme: provide UUID value to userspace")
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8383741ab2e7 ("KVM: arm64: Get rid of host SVE tracking/saving")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220528113829.1043361-2-maz@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kvm/fpsimd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index c8c8c567a000..0aa68da51ed7 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3372,8 +3372,8 @@ static ssize_t uuid_show(struct device *dev, struct device_attribute *attr,
- 	 * we have no UUID set
- 	 */
- 	if (uuid_is_null(&ids->uuid)) {
--		printk_ratelimited(KERN_WARNING
--				   "No UUID available providing old NGUID\n");
-+		dev_warn_ratelimited(dev,
-+			"No UUID available providing old NGUID\n");
- 		return sysfs_emit(buf, "%pU\n", ids->nguid);
- 	}
- 	return sysfs_emit(buf, "%pU\n", &ids->uuid);
--- 
-2.35.1
-
+--- a/arch/arm64/kvm/fpsimd.c
++++ b/arch/arm64/kvm/fpsimd.c
+@@ -80,6 +80,7 @@ void kvm_arch_vcpu_load_fp(struct kvm_vc
+ 	vcpu->arch.flags &= ~KVM_ARM64_FP_ENABLED;
+ 	vcpu->arch.flags |= KVM_ARM64_FP_HOST;
+ 
++	vcpu->arch.flags &= ~KVM_ARM64_HOST_SVE_ENABLED;
+ 	if (read_sysreg(cpacr_el1) & CPACR_EL1_ZEN_EL0EN)
+ 		vcpu->arch.flags |= KVM_ARM64_HOST_SVE_ENABLED;
+ }
 
 
