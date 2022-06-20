@@ -2,102 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 188FE5523A1
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 20:13:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E57DD5523AA
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 20:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238101AbiFTSNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 14:13:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58418 "EHLO
+        id S243531AbiFTSPy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 14:15:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245084AbiFTSNR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 14:13:17 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09D9611144;
-        Mon, 20 Jun 2022 11:13:17 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id t3-20020a17090a510300b001ea87ef9a3dso11019049pjh.4;
-        Mon, 20 Jun 2022 11:13:17 -0700 (PDT)
+        with ESMTP id S243978AbiFTSPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 14:15:53 -0400
+Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62E0A1A828
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 11:15:52 -0700 (PDT)
+Received: by mail-vs1-xe43.google.com with SMTP id j39so11485590vsv.11
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 11:15:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=2N02FiZrvhil8aNgdzMkYh6Kly8KvSddHHesGtF5gOc=;
-        b=ULqWw1MMKofjcyKFpKb5/DYOgKCJm4uttZFNlW5PaizQPD5C5Av/xpDk8MzWDkCZl/
-         mlEqYfa/IPahqxOjhBKAgbxh9PqTq6wndUUc7cMjWmLe+tSUSpmUBARAympWw+ZH1kko
-         KgJI2th52ggH3QI9rq+AUlaucb855vV+Oy+Q9WiEkLniU5W/PJUYL+OL4Eojs7070/pT
-         5WJD6NABIwB5ytTBK+pQsSowq8ijnrSu1/5w+QftCw54ec+Af9hcBdSDNzYx8npeZwP0
-         Fc6V02KJCDyayxMXHT6hJfSRvYWACjsAZWFeN0c6hhuBMr89kCdHf+rZoEObvbkx3Ssu
-         AvGA==
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=oCPoGPwx4zeCJ9QWvNOp8T85rDSCJMGMHGx0lPlgcC8=;
+        b=pG79dvW+MbuAJCTTu4iBQHt8kOOurTrv6/uyOev4/GsfkWWol7Rfb5lzocCdta+NcN
+         s9RZ6J/3DMC3qsk27CR/U6AMb+N7GetM52n754i3cxDlTabFIOklQfzaYQPEA6Bbu51P
+         EpAr31GYwCRtEetLOxOrJs8W28lAB1j+MsC0vwtSUvIdxMCivmwHzvbJnah6y9vO1vb/
+         rPX0EUGVEqBizxR/7ZrfLWGzIFhf3Irf1+Ouf2FZfNtEtVIkZqh/MUTyvsFzlHzOgl9c
+         XexSGA4bCEyRokIYD70AmeZW/R0n1tfyukMdk9cTYB1kJ7+1H5BVG+2BegES6l7eJ2FV
+         m/Hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=2N02FiZrvhil8aNgdzMkYh6Kly8KvSddHHesGtF5gOc=;
-        b=AafJv5Yb+UlIaxTlKJVkhW9Zv14+Gu4boWYLSru6+86y5OqyoRLZGJF+rWfJj1GyKk
-         Iv/LwVQcxvfFLmxjAnvqA3ihwHg584RI+PfEz1nPwqI4xy46G+vyq3Ev/uZr6MruytRo
-         sxGJMrrMT48ogRIhCNRlKHu7M4dnXDRls/N6NySTCIXkWUAlMB+Y1q7GZrv3XtqjbwtZ
-         ZFhHXizaC25K92OW/abbDcAdnIjIwjUL4kO/gt11dmVhK7dr/Ghd3+l1Kc0CPwAizPdW
-         mc1OKsAJKNqYCjBVn4z8t8eP0YHx59fOwW0Y3svjoRZ4KPyfTka+gb3z1Te6LzepsmEV
-         Uddg==
-X-Gm-Message-State: AJIora/+Y324FJm+aDbNRX+tJHbbuT/FAJBjYS22/P7YQXo8HkUnVsMV
-        NBOOJTQE3OIDfdo5+28QGN0=
-X-Google-Smtp-Source: AGRyM1tLH3VbvNoP4gutzqUaZkRK0Uo5KSu6f/9va5xR6Nn5EiIpvVbQOnPAZg1zZ977Id8haI4liw==
-X-Received: by 2002:a17:90b:4f4a:b0:1e6:9bc5:277c with SMTP id pj10-20020a17090b4f4a00b001e69bc5277cmr39105189pjb.43.1655748796506;
-        Mon, 20 Jun 2022 11:13:16 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id u123-20020a626081000000b00522d329e36esm9786271pfb.140.2022.06.20.11.13.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Jun 2022 11:13:15 -0700 (PDT)
-Message-ID: <469e833f-d234-0dba-6526-4f9c9645e49e@gmail.com>
-Date:   Mon, 20 Jun 2022 11:13:08 -0700
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=oCPoGPwx4zeCJ9QWvNOp8T85rDSCJMGMHGx0lPlgcC8=;
+        b=ABHLDf462S7EYVyAJZX2lSUF51PRDQgnZn0Z4ujO1DiHQs3FN+HPE0oIX4QMdPcigF
+         /H6YR8A2j9h0egLa9QLduNyPHR1Jlin0YGgf1xLu+Uhyx9rngoUUW3GZyKLCo8zgygMn
+         rjjiYiC8YiBSoAgmIi7F1Sczq4SV7tyYloYTDbBOEFrwYNpb9oqoZhWDn0/UWWTUbH5N
+         +pLf6TpQl7NNQZARsGWYPg0BKxWdLbvmDP1Y2hZ2zZqU77kf+a+E1idIeFof7N3DAaA1
+         3krnE8Pt6/vnF8H6Qm7/gLzUk9w2kbAYBDcoUOFXZHTlLU7PsJv3dSzk4++4kjlCu/fO
+         vPYQ==
+X-Gm-Message-State: AJIora/Dg+yTeLed16qQtADvB2apmAn8xtj2vyK3VaQhVuKZDVx46tLB
+        EZPuGp8iliHCHzDyfdLvAtQowEAjJ7UXLpUqiEA=
+X-Google-Smtp-Source: AGRyM1vSdrUGMgVv97XZN1zwk6yJ2BqN4AQycrLsHIK/hUZqWXJmfY5qaaN4DVq6smZ8BqL8SWGjYLM5i9k1wGB/CG0=
+X-Received: by 2002:a05:6102:391:b0:354:37a8:f2e3 with SMTP id
+ m17-20020a056102039100b0035437a8f2e3mr2110249vsq.5.1655748951436; Mon, 20 Jun
+ 2022 11:15:51 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH 5.15 000/106] 5.15.49-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220620124724.380838401@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Sender: rorogeorge8216@gmail.com
+Received: by 2002:a59:120a:0:b0:2cd:2df:5014 with HTTP; Mon, 20 Jun 2022
+ 11:15:50 -0700 (PDT)
+From:   Evelyne Zida <evelynezida13@gmail.com>
+Date:   Mon, 20 Jun 2022 20:15:50 +0200
+X-Google-Sender-Auth: NN17La8ugIaVz4pEStpMB9BBelI
+Message-ID: <CANQ=j1OAZKPO2h5W5To4=64EEGcVYMa9W1TdiKvqQYUd1eo69g@mail.gmail.com>
+Subject: ATTENTION PLEASE
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=6.5 required=5.0 tests=BAYES_99,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,LOTS_OF_MONEY,MONEY_FRAUD_5,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,SUBJ_ATTENTION,
+        T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:e43 listed in]
+        [list.dnswl.org]
+        *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
+        *      [score: 0.9970]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [evelynezida13[at]gmail.com]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [rorogeorge8216[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.5 SUBJ_ATTENTION ATTENTION in Subject
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  2.0 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+        *  0.0 MONEY_FRAUD_5 Lots of money and many fraud phrases
+X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/20/22 05:50, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.49 release.
-> There are 106 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 22 Jun 2022 12:47:02 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.49-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Go to western union and pick it up
 
-On ARCH_BCMSTB using 32-bit and 64-bit ARM kernels:
+Western Union Money Transfer, in conjunction with the International
+Monetary Fund (IMF) Reconciliation Committee had agreed to pay you a
+total amount of $50,000.00 USD compensation fund.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+The compensation fund has been signed to be paid to you for all the
+money you have lost to scammers and through internet banking frauds.
+
+Your name appeared on our payment schedule list of beneficiaries that
+will receive their funds in this 2nd quarter payment of the year
+according to our regulation. We apologize for the delay.
+
+The sum of $3,000.00 USD or its equivalent in your local currency will
+be transferred to you via WU every day until all the $50,000.00 USD is
+sent across to you.
+
+We have registered your first payment of $3,000.00 USD online through
+Western Union Money Transfer.
+
+Just confirm your first payment with the instructions below, Open this
+website: www.westernunion.com , then click "Track Transfer", for you
+to see the status of the transaction online.
+
+
+As soon as you open the website, enter this tracking number (MTCN): 3335989143.
+
+As soon as you enter the tracking number click "Track Transfer" to
+confirm by yourself.
+
+These are the details you need to present to the western union
+officials. Also go with your id card:
+
+MTCN: 3335989143,
+Sender Names: MARK LORD,
+Sender Country of sender: Burkina Faso.
+Amount sent: $3,000 USD.
+
+Money Transfer | Global Money Transfer | Western Union
+
+Go to any Western union office in your area and pick it up. Make sure
+you go with an identification of yourself like EX (driving license,
+national id or international passport.
+
+Yours sincerely,
+Dr. Mrs. Evelyne Zida.
