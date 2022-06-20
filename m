@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A867551E28
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9744551E14
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242385AbiFTODx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:03:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44182 "EHLO
+        id S1347763AbiFTOAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:00:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347221AbiFTN5t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:57:49 -0400
+        with ESMTP id S1351530AbiFTNyz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:54:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 346E022BCA;
-        Mon, 20 Jun 2022 06:23:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9A63388A;
+        Mon, 20 Jun 2022 06:21:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67A1960EC7;
-        Mon, 20 Jun 2022 13:23:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DC77C3411B;
-        Mon, 20 Jun 2022 13:23:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD0C460FF1;
+        Mon, 20 Jun 2022 13:20:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C762CC3411C;
+        Mon, 20 Jun 2022 13:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731402;
-        bh=M2xov3M5nLHIGiZU6LE/7jpo9MVr/0vDcs2PNZ97I9Q=;
+        s=korg; t=1655731259;
+        bh=nP9i1+rEQjQRHfrlgE3xHFNg4YpgFbPf5Seq91ii+60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O53IY7PMw+X7S++SSUCpDxPrrRGSR2NewZ+1BkohWc24pb1b4eZU4DIrEjsPQOWLO
-         fBhqaDg01whgeqjXufd8p3N7SgD8msB2LgmHyr+abmpkGg6M9FeqWTXuyXu5/X4VKE
-         CRGPMJ1euz4LJhq6zDXrIWOQ/aV+Lu+AlAzHbyGc=
+        b=xLYtyJRlY0twpQj76DK73RyVyiMKUeJowOnWYYNfkP8dDKvBYR1/N8Db0i4gU0crG
+         tREUT6T8cH8iODg7Ei/igj8P4IirWrIph4UPj82HwtRZ+OsfzZ3nFhHeDcvL0HttO/
+         r9ww30+hHVGxQjRssWv2t3x9gUz2yKvVxlSgFas8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Brian King <brking@linux.vnet.ibm.com>,
         Chengguang Xu <cgxu519@mykernel.net>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 196/240] scsi: ipr: Fix missing/incorrect resource cleanup in error case
-Date:   Mon, 20 Jun 2022 14:51:37 +0200
-Message-Id: <20220620124744.665480947@linuxfoundation.org>
+Subject: [PATCH 5.4 197/240] scsi: pmcraid: Fix missing resource cleanup in error case
+Date:   Mon, 20 Jun 2022 14:51:38 +0200
+Message-Id: <20220620124744.694221173@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -58,45 +57,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chengguang Xu <cgxu519@mykernel.net>
 
-[ Upstream commit d64c491911322af1dcada98e5b9ee0d87e8c8fee ]
+[ Upstream commit ec1e8adcbdf661c57c395bca342945f4f815add7 ]
 
 Fix missing resource cleanup (when '(--i) == 0') for error case in
-ipr_alloc_mem() and skip incorrect resource cleanup (when '(--i) == 0') for
-error case in ipr_request_other_msi_irqs() because variable i started from
-1.
+pmcraid_register_interrupt_handler().
 
-Link: https://lore.kernel.org/r/20220529153456.4183738-4-cgxu519@mykernel.net
+Link: https://lore.kernel.org/r/20220529153456.4183738-6-cgxu519@mykernel.net
 Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Brian King <brking@linux.vnet.ibm.com>
 Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ipr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/pmcraid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
-index 7a57b61f0340..a163fd9331b3 100644
---- a/drivers/scsi/ipr.c
-+++ b/drivers/scsi/ipr.c
-@@ -9772,7 +9772,7 @@ static int ipr_alloc_mem(struct ipr_ioa_cfg *ioa_cfg)
- 					GFP_KERNEL);
+diff --git a/drivers/scsi/pmcraid.c b/drivers/scsi/pmcraid.c
+index 398d2af60832..f95a970db8fd 100644
+--- a/drivers/scsi/pmcraid.c
++++ b/drivers/scsi/pmcraid.c
+@@ -4532,7 +4532,7 @@ pmcraid_register_interrupt_handler(struct pmcraid_instance *pinstance)
+ 	return 0;
  
- 		if (!ioa_cfg->hrrq[i].host_rrq)  {
--			while (--i > 0)
-+			while (--i >= 0)
- 				dma_free_coherent(&pdev->dev,
- 					sizeof(u32) * ioa_cfg->hrrq[i].size,
- 					ioa_cfg->hrrq[i].host_rrq,
-@@ -10045,7 +10045,7 @@ static int ipr_request_other_msi_irqs(struct ipr_ioa_cfg *ioa_cfg,
- 			ioa_cfg->vectors_info[i].desc,
- 			&ioa_cfg->hrrq[i]);
- 		if (rc) {
--			while (--i >= 0)
-+			while (--i > 0)
- 				free_irq(pci_irq_vector(pdev, i),
- 					&ioa_cfg->hrrq[i]);
- 			return rc;
+ out_unwind:
+-	while (--i > 0)
++	while (--i >= 0)
+ 		free_irq(pci_irq_vector(pdev, i), &pinstance->hrrq_vector[i]);
+ 	pci_free_irq_vectors(pdev);
+ 	return rc;
 -- 
 2.35.1
 
