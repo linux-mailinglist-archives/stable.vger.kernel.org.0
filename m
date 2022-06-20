@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B10D6551E45
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF6AF551E69
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239649AbiFTOAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:00:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44236 "EHLO
+        id S1350344AbiFTOB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:01:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352818AbiFTN5H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:57:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78BE736B76;
-        Mon, 20 Jun 2022 06:23:01 -0700 (PDT)
+        with ESMTP id S1352942AbiFTN5T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:57:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54AA3377D9;
+        Mon, 20 Jun 2022 06:23:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8048360FAD;
-        Mon, 20 Jun 2022 13:23:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 754DDC341C0;
-        Mon, 20 Jun 2022 13:23:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38070B80E7D;
+        Mon, 20 Jun 2022 13:23:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 876E1C3411C;
+        Mon, 20 Jun 2022 13:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731380;
-        bh=XaQf1WtlNVXvORkpGmBBusqXihg7/XyyCNcKtkHJsc4=;
+        s=korg; t=1655731384;
+        bh=d/IVFWvZ8uN8hvP+g0DuztiB3i9L0kZPmtP3qYFkZ5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJPMpN6TvW5MuBdwtEJVACuX14OSQF4VNf7yVo0b2v1tVQArBaGO6X6Rm6op2ESb7
-         IT4z5T/8EGG654qwQIoe0Y9WhooE4Wt3ul4lBXujzO5vEfbwvLjh6xb3N+XdaJ8zTC
-         O08yxPbYECeVLNpUWbypoUc/hgtrFqCyEFZej4pc=
+        b=Muto04CIA5K6t0x2eU5k/ko5/hiqyopj4dvpKjJaqwkvVAkATnN+GfOXbKvDbvNKK
+         aIfP1PEMrkR+CigE/Ng/iYMzJKlIyavu+lEdBKJq16foFMsaOitQJFgOAaF22M37gx
+         PmUGGkNU2rGfzuLDpZErnocF2lKIRtNGk2FOPE+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Schwab <schwab@linux-m68k.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Olof Johansson <olof@lixom.net>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.4 238/240] RISC-V: fix barrier() use in <vdso/processor.h>
-Date:   Mon, 20 Jun 2022 14:52:19 +0200
-Message-Id: <20220620124745.846319559@linuxfoundation.org>
+Subject: [PATCH 5.4 239/240] riscv: Less inefficient gcc tishift helpers (and export their symbols)
+Date:   Mon, 20 Jun 2022 14:52:20 +0200
+Message-Id: <20220620124745.874878407@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -57,55 +54,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Olof Johansson <olof@lixom.net>
 
-commit 30aca1bacb398dec6c1ed5eeca33f355bd7b6203 upstream.
+commit fc585d4a5cf614727f64d86550b794bcad29d5c3 upstream.
 
-riscv's <vdso/processor.h> uses barrier() so it should include
-<asm/barrier.h>
+The existing __lshrti3 was really inefficient, and the other two helpers
+are also needed to compile some modules.
 
-Fixes this build error:
-  CC [M]  drivers/net/ethernet/emulex/benet/be_main.o
-In file included from ./include/vdso/processor.h:10,
-                 from ./arch/riscv/include/asm/processor.h:11,
-                 from ./include/linux/prefetch.h:15,
-                 from drivers/net/ethernet/emulex/benet/be_main.c:14:
-./arch/riscv/include/asm/vdso/processor.h: In function 'cpu_relax':
-./arch/riscv/include/asm/vdso/processor.h:14:2: error: implicit declaration of function 'barrier' [-Werror=implicit-function-declaration]
-   14 |  barrier();
+Add the missing versions, and export all of the symbols like arm64
+already does.
 
-This happens with a total of 5 networking drivers -- they all use
-<linux/prefetch.h>.
+This code is based on the assembly generated by libgcc builds.
 
-rv64 allmodconfig now builds cleanly after this patch.
+This fixes a build break triggered by ubsan:
 
-Fixes fallout from:
-815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
+riscv64-unknown-linux-gnu-ld: lib/ubsan.o: in function `.L2':
+ubsan.c:(.text.unlikely+0x38): undefined reference to `__ashlti3'
+riscv64-unknown-linux-gnu-ld: ubsan.c:(.text.unlikely+0x42): undefined reference to `__ashrti3'
 
-Fixes: ad5d1122b82f ("riscv: use vDSO common flow to reduce the latency of the time-related functions")
-Reported-by: Andreas Schwab <schwab@linux-m68k.org>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-[sudip: change in old path]
+Signed-off-by: Olof Johansson <olof@lixom.net>
+[paul.walmsley@sifive.com: use SYM_FUNC_{START,END} instead of
+ ENTRY/ENDPROC; note libgcc origin]
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/processor.h |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/riscv/include/asm/asm-prototypes.h |    4 +
+ arch/riscv/lib/tishift.S                |   75 ++++++++++++++++++++++++--------
+ 2 files changed, 61 insertions(+), 18 deletions(-)
 
---- a/arch/riscv/include/asm/processor.h
-+++ b/arch/riscv/include/asm/processor.h
-@@ -22,6 +22,8 @@
+--- a/arch/riscv/include/asm/asm-prototypes.h
++++ b/arch/riscv/include/asm/asm-prototypes.h
+@@ -4,4 +4,8 @@
+ #include <linux/ftrace.h>
+ #include <asm-generic/asm-prototypes.h>
  
- #ifndef __ASSEMBLY__
- 
-+#include <asm/barrier.h>
++long long __lshrti3(long long a, int b);
++long long __ashrti3(long long a, int b);
++long long __ashlti3(long long a, int b);
 +
- struct task_struct;
- struct pt_regs;
+ #endif /* _ASM_RISCV_PROTOTYPES_H */
+--- a/arch/riscv/lib/tishift.S
++++ b/arch/riscv/lib/tishift.S
+@@ -4,34 +4,73 @@
+  */
  
+ #include <linux/linkage.h>
++#include <asm-generic/export.h>
+ 
+-ENTRY(__lshrti3)
++SYM_FUNC_START(__lshrti3)
+ 	beqz	a2, .L1
+ 	li	a5,64
+ 	sub	a5,a5,a2
+-	addi	sp,sp,-16
+ 	sext.w	a4,a5
+ 	blez	a5, .L2
+ 	sext.w	a2,a2
+-	sll	a4,a1,a4
+ 	srl	a0,a0,a2
+-	srl	a1,a1,a2
++	sll	a4,a1,a4
++	srl	a2,a1,a2
+ 	or	a0,a0,a4
+-	sd	a1,8(sp)
+-	sd	a0,0(sp)
+-	ld	a0,0(sp)
+-	ld	a1,8(sp)
+-	addi	sp,sp,16
+-	ret
++	mv	a1,a2
+ .L1:
+ 	ret
+ .L2:
+-	negw	a4,a4
+-	srl	a1,a1,a4
+-	sd	a1,0(sp)
+-	sd	zero,8(sp)
+-	ld	a0,0(sp)
+-	ld	a1,8(sp)
+-	addi	sp,sp,16
++	negw	a0,a4
++	li	a2,0
++	srl	a0,a1,a0
++	mv	a1,a2
++	ret
++SYM_FUNC_END(__lshrti3)
++EXPORT_SYMBOL(__lshrti3)
++
++SYM_FUNC_START(__ashrti3)
++	beqz	a2, .L3
++	li	a5,64
++	sub	a5,a5,a2
++	sext.w	a4,a5
++	blez	a5, .L4
++	sext.w	a2,a2
++	srl	a0,a0,a2
++	sll	a4,a1,a4
++	sra	a2,a1,a2
++	or	a0,a0,a4
++	mv	a1,a2
++.L3:
++	ret
++.L4:
++	negw	a0,a4
++	srai	a2,a1,0x3f
++	sra	a0,a1,a0
++	mv	a1,a2
++	ret
++SYM_FUNC_END(__ashrti3)
++EXPORT_SYMBOL(__ashrti3)
++
++SYM_FUNC_START(__ashlti3)
++	beqz	a2, .L5
++	li	a5,64
++	sub	a5,a5,a2
++	sext.w	a4,a5
++	blez	a5, .L6
++	sext.w	a2,a2
++	sll	a1,a1,a2
++	srl	a4,a0,a4
++	sll	a2,a0,a2
++	or	a1,a1,a4
++	mv	a0,a2
++.L5:
++	ret
++.L6:
++	negw	a1,a4
++	li	a2,0
++	sll	a1,a0,a1
++	mv	a0,a2
+ 	ret
+-ENDPROC(__lshrti3)
++SYM_FUNC_END(__ashlti3)
++EXPORT_SYMBOL(__ashlti3)
 
 
