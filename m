@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3360551D4E
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB7E8551BE8
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348414AbiFTNu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55858 "EHLO
+        id S245124AbiFTNKx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:10:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349489AbiFTNsp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:48:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7BDF38AF;
-        Mon, 20 Jun 2022 06:17:54 -0700 (PDT)
+        with ESMTP id S245686AbiFTNJV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4DBC5F9D;
+        Mon, 20 Jun 2022 06:03:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 915636114F;
-        Mon, 20 Jun 2022 13:16:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 830EDC3411B;
-        Mon, 20 Jun 2022 13:16:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EA86B811B9;
+        Mon, 20 Jun 2022 13:01:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5403C3411B;
+        Mon, 20 Jun 2022 13:01:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731017;
-        bh=dYx8PdSREqiQ5TasPNKE71jnKx6CBu7ljjQxcwdD4tw=;
+        s=korg; t=1655730069;
+        bh=DwlLbd8GKUT6Ycqzy2yQZei1Q/LJ1eFQP4Yg2Ok8Y7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdsAwoNVB63Gmr0ikE/NLds+XFDOC3m3YgvEaSdUD6LWr2FFnnKxcYzNMvco3xFj5
-         9kAlr0vMiMUTVhl/Q9poHk9fZSU6/39MlvQCi0FAtpsifvpkGYGWYadPmnklXP7sSI
-         8sYJOdAMkPvfbaOfbypgKlmu3MTXDuSkIVm2Vm6c=
+        b=eyYqHwo6nJi9A1usGy2Rc7QA8KUVv0V0Kgof4x/S846YIBACkkp3vrUiJCapg9sG1
+         R0xpOMnaX/Sbpk2mZ66d1vr7wAPmVc+LhYE3hLZRkgzdoCnj/5OQ/ayd3Brl7OHlbC
+         OVShvt95g4+IycXbpje1aiqgSY3PGwlEd549RIAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Theodore Tso <tytso@mit.edu>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 127/240] random: make random_get_entropy() return an unsigned long
-Date:   Mon, 20 Jun 2022 14:50:28 +0200
-Message-Id: <20220620124742.692651357@linuxfoundation.org>
+        stable@vger.kernel.org, David Lin <ctlin0@nuvoton.com>,
+        John Hsu <kchsu0@nuvoton.com>, Seven Li <wtli@nuvoton.com>,
+        Hui Wang <hui.wang@canonical.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 06/84] ASoC: nau8822: Add operation for internal PLL off and on
+Date:   Mon, 20 Jun 2022 14:50:29 +0200
+Message-Id: <20220620124721.074506001@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,103 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit b0c3e796f24b588b862b61ce235d3c9417dc8983 upstream.
+[ Upstream commit aeca8a3295022bcec46697f16e098140423d8463 ]
 
-Some implementations were returning type `unsigned long`, while others
-that fell back to get_cycles() were implicitly returning a `cycles_t` or
-an untyped constant int literal. That makes for weird and confusing
-code, and basically all code in the kernel already handled it like it
-was an `unsigned long`. I recently tried to handle it as the largest
-type it could be, a `cycles_t`, but doing so doesn't really help with
-much.
+We tried to enable the audio on an imx6sx EVB with the codec nau8822,
+after setting the internal PLL fractional parameters, the audio still
+couldn't work and the there was no sdma irq at all.
 
-Instead let's just make random_get_entropy() return an unsigned long all
-the time. This also matches the commonly used `arch_get_random_long()`
-function, so now RDRAND and RDTSC return the same sized integer, which
-means one can fallback to the other more gracefully.
+After checking with the section "8.1.1 Phase Locked Loop (PLL) Design
+Example" of "NAU88C22 Datasheet Rev 0.6", we found we need to
+turn off the PLL before programming fractional parameters and turn on
+the PLL after programming.
 
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Theodore Ts'o <tytso@mit.edu>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After this change, the audio driver could record and play sound and
+the sdma's irq is triggered when playing or recording.
+
+Cc: David Lin <ctlin0@nuvoton.com>
+Cc: John Hsu <kchsu0@nuvoton.com>
+Cc: Seven Li <wtli@nuvoton.com>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20220530040151.95221-2-hui.wang@canonical.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |   20 +++++++-------------
- include/linux/timex.h |    2 +-
- 2 files changed, 8 insertions(+), 14 deletions(-)
+ sound/soc/codecs/nau8822.c | 4 ++++
+ sound/soc/codecs/nau8822.h | 3 +++
+ 2 files changed, 7 insertions(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1010,7 +1010,7 @@ int __init rand_initialize(void)
-  */
- void add_device_randomness(const void *buf, size_t size)
- {
--	cycles_t cycles = random_get_entropy();
-+	unsigned long cycles = random_get_entropy();
- 	unsigned long flags, now = jiffies;
+diff --git a/sound/soc/codecs/nau8822.c b/sound/soc/codecs/nau8822.c
+index 609aeeb27818..d831959d8ff7 100644
+--- a/sound/soc/codecs/nau8822.c
++++ b/sound/soc/codecs/nau8822.c
+@@ -740,6 +740,8 @@ static int nau8822_set_pll(struct snd_soc_dai *dai, int pll_id, int source,
+ 		pll_param->pll_int, pll_param->pll_frac,
+ 		pll_param->mclk_scaler, pll_param->pre_factor);
  
- 	if (crng_init == 0 && size)
-@@ -1041,8 +1041,7 @@ struct timer_rand_state {
-  */
- static void add_timer_randomness(struct timer_rand_state *state, unsigned int num)
- {
--	cycles_t cycles = random_get_entropy();
--	unsigned long flags, now = jiffies;
-+	unsigned long cycles = random_get_entropy(), now = jiffies, flags;
- 	long delta, delta2, delta3;
++	snd_soc_component_update_bits(component,
++		NAU8822_REG_POWER_MANAGEMENT_1, NAU8822_PLL_EN_MASK, NAU8822_PLL_OFF);
+ 	snd_soc_component_update_bits(component,
+ 		NAU8822_REG_PLL_N, NAU8822_PLLMCLK_DIV2 | NAU8822_PLLN_MASK,
+ 		(pll_param->pre_factor ? NAU8822_PLLMCLK_DIV2 : 0) |
+@@ -757,6 +759,8 @@ static int nau8822_set_pll(struct snd_soc_dai *dai, int pll_id, int source,
+ 		pll_param->mclk_scaler << NAU8822_MCLKSEL_SFT);
+ 	snd_soc_component_update_bits(component,
+ 		NAU8822_REG_CLOCKING, NAU8822_CLKM_MASK, NAU8822_CLKM_PLL);
++	snd_soc_component_update_bits(component,
++		NAU8822_REG_POWER_MANAGEMENT_1, NAU8822_PLL_EN_MASK, NAU8822_PLL_ON);
  
- 	spin_lock_irqsave(&input_pool.lock, flags);
-@@ -1297,8 +1296,7 @@ static void mix_interrupt_randomness(str
- void add_interrupt_randomness(int irq)
- {
- 	enum { MIX_INFLIGHT = 1U << 31 };
--	cycles_t cycles = random_get_entropy();
--	unsigned long now = jiffies;
-+	unsigned long cycles = random_get_entropy(), now = jiffies;
- 	struct fast_pool *fast_pool = this_cpu_ptr(&irq_randomness);
- 	struct pt_regs *regs = get_irq_regs();
- 	unsigned int new_count;
-@@ -1311,16 +1309,12 @@ void add_interrupt_randomness(int irq)
- 	if (cycles == 0)
- 		cycles = get_reg(fast_pool, regs);
+ 	return 0;
+ }
+diff --git a/sound/soc/codecs/nau8822.h b/sound/soc/codecs/nau8822.h
+index 489191ff187e..b45d42c15de6 100644
+--- a/sound/soc/codecs/nau8822.h
++++ b/sound/soc/codecs/nau8822.h
+@@ -90,6 +90,9 @@
+ #define NAU8822_REFIMP_3K			0x3
+ #define NAU8822_IOBUF_EN			(0x1 << 2)
+ #define NAU8822_ABIAS_EN			(0x1 << 3)
++#define NAU8822_PLL_EN_MASK			(0x1 << 5)
++#define NAU8822_PLL_ON				(0x1 << 5)
++#define NAU8822_PLL_OFF				(0x0 << 5)
  
--	if (sizeof(cycles) == 8)
-+	if (sizeof(unsigned long) == 8) {
- 		irq_data.u64[0] = cycles ^ rol64(now, 32) ^ irq;
--	else {
-+		irq_data.u64[1] = regs ? instruction_pointer(regs) : _RET_IP_;
-+	} else {
- 		irq_data.u32[0] = cycles ^ irq;
- 		irq_data.u32[1] = now;
--	}
--
--	if (sizeof(unsigned long) == 8)
--		irq_data.u64[1] = regs ? instruction_pointer(regs) : _RET_IP_;
--	else {
- 		irq_data.u32[2] = regs ? instruction_pointer(regs) : _RET_IP_;
- 		irq_data.u32[3] = get_reg(fast_pool, regs);
- 	}
-@@ -1367,7 +1361,7 @@ static void entropy_timer(struct timer_l
- static void try_to_generate_entropy(void)
- {
- 	struct {
--		cycles_t cycles;
-+		unsigned long cycles;
- 		struct timer_list timer;
- 	} stack;
- 
---- a/include/linux/timex.h
-+++ b/include/linux/timex.h
-@@ -75,7 +75,7 @@
-  * By default we use get_cycles() for this purpose, but individual
-  * architectures may override this in their asm/timex.h header file.
-  */
--#define random_get_entropy()	get_cycles()
-+#define random_get_entropy()	((unsigned long)get_cycles())
- #endif
- 
- /*
+ /* NAU8822_REG_AUDIO_INTERFACE (0x4) */
+ #define NAU8822_AIFMT_MASK			(0x3 << 3)
+-- 
+2.35.1
+
 
 
