@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39625551AFA
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84BFD551B8C
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244090AbiFTNKg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:10:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51266 "EHLO
+        id S1346243AbiFTNei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:34:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244674AbiFTNH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:07:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F7319FB3;
-        Mon, 20 Jun 2022 06:01:00 -0700 (PDT)
+        with ESMTP id S1347110AbiFTNd5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:33:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D75F2717E;
+        Mon, 20 Jun 2022 06:13:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9034761541;
-        Mon, 20 Jun 2022 13:00:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A314C3411B;
-        Mon, 20 Jun 2022 13:00:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 570AEB811AE;
+        Mon, 20 Jun 2022 13:05:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC147C341C8;
+        Mon, 20 Jun 2022 13:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730040;
-        bh=8Qzn7BoD5ZQpLMt2i9GXYEkymXCq5HaMGEz1nkaAPTw=;
+        s=korg; t=1655730325;
+        bh=vJjdRV6suW58wg8UxIw6dYY+UwjX1tnxBI4Y8tgNXmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y5pJ0G3ek/0C4HR/lOeAz2w2zp6QrwIGAjhmHaSsX+hyVgXpZ1pjIHX8VQDdBAJem
-         fn+WvAGOqnr6k0ljfyBl55O5wq09PaCkD2A+YufP5q9OVNcdvly517uaXwOS43fH0x
-         cFKDSJnwR5lL76LPlvMdXdsnbUhhqyDBScgz0Fz0=
+        b=R2VXcWZPD5RWeb3UTXkbzZsiXUig6JJYGn/kBDjHd1OH70B1Om0E3TKtQIdvV7kOf
+         1hXJbjTeUVw/jJYZF8Lz1Yl9Bjbrm9BzKr4Be8/MuPoDqaCOxL55rsHkWnM4HQwhxC
+         FT9Jh2jm8FnP75SAuk7DvTGBifN10LSo0H/PQQu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 14/84] ata: libata-core: fix NULL pointer deref in ata_host_alloc_pinfo()
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 018/106] quota: Prevent memory allocation recursion while holding dq_lock
 Date:   Mon, 20 Jun 2022 14:50:37 +0200
-Message-Id: <20220620124721.312866453@linuxfoundation.org>
+Message-Id: <20220620124724.925186492@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit bf476fe22aa1851bab4728e0c49025a6a0bea307 ]
+[ Upstream commit 537e11cdc7a6b3ce94fa25ed41306193df9677b7 ]
 
-In an unlikely (and probably wrong?) case that the 'ppi' parameter of
-ata_host_alloc_pinfo() points to an array starting with a NULL pointer,
-there's going to be a kernel oops as the 'pi' local variable won't get
-reassigned from the initial value of NULL. Initialize 'pi' instead to
-'&ata_dummy_port_info' to fix the possible kernel oops for good...
+As described in commit 02117b8ae9c0 ("f2fs: Set GF_NOFS in
+read_cache_page_gfp while doing f2fs_quota_read"), we must not enter
+filesystem reclaim while holding the dq_lock.  Prevent this more generally
+by using memalloc_nofs_save() while holding the lock.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE static
-analysis tool.
-
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Link: https://lore.kernel.org/r/20220605143815.2330891-2-willy@infradead.org
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/quota/dquot.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index f963a0a7da46..2402fa4d8aa5 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -5475,7 +5475,7 @@ struct ata_host *ata_host_alloc_pinfo(struct device *dev,
- 				      const struct ata_port_info * const * ppi,
- 				      int n_ports)
+diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
+index a74aef99bd3d..09d1307959d0 100644
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -79,6 +79,7 @@
+ #include <linux/capability.h>
+ #include <linux/quotaops.h>
+ #include <linux/blkdev.h>
++#include <linux/sched/mm.h>
+ #include "../internal.h" /* ugh */
+ 
+ #include <linux/uaccess.h>
+@@ -425,9 +426,11 @@ EXPORT_SYMBOL(mark_info_dirty);
+ int dquot_acquire(struct dquot *dquot)
  {
--	const struct ata_port_info *pi;
-+	const struct ata_port_info *pi = &ata_dummy_port_info;
- 	struct ata_host *host;
- 	int i, j;
+ 	int ret = 0, ret2 = 0;
++	unsigned int memalloc;
+ 	struct quota_info *dqopt = sb_dqopt(dquot->dq_sb);
  
-@@ -5483,7 +5483,7 @@ struct ata_host *ata_host_alloc_pinfo(struct device *dev,
- 	if (!host)
- 		return NULL;
+ 	mutex_lock(&dquot->dq_lock);
++	memalloc = memalloc_nofs_save();
+ 	if (!test_bit(DQ_READ_B, &dquot->dq_flags)) {
+ 		ret = dqopt->ops[dquot->dq_id.type]->read_dqblk(dquot);
+ 		if (ret < 0)
+@@ -458,6 +461,7 @@ int dquot_acquire(struct dquot *dquot)
+ 	smp_mb__before_atomic();
+ 	set_bit(DQ_ACTIVE_B, &dquot->dq_flags);
+ out_iolock:
++	memalloc_nofs_restore(memalloc);
+ 	mutex_unlock(&dquot->dq_lock);
+ 	return ret;
+ }
+@@ -469,9 +473,11 @@ EXPORT_SYMBOL(dquot_acquire);
+ int dquot_commit(struct dquot *dquot)
+ {
+ 	int ret = 0;
++	unsigned int memalloc;
+ 	struct quota_info *dqopt = sb_dqopt(dquot->dq_sb);
  
--	for (i = 0, j = 0, pi = NULL; i < host->n_ports; i++) {
-+	for (i = 0, j = 0; i < host->n_ports; i++) {
- 		struct ata_port *ap = host->ports[i];
+ 	mutex_lock(&dquot->dq_lock);
++	memalloc = memalloc_nofs_save();
+ 	if (!clear_dquot_dirty(dquot))
+ 		goto out_lock;
+ 	/* Inactive dquot can be only if there was error during read/init
+@@ -481,6 +487,7 @@ int dquot_commit(struct dquot *dquot)
+ 	else
+ 		ret = -EIO;
+ out_lock:
++	memalloc_nofs_restore(memalloc);
+ 	mutex_unlock(&dquot->dq_lock);
+ 	return ret;
+ }
+@@ -492,9 +499,11 @@ EXPORT_SYMBOL(dquot_commit);
+ int dquot_release(struct dquot *dquot)
+ {
+ 	int ret = 0, ret2 = 0;
++	unsigned int memalloc;
+ 	struct quota_info *dqopt = sb_dqopt(dquot->dq_sb);
  
- 		if (ppi[j])
+ 	mutex_lock(&dquot->dq_lock);
++	memalloc = memalloc_nofs_save();
+ 	/* Check whether we are not racing with some other dqget() */
+ 	if (dquot_is_busy(dquot))
+ 		goto out_dqlock;
+@@ -510,6 +519,7 @@ int dquot_release(struct dquot *dquot)
+ 	}
+ 	clear_bit(DQ_ACTIVE_B, &dquot->dq_flags);
+ out_dqlock:
++	memalloc_nofs_restore(memalloc);
+ 	mutex_unlock(&dquot->dq_lock);
+ 	return ret;
+ }
 -- 
 2.35.1
 
