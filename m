@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9A08551D50
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD21B551B2C
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245627AbiFTNu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36762 "EHLO
+        id S244225AbiFTNKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:10:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350636AbiFTNto (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:49:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A762FFF9;
-        Mon, 20 Jun 2022 06:18:13 -0700 (PDT)
+        with ESMTP id S244685AbiFTNH0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:07:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 470E51B7A7;
+        Mon, 20 Jun 2022 06:01:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA215B81200;
-        Mon, 20 Jun 2022 13:17:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F64BC3411C;
-        Mon, 20 Jun 2022 13:17:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D2EB61530;
+        Mon, 20 Jun 2022 13:00:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92EE8C36AF2;
+        Mon, 20 Jun 2022 13:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731045;
-        bh=x2D9DlfT0qTyz/nfR0Zj5P0AZC9Wk3MKs7Z+ijB8Ris=;
+        s=korg; t=1655730043;
+        bh=OYZepqnZF5ehymvjwu9IgTMcBX0/iTdvqxfft0sm+Io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W4Ud8SpuHbGPIDm+fEE7hfMYxyJqZyCm27boDooE+BMx9jK3u6jjKhHtn3QPGX9ZA
-         ze9TErJOITM0fax4d54+ieeli1Nf+lCWFGLpN5xUiNEzSb1vNYpFBJa4JBWcpYASk8
-         b7eeT1TfVYMWnAY9XCRJLz1ofJiJQLGztNx1mWxA=
+        b=cgfV04eKwEEgOJbi0XgvSumZX5OFc7XHk269eEhw5zJ1wKv9o6136mnTyJKUjY4pW
+         T9IxaWSqt33WDopX9T3ZTEMQKp5LlBD2Ih235Qs+vSGDUc9wolQf46dC9GfTjwtgRT
+         GXWs/P/jbqjiyk3udMfm4JT2t0ulxtZa7F6riA6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Arnd Bergmann <arnd@arndb.de>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 136/240] timekeeping: Add raw clock fallback for random_get_entropy()
-Date:   Mon, 20 Jun 2022 14:50:37 +0200
-Message-Id: <20220620124742.949340094@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 15/84] quota: Prevent memory allocation recursion while holding dq_lock
+Date:   Mon, 20 Jun 2022 14:50:38 +0200
+Message-Id: <20220620124721.342085455@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,100 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 1366992e16bddd5e2d9a561687f367f9f802e2e4 upstream.
+[ Upstream commit 537e11cdc7a6b3ce94fa25ed41306193df9677b7 ]
 
-The addition of random_get_entropy_fallback() provides access to
-whichever time source has the highest frequency, which is useful for
-gathering entropy on platforms without available cycle counters. It's
-not necessarily as good as being able to quickly access a cycle counter
-that the CPU has, but it's still something, even when it falls back to
-being jiffies-based.
+As described in commit 02117b8ae9c0 ("f2fs: Set GF_NOFS in
+read_cache_page_gfp while doing f2fs_quota_read"), we must not enter
+filesystem reclaim while holding the dq_lock.  Prevent this more generally
+by using memalloc_nofs_save() while holding the lock.
 
-In the event that a given arch does not define get_cycles(), falling
-back to the get_cycles() default implementation that returns 0 is really
-not the best we can do. Instead, at least calling
-random_get_entropy_fallback() would be preferable, because that always
-needs to return _something_, even falling back to jiffies eventually.
-It's not as though random_get_entropy_fallback() is super high precision
-or guaranteed to be entropic, but basically anything that's not zero all
-the time is better than returning zero all the time.
-
-Finally, since random_get_entropy_fallback() is used during extremely
-early boot when randomizing freelists in mm_init(), it can be called
-before timekeeping has been initialized. In that case there really is
-nothing we can do; jiffies hasn't even started ticking yet. So just give
-up and return 0.
-
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220605143815.2330891-2-willy@infradead.org
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/timex.h     |    8 ++++++++
- kernel/time/timekeeping.c |   15 +++++++++++++++
- 2 files changed, 23 insertions(+)
+ fs/quota/dquot.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/include/linux/timex.h
-+++ b/include/linux/timex.h
-@@ -62,6 +62,8 @@
- #include <linux/types.h>
- #include <linux/param.h>
+diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
+index 09fb8459bb5c..65f123d5809b 100644
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -79,6 +79,7 @@
+ #include <linux/capability.h>
+ #include <linux/quotaops.h>
+ #include <linux/blkdev.h>
++#include <linux/sched/mm.h>
+ #include "../internal.h" /* ugh */
  
-+unsigned long random_get_entropy_fallback(void);
-+
- #include <asm/timex.h>
+ #include <linux/uaccess.h>
+@@ -427,9 +428,11 @@ EXPORT_SYMBOL(mark_info_dirty);
+ int dquot_acquire(struct dquot *dquot)
+ {
+ 	int ret = 0, ret2 = 0;
++	unsigned int memalloc;
+ 	struct quota_info *dqopt = sb_dqopt(dquot->dq_sb);
  
- #ifndef random_get_entropy
-@@ -74,8 +76,14 @@
-  *
-  * By default we use get_cycles() for this purpose, but individual
-  * architectures may override this in their asm/timex.h header file.
-+ * If a given arch does not have get_cycles(), then we fallback to
-+ * using random_get_entropy_fallback().
-  */
-+#ifdef get_cycles
- #define random_get_entropy()	((unsigned long)get_cycles())
-+#else
-+#define random_get_entropy()	random_get_entropy_fallback()
-+#endif
- #endif
- 
- /*
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -17,6 +17,7 @@
- #include <linux/clocksource.h>
- #include <linux/jiffies.h>
- #include <linux/time.h>
-+#include <linux/timex.h>
- #include <linux/tick.h>
- #include <linux/stop_machine.h>
- #include <linux/pvclock_gtod.h>
-@@ -2304,6 +2305,20 @@ static int timekeeping_validate_timex(co
- 	return 0;
+ 	mutex_lock(&dquot->dq_lock);
++	memalloc = memalloc_nofs_save();
+ 	if (!test_bit(DQ_READ_B, &dquot->dq_flags)) {
+ 		ret = dqopt->ops[dquot->dq_id.type]->read_dqblk(dquot);
+ 		if (ret < 0)
+@@ -460,6 +463,7 @@ int dquot_acquire(struct dquot *dquot)
+ 	smp_mb__before_atomic();
+ 	set_bit(DQ_ACTIVE_B, &dquot->dq_flags);
+ out_iolock:
++	memalloc_nofs_restore(memalloc);
+ 	mutex_unlock(&dquot->dq_lock);
+ 	return ret;
  }
+@@ -471,9 +475,11 @@ EXPORT_SYMBOL(dquot_acquire);
+ int dquot_commit(struct dquot *dquot)
+ {
+ 	int ret = 0;
++	unsigned int memalloc;
+ 	struct quota_info *dqopt = sb_dqopt(dquot->dq_sb);
  
-+/**
-+ * random_get_entropy_fallback - Returns the raw clock source value,
-+ * used by random.c for platforms with no valid random_get_entropy().
-+ */
-+unsigned long random_get_entropy_fallback(void)
-+{
-+	struct tk_read_base *tkr = &tk_core.timekeeper.tkr_mono;
-+	struct clocksource *clock = READ_ONCE(tkr->clock);
-+
-+	if (unlikely(timekeeping_suspended || !clock))
-+		return 0;
-+	return clock->read(clock);
-+}
-+EXPORT_SYMBOL_GPL(random_get_entropy_fallback);
+ 	mutex_lock(&dquot->dq_lock);
++	memalloc = memalloc_nofs_save();
+ 	if (!clear_dquot_dirty(dquot))
+ 		goto out_lock;
+ 	/* Inactive dquot can be only if there was error during read/init
+@@ -483,6 +489,7 @@ int dquot_commit(struct dquot *dquot)
+ 	else
+ 		ret = -EIO;
+ out_lock:
++	memalloc_nofs_restore(memalloc);
+ 	mutex_unlock(&dquot->dq_lock);
+ 	return ret;
+ }
+@@ -494,9 +501,11 @@ EXPORT_SYMBOL(dquot_commit);
+ int dquot_release(struct dquot *dquot)
+ {
+ 	int ret = 0, ret2 = 0;
++	unsigned int memalloc;
+ 	struct quota_info *dqopt = sb_dqopt(dquot->dq_sb);
  
- /**
-  * do_adjtimex() - Accessor function to NTP __do_adjtimex function
+ 	mutex_lock(&dquot->dq_lock);
++	memalloc = memalloc_nofs_save();
+ 	/* Check whether we are not racing with some other dqget() */
+ 	if (dquot_is_busy(dquot))
+ 		goto out_dqlock;
+@@ -512,6 +521,7 @@ int dquot_release(struct dquot *dquot)
+ 	}
+ 	clear_bit(DQ_ACTIVE_B, &dquot->dq_flags);
+ out_dqlock:
++	memalloc_nofs_restore(memalloc);
+ 	mutex_unlock(&dquot->dq_lock);
+ 	return ret;
+ }
+-- 
+2.35.1
+
 
 
