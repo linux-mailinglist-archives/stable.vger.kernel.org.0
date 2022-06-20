@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C54B55127A
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 10:20:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0875B55127D
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 10:20:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239875AbiFTIT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 04:19:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37368 "EHLO
+        id S238955AbiFTIU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 04:20:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239093AbiFTITr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 04:19:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3C9111A3D
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 01:19:46 -0700 (PDT)
+        with ESMTP id S238034AbiFTIUZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 04:20:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67CE511A28
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 01:20:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80E2961291
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 08:19:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F41EC3411B;
-        Mon, 20 Jun 2022 08:19:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9661BB80EAA
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 08:20:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E04B9C341C6;
+        Mon, 20 Jun 2022 08:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655713186;
-        bh=TQzVSwcsvaB7w67/E95aUge2cIqPZpiOvlK36HKiXAE=;
+        s=korg; t=1655713221;
+        bh=AiiRl9aI9YSV09LQCVaOlNTxNThsgDHwAHrdddR+NCE=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZHSKTlUS7RaC2pZ+NVOttmSOp58vGQG/EzJgTdfczIHrF/2YKXtxuDXOx3AHVgmTm
-         5/ZO3wwxVz6G/Om+10ZJ/VowOunJpVe9eUS+U88nRitT3GPuylGNFaFswKsPFC/DMz
-         D6X4V+/tQxi3HoiFvCHewg2v4Kigvv2m6UhwdEr8=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Fix IN endpoint max packet size allocation" failed to apply to 4.19-stable tree
-To:     quic_wcheng@quicinc.com, gregkh@linuxfoundation.org,
-        stable@kernel.org
+        b=O/k1qodgzXFVCokmmVRIn69kMRljMJnXbugWEXqg2vogGtOyiX5Dsf3Mn4JKuafM4
+         y7X1m6SJWmVGfkr3RYrBpUFIdqCTgkfH6tJDrnRvO1gGQeAu+A6eQ+Jd5E0wOBziO3
+         JHbTmrs/Iri6IkYc0LSoVF9LvpZPfldy6e6/8kbo=
+Subject: FAILED: patch "[PATCH] usb: gadget: u_ether: fix regression in setting fixed MAC" failed to apply to 5.10-stable tree
+To:     posteuca@mutex.one, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jun 2022 10:19:30 +0200
-Message-ID: <16557131707599@kroah.com>
+Date:   Mon, 20 Jun 2022 10:20:10 +0200
+Message-ID: <165571321057224@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,78 +59,80 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9c1e916960c1192e746bf615e4dae25423473a64 Mon Sep 17 00:00:00 2001
-From: Wesley Cheng <quic_wcheng@quicinc.com>
-Date: Mon, 23 May 2022 14:39:48 -0700
-Subject: [PATCH] usb: dwc3: gadget: Fix IN endpoint max packet size allocation
+From b337af3a4d6147000b7ca6b3438bf5c820849b37 Mon Sep 17 00:00:00 2001
+From: Marian Postevca <posteuca@mutex.one>
+Date: Fri, 3 Jun 2022 18:34:59 +0300
+Subject: [PATCH] usb: gadget: u_ether: fix regression in setting fixed MAC
+ address
 
-The current logic to assign the max packet limit for IN endpoints attempts
-to take the default HW value and apply the optimal endpoint settings based
-on it.  However, if the default value reports a TxFIFO size large enough
-for only one max packet, it will divide the value and assign a smaller ep
-max packet limit.
+In systemd systems setting a fixed MAC address through
+the "dev_addr" module argument fails systematically.
+When checking the MAC address after the interface is created
+it always has the same but different MAC address to the one
+supplied as argument.
 
-For example, if the default TxFIFO size fits 1024B, current logic will
-assign 1024/3 = 341B to ep max packet size.  If function drivers attempt to
-request for an endpoint with a wMaxPacketSize of 1024B (SS BULK max packet
-size) then it will fail, as the gadget is unable to find an endpoint which
-can fit the requested size.
+This is partially caused by systemd which by default will
+set an internally generated permanent MAC address for interfaces
+that are marked as having a randomly generated address.
 
-Functionally, if the TxFIFO has enough space to fit one max packet, it will
-be sufficient, at least when initializing the endpoints.
+Commit 890d5b40908bfd1a ("usb: gadget: u_ether: fix race in
+setting MAC address in setup phase") didn't take into account
+the fact that the interface must be marked as having a set
+MAC address when it's set as module argument.
 
-Fixes: d94ea5319813 ("usb: dwc3: gadget: Properly set maxpacket limit")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
-Link: https://lore.kernel.org/r/20220523213948.22142-1-quic_wcheng@quicinc.com
+Fixed by marking the interface with NET_ADDR_SET when
+the "dev_addr" module argument is supplied.
+
+Fixes: 890d5b40908bfd1a ("usb: gadget: u_ether: fix race in setting MAC address in setup phase")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marian Postevca <posteuca@mutex.one>
+Link: https://lore.kernel.org/r/20220603153459.32722-1-posteuca@mutex.one
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 00427d108ab9..8716bece1072 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2976,6 +2976,7 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
- 	struct dwc3 *dwc = dep->dwc;
- 	u32 mdwidth;
- 	int size;
-+	int maxpacket;
+diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
+index 6f5d45ef2e39..f51694f29de9 100644
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -775,9 +775,13 @@ struct eth_dev *gether_setup_name(struct usb_gadget *g,
+ 	dev->qmult = qmult;
+ 	snprintf(net->name, sizeof(net->name), "%s%%d", netname);
  
- 	mdwidth = dwc3_mdwidth(dwc);
+-	if (get_ether_addr(dev_addr, addr))
++	if (get_ether_addr(dev_addr, addr)) {
++		net->addr_assign_type = NET_ADDR_RANDOM;
+ 		dev_warn(&g->dev,
+ 			"using random %s ethernet address\n", "self");
++	} else {
++		net->addr_assign_type = NET_ADDR_SET;
++	}
+ 	eth_hw_addr_set(net, addr);
+ 	if (get_ether_addr(host_addr, dev->host_mac))
+ 		dev_warn(&g->dev,
+@@ -844,6 +848,10 @@ struct net_device *gether_setup_name_default(const char *netname)
  
-@@ -2988,21 +2989,24 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
- 	else
- 		size = DWC31_GTXFIFOSIZ_TXFDEP(size);
+ 	eth_random_addr(dev->dev_mac);
+ 	pr_warn("using random %s ethernet address\n", "self");
++
++	/* by default we always have a random MAC address */
++	net->addr_assign_type = NET_ADDR_RANDOM;
++
+ 	eth_random_addr(dev->host_mac);
+ 	pr_warn("using random %s ethernet address\n", "host");
  
--	/* FIFO Depth is in MDWDITH bytes. Multiply */
--	size *= mdwidth;
--
- 	/*
--	 * To meet performance requirement, a minimum TxFIFO size of 3x
--	 * MaxPacketSize is recommended for endpoints that support burst and a
--	 * minimum TxFIFO size of 2x MaxPacketSize for endpoints that don't
--	 * support burst. Use those numbers and we can calculate the max packet
--	 * limit as below.
-+	 * maxpacket size is determined as part of the following, after assuming
-+	 * a mult value of one maxpacket:
-+	 * DWC3 revision 280A and prior:
-+	 * fifo_size = mult * (max_packet / mdwidth) + 1;
-+	 * maxpacket = mdwidth * (fifo_size - 1);
-+	 *
-+	 * DWC3 revision 290A and onwards:
-+	 * fifo_size = mult * ((max_packet + mdwidth)/mdwidth + 1) + 1
-+	 * maxpacket = mdwidth * ((fifo_size - 1) - 1) - mdwidth;
- 	 */
--	if (dwc->maximum_speed >= USB_SPEED_SUPER)
--		size /= 3;
-+	if (DWC3_VER_IS_PRIOR(DWC3, 290A))
-+		maxpacket = mdwidth * (size - 1);
- 	else
--		size /= 2;
-+		maxpacket = mdwidth * ((size - 1) - 1) - mdwidth;
+@@ -871,7 +879,6 @@ int gether_register_netdev(struct net_device *net)
+ 	dev = netdev_priv(net);
+ 	g = dev->gadget;
  
-+	/* Functionally, space for one max packet is sufficient */
-+	size = min_t(int, maxpacket, 1024);
- 	usb_ep_set_maxpacket_limit(&dep->endpoint, size);
+-	net->addr_assign_type = NET_ADDR_RANDOM;
+ 	eth_hw_addr_set(net, dev->dev_mac);
  
- 	dep->endpoint.max_streams = 16;
+ 	status = register_netdev(net);
+@@ -912,6 +919,7 @@ int gether_set_dev_addr(struct net_device *net, const char *dev_addr)
+ 	if (get_ether_addr(dev_addr, new_addr))
+ 		return -EINVAL;
+ 	memcpy(dev->dev_mac, new_addr, ETH_ALEN);
++	net->addr_assign_type = NET_ADDR_SET;
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(gether_set_dev_addr);
 
