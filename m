@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC0B551A97
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E577F551C6B
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244837AbiFTNH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:07:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51290 "EHLO
+        id S245190AbiFTNPi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:15:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244814AbiFTNF5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:05:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF0651A057;
-        Mon, 20 Jun 2022 06:00:26 -0700 (PDT)
+        with ESMTP id S1345622AbiFTNOk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:14:40 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 822AA19C10;
+        Mon, 20 Jun 2022 06:07:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FCB8B811C0;
-        Mon, 20 Jun 2022 13:00:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2373C3411B;
-        Mon, 20 Jun 2022 13:00:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 62DE3CE139A;
+        Mon, 20 Jun 2022 13:06:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36CE6C3411B;
+        Mon, 20 Jun 2022 13:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730024;
-        bh=bC9DTLtvzQkenP0Knef0ZUSmmW0hUV8voMCfBw0foiU=;
+        s=korg; t=1655730379;
+        bh=01mawIc35r+gK++qej0uz5FbVWHFWwVOkaENnGgcWhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJMUcnifHv7RuNxxHI//Ro2CL7rzoWgH0ejtYJGaQibMPU3cozwAViJxVuCEUjojE
-         JuNByvKK8rw6AbZZuqPZGc8z+WwsRp0VF/nJ9xsG/O7dOGnJUyjUXFU7tgHfOfpI2q
-         d9RtBj6v/38AWTMyW6PLtYCmazmOJEQ/D2AI6q1k=
+        b=nRLfIuddib/dzNIVWs9fvoSCwGgRq0X6Y9N+Nng7qHdDf8cnvjQCTBFbAtMzo40VO
+         AKZ867h4LTMapuXSW1mRKgTJcmDOhRweBAJtsi+nPsMILxOzlMx8mbhwx9mpxvwXuF
+         8enCNjBi2qk86eZCKYd5+misdbLAYgG9oW0RIezQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.10 01/84] 9p: missing chunk of "fs/9p: Dont update file type when updating file attributes"
+        stable@vger.kernel.org, Wanming Hu <huwanming@huaweil.com>,
+        He Ying <heying24@huawei.com>,
+        Chen Jingwen <chenjingwen6@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 005/106] powerpc/kasan: Silence KASAN warnings in __get_wchan()
 Date:   Mon, 20 Jun 2022 14:50:24 +0200
-Message-Id: <20220620124720.928225421@linuxfoundation.org>
+Message-Id: <20220620124724.544207703@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,41 +57,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: He Ying <heying24@huawei.com>
 
-commit b577d0cd2104fdfcf0ded3707540a12be8ddd8b0 upstream.
+[ Upstream commit a1b29ba2f2c171b9bea73be993bfdf0a62d37d15 ]
 
-In commit 45089142b149 Aneesh had missed one (admittedly, very unlikely
-to hit) case in v9fs_stat2inode_dotl().  However, the same considerations
-apply there as well - we have no business whatsoever to change ->i_rdev
-or the file type.
+The following KASAN warning was reported in our kernel.
 
-Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  BUG: KASAN: stack-out-of-bounds in get_wchan+0x188/0x250
+  Read of size 4 at addr d216f958 by task ps/14437
+
+  CPU: 3 PID: 14437 Comm: ps Tainted: G           O      5.10.0 #1
+  Call Trace:
+  [daa63858] [c0654348] dump_stack+0x9c/0xe4 (unreliable)
+  [daa63888] [c035cf0c] print_address_description.constprop.3+0x8c/0x570
+  [daa63908] [c035d6bc] kasan_report+0x1ac/0x218
+  [daa63948] [c00496e8] get_wchan+0x188/0x250
+  [daa63978] [c0461ec8] do_task_stat+0xce8/0xe60
+  [daa63b98] [c0455ac8] proc_single_show+0x98/0x170
+  [daa63bc8] [c03cab8c] seq_read_iter+0x1ec/0x900
+  [daa63c38] [c03cb47c] seq_read+0x1dc/0x290
+  [daa63d68] [c037fc94] vfs_read+0x164/0x510
+  [daa63ea8] [c03808e4] ksys_read+0x144/0x1d0
+  [daa63f38] [c005b1dc] ret_from_syscall+0x0/0x38
+  --- interrupt: c00 at 0x8fa8f4
+      LR = 0x8fa8cc
+
+  The buggy address belongs to the page:
+  page:98ebcdd2 refcount:0 mapcount:0 mapping:00000000 index:0x2 pfn:0x1216f
+  flags: 0x0()
+  raw: 00000000 00000000 01010122 00000000 00000002 00000000 ffffffff 00000000
+  raw: 00000000
+  page dumped because: kasan: bad access detected
+
+  Memory state around the buggy address:
+   d216f800: 00 00 00 00 00 f1 f1 f1 f1 00 00 00 00 00 00 00
+   d216f880: f2 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  >d216f900: 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00
+                                            ^
+   d216f980: f2 f2 f2 f2 f2 f2 f2 00 00 00 00 00 00 00 00 00
+   d216fa00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+After looking into this issue, I find the buggy address belongs
+to the task stack region. It seems KASAN has something wrong.
+I look into the code of __get_wchan in x86 architecture and
+find the same issue has been resolved by the commit
+f7d27c35ddff ("x86/mm, kasan: Silence KASAN warnings in get_wchan()").
+The solution could be applied to powerpc architecture too.
+
+As Andrey Ryabinin said, get_wchan() is racy by design, it may
+access volatile stack of running task, thus it may access
+redzone in a stack frame and cause KASAN to warn about this.
+
+Use READ_ONCE_NOCHECK() to silence these warnings.
+
+Reported-by: Wanming Hu <huwanming@huaweil.com>
+Signed-off-by: He Ying <heying24@huawei.com>
+Signed-off-by: Chen Jingwen <chenjingwen6@huawei.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220121014418.155675-1-heying24@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/9p/vfs_inode_dotl.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ arch/powerpc/kernel/process.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/9p/vfs_inode_dotl.c
-+++ b/fs/9p/vfs_inode_dotl.c
-@@ -657,14 +657,10 @@ v9fs_stat2inode_dotl(struct p9_stat_dotl
- 		if (stat->st_result_mask & P9_STATS_NLINK)
- 			set_nlink(inode, stat->st_nlink);
- 		if (stat->st_result_mask & P9_STATS_MODE) {
--			inode->i_mode = stat->st_mode;
--			if ((S_ISBLK(inode->i_mode)) ||
--						(S_ISCHR(inode->i_mode)))
--				init_special_inode(inode, inode->i_mode,
--								inode->i_rdev);
-+			mode = stat->st_mode & S_IALLUGO;
-+			mode |= inode->i_mode & ~S_IALLUGO;
-+			inode->i_mode = mode;
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index 50436b52c213..39a0a13a3a27 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -2124,12 +2124,12 @@ static unsigned long __get_wchan(struct task_struct *p)
+ 		return 0;
+ 
+ 	do {
+-		sp = *(unsigned long *)sp;
++		sp = READ_ONCE_NOCHECK(*(unsigned long *)sp);
+ 		if (!validate_sp(sp, p, STACK_FRAME_OVERHEAD) ||
+ 		    task_is_running(p))
+ 			return 0;
+ 		if (count > 0) {
+-			ip = ((unsigned long *)sp)[STACK_FRAME_LR_SAVE];
++			ip = READ_ONCE_NOCHECK(((unsigned long *)sp)[STACK_FRAME_LR_SAVE]);
+ 			if (!in_sched_functions(ip))
+ 				return ip;
  		}
--		if (stat->st_result_mask & P9_STATS_RDEV)
--			inode->i_rdev = new_decode_dev(stat->st_rdev);
- 		if (!(flags & V9FS_STAT2INODE_KEEP_ISIZE) &&
- 		    stat->st_result_mask & P9_STATS_SIZE)
- 			v9fs_i_size_write(inode, stat->st_size);
+-- 
+2.35.1
+
 
 
