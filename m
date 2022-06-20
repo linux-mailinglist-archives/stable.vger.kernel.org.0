@@ -2,55 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3510B5517AC
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 13:46:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3B3C5517B1
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 13:46:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235342AbiFTLpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 07:45:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32918 "EHLO
+        id S241513AbiFTLqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 07:46:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241998AbiFTLoy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 07:44:54 -0400
+        with ESMTP id S241589AbiFTLqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 07:46:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AD111704B
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 04:44:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55263186CE
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 04:45:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07EED612E3
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 11:44:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04141C3411B;
-        Mon, 20 Jun 2022 11:44:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45DCC6129E
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 11:45:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E34EC3411B;
+        Mon, 20 Jun 2022 11:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655725492;
-        bh=xhMdFyuY9abX5LxO5cJnIDjmqdDZ9TJ2fUXwuwOB0mI=;
+        s=korg; t=1655725543;
+        bh=eO58lzoa9bVmzb+ZeYSJF8ak/J/1Id4yJFt0KAGT3RU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qYGfRyXm8a59j7k427hr0loL1HihSj1Y/qLH7f50E8miqStJNCvCEw5CqRs9XCYG2
-         cxsArSeEtTf4e9LNyhomA7EXflVWn7oYrgk2GnRGKHPQdncMd32i8689na2/EzG5Gi
-         KCTBsLpcwmZ9BD5g0N8I5EnIpGLwbSqp0zuIWDvQ=
-Date:   Mon, 20 Jun 2022 13:44:49 +0200
+        b=cN0ftu6YlxDBpMvd1urX0/JaDap58Jfq4geI/ktx9qzmYpRhnCQVvFPo5V9JiNacS
+         AQ/7I3rKv/gEEa7hS8cNL18+RMvshZiS9rYIUY2msB39uPK/sjq0j0ntN/BTxlotjm
+         WFy9jeIpP6fDItsDCxCjlYtoTWV3pRLZ/aKlYfJw=
+Date:   Mon, 20 Jun 2022 13:45:40 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mike Snitzer <snitzer@redhat.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Mike Snitzer <snitzer@kernel.org>, keescook@chromium.org,
-        sarthakkukreti@google.com, stable@vger.kernel.org,
-        Oleksandr Tymoshenko <ovt@google.com>, dm-devel@redhat.com,
-        regressions@lists.linux.dev
-Subject: Re: [PATCH 5.4 26/34] dm verity: set DM_TARGET_IMMUTABLE feature flag
-Message-ID: <YrBdsTDrreF3H82o@kroah.com>
-References: <20220603173816.944766454@linuxfoundation.org>
- <20220610042200.2561917-1-ovt@google.com>
- <YqLTV+5Q72/jBeOG@kroah.com>
- <YqNfBMOR9SE2TuCm@redhat.com>
- <Yqb/sT205Lrhl6Bv@kroah.com>
- <20220615143642.GA2386944@roeck-us.net>
- <Yqn64AMwoIzQXwXM@redhat.com>
- <50eeff2e-45c5-5eb2-c41d-3e0092a84483@roeck-us.net>
- <Yqo63CvFpTDFnH3x@redhat.com>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 5.10] dma-direct: don't over-decrypt memory
+Message-ID: <YrBd5F7bakWPbz7M@kroah.com>
+References: <5de33f5cb5e1f80497b898e4690d36ed85ad396a.1655468052.git.robin.murphy@arm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Yqo63CvFpTDFnH3x@redhat.com>
+In-Reply-To: <5de33f5cb5e1f80497b898e4690d36ed85ad396a.1655468052.git.robin.murphy@arm.com>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -61,125 +49,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 15, 2022 at 04:02:36PM -0400, Mike Snitzer wrote:
-> On Wed, Jun 15 2022 at  1:50P -0400,
-> Guenter Roeck <linux@roeck-us.net> wrote:
+On Fri, Jun 17, 2022 at 01:46:49PM +0100, Robin Murphy wrote:
+> [ Upstream commit 4a37f3dd9a83186cb88d44808ab35b78375082c9 ]
 > 
-> > On 6/15/22 08:29, Mike Snitzer wrote:
-> > > On Wed, Jun 15 2022 at 10:36P -0400,
-> > > Guenter Roeck <linux@roeck-us.net> wrote:
-> > > 
-> > > > On Mon, Jun 13, 2022 at 11:13:21AM +0200, Greg KH wrote:
-> > > > > On Fri, Jun 10, 2022 at 11:11:00AM -0400, Mike Snitzer wrote:
-> > > > > > On Fri, Jun 10 2022 at  1:15P -0400,
-> > > > > > Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > > > 
-> > > > > > > On Fri, Jun 10, 2022 at 04:22:00AM +0000, Oleksandr Tymoshenko wrote:
-> > > > > > > > I believe this commit introduced a regression in dm verity on systems
-> > > > > > > > where data device is an NVME one. Loading table fails with the
-> > > > > > > > following diagnostics:
-> > > > > > > > 
-> > > > > > > > device-mapper: table: table load rejected: including non-request-stackable devices
-> > > > > > > > 
-> > > > > > > > The same kernel works with the same data drive on the SCSI interface.
-> > > > > > > > NVME-backed dm verity works with just this commit reverted.
-> > > > > > > > 
-> > > > > > > > I believe the presence of the immutable partition is used as an indicator
-> > > > > > > > of special case NVME configuration and if the data device's name starts
-> > > > > > > > with "nvme" the code tries to switch the target type to
-> > > > > > > > DM_TYPE_NVME_BIO_BASED (drivers/md/dm-table.c lines 1003-1010).
-> > > > > > > > 
-> > > > > > > > The special NVME optimization case was removed in
-> > > > > > > > 5.10 by commit 9c37de297f6590937f95a28bec1b7ac68a38618f, so only 5.4 is
-> > > > > > > > affected.
-> > > > > > > > 
-> > > > > > > 
-> > > > > > > Why wouldn't 4.9, 4.14, and 4.19 also be affected here?  Should I also
-> > > > > > > just queue up 9c37de297f65 ("dm: remove special-casing of bio-based
-> > > > > > > immutable singleton target on NVMe") to those older kernels?  If so,
-> > > > > > > have you tested this and verified that it worked?
-> > > > > > 
-> > > > > > Sorry for the unforeseen stable@ troubles here!
-> > > > > > 
-> > > > > > In general we'd be fine to apply commit 9c37de297f65 but to do it
-> > > > > > properly would require also making sure commits that remove
-> > > > > > "DM_TYPE_NVME_BIO_BASED", like 8d47e65948dd ("dm mpath: remove
-> > > > > > unnecessary NVMe branching in favor of scsi_dh checks") are applied --
-> > > > > > basically any lingering references to DM_TYPE_NVME_BIO_BASED need to
-> > > > > > be removed.
-> > > > > > 
-> > > > > > The commit header for 8d47e65948dd documents what
-> > > > > > DM_TYPE_NVME_BIO_BASED was used for.. it was dm-mpath specific and
-> > > > > > "nvme" mode really never got used by any userspace that I'm aware of.
-> > > > > > 
-> > > > > > Sadly I currently don't have the time to do this backport for all N
-> > > > > > stable kernels... :(
-> > > > > > 
-> > > > > > But if that backport gets out of control: A simpler, albeit stable@
-> > > > > > unicorn, way to resolve this is to simply revert 9c37de297f65 and make
-> > > > 
-> > > > 9c37de297f65 can not be reverted in 5.4 and older because it isn't there,
-> > > > and trying to apply it results in conflicts which at least I can not
-> > > > resolve.
-> > > > 
-> > > > > > it so that DM-mpath and DM core just used bio-based if "nvme" is
-> > > > > > requested by dm-mpath, so also in drivers/md/dm-mpath.c e.g.:
-> > > > > > 
-> > > > > > @@ -1091,8 +1088,6 @@ static int parse_features(struct dm_arg_set *as, struct multipath *m)
-> > > > > > 
-> > > > > >                          if (!strcasecmp(queue_mode_name, "bio"))
-> > > > > >                                  m->queue_mode = DM_TYPE_BIO_BASED;
-> > > > > > 			else if (!strcasecmp(queue_mode_name, "nvme"))
-> > > > > > -                               m->queue_mode = DM_TYPE_NVME_BIO_BASED;
-> > > > > > +                               m->queue_mode = DM_TYPE_BIO_BASED;
-> > > > > >                          else if (!strcasecmp(queue_mode_name, "rq"))
-> > > > > >                                  m->queue_mode = DM_TYPE_REQUEST_BASED;
-> > > > > >                          else if (!strcasecmp(queue_mode_name, "mq"))
-> > > > > > 
-> > > > > > Mike
-> > > > > > 
-> > > > > 
-> > > > > Ok, please submit a working patch for the kernels that need it so that
-> > > > > we can review and apply it to solve this regression.
-> > > > > 
-> > > > 
-> > > > So, effectively, v5.4.y and older are broken right now for use cases
-> > > > with dm on NVME drives.
-> > > > 
-> > > > Given that the regression does affect older branches, and given that we
-> > > > have to revert this patch to avoid regressions in ChromeOS, would it be
-> > > > possible to revert it from v5.4.y and older until a fix is found ?
-> > > 
-> > > I obviously would prefer to not have this false-start.
-> > > 
-> > The false start has already happened since we had to revert the patch
-> > from chromeos-5.4 and older branches.
+> The original x86 sev_alloc() only called set_memory_decrypted() on
+> memory returned by alloc_pages_node(), so the page order calculation
+> fell out of that logic. However, the common dma-direct code has several
+> potential allocators, not all of which are guaranteed to round up the
+> underlying allocation to a power-of-two size, so carrying over that
+> calculation for the encryption/decryption size was a mistake. Fix it by
+> rounding to a *number* of pages, rather than an order.
 > 
-> OK, well this is pretty easy to fix in general.  If there are slight
-> differences across older trees they are easily resolved.  Fact that
-> stable@ couldn't cope with backporting 9c37de297f65 is.. what it is.
+> Until recently there was an even worse interaction with DMA_DIRECT_REMAP
+> where we could have ended up decrypting part of the next adjacent
+> vmalloc area, only averted by no architecture actually supporting both
+> configs at once. Don't ask how I found that one out...
 > 
-> But this will fix the issue on 5.4.y:
-> 
-> From: Mike Snitzer <snitzer@kernel.org>
-> Date: Wed, 15 Jun 2022 14:07:09 -0400
-> Subject: [5.4.y PATCH] dm: remove special-casing of bio-based immutable singleton target on NVMe
-> 
-> Commit 9c37de297f6590937f95a28bec1b7ac68a38618f upstream.
-> 
-> There is no benefit to DM special-casing NVMe. Remove all code used to
-> establish DM_TYPE_NVME_BIO_BASED.
-> 
-> Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+> Fixes: c10f07aa27da ("dma/direct: Handle force decryption for DMA coherent buffers in common code")
+> Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Acked-by: David Rientjes <rientjes@google.com>
+> [ backport the functional change without all the prior refactoring ]
+> Signed-off-by: Robin Murphy <robin.murphy@arm.com>
 > ---
->  drivers/md/dm-table.c         | 32 ++----------------
->  drivers/md/dm.c               | 64 +++--------------------------------
->  include/linux/device-mapper.h |  1 -
->  3 files changed, 7 insertions(+), 90 deletions(-)
+> 
+> Hi Greg, Sasha,
+> 
+> I see you managed to resolve this back as far as 5.15 already, so please
+> consider this backport to complete the set. This may need to end up in
+> the Android 5.10 kernel in future for unpleasant reasons, but as an
+> upstream fix I figure it may as well take the upstream stable route too.
 
-Can someone resend this in the proper format (and fixed up), with
-Guenter's tested-by so that I can queue it up?
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
