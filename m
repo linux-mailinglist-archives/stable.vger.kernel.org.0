@@ -2,133 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA52B5526D4
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 00:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3D275526DD
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 00:20:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243558AbiFTWHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 18:07:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58824 "EHLO
+        id S244310AbiFTWUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 18:20:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230366AbiFTWHT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 18:07:19 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B131AD84
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 15:07:18 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id e63so9889544pgc.5
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 15:07:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=s0xzutc9jMpaFYwDrzQgt9+xLDuh4bgPOu4br0Fb7RQ=;
-        b=KX4WOH+gvAyposigclm1qD+p50pPagWjeb8pNyer3g1CP5L648nL1ZALRVHb2OE8de
-         OhspiGckMk8CKtvZz/I7Vv4kiJeFNqK36gjraAtNyvHeuEgjH3u8/SvGBYSTrHEa04dx
-         5ZmuYu3mJ2svpDR2eV4Kwljth4bMT0LABqKtfxxP8OCMLzf6MfVq3q2UnJ3Lw3154/Et
-         XQhLlpOBlSVA/6nDZNw6LWuP9dwEaflI37ohyiKOmiNPhJBX/qSPGDVLZg/MZVn/z7od
-         X376JX99TL1O8p1ibjP97VqsW5jR5DdRMtB4tjBFEg8bzplKsbpUXwHIQ2R7Gq0x9Tjj
-         P02g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=s0xzutc9jMpaFYwDrzQgt9+xLDuh4bgPOu4br0Fb7RQ=;
-        b=gWuxCY7gEcVzC6c+s+8wyR+0EfBNvY/n+VOE9GJk2+qPbW1DikyLf/T9YwGde3ON+/
-         SwNICI2eguij+LyrbVP8+hnfM4PHWac5NjXt/YMPrtyhRsRpSRdkrZv3e/Zfa+EGwE8O
-         Aqsmhq2uF9S9LDWrx1h8vAnjDvrvdoXJZT/TZcTy7k3EMeI+1E2m0tPeGeQ3WDsAJDup
-         FKN7YnUi/7UYUgYqhBDg8fVvi54WOcQkEu0xf847lcUobTag8UAZmsKdrvuKVb9rpQE+
-         NWgk/pXZiPVy/1Mb/f3yz6UwDuXI/KZ2EjGRZ+J2Bk3zdnShUfb/Pl5pTBqFjodxPyZN
-         j7YA==
-X-Gm-Message-State: AJIora9BoqUNu4rsowgokXgunGH7pf/Wzg7MpyzXpTRY28z7pwoKUkvA
-        CFv5jjormaF2jc7gp6qVK9+5MrZnie4cgaOtMTA=
-X-Google-Smtp-Source: AGRyM1siEvjSyWDL2dPEYetBFIQFGO9ahv30xk2IjRiN8wqaR/EzgDRo01X21mIm69DGGeYgZNj56A==
-X-Received: by 2002:a63:790c:0:b0:40c:3c04:e3d3 with SMTP id u12-20020a63790c000000b0040c3c04e3d3mr19972178pgc.44.1655762837646;
-        Mon, 20 Jun 2022 15:07:17 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l74-20020a633e4d000000b0040c97f0057dsm4139763pga.17.2022.06.20.15.07.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jun 2022 15:07:17 -0700 (PDT)
-Message-ID: <62b0ef95.1c69fb81.274b1.5c8a@mx.google.com>
-Date:   Mon, 20 Jun 2022 15:07:17 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S244759AbiFTWUn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 18:20:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF7191BE82;
+        Mon, 20 Jun 2022 15:20:37 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2ABB7B8164E;
+        Mon, 20 Jun 2022 22:20:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F8C3C341CF;
+        Mon, 20 Jun 2022 22:20:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655763634;
+        bh=lyNCAIvYhX/+kHwlAad/y9gHMFmiZO/u932Jluyi4aA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=AjIFk5YxhEODc2yYfvgjOXXFHf3Ik38rQd+LeQZ+Oek9uUtSZ38cy8J4RZ5+l8XFm
+         VaGTwCO0bXakKzgxFSgEVtK9UY2il7+RWQB5d4UhfLFHZ2CpRVi2ae9cVhnm/gQNbF
+         G5UKOuoFendHYd+tezPrBS6rqLpFqaoU6c3BWoiKv1sdt223xkCpQ2ukK7mY8z8HRq
+         HPvGFZRgHmnCv3Vov0EbAtgGgrnE168NzYsNNwSbZgpVYDQypzNhn5ntHLf1DbaWcW
+         pbOaB5ccgWHX/Mce4mAr+4kwdYKKRkZSymeKTQzMnIij7QUwx+cTX/X/h0vEZAC9Ji
+         ugsXHrG/y59Tg==
+Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
+        id 078495C0B06; Mon, 20 Jun 2022 15:20:34 -0700 (PDT)
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     rcu@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, kernel-team@fb.com,
+        rostedt@goodmis.org, Chen Zhongjin <chenzhongjin@huawei.com>,
+        stable@vger.kernel.org, Chen jingwen <chenjingwen6@huawei.com>,
+        "Paul E . McKenney" <paulmck@kernel.org>
+Subject: [PATCH rcu 06/12] locking/csd_lock: Change csdlock_debug from early_param to __setup
+Date:   Mon, 20 Jun 2022 15:20:26 -0700
+Message-Id: <20220620222032.3839547-6-paulmck@kernel.org>
+X-Mailer: git-send-email 2.31.1.189.g2e36527f23
+In-Reply-To: <20220620222022.GA3839466@paulmck-ThinkPad-P17-Gen-1>
+References: <20220620222022.GA3839466@paulmck-ThinkPad-P17-Gen-1>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.5-141-gd5c7fd7ba94c0
-X-Kernelci-Branch: queue/5.18
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.18 baseline: 176 runs,
- 1 regressions (v5.18.5-141-gd5c7fd7ba94c0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.18 baseline: 176 runs, 1 regressions (v5.18.5-141-gd5c7fd=
-7ba94c0)
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-Regressions Summary
--------------------
+The csdlock_debug kernel-boot parameter is parsed by the
+early_param() function csdlock_debug().  If set, csdlock_debug()
+invokes static_branch_enable() to enable csd_lock_wait feature, which
+triggers a panic on arm64 for kernels built with CONFIG_SPARSEMEM=y and
+CONFIG_SPARSEMEM_VMEMMAP=n.
 
-platform   | arch | lab          | compiler | defconfig          | regressi=
-ons
------------+------+--------------+----------+--------------------+---------=
+With CONFIG_SPARSEMEM_VMEMMAP=n, __nr_to_section is called in
+static_key_enable() and returns NULL, resulting in a NULL dereference
+because mem_section is initialized only later in sparse_init().
+
+This is also a problem for powerpc because early_param() functions
+are invoked earlier than jump_label_init(), also resulting in
+static_key_enable() failures.  These failures cause the warning "static
+key 'xxx' used before call to jump_label_init()".
+
+Thus, early_param is too early for csd_lock_wait to run
+static_branch_enable(), so changes it to __setup to fix these.
+
+Fixes: 8d0968cc6b8f ("locking/csd_lock: Add boot parameter for controlling CSD lock debugging")
+Cc: stable@vger.kernel.org
+Reported-by: Chen jingwen <chenjingwen6@huawei.com>
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 ---
-jetson-tk1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
-   =
+ kernel/smp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/kernel/smp.c b/kernel/smp.c
+index dd215f4394264..650810a6f29b3 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -174,9 +174,9 @@ static int __init csdlock_debug(char *str)
+ 	if (val)
+ 		static_branch_enable(&csdlock_debug_enabled);
+ 
+-	return 0;
++	return 1;
+ }
+-early_param("csdlock_debug", csdlock_debug);
++__setup("csdlock_debug=", csdlock_debug);
+ 
+ static DEFINE_PER_CPU(call_single_data_t *, cur_csd);
+ static DEFINE_PER_CPU(smp_call_func_t, cur_csd_func);
+-- 
+2.31.1.189.g2e36527f23
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
-nel/v5.18.5-141-gd5c7fd7ba94c0/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.18
-  Describe: v5.18.5-141-gd5c7fd7ba94c0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d5c7fd7ba94c0449276f4c709cae7d73cb6d1611 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch | lab          | compiler | defconfig          | regressi=
-ons
------------+------+--------------+----------+--------------------+---------=
----
-jetson-tk1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/62b0c48bd0274f2e63a39bfa
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.5-1=
-41-gd5c7fd7ba94c0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetso=
-n-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.5-1=
-41-gd5c7fd7ba94c0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetso=
-n-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62b0c48bd0274f2e63a39=
-bfb
-        new failure (last pass: v5.18.5-115-g6f49e54498800) =
-
- =20
