@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23AF9551BFA
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5862B551B49
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345280AbiFTNaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:30:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52998 "EHLO
+        id S1345381AbiFTN1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:27:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346483AbiFTN3C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:29:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A4331CB0A;
-        Mon, 20 Jun 2022 06:11:44 -0700 (PDT)
+        with ESMTP id S1345010AbiFTN0K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:26:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C18741C103;
+        Mon, 20 Jun 2022 06:10:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC7C060ABA;
-        Mon, 20 Jun 2022 13:10:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B58C9C3411B;
-        Mon, 20 Jun 2022 13:10:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C6A760C14;
+        Mon, 20 Jun 2022 13:09:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43A4AC3411B;
+        Mon, 20 Jun 2022 13:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730630;
-        bh=7HXLfzXZPKUoSFxq2zbCBvTU5X7bq2SjOdG0EnWubOU=;
+        s=korg; t=1655730570;
+        bh=QWVOvaoQcs9rJFN9ZErPqPmZV92C+J1OsaNkwQKcuwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOXzb8ugZzhW5WkbRkw2TWZcAQ9HvvFesQYPRSh4CHJj24uthMEETBDR7pgIjS8PW
-         d+mmMjUWXTa0ZLbH/Rgd+GAA3EXdZcm8XIZxJfR50I63osC84JnbtKtzW0Kq8Kjzx6
-         cZRzpY9yY5Xvcf+dM+hRcEZShB57YKxYzU4e57Hw=
+        b=rIZISMgBPgBhhKwzPHyb5+XxJfpvMUiEyX0T7/q19psL9iawUkwMkEEioA2jwF7XT
+         Mp4x1SrrJ4TK1OW6FdiXEFc7bkTkzHNW2H18lywwc5vODb+WEwm9YmCBsKgh6C/qFJ
+         KvVZYlDKOvcokzXiT9JhHt/8GP88R4jhPnt+QQ64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 5.15 094/106] bus: fsl-mc-bus: fix KASAN use-after-free in fsl_mc_bus_remove()
-Date:   Mon, 20 Jun 2022 14:51:53 +0200
-Message-Id: <20220620124727.172649742@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.15 095/106] dm mirror log: round up region bitmap size to BITS_PER_LONG
+Date:   Mon, 20 Jun 2022 14:51:54 +0200
+Message-Id: <20220620124727.203157994@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
 References: <20220620124724.380838401@linuxfoundation.org>
@@ -53,47 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 928ea98252ad75118950941683893cf904541da9 upstream.
+commit 85e123c27d5cbc22cfdc01de1e2ca1d9003a02d0 upstream.
 
-In fsl_mc_bus_remove(), mc->root_mc_bus_dev->mc_io is passed to
-fsl_destroy_mc_io(). However, mc->root_mc_bus_dev is already freed in
-fsl_mc_device_remove(). Then reference to mc->root_mc_bus_dev->mc_io
-triggers KASAN use-after-free. To avoid the use-after-free, keep the
-reference to mc->root_mc_bus_dev->mc_io in a local variable and pass to
-fsl_destroy_mc_io().
+The code in dm-log rounds up bitset_size to 32 bits. It then uses
+find_next_zero_bit_le on the allocated region. find_next_zero_bit_le
+accesses the bitmap using unsigned long pointers. So, on 64-bit
+architectures, it may access 4 bytes beyond the allocated size.
 
-This patch needs rework to apply to kernels older than v5.15.
+Fix this bug by rounding up bitset_size to BITS_PER_LONG.
 
-Fixes: f93627146f0e ("staging: fsl-mc: fix asymmetry in destroy of mc_io")
-Cc: stable@vger.kernel.org # v5.15+
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Link: https://lore.kernel.org/r/20220601105159.87752-1-shinichiro.kawasaki@wdc.com
+This bug was found by running the lvm2 testsuite with kasan.
+
+Fixes: 29121bd0b00e ("[PATCH] dm mirror log: bitset_size fix")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/fsl-mc/fsl-mc-bus.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/md/dm-log.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/bus/fsl-mc/fsl-mc-bus.c
-+++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
-@@ -1236,14 +1236,14 @@ error_cleanup_mc_io:
- static int fsl_mc_bus_remove(struct platform_device *pdev)
- {
- 	struct fsl_mc *mc = platform_get_drvdata(pdev);
-+	struct fsl_mc_io *mc_io;
+--- a/drivers/md/dm-log.c
++++ b/drivers/md/dm-log.c
+@@ -415,8 +415,7 @@ static int create_log_context(struct dm_
+ 	/*
+ 	 * Work out how many "unsigned long"s we need to hold the bitset.
+ 	 */
+-	bitset_size = dm_round_up(region_count,
+-				  sizeof(*lc->clean_bits) << BYTE_SHIFT);
++	bitset_size = dm_round_up(region_count, BITS_PER_LONG);
+ 	bitset_size >>= BYTE_SHIFT;
  
- 	if (!fsl_mc_is_root_dprc(&mc->root_mc_bus_dev->dev))
- 		return -EINVAL;
- 
-+	mc_io = mc->root_mc_bus_dev->mc_io;
- 	fsl_mc_device_remove(mc->root_mc_bus_dev);
--
--	fsl_destroy_mc_io(mc->root_mc_bus_dev->mc_io);
--	mc->root_mc_bus_dev->mc_io = NULL;
-+	fsl_destroy_mc_io(mc_io);
- 
- 	bus_unregister_notifier(&fsl_mc_bus_type, &fsl_mc_nb);
- 
+ 	lc->bitset_uint32_count = bitset_size / sizeof(*lc->clean_bits);
 
 
