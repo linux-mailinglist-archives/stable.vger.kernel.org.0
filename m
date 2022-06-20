@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8866D551C6D
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDC6E5519B5
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346319AbiFTNel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:34:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55338 "EHLO
+        id S242950AbiFTMyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:54:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347392AbiFTNeE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:34:04 -0400
+        with ESMTP id S242912AbiFTMxo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:53:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75EA01DA42;
-        Mon, 20 Jun 2022 06:13:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74CB1140A7;
+        Mon, 20 Jun 2022 05:53:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF676B80E2F;
-        Mon, 20 Jun 2022 13:13:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BB1C3411C;
-        Mon, 20 Jun 2022 13:13:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35C55B811A2;
+        Mon, 20 Jun 2022 12:53:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7090EC3411B;
+        Mon, 20 Jun 2022 12:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730792;
-        bh=zC0rhojZPGoDhoHSXiKLJ+XGxJ+VMgmJnAnInp68XIo=;
+        s=korg; t=1655729618;
+        bh=/S8yQzz0bEZtXnByi4TQCeaXrYJNa/rP7ocesI2o9rc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eIttD3E3jiysFqKxT7CsdQb94GzuZuQ90ikhVbbhmSw+E90B8F/yOx4jjzYwUclr6
-         O6suHtpsD7irduL3Exhu93XhNcWBdYgvTjSKdjmNjN8wZYe8bSdEy+bWL2X0BeSxAm
-         7Oz2nMY4fvleInpOdpTEK3ke9c97wmkmnZwZRASk=
+        b=XtJb6mvVbX+lNZoquJkhEsvdtl+K+Drvsbro7mgbjQmgunvFW3qRXaW9tS7O3WReQ
+         vI/8whB+86LP6xRa0Zi0mv7do2fsyf7R6replqAraWuP3R45AbGG7ow5+MZfLMKuVO
+         M4hVUban8wLHwQfd2U1sJj3Xlct1GrcW/qGmKB0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 056/240] random: de-duplicate INPUT_POOL constants
-Date:   Mon, 20 Jun 2022 14:49:17 +0200
-Message-Id: <20220620124739.846276857@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 020/141] ata: libata-core: fix NULL pointer deref in ata_host_alloc_pinfo()
+Date:   Mon, 20 Jun 2022 14:49:18 +0200
+Message-Id: <20220620124730.118972624@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 5b87adf30f1464477169a1d653e9baf8c012bbfe upstream.
+[ Upstream commit bf476fe22aa1851bab4728e0c49025a6a0bea307 ]
 
-We already had the POOL_* constants, so deduplicate the older INPUT_POOL
-ones. As well, fold EXTRACT_SIZE into the poolinfo enum, since it's
-related.
+In an unlikely (and probably wrong?) case that the 'ppi' parameter of
+ata_host_alloc_pinfo() points to an array starting with a NULL pointer,
+there's going to be a kernel oops as the 'pi' local variable won't get
+reassigned from the initial value of NULL. Initialize 'pi' instead to
+'&ata_dummy_port_info' to fix the possible kernel oops for good...
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Found by Linux Verification Center (linuxtesting.org) with the SVACE static
+analysis tool.
+
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |   17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ drivers/ata/libata-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -359,13 +359,6 @@
- /* #define ADD_INTERRUPT_BENCH */
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index 3d57fa84e2be..ea9671821258 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -5506,7 +5506,7 @@ struct ata_host *ata_host_alloc_pinfo(struct device *dev,
+ 				      const struct ata_port_info * const * ppi,
+ 				      int n_ports)
+ {
+-	const struct ata_port_info *pi;
++	const struct ata_port_info *pi = &ata_dummy_port_info;
+ 	struct ata_host *host;
+ 	int i, j;
  
- /*
-- * Configuration information
-- */
--#define INPUT_POOL_SHIFT	12
--#define INPUT_POOL_WORDS	(1 << (INPUT_POOL_SHIFT-5))
--#define EXTRACT_SIZE		(BLAKE2S_HASH_SIZE / 2)
--
--/*
-  * To allow fractional bits to be tracked, the entropy_count field is
-  * denominated in units of 1/8th bits.
-  *
-@@ -440,7 +433,9 @@ enum poolinfo {
- 	POOL_TAP2 = 76,
- 	POOL_TAP3 = 51,
- 	POOL_TAP4 = 25,
--	POOL_TAP5 = 1
-+	POOL_TAP5 = 1,
-+
-+	EXTRACT_SIZE = BLAKE2S_HASH_SIZE / 2
- };
+@@ -5514,7 +5514,7 @@ struct ata_host *ata_host_alloc_pinfo(struct device *dev,
+ 	if (!host)
+ 		return NULL;
  
- /*
-@@ -503,7 +498,7 @@ MODULE_PARM_DESC(ratelimit_disable, "Dis
-  *
-  **********************************************************************/
+-	for (i = 0, j = 0, pi = NULL; i < host->n_ports; i++) {
++	for (i = 0, j = 0; i < host->n_ports; i++) {
+ 		struct ata_port *ap = host->ports[i];
  
--static u32 input_pool_data[INPUT_POOL_WORDS] __latent_entropy;
-+static u32 input_pool_data[POOL_WORDS] __latent_entropy;
- 
- static struct {
- 	/* read-only data: */
-@@ -1961,7 +1956,7 @@ SYSCALL_DEFINE3(getrandom, char __user *
- #include <linux/sysctl.h>
- 
- static int min_write_thresh;
--static int max_write_thresh = INPUT_POOL_WORDS * 32;
-+static int max_write_thresh = POOL_BITS;
- static int random_min_urandom_seed = 60;
- static char sysctl_bootid[16];
- 
-@@ -2018,7 +2013,7 @@ static int proc_do_entropy(struct ctl_ta
- 	return proc_dointvec(&fake_table, write, buffer, lenp, ppos);
- }
- 
--static int sysctl_poolsize = INPUT_POOL_WORDS * 32;
-+static int sysctl_poolsize = POOL_BITS;
- extern struct ctl_table random_table[];
- struct ctl_table random_table[] = {
- 	{
+ 		if (ppi[j])
+-- 
+2.35.1
+
 
 
