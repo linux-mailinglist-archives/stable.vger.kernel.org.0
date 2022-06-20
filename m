@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CF3D551A38
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B3A0551C98
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244861AbiFTNF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:05:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47734 "EHLO
+        id S245578AbiFTNLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:11:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244054AbiFTNEd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:33 -0400
+        with ESMTP id S1343712AbiFTNJf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C4EC18B14;
-        Mon, 20 Jun 2022 05:59:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A6281A839;
+        Mon, 20 Jun 2022 06:04:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3832061541;
-        Mon, 20 Jun 2022 12:59:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 333A7C341C4;
-        Mon, 20 Jun 2022 12:59:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9154F61589;
+        Mon, 20 Jun 2022 13:03:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89EB2C3411B;
+        Mon, 20 Jun 2022 13:03:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729987;
-        bh=qndDqOAs9+3WFGICbDRUpXG2O5z0sRvlr66TBVrcpZU=;
+        s=korg; t=1655730193;
+        bh=drX2QLCOtNHz5cTapfgoCHjSxKmEkbKNmxZ06qd/EV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GygTjxk4MuPa9voJGXgNJ3p7jjKc3HLxxePuKalL4tyVSR+QGp2oOHL7z33rLrCsA
-         KvhCEmRZF3CnhHLBBiNW7zsain2tKo0fpYAt3+yJowWEC+ihVqfVHlbPF3gdHUVlq+
-         fmW3a8H+dJKC7524xzhrsgu/w0Y8AlLK6ioXITjw=
+        b=WMdx8qNa1Hst12WUJjO90+T+9AnJ6sUu2owW/e1gWpk+6IXC+BRPkQ9Mej1ZlDeUp
+         vs9dpEhlCMejNrSOymOryCLrHaeWYBjdzAzjTA3RipQgKKaLtLK/v852heCmbRfha5
+         caIIvU686uXQLrxRtcfvaVEmbIoJVdT1XRUpRRiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.18 138/141] dt-bindings: mfd: bd9571mwv: update rohm,bd9571mwv.yaml reference
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Ming Lei <ming.lei@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 53/84] block: Fix handling of offline queues in blk_mq_alloc_request_hctx()
 Date:   Mon, 20 Jun 2022 14:51:16 +0200
-Message-Id: <20220620124733.638428436@linuxfoundation.org>
+Message-Id: <20220620124722.460728971@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@kernel.org>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit e0b5c5984d4810733b7c24a3d16c904fffc086d2 upstream.
+[ Upstream commit 14dc7a18abbe4176f5626c13c333670da8e06aa1 ]
 
-Changeset 983b62975e90 ("dt-bindings: mfd: bd9571mwv: Convert to json-schema")
-renamed: Documentation/devicetree/bindings/mfd/bd9571mwv.txt
-to: Documentation/devicetree/bindings/mfd/rohm,bd9571mwv.yaml.
+This patch prevents that test nvme/004 triggers the following:
 
-Update its cross-reference accordingly.
+UBSAN: array-index-out-of-bounds in block/blk-mq.h:135:9
+index 512 is out of range for type 'long unsigned int [512]'
+Call Trace:
+ show_stack+0x52/0x58
+ dump_stack_lvl+0x49/0x5e
+ dump_stack+0x10/0x12
+ ubsan_epilogue+0x9/0x3b
+ __ubsan_handle_out_of_bounds.cold+0x44/0x49
+ blk_mq_alloc_request_hctx+0x304/0x310
+ __nvme_submit_sync_cmd+0x70/0x200 [nvme_core]
+ nvmf_connect_io_queue+0x23e/0x2a0 [nvme_fabrics]
+ nvme_loop_connect_io_queues+0x8d/0xb0 [nvme_loop]
+ nvme_loop_create_ctrl+0x58e/0x7d0 [nvme_loop]
+ nvmf_create_ctrl+0x1d7/0x4d0 [nvme_fabrics]
+ nvmf_dev_write+0xae/0x111 [nvme_fabrics]
+ vfs_write+0x144/0x560
+ ksys_write+0xb7/0x140
+ __x64_sys_write+0x42/0x50
+ do_syscall_64+0x35/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: 983b62975e90 ("dt-bindings: mfd: bd9571mwv: Convert to json-schema")
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/1906a4d935eab57c10ce09358eae02175ce4abb7.1654529011.git.mchehab@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ming Lei <ming.lei@redhat.com>
+Fixes: 20e4d8139319 ("blk-mq: simplify queue mapping & schedule with each possisble CPU")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20220615210004.1031820-1-bvanassche@acm.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/ABI/testing/sysfs-driver-bd9571mwv-regulator | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-mq.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-bd9571mwv-regulator b/Documentation/ABI/testing/sysfs-driver-bd9571mwv-regulator
-index 42214b4ff14a..90596d8bb51c 100644
---- a/Documentation/ABI/testing/sysfs-driver-bd9571mwv-regulator
-+++ b/Documentation/ABI/testing/sysfs-driver-bd9571mwv-regulator
-@@ -26,6 +26,6 @@ Description:	Read/write the current state of DDR Backup Mode, which controls
- 		     DDR Backup Mode must be explicitly enabled by the user,
- 		     to invoke step 1.
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 15a11a217cd0..c5d82b21a1cc 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -466,6 +466,8 @@ struct request *blk_mq_alloc_request_hctx(struct request_queue *q,
+ 	if (!blk_mq_hw_queue_mapped(data.hctx))
+ 		goto out_queue_exit;
+ 	cpu = cpumask_first_and(data.hctx->cpumask, cpu_online_mask);
++	if (cpu >= nr_cpu_ids)
++		goto out_queue_exit;
+ 	data.ctx = __blk_mq_get_ctx(q, cpu);
  
--		See also Documentation/devicetree/bindings/mfd/bd9571mwv.txt.
-+		See also Documentation/devicetree/bindings/mfd/rohm,bd9571mwv.yaml.
- Users:		User space applications for embedded boards equipped with a
- 		BD9571MWV PMIC.
+ 	if (!q->elevator)
 -- 
-2.36.1
+2.35.1
 
 
 
