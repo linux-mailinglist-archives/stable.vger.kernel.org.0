@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02280551B52
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF705551A1B
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245390AbiFTNLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52768 "EHLO
+        id S244432AbiFTNFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:05:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343968AbiFTNJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:49 -0400
+        with ESMTP id S244817AbiFTNEC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B65E31AF29;
-        Mon, 20 Jun 2022 06:04:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D99192A7;
+        Mon, 20 Jun 2022 05:58:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CFAF61548;
-        Mon, 20 Jun 2022 13:01:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03842C3411B;
-        Mon, 20 Jun 2022 13:01:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B83761531;
+        Mon, 20 Jun 2022 12:58:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B4DAC3411B;
+        Mon, 20 Jun 2022 12:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730090;
-        bh=3URXF5M3vcnkfz10ois3e+5aTzkVfZWqV/ln18/fkC4=;
+        s=korg; t=1655729920;
+        bh=cwYVA5ku9iWbOLnzjHvadjXVOQ6ppJC4qboEjze0bsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R1n8rwbOHhDWwnu11BxOxiC7tech4ZNafh4qLV07yMH9Hp65tPAeKZ0TpV6ILFtfu
-         a8zHN7C7GnDXlZPRA25cMV3kf4S6y6ElxJw2oHMHLMzAonKP3x4Rk0OmwnfHvT/bLh
-         bWcVrc4LOOPBrgIhODy7l14C/sH4pZDDWUA7w9MM=
+        b=cFl+04RpznFMm/njSLBa1k6B4cUOrKfI6+iuAepcmjZdLlYb0LCx4h7XDTMCBg1Fr
+         lL4esw62h8iAHVCCfgZIdjaExj3icXwAPzs7OIBlcxp3HhbrnM5AlFlgVqZU/Xeu+z
+         aHMUf1ZF5dHQGYgEkvW49l69ThxQ6BoqhxwWqnf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 30/84] mellanox: mlx5: avoid uninitialized variable warning with gcc-12
-Date:   Mon, 20 Jun 2022 14:50:53 +0200
-Message-Id: <20220620124721.785152170@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@penugtronix.de>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 5.18 116/141] serial: 8250: Store to lsr_save_flags after lsr read
+Date:   Mon, 20 Jun 2022 14:50:54 +0200
+Message-Id: <20220620124732.976352182@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 842c3b3ddc5f4d17275edbaa09e23d712bf8b915 ]
+commit be03b0651ffd8bab69dfd574c6818b446c0753ce upstream.
 
-gcc-12 started warning about 'tracker' being used uninitialized:
+Not all LSR register flags are preserved across reads. Therefore, LSR
+readers must store the non-preserved bits into lsr_save_flags.
 
-  drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c: In function ‘mlx5_do_bond’:
-  drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c:786:28: warning: ‘tracker’ is used uninitialized [-Wuninitialized]
-    786 |         struct lag_tracker tracker;
-        |                            ^~~~~~~
+This fix was initially mixed into feature commit f6f586102add ("serial:
+8250: Handle UART without interrupt on TEMT using em485"). However,
+that feature change had a flaw and it was reverted to make room for
+simpler approach providing the same feature. The embedded fix got
+reverted with the feature change.
 
-which seems to be because it doesn't track how the use (and
-initialization) is bound by the 'do_bond' flag.
+Re-add the lsr_save_flags fix and properly mark it's a fix.
 
-But admittedly that 'do_bond' usage is fairly complicated, and involves
-passing it around as an argument to helper functions, so it's somewhat
-understandable that gcc doesn't see how that all works.
-
-This function could be rewritten to make the use of that tracker
-variable more obviously safe, but for now I'm just adding the forced
-initialization of it.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/all/1d6c31d-d194-9e6a-ddf9-5f29af829f3@linux.intel.com/T/#m1737eef986bd20cf19593e344cebd7b0244945fc
+Fixes: e490c9144cfa ("tty: Add software emulated RS485 support for 8250")
+Cc: stable <stable@kernel.org>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@penugtronix.de>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/f4d774be-1437-a550-8334-19d8722ab98c@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_port.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-index 11cc3ea5010a..9fb3e5ec1da6 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-@@ -274,7 +274,7 @@ static void mlx5_do_bond(struct mlx5_lag *ldev)
- {
- 	struct mlx5_core_dev *dev0 = ldev->pf[MLX5_LAG_P1].dev;
- 	struct mlx5_core_dev *dev1 = ldev->pf[MLX5_LAG_P2].dev;
--	struct lag_tracker tracker;
-+	struct lag_tracker tracker = { };
- 	bool do_bond, roce_lag;
- 	int err;
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1535,6 +1535,8 @@ static inline void __stop_tx(struct uart
  
--- 
-2.35.1
-
+ 	if (em485) {
+ 		unsigned char lsr = serial_in(p, UART_LSR);
++		p->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
++
+ 		/*
+ 		 * To provide required timeing and allow FIFO transfer,
+ 		 * __stop_tx_rs485() must be called only when both FIFO and
 
 
