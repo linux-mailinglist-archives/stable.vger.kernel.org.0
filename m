@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 668FA551CBE
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83C95551AF6
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245136AbiFTNKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:10:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53520 "EHLO
+        id S1344682AbiFTNWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:22:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245760AbiFTNJX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48D2F140C8;
-        Mon, 20 Jun 2022 06:04:14 -0700 (PDT)
+        with ESMTP id S1346303AbiFTNUg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:20:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF2662251A;
+        Mon, 20 Jun 2022 06:08:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56380B811C7;
-        Mon, 20 Jun 2022 13:03:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEFD8C3411C;
-        Mon, 20 Jun 2022 13:02:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3F45B811E3;
+        Mon, 20 Jun 2022 13:07:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A300C341C4;
+        Mon, 20 Jun 2022 13:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730180;
-        bh=2z4c6ngJf6xurMeJ8N0W5YwV8lHbYi8zmLT5XrlYOWM=;
+        s=korg; t=1655730446;
+        bh=ogNGfTtMduZfmwm18K2XT8ql8Ti1rZIdNpSg/M1cZ6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PpiiflmiU/C7C1h/d5f6ip4G+kZbWIwn4XHOqIJF5BPh6hA+eOCVSNI8b5YyuPAQb
-         kf6G2zQ6xBjRzpMkCMcerfwpZPMK++Eak9ardqAAIyN1wTLCR0zXIC0MIedkV7tvo9
-         vGRq4zAO5QGWNbs0asRpKKua6UujdRxTEO+86Fq4=
+        b=KJuKIlYgMj+vyHOgKUlZr77KqQcyFRvZ0Q3BFq65e/sJKa4eBzPGgiTd3dHk6LoqH
+         9V8ed/uxRwzV1fGbz/0DyMRGd0jXvKhFA9bPq38IGRDmm9n5uLESTCma8nSv8YHvAi
+         9Ew6RBf5+wgWSsRy3Dk0xdyUBGOMbsH5Xss2RMnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        "Ivan T. Ivanov" <iivanov@suse.de>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 50/84] arm64: ftrace: fix branch range checks
-Date:   Mon, 20 Jun 2022 14:51:13 +0200
-Message-Id: <20220620124722.369924208@linuxfoundation.org>
+Subject: [PATCH 5.15 055/106] tty: goldfish: Fix free_irq() on remove
+Date:   Mon, 20 Jun 2022 14:51:14 +0200
+Message-Id: <20220620124726.030250381@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,84 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 3eefdf9d1e406f3da47470b2854347009ffcb6fa ]
+[ Upstream commit 499e13aac6c762e1e828172b0f0f5275651d6512 ]
 
-The branch range checks in ftrace_make_call() and ftrace_make_nop() are
-incorrect, erroneously permitting a forwards branch of 128M and
-erroneously rejecting a backwards branch of 128M.
+Pass the correct dev_id to free_irq() to fix this splat when the driver
+is unbound:
 
-This is because both functions calculate the offset backwards,
-calculating the offset *from* the target *to* the branch, rather than
-the other way around as the later comparisons expect.
+ WARNING: CPU: 0 PID: 30 at kernel/irq/manage.c:1895 free_irq
+ Trying to free already-free IRQ 65
+ Call Trace:
+  warn_slowpath_fmt
+  free_irq
+  goldfish_tty_remove
+  platform_remove
+  device_remove
+  device_release_driver_internal
+  device_driver_detach
+  unbind_store
+  drv_attr_store
+  ...
 
-If an out-of-range branch were erroeously permitted, this would later be
-rejected by aarch64_insn_gen_branch_imm() as branch_imm_common() checks
-the bounds correctly, resulting in warnings and the placement of a BRK
-instruction. Note that this can only happen for a forwards branch of
-exactly 128M, and so the caller would need to be exactly 128M bytes
-below the relevant ftrace trampoline.
-
-If an in-range branch were erroeously rejected, then:
-
-* For modules when CONFIG_ARM64_MODULE_PLTS=y, this would result in the
-  use of a PLT entry, which is benign.
-
-  Note that this is the common case, as this is selected by
-  CONFIG_RANDOMIZE_BASE (and therefore RANDOMIZE_MODULE_REGION_FULL),
-  which distributions typically seelct. This is also selected by
-  CONFIG_ARM64_ERRATUM_843419.
-
-* For modules when CONFIG_ARM64_MODULE_PLTS=n, this would result in
-  internal ftrace failures.
-
-* For core kernel text, this would result in internal ftrace failues.
-
-  Note that for this to happen, the kernel text would need to be at
-  least 128M bytes in size, and typical configurations are smaller tha
-  this.
-
-Fix this by calculating the offset *from* the branch *to* the target in
-both functions.
-
-Fixes: f8af0b364e24 ("arm64: ftrace: don't validate branch via PLT in ftrace_make_nop()")
-Fixes: e71a4e1bebaf ("arm64: ftrace: add support for far branches to dynamic ftrace")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Tested-by: "Ivan T. Ivanov" <iivanov@suse.de>
-Reviewed-by: Chengming Zhou <zhouchengming@bytedance.com>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Link: https://lore.kernel.org/r/20220614080944.1349146-2-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: 465893e18878e119 ("tty: goldfish: support platform_device with id -1")
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Link: https://lore.kernel.org/r/20220609141704.1080024-1-vincent.whitchurch@axis.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/ftrace.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/goldfish.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
-index 86a5cf9bc19a..e21a01b99999 100644
---- a/arch/arm64/kernel/ftrace.c
-+++ b/arch/arm64/kernel/ftrace.c
-@@ -83,7 +83,7 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
- {
- 	unsigned long pc = rec->ip;
- 	u32 old, new;
--	long offset = (long)pc - (long)addr;
-+	long offset = (long)addr - (long)pc;
- 
- 	if (offset < -SZ_128M || offset >= SZ_128M) {
- 		struct module *mod;
-@@ -182,7 +182,7 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
- 	unsigned long pc = rec->ip;
- 	bool validate = true;
- 	u32 old = 0, new;
--	long offset = (long)pc - (long)addr;
-+	long offset = (long)addr - (long)pc;
- 
- 	if (offset < -SZ_128M || offset >= SZ_128M) {
- 		u32 replaced;
+diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
+index 0dc9a6a36ce0..0e32920af10d 100644
+--- a/drivers/tty/goldfish.c
++++ b/drivers/tty/goldfish.c
+@@ -428,7 +428,7 @@ static int goldfish_tty_remove(struct platform_device *pdev)
+ 	tty_unregister_device(goldfish_tty_driver, qtty->console.index);
+ 	iounmap(qtty->base);
+ 	qtty->base = NULL;
+-	free_irq(qtty->irq, pdev);
++	free_irq(qtty->irq, qtty);
+ 	tty_port_destroy(&qtty->port);
+ 	goldfish_tty_current_line_count--;
+ 	if (goldfish_tty_current_line_count == 0)
 -- 
 2.35.1
 
