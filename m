@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BF0D551BB3
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80541551BD2
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344876AbiFTN36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:29:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49306 "EHLO
+        id S1344941AbiFTN0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:26:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345839AbiFTN2g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:28:36 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EAF21CB38;
-        Mon, 20 Jun 2022 06:11:23 -0700 (PDT)
+        with ESMTP id S1346420AbiFTNYi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5107819FB7;
+        Mon, 20 Jun 2022 06:09:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3F1CECE1395;
-        Mon, 20 Jun 2022 13:09:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0438BC3411C;
-        Mon, 20 Jun 2022 13:09:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13436B811D6;
+        Mon, 20 Jun 2022 13:09:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61F03C3411B;
+        Mon, 20 Jun 2022 13:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730589;
-        bh=lmx12xyyH4sS1e3SCxv2MacjkNSxnGdVrtzoBmi1DsY=;
+        s=korg; t=1655730592;
+        bh=TpR7rYFca5qcMT0TIx4vS44R5eD8U8/ZUYNSvppjk7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yY5ek8xdaGA++29VjkctVhB6OaY2Zf4TmP2T5Ab8l483xuQMl+vOMiRTDo2YwKE/W
-         Yec+fUoY5wbNerGFNzHeOsCgSuQUM5EGe0Z8FY7eLmXw7UEI42MLNG58KzJiH4nfyZ
-         DnTLI7YXcXQABXk+vVqw8rXATjaDGW2h7Jd3Cegc=
+        b=nP4GFiuHmbsR3PtRH/Dn3b2EhmVukBME2s1tIMOJJvZwOLBVCF8FDRzvPVJMnEuWF
+         OGV9cCV+akreoSvCUIEsaeaQob3DKKvgdNMGlQC4E5KLhaYQY2Xy55IDrnMC6vC/do
+         8197oUBF8bNmLZ8lPJBRyNhrDkK2fXGXSh7K1glU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Zhang Yi <yi.zhang@huawei.com>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.15 101/106] ext4: add reserved GDT blocks check
-Date:   Mon, 20 Jun 2022 14:52:00 +0200
-Message-Id: <20220620124727.375147153@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.15 102/106] KVM: arm64: Dont read a HW interrupt pending state in user context
+Date:   Mon, 20 Jun 2022 14:52:01 +0200
+Message-Id: <20220620124727.403673709@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
 References: <20220620124724.380838401@linuxfoundation.org>
@@ -55,74 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit b55c3cd102a6f48b90e61c44f7f3dda8c290c694 upstream.
+commit 2cdea19a34c2340b3aa69508804efe4e3750fcec upstream.
 
-We capture a NULL pointer issue when resizing a corrupt ext4 image which
-is freshly clear resize_inode feature (not run e2fsck). It could be
-simply reproduced by following steps. The problem is because of the
-resize_inode feature was cleared, and it will convert the filesystem to
-meta_bg mode in ext4_resize_fs(), but the es->s_reserved_gdt_blocks was
-not reduced to zero, so could we mistakenly call reserve_backup_gdb()
-and passing an uninitialized resize_inode to it when adding new group
-descriptors.
+Since 5bfa685e62e9 ("KVM: arm64: vgic: Read HW interrupt pending state
+from the HW"), we're able to source the pending bit for an interrupt
+that is stored either on the physical distributor or on a device.
 
- mkfs.ext4 /dev/sda 3G
- tune2fs -O ^resize_inode /dev/sda #forget to run requested e2fsck
- mount /dev/sda /mnt
- resize2fs /dev/sda 8G
+However, this state is only available when the vcpu is loaded,
+and is not intended to be accessed from userspace. Unfortunately,
+the GICv2 emulation doesn't provide specific userspace accessors,
+and we fallback with the ones that are intended for the guest,
+with fatal consequences.
 
- ========
- BUG: kernel NULL pointer dereference, address: 0000000000000028
- CPU: 19 PID: 3243 Comm: resize2fs Not tainted 5.18.0-rc7-00001-gfde086c5ebfd #748
- ...
- RIP: 0010:ext4_flex_group_add+0xe08/0x2570
- ...
- Call Trace:
-  <TASK>
-  ext4_resize_fs+0xbec/0x1660
-  __ext4_ioctl+0x1749/0x24e0
-  ext4_ioctl+0x12/0x20
-  __x64_sys_ioctl+0xa6/0x110
-  do_syscall_64+0x3b/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f2dd739617b
- ========
+Add a new vgic_uaccess_read_pending() accessor for userspace
+to use, build on top of the existing vgic_mmio_read_pending().
 
-The fix is simple, add a check in ext4_resize_begin() to make sure that
-the es->s_reserved_gdt_blocks is zero when the resize_inode feature is
-disabled.
-
-Cc: stable@kernel.org
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220601092717.763694-1-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reported-by: Eric Auger <eric.auger@redhat.com>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Tested-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Fixes: 5bfa685e62e9 ("KVM: arm64: vgic: Read HW interrupt pending state from the HW")
+Link: https://lore.kernel.org/r/20220607131427.1164881-2-maz@kernel.org
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/resize.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/arm64/kvm/vgic/vgic-mmio-v2.c |    4 ++--
+ arch/arm64/kvm/vgic/vgic-mmio.c    |   19 ++++++++++++++++---
+ arch/arm64/kvm/vgic/vgic-mmio.h    |    3 +++
+ 3 files changed, 21 insertions(+), 5 deletions(-)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -53,6 +53,16 @@ int ext4_resize_begin(struct super_block
- 		return -EPERM;
+--- a/arch/arm64/kvm/vgic/vgic-mmio-v2.c
++++ b/arch/arm64/kvm/vgic/vgic-mmio-v2.c
+@@ -418,11 +418,11 @@ static const struct vgic_register_region
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_PENDING_SET,
+ 		vgic_mmio_read_pending, vgic_mmio_write_spending,
+-		NULL, vgic_uaccess_write_spending, 1,
++		vgic_uaccess_read_pending, vgic_uaccess_write_spending, 1,
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_PENDING_CLEAR,
+ 		vgic_mmio_read_pending, vgic_mmio_write_cpending,
+-		NULL, vgic_uaccess_write_cpending, 1,
++		vgic_uaccess_read_pending, vgic_uaccess_write_cpending, 1,
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_ACTIVE_SET,
+ 		vgic_mmio_read_active, vgic_mmio_write_sactive,
+--- a/arch/arm64/kvm/vgic/vgic-mmio.c
++++ b/arch/arm64/kvm/vgic/vgic-mmio.c
+@@ -226,8 +226,9 @@ int vgic_uaccess_write_cenable(struct kv
+ 	return 0;
+ }
  
- 	/*
-+	 * If the reserved GDT blocks is non-zero, the resize_inode feature
-+	 * should always be set.
-+	 */
-+	if (EXT4_SB(sb)->s_es->s_reserved_gdt_blocks &&
-+	    !ext4_has_feature_resize_inode(sb)) {
-+		ext4_error(sb, "resize_inode disabled but reserved GDT blocks non-zero");
-+		return -EFSCORRUPTED;
-+	}
+-unsigned long vgic_mmio_read_pending(struct kvm_vcpu *vcpu,
+-				     gpa_t addr, unsigned int len)
++static unsigned long __read_pending(struct kvm_vcpu *vcpu,
++				    gpa_t addr, unsigned int len,
++				    bool is_user)
+ {
+ 	u32 intid = VGIC_ADDR_TO_INTID(addr, 1);
+ 	u32 value = 0;
+@@ -248,7 +249,7 @@ unsigned long vgic_mmio_read_pending(str
+ 						    IRQCHIP_STATE_PENDING,
+ 						    &val);
+ 			WARN_RATELIMIT(err, "IRQ %d", irq->host_irq);
+-		} else if (vgic_irq_is_mapped_level(irq)) {
++		} else if (!is_user && vgic_irq_is_mapped_level(irq)) {
+ 			val = vgic_get_phys_line_level(irq);
+ 		} else {
+ 			val = irq_is_pending(irq);
+@@ -263,6 +264,18 @@ unsigned long vgic_mmio_read_pending(str
+ 	return value;
+ }
+ 
++unsigned long vgic_mmio_read_pending(struct kvm_vcpu *vcpu,
++				     gpa_t addr, unsigned int len)
++{
++	return __read_pending(vcpu, addr, len, false);
++}
 +
-+	/*
- 	 * If we are not using the primary superblock/GDT copy don't resize,
-          * because the user tools have no way of handling this.  Probably a
-          * bad time to do it anyways.
++unsigned long vgic_uaccess_read_pending(struct kvm_vcpu *vcpu,
++					gpa_t addr, unsigned int len)
++{
++	return __read_pending(vcpu, addr, len, true);
++}
++
+ static bool is_vgic_v2_sgi(struct kvm_vcpu *vcpu, struct vgic_irq *irq)
+ {
+ 	return (vgic_irq_is_sgi(irq->intid) &&
+--- a/arch/arm64/kvm/vgic/vgic-mmio.h
++++ b/arch/arm64/kvm/vgic/vgic-mmio.h
+@@ -149,6 +149,9 @@ int vgic_uaccess_write_cenable(struct kv
+ unsigned long vgic_mmio_read_pending(struct kvm_vcpu *vcpu,
+ 				     gpa_t addr, unsigned int len);
+ 
++unsigned long vgic_uaccess_read_pending(struct kvm_vcpu *vcpu,
++					gpa_t addr, unsigned int len);
++
+ void vgic_mmio_write_spending(struct kvm_vcpu *vcpu,
+ 			      gpa_t addr, unsigned int len,
+ 			      unsigned long val);
 
 
