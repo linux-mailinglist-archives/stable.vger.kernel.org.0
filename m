@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4259551BC3
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51F69551B13
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345168AbiFTN0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:26:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38292 "EHLO
+        id S245402AbiFTNLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:11:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344697AbiFTNZU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:25:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE571AF16;
-        Mon, 20 Jun 2022 06:10:24 -0700 (PDT)
+        with ESMTP id S1344047AbiFTNJy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB09F1C118;
+        Mon, 20 Jun 2022 06:05:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DE5C60A6D;
-        Mon, 20 Jun 2022 13:10:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 978B2C3411B;
-        Mon, 20 Jun 2022 13:10:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC21E61588;
+        Mon, 20 Jun 2022 13:04:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1B97C3411B;
+        Mon, 20 Jun 2022 13:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730612;
-        bh=fNMtNd/ZVAeJzffPN0WQglMzH9rYHRFh7UPCRvMC4n4=;
+        s=korg; t=1655730267;
+        bh=m+lBQJIBmEQMdTRUU2LRCI1DN2Z9ApGxJkmj5V/HKUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LFCNu0fetn5kBz6XifhWw3auHQPKiwrrl3TcKf+wO5ELFWlz0yV5XKvXsbbrVyg6A
-         IprPURFOu+zcHFr3Dia3cjXgb98Swg6DKJ3oHrVhW5UpUemUL0sLBRFDJrLfCYcDvU
-         JF49k3U2XHleozDH3D/HfrPPnTRLQ6G20pxnx2wQ=
+        b=aot3MSjsnahtFfXLMaBxDmxnWAYBuJ6PlFOcqHciijni28NH9S710K4KIQLhhG97b
+         BIyDz73kWuj7owWDTQB4pcqmrs2IOZzJxQIBo//p1CPMknAzWvkMUIhtdAidBra/OP
+         yGehZHMldyBt9XotdCwmpACPTryEnkzuYc7zcYAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Pawel Laszczak <pawell@cadence.com>,
-        Jing Leng <jleng@ambarella.com>
-Subject: [PATCH 5.15 088/106] usb: cdnsp: Fixed setting last_trb incorrectly
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Abel Vesa <abel.vesa@nxp.com>
+Subject: [PATCH 5.10 84/84] clk: imx8mp: fix usb_root_clk parent
 Date:   Mon, 20 Jun 2022 14:51:47 +0200
-Message-Id: <20220620124726.993082471@linuxfoundation.org>
+Message-Id: <20220620124723.371888346@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Leng <jleng@ambarella.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-commit 5c7578c39c3fffe85b7d15ca1cf8cf7ac38ec0c1 upstream.
+commit cf7f3f4fa9e57b8e9f594823e77e6cbb0ce2b254 upstream.
 
-When ZLP occurs in bulk transmission, currently cdnsp will set last_trb
-for the last two TRBs, it will trigger an error "ERROR Transfer event TRB
-DMA ptr not part of current TD ...".
+According to reference mannual CCGR77(usb) sources from hsio_axi, fix
+it.
 
-Fixes: e913aada0683 ("usb: cdnsp: Fixed issue with ZLP")
-Cc: stable <stable@kernel.org>
-Acked-by: Pawel Laszczak <pawell@cadence.com>
-Signed-off-by: Jing Leng <jleng@ambarella.com>
-Link: https://lore.kernel.org/r/20220609021134.1606-1-3090101217@zju.edu.cn
+Fixes: 9c140d9926761 ("clk: imx: Add support for i.MX8MP clock driver")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
+Link: https://lore.kernel.org/r/20220507125430.793287-1-peng.fan@oss.nxp.com
+Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-ring.c |   19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/clk/imx/clk-imx8mp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/cdns3/cdnsp-ring.c
-+++ b/drivers/usb/cdns3/cdnsp-ring.c
-@@ -1941,13 +1941,16 @@ int cdnsp_queue_bulk_tx(struct cdnsp_dev
- 		}
- 
- 		if (enqd_len + trb_buff_len >= full_len) {
--			if (need_zero_pkt)
--				zero_len_trb = !zero_len_trb;
--
--			field &= ~TRB_CHAIN;
--			field |= TRB_IOC;
--			more_trbs_coming = false;
--			preq->td.last_trb = ring->enqueue;
-+			if (need_zero_pkt && !zero_len_trb) {
-+				zero_len_trb = true;
-+			} else {
-+				zero_len_trb = false;
-+				field &= ~TRB_CHAIN;
-+				field |= TRB_IOC;
-+				more_trbs_coming = false;
-+				need_zero_pkt = false;
-+				preq->td.last_trb = ring->enqueue;
-+			}
- 		}
- 
- 		/* Only set interrupt on short packet for OUT endpoints. */
-@@ -1962,7 +1965,7 @@ int cdnsp_queue_bulk_tx(struct cdnsp_dev
- 		length_field = TRB_LEN(trb_buff_len) | TRB_TD_SIZE(remainder) |
- 			TRB_INTR_TARGET(0);
- 
--		cdnsp_queue_trb(pdev, ring, more_trbs_coming | zero_len_trb,
-+		cdnsp_queue_trb(pdev, ring, more_trbs_coming,
- 				lower_32_bits(send_addr),
- 				upper_32_bits(send_addr),
- 				length_field,
+--- a/drivers/clk/imx/clk-imx8mp.c
++++ b/drivers/clk/imx/clk-imx8mp.c
+@@ -691,7 +691,7 @@ static int imx8mp_clocks_probe(struct pl
+ 	hws[IMX8MP_CLK_UART2_ROOT] = imx_clk_hw_gate4("uart2_root_clk", "uart2", ccm_base + 0x44a0, 0);
+ 	hws[IMX8MP_CLK_UART3_ROOT] = imx_clk_hw_gate4("uart3_root_clk", "uart3", ccm_base + 0x44b0, 0);
+ 	hws[IMX8MP_CLK_UART4_ROOT] = imx_clk_hw_gate4("uart4_root_clk", "uart4", ccm_base + 0x44c0, 0);
+-	hws[IMX8MP_CLK_USB_ROOT] = imx_clk_hw_gate4("usb_root_clk", "osc_32k", ccm_base + 0x44d0, 0);
++	hws[IMX8MP_CLK_USB_ROOT] = imx_clk_hw_gate4("usb_root_clk", "hsio_axi", ccm_base + 0x44d0, 0);
+ 	hws[IMX8MP_CLK_USB_PHY_ROOT] = imx_clk_hw_gate4("usb_phy_root_clk", "usb_phy_ref", ccm_base + 0x44f0, 0);
+ 	hws[IMX8MP_CLK_USDHC1_ROOT] = imx_clk_hw_gate4("usdhc1_root_clk", "usdhc1", ccm_base + 0x4510, 0);
+ 	hws[IMX8MP_CLK_USDHC2_ROOT] = imx_clk_hw_gate4("usdhc2_root_clk", "usdhc2", ccm_base + 0x4520, 0);
 
 
