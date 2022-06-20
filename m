@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AD185511E0
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5F65511DF
 	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239575AbiFTHvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 03:51:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46844 "EHLO
+        id S239485AbiFTHvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 03:51:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239485AbiFTHvs (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AA8A101EA
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:47 -0700 (PDT)
+        with ESMTP id S239489AbiFTHvw (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBE6B101EA
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D64BB80EB4
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 158D5C3411B;
-        Mon, 20 Jun 2022 07:51:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8810E611FB
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92C54C3411B;
+        Mon, 20 Jun 2022 07:51:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655711505;
-        bh=zWwNGS5Wfkt8YbevHWSUI1DDsbYrZm2sG0z/2TXI5Zk=;
+        s=korg; t=1655711511;
+        bh=TXLEpO4i2CAm7gbOunFJblHl7fznacyAtcBQXDcA9pM=;
         h=Subject:To:From:Date:From;
-        b=LQDA5Wp+IiNXUe+MSxfFs0j0bgrqJCofjLqB1ezniqzTudIHhIHwkdsfqo2cCCb+T
-         pJV943QySHNhSwq7OydHLMvGLyw9n2V6MJRxWTBV08UGTcrrUgk04Vtq/dm8IDX9jz
-         m705MERY8/PnE2eU44lLUb1/5g3FTD8Momv0vc6Q=
-Subject: patch "iio: imu: inv_icm42600: Fix broken icm42600 (chip id 0 value)" added to char-misc-linus
-To:     jean-baptiste.maneyrol@tdk.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=UiZIJahLukbUsxViWbaJmTGA3NjNBRK6d3gxA8ycNdbe2gJgxHUw0QyxEgwl28J6j
+         oqipOpD2GucJxxUhe3RuxVPo9b4dIRnDOFB1NcZIb/qWTf0mzg2FgcKgLXDxEZQ7pb
+         dIEEAPru629si5we7c7bRePijFE0/JLYTWb/toeg=
+Subject: patch "iio: adc: stm32: fix maximum clock rate for stm32mp15x" added to char-misc-linus
+To:     olivier.moysan@foss.st.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, fabrice.gasnier@foss.st.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jun 2022 09:50:49 +0200
-Message-ID: <1655711449244155@kroah.com>
+Date:   Mon, 20 Jun 2022 09:50:50 +0200
+Message-ID: <1655711450138237@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: imu: inv_icm42600: Fix broken icm42600 (chip id 0 value)
+    iio: adc: stm32: fix maximum clock rate for stm32mp15x
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,52 +65,37 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 106b391e1b859100a3f38f0ad874236e9be06bde Mon Sep 17 00:00:00 2001
-From: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
-Date: Thu, 9 Jun 2022 12:23:01 +0200
-Subject: iio: imu: inv_icm42600: Fix broken icm42600 (chip id 0 value)
+From 990539486e7e311fb5dab1bf4d85d1a8973ae644 Mon Sep 17 00:00:00 2001
+From: Olivier Moysan <olivier.moysan@foss.st.com>
+Date: Thu, 9 Jun 2022 11:52:34 +0200
+Subject: iio: adc: stm32: fix maximum clock rate for stm32mp15x
 
-The 0 value used for INV_CHIP_ICM42600 was not working since the
-match in i2c/spi was checking against NULL value.
+Change maximum STM32 ADC input clock rate to 36MHz, as specified
+in STM32MP15x datasheets.
 
-To keep this check, add a first INV_CHIP_INVALID 0 value as safe
-guard.
-
-Fixes: 31c24c1e93c3 ("iio: imu: inv_icm42600: add core of new inv_icm42600 driver")
-Signed-off-by: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
-Link: https://lore.kernel.org/r/20220609102301.4794-1-jmaneyrol@invensense.com
+Fixes: d58c67d1d851 ("iio: adc: stm32-adc: add support for STM32MP1")
+Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
+Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20220609095234.375925-1-olivier.moysan@foss.st.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/imu/inv_icm42600/inv_icm42600.h      | 1 +
- drivers/iio/imu/inv_icm42600/inv_icm42600_core.c | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/adc/stm32-adc-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/imu/inv_icm42600/inv_icm42600.h b/drivers/iio/imu/inv_icm42600/inv_icm42600.h
-index c0f5059b13b3..995a9dc06521 100644
---- a/drivers/iio/imu/inv_icm42600/inv_icm42600.h
-+++ b/drivers/iio/imu/inv_icm42600/inv_icm42600.h
-@@ -17,6 +17,7 @@
- #include "inv_icm42600_buffer.h"
- 
- enum inv_icm42600_chip {
-+	INV_CHIP_INVALID,
- 	INV_CHIP_ICM42600,
- 	INV_CHIP_ICM42602,
- 	INV_CHIP_ICM42605,
-diff --git a/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c b/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c
-index 86858da9cc38..ca85fccc9839 100644
---- a/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c
-+++ b/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c
-@@ -565,7 +565,7 @@ int inv_icm42600_core_probe(struct regmap *regmap, int chip, int irq,
- 	bool open_drain;
- 	int ret;
- 
--	if (chip < 0 || chip >= INV_CHIP_NB) {
-+	if (chip <= INV_CHIP_INVALID || chip >= INV_CHIP_NB) {
- 		dev_err(dev, "invalid chip = %d\n", chip);
- 		return -ENODEV;
- 	}
+diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
+index bb04deeb7992..3efb8c404ccc 100644
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -809,7 +809,7 @@ static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
+ static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
+ 	.regs = &stm32h7_adc_common_regs,
+ 	.clk_sel = stm32h7_adc_clk_sel,
+-	.max_clk_rate_hz = 40000000,
++	.max_clk_rate_hz = 36000000,
+ 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
+ 	.num_irqs = 2,
+ 	.num_adcs = 2,
 -- 
 2.36.1
 
