@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A13551D08
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F3D551D4F
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244674AbiFTNLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59938 "EHLO
+        id S1348435AbiFTNu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:50:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344026AbiFTNJw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:52 -0400
+        with ESMTP id S1350471AbiFTNtT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:49:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D7641C103;
-        Mon, 20 Jun 2022 06:05:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE472FFE5;
+        Mon, 20 Jun 2022 06:18:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ED1661534;
-        Mon, 20 Jun 2022 13:01:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A70D6C3411B;
-        Mon, 20 Jun 2022 13:01:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5B2060FF1;
+        Mon, 20 Jun 2022 13:17:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7EDCC3411B;
+        Mon, 20 Jun 2022 13:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730072;
-        bh=Zzb5/gr7v+HM61U+99KSrd0cawCpe1xPsCdEb4c6n2Q=;
+        s=korg; t=1655731023;
+        bh=BevbwWX2OSD1W1/1qk/rCqhmGFAAMpSJAO781kxqSM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOjg6wwCaXK3U7T9HKiXKPSFJ0hFtvKp6ywIm061W5BU0CSAZlopEobhXgIuCD2Vg
-         WTv3E1G9Tc7uaf2CWArxaJT9nKmzhfrS/hayudKPzzcwu0y7U7QaDVX8oCKg2OrBln
-         mi0vRomTrzhX7gXQWIKsYH9JaSyRHdO2cf4zylLk=
+        b=Tmdx3iktU6gXyVnlpq4cfz1+vEZiM8v2k5kI2dNPzsfQYKvPSyYkTlSrKZpTR8Og/
+         lJaQbH6KLr9vfShoE1SQQKllDerD3Im69a4QJwXjTRSBTkpTpwIIEeNV+i3Qcfx/CO
+         tH3c5Z0yWwxYEg13PWWcU2DuB50yFmW6dJpvowKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 07/84] dma-debug: make things less spammy under memory pressure
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 129/240] random: fix sysctl documentation nits
 Date:   Mon, 20 Jun 2022 14:50:30 +0200
-Message-Id: <20220620124721.105946956@linuxfoundation.org>
+Message-Id: <20220620124742.750178728@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit e19f8fa6ce1ca9b8b934ba7d2e8f34c95abc6e60 ]
+commit 069c4ea6871c18bd368f27756e0f91ffb524a788 upstream.
 
-Limit the error msg to avoid flooding the console.  If you have a lot of
-threads hitting this at once, they could have already gotten passed the
-dma_debug_disabled() check before they get to the point of allocation
-failure, resulting in quite a lot of this error message spamming the
-log.  Use pr_err_once() to limit that.
+A semicolon was missing, and the almost-alphabetical-but-not ordering
+was confusing, so regroup these by category instead.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/dma/debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/admin-guide/sysctl/kernel.rst |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index ee7da1f2462f..ae9fc1ee6d20 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -564,7 +564,7 @@ static void add_dma_entry(struct dma_debug_entry *entry)
+--- a/Documentation/admin-guide/sysctl/kernel.rst
++++ b/Documentation/admin-guide/sysctl/kernel.rst
+@@ -876,6 +876,9 @@ This is a directory, with the following
+ * ``boot_id``: a UUID generated the first time this is retrieved, and
+   unvarying after that;
  
- 	rc = active_cacheline_insert(entry);
- 	if (rc == -ENOMEM) {
--		pr_err("cacheline tracking ENOMEM, dma-debug disabled\n");
-+		pr_err_once("cacheline tracking ENOMEM, dma-debug disabled\n");
- 		global_disable = true;
- 	}
++* ``uuid``: a UUID generated every time this is retrieved (this can
++  thus be used to generate UUIDs at will);
++
+ * ``entropy_avail``: the pool's entropy count, in bits;
  
--- 
-2.35.1
-
+ * ``poolsize``: the entropy pool size, in bits;
+@@ -883,10 +886,7 @@ This is a directory, with the following
+ * ``urandom_min_reseed_secs``: obsolete (used to determine the minimum
+   number of seconds between urandom pool reseeding). This file is
+   writable for compatibility purposes, but writing to it has no effect
+-  on any RNG behavior.
+-
+-* ``uuid``: a UUID generated every time this is retrieved (this can
+-  thus be used to generate UUIDs at will);
++  on any RNG behavior;
+ 
+ * ``write_wakeup_threshold``: when the entropy count drops below this
+   (as a number of bits), processes waiting to write to ``/dev/random``
 
 
