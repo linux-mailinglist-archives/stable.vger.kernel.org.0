@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21889551D91
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:25:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8364551EB7
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344071AbiFTOKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:10:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57986 "EHLO
+        id S1345710AbiFTOAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:00:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351766AbiFTOKB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 10:10:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB245FAE;
-        Mon, 20 Jun 2022 06:28:12 -0700 (PDT)
+        with ESMTP id S1349228AbiFTNwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:52:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E1453152A;
+        Mon, 20 Jun 2022 06:19:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A3D70CE13A1;
-        Mon, 20 Jun 2022 13:12:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 383AFC3411C;
-        Mon, 20 Jun 2022 13:12:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22137B80E7A;
+        Mon, 20 Jun 2022 13:13:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 739A0C3411B;
+        Mon, 20 Jun 2022 13:13:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730727;
-        bh=GJEvmm0l5VojvZkUC7HS1kwILy77gq+L2fepE8lunsM=;
+        s=korg; t=1655730817;
+        bh=05oCL9/vwRD2ONushJmIq7RlXP0+bm7pgIUFoypvMaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FwfcCnC0ZqQuurBPU2k/ztcOLYEF3Kerrj7JZb1cSKcYMr51HwNhZjSLKqHvJdlHo
-         DWspy/kpbpCkCg/U8TKFi2doBY/BW2Op/c3+c51MRYBHnAvnPm8IZP4CRNmDAJttNF
-         qqTr6/aqHaKTtHu08GJMcdF7lfCWgrSkJlBXHwyE=
+        b=bxMdSyjQK42mAtYTU21TdRqyO8yOlgpRubuRR/+ZeZFHK+iuasSJz2pkq0LsfLnjD
+         XGwJjdCNgcP48qXNCd2jI+rkoMchrQlDtBwaMxW9JHbZfD0+zonp5HbVfEoQUfK6n4
+         ZSlBZMOK/idpXphQZY+GzZRBlRYkbEGtvcQjCBi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wei Liu <wei.liu@kernel.org>, linux-hyperv@vger.kernel.org,
-        x86@kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 038/240] random: remove unused irq_flags argument from add_interrupt_randomness()
-Date:   Mon, 20 Jun 2022 14:48:59 +0200
-Message-Id: <20220620124739.026500646@linuxfoundation.org>
+Subject: [PATCH 5.4 063/240] random: access primary_pool directly rather than through pointer
+Date:   Mon, 20 Jun 2022 14:49:24 +0200
+Message-Id: <20220620124740.181296930@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -63,104 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
 
-commit 703f7066f40599c290babdb79dd61319264987e9 upstream.
+commit ebf7606388732ecf2821ca21087e9446cb4a5b57 upstream.
 
-Since commit
-   ee3e00e9e7101 ("random: use registers from interrupted code for CPU's w/o a cycle counter")
+Both crng_initialize_primary() and crng_init_try_arch_early() are
+only called for the primary_pool. Accessing it directly instead of
+through a function parameter simplifies the code.
 
-the irq_flags argument is no longer used.
-
-Remove unused irq_flags.
-
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Dexuan Cui <decui@microsoft.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: K. Y. Srinivasan <kys@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Wei Liu <wei.liu@kernel.org>
-Cc: linux-hyperv@vger.kernel.org
-Cc: x86@kernel.org
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Acked-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/mshyperv.c |    2 +-
- drivers/char/random.c          |    4 ++--
- drivers/hv/vmbus_drv.c         |    2 +-
- include/linux/random.h         |    2 +-
- kernel/irq/handle.c            |    2 +-
- 5 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/char/random.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -82,7 +82,7 @@ __visible void __irq_entry hv_stimer0_ve
- 	inc_irq_stat(hyperv_stimer0_count);
- 	if (hv_stimer0_handler)
- 		hv_stimer0_handler();
--	add_interrupt_randomness(HYPERV_STIMER0_VECTOR, 0);
-+	add_interrupt_randomness(HYPERV_STIMER0_VECTOR);
- 	ack_APIC_irq();
- 
- 	exiting_irq();
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -200,7 +200,7 @@
-  *	void add_device_randomness(const void *buf, unsigned int size);
-  * 	void add_input_randomness(unsigned int type, unsigned int code,
-  *                                unsigned int value);
-- *	void add_interrupt_randomness(int irq, int irq_flags);
-+ *	void add_interrupt_randomness(int irq);
-  * 	void add_disk_randomness(struct gendisk *disk);
-  *	void add_hwgenerator_randomness(const char *buffer, size_t count,
-  *					size_t entropy);
-@@ -1273,7 +1273,7 @@ static __u32 get_reg(struct fast_pool *f
- 	return *ptr;
+@@ -762,7 +762,7 @@ static bool crng_init_try_arch(struct cr
+ 	return arch_init;
  }
  
--void add_interrupt_randomness(int irq, int irq_flags)
-+void add_interrupt_randomness(int irq)
+-static bool __init crng_init_try_arch_early(struct crng_state *crng)
++static bool __init crng_init_try_arch_early(void)
  {
- 	struct entropy_store	*r;
- 	struct fast_pool	*fast_pool = this_cpu_ptr(&irq_randomness);
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1303,7 +1303,7 @@ static void vmbus_isr(void)
- 			tasklet_schedule(&hv_cpu->msg_dpc);
+ 	int i;
+ 	bool arch_init = true;
+@@ -774,7 +774,7 @@ static bool __init crng_init_try_arch_ea
+ 			rv = random_get_entropy();
+ 			arch_init = false;
+ 		}
+-		crng->state[i] ^= rv;
++		primary_crng.state[i] ^= rv;
  	}
  
--	add_interrupt_randomness(HYPERVISOR_CALLBACK_VECTOR, 0);
-+	add_interrupt_randomness(HYPERVISOR_CALLBACK_VECTOR);
+ 	return arch_init;
+@@ -788,16 +788,16 @@ static void crng_initialize_secondary(st
+ 	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
  }
  
- /*
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -35,7 +35,7 @@ static inline void add_latent_entropy(vo
+-static void __init crng_initialize_primary(struct crng_state *crng)
++static void __init crng_initialize_primary(void)
+ {
+-	_extract_entropy(&crng->state[4], sizeof(u32) * 12);
+-	if (crng_init_try_arch_early(crng) && trust_cpu && crng_init < 2) {
++	_extract_entropy(&primary_crng.state[4], sizeof(u32) * 12);
++	if (crng_init_try_arch_early() && trust_cpu && crng_init < 2) {
+ 		invalidate_batched_entropy();
+ 		numa_crng_init();
+ 		crng_init = 2;
+ 		pr_notice("crng init done (trusting CPU's manufacturer)\n");
+ 	}
+-	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
++	primary_crng.init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
+ }
  
- extern void add_input_randomness(unsigned int type, unsigned int code,
- 				 unsigned int value) __latent_entropy;
--extern void add_interrupt_randomness(int irq, int irq_flags) __latent_entropy;
-+extern void add_interrupt_randomness(int irq) __latent_entropy;
- 
- extern void get_random_bytes(void *buf, int nbytes);
- extern int wait_for_random_bytes(void);
---- a/kernel/irq/handle.c
-+++ b/kernel/irq/handle.c
-@@ -188,7 +188,7 @@ irqreturn_t handle_irq_event_percpu(stru
- 
- 	retval = __handle_irq_event_percpu(desc, &flags);
- 
--	add_interrupt_randomness(desc->irq_data.irq, flags);
-+	add_interrupt_randomness(desc->irq_data.irq);
- 
- 	if (!noirqdebug)
- 		note_interrupt(desc, retval);
+ static void crng_finalize_init(struct crng_state *crng)
+@@ -1698,7 +1698,7 @@ int __init rand_initialize(void)
+ 	init_std_data();
+ 	if (crng_need_final_init)
+ 		crng_finalize_init(&primary_crng);
+-	crng_initialize_primary(&primary_crng);
++	crng_initialize_primary();
+ 	crng_global_init_time = jiffies;
+ 	if (ratelimit_disable) {
+ 		urandom_warning.interval = 0;
 
 
