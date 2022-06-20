@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56170551D43
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE94551A69
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245256AbiFTNuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54428 "EHLO
+        id S243746AbiFTNFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:05:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348867AbiFTNsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:48:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17B302F00E;
-        Mon, 20 Jun 2022 06:17:43 -0700 (PDT)
+        with ESMTP id S244174AbiFTNDC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:03:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B54F1638F;
+        Mon, 20 Jun 2022 05:57:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F0E2B811A0;
-        Mon, 20 Jun 2022 13:17:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB656C3411C;
-        Mon, 20 Jun 2022 13:17:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 281E6B811AC;
+        Mon, 20 Jun 2022 12:57:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77971C3411B;
+        Mon, 20 Jun 2022 12:57:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731058;
-        bh=YAaAnfdN5DGX6izEPZPLbxRmKyDvGykDk8xyS2lO+OE=;
+        s=korg; t=1655729873;
+        bh=4JFSQuzXKlwBjpQ6WGtJ+U1eZtcTY9mjkDzyax+qtO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XPZPaPFRuxbHbAWO0rX8oU+xPbUXuv/HkF1CTsHJ1+iIW7Vhe36bCHLCET6jyv15l
-         s0RsmER1Q4VK41CJtJWoxC04XPnsxjMqWL8I3D29LquOCan5j4NfFS3DOn+kvbs/sR
-         egCbvS6KWIpc/L0BA8g66Iuk4eXSfTll/3TAQQ2M=
+        b=KwqgrjBL37VQHBUNp/BQw7han+ud0eTsgLLTzZVd8A61/ocXy29G6g8TTHR+wGJ5C
+         NGKFh0fHtTv9isbzpx/0ZnL8xm0rJvveb8JSkIulfpyh/R28QswZWM5x3vKArNJtoq
+         8O6TFvhJQ3y3d/Tej83EMw0mxbxduSFfVs8Xos6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 139/240] arm: use fallback for random_get_entropy() instead of zero
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.18 102/141] comedi: vmk80xx: fix expression for tx buffer size
 Date:   Mon, 20 Jun 2022 14:50:40 +0200
-Message-Id: <20220620124743.036424435@linuxfoundation.org>
+Message-Id: <20220620124732.558627125@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit ff8a8f59c99f6a7c656387addc4d9f2247d75077 upstream.
+commit 242439f7e279d86b3f73b5de724bc67b2f8aeb07 upstream.
 
-In the event that random_get_entropy() can't access a cycle counter or
-similar, falling back to returning 0 is really not the best we can do.
-Instead, at least calling random_get_entropy_fallback() would be
-preferable, because that always needs to return _something_, even
-falling back to jiffies eventually. It's not as though
-random_get_entropy_fallback() is super high precision or guaranteed to
-be entropic, but basically anything that's not zero all the time is
-better than returning zero all the time.
+The expression for setting the size of the allocated bulk TX buffer
+(`devpriv->usb_tx_buf`) is calling `usb_endpoint_maxp(devpriv->ep_rx)`,
+which is using the wrong endpoint (should be `devpriv->ep_tx`).  Fix it.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Fixes: a23461c47482 ("comedi: vmk80xx: fix transfer-buffer overflow")
+Cc: Johan Hovold <johan@kernel.org>
+Cc: stable@vger.kernel.org # 4.9+
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20220607171819.4121-1-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/timex.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/comedi/drivers/vmk80xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/include/asm/timex.h
-+++ b/arch/arm/include/asm/timex.h
-@@ -11,5 +11,6 @@
+--- a/drivers/comedi/drivers/vmk80xx.c
++++ b/drivers/comedi/drivers/vmk80xx.c
+@@ -684,7 +684,7 @@ static int vmk80xx_alloc_usb_buffers(str
+ 	if (!devpriv->usb_rx_buf)
+ 		return -ENOMEM;
  
- typedef unsigned long cycles_t;
- #define get_cycles()	({ cycles_t c; read_current_timer(&c) ? 0 : c; })
-+#define random_get_entropy() (((unsigned long)get_cycles()) ?: random_get_entropy_fallback())
- 
- #endif
+-	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
++	size = max(usb_endpoint_maxp(devpriv->ep_tx), MIN_BUF_SIZE);
+ 	devpriv->usb_tx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_tx_buf)
+ 		return -ENOMEM;
 
 
