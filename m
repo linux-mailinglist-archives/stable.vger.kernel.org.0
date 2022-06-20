@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 907CF551BE5
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 390DF551AF5
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345131AbiFTN0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:26:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59036 "EHLO
+        id S1344683AbiFTN0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:26:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344460AbiFTNY6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7071ADBD;
-        Mon, 20 Jun 2022 06:10:17 -0700 (PDT)
+        with ESMTP id S1344575AbiFTNZD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:25:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D5581AF05;
+        Mon, 20 Jun 2022 06:10:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADBF560ABE;
-        Mon, 20 Jun 2022 13:09:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A365CC3411B;
-        Mon, 20 Jun 2022 13:09:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96E11B811D7;
+        Mon, 20 Jun 2022 13:10:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7687C3411B;
+        Mon, 20 Jun 2022 13:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730596;
-        bh=3R++zcar7zR6TsDlEHyNXHwewnX2b38K5TREgitHZyU=;
+        s=korg; t=1655730599;
+        bh=SjXAoznO5JPsYpcWKUijlKX7Px6pqsQqLLa1A/Kne20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uii0L9uXRPpPO5bv78VQD6WyKTUrsuFXLerHxPCrW0c1Bddc2p0kPasM8wviNl+qd
-         Z74kVcfKKSJ1oQDCjPGPeIFKRRtl5wnKuxS4ccSN6ktflIUUXtfDDKmEOECGlH2cQB
-         +PdAEOrKXYJ4kwJ+tD+ydI8g30SonSAa5zOMSfu8=
+        b=G/k/SPl0c+XEAwtF1vDmPP89gDAay8z+Ugu3q+PzpEwQjiapdRizN2SGJv42XXG+e
+         3UUmWyZbi0T0DodKolFeb7W5ZRn7ZJStCobizKi4HF8RfhdRL3iBmnH+z32TBi/yLh
+         knFcjggrA5YVUWY4OXIUic0msxkekny4PoUHL3pM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Chi <andy.chi@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        Murilo Opsfelder Araujo <muriloo@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Christophe de Dinechin <dinechin@redhat.com>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.15 103/106] ALSA: hda/realtek: fix right sounds and mute/micmute LEDs for HP machine
-Date:   Mon, 20 Jun 2022 14:52:02 +0200
-Message-Id: <20220620124727.432412555@linuxfoundation.org>
+Subject: [PATCH 5.15 104/106] virtio-pci: Remove wrong address verification in vp_del_vqs()
+Date:   Mon, 20 Jun 2022 14:52:03 +0200
+Message-Id: <20220620124727.460431546@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
 References: <20220620124724.380838401@linuxfoundation.org>
@@ -54,33 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Chi <andy.chi@canonical.com>
+From: Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
 
-commit 024a7ad9eb4df626ca8c77fef4f67fd0ebd559d2 upstream.
+commit 7e415282b41bf0d15c6e0fe268f822d9b083f2f7 upstream.
 
-The HP EliteBook 630 is using ALC236 codec which used 0x02 to control mute LED
-and 0x01 to control micmute LED. Therefore, add a quirk to make it works.
+GCC 12 enhanced -Waddress when comparing array address to null [0],
+which warns:
 
-Signed-off-by: Andy Chi <andy.chi@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220513121648.28584-1-andy.chi@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+    drivers/virtio/virtio_pci_common.c: In function ‘vp_del_vqs’:
+    drivers/virtio/virtio_pci_common.c:257:29: warning: the comparison will always evaluate as ‘true’ for the pointer operand in ‘vp_dev->msix_affinity_masks + (sizetype)((long unsigned int)i * 256)’ must not be NULL [-Waddress]
+      257 |                         if (vp_dev->msix_affinity_masks[i])
+          |                             ^~~~~~
+
+In fact, the verification is comparing the result of a pointer
+arithmetic, the address "msix_affinity_masks + i", which will always
+evaluate to true.
+
+Under the hood, free_cpumask_var() calls kfree(), which is safe to pass
+NULL, not requiring non-null verification.  So remove the verification
+to make compiler happy (happy compiler, happy life).
+
+[0] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102103
+
+Signed-off-by: Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
+Message-Id: <20220415023002.49805-1-muriloo@linux.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Christophe de Dinechin <dinechin@redhat.com>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/virtio/virtio_pci_common.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8857,6 +8857,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x8896, "HP EliteBook 855 G8 Notebook PC", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8898, "HP EliteBook 845 G8 Notebook PC", ALC285_FIXUP_HP_LIMIT_INT_MIC_BOOST),
- 	SND_PCI_QUIRK(0x103c, 0x88d0, "HP Pavilion 15-eh1xxx (mainboard 88D0)", ALC287_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x89aa, "HP EliteBook 630 G9", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x89c3, "HP", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x89ca, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
- 	SND_PCI_QUIRK(0x103c, 0x8a78, "HP Dev One", ALC285_FIXUP_HP_LIMIT_INT_MIC_BOOST),
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -254,8 +254,7 @@ void vp_del_vqs(struct virtio_device *vd
+ 
+ 	if (vp_dev->msix_affinity_masks) {
+ 		for (i = 0; i < vp_dev->msix_vectors; i++)
+-			if (vp_dev->msix_affinity_masks[i])
+-				free_cpumask_var(vp_dev->msix_affinity_masks[i]);
++			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
+ 	}
+ 
+ 	if (vp_dev->msix_enabled) {
 
 
