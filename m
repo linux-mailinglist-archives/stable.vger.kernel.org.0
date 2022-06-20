@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 634785518B6
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:20:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C17065518BE
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:21:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242300AbiFTMUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:20:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38476 "EHLO
+        id S242062AbiFTMU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:20:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242406AbiFTMUo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:20:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49D1013E05
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:20:43 -0700 (PDT)
+        with ESMTP id S240070AbiFTMU5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:20:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C21632F
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:20:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC5926146C
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 12:20:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD210C3411B;
-        Mon, 20 Jun 2022 12:20:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EEF4AB81136
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 12:20:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D7D4C3411B;
+        Mon, 20 Jun 2022 12:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655727642;
-        bh=626UdUvw5wMGdxzVMnHWHVtM9e4OmBqFQd6jdKmrNOE=;
+        s=korg; t=1655727653;
+        bh=00zo9H40+E0PgNXSOGWrSvyl0QkrTuSOx5FlbnnnQ4A=;
         h=Subject:To:Cc:From:Date:From;
-        b=sJX+oS9IUXjgzvUI8HPqKiA6H0761nhzcqcMXyZhNtG9BTvRChY77aA8ogoPGb0kR
-         E8vIdf8eEC4jk70EumWIsic1PF5bNWIe0RYLnoHDy/aP/kKmZtDQtyY4q+cjos7bLT
-         bbQpffNIj6J/lHVjG6sZLfKvY/TjqItSNXaLPuHQ=
-Subject: FAILED: patch "[PATCH] random: do not use jump labels before they are initialized" failed to apply to 4.19-stable tree
-To:     Jason@zx2c4.com, ardb@kernel.org, arnd@arndb.de,
-        catalin.marinas@arm.com, linux@armlinux.org.uk,
-        phil@raspberrypi.com, swboyd@chromium.org
+        b=lJA34Jm/Zjcyg8lAw0a2mQRLJhD0gykhwXiBPgL1M4ye4psgOhltoQVoteU0166ok
+         F4UBO/DnhMD8RXdxppayAt3fPnjucU0QS1VAg7mn8YF/f8pNi0gNmi3kAYLLhvaEnr
+         rDpQprvTaZLuLd8lE8pXHipW1cCUp/qdfUfQHbyE=
+Subject: FAILED: patch "[PATCH] bpf: Fix calling global functions from BPF_PROG_TYPE_EXT" failed to apply to 5.18-stable tree
+To:     toke@redhat.com, ast@kernel.org, simon.sundberg@kau.se
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jun 2022 14:20:27 +0200
-Message-ID: <1655727627101129@kroah.com>
+Date:   Mon, 20 Jun 2022 14:20:50 +0200
+Message-ID: <165572765086164@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -50,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,101 +59,61 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 60e5b2886b92afa9e7af56bba7f5fa5f057e1e97 Mon Sep 17 00:00:00 2001
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Tue, 7 Jun 2022 17:28:06 +0200
-Subject: [PATCH] random: do not use jump labels before they are initialized
+From f858c2b2ca04fc7ead291821a793638ae120c11d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>
+Date: Mon, 6 Jun 2022 09:52:51 +0200
+Subject: [PATCH] bpf: Fix calling global functions from BPF_PROG_TYPE_EXT
+ programs
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Stephen reported that a static key warning splat appears during early
-boot on systems that credit randomness from device trees that contain an
-"rng-seed" property, because because setup_machine_fdt() is called
-before jump_label_init() during setup_arch():
+The verifier allows programs to call global functions as long as their
+argument types match, using BTF to check the function arguments. One of the
+allowed argument types to such global functions is PTR_TO_CTX; however the
+check for this fails on BPF_PROG_TYPE_EXT functions because the verifier
+uses the wrong type to fetch the vmlinux BTF ID for the program context
+type. This failure is seen when an XDP program is loaded using
+libxdp (which loads it as BPF_PROG_TYPE_EXT and attaches it to a global XDP
+type program).
 
- static_key_enable_cpuslocked(): static key '0xffffffe51c6fcfc0' used before call to jump_label_init()
- WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xb0/0xb8
- Modules linked in:
- CPU: 0 PID: 0 Comm: swapper Not tainted 5.18.0+ #224 44b43e377bfc84bc99bb5ab885ff694984ee09ff
- pstate: 600001c9 (nZCv dAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
- pc : static_key_enable_cpuslocked+0xb0/0xb8
- lr : static_key_enable_cpuslocked+0xb0/0xb8
- sp : ffffffe51c393cf0
- x29: ffffffe51c393cf0 x28: 000000008185054c x27: 00000000f1042f10
- x26: 0000000000000000 x25: 00000000f10302b2 x24: 0000002513200000
- x23: 0000002513200000 x22: ffffffe51c1c9000 x21: fffffffdfdc00000
- x20: ffffffe51c2f0831 x19: ffffffe51c6fcfc0 x18: 00000000ffff1020
- x17: 00000000e1e2ac90 x16: 00000000000000e0 x15: ffffffe51b710708
- x14: 0000000000000066 x13: 0000000000000018 x12: 0000000000000000
- x11: 0000000000000000 x10: 00000000ffffffff x9 : 0000000000000000
- x8 : 0000000000000000 x7 : 61632065726f6665 x6 : 6220646573752027
- x5 : ffffffe51c641d25 x4 : ffffffe51c13142c x3 : ffff0a00ffffff05
- x2 : 40000000ffffe003 x1 : 00000000000001c0 x0 : 0000000000000065
- Call trace:
-  static_key_enable_cpuslocked+0xb0/0xb8
-  static_key_enable+0x2c/0x40
-  crng_set_ready+0x24/0x30
-  execute_in_process_context+0x80/0x90
-  _credit_init_bits+0x100/0x154
-  add_bootloader_randomness+0x64/0x78
-  early_init_dt_scan_chosen+0x140/0x184
-  early_init_dt_scan_nodes+0x28/0x4c
-  early_init_dt_scan+0x40/0x44
-  setup_machine_fdt+0x7c/0x120
-  setup_arch+0x74/0x1d8
-  start_kernel+0x84/0x44c
-  __primary_switched+0xc0/0xc8
- ---[ end trace 0000000000000000 ]---
- random: crng init done
- Machine model: Google Lazor (rev1 - 2) with LTE
+Fix the issue by passing in the target program type instead of the
+BPF_PROG_TYPE_EXT type to bpf_prog_get_ctx() when checking function
+argument compatibility.
 
-A trivial fix went in to address this on arm64, 73e2d827a501 ("arm64:
-Initialize jump labels before setup_machine_fdt()"). I wrote patches as
-well for arm32 and risc-v. But still patches are needed on xtensa,
-powerpc, arc, and mips. So that's 7 platforms where things aren't quite
-right. This sort of points to larger issues that might need a larger
-solution.
+The first Fixes tag refers to the latest commit that touched the code in
+question, while the second one points to the code that first introduced
+the global function call verification.
 
-Instead, this commit just defers setting the static branch until later
-in the boot process. random_init() is called after jump_label_init() has
-been called, and so is always a safe place from which to adjust the
-static branch.
+v2:
+- Use resolve_prog_type()
 
-Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
-Reported-by: Stephen Boyd <swboyd@chromium.org>
-Reported-by: Phil Elwell <phil@raspberrypi.com>
-Tested-by: Phil Elwell <phil@raspberrypi.com>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Fixes: 3363bd0cfbb8 ("bpf: Extend kfunc with PTR_TO_CTX, PTR_TO_MEM argument support")
+Fixes: 51c39bb1d5d1 ("bpf: Introduce function-by-function verification")
+Reported-by: Simon Sundberg <simon.sundberg@kau.se>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Link: https://lore.kernel.org/r/20220606075253.28422-1-toke@redhat.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 60d701a2516b..0b78b9c4acf5 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -650,7 +650,8 @@ static void __cold _credit_init_bits(size_t bits)
- 
- 	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS) {
- 		crng_reseed(); /* Sets crng_init to CRNG_READY under base_crng.lock. */
--		execute_in_process_context(crng_set_ready, &set_ready);
-+		if (static_key_initialized)
-+			execute_in_process_context(crng_set_ready, &set_ready);
- 		wake_up_interruptible(&crng_init_wait);
- 		kill_fasync(&fasync, SIGIO, POLL_IN);
- 		pr_notice("crng init done\n");
-@@ -798,6 +799,14 @@ int __init random_init(const char *command_line)
- 	_mix_pool_bytes(command_line, strlen(command_line));
- 	add_latent_entropy();
- 
-+	/*
-+	 * If we were initialized by the bootloader before jump labels are
-+	 * initialized, then we should enable the static branch here, where
-+	 * it's guaranteed that jump labels have been initialized.
-+	 */
-+	if (!static_branch_likely(&crng_is_ready) && crng_init >= CRNG_READY)
-+		crng_set_ready(NULL);
-+
- 	if (crng_ready())
- 		crng_reseed();
- 	else if (trust_cpu)
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index 7bccaa4646e5..63d0ac7dfe2f 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -6054,6 +6054,7 @@ static int btf_check_func_arg_match(struct bpf_verifier_env *env,
+ 				    struct bpf_reg_state *regs,
+ 				    bool ptr_to_mem_ok)
+ {
++	enum bpf_prog_type prog_type = resolve_prog_type(env->prog);
+ 	struct bpf_verifier_log *log = &env->log;
+ 	u32 i, nargs, ref_id, ref_obj_id = 0;
+ 	bool is_kfunc = btf_is_kernel(btf);
+@@ -6171,7 +6172,7 @@ static int btf_check_func_arg_match(struct bpf_verifier_env *env,
+ 				return -EINVAL;
+ 			}
+ 			/* rest of the arguments can be anything, like normal kfunc */
+-		} else if (btf_get_prog_ctx_type(log, btf, t, env->prog->type, i)) {
++		} else if (btf_get_prog_ctx_type(log, btf, t, prog_type, i)) {
+ 			/* If function expects ctx type in BTF check that caller
+ 			 * is passing PTR_TO_CTX.
+ 			 */
 
