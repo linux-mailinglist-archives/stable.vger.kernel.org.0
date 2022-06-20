@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 669A1551B80
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72D87551B4E
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344778AbiFTN35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:29:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43756 "EHLO
+        id S1345323AbiFTNaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:30:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345530AbiFTN1s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:27:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04CF1C133;
-        Mon, 20 Jun 2022 06:11:21 -0700 (PDT)
+        with ESMTP id S1345861AbiFTN2g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:28:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D551CFC4;
+        Mon, 20 Jun 2022 06:11:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7CF35B811BD;
-        Mon, 20 Jun 2022 13:11:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C855EC3411C;
-        Mon, 20 Jun 2022 13:11:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DAB1F60EB0;
+        Mon, 20 Jun 2022 13:11:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFAAAC3411B;
+        Mon, 20 Jun 2022 13:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730680;
-        bh=GveS77NFMpQY+xaymSevlHEOIq7CUjT0HjuXcn/+YKY=;
+        s=korg; t=1655730683;
+        bh=bwxSGq6grVVZrNdxLa9wT+rkSqRiuBDi9MFrTtazeEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BcFXbN3oeKjlDlCKd2rG8UlIOnWVot+Iui1eMHbIbA1us4r89Yy9OcKNafYAs8bUp
-         9zcy0lnFdEqj7r9ANaka2nyUk303YfH7kXxJfXz+ciXefhNYLatZ019Lr4vPNNSxdc
-         FQ/2qCT+j1jBlm94u/UKdD8pYfthcSy7jAJaLRLw=
+        b=IQABSn88v9jxWd9aXRsYySRG4fAayFDU32SeMAgDUSocQizjhZCtLlAtkIZySb1v+
+         KeJUc5WYLCd8ta9OaBlz4gKznPOYJAsDhakr1R6qgvHc9Cjzfra0CaceOl6UHJryrW
+         m15PN6zkvAaXn26/lWIrrnccTHQmFi5Z+hFhKMIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
         Ard Biesheuvel <ardb@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 005/240] lib/crypto: blake2s: move hmac construction into wireguard
-Date:   Mon, 20 Jun 2022 14:48:26 +0200
-Message-Id: <20220620124737.961797031@linuxfoundation.org>
+Subject: [PATCH 5.4 006/240] lib/crypto: sha1: re-roll loops to reduce code size
+Date:   Mon, 20 Jun 2022 14:48:27 +0200
+Message-Id: <20220620124737.990971483@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -57,144 +57,156 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit d8d83d8ab0a453e17e68b3a3bed1f940c34b8646 upstream.
+commit 9a1536b093bb5bf60689021275fd24d513bb8db0 upstream.
 
-Basically nobody should use blake2s in an HMAC construction; it already
-has a keyed variant. But unfortunately for historical reasons, Noise,
-used by WireGuard, uses HKDF quite strictly, which means we have to use
-this. Because this really shouldn't be used by others, this commit moves
-it into wireguard's noise.c locally, so that kernels that aren't using
-WireGuard don't get this superfluous code baked in. On m68k systems,
-this shaves off ~314 bytes.
+With SHA-1 no longer being used for anything performance oriented, and
+also soon to be phased out entirely, we can make up for the space added
+by unrolled BLAKE2s by simply re-rolling SHA-1. Since SHA-1 is so much
+more complex, re-rolling it more or less takes care of the code size
+added by BLAKE2s. And eventually, hopefully we'll see SHA-1 removed
+entirely from most small kernel builds.
 
 Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Ard Biesheuvel <ardb@kernel.org>
 Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-[Jason: for stable, skip the wireguard changes, since this kernel
- doesn't have wireguard.]
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/crypto/blake2s.h      |    3 ---
- lib/crypto/blake2s-selftest.c |   31 -------------------------------
- lib/crypto/blake2s.c          |   37 -------------------------------------
- 3 files changed, 71 deletions(-)
+ lib/sha1.c |   95 ++++++++-----------------------------------------------------
+ 1 file changed, 14 insertions(+), 81 deletions(-)
 
---- a/include/crypto/blake2s.h
-+++ b/include/crypto/blake2s.h
-@@ -100,7 +100,4 @@ static inline void blake2s(u8 *out, cons
- 	blake2s_final(&state, out);
- }
+--- a/lib/sha1.c
++++ b/lib/sha1.c
+@@ -10,6 +10,7 @@
+ #include <linux/export.h>
+ #include <linux/bitops.h>
+ #include <linux/cryptohash.h>
++#include <linux/string.h>
+ #include <asm/unaligned.h>
  
--void blake2s256_hmac(u8 *out, const u8 *in, const u8 *key, const size_t inlen,
--		     const size_t keylen);
--
- #endif /* BLAKE2S_H */
---- a/lib/crypto/blake2s-selftest.c
-+++ b/lib/crypto/blake2s-selftest.c
-@@ -15,7 +15,6 @@
-  * #include <stdio.h>
-  *
-  * #include <openssl/evp.h>
-- * #include <openssl/hmac.h>
-  *
-  * #define BLAKE2S_TESTVEC_COUNT	256
-  *
-@@ -58,16 +57,6 @@
-  *	}
-  *	printf("};\n\n");
-  *
-- *	printf("static const u8 blake2s_hmac_testvecs[][BLAKE2S_HASH_SIZE] __initconst = {\n");
-- *
-- *	HMAC(EVP_blake2s256(), key, sizeof(key), buf, sizeof(buf), hash, NULL);
-- *	print_vec(hash, BLAKE2S_OUTBYTES);
-- *
-- *	HMAC(EVP_blake2s256(), buf, sizeof(buf), key, sizeof(key), hash, NULL);
-- *	print_vec(hash, BLAKE2S_OUTBYTES);
-- *
-- *	printf("};\n");
-- *
-  *	return 0;
-  *}
-  */
-@@ -554,15 +543,6 @@ static const u8 blake2s_testvecs[][BLAKE
-     0xd6, 0x98, 0x6b, 0x07, 0x10, 0x65, 0x52, 0x65, },
- };
+ /*
+@@ -55,7 +56,8 @@
+ #define SHA_ROUND(t, input, fn, constant, A, B, C, D, E) do { \
+ 	__u32 TEMP = input(t); setW(t, TEMP); \
+ 	E += TEMP + rol32(A,5) + (fn) + (constant); \
+-	B = ror32(B, 2); } while (0)
++	B = ror32(B, 2); \
++	TEMP = E; E = D; D = C; C = B; B = A; A = TEMP; } while (0)
  
--static const u8 blake2s_hmac_testvecs[][BLAKE2S_HASH_SIZE] __initconst = {
--  { 0xce, 0xe1, 0x57, 0x69, 0x82, 0xdc, 0xbf, 0x43, 0xad, 0x56, 0x4c, 0x70,
--    0xed, 0x68, 0x16, 0x96, 0xcf, 0xa4, 0x73, 0xe8, 0xe8, 0xfc, 0x32, 0x79,
--    0x08, 0x0a, 0x75, 0x82, 0xda, 0x3f, 0x05, 0x11, },
--  { 0x77, 0x2f, 0x0c, 0x71, 0x41, 0xf4, 0x4b, 0x2b, 0xb3, 0xc6, 0xb6, 0xf9,
--    0x60, 0xde, 0xe4, 0x52, 0x38, 0x66, 0xe8, 0xbf, 0x9b, 0x96, 0xc4, 0x9f,
--    0x60, 0xd9, 0x24, 0x37, 0x99, 0xd6, 0xec, 0x31, },
--};
--
- bool __init blake2s_selftest(void)
+ #define T_0_15(t, A, B, C, D, E)  SHA_ROUND(t, SHA_SRC, (((C^D)&B)^D) , 0x5a827999, A, B, C, D, E )
+ #define T_16_19(t, A, B, C, D, E) SHA_ROUND(t, SHA_MIX, (((C^D)&B)^D) , 0x5a827999, A, B, C, D, E )
+@@ -82,6 +84,7 @@
+ void sha_transform(__u32 *digest, const char *data, __u32 *array)
  {
- 	u8 key[BLAKE2S_KEY_SIZE];
-@@ -607,16 +587,5 @@ bool __init blake2s_selftest(void)
- 		}
- 	}
+ 	__u32 A, B, C, D, E;
++	unsigned int i = 0;
  
--	if (success) {
--		blake2s256_hmac(hash, buf, key, sizeof(buf), sizeof(key));
--		success &= !memcmp(hash, blake2s_hmac_testvecs[0], BLAKE2S_HASH_SIZE);
--
--		blake2s256_hmac(hash, key, buf, sizeof(key), sizeof(buf));
--		success &= !memcmp(hash, blake2s_hmac_testvecs[1], BLAKE2S_HASH_SIZE);
--
--		if (!success)
--			pr_err("blake2s256_hmac self-test: FAIL\n");
--	}
--
- 	return success;
- }
---- a/lib/crypto/blake2s.c
-+++ b/lib/crypto/blake2s.c
-@@ -59,43 +59,6 @@ void blake2s_final(struct blake2s_state
- }
- EXPORT_SYMBOL(blake2s_final);
+ 	A = digest[0];
+ 	B = digest[1];
+@@ -90,94 +93,24 @@ void sha_transform(__u32 *digest, const
+ 	E = digest[4];
  
--void blake2s256_hmac(u8 *out, const u8 *in, const u8 *key, const size_t inlen,
--		     const size_t keylen)
--{
--	struct blake2s_state state;
--	u8 x_key[BLAKE2S_BLOCK_SIZE] __aligned(__alignof__(u32)) = { 0 };
--	u8 i_hash[BLAKE2S_HASH_SIZE] __aligned(__alignof__(u32));
--	int i;
--
--	if (keylen > BLAKE2S_BLOCK_SIZE) {
--		blake2s_init(&state, BLAKE2S_HASH_SIZE);
--		blake2s_update(&state, key, keylen);
--		blake2s_final(&state, x_key);
--	} else
--		memcpy(x_key, key, keylen);
--
--	for (i = 0; i < BLAKE2S_BLOCK_SIZE; ++i)
--		x_key[i] ^= 0x36;
--
--	blake2s_init(&state, BLAKE2S_HASH_SIZE);
--	blake2s_update(&state, x_key, BLAKE2S_BLOCK_SIZE);
--	blake2s_update(&state, in, inlen);
--	blake2s_final(&state, i_hash);
--
--	for (i = 0; i < BLAKE2S_BLOCK_SIZE; ++i)
--		x_key[i] ^= 0x5c ^ 0x36;
--
--	blake2s_init(&state, BLAKE2S_HASH_SIZE);
--	blake2s_update(&state, x_key, BLAKE2S_BLOCK_SIZE);
--	blake2s_update(&state, i_hash, BLAKE2S_HASH_SIZE);
--	blake2s_final(&state, i_hash);
--
--	memcpy(out, i_hash, BLAKE2S_HASH_SIZE);
--	memzero_explicit(x_key, BLAKE2S_BLOCK_SIZE);
--	memzero_explicit(i_hash, BLAKE2S_HASH_SIZE);
--}
--EXPORT_SYMBOL(blake2s256_hmac);
--
- static int __init mod_init(void)
- {
- 	if (!IS_ENABLED(CONFIG_CRYPTO_MANAGER_DISABLE_TESTS) &&
+ 	/* Round 1 - iterations 0-16 take their input from 'data' */
+-	T_0_15( 0, A, B, C, D, E);
+-	T_0_15( 1, E, A, B, C, D);
+-	T_0_15( 2, D, E, A, B, C);
+-	T_0_15( 3, C, D, E, A, B);
+-	T_0_15( 4, B, C, D, E, A);
+-	T_0_15( 5, A, B, C, D, E);
+-	T_0_15( 6, E, A, B, C, D);
+-	T_0_15( 7, D, E, A, B, C);
+-	T_0_15( 8, C, D, E, A, B);
+-	T_0_15( 9, B, C, D, E, A);
+-	T_0_15(10, A, B, C, D, E);
+-	T_0_15(11, E, A, B, C, D);
+-	T_0_15(12, D, E, A, B, C);
+-	T_0_15(13, C, D, E, A, B);
+-	T_0_15(14, B, C, D, E, A);
+-	T_0_15(15, A, B, C, D, E);
++	for (; i < 16; ++i)
++		T_0_15(i, A, B, C, D, E);
+ 
+ 	/* Round 1 - tail. Input from 512-bit mixing array */
+-	T_16_19(16, E, A, B, C, D);
+-	T_16_19(17, D, E, A, B, C);
+-	T_16_19(18, C, D, E, A, B);
+-	T_16_19(19, B, C, D, E, A);
++	for (; i < 20; ++i)
++		T_16_19(i, A, B, C, D, E);
+ 
+ 	/* Round 2 */
+-	T_20_39(20, A, B, C, D, E);
+-	T_20_39(21, E, A, B, C, D);
+-	T_20_39(22, D, E, A, B, C);
+-	T_20_39(23, C, D, E, A, B);
+-	T_20_39(24, B, C, D, E, A);
+-	T_20_39(25, A, B, C, D, E);
+-	T_20_39(26, E, A, B, C, D);
+-	T_20_39(27, D, E, A, B, C);
+-	T_20_39(28, C, D, E, A, B);
+-	T_20_39(29, B, C, D, E, A);
+-	T_20_39(30, A, B, C, D, E);
+-	T_20_39(31, E, A, B, C, D);
+-	T_20_39(32, D, E, A, B, C);
+-	T_20_39(33, C, D, E, A, B);
+-	T_20_39(34, B, C, D, E, A);
+-	T_20_39(35, A, B, C, D, E);
+-	T_20_39(36, E, A, B, C, D);
+-	T_20_39(37, D, E, A, B, C);
+-	T_20_39(38, C, D, E, A, B);
+-	T_20_39(39, B, C, D, E, A);
++	for (; i < 40; ++i)
++		T_20_39(i, A, B, C, D, E);
+ 
+ 	/* Round 3 */
+-	T_40_59(40, A, B, C, D, E);
+-	T_40_59(41, E, A, B, C, D);
+-	T_40_59(42, D, E, A, B, C);
+-	T_40_59(43, C, D, E, A, B);
+-	T_40_59(44, B, C, D, E, A);
+-	T_40_59(45, A, B, C, D, E);
+-	T_40_59(46, E, A, B, C, D);
+-	T_40_59(47, D, E, A, B, C);
+-	T_40_59(48, C, D, E, A, B);
+-	T_40_59(49, B, C, D, E, A);
+-	T_40_59(50, A, B, C, D, E);
+-	T_40_59(51, E, A, B, C, D);
+-	T_40_59(52, D, E, A, B, C);
+-	T_40_59(53, C, D, E, A, B);
+-	T_40_59(54, B, C, D, E, A);
+-	T_40_59(55, A, B, C, D, E);
+-	T_40_59(56, E, A, B, C, D);
+-	T_40_59(57, D, E, A, B, C);
+-	T_40_59(58, C, D, E, A, B);
+-	T_40_59(59, B, C, D, E, A);
++	for (; i < 60; ++i)
++		T_40_59(i, A, B, C, D, E);
+ 
+ 	/* Round 4 */
+-	T_60_79(60, A, B, C, D, E);
+-	T_60_79(61, E, A, B, C, D);
+-	T_60_79(62, D, E, A, B, C);
+-	T_60_79(63, C, D, E, A, B);
+-	T_60_79(64, B, C, D, E, A);
+-	T_60_79(65, A, B, C, D, E);
+-	T_60_79(66, E, A, B, C, D);
+-	T_60_79(67, D, E, A, B, C);
+-	T_60_79(68, C, D, E, A, B);
+-	T_60_79(69, B, C, D, E, A);
+-	T_60_79(70, A, B, C, D, E);
+-	T_60_79(71, E, A, B, C, D);
+-	T_60_79(72, D, E, A, B, C);
+-	T_60_79(73, C, D, E, A, B);
+-	T_60_79(74, B, C, D, E, A);
+-	T_60_79(75, A, B, C, D, E);
+-	T_60_79(76, E, A, B, C, D);
+-	T_60_79(77, D, E, A, B, C);
+-	T_60_79(78, C, D, E, A, B);
+-	T_60_79(79, B, C, D, E, A);
++	for (; i < 80; ++i)
++		T_60_79(i, A, B, C, D, E);
+ 
+ 	digest[0] += A;
+ 	digest[1] += B;
 
 
