@@ -2,98 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA407551290
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 10:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E631551274
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 10:19:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238837AbiFTIVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 04:21:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39212 "EHLO
+        id S239858AbiFTITY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 04:19:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238441AbiFTIVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 04:21:42 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE2101263E;
-        Mon, 20 Jun 2022 01:21:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1655713301; x=1687249301;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=8E2kEq+GCo7Dhht4sPeokQjW9I35j7HibLiiqhyWzLc=;
-  b=XQCRb7LRslUeYyqtC37ZEvv8qINrkxD6+a3bKfKstm+iYXbMk8s8zUyT
-   ASMv5PcNIYCSaETcUaoSS4N0Kl5+lEPqSMdFqrd0xrtJbKH9AcVLDFGq+
-   62PWcLhXMdimpG22Yoj0TGEBZpCXVDDoFjXGNKU+DplTrtDDyX9m003yY
-   Y3wPJaa0zX78hq0MuzrdVZmAXt2AHv9Y/MBmAMdytC/UYnZPbDB6BCMJe
-   c0xg9shEgxnLNBC1sYe88d6p+MGHtcSpTy1tZvEa8veJLd+wZccWpbAsU
-   vcgEKRxJsg8tJAudl30GOZ6+0VuVrb4NU+g77cgEY6QVEMotR5teNpYDH
-   g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10380"; a="341518496"
-X-IronPort-AV: E=Sophos;i="5.92,306,1650956400"; 
-   d="scan'208";a="341518496"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jun 2022 01:21:39 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,306,1650956400"; 
-   d="scan'208";a="584799278"
-Received: from allen-box.sh.intel.com ([10.239.159.48])
-  by orsmga007.jf.intel.com with ESMTP; 20 Jun 2022 01:21:37 -0700
-From:   Lu Baolu <baolu.lu@linux.intel.com>
-To:     Joerg Roedel <joro@8bytes.org>, Kevin Tian <kevin.tian@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>
-Cc:     Chenyi Qiang <chenyi.qiang@intel.com>,
-        Liu Yi L <yi.l.liu@intel.com>,
-        Jacob jun Pan <jacob.jun.pan@intel.com>,
-        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-        Lu Baolu <baolu.lu@linux.intel.com>, stable@vger.kernel.org
-Subject: [PATCH 1/1] iommu/vt-d: Fix RID2PASID setup failure
-Date:   Mon, 20 Jun 2022 16:17:29 +0800
-Message-Id: <20220620081729.4610-1-baolu.lu@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S239883AbiFTISY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 04:18:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85AC711A28
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 01:18:23 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F117C6129E
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 08:18:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 087A2C3411B;
+        Mon, 20 Jun 2022 08:18:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1655713102;
+        bh=OQxe34OIF9U7eC+XcQQnWPHY8QYIcR5cJvNcjFtdvYw=;
+        h=Subject:To:Cc:From:Date:From;
+        b=qvHfd5+9O/LsrmUlgGSgRQy1HrCpjvNC629vtUroDqjbO42nh7tcM/fSdxpTSO+HK
+         1HKEUQZgYKMMLc24cC8PJKku74NBUHhhZz3PFG/Yyu48Zn1Mp/kvoCAld3EVKDCEJc
+         6+eaqp+DALkX/tpUlHbsrxRp9dL1Ob4hDL4Y5AXE=
+Subject: FAILED: patch "[PATCH] arm64: mm: Don't invalidate FROM_DEVICE buffers at start of" failed to apply to 5.15-stable tree
+To:     will@kernel.org, ardb@kernel.org, catalin.marinas@arm.com,
+        hch@lst.de, linux@armlinux.org.uk, robin.murphy@arm.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 20 Jun 2022 10:18:19 +0200
+Message-ID: <16557130992135@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The IOMMU driver shares the pasid table for PCI alias devices. When the
-RID2PASID entry of the shared pasid table has been filled by the first
-device, the subsequent devices will encounter the "DMAR: Setup RID2PASID
-failed" failure as the pasid entry has already been marke as present. As
-the result, the IOMMU probing process will be aborted.
 
-This fixes it by skipping RID2PASID setting if the pasid entry has been
-populated. This works because the IOMMU core ensures that only the same
-IOMMU domain can be attached to all PCI alias devices at the same time.
-Therefore the subsequent devices just try to setup the RID2PASID entry
-with the same domain, which is negligible.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Fixes: ef848b7e5a6a0 ("iommu/vt-d: Setup pasid entry for RID2PASID support")
-Reported-by: Chenyi Qiang <chenyi.qiang@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
----
- drivers/iommu/intel/iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+thanks,
 
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 44016594831d..b9966c01a2a2 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -2564,7 +2564,7 @@ static int domain_add_dev_info(struct dmar_domain *domain, struct device *dev)
- 			ret = intel_pasid_setup_second_level(iommu, domain,
- 					dev, PASID_RID2PASID);
- 		spin_unlock_irqrestore(&iommu->lock, flags);
--		if (ret) {
-+		if (ret && ret != -EBUSY) {
- 			dev_err(dev, "Setup RID2PASID failed\n");
- 			dmar_remove_one_dev_info(dev);
- 			return ret;
--- 
-2.25.1
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From c50f11c6196f45c92ca48b16a5071615d4ae0572 Mon Sep 17 00:00:00 2001
+From: Will Deacon <will@kernel.org>
+Date: Fri, 10 Jun 2022 16:12:27 +0100
+Subject: [PATCH] arm64: mm: Don't invalidate FROM_DEVICE buffers at start of
+ DMA transfer
+
+Invalidating the buffer memory in arch_sync_dma_for_device() for
+FROM_DEVICE transfers
+
+When using the streaming DMA API to map a buffer prior to inbound
+non-coherent DMA (i.e. DMA_FROM_DEVICE), we invalidate any dirty CPU
+cachelines so that they will not be written back during the transfer and
+corrupt the buffer contents written by the DMA. This, however, poses two
+potential problems:
+
+  (1) If the DMA transfer does not write to every byte in the buffer,
+      then the unwritten bytes will contain stale data once the transfer
+      has completed.
+
+  (2) If the buffer has a virtual alias in userspace, then stale data
+      may be visible via this alias during the period between performing
+      the cache invalidation and the DMA writes landing in memory.
+
+Address both of these issues by cleaning (aka writing-back) the dirty
+lines in arch_sync_dma_for_device(DMA_FROM_DEVICE) instead of discarding
+them using invalidation.
+
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220606152150.GA31568@willie-the-truck
+Signed-off-by: Will Deacon <will@kernel.org>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20220610151228.4562-2-will@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+
+diff --git a/arch/arm64/mm/cache.S b/arch/arm64/mm/cache.S
+index 0ea6cc25dc66..21c907987080 100644
+--- a/arch/arm64/mm/cache.S
++++ b/arch/arm64/mm/cache.S
+@@ -218,8 +218,6 @@ SYM_FUNC_ALIAS(__dma_flush_area, __pi___dma_flush_area)
+  */
+ SYM_FUNC_START(__pi___dma_map_area)
+ 	add	x1, x0, x1
+-	cmp	w2, #DMA_FROM_DEVICE
+-	b.eq	__pi_dcache_inval_poc
+ 	b	__pi_dcache_clean_poc
+ SYM_FUNC_END(__pi___dma_map_area)
+ SYM_FUNC_ALIAS(__dma_map_area, __pi___dma_map_area)
 
