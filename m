@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 025F9551D2C
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34792551A73
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348290AbiFTNrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:47:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56060 "EHLO
+        id S243941AbiFTNEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:04:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348412AbiFTNrE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:47:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64EE82E6AB;
-        Mon, 20 Jun 2022 06:17:24 -0700 (PDT)
+        with ESMTP id S244601AbiFTNDr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:03:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285F51ADAB;
+        Mon, 20 Jun 2022 05:58:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FE7EB811F2;
-        Mon, 20 Jun 2022 13:16:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A820CC3411B;
-        Mon, 20 Jun 2022 13:16:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 639CBB81092;
+        Mon, 20 Jun 2022 12:58:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E2C2C3411B;
+        Mon, 20 Jun 2022 12:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730994;
-        bh=DPnFIHqCLWmJHrvmgIpzuKyLqE8UiAa+IVFBNmuOZEo=;
+        s=korg; t=1655729905;
+        bh=KRnyYm02/M04mY5xe4aX4sVWRy2Xqe+5jAymsdFwhho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KELwBUTZoxDc9gLFaoMvcUrM6q5+BMGdBhikgt/07Gx6XoHwWWgHTO6cEgp3i5/WV
-         v8jiGj0LxyEor3AG1WWLsQH/auvzaxEnBgP/CZQGLOIvKw9vbGIDYLbGLWTDE/Cabf
-         ymqjujgI/hYsUSiUvnMe/aCgyxXVk7TJqGTB+gwo=
+        b=NJhtPZ6SxJRKd6pwu+NwyiatBXHmc+vnlSP3PFH6ZNx/dfrDRkU2HyoouxQUwUYeT
+         rM+oD4SoWOwYXTKLQtZmuvEGVisOlSCpSIZ0gdG2ht0T/EsdyxBi1OeGgdWWshKJld
+         d2QYaLAPApH+gKch6mSTXqqmfoUwl5Pn8WIJZPW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Theodore Tso <tytso@mit.edu>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 121/240] random: mix build-time latent entropy into pool at init
-Date:   Mon, 20 Jun 2022 14:50:22 +0200
-Message-Id: <20220620124742.518764332@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@linux.microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 085/141] certs/blacklist_hashes.c: fix const confusion in certs blacklist
+Date:   Mon, 20 Jun 2022 14:50:23 +0200
+Message-Id: <20220620124732.058316706@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 1754abb3e7583c570666fa1e1ee5b317e88c89a0 upstream.
+[ Upstream commit 6a1c3767d82ed8233de1263aa7da81595e176087 ]
 
-Prior, the "input_pool_data" array needed no real initialization, and so
-it was easy to mark it with __latent_entropy to populate it during
-compile-time. In switching to using a hash function, this required us to
-specifically initialize it to some specific state, which means we
-dropped the __latent_entropy attribute. An unfortunate side effect was
-this meant the pool was no longer seeded using compile-time random data.
-In order to bring this back, we declare an array in rand_initialize()
-with __latent_entropy and call mix_pool_bytes() on that at init, which
-accomplishes the same thing as before. We make this __initconst, so that
-it doesn't take up space at runtime after init.
+This file fails to compile as follows:
 
-Fixes: 6e8ec2552c7d ("random: use computational hash for entropy extraction")
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  CC      certs/blacklist_hashes.o
+certs/blacklist_hashes.c:4:1: error: ignoring attribute ‘section (".init.data")’ because it conflicts with previous ‘section (".init.rodata")’ [-Werror=attributes]
+    4 | const char __initdata *const blacklist_hashes[] = {
+      | ^~~~~
+In file included from certs/blacklist_hashes.c:2:
+certs/blacklist.h:5:38: note: previous declaration here
+    5 | extern const char __initconst *const blacklist_hashes[];
+      |                                      ^~~~~~~~~~~~~~~~
+
+Apply the same fix as commit 2be04df5668d ("certs/blacklist_nohashes.c:
+fix const confusion in certs blacklist").
+
+Fixes: 734114f8782f ("KEYS: Add a system blacklist keyring")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reviewed-by: Mickaël Salaün <mic@linux.microsoft.com>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ certs/blacklist_hashes.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -967,6 +967,11 @@ int __init rand_initialize(void)
- 	bool arch_init = true;
- 	unsigned long rv;
+diff --git a/certs/blacklist_hashes.c b/certs/blacklist_hashes.c
+index 344892337be0..d5961aa3d338 100644
+--- a/certs/blacklist_hashes.c
++++ b/certs/blacklist_hashes.c
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include "blacklist.h"
  
-+#if defined(LATENT_ENTROPY_PLUGIN)
-+	static const u8 compiletime_seed[BLAKE2S_BLOCK_SIZE] __initconst __latent_entropy;
-+	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
-+#endif
-+
- 	for (i = 0; i < BLAKE2S_BLOCK_SIZE; i += sizeof(rv)) {
- 		if (!arch_get_random_seed_long_early(&rv) &&
- 		    !arch_get_random_long_early(&rv)) {
+-const char __initdata *const blacklist_hashes[] = {
++const char __initconst *const blacklist_hashes[] = {
+ #include CONFIG_SYSTEM_BLACKLIST_HASH_LIST
+ 	, NULL
+ };
+-- 
+2.35.1
+
 
 
