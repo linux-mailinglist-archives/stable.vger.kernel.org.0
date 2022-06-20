@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E09A5551C82
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A7B7551C29
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345628AbiFTNOl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:14:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35144 "EHLO
+        id S1344164AbiFTNYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:24:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343578AbiFTNMY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:12:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F5B11D328;
-        Mon, 20 Jun 2022 06:05:49 -0700 (PDT)
+        with ESMTP id S1345905AbiFTNYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:11 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA4FE13D49;
+        Mon, 20 Jun 2022 06:09:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1B8F614F4;
-        Mon, 20 Jun 2022 13:04:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B485DC3411B;
-        Mon, 20 Jun 2022 13:04:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2465BCE1395;
+        Mon, 20 Jun 2022 13:08:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3467BC3411B;
+        Mon, 20 Jun 2022 13:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730245;
-        bh=GYU38HEj4rh8+X71tEHJGkKhTn4HiMBRUlYTJJu1n1k=;
+        s=korg; t=1655730529;
+        bh=k6te6UvAhWV0pHOaWU9Llx1ueM872wXXeKd2sw/X/WE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hS/P4HDDr67NvzmQmihjeEiq+otZoEN6SVshYrz9HoPZPK7W1tMjRz7ZgmfzmWhZn
-         0BiVDXshGmu+BdUIX2MzjSFwQGOTsGfy2lABIJ+HBr34Cf5r1BdN2nmF1k5LB2PeH7
-         ktr8k/CDzsMo2suvVhLw0neddIsYEPg77XEOlVLY=
+        b=gPTwFKUm5/lm3iHp7VegnEaFOI7o4hkvPSk4uW2wBKNykcwCg15oExXaxSS3VTGo1
+         6H2cm3cguQ+PKg4VfIQcXXskOG9noauDpvHwRclT2AT/klfV56wBylImz1rXwwS5qQ
+         1Ecym5T8Tc3eUwz2ScIhG6rJSRDaJam455aU+EoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        David Rientjes <rientjes@google.com>
-Subject: [PATCH 5.10 78/84] dma-direct: dont over-decrypt memory
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.15 082/106] mei: me: add raptor lake point S DID
 Date:   Mon, 20 Jun 2022 14:51:41 +0200
-Message-Id: <20220620124723.196723432@linuxfoundation.org>
+Message-Id: <20220620124726.819126808@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 4a37f3dd9a83186cb88d44808ab35b78375082c9 upstream.
+commit 3ed8c7d39cfef831fe508fc1308f146912fa72e6 upstream.
 
-The original x86 sev_alloc() only called set_memory_decrypted() on
-memory returned by alloc_pages_node(), so the page order calculation
-fell out of that logic. However, the common dma-direct code has several
-potential allocators, not all of which are guaranteed to round up the
-underlying allocation to a power-of-two size, so carrying over that
-calculation for the encryption/decryption size was a mistake. Fix it by
-rounding to a *number* of pages, rather than an order.
+Add Raptor (Point) Lake S device id.
 
-Until recently there was an even worse interaction with DMA_DIRECT_REMAP
-where we could have ended up decrypting part of the next adjacent
-vmalloc area, only averted by no architecture actually supporting both
-configs at once. Don't ask how I found that one out...
-
-Fixes: c10f07aa27da ("dma/direct: Handle force decryption for DMA coherent buffers in common code")
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: David Rientjes <rientjes@google.com>
-[ backport the functional change without all the prior refactoring ]
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20220606144225.282375-3-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/dma/direct.c |   16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/misc/mei/hw-me-regs.h |    2 ++
+ drivers/misc/mei/pci-me.c     |    2 ++
+ 2 files changed, 4 insertions(+)
 
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -188,7 +188,7 @@ void *dma_direct_alloc(struct device *de
- 			goto out_free_pages;
- 		if (force_dma_unencrypted(dev)) {
- 			err = set_memory_decrypted((unsigned long)ret,
--						   1 << get_order(size));
-+						   PFN_UP(size));
- 			if (err)
- 				goto out_free_pages;
- 		}
-@@ -210,7 +210,7 @@ void *dma_direct_alloc(struct device *de
- 	ret = page_address(page);
- 	if (force_dma_unencrypted(dev)) {
- 		err = set_memory_decrypted((unsigned long)ret,
--					   1 << get_order(size));
-+					   PFN_UP(size));
- 		if (err)
- 			goto out_free_pages;
- 	}
-@@ -231,7 +231,7 @@ done:
- out_encrypt_pages:
- 	if (force_dma_unencrypted(dev)) {
- 		err = set_memory_encrypted((unsigned long)page_address(page),
--					   1 << get_order(size));
-+					   PFN_UP(size));
- 		/* If memory cannot be re-encrypted, it must be leaked */
- 		if (err)
- 			return NULL;
-@@ -244,8 +244,6 @@ out_free_pages:
- void dma_direct_free(struct device *dev, size_t size,
- 		void *cpu_addr, dma_addr_t dma_addr, unsigned long attrs)
- {
--	unsigned int page_order = get_order(size);
--
- 	if ((attrs & DMA_ATTR_NO_KERNEL_MAPPING) &&
- 	    !force_dma_unencrypted(dev)) {
- 		/* cpu_addr is a struct page cookie, not a kernel address */
-@@ -266,7 +264,7 @@ void dma_direct_free(struct device *dev,
- 		return;
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -109,6 +109,8 @@
+ #define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
+ #define MEI_DEV_ID_ADP_N      0x54E0  /* Alder Lake Point N */
  
- 	if (force_dma_unencrypted(dev))
--		set_memory_encrypted((unsigned long)cpu_addr, 1 << page_order);
-+		set_memory_encrypted((unsigned long)cpu_addr, PFN_UP(size));
++#define MEI_DEV_ID_RPL_S      0x7A68  /* Raptor Lake Point S */
++
+ /*
+  * MEI HW Section
+  */
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -115,6 +115,8 @@ static const struct pci_device_id mei_me
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_P, MEI_ME_PCH15_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_N, MEI_ME_PCH15_CFG)},
  
- 	if (IS_ENABLED(CONFIG_DMA_REMAP) && is_vmalloc_addr(cpu_addr))
- 		vunmap(cpu_addr);
-@@ -302,8 +300,7 @@ struct page *dma_direct_alloc_pages(stru
- 
- 	ret = page_address(page);
- 	if (force_dma_unencrypted(dev)) {
--		if (set_memory_decrypted((unsigned long)ret,
--				1 << get_order(size)))
-+		if (set_memory_decrypted((unsigned long)ret, PFN_UP(size)))
- 			goto out_free_pages;
- 	}
- 	memset(ret, 0, size);
-@@ -318,7 +315,6 @@ void dma_direct_free_pages(struct device
- 		struct page *page, dma_addr_t dma_addr,
- 		enum dma_data_direction dir)
- {
--	unsigned int page_order = get_order(size);
- 	void *vaddr = page_address(page);
- 
- 	/* If cpu_addr is not from an atomic pool, dma_free_from_pool() fails */
-@@ -327,7 +323,7 @@ void dma_direct_free_pages(struct device
- 		return;
- 
- 	if (force_dma_unencrypted(dev))
--		set_memory_encrypted((unsigned long)vaddr, 1 << page_order);
-+		set_memory_encrypted((unsigned long)vaddr, PFN_UP(size));
- 
- 	dma_free_contiguous(dev, page, size);
- }
++	{MEI_PCI_DEVICE(MEI_DEV_ID_RPL_S, MEI_ME_PCH15_CFG)},
++
+ 	/* required last entry */
+ 	{0, }
+ };
 
 
