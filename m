@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BECFC551D29
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAFA65519D0
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348423AbiFTNrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:47:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55978 "EHLO
+        id S244123AbiFTNEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:04:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348028AbiFTNqv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:46:51 -0400
+        with ESMTP id S244788AbiFTNEB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95DAA2E0BB;
-        Mon, 20 Jun 2022 06:17:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E9651AF31;
+        Mon, 20 Jun 2022 05:58:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC97AB811C7;
-        Mon, 20 Jun 2022 13:06:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37955C36AED;
-        Mon, 20 Jun 2022 13:06:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD0D4B81092;
+        Mon, 20 Jun 2022 12:58:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11908C3411B;
+        Mon, 20 Jun 2022 12:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730398;
-        bh=kY7M+cF6jVAw2h72tzuT6A72g36+rLAemXxLHPg6FwY=;
+        s=korg; t=1655729914;
+        bh=//3TnK2oF9ccyJllNvDqoAXV3vpMCnk8UFstdNYtRLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQPH56mC8RGJ9j+55P/CDV+RxH1KYOSiM44KbRUDgoOmNfjbAA7d1bs9UNfuRbVjt
-         M7RGRuvm+jlZfNzc9512TBjdpf6agm2CgZPbsxd3Npris9t4E8+VfOKrRDKTjnUObu
-         g+5gG2NNUMKSoEP284TZyQy85bedazxLZ1p9mukc=
+        b=q5xhHEBbhWU5OTH3SI4j7tui4aoHDEOtKPgkPCf1dbl9srvyOOhIXku5vAAaBhMbt
+         gOuNIZarN4GvPgdV0NKJqJwou7gD5844fgUyiSJTuBkBNB6D3cZTauiqo1BvmAVnQ/
+         KLv2vJmeHdMKg52vcC5Ez+fJKc5N38ZuOG6DFQ8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 033/106] ipv6: Fix signed integer overflow in l2tp_ip6_sendmsg
+        stable@vger.kernel.org, Michael Wu <michael@allwinnertech.com>,
+        John Keeping <john@metanate.com>,
+        Linyu Yuan <quic_linyyuan@quicinc.com>
+Subject: [PATCH 5.18 114/141] usb: gadget: f_fs: change ep->ep safe in ffs_epfile_io()
 Date:   Mon, 20 Jun 2022 14:50:52 +0200
-Message-Id: <20220620124725.365645427@linuxfoundation.org>
+Message-Id: <20220620124732.915311387@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Linyu Yuan <quic_linyyuan@quicinc.com>
 
-[ Upstream commit f638a84afef3dfe10554c51820c16e39a278c915 ]
+commit 0698f0209d8032e8869525aeb68f65ee7fde12ad upstream.
 
-When len >= INT_MAX - transhdrlen, ulen = len + transhdrlen will be
-overflow. To fix, we can follow what udpv6 does and subtract the
-transhdrlen from the max.
+In ffs_epfile_io(), when read/write data in blocking mode, it will wait
+the completion in interruptible mode, if task receive a signal, it will
+terminate the wait, at same time, if function unbind occurs,
+ffs_func_unbind() will kfree all eps, ffs_epfile_io() still try to
+dequeue request by dereferencing ep which may become invalid.
 
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/20220607120028.845916-2-wangyufen@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix it by add ep spinlock and will not dereference ep if it is not valid.
+
+Cc: <stable@vger.kernel.org> # 5.15
+Reported-by: Michael Wu <michael@allwinnertech.com>
+Tested-by: Michael Wu <michael@allwinnertech.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Linyu Yuan <quic_linyyuan@quicinc.com>
+Link: https://lore.kernel.org/r/1654863478-26228-3-git-send-email-quic_linyyuan@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/l2tp/l2tp_ip6.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/f_fs.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/l2tp/l2tp_ip6.c b/net/l2tp/l2tp_ip6.c
-index 96f975777438..d54dbd01d86f 100644
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -502,14 +502,15 @@ static int l2tp_ip6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 	struct ipcm6_cookie ipc6;
- 	int addr_len = msg->msg_namelen;
- 	int transhdrlen = 4; /* zero session-id */
--	int ulen = len + transhdrlen;
-+	int ulen;
- 	int err;
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1080,6 +1080,11 @@ static ssize_t ffs_epfile_io(struct file
+ 		spin_unlock_irq(&epfile->ffs->eps_lock);
  
- 	/* Rough check on arithmetic overflow,
- 	 * better check is made in ip6_append_data().
- 	 */
--	if (len > INT_MAX)
-+	if (len > INT_MAX - transhdrlen)
- 		return -EMSGSIZE;
-+	ulen = len + transhdrlen;
- 
- 	/* Mirror BSD error message compatibility */
- 	if (msg->msg_flags & MSG_OOB)
--- 
-2.35.1
-
+ 		if (wait_for_completion_interruptible(&io_data->done)) {
++			spin_lock_irq(&epfile->ffs->eps_lock);
++			if (epfile->ep != ep) {
++				ret = -ESHUTDOWN;
++				goto error_lock;
++			}
+ 			/*
+ 			 * To avoid race condition with ffs_epfile_io_complete,
+ 			 * dequeue the request first then check
+@@ -1087,6 +1092,7 @@ static ssize_t ffs_epfile_io(struct file
+ 			 * condition with req->complete callback.
+ 			 */
+ 			usb_ep_dequeue(ep->ep, req);
++			spin_unlock_irq(&epfile->ffs->eps_lock);
+ 			wait_for_completion(&io_data->done);
+ 			interrupted = io_data->status < 0;
+ 		}
 
 
