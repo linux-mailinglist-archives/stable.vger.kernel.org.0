@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 989145519BF
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1B84551D38
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243791AbiFTNBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:01:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47802 "EHLO
+        id S1348907AbiFTNsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:48:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244915AbiFTNAD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:00:03 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCCEB1A3A9;
-        Mon, 20 Jun 2022 05:56:55 -0700 (PDT)
+        with ESMTP id S1348930AbiFTNrm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:47:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D386B20BDC;
+        Mon, 20 Jun 2022 06:17:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 81487CE138A;
-        Mon, 20 Jun 2022 12:56:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C32AC341C6;
-        Mon, 20 Jun 2022 12:56:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26007B811C5;
+        Mon, 20 Jun 2022 13:17:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC38C3411B;
+        Mon, 20 Jun 2022 13:17:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729810;
-        bh=Rl2yJlwfl/wqcLveA/n079p33M4Fb+zHO8zRFtpI5zA=;
+        s=korg; t=1655731048;
+        bh=tcAM/eC3BOdTwND22cwidycAGAxgoJ+85Pt40fd/sjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yp9kk/nhS3xWs3+5eGQHqv7obEehVvUZxs2z3Lq7pGZzS+0hFtmc/uT6vMcIlq8CW
-         Oc/xP3Ao6e3hbtESD8P4O8q7S7csiqk+22qb14LgAPvcfJ1f5uLBOsk55Ena5iX+nF
-         uuWJD4x1LO8TYmA8Su66IBT6HK740NdIeIT4+tYA=
+        b=MrrdqBejPCpd+0+3jLIFa2Y7D2m2q6u5qsx3BDLZUrT0SRQmpBWFOAzg+9CaFwr4l
+         JveZzNGnri/V48pa2BWqddtqAYn/9aodGJUMfcnt+OxTBelaJFH+FTdD3/tEsvNzyf
+         V40GAAgCx4+W7N3aYtnrkKTq2HLO8ByuJkhZiQ9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 073/141] net: hns3: fix tm port shapping of fibre port is incorrect after driver initialization
+        stable@vger.kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Theodore Tso <tytso@mit.edu>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 110/240] random: do crng pre-init loading in worker rather than irq
 Date:   Mon, 20 Jun 2022 14:50:11 +0200
-Message-Id: <20220620124731.697043679@linuxfoundation.org>
+Message-Id: <20220620124742.202632868@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,93 +59,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 12a3670887725df364cc3e030cf3bede6f13b364 ]
+commit c2a7de4feb6e09f23af7accc0f882a8fa92e7ae5 upstream.
 
-Currently in driver initialization process, driver will set shapping
-parameters of tm port to default speed read from firmware. However, the
-speed of SFP module may not be default speed, so shapping parameters of
-tm port may be incorrect.
+Taking spinlocks from IRQ context is generally problematic for
+PREEMPT_RT. That is, in part, why we take trylocks instead. However, a
+spin_try_lock() is also problematic since another spin_lock() invocation
+can potentially PI-boost the wrong task, as the spin_try_lock() is
+invoked from an IRQ-context, so the task on CPU (random task or idle) is
+not the actual owner.
 
-To fix this problem, driver sets new shapping parameters for tm port
-after getting exact speed of SFP module in this case.
+Additionally, by deferring the crng pre-init loading to the worker, we
+can use the cryptographic hash function rather than xor, which is
+perhaps a meaningful difference when considering this data has only been
+through the relatively weak fast_mix() function.
 
-Fixes: 88d10bd6f730 ("net: hns3: add support for multiple media type")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The biggest downside of this approach is that the pre-init loading is
+now deferred until later, which means things that need random numbers
+after interrupts are enabled, but before workqueues are running -- or
+before this particular worker manages to run -- are going to get into
+trouble. Hopefully in the real world, this window is rather small,
+especially since this code won't run until 64 interrupts had occurred.
+
+Cc: Sultan Alsawaf <sultan@kerneltoast.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c   | 11 ++++++++---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c |  2 +-
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h |  1 +
- 3 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/char/random.c |   65 ++++++++++++++------------------------------------
+ 1 file changed, 19 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index c8c99ab60ec1..c0b4ff73128f 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -3276,7 +3276,7 @@ static int hclge_tp_port_init(struct hclge_dev *hdev)
- static int hclge_update_port_info(struct hclge_dev *hdev)
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -441,10 +441,6 @@ static void crng_make_state(u32 chacha_s
+  * boot time when it's better to have something there rather than
+  * nothing.
+  *
+- * There are two paths, a slow one and a fast one. The slow one
+- * hashes the input along with the current key. The fast one simply
+- * xors it in, and should only be used from interrupt context.
+- *
+  * If account is set, then the crng_init_cnt counter is incremented.
+  * This shouldn't be set by functions like add_device_randomness(),
+  * where we can't trust the buffer passed to it is guaranteed to be
+@@ -453,19 +449,15 @@ static void crng_make_state(u32 chacha_s
+  * Returns the number of bytes processed from input, which is bounded
+  * by CRNG_INIT_CNT_THRESH if account is true.
+  */
+-static size_t crng_pre_init_inject(const void *input, size_t len,
+-				   bool fast, bool account)
++static size_t crng_pre_init_inject(const void *input, size_t len, bool account)
  {
- 	struct hclge_mac *mac = &hdev->hw.mac;
--	int speed = HCLGE_MAC_SPEED_UNKNOWN;
-+	int speed;
- 	int ret;
+ 	static int crng_init_cnt = 0;
++	struct blake2s_state hash;
+ 	unsigned long flags;
  
- 	/* get the port info from SFP cmd if not copper port */
-@@ -3287,10 +3287,13 @@ static int hclge_update_port_info(struct hclge_dev *hdev)
- 	if (!hdev->support_sfp_query)
+-	if (fast) {
+-		if (!spin_trylock_irqsave(&base_crng.lock, flags))
+-			return 0;
+-	} else {
+-		spin_lock_irqsave(&base_crng.lock, flags);
+-	}
++	blake2s_init(&hash, sizeof(base_crng.key));
+ 
++	spin_lock_irqsave(&base_crng.lock, flags);
+ 	if (crng_init != 0) {
+ 		spin_unlock_irqrestore(&base_crng.lock, flags);
  		return 0;
+@@ -474,21 +466,9 @@ static size_t crng_pre_init_inject(const
+ 	if (account)
+ 		len = min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
  
--	if (hdev->ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V2)
-+	if (hdev->ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V2) {
-+		speed = mac->speed;
- 		ret = hclge_get_sfp_info(hdev, mac);
--	else
+-	if (fast) {
+-		const u8 *src = input;
+-		size_t i;
+-
+-		for (i = 0; i < len; ++i)
+-			base_crng.key[(crng_init_cnt + i) %
+-				      sizeof(base_crng.key)] ^= src[i];
+-	} else {
+-		struct blake2s_state hash;
+-
+-		blake2s_init(&hash, sizeof(base_crng.key));
+-		blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
+-		blake2s_update(&hash, input, len);
+-		blake2s_final(&hash, base_crng.key);
+-	}
++	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
++	blake2s_update(&hash, input, len);
++	blake2s_final(&hash, base_crng.key);
+ 
+ 	if (account) {
+ 		crng_init_cnt += len;
+@@ -1029,7 +1009,7 @@ void add_device_randomness(const void *b
+ 	unsigned long flags, now = jiffies;
+ 
+ 	if (crng_init == 0 && size)
+-		crng_pre_init_inject(buf, size, false, false);
++		crng_pre_init_inject(buf, size, false);
+ 
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+ 	_mix_pool_bytes(&cycles, sizeof(cycles));
+@@ -1150,7 +1130,7 @@ void add_hwgenerator_randomness(const vo
+ 				size_t entropy)
+ {
+ 	if (unlikely(crng_init == 0)) {
+-		size_t ret = crng_pre_init_inject(buffer, count, false, true);
++		size_t ret = crng_pre_init_inject(buffer, count, true);
+ 		mix_pool_bytes(buffer, ret);
+ 		count -= ret;
+ 		buffer += ret;
+@@ -1290,8 +1270,14 @@ static void mix_interrupt_randomness(str
+ 	fast_pool->last = jiffies;
+ 	local_irq_enable();
+ 
+-	mix_pool_bytes(pool, sizeof(pool));
+-	credit_entropy_bits(1);
++	if (unlikely(crng_init == 0)) {
++		crng_pre_init_inject(pool, sizeof(pool), true);
++		mix_pool_bytes(pool, sizeof(pool));
 +	} else {
-+		speed = HCLGE_MAC_SPEED_UNKNOWN;
- 		ret = hclge_get_sfp_speed(hdev, &speed);
++		mix_pool_bytes(pool, sizeof(pool));
++		credit_entropy_bits(1);
 +	}
- 
- 	if (ret == -EOPNOTSUPP) {
- 		hdev->support_sfp_query = false;
-@@ -3302,6 +3305,8 @@ static int hclge_update_port_info(struct hclge_dev *hdev)
- 	if (hdev->ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V2) {
- 		if (mac->speed_type == QUERY_ACTIVE_SPEED) {
- 			hclge_update_port_capability(hdev, mac);
-+			if (mac->speed != speed)
-+				(void)hclge_tm_port_shaper_cfg(hdev);
- 			return 0;
- 		}
- 		return hclge_cfg_mac_speed_dup(hdev, mac->speed,
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-index f5296ff60694..2f33b036a47a 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-@@ -420,7 +420,7 @@ static int hclge_tm_pg_shapping_cfg(struct hclge_dev *hdev,
- 	return hclge_cmd_send(&hdev->hw, &desc, 1);
++
+ 	memzero_explicit(pool, sizeof(pool));
  }
  
--static int hclge_tm_port_shaper_cfg(struct hclge_dev *hdev)
-+int hclge_tm_port_shaper_cfg(struct hclge_dev *hdev)
- {
- 	struct hclge_port_shapping_cmd *shap_cfg_cmd;
- 	struct hclge_shaper_ir_para ir_para;
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
-index 619cc30a2dfc..d943943912f7 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
-@@ -237,6 +237,7 @@ int hclge_pause_addr_cfg(struct hclge_dev *hdev, const u8 *mac_addr);
- void hclge_pfc_rx_stats_get(struct hclge_dev *hdev, u64 *stats);
- void hclge_pfc_tx_stats_get(struct hclge_dev *hdev, u64 *stats);
- int hclge_tm_qs_shaper_cfg(struct hclge_vport *vport, int max_tx_rate);
-+int hclge_tm_port_shaper_cfg(struct hclge_dev *hdev);
- int hclge_tm_get_qset_num(struct hclge_dev *hdev, u16 *qset_num);
- int hclge_tm_get_pri_num(struct hclge_dev *hdev, u8 *pri_num);
- int hclge_tm_get_qset_map_pri(struct hclge_dev *hdev, u16 qset_id, u8 *priority,
--- 
-2.35.1
-
+@@ -1324,24 +1310,11 @@ void add_interrupt_randomness(int irq)
+ 	fast_mix(fast_pool->pool32);
+ 	new_count = ++fast_pool->count;
+ 
+-	if (unlikely(crng_init == 0)) {
+-		if (new_count >= 64 &&
+-		    crng_pre_init_inject(fast_pool->pool32, sizeof(fast_pool->pool32),
+-					 true, true) > 0) {
+-			fast_pool->count = 0;
+-			fast_pool->last = now;
+-			if (spin_trylock(&input_pool.lock)) {
+-				_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
+-				spin_unlock(&input_pool.lock);
+-			}
+-		}
+-		return;
+-	}
+-
+ 	if (new_count & MIX_INFLIGHT)
+ 		return;
+ 
+-	if (new_count < 64 && !time_after(now, fast_pool->last + HZ))
++	if (new_count < 64 && (!time_after(now, fast_pool->last + HZ) ||
++			       unlikely(crng_init == 0)))
+ 		return;
+ 
+ 	if (unlikely(!fast_pool->mix.func))
 
 
