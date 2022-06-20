@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61897551C0F
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 615ED5519B4
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245450AbiFTNLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54218 "EHLO
+        id S243872AbiFTNEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:04:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344149AbiFTNJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57D2E1C902;
-        Mon, 20 Jun 2022 06:05:08 -0700 (PDT)
+        with ESMTP id S244551AbiFTNDn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:03:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B2251E3F4;
+        Mon, 20 Jun 2022 05:58:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F91CB811A0;
-        Mon, 20 Jun 2022 13:01:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1A20C3411B;
-        Mon, 20 Jun 2022 13:01:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A071D61534;
+        Mon, 20 Jun 2022 12:58:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF96CC3411B;
+        Mon, 20 Jun 2022 12:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730112;
-        bh=STcHVfGlkdlIUxt4dFjTPdJR8pkhbJtec94GCXE1ClE=;
+        s=korg; t=1655729893;
+        bh=fNMtNd/ZVAeJzffPN0WQglMzH9rYHRFh7UPCRvMC4n4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xtqf33D3AB/L2xw5+fa9dVbMQ92MUnh7Ba4Bv8Mkk93Jktlzpo0DelBCE+v6XjwzK
-         pnF4+NWYltHAtsUCPu3ZYn8Zx95nZ3bl38NDKUhLe+F+lPhmhtSjL1fMn2gZ7TECEj
-         dwyOLBdNIM8QnpML04pc0h6NtyQN8fxDEcxYZTIw=
+        b=jarla3o5LBDo53pcoqv2SZGDDccNIc15o0Z8N9KRTxH08FDApYUm3vhhxJmrkWalU
+         Myfpc0z4o6dCKhATXV1dPxVRyV6kEy8TDg9QoPs73BQkOrdZwjLE1Vo6mjGANulXv1
+         ZvrTVTFVuch01d/Kv9USbd21yFRBjeis6c9Ttyno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Brian King <brking@linux.vnet.ibm.com>,
-        Chengguang Xu <cgxu519@mykernel.net>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 23/84] scsi: ipr: Fix missing/incorrect resource cleanup in error case
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Pawel Laszczak <pawell@cadence.com>,
+        Jing Leng <jleng@ambarella.com>
+Subject: [PATCH 5.18 108/141] usb: cdnsp: Fixed setting last_trb incorrectly
 Date:   Mon, 20 Jun 2022 14:50:46 +0200
-Message-Id: <20220620124721.578985087@linuxfoundation.org>
+Message-Id: <20220620124732.736244371@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Jing Leng <jleng@ambarella.com>
 
-[ Upstream commit d64c491911322af1dcada98e5b9ee0d87e8c8fee ]
+commit 5c7578c39c3fffe85b7d15ca1cf8cf7ac38ec0c1 upstream.
 
-Fix missing resource cleanup (when '(--i) == 0') for error case in
-ipr_alloc_mem() and skip incorrect resource cleanup (when '(--i) == 0') for
-error case in ipr_request_other_msi_irqs() because variable i started from
-1.
+When ZLP occurs in bulk transmission, currently cdnsp will set last_trb
+for the last two TRBs, it will trigger an error "ERROR Transfer event TRB
+DMA ptr not part of current TD ...".
 
-Link: https://lore.kernel.org/r/20220529153456.4183738-4-cgxu519@mykernel.net
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Brian King <brking@linux.vnet.ibm.com>
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e913aada0683 ("usb: cdnsp: Fixed issue with ZLP")
+Cc: stable <stable@kernel.org>
+Acked-by: Pawel Laszczak <pawell@cadence.com>
+Signed-off-by: Jing Leng <jleng@ambarella.com>
+Link: https://lore.kernel.org/r/20220609021134.1606-1-3090101217@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ipr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/cdns3/cdnsp-ring.c |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
-index b0aa58d117cc..90e8a538b078 100644
---- a/drivers/scsi/ipr.c
-+++ b/drivers/scsi/ipr.c
-@@ -9792,7 +9792,7 @@ static int ipr_alloc_mem(struct ipr_ioa_cfg *ioa_cfg)
- 					GFP_KERNEL);
+--- a/drivers/usb/cdns3/cdnsp-ring.c
++++ b/drivers/usb/cdns3/cdnsp-ring.c
+@@ -1941,13 +1941,16 @@ int cdnsp_queue_bulk_tx(struct cdnsp_dev
+ 		}
  
- 		if (!ioa_cfg->hrrq[i].host_rrq)  {
--			while (--i > 0)
-+			while (--i >= 0)
- 				dma_free_coherent(&pdev->dev,
- 					sizeof(u32) * ioa_cfg->hrrq[i].size,
- 					ioa_cfg->hrrq[i].host_rrq,
-@@ -10065,7 +10065,7 @@ static int ipr_request_other_msi_irqs(struct ipr_ioa_cfg *ioa_cfg,
- 			ioa_cfg->vectors_info[i].desc,
- 			&ioa_cfg->hrrq[i]);
- 		if (rc) {
--			while (--i >= 0)
-+			while (--i > 0)
- 				free_irq(pci_irq_vector(pdev, i),
- 					&ioa_cfg->hrrq[i]);
- 			return rc;
--- 
-2.35.1
-
+ 		if (enqd_len + trb_buff_len >= full_len) {
+-			if (need_zero_pkt)
+-				zero_len_trb = !zero_len_trb;
+-
+-			field &= ~TRB_CHAIN;
+-			field |= TRB_IOC;
+-			more_trbs_coming = false;
+-			preq->td.last_trb = ring->enqueue;
++			if (need_zero_pkt && !zero_len_trb) {
++				zero_len_trb = true;
++			} else {
++				zero_len_trb = false;
++				field &= ~TRB_CHAIN;
++				field |= TRB_IOC;
++				more_trbs_coming = false;
++				need_zero_pkt = false;
++				preq->td.last_trb = ring->enqueue;
++			}
+ 		}
+ 
+ 		/* Only set interrupt on short packet for OUT endpoints. */
+@@ -1962,7 +1965,7 @@ int cdnsp_queue_bulk_tx(struct cdnsp_dev
+ 		length_field = TRB_LEN(trb_buff_len) | TRB_TD_SIZE(remainder) |
+ 			TRB_INTR_TARGET(0);
+ 
+-		cdnsp_queue_trb(pdev, ring, more_trbs_coming | zero_len_trb,
++		cdnsp_queue_trb(pdev, ring, more_trbs_coming,
+ 				lower_32_bits(send_addr),
+ 				upper_32_bits(send_addr),
+ 				length_field,
 
 
