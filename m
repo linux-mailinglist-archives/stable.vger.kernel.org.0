@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 644175519EC
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F4D4551CC8
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243446AbiFTNAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47250 "EHLO
+        id S1347480AbiFTNpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:45:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244046AbiFTM7N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:59:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B2BA1C126;
-        Mon, 20 Jun 2022 05:56:14 -0700 (PDT)
+        with ESMTP id S1347952AbiFTNnJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:43:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF5B92B1BF;
+        Mon, 20 Jun 2022 06:15:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36BD8B811BD;
-        Mon, 20 Jun 2022 12:56:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 972E0C3411B;
-        Mon, 20 Jun 2022 12:55:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66EC360ED5;
+        Mon, 20 Jun 2022 13:15:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B616C3411B;
+        Mon, 20 Jun 2022 13:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729760;
-        bh=sOZBAWivpOdaJB97LH1wnMTFxhDL3WcJmZwd5LtZD4A=;
+        s=korg; t=1655730939;
+        bh=dLvSZy6A7IPOKxdoZEFBBudOAiA7vgYayXov2WD+wBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcuUflVzI3njIFWc7EJm2sYFDb2s2MWZudcHD94VT8IogvPG+i4KmMx187Lhz3MAB
-         lHi7XKyHOqxP94BR2hmmBePdYSD3rQNZylUFYspDYfOdAyV+yOWAOIgFeqvZgEBehb
-         fNpcRYN3jlJJgxf7frjUYpcUQMyb+LKUafukLWA4=
+        b=jivMQaGCjlvNJp9Hh4xfNqGjvVicfB9PNIBSY0RXLjbI+yIwwY53dlhPZokVm6TeB
+         XbViKREMVTXNqr6TVE1vYxrp+7xLXUc2sh8AcyA1nEbXICFv9La2ZIoEJJL9bQyLrh
+         PRRo0nVxSwqyipB8UigPjDV+EFuwW54UScPwtHY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Conor Dooley <conor.dooley@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 065/141] riscv: dts: microchip: re-add pdma to mpfs device tree
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 102/240] random: unify early init crng load accounting
 Date:   Mon, 20 Jun 2022 14:50:03 +0200
-Message-Id: <20220620124731.461595614@linuxfoundation.org>
+Message-Id: <20220620124741.972650132@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +55,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 5e757deddd918edb8cb2fdb56eb79656ffc6dade ]
+commit da792c6d5f59a76c10a310c5d4c93428fd18f996 upstream.
 
-PolarFire SoC /does/ have a SiFive pdma, despite what I suggested as a
-conflict resolution to Zong. Somehow the entry fell through the cracks
-between versions of my dt patches, so re-add it with Zong's updated
-compatible & dma-channels property.
+crng_fast_load() and crng_slow_load() have different semantics:
 
-Fixes: c5094f371008 ("riscv: dts: microchip: refactor icicle kit device tree")
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+- crng_fast_load() xors and accounts with crng_init_cnt.
+- crng_slow_load() hashes and doesn't account.
+
+However add_hwgenerator_randomness() can afford to hash (it's called
+from a kthread), and it should account. Additionally, ones that can
+afford to hash don't need to take a trylock but can take a normal lock.
+So, we combine these into one function, crng_pre_init_inject(), which
+allows us to control these in a uniform way. This will make it simpler
+later to simplify this all down when the time comes for that.
+
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/char/random.c |  114 +++++++++++++++++++++++++-------------------------
+ 1 file changed, 59 insertions(+), 55 deletions(-)
 
-diff --git a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-index cf2f55e1dcb6..f44fce1fe080 100644
---- a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-+++ b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-@@ -188,6 +188,15 @@
- 			riscv,ndev = <186>;
- 		};
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -384,7 +384,7 @@ static void crng_make_state(u32 chacha_s
+ 	 * For the fast path, we check whether we're ready, unlocked first, and
+ 	 * then re-check once locked later. In the case where we're really not
+ 	 * ready, we do fast key erasure with the base_crng directly, because
+-	 * this is what crng_{fast,slow}_load mutate during early init.
++	 * this is what crng_pre_init_inject() mutates during early init.
+ 	 */
+ 	if (unlikely(!crng_ready())) {
+ 		bool ready;
+@@ -435,72 +435,75 @@ static void crng_make_state(u32 chacha_s
+ }
  
-+		pdma: dma-controller@3000000 {
-+			compatible = "sifive,fu540-c000-pdma", "sifive,pdma0";
-+			reg = <0x0 0x3000000 0x0 0x8000>;
-+			interrupt-parent = <&plic>;
-+			interrupts = <5 6>, <7 8>, <9 10>, <11 12>;
-+			dma-channels = <4>;
-+			#dma-cells = <1>;
-+		};
+ /*
+- * This function is for crng_init == 0 only.
++ * This function is for crng_init == 0 only. It loads entropy directly
++ * into the crng's key, without going through the input pool. It is,
++ * generally speaking, not very safe, but we use this only at early
++ * boot time when it's better to have something there rather than
++ * nothing.
++ *
++ * There are two paths, a slow one and a fast one. The slow one
++ * hashes the input along with the current key. The fast one simply
++ * xors it in, and should only be used from interrupt context.
++ *
++ * If account is set, then the crng_init_cnt counter is incremented.
++ * This shouldn't be set by functions like add_device_randomness(),
++ * where we can't trust the buffer passed to it is guaranteed to be
++ * unpredictable (so it might not have any entropy at all).
+  *
+- * crng_fast_load() can be called by code in the interrupt service
+- * path.  So we can't afford to dilly-dally. Returns the number of
+- * bytes processed from cp.
++ * Returns the number of bytes processed from input, which is bounded
++ * by CRNG_INIT_CNT_THRESH if account is true.
+  */
+-static size_t crng_fast_load(const void *cp, size_t len)
++static size_t crng_pre_init_inject(const void *input, size_t len,
++				   bool fast, bool account)
+ {
+ 	static int crng_init_cnt = 0;
+ 	unsigned long flags;
+-	const u8 *src = (const u8 *)cp;
+-	size_t ret = 0;
+ 
+-	if (!spin_trylock_irqsave(&base_crng.lock, flags))
+-		return 0;
++	if (fast) {
++		if (!spin_trylock_irqsave(&base_crng.lock, flags))
++			return 0;
++	} else {
++		spin_lock_irqsave(&base_crng.lock, flags);
++	}
 +
- 		clkcfg: clkcfg@20002000 {
- 			compatible = "microchip,mpfs-clkcfg";
- 			reg = <0x0 0x20002000 0x0 0x1000>, <0x0 0x3E001000 0x0 0x1000>;
--- 
-2.35.1
-
+ 	if (crng_init != 0) {
+ 		spin_unlock_irqrestore(&base_crng.lock, flags);
+ 		return 0;
+ 	}
+-	while (len > 0 && crng_init_cnt < CRNG_INIT_CNT_THRESH) {
+-		base_crng.key[crng_init_cnt % sizeof(base_crng.key)] ^= *src;
+-		src++; crng_init_cnt++; len--; ret++;
+-	}
+-	if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
+-		++base_crng.generation;
+-		crng_init = 1;
+-	}
+-	spin_unlock_irqrestore(&base_crng.lock, flags);
+-	if (crng_init == 1)
+-		pr_notice("fast init done\n");
+-	return ret;
+-}
+ 
+-/*
+- * This function is for crng_init == 0 only.
+- *
+- * crng_slow_load() is called by add_device_randomness, which has two
+- * attributes.  (1) We can't trust the buffer passed to it is
+- * guaranteed to be unpredictable (so it might not have any entropy at
+- * all), and (2) it doesn't have the performance constraints of
+- * crng_fast_load().
+- *
+- * So, we simply hash the contents in with the current key. Finally,
+- * we do *not* advance crng_init_cnt since buffer we may get may be
+- * something like a fixed DMI table (for example), which might very
+- * well be unique to the machine, but is otherwise unvarying.
+- */
+-static void crng_slow_load(const void *cp, size_t len)
+-{
+-	unsigned long flags;
+-	struct blake2s_state hash;
++	if (account)
++		len = min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
+ 
+-	blake2s_init(&hash, sizeof(base_crng.key));
+-
+-	if (!spin_trylock_irqsave(&base_crng.lock, flags))
+-		return;
+-	if (crng_init != 0) {
+-		spin_unlock_irqrestore(&base_crng.lock, flags);
+-		return;
++	if (fast) {
++		const u8 *src = input;
++		size_t i;
++
++		for (i = 0; i < len; ++i)
++			base_crng.key[(crng_init_cnt + i) %
++				      sizeof(base_crng.key)] ^= src[i];
++	} else {
++		struct blake2s_state hash;
++
++		blake2s_init(&hash, sizeof(base_crng.key));
++		blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
++		blake2s_update(&hash, input, len);
++		blake2s_final(&hash, base_crng.key);
++	}
++
++	if (account) {
++		crng_init_cnt += len;
++		if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
++			++base_crng.generation;
++			crng_init = 1;
++		}
+ 	}
+ 
+-	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
+-	blake2s_update(&hash, cp, len);
+-	blake2s_final(&hash, base_crng.key);
+-
+ 	spin_unlock_irqrestore(&base_crng.lock, flags);
++
++	if (crng_init == 1)
++		pr_notice("fast init done\n");
++
++	return len;
+ }
+ 
+ static void _get_random_bytes(void *buf, size_t nbytes)
+@@ -1013,7 +1016,7 @@ void add_device_randomness(const void *b
+ 	unsigned long flags;
+ 
+ 	if (!crng_ready() && size)
+-		crng_slow_load(buf, size);
++		crng_pre_init_inject(buf, size, false, false);
+ 
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+ 	_mix_pool_bytes(buf, size);
+@@ -1130,7 +1133,7 @@ void add_hwgenerator_randomness(const vo
+ 				size_t entropy)
+ {
+ 	if (unlikely(crng_init == 0)) {
+-		size_t ret = crng_fast_load(buffer, count);
++		size_t ret = crng_pre_init_inject(buffer, count, false, true);
+ 		mix_pool_bytes(buffer, ret);
+ 		count -= ret;
+ 		buffer += ret;
+@@ -1293,7 +1296,8 @@ void add_interrupt_randomness(int irq)
+ 
+ 	if (unlikely(crng_init == 0)) {
+ 		if (new_count >= 64 &&
+-		    crng_fast_load(fast_pool->pool32, sizeof(fast_pool->pool32)) > 0) {
++		    crng_pre_init_inject(fast_pool->pool32, sizeof(fast_pool->pool32),
++					 true, true) > 0) {
+ 			atomic_set(&fast_pool->count, 0);
+ 			fast_pool->last = now;
+ 			if (spin_trylock(&input_pool.lock)) {
 
 
