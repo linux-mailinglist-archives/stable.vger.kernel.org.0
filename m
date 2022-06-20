@@ -2,63 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C69D3551828
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:05:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AED8C551902
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235801AbiFTMFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:05:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46776 "EHLO
+        id S242721AbiFTMfn convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 20 Jun 2022 08:35:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242123AbiFTMFV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:05:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC0B8BC0
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:04:57 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BFCC61328
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 12:04:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40DCBC3411C;
-        Mon, 20 Jun 2022 12:04:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655726696;
-        bh=YbE88ewD63qAcY1my92eCGPfSiLWb1PPVEqvlW5rsXM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1ChKh3zXWhJtyVhW4T7cye/J3kpEVho5yx8ZcTygS0Qy/fAiXDNB4V4VEKf97MQYX
-         MsvNf5RUCCRsjLVu9KI69b3qO7JYs4xsG7QnLC4KEPVpySTw9KLBQjCqIGr9Ef3N7u
-         vjybW8xr5WJCYynAFxe1l5npn/LnICd1LEjEYBEg=
-Date:   Mon, 20 Jun 2022 14:04:53 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: backport of d51f86cfd8e3 ("powerpc/mm: Switch obsolete dssall to
- .long")
-Message-ID: <YrBiZdtCimCLc6HD@kroah.com>
-References: <Yqelvu3VN/Y53YIq@debian>
+        with ESMTP id S242719AbiFTMfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:35:42 -0400
+Received: from mail.pgj.campeche.gob.mx (unknown [187.157.28.107])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A822D15A19
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:35:38 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.pgj.campeche.gob.mx (Postfix) with ESMTP id 76F311BC0AF0;
+        Mon, 20 Jun 2022 07:06:50 -0500 (CDT)
+Received: from mail.pgj.campeche.gob.mx ([127.0.0.1])
+        by localhost (mail.pgj.campeche.gob.mx [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id bacLEH-55ItP; Mon, 20 Jun 2022 07:06:44 -0500 (CDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.pgj.campeche.gob.mx (Postfix) with ESMTP id 88FCB1BC100B;
+        Mon, 20 Jun 2022 07:06:37 -0500 (CDT)
+X-Virus-Scanned: amavisd-new at pgj.campeche.gob.mx
+Received: from mail.pgj.campeche.gob.mx ([127.0.0.1])
+        by localhost (mail.pgj.campeche.gob.mx [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id JIyqFSc_32tl; Mon, 20 Jun 2022 07:06:31 -0500 (CDT)
+Received: from mail.pgj.campeche.gob.mx (mail.pgj.campeche.gob.mx [172.24.1.108])
+        by mail.pgj.campeche.gob.mx (Postfix) with ESMTP id 219591BC0FF0;
+        Mon, 20 Jun 2022 07:06:23 -0500 (CDT)
+Date:   Mon, 20 Jun 2022 07:06:22 -0500 (CDT)
+From:   =?utf-8?B?0YHQuNGB0YLQtdC80Ysg0LDQtNC80LjQvdC40YHRgtGA0LDRgtC+0YA=?= 
+        <vfgcontrolinterno@pgj.campeche.gob.mx>
+Reply-To: sistemassadmins@mail2engineer.com
+Message-ID: <209993115.97585.1655726782895.JavaMail.zimbra@pgj.campeche.gob.mx>
+Subject: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yqelvu3VN/Y53YIq@debian>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Type: text/plain; charset=utf-8
+X-Originating-IP: [172.24.1.254]
+X-Mailer: Zimbra 8.8.15_GA_4304 (zclient/8.8.15_GA_4304)
+Thread-Index: 5LjLwzdqWeAy0zckf3REYmVrZUAJnQ==
+Thread-Topic: 
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: Yes, score=6.5 required=5.0 tests=BAYES_50,
+        FREEMAIL_FORGED_REPLYTO,KHOP_HELO_FCRDNS,MISSING_HEADERS,
+        RCVD_IN_MSPIKE_H2,RDNS_DYNAMIC,REPLYTO_WITHOUT_TO_CC,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE,T_SPF_HELO_TEMPERROR autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.0 T_SPF_HELO_TEMPERROR SPF: test of HELO record failed
+        *      (temperror)
+        *  0.0 SPF_NONE SPF: sender does not publish an SPF Record
+        *  1.0 MISSING_HEADERS Missing To: header
+        * -0.0 RCVD_IN_MSPIKE_H2 RBL: Average reputation (+2)
+        *      [187.157.28.107 listed in wl.mailspike.net]
+        *  1.0 RDNS_DYNAMIC Delivered to internal network by host with
+        *      dynamic-looking rDNS
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  1.6 REPLYTO_WITHOUT_TO_CC No description available.
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+        *  0.0 KHOP_HELO_FCRDNS Relay HELO differs from its IP's reverse DNS
+X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 13, 2022 at 10:01:50PM +0100, Sudip Mukherjee wrote:
-> Hi Greg,
-> 
-> The stable branches 4.19-stable and 5.4-stable will also need
-> d51f86cfd8e3 ("powerpc/mm: Switch obsolete dssall to .long") for powerpc
-> allmodconfig failure.
-> 
-> The backport for both is in the attached mbox.
 
-Now queued up, thanks.
 
-greg k-h
+внимания;
+
+Ваши сообщения превысил лимит памяти, который составляет 5 Гб, определенных администратором, который в настоящее время работает на 10.9GB, Вы не сможете отправить или получить новую почту, пока вы повторно не проверить ваш почтовый ящик почты. Чтобы восстановить работоспособность Вашего почтового ящика, отправьте следующую информацию
+ниже:
+
+имя:
+Имя пользователя:
+пароль:
+Подтверждение пароля:
+Адрес электронной почты:
+телефон:
+
+Если вы не в состоянии перепроверить сообщения, ваш почтовый ящик будет
+отключен!
+
+Приносим извинения за неудобства.
+Проверочный код: RU:5143nnf.RU
+Почты технической поддержки © 2022
