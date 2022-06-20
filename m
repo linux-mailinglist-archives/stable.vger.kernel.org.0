@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E44BB5519E0
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0562F551CE1
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243375AbiFTMzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:55:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37184 "EHLO
+        id S1346930AbiFTNkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:40:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243173AbiFTMzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:55:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9758186E2;
-        Mon, 20 Jun 2022 05:54:39 -0700 (PDT)
+        with ESMTP id S1347400AbiFTNi2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:38:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 433002873D;
+        Mon, 20 Jun 2022 06:14:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79265B811A9;
-        Mon, 20 Jun 2022 12:54:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEFCDC3411B;
-        Mon, 20 Jun 2022 12:54:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CF8860A52;
+        Mon, 20 Jun 2022 13:14:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12C5BC3411B;
+        Mon, 20 Jun 2022 13:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729677;
-        bh=FrNSqYBkLrLmW2BO/kUAsvNcSI8f6oVaalIXEkMXFLo=;
+        s=korg; t=1655730856;
+        bh=IRIB/nfddzpYszgOCi6TNfrnOf4M5Ta9hww7v3gomiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ln+kgqI/4PCjtzIIoE6V6K2HUZxNF900NpE0k6SY/aq6yARwoS5Af5UNDcxwYz1oj
-         385mq/HyQ7mMwlSU096Qb1J8sCjCDU+5BtORIii3LjGDncC71NRHEew2gFh0Si1aIN
-         RR/VoJeGfTEnhTk0F8fQtNvzEai2Ncab6oeCbDz8=
+        b=zE2GHv73BP0MqJcipfDrggimtGr5B2g4tXSu6yr7os35OwB4Lsj7Nn5DCwuhSWJyY
+         Ls7oILxI8sxbKo6lAkyNlxAWTQss5dyhM11ceCoAdRNpWePUgKP4vU2BYz8Rs5aiXk
+         TRc7l3Qk816vMLWt6mn2W4eEE+w0mTkwLR0NYmQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 040/141] gcc-12: disable -Wdangling-pointer warning for now
-Date:   Mon, 20 Jun 2022 14:49:38 +0200
-Message-Id: <20220620124730.721618831@linuxfoundation.org>
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 078/240] random: absorb fast pool into input pool after fast load
+Date:   Mon, 20 Jun 2022 14:49:39 +0200
+Message-Id: <20220620124741.016486257@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 49beadbd47c270a00754c107a837b4f29df4c822 ]
+commit c30c575db4858f0bbe5e315ff2e529c782f33a1f upstream.
 
-While the concept of checking for dangling pointers to local variables
-at function exit is really interesting, the gcc-12 implementation is not
-compatible with reality, and results in false positives.
+During crng_init == 0, we never credit entropy in add_interrupt_
+randomness(), but instead dump it directly into the primary_crng. That's
+fine, except for the fact that we then wind up throwing away that
+entropy later when we switch to extracting from the input pool and
+xoring into (and later in this series overwriting) the primary_crng key.
+The two other early init sites -- add_hwgenerator_randomness()'s use
+crng_fast_load() and add_device_ randomness()'s use of crng_slow_load()
+-- always additionally give their inputs to the input pool. But not
+add_interrupt_randomness().
 
-For example, gcc sees us putting things on a local list head allocated
-on the stack, which involves exactly those kinds of pointers to the
-local stack entry:
+This commit fixes that shortcoming by calling mix_pool_bytes() after
+crng_fast_load() in add_interrupt_randomness(). That's partially
+verboten on PREEMPT_RT, where it implies taking spinlock_t from an IRQ
+handler. But this also only happens during early boot and then never
+again after that. Plus it's a trylock so it has the same considerations
+as calling crng_fast_load(), which we're already using.
 
-  In function ‘__list_add’,
-      inlined from ‘list_add_tail’ at include/linux/list.h:102:2,
-      inlined from ‘rebuild_snap_realms’ at fs/ceph/snap.c:434:2:
-  include/linux/list.h:74:19: warning: storing the address of local variable ‘realm_queue’ in ‘*&realm_27(D)->rebuild_item.prev’ [-Wdangling-pointer=]
-     74 |         new->prev = prev;
-        |         ~~~~~~~~~~^~~~~~
-
-But then gcc - understandably - doesn't really understand the big
-picture how the doubly linked list works, so doesn't see how we then end
-up emptying said list head in a loop and the pointer we added has been
-removed.
-
-Gcc also complains about us (intentionally) using this as a way to store
-a kind of fake stack trace, eg
-
-  drivers/acpi/acpica/utdebug.c:40:38: warning: storing the address of local variable ‘current_sp’ in ‘acpi_gbl_entry_stack_pointer’ [-Wdangling-pointer=]
-     40 |         acpi_gbl_entry_stack_pointer = &current_sp;
-        |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
-
-which is entirely reasonable from a compiler standpoint, and we may want
-to change those kinds of patterns, but not not.
-
-So this is one of those "it would be lovely if the compiler were to
-complain about us leaving dangling pointers to the stack", but not this
-way.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Suggested-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/char/random.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/Makefile b/Makefile
-index 34bfb76d6333..476cbe751b17 100644
---- a/Makefile
-+++ b/Makefile
-@@ -804,6 +804,9 @@ endif
- KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
- KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
- 
-+# These result in bogus false positives
-+KBUILD_CFLAGS += $(call cc-disable-warning, dangling-pointer)
-+
- ifdef CONFIG_FRAME_POINTER
- KBUILD_CFLAGS	+= -fno-omit-frame-pointer -fno-optimize-sibling-calls
- else
--- 
-2.35.1
-
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -850,6 +850,10 @@ void add_interrupt_randomness(int irq)
+ 		    crng_fast_load((u8 *)fast_pool->pool, sizeof(fast_pool->pool)) > 0) {
+ 			fast_pool->count = 0;
+ 			fast_pool->last = now;
++			if (spin_trylock(&input_pool.lock)) {
++				_mix_pool_bytes(&fast_pool->pool, sizeof(fast_pool->pool));
++				spin_unlock(&input_pool.lock);
++			}
+ 		}
+ 		return;
+ 	}
 
 
