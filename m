@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 389E6551A09
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A58A2551D53
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243599AbiFTNA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:00:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47308 "EHLO
+        id S1348603AbiFTNue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:50:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244659AbiFTM7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:59:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BFB61A052;
-        Mon, 20 Jun 2022 05:56:42 -0700 (PDT)
+        with ESMTP id S1350434AbiFTNtR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:49:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AC9AEE07;
+        Mon, 20 Jun 2022 06:18:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 533C4CE138A;
-        Mon, 20 Jun 2022 12:56:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0338BC3411B;
-        Mon, 20 Jun 2022 12:56:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA4E7B811DC;
+        Mon, 20 Jun 2022 13:16:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F778C3411B;
+        Mon, 20 Jun 2022 13:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729798;
-        bh=WvDC5wxXqXnNA8e+WNw8hqCRYkEqfWusLnMux/2jvUI=;
+        s=korg; t=1655731013;
+        bh=GkBeuK2kk2ZetCXTMY55rlqA+JmByd6OMIWVDok54ZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s1oeeo1Hp30SzjqTNIhqf9QkFwEn0oOEOLCBL8rFQVNQgfOJ9TZlcMK7JegSuTpfh
-         L8W8Tj4j+v9xEx8zmeuc6lkYO9ReSn2VvqRbBA6Db6GrujK44n+PXxqgZbu/vGJS5Q
-         KStCc/BbSO1DGzyG0RKUVX06o0G6k8bqaBvgEuVE=
+        b=tEHkQ5CWUXYW+vdP1+dp2SdD/ADor8rC0ZoX11kUNedEgqYnQDGt7/r+5Ds3/E9El
+         3BvSKlc8dTNM/cGqrwA3THhzu2vKpVRhfUsBJxtr+uiZ5anQCtqxT2RFgDb+OkgyFc
+         SJ3ybn3/ROpYJjvOGj8t/gEgTf8BLfFyUJQ3efLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 071/141] net: hns3: restore tm priority/qset to default settings when tc disabled
-Date:   Mon, 20 Jun 2022 14:50:09 +0200
-Message-Id: <20220620124731.634745023@linuxfoundation.org>
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 109/240] random: unify cycles_t and jiffies usage and types
+Date:   Mon, 20 Jun 2022 14:50:10 +0200
+Message-Id: <20220620124742.173802333@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,247 +54,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit e93530ae0e5d8fcf2d908933d206e0c93bc3c09b ]
+commit abded93ec1e9692920fe309f07f40bd1035f2940 upstream.
 
-Currently, settings parameters of schedule mode, dwrr, shaper of tm
-priority or qset of one tc are only be set when tc is enabled, they are
-not restored to the default settings when tc is disabled. It confuses
-users when they cat tm_priority or tm_qset files of debugfs. So this
-patch fixes it.
+random_get_entropy() returns a cycles_t, not an unsigned long, which is
+sometimes 64 bits on various 32-bit platforms, including x86.
+Conversely, jiffies is always unsigned long. This commit fixes things to
+use cycles_t for fields that use random_get_entropy(), named "cycles",
+and unsigned long for fields that use jiffies, named "now". It's also
+good to mix in a cycles_t and a jiffies in the same way for both
+add_device_randomness and add_timer_randomness, rather than using xor in
+one case. Finally, we unify the order of these volatile reads, always
+reading the more precise cycles counter, and then jiffies, so that the
+cycle counter is as close to the event as possible.
 
-Fixes: 848440544b41 ("net: hns3: Add support of TX Scheduler & Shaper to HNS3 driver")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hnae3.h   |  1 +
- .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 95 +++++++++++++------
- 2 files changed, 65 insertions(+), 31 deletions(-)
+ drivers/char/random.c |   56 ++++++++++++++++++++++++--------------------------
+ 1 file changed, 27 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-index 79c64f4e67d2..3affcdb34c91 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-@@ -765,6 +765,7 @@ struct hnae3_tc_info {
- 	u8 prio_tc[HNAE3_MAX_USER_PRIO]; /* TC indexed by prio */
- 	u16 tqp_count[HNAE3_MAX_TC];
- 	u16 tqp_offset[HNAE3_MAX_TC];
-+	u8 max_tc; /* Total number of TCs */
- 	u8 num_tc; /* Total number of enabled TCs */
- 	bool mqprio_active;
- };
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-index 1f87a8a3fe32..ad53a3447322 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-@@ -282,8 +282,8 @@ static int hclge_tm_pg_to_pri_map_cfg(struct hclge_dev *hdev,
- 	return hclge_cmd_send(&hdev->hw, &desc, 1);
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1015,12 +1015,6 @@ int __init rand_initialize(void)
+ 	return 0;
  }
  
--static int hclge_tm_qs_to_pri_map_cfg(struct hclge_dev *hdev,
--				      u16 qs_id, u8 pri)
-+static int hclge_tm_qs_to_pri_map_cfg(struct hclge_dev *hdev, u16 qs_id, u8 pri,
-+				      bool link_vld)
+-/* There is one of these per entropy source */
+-struct timer_rand_state {
+-	cycles_t last_time;
+-	long last_delta, last_delta2;
+-};
+-
+ /*
+  * Add device- or boot-specific data to the input pool to help
+  * initialize it.
+@@ -1031,19 +1025,26 @@ struct timer_rand_state {
+  */
+ void add_device_randomness(const void *buf, size_t size)
  {
- 	struct hclge_qs_to_pri_link_cmd *map;
- 	struct hclge_desc desc;
-@@ -294,7 +294,7 @@ static int hclge_tm_qs_to_pri_map_cfg(struct hclge_dev *hdev,
+-	unsigned long time = random_get_entropy() ^ jiffies;
+-	unsigned long flags;
++	cycles_t cycles = random_get_entropy();
++	unsigned long flags, now = jiffies;
  
- 	map->qs_id = cpu_to_le16(qs_id);
- 	map->priority = pri;
--	map->link_vld = HCLGE_TM_QS_PRI_LINK_VLD_MSK;
-+	map->link_vld = link_vld ? HCLGE_TM_QS_PRI_LINK_VLD_MSK : 0;
+ 	if (crng_init == 0 && size)
+ 		crng_pre_init_inject(buf, size, false, false);
  
- 	return hclge_cmd_send(&hdev->hw, &desc, 1);
+ 	spin_lock_irqsave(&input_pool.lock, flags);
++	_mix_pool_bytes(&cycles, sizeof(cycles));
++	_mix_pool_bytes(&now, sizeof(now));
+ 	_mix_pool_bytes(buf, size);
+-	_mix_pool_bytes(&time, sizeof(time));
+ 	spin_unlock_irqrestore(&input_pool.lock, flags);
  }
-@@ -642,11 +642,13 @@ static void hclge_tm_update_kinfo_rss_size(struct hclge_vport *vport)
- 	 * one tc for VF for simplicity. VF's vport_id is non zero.
+ EXPORT_SYMBOL(add_device_randomness);
+ 
++/* There is one of these per entropy source */
++struct timer_rand_state {
++	unsigned long last_time;
++	long last_delta, last_delta2;
++};
++
+ /*
+  * This function adds entropy to the entropy "pool" by using timing
+  * delays.  It uses the timer_rand_state structure to make an estimate
+@@ -1052,29 +1053,26 @@ EXPORT_SYMBOL(add_device_randomness);
+  * The number "num" is also added to the pool - it should somehow describe
+  * the type of event which just happened.  This is currently 0-255 for
+  * keyboard scan codes, and 256 upwards for interrupts.
+- *
+  */
+ static void add_timer_randomness(struct timer_rand_state *state, unsigned int num)
+ {
+-	struct {
+-		long jiffies;
+-		unsigned int cycles;
+-		unsigned int num;
+-	} sample;
++	cycles_t cycles = random_get_entropy();
++	unsigned long flags, now = jiffies;
+ 	long delta, delta2, delta3;
+ 
+-	sample.jiffies = jiffies;
+-	sample.cycles = random_get_entropy();
+-	sample.num = num;
+-	mix_pool_bytes(&sample, sizeof(sample));
++	spin_lock_irqsave(&input_pool.lock, flags);
++	_mix_pool_bytes(&cycles, sizeof(cycles));
++	_mix_pool_bytes(&now, sizeof(now));
++	_mix_pool_bytes(&num, sizeof(num));
++	spin_unlock_irqrestore(&input_pool.lock, flags);
+ 
+ 	/*
+ 	 * Calculate number of bits of randomness we probably added.
+ 	 * We take into account the first, second and third-order deltas
+ 	 * in order to make our estimate.
  	 */
- 	if (vport->vport_id) {
-+		kinfo->tc_info.max_tc = 1;
- 		kinfo->tc_info.num_tc = 1;
- 		vport->qs_offset = HNAE3_MAX_TC +
- 				   vport->vport_id - HCLGE_VF_VPORT_START_NUM;
- 		vport_max_rss_size = hdev->vf_rss_size_max;
- 	} else {
-+		kinfo->tc_info.max_tc = hdev->tc_max;
- 		kinfo->tc_info.num_tc =
- 			min_t(u16, vport->alloc_tqps, hdev->tm_info.num_tc);
- 		vport->qs_offset = 0;
-@@ -714,14 +716,22 @@ static void hclge_tm_vport_info_update(struct hclge_dev *hdev)
+-	delta = sample.jiffies - READ_ONCE(state->last_time);
+-	WRITE_ONCE(state->last_time, sample.jiffies);
++	delta = now - READ_ONCE(state->last_time);
++	WRITE_ONCE(state->last_time, now);
  
- static void hclge_tm_tc_info_init(struct hclge_dev *hdev)
+ 	delta2 = delta - READ_ONCE(state->last_delta);
+ 	WRITE_ONCE(state->last_delta, delta);
+@@ -1300,10 +1298,10 @@ static void mix_interrupt_randomness(str
+ void add_interrupt_randomness(int irq)
  {
--	u8 i;
-+	u8 i, tc_sch_mode;
-+	u32 bw_limit;
-+
-+	for (i = 0; i < hdev->tc_max; i++) {
-+		if (i < hdev->tm_info.num_tc) {
-+			tc_sch_mode = HCLGE_SCH_MODE_DWRR;
-+			bw_limit = hdev->tm_info.pg_info[0].bw_limit;
-+		} else {
-+			tc_sch_mode = HCLGE_SCH_MODE_SP;
-+			bw_limit = 0;
-+		}
+ 	enum { MIX_INFLIGHT = 1U << 31 };
++	cycles_t cycles = random_get_entropy();
++	unsigned long now = jiffies;
+ 	struct fast_pool *fast_pool = this_cpu_ptr(&irq_randomness);
+ 	struct pt_regs *regs = get_irq_regs();
+-	unsigned long now = jiffies;
+-	cycles_t cycles = random_get_entropy();
+ 	unsigned int new_count;
  
--	for (i = 0; i < hdev->tm_info.num_tc; i++) {
- 		hdev->tm_info.tc_info[i].tc_id = i;
--		hdev->tm_info.tc_info[i].tc_sch_mode = HCLGE_SCH_MODE_DWRR;
-+		hdev->tm_info.tc_info[i].tc_sch_mode = tc_sch_mode;
- 		hdev->tm_info.tc_info[i].pgid = 0;
--		hdev->tm_info.tc_info[i].bw_limit =
--			hdev->tm_info.pg_info[0].bw_limit;
-+		hdev->tm_info.tc_info[i].bw_limit = bw_limit;
+ 	if (cycles == 0)
+@@ -1378,28 +1376,28 @@ static void entropy_timer(struct timer_l
+ static void try_to_generate_entropy(void)
+ {
+ 	struct {
+-		unsigned long now;
++		cycles_t cycles;
+ 		struct timer_list timer;
+ 	} stack;
+ 
+-	stack.now = random_get_entropy();
++	stack.cycles = random_get_entropy();
+ 
+ 	/* Slow counter - or none. Don't even bother */
+-	if (stack.now == random_get_entropy())
++	if (stack.cycles == random_get_entropy())
+ 		return;
+ 
+ 	timer_setup_on_stack(&stack.timer, entropy_timer, 0);
+ 	while (!crng_ready()) {
+ 		if (!timer_pending(&stack.timer))
+ 			mod_timer(&stack.timer, jiffies + 1);
+-		mix_pool_bytes(&stack.now, sizeof(stack.now));
++		mix_pool_bytes(&stack.cycles, sizeof(stack.cycles));
+ 		schedule();
+-		stack.now = random_get_entropy();
++		stack.cycles = random_get_entropy();
  	}
  
- 	for (i = 0; i < HNAE3_MAX_USER_PRIO; i++)
-@@ -926,10 +936,13 @@ static int hclge_tm_pri_q_qs_cfg_tc_base(struct hclge_dev *hdev)
- 	for (k = 0; k < hdev->num_alloc_vport; k++) {
- 		struct hnae3_knic_private_info *kinfo = &vport[k].nic.kinfo;
+ 	del_timer_sync(&stack.timer);
+ 	destroy_timer_on_stack(&stack.timer);
+-	mix_pool_bytes(&stack.now, sizeof(stack.now));
++	mix_pool_bytes(&stack.cycles, sizeof(stack.cycles));
+ }
  
--		for (i = 0; i < kinfo->tc_info.num_tc; i++) {
-+		for (i = 0; i < kinfo->tc_info.max_tc; i++) {
-+			u8 pri = i < kinfo->tc_info.num_tc ? i : 0;
-+			bool link_vld = i < kinfo->tc_info.num_tc;
-+
- 			ret = hclge_tm_qs_to_pri_map_cfg(hdev,
- 							 vport[k].qs_offset + i,
--							 i);
-+							 pri, link_vld);
- 			if (ret)
- 				return ret;
- 		}
-@@ -949,7 +962,7 @@ static int hclge_tm_pri_q_qs_cfg_vnet_base(struct hclge_dev *hdev)
- 		for (i = 0; i < HNAE3_MAX_TC; i++) {
- 			ret = hclge_tm_qs_to_pri_map_cfg(hdev,
- 							 vport[k].qs_offset + i,
--							 k);
-+							 k, true);
- 			if (ret)
- 				return ret;
- 		}
-@@ -989,33 +1002,39 @@ static int hclge_tm_pri_tc_base_shaper_cfg(struct hclge_dev *hdev)
- {
- 	u32 max_tm_rate = hdev->ae_dev->dev_specs.max_tm_rate;
- 	struct hclge_shaper_ir_para ir_para;
--	u32 shaper_para;
-+	u32 shaper_para_c, shaper_para_p;
- 	int ret;
- 	u32 i;
  
--	for (i = 0; i < hdev->tm_info.num_tc; i++) {
-+	for (i = 0; i < hdev->tc_max; i++) {
- 		u32 rate = hdev->tm_info.tc_info[i].bw_limit;
- 
--		ret = hclge_shaper_para_calc(rate, HCLGE_SHAPER_LVL_PRI,
--					     &ir_para, max_tm_rate);
--		if (ret)
--			return ret;
-+		if (rate) {
-+			ret = hclge_shaper_para_calc(rate, HCLGE_SHAPER_LVL_PRI,
-+						     &ir_para, max_tm_rate);
-+			if (ret)
-+				return ret;
-+
-+			shaper_para_c = hclge_tm_get_shapping_para(0, 0, 0,
-+								   HCLGE_SHAPER_BS_U_DEF,
-+								   HCLGE_SHAPER_BS_S_DEF);
-+			shaper_para_p = hclge_tm_get_shapping_para(ir_para.ir_b,
-+								   ir_para.ir_u,
-+								   ir_para.ir_s,
-+								   HCLGE_SHAPER_BS_U_DEF,
-+								   HCLGE_SHAPER_BS_S_DEF);
-+		} else {
-+			shaper_para_c = 0;
-+			shaper_para_p = 0;
-+		}
- 
--		shaper_para = hclge_tm_get_shapping_para(0, 0, 0,
--							 HCLGE_SHAPER_BS_U_DEF,
--							 HCLGE_SHAPER_BS_S_DEF);
- 		ret = hclge_tm_pri_shapping_cfg(hdev, HCLGE_TM_SHAP_C_BUCKET, i,
--						shaper_para, rate);
-+						shaper_para_c, rate);
- 		if (ret)
- 			return ret;
- 
--		shaper_para = hclge_tm_get_shapping_para(ir_para.ir_b,
--							 ir_para.ir_u,
--							 ir_para.ir_s,
--							 HCLGE_SHAPER_BS_U_DEF,
--							 HCLGE_SHAPER_BS_S_DEF);
- 		ret = hclge_tm_pri_shapping_cfg(hdev, HCLGE_TM_SHAP_P_BUCKET, i,
--						shaper_para, rate);
-+						shaper_para_p, rate);
- 		if (ret)
- 			return ret;
- 	}
-@@ -1125,7 +1144,7 @@ static int hclge_tm_pri_tc_base_dwrr_cfg(struct hclge_dev *hdev)
- 	int ret;
- 	u32 i, k;
- 
--	for (i = 0; i < hdev->tm_info.num_tc; i++) {
-+	for (i = 0; i < hdev->tc_max; i++) {
- 		pg_info =
- 			&hdev->tm_info.pg_info[hdev->tm_info.tc_info[i].pgid];
- 		dwrr = pg_info->tc_dwrr[i];
-@@ -1135,9 +1154,15 @@ static int hclge_tm_pri_tc_base_dwrr_cfg(struct hclge_dev *hdev)
- 			return ret;
- 
- 		for (k = 0; k < hdev->num_alloc_vport; k++) {
-+			struct hnae3_knic_private_info *kinfo = &vport[k].nic.kinfo;
-+
-+			if (i >= kinfo->tc_info.max_tc)
-+				continue;
-+
-+			dwrr = i < kinfo->tc_info.num_tc ? vport[k].dwrr : 0;
- 			ret = hclge_tm_qs_weight_cfg(
- 				hdev, vport[k].qs_offset + i,
--				vport[k].dwrr);
-+				dwrr);
- 			if (ret)
- 				return ret;
- 		}
-@@ -1303,6 +1328,7 @@ static int hclge_tm_schd_mode_tc_base_cfg(struct hclge_dev *hdev, u8 pri_id)
- {
- 	struct hclge_vport *vport = hdev->vport;
- 	int ret;
-+	u8 mode;
- 	u16 i;
- 
- 	ret = hclge_tm_pri_schd_mode_cfg(hdev, pri_id);
-@@ -1310,9 +1336,16 @@ static int hclge_tm_schd_mode_tc_base_cfg(struct hclge_dev *hdev, u8 pri_id)
- 		return ret;
- 
- 	for (i = 0; i < hdev->num_alloc_vport; i++) {
-+		struct hnae3_knic_private_info *kinfo = &vport[i].nic.kinfo;
-+
-+		if (pri_id >= kinfo->tc_info.max_tc)
-+			continue;
-+
-+		mode = pri_id < kinfo->tc_info.num_tc ? HCLGE_SCH_MODE_DWRR :
-+		       HCLGE_SCH_MODE_SP;
- 		ret = hclge_tm_qs_schd_mode_cfg(hdev,
- 						vport[i].qs_offset + pri_id,
--						HCLGE_SCH_MODE_DWRR);
-+						mode);
- 		if (ret)
- 			return ret;
- 	}
-@@ -1353,7 +1386,7 @@ static int hclge_tm_lvl34_schd_mode_cfg(struct hclge_dev *hdev)
- 	u8 i;
- 
- 	if (hdev->tx_sch_mode == HCLGE_FLAG_TC_BASE_SCH_MODE) {
--		for (i = 0; i < hdev->tm_info.num_tc; i++) {
-+		for (i = 0; i < hdev->tc_max; i++) {
- 			ret = hclge_tm_schd_mode_tc_base_cfg(hdev, i);
- 			if (ret)
- 				return ret;
--- 
-2.35.1
-
 
 
