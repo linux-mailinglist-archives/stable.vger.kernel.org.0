@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9706F551B31
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4864551CDB
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344405AbiFTNZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:25:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58500 "EHLO
+        id S1344338AbiFTNY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:24:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346346AbiFTNYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F32EA1A832;
-        Mon, 20 Jun 2022 06:09:53 -0700 (PDT)
+        with ESMTP id S1346134AbiFTNYX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD7FA237E7;
+        Mon, 20 Jun 2022 06:09:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B765ECE138F;
-        Mon, 20 Jun 2022 13:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A33F1C3411B;
-        Mon, 20 Jun 2022 13:09:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6582CB811E1;
+        Mon, 20 Jun 2022 13:09:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB53EC3411B;
+        Mon, 20 Jun 2022 13:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730580;
-        bh=Xe+h4iyc1g7IGzQn4fral4hbvm2IbRAE0ps/UrG4ouI=;
+        s=korg; t=1655730583;
+        bh=/DeqA/AUkMll6QIh9dhURmDyXT8bU6Z23ax3clh4fdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vF45/hZ0NUJ/RTZ2yXguUWKAPvBc1nub7McXAsnVQU3SyQ6aRFh6KTh6MpP/yg9uj
-         gP6VrE4arwIkgz4ri2aKejNqFVIL6t467nX4XksAqLIB/lw90J7U8nCUMoaFGL5edd
-         c6foZ5VPpa7Ff1ELYsaOMKzUYdd49XcvUKCRab80=
+        b=E99FddR/2nmrcx450i/DK8AaMl2fvDjHnPYHFHV5U7aFOMpXrTvmH+8DDAJT5xCB9
+         pRRYHApaiBlqbd4Vk8WVR3VsmgUASQY55yeJslenrbxCiYRjx4sZ99zRLZh0PX9ayC
+         KDuZRjbCW5TM93FySWylRoVPswa8qupLXAqDf2ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        stable@kernel.org, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org, stable@kernel.org,
+        Hulk Robot <hulkci@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>,
         Ritesh Harjani <ritesh.list@gmail.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.15 098/106] ext4: fix super block checksum incorrect after mount
-Date:   Mon, 20 Jun 2022 14:51:57 +0200
-Message-Id: <20220620124727.289134263@linuxfoundation.org>
+Subject: [PATCH 5.15 099/106] ext4: fix bug_on ext4_mb_use_inode_pa
+Date:   Mon, 20 Jun 2022 14:51:58 +0200
+Message-Id: <20220620124727.318893531@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
 References: <20220620124724.380838401@linuxfoundation.org>
@@ -55,70 +56,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 9b6641dd95a0c441b277dd72ba22fed8d61f76ad upstream.
+commit a08f789d2ab5242c07e716baf9a835725046be89 upstream.
 
-We got issue as follows:
-[home]# mount  /dev/sda  test
-EXT4-fs (sda): warning: mounting fs with errors, running e2fsck is recommended
-[home]# dmesg
-EXT4-fs (sda): warning: mounting fs with errors, running e2fsck is recommended
-EXT4-fs (sda): Errors on filesystem, clearing orphan list.
-EXT4-fs (sda): recovery complete
-EXT4-fs (sda): mounted filesystem with ordered data mode. Quota mode: none.
-[home]# debugfs /dev/sda
-debugfs 1.46.5 (30-Dec-2021)
-Checksum errors in superblock!  Retrying...
+Hulk Robot reported a BUG_ON:
+==================================================================
+kernel BUG at fs/ext4/mballoc.c:3211!
+[...]
+RIP: 0010:ext4_mb_mark_diskspace_used.cold+0x85/0x136f
+[...]
+Call Trace:
+ ext4_mb_new_blocks+0x9df/0x5d30
+ ext4_ext_map_blocks+0x1803/0x4d80
+ ext4_map_blocks+0x3a4/0x1a10
+ ext4_writepages+0x126d/0x2c30
+ do_writepages+0x7f/0x1b0
+ __filemap_fdatawrite_range+0x285/0x3b0
+ file_write_and_wait_range+0xb1/0x140
+ ext4_sync_file+0x1aa/0xca0
+ vfs_fsync_range+0xfb/0x260
+ do_fsync+0x48/0xa0
+[...]
+==================================================================
 
-Reason is ext4_orphan_cleanup will reset ‘s_last_orphan’ but not update
-super block checksum.
+Above issue may happen as follows:
+-------------------------------------
+do_fsync
+ vfs_fsync_range
+  ext4_sync_file
+   file_write_and_wait_range
+    __filemap_fdatawrite_range
+     do_writepages
+      ext4_writepages
+       mpage_map_and_submit_extent
+        mpage_map_one_extent
+         ext4_map_blocks
+          ext4_mb_new_blocks
+           ext4_mb_normalize_request
+            >>> start + size <= ac->ac_o_ex.fe_logical
+           ext4_mb_regular_allocator
+            ext4_mb_simple_scan_group
+             ext4_mb_use_best_found
+              ext4_mb_new_preallocation
+               ext4_mb_new_inode_pa
+                ext4_mb_use_inode_pa
+                 >>> set ac->ac_b_ex.fe_len <= 0
+           ext4_mb_mark_diskspace_used
+            >>> BUG_ON(ac->ac_b_ex.fe_len <= 0);
 
-To solve above issue, defer update super block checksum after
-ext4_orphan_cleanup.
+we can easily reproduce this problem with the following commands:
+	`fallocate -l100M disk`
+	`mkfs.ext4 -b 1024 -g 256 disk`
+	`mount disk /mnt`
+	`fsstress -d /mnt -l 0 -n 1000 -p 1`
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
+The size must be smaller than or equal to EXT4_BLOCKS_PER_GROUP.
+Therefore, "start + size <= ac->ac_o_ex.fe_logical" may occur
+when the size is truncated. So start should be the start position of
+the group where ac_o_ex.fe_logical is located after alignment.
+In addition, when the value of fe_logical or EXT4_BLOCKS_PER_GROUP
+is very large, the value calculated by start_off is more accurate.
+
 Cc: stable@kernel.org
-Reviewed-by: Jan Kara <jack@suse.cz>
+Fixes: cd648b8a8fd5 ("ext4: trim allocation requests to group size")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
 Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220525012904.1604737-1-yebin10@huawei.com
+Link: https://lore.kernel.org/r/20220528110017.354175-2-libaokun1@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ fs/ext4/mballoc.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4909,14 +4909,6 @@ no_journal:
- 		err = percpu_counter_init(&sbi->s_freeinodes_counter, freei,
- 					  GFP_KERNEL);
- 	}
--	/*
--	 * Update the checksum after updating free space/inode
--	 * counters.  Otherwise the superblock can have an incorrect
--	 * checksum in the buffer cache until it is written out and
--	 * e2fsprogs programs trying to open a file system immediately
--	 * after it is mounted can fail.
--	 */
--	ext4_superblock_csum_set(sb);
- 	if (!err)
- 		err = percpu_counter_init(&sbi->s_dirs_counter,
- 					  ext4_count_dirs(sb), GFP_KERNEL);
-@@ -4974,6 +4966,14 @@ no_journal:
- 	EXT4_SB(sb)->s_mount_state |= EXT4_ORPHAN_FS;
- 	ext4_orphan_cleanup(sb, es);
- 	EXT4_SB(sb)->s_mount_state &= ~EXT4_ORPHAN_FS;
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -4099,6 +4099,15 @@ ext4_mb_normalize_request(struct ext4_al
+ 	size = size >> bsbits;
+ 	start = start_off >> bsbits;
+ 
 +	/*
-+	 * Update the checksum after updating free space/inode counters and
-+	 * ext4_orphan_cleanup. Otherwise the superblock can have an incorrect
-+	 * checksum in the buffer cache until it is written out and
-+	 * e2fsprogs programs trying to open a file system immediately
-+	 * after it is mounted can fail.
++	 * For tiny groups (smaller than 8MB) the chosen allocation
++	 * alignment may be larger than group size. Make sure the
++	 * alignment does not move allocation to a different group which
++	 * makes mballoc fail assertions later.
 +	 */
-+	ext4_superblock_csum_set(sb);
- 	if (needs_recovery) {
- 		ext4_msg(sb, KERN_INFO, "recovery complete");
- 		err = ext4_mark_recovery_complete(sb, es);
++	start = max(start, rounddown(ac->ac_o_ex.fe_logical,
++			(ext4_lblk_t)EXT4_BLOCKS_PER_GROUP(ac->ac_sb)));
++
+ 	/* don't cover already allocated blocks in selected range */
+ 	if (ar->pleft && start <= ar->lleft) {
+ 		size -= ar->lleft + 1 - start;
 
 
