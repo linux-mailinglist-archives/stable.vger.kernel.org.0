@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBF6F551CD7
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 375A6551A63
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245166AbiFTNK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:10:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54220 "EHLO
+        id S244053AbiFTNF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:05:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343607AbiFTNJb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E78E51A3BF;
-        Mon, 20 Jun 2022 06:04:35 -0700 (PDT)
+        with ESMTP id S244051AbiFTNEd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88F49193DA;
+        Mon, 20 Jun 2022 05:59:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31270B811BE;
-        Mon, 20 Jun 2022 13:03:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AC6CC3411B;
-        Mon, 20 Jun 2022 13:03:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25B5561535;
+        Mon, 20 Jun 2022 12:59:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C56C3411B;
+        Mon, 20 Jun 2022 12:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730189;
-        bh=KRnyYm02/M04mY5xe4aX4sVWRy2Xqe+5jAymsdFwhho=;
+        s=korg; t=1655729981;
+        bh=1X9QZlKy3N/ytBJj/DbB5zz0kkGXy5zj9pdAlAhiWf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbE9TG0iUqu0GmhcvBAfINK5UgbwtFzVCH+pkKzJkLXL5rqrSYDUZd0H5EUCT/OdC
-         PlQYNUo8UiJdfnurFor6/khUkGPeOVqMj3tFArbXqOeLmZZIYMYpVMIDHfCQJ68jli
-         yvDF3ukcZOZ2VIeQIgDaEIx7rQJDhLGhBhh5eJzI=
+        b=RKh5KYl0CPQdbsa0AF6tCi6vdZktNY+p/UIAHZKeC5dbEhSTaHulR3ME9Nx7VZE5F
+         z0pvjjomf3qU2h1fDDfBN/yOwDWvLYg9g+E6cJEHHx6vJk2Sc6r/XFTyO7mKulFGuB
+         WOD7NqywzMb84LpQ4l6zUkxkIjXR3gp+Pf3IbP0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@linux.microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 52/84] certs/blacklist_hashes.c: fix const confusion in certs blacklist
+        Scott Wood <oss@buserror.net>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.18 137/141] powerpc/book3e: get rid of #include <generated/compile.h>
 Date:   Mon, 20 Jun 2022 14:51:15 +0200
-Message-Id: <20220620124722.431829656@linuxfoundation.org>
+Message-Id: <20220620124733.608911236@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,47 +56,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 6a1c3767d82ed8233de1263aa7da81595e176087 ]
+commit 7ad4bd887d27c6b6ffbef216f19c19f8fe2b8f52 upstream.
 
-This file fails to compile as follows:
+You cannot include <generated/compile.h> here because it is generated
+in init/Makefile but there is no guarantee that it happens before
+arch/powerpc/mm/nohash/kaslr_booke.c is compiled for parallel builds.
 
-  CC      certs/blacklist_hashes.o
-certs/blacklist_hashes.c:4:1: error: ignoring attribute ‘section (".init.data")’ because it conflicts with previous ‘section (".init.rodata")’ [-Werror=attributes]
-    4 | const char __initdata *const blacklist_hashes[] = {
-      | ^~~~~
-In file included from certs/blacklist_hashes.c:2:
-certs/blacklist.h:5:38: note: previous declaration here
-    5 | extern const char __initconst *const blacklist_hashes[];
-      |                                      ^~~~~~~~~~~~~~~~
+The places where you can reliably include <generated/compile.h> are:
 
-Apply the same fix as commit 2be04df5668d ("certs/blacklist_nohashes.c:
-fix const confusion in certs blacklist").
+  - init/          (because init/Makefile can specify the dependency)
+  - arch/*/boot/   (because it is compiled after vmlinux)
 
-Fixes: 734114f8782f ("KEYS: Add a system blacklist keyring")
+Commit f231e4333312 ("hexagon: get rid of #include <generated/compile.h>")
+fixed the last breakage at that time, but powerpc re-added this.
+
+<generated/compile.h> was unneeded because 'build_str' is almost the
+same as 'linux_banner' defined in init/version.c
+
+Let's copy the solution from MIPS.
+(get_random_boot() in arch/mips/kernel/relocate.c)
+
+Fixes: 6a38ea1d7b94 ("powerpc/fsl_booke/32: randomize the kernel image offset")
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Reviewed-by: Mickaël Salaün <mic@linux.microsoft.com>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Scott Wood <oss@buserror.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220604085050.4078927-1-masahiroy@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- certs/blacklist_hashes.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/mm/nohash/kaslr_booke.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/certs/blacklist_hashes.c b/certs/blacklist_hashes.c
-index 344892337be0..d5961aa3d338 100644
---- a/certs/blacklist_hashes.c
-+++ b/certs/blacklist_hashes.c
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- #include "blacklist.h"
+--- a/arch/powerpc/mm/nohash/kaslr_booke.c
++++ b/arch/powerpc/mm/nohash/kaslr_booke.c
+@@ -18,7 +18,6 @@
+ #include <asm/prom.h>
+ #include <asm/kdump.h>
+ #include <mm/mmu_decl.h>
+-#include <generated/compile.h>
+ #include <generated/utsrelease.h>
  
--const char __initdata *const blacklist_hashes[] = {
-+const char __initconst *const blacklist_hashes[] = {
- #include CONFIG_SYSTEM_BLACKLIST_HASH_LIST
- 	, NULL
+ struct regions {
+@@ -36,10 +35,6 @@ struct regions {
+ 	int reserved_mem_size_cells;
  };
--- 
-2.35.1
-
+ 
+-/* Simplified build-specific string for starting entropy. */
+-static const char build_str[] = UTS_RELEASE " (" LINUX_COMPILE_BY "@"
+-		LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION;
+-
+ struct regions __initdata regions;
+ 
+ static __init void kaslr_get_cmdline(void *fdt)
+@@ -70,7 +65,8 @@ static unsigned long __init get_boot_see
+ {
+ 	unsigned long hash = 0;
+ 
+-	hash = rotate_xor(hash, build_str, sizeof(build_str));
++	/* build-specific string for starting entropy. */
++	hash = rotate_xor(hash, linux_banner, strlen(linux_banner));
+ 	hash = rotate_xor(hash, fdt, fdt_totalsize(fdt));
+ 
+ 	return hash;
 
 
