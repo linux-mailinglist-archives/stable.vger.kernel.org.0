@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A574551A13
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DD4A551B04
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243140AbiFTMyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:54:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37580 "EHLO
+        id S1346667AbiFTNgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:36:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243038AbiFTMyJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:54:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD95183B0;
-        Mon, 20 Jun 2022 05:54:04 -0700 (PDT)
+        with ESMTP id S1345799AbiFTNee (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:34:34 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEC1E27CC4;
+        Mon, 20 Jun 2022 06:13:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48767614B7;
-        Mon, 20 Jun 2022 12:54:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56FCBC3411B;
-        Mon, 20 Jun 2022 12:54:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6628ACE139A;
+        Mon, 20 Jun 2022 13:12:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F1CC3411C;
+        Mon, 20 Jun 2022 13:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729643;
-        bh=z4nS/GuBUxpX0GXkgOCIkr9OBX7vs0RMQDyx7CNotDw=;
+        s=korg; t=1655730743;
+        bh=YTcOURT67RliY+onoFdF4rJ3Bag8bxdtEdjdRn02ukk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YNymwzfhmu1rKtVuJrTIV3aAukFtZNmXg8nzbfyaPkMt//IRC+fKgLEwZGzfcCaUL
-         g7XGIQKfgLk3Qc61A1uOetnx+wDWiztwA9JylDGlttcD7R5Qj/hyHRRhkXexbgJEO1
-         8WA23l/aboPOhkqOdprSvJizP7Qn619ojohGawQ4=
+        b=URGAAWdsTKak3JcTGTXOQm/t3ZNP3Thv+kP6UHnn6FIIPG9Pb9ErXJYGWvZJh/RtQ
+         YNnasu/rG3uOvhndqTRsdXNR8VAVCJd0rhKirpCHtNWKJz1H323cFz9Yl6CyJ2rEmB
+         2LcWTsmMVnlvmBk3USNLCRhT81WVb8GeIwke0VnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wanming Hu <huwanming@huaweil.com>,
-        He Ying <heying24@huawei.com>,
-        Chen Jingwen <chenjingwen6@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 005/141] powerpc/kasan: Silence KASAN warnings in __get_wchan()
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 042/240] random: mix bootloader randomness into pool
 Date:   Mon, 20 Jun 2022 14:49:03 +0200
-Message-Id: <20220620124729.674826505@linuxfoundation.org>
+Message-Id: <20220620124739.210208937@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,91 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: He Ying <heying24@huawei.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit a1b29ba2f2c171b9bea73be993bfdf0a62d37d15 ]
+commit 57826feeedb63b091f807ba8325d736775d39afd upstream.
 
-The following KASAN warning was reported in our kernel.
+If we're trusting bootloader randomness, crng_fast_load() is called by
+add_hwgenerator_randomness(), which sets us to crng_init==1. However,
+usually it is only called once for an initial 64-byte push, so bootloader
+entropy will not mix any bytes into the input pool. So it's conceivable
+that crng_init==1 when crng_initialize_primary() is called later, but
+then the input pool is empty. When that happens, the crng state key will
+be overwritten with extracted output from the empty input pool. That's
+bad.
 
-  BUG: KASAN: stack-out-of-bounds in get_wchan+0x188/0x250
-  Read of size 4 at addr d216f958 by task ps/14437
+In contrast, if we're not trusting bootloader randomness, we call
+crng_slow_load() *and* we call mix_pool_bytes(), so that later
+crng_initialize_primary() isn't drawing on nothing.
 
-  CPU: 3 PID: 14437 Comm: ps Tainted: G           O      5.10.0 #1
-  Call Trace:
-  [daa63858] [c0654348] dump_stack+0x9c/0xe4 (unreliable)
-  [daa63888] [c035cf0c] print_address_description.constprop.3+0x8c/0x570
-  [daa63908] [c035d6bc] kasan_report+0x1ac/0x218
-  [daa63948] [c00496e8] get_wchan+0x188/0x250
-  [daa63978] [c0461ec8] do_task_stat+0xce8/0xe60
-  [daa63b98] [c0455ac8] proc_single_show+0x98/0x170
-  [daa63bc8] [c03cab8c] seq_read_iter+0x1ec/0x900
-  [daa63c38] [c03cb47c] seq_read+0x1dc/0x290
-  [daa63d68] [c037fc94] vfs_read+0x164/0x510
-  [daa63ea8] [c03808e4] ksys_read+0x144/0x1d0
-  [daa63f38] [c005b1dc] ret_from_syscall+0x0/0x38
-  --- interrupt: c00 at 0x8fa8f4
-      LR = 0x8fa8cc
+In order to prevent crng_initialize_primary() from extracting an empty
+pool, have the trusted bootloader case mirror that of the untrusted
+bootloader case, mixing the input into the pool.
 
-  The buggy address belongs to the page:
-  page:98ebcdd2 refcount:0 mapcount:0 mapping:00000000 index:0x2 pfn:0x1216f
-  flags: 0x0()
-  raw: 00000000 00000000 01010122 00000000 00000002 00000000 ffffffff 00000000
-  raw: 00000000
-  page dumped because: kasan: bad access detected
-
-  Memory state around the buggy address:
-   d216f800: 00 00 00 00 00 f1 f1 f1 f1 00 00 00 00 00 00 00
-   d216f880: f2 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  >d216f900: 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00
-                                            ^
-   d216f980: f2 f2 f2 f2 f2 f2 f2 00 00 00 00 00 00 00 00 00
-   d216fa00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-After looking into this issue, I find the buggy address belongs
-to the task stack region. It seems KASAN has something wrong.
-I look into the code of __get_wchan in x86 architecture and
-find the same issue has been resolved by the commit
-f7d27c35ddff ("x86/mm, kasan: Silence KASAN warnings in get_wchan()").
-The solution could be applied to powerpc architecture too.
-
-As Andrey Ryabinin said, get_wchan() is racy by design, it may
-access volatile stack of running task, thus it may access
-redzone in a stack frame and cause KASAN to warn about this.
-
-Use READ_ONCE_NOCHECK() to silence these warnings.
-
-Reported-by: Wanming Hu <huwanming@huaweil.com>
-Signed-off-by: He Ying <heying24@huawei.com>
-Signed-off-by: Chen Jingwen <chenjingwen6@huawei.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220121014418.155675-1-heying24@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[linux@dominikbrodowski.net: rewrite commit message]
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/process.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/random.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
-index 984813a4d5dc..a75d20f23dac 100644
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -2160,12 +2160,12 @@ static unsigned long ___get_wchan(struct task_struct *p)
- 		return 0;
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -2299,6 +2299,7 @@ void add_hwgenerator_randomness(const ch
  
- 	do {
--		sp = *(unsigned long *)sp;
-+		sp = READ_ONCE_NOCHECK(*(unsigned long *)sp);
- 		if (!validate_sp(sp, p, STACK_FRAME_OVERHEAD) ||
- 		    task_is_running(p))
- 			return 0;
- 		if (count > 0) {
--			ip = ((unsigned long *)sp)[STACK_FRAME_LR_SAVE];
-+			ip = READ_ONCE_NOCHECK(((unsigned long *)sp)[STACK_FRAME_LR_SAVE]);
- 			if (!in_sched_functions(ip))
- 				return ip;
- 		}
--- 
-2.35.1
-
+ 	if (unlikely(crng_init == 0)) {
+ 		size_t ret = crng_fast_load(buffer, count);
++		mix_pool_bytes(poolp, buffer, ret);
+ 		count -= ret;
+ 		buffer += ret;
+ 		if (!count || crng_init == 0)
 
 
