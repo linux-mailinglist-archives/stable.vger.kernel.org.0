@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24BF9551B90
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E776D551B65
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343832AbiFTNYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:24:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54442 "EHLO
+        id S245360AbiFTNLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:11:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344657AbiFTNWg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:22:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E76B22B23;
-        Mon, 20 Jun 2022 06:09:00 -0700 (PDT)
+        with ESMTP id S1343963AbiFTNJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 008651AF26;
+        Mon, 20 Jun 2022 06:04:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87267B811D8;
-        Mon, 20 Jun 2022 13:08:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FA08C3411C;
-        Mon, 20 Jun 2022 13:08:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 020C96159F;
+        Mon, 20 Jun 2022 13:04:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13081C3411B;
+        Mon, 20 Jun 2022 13:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730536;
-        bh=Cek1DoTVaI/qkiUQjU/pkpxHuA2fUfvahxMuUSr7KiI=;
+        s=korg; t=1655730254;
+        bh=WJbhDVgho8feozDRu3uCkpb8QYDZn+orPxbdl0Va0vY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUX0DMQmYby2Rnu/7pb+CXf3jyAnLEuOr8jzT91cisPAqcbLmnr2p0x1R/w2TsitK
-         hGGS/k1eeGhZe1/bUiBy6Xrq+tHLs3EDrvFeaGnkGCuwEpubjlkc/X0mpktHkR6DhU
-         fhanUK2wyF8l8fKfp+qrATjmcgy9Iz4Nte2A5GVU=
+        b=AOmP2PK5s1+KxNffiU/LXR8J+6wdFr1e74v6AVQS7jI7nWGmqZKdNieU/EtXKh548
+         AVvNFtwzHH8sbtISjWG3Aj0F6cRdHz3N2/0d0uSLDUTAV+JdFo8zgm5ahrbvbkQYg+
+         yWwDJatF/eYgT4ofRy4E8yoq95ZKhzjM9LMPkTs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Bin <zhengbin13@huawei.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.15 084/106] crypto: memneq - move into lib/
+        stable@vger.kernel.org,
+        Frode Nordahl <frode.nordahl@canonical.com>,
+        Ilya Maximets <i.maximets@ovn.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 80/84] net: openvswitch: fix misuse of the cached connection on tuple changes
 Date:   Mon, 20 Jun 2022 14:51:43 +0200
-Message-Id: <20220620124726.877928119@linuxfoundation.org>
+Message-Id: <20220620124723.254446622@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,442 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Ilya Maximets <i.maximets@ovn.org>
 
-commit abfed87e2a12bd246047d78c01d81eb9529f1d06 upstream.
+commit 2061ecfdf2350994e5b61c43e50e98a7a70e95ee upstream.
 
-This is used by code that doesn't need CONFIG_CRYPTO, so move this into
-lib/ with a Kconfig option so that it can be selected by whatever needs
-it.
+If packet headers changed, the cached nfct is no longer relevant
+for the packet and attempt to re-use it leads to the incorrect packet
+classification.
 
-This fixes a linker error Zheng pointed out when
-CRYPTO_MANAGER_DISABLE_TESTS!=y and CRYPTO=m:
+This issue is causing broken connectivity in OpenStack deployments
+with OVS/OVN due to hairpin traffic being unexpectedly dropped.
 
-  lib/crypto/curve25519-selftest.o: In function `curve25519_selftest':
-  curve25519-selftest.c:(.init.text+0x60): undefined reference to `__crypto_memneq'
-  curve25519-selftest.c:(.init.text+0xec): undefined reference to `__crypto_memneq'
-  curve25519-selftest.c:(.init.text+0x114): undefined reference to `__crypto_memneq'
-  curve25519-selftest.c:(.init.text+0x154): undefined reference to `__crypto_memneq'
+The setup has datapath flows with several conntrack actions and tuple
+changes between them:
 
-Reported-by: Zheng Bin <zhengbin13@huawei.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
+  actions:ct(commit,zone=8,mark=0/0x1,nat(src)),
+          set(eth(src=00:00:00:00:00:01,dst=00:00:00:00:00:06)),
+          set(ipv4(src=172.18.2.10,dst=192.168.100.6,ttl=62)),
+          ct(zone=8),recirc(0x4)
+
+After the first ct() action the packet headers are almost fully
+re-written.  The next ct() tries to re-use the existing nfct entry
+and marks the packet as invalid, so it gets dropped later in the
+pipeline.
+
+Clearing the cached conntrack entry whenever packet tuple is changed
+to avoid the issue.
+
+The flow key should not be cleared though, because we should still
+be able to match on the ct_state if the recirculation happens after
+the tuple change but before the next ct() action.
+
 Cc: stable@vger.kernel.org
-Fixes: aa127963f1ca ("crypto: lib/curve25519 - re-add selftests")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 7f8a436eaa2c ("openvswitch: Add conntrack action")
+Reported-by: Frode Nordahl <frode.nordahl@canonical.com>
+Link: https://mail.openvswitch.org/pipermail/ovs-discuss/2022-May/051829.html
+Link: https://bugs.launchpad.net/ubuntu/+source/ovn/+bug/1967856
+Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
+Link: https://lore.kernel.org/r/20220606221140.488984-1-i.maximets@ovn.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[Backport to 5.10: minor rebase in ovs_ct_clear function.
+ This version also applicable to and tested on 5.4 and 4.19.]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/Kconfig           | 1 +
- crypto/Makefile          | 2 +-
- lib/Kconfig              | 3 +++
- lib/Makefile             | 1 +
- lib/crypto/Kconfig       | 1 +
- {crypto => lib}/memneq.c | 0
- crypto/Kconfig     |    1 
- crypto/Makefile    |    2 
- crypto/memneq.c    |  168 -----------------------------------------------------
- lib/Kconfig        |    3 
- lib/Makefile       |    1 
- lib/crypto/Kconfig |    1 
- lib/memneq.c       |  168 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 7 files changed, 175 insertions(+), 169 deletions(-)
- rename {crypto => lib}/memneq.c (100%)
+ net/openvswitch/actions.c   |    6 ++++++
+ net/openvswitch/conntrack.c |    3 ++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -15,6 +15,7 @@ source "crypto/async_tx/Kconfig"
- #
- menuconfig CRYPTO
- 	tristate "Cryptographic API"
-+	select LIB_MEMNEQ
- 	help
- 	  This option provides the core Cryptographic API.
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -372,6 +372,7 @@ static void set_ip_addr(struct sk_buff *
+ 	update_ip_l4_checksum(skb, nh, *addr, new_addr);
+ 	csum_replace4(&nh->check, *addr, new_addr);
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
+ 	*addr = new_addr;
+ }
  
---- a/crypto/Makefile
-+++ b/crypto/Makefile
-@@ -4,7 +4,7 @@
- #
+@@ -419,6 +420,7 @@ static void set_ipv6_addr(struct sk_buff
+ 		update_ipv6_checksum(skb, l4_proto, addr, new_addr);
  
- obj-$(CONFIG_CRYPTO) += crypto.o
--crypto-y := api.o cipher.o compress.o memneq.o
-+crypto-y := api.o cipher.o compress.o
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
+ 	memcpy(addr, new_addr, sizeof(__be32[4]));
+ }
  
- obj-$(CONFIG_CRYPTO_ENGINE) += crypto_engine.o
- obj-$(CONFIG_CRYPTO_FIPS) += fips.o
---- a/crypto/memneq.c
-+++ /dev/null
-@@ -1,168 +0,0 @@
--/*
-- * Constant-time equality testing of memory regions.
-- *
-- * Authors:
-- *
-- *   James Yonan <james@openvpn.net>
-- *   Daniel Borkmann <dborkman@redhat.com>
-- *
-- * This file is provided under a dual BSD/GPLv2 license.  When using or
-- * redistributing this file, you may do so under either license.
-- *
-- * GPL LICENSE SUMMARY
-- *
-- * Copyright(c) 2013 OpenVPN Technologies, Inc. All rights reserved.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of version 2 of the GNU General Public License as
-- * published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful, but
-- * WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-- * General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
-- * The full GNU General Public License is included in this distribution
-- * in the file called LICENSE.GPL.
-- *
-- * BSD LICENSE
-- *
-- * Copyright(c) 2013 OpenVPN Technologies, Inc. All rights reserved.
-- *
-- * Redistribution and use in source and binary forms, with or without
-- * modification, are permitted provided that the following conditions
-- * are met:
-- *
-- *   * Redistributions of source code must retain the above copyright
-- *     notice, this list of conditions and the following disclaimer.
-- *   * Redistributions in binary form must reproduce the above copyright
-- *     notice, this list of conditions and the following disclaimer in
-- *     the documentation and/or other materials provided with the
-- *     distribution.
-- *   * Neither the name of OpenVPN Technologies nor the names of its
-- *     contributors may be used to endorse or promote products derived
-- *     from this software without specific prior written permission.
-- *
-- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-- */
--
--#include <crypto/algapi.h>
--
--#ifndef __HAVE_ARCH_CRYPTO_MEMNEQ
--
--/* Generic path for arbitrary size */
--static inline unsigned long
--__crypto_memneq_generic(const void *a, const void *b, size_t size)
--{
--	unsigned long neq = 0;
--
--#if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
--	while (size >= sizeof(unsigned long)) {
--		neq |= *(unsigned long *)a ^ *(unsigned long *)b;
--		OPTIMIZER_HIDE_VAR(neq);
--		a += sizeof(unsigned long);
--		b += sizeof(unsigned long);
--		size -= sizeof(unsigned long);
--	}
--#endif /* CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS */
--	while (size > 0) {
--		neq |= *(unsigned char *)a ^ *(unsigned char *)b;
--		OPTIMIZER_HIDE_VAR(neq);
--		a += 1;
--		b += 1;
--		size -= 1;
--	}
--	return neq;
--}
--
--/* Loop-free fast-path for frequently used 16-byte size */
--static inline unsigned long __crypto_memneq_16(const void *a, const void *b)
--{
--	unsigned long neq = 0;
--
--#ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
--	if (sizeof(unsigned long) == 8) {
--		neq |= *(unsigned long *)(a)   ^ *(unsigned long *)(b);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned long *)(a+8) ^ *(unsigned long *)(b+8);
--		OPTIMIZER_HIDE_VAR(neq);
--	} else if (sizeof(unsigned int) == 4) {
--		neq |= *(unsigned int *)(a)    ^ *(unsigned int *)(b);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned int *)(a+4)  ^ *(unsigned int *)(b+4);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned int *)(a+8)  ^ *(unsigned int *)(b+8);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned int *)(a+12) ^ *(unsigned int *)(b+12);
--		OPTIMIZER_HIDE_VAR(neq);
--	} else
--#endif /* CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS */
--	{
--		neq |= *(unsigned char *)(a)    ^ *(unsigned char *)(b);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+1)  ^ *(unsigned char *)(b+1);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+2)  ^ *(unsigned char *)(b+2);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+3)  ^ *(unsigned char *)(b+3);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+4)  ^ *(unsigned char *)(b+4);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+5)  ^ *(unsigned char *)(b+5);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+6)  ^ *(unsigned char *)(b+6);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+7)  ^ *(unsigned char *)(b+7);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+8)  ^ *(unsigned char *)(b+8);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+9)  ^ *(unsigned char *)(b+9);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+10) ^ *(unsigned char *)(b+10);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+11) ^ *(unsigned char *)(b+11);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+12) ^ *(unsigned char *)(b+12);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+13) ^ *(unsigned char *)(b+13);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+14) ^ *(unsigned char *)(b+14);
--		OPTIMIZER_HIDE_VAR(neq);
--		neq |= *(unsigned char *)(a+15) ^ *(unsigned char *)(b+15);
--		OPTIMIZER_HIDE_VAR(neq);
--	}
--
--	return neq;
--}
--
--/* Compare two areas of memory without leaking timing information,
-- * and with special optimizations for common sizes.  Users should
-- * not call this function directly, but should instead use
-- * crypto_memneq defined in crypto/algapi.h.
-- */
--noinline unsigned long __crypto_memneq(const void *a, const void *b,
--				       size_t size)
--{
--	switch (size) {
--	case 16:
--		return __crypto_memneq_16(a, b);
--	default:
--		return __crypto_memneq_generic(a, b, size);
--	}
--}
--EXPORT_SYMBOL(__crypto_memneq);
--
--#endif /* __HAVE_ARCH_CRYPTO_MEMNEQ */
---- a/lib/Kconfig
-+++ b/lib/Kconfig
-@@ -123,6 +123,9 @@ config INDIRECT_IOMEM_FALLBACK
+@@ -659,6 +661,7 @@ static int set_nsh(struct sk_buff *skb,
+ static void set_tp_port(struct sk_buff *skb, __be16 *port,
+ 			__be16 new_port, __sum16 *check)
+ {
++	ovs_ct_clear(skb, NULL);
+ 	inet_proto_csum_replace2(check, skb, *port, new_port, false);
+ 	*port = new_port;
+ }
+@@ -698,6 +701,7 @@ static int set_udp(struct sk_buff *skb,
+ 		uh->dest = dst;
+ 		flow_key->tp.src = src;
+ 		flow_key->tp.dst = dst;
++		ovs_ct_clear(skb, NULL);
+ 	}
  
- source "lib/crypto/Kconfig"
+ 	skb_clear_hash(skb);
+@@ -760,6 +764,8 @@ static int set_sctp(struct sk_buff *skb,
+ 	sh->checksum = old_csum ^ old_correct_csum ^ new_csum;
  
-+config LIB_MEMNEQ
-+	bool
+ 	skb_clear_hash(skb);
++	ovs_ct_clear(skb, NULL);
 +
- config CRC_CCITT
- 	tristate "CRC-CCITT functions"
- 	help
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -249,6 +249,7 @@ obj-$(CONFIG_DIMLIB) += dim/
- obj-$(CONFIG_SIGNATURE) += digsig.o
+ 	flow_key->tp.src = sh->source;
+ 	flow_key->tp.dst = sh->dest;
  
- lib-$(CONFIG_CLZ_TAB) += clz_tab.o
-+lib-$(CONFIG_LIB_MEMNEQ) += memneq.o
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -1324,7 +1324,8 @@ int ovs_ct_clear(struct sk_buff *skb, st
+ 	if (skb_nfct(skb)) {
+ 		nf_conntrack_put(skb_nfct(skb));
+ 		nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
+-		ovs_ct_fill_key(skb, key);
++		if (key)
++			ovs_ct_fill_key(skb, key);
+ 	}
  
- obj-$(CONFIG_GENERIC_STRNCPY_FROM_USER) += strncpy_from_user.o
- obj-$(CONFIG_GENERIC_STRNLEN_USER) += strnlen_user.o
---- a/lib/crypto/Kconfig
-+++ b/lib/crypto/Kconfig
-@@ -71,6 +71,7 @@ config CRYPTO_LIB_CURVE25519
- 	tristate "Curve25519 scalar multiplication library"
- 	depends on CRYPTO_ARCH_HAVE_LIB_CURVE25519 || !CRYPTO_ARCH_HAVE_LIB_CURVE25519
- 	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_HAVE_LIB_CURVE25519=n
-+	select LIB_MEMNEQ
- 	help
- 	  Enable the Curve25519 library interface. This interface may be
- 	  fulfilled by either the generic implementation or an arch-specific
---- /dev/null
-+++ b/lib/memneq.c
-@@ -0,0 +1,168 @@
-+/*
-+ * Constant-time equality testing of memory regions.
-+ *
-+ * Authors:
-+ *
-+ *   James Yonan <james@openvpn.net>
-+ *   Daniel Borkmann <dborkman@redhat.com>
-+ *
-+ * This file is provided under a dual BSD/GPLv2 license.  When using or
-+ * redistributing this file, you may do so under either license.
-+ *
-+ * GPL LICENSE SUMMARY
-+ *
-+ * Copyright(c) 2013 OpenVPN Technologies, Inc. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of version 2 of the GNU General Public License as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
-+ * The full GNU General Public License is included in this distribution
-+ * in the file called LICENSE.GPL.
-+ *
-+ * BSD LICENSE
-+ *
-+ * Copyright(c) 2013 OpenVPN Technologies, Inc. All rights reserved.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ *
-+ *   * Redistributions of source code must retain the above copyright
-+ *     notice, this list of conditions and the following disclaimer.
-+ *   * Redistributions in binary form must reproduce the above copyright
-+ *     notice, this list of conditions and the following disclaimer in
-+ *     the documentation and/or other materials provided with the
-+ *     distribution.
-+ *   * Neither the name of OpenVPN Technologies nor the names of its
-+ *     contributors may be used to endorse or promote products derived
-+ *     from this software without specific prior written permission.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ */
-+
-+#include <crypto/algapi.h>
-+
-+#ifndef __HAVE_ARCH_CRYPTO_MEMNEQ
-+
-+/* Generic path for arbitrary size */
-+static inline unsigned long
-+__crypto_memneq_generic(const void *a, const void *b, size_t size)
-+{
-+	unsigned long neq = 0;
-+
-+#if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
-+	while (size >= sizeof(unsigned long)) {
-+		neq |= *(unsigned long *)a ^ *(unsigned long *)b;
-+		OPTIMIZER_HIDE_VAR(neq);
-+		a += sizeof(unsigned long);
-+		b += sizeof(unsigned long);
-+		size -= sizeof(unsigned long);
-+	}
-+#endif /* CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS */
-+	while (size > 0) {
-+		neq |= *(unsigned char *)a ^ *(unsigned char *)b;
-+		OPTIMIZER_HIDE_VAR(neq);
-+		a += 1;
-+		b += 1;
-+		size -= 1;
-+	}
-+	return neq;
-+}
-+
-+/* Loop-free fast-path for frequently used 16-byte size */
-+static inline unsigned long __crypto_memneq_16(const void *a, const void *b)
-+{
-+	unsigned long neq = 0;
-+
-+#ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
-+	if (sizeof(unsigned long) == 8) {
-+		neq |= *(unsigned long *)(a)   ^ *(unsigned long *)(b);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned long *)(a+8) ^ *(unsigned long *)(b+8);
-+		OPTIMIZER_HIDE_VAR(neq);
-+	} else if (sizeof(unsigned int) == 4) {
-+		neq |= *(unsigned int *)(a)    ^ *(unsigned int *)(b);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned int *)(a+4)  ^ *(unsigned int *)(b+4);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned int *)(a+8)  ^ *(unsigned int *)(b+8);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned int *)(a+12) ^ *(unsigned int *)(b+12);
-+		OPTIMIZER_HIDE_VAR(neq);
-+	} else
-+#endif /* CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS */
-+	{
-+		neq |= *(unsigned char *)(a)    ^ *(unsigned char *)(b);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+1)  ^ *(unsigned char *)(b+1);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+2)  ^ *(unsigned char *)(b+2);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+3)  ^ *(unsigned char *)(b+3);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+4)  ^ *(unsigned char *)(b+4);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+5)  ^ *(unsigned char *)(b+5);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+6)  ^ *(unsigned char *)(b+6);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+7)  ^ *(unsigned char *)(b+7);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+8)  ^ *(unsigned char *)(b+8);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+9)  ^ *(unsigned char *)(b+9);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+10) ^ *(unsigned char *)(b+10);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+11) ^ *(unsigned char *)(b+11);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+12) ^ *(unsigned char *)(b+12);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+13) ^ *(unsigned char *)(b+13);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+14) ^ *(unsigned char *)(b+14);
-+		OPTIMIZER_HIDE_VAR(neq);
-+		neq |= *(unsigned char *)(a+15) ^ *(unsigned char *)(b+15);
-+		OPTIMIZER_HIDE_VAR(neq);
-+	}
-+
-+	return neq;
-+}
-+
-+/* Compare two areas of memory without leaking timing information,
-+ * and with special optimizations for common sizes.  Users should
-+ * not call this function directly, but should instead use
-+ * crypto_memneq defined in crypto/algapi.h.
-+ */
-+noinline unsigned long __crypto_memneq(const void *a, const void *b,
-+				       size_t size)
-+{
-+	switch (size) {
-+	case 16:
-+		return __crypto_memneq_16(a, b);
-+	default:
-+		return __crypto_memneq_generic(a, b, size);
-+	}
-+}
-+EXPORT_SYMBOL(__crypto_memneq);
-+
-+#endif /* __HAVE_ARCH_CRYPTO_MEMNEQ */
+ 	return 0;
 
 
