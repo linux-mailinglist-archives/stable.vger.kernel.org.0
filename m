@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A1B5551BFB
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 201C8551992
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343817AbiFTNVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:21:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58262 "EHLO
+        id S244537AbiFTNFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:05:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345643AbiFTNUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:20:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A1AE193FE;
-        Mon, 20 Jun 2022 06:08:18 -0700 (PDT)
+        with ESMTP id S244867AbiFTNEE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81FDD1AF36;
+        Mon, 20 Jun 2022 05:59:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB2A16153E;
-        Mon, 20 Jun 2022 13:06:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0735DC3411B;
-        Mon, 20 Jun 2022 13:06:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44BD0B811A6;
+        Mon, 20 Jun 2022 12:59:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C510C3411B;
+        Mon, 20 Jun 2022 12:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730389;
-        bh=0G8hn+LDRdvLcmIuBLbKikNM+6KmtRGefFtgmQdTpPE=;
+        s=korg; t=1655729939;
+        bh=lLla91eqTYFB82f0dcvV1Wi9WCwmylWUPtyBbfN63Ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hl7T6zFxRP9P/kwZl1n0fMkVVso1y1VLzZNGpC7DrgCJ5Y0FYrN6DYU3y1hQ31n88
-         ynHXriMKkAdvhMdjRTOU0hOhxBofHiHKDEX2gZMWDImzfU7pMNglZQtq7V8bkiEb9S
-         STKZkWMG4KxqGQh4RFjOsKe8Yn3irXyunvM8TPmU=
+        b=KCHqdl9D3fosGf/VqVeGpvvZvwVhGnK6HDJU3+3eypwOLa3v52WjNyoAm8dVpfV4m
+         ZRGzhkOWvv2GkGie1orlW02ZB2gryR3Qg516HCCyp82DMZsxol69NPxfyaWt8NDoV8
+         2JA411zaP/DhKwUbqjKtQSeT+k1ArzJ4nxOrtX/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 008/106] drm/amdkfd: Use mmget_not_zero in MMU notifier
-Date:   Mon, 20 Jun 2022 14:50:27 +0200
-Message-Id: <20220620124724.634826037@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Tali Perry <tali.perry1@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 090/141] i2c: npcm7xx: Add check for platform_driver_register
+Date:   Mon, 20 Jun 2022 14:50:28 +0200
+Message-Id: <20220620124732.205494349@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit fa582c6f3684ac0098a9d02ddf0ed52a02b37127 ]
+[ Upstream commit 6ba12b56b9b844b83ed54fb7ed59fb0eb41e4045 ]
 
-MMU notifier callback may pass in mm with mm->mm_users==0 when process
-is exiting, use mmget_no_zero to avoid accessing invalid mm in deferred
-list work after mm is gone.
+As platform_driver_register() could fail, it should be better
+to deal with the return value in order to maintain the code
+consisitency.
 
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Tali Perry <tali.perry1@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/i2c/busses/i2c-npcm7xx.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-index 830809b694dd..74e6f613be02 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-@@ -2181,6 +2181,8 @@ svm_range_cpu_invalidate_pagetables(struct mmu_interval_notifier *mni,
- 
- 	if (range->event == MMU_NOTIFY_RELEASE)
- 		return true;
-+	if (!mmget_not_zero(mni->mm))
-+		return true;
- 
- 	start = mni->interval_tree.start;
- 	last = mni->interval_tree.last;
-@@ -2207,6 +2209,7 @@ svm_range_cpu_invalidate_pagetables(struct mmu_interval_notifier *mni,
- 	}
- 
- 	svm_range_unlock(prange);
-+	mmput(mni->mm);
- 
- 	return true;
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+index c638f2efb97c..743ac20a405c 100644
+--- a/drivers/i2c/busses/i2c-npcm7xx.c
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -2369,8 +2369,7 @@ static struct platform_driver npcm_i2c_bus_driver = {
+ static int __init npcm_i2c_init(void)
+ {
+ 	npcm_i2c_debugfs_dir = debugfs_create_dir("npcm_i2c", NULL);
+-	platform_driver_register(&npcm_i2c_bus_driver);
+-	return 0;
++	return platform_driver_register(&npcm_i2c_bus_driver);
  }
+ module_init(npcm_i2c_init);
+ 
 -- 
 2.35.1
 
