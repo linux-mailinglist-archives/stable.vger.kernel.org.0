@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B94551D2D
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE35551D06
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243516AbiFTNrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:47:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59298 "EHLO
+        id S245283AbiFTNPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:15:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348730AbiFTNrH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:47:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20F252E094;
-        Mon, 20 Jun 2022 06:17:25 -0700 (PDT)
+        with ESMTP id S1344738AbiFTNOA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:14:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4733E1EEFF;
+        Mon, 20 Jun 2022 06:06:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3A8660EC7;
-        Mon, 20 Jun 2022 13:16:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E894C3411B;
-        Mon, 20 Jun 2022 13:16:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8A85B811B1;
+        Mon, 20 Jun 2022 13:06:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E084BC3411B;
+        Mon, 20 Jun 2022 13:06:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730997;
-        bh=mAck5Vr2VmbZr42evQmg6KzpMK6Ef6EB3bFmUc9P+Uo=;
+        s=korg; t=1655730376;
+        bh=zb93dGo4rOx73I2NIL7+fy8aGwRzCN4TayNzb/JoJmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PoJDJn6uWQEAJs4d4xU8WJ7bGi+HdEsz73hsesKYeH9QStdEEZD+94Q1AIOKX1KJe
-         5Fm1dsEmzblnFa5WaeV3uDRNTo14rwGrfpy+0HKUnsLMMPnN4dxKfV3OM0ZzhAlsBT
-         cU4WxjEhJ3cPr5fXWzwf0XU1VDtw3OCZI7glDJKE=
+        b=XFWExt4Sm8PhmtgA3PpGll82TSI1HyurTcPIcZ4DnbE7mKAYiT6jcyEsfIaOTBq7o
+         doBDJG6+lKHlSE0lYDnpKxpIVnALOfahCO2teHIr218pji9LaqY4/upN6L9FiJntRE
+         /1b6VIk9MjHybxhKXVgpBowCgig+fIstj47ymb6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Varho <jan.varho@gmail.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 122/240] random: do not split fast init input in add_hwgenerator_randomness()
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.15 004/106] arm64: dts: imx8mn-beacon: Enable RTS-CTS on UART3
 Date:   Mon, 20 Jun 2022 14:50:23 +0200
-Message-Id: <20220620124742.548464851@linuxfoundation.org>
+Message-Id: <20220620124724.513898809@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Varho <jan.varho@gmail.com>
+From: Adam Ford <aford173@gmail.com>
 
-commit 527a9867af29ff89f278d037db704e0ed50fb666 upstream.
+commit 5446ff1a67160ad92d9aae9530846aa54750be36 upstream.
 
-add_hwgenerator_randomness() tries to only use the required amount of input
-for fast init, but credits all the entropy, rather than a fraction of
-it. Since it's hard to determine how much entropy is left over out of a
-non-unformly random sample, either give it all to fast init or credit
-it, but don't attempt to do both. In the process, we can clean up the
-injection code to no longer need to return a value.
+There is a header for a DB9 serial port, but any attempts to use
+hardware handshaking fail.  Enable RTS and CTS pin muxing and enable
+handshaking in the uart node.
 
-Signed-off-by: Jan Varho <jan.varho@gmail.com>
-[Jason: expanded commit message]
-Fixes: 73c7733f122e ("random: do not throw away excess input to crng_fast_load")
-Cc: stable@vger.kernel.org # 5.17+, requires af704c856e88
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mn-beacon-baseboard.dtsi |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -437,11 +437,8 @@ static void crng_make_state(u32 chacha_s
-  * This shouldn't be set by functions like add_device_randomness(),
-  * where we can't trust the buffer passed to it is guaranteed to be
-  * unpredictable (so it might not have any entropy at all).
-- *
-- * Returns the number of bytes processed from input, which is bounded
-- * by CRNG_INIT_CNT_THRESH if account is true.
-  */
--static size_t crng_pre_init_inject(const void *input, size_t len, bool account)
-+static void crng_pre_init_inject(const void *input, size_t len, bool account)
- {
- 	static int crng_init_cnt = 0;
- 	struct blake2s_state hash;
-@@ -452,18 +449,15 @@ static size_t crng_pre_init_inject(const
- 	spin_lock_irqsave(&base_crng.lock, flags);
- 	if (crng_init != 0) {
- 		spin_unlock_irqrestore(&base_crng.lock, flags);
--		return 0;
-+		return;
- 	}
+--- a/arch/arm64/boot/dts/freescale/imx8mn-beacon-baseboard.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mn-beacon-baseboard.dtsi
+@@ -176,6 +176,7 @@
+ 	pinctrl-0 = <&pinctrl_uart3>;
+ 	assigned-clocks = <&clk IMX8MN_CLK_UART3>;
+ 	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_80M>;
++	uart-has-rtscts;
+ 	status = "okay";
+ };
  
--	if (account)
--		len = min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
--
- 	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
- 	blake2s_update(&hash, input, len);
- 	blake2s_final(&hash, base_crng.key);
+@@ -259,6 +260,8 @@
+ 		fsl,pins = <
+ 			MX8MN_IOMUXC_ECSPI1_SCLK_UART3_DCE_RX	0x40
+ 			MX8MN_IOMUXC_ECSPI1_MOSI_UART3_DCE_TX	0x40
++			MX8MN_IOMUXC_ECSPI1_MISO_UART3_DCE_CTS_B	0x40
++			MX8MN_IOMUXC_ECSPI1_SS0_UART3_DCE_RTS_B	0x40
+ 		>;
+ 	};
  
- 	if (account) {
--		crng_init_cnt += len;
-+		crng_init_cnt += min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
- 		if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
- 			++base_crng.generation;
- 			crng_init = 1;
-@@ -474,8 +468,6 @@ static size_t crng_pre_init_inject(const
- 
- 	if (crng_init == 1)
- 		pr_notice("fast init done\n");
--
--	return len;
- }
- 
- static void _get_random_bytes(void *buf, size_t nbytes)
-@@ -1133,12 +1125,9 @@ void add_hwgenerator_randomness(const vo
- 				size_t entropy)
- {
- 	if (unlikely(crng_init == 0 && entropy < POOL_MIN_BITS)) {
--		size_t ret = crng_pre_init_inject(buffer, count, true);
--		mix_pool_bytes(buffer, ret);
--		count -= ret;
--		buffer += ret;
--		if (!count || crng_init == 0)
--			return;
-+		crng_pre_init_inject(buffer, count, true);
-+		mix_pool_bytes(buffer, count);
-+		return;
- 	}
- 
- 	/*
 
 
