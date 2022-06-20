@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D25AE551C3A
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE85551C24
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242659AbiFTNUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:20:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49598 "EHLO
+        id S244878AbiFTNNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:13:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245664AbiFTNRg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:17:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33235E21;
-        Mon, 20 Jun 2022 06:07:53 -0700 (PDT)
+        with ESMTP id S245452AbiFTNLT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:11:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0FC4193D4;
+        Mon, 20 Jun 2022 06:05:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E192B811E1;
-        Mon, 20 Jun 2022 13:07:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA6B4C3411B;
-        Mon, 20 Jun 2022 13:07:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B6286154B;
+        Mon, 20 Jun 2022 13:03:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 918E5C3411B;
+        Mon, 20 Jun 2022 13:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730456;
-        bh=js67p3A6r8bSQ11UmhXkeDmQ7ZxE7A+ttl3hqzllPQI=;
+        s=korg; t=1655730196;
+        bh=ytZ1+hFyV2RqybENQgs4g/BucLFJXxFLio4+veEmxzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I/m0D60Ay7Exds4qRfFkeOUrx62T4WQU9rwrobUgoxTCuwgf9A5JoYVS0/S4Jel5e
-         TsVPCg4JC3JRdyqIKCyfRPE2mFVb3hIa+KtHmuXiyQMhLia/UNWGctunB2+lToPbCg
-         VXcbePNzI0EzCdk4vNEphM8xPg5Nm4Zr7CPyYMWU=
+        b=qVUuIl4jrbkFFaMNYFQw3K+KkCEwSt4HTpdRHM0LVWtLF+FD2hIaO4OAEgP5n8uco
+         C5216DTUdSIWvTtdGeCBsFu/wFZ+ov1H7tKouMBXSy+5zk/DPQqqZElvzc3SnmRyGJ
+         3d91cc03NqdyA1eVe3y8Pqpti5lYO6+9C/dVR6us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        van fantasy <g1042620637@gmail.com>
-Subject: [PATCH 5.15 058/106] io_uring: fix races with buffer table unregister
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 54/84] faddr2line: Fix overlapping text section failures, the sequel
 Date:   Mon, 20 Jun 2022 14:51:17 +0200
-Message-Id: <20220620124726.120555527@linuxfoundation.org>
+Message-Id: <20220620124722.492188906@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-[ Upstream commit d11d31fc5d8a96f707facee0babdcffaafa38de2 ]
+[ Upstream commit dcea997beed694cbd8705100ca1a6eb0d886de69 ]
 
-Fixed buffer table quiesce might unlock ->uring_lock, potentially
-letting new requests to be submitted, don't allow those requests to
-use the table as they will race with unregistration.
+If a function lives in a section other than .text, but .text also exists
+in the object, faddr2line may wrongly assume .text.  This can result in
+comically wrong output.  For example:
 
-Reported-and-tested-by: van fantasy <g1042620637@gmail.com>
-Fixes: bd54b6fe3316ec ("io_uring: implement fixed buffers registration similar to fixed files")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+  $ scripts/faddr2line vmlinux.o enter_from_user_mode+0x1c
+  enter_from_user_mode+0x1c/0x30:
+  find_next_bit at /home/jpoimboe/git/linux/./include/linux/find.h:40
+  (inlined by) perf_clear_dirty_counters at /home/jpoimboe/git/linux/arch/x86/events/core.c:2504
+
+Fix it by passing the section name to addr2line, unless the object file
+is vmlinux, in which case the symbol table uses absolute addresses.
+
+Fixes: 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section failures")
+Reported-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Link: https://lore.kernel.org/r/7d25bc1408bd3a750ac26e60d2f2815a5f4a8363.1654130536.git.jpoimboe@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ scripts/faddr2line | 45 ++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 34 insertions(+), 11 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5f111a660fff..be2176575353 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8905,12 +8905,19 @@ static void __io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
+diff --git a/scripts/faddr2line b/scripts/faddr2line
+index 0e6268d59883..94ed98dd899f 100755
+--- a/scripts/faddr2line
++++ b/scripts/faddr2line
+@@ -95,17 +95,25 @@ __faddr2line() {
+ 	local print_warnings=$4
  
- static int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
- {
-+	unsigned nr = ctx->nr_user_bufs;
- 	int ret;
+ 	local sym_name=${func_addr%+*}
+-	local offset=${func_addr#*+}
+-	offset=${offset%/*}
++	local func_offset=${func_addr#*+}
++	func_offset=${func_offset%/*}
+ 	local user_size=
++	local file_type
++	local is_vmlinux=0
+ 	[[ $func_addr =~ "/" ]] && user_size=${func_addr#*/}
  
- 	if (!ctx->buf_data)
- 		return -ENXIO;
+-	if [[ -z $sym_name ]] || [[ -z $offset ]] || [[ $sym_name = $func_addr ]]; then
++	if [[ -z $sym_name ]] || [[ -z $func_offset ]] || [[ $sym_name = $func_addr ]]; then
+ 		warn "bad func+offset $func_addr"
+ 		DONE=1
+ 		return
+ 	fi
  
-+	/*
-+	 * Quiesce may unlock ->uring_lock, and while it's not held
-+	 * prevent new requests using the table.
-+	 */
-+	ctx->nr_user_bufs = 0;
- 	ret = io_rsrc_ref_quiesce(ctx->buf_data, ctx);
-+	ctx->nr_user_bufs = nr;
- 	if (!ret)
- 		__io_sqe_buffers_unregister(ctx);
- 	return ret;
++	# vmlinux uses absolute addresses in the section table rather than
++	# section offsets.
++	local file_type=$(${READELF} --file-header $objfile |
++		${AWK} '$1 == "Type:" { print $2; exit }')
++	[[ $file_type = "EXEC" ]] && is_vmlinux=1
++
+ 	# Go through each of the object's symbols which match the func name.
+ 	# In rare cases there might be duplicates, in which case we print all
+ 	# matches.
+@@ -114,9 +122,11 @@ __faddr2line() {
+ 		local sym_addr=0x${fields[1]}
+ 		local sym_elf_size=${fields[2]}
+ 		local sym_sec=${fields[6]}
++		local sec_size
++		local sec_name
+ 
+ 		# Get the section size:
+-		local sec_size=$(${READELF} --section-headers --wide $objfile |
++		sec_size=$(${READELF} --section-headers --wide $objfile |
+ 			sed 's/\[ /\[/' |
+ 			${AWK} -v sec=$sym_sec '$1 == "[" sec "]" { print "0x" $6; exit }')
+ 
+@@ -126,6 +136,17 @@ __faddr2line() {
+ 			return
+ 		fi
+ 
++		# Get the section name:
++		sec_name=$(${READELF} --section-headers --wide $objfile |
++			sed 's/\[ /\[/' |
++			${AWK} -v sec=$sym_sec '$1 == "[" sec "]" { print $2; exit }')
++
++		if [[ -z $sec_name ]]; then
++			warn "bad section name: section: $sym_sec"
++			DONE=1
++			return
++		fi
++
+ 		# Calculate the symbol size.
+ 		#
+ 		# Unfortunately we can't use the ELF size, because kallsyms
+@@ -174,10 +195,10 @@ __faddr2line() {
+ 
+ 		sym_size=0x$(printf %x $sym_size)
+ 
+-		# Calculate the section address from user-supplied offset:
+-		local addr=$(($sym_addr + $offset))
++		# Calculate the address from user-supplied offset:
++		local addr=$(($sym_addr + $func_offset))
+ 		if [[ -z $addr ]] || [[ $addr = 0 ]]; then
+-			warn "bad address: $sym_addr + $offset"
++			warn "bad address: $sym_addr + $func_offset"
+ 			DONE=1
+ 			return
+ 		fi
+@@ -191,9 +212,9 @@ __faddr2line() {
+ 		fi
+ 
+ 		# Make sure the provided offset is within the symbol's range:
+-		if [[ $offset -gt $sym_size ]]; then
++		if [[ $func_offset -gt $sym_size ]]; then
+ 			[[ $print_warnings = 1 ]] &&
+-				echo "skipping $sym_name address at $addr due to size mismatch ($offset > $sym_size)"
++				echo "skipping $sym_name address at $addr due to size mismatch ($func_offset > $sym_size)"
+ 			continue
+ 		fi
+ 
+@@ -202,11 +223,13 @@ __faddr2line() {
+ 		[[ $FIRST = 0 ]] && echo
+ 		FIRST=0
+ 
+-		echo "$sym_name+$offset/$sym_size:"
++		echo "$sym_name+$func_offset/$sym_size:"
+ 
+ 		# Pass section address to addr2line and strip absolute paths
+ 		# from the output:
+-		local output=$(${ADDR2LINE} -fpie $objfile $addr | sed "s; $dir_prefix\(\./\)*; ;")
++		local args="--functions --pretty-print --inlines --exe=$objfile"
++		[[ $is_vmlinux = 0 ]] && args="$args --section=$sec_name"
++		local output=$(${ADDR2LINE} $args $addr | sed "s; $dir_prefix\(\./\)*; ;")
+ 		[[ -z $output ]] && continue
+ 
+ 		# Default output (non --list):
 -- 
 2.35.1
 
