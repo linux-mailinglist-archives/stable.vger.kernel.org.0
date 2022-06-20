@@ -2,91 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB07855191B
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:40:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7636551894
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:14:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241426AbiFTMkn convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 20 Jun 2022 08:40:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54440 "EHLO
+        id S240777AbiFTMN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:13:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239184AbiFTMkm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:40:42 -0400
-Received: from mail.pgj.campeche.gob.mx (unknown [187.157.28.107])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38F837666
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:40:42 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.pgj.campeche.gob.mx (Postfix) with ESMTP id 08F191BC0C2D;
-        Mon, 20 Jun 2022 07:12:59 -0500 (CDT)
-Received: from mail.pgj.campeche.gob.mx ([127.0.0.1])
-        by localhost (mail.pgj.campeche.gob.mx [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id pX0daPL60gBf; Mon, 20 Jun 2022 07:12:57 -0500 (CDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.pgj.campeche.gob.mx (Postfix) with ESMTP id DC2551BC0D09;
-        Mon, 20 Jun 2022 07:12:56 -0500 (CDT)
-X-Virus-Scanned: amavisd-new at pgj.campeche.gob.mx
-Received: from mail.pgj.campeche.gob.mx ([127.0.0.1])
-        by localhost (mail.pgj.campeche.gob.mx [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id jrDoRwtCrUrR; Mon, 20 Jun 2022 07:12:55 -0500 (CDT)
-Received: from mail.pgj.campeche.gob.mx (mail.pgj.campeche.gob.mx [172.24.1.108])
-        by mail.pgj.campeche.gob.mx (Postfix) with ESMTP id B00CF1BC0A34;
-        Mon, 20 Jun 2022 07:12:54 -0500 (CDT)
-Date:   Mon, 20 Jun 2022 07:12:54 -0500 (CDT)
-From:   =?utf-8?B?0YHQuNGB0YLQtdC80Ysg0LDQtNC80LjQvdC40YHRgtGA0LDRgtC+0YA=?= 
-        <vfgcontrolinterno@pgj.campeche.gob.mx>
-Reply-To: sistemassadmins@mail2engineer.com
-Message-ID: <1632405283.97652.1655727174695.JavaMail.zimbra@pgj.campeche.gob.mx>
-Subject: 
+        with ESMTP id S242439AbiFTMNv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:13:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B749312AB6
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:13:50 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78F57B81109
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 12:13:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E5DC3411B;
+        Mon, 20 Jun 2022 12:13:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1655727228;
+        bh=zsMZO1VfjhnekvCN0xKRHGkkxTseKqpDfnHrc27xP1A=;
+        h=Subject:To:Cc:From:Date:From;
+        b=lFBk1yH65LzIpY8liiJRGlSDRusFUzZwmxnY5Orco05Pj28LcSI/UlETF6Cknzdtt
+         G9pdp3uhd9UncKrwglqvu0O+YsVLRpCAYxosYIb9Qo6OXJPyT7haZT2Il7zx3Aoj56
+         DIbHr1zJ5Uc5+/qUWvdRaMoFmaH0tE9XsIyRQGSo=
+Subject: FAILED: patch "[PATCH] drm/i915: Individualize fences before adding to dma_resv obj" failed to apply to 5.18-stable tree
+To:     nirmoy.das@intel.com, andrzej.hajda@intel.com,
+        jani.nikula@intel.com, matthew.auld@intel.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 20 Jun 2022 14:13:45 +0200
+Message-ID: <16557272252337@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-X-Originating-IP: [172.24.1.254]
-X-Mailer: Zimbra 8.8.15_GA_4304 (zclient/8.8.15_GA_4304)
-Thread-Index: I0oNk2C5FJRWjSR/YkPmUHosOcYKaA==
-Thread-Topic: 
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: Yes, score=6.5 required=5.0 tests=BAYES_50,
-        FREEMAIL_FORGED_REPLYTO,KHOP_HELO_FCRDNS,MISSING_HEADERS,
-        RCVD_IN_MSPIKE_H2,RDNS_DYNAMIC,REPLYTO_WITHOUT_TO_CC,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,T_SPF_HELO_TEMPERROR autolearn=no
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
-X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4999]
-        *  0.0 T_SPF_HELO_TEMPERROR SPF: test of HELO record failed
-        *      (temperror)
-        *  0.0 SPF_NONE SPF: sender does not publish an SPF Record
-        *  1.0 MISSING_HEADERS Missing To: header
-        * -0.0 RCVD_IN_MSPIKE_H2 RBL: Average reputation (+2)
-        *      [187.157.28.107 listed in wl.mailspike.net]
-        *  1.0 RDNS_DYNAMIC Delivered to internal network by host with
-        *      dynamic-looking rDNS
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  1.6 REPLYTO_WITHOUT_TO_CC No description available.
-        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
-        *  0.0 KHOP_HELO_FCRDNS Relay HELO differs from its IP's reverse DNS
-X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 5.18-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-внимания;
+thanks,
 
-Ваши сообщения превысил лимит памяти, который составляет 5 Гб, определенных администратором, который в настоящее время работает на 10.9GB, Вы не сможете отправить или получить новую почту, пока вы повторно не проверить ваш почтовый ящик почты. Чтобы восстановить работоспособность Вашего почтового ящика, отправьте следующую информацию
-ниже:
+greg k-h
 
-имя:
-Имя пользователя:
-пароль:
-Подтверждение пароля:
-Адрес электронной почты:
-телефон:
+------------------ original commit in Linus's tree ------------------
 
-Если вы не в состоянии перепроверить сообщения, ваш почтовый ящик будет
-отключен!
+From 842d9346b2fdda4d2fb8ccb5b87faef1ac01ab51 Mon Sep 17 00:00:00 2001
+From: Nirmoy Das <nirmoy.das@intel.com>
+Date: Wed, 25 May 2022 11:59:55 +0200
+Subject: [PATCH] drm/i915: Individualize fences before adding to dma_resv obj
 
-Приносим извинения за неудобства.
-Проверочный код: RU:5143nnf.RU
-Почты технической поддержки © 2022
+_i915_vma_move_to_active() can receive > 1 fences for
+multiple batch buffers submission. Because dma_resv_add_fence()
+can only accept one fence at a time, change _i915_vma_move_to_active()
+to be aware of multiple fences so that it can add individual
+fences to the dma resv object.
+
+v6: fix multi-line comment.
+v5: remove double fence reservation for batch VMAs.
+v4: Reserve fences for composite_fence on multi-batch contexts and
+    also reserve fence slots to composite_fence for each VMAs.
+v3: dma_resv_reserve_fences is not cumulative so pass num_fences.
+v2: make sure to reserve enough fence slots before adding.
+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5614
+Fixes: 544460c33821 ("drm/i915: Multi-BB execbuf")
+Cc: <stable@vger.kernel.org> # v5.16+
+Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220525095955.15371-1-nirmoy.das@intel.com
+(cherry picked from commit 420a07b841d03f6a436d8c06571c69aa5c783897)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+index c326bd2b444f..30fe847c6664 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+@@ -999,7 +999,8 @@ static int eb_validate_vmas(struct i915_execbuffer *eb)
+ 			}
+ 		}
+ 
+-		err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
++		/* Reserve enough slots to accommodate composite fences */
++		err = dma_resv_reserve_fences(vma->obj->base.resv, eb->num_batches);
+ 		if (err)
+ 			return err;
+ 
+diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
+index 4f6db539571a..0bffb70b3c5f 100644
+--- a/drivers/gpu/drm/i915/i915_vma.c
++++ b/drivers/gpu/drm/i915/i915_vma.c
+@@ -23,6 +23,7 @@
+  */
+ 
+ #include <linux/sched/mm.h>
++#include <linux/dma-fence-array.h>
+ #include <drm/drm_gem.h>
+ 
+ #include "display/intel_frontbuffer.h"
+@@ -1823,6 +1824,21 @@ int _i915_vma_move_to_active(struct i915_vma *vma,
+ 	if (unlikely(err))
+ 		return err;
+ 
++	/*
++	 * Reserve fences slot early to prevent an allocation after preparing
++	 * the workload and associating fences with dma_resv.
++	 */
++	if (fence && !(flags & __EXEC_OBJECT_NO_RESERVE)) {
++		struct dma_fence *curr;
++		int idx;
++
++		dma_fence_array_for_each(curr, idx, fence)
++			;
++		err = dma_resv_reserve_fences(vma->obj->base.resv, idx);
++		if (unlikely(err))
++			return err;
++	}
++
+ 	if (flags & EXEC_OBJECT_WRITE) {
+ 		struct intel_frontbuffer *front;
+ 
+@@ -1832,31 +1848,23 @@ int _i915_vma_move_to_active(struct i915_vma *vma,
+ 				i915_active_add_request(&front->write, rq);
+ 			intel_frontbuffer_put(front);
+ 		}
++	}
+ 
+-		if (!(flags & __EXEC_OBJECT_NO_RESERVE)) {
+-			err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
+-			if (unlikely(err))
+-				return err;
+-		}
++	if (fence) {
++		struct dma_fence *curr;
++		enum dma_resv_usage usage;
++		int idx;
+ 
+-		if (fence) {
+-			dma_resv_add_fence(vma->obj->base.resv, fence,
+-					   DMA_RESV_USAGE_WRITE);
++		obj->read_domains = 0;
++		if (flags & EXEC_OBJECT_WRITE) {
++			usage = DMA_RESV_USAGE_WRITE;
+ 			obj->write_domain = I915_GEM_DOMAIN_RENDER;
+-			obj->read_domains = 0;
+-		}
+-	} else {
+-		if (!(flags & __EXEC_OBJECT_NO_RESERVE)) {
+-			err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
+-			if (unlikely(err))
+-				return err;
++		} else {
++			usage = DMA_RESV_USAGE_READ;
+ 		}
+ 
+-		if (fence) {
+-			dma_resv_add_fence(vma->obj->base.resv, fence,
+-					   DMA_RESV_USAGE_READ);
+-			obj->write_domain = 0;
+-		}
++		dma_fence_array_for_each(curr, idx, fence)
++			dma_resv_add_fence(vma->obj->base.resv, curr, usage);
+ 	}
+ 
+ 	if (flags & EXEC_OBJECT_NEEDS_FENCE && vma->fence)
+
