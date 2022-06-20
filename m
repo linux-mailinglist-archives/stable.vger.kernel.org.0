@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA796551BF8
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09654551CFF
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345010AbiFTNec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:34:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37146 "EHLO
+        id S1346390AbiFTNeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:34:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346953AbiFTNdx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:33:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF9422714C;
-        Mon, 20 Jun 2022 06:13:04 -0700 (PDT)
+        with ESMTP id S1346024AbiFTNce (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:32:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBB2B25EBD;
+        Mon, 20 Jun 2022 06:12:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C747460ABA;
-        Mon, 20 Jun 2022 13:11:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A18B4C3411B;
-        Mon, 20 Jun 2022 13:11:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D624060ECD;
+        Mon, 20 Jun 2022 13:11:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E953EC3411B;
+        Mon, 20 Jun 2022 13:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730715;
-        bh=vmFwneUPrgtWPznSynZ/cQFRxxjN8IKHGf0tkrIPyn0=;
+        s=korg; t=1655730718;
+        bh=2XrBjZ9r1JiQmbgW7MJXyVhxs+2lGIZGcEAZKhkzzC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJtjtpA+SJ36onHTpWyxOH+F2jRy62ab5M4tdGGNk+NP1zXl1x9nKIVNZ/Wvx7Oae
-         ReR0KYGYuUWHxuSl2LcdsHaJfFqjOeu/hsScZfTZR+tui4xRvvsgpusL0Imx2uHObI
-         W5pK9g38nZRxTIexEL5u3HbiCONndTMmGVglFVJE=
+        b=Opxg4s3TwgllpJQeMJrWwGQKiEm6uPFIAGqDMT3OQEbG9/fBMLAPnacL+XOAiJ3kv
+         xjQAYnOpfEZn3LQy2L+dnxIXNCkIUPxYjb3Fnsh3CvstChImeDYqPYZ1k7AoSEflsr
+         j8MQpTfeTSJcAIpmk6IMnhSyKdDDDythS/e/9IYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 034/240] MAINTAINERS: co-maintain random.c
-Date:   Mon, 20 Jun 2022 14:48:55 +0200
-Message-Id: <20220620124738.876040118@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 035/240] crypto: blake2s - include <linux/bug.h> instead of <asm/bug.h>
+Date:   Mon, 20 Jun 2022 14:48:56 +0200
+Message-Id: <20220620124738.915177595@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -54,33 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 58e1100fdc5990b0cc0d4beaf2562a92e621ac7d upstream.
+commit bbda6e0f1303953c855ee3669655a81b69fbe899 upstream.
 
-random.c is a bit understaffed, and folks want more prompt reviews. I've
-got the crypto background and the interest to do these reviews, and have
-authored parts of the file already.
+Address the following checkpatch warning:
 
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+	WARNING: Use #include <linux/bug.h> instead of <asm/bug.h>
+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- MAINTAINERS |    1 +
- 1 file changed, 1 insertion(+)
+ include/crypto/blake2s.h |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -13640,6 +13640,7 @@ F:	arch/mips/configs/generic/board-ranch
+--- a/include/crypto/blake2s.h
++++ b/include/crypto/blake2s.h
+@@ -6,12 +6,11 @@
+ #ifndef BLAKE2S_H
+ #define BLAKE2S_H
  
- RANDOM NUMBER DRIVER
- M:	"Theodore Ts'o" <tytso@mit.edu>
-+M:	Jason A. Donenfeld <Jason@zx2c4.com>
- S:	Maintained
- F:	drivers/char/random.c
++#include <linux/bug.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/string.h>
  
+-#include <asm/bug.h>
+-
+ enum blake2s_lengths {
+ 	BLAKE2S_BLOCK_SIZE = 64,
+ 	BLAKE2S_HASH_SIZE = 32,
 
 
