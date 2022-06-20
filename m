@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F52355127B
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 10:20:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C05551280
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 10:20:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239425AbiFTIUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 04:20:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37904 "EHLO
+        id S239232AbiFTIUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 04:20:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239300AbiFTIUc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 04:20:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78AC11A28
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 01:20:31 -0700 (PDT)
+        with ESMTP id S239082AbiFTIUb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 04:20:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59FBA11C10
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 01:20:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 43C996129A
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 08:20:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4721CC3411B;
-        Mon, 20 Jun 2022 08:20:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11DBBB80EFA
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 08:20:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B44EC341C4;
+        Mon, 20 Jun 2022 08:20:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655713230;
-        bh=JuW+HVaSX9huLxLnX970EhL+fXVhiY5j51oUu/B2E0Q=;
+        s=korg; t=1655713227;
+        bh=EgQdntBbJ3RpioMHohshrv1Wkc88HuCuAPxtjgBYnOs=;
         h=Subject:To:Cc:From:Date:From;
-        b=EvWm52tphAkmF9m1aLp7eG3JN+1MVli0fx4QQ1Uw9vxqXEFwC3D1jXY08d/iKbPQc
-         iRhenuP0tEXzoiGtNZCapFZRMaweEPdaI4XGxT1chwUGJ/K6cfzp8+ob8kV1oJP62R
-         g6m2ZwKUwP+le3+YwJeN8/icpHPy//oEiD0qSDIA=
-Subject: FAILED: patch "[PATCH] usb: gadget: u_ether: fix regression in setting fixed MAC" failed to apply to 4.19-stable tree
+        b=C5pVCa0LZRqFgiEMUEoWv6dFAK9aYkICXuMKaTyrdxyP+GbFYUgxSlk1cjxPhDuht
+         bg8a+A9+kl9hxqMtNUI0beJqNtlIBjWIDsx42hYsXvVsWzXxEgpvXfPx5ZiqL/R2Zc
+         pURZ1tL3Uh4Az5w/SWaUsU/dK/9iNX43B/5XNWYs=
+Subject: FAILED: patch "[PATCH] usb: gadget: u_ether: fix regression in setting fixed MAC" failed to apply to 4.14-stable tree
 To:     posteuca@mutex.one, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 20 Jun 2022 10:20:12 +0200
-Message-ID: <165571321218346@kroah.com>
+Message-ID: <1655713212161149@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
