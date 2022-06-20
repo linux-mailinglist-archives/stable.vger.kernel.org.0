@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F66551DBF
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A867551E28
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350437AbiFTOC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:02:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45246 "EHLO
+        id S242385AbiFTODx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:03:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344645AbiFTNy2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:54:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61D4331934;
-        Mon, 20 Jun 2022 06:20:50 -0700 (PDT)
+        with ESMTP id S1347221AbiFTN5t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:57:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 346E022BCA;
+        Mon, 20 Jun 2022 06:23:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 470D5B80E7D;
-        Mon, 20 Jun 2022 13:20:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B81C3411C;
-        Mon, 20 Jun 2022 13:20:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67A1960EC7;
+        Mon, 20 Jun 2022 13:23:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DC77C3411B;
+        Mon, 20 Jun 2022 13:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731239;
-        bh=gpkYebRH4SEsKpxmhmXzkbXxcODhpgm2UHDw0rYNRNc=;
+        s=korg; t=1655731402;
+        bh=M2xov3M5nLHIGiZU6LE/7jpo9MVr/0vDcs2PNZ97I9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ymkqtjnxLGDENSBnctJRIejOV22U1uqO00SzqYKZhsX6cxsMuJDD1vYjZ+IYXQ5Y9
-         cefdPlaKwAnTsCSOhqP5nbBG+REUEuAwYWdy3ZjIO2KIHqD9YVzAHwTfRBPijWJT45
-         Xxa+nt9H3hRR/IhSp0ifiQCQrU5kBIkWB+ShU0tY=
+        b=O53IY7PMw+X7S++SSUCpDxPrrRGSR2NewZ+1BkohWc24pb1b4eZU4DIrEjsPQOWLO
+         fBhqaDg01whgeqjXufd8p3N7SgD8msB2LgmHyr+abmpkGg6M9FeqWTXuyXu5/X4VKE
+         CRGPMJ1euz4LJhq6zDXrIWOQ/aV+Lu+AlAzHbyGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Brian King <brking@linux.vnet.ibm.com>,
+        Chengguang Xu <cgxu519@mykernel.net>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 195/240] scsi: lpfc: Allow reduced polling rate for nvme_admin_async_event cmd completion
-Date:   Mon, 20 Jun 2022 14:51:36 +0200
-Message-Id: <20220620124744.636617622@linuxfoundation.org>
+Subject: [PATCH 5.4 196/240] scsi: ipr: Fix missing/incorrect resource cleanup in error case
+Date:   Mon, 20 Jun 2022 14:51:37 +0200
+Message-Id: <20220620124744.665480947@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -55,71 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Chengguang Xu <cgxu519@mykernel.net>
 
-[ Upstream commit 2e7e9c0c1ec05f18d320ecc8a31eec59d2af1af9 ]
+[ Upstream commit d64c491911322af1dcada98e5b9ee0d87e8c8fee ]
 
-NVMe Asynchronous Event Request commands have no command timeout value per
-specifications.
+Fix missing resource cleanup (when '(--i) == 0') for error case in
+ipr_alloc_mem() and skip incorrect resource cleanup (when '(--i) == 0') for
+error case in ipr_request_other_msi_irqs() because variable i started from
+1.
 
-Set WQE option to allow a reduced FLUSH polling rate for I/O error
-detection specifically for nvme_admin_async_event commands.
-
-Link: https://lore.kernel.org/r/20220603174329.63777-9-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
+Link: https://lore.kernel.org/r/20220529153456.4183738-4-cgxu519@mykernel.net
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Brian King <brking@linux.vnet.ibm.com>
+Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_hw4.h  |  3 +++
- drivers/scsi/lpfc/lpfc_nvme.c | 11 +++++++++--
- 2 files changed, 12 insertions(+), 2 deletions(-)
+ drivers/scsi/ipr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_hw4.h b/drivers/scsi/lpfc/lpfc_hw4.h
-index b8a772f80d6c..cbea3e0c1a7d 100644
---- a/drivers/scsi/lpfc/lpfc_hw4.h
-+++ b/drivers/scsi/lpfc/lpfc_hw4.h
-@@ -4249,6 +4249,9 @@ struct wqe_common {
- #define wqe_sup_SHIFT         6
- #define wqe_sup_MASK          0x00000001
- #define wqe_sup_WORD          word11
-+#define wqe_ffrq_SHIFT         6
-+#define wqe_ffrq_MASK          0x00000001
-+#define wqe_ffrq_WORD          word11
- #define wqe_wqec_SHIFT        7
- #define wqe_wqec_MASK         0x00000001
- #define wqe_wqec_WORD         word11
-diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
-index 5a86a1ee0de3..193c1a81cac0 100644
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -1202,7 +1202,8 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
- {
- 	struct lpfc_hba *phba = vport->phba;
- 	struct nvmefc_fcp_req *nCmd = lpfc_ncmd->nvmeCmd;
--	struct lpfc_iocbq *pwqeq = &(lpfc_ncmd->cur_iocbq);
-+	struct nvme_common_command *sqe;
-+	struct lpfc_iocbq *pwqeq = &lpfc_ncmd->cur_iocbq;
- 	union lpfc_wqe128 *wqe = &pwqeq->wqe;
- 	uint32_t req_len;
+diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
+index 7a57b61f0340..a163fd9331b3 100644
+--- a/drivers/scsi/ipr.c
++++ b/drivers/scsi/ipr.c
+@@ -9772,7 +9772,7 @@ static int ipr_alloc_mem(struct ipr_ioa_cfg *ioa_cfg)
+ 					GFP_KERNEL);
  
-@@ -1258,8 +1259,14 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
- 		cstat->control_requests++;
- 	}
- 
--	if (pnode->nlp_nvme_info & NLP_NVME_NSLER)
-+	if (pnode->nlp_nvme_info & NLP_NVME_NSLER) {
- 		bf_set(wqe_erp, &wqe->generic.wqe_com, 1);
-+		sqe = &((struct nvme_fc_cmd_iu *)
-+			nCmd->cmdaddr)->sqe.common;
-+		if (sqe->opcode == nvme_admin_async_event)
-+			bf_set(wqe_ffrq, &wqe->generic.wqe_com, 1);
-+	}
-+
- 	/*
- 	 * Finish initializing those WQE fields that are independent
- 	 * of the nvme_cmnd request_buffer
+ 		if (!ioa_cfg->hrrq[i].host_rrq)  {
+-			while (--i > 0)
++			while (--i >= 0)
+ 				dma_free_coherent(&pdev->dev,
+ 					sizeof(u32) * ioa_cfg->hrrq[i].size,
+ 					ioa_cfg->hrrq[i].host_rrq,
+@@ -10045,7 +10045,7 @@ static int ipr_request_other_msi_irqs(struct ipr_ioa_cfg *ioa_cfg,
+ 			ioa_cfg->vectors_info[i].desc,
+ 			&ioa_cfg->hrrq[i]);
+ 		if (rc) {
+-			while (--i >= 0)
++			while (--i > 0)
+ 				free_irq(pci_irq_vector(pdev, i),
+ 					&ioa_cfg->hrrq[i]);
+ 			return rc;
 -- 
 2.35.1
 
