@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 938F1551B29
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CB83551B6D
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344199AbiFTNZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:25:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35414 "EHLO
+        id S238728AbiFTNLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:11:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344854AbiFTNXc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:23:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B95E23140;
-        Mon, 20 Jun 2022 06:09:12 -0700 (PDT)
+        with ESMTP id S1343958AbiFTNJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8E0F1AF22;
+        Mon, 20 Jun 2022 06:04:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17B9E60A52;
-        Mon, 20 Jun 2022 13:07:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 176FEC3411B;
-        Mon, 20 Jun 2022 13:07:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BD8AB811A5;
+        Mon, 20 Jun 2022 13:04:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7AD3C341C4;
+        Mon, 20 Jun 2022 13:04:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730478;
-        bh=Gcz5MMh+luo1mAG0oh47gcojUkta080KEWA+pDrqFIY=;
+        s=korg; t=1655730292;
+        bh=k6te6UvAhWV0pHOaWU9Llx1ueM872wXXeKd2sw/X/WE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fCYKT181d1YEIE2jxT5dYMH8xOyZnMCWMoOjfAM180ac+5EQ8JzITdWvMEs6y+oNi
-         xT7B5kl1SuuyNK1JtbrIgRIIGFK04OkR0SA8izA/o+ymeft5G0yN27KBuqhN37Di/9
-         M2m7g6iZTQCGuktJT93U99aheZNspqDUosIX1WAo=
+        b=zY18myHD+F+h115W7yCDn7kN9NcfXJQZ4tbkDe+CAKbPBNHLhSpakJV3wcGMVamHz
+         Oi1O2OovHsUfcJXpTgrEvaCvuXt1BmM3Spyguk512pKQvdXOaDWca2tb5S+7sLfEW0
+         wC7V1L2UE8gq70z3wUn8ju2K/V8AVH2m4ao3RcX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 064/106] nvme: add device name to warning in uuid_show()
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.10 60/84] mei: me: add raptor lake point S DID
 Date:   Mon, 20 Jun 2022 14:51:23 +0200
-Message-Id: <20220620124726.295117925@linuxfoundation.org>
+Message-Id: <20220620124722.664826739@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-[ Upstream commit 1fc766b5c08417248e0008bca14c3572ac0f1c26 ]
+commit 3ed8c7d39cfef831fe508fc1308f146912fa72e6 upstream.
 
-This provides more context to users.
+Add Raptor (Point) Lake S device id.
 
-Old message:
-
-[   00.000000] No UUID available providing old NGUID
-
-New message:
-
-[   00.000000] block nvme0n1: No UUID available providing old NGUID
-
-Fixes: d934f9848a77 ("nvme: provide UUID value to userspace")
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20220606144225.282375-3-tomas.winkler@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/misc/mei/hw-me-regs.h |    2 ++
+ drivers/misc/mei/pci-me.c     |    2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index af355b9ee5ea..9bc9f6d225bd 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3182,8 +3182,8 @@ static ssize_t uuid_show(struct device *dev, struct device_attribute *attr,
- 	 * we have no UUID set
- 	 */
- 	if (uuid_is_null(&ids->uuid)) {
--		printk_ratelimited(KERN_WARNING
--				   "No UUID available providing old NGUID\n");
-+		dev_warn_ratelimited(dev,
-+			"No UUID available providing old NGUID\n");
- 		return sysfs_emit(buf, "%pU\n", ids->nguid);
- 	}
- 	return sysfs_emit(buf, "%pU\n", &ids->uuid);
--- 
-2.35.1
-
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -109,6 +109,8 @@
+ #define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
+ #define MEI_DEV_ID_ADP_N      0x54E0  /* Alder Lake Point N */
+ 
++#define MEI_DEV_ID_RPL_S      0x7A68  /* Raptor Lake Point S */
++
+ /*
+  * MEI HW Section
+  */
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -115,6 +115,8 @@ static const struct pci_device_id mei_me
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_P, MEI_ME_PCH15_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_N, MEI_ME_PCH15_CFG)},
+ 
++	{MEI_PCI_DEVICE(MEI_DEV_ID_RPL_S, MEI_ME_PCH15_CFG)},
++
+ 	/* required last entry */
+ 	{0, }
+ };
 
 
