@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C375C551D3E
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA0B551C4B
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244935AbiFTNuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55900 "EHLO
+        id S245155AbiFTNLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:11:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349007AbiFTNrp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:47:45 -0400
+        with ESMTP id S245340AbiFTNIp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:08:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784DA1A056;
-        Mon, 20 Jun 2022 06:17:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1396119FB4;
+        Mon, 20 Jun 2022 06:02:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D38360FEF;
-        Mon, 20 Jun 2022 13:16:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDBF8C3411B;
-        Mon, 20 Jun 2022 13:16:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45AAE61543;
+        Mon, 20 Jun 2022 13:01:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46D29C3411B;
+        Mon, 20 Jun 2022 13:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731010;
-        bh=FHCpQXUyZuymp9eUMYo1Xrjj9Tv2JqAA3JogK1g4j7U=;
+        s=korg; t=1655730062;
+        bh=MgywS8XvIM5eqT3QyCdyvklsRJN0u5CnLIFVeSWA3Cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3oT2OuOV9zFQ0RYY/hu7jpeF5T7+iYcZsm3RwlLVW9bdVFbd9YOQVgOFFOKCbN49
-         gyw7WFP+lhB28FAiTmrp0ubQ0Ous1BWYOvbXCAA31s1FXgrBeF+dYCiS+cf6rJf4Rs
-         pjat6pzd2Jbg2B6kskVSu9LNEy08gXgTqYoNmBb8=
+        b=qZ7ztMDLDxbG4/XCBFInhJvfJS3DBLbonF2vRD3Ptrl/IaRxy3pkSGKSg4Um8FZDJ
+         oaXwxLzzkxKAkicBxMJAU/BOvRSBRw3oeecWnHPrIH82w8sUOzGePW9pWYRP6t72qB
+         dblYO9pH2rKa2Hl5xuQqqvCcmUuDwSA8idCaBFIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jann Horn <jannh@google.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 126/240] random: allow partial reads if later user copies fail
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.10 04/84] arm64: dts: imx8mm-beacon: Enable RTS-CTS on UART3
 Date:   Mon, 20 Jun 2022 14:50:27 +0200
-Message-Id: <20220620124742.663624602@linuxfoundation.org>
+Message-Id: <20220620124721.016486184@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,100 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Adam Ford <aford173@gmail.com>
 
-commit 5209aed5137880fa229746cb521f715e55596460 upstream.
+commit 4ce01ce36d77137cf60776b320babed89de6bd4c upstream.
 
-Rather than failing entirely if a copy_to_user() fails at some point,
-instead we should return a partial read for the amount that succeeded
-prior, unless none succeeded at all, in which case we return -EFAULT as
-before.
+There is a header for a DB9 serial port, but any attempts to use
+hardware handshaking fail.  Enable RTS and CTS pin muxing and enable
+handshaking in the uart node.
 
-This makes it consistent with other reader interfaces. For example, the
-following snippet for /dev/zero outputs "4" followed by "1":
-
-  int fd;
-  void *x = mmap(NULL, 4096, PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-  assert(x != MAP_FAILED);
-  fd = open("/dev/zero", O_RDONLY);
-  assert(fd >= 0);
-  printf("%zd\n", read(fd, x, 4));
-  printf("%zd\n", read(fd, x + 4095, 4));
-  close(fd);
-
-This brings that same standard behavior to the various RNG reader
-interfaces.
-
-While we're at it, we can streamline the loop logic a little bit.
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jann Horn <jannh@google.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -523,8 +523,7 @@ EXPORT_SYMBOL(get_random_bytes);
+--- a/arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi
+@@ -167,6 +167,7 @@
+ 	pinctrl-0 = <&pinctrl_uart3>;
+ 	assigned-clocks = <&clk IMX8MM_CLK_UART3>;
+ 	assigned-clock-parents = <&clk IMX8MM_SYS_PLL1_80M>;
++	uart-has-rtscts;
+ 	status = "okay";
+ };
  
- static ssize_t get_random_bytes_user(void __user *buf, size_t nbytes)
- {
--	ssize_t ret = 0;
--	size_t len;
-+	size_t len, left, ret = 0;
- 	u32 chacha_state[CHACHA_BLOCK_SIZE / sizeof(u32)];
- 	u8 output[CHACHA_BLOCK_SIZE];
+@@ -237,6 +238,8 @@
+ 		fsl,pins = <
+ 			MX8MM_IOMUXC_ECSPI1_SCLK_UART3_DCE_RX	0x40
+ 			MX8MM_IOMUXC_ECSPI1_MOSI_UART3_DCE_TX	0x40
++			MX8MM_IOMUXC_ECSPI1_MISO_UART3_DCE_CTS_B	0x40
++			MX8MM_IOMUXC_ECSPI1_SS0_UART3_DCE_RTS_B	0x40
+ 		>;
+ 	};
  
-@@ -543,37 +542,40 @@ static ssize_t get_random_bytes_user(voi
- 	 * the user directly.
- 	 */
- 	if (nbytes <= CHACHA_KEY_SIZE) {
--		ret = copy_to_user(buf, &chacha_state[4], nbytes) ? -EFAULT : nbytes;
-+		ret = nbytes - copy_to_user(buf, &chacha_state[4], nbytes);
- 		goto out_zero_chacha;
- 	}
- 
--	do {
-+	for (;;) {
- 		chacha20_block(chacha_state, output);
- 		if (unlikely(chacha_state[12] == 0))
- 			++chacha_state[13];
- 
- 		len = min_t(size_t, nbytes, CHACHA_BLOCK_SIZE);
--		if (copy_to_user(buf, output, len)) {
--			ret = -EFAULT;
-+		left = copy_to_user(buf, output, len);
-+		if (left) {
-+			ret += len - left;
- 			break;
- 		}
- 
--		nbytes -= len;
- 		buf += len;
- 		ret += len;
-+		nbytes -= len;
-+		if (!nbytes)
-+			break;
- 
- 		BUILD_BUG_ON(PAGE_SIZE % CHACHA_BLOCK_SIZE != 0);
--		if (!(ret % PAGE_SIZE) && nbytes) {
-+		if (ret % PAGE_SIZE == 0) {
- 			if (signal_pending(current))
- 				break;
- 			cond_resched();
- 		}
--	} while (nbytes);
-+	}
- 
- 	memzero_explicit(output, sizeof(output));
- out_zero_chacha:
- 	memzero_explicit(chacha_state, sizeof(chacha_state));
--	return ret;
-+	return ret ? ret : -EFAULT;
- }
- 
- /*
 
 
