@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4566A551DAA
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA252551E61
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243890AbiFTOEG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:04:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45278 "EHLO
+        id S1350253AbiFTOBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:01:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232839AbiFTN5u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:57:50 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C70D0381B4;
-        Mon, 20 Jun 2022 06:23:39 -0700 (PDT)
+        with ESMTP id S1350556AbiFTNxm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:53:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0623715A33;
+        Mon, 20 Jun 2022 06:20:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C1B9BCE138D;
-        Mon, 20 Jun 2022 13:06:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FF44C3411B;
-        Mon, 20 Jun 2022 13:06:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85BD060EC7;
+        Mon, 20 Jun 2022 13:18:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79929C3411B;
+        Mon, 20 Jun 2022 13:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730405;
-        bh=8el3SqLdZcIbqsykJyEZKxNlrqeGOrQgzCDXMo6yEMo=;
+        s=korg; t=1655731121;
+        bh=FHmPyj2D2tGbC8s1f5us7ysnhTDu4Fn5V+6b2VESaaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZaiGG3Ena/E9LL4i4qaqOHBrJ5A3avkToq8Gu5EKw+ACeWJQp09nlf31mM7FvwAV3
-         aT1kcPv+iRH8t7QkohjcpltVY67G2Y+eDVtFXboG2VwEuet1TABDmpGSfqIiveDXKb
-         AQJb2sxMpzH7isrz9B3lVWINOGW804HbPMWygACs=
+        b=ejtnZjyg/VELnrQVz6MtNXFLcZj5UmXjbDPZVOkMrJlKqZ4UHZN0KRPFrjGLazgKK
+         vmftVNQ7WHxpddsOMR5FOxXvR3cLvmjaaVSKa/qgjRA9qTKQ5ATbyX+inTEzMNa1HB
+         n5l7jBnZwdgXxDMYMcCHrfL5fqo7nrBZrDEJqnfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duke Lee <krnhotwings@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 043/106] platform/x86/intel: hid: Add Surface Go to VGBS allow list
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 161/240] random: remove extern from functions in header
 Date:   Mon, 20 Jun 2022 14:51:02 +0200
-Message-Id: <20220620124725.662434414@linuxfoundation.org>
+Message-Id: <20220620124743.672356266@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +52,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duke Lee <krnhotwings@gmail.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit d4fe9cc4ff8656704b58cfd9363d7c3c9d65e519 ]
+commit 7782cfeca7d420e8bb707613d4cfb0f7ff29bb3a upstream.
 
-The Surface Go reports Chassis Type 9 (Laptop,) so the device needs to be
-added to dmi_vgbs_allow_list to enable tablet mode when an attached Type
-Cover is folded back.
+Accoriding to the kernel style guide, having `extern` on functions in
+headers is old school and deprecated, and doesn't add anything. So remove
+them from random.h, and tidy up the file a little bit too.
 
-BugLink: https://github.com/linux-surface/linux-surface/issues/837
-Signed-off-by: Duke Lee <krnhotwings@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220607213654.5567-1-krnhotwings@gmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/intel/hid.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/linux/random.h |   71 +++++++++++++++++++------------------------------
+ 1 file changed, 28 insertions(+), 43 deletions(-)
 
-diff --git a/drivers/platform/x86/intel/hid.c b/drivers/platform/x86/intel/hid.c
-index e9e8554147e0..d7d6782c40c2 100644
---- a/drivers/platform/x86/intel/hid.c
-+++ b/drivers/platform/x86/intel/hid.c
-@@ -129,6 +129,12 @@ static const struct dmi_system_id dmi_vgbs_allow_list[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Convertible 15-df0xxx"),
- 		},
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Surface Go"),
-+		},
-+	},
- 	{ }
- };
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -12,13 +12,12 @@
  
--- 
-2.35.1
-
+ struct notifier_block;
+ 
+-extern void add_device_randomness(const void *, size_t);
+-extern void add_bootloader_randomness(const void *, size_t);
+-extern void add_input_randomness(unsigned int type, unsigned int code,
+-				 unsigned int value) __latent_entropy;
+-extern void add_interrupt_randomness(int irq) __latent_entropy;
+-extern void add_hwgenerator_randomness(const void *buffer, size_t count,
+-				       size_t entropy);
++void add_device_randomness(const void *, size_t);
++void add_bootloader_randomness(const void *, size_t);
++void add_input_randomness(unsigned int type, unsigned int code,
++			  unsigned int value) __latent_entropy;
++void add_interrupt_randomness(int irq) __latent_entropy;
++void add_hwgenerator_randomness(const void *buffer, size_t count, size_t entropy);
+ 
+ #if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+ static inline void add_latent_entropy(void)
+@@ -26,21 +25,11 @@ static inline void add_latent_entropy(vo
+ 	add_device_randomness((const void *)&latent_entropy, sizeof(latent_entropy));
+ }
+ #else
+-static inline void add_latent_entropy(void) {}
+-#endif
+-
+-extern void get_random_bytes(void *buf, size_t nbytes);
+-extern int wait_for_random_bytes(void);
+-extern int __init random_init(const char *command_line);
+-extern bool rng_is_initialized(void);
+-extern int register_random_ready_notifier(struct notifier_block *nb);
+-extern int unregister_random_ready_notifier(struct notifier_block *nb);
+-extern size_t __must_check get_random_bytes_arch(void *buf, size_t nbytes);
+-
+-#ifndef MODULE
+-extern const struct file_operations random_fops, urandom_fops;
++static inline void add_latent_entropy(void) { }
+ #endif
+ 
++void get_random_bytes(void *buf, size_t nbytes);
++size_t __must_check get_random_bytes_arch(void *buf, size_t nbytes);
+ u32 get_random_u32(void);
+ u64 get_random_u64(void);
+ static inline unsigned int get_random_int(void)
+@@ -72,11 +61,17 @@ static inline unsigned long get_random_l
+ 
+ static inline unsigned long get_random_canary(void)
+ {
+-	unsigned long val = get_random_long();
+-
+-	return val & CANARY_MASK;
++	return get_random_long() & CANARY_MASK;
+ }
+ 
++unsigned long randomize_page(unsigned long start, unsigned long range);
++
++int __init random_init(const char *command_line);
++bool rng_is_initialized(void);
++int wait_for_random_bytes(void);
++int register_random_ready_notifier(struct notifier_block *nb);
++int unregister_random_ready_notifier(struct notifier_block *nb);
++
+ /* Calls wait_for_random_bytes() and then calls get_random_bytes(buf, nbytes).
+  * Returns the result of the call to wait_for_random_bytes. */
+ static inline int get_random_bytes_wait(void *buf, size_t nbytes)
+@@ -100,8 +95,6 @@ declare_get_random_var_wait(int)
+ declare_get_random_var_wait(long)
+ #undef declare_get_random_var
+ 
+-unsigned long randomize_page(unsigned long start, unsigned long range);
+-
+ /*
+  * This is designed to be standalone for just prandom
+  * users, but for now we include it from <linux/random.h>
+@@ -112,22 +105,10 @@ unsigned long randomize_page(unsigned lo
+ #ifdef CONFIG_ARCH_RANDOM
+ # include <asm/archrandom.h>
+ #else
+-static inline bool __must_check arch_get_random_long(unsigned long *v)
+-{
+-	return false;
+-}
+-static inline bool __must_check arch_get_random_int(unsigned int *v)
+-{
+-	return false;
+-}
+-static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+-{
+-	return false;
+-}
+-static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+-{
+-	return false;
+-}
++static inline bool __must_check arch_get_random_long(unsigned long *v) { return false; }
++static inline bool __must_check arch_get_random_int(unsigned int *v) { return false; }
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v) { return false; }
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v) { return false; }
+ #endif
+ 
+ /*
+@@ -151,8 +132,12 @@ static inline bool __init arch_get_rando
+ #endif
+ 
+ #ifdef CONFIG_SMP
+-extern int random_prepare_cpu(unsigned int cpu);
+-extern int random_online_cpu(unsigned int cpu);
++int random_prepare_cpu(unsigned int cpu);
++int random_online_cpu(unsigned int cpu);
++#endif
++
++#ifndef MODULE
++extern const struct file_operations random_fops, urandom_fops;
+ #endif
+ 
+ #endif /* _LINUX_RANDOM_H */
 
 
