@@ -2,144 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF60550DBC
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 02:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5324A550E90
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 04:30:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232077AbiFTAKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jun 2022 20:10:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56796 "EHLO
+        id S233156AbiFTCak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jun 2022 22:30:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231266AbiFTAK3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jun 2022 20:10:29 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 035CBDB1;
-        Sun, 19 Jun 2022 17:10:28 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id i81-20020a1c3b54000000b0039c76434147so6985777wma.1;
-        Sun, 19 Jun 2022 17:10:28 -0700 (PDT)
+        with ESMTP id S233035AbiFTCaj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Jun 2022 22:30:39 -0400
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C626BBC22
+        for <stable@vger.kernel.org>; Sun, 19 Jun 2022 19:30:38 -0700 (PDT)
+Received: by mail-pl1-x62a.google.com with SMTP id y6so8531562plg.0
+        for <stable@vger.kernel.org>; Sun, 19 Jun 2022 19:30:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=MOgkmt4hoY1NuTD36wu+KkCXhIYC/5pF/wBvdmvGfkI=;
-        b=fEftjZz9xOfRte/5Vn/z6uNJF5TeH7mcqAdtIpGU7vMdvK8RppSemCqOMg65gCdPwn
-         +hna0kFogrLD6wE3HkG9QoytTHgoPWIjN0fLyJbo8ce1hz4HUefLzX8MCk6pmvCMmkc0
-         vKmMeoC6aLNEbhzTSdfKTuQvN8pmKIgR94J/RCnlQ6Ij+dww31cfRdlGDKwdkvoT6QR2
-         /nUiuvDGR/s1SJTERb0d3l76NdpEtcoUrVNqe23nrFLCjvPdiXSksnFpVUFSiZhkRBca
-         fV/mCqNbbGkf9n94lk0sSHYeKKdXEF5GYdiU0i9FHlvd5ZXFxWLwetlg34DOxZ5pHWZc
-         P9pw==
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=rKDkCWFLL2LKHrd0PY7oJwJSwDpD2T5oprcITiH4OoM=;
+        b=caQjzPuBIHwA2jjjyPgS+SZbXzK2In7vHfu7aUGNIa+U/C2FXhNA3dChQV+bWaMcPG
+         7FlS2gMLACmKgYIq4Cw1zTdb3dP+si8wWFZJujAs2+n4ZdWgXCl0slFlOChKYG/fm1Yo
+         nNGpEcLHuSYfPWoKClGZYjMWL/nz6ACorgOwJ1+S7jXI9N/gEVwENiHOwo8Tib8PlyqS
+         ikEj1dZ27MGpqnNJ+1u0cCNmGqLMim/wVupR6XNaTcBIr4LFLQXuOFrkKkoI2App6+OX
+         oarEM0yWQdccJgOLK+o6cEp/LX/iKe+L3kccp6rOvoUVdwwN9mx11+k0RgFN0y9iDfu/
+         oTiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=MOgkmt4hoY1NuTD36wu+KkCXhIYC/5pF/wBvdmvGfkI=;
-        b=XL79tC2QloRQ3u/lnnLjSzlPYaUvlkWhaPhtDQmSAq8rfsJLWSQkb3jRFVfEEIjVNl
-         USoyehg0Ama20C3F4mf/iIEWInTN8FjdyRYMr6hZN/wkcXhCyWRv77czYuA/gZ1yJcZf
-         OMY5g7DkE2z7x5cTz1Scpe0cR8U/LNWUv+lgB2AvnC9vyImBNI4fkeudKUOOIuTS8mad
-         gsS7AE2KW9PKoB8vG6JQQvp+UToeTGw1AWh2bHnb1vUs11gMGq9UTOqhSR8+QlgE4Hyf
-         meM+oYpzNQ9xgzJexe96NvJhGtj6wWWC2UURhhFiBKACmjqJYiiYwefupt2Gk9YpmO1C
-         gknw==
-X-Gm-Message-State: AJIora9pORUJdZnwAoqzBebUbaNxe/A99PSfxcQSyqTHSpUu8Nyw+vpt
-        mvHIjIVyg9N6AUba+xydGGBJxRZ7D9ydRa6dBiU=
-X-Google-Smtp-Source: AGRyM1uSHE60zzO0/gPy8Fr1bzhj/uEOzf7E9aPvCjleJw0Gl57hEYYoqZ0byCMvu+NarDwU1ZXwEBF8Ekbupp4cwV4=
-X-Received: by 2002:a7b:c392:0:b0:39c:4d27:e698 with SMTP id
- s18-20020a7bc392000000b0039c4d27e698mr21804143wmj.57.1655683827478; Sun, 19
- Jun 2022 17:10:27 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=rKDkCWFLL2LKHrd0PY7oJwJSwDpD2T5oprcITiH4OoM=;
+        b=N/RT6ccdO4YwjwSu3qvkhgJ+4VqxfszRGO2TeyDnhMKl+DivwM7Jd9FpZNx+Gt8WTC
+         UpRfFggviIjM7JvitMFsFUV1KEQsJRlNnd/11+SXGALGPz/fW+aE2XszlrwE2tlCuoy2
+         1JavzFnPU3xl2lvVP+tJY5JWty+psHBQ2yXEpTwkak8IDycU75qClhPRKzF0T6OGI+fB
+         B6DfPQ5spxj3GMobi88x588iMQmabxlqKAYdhrQ5woUTDS+OrIe47BFOdKh2I1XYA71I
+         WiZygT3XurzANTbhZeCb/v9KIxG0mBZUWEr/U+n2e2Dug5irpZVw03xpFyf/HLqzvHEp
+         hk1w==
+X-Gm-Message-State: AJIora9QVUJxCp4yfB9A9MiVHbSZNr8yqK5sNikrcv1g1Ugao0vkNAR5
+        aiacUW6vr8VqEVReIXS6MQ9hlw==
+X-Google-Smtp-Source: AGRyM1tG7Y4Ri55cxJYS8evvg2vI5g0ekaQOzL/vT2Lew/EEVtV27PGqa1e/oIscRqU39mMZiRtzsg==
+X-Received: by 2002:a17:903:2291:b0:164:95f:b512 with SMTP id b17-20020a170903229100b00164095fb512mr21978303plh.120.1655692238298;
+        Sun, 19 Jun 2022 19:30:38 -0700 (PDT)
+Received: from FVFYT0MHHV2J.bytedance.net ([139.177.225.255])
+        by smtp.gmail.com with ESMTPSA id z7-20020a17090a8b8700b001ecb29de3e4sm153644pjn.49.2022.06.19.19.30.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Jun 2022 19:30:38 -0700 (PDT)
+From:   Muchun Song <songmuchun@bytedance.com>
+To:     akpm@linux-foundation.org, mike.kravetz@oracle.com
+Cc:     duanxiongchun@bytedance.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Muchun Song <songmuchun@bytedance.com>, stable@vger.kernel.org
+Subject: [PATCH] mm: sparsemem: fix missing higher order allocation splitting
+Date:   Mon, 20 Jun 2022 10:30:19 +0800
+Message-Id: <20220620023019.94257-1-songmuchun@bytedance.com>
+X-Mailer: git-send-email 2.32.1 (Apple Git-133)
 MIME-Version: 1.0
-References: <20220619141120.12760-1-linkinjeon@kernel.org> <20220619141120.12760-2-linkinjeon@kernel.org>
-In-Reply-To: <20220619141120.12760-2-linkinjeon@kernel.org>
-From:   Hyunchul Lee <hyc.lee@gmail.com>
-Date:   Mon, 20 Jun 2022 09:10:16 +0900
-Message-ID: <CANFS6bZz353HN_7-dSdZEtPxEYTeyAX7YHYe5N_=wLS2Z1ua8g@mail.gmail.com>
-Subject: Re: [PATCH 2/2] ksmbd: check invalid FileOffset and BeyondFinalZero
- in FSCTL_ZERO_DATA
-To:     Namjae Jeon <linkinjeon@kernel.org>
-Cc:     linux-cifs <linux-cifs@vger.kernel.org>,
-        Steve French <smfrench@gmail.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-2022=EB=85=84 6=EC=9B=94 19=EC=9D=BC (=EC=9D=BC) =EC=98=A4=ED=9B=84 11:11, =
-Namjae Jeon <linkinjeon@kernel.org>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=B1:
->
-> FileOffset should not be greater than BeyondFinalZero in FSCTL_ZERO_DATA.
-> And don't call ksmbd_vfs_zero_data() if length is zero.
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-> ---
+Higher order allocations for vmemmap pages from buddy allocator must be
+able to be treated as indepdenent small pages as they can be freed
+individually by the caller.  There is no problem for higher order vmemmap
+pages allocated at boot time since each individual small page will be
+initialized at boot time.  However, it will be an issue for memory hotplug
+case since those higher order vmemmap pages are allocated from buddy
+allocator without initializing each individual small page's refcount. The
+system will panic in put_page_testzero() when CONFIG_DEBUG_VM is enabled
+if the vmemmap page is freed.
 
-Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
+Fixes: d8d55f5616cf ("mm: sparsemem: use page table lock to protect kernel pmd operations")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+---
+ mm/sparse-vmemmap.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
->  fs/ksmbd/smb2pdu.c | 27 +++++++++++++++++----------
->  1 file changed, 17 insertions(+), 10 deletions(-)
->
-> diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-> index e35930867893..94ab1dcd80e7 100644
-> --- a/fs/ksmbd/smb2pdu.c
-> +++ b/fs/ksmbd/smb2pdu.c
-> @@ -7700,7 +7700,7 @@ int smb2_ioctl(struct ksmbd_work *work)
->         {
->                 struct file_zero_data_information *zero_data;
->                 struct ksmbd_file *fp;
-> -               loff_t off, len;
-> +               loff_t off, len, bfz;
->
->                 if (!test_tree_conn_flag(work->tcon, KSMBD_TREE_CONN_FLAG=
-_WRITABLE)) {
->                         ksmbd_debug(SMB,
-> @@ -7717,19 +7717,26 @@ int smb2_ioctl(struct ksmbd_work *work)
->                 zero_data =3D
->                         (struct file_zero_data_information *)&req->Buffer=
-[0];
->
-> -               fp =3D ksmbd_lookup_fd_fast(work, id);
-> -               if (!fp) {
-> -                       ret =3D -ENOENT;
-> +               off =3D le64_to_cpu(zero_data->FileOffset);
-> +               bfz =3D le64_to_cpu(zero_data->BeyondFinalZero);
-> +               if (off > bfz) {
-> +                       ret =3D -EINVAL;
->                         goto out;
->                 }
->
-> -               off =3D le64_to_cpu(zero_data->FileOffset);
-> -               len =3D le64_to_cpu(zero_data->BeyondFinalZero) - off;
-> +               len =3D bfz - off;
-> +               if (len) {
-> +                       fp =3D ksmbd_lookup_fd_fast(work, id);
-> +                       if (!fp) {
-> +                               ret =3D -ENOENT;
-> +                               goto out;
-> +                       }
->
-> -               ret =3D ksmbd_vfs_zero_data(work, fp, off, len);
-> -               ksmbd_fd_put(work, fp);
-> -               if (ret < 0)
-> -                       goto out;
-> +                       ret =3D ksmbd_vfs_zero_data(work, fp, off, len);
-> +                       ksmbd_fd_put(work, fp);
-> +                       if (ret < 0)
-> +                               goto out;
-> +               }
->                 break;
->         }
->         case FSCTL_QUERY_ALLOCATED_RANGES:
-> --
-> 2.25.1
->
+diff --git a/mm/sparse-vmemmap.c b/mm/sparse-vmemmap.c
+index 652f11a05749..ebb489fcf07c 100644
+--- a/mm/sparse-vmemmap.c
++++ b/mm/sparse-vmemmap.c
+@@ -78,6 +78,14 @@ static int __split_vmemmap_huge_pmd(pmd_t *pmd, unsigned long start)
+ 
+ 	spin_lock(&init_mm.page_table_lock);
+ 	if (likely(pmd_leaf(*pmd))) {
++		/*
++		 * Higher order allocations from buddy allocator must be able to
++		 * be treated as indepdenent small pages (as they can be freed
++		 * individually).
++		 */
++		if (!PageReserved(page))
++			split_page(page, get_order(PMD_SIZE));
++
+ 		/* Make pte visible before pmd. See comment in pmd_install(). */
+ 		smp_wmb();
+ 		pmd_populate_kernel(&init_mm, pmd, pgtable);
+-- 
+2.11.0
 
-
---=20
-Thanks,
-Hyunchul
