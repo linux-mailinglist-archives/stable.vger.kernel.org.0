@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B10C551993
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6194551CBF
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243717AbiFTNEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:04:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47630 "EHLO
+        id S1343763AbiFTNU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:20:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244183AbiFTNDD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:03:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A728FEAA;
-        Mon, 20 Jun 2022 05:57:53 -0700 (PDT)
+        with ESMTP id S1344038AbiFTNRv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:17:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5B912631;
+        Mon, 20 Jun 2022 06:07:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52B7DB811A0;
-        Mon, 20 Jun 2022 12:57:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A16CC3411B;
-        Mon, 20 Jun 2022 12:57:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD3B2614D5;
+        Mon, 20 Jun 2022 13:06:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAF18C3411B;
+        Mon, 20 Jun 2022 13:06:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729871;
-        bh=ibkZ1UquxqXR4dIKAuTJ37fkd7+EmCqIQqT0dN/jzpE=;
+        s=korg; t=1655730367;
+        bh=MKH20Wi8RY3EZ8Yh/cC2lcDSCXi8M7373XryUgxii1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qlXL5k/ru645FHKR4gkPYqcnIDBM3GJgfEPKhmVcR8BohTcZqAOgoIHkKFdBHbVGI
-         DPQO7b6HDTwm538IO/ohEXhoSr2wGlLtHhWYse0fhZUOlY4sVJyiTlftNMoPWjRRa/
-         3In3/QG26VAQx8Y3RNzOONlZBlzzqvxj9AXRhDWk=
+        b=eCAcCWDxx0GNAZPesUb5uPetfDCb13PS6uhN96J971q4zVsPotroe+M0gbJbvGTI3
+         y5PYJ7oeUk/Ex8PQvayJabITB1/3ZkU7gV8reNPg1GUALoY+mxCtgG49Pq6Fv5s/2q
+         1Nut90p2++yzhO3SHn+yXR13fuivoDEcuzl7KYsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        "Ivan T. Ivanov" <iivanov@suse.de>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 084/141] arm64: ftrace: consistently handle PLTs.
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.15 003/106] arm64: dts: imx8mm-beacon: Enable RTS-CTS on UART3
 Date:   Mon, 20 Jun 2022 14:50:22 +0200
-Message-Id: <20220620124732.026035646@linuxfoundation.org>
+Message-Id: <20220620124724.485420491@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,305 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit a6253579977e4c6f7818eeb05bf2bc65678a7187 ]
+commit 4ce01ce36d77137cf60776b320babed89de6bd4c upstream.
 
-Sometimes it is necessary to use a PLT entry to call an ftrace
-trampoline. This is handled by ftrace_make_call() and ftrace_make_nop(),
-with each having *almost* identical logic, but this is not handled by
-ftrace_modify_call() since its introduction in commit:
+There is a header for a DB9 serial port, but any attempts to use
+hardware handshaking fail.  Enable RTS and CTS pin muxing and enable
+handshaking in the uart node.
 
-  3b23e4991fb66f6d ("arm64: implement ftrace with regs")
-
-Due to this, if we ever were to call ftrace_modify_call() for a callsite
-which requires a PLT entry for a trampoline, then either:
-
-a) If the old addr requires a trampoline, ftrace_modify_call() will use
-   an out-of-range address to generate the 'old' branch instruction.
-   This will result in warnings from aarch64_insn_gen_branch_imm() and
-   ftrace_modify_code(), and no instructions will be modified. As
-   ftrace_modify_call() will return an error, this will result in
-   subsequent internal ftrace errors.
-
-b) If the old addr does not require a trampoline, but the new addr does,
-   ftrace_modify_call() will use an out-of-range address to generate the
-   'new' branch instruction. This will result in warnings from
-   aarch64_insn_gen_branch_imm(), and ftrace_modify_code() will replace
-   the 'old' branch with a BRK. This will result in a kernel panic when
-   this BRK is later executed.
-
-Practically speaking, case (a) is vastly more likely than case (b), and
-typically this will result in internal ftrace errors that don't
-necessarily affect the rest of the system. This can be demonstrated with
-an out-of-tree test module which triggers ftrace_modify_call(), e.g.
-
-| # insmod test_ftrace.ko
-| test_ftrace: Function test_function raw=0xffffb3749399201c, callsite=0xffffb37493992024
-| branch_imm_common: offset out of range
-| branch_imm_common: offset out of range
-| ------------[ ftrace bug ]------------
-| ftrace failed to modify
-| [<ffffb37493992024>] test_function+0x8/0x38 [test_ftrace]
-|  actual:   1d:00:00:94
-| Updating ftrace call site to call a different ftrace function
-| ftrace record flags: e0000002
-|  (2) R
-|  expected tramp: ffffb374ae42ed54
-| ------------[ cut here ]------------
-| WARNING: CPU: 0 PID: 165 at kernel/trace/ftrace.c:2085 ftrace_bug+0x280/0x2b0
-| Modules linked in: test_ftrace(+)
-| CPU: 0 PID: 165 Comm: insmod Not tainted 5.19.0-rc2-00002-g4d9ead8b45ce #13
-| Hardware name: linux,dummy-virt (DT)
-| pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-| pc : ftrace_bug+0x280/0x2b0
-| lr : ftrace_bug+0x280/0x2b0
-| sp : ffff80000839ba00
-| x29: ffff80000839ba00 x28: 0000000000000000 x27: ffff80000839bcf0
-| x26: ffffb37493994180 x25: ffffb374b0991c28 x24: ffffb374b0d70000
-| x23: 00000000ffffffea x22: ffffb374afcc33b0 x21: ffffb374b08f9cc8
-| x20: ffff572b8462c000 x19: ffffb374b08f9000 x18: ffffffffffffffff
-| x17: 6c6c6163202c6331 x16: ffffb374ae5ad110 x15: ffffb374b0d51ee4
-| x14: 0000000000000000 x13: 3435646532346561 x12: 3437336266666666
-| x11: 203a706d61727420 x10: 6465746365707865 x9 : ffffb374ae5149e8
-| x8 : 336266666666203a x7 : 706d617274206465 x6 : 00000000fffff167
-| x5 : ffff572bffbc4a08 x4 : 00000000fffff167 x3 : 0000000000000000
-| x2 : 0000000000000000 x1 : ffff572b84461e00 x0 : 0000000000000022
-| Call trace:
-|  ftrace_bug+0x280/0x2b0
-|  ftrace_replace_code+0x98/0xa0
-|  ftrace_modify_all_code+0xe0/0x144
-|  arch_ftrace_update_code+0x14/0x20
-|  ftrace_startup+0xf8/0x1b0
-|  register_ftrace_function+0x38/0x90
-|  test_ftrace_init+0xd0/0x1000 [test_ftrace]
-|  do_one_initcall+0x50/0x2b0
-|  do_init_module+0x50/0x1f0
-|  load_module+0x17c8/0x1d64
-|  __do_sys_finit_module+0xa8/0x100
-|  __arm64_sys_finit_module+0x2c/0x3c
-|  invoke_syscall+0x50/0x120
-|  el0_svc_common.constprop.0+0xdc/0x100
-|  do_el0_svc+0x3c/0xd0
-|  el0_svc+0x34/0xb0
-|  el0t_64_sync_handler+0xbc/0x140
-|  el0t_64_sync+0x18c/0x190
-| ---[ end trace 0000000000000000 ]---
-
-We can solve this by consistently determining whether to use a PLT entry
-for an address.
-
-Note that since (the earlier) commit:
-
-  f1a54ae9af0da4d7 ("arm64: module/ftrace: intialize PLT at load time")
-
-... we can consistently determine the PLT address that a given callsite
-will use, and therefore ftrace_make_nop() does not need to skip
-validation when a PLT is in use.
-
-This patch factors the existing logic out of ftrace_make_call() and
-ftrace_make_nop() into a common ftrace_find_callable_addr() helper
-function, which is used by ftrace_make_call(), ftrace_make_nop(), and
-ftrace_modify_call(). In ftrace_make_nop() the patching is consistently
-validated by ftrace_modify_code() as we can always determine what the
-old instruction should have been.
-
-Fixes: 3b23e4991fb6 ("arm64: implement ftrace with regs")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Tested-by: "Ivan T. Ivanov" <iivanov@suse.de>
-Reviewed-by: Chengming Zhou <zhouchengming@bytedance.com>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Link: https://lore.kernel.org/r/20220614080944.1349146-3-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/ftrace.c | 137 ++++++++++++++++++-------------------
- 1 file changed, 66 insertions(+), 71 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
-index d9e3eda419ec..f3184cd81b19 100644
---- a/arch/arm64/kernel/ftrace.c
-+++ b/arch/arm64/kernel/ftrace.c
-@@ -78,47 +78,76 @@ static struct plt_entry *get_ftrace_plt(struct module *mod, unsigned long addr)
- }
+--- a/arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi
+@@ -166,6 +166,7 @@
+ 	pinctrl-0 = <&pinctrl_uart3>;
+ 	assigned-clocks = <&clk IMX8MM_CLK_UART3>;
+ 	assigned-clock-parents = <&clk IMX8MM_SYS_PLL1_80M>;
++	uart-has-rtscts;
+ 	status = "okay";
+ };
  
- /*
-- * Turn on the call to ftrace_caller() in instrumented function
-+ * Find the address the callsite must branch to in order to reach '*addr'.
-+ *
-+ * Due to the limited range of 'BL' instructions, modules may be placed too far
-+ * away to branch directly and must use a PLT.
-+ *
-+ * Returns true when '*addr' contains a reachable target address, or has been
-+ * modified to contain a PLT address. Returns false otherwise.
-  */
--int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
-+static bool ftrace_find_callable_addr(struct dyn_ftrace *rec,
-+				      struct module *mod,
-+				      unsigned long *addr)
- {
- 	unsigned long pc = rec->ip;
--	u32 old, new;
--	long offset = (long)addr - (long)pc;
-+	long offset = (long)*addr - (long)pc;
-+	struct plt_entry *plt;
+@@ -236,6 +237,8 @@
+ 		fsl,pins = <
+ 			MX8MM_IOMUXC_ECSPI1_SCLK_UART3_DCE_RX	0x40
+ 			MX8MM_IOMUXC_ECSPI1_MOSI_UART3_DCE_TX	0x40
++			MX8MM_IOMUXC_ECSPI1_MISO_UART3_DCE_CTS_B	0x40
++			MX8MM_IOMUXC_ECSPI1_SS0_UART3_DCE_RTS_B	0x40
+ 		>;
+ 	};
  
--	if (offset < -SZ_128M || offset >= SZ_128M) {
--		struct module *mod;
--		struct plt_entry *plt;
-+	/*
-+	 * When the target is within range of the 'BL' instruction, use 'addr'
-+	 * as-is and branch to that directly.
-+	 */
-+	if (offset >= -SZ_128M && offset < SZ_128M)
-+		return true;
- 
--		if (!IS_ENABLED(CONFIG_ARM64_MODULE_PLTS))
--			return -EINVAL;
-+	/*
-+	 * When the target is outside of the range of a 'BL' instruction, we
-+	 * must use a PLT to reach it. We can only place PLTs for modules, and
-+	 * only when module PLT support is built-in.
-+	 */
-+	if (!IS_ENABLED(CONFIG_ARM64_MODULE_PLTS))
-+		return false;
- 
--		/*
--		 * On kernels that support module PLTs, the offset between the
--		 * branch instruction and its target may legally exceed the
--		 * range of an ordinary relative 'bl' opcode. In this case, we
--		 * need to branch via a trampoline in the module.
--		 *
--		 * NOTE: __module_text_address() must be called with preemption
--		 * disabled, but we can rely on ftrace_lock to ensure that 'mod'
--		 * retains its validity throughout the remainder of this code.
--		 */
-+	/*
-+	 * 'mod' is only set at module load time, but if we end up
-+	 * dealing with an out-of-range condition, we can assume it
-+	 * is due to a module being loaded far away from the kernel.
-+	 *
-+	 * NOTE: __module_text_address() must be called with preemption
-+	 * disabled, but we can rely on ftrace_lock to ensure that 'mod'
-+	 * retains its validity throughout the remainder of this code.
-+	 */
-+	if (!mod) {
- 		preempt_disable();
- 		mod = __module_text_address(pc);
- 		preempt_enable();
-+	}
- 
--		if (WARN_ON(!mod))
--			return -EINVAL;
-+	if (WARN_ON(!mod))
-+		return false;
- 
--		plt = get_ftrace_plt(mod, addr);
--		if (!plt) {
--			pr_err("ftrace: no module PLT for %ps\n", (void *)addr);
--			return -EINVAL;
--		}
--
--		addr = (unsigned long)plt;
-+	plt = get_ftrace_plt(mod, *addr);
-+	if (!plt) {
-+		pr_err("ftrace: no module PLT for %ps\n", (void *)*addr);
-+		return false;
- 	}
- 
-+	*addr = (unsigned long)plt;
-+	return true;
-+}
-+
-+/*
-+ * Turn on the call to ftrace_caller() in instrumented function
-+ */
-+int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
-+{
-+	unsigned long pc = rec->ip;
-+	u32 old, new;
-+
-+	if (!ftrace_find_callable_addr(rec, NULL, &addr))
-+		return -EINVAL;
-+
- 	old = aarch64_insn_gen_nop();
- 	new = aarch64_insn_gen_branch_imm(pc, addr, AARCH64_INSN_BRANCH_LINK);
- 
-@@ -132,6 +161,11 @@ int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
- 	unsigned long pc = rec->ip;
- 	u32 old, new;
- 
-+	if (!ftrace_find_callable_addr(rec, NULL, &old_addr))
-+		return -EINVAL;
-+	if (!ftrace_find_callable_addr(rec, NULL, &addr))
-+		return -EINVAL;
-+
- 	old = aarch64_insn_gen_branch_imm(pc, old_addr,
- 					  AARCH64_INSN_BRANCH_LINK);
- 	new = aarch64_insn_gen_branch_imm(pc, addr, AARCH64_INSN_BRANCH_LINK);
-@@ -181,54 +215,15 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
- 		    unsigned long addr)
- {
- 	unsigned long pc = rec->ip;
--	bool validate = true;
- 	u32 old = 0, new;
--	long offset = (long)addr - (long)pc;
- 
--	if (offset < -SZ_128M || offset >= SZ_128M) {
--		u32 replaced;
--
--		if (!IS_ENABLED(CONFIG_ARM64_MODULE_PLTS))
--			return -EINVAL;
--
--		/*
--		 * 'mod' is only set at module load time, but if we end up
--		 * dealing with an out-of-range condition, we can assume it
--		 * is due to a module being loaded far away from the kernel.
--		 */
--		if (!mod) {
--			preempt_disable();
--			mod = __module_text_address(pc);
--			preempt_enable();
--
--			if (WARN_ON(!mod))
--				return -EINVAL;
--		}
--
--		/*
--		 * The instruction we are about to patch may be a branch and
--		 * link instruction that was redirected via a PLT entry. In
--		 * this case, the normal validation will fail, but we can at
--		 * least check that we are dealing with a branch and link
--		 * instruction that points into the right module.
--		 */
--		if (aarch64_insn_read((void *)pc, &replaced))
--			return -EFAULT;
--
--		if (!aarch64_insn_is_bl(replaced) ||
--		    !within_module(pc + aarch64_get_branch_offset(replaced),
--				   mod))
--			return -EINVAL;
--
--		validate = false;
--	} else {
--		old = aarch64_insn_gen_branch_imm(pc, addr,
--						  AARCH64_INSN_BRANCH_LINK);
--	}
-+	if (!ftrace_find_callable_addr(rec, mod, &addr))
-+		return -EINVAL;
- 
-+	old = aarch64_insn_gen_branch_imm(pc, addr, AARCH64_INSN_BRANCH_LINK);
- 	new = aarch64_insn_gen_nop();
- 
--	return ftrace_modify_code(pc, old, new, validate);
-+	return ftrace_modify_code(pc, old, new, true);
- }
- 
- void arch_ftrace_update_code(int command)
--- 
-2.35.1
-
 
 
