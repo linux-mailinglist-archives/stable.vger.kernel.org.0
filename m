@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A65C25519BA
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA8955519B3
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242995AbiFTMyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:54:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37184 "EHLO
+        id S243053AbiFTMyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:54:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242952AbiFTMx7 (ORCPT
+        with ESMTP id S242906AbiFTMx7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:53:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D802A167D2;
-        Mon, 20 Jun 2022 05:53:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEA05167F4;
+        Mon, 20 Jun 2022 05:53:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77C51614DA;
-        Mon, 20 Jun 2022 12:53:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70AD7C3411B;
-        Mon, 20 Jun 2022 12:53:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D853614D5;
+        Mon, 20 Jun 2022 12:53:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79E45C3411C;
+        Mon, 20 Jun 2022 12:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729621;
-        bh=vJjdRV6suW58wg8UxIw6dYY+UwjX1tnxBI4Y8tgNXmY=;
+        s=korg; t=1655729624;
+        bh=Pbt0fZV4EK9xrklXK2Rl75OGY0kyIJHvwKpZ+/cLZ+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b082EFioQmDjo/jJYn93T77OO/7jJIAJ9de5fiTbYgELpQ3IbEVH1lKsE4KEbRZIA
-         a7ZzL2dZwzE/DqG/6sjdBfTWz/qER/JGFcQDLsxjQbuijbqPwuSS8Dp7c5rc7ugNbB
-         NaXPhY/xQFGlbQy99OHsN8DP/qAfekZskfihNTRA=
+        b=gnm8EyHhHBu2m65avhzXPDt1Xq3pW2AMqVlP02ap9/78IJ2rdDzyFo+WLbcKtafXW
+         jooVnxguDODQUquOwmaULwdUz/oSVenofwhjhVbhHjiqe9o7Mx4TBLe68+hVtCGzR3
+         HpSzAKrVb0gnQLW96BypdwOsPIhinVI3S1PdqXk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 021/141] quota: Prevent memory allocation recursion while holding dq_lock
-Date:   Mon, 20 Jun 2022 14:49:19 +0200
-Message-Id: <20220620124730.149891524@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 022/141] ASoC: wm8962: Fix suspend while playing music
+Date:   Mon, 20 Jun 2022 14:49:20 +0200
+Message-Id: <20220620124730.180106168@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
 References: <20220620124729.509745706@linuxfoundation.org>
@@ -54,95 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit 537e11cdc7a6b3ce94fa25ed41306193df9677b7 ]
+[ Upstream commit d1f5272c0f7d2e53c6f2480f46725442776f5f78 ]
 
-As described in commit 02117b8ae9c0 ("f2fs: Set GF_NOFS in
-read_cache_page_gfp while doing f2fs_quota_read"), we must not enter
-filesystem reclaim while holding the dq_lock.  Prevent this more generally
-by using memalloc_nofs_save() while holding the lock.
+If the audio CODEC is playing sound when the system is suspended,
+it can be left in a state which throws the following error:
 
-Link: https://lore.kernel.org/r/20220605143815.2330891-2-willy@infradead.org
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Jan Kara <jack@suse.cz>
+wm8962 3-001a: ASoC: error at soc_component_read_no_lock on wm8962.3-001a: -16
+
+Once this error has occurred, the audio will not work again until rebooted.
+
+Fix this by configuring SET_SYSTEM_SLEEP_PM_OPS.
+
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220526182129.538472-1-aford173@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/dquot.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/soc/codecs/wm8962.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
-index a74aef99bd3d..09d1307959d0 100644
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -79,6 +79,7 @@
- #include <linux/capability.h>
- #include <linux/quotaops.h>
- #include <linux/blkdev.h>
-+#include <linux/sched/mm.h>
- #include "../internal.h" /* ugh */
+diff --git a/sound/soc/codecs/wm8962.c b/sound/soc/codecs/wm8962.c
+index 2c41d31956aa..f622a6bbd2fb 100644
+--- a/sound/soc/codecs/wm8962.c
++++ b/sound/soc/codecs/wm8962.c
+@@ -3871,6 +3871,7 @@ static int wm8962_runtime_suspend(struct device *dev)
+ #endif
  
- #include <linux/uaccess.h>
-@@ -425,9 +426,11 @@ EXPORT_SYMBOL(mark_info_dirty);
- int dquot_acquire(struct dquot *dquot)
- {
- 	int ret = 0, ret2 = 0;
-+	unsigned int memalloc;
- 	struct quota_info *dqopt = sb_dqopt(dquot->dq_sb);
+ static const struct dev_pm_ops wm8962_pm = {
++	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
+ 	SET_RUNTIME_PM_OPS(wm8962_runtime_suspend, wm8962_runtime_resume, NULL)
+ };
  
- 	mutex_lock(&dquot->dq_lock);
-+	memalloc = memalloc_nofs_save();
- 	if (!test_bit(DQ_READ_B, &dquot->dq_flags)) {
- 		ret = dqopt->ops[dquot->dq_id.type]->read_dqblk(dquot);
- 		if (ret < 0)
-@@ -458,6 +461,7 @@ int dquot_acquire(struct dquot *dquot)
- 	smp_mb__before_atomic();
- 	set_bit(DQ_ACTIVE_B, &dquot->dq_flags);
- out_iolock:
-+	memalloc_nofs_restore(memalloc);
- 	mutex_unlock(&dquot->dq_lock);
- 	return ret;
- }
-@@ -469,9 +473,11 @@ EXPORT_SYMBOL(dquot_acquire);
- int dquot_commit(struct dquot *dquot)
- {
- 	int ret = 0;
-+	unsigned int memalloc;
- 	struct quota_info *dqopt = sb_dqopt(dquot->dq_sb);
- 
- 	mutex_lock(&dquot->dq_lock);
-+	memalloc = memalloc_nofs_save();
- 	if (!clear_dquot_dirty(dquot))
- 		goto out_lock;
- 	/* Inactive dquot can be only if there was error during read/init
-@@ -481,6 +487,7 @@ int dquot_commit(struct dquot *dquot)
- 	else
- 		ret = -EIO;
- out_lock:
-+	memalloc_nofs_restore(memalloc);
- 	mutex_unlock(&dquot->dq_lock);
- 	return ret;
- }
-@@ -492,9 +499,11 @@ EXPORT_SYMBOL(dquot_commit);
- int dquot_release(struct dquot *dquot)
- {
- 	int ret = 0, ret2 = 0;
-+	unsigned int memalloc;
- 	struct quota_info *dqopt = sb_dqopt(dquot->dq_sb);
- 
- 	mutex_lock(&dquot->dq_lock);
-+	memalloc = memalloc_nofs_save();
- 	/* Check whether we are not racing with some other dqget() */
- 	if (dquot_is_busy(dquot))
- 		goto out_dqlock;
-@@ -510,6 +519,7 @@ int dquot_release(struct dquot *dquot)
- 	}
- 	clear_bit(DQ_ACTIVE_B, &dquot->dq_flags);
- out_dqlock:
-+	memalloc_nofs_restore(memalloc);
- 	mutex_unlock(&dquot->dq_lock);
- 	return ret;
- }
 -- 
 2.35.1
 
