@@ -2,47 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CA475519BE
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D4BD551B6C
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243861AbiFTNBT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:01:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47340 "EHLO
+        id S1345548AbiFTNjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:39:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244742AbiFTM7v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:59:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B12921CB37;
-        Mon, 20 Jun 2022 05:56:45 -0700 (PDT)
+        with ESMTP id S1347094AbiFTNhm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:37:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F1E12872C;
+        Mon, 20 Jun 2022 06:14:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82E2C614B7;
-        Mon, 20 Jun 2022 12:56:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C3C2C341C5;
-        Mon, 20 Jun 2022 12:56:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 056E16154E;
+        Mon, 20 Jun 2022 13:06:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6088C3411B;
+        Mon, 20 Jun 2022 13:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729804;
-        bh=e5fvnq1pRHVpnYq9FM6ZBPyfEaarRWoP6+KGXzhvOT8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pfftSXESAP+UZBjUFY+DhkqroUNVm9vAlfSjMr/hzG081j9H2G4umO5nwIw22nen4
-         /pEpPLjpEYGgWohob1tlzemUukz2k9p/lDLFnRR8Sba87O+I3/nTABIvfWhDx9i+Jp
-         c/Pv8N9Ay9OWPLGp/ET+3ebaSLc+wis86gYWXJSM=
+        s=korg; t=1655730395;
+        bh=3PmEe733b5iYOuewY3oJxv5K3qq7n7lGxbUsPEAKLFw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=nsgrH1ZXzq8suOY239PV9Okrze69H5TkneTBoCfyj3UYHljFAoKV32BrxRvBxncy1
+         C29qXjJ5vOmPADcjufEDI0U0ru1prRsvgSHhzXtBur6QtRysAueBtLum3isosPceEG
+         kqeNKUyXxE7ZEmYeZqMz6FViTuboDlutw+Tzmxpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 081/141] net: remove noblock parameter from skb_recv_datagram()
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.15 000/106] 5.15.49-rc1 review
 Date:   Mon, 20 Jun 2022 14:50:19 +0200
-Message-Id: <20220620124731.932460774@linuxfoundation.org>
+Message-Id: <20220620124724.380838401@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.49-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.15.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.15.49-rc1
+X-KernelTest-Deadline: 2022-06-22T12:47+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -55,716 +62,471 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+This is the start of the stable review cycle for the 5.15.49 release.
+There are 106 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit f4b41f062c424209e3939a81e6da022e049a45f2 ]
+Responses should be made by Wed, 22 Jun 2022 12:47:02 +0000.
+Anything received after that time might be too late.
 
-skb_recv_datagram() has two parameters 'flags' and 'noblock' that are
-merged inside skb_recv_datagram() by 'flags | (noblock ? MSG_DONTWAIT : 0)'
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.49-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+and the diffstat can be found below.
 
-As 'flags' may contain MSG_DONTWAIT as value most callers split the 'flags'
-into 'flags' and 'noblock' with finally obsolete bit operations like this:
+thanks,
 
-skb_recv_datagram(sk, flags & ~MSG_DONTWAIT, flags & MSG_DONTWAIT, &rc);
+greg k-h
 
-And this is not even done consistently with the 'flags' parameter.
+-------------
+Pseudo-Shortlog of commits:
 
-This patch removes the obsolete and costly splitting into two parameters
-and only performs bit operations when really needed on the caller side.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.15.49-rc1
 
-One missing conversion thankfully reported by kernel test robot. I missed
-to enable kunit tests to build the mctp code.
+Peng Fan <peng.fan@nxp.com>
+    clk: imx8mp: fix usb_root_clk parent
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/isdn/mISDN/socket.c    | 2 +-
- drivers/net/ppp/pppoe.c        | 3 +--
- include/linux/skbuff.h         | 3 +--
- net/appletalk/ddp.c            | 3 +--
- net/atm/common.c               | 2 +-
- net/ax25/af_ax25.c             | 3 +--
- net/bluetooth/af_bluetooth.c   | 3 +--
- net/bluetooth/hci_sock.c       | 3 +--
- net/caif/caif_socket.c         | 2 +-
- net/can/bcm.c                  | 5 +----
- net/can/isotp.c                | 4 +---
- net/can/j1939/socket.c         | 2 +-
- net/can/raw.c                  | 6 +-----
- net/core/datagram.c            | 5 ++---
- net/ieee802154/socket.c        | 6 ++++--
- net/ipv4/ping.c                | 3 ++-
- net/ipv4/raw.c                 | 3 ++-
- net/ipv6/raw.c                 | 3 ++-
- net/iucv/af_iucv.c             | 3 +--
- net/key/af_key.c               | 2 +-
- net/l2tp/l2tp_ip.c             | 3 ++-
- net/l2tp/l2tp_ip6.c            | 3 ++-
- net/l2tp/l2tp_ppp.c            | 3 +--
- net/mctp/af_mctp.c             | 2 +-
- net/mctp/test/route-test.c     | 8 ++++----
- net/netlink/af_netlink.c       | 3 +--
- net/netrom/af_netrom.c         | 3 ++-
- net/nfc/llcp_sock.c            | 3 +--
- net/nfc/rawsock.c              | 3 +--
- net/packet/af_packet.c         | 2 +-
- net/phonet/datagram.c          | 3 ++-
- net/phonet/pep.c               | 6 ++++--
- net/qrtr/af_qrtr.c             | 3 +--
- net/rose/af_rose.c             | 3 ++-
- net/unix/af_unix.c             | 5 +++--
- net/vmw_vsock/vmci_transport.c | 5 +----
- net/x25/af_x25.c               | 3 +--
- 37 files changed, 57 insertions(+), 70 deletions(-)
+Masahiro Yamada <masahiroy@kernel.org>
+    powerpc/book3e: get rid of #include <generated/compile.h>
 
-diff --git a/drivers/isdn/mISDN/socket.c b/drivers/isdn/mISDN/socket.c
-index a6606736d8c5..2776ca5fc33f 100644
---- a/drivers/isdn/mISDN/socket.c
-+++ b/drivers/isdn/mISDN/socket.c
-@@ -121,7 +121,7 @@ mISDN_sock_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 	if (sk->sk_state == MISDN_CLOSED)
- 		return 0;
- 
--	skb = skb_recv_datagram(sk, flags, flags & MSG_DONTWAIT, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb)
- 		return err;
- 
-diff --git a/drivers/net/ppp/pppoe.c b/drivers/net/ppp/pppoe.c
-index e172743948ed..ce2cbb5903d7 100644
---- a/drivers/net/ppp/pppoe.c
-+++ b/drivers/net/ppp/pppoe.c
-@@ -1012,8 +1012,7 @@ static int pppoe_recvmsg(struct socket *sock, struct msghdr *m,
- 		goto end;
- 	}
- 
--	skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT,
--				flags & MSG_DONTWAIT, &error);
-+	skb = skb_recv_datagram(sk, flags, &error);
- 	if (error < 0)
- 		goto end;
- 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 3a30cae8b0a5..2394441fa3dd 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -3836,8 +3836,7 @@ struct sk_buff *__skb_try_recv_datagram(struct sock *sk,
- struct sk_buff *__skb_recv_datagram(struct sock *sk,
- 				    struct sk_buff_head *sk_queue,
- 				    unsigned int flags, int *off, int *err);
--struct sk_buff *skb_recv_datagram(struct sock *sk, unsigned flags, int noblock,
--				  int *err);
-+struct sk_buff *skb_recv_datagram(struct sock *sk, unsigned int flags, int *err);
- __poll_t datagram_poll(struct file *file, struct socket *sock,
- 			   struct poll_table_struct *wait);
- int skb_copy_datagram_iter(const struct sk_buff *from, int offset,
-diff --git a/net/appletalk/ddp.c b/net/appletalk/ddp.c
-index bf5736c1d458..a06f4d4a6f47 100644
---- a/net/appletalk/ddp.c
-+++ b/net/appletalk/ddp.c
-@@ -1753,8 +1753,7 @@ static int atalk_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	int err = 0;
- 	struct sk_buff *skb;
- 
--	skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT,
--						flags & MSG_DONTWAIT, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	lock_sock(sk);
- 
- 	if (!skb)
-diff --git a/net/atm/common.c b/net/atm/common.c
-index 1cfa9bf1d187..d0c8ab7ff8f6 100644
---- a/net/atm/common.c
-+++ b/net/atm/common.c
-@@ -540,7 +540,7 @@ int vcc_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	    !test_bit(ATM_VF_READY, &vcc->flags))
- 		return 0;
- 
--	skb = skb_recv_datagram(sk, flags, flags & MSG_DONTWAIT, &error);
-+	skb = skb_recv_datagram(sk, flags, &error);
- 	if (!skb)
- 		return error;
- 
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index 289f355e1853..95393bb2760b 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -1676,8 +1676,7 @@ static int ax25_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	}
- 
- 	/* Now we can treat all alike */
--	skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT,
--				flags & MSG_DONTWAIT, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (skb == NULL)
- 		goto out;
- 
-diff --git a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
-index a0cb2e3da8d4..62705734343b 100644
---- a/net/bluetooth/af_bluetooth.c
-+++ b/net/bluetooth/af_bluetooth.c
-@@ -251,7 +251,6 @@ EXPORT_SYMBOL(bt_accept_dequeue);
- int bt_sock_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 		    int flags)
- {
--	int noblock = flags & MSG_DONTWAIT;
- 	struct sock *sk = sock->sk;
- 	struct sk_buff *skb;
- 	size_t copied;
-@@ -263,7 +262,7 @@ int bt_sock_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 	if (flags & MSG_OOB)
- 		return -EOPNOTSUPP;
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb) {
- 		if (sk->sk_shutdown & RCV_SHUTDOWN)
- 			return 0;
-diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
-index 33b3c0ffc339..189e3115c8c6 100644
---- a/net/bluetooth/hci_sock.c
-+++ b/net/bluetooth/hci_sock.c
-@@ -1453,7 +1453,6 @@ static void hci_sock_cmsg(struct sock *sk, struct msghdr *msg,
- static int hci_sock_recvmsg(struct socket *sock, struct msghdr *msg,
- 			    size_t len, int flags)
- {
--	int noblock = flags & MSG_DONTWAIT;
- 	struct sock *sk = sock->sk;
- 	struct sk_buff *skb;
- 	int copied, err;
-@@ -1470,7 +1469,7 @@ static int hci_sock_recvmsg(struct socket *sock, struct msghdr *msg,
- 	if (sk->sk_state == BT_CLOSED)
- 		return 0;
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb)
- 		return err;
- 
-diff --git a/net/caif/caif_socket.c b/net/caif/caif_socket.c
-index 2b8892d502f7..251e666ba9a2 100644
---- a/net/caif/caif_socket.c
-+++ b/net/caif/caif_socket.c
-@@ -282,7 +282,7 @@ static int caif_seqpkt_recvmsg(struct socket *sock, struct msghdr *m,
- 	if (flags & MSG_OOB)
- 		goto read_error;
- 
--	skb = skb_recv_datagram(sk, flags, 0 , &ret);
-+	skb = skb_recv_datagram(sk, flags, &ret);
- 	if (!skb)
- 		goto read_error;
- 	copylen = skb->len;
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index 95d209b52e6a..64c07e650bb4 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -1632,12 +1632,9 @@ static int bcm_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	struct sock *sk = sock->sk;
- 	struct sk_buff *skb;
- 	int error = 0;
--	int noblock;
- 	int err;
- 
--	noblock =  flags & MSG_DONTWAIT;
--	flags   &= ~MSG_DONTWAIT;
--	skb = skb_recv_datagram(sk, flags, noblock, &error);
-+	skb = skb_recv_datagram(sk, flags, &error);
- 	if (!skb)
- 		return error;
- 
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index 1e7c6a460ef9..35a1ae61744c 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1055,7 +1055,6 @@ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	struct sock *sk = sock->sk;
- 	struct sk_buff *skb;
- 	struct isotp_sock *so = isotp_sk(sk);
--	int noblock = flags & MSG_DONTWAIT;
- 	int ret = 0;
- 
- 	if (flags & ~(MSG_DONTWAIT | MSG_TRUNC | MSG_PEEK))
-@@ -1064,8 +1063,7 @@ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	if (!so->bound)
- 		return -EADDRNOTAVAIL;
- 
--	flags &= ~MSG_DONTWAIT;
--	skb = skb_recv_datagram(sk, flags, noblock, &ret);
-+	skb = skb_recv_datagram(sk, flags, &ret);
- 	if (!skb)
- 		return ret;
- 
-diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
-index 6dff4510687a..0bb4fd3f6264 100644
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -802,7 +802,7 @@ static int j1939_sk_recvmsg(struct socket *sock, struct msghdr *msg,
- 		return sock_recv_errqueue(sock->sk, msg, size, SOL_CAN_J1939,
- 					  SCM_J1939_ERRQUEUE);
- 
--	skb = skb_recv_datagram(sk, flags, 0, &ret);
-+	skb = skb_recv_datagram(sk, flags, &ret);
- 	if (!skb)
- 		return ret;
- 
-diff --git a/net/can/raw.c b/net/can/raw.c
-index 7105fa4824e4..0cf728dcff36 100644
---- a/net/can/raw.c
-+++ b/net/can/raw.c
-@@ -846,16 +846,12 @@ static int raw_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	struct sock *sk = sock->sk;
- 	struct sk_buff *skb;
- 	int err = 0;
--	int noblock;
--
--	noblock = flags & MSG_DONTWAIT;
--	flags &= ~MSG_DONTWAIT;
- 
- 	if (flags & MSG_ERRQUEUE)
- 		return sock_recv_errqueue(sk, msg, size,
- 					  SOL_CAN_RAW, SCM_CAN_RAW_ERRQUEUE);
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb)
- 		return err;
- 
-diff --git a/net/core/datagram.c b/net/core/datagram.c
-index ee290776c661..70126d15ca6e 100644
---- a/net/core/datagram.c
-+++ b/net/core/datagram.c
-@@ -310,12 +310,11 @@ struct sk_buff *__skb_recv_datagram(struct sock *sk,
- EXPORT_SYMBOL(__skb_recv_datagram);
- 
- struct sk_buff *skb_recv_datagram(struct sock *sk, unsigned int flags,
--				  int noblock, int *err)
-+				  int *err)
- {
- 	int off = 0;
- 
--	return __skb_recv_datagram(sk, &sk->sk_receive_queue,
--				   flags | (noblock ? MSG_DONTWAIT : 0),
-+	return __skb_recv_datagram(sk, &sk->sk_receive_queue, flags,
- 				   &off, err);
- }
- EXPORT_SYMBOL(skb_recv_datagram);
-diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
-index 3b2366a88c3c..a725dd9bbda8 100644
---- a/net/ieee802154/socket.c
-+++ b/net/ieee802154/socket.c
-@@ -314,7 +314,8 @@ static int raw_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
- 	int err = -EOPNOTSUPP;
- 	struct sk_buff *skb;
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	flags |= (noblock ? MSG_DONTWAIT : 0);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb)
- 		goto out;
- 
-@@ -703,7 +704,8 @@ static int dgram_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
- 	struct dgram_sock *ro = dgram_sk(sk);
- 	DECLARE_SOCKADDR(struct sockaddr_ieee802154 *, saddr, msg->msg_name);
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	flags |= (noblock ? MSG_DONTWAIT : 0);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb)
- 		goto out;
- 
-diff --git a/net/ipv4/ping.c b/net/ipv4/ping.c
-index aa9a11b20d18..4e5ceca7ff7f 100644
---- a/net/ipv4/ping.c
-+++ b/net/ipv4/ping.c
-@@ -871,7 +871,8 @@ int ping_recvmsg(struct sock *sk, struct msghdr *msg, size_t len, int noblock,
- 	if (flags & MSG_ERRQUEUE)
- 		return inet_recv_error(sk, msg, len, addr_len);
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	flags |= (noblock ? MSG_DONTWAIT : 0);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb)
- 		goto out;
- 
-diff --git a/net/ipv4/raw.c b/net/ipv4/raw.c
-index 9f97b9cbf7b3..c9dd9603f2e7 100644
---- a/net/ipv4/raw.c
-+++ b/net/ipv4/raw.c
-@@ -769,7 +769,8 @@ static int raw_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
- 		goto out;
- 	}
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	flags |= (noblock ? MSG_DONTWAIT : 0);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb)
- 		goto out;
- 
-diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
-index c51d5ce3711c..8bb41f3b246a 100644
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -477,7 +477,8 @@ static int rawv6_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
- 	if (np->rxpmtu && np->rxopt.bits.rxpmtu)
- 		return ipv6_recv_rxpmtu(sk, msg, len, addr_len);
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	flags |= (noblock ? MSG_DONTWAIT : 0);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb)
- 		goto out;
- 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index a1760add5bf1..a0385ddbffcf 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -1223,7 +1223,6 @@ static void iucv_process_message_q(struct sock *sk)
- static int iucv_sock_recvmsg(struct socket *sock, struct msghdr *msg,
- 			     size_t len, int flags)
- {
--	int noblock = flags & MSG_DONTWAIT;
- 	struct sock *sk = sock->sk;
- 	struct iucv_sock *iucv = iucv_sk(sk);
- 	unsigned int copied, rlen;
-@@ -1242,7 +1241,7 @@ static int iucv_sock_recvmsg(struct socket *sock, struct msghdr *msg,
- 
- 	/* receive/dequeue next skb:
- 	 * the function understands MSG_PEEK and, thus, does not dequeue skb */
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb) {
- 		if (sk->sk_shutdown & RCV_SHUTDOWN)
- 			return 0;
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index d93bde657359..c249b84efbb2 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -3700,7 +3700,7 @@ static int pfkey_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 	if (flags & ~(MSG_PEEK|MSG_DONTWAIT|MSG_TRUNC|MSG_CMSG_COMPAT))
- 		goto out;
- 
--	skb = skb_recv_datagram(sk, flags, flags & MSG_DONTWAIT, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (skb == NULL)
- 		goto out;
- 
-diff --git a/net/l2tp/l2tp_ip.c b/net/l2tp/l2tp_ip.c
-index b3edafa5fba4..c6a5cc2d88e7 100644
---- a/net/l2tp/l2tp_ip.c
-+++ b/net/l2tp/l2tp_ip.c
-@@ -526,7 +526,8 @@ static int l2tp_ip_recvmsg(struct sock *sk, struct msghdr *msg,
- 	if (flags & MSG_OOB)
- 		goto out;
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	flags |= (noblock ? MSG_DONTWAIT : 0);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb)
- 		goto out;
- 
-diff --git a/net/l2tp/l2tp_ip6.c b/net/l2tp/l2tp_ip6.c
-index d54dbd01d86f..8f76e647adbb 100644
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -672,7 +672,8 @@ static int l2tp_ip6_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
- 	if (flags & MSG_ERRQUEUE)
- 		return ipv6_recv_error(sk, msg, len, addr_len);
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	flags |= (noblock ? MSG_DONTWAIT : 0);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb)
- 		goto out;
- 
-diff --git a/net/l2tp/l2tp_ppp.c b/net/l2tp/l2tp_ppp.c
-index bf35710127dd..8be1fdc68a0b 100644
---- a/net/l2tp/l2tp_ppp.c
-+++ b/net/l2tp/l2tp_ppp.c
-@@ -191,8 +191,7 @@ static int pppol2tp_recvmsg(struct socket *sock, struct msghdr *msg,
- 		goto end;
- 
- 	err = 0;
--	skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT,
--				flags & MSG_DONTWAIT, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb)
- 		goto end;
- 
-diff --git a/net/mctp/af_mctp.c b/net/mctp/af_mctp.c
-index e22b0cbb2f35..221863afc4b1 100644
---- a/net/mctp/af_mctp.c
-+++ b/net/mctp/af_mctp.c
-@@ -216,7 +216,7 @@ static int mctp_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 	if (flags & ~(MSG_DONTWAIT | MSG_TRUNC | MSG_PEEK))
- 		return -EOPNOTSUPP;
- 
--	skb = skb_recv_datagram(sk, flags, flags & MSG_DONTWAIT, &rc);
-+	skb = skb_recv_datagram(sk, flags, &rc);
- 	if (!skb)
- 		return rc;
- 
-diff --git a/net/mctp/test/route-test.c b/net/mctp/test/route-test.c
-index 61205cf40074..24df29e135ed 100644
---- a/net/mctp/test/route-test.c
-+++ b/net/mctp/test/route-test.c
-@@ -352,7 +352,7 @@ static void mctp_test_route_input_sk(struct kunit *test)
- 	if (params->deliver) {
- 		KUNIT_EXPECT_EQ(test, rc, 0);
- 
--		skb2 = skb_recv_datagram(sock->sk, 0, 1, &rc);
-+		skb2 = skb_recv_datagram(sock->sk, MSG_DONTWAIT, &rc);
- 		KUNIT_EXPECT_NOT_ERR_OR_NULL(test, skb2);
- 		KUNIT_EXPECT_EQ(test, skb->len, 1);
- 
-@@ -360,7 +360,7 @@ static void mctp_test_route_input_sk(struct kunit *test)
- 
- 	} else {
- 		KUNIT_EXPECT_NE(test, rc, 0);
--		skb2 = skb_recv_datagram(sock->sk, 0, 1, &rc);
-+		skb2 = skb_recv_datagram(sock->sk, MSG_DONTWAIT, &rc);
- 		KUNIT_EXPECT_PTR_EQ(test, skb2, NULL);
- 	}
- 
-@@ -423,7 +423,7 @@ static void mctp_test_route_input_sk_reasm(struct kunit *test)
- 		rc = mctp_route_input(&rt->rt, skb);
- 	}
- 
--	skb2 = skb_recv_datagram(sock->sk, 0, 1, &rc);
-+	skb2 = skb_recv_datagram(sock->sk, MSG_DONTWAIT, &rc);
- 
- 	if (params->rx_len) {
- 		KUNIT_EXPECT_NOT_ERR_OR_NULL(test, skb2);
-@@ -582,7 +582,7 @@ static void mctp_test_route_input_sk_keys(struct kunit *test)
- 	rc = mctp_route_input(&rt->rt, skb);
- 
- 	/* (potentially) receive message */
--	skb2 = skb_recv_datagram(sock->sk, 0, 1, &rc);
-+	skb2 = skb_recv_datagram(sock->sk, MSG_DONTWAIT, &rc);
- 
- 	if (params->deliver)
- 		KUNIT_EXPECT_NOT_ERR_OR_NULL(test, skb2);
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 73e9c0a9c187..0cd91f813a3b 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -1931,7 +1931,6 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 	struct scm_cookie scm;
- 	struct sock *sk = sock->sk;
- 	struct netlink_sock *nlk = nlk_sk(sk);
--	int noblock = flags & MSG_DONTWAIT;
- 	size_t copied;
- 	struct sk_buff *skb, *data_skb;
- 	int err, ret;
-@@ -1941,7 +1940,7 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 
- 	copied = 0;
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (skb == NULL)
- 		goto out;
- 
-diff --git a/net/netrom/af_netrom.c b/net/netrom/af_netrom.c
-index fa9dc2ba3941..6f7f4392cffb 100644
---- a/net/netrom/af_netrom.c
-+++ b/net/netrom/af_netrom.c
-@@ -1159,7 +1159,8 @@ static int nr_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	}
- 
- 	/* Now we can treat all alike */
--	if ((skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT, flags & MSG_DONTWAIT, &er)) == NULL) {
-+	skb = skb_recv_datagram(sk, flags, &er);
-+	if (!skb) {
- 		release_sock(sk);
- 		return er;
- 	}
-diff --git a/net/nfc/llcp_sock.c b/net/nfc/llcp_sock.c
-index 4ca35791c93b..77642d18a3b4 100644
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -821,7 +821,6 @@ static int llcp_sock_sendmsg(struct socket *sock, struct msghdr *msg,
- static int llcp_sock_recvmsg(struct socket *sock, struct msghdr *msg,
- 			     size_t len, int flags)
- {
--	int noblock = flags & MSG_DONTWAIT;
- 	struct sock *sk = sock->sk;
- 	unsigned int copied, rlen;
- 	struct sk_buff *skb, *cskb;
-@@ -842,7 +841,7 @@ static int llcp_sock_recvmsg(struct socket *sock, struct msghdr *msg,
- 	if (flags & (MSG_OOB))
- 		return -EOPNOTSUPP;
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	if (!skb) {
- 		pr_err("Recv datagram failed state %d %d %d",
- 		       sk->sk_state, err, sock_error(sk));
-diff --git a/net/nfc/rawsock.c b/net/nfc/rawsock.c
-index 0ca214ab5aef..8dd569765f96 100644
---- a/net/nfc/rawsock.c
-+++ b/net/nfc/rawsock.c
-@@ -238,7 +238,6 @@ static int rawsock_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- static int rawsock_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 			   int flags)
- {
--	int noblock = flags & MSG_DONTWAIT;
- 	struct sock *sk = sock->sk;
- 	struct sk_buff *skb;
- 	int copied;
-@@ -246,7 +245,7 @@ static int rawsock_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 
- 	pr_debug("sock=%p sk=%p len=%zu flags=%d\n", sock, sk, len, flags);
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &rc);
-+	skb = skb_recv_datagram(sk, flags, &rc);
- 	if (!skb)
- 		return rc;
- 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 002d2b9c69dd..243566129784 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -3426,7 +3426,7 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 	 *	but then it will block.
- 	 */
- 
--	skb = skb_recv_datagram(sk, flags, flags & MSG_DONTWAIT, &err);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 
- 	/*
- 	 *	An error occurred so return it. Because skb_recv_datagram()
-diff --git a/net/phonet/datagram.c b/net/phonet/datagram.c
-index 393e6aa7a592..3f2e62b63dd4 100644
---- a/net/phonet/datagram.c
-+++ b/net/phonet/datagram.c
-@@ -123,7 +123,8 @@ static int pn_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
- 			MSG_CMSG_COMPAT))
- 		goto out_nofree;
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &rval);
-+	flags |= (noblock ? MSG_DONTWAIT : 0);
-+	skb = skb_recv_datagram(sk, flags, &rval);
- 	if (skb == NULL)
- 		goto out_nofree;
- 
-diff --git a/net/phonet/pep.c b/net/phonet/pep.c
-index 65d463ad8770..441a26706592 100644
---- a/net/phonet/pep.c
-+++ b/net/phonet/pep.c
-@@ -772,7 +772,8 @@ static struct sock *pep_sock_accept(struct sock *sk, int flags, int *errp,
- 	u8 pipe_handle, enabled, n_sb;
- 	u8 aligned = 0;
- 
--	skb = skb_recv_datagram(sk, 0, flags & O_NONBLOCK, errp);
-+	skb = skb_recv_datagram(sk, (flags & O_NONBLOCK) ? MSG_DONTWAIT : 0,
-+				errp);
- 	if (!skb)
- 		return NULL;
- 
-@@ -1267,7 +1268,8 @@ static int pep_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
- 			return -EINVAL;
- 	}
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	flags |= (noblock ? MSG_DONTWAIT : 0);
-+	skb = skb_recv_datagram(sk, flags, &err);
- 	lock_sock(sk);
- 	if (skb == NULL) {
- 		if (err == -ENOTCONN && sk->sk_state == TCP_CLOSE_WAIT)
-diff --git a/net/qrtr/af_qrtr.c b/net/qrtr/af_qrtr.c
-index ec2322529727..5c2fb992803b 100644
---- a/net/qrtr/af_qrtr.c
-+++ b/net/qrtr/af_qrtr.c
-@@ -1035,8 +1035,7 @@ static int qrtr_recvmsg(struct socket *sock, struct msghdr *msg,
- 		return -EADDRNOTAVAIL;
- 	}
- 
--	skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT,
--				flags & MSG_DONTWAIT, &rc);
-+	skb = skb_recv_datagram(sk, flags, &rc);
- 	if (!skb) {
- 		release_sock(sk);
- 		return rc;
-diff --git a/net/rose/af_rose.c b/net/rose/af_rose.c
-index 30a1cf4c16c6..bf2d986a6bc3 100644
---- a/net/rose/af_rose.c
-+++ b/net/rose/af_rose.c
-@@ -1230,7 +1230,8 @@ static int rose_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 		return -ENOTCONN;
- 
- 	/* Now we can treat all alike */
--	if ((skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT, flags & MSG_DONTWAIT, &er)) == NULL)
-+	skb = skb_recv_datagram(sk, flags, &er);
-+	if (!skb)
- 		return er;
- 
- 	qbit = (skb->data[0] & ROSE_Q_BIT) == ROSE_Q_BIT;
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index 4aed12e94221..6114d69b8a2d 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -1643,7 +1643,8 @@ static int unix_accept(struct socket *sock, struct socket *newsock, int flags,
- 	 * so that no locks are necessary.
- 	 */
- 
--	skb = skb_recv_datagram(sk, 0, flags&O_NONBLOCK, &err);
-+	skb = skb_recv_datagram(sk, (flags & O_NONBLOCK) ? MSG_DONTWAIT : 0,
-+				&err);
- 	if (!skb) {
- 		/* This means receive shutdown. */
- 		if (err == 0)
-@@ -2500,7 +2501,7 @@ static int unix_read_sock(struct sock *sk, read_descriptor_t *desc,
- 		int used, err;
- 
- 		mutex_lock(&u->iolock);
--		skb = skb_recv_datagram(sk, 0, 1, &err);
-+		skb = skb_recv_datagram(sk, MSG_DONTWAIT, &err);
- 		mutex_unlock(&u->iolock);
- 		if (!skb)
- 			return err;
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index b17dc9745188..b14f0ed7427b 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -1732,19 +1732,16 @@ static int vmci_transport_dgram_dequeue(struct vsock_sock *vsk,
- 					int flags)
- {
- 	int err;
--	int noblock;
- 	struct vmci_datagram *dg;
- 	size_t payload_len;
- 	struct sk_buff *skb;
- 
--	noblock = flags & MSG_DONTWAIT;
--
- 	if (flags & MSG_OOB || flags & MSG_ERRQUEUE)
- 		return -EOPNOTSUPP;
- 
- 	/* Retrieve the head sk_buff from the socket's receive queue. */
- 	err = 0;
--	skb = skb_recv_datagram(&vsk->sk, flags, noblock, &err);
-+	skb = skb_recv_datagram(&vsk->sk, flags, &err);
- 	if (!skb)
- 		return err;
- 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 3a171828638b..6bc2ac8d8146 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -1315,8 +1315,7 @@ static int x25_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	} else {
- 		/* Now we can treat all alike */
- 		release_sock(sk);
--		skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT,
--					flags & MSG_DONTWAIT, &rc);
-+		skb = skb_recv_datagram(sk, flags, &rc);
- 		lock_sock(sk);
- 		if (!skb)
- 			goto out;
--- 
-2.35.1
+Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
+    virtio-pci: Remove wrong address verification in vp_del_vqs()
 
+Andy Chi <andy.chi@canonical.com>
+    ALSA: hda/realtek: fix right sounds and mute/micmute LEDs for HP machine
+
+Marc Zyngier <maz@kernel.org>
+    KVM: arm64: Don't read a HW interrupt pending state in user context
+
+Zhang Yi <yi.zhang@huawei.com>
+    ext4: add reserved GDT blocks check
+
+Ding Xiang <dingxiang@cmss.chinamobile.com>
+    ext4: make variable "count" signed
+
+Baokun Li <libaokun1@huawei.com>
+    ext4: fix bug_on ext4_mb_use_inode_pa
+
+Ye Bin <yebin10@huawei.com>
+    ext4: fix super block checksum incorrect after mount
+
+Sami Tolvanen <samitolvanen@google.com>
+    cfi: Fix __cfi_slowpath_diag RCU usage with cpuidle
+
+Roman Li <roman.li@amd.com>
+    drm/amd/display: Cap OLED brightness per max frame-average luminance
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm mirror log: round up region bitmap size to BITS_PER_LONG
+
+Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+    bus: fsl-mc-bus: fix KASAN use-after-free in fsl_mc_bus_remove()
+
+Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+    serial: 8250: Store to lsr_save_flags after lsr read
+
+Tony Lindgren <tony@atomide.com>
+    tty: n_gsm: Debug output allocation must use GFP_ATOMIC
+
+Linyu Yuan <quic_linyyuan@quicinc.com>
+    usb: gadget: f_fs: change ep->ep safe in ffs_epfile_io()
+
+Linyu Yuan <quic_linyyuan@quicinc.com>
+    usb: gadget: f_fs: change ep->status safe in ffs_epfile_io()
+
+Miaoqian Lin <linmq006@gmail.com>
+    usb: gadget: lpc32xx_udc: Fix refcount leak in lpc32xx_udc_probe
+
+Jing Leng <jleng@ambarella.com>
+    usb: cdnsp: Fixed setting last_trb incorrectly
+
+Miaoqian Lin <linmq006@gmail.com>
+    usb: dwc2: Fix memory leak in dwc2_hcd_init
+
+Robert Eckelmann <longnoserob@gmail.com>
+    USB: serial: io_ti: add Agilent E5805A support
+
+Slark Xiao <slark_xiao@163.com>
+    USB: serial: option: add support for Cinterion MV31 with new baseline
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    crypto: memneq - move into lib/
+
+Ian Abbott <abbotti@mev.co.uk>
+    comedi: vmk80xx: fix expression for tx buffer size
+
+Alexander Usyskin <alexander.usyskin@intel.com>
+    mei: me: add raptor lake point S DID
+
+Alexander Usyskin <alexander.usyskin@intel.com>
+    mei: hbm: drop capability response on early shutdown
+
+Serge Semin <Sergey.Semin@baikalelectronics.ru>
+    i2c: designware: Use standard optional ref clock implementation
+
+Peter Zijlstra <peterz@infradead.org>
+    sched: Fix balance_push() vs __sched_setscheduler()
+
+Miaoqian Lin <linmq006@gmail.com>
+    irqchip/realtek-rtl: Fix refcount leak in map_interrupts
+
+Miaoqian Lin <linmq006@gmail.com>
+    irqchip/gic-v3: Fix refcount leak in gic_populate_ppi_partitions
+
+Miaoqian Lin <linmq006@gmail.com>
+    irqchip/gic-v3: Fix error handling in gic_populate_ppi_partitions
+
+Miaoqian Lin <linmq006@gmail.com>
+    irqchip/gic/realview: Fix refcount leak in realview_gic_of_init
+
+Jiasheng Jiang <jiasheng@iscas.ac.cn>
+    i2c: npcm7xx: Add check for platform_driver_register
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    faddr2line: Fix overlapping text section failures, the sequel
+
+Bart Van Assche <bvanassche@acm.org>
+    block: Fix handling of offline queues in blk_mq_alloc_request_hctx()
+
+Jan Kara <jack@suse.cz>
+    init: Initialize noop_backing_dev_info early
+
+Masahiro Yamada <masahiroy@kernel.org>
+    certs/blacklist_hashes.c: fix const confusion in certs blacklist
+
+Mark Rutland <mark.rutland@arm.com>
+    arm64: ftrace: consistently handle PLTs.
+
+Mark Rutland <mark.rutland@arm.com>
+    arm64: ftrace: fix branch range checks
+
+Duoming Zhou <duoming@zju.edu.cn>
+    net: ax25: Fix deadlock caused by skb_recv_datagram in ax25_recvmsg
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    net: bgmac: Fix an erroneous kfree() in bgmac_remove()
+
+Petr Machata <petrm@nvidia.com>
+    mlxsw: spectrum_cnt: Reorder counter pools
+
+Thomas Weißschuh <linux@weissschuh.net>
+    nvme: add device name to warning in uuid_show()
+
+Guangbin Huang <huangguangbin2@huawei.com>
+    net: hns3: fix tm port shapping of fibre port is incorrect after driver initialization
+
+Jian Shen <shenjian15@huawei.com>
+    net: hns3: don't push link state to VF if unalive
+
+Guangbin Huang <huangguangbin2@huawei.com>
+    net: hns3: set port base vlan tbl_sta to false before removing old vlan
+
+Jian Shen <shenjian15@huawei.com>
+    net: hns3: split function hclge_update_port_base_vlan_cfg()
+
+Alan Previn <alan.previn.teres.alexis@intel.com>
+    drm/i915/reset: Fix error_state_read ptr + offset use
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: fix races with buffer table unregister
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: fix races with file table unregister
+
+Miaoqian Lin <linmq006@gmail.com>
+    misc: atmel-ssc: Fix IRQ check in ssc_probe
+
+Vincent Whitchurch <vincent.whitchurch@axis.com>
+    tty: goldfish: Fix free_irq() on remove
+
+Saurabh Sengar <ssengar@linux.microsoft.com>
+    Drivers: hv: vmbus: Release cpu lock in error case
+
+Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+    i40e: Fix call trace in setup_tx_descriptors
+
+Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+    i40e: Fix calculating the number of queue pairs
+
+Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+    i40e: Fix adding ADQ filter to TC0
+
+Masahiro Yamada <masahiroy@kernel.org>
+    clocksource: hyper-v: unexport __init-annotated hv_init_clocksource()
+
+Scott Mayhew <smayhew@redhat.com>
+    sunrpc: set cl_max_connect when cloning an rpc_clnt
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    pNFS: Avoid a live lock condition in pnfs_update_layout()
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    pNFS: Don't keep retrying if the server replied NFS4ERR_LAYOUTUNAVAILABLE
+
+Larry Finger <Larry.Finger@lwfinger.net>
+    staging: r8188eu: Fix warning of array overflow in ioctl_linux.c
+
+Gustavo A. R. Silva <gustavoars@kernel.org>
+    staging: r8188eu: Use zeroing allocator in wpa_set_encryption()
+
+Phillip Potter <phil@philpotter.co.uk>
+    staging: r8188eu: fix rtw_alloc_hwxmits error detection for now
+
+Duke Lee <krnhotwings@gmail.com>
+    platform/x86/intel: hid: Add Surface Go to VGBS allow list
+
+August Wikerfors <git@augustwikerfors.se>
+    platform/x86: gigabyte-wmi: Add support for B450M DS3H-CF
+
+Piotr Chmura <chmooreck@gmail.com>
+    platform/x86: gigabyte-wmi: Add Z690M AORUS ELITE AX DDR4 support
+
+Serge Semin <Sergey.Semin@baikalelectronics.ru>
+    gpio: dwapb: Don't print error on -EPROBE_DEFER
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: credit cpu and bootloader seeds by default
+
+Yupeng Li <liyupeng@zbhlos.com>
+    MIPS: Loongson-3: fix compile mips cpu_hwmon as module build error.
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    netfs: gcc-12: temporarily disable '-Wattribute-warning' for now
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    mellanox: mlx5: avoid uninitialized variable warning with gcc-12
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    gcc-12: disable '-Wdangling-pointer' warning for now
+
+Chen Lin <chen45464546@163.com>
+    net: ethernet: mtk_eth_soc: fix misuse of mem alloc interface netdev[napi]_alloc_frag
+
+Wang Yufen <wangyufen@huawei.com>
+    ipv6: Fix signed integer overflow in l2tp_ip6_sendmsg
+
+Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
+    nfc: nfcmrvl: Fix memory leak in nfcmrvl_play_deferred
+
+chengkaitao <pilgrimtao@gmail.com>
+    virtio-mmio: fix missing put_device() when vm_cmdline_parent registration failed
+
+huangwenhui <huangwenhuia@uniontech.com>
+    ALSA: hda/realtek - Add HW8326 support
+
+Chengguang Xu <cgxu519@mykernel.net>
+    scsi: pmcraid: Fix missing resource cleanup in error case
+
+Chengguang Xu <cgxu519@mykernel.net>
+    scsi: ipr: Fix missing/incorrect resource cleanup in error case
+
+Helge Deller <deller@gmx.de>
+    scsi: mpt3sas: Fix out-of-bounds compiler warning
+
+James Smart <jsmart2021@gmail.com>
+    scsi: lpfc: Allow reduced polling rate for nvme_admin_async_event cmd completion
+
+James Smart <jsmart2021@gmail.com>
+    scsi: lpfc: Fix port stuck in bypassed state after LIP in PT2PT topology
+
+James Smart <jsmart2021@gmail.com>
+    scsi: lpfc: Resolve NULL ptr dereference after an ELS LOGO is aborted
+
+Wentao Wang <wwentao@vmware.com>
+    scsi: vmw_pvscsi: Expand vcpuHint to 16 bits
+
+Marius Hoch <mail@mariushoch.de>
+    Input: soc_button_array - also add Lenovo Yoga Tablet2 1051F to dmi_use_low_level_irq
+
+Mark Brown <broonie@kernel.org>
+    ASoC: wm_adsp: Fix event generation for wm_adsp_fw_put()
+
+Mark Brown <broonie@kernel.org>
+    ASoC: es8328: Fix event generation for deemphasis control
+
+Adam Ford <aford173@gmail.com>
+    ASoC: wm8962: Fix suspend while playing music
+
+Matthew Wilcox (Oracle) <willy@infradead.org>
+    quota: Prevent memory allocation recursion while holding dq_lock
+
+Sergey Shtylyov <s.shtylyov@omp.ru>
+    ata: libata-core: fix NULL pointer deref in ata_host_alloc_pinfo()
+
+Lang Yu <Lang.Yu@amd.com>
+    drm/amdkfd: add pinned BOs to kfd_bo_list
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs42l51: Correct minimum value for SX volume control
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs42l56: Correct typo in minimum level for SX volume controls
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs42l52: Correct TLV for Bypass Volume
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs53l30: Correct number of volume levels on SX controls
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs35l36: Update digital volume TLV
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs42l52: Fix TLV scales for mixer controls
+
+Rob Clark <robdclark@chromium.org>
+    dma-debug: make things less spammy under memory pressure
+
+Philip Yang <Philip.Yang@amd.com>
+    drm/amdkfd: Use mmget_not_zero in MMU notifier
+
+Sherry Wang <YAO.WANG1@amd.com>
+    drm/amd/display: Read Golden Settings Table from VBIOS
+
+Hui Wang <hui.wang@canonical.com>
+    ASoC: nau8822: Add operation for internal PLL off and on
+
+He Ying <heying24@huawei.com>
+    powerpc/kasan: Silence KASAN warnings in __get_wchan()
+
+Adam Ford <aford173@gmail.com>
+    arm64: dts: imx8mn-beacon: Enable RTS-CTS on UART3
+
+Adam Ford <aford173@gmail.com>
+    arm64: dts: imx8mm-beacon: Enable RTS-CTS on UART3
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    nfsd: Replace use of rwsem with errseq_t
+
+Stylon Wang <stylon.wang@amd.com>
+    Revert "drm/amd/display: Fix DCN3 B0 DP Alt Mapping"
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   7 +-
+ .../dts/freescale/imx8mm-beacon-baseboard.dtsi     |   3 +
+ .../dts/freescale/imx8mn-beacon-baseboard.dtsi     |   3 +
+ arch/arm64/kernel/ftrace.c                         | 137 ++++++++++-----------
+ arch/arm64/kvm/vgic/vgic-mmio-v2.c                 |   4 +-
+ arch/arm64/kvm/vgic/vgic-mmio.c                    |  19 ++-
+ arch/arm64/kvm/vgic/vgic-mmio.h                    |   3 +
+ arch/powerpc/kernel/process.c                      |   4 +-
+ arch/powerpc/mm/nohash/kaslr_booke.c               |   8 +-
+ block/blk-mq.c                                     |   2 +
+ certs/blacklist_hashes.c                           |   2 +-
+ crypto/Kconfig                                     |   1 +
+ crypto/Makefile                                    |   2 +-
+ drivers/ata/libata-core.c                          |   4 +-
+ drivers/base/init.c                                |   2 +
+ drivers/bus/fsl-mc/fsl-mc-bus.c                    |   6 +-
+ drivers/char/Kconfig                               |  50 +++++---
+ drivers/clk/imx/clk-imx8mp.c                       |   2 +-
+ drivers/clocksource/hyperv_timer.c                 |   1 -
+ drivers/comedi/drivers/vmk80xx.c                   |   2 +-
+ drivers/gpio/gpio-dwapb.c                          |   7 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c   |  13 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_svm.c               |   3 +
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c  |   8 +-
+ .../amd/display/dc/dcn31/dcn31_dio_link_encoder.c  |   4 +-
+ .../gpu/drm/amd/display/dc/dcn31/dcn31_resource.c  |   6 -
+ drivers/gpu/drm/i915/i915_sysfs.c                  |  15 ++-
+ drivers/hv/channel_mgmt.c                          |   1 +
+ drivers/i2c/busses/i2c-designware-common.c         |   3 -
+ drivers/i2c/busses/i2c-designware-platdrv.c        |  13 +-
+ drivers/i2c/busses/i2c-npcm7xx.c                   |   3 +-
+ drivers/input/misc/soc_button_array.c              |   4 +-
+ drivers/irqchip/irq-gic-realview.c                 |   1 +
+ drivers/irqchip/irq-gic-v3.c                       |   7 +-
+ drivers/irqchip/irq-realtek-rtl.c                  |   2 +-
+ drivers/md/dm-log.c                                |   3 +-
+ drivers/misc/atmel-ssc.c                           |   4 +-
+ drivers/misc/mei/hbm.c                             |   3 +-
+ drivers/misc/mei/hw-me-regs.h                      |   2 +
+ drivers/misc/mei/pci-me.c                          |   2 +
+ drivers/net/ethernet/broadcom/bgmac-bcma.c         |   1 -
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_main.c    |  87 +++++++------
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c  |   2 +-
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h  |   1 +
+ drivers/net/ethernet/intel/i40e/i40e_ethtool.c     |  25 ++--
+ drivers/net/ethernet/intel/i40e/i40e_main.c        |   5 +
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   2 +-
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c        |  21 +++-
+ drivers/net/ethernet/mellanox/mlx5/core/lag.c      |   2 +-
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_cnt.h |   2 +-
+ drivers/nfc/nfcmrvl/usb.c                          |  16 ++-
+ drivers/nvme/host/core.c                           |   4 +-
+ drivers/platform/mips/Kconfig                      |   2 +-
+ drivers/platform/x86/gigabyte-wmi.c                |   2 +
+ drivers/platform/x86/intel/hid.c                   |   6 +
+ drivers/scsi/ipr.c                                 |   4 +-
+ drivers/scsi/lpfc/lpfc_els.c                       |  18 +--
+ drivers/scsi/lpfc/lpfc_hw4.h                       |   3 +
+ drivers/scsi/lpfc/lpfc_nportdisc.c                 |   3 +-
+ drivers/scsi/lpfc/lpfc_nvme.c                      |  11 +-
+ drivers/scsi/mpt3sas/mpt3sas_base.c                |  23 ++--
+ drivers/scsi/pmcraid.c                             |   2 +-
+ drivers/scsi/vmw_pvscsi.h                          |   4 +-
+ drivers/staging/r8188eu/core/rtw_xmit.c            |  20 +--
+ drivers/staging/r8188eu/os_dep/ioctl_linux.c       |   5 +-
+ drivers/tty/goldfish.c                             |   2 +-
+ drivers/tty/n_gsm.c                                |   2 +-
+ drivers/tty/serial/8250/8250_port.c                |   2 +
+ drivers/usb/cdns3/cdnsp-ring.c                     |  19 +--
+ drivers/usb/dwc2/hcd.c                             |   2 +-
+ drivers/usb/gadget/function/f_fs.c                 |  40 +++---
+ drivers/usb/gadget/udc/lpc32xx_udc.c               |   1 +
+ drivers/usb/serial/io_ti.c                         |   2 +
+ drivers/usb/serial/io_usbvend.h                    |   1 +
+ drivers/usb/serial/option.c                        |   6 +
+ drivers/virtio/virtio_mmio.c                       |   1 +
+ drivers/virtio/virtio_pci_common.c                 |   3 +-
+ fs/afs/inode.c                                     |   3 +
+ fs/ceph/inode.c                                    |   3 +
+ fs/ext4/mballoc.c                                  |   9 ++
+ fs/ext4/namei.c                                    |   3 +-
+ fs/ext4/resize.c                                   |  10 ++
+ fs/ext4/super.c                                    |  16 +--
+ fs/io_uring.c                                      |  15 +++
+ fs/nfs/callback_proc.c                             |   1 +
+ fs/nfs/pnfs.c                                      |  21 +++-
+ fs/nfs/pnfs.h                                      |   1 +
+ fs/nfsd/filecache.c                                |   1 -
+ fs/nfsd/filecache.h                                |   1 -
+ fs/nfsd/nfs4proc.c                                 |  16 +--
+ fs/nfsd/vfs.c                                      |  40 +++---
+ fs/quota/dquot.c                                   |  10 ++
+ include/linux/backing-dev.h                        |   2 +
+ kernel/cfi.c                                       |  22 +++-
+ kernel/dma/debug.c                                 |   2 +-
+ kernel/sched/core.c                                |  36 +++++-
+ kernel/sched/sched.h                               |   5 +
+ lib/Kconfig                                        |   3 +
+ lib/Makefile                                       |   1 +
+ lib/crypto/Kconfig                                 |   1 +
+ {crypto => lib}/memneq.c                           |   0
+ mm/backing-dev.c                                   |  11 +-
+ net/ax25/af_ax25.c                                 |  34 ++++-
+ net/l2tp/l2tp_ip6.c                                |   5 +-
+ net/sunrpc/clnt.c                                  |   1 +
+ scripts/faddr2line                                 |  45 +++++--
+ sound/hda/hdac_device.c                            |   1 +
+ sound/pci/hda/patch_realtek.c                      |  15 +++
+ sound/soc/codecs/cs35l36.c                         |   3 +-
+ sound/soc/codecs/cs42l51.c                         |   2 +-
+ sound/soc/codecs/cs42l52.c                         |   8 +-
+ sound/soc/codecs/cs42l56.c                         |   4 +-
+ sound/soc/codecs/cs53l30.c                         |  16 +--
+ sound/soc/codecs/es8328.c                          |   5 +-
+ sound/soc/codecs/nau8822.c                         |   4 +
+ sound/soc/codecs/nau8822.h                         |   3 +
+ sound/soc/codecs/wm8962.c                          |   1 +
+ sound/soc/codecs/wm_adsp.c                         |   2 +-
+ 118 files changed, 707 insertions(+), 393 deletions(-)
 
 
