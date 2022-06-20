@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1019F5519AA
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A99BF551A1E
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243815AbiFTNES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:04:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47262 "EHLO
+        id S243854AbiFTNET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:04:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244390AbiFTNDg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:03:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E3041EAD8;
-        Mon, 20 Jun 2022 05:58:19 -0700 (PDT)
+        with ESMTP id S244481AbiFTNDk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:03:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 788331EAE1;
+        Mon, 20 Jun 2022 05:58:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 558D8B81092;
-        Mon, 20 Jun 2022 12:58:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B487C3411B;
-        Mon, 20 Jun 2022 12:58:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D16661543;
+        Mon, 20 Jun 2022 12:58:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9984DC3411C;
+        Mon, 20 Jun 2022 12:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729896;
-        bh=kBHtgX1eSQCaq73ifIWfL5WvoSXaZOrg4EWMBvIMQKM=;
+        s=korg; t=1655729899;
+        bh=9CXotcOEN4LmqbhAxjjPOPUo1jo6/xqjSYmfQc5Ijsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TfIl/uu2E7jojt3HVjATIlCW7KlREWgVBR0M2cR4vsCn0b2S1qpv6yyxMlUeBlWcX
-         fZxS3I1eENo7uq3cnCANnX2t6bg8R2pVK2TDaCGgqYzL3ics8CaU0zASWamYJZ5Vuk
-         mY3WAUuOo+LIqvGapBcHZgLYtQ9XnDH2fhuyZRsw=
+        b=TU8MGXy5KSDhNWdC2eaJok8xWA9ji7Q977kT2ttvjhXy4coRT/f9kQxU5jBt2r6IQ
+         H3b9TADl3ylTw1tw3Eaz+8yKlNjpvQFHanU0n+1M77kRH1jOd8x5EutvVeCpYNTVhP
+         gUxg5zfOVJIQSKQuYj1IRKPy6thlCMTEnjwRgNCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Wesley Cheng <quic_wcheng@quicinc.com>
-Subject: [PATCH 5.18 109/141] usb: dwc3: gadget: Fix IN endpoint max packet size allocation
-Date:   Mon, 20 Jun 2022 14:50:47 +0200
-Message-Id: <20220620124732.765069826@linuxfoundation.org>
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>
+Subject: [PATCH 5.18 110/141] usb: dwc3: pci: Restore line lost in merge conflict resolution
+Date:   Mon, 20 Jun 2022 14:50:48 +0200
+Message-Id: <20220620124732.793486825@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
 References: <20220620124729.509745706@linuxfoundation.org>
@@ -53,79 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <quic_wcheng@quicinc.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 9c1e916960c1192e746bf615e4dae25423473a64 upstream.
+commit 7ddda2614d62ef7fdef7fd85f5151cdf665b22d8 upstream.
 
-The current logic to assign the max packet limit for IN endpoints attempts
-to take the default HW value and apply the optimal endpoint settings based
-on it.  However, if the default value reports a TxFIFO size large enough
-for only one max packet, it will divide the value and assign a smaller ep
-max packet limit.
+Commit 582ab24e096f ("usb: dwc3: pci: Set "linux,phy_charger_detect"
+property on some Bay Trail boards") added a new swnode similar to the
+existing ones for boards where the PHY handles charger detection.
 
-For example, if the default TxFIFO size fits 1024B, current logic will
-assign 1024/3 = 341B to ep max packet size.  If function drivers attempt to
-request for an endpoint with a wMaxPacketSize of 1024B (SS BULK max packet
-size) then it will fail, as the gadget is unable to find an endpoint which
-can fit the requested size.
+Unfortunately, the "linux,sysdev_is_parent" property got lost in the
+merge conflict resolution of commit ca9400ef7f67 ("Merge 5.17-rc6 into
+usb-next"). Now dwc3_pci_intel_phy_charger_detect_properties is the
+only swnode in dwc3-pci that is missing "linux,sysdev_is_parent".
 
-Functionally, if the TxFIFO has enough space to fit one max packet, it will
-be sufficient, at least when initializing the endpoints.
+It does not seem to cause any obvious functional issues, but it's
+certainly unintended so restore the line to make the properties
+consistent again.
 
-Fixes: d94ea5319813 ("usb: dwc3: gadget: Properly set maxpacket limit")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
-Link: https://lore.kernel.org/r/20220523213948.22142-1-quic_wcheng@quicinc.com
+Fixes: ca9400ef7f67 ("Merge 5.17-rc6 into usb-next")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20220528170913.9240-1-stephan@gerhold.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |   26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ drivers/usb/dwc3/dwc3-pci.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2984,6 +2984,7 @@ static int dwc3_gadget_init_in_endpoint(
- 	struct dwc3 *dwc = dep->dwc;
- 	u32 mdwidth;
- 	int size;
-+	int maxpacket;
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -127,6 +127,7 @@ static const struct property_entry dwc3_
+ 	PROPERTY_ENTRY_STRING("dr_mode", "peripheral"),
+ 	PROPERTY_ENTRY_BOOL("snps,dis_u2_susphy_quirk"),
+ 	PROPERTY_ENTRY_BOOL("linux,phy_charger_detect"),
++	PROPERTY_ENTRY_BOOL("linux,sysdev_is_parent"),
+ 	{}
+ };
  
- 	mdwidth = dwc3_mdwidth(dwc);
- 
-@@ -2996,21 +2997,24 @@ static int dwc3_gadget_init_in_endpoint(
- 	else
- 		size = DWC31_GTXFIFOSIZ_TXFDEP(size);
- 
--	/* FIFO Depth is in MDWDITH bytes. Multiply */
--	size *= mdwidth;
--
- 	/*
--	 * To meet performance requirement, a minimum TxFIFO size of 3x
--	 * MaxPacketSize is recommended for endpoints that support burst and a
--	 * minimum TxFIFO size of 2x MaxPacketSize for endpoints that don't
--	 * support burst. Use those numbers and we can calculate the max packet
--	 * limit as below.
-+	 * maxpacket size is determined as part of the following, after assuming
-+	 * a mult value of one maxpacket:
-+	 * DWC3 revision 280A and prior:
-+	 * fifo_size = mult * (max_packet / mdwidth) + 1;
-+	 * maxpacket = mdwidth * (fifo_size - 1);
-+	 *
-+	 * DWC3 revision 290A and onwards:
-+	 * fifo_size = mult * ((max_packet + mdwidth)/mdwidth + 1) + 1
-+	 * maxpacket = mdwidth * ((fifo_size - 1) - 1) - mdwidth;
- 	 */
--	if (dwc->maximum_speed >= USB_SPEED_SUPER)
--		size /= 3;
-+	if (DWC3_VER_IS_PRIOR(DWC3, 290A))
-+		maxpacket = mdwidth * (size - 1);
- 	else
--		size /= 2;
-+		maxpacket = mdwidth * ((size - 1) - 1) - mdwidth;
- 
-+	/* Functionally, space for one max packet is sufficient */
-+	size = min_t(int, maxpacket, 1024);
- 	usb_ep_set_maxpacket_limit(&dep->endpoint, size);
- 
- 	dep->endpoint.max_streams = 16;
 
 
