@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64925551BBA
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F00A5519E5
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347048AbiFTNkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:40:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44036 "EHLO
+        id S243412AbiFTM4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:56:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347970AbiFTNi5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:38:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 581C01FA5F;
-        Mon, 20 Jun 2022 06:14:27 -0700 (PDT)
+        with ESMTP id S243138AbiFTM4S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:56:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EA3F1A061;
+        Mon, 20 Jun 2022 05:54:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 159F460ABE;
-        Mon, 20 Jun 2022 13:14:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB14FC3411B;
-        Mon, 20 Jun 2022 13:14:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61864B811B3;
+        Mon, 20 Jun 2022 12:54:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2B16C3411B;
+        Mon, 20 Jun 2022 12:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730866;
-        bh=ULN1s6hLWpk3DpmhV8Hnzz3A47YfMRVYvyXJ6rOTyFA=;
+        s=korg; t=1655729693;
+        bh=cvSQdQ9FeCMsC6QFqLTFFI5N56fpaeXWKG9aKZ8paYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r8jrAXyl4n/0qsHdXPyzKqtRQLhQpwin1w/vCuFdg/D9+JOEOJXUkPWeCuS6pTYmR
-         DA0/67xMff3fkNXRuwHviq5iJmzd09QKaNVg0EuMGWzWDfLo3Jwkh9Qybb8V02oj5x
-         M9S93laYR7CS9CcbSFFUTofNhbysw3FhC5RzsNKg=
+        b=YDTyiDUp4xA5OHquJmeaSMxS2uwFSFWvRJLCFtC3hy6iBN4rRI+I3CmN/QDlx+Bww
+         sdCHqRgMOPruzcDtsadj/KPbjqOEgs4wft8E0TNGiW4Kv9C71Mzq1SpshXLNhbZKF/
+         ErjGDg45UOWgGDfoHV73rNDT4IqZWD8IwjVXP+yI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Jann Horn <jannh@google.com>,
-        Eric Biggers <ebiggers@google.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 081/240] random: make more consistent use of integer types
-Date:   Mon, 20 Jun 2022 14:49:42 +0200
-Message-Id: <20220620124741.148137166@linuxfoundation.org>
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 045/141] random: credit cpu and bootloader seeds by default
+Date:   Mon, 20 Jun 2022 14:49:43 +0200
+Message-Id: <20220620124730.866527770@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,667 +55,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 04ec96b768c9dd43946b047c3da60dcc66431370 upstream.
+[ Upstream commit 846bb97e131d7938847963cca00657c995b1fce1 ]
 
-We've been using a flurry of int, unsigned int, size_t, and ssize_t.
-Let's unify all of this into size_t where it makes sense, as it does in
-most places, and leave ssize_t for return values with possible errors.
+This commit changes the default Kconfig values of RANDOM_TRUST_CPU and
+RANDOM_TRUST_BOOTLOADER to be Y by default. It does not change any
+existing configs or change any kernel behavior. The reason for this is
+several fold.
 
-In addition, keeping with the convention of other functions in this
-file, functions that are dealing with raw bytes now take void *
-consistently instead of a mix of that and u8 *, because much of the time
-we're actually passing some other structure that is then interpreted as
-bytes by the function.
+As background, I recently had an email thread with the kernel
+maintainers of Fedora/RHEL, Debian, Ubuntu, Gentoo, Arch, NixOS, Alpine,
+SUSE, and Void as recipients. I noted that some distros trust RDRAND,
+some trust EFI, and some trust both, and I asked why or why not. There
+wasn't really much of a "debate" but rather an interesting discussion of
+what the historical reasons have been for this, and it came up that some
+distros just missed the introduction of the bootloader Kconfig knob,
+while another didn't want to enable it until there was a boot time
+switch to turn it off for more concerned users (which has since been
+added). The result of the rather uneventful discussion is that every
+major Linux distro enables these two options by default.
 
-We also take the opportunity to fix the outdated and incorrect comment
-in get_random_bytes_arch().
+While I didn't have really too strong of an opinion going into this
+thread -- and I mostly wanted to learn what the distros' thinking was
+one way or another -- ultimately I think their choice was a decent
+enough one for a default option (which can be disabled at boot time).
+I'll try to summarize the pros and cons:
+
+Pros:
+
+- The RNG machinery gets initialized super quickly, and there's no
+  messing around with subsequent blocking behavior.
+
+- The bootloader mechanism is used by kexec in order for the prior
+  kernel to initialize the RNG of the next kernel, which increases
+  the entropy available to early boot daemons of the next kernel.
+
+- Previous objections related to backdoors centered around
+  Dual_EC_DRBG-like kleptographic systems, in which observing some
+  amount of the output stream enables an adversary holding the right key
+  to determine the entire output stream.
+
+  This used to be a partially justified concern, because RDRAND output
+  was mixed into the output stream in varying ways, some of which may
+  have lacked pre-image resistance (e.g. XOR or an LFSR).
+
+  But this is no longer the case. Now, all usage of RDRAND and
+  bootloader seeds go through a cryptographic hash function. This means
+  that the CPU would have to compute a hash pre-image, which is not
+  considered to be feasible (otherwise the hash function would be
+  terribly broken).
+
+- More generally, if the CPU is backdoored, the RNG is probably not the
+  realistic vector of choice for an attacker.
+
+- These CPU or bootloader seeds are far from being the only source of
+  entropy. Rather, there is generally a pretty huge amount of entropy,
+  not all of which is credited, especially on CPUs that support
+  instructions like RDRAND. In other words, assuming RDRAND outputs all
+  zeros, an attacker would *still* have to accurately model every single
+  other entropy source also in use.
+
+- The RNG now reseeds itself quite rapidly during boot, starting at 2
+  seconds, then 4, then 8, then 16, and so forth, so that other sources
+  of entropy get used without much delay.
+
+- Paranoid users can set random.trust_{cpu,bootloader}=no in the kernel
+  command line, and paranoid system builders can set the Kconfig options
+  to N, so there's no reduction or restriction of optionality.
+
+- It's a practical default.
+
+- All the distros have it set this way. Microsoft and Apple trust it
+  too. Bandwagon.
+
+Cons:
+
+- RDRAND *could* still be backdoored with something like a fixed key or
+  limited space serial number seed or another indexable scheme like
+  that. (However, it's hard to imagine threat models where the CPU is
+  backdoored like this, yet people are still okay making *any*
+  computations with it or connecting it to networks, etc.)
+
+- RDRAND *could* be defective, rather than backdoored, and produce
+  garbage that is in one way or another insufficient for crypto.
+
+- Suggesting a *reduction* in paranoia, as this commit effectively does,
+  may cause some to question my personal integrity as a "security
+  person".
+
+- Bootloader seeds and RDRAND are generally very difficult if not all
+  together impossible to audit.
+
+Keep in mind that this doesn't actually change any behavior. This
+is just a change in the default Kconfig value. The distros already are
+shipping kernels that set things this way.
+
+Ard made an additional argument in [1]:
+
+    We're at the mercy of firmware and micro-architecture anyway, given
+    that we are also relying on it to ensure that every instruction in
+    the kernel's executable image has been faithfully copied to memory,
+    and that the CPU implements those instructions as documented. So I
+    don't think firmware or ISA bugs related to RNGs deserve special
+    treatment - if they are broken, we should quirk around them like we
+    usually do. So enabling these by default is a step in the right
+    direction IMHO.
+
+In [2], Phil pointed out that having this disabled masked a bug that CI
+otherwise would have caught:
+
+    A clean 5.15.45 boots cleanly, whereas a downstream kernel shows the
+    static key warning (but it does go on to boot). The significant
+    difference is that our defconfigs set CONFIG_RANDOM_TRUST_BOOTLOADER=y
+    defining that on top of multi_v7_defconfig demonstrates the issue on
+    a clean 5.15.45. Conversely, not setting that option in a
+    downstream kernel build avoids the warning
+
+[1] https://lore.kernel.org/lkml/CAMj1kXGi+ieviFjXv9zQBSaGyyzeGW_VpMpTLJK8PJb2QHEQ-w@mail.gmail.com/
+[2] https://lore.kernel.org/lkml/c47c42e3-1d56-5859-a6ad-976a1a3381c6@raspberrypi.com/
 
 Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Jann Horn <jannh@google.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c         |  125 ++++++++++++++++++------------------------
- include/linux/hw_random.h     |    2 
- include/linux/random.h        |   10 +--
- include/trace/events/random.h |   79 ++++++++++++--------------
- 4 files changed, 100 insertions(+), 116 deletions(-)
+ drivers/char/Kconfig | 50 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 31 insertions(+), 19 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -69,7 +69,7 @@
-  *
-  * The primary kernel interfaces are:
-  *
-- *	void get_random_bytes(void *buf, int nbytes);
-+ *	void get_random_bytes(void *buf, size_t nbytes);
-  *	u32 get_random_u32()
-  *	u64 get_random_u64()
-  *	unsigned int get_random_int()
-@@ -97,14 +97,14 @@
-  * The current exported interfaces for gathering environmental noise
-  * from the devices are:
-  *
-- *	void add_device_randomness(const void *buf, unsigned int size);
-+ *	void add_device_randomness(const void *buf, size_t size);
-  *	void add_input_randomness(unsigned int type, unsigned int code,
-  *                                unsigned int value);
-  *	void add_interrupt_randomness(int irq);
-  *	void add_disk_randomness(struct gendisk *disk);
-- *	void add_hwgenerator_randomness(const char *buffer, size_t count,
-+ *	void add_hwgenerator_randomness(const void *buffer, size_t count,
-  *					size_t entropy);
-- *	void add_bootloader_randomness(const void *buf, unsigned int size);
-+ *	void add_bootloader_randomness(const void *buf, size_t size);
-  *
-  * add_device_randomness() is for adding data to the random pool that
-  * is likely to differ between two devices (or possibly even per boot).
-@@ -268,7 +268,7 @@ static int crng_init = 0;
- #define crng_ready() (likely(crng_init > 1))
- static int crng_init_cnt = 0;
- static void process_random_ready_list(void);
--static void _get_random_bytes(void *buf, int nbytes);
-+static void _get_random_bytes(void *buf, size_t nbytes);
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index 55f48375e3fe..d454428f4981 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -428,28 +428,40 @@ config ADI
+ 	  driver include crash and makedumpfile.
  
- static struct ratelimit_state unseeded_warning =
- 	RATELIMIT_STATE_INIT("warn_unseeded_randomness", HZ, 3);
-@@ -290,7 +290,7 @@ MODULE_PARM_DESC(ratelimit_disable, "Dis
- static struct {
- 	struct blake2s_state hash;
- 	spinlock_t lock;
--	int entropy_count;
-+	unsigned int entropy_count;
- } input_pool = {
- 	.hash.h = { BLAKE2S_IV0 ^ (0x01010000 | BLAKE2S_HASH_SIZE),
- 		    BLAKE2S_IV1, BLAKE2S_IV2, BLAKE2S_IV3, BLAKE2S_IV4,
-@@ -308,18 +308,12 @@ static void crng_reseed(void);
-  * update the entropy estimate.  The caller should call
-  * credit_entropy_bits if this is appropriate.
-  */
--static void _mix_pool_bytes(const void *in, int nbytes)
-+static void _mix_pool_bytes(const void *in, size_t nbytes)
- {
- 	blake2s_update(&input_pool.hash, in, nbytes);
- }
- 
--static void __mix_pool_bytes(const void *in, int nbytes)
--{
--	trace_mix_pool_bytes_nolock(nbytes, _RET_IP_);
--	_mix_pool_bytes(in, nbytes);
--}
--
--static void mix_pool_bytes(const void *in, int nbytes)
-+static void mix_pool_bytes(const void *in, size_t nbytes)
- {
- 	unsigned long flags;
- 
-@@ -383,18 +377,18 @@ static void process_random_ready_list(vo
- 	spin_unlock_irqrestore(&random_ready_list_lock, flags);
- }
- 
--static void credit_entropy_bits(int nbits)
-+static void credit_entropy_bits(size_t nbits)
- {
--	int entropy_count, orig;
-+	unsigned int entropy_count, orig, add;
- 
--	if (nbits <= 0)
-+	if (!nbits)
- 		return;
- 
--	nbits = min(nbits, POOL_BITS);
-+	add = min_t(size_t, nbits, POOL_BITS);
- 
- 	do {
- 		orig = READ_ONCE(input_pool.entropy_count);
--		entropy_count = min(POOL_BITS, orig + nbits);
-+		entropy_count = min_t(unsigned int, POOL_BITS, orig + add);
- 	} while (cmpxchg(&input_pool.entropy_count, orig, entropy_count) != orig);
- 
- 	trace_credit_entropy_bits(nbits, entropy_count, _RET_IP_);
-@@ -441,10 +435,10 @@ static void invalidate_batched_entropy(v
-  * path.  So we can't afford to dilly-dally. Returns the number of
-  * bytes processed from cp.
-  */
--static size_t crng_fast_load(const u8 *cp, size_t len)
-+static size_t crng_fast_load(const void *cp, size_t len)
- {
- 	unsigned long flags;
--	u8 *p;
-+	const u8 *src = (const u8 *)cp;
- 	size_t ret = 0;
- 
- 	if (!spin_trylock_irqsave(&base_crng.lock, flags))
-@@ -453,10 +447,9 @@ static size_t crng_fast_load(const u8 *c
- 		spin_unlock_irqrestore(&base_crng.lock, flags);
- 		return 0;
- 	}
--	p = base_crng.key;
- 	while (len > 0 && crng_init_cnt < CRNG_INIT_CNT_THRESH) {
--		p[crng_init_cnt % sizeof(base_crng.key)] ^= *cp;
--		cp++; crng_init_cnt++; len--; ret++;
-+		base_crng.key[crng_init_cnt % sizeof(base_crng.key)] ^= *src;
-+		src++; crng_init_cnt++; len--; ret++;
- 	}
- 	if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
- 		invalidate_batched_entropy();
-@@ -480,7 +473,7 @@ static size_t crng_fast_load(const u8 *c
-  * something like a fixed DMI table (for example), which might very
-  * well be unique to the machine, but is otherwise unvarying.
-  */
--static void crng_slow_load(const u8 *cp, size_t len)
-+static void crng_slow_load(const void *cp, size_t len)
- {
- 	unsigned long flags;
- 	struct blake2s_state hash;
-@@ -654,14 +647,15 @@ static void crng_make_state(u32 chacha_s
- static ssize_t get_random_bytes_user(void __user *buf, size_t nbytes)
- {
- 	bool large_request = nbytes > 256;
--	ssize_t ret = 0, len;
-+	ssize_t ret = 0;
-+	size_t len;
- 	u32 chacha_state[CHACHA_BLOCK_SIZE / sizeof(u32)];
- 	u8 output[CHACHA_BLOCK_SIZE];
- 
- 	if (!nbytes)
- 		return 0;
- 
--	len = min_t(ssize_t, 32, nbytes);
-+	len = min_t(size_t, 32, nbytes);
- 	crng_make_state(chacha_state, output, len);
- 
- 	if (copy_to_user(buf, output, len))
-@@ -681,7 +675,7 @@ static ssize_t get_random_bytes_user(voi
- 		if (unlikely(chacha_state[12] == 0))
- 			++chacha_state[13];
- 
--		len = min_t(ssize_t, nbytes, CHACHA_BLOCK_SIZE);
-+		len = min_t(size_t, nbytes, CHACHA_BLOCK_SIZE);
- 		if (copy_to_user(buf, output, len)) {
- 			ret = -EFAULT;
- 			break;
-@@ -719,7 +713,7 @@ struct timer_rand_state {
-  * the entropy pool having similar initial state across largely
-  * identical devices.
-  */
--void add_device_randomness(const void *buf, unsigned int size)
-+void add_device_randomness(const void *buf, size_t size)
- {
- 	unsigned long time = random_get_entropy() ^ jiffies;
- 	unsigned long flags;
-@@ -747,7 +741,7 @@ static struct timer_rand_state input_tim
-  * keyboard scan codes, and 256 upwards for interrupts.
-  *
-  */
--static void add_timer_randomness(struct timer_rand_state *state, unsigned num)
-+static void add_timer_randomness(struct timer_rand_state *state, unsigned int num)
- {
- 	struct {
- 		long jiffies;
-@@ -791,7 +785,7 @@ static void add_timer_randomness(struct
- 	 * Round down by 1 bit on general principles,
- 	 * and limit entropy estimate to 12 bits.
- 	 */
--	credit_entropy_bits(min_t(int, fls(delta >> 1), 11));
-+	credit_entropy_bits(min_t(unsigned int, fls(delta >> 1), 11));
- }
- 
- void add_input_randomness(unsigned int type, unsigned int code,
-@@ -872,8 +866,8 @@ void add_interrupt_randomness(int irq)
- 	add_interrupt_bench(cycles);
- 
- 	if (unlikely(crng_init == 0)) {
--		if ((fast_pool->count >= 64) &&
--		    crng_fast_load((u8 *)fast_pool->pool, sizeof(fast_pool->pool)) > 0) {
-+		if (fast_pool->count >= 64 &&
-+		    crng_fast_load(fast_pool->pool, sizeof(fast_pool->pool)) > 0) {
- 			fast_pool->count = 0;
- 			fast_pool->last = now;
- 			if (spin_trylock(&input_pool.lock)) {
-@@ -891,7 +885,7 @@ void add_interrupt_randomness(int irq)
- 		return;
- 
- 	fast_pool->last = now;
--	__mix_pool_bytes(&fast_pool->pool, sizeof(fast_pool->pool));
-+	_mix_pool_bytes(&fast_pool->pool, sizeof(fast_pool->pool));
- 	spin_unlock(&input_pool.lock);
- 
- 	fast_pool->count = 0;
-@@ -1000,18 +994,18 @@ static void _warn_unseeded_randomness(co
-  * wait_for_random_bytes() should be called and return 0 at least once
-  * at any point prior.
-  */
--static void _get_random_bytes(void *buf, int nbytes)
-+static void _get_random_bytes(void *buf, size_t nbytes)
- {
- 	u32 chacha_state[CHACHA_BLOCK_SIZE / sizeof(u32)];
- 	u8 tmp[CHACHA_BLOCK_SIZE];
--	ssize_t len;
-+	size_t len;
- 
- 	trace_get_random_bytes(nbytes, _RET_IP_);
- 
- 	if (!nbytes)
- 		return;
- 
--	len = min_t(ssize_t, 32, nbytes);
-+	len = min_t(size_t, 32, nbytes);
- 	crng_make_state(chacha_state, buf, len);
- 	nbytes -= len;
- 	buf += len;
-@@ -1034,7 +1028,7 @@ static void _get_random_bytes(void *buf,
- 	memzero_explicit(chacha_state, sizeof(chacha_state));
- }
- 
--void get_random_bytes(void *buf, int nbytes)
-+void get_random_bytes(void *buf, size_t nbytes)
- {
- 	static void *previous;
- 
-@@ -1195,25 +1189,19 @@ EXPORT_SYMBOL(del_random_ready_callback)
- 
- /*
-  * This function will use the architecture-specific hardware random
-- * number generator if it is available.  The arch-specific hw RNG will
-- * almost certainly be faster than what we can do in software, but it
-- * is impossible to verify that it is implemented securely (as
-- * opposed, to, say, the AES encryption of a sequence number using a
-- * key known by the NSA).  So it's useful if we need the speed, but
-- * only if we're willing to trust the hardware manufacturer not to
-- * have put in a back door.
-- *
-- * Return number of bytes filled in.
-+ * number generator if it is available. It is not recommended for
-+ * use. Use get_random_bytes() instead. It returns the number of
-+ * bytes filled in.
-  */
--int __must_check get_random_bytes_arch(void *buf, int nbytes)
-+size_t __must_check get_random_bytes_arch(void *buf, size_t nbytes)
- {
--	int left = nbytes;
-+	size_t left = nbytes;
- 	u8 *p = buf;
- 
- 	trace_get_random_bytes_arch(left, _RET_IP_);
- 	while (left) {
- 		unsigned long v;
--		int chunk = min_t(int, left, sizeof(unsigned long));
-+		size_t chunk = min_t(size_t, left, sizeof(unsigned long));
- 
- 		if (!arch_get_random_long(&v))
- 			break;
-@@ -1246,12 +1234,12 @@ early_param("random.trust_cpu", parse_tr
-  */
- int __init rand_initialize(void)
- {
--	int i;
-+	size_t i;
- 	ktime_t now = ktime_get_real();
- 	bool arch_init = true;
- 	unsigned long rv;
- 
--	for (i = BLAKE2S_BLOCK_SIZE; i > 0; i -= sizeof(rv)) {
-+	for (i = 0; i < BLAKE2S_BLOCK_SIZE; i += sizeof(rv)) {
- 		if (!arch_get_random_seed_long_early(&rv) &&
- 		    !arch_get_random_long_early(&rv)) {
- 			rv = random_get_entropy();
-@@ -1300,7 +1288,7 @@ static ssize_t urandom_read_nowarn(struc
- 
- 	nbytes = min_t(size_t, nbytes, INT_MAX >> 6);
- 	ret = get_random_bytes_user(buf, nbytes);
--	trace_urandom_read(8 * nbytes, 0, input_pool.entropy_count);
-+	trace_urandom_read(nbytes, input_pool.entropy_count);
- 	return ret;
- }
- 
-@@ -1344,19 +1332,18 @@ static __poll_t random_poll(struct file
- 	return mask;
- }
- 
--static int write_pool(const char __user *buffer, size_t count)
-+static int write_pool(const char __user *ubuf, size_t count)
- {
--	size_t bytes;
--	u8 buf[BLAKE2S_BLOCK_SIZE];
--	const char __user *p = buffer;
--
--	while (count > 0) {
--		bytes = min(count, sizeof(buf));
--		if (copy_from_user(buf, p, bytes))
-+	size_t len;
-+	u8 block[BLAKE2S_BLOCK_SIZE];
+ config RANDOM_TRUST_CPU
+-	bool "Trust the CPU manufacturer to initialize Linux's CRNG"
++	bool "Initialize RNG using CPU RNG instructions"
++	default y
+ 	depends on ARCH_RANDOM
+-	default n
+ 	help
+-	Assume that CPU manufacturer (e.g., Intel or AMD for RDSEED or
+-	RDRAND, IBM for the S390 and Power PC architectures) is trustworthy
+-	for the purposes of initializing Linux's CRNG.  Since this is not
+-	something that can be independently audited, this amounts to trusting
+-	that CPU manufacturer (perhaps with the insistence or mandate
+-	of a Nation State's intelligence or law enforcement agencies)
+-	has not installed a hidden back door to compromise the CPU's
+-	random number generation facilities. This can also be configured
+-	at boot with "random.trust_cpu=on/off".
++	  Initialize the RNG using random numbers supplied by the CPU's
++	  RNG instructions (e.g. RDRAND), if supported and available. These
++	  random numbers are never used directly, but are rather hashed into
++	  the main input pool, and this happens regardless of whether or not
++	  this option is enabled. Instead, this option controls whether the
++	  they are credited and hence can initialize the RNG. Additionally,
++	  other sources of randomness are always used, regardless of this
++	  setting.  Enabling this implies trusting that the CPU can supply high
++	  quality and non-backdoored random numbers.
 +
-+	while (count) {
-+		len = min(count, sizeof(block));
-+		if (copy_from_user(block, ubuf, len))
- 			return -EFAULT;
--		count -= bytes;
--		p += bytes;
--		mix_pool_bytes(buf, bytes);
-+		count -= len;
-+		ubuf += len;
-+		mix_pool_bytes(block, len);
- 		cond_resched();
- 	}
++	  Say Y here unless you have reason to mistrust your CPU or believe
++	  its RNG facilities may be faulty. This may also be configured at
++	  boot time with "random.trust_cpu=on/off".
  
-@@ -1366,7 +1353,7 @@ static int write_pool(const char __user
- static ssize_t random_write(struct file *file, const char __user *buffer,
- 			    size_t count, loff_t *ppos)
- {
--	size_t ret;
-+	int ret;
- 
- 	ret = write_pool(buffer, count);
- 	if (ret)
-@@ -1462,8 +1449,6 @@ const struct file_operations urandom_fop
- SYSCALL_DEFINE3(getrandom, char __user *, buf, size_t, count, unsigned int,
- 		flags)
- {
--	int ret;
--
- 	if (flags & ~(GRND_NONBLOCK | GRND_RANDOM | GRND_INSECURE))
- 		return -EINVAL;
- 
-@@ -1478,6 +1463,8 @@ SYSCALL_DEFINE3(getrandom, char __user *
- 		count = INT_MAX;
- 
- 	if (!(flags & GRND_INSECURE) && !crng_ready()) {
-+		int ret;
+ config RANDOM_TRUST_BOOTLOADER
+-	bool "Trust the bootloader to initialize Linux's CRNG"
+-	help
+-	Some bootloaders can provide entropy to increase the kernel's initial
+-	device randomness. Say Y here to assume the entropy provided by the
+-	booloader is trustworthy so it will be added to the kernel's entropy
+-	pool. Otherwise, say N here so it will be regarded as device input that
+-	only mixes the entropy pool. This can also be configured at boot with
+-	"random.trust_bootloader=on/off".
++	bool "Initialize RNG using bootloader-supplied seed"
++	default y
++	help
++	  Initialize the RNG using a seed supplied by the bootloader or boot
++	  environment (e.g. EFI or a bootloader-generated device tree). This
++	  seed is not used directly, but is rather hashed into the main input
++	  pool, and this happens regardless of whether or not this option is
++	  enabled. Instead, this option controls whether the seed is credited
++	  and hence can initialize the RNG. Additionally, other sources of
++	  randomness are always used, regardless of this setting. Enabling
++	  this implies trusting that the bootloader can supply high quality and
++	  non-backdoored seeds.
 +
- 		if (flags & GRND_NONBLOCK)
- 			return -EAGAIN;
- 		ret = wait_for_random_bytes();
-@@ -1736,7 +1723,7 @@ unsigned long randomize_page(unsigned lo
-  * Those devices may produce endless random bits and will be throttled
-  * when our pool is full.
-  */
--void add_hwgenerator_randomness(const char *buffer, size_t count,
-+void add_hwgenerator_randomness(const void *buffer, size_t count,
- 				size_t entropy)
- {
- 	if (unlikely(crng_init == 0)) {
-@@ -1767,7 +1754,7 @@ EXPORT_SYMBOL_GPL(add_hwgenerator_random
-  * it would be regarded as device data.
-  * The decision is controlled by CONFIG_RANDOM_TRUST_BOOTLOADER.
-  */
--void add_bootloader_randomness(const void *buf, unsigned int size)
-+void add_bootloader_randomness(const void *buf, size_t size)
- {
- 	if (IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER))
- 		add_hwgenerator_randomness(buf, size, size * 8);
---- a/include/linux/hw_random.h
-+++ b/include/linux/hw_random.h
-@@ -61,6 +61,6 @@ extern int devm_hwrng_register(struct de
- extern void hwrng_unregister(struct hwrng *rng);
- extern void devm_hwrng_unregister(struct device *dve, struct hwrng *rng);
- /** Feed random bits into the pool. */
--extern void add_hwgenerator_randomness(const char *buffer, size_t count, size_t entropy);
-+extern void add_hwgenerator_randomness(const void *buffer, size_t count, size_t entropy);
++	  Say Y here unless you have reason to mistrust your bootloader or
++	  believe its RNG facilities may be faulty. This may also be configured
++	  at boot time with "random.trust_bootloader=on/off".
  
- #endif /* LINUX_HWRANDOM_H_ */
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -20,8 +20,8 @@ struct random_ready_callback {
- 	struct module *owner;
- };
- 
--extern void add_device_randomness(const void *, unsigned int);
--extern void add_bootloader_randomness(const void *, unsigned int);
-+extern void add_device_randomness(const void *, size_t);
-+extern void add_bootloader_randomness(const void *, size_t);
- 
- #if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
- static inline void add_latent_entropy(void)
-@@ -37,13 +37,13 @@ extern void add_input_randomness(unsigne
- 				 unsigned int value) __latent_entropy;
- extern void add_interrupt_randomness(int irq) __latent_entropy;
- 
--extern void get_random_bytes(void *buf, int nbytes);
-+extern void get_random_bytes(void *buf, size_t nbytes);
- extern int wait_for_random_bytes(void);
- extern int __init rand_initialize(void);
- extern bool rng_is_initialized(void);
- extern int add_random_ready_callback(struct random_ready_callback *rdy);
- extern void del_random_ready_callback(struct random_ready_callback *rdy);
--extern int __must_check get_random_bytes_arch(void *buf, int nbytes);
-+extern size_t __must_check get_random_bytes_arch(void *buf, size_t nbytes);
- 
- #ifndef MODULE
- extern const struct file_operations random_fops, urandom_fops;
-@@ -87,7 +87,7 @@ static inline unsigned long get_random_c
- 
- /* Calls wait_for_random_bytes() and then calls get_random_bytes(buf, nbytes).
-  * Returns the result of the call to wait_for_random_bytes. */
--static inline int get_random_bytes_wait(void *buf, int nbytes)
-+static inline int get_random_bytes_wait(void *buf, size_t nbytes)
- {
- 	int ret = wait_for_random_bytes();
- 	get_random_bytes(buf, nbytes);
---- a/include/trace/events/random.h
-+++ b/include/trace/events/random.h
-@@ -9,13 +9,13 @@
- #include <linux/tracepoint.h>
- 
- TRACE_EVENT(add_device_randomness,
--	TP_PROTO(int bytes, unsigned long IP),
-+	TP_PROTO(size_t bytes, unsigned long IP),
- 
- 	TP_ARGS(bytes, IP),
- 
- 	TP_STRUCT__entry(
--		__field(	  int,	bytes			)
--		__field(unsigned long,	IP			)
-+		__field(size_t,		bytes	)
-+		__field(unsigned long,	IP	)
- 	),
- 
- 	TP_fast_assign(
-@@ -23,18 +23,18 @@ TRACE_EVENT(add_device_randomness,
- 		__entry->IP		= IP;
- 	),
- 
--	TP_printk("bytes %d caller %pS",
-+	TP_printk("bytes %zu caller %pS",
- 		__entry->bytes, (void *)__entry->IP)
- );
- 
- DECLARE_EVENT_CLASS(random__mix_pool_bytes,
--	TP_PROTO(int bytes, unsigned long IP),
-+	TP_PROTO(size_t bytes, unsigned long IP),
- 
- 	TP_ARGS(bytes, IP),
- 
- 	TP_STRUCT__entry(
--		__field(	  int,	bytes			)
--		__field(unsigned long,	IP			)
-+		__field(size_t,		bytes	)
-+		__field(unsigned long,	IP	)
- 	),
- 
- 	TP_fast_assign(
-@@ -42,12 +42,12 @@ DECLARE_EVENT_CLASS(random__mix_pool_byt
- 		__entry->IP		= IP;
- 	),
- 
--	TP_printk("input pool: bytes %d caller %pS",
-+	TP_printk("input pool: bytes %zu caller %pS",
- 		  __entry->bytes, (void *)__entry->IP)
- );
- 
- DEFINE_EVENT(random__mix_pool_bytes, mix_pool_bytes,
--	TP_PROTO(int bytes, unsigned long IP),
-+	TP_PROTO(size_t bytes, unsigned long IP),
- 
- 	TP_ARGS(bytes, IP)
- );
-@@ -59,13 +59,13 @@ DEFINE_EVENT(random__mix_pool_bytes, mix
- );
- 
- TRACE_EVENT(credit_entropy_bits,
--	TP_PROTO(int bits, int entropy_count, unsigned long IP),
-+	TP_PROTO(size_t bits, size_t entropy_count, unsigned long IP),
- 
- 	TP_ARGS(bits, entropy_count, IP),
- 
- 	TP_STRUCT__entry(
--		__field(	  int,	bits			)
--		__field(	  int,	entropy_count		)
-+		__field(size_t,		bits			)
-+		__field(size_t,		entropy_count		)
- 		__field(unsigned long,	IP			)
- 	),
- 
-@@ -75,34 +75,34 @@ TRACE_EVENT(credit_entropy_bits,
- 		__entry->IP		= IP;
- 	),
- 
--	TP_printk("input pool: bits %d entropy_count %d caller %pS",
-+	TP_printk("input pool: bits %zu entropy_count %zu caller %pS",
- 		  __entry->bits, __entry->entropy_count, (void *)__entry->IP)
- );
- 
- TRACE_EVENT(add_input_randomness,
--	TP_PROTO(int input_bits),
-+	TP_PROTO(size_t input_bits),
- 
- 	TP_ARGS(input_bits),
- 
- 	TP_STRUCT__entry(
--		__field(	  int,	input_bits		)
-+		__field(size_t,	input_bits		)
- 	),
- 
- 	TP_fast_assign(
- 		__entry->input_bits	= input_bits;
- 	),
- 
--	TP_printk("input_pool_bits %d", __entry->input_bits)
-+	TP_printk("input_pool_bits %zu", __entry->input_bits)
- );
- 
- TRACE_EVENT(add_disk_randomness,
--	TP_PROTO(dev_t dev, int input_bits),
-+	TP_PROTO(dev_t dev, size_t input_bits),
- 
- 	TP_ARGS(dev, input_bits),
- 
- 	TP_STRUCT__entry(
--		__field(	dev_t,	dev			)
--		__field(	  int,	input_bits		)
-+		__field(dev_t,		dev			)
-+		__field(size_t,		input_bits		)
- 	),
- 
- 	TP_fast_assign(
-@@ -110,17 +110,17 @@ TRACE_EVENT(add_disk_randomness,
- 		__entry->input_bits	= input_bits;
- 	),
- 
--	TP_printk("dev %d,%d input_pool_bits %d", MAJOR(__entry->dev),
-+	TP_printk("dev %d,%d input_pool_bits %zu", MAJOR(__entry->dev),
- 		  MINOR(__entry->dev), __entry->input_bits)
- );
- 
- DECLARE_EVENT_CLASS(random__get_random_bytes,
--	TP_PROTO(int nbytes, unsigned long IP),
-+	TP_PROTO(size_t nbytes, unsigned long IP),
- 
- 	TP_ARGS(nbytes, IP),
- 
- 	TP_STRUCT__entry(
--		__field(	  int,	nbytes			)
-+		__field(size_t,		nbytes			)
- 		__field(unsigned long,	IP			)
- 	),
- 
-@@ -129,29 +129,29 @@ DECLARE_EVENT_CLASS(random__get_random_b
- 		__entry->IP		= IP;
- 	),
- 
--	TP_printk("nbytes %d caller %pS", __entry->nbytes, (void *)__entry->IP)
-+	TP_printk("nbytes %zu caller %pS", __entry->nbytes, (void *)__entry->IP)
- );
- 
- DEFINE_EVENT(random__get_random_bytes, get_random_bytes,
--	TP_PROTO(int nbytes, unsigned long IP),
-+	TP_PROTO(size_t nbytes, unsigned long IP),
- 
- 	TP_ARGS(nbytes, IP)
- );
- 
- DEFINE_EVENT(random__get_random_bytes, get_random_bytes_arch,
--	TP_PROTO(int nbytes, unsigned long IP),
-+	TP_PROTO(size_t nbytes, unsigned long IP),
- 
- 	TP_ARGS(nbytes, IP)
- );
- 
- DECLARE_EVENT_CLASS(random__extract_entropy,
--	TP_PROTO(int nbytes, int entropy_count),
-+	TP_PROTO(size_t nbytes, size_t entropy_count),
- 
- 	TP_ARGS(nbytes, entropy_count),
- 
- 	TP_STRUCT__entry(
--		__field(	  int,	nbytes			)
--		__field(	  int,	entropy_count		)
-+		__field(  size_t,	nbytes			)
-+		__field(  size_t,	entropy_count		)
- 	),
- 
- 	TP_fast_assign(
-@@ -159,37 +159,34 @@ DECLARE_EVENT_CLASS(random__extract_entr
- 		__entry->entropy_count	= entropy_count;
- 	),
- 
--	TP_printk("input pool: nbytes %d entropy_count %d",
-+	TP_printk("input pool: nbytes %zu entropy_count %zu",
- 		  __entry->nbytes, __entry->entropy_count)
- );
- 
- 
- DEFINE_EVENT(random__extract_entropy, extract_entropy,
--	TP_PROTO(int nbytes, int entropy_count),
-+	TP_PROTO(size_t nbytes, size_t entropy_count),
- 
- 	TP_ARGS(nbytes, entropy_count)
- );
- 
- TRACE_EVENT(urandom_read,
--	TP_PROTO(int got_bits, int pool_left, int input_left),
-+	TP_PROTO(size_t nbytes, size_t entropy_count),
- 
--	TP_ARGS(got_bits, pool_left, input_left),
-+	TP_ARGS(nbytes, entropy_count),
- 
- 	TP_STRUCT__entry(
--		__field(	  int,	got_bits		)
--		__field(	  int,	pool_left		)
--		__field(	  int,	input_left		)
-+		__field( size_t,	nbytes		)
-+		__field( size_t,	entropy_count	)
- 	),
- 
- 	TP_fast_assign(
--		__entry->got_bits	= got_bits;
--		__entry->pool_left	= pool_left;
--		__entry->input_left	= input_left;
-+		__entry->nbytes		= nbytes;
-+		__entry->entropy_count	= entropy_count;
- 	),
- 
--	TP_printk("got_bits %d nonblocking_pool_entropy_left %d "
--		  "input_entropy_left %d", __entry->got_bits,
--		  __entry->pool_left, __entry->input_left)
-+	TP_printk("reading: nbytes %zu entropy_count %zu",
-+		  __entry->nbytes, __entry->entropy_count)
- );
- 
- #endif /* _TRACE_RANDOM_H */
+ endmenu
+-- 
+2.35.1
+
 
 
