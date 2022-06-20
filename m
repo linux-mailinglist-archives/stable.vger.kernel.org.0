@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 390DF551AF5
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFA5E551AE0
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344683AbiFTN0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:26:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37752 "EHLO
+        id S1345281AbiFTNaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:30:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344575AbiFTNZD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:25:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D5581AF05;
-        Mon, 20 Jun 2022 06:10:19 -0700 (PDT)
+        with ESMTP id S1346564AbiFTN3H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:29:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A4B240AF;
+        Mon, 20 Jun 2022 06:11:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96E11B811D7;
-        Mon, 20 Jun 2022 13:10:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7687C3411B;
-        Mon, 20 Jun 2022 13:09:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 054C5B811E7;
+        Mon, 20 Jun 2022 13:10:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48A5EC3411B;
+        Mon, 20 Jun 2022 13:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730599;
-        bh=SjXAoznO5JPsYpcWKUijlKX7Px6pqsQqLLa1A/Kne20=;
+        s=korg; t=1655730605;
+        bh=laOXoPHW2nCB9BheLcxWUWK6vmMnekRsr4lZlIDiysE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/k/SPl0c+XEAwtF1vDmPP89gDAay8z+Ugu3q+PzpEwQjiapdRizN2SGJv42XXG+e
-         3UUmWyZbi0T0DodKolFeb7W5ZRn7ZJStCobizKi4HF8RfhdRL3iBmnH+z32TBi/yLh
-         knFcjggrA5YVUWY4OXIUic0msxkekny4PoUHL3pM=
+        b=0RmmNqgIgtWgOyywkZxuP6H0fTmpxXkuoHzogjEEUlRiTVSRiwyypTe72Da4a/mvx
+         ByaKl9A3OgGNKiWCDCtZfXxigf5yARjN79SL/opknkGSUXBLj3kQnN52g/gu12AxXC
+         YBwb6GVaS9R9BBsFtewykjzYHDP2CsBwuDvl1ku8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Murilo Opsfelder Araujo <muriloo@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Christophe de Dinechin <dinechin@redhat.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.15 104/106] virtio-pci: Remove wrong address verification in vp_del_vqs()
-Date:   Mon, 20 Jun 2022 14:52:03 +0200
-Message-Id: <20220620124727.460431546@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Scott Wood <oss@buserror.net>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 105/106] powerpc/book3e: get rid of #include <generated/compile.h>
+Date:   Mon, 20 Jun 2022 14:52:04 +0200
+Message-Id: <20220620124727.489994226@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
 References: <20220620124724.380838401@linuxfoundation.org>
@@ -56,49 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 7e415282b41bf0d15c6e0fe268f822d9b083f2f7 upstream.
+commit 7ad4bd887d27c6b6ffbef216f19c19f8fe2b8f52 upstream.
 
-GCC 12 enhanced -Waddress when comparing array address to null [0],
-which warns:
+You cannot include <generated/compile.h> here because it is generated
+in init/Makefile but there is no guarantee that it happens before
+arch/powerpc/mm/nohash/kaslr_booke.c is compiled for parallel builds.
 
-    drivers/virtio/virtio_pci_common.c: In function ‘vp_del_vqs’:
-    drivers/virtio/virtio_pci_common.c:257:29: warning: the comparison will always evaluate as ‘true’ for the pointer operand in ‘vp_dev->msix_affinity_masks + (sizetype)((long unsigned int)i * 256)’ must not be NULL [-Waddress]
-      257 |                         if (vp_dev->msix_affinity_masks[i])
-          |                             ^~~~~~
+The places where you can reliably include <generated/compile.h> are:
 
-In fact, the verification is comparing the result of a pointer
-arithmetic, the address "msix_affinity_masks + i", which will always
-evaluate to true.
+  - init/          (because init/Makefile can specify the dependency)
+  - arch/*/boot/   (because it is compiled after vmlinux)
 
-Under the hood, free_cpumask_var() calls kfree(), which is safe to pass
-NULL, not requiring non-null verification.  So remove the verification
-to make compiler happy (happy compiler, happy life).
+Commit f231e4333312 ("hexagon: get rid of #include <generated/compile.h>")
+fixed the last breakage at that time, but powerpc re-added this.
 
-[0] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102103
+<generated/compile.h> was unneeded because 'build_str' is almost the
+same as 'linux_banner' defined in init/version.c
 
-Signed-off-by: Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
-Message-Id: <20220415023002.49805-1-muriloo@linux.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Christophe de Dinechin <dinechin@redhat.com>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Let's copy the solution from MIPS.
+(get_random_boot() in arch/mips/kernel/relocate.c)
+
+Fixes: 6a38ea1d7b94 ("powerpc/fsl_booke/32: randomize the kernel image offset")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Acked-by: Scott Wood <oss@buserror.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220604085050.4078927-1-masahiroy@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virtio/virtio_pci_common.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/powerpc/mm/nohash/kaslr_booke.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -254,8 +254,7 @@ void vp_del_vqs(struct virtio_device *vd
+--- a/arch/powerpc/mm/nohash/kaslr_booke.c
++++ b/arch/powerpc/mm/nohash/kaslr_booke.c
+@@ -18,7 +18,6 @@
+ #include <asm/prom.h>
+ #include <asm/kdump.h>
+ #include <mm/mmu_decl.h>
+-#include <generated/compile.h>
+ #include <generated/utsrelease.h>
  
- 	if (vp_dev->msix_affinity_masks) {
- 		for (i = 0; i < vp_dev->msix_vectors; i++)
--			if (vp_dev->msix_affinity_masks[i])
--				free_cpumask_var(vp_dev->msix_affinity_masks[i]);
-+			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
- 	}
+ struct regions {
+@@ -36,10 +35,6 @@ struct regions {
+ 	int reserved_mem_size_cells;
+ };
  
- 	if (vp_dev->msix_enabled) {
+-/* Simplified build-specific string for starting entropy. */
+-static const char build_str[] = UTS_RELEASE " (" LINUX_COMPILE_BY "@"
+-		LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION;
+-
+ struct regions __initdata regions;
+ 
+ static __init void kaslr_get_cmdline(void *fdt)
+@@ -72,7 +67,8 @@ static unsigned long __init get_boot_see
+ {
+ 	unsigned long hash = 0;
+ 
+-	hash = rotate_xor(hash, build_str, sizeof(build_str));
++	/* build-specific string for starting entropy. */
++	hash = rotate_xor(hash, linux_banner, strlen(linux_banner));
+ 	hash = rotate_xor(hash, fdt, fdt_totalsize(fdt));
+ 
+ 	return hash;
 
 
