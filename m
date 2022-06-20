@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8321C551B24
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D8A6551B06
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243140AbiFTNPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:15:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34850 "EHLO
+        id S1344716AbiFTN0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:26:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344253AbiFTNNg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:13:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 198941EED3;
-        Mon, 20 Jun 2022 06:06:13 -0700 (PDT)
+        with ESMTP id S1344704AbiFTNZK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:25:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3D331AF14;
+        Mon, 20 Jun 2022 06:10:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8FE9B811D8;
-        Mon, 20 Jun 2022 13:04:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A6E0C3411B;
-        Mon, 20 Jun 2022 13:04:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3ED95CE139D;
+        Mon, 20 Jun 2022 13:10:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37D28C3411B;
+        Mon, 20 Jun 2022 13:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730260;
-        bh=BrMAr5keXlVGAt/2wfdpi2cV9Jtsmv2DZ3dYTdZLhrw=;
+        s=korg; t=1655730602;
+        bh=hEg9hnkhS6RHqILvDwH8t/z3ER9Xfyks3m8eyrf3+Cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFiW0eZk6SUsojmbD3b+tN1aJdFacoy9ro9sUp4WYKDKOX+NG0bOk85OtAfWYoQzW
-         xam2myxhc0T5/3PyUEgJd0AR3Qma8iIVQ0WJQ7Y0hveU9JJh/djYWARiyXOO29+lPW
-         RMr6d00/Dgr1dckSGU7tcyePwx9klhJwKldg9pYY=
+        b=iZ+nN4abZT+yIl2nDRlros0V3GkOU2w8mCGpXMXY8dGht/lXmm8zqBzIq33Yto0F7
+         wmBKPWlrk0SYE9D4Rc5Ntwe215aU+IA950p61bM5Vf245iKxhACFhMevkZWbtEi9fa
+         BngFDnecCOPmLbvIxAkHTZUHJQBpCtvaDYQHFlQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Meng Tang <tangmeng@uniontech.com>
-Subject: [PATCH 5.10 82/84] igc: Enable PCIe PTM
-Date:   Mon, 20 Jun 2022 14:51:45 +0200
-Message-Id: <20220620124723.313079844@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Minas Harutyunyan <hminas@synopsys.com>,
+        Miaoqian Lin <linmq006@gmail.com>
+Subject: [PATCH 5.15 087/106] usb: dwc2: Fix memory leak in dwc2_hcd_init
+Date:   Mon, 20 Jun 2022 14:51:46 +0200
+Message-Id: <20220620124726.963373092@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 1b5d73fb862414106cf270a1a7300ce8ae77de83 upstream.
+commit 3755278f078460b021cd0384562977bf2039a57a upstream.
 
-Enables PCIe PTM (Precision Time Measurement) support in the igc
-driver. Notifies the PCI devices that PCIe PTM should be enabled.
+usb_create_hcd will alloc memory for hcd, and we should
+call usb_put_hcd to free it when platform_get_resource()
+fails to prevent memory leak.
+goto error2 label instead error1 to fix this.
 
-PCIe PTM is similar protocol to PTP (Precision Time Protocol) running
-in the PCIe fabric, it allows devices to report time measurements from
-their internal clocks and the correlation with the PCIe root clock.
-
-The i225 NIC exposes some registers that expose those time
-measurements, those registers will be used, in later patches, to
-implement the PTP_SYS_OFFSET_PRECISE ioctl().
-
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Meng Tang <tangmeng@uniontech.com>
+Fixes: 856e6e8e0f93 ("usb: dwc2: check return value after calling platform_get_resource()")
+Cc: stable <stable@kernel.org>
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220530085413.44068-1-linmq006@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/dwc2/hcd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -9,6 +9,7 @@
- #include <linux/udp.h>
- #include <linux/ip.h>
- #include <linux/pm_runtime.h>
-+#include <linux/pci.h>
- #include <net/pkt_sched.h>
- 
- #include <net/ipv6.h>
-@@ -5041,6 +5042,10 @@ static int igc_probe(struct pci_dev *pde
- 
- 	pci_enable_pcie_error_reporting(pdev);
- 
-+	err = pci_enable_ptm(pdev, NULL);
-+	if (err < 0)
-+		dev_info(&pdev->dev, "PCIe PTM not supported by PCIe bus/controller\n");
-+
- 	pci_set_master(pdev);
- 
- 	err = -ENOMEM;
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -5194,7 +5194,7 @@ int dwc2_hcd_init(struct dwc2_hsotg *hso
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!res) {
+ 		retval = -EINVAL;
+-		goto error1;
++		goto error2;
+ 	}
+ 	hcd->rsrc_start = res->start;
+ 	hcd->rsrc_len = resource_size(res);
 
 
