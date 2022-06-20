@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9EC35511D8
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFF925511E3
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239572AbiFTHvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 03:51:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46716 "EHLO
+        id S239570AbiFTHvh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 03:51:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239570AbiFTHvf (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82762DEEF
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:34 -0700 (PDT)
+        with ESMTP id S239573AbiFTHvg (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D049DEEF
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E330B80EB3
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5905C3411B;
-        Mon, 20 Jun 2022 07:51:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFF6D61202
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7DE2C3411B;
+        Mon, 20 Jun 2022 07:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655711492;
-        bh=bRycyno/dYj0QFTPfeMhnX0PIi3/bCfLLNzOi3p+SCI=;
+        s=korg; t=1655711495;
+        bh=gh+Lml8AvNmwGTBbUMg105DnMume1LrJJCblmYCibPc=;
         h=Subject:To:From:Date:From;
-        b=AAd6xB4ktrg3OntAIX7nsfrxP+K6UHn4RN/XdYNkvi6ooWNQ7M24qujiiZpYB5YxO
-         A5rYPQZJ/9UDR+xizc6KQiQuK0Rn9pV7i0vX+fjakyR2Gtd9c6D6c1by14CKn7VR7P
-         fKpIgzKQDSTFhoPYkoBCfxWrStHt0kxRiTiRgy2w=
-Subject: patch "iio:chemical:ccs811: rearrange iio trigger get and register" added to char-misc-linus
+        b=qO0TFTOPzoOz6k8u80XNq3a6V9nhtdnYJx7OSCBuCR/WOB7yQ/3DaZt+jUh0PKKKZ
+         +1lX/98nzPw9SbSvYSOl1WX8epYU24Fve77MwW2KCOBTaKolgRSCI2A+M/WwMqOVIs
+         mXDz1yUx/lxxbtxbokAa9Ni+Fl7+i2AhWght8YLA=
+Subject: patch "iio:humidity:hts221: rearrange iio trigger get and register" added to char-misc-linus
 To:     DDRokosov@sberdevices.ru, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, andy.shevchenko@gmail.com,
         ddrokosov@sberdevices.ru
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jun 2022 09:50:46 +0200
-Message-ID: <165571144613148@kroah.com>
+Date:   Mon, 20 Jun 2022 09:50:47 +0200
+Message-ID: <1655711447133231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio:chemical:ccs811: rearrange iio trigger get and register
+    iio:humidity:hts221: rearrange iio trigger get and register
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -66,10 +66,10 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From d710359c0b445e8c03e24f19ae2fb79ce7282260 Mon Sep 17 00:00:00 2001
+From 10b9c2c33ac706face458feab8965f11743c98c0 Mon Sep 17 00:00:00 2001
 From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
-Date: Tue, 24 May 2022 18:14:45 +0000
-Subject: iio:chemical:ccs811: rearrange iio trigger get and register
+Date: Tue, 24 May 2022 18:14:46 +0000
+Subject: iio:humidity:hts221: rearrange iio trigger get and register
 
 IIO trigger interface function iio_trigger_get() should be called after
 iio_trigger_register() (or its devm analogue) strictly, because of
@@ -80,34 +80,34 @@ If this call order is wrong, the next iio_trigger_put() (from sysfs
 callback or "delete module" path) will dereference "default" module
 refcnt, which is incorrect behaviour.
 
-Fixes: f1f065d7ac30 ("iio: chemical: ccs811: Add support for data ready trigger")
+Fixes: e4a70e3e7d84 ("iio: humidity: add support to hts221 rh/temp combo device")
 Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220524181150.9240-5-ddrokosov@sberdevices.ru
+Link: https://lore.kernel.org/r/20220524181150.9240-6-ddrokosov@sberdevices.ru
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/chemical/ccs811.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/humidity/hts221_buffer.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/chemical/ccs811.c b/drivers/iio/chemical/ccs811.c
-index 847194fa1e46..80ef1aa9aae3 100644
---- a/drivers/iio/chemical/ccs811.c
-+++ b/drivers/iio/chemical/ccs811.c
-@@ -499,11 +499,11 @@ static int ccs811_probe(struct i2c_client *client,
+diff --git a/drivers/iio/humidity/hts221_buffer.c b/drivers/iio/humidity/hts221_buffer.c
+index f29692b9d2db..66b32413cf5e 100644
+--- a/drivers/iio/humidity/hts221_buffer.c
++++ b/drivers/iio/humidity/hts221_buffer.c
+@@ -135,9 +135,12 @@ int hts221_allocate_trigger(struct iio_dev *iio_dev)
  
- 		data->drdy_trig->ops = &ccs811_trigger_ops;
- 		iio_trigger_set_drvdata(data->drdy_trig, indio_dev);
--		indio_dev->trig = data->drdy_trig;
--		iio_trigger_get(indio_dev->trig);
- 		ret = iio_trigger_register(data->drdy_trig);
- 		if (ret)
- 			goto err_poweroff;
+ 	iio_trigger_set_drvdata(hw->trig, iio_dev);
+ 	hw->trig->ops = &hts221_trigger_ops;
 +
-+		indio_dev->trig = iio_trigger_get(data->drdy_trig);
- 	}
++	err = devm_iio_trigger_register(hw->dev, hw->trig);
++
+ 	iio_dev->trig = iio_trigger_get(hw->trig);
  
- 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
+-	return devm_iio_trigger_register(hw->dev, hw->trig);
++	return err;
+ }
+ 
+ static int hts221_buffer_preenable(struct iio_dev *iio_dev)
 -- 
 2.36.1
 
