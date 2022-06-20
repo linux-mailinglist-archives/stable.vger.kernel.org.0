@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 294B4551C7A
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BC02551AED
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343859AbiFTNVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:21:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58392 "EHLO
+        id S1346744AbiFTNgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:36:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345821AbiFTNUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:20:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D806E22295;
-        Mon, 20 Jun 2022 06:08:31 -0700 (PDT)
+        with ESMTP id S1346975AbiFTNfw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:35:52 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8891C27CF9;
+        Mon, 20 Jun 2022 06:13:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CADE60AC0;
-        Mon, 20 Jun 2022 13:08:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12FEEC3411C;
-        Mon, 20 Jun 2022 13:08:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1E13CCE1390;
+        Mon, 20 Jun 2022 13:04:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14791C3411B;
+        Mon, 20 Jun 2022 13:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730510;
-        bh=isSkBvF2SKbK+LIjNl9zSIRn10ltWAd3wql8HsAGxhs=;
+        s=korg; t=1655730273;
+        bh=+5shk+eauZhl+KC0dXVhipM9m38Ll0zkCxApQYigSeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rvkbPmwtWRcakkfXgVGlGm+zwcMCCD+XQhm3/0R1DHeEzSKI6/WM9X7elsMCaEJVh
-         QNewj/BiGz9GrWkCpdy4Y4Y7pbZjDormvFlp0Fz+Xc2nNnicKzzyyHe7+5Ji60/G9a
-         twFWSvhf3KnDTW8X1075b++77noqwxGcCPxo18Vw=
+        b=Uz6w/02qTi/i9YZNAzg5oIFor5s4weHzEBg8WSbYd/WxFDyTi4ffq6ygbOToyc8i+
+         LATS5OYUjklpFw3UAQSo4J1eDfKIGzq+5884rw4KnXcZGrTqhvztpEq9BOvh1S8/i4
+         F5m8kR1G2v+lSs4jXGEC4uvhPqLNhTJAkGQlv4WM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        "Ivan T. Ivanov" <iivanov@suse.de>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 068/106] arm64: ftrace: fix branch range checks
+        stable@vger.kernel.org, Robert Eckelmann <longnoserob@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 64/84] USB: serial: io_ti: add Agilent E5805A support
 Date:   Mon, 20 Jun 2022 14:51:27 +0200
-Message-Id: <20220620124726.414289527@linuxfoundation.org>
+Message-Id: <20220620124722.782136654@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,86 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Robert Eckelmann <longnoserob@gmail.com>
 
-[ Upstream commit 3eefdf9d1e406f3da47470b2854347009ffcb6fa ]
+commit 908e698f2149c3d6a67d9ae15c75545a3f392559 upstream.
 
-The branch range checks in ftrace_make_call() and ftrace_make_nop() are
-incorrect, erroneously permitting a forwards branch of 128M and
-erroneously rejecting a backwards branch of 128M.
+Add support for Agilent E5805A (rebranded ION Edgeport/4) to io_ti.
 
-This is because both functions calculate the offset backwards,
-calculating the offset *from* the target *to* the branch, rather than
-the other way around as the later comparisons expect.
-
-If an out-of-range branch were erroeously permitted, this would later be
-rejected by aarch64_insn_gen_branch_imm() as branch_imm_common() checks
-the bounds correctly, resulting in warnings and the placement of a BRK
-instruction. Note that this can only happen for a forwards branch of
-exactly 128M, and so the caller would need to be exactly 128M bytes
-below the relevant ftrace trampoline.
-
-If an in-range branch were erroeously rejected, then:
-
-* For modules when CONFIG_ARM64_MODULE_PLTS=y, this would result in the
-  use of a PLT entry, which is benign.
-
-  Note that this is the common case, as this is selected by
-  CONFIG_RANDOMIZE_BASE (and therefore RANDOMIZE_MODULE_REGION_FULL),
-  which distributions typically seelct. This is also selected by
-  CONFIG_ARM64_ERRATUM_843419.
-
-* For modules when CONFIG_ARM64_MODULE_PLTS=n, this would result in
-  internal ftrace failures.
-
-* For core kernel text, this would result in internal ftrace failues.
-
-  Note that for this to happen, the kernel text would need to be at
-  least 128M bytes in size, and typical configurations are smaller tha
-  this.
-
-Fix this by calculating the offset *from* the branch *to* the target in
-both functions.
-
-Fixes: f8af0b364e24 ("arm64: ftrace: don't validate branch via PLT in ftrace_make_nop()")
-Fixes: e71a4e1bebaf ("arm64: ftrace: add support for far branches to dynamic ftrace")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Tested-by: "Ivan T. Ivanov" <iivanov@suse.de>
-Reviewed-by: Chengming Zhou <zhouchengming@bytedance.com>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Link: https://lore.kernel.org/r/20220614080944.1349146-2-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Robert Eckelmann <longnoserob@gmail.com>
+Link: https://lore.kernel.org/r/20220521230808.30931eca@octoberrain
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/ftrace.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/io_ti.c      |    2 ++
+ drivers/usb/serial/io_usbvend.h |    1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
-index 7f467bd9db7a..abb6f1bbc2a3 100644
---- a/arch/arm64/kernel/ftrace.c
-+++ b/arch/arm64/kernel/ftrace.c
-@@ -84,7 +84,7 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
- {
- 	unsigned long pc = rec->ip;
- 	u32 old, new;
--	long offset = (long)pc - (long)addr;
-+	long offset = (long)addr - (long)pc;
+--- a/drivers/usb/serial/io_ti.c
++++ b/drivers/usb/serial/io_ti.c
+@@ -168,6 +168,7 @@ static const struct usb_device_id edgepo
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_8S) },
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416) },
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416B) },
++	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_E5805A) },
+ 	{ }
+ };
  
- 	if (offset < -SZ_128M || offset >= SZ_128M) {
- 		struct module *mod;
-@@ -183,7 +183,7 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
- 	unsigned long pc = rec->ip;
- 	bool validate = true;
- 	u32 old = 0, new;
--	long offset = (long)pc - (long)addr;
-+	long offset = (long)addr - (long)pc;
+@@ -206,6 +207,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_8S) },
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416) },
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416B) },
++	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_E5805A) },
+ 	{ }
+ };
  
- 	if (offset < -SZ_128M || offset >= SZ_128M) {
- 		u32 replaced;
--- 
-2.35.1
-
+--- a/drivers/usb/serial/io_usbvend.h
++++ b/drivers/usb/serial/io_usbvend.h
+@@ -212,6 +212,7 @@
+ //
+ // Definitions for other product IDs
+ #define ION_DEVICE_ID_MT4X56USB			0x1403	// OEM device
++#define ION_DEVICE_ID_E5805A			0x1A01  // OEM device (rebranded Edgeport/4)
+ 
+ 
+ #define	GENERATION_ID_FROM_USB_PRODUCT_ID(ProductId)				\
 
 
