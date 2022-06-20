@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D8FD551976
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFFD7551D16
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244174AbiFTNF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:05:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51274 "EHLO
+        id S245178AbiFTNK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:10:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244023AbiFTNEd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF05193DF;
-        Mon, 20 Jun 2022 05:59:45 -0700 (PDT)
+        with ESMTP id S1343619AbiFTNJb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4F01A808;
+        Mon, 20 Jun 2022 06:04:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B02461535;
-        Mon, 20 Jun 2022 12:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39599C3411B;
-        Mon, 20 Jun 2022 12:59:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 924AA6158C;
+        Mon, 20 Jun 2022 13:02:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C19C3411B;
+        Mon, 20 Jun 2022 13:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729984;
-        bh=QWVOvaoQcs9rJFN9ZErPqPmZV92C+J1OsaNkwQKcuwg=;
+        s=korg; t=1655730177;
+        bh=g1Y79TAar7Q2dPaIs9K5zienpGWg2eXjPSazxsEs0Xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yWwrCNMheFllQcwOVMHZ6q2dET4Wxbc1PtU+7cyhX/Ck+W8DnFv+HH7XK3jOcdEP8
-         3qcZUaipp2HBDokaZGJm+U2mkK/XPQNAlqyX6H7VV528WF88I8Z0aDNOXMjO00Um1d
-         NlhOckT1blSXbHMPE92VXTyZq4kVKDc7gvJwWVyE=
+        b=AREqBJjjZlDIsGuqpN6hQ0rdCd9r0C0jOrmI+pnne4+QbFbjHhgGqcLIHu24O6adq
+         ITXBb7FY5zSEoErEBCAmvi6EHE3R/Lwt/5nzzCbsd9677lZWhNaPK7X5LLSV1uBwyJ
+         4uggrezdQoAzYy+HVJw2ISpie97IXJHucWrhdMls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.18 120/141] dm mirror log: round up region bitmap size to BITS_PER_LONG
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 35/84] pNFS: Dont keep retrying if the server replied NFS4ERR_LAYOUTUNAVAILABLE
 Date:   Mon, 20 Jun 2022 14:50:58 +0200
-Message-Id: <20220620124733.098180033@linuxfoundation.org>
+Message-Id: <20220620124721.929864471@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 85e123c27d5cbc22cfdc01de1e2ca1d9003a02d0 upstream.
+[ Upstream commit fe44fb23d6ccde4c914c44ef74ab8d9d9ba02bea ]
 
-The code in dm-log rounds up bitset_size to 32 bits. It then uses
-find_next_zero_bit_le on the allocated region. find_next_zero_bit_le
-accesses the bitmap using unsigned long pointers. So, on 64-bit
-architectures, it may access 4 bytes beyond the allocated size.
+If the server tells us that a pNFS layout is not available for a
+specific file, then we should not keep pounding it with further
+layoutget requests.
 
-Fix this bug by rounding up bitset_size to BITS_PER_LONG.
-
-This bug was found by running the lvm2 testsuite with kasan.
-
-Fixes: 29121bd0b00e ("[PATCH] dm mirror log: bitset_size fix")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 183d9e7b112a ("pnfs: rework LAYOUTGET retry handling")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-log.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/nfs/pnfs.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/md/dm-log.c
-+++ b/drivers/md/dm-log.c
-@@ -415,8 +415,7 @@ static int create_log_context(struct dm_
- 	/*
- 	 * Work out how many "unsigned long"s we need to hold the bitset.
- 	 */
--	bitset_size = dm_round_up(region_count,
--				  sizeof(*lc->clean_bits) << BYTE_SHIFT);
-+	bitset_size = dm_round_up(region_count, BITS_PER_LONG);
- 	bitset_size >>= BYTE_SHIFT;
- 
- 	lc->bitset_uint32_count = bitset_size / sizeof(*lc->clean_bits);
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index 8c0803d98008..69bb50d0ee3f 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -2155,6 +2155,12 @@ pnfs_update_layout(struct inode *ino,
+ 		case -ERECALLCONFLICT:
+ 		case -EAGAIN:
+ 			break;
++		case -ENODATA:
++			/* The server returned NFS4ERR_LAYOUTUNAVAILABLE */
++			pnfs_layout_set_fail_bit(
++				lo, pnfs_iomode_to_fail_bit(iomode));
++			lseg = NULL;
++			goto out_put_layout_hdr;
+ 		default:
+ 			if (!nfs_error_is_fatal(PTR_ERR(lseg))) {
+ 				pnfs_layout_clear_fail_bit(lo, pnfs_iomode_to_fail_bit(iomode));
+-- 
+2.35.1
+
 
 
