@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DAD1551C91
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9580A551BD0
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343926AbiFTNVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:21:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55458 "EHLO
+        id S245153AbiFTNK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:10:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346149AbiFTNUV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:20:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2941222507;
-        Mon, 20 Jun 2022 06:08:37 -0700 (PDT)
+        with ESMTP id S1343555AbiFTNJ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9801419F87;
+        Mon, 20 Jun 2022 06:04:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20D3B61589;
-        Mon, 20 Jun 2022 13:07:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1303FC3411B;
-        Mon, 20 Jun 2022 13:07:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A922614B7;
+        Mon, 20 Jun 2022 13:02:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 416E9C341C4;
+        Mon, 20 Jun 2022 13:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730421;
-        bh=r8XnFs77UWEw8tdx9AYeZYY87hyU7AdHg/IfaytmtIk=;
+        s=korg; t=1655730173;
+        bh=qEy4V33i095KMXuxf5xsHkQ9fh3VFVQEGjpEnWXcaEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0eSH96EiCoAflrCwTn2bjWWA40VWGluZzYKbF+xtJjooFInEsQRAM5UDnLrRE8TD
-         7VPIruPw6+OUQSmb159cfFDewzCMgVi48tNo3uVFKqdNUH5FqGeVj1VKQdBfFXqNIe
-         lKpZvZxkyfflw4qK6/T3W0vZnCTbW47XxsPMpulM=
+        b=UHtzSCOXVStPvPUHxz4ddl3qVCK0lVfII1RokAh/OYd3mHzj7RePqyd+RrkHvzTYw
+         NLavX+qat6zSjeIS70RmYj0Jcd3H3DaIcB4FrqM81OhJigOJ241lZRy3J9bm8a2htJ
+         Qv04GeaCPbiWd9oCeeQNVFYFJJz03FAz0t2SK9tE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Alan Previn <alan.previn.teres.alexis@intel.com>,
+        John Harrison <John.C.Harrison@Intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 048/106] pNFS: Avoid a live lock condition in pnfs_update_layout()
+Subject: [PATCH 5.10 44/84] drm/i915/reset: Fix error_state_read ptr + offset use
 Date:   Mon, 20 Jun 2022 14:51:07 +0200
-Message-Id: <20220620124725.811625811@linuxfoundation.org>
+Message-Id: <20220620124722.193328085@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,104 +56,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Alan Previn <alan.previn.teres.alexis@intel.com>
 
-[ Upstream commit 880265c77ac415090090d1fe72a188fee71cb458 ]
+[ Upstream commit c9b576d0c7bf55aeae1a736da7974fa202c4394d ]
 
-If we're about to send the first layoutget for an empty layout, we want
-to make sure that we drain out the existing pending layoutget calls
-first. The reason is that these layouts may have been already implicitly
-returned to the server by a recall to which the client gave a
-NFS4ERR_NOMATCHING_LAYOUT response.
+Fix our pointer offset usage in error_state_read
+when there is no i915_gpu_coredump but buf offset
+is non-zero.
 
-The problem is that wait_var_event_killable() could in principle see the
-plh_outstanding count go back to '1' when the first process to wake up
-starts sending a new layoutget. If it fails to get a layout, then this
-loop can continue ad infinitum...
+This fixes a kernel page fault can happen when
+multiple tests are running concurrently in a loop
+and one is producing engine resets and consuming
+the i915 error_state dump while the other is
+forcing full GT resets. (takes a while to trigger).
 
-Fixes: 0b77f97a7e42 ("NFSv4/pnfs: Fix layoutget behaviour after invalidation")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+The dmesg call trace:
+
+[ 5590.803000] BUG: unable to handle page fault for address:
+               ffffffffa0b0e000
+[ 5590.803009] #PF: supervisor read access in kernel mode
+[ 5590.803013] #PF: error_code(0x0000) - not-present page
+[ 5590.803016] PGD 5814067 P4D 5814067 PUD 5815063 PMD 109de4067
+               PTE 0
+[ 5590.803022] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[ 5590.803026] CPU: 5 PID: 13656 Comm: i915_hangman Tainted: G U
+                    5.17.0-rc5-ups69-guc-err-capt-rev6+ #136
+[ 5590.803033] Hardware name: Intel Corporation Alder Lake Client
+                    Platform/AlderLake-M LP4x RVP, BIOS ADLPFWI1.R00.
+                    3031.A02.2201171222	01/17/2022
+[ 5590.803039] RIP: 0010:memcpy_erms+0x6/0x10
+[ 5590.803045] Code: fe ff ff cc eb 1e 0f 1f 00 48 89 f8 48 89 d1
+                     48 c1 e9 03 83 e2 07 f3 48 a5 89 d1 f3 a4 c3
+                     66 0f 1f 44 00 00 48 89 f8 48 89 d1 <f3> a4
+                     c3 0f 1f 80 00 00 00 00 48 89 f8 48 83 fa 20
+                     72 7e 40 38 fe
+[ 5590.803054] RSP: 0018:ffffc90003a8fdf0 EFLAGS: 00010282
+[ 5590.803057] RAX: ffff888107ee9000 RBX: ffff888108cb1a00
+               RCX: 0000000000000f8f
+[ 5590.803061] RDX: 0000000000001000 RSI: ffffffffa0b0e000
+               RDI: ffff888107ee9071
+[ 5590.803065] RBP: 0000000000000000 R08: 0000000000000001
+               R09: 0000000000000001
+[ 5590.803069] R10: 0000000000000001 R11: 0000000000000002
+               R12: 0000000000000019
+[ 5590.803073] R13: 0000000000174fff R14: 0000000000001000
+               R15: ffff888107ee9000
+[ 5590.803077] FS: 00007f62a99bee80(0000) GS:ffff88849f880000(0000)
+               knlGS:0000000000000000
+[ 5590.803082] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 5590.803085] CR2: ffffffffa0b0e000 CR3: 000000010a1a8004
+               CR4: 0000000000770ee0
+[ 5590.803089] PKRU: 55555554
+[ 5590.803091] Call Trace:
+[ 5590.803093] <TASK>
+[ 5590.803096] error_state_read+0xa1/0xd0 [i915]
+[ 5590.803175] kernfs_fop_read_iter+0xb2/0x1b0
+[ 5590.803180] new_sync_read+0x116/0x1a0
+[ 5590.803185] vfs_read+0x114/0x1b0
+[ 5590.803189] ksys_read+0x63/0xe0
+[ 5590.803193] do_syscall_64+0x38/0xc0
+[ 5590.803197] entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 5590.803201] RIP: 0033:0x7f62aaea5912
+[ 5590.803204] Code: c0 e9 b2 fe ff ff 50 48 8d 3d 5a b9 0c 00 e8 05
+                     19 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25
+                     18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff
+                     ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
+[ 5590.803213] RSP: 002b:00007fff5b659ae8 EFLAGS: 00000246
+               ORIG_RAX: 0000000000000000
+[ 5590.803218] RAX: ffffffffffffffda RBX: 0000000000100000
+               RCX: 00007f62aaea5912
+[ 5590.803221] RDX: 000000000008b000 RSI: 00007f62a8c4000f
+               RDI: 0000000000000006
+[ 5590.803225] RBP: 00007f62a8bcb00f R08: 0000000000200010
+               R09: 0000000000101000
+[ 5590.803229] R10: 0000000000000001 R11: 0000000000000246
+               R12: 0000000000000006
+[ 5590.803233] R13: 0000000000075000 R14: 00007f62a8acb010
+               R15: 0000000000200000
+[ 5590.803238] </TASK>
+[ 5590.803240] Modules linked in: i915 ttm drm_buddy drm_dp_helper
+                        drm_kms_helper syscopyarea sysfillrect sysimgblt
+                        fb_sys_fops prime_numbers nfnetlink br_netfilter
+                        overlay mei_pxp mei_hdcp x86_pkg_temp_thermal
+                        coretemp kvm_intel snd_hda_codec_hdmi snd_hda_intel
+                        snd_intel_dspcfg snd_hda_codec snd_hwdep
+                        snd_hda_core snd_pcm mei_me mei fuse ip_tables
+                        x_tables crct10dif_pclmul e1000e crc32_pclmul ptp
+                        i2c_i801 ghash_clmulni_intel i2c_smbus pps_core
+                        [last unloa ded: ttm]
+[ 5590.803277] CR2: ffffffffa0b0e000
+[ 5590.803280] ---[ end trace 0000000000000000 ]---
+
+Fixes: 0e39037b3165 ("drm/i915: Cache the error string")
+Signed-off-by: Alan Previn <alan.previn.teres.alexis@intel.com>
+Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220311004311.514198-2-alan.previn.teres.alexis@intel.com
+(cherry picked from commit 3304033a1e69cd81a2044b4422f0d7e593afb4e6)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/callback_proc.c |  1 +
- fs/nfs/pnfs.c          | 15 +++++++++------
- fs/nfs/pnfs.h          |  1 +
- 3 files changed, 11 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/i915/i915_sysfs.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfs/callback_proc.c b/fs/nfs/callback_proc.c
-index a30dd35ec1c2..ccf313238441 100644
---- a/fs/nfs/callback_proc.c
-+++ b/fs/nfs/callback_proc.c
-@@ -288,6 +288,7 @@ static u32 initiate_file_draining(struct nfs_client *clp,
- 		rv = NFS4_OK;
- 		break;
- 	case -ENOENT:
-+		set_bit(NFS_LAYOUT_DRAIN, &lo->plh_flags);
- 		/* Embrace your forgetfulness! */
- 		rv = NFS4ERR_NOMATCHING_LAYOUT;
+diff --git a/drivers/gpu/drm/i915/i915_sysfs.c b/drivers/gpu/drm/i915/i915_sysfs.c
+index 45d32ef42787..ac40a95374d3 100644
+--- a/drivers/gpu/drm/i915/i915_sysfs.c
++++ b/drivers/gpu/drm/i915/i915_sysfs.c
+@@ -500,7 +500,14 @@ static ssize_t error_state_read(struct file *filp, struct kobject *kobj,
+ 	struct device *kdev = kobj_to_dev(kobj);
+ 	struct drm_i915_private *i915 = kdev_minor_to_i915(kdev);
+ 	struct i915_gpu_coredump *gpu;
+-	ssize_t ret;
++	ssize_t ret = 0;
++
++	/*
++	 * FIXME: Concurrent clients triggering resets and reading + clearing
++	 * dumps can cause inconsistent sysfs reads when a user calls in with a
++	 * non-zero offset to complete a prior partial read but the
++	 * gpu_coredump has been cleared or replaced.
++	 */
  
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index 9b2549222391..7217f3eeb069 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -469,6 +469,7 @@ pnfs_mark_layout_stateid_invalid(struct pnfs_layout_hdr *lo,
- 		pnfs_clear_lseg_state(lseg, lseg_list);
- 	pnfs_clear_layoutreturn_info(lo);
- 	pnfs_free_returned_lsegs(lo, lseg_list, &range, 0);
-+	set_bit(NFS_LAYOUT_DRAIN, &lo->plh_flags);
- 	if (test_bit(NFS_LAYOUT_RETURN, &lo->plh_flags) &&
- 	    !test_and_set_bit(NFS_LAYOUT_RETURN_LOCK, &lo->plh_flags))
- 		pnfs_clear_layoutreturn_waitbit(lo);
-@@ -1917,8 +1918,9 @@ static void nfs_layoutget_begin(struct pnfs_layout_hdr *lo)
+ 	gpu = i915_first_error_state(i915);
+ 	if (IS_ERR(gpu)) {
+@@ -512,8 +519,10 @@ static ssize_t error_state_read(struct file *filp, struct kobject *kobj,
+ 		const char *str = "No error state collected\n";
+ 		size_t len = strlen(str);
  
- static void nfs_layoutget_end(struct pnfs_layout_hdr *lo)
- {
--	if (atomic_dec_and_test(&lo->plh_outstanding))
--		wake_up_var(&lo->plh_outstanding);
-+	if (atomic_dec_and_test(&lo->plh_outstanding) &&
-+	    test_and_clear_bit(NFS_LAYOUT_DRAIN, &lo->plh_flags))
-+		wake_up_bit(&lo->plh_flags, NFS_LAYOUT_DRAIN);
- }
- 
- static bool pnfs_is_first_layoutget(struct pnfs_layout_hdr *lo)
-@@ -2025,11 +2027,11 @@ pnfs_update_layout(struct inode *ino,
- 	 * If the layout segment list is empty, but there are outstanding
- 	 * layoutget calls, then they might be subject to a layoutrecall.
- 	 */
--	if ((list_empty(&lo->plh_segs) || !pnfs_layout_is_valid(lo)) &&
-+	if (test_bit(NFS_LAYOUT_DRAIN, &lo->plh_flags) &&
- 	    atomic_read(&lo->plh_outstanding) != 0) {
- 		spin_unlock(&ino->i_lock);
--		lseg = ERR_PTR(wait_var_event_killable(&lo->plh_outstanding,
--					!atomic_read(&lo->plh_outstanding)));
-+		lseg = ERR_PTR(wait_on_bit(&lo->plh_flags, NFS_LAYOUT_DRAIN,
-+					   TASK_KILLABLE));
- 		if (IS_ERR(lseg))
- 			goto out_put_layout_hdr;
- 		pnfs_put_layout_hdr(lo);
-@@ -2413,7 +2415,8 @@ pnfs_layout_process(struct nfs4_layoutget *lgp)
- 		goto out_forget;
+-		ret = min_t(size_t, count, len - off);
+-		memcpy(buf, str + off, ret);
++		if (off < len) {
++			ret = min_t(size_t, count, len - off);
++			memcpy(buf, str + off, ret);
++		}
  	}
  
--	if (!pnfs_layout_is_valid(lo) && !pnfs_is_first_layoutget(lo))
-+	if (test_bit(NFS_LAYOUT_DRAIN, &lo->plh_flags) &&
-+	    !pnfs_is_first_layoutget(lo))
- 		goto out_forget;
- 
- 	if (nfs4_stateid_match_other(&lo->plh_stateid, &res->stateid)) {
-diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
-index 5a54cf8ac6f3..3307361c7956 100644
---- a/fs/nfs/pnfs.h
-+++ b/fs/nfs/pnfs.h
-@@ -109,6 +109,7 @@ enum {
- 	NFS_LAYOUT_FIRST_LAYOUTGET,	/* Serialize first layoutget */
- 	NFS_LAYOUT_INODE_FREEING,	/* The inode is being freed */
- 	NFS_LAYOUT_HASHED,		/* The layout visible */
-+	NFS_LAYOUT_DRAIN,
- };
- 
- enum layoutdriver_policy_flags {
+ 	return ret;
 -- 
 2.35.1
 
