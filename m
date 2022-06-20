@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9580A551BD0
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C290551996
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245153AbiFTNK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:10:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33828 "EHLO
+        id S244657AbiFTNFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:05:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343555AbiFTNJ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9801419F87;
-        Mon, 20 Jun 2022 06:04:29 -0700 (PDT)
+        with ESMTP id S244915AbiFTNEJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61976186E1;
+        Mon, 20 Jun 2022 05:59:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A922614B7;
-        Mon, 20 Jun 2022 13:02:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 416E9C341C4;
-        Mon, 20 Jun 2022 13:02:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1931BB811A5;
+        Mon, 20 Jun 2022 12:59:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7654AC3411B;
+        Mon, 20 Jun 2022 12:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730173;
-        bh=qEy4V33i095KMXuxf5xsHkQ9fh3VFVQEGjpEnWXcaEw=;
+        s=korg; t=1655729956;
+        bh=uff/LSoDCFORTp4ktTMN5owM8qbjZKsdjHY4n5fumQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHtzSCOXVStPvPUHxz4ddl3qVCK0lVfII1RokAh/OYd3mHzj7RePqyd+RrkHvzTYw
-         NLavX+qat6zSjeIS70RmYj0Jcd3H3DaIcB4FrqM81OhJigOJ241lZRy3J9bm8a2htJ
-         Qv04GeaCPbiWd9oCeeQNVFYFJJz03FAz0t2SK9tE=
+        b=fyCyhiZbQEty+8KMZGDrawEnievsCHV6zNxGeUCZ7/oLAhsVbnyMBOqH0hfNLMoJ2
+         ve7HhbEh+ZL61gphdAiUuAwkcPkypCyrTdYb581kP7+C9/5GivRHUwmcgsJlQS53Vp
+         a+0lg+GZHq7PIwBmyu9ndzi8USklW/VwE+Iyu28w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alan Previn <alan.previn.teres.alexis@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 44/84] drm/i915/reset: Fix error_state_read ptr + offset use
-Date:   Mon, 20 Jun 2022 14:51:07 +0200
-Message-Id: <20220620124722.193328085@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Zhang Yi <yi.zhang@huawei.com>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.18 130/141] ext4: add reserved GDT blocks check
+Date:   Mon, 20 Jun 2022 14:51:08 +0200
+Message-Id: <20220620124733.399180590@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,144 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Previn <alan.previn.teres.alexis@intel.com>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit c9b576d0c7bf55aeae1a736da7974fa202c4394d ]
+commit b55c3cd102a6f48b90e61c44f7f3dda8c290c694 upstream.
 
-Fix our pointer offset usage in error_state_read
-when there is no i915_gpu_coredump but buf offset
-is non-zero.
+We capture a NULL pointer issue when resizing a corrupt ext4 image which
+is freshly clear resize_inode feature (not run e2fsck). It could be
+simply reproduced by following steps. The problem is because of the
+resize_inode feature was cleared, and it will convert the filesystem to
+meta_bg mode in ext4_resize_fs(), but the es->s_reserved_gdt_blocks was
+not reduced to zero, so could we mistakenly call reserve_backup_gdb()
+and passing an uninitialized resize_inode to it when adding new group
+descriptors.
 
-This fixes a kernel page fault can happen when
-multiple tests are running concurrently in a loop
-and one is producing engine resets and consuming
-the i915 error_state dump while the other is
-forcing full GT resets. (takes a while to trigger).
+ mkfs.ext4 /dev/sda 3G
+ tune2fs -O ^resize_inode /dev/sda #forget to run requested e2fsck
+ mount /dev/sda /mnt
+ resize2fs /dev/sda 8G
 
-The dmesg call trace:
+ ========
+ BUG: kernel NULL pointer dereference, address: 0000000000000028
+ CPU: 19 PID: 3243 Comm: resize2fs Not tainted 5.18.0-rc7-00001-gfde086c5ebfd #748
+ ...
+ RIP: 0010:ext4_flex_group_add+0xe08/0x2570
+ ...
+ Call Trace:
+  <TASK>
+  ext4_resize_fs+0xbec/0x1660
+  __ext4_ioctl+0x1749/0x24e0
+  ext4_ioctl+0x12/0x20
+  __x64_sys_ioctl+0xa6/0x110
+  do_syscall_64+0x3b/0x90
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f2dd739617b
+ ========
 
-[ 5590.803000] BUG: unable to handle page fault for address:
-               ffffffffa0b0e000
-[ 5590.803009] #PF: supervisor read access in kernel mode
-[ 5590.803013] #PF: error_code(0x0000) - not-present page
-[ 5590.803016] PGD 5814067 P4D 5814067 PUD 5815063 PMD 109de4067
-               PTE 0
-[ 5590.803022] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[ 5590.803026] CPU: 5 PID: 13656 Comm: i915_hangman Tainted: G U
-                    5.17.0-rc5-ups69-guc-err-capt-rev6+ #136
-[ 5590.803033] Hardware name: Intel Corporation Alder Lake Client
-                    Platform/AlderLake-M LP4x RVP, BIOS ADLPFWI1.R00.
-                    3031.A02.2201171222	01/17/2022
-[ 5590.803039] RIP: 0010:memcpy_erms+0x6/0x10
-[ 5590.803045] Code: fe ff ff cc eb 1e 0f 1f 00 48 89 f8 48 89 d1
-                     48 c1 e9 03 83 e2 07 f3 48 a5 89 d1 f3 a4 c3
-                     66 0f 1f 44 00 00 48 89 f8 48 89 d1 <f3> a4
-                     c3 0f 1f 80 00 00 00 00 48 89 f8 48 83 fa 20
-                     72 7e 40 38 fe
-[ 5590.803054] RSP: 0018:ffffc90003a8fdf0 EFLAGS: 00010282
-[ 5590.803057] RAX: ffff888107ee9000 RBX: ffff888108cb1a00
-               RCX: 0000000000000f8f
-[ 5590.803061] RDX: 0000000000001000 RSI: ffffffffa0b0e000
-               RDI: ffff888107ee9071
-[ 5590.803065] RBP: 0000000000000000 R08: 0000000000000001
-               R09: 0000000000000001
-[ 5590.803069] R10: 0000000000000001 R11: 0000000000000002
-               R12: 0000000000000019
-[ 5590.803073] R13: 0000000000174fff R14: 0000000000001000
-               R15: ffff888107ee9000
-[ 5590.803077] FS: 00007f62a99bee80(0000) GS:ffff88849f880000(0000)
-               knlGS:0000000000000000
-[ 5590.803082] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 5590.803085] CR2: ffffffffa0b0e000 CR3: 000000010a1a8004
-               CR4: 0000000000770ee0
-[ 5590.803089] PKRU: 55555554
-[ 5590.803091] Call Trace:
-[ 5590.803093] <TASK>
-[ 5590.803096] error_state_read+0xa1/0xd0 [i915]
-[ 5590.803175] kernfs_fop_read_iter+0xb2/0x1b0
-[ 5590.803180] new_sync_read+0x116/0x1a0
-[ 5590.803185] vfs_read+0x114/0x1b0
-[ 5590.803189] ksys_read+0x63/0xe0
-[ 5590.803193] do_syscall_64+0x38/0xc0
-[ 5590.803197] entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 5590.803201] RIP: 0033:0x7f62aaea5912
-[ 5590.803204] Code: c0 e9 b2 fe ff ff 50 48 8d 3d 5a b9 0c 00 e8 05
-                     19 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25
-                     18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff
-                     ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
-[ 5590.803213] RSP: 002b:00007fff5b659ae8 EFLAGS: 00000246
-               ORIG_RAX: 0000000000000000
-[ 5590.803218] RAX: ffffffffffffffda RBX: 0000000000100000
-               RCX: 00007f62aaea5912
-[ 5590.803221] RDX: 000000000008b000 RSI: 00007f62a8c4000f
-               RDI: 0000000000000006
-[ 5590.803225] RBP: 00007f62a8bcb00f R08: 0000000000200010
-               R09: 0000000000101000
-[ 5590.803229] R10: 0000000000000001 R11: 0000000000000246
-               R12: 0000000000000006
-[ 5590.803233] R13: 0000000000075000 R14: 00007f62a8acb010
-               R15: 0000000000200000
-[ 5590.803238] </TASK>
-[ 5590.803240] Modules linked in: i915 ttm drm_buddy drm_dp_helper
-                        drm_kms_helper syscopyarea sysfillrect sysimgblt
-                        fb_sys_fops prime_numbers nfnetlink br_netfilter
-                        overlay mei_pxp mei_hdcp x86_pkg_temp_thermal
-                        coretemp kvm_intel snd_hda_codec_hdmi snd_hda_intel
-                        snd_intel_dspcfg snd_hda_codec snd_hwdep
-                        snd_hda_core snd_pcm mei_me mei fuse ip_tables
-                        x_tables crct10dif_pclmul e1000e crc32_pclmul ptp
-                        i2c_i801 ghash_clmulni_intel i2c_smbus pps_core
-                        [last unloa ded: ttm]
-[ 5590.803277] CR2: ffffffffa0b0e000
-[ 5590.803280] ---[ end trace 0000000000000000 ]---
+The fix is simple, add a check in ext4_resize_begin() to make sure that
+the es->s_reserved_gdt_blocks is zero when the resize_inode feature is
+disabled.
 
-Fixes: 0e39037b3165 ("drm/i915: Cache the error string")
-Signed-off-by: Alan Previn <alan.previn.teres.alexis@intel.com>
-Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220311004311.514198-2-alan.previn.teres.alexis@intel.com
-(cherry picked from commit 3304033a1e69cd81a2044b4422f0d7e593afb4e6)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@kernel.org
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220601092717.763694-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/i915_sysfs.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ fs/ext4/resize.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/i915_sysfs.c b/drivers/gpu/drm/i915/i915_sysfs.c
-index 45d32ef42787..ac40a95374d3 100644
---- a/drivers/gpu/drm/i915/i915_sysfs.c
-+++ b/drivers/gpu/drm/i915/i915_sysfs.c
-@@ -500,7 +500,14 @@ static ssize_t error_state_read(struct file *filp, struct kobject *kobj,
- 	struct device *kdev = kobj_to_dev(kobj);
- 	struct drm_i915_private *i915 = kdev_minor_to_i915(kdev);
- 	struct i915_gpu_coredump *gpu;
--	ssize_t ret;
-+	ssize_t ret = 0;
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -54,6 +54,16 @@ int ext4_resize_begin(struct super_block
+ 		return -EPERM;
+ 
+ 	/*
++	 * If the reserved GDT blocks is non-zero, the resize_inode feature
++	 * should always be set.
++	 */
++	if (EXT4_SB(sb)->s_es->s_reserved_gdt_blocks &&
++	    !ext4_has_feature_resize_inode(sb)) {
++		ext4_error(sb, "resize_inode disabled but reserved GDT blocks non-zero");
++		return -EFSCORRUPTED;
++	}
 +
 +	/*
-+	 * FIXME: Concurrent clients triggering resets and reading + clearing
-+	 * dumps can cause inconsistent sysfs reads when a user calls in with a
-+	 * non-zero offset to complete a prior partial read but the
-+	 * gpu_coredump has been cleared or replaced.
-+	 */
- 
- 	gpu = i915_first_error_state(i915);
- 	if (IS_ERR(gpu)) {
-@@ -512,8 +519,10 @@ static ssize_t error_state_read(struct file *filp, struct kobject *kobj,
- 		const char *str = "No error state collected\n";
- 		size_t len = strlen(str);
- 
--		ret = min_t(size_t, count, len - off);
--		memcpy(buf, str + off, ret);
-+		if (off < len) {
-+			ret = min_t(size_t, count, len - off);
-+			memcpy(buf, str + off, ret);
-+		}
- 	}
- 
- 	return ret;
--- 
-2.35.1
-
+ 	 * If we are not using the primary superblock/GDT copy don't resize,
+          * because the user tools have no way of handling this.  Probably a
+          * bad time to do it anyways.
 
 
