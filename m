@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 140315518A4
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4BFF5518B1
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:20:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235801AbiFTMS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36736 "EHLO
+        id S241713AbiFTMU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:20:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242752AbiFTMSq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:18:46 -0400
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBD8B273F;
-        Mon, 20 Jun 2022 05:18:44 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R651e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xianting.tian@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VGxWMOb_1655727520;
-Received: from B-LB6YLVDL-0141.local(mailfrom:xianting.tian@linux.alibaba.com fp:SMTPD_---0VGxWMOb_1655727520)
-          by smtp.aliyun-inc.com;
-          Mon, 20 Jun 2022 20:18:41 +0800
-Subject: Re: [PATCH 5.15] mm: validate buddy page before using
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     akpm@linux-foundation.org, ziy@nvidia.com, stable@vger.kernel.org,
-        guoren@kernel.org, huanyi.xj@alibaba-inc.com, guohanjun@huawei.com,
-        zjb194813@alibaba-inc.com, tianhu.hh@alibaba-inc.com,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-References: <20220616161746.3565225-1-xianting.tian@linux.alibaba.com>
- <20220616161746.3565225-6-xianting.tian@linux.alibaba.com>
- <YrBJVAZWOzmDyUN3@kroah.com>
- <35bd7396-f5aa-e154-9495-0a36fc6f6a33@linux.alibaba.com>
- <YrBdKwFHfy9Lr14c@kroah.com>
- <8b16a502-5ad5-1efb-0d84-ed0a8ae63c0e@linux.alibaba.com>
- <YrBi1evI1/BF/WLV@kroah.com>
-From:   Xianting Tian <xianting.tian@linux.alibaba.com>
-Message-ID: <d52e17da-a382-0028-2b16-105ab7053028@linux.alibaba.com>
-Date:   Mon, 20 Jun 2022 20:18:40 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.10.1
+        with ESMTP id S242384AbiFTMU0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:20:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A91F15A0B
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:20:24 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DD0861446
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 12:20:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CBF9C3411B;
+        Mon, 20 Jun 2022 12:20:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1655727623;
+        bh=TzlsLhiwHHhTJfi4ubA910oD3Gd/qGFV1A32iiC0O08=;
+        h=Subject:To:Cc:From:Date:From;
+        b=xL/whq65PSvsv/OYZd/wW2YEii7/DSbzhO4JNsthSnbWWtobioIhRl3KRm8TIQT04
+         h6hcV8ukfUmTzeghpgvYbarCXJSVxHzcedtoZ9T8gSqf2IOCNATdWhv6Bo2v2GvbUo
+         foz7s2DfQfUo9qis3eiBtZxCayPw95sESYyz8Bd4=
+Subject: FAILED: patch "[PATCH] random: do not use jump labels before they are initialized" failed to apply to 5.18-stable tree
+To:     Jason@zx2c4.com, ardb@kernel.org, arnd@arndb.de,
+        catalin.marinas@arm.com, linux@armlinux.org.uk,
+        phil@raspberrypi.com, swboyd@chromium.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 20 Jun 2022 14:20:20 +0200
+Message-ID: <165572762017277@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <YrBi1evI1/BF/WLV@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-9.9 required=5.0 tests=BAYES_00,
-        ENV_AND_HDR_SPF_MATCH,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -51,84 +50,112 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-在 2022/6/20 下午8:06, Greg KH 写道:
-> On Mon, Jun 20, 2022 at 07:57:05PM +0800, Xianting Tian wrote:
->> 在 2022/6/20 下午7:42, Greg KH 写道:
->>> On Mon, Jun 20, 2022 at 06:54:44PM +0800, Xianting Tian wrote:
->>>> 在 2022/6/20 下午6:17, Greg KH 写道:
->>>>> On Fri, Jun 17, 2022 at 12:17:45AM +0800, Xianting Tian wrote:
->>>>>> Commit 787af64d05cd ("mm: page_alloc: validate buddy before check its migratetype.")
->>>>>> fixes a bug in 1dd214b8f21c and there is a similar bug in d9dddbf55667 that
->>>>>> can be fixed in a similar way too.
->>>>>>
->>>>>> In unset_migratetype_isolate(), we also need the fix, so move page_is_buddy()
->>>>>> from mm/page_alloc.c to mm/internal.h
->>>>>>
->>>>>> In addition, for RISC-V arch the first 2MB RAM could be reserved for opensbi,
->>>>>> so it would have pfn_base=512 and mem_map began with 512th PFN when
->>>>>> CONFIG_FLATMEM=y.
->>>>>> But __find_buddy_pfn algorithm thinks the start pfn 0, it could get 0 pfn or
->>>>>> less than the pfn_base value. We need page_is_buddy() to verify the buddy to
->>>>>> prevent accessing an invalid buddy.
->>>>>>
->>>>>> Fixes: d9dddbf55667 ("mm/page_alloc: prevent merging between isolated and other pageblocks")
->>>>>> Cc: stable@vger.kernel.org
->>>>>> Reported-by: zjb194813@alibaba-inc.com
->>>>>> Reported-by: tianhu.hh@alibaba-inc.com
->>>>>> Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
->>>>>> ---
->>>>>>     mm/internal.h       | 34 ++++++++++++++++++++++++++++++++++
->>>>>>     mm/page_alloc.c     | 37 +++----------------------------------
->>>>>>     mm/page_isolation.c |  3 ++-
->>>>>>     3 files changed, 39 insertions(+), 35 deletions(-)
->>>>> What is the commit id of this in Linus's tree?
->>>> It is also this one，
->>>>
->>>> commit 787af64d05cd528aac9ad16752d11bb1c6061bb9
->>>> Author: Zi Yan <ziy@nvidia.com>
->>>> Date:   Wed Mar 30 15:45:43 2022 -0700
->>>>
->>>>       mm: page_alloc: validate buddy before check its migratetype.
->>>>
->>>>       Whenever a buddy page is found, page_is_buddy() should be called to
->>>>       check its validity.  Add the missing check during pageblock merge check.
->>>>
->>>>       Fixes: 1dd214b8f21c ("mm: page_alloc: avoid merging non-fallbackable
->>>> pageblocks with others")
->>>>       Link:
->>>> https://lore.kernel.org/all/20220330154208.71aca532@gandalf.local.home/
->>>>       Reported-and-tested-by: Steven Rostedt <rostedt@goodmis.org>
->>>>       Signed-off-by: Zi Yan <ziy@nvidia.com>
->>>>       Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
->>> This commit looks nothing like what you posted here.
->>>
->>> Why the vast difference with no explaination as to why these are so
->>> different from the other backports you provided here?  Also why is the
->>> subject lines changed?
->> Yes, the changes of 5.15 are not same with others branches, because we need
->> additional fix for 5.15,
->>
->> You can check it in the thread:
->>
->> https://lore.kernel.org/linux-mm/435B45C3-E6A5-43B2-A5A2-318C748691FC@nvidia.com/ <https://lore.kernel.org/linux-mm/435B45C3-E6A5-43B2-A5A2-318C748691FC@nvidia.com/>
->>
->> Right. But pfn_valid_within() was removed since 5.15. So your fix is
->> required for kernels between 5.15 and 5.17 (inclusive).
-> What is "your fix" here?
->
-> This change differs a lot from what is in Linus's tree now, so this all
-> needs to be resend and fixed up as I mention above if we are going to be
-> able to take this.  As-is, it's all not correct so are dropped.
+The patch below does not apply to the 5.18-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I think, for branches except 5.15,  you can just backport Zi Yan's 
-commit 787af64d05cd in Linus tree. I won't send more patches further,
+thanks,
 
-For 5.15, because it need additional fix except commit 787af64d05cd,  I 
-will send a new patch as your comments.
+greg k-h
 
-Is it ok for you?
+------------------ original commit in Linus's tree ------------------
 
->
-> thanks,
->
-> greg k-h
+From 60e5b2886b92afa9e7af56bba7f5fa5f057e1e97 Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Tue, 7 Jun 2022 17:28:06 +0200
+Subject: [PATCH] random: do not use jump labels before they are initialized
+
+Stephen reported that a static key warning splat appears during early
+boot on systems that credit randomness from device trees that contain an
+"rng-seed" property, because because setup_machine_fdt() is called
+before jump_label_init() during setup_arch():
+
+ static_key_enable_cpuslocked(): static key '0xffffffe51c6fcfc0' used before call to jump_label_init()
+ WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xb0/0xb8
+ Modules linked in:
+ CPU: 0 PID: 0 Comm: swapper Not tainted 5.18.0+ #224 44b43e377bfc84bc99bb5ab885ff694984ee09ff
+ pstate: 600001c9 (nZCv dAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+ pc : static_key_enable_cpuslocked+0xb0/0xb8
+ lr : static_key_enable_cpuslocked+0xb0/0xb8
+ sp : ffffffe51c393cf0
+ x29: ffffffe51c393cf0 x28: 000000008185054c x27: 00000000f1042f10
+ x26: 0000000000000000 x25: 00000000f10302b2 x24: 0000002513200000
+ x23: 0000002513200000 x22: ffffffe51c1c9000 x21: fffffffdfdc00000
+ x20: ffffffe51c2f0831 x19: ffffffe51c6fcfc0 x18: 00000000ffff1020
+ x17: 00000000e1e2ac90 x16: 00000000000000e0 x15: ffffffe51b710708
+ x14: 0000000000000066 x13: 0000000000000018 x12: 0000000000000000
+ x11: 0000000000000000 x10: 00000000ffffffff x9 : 0000000000000000
+ x8 : 0000000000000000 x7 : 61632065726f6665 x6 : 6220646573752027
+ x5 : ffffffe51c641d25 x4 : ffffffe51c13142c x3 : ffff0a00ffffff05
+ x2 : 40000000ffffe003 x1 : 00000000000001c0 x0 : 0000000000000065
+ Call trace:
+  static_key_enable_cpuslocked+0xb0/0xb8
+  static_key_enable+0x2c/0x40
+  crng_set_ready+0x24/0x30
+  execute_in_process_context+0x80/0x90
+  _credit_init_bits+0x100/0x154
+  add_bootloader_randomness+0x64/0x78
+  early_init_dt_scan_chosen+0x140/0x184
+  early_init_dt_scan_nodes+0x28/0x4c
+  early_init_dt_scan+0x40/0x44
+  setup_machine_fdt+0x7c/0x120
+  setup_arch+0x74/0x1d8
+  start_kernel+0x84/0x44c
+  __primary_switched+0xc0/0xc8
+ ---[ end trace 0000000000000000 ]---
+ random: crng init done
+ Machine model: Google Lazor (rev1 - 2) with LTE
+
+A trivial fix went in to address this on arm64, 73e2d827a501 ("arm64:
+Initialize jump labels before setup_machine_fdt()"). I wrote patches as
+well for arm32 and risc-v. But still patches are needed on xtensa,
+powerpc, arc, and mips. So that's 7 platforms where things aren't quite
+right. This sort of points to larger issues that might need a larger
+solution.
+
+Instead, this commit just defers setting the static branch until later
+in the boot process. random_init() is called after jump_label_init() has
+been called, and so is always a safe place from which to adjust the
+static branch.
+
+Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
+Reported-by: Stephen Boyd <swboyd@chromium.org>
+Reported-by: Phil Elwell <phil@raspberrypi.com>
+Tested-by: Phil Elwell <phil@raspberrypi.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index 60d701a2516b..0b78b9c4acf5 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -650,7 +650,8 @@ static void __cold _credit_init_bits(size_t bits)
+ 
+ 	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS) {
+ 		crng_reseed(); /* Sets crng_init to CRNG_READY under base_crng.lock. */
+-		execute_in_process_context(crng_set_ready, &set_ready);
++		if (static_key_initialized)
++			execute_in_process_context(crng_set_ready, &set_ready);
+ 		wake_up_interruptible(&crng_init_wait);
+ 		kill_fasync(&fasync, SIGIO, POLL_IN);
+ 		pr_notice("crng init done\n");
+@@ -798,6 +799,14 @@ int __init random_init(const char *command_line)
+ 	_mix_pool_bytes(command_line, strlen(command_line));
+ 	add_latent_entropy();
+ 
++	/*
++	 * If we were initialized by the bootloader before jump labels are
++	 * initialized, then we should enable the static branch here, where
++	 * it's guaranteed that jump labels have been initialized.
++	 */
++	if (!static_branch_likely(&crng_is_ready) && crng_init >= CRNG_READY)
++		crng_set_ready(NULL);
++
+ 	if (crng_ready())
+ 		crng_reseed();
+ 	else if (trust_cpu)
+
