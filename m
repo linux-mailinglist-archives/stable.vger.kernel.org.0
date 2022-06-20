@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BE85551C24
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D4F551D07
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244878AbiFTNNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:13:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35878 "EHLO
+        id S1344183AbiFTNYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:24:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245452AbiFTNLT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:11:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0FC4193D4;
-        Mon, 20 Jun 2022 06:05:46 -0700 (PDT)
+        with ESMTP id S1345135AbiFTNXj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:23:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 181186577;
+        Mon, 20 Jun 2022 06:09:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B6286154B;
-        Mon, 20 Jun 2022 13:03:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 918E5C3411B;
-        Mon, 20 Jun 2022 13:03:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E13DC60A21;
+        Mon, 20 Jun 2022 13:07:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E49C8C3411B;
+        Mon, 20 Jun 2022 13:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730196;
-        bh=ytZ1+hFyV2RqybENQgs4g/BucLFJXxFLio4+veEmxzc=;
+        s=korg; t=1655730459;
+        bh=frZO+DvsRWIjr3bnyrZmYD0sFkxeG+az98JGpxuLi2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVUuIl4jrbkFFaMNYFQw3K+KkCEwSt4HTpdRHM0LVWtLF+FD2hIaO4OAEgP5n8uco
-         C5216DTUdSIWvTtdGeCBsFu/wFZ+ov1H7tKouMBXSy+5zk/DPQqqZElvzc3SnmRyGJ
-         3d91cc03NqdyA1eVe3y8Pqpti5lYO6+9C/dVR6us=
+        b=VA5m9S0U2HR8E0Zoc0FK2b0ANUqdPdT73VnHgT3hJppSWS0DtcZOxBL0pVmsnUuD/
+         BJNWm/QXP0akLni5y0QJukdztQfH5B96aokeL142ui67eHdzoOs3i/1Y+wCL/oBKg0
+         MKdebDy7ANY6ud91y79cv39pGrgmqPs0w2dMfi6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
+        stable@vger.kernel.org,
+        Alan Previn <alan.previn.teres.alexis@intel.com>,
+        John Harrison <John.C.Harrison@Intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 54/84] faddr2line: Fix overlapping text section failures, the sequel
-Date:   Mon, 20 Jun 2022 14:51:17 +0200
-Message-Id: <20220620124722.492188906@linuxfoundation.org>
+Subject: [PATCH 5.15 059/106] drm/i915/reset: Fix error_state_read ptr + offset use
+Date:   Mon, 20 Jun 2022 14:51:18 +0200
+Message-Id: <20220620124726.149338743@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,137 +56,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Alan Previn <alan.previn.teres.alexis@intel.com>
 
-[ Upstream commit dcea997beed694cbd8705100ca1a6eb0d886de69 ]
+[ Upstream commit c9b576d0c7bf55aeae1a736da7974fa202c4394d ]
 
-If a function lives in a section other than .text, but .text also exists
-in the object, faddr2line may wrongly assume .text.  This can result in
-comically wrong output.  For example:
+Fix our pointer offset usage in error_state_read
+when there is no i915_gpu_coredump but buf offset
+is non-zero.
 
-  $ scripts/faddr2line vmlinux.o enter_from_user_mode+0x1c
-  enter_from_user_mode+0x1c/0x30:
-  find_next_bit at /home/jpoimboe/git/linux/./include/linux/find.h:40
-  (inlined by) perf_clear_dirty_counters at /home/jpoimboe/git/linux/arch/x86/events/core.c:2504
+This fixes a kernel page fault can happen when
+multiple tests are running concurrently in a loop
+and one is producing engine resets and consuming
+the i915 error_state dump while the other is
+forcing full GT resets. (takes a while to trigger).
 
-Fix it by passing the section name to addr2line, unless the object file
-is vmlinux, in which case the symbol table uses absolute addresses.
+The dmesg call trace:
 
-Fixes: 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section failures")
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Link: https://lore.kernel.org/r/7d25bc1408bd3a750ac26e60d2f2815a5f4a8363.1654130536.git.jpoimboe@kernel.org
+[ 5590.803000] BUG: unable to handle page fault for address:
+               ffffffffa0b0e000
+[ 5590.803009] #PF: supervisor read access in kernel mode
+[ 5590.803013] #PF: error_code(0x0000) - not-present page
+[ 5590.803016] PGD 5814067 P4D 5814067 PUD 5815063 PMD 109de4067
+               PTE 0
+[ 5590.803022] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[ 5590.803026] CPU: 5 PID: 13656 Comm: i915_hangman Tainted: G U
+                    5.17.0-rc5-ups69-guc-err-capt-rev6+ #136
+[ 5590.803033] Hardware name: Intel Corporation Alder Lake Client
+                    Platform/AlderLake-M LP4x RVP, BIOS ADLPFWI1.R00.
+                    3031.A02.2201171222	01/17/2022
+[ 5590.803039] RIP: 0010:memcpy_erms+0x6/0x10
+[ 5590.803045] Code: fe ff ff cc eb 1e 0f 1f 00 48 89 f8 48 89 d1
+                     48 c1 e9 03 83 e2 07 f3 48 a5 89 d1 f3 a4 c3
+                     66 0f 1f 44 00 00 48 89 f8 48 89 d1 <f3> a4
+                     c3 0f 1f 80 00 00 00 00 48 89 f8 48 83 fa 20
+                     72 7e 40 38 fe
+[ 5590.803054] RSP: 0018:ffffc90003a8fdf0 EFLAGS: 00010282
+[ 5590.803057] RAX: ffff888107ee9000 RBX: ffff888108cb1a00
+               RCX: 0000000000000f8f
+[ 5590.803061] RDX: 0000000000001000 RSI: ffffffffa0b0e000
+               RDI: ffff888107ee9071
+[ 5590.803065] RBP: 0000000000000000 R08: 0000000000000001
+               R09: 0000000000000001
+[ 5590.803069] R10: 0000000000000001 R11: 0000000000000002
+               R12: 0000000000000019
+[ 5590.803073] R13: 0000000000174fff R14: 0000000000001000
+               R15: ffff888107ee9000
+[ 5590.803077] FS: 00007f62a99bee80(0000) GS:ffff88849f880000(0000)
+               knlGS:0000000000000000
+[ 5590.803082] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 5590.803085] CR2: ffffffffa0b0e000 CR3: 000000010a1a8004
+               CR4: 0000000000770ee0
+[ 5590.803089] PKRU: 55555554
+[ 5590.803091] Call Trace:
+[ 5590.803093] <TASK>
+[ 5590.803096] error_state_read+0xa1/0xd0 [i915]
+[ 5590.803175] kernfs_fop_read_iter+0xb2/0x1b0
+[ 5590.803180] new_sync_read+0x116/0x1a0
+[ 5590.803185] vfs_read+0x114/0x1b0
+[ 5590.803189] ksys_read+0x63/0xe0
+[ 5590.803193] do_syscall_64+0x38/0xc0
+[ 5590.803197] entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 5590.803201] RIP: 0033:0x7f62aaea5912
+[ 5590.803204] Code: c0 e9 b2 fe ff ff 50 48 8d 3d 5a b9 0c 00 e8 05
+                     19 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25
+                     18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff
+                     ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
+[ 5590.803213] RSP: 002b:00007fff5b659ae8 EFLAGS: 00000246
+               ORIG_RAX: 0000000000000000
+[ 5590.803218] RAX: ffffffffffffffda RBX: 0000000000100000
+               RCX: 00007f62aaea5912
+[ 5590.803221] RDX: 000000000008b000 RSI: 00007f62a8c4000f
+               RDI: 0000000000000006
+[ 5590.803225] RBP: 00007f62a8bcb00f R08: 0000000000200010
+               R09: 0000000000101000
+[ 5590.803229] R10: 0000000000000001 R11: 0000000000000246
+               R12: 0000000000000006
+[ 5590.803233] R13: 0000000000075000 R14: 00007f62a8acb010
+               R15: 0000000000200000
+[ 5590.803238] </TASK>
+[ 5590.803240] Modules linked in: i915 ttm drm_buddy drm_dp_helper
+                        drm_kms_helper syscopyarea sysfillrect sysimgblt
+                        fb_sys_fops prime_numbers nfnetlink br_netfilter
+                        overlay mei_pxp mei_hdcp x86_pkg_temp_thermal
+                        coretemp kvm_intel snd_hda_codec_hdmi snd_hda_intel
+                        snd_intel_dspcfg snd_hda_codec snd_hwdep
+                        snd_hda_core snd_pcm mei_me mei fuse ip_tables
+                        x_tables crct10dif_pclmul e1000e crc32_pclmul ptp
+                        i2c_i801 ghash_clmulni_intel i2c_smbus pps_core
+                        [last unloa ded: ttm]
+[ 5590.803277] CR2: ffffffffa0b0e000
+[ 5590.803280] ---[ end trace 0000000000000000 ]---
+
+Fixes: 0e39037b3165 ("drm/i915: Cache the error string")
+Signed-off-by: Alan Previn <alan.previn.teres.alexis@intel.com>
+Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220311004311.514198-2-alan.previn.teres.alexis@intel.com
+(cherry picked from commit 3304033a1e69cd81a2044b4422f0d7e593afb4e6)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/faddr2line | 45 ++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 34 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/i915/i915_sysfs.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/scripts/faddr2line b/scripts/faddr2line
-index 0e6268d59883..94ed98dd899f 100755
---- a/scripts/faddr2line
-+++ b/scripts/faddr2line
-@@ -95,17 +95,25 @@ __faddr2line() {
- 	local print_warnings=$4
- 
- 	local sym_name=${func_addr%+*}
--	local offset=${func_addr#*+}
--	offset=${offset%/*}
-+	local func_offset=${func_addr#*+}
-+	func_offset=${func_offset%/*}
- 	local user_size=
-+	local file_type
-+	local is_vmlinux=0
- 	[[ $func_addr =~ "/" ]] && user_size=${func_addr#*/}
- 
--	if [[ -z $sym_name ]] || [[ -z $offset ]] || [[ $sym_name = $func_addr ]]; then
-+	if [[ -z $sym_name ]] || [[ -z $func_offset ]] || [[ $sym_name = $func_addr ]]; then
- 		warn "bad func+offset $func_addr"
- 		DONE=1
- 		return
- 	fi
- 
-+	# vmlinux uses absolute addresses in the section table rather than
-+	# section offsets.
-+	local file_type=$(${READELF} --file-header $objfile |
-+		${AWK} '$1 == "Type:" { print $2; exit }')
-+	[[ $file_type = "EXEC" ]] && is_vmlinux=1
+diff --git a/drivers/gpu/drm/i915/i915_sysfs.c b/drivers/gpu/drm/i915/i915_sysfs.c
+index cdf0e9c6fd73..313c0000a814 100644
+--- a/drivers/gpu/drm/i915/i915_sysfs.c
++++ b/drivers/gpu/drm/i915/i915_sysfs.c
+@@ -445,7 +445,14 @@ static ssize_t error_state_read(struct file *filp, struct kobject *kobj,
+ 	struct device *kdev = kobj_to_dev(kobj);
+ 	struct drm_i915_private *i915 = kdev_minor_to_i915(kdev);
+ 	struct i915_gpu_coredump *gpu;
+-	ssize_t ret;
++	ssize_t ret = 0;
 +
- 	# Go through each of the object's symbols which match the func name.
- 	# In rare cases there might be duplicates, in which case we print all
- 	# matches.
-@@ -114,9 +122,11 @@ __faddr2line() {
- 		local sym_addr=0x${fields[1]}
- 		local sym_elf_size=${fields[2]}
- 		local sym_sec=${fields[6]}
-+		local sec_size
-+		local sec_name
++	/*
++	 * FIXME: Concurrent clients triggering resets and reading + clearing
++	 * dumps can cause inconsistent sysfs reads when a user calls in with a
++	 * non-zero offset to complete a prior partial read but the
++	 * gpu_coredump has been cleared or replaced.
++	 */
  
- 		# Get the section size:
--		local sec_size=$(${READELF} --section-headers --wide $objfile |
-+		sec_size=$(${READELF} --section-headers --wide $objfile |
- 			sed 's/\[ /\[/' |
- 			${AWK} -v sec=$sym_sec '$1 == "[" sec "]" { print "0x" $6; exit }')
+ 	gpu = i915_first_error_state(i915);
+ 	if (IS_ERR(gpu)) {
+@@ -457,8 +464,10 @@ static ssize_t error_state_read(struct file *filp, struct kobject *kobj,
+ 		const char *str = "No error state collected\n";
+ 		size_t len = strlen(str);
  
-@@ -126,6 +136,17 @@ __faddr2line() {
- 			return
- 		fi
+-		ret = min_t(size_t, count, len - off);
+-		memcpy(buf, str + off, ret);
++		if (off < len) {
++			ret = min_t(size_t, count, len - off);
++			memcpy(buf, str + off, ret);
++		}
+ 	}
  
-+		# Get the section name:
-+		sec_name=$(${READELF} --section-headers --wide $objfile |
-+			sed 's/\[ /\[/' |
-+			${AWK} -v sec=$sym_sec '$1 == "[" sec "]" { print $2; exit }')
-+
-+		if [[ -z $sec_name ]]; then
-+			warn "bad section name: section: $sym_sec"
-+			DONE=1
-+			return
-+		fi
-+
- 		# Calculate the symbol size.
- 		#
- 		# Unfortunately we can't use the ELF size, because kallsyms
-@@ -174,10 +195,10 @@ __faddr2line() {
- 
- 		sym_size=0x$(printf %x $sym_size)
- 
--		# Calculate the section address from user-supplied offset:
--		local addr=$(($sym_addr + $offset))
-+		# Calculate the address from user-supplied offset:
-+		local addr=$(($sym_addr + $func_offset))
- 		if [[ -z $addr ]] || [[ $addr = 0 ]]; then
--			warn "bad address: $sym_addr + $offset"
-+			warn "bad address: $sym_addr + $func_offset"
- 			DONE=1
- 			return
- 		fi
-@@ -191,9 +212,9 @@ __faddr2line() {
- 		fi
- 
- 		# Make sure the provided offset is within the symbol's range:
--		if [[ $offset -gt $sym_size ]]; then
-+		if [[ $func_offset -gt $sym_size ]]; then
- 			[[ $print_warnings = 1 ]] &&
--				echo "skipping $sym_name address at $addr due to size mismatch ($offset > $sym_size)"
-+				echo "skipping $sym_name address at $addr due to size mismatch ($func_offset > $sym_size)"
- 			continue
- 		fi
- 
-@@ -202,11 +223,13 @@ __faddr2line() {
- 		[[ $FIRST = 0 ]] && echo
- 		FIRST=0
- 
--		echo "$sym_name+$offset/$sym_size:"
-+		echo "$sym_name+$func_offset/$sym_size:"
- 
- 		# Pass section address to addr2line and strip absolute paths
- 		# from the output:
--		local output=$(${ADDR2LINE} -fpie $objfile $addr | sed "s; $dir_prefix\(\./\)*; ;")
-+		local args="--functions --pretty-print --inlines --exe=$objfile"
-+		[[ $is_vmlinux = 0 ]] && args="$args --section=$sec_name"
-+		local output=$(${ADDR2LINE} $args $addr | sed "s; $dir_prefix\(\./\)*; ;")
- 		[[ -z $output ]] && continue
- 
- 		# Default output (non --list):
+ 	return ret;
 -- 
 2.35.1
 
