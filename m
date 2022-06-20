@@ -2,104 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BEA655126A
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 10:17:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA407551290
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 10:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239769AbiFTIRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 04:17:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35850 "EHLO
+        id S238837AbiFTIVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 04:21:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239821AbiFTIRo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 04:17:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B87B11829
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 01:17:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C91B161299
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 08:17:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D73A5C3411B;
-        Mon, 20 Jun 2022 08:17:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655713063;
-        bh=CihXGWmz3+WfmStfZ39nL+6oYTbCCpfcVHAErmDVkUQ=;
-        h=Subject:To:Cc:From:Date:From;
-        b=vvqGfYC8Mryvf63/D2TiVPpRQjJdHafFbpIwejxTXMrOougd/U0+vlGi1XfSRp8CH
-         KcpvxiOylO8uT1Ds0rXgb9uMWf8qKdBZE0755ukaPX5uH3Kk/Ntl4I33+qGWlFALAt
-         nH2Zh6SwXtjH0mN3kQyQOKWMi8bWRSZeTFi9nC1M=
-Subject: FAILED: patch "[PATCH] serial: 8250: Store to lsr_save_flags after lsr read" failed to apply to 4.14-stable tree
-To:     ilpo.jarvinen@linux.intel.com, gregkh@linuxfoundation.org,
-        stable@kernel.org, u.kleine-koenig@pengutronix.de,
-        u.kleine-koenig@penugtronix.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jun 2022 10:17:19 +0200
-Message-ID: <165571303927218@kroah.com>
+        with ESMTP id S238441AbiFTIVm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 04:21:42 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE2101263E;
+        Mon, 20 Jun 2022 01:21:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1655713301; x=1687249301;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=8E2kEq+GCo7Dhht4sPeokQjW9I35j7HibLiiqhyWzLc=;
+  b=XQCRb7LRslUeYyqtC37ZEvv8qINrkxD6+a3bKfKstm+iYXbMk8s8zUyT
+   ASMv5PcNIYCSaETcUaoSS4N0Kl5+lEPqSMdFqrd0xrtJbKH9AcVLDFGq+
+   62PWcLhXMdimpG22Yoj0TGEBZpCXVDDoFjXGNKU+DplTrtDDyX9m003yY
+   Y3wPJaa0zX78hq0MuzrdVZmAXt2AHv9Y/MBmAMdytC/UYnZPbDB6BCMJe
+   c0xg9shEgxnLNBC1sYe88d6p+MGHtcSpTy1tZvEa8veJLd+wZccWpbAsU
+   vcgEKRxJsg8tJAudl30GOZ6+0VuVrb4NU+g77cgEY6QVEMotR5teNpYDH
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10380"; a="341518496"
+X-IronPort-AV: E=Sophos;i="5.92,306,1650956400"; 
+   d="scan'208";a="341518496"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jun 2022 01:21:39 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,306,1650956400"; 
+   d="scan'208";a="584799278"
+Received: from allen-box.sh.intel.com ([10.239.159.48])
+  by orsmga007.jf.intel.com with ESMTP; 20 Jun 2022 01:21:37 -0700
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+To:     Joerg Roedel <joro@8bytes.org>, Kevin Tian <kevin.tian@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>
+Cc:     Chenyi Qiang <chenyi.qiang@intel.com>,
+        Liu Yi L <yi.l.liu@intel.com>,
+        Jacob jun Pan <jacob.jun.pan@intel.com>,
+        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+        Lu Baolu <baolu.lu@linux.intel.com>, stable@vger.kernel.org
+Subject: [PATCH 1/1] iommu/vt-d: Fix RID2PASID setup failure
+Date:   Mon, 20 Jun 2022 16:17:29 +0800
+Message-Id: <20220620081729.4610-1-baolu.lu@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The IOMMU driver shares the pasid table for PCI alias devices. When the
+RID2PASID entry of the shared pasid table has been filled by the first
+device, the subsequent devices will encounter the "DMAR: Setup RID2PASID
+failed" failure as the pasid entry has already been marke as present. As
+the result, the IOMMU probing process will be aborted.
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This fixes it by skipping RID2PASID setting if the pasid entry has been
+populated. This works because the IOMMU core ensures that only the same
+IOMMU domain can be attached to all PCI alias devices at the same time.
+Therefore the subsequent devices just try to setup the RID2PASID entry
+with the same domain, which is negligible.
 
-thanks,
+Fixes: ef848b7e5a6a0 ("iommu/vt-d: Setup pasid entry for RID2PASID support")
+Reported-by: Chenyi Qiang <chenyi.qiang@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+---
+ drivers/iommu/intel/iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From be03b0651ffd8bab69dfd574c6818b446c0753ce Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Fri, 20 May 2022 13:35:41 +0300
-Subject: [PATCH] serial: 8250: Store to lsr_save_flags after lsr read
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Not all LSR register flags are preserved across reads. Therefore, LSR
-readers must store the non-preserved bits into lsr_save_flags.
-
-This fix was initially mixed into feature commit f6f586102add ("serial:
-8250: Handle UART without interrupt on TEMT using em485"). However,
-that feature change had a flaw and it was reverted to make room for
-simpler approach providing the same feature. The embedded fix got
-reverted with the feature change.
-
-Re-add the lsr_save_flags fix and properly mark it's a fix.
-
-Link: https://lore.kernel.org/all/1d6c31d-d194-9e6a-ddf9-5f29af829f3@linux.intel.com/T/#m1737eef986bd20cf19593e344cebd7b0244945fc
-Fixes: e490c9144cfa ("tty: Add software emulated RS485 support for 8250")
-Cc: stable <stable@kernel.org>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@penugtronix.de>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/f4d774be-1437-a550-8334-19d8722ab98c@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 78b6dedc43e6..8f32fe9e149e 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1517,6 +1517,8 @@ static inline void __stop_tx(struct uart_8250_port *p)
- 		unsigned char lsr = serial_in(p, UART_LSR);
- 		u64 stop_delay = 0;
- 
-+		p->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
-+
- 		if (!(lsr & UART_LSR_THRE))
- 			return;
- 		/*
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index 44016594831d..b9966c01a2a2 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -2564,7 +2564,7 @@ static int domain_add_dev_info(struct dmar_domain *domain, struct device *dev)
+ 			ret = intel_pasid_setup_second_level(iommu, domain,
+ 					dev, PASID_RID2PASID);
+ 		spin_unlock_irqrestore(&iommu->lock, flags);
+-		if (ret) {
++		if (ret && ret != -EBUSY) {
+ 			dev_err(dev, "Setup RID2PASID failed\n");
+ 			dmar_remove_one_dev_info(dev);
+ 			return ret;
+-- 
+2.25.1
 
