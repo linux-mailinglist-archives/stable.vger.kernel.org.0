@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D35DE551E41
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D8B0551E7E
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349197AbiFTOAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:00:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41852 "EHLO
+        id S243015AbiFTOBl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:01:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351697AbiFTNzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:55:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F64A33E29;
-        Mon, 20 Jun 2022 06:21:27 -0700 (PDT)
+        with ESMTP id S1351974AbiFTNzr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:55:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B56B34671;
+        Mon, 20 Jun 2022 06:21:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32D2D60FF1;
-        Mon, 20 Jun 2022 13:21:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 267AEC3411B;
-        Mon, 20 Jun 2022 13:21:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7680C60FAD;
+        Mon, 20 Jun 2022 13:21:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38322C3411B;
+        Mon, 20 Jun 2022 13:21:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731286;
-        bh=AlClyu+GjL/SoVXz6DUGT+j8OYRuamyCPoBUwuhZJGw=;
+        s=korg; t=1655731289;
+        bh=RNqOf6SIw5tUJZWNqP2f+//vSwejOEjAPwK+TUZbi6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQc9ONZP0eWUH/f6QS2yL9ibOEcnEhtajqeUWwC5edRS1i/2iuaxXVul8Dygjs+e7
-         oOdi7ibegqTMFLY2tVm8HNGicqEMc/7ZLP/cWxavuW/d+yjNKFzxiSo13R2Shyr0po
-         5U9wfMIWzJ3FV5ZfXT0W+a538aD71toFzU96dTMU=
+        b=0T6N9FVGWMQZig3jjcor4qwtHRuLNZTPxmy/qc1zssxx1nRESRnFjkOpl/2EFmbQr
+         oVfzCxkGdFRrbgwK4Hxe2NhATfwijvMLvSRg+DwXQswDgCiiD4osw/cXsseEw97h39
+         QGJxV+AwXNrVgoBlQpnQmKAgKZKYxw6A0v4JD350=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        "Ivan T. Ivanov" <iivanov@suse.de>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 213/240] net: bgmac: Fix an erroneous kfree() in bgmac_remove()
-Date:   Mon, 20 Jun 2022 14:51:54 +0200
-Message-Id: <20220620124745.147018699@linuxfoundation.org>
+Subject: [PATCH 5.4 214/240] arm64: ftrace: fix branch range checks
+Date:   Mon, 20 Jun 2022 14:51:55 +0200
+Message-Id: <20220620124745.174675923@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -56,37 +58,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit d7dd6eccfbc95ac47a12396f84e7e1b361db654b ]
+[ Upstream commit 3eefdf9d1e406f3da47470b2854347009ffcb6fa ]
 
-'bgmac' is part of a managed resource allocated with bgmac_alloc(). It
-should not be freed explicitly.
+The branch range checks in ftrace_make_call() and ftrace_make_nop() are
+incorrect, erroneously permitting a forwards branch of 128M and
+erroneously rejecting a backwards branch of 128M.
 
-Remove the erroneous kfree() from the .remove() function.
+This is because both functions calculate the offset backwards,
+calculating the offset *from* the target *to* the branch, rather than
+the other way around as the later comparisons expect.
 
-Fixes: 34a5102c3235 ("net: bgmac: allocate struct bgmac just once & don't copy it")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/a026153108dd21239036a032b95c25b5cece253b.1655153616.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+If an out-of-range branch were erroeously permitted, this would later be
+rejected by aarch64_insn_gen_branch_imm() as branch_imm_common() checks
+the bounds correctly, resulting in warnings and the placement of a BRK
+instruction. Note that this can only happen for a forwards branch of
+exactly 128M, and so the caller would need to be exactly 128M bytes
+below the relevant ftrace trampoline.
+
+If an in-range branch were erroeously rejected, then:
+
+* For modules when CONFIG_ARM64_MODULE_PLTS=y, this would result in the
+  use of a PLT entry, which is benign.
+
+  Note that this is the common case, as this is selected by
+  CONFIG_RANDOMIZE_BASE (and therefore RANDOMIZE_MODULE_REGION_FULL),
+  which distributions typically seelct. This is also selected by
+  CONFIG_ARM64_ERRATUM_843419.
+
+* For modules when CONFIG_ARM64_MODULE_PLTS=n, this would result in
+  internal ftrace failures.
+
+* For core kernel text, this would result in internal ftrace failues.
+
+  Note that for this to happen, the kernel text would need to be at
+  least 128M bytes in size, and typical configurations are smaller tha
+  this.
+
+Fix this by calculating the offset *from* the branch *to* the target in
+both functions.
+
+Fixes: f8af0b364e24 ("arm64: ftrace: don't validate branch via PLT in ftrace_make_nop()")
+Fixes: e71a4e1bebaf ("arm64: ftrace: add support for far branches to dynamic ftrace")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Tested-by: "Ivan T. Ivanov" <iivanov@suse.de>
+Reviewed-by: Chengming Zhou <zhouchengming@bytedance.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20220614080944.1349146-2-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bgmac-bcma.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/kernel/ftrace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bgmac-bcma.c b/drivers/net/ethernet/broadcom/bgmac-bcma.c
-index 34d18302b1a3..2d52754afc33 100644
---- a/drivers/net/ethernet/broadcom/bgmac-bcma.c
-+++ b/drivers/net/ethernet/broadcom/bgmac-bcma.c
-@@ -323,7 +323,6 @@ static void bgmac_remove(struct bcma_device *core)
- 	bcma_mdio_mii_unregister(bgmac->mii_bus);
- 	bgmac_enet_remove(bgmac);
- 	bcma_set_drvdata(core, NULL);
--	kfree(bgmac);
- }
+diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
+index 822718eafdb4..d4a4be02d309 100644
+--- a/arch/arm64/kernel/ftrace.c
++++ b/arch/arm64/kernel/ftrace.c
+@@ -69,7 +69,7 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
+ {
+ 	unsigned long pc = rec->ip;
+ 	u32 old, new;
+-	long offset = (long)pc - (long)addr;
++	long offset = (long)addr - (long)pc;
  
- static struct bcma_driver bgmac_bcma_driver = {
+ 	if (offset < -SZ_128M || offset >= SZ_128M) {
+ #ifdef CONFIG_ARM64_MODULE_PLTS
+@@ -126,7 +126,7 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
+ 	unsigned long pc = rec->ip;
+ 	bool validate = true;
+ 	u32 old = 0, new;
+-	long offset = (long)pc - (long)addr;
++	long offset = (long)addr - (long)pc;
+ 
+ 	if (offset < -SZ_128M || offset >= SZ_128M) {
+ #ifdef CONFIG_ARM64_MODULE_PLTS
 -- 
 2.35.1
 
