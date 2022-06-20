@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5749551D44
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 617C3551CDF
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347909AbiFTNuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33472 "EHLO
+        id S245582AbiFTNLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:11:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349039AbiFTNsH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:48:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 518EB2EA09;
-        Mon, 20 Jun 2022 06:17:45 -0700 (PDT)
+        with ESMTP id S1344391AbiFTNKL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:10:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6414192A7;
+        Mon, 20 Jun 2022 06:05:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1861860ED5;
-        Mon, 20 Jun 2022 13:17:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C11FC3411B;
-        Mon, 20 Jun 2022 13:17:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38FCC61542;
+        Mon, 20 Jun 2022 13:02:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30613C3411B;
+        Mon, 20 Jun 2022 13:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731064;
-        bh=KNOSxNzar51jcExsTGYczuNdr2SrdnoUMShxS9ocoTg=;
+        s=korg; t=1655730131;
+        bh=YnT0A5pYx7LECS7ve6dpcfSYlTvAMThZz2MiAayKHIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8BnWWACsHAZAoMCK1zKRWT9tLZVaznRoRnZ7i95KXKACu982DzKokWvmWexs6NZo
-         A2S//KfB88m8gcPtY9ORhr/zq5K3U0wy5vBLt45AV5d2FjnpcWyzRTQbswlccsWyIt
-         ymX5APvQtxStPVtCHv9P5Hiz2V86f0h95NGA5Y8E=
+        b=s0+TlWFzC4ilu40yqSUCYAOnhtgEyBTr5z2LymcESp0VEPe7YDLrpbudtWfxGX5TP
+         ppQ0NqX8M5NWtz3biHu24c3bbvEE7uCbGze6Ah/gp9LsI8g7I87oXT7wJxzDRsFk1u
+         D4bTyt28bORljOe22yLt+UiUlQJNZWnjtfTOSdwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org
-Subject: [PATCH 5.4 141/240] x86/tsc: Use fallback for random_get_entropy() instead of zero
+        stable@vger.kernel.org, Marius Hoch <mail@mariushoch.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 19/84] Input: soc_button_array - also add Lenovo Yoga Tablet2 1051F to dmi_use_low_level_irq
 Date:   Mon, 20 Jun 2022 14:50:42 +0200
-Message-Id: <20220620124743.094744681@linuxfoundation.org>
+Message-Id: <20220620124721.461442805@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Marius Hoch <mail@mariushoch.de>
 
-commit 3bd4abc07a267e6a8b33d7f8717136e18f921c53 upstream.
+[ Upstream commit 6ab2e51898cd4343bbdf8587af8ce8fbabddbcb5 ]
 
-In the event that random_get_entropy() can't access a cycle counter or
-similar, falling back to returning 0 is suboptimal. Instead, fallback
-to calling random_get_entropy_fallback(), which isn't extremely high
-precision or guaranteed to be entropic, but is certainly better than
-returning zero all the time.
+Commit 223f61b8c5ad ("Input: soc_button_array - add Lenovo Yoga Tablet2
+1051L to the dmi_use_low_level_irq list") added the 1051L to this list
+already, but the same problem applies to the 1051F. As there are no
+further 1051 variants (just the F/L), we can just DMI match 1051.
 
-If CONFIG_X86_TSC=n, then it's possible for the kernel to run on systems
-without RDTSC, such as 486 and certain 586, so the fallback code is only
-required for that case.
+Tested on a Lenovo Yoga Tablet2 1051F: Without this patch the
+home-button stops working after a wakeup from suspend.
 
-As well, fix up both the new function and the get_cycles() function from
-which it was derived to use cpu_feature_enabled() rather than
-boot_cpu_has(), and use !IS_ENABLED() instead of #ifndef.
-
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: x86@kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marius Hoch <mail@mariushoch.de>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220603120246.3065-1-mail@mariushoch.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/timex.h |    9 +++++++++
- arch/x86/include/asm/tsc.h   |    7 +++----
- 2 files changed, 12 insertions(+), 4 deletions(-)
+ drivers/input/misc/soc_button_array.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/timex.h
-+++ b/arch/x86/include/asm/timex.h
-@@ -5,6 +5,15 @@
- #include <asm/processor.h>
- #include <asm/tsc.h>
- 
-+static inline unsigned long random_get_entropy(void)
-+{
-+	if (!IS_ENABLED(CONFIG_X86_TSC) &&
-+	    !cpu_feature_enabled(X86_FEATURE_TSC))
-+		return random_get_entropy_fallback();
-+	return rdtsc();
-+}
-+#define random_get_entropy random_get_entropy
-+
- /* Assume we use the PIT time source for the clock tick */
- #define CLOCK_TICK_RATE		PIT_TICK_RATE
- 
---- a/arch/x86/include/asm/tsc.h
-+++ b/arch/x86/include/asm/tsc.h
-@@ -22,13 +22,12 @@ extern void disable_TSC(void);
- 
- static inline cycles_t get_cycles(void)
- {
--#ifndef CONFIG_X86_TSC
--	if (!boot_cpu_has(X86_FEATURE_TSC))
-+	if (!IS_ENABLED(CONFIG_X86_TSC) &&
-+	    !cpu_feature_enabled(X86_FEATURE_TSC))
- 		return 0;
--#endif
--
- 	return rdtsc();
- }
-+#define get_cycles get_cycles
- 
- extern struct system_counterval_t convert_art_to_tsc(u64 art);
- extern struct system_counterval_t convert_art_ns_to_tsc(u64 art_ns);
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index cb6ec59a045d..efffcf0ebd3b 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -85,13 +85,13 @@ static const struct dmi_system_id dmi_use_low_level_irq[] = {
+ 	},
+ 	{
+ 		/*
+-		 * Lenovo Yoga Tab2 1051L, something messes with the home-button
++		 * Lenovo Yoga Tab2 1051F/1051L, something messes with the home-button
+ 		 * IRQ settings, leading to a non working home-button.
+ 		 */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "60073"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "1051L"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "1051"),
+ 		},
+ 	},
+ 	{} /* Terminating entry */
+-- 
+2.35.1
+
 
 
