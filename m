@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E249E5519A5
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 287EF551D39
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243333AbiFTNAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:00:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39426 "EHLO
+        id S1348937AbiFTNsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:48:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244489AbiFTM7k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:59:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59C5819F8F;
-        Mon, 20 Jun 2022 05:56:33 -0700 (PDT)
+        with ESMTP id S1348961AbiFTNro (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:47:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B3D72EA01;
+        Mon, 20 Jun 2022 06:17:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5654D614DA;
-        Mon, 20 Jun 2022 12:56:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A2B7C3411B;
-        Mon, 20 Jun 2022 12:56:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E356F60ED5;
+        Mon, 20 Jun 2022 13:16:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0934C3411B;
+        Mon, 20 Jun 2022 13:16:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729791;
-        bh=EN2LSdwrHyUj4sryCNoBl23CVmDro7Q1flq5/ck1sI4=;
+        s=korg; t=1655730969;
+        bh=/taNfpjeICuWWVktR629JPn5TweCvJIQlqTEdvykcDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmkslvr3fc1SH4fIqRk15ejGN0eZReHnUXhWTZDIo9qq+5YQUmVDNNZxjYQCGXCp+
-         OXSDZFWSvEKtyoOqymgg6AuL+OGAAez31bA+eCLOH+CDhqvsELvoc5PfZWdnKb9JBO
-         4w72LbMQT8K8ucAYD3NWX2D3ihYXG+xU6qsWgkF8=
+        b=WYloRR0OlMB3aTeH5jiE5nY9ajT494GIQqdIj6avjQjzvSPaNe+xqMMVPLly4JC/S
+         Mg49MhszPbXHxQcnytvIV2yWeHK8Ylo3qqKknnNQ3Jjk77q+gu6qWYFcZDELeqZJkz
+         36Ea8MB/XV3Jren7NuK/e1jKwaQ08wVsHSaiUmb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, chengkaitao <pilgrimtao@gmail.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 035/141] virtio-mmio: fix missing put_device() when vm_cmdline_parent registration failed
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 072/240] random: fix locking in crng_fast_load()
 Date:   Mon, 20 Jun 2022 14:49:33 +0200
-Message-Id: <20220620124730.573184308@linuxfoundation.org>
+Message-Id: <20220620124740.540346705@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chengkaitao <pilgrimtao@gmail.com>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
 
-[ Upstream commit a58a7f97ba11391d2d0d408e0b24f38d86ae748e ]
+commit 7c2fe2b32bf76441ff5b7a425b384e5f75aa530a upstream.
 
-The reference must be released when device_register(&vm_cmdline_parent)
-failed. Add the corresponding 'put_device()' in the error handling path.
+crng_init is protected by primary_crng->lock, so keep holding that lock
+when incrementing crng_init from 0 to 1 in crng_fast_load(). The call to
+pr_notice() can wait until the lock is released; this code path cannot
+be reached twice, as crng_fast_load() aborts early if crng_init > 0.
 
-Signed-off-by: chengkaitao <pilgrimtao@gmail.com>
-Message-Id: <20220602005542.16489-1-chengkaitao@didiglobal.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virtio/virtio_mmio.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/random.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 56128b9c46eb..1dd396d4bebb 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -688,6 +688,7 @@ static int vm_cmdline_set(const char *device,
- 	if (!vm_cmdline_parent_registered) {
- 		err = device_register(&vm_cmdline_parent);
- 		if (err) {
-+			put_device(&vm_cmdline_parent);
- 			pr_err("Failed to register parent device!\n");
- 			return err;
- 		}
--- 
-2.35.1
-
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -647,12 +647,13 @@ static size_t crng_fast_load(const u8 *c
+ 		p[crng_init_cnt % CHACHA_KEY_SIZE] ^= *cp;
+ 		cp++; crng_init_cnt++; len--; ret++;
+ 	}
+-	spin_unlock_irqrestore(&primary_crng.lock, flags);
+ 	if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
+ 		invalidate_batched_entropy();
+ 		crng_init = 1;
+-		pr_notice("fast init done\n");
+ 	}
++	spin_unlock_irqrestore(&primary_crng.lock, flags);
++	if (crng_init == 1)
++		pr_notice("fast init done\n");
+ 	return ret;
+ }
+ 
 
 
