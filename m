@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B216551D42
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21AE05519CF
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244806AbiFTNuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56076 "EHLO
+        id S244488AbiFTNFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:05:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241684AbiFTNsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:48:05 -0400
+        with ESMTP id S244830AbiFTNEC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0066B2F009;
-        Mon, 20 Jun 2022 06:17:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B78192B6;
+        Mon, 20 Jun 2022 05:58:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C16C060FF3;
-        Mon, 20 Jun 2022 13:16:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8472C3411B;
-        Mon, 20 Jun 2022 13:16:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C75561449;
+        Mon, 20 Jun 2022 12:58:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78914C3411B;
+        Mon, 20 Jun 2022 12:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731000;
-        bh=ZE8Oti+fu3e1FxWiLUTqce4e2vXw7qouPFIc2w4kBJs=;
+        s=korg; t=1655729926;
+        bh=sNT+9tqr5huqBOqoeTeyLHCWgjIGaTKgwJ3WrQ79i+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YhzJ8YqKOePz4BQRRjVACR17Pbai0KAZdx1oPANmLe4CofpDowUX55tXs+bFA0rSY
-         qM9/Q8DFhX7N3v9gq2q7TjVeETyFKQvrq4yfCaXdLhbtnsm3xprX2e87fk5+O5wjEc
-         uXctUAZIlEI8pXx0DXHBGgtBm/Po4plidSWd9sko=
+        b=aayacWws3If5BoCtRoqdFKUhOPGSgUAD+zGyWgjO1Z3D+EnI8K8485REzBgHA401W
+         vnVyw0mGN/6H+lQwsY1iPP9o5F914YTSNzXc4NDDVSz0L9mqOwbXDNjw24ywhwssm2
+         6OYumFse5OyKHJCR6+94ZXYitMOLDkH/Q0fet7Vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Jann Horn <jannh@google.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 123/240] random: do not allow user to keep crng key around on stack
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.18 086/141] init: Initialize noop_backing_dev_info early
 Date:   Mon, 20 Jun 2022 14:50:24 +0200
-Message-Id: <20220620124742.577765573@linuxfoundation.org>
+Message-Id: <20220620124732.088156973@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,98 +56,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Jan Kara <jack@suse.cz>
 
-commit aba120cc101788544aa3e2c30c8da88513892350 upstream.
+[ Upstream commit 4bca7e80b6455772b4bf3f536dcbc19aac424d6a ]
 
-The fast key erasure RNG design relies on the key that's used to be used
-and then discarded. We do this, making judicious use of
-memzero_explicit().  However, reads to /dev/urandom and calls to
-getrandom() involve a copy_to_user(), and userspace can use FUSE or
-userfaultfd, or make a massive call, dynamically remap memory addresses
-as it goes, and set the process priority to idle, in order to keep a
-kernel stack alive indefinitely. By probing
-/proc/sys/kernel/random/entropy_avail to learn when the crng key is
-refreshed, a malicious userspace could mount this attack every 5 minutes
-thereafter, breaking the crng's forward secrecy.
+noop_backing_dev_info is used by superblocks of various
+pseudofilesystems such as kdevtmpfs. After commit 10e14073107d
+("writeback: Fix inode->i_io_list not be protected by inode->i_lock
+error") this broke because __mark_inode_dirty() started to access more
+fields from noop_backing_dev_info and this led to crashes inside
+locked_inode_to_wb_and_lock_list() called from __mark_inode_dirty().
+Fix the problem by initializing noop_backing_dev_info before the
+filesystems get mounted.
 
-In order to fix this, we just overwrite the stack's key with the first
-32 bytes of the "free" fast key erasure output. If we're returning <= 32
-bytes to the user, then we can still return those bytes directly, so
-that short reads don't become slower. And for long reads, the difference
-is hopefully lost in the amortization, so it doesn't change much, with
-that amortization helping variously for medium reads.
-
-We don't need to do this for get_random_bytes() and the various
-kernel-space callers, and later, if we ever switch to always batching,
-this won't be necessary either, so there's no need to change the API of
-these functions.
-
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jann Horn <jannh@google.com>
-Fixes: c92e040d575a ("random: add backtracking protection to the CRNG")
-Fixes: 186873c549df ("random: use simpler fast key erasure flow on per-cpu keys")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 10e14073107d ("writeback: Fix inode->i_io_list not be protected by inode->i_lock error")
+Reported-and-tested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reported-and-tested-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Reported-and-tested-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |   35 +++++++++++++++++++++++------------
- 1 file changed, 23 insertions(+), 12 deletions(-)
+ drivers/base/init.c         |  2 ++
+ include/linux/backing-dev.h |  2 ++
+ mm/backing-dev.c            | 11 ++---------
+ 3 files changed, 6 insertions(+), 9 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -532,19 +532,29 @@ static ssize_t get_random_bytes_user(voi
- 	if (!nbytes)
- 		return 0;
+diff --git a/drivers/base/init.c b/drivers/base/init.c
+index d8d0fe687111..397eb9880cec 100644
+--- a/drivers/base/init.c
++++ b/drivers/base/init.c
+@@ -8,6 +8,7 @@
+ #include <linux/init.h>
+ #include <linux/memory.h>
+ #include <linux/of.h>
++#include <linux/backing-dev.h>
  
--	len = min_t(size_t, 32, nbytes);
--	crng_make_state(chacha_state, output, len);
--
--	if (copy_to_user(buf, output, len))
--		return -EFAULT;
--	nbytes -= len;
--	buf += len;
--	ret += len;
-+	/*
-+	 * Immediately overwrite the ChaCha key at index 4 with random
-+	 * bytes, in case userspace causes copy_to_user() below to sleep
-+	 * forever, so that we still retain forward secrecy in that case.
-+	 */
-+	crng_make_state(chacha_state, (u8 *)&chacha_state[4], CHACHA_KEY_SIZE);
-+	/*
-+	 * However, if we're doing a read of len <= 32, we don't need to
-+	 * use chacha_state after, so we can simply return those bytes to
-+	 * the user directly.
-+	 */
-+	if (nbytes <= CHACHA_KEY_SIZE) {
-+		ret = copy_to_user(buf, &chacha_state[4], nbytes) ? -EFAULT : nbytes;
-+		goto out_zero_chacha;
-+	}
+ #include "base.h"
  
--	while (nbytes) {
-+	do {
- 		if (large_request && need_resched()) {
--			if (signal_pending(current))
-+			if (signal_pending(current)) {
-+				if (!ret)
-+					ret = -ERESTARTSYS;
- 				break;
-+			}
- 			schedule();
- 		}
+@@ -20,6 +21,7 @@
+ void __init driver_init(void)
+ {
+ 	/* These are the core pieces */
++	bdi_init(&noop_backing_dev_info);
+ 	devtmpfs_init();
+ 	devices_init();
+ 	buses_init();
+diff --git a/include/linux/backing-dev.h b/include/linux/backing-dev.h
+index 87ce24d238f3..8c2eed1b69c1 100644
+--- a/include/linux/backing-dev.h
++++ b/include/linux/backing-dev.h
+@@ -121,6 +121,8 @@ int bdi_set_max_ratio(struct backing_dev_info *bdi, unsigned int max_ratio);
  
-@@ -561,10 +571,11 @@ static ssize_t get_random_bytes_user(voi
- 		nbytes -= len;
- 		buf += len;
- 		ret += len;
--	}
-+	} while (nbytes);
+ extern struct backing_dev_info noop_backing_dev_info;
  
--	memzero_explicit(chacha_state, sizeof(chacha_state));
- 	memzero_explicit(output, sizeof(output));
-+out_zero_chacha:
-+	memzero_explicit(chacha_state, sizeof(chacha_state));
- 	return ret;
++int bdi_init(struct backing_dev_info *bdi);
++
+ /**
+  * writeback_in_progress - determine whether there is writeback in progress
+  * @wb: bdi_writeback of interest
+diff --git a/mm/backing-dev.c b/mm/backing-dev.c
+index 7176af65b103..e262739a0a23 100644
+--- a/mm/backing-dev.c
++++ b/mm/backing-dev.c
+@@ -230,20 +230,13 @@ static __init int bdi_class_init(void)
  }
+ postcore_initcall(bdi_class_init);
  
+-static int bdi_init(struct backing_dev_info *bdi);
+-
+ static int __init default_bdi_init(void)
+ {
+-	int err;
+-
+ 	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_UNBOUND |
+ 				 WQ_SYSFS, 0);
+ 	if (!bdi_wq)
+ 		return -ENOMEM;
+-
+-	err = bdi_init(&noop_backing_dev_info);
+-
+-	return err;
++	return 0;
+ }
+ subsys_initcall(default_bdi_init);
+ 
+@@ -782,7 +775,7 @@ static void cgwb_remove_from_bdi_list(struct bdi_writeback *wb)
+ 
+ #endif	/* CONFIG_CGROUP_WRITEBACK */
+ 
+-static int bdi_init(struct backing_dev_info *bdi)
++int bdi_init(struct backing_dev_info *bdi)
+ {
+ 	int ret;
+ 
+-- 
+2.35.1
+
 
 
