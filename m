@@ -2,65 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5324A550E90
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 04:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53BE1550F6C
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 06:33:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233156AbiFTCak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jun 2022 22:30:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34068 "EHLO
+        id S231288AbiFTEdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 00:33:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233035AbiFTCaj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jun 2022 22:30:39 -0400
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C626BBC22
-        for <stable@vger.kernel.org>; Sun, 19 Jun 2022 19:30:38 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id y6so8531562plg.0
-        for <stable@vger.kernel.org>; Sun, 19 Jun 2022 19:30:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=rKDkCWFLL2LKHrd0PY7oJwJSwDpD2T5oprcITiH4OoM=;
-        b=caQjzPuBIHwA2jjjyPgS+SZbXzK2In7vHfu7aUGNIa+U/C2FXhNA3dChQV+bWaMcPG
-         7FlS2gMLACmKgYIq4Cw1zTdb3dP+si8wWFZJujAs2+n4ZdWgXCl0slFlOChKYG/fm1Yo
-         nNGpEcLHuSYfPWoKClGZYjMWL/nz6ACorgOwJ1+S7jXI9N/gEVwENiHOwo8Tib8PlyqS
-         ikEj1dZ27MGpqnNJ+1u0cCNmGqLMim/wVupR6XNaTcBIr4LFLQXuOFrkKkoI2App6+OX
-         oarEM0yWQdccJgOLK+o6cEp/LX/iKe+L3kccp6rOvoUVdwwN9mx11+k0RgFN0y9iDfu/
-         oTiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=rKDkCWFLL2LKHrd0PY7oJwJSwDpD2T5oprcITiH4OoM=;
-        b=N/RT6ccdO4YwjwSu3qvkhgJ+4VqxfszRGO2TeyDnhMKl+DivwM7Jd9FpZNx+Gt8WTC
-         UpRfFggviIjM7JvitMFsFUV1KEQsJRlNnd/11+SXGALGPz/fW+aE2XszlrwE2tlCuoy2
-         1JavzFnPU3xl2lvVP+tJY5JWty+psHBQ2yXEpTwkak8IDycU75qClhPRKzF0T6OGI+fB
-         B6DfPQ5spxj3GMobi88x588iMQmabxlqKAYdhrQ5woUTDS+OrIe47BFOdKh2I1XYA71I
-         WiZygT3XurzANTbhZeCb/v9KIxG0mBZUWEr/U+n2e2Dug5irpZVw03xpFyf/HLqzvHEp
-         hk1w==
-X-Gm-Message-State: AJIora9QVUJxCp4yfB9A9MiVHbSZNr8yqK5sNikrcv1g1Ugao0vkNAR5
-        aiacUW6vr8VqEVReIXS6MQ9hlw==
-X-Google-Smtp-Source: AGRyM1tG7Y4Ri55cxJYS8evvg2vI5g0ekaQOzL/vT2Lew/EEVtV27PGqa1e/oIscRqU39mMZiRtzsg==
-X-Received: by 2002:a17:903:2291:b0:164:95f:b512 with SMTP id b17-20020a170903229100b00164095fb512mr21978303plh.120.1655692238298;
-        Sun, 19 Jun 2022 19:30:38 -0700 (PDT)
-Received: from FVFYT0MHHV2J.bytedance.net ([139.177.225.255])
-        by smtp.gmail.com with ESMTPSA id z7-20020a17090a8b8700b001ecb29de3e4sm153644pjn.49.2022.06.19.19.30.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Jun 2022 19:30:38 -0700 (PDT)
-From:   Muchun Song <songmuchun@bytedance.com>
-To:     akpm@linux-foundation.org, mike.kravetz@oracle.com
-Cc:     duanxiongchun@bytedance.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Muchun Song <songmuchun@bytedance.com>, stable@vger.kernel.org
-Subject: [PATCH] mm: sparsemem: fix missing higher order allocation splitting
-Date:   Mon, 20 Jun 2022 10:30:19 +0800
-Message-Id: <20220620023019.94257-1-songmuchun@bytedance.com>
-X-Mailer: git-send-email 2.32.1 (Apple Git-133)
+        with ESMTP id S229998AbiFTEdH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 00:33:07 -0400
+Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BEB41133
+        for <stable@vger.kernel.org>; Sun, 19 Jun 2022 21:33:06 -0700 (PDT)
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id B76C45C00EA;
+        Mon, 20 Jun 2022 00:33:03 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 20 Jun 2022 00:33:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=traverse.com.au;
+         h=cc:cc:content-transfer-encoding:date:date:from:from
+        :in-reply-to:message-id:mime-version:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1655699583; x=1655785983; bh=+AI340Wird
+        kCNj2daU0dhzcNsCD3h4uVmVS2Tv0hb9s=; b=EdEE421SMaNmEO4D/AdwaLjP7Z
+        EKz/olBcsjFjGI2bjhKCodGShwOVwIY41js2tkJvkI9SWv65EzDRAVJ6WU5KBakz
+        P7ySKKVOsO5QPss5buWI7xeD99fOuayD8KQY3sTfUvY2GHIpuG8bs12JeeJZs141
+        ArjvK4yy6TrWUtFPo7I3FDX011kfnMAnSBm/CzrGr0qvoUB27/4WaRjcil1HYfo5
+        Q3yXjIlv1wqTujCIjeGkMhLEOx8XfbSjPT5NgHNN3DHlxWEGfP4h7sbweJU9IwSe
+        cw0Cg3qntRut2cr0Sb/lg2FFQt0WvlZwIwC/mz9VeI3SIucij22YSgMRylcA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:message-id
+        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+        1655699583; x=1655785983; bh=+AI340WirdkCNj2daU0dhzcNsCD3h4uVmVS
+        2Tv0hb9s=; b=oIwDd5g67Mg95NtSVXZHJqX+Pva8w8DRFev5h+f5md5vhjhkztw
+        hcWiSLbzwunwxgqDE1xswKunR05WNRM2qhtX20QJwVZFof0cmn+4IyywlcvUFyJQ
+        TaDIC0lDp4MTyrFDfPvLmSFZaXzGby2DGivl8Yxnvc9npO9/GWy52SE8yZUNoqRp
+        FMB2tXKPRdlMdFpERPRYULFT0l0MCfM7D4sErgPgk/VhNYXU+2qYy/RBqsCKLaYp
+        kEOPMdd59TJsTlEDELQ/Mxp4v11hsSmOo4u8iFR7zNPQy8BjH60fQJZ9tPObXuWs
+        45/64yFqGhNU+v9dAJB61qnRsUfg4GBaZQQ==
+X-ME-Sender: <xms:f_ivYs0BqAkFRmp60tQmWnMVOijMIYzFdGOmzXsjMbmXcux286eFFw>
+    <xme:f_ivYnEOGcVXSgpW9h6zWzuq0FGDv3uQ2WcECo0FHTl4Hj3U6yiX1Uc6uoyRfxPUh
+    WNMm2UVtzxEwy5Bq3c>
+X-ME-Received: <xmr:f_ivYk4EMbSK4yCxrrTk1MIm37UQ8i5eLhR9ejFt88f07qnOgv0GwDmFbYOSdxOUTGAZq8wm5eECE6AxPtR2zop-0N68IH873A9m2g_GJQBHglvF9uDJ_EB5xqD1_j8>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudeftddgkeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomhepofgrthhhvgif
+    ucfotgeurhhiuggvuceomhgrthhtsehtrhgrvhgvrhhsvgdrtghomhdrrghuqeenucggtf
+    frrghtthgvrhhnpefgkeetgedufffgtdevvdejjefftdfghfetfefgueehhfeljeffgfef
+    ueeujeelffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpehmrghtthesthhrrghvvghrshgvrdgtohhmrdgruh
+X-ME-Proxy: <xmx:f_ivYl1ViKNE2eeJ1-e0rkumhvnQE2wAomMuTYom8A7tweImtTCdjw>
+    <xmx:f_ivYvGqvbEPWDEx0kGeR_2Z4DgtMlD2mp1LJUiowK-KLBbUdfNLBA>
+    <xmx:f_ivYu_qaCpqDDcAaDfw6nDqewJ3ySpfNU3Jidzqd2nFv1sf-kBq6A>
+    <xmx:f_ivYnAfpOyBvVJsRtE69sAM_nTI4RMx63pSttWsSYvy_c20aeCzqw>
+Feedback-ID: i426947f3:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 20 Jun 2022 00:33:01 -0400 (EDT)
+From:   Mathew McBride <matt@traverse.com.au>
+To:     Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Li Yang <leoyang.li@nxp.com>,
+        linux-arm-kernel@lists.infradead.org
+Cc:     Mathew McBride <matt@traverse.com.au>, stable@vger.kernel.org
+Subject: [PATCH] soc: fsl: select FSL_GUTS driver for DPIO
+Date:   Mon, 20 Jun 2022 04:32:43 +0000
+Message-Id: <20220620043243.32235-1-matt@traverse.com.au>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -68,42 +81,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Higher order allocations for vmemmap pages from buddy allocator must be
-able to be treated as indepdenent small pages as they can be freed
-individually by the caller.  There is no problem for higher order vmemmap
-pages allocated at boot time since each individual small page will be
-initialized at boot time.  However, it will be an issue for memory hotplug
-case since those higher order vmemmap pages are allocated from buddy
-allocator without initializing each individual small page's refcount. The
-system will panic in put_page_testzero() when CONFIG_DEBUG_VM is enabled
-if the vmemmap page is freed.
+The soc/fsl/dpio driver will perform a soc_device_match()
+to determine the optimal cache settings for a given CPU core.
 
-Fixes: d8d55f5616cf ("mm: sparsemem: use page table lock to protect kernel pmd operations")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+If FSL_GUTS is not enabled, this search will fail and
+the driver will not configure cache stashing for the given
+DPIO, and a string of "unknown SoC" messages will appear:
+
+fsl_mc_dpio dpio.7: unknown SoC version
+fsl_mc_dpio dpio.6: unknown SoC version
+fsl_mc_dpio dpio.5: unknown SoC version
+
+Signed-off-by: Mathew McBride <matt@traverse.com.au>
+Fixes: 51da14e96e9b ("soc: fsl: dpio: configure cache stashing destination")
+Cc: stable@vger.kernel.org
 ---
- mm/sparse-vmemmap.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/soc/fsl/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/sparse-vmemmap.c b/mm/sparse-vmemmap.c
-index 652f11a05749..ebb489fcf07c 100644
---- a/mm/sparse-vmemmap.c
-+++ b/mm/sparse-vmemmap.c
-@@ -78,6 +78,14 @@ static int __split_vmemmap_huge_pmd(pmd_t *pmd, unsigned long start)
- 
- 	spin_lock(&init_mm.page_table_lock);
- 	if (likely(pmd_leaf(*pmd))) {
-+		/*
-+		 * Higher order allocations from buddy allocator must be able to
-+		 * be treated as indepdenent small pages (as they can be freed
-+		 * individually).
-+		 */
-+		if (!PageReserved(page))
-+			split_page(page, get_order(PMD_SIZE));
-+
- 		/* Make pte visible before pmd. See comment in pmd_install(). */
- 		smp_wmb();
- 		pmd_populate_kernel(&init_mm, pmd, pgtable);
+diff --git a/drivers/soc/fsl/Kconfig b/drivers/soc/fsl/Kconfig
+index 07d52cafbb31..fcec6ed83d5e 100644
+--- a/drivers/soc/fsl/Kconfig
++++ b/drivers/soc/fsl/Kconfig
+@@ -24,6 +24,7 @@ config FSL_MC_DPIO
+         tristate "QorIQ DPAA2 DPIO driver"
+         depends on FSL_MC_BUS
+         select SOC_BUS
++        select FSL_GUTS
+         select DIMLIB
+         help
+ 	  Driver for the DPAA2 DPIO object.  A DPIO provides queue and
 -- 
-2.11.0
+2.30.1
 
