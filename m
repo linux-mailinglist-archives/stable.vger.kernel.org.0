@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E4FB5511E6
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B9AF5511DD
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239576AbiFTHv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 03:51:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46936 "EHLO
+        id S239603AbiFTHwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 03:52:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239590AbiFTHv5 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A264F10541
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:56 -0700 (PDT)
+        with ESMTP id S239605AbiFTHwB (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:52:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 938C41055E
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E0E4B80EB4
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 935E3C341C4;
-        Mon, 20 Jun 2022 07:51:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 457D2B80EB4
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BCA2C341C4;
+        Mon, 20 Jun 2022 07:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655711514;
-        bh=Gofpd7yHz0embfI6aOxZ4UVimQO8QpJhiv9HbNnSitw=;
+        s=korg; t=1655711517;
+        bh=E+0xyzPlvX+5cvxFPw9DfVpYbT8idmR5SrDm50p8Bmo=;
         h=Subject:To:From:Date:From;
-        b=nQhVduIQKd4hX+BFMv4ukmR9vnDKWL1XlTm42Milkn02/qVCs4bPV9TXYdZFvTXty
-         HRYwYkxauwrFpLxMm58TZiB905zzY9VdvS/CpENRmj7FpR6/mBZXSmxgMVQP7XBC86
-         19J0kJpJrTkVa+qjOq2P1Azlcgyst/6TU2uHc9Us=
-Subject: patch "iio: adc: stm32: fix vrefint wrong calibration value handling" added to char-misc-linus
-To:     olivier.moysan@foss.st.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, fabrice.gasnier@foss.st.com
+        b=oOh+eRRX0qpCUmPG7XUPwu3cWWl8bka5+2nk5XmyaQUqCY6ZhnN/kvFMzj7JTe9/p
+         SNzUBlMfiZ6h3zQbSP9fZiDf+yCryoOfKh/ISvtlHgL+J7mDrK9fDj9I0HVd6Xht1n
+         GJnUqmJuGIwKelIISS5b5qE119U1okSF9aJUtB7c=
+Subject: patch "iio: accel: mma8452: ignore the return value of reset operation" added to char-misc-linus
+To:     haibo.chen@nxp.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, hdegoede@redhat.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jun 2022 09:50:50 +0200
-Message-ID: <165571145029182@kroah.com>
+Date:   Mon, 20 Jun 2022 09:50:51 +0200
+Message-ID: <165571145112385@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: stm32: fix vrefint wrong calibration value handling
+    iio: accel: mma8452: ignore the return value of reset operation
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,86 +65,47 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From bc05f30fc24705cd023f38659303376eaa5767df Mon Sep 17 00:00:00 2001
-From: Olivier Moysan <olivier.moysan@foss.st.com>
-Date: Thu, 9 Jun 2022 11:58:56 +0200
-Subject: iio: adc: stm32: fix vrefint wrong calibration value handling
+From bf745142cc0a3e1723f9207fb0c073c88464b7b4 Mon Sep 17 00:00:00 2001
+From: Haibo Chen <haibo.chen@nxp.com>
+Date: Wed, 15 Jun 2022 19:31:58 +0800
+Subject: iio: accel: mma8452: ignore the return value of reset operation
 
-If the vrefint calibration is zero, the vrefint channel output value
-cannot be computed. Currently, in such case, the raw conversion value
-is returned, which is not relevant.
-Do not expose the vrefint channel when the output value cannot be
-computed, instead.
+On fxls8471, after set the reset bit, the device will reset immediately,
+will not give ACK. So ignore the return value of this reset operation,
+let the following code logic to check whether the reset operation works.
 
-Fixes: 0e346b2cfa85 ("iio: adc: stm32-adc: add vrefint calibration support")
-Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
-Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20220609095856.376961-1-olivier.moysan@foss.st.com
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Fixes: ecabae713196 ("iio: mma8452: Initialise before activating")
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/1655292718-14287-1-git-send-email-haibo.chen@nxp.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/stm32-adc.c | 27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ drivers/iio/accel/mma8452.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/adc/stm32-adc.c b/drivers/iio/adc/stm32-adc.c
-index 8c5f05f593ab..11ef873d6453 100644
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -1365,7 +1365,7 @@ static int stm32_adc_read_raw(struct iio_dev *indio_dev,
- 		else
- 			ret = -EINVAL;
+diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
+index 4156d216c640..f4f835274d75 100644
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1510,10 +1510,14 @@ static int mma8452_reset(struct i2c_client *client)
+ 	int i;
+ 	int ret;
  
--		if (mask == IIO_CHAN_INFO_PROCESSED && adc->vrefint.vrefint_cal)
-+		if (mask == IIO_CHAN_INFO_PROCESSED)
- 			*val = STM32_ADC_VREFINT_VOLTAGE * adc->vrefint.vrefint_cal / *val;
+-	ret = i2c_smbus_write_byte_data(client,	MMA8452_CTRL_REG2,
++	/*
++	 * Find on fxls8471, after config reset bit, it reset immediately,
++	 * and will not give ACK, so here do not check the return value.
++	 * The following code will read the reset register, and check whether
++	 * this reset works.
++	 */
++	i2c_smbus_write_byte_data(client, MMA8452_CTRL_REG2,
+ 					MMA8452_CTRL_REG2_RST);
+-	if (ret < 0)
+-		return ret;
  
- 		iio_device_release_direct_mode(indio_dev);
-@@ -1969,10 +1969,10 @@ static int stm32_adc_populate_int_ch(struct iio_dev *indio_dev, const char *ch_n
- 
- 	for (i = 0; i < STM32_ADC_INT_CH_NB; i++) {
- 		if (!strncmp(stm32_adc_ic[i].name, ch_name, STM32_ADC_CH_SZ)) {
--			adc->int_ch[i] = chan;
--
--			if (stm32_adc_ic[i].idx != STM32_ADC_INT_CH_VREFINT)
--				continue;
-+			if (stm32_adc_ic[i].idx != STM32_ADC_INT_CH_VREFINT) {
-+				adc->int_ch[i] = chan;
-+				break;
-+			}
- 
- 			/* Get calibration data for vrefint channel */
- 			ret = nvmem_cell_read_u16(&indio_dev->dev, "vrefint", &vrefint);
-@@ -1980,10 +1980,15 @@ static int stm32_adc_populate_int_ch(struct iio_dev *indio_dev, const char *ch_n
- 				return dev_err_probe(indio_dev->dev.parent, ret,
- 						     "nvmem access error\n");
- 			}
--			if (ret == -ENOENT)
--				dev_dbg(&indio_dev->dev, "vrefint calibration not found\n");
--			else
--				adc->vrefint.vrefint_cal = vrefint;
-+			if (ret == -ENOENT) {
-+				dev_dbg(&indio_dev->dev, "vrefint calibration not found. Skip vrefint channel\n");
-+				return ret;
-+			} else if (!vrefint) {
-+				dev_dbg(&indio_dev->dev, "Null vrefint calibration value. Skip vrefint channel\n");
-+				return -ENOENT;
-+			}
-+			adc->int_ch[i] = chan;
-+			adc->vrefint.vrefint_cal = vrefint;
- 		}
- 	}
- 
-@@ -2020,7 +2025,9 @@ static int stm32_adc_generic_chan_init(struct iio_dev *indio_dev,
- 			}
- 			strncpy(adc->chan_name[val], name, STM32_ADC_CH_SZ);
- 			ret = stm32_adc_populate_int_ch(indio_dev, name, val);
--			if (ret)
-+			if (ret == -ENOENT)
-+				continue;
-+			else if (ret)
- 				goto err;
- 		} else if (ret != -EINVAL) {
- 			dev_err(&indio_dev->dev, "Invalid label %d\n", ret);
+ 	for (i = 0; i < 10; i++) {
+ 		usleep_range(100, 200);
 -- 
 2.36.1
 
