@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4593A551C33
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 668FA551CBE
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343841AbiFTNQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:16:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
+        id S245136AbiFTNKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:10:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245521AbiFTNPT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:15:19 -0400
+        with ESMTP id S245760AbiFTNJX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:23 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A40F1205DB;
-        Mon, 20 Jun 2022 06:07:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48D2F140C8;
+        Mon, 20 Jun 2022 06:04:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6C33B811E4;
-        Mon, 20 Jun 2022 13:07:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30CACC341C4;
-        Mon, 20 Jun 2022 13:07:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56380B811C7;
+        Mon, 20 Jun 2022 13:03:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEFD8C3411C;
+        Mon, 20 Jun 2022 13:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730443;
-        bh=ewSc+jsaxjM97OMqH/o18M9kZ/tKjUODyLRSXvYtIVU=;
+        s=korg; t=1655730180;
+        bh=2z4c6ngJf6xurMeJ8N0W5YwV8lHbYi8zmLT5XrlYOWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DJ7FsYxz6LZm/sU3CvNU/SfXQI2tvqZl7glifLoHKnuvMW7hl97D4kttubXo5shLG
-         C7yMQiiS9QLgLBvQRUK7AgUtRGGYKxzCpjTb+MAGSiLlYoizHTVPsWjnUBhEzLkOxd
-         2foXjHMtRT0a8EJ/m5obISN2F+NPPQ9Wle01Gqx8=
+        b=PpiiflmiU/C7C1h/d5f6ip4G+kZbWIwn4XHOqIJF5BPh6hA+eOCVSNI8b5YyuPAQb
+         kf6G2zQ6xBjRzpMkCMcerfwpZPMK++Eak9ardqAAIyN1wTLCR0zXIC0MIedkV7tvo9
+         vGRq4zAO5QGWNbs0asRpKKua6UujdRxTEO+86Fq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Saurabh Sengar <ssengar@linux.microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 054/106] Drivers: hv: vmbus: Release cpu lock in error case
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        "Ivan T. Ivanov" <iivanov@suse.de>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 50/84] arm64: ftrace: fix branch range checks
 Date:   Mon, 20 Jun 2022 14:51:13 +0200
-Message-Id: <20220620124725.998075971@linuxfoundation.org>
+Message-Id: <20220620124722.369924208@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +58,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurabh Sengar <ssengar@linux.microsoft.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 656c5ba50b7172a0ea25dc1b37606bd51d01fe8d ]
+[ Upstream commit 3eefdf9d1e406f3da47470b2854347009ffcb6fa ]
 
-In case of invalid sub channel, release cpu lock before returning.
+The branch range checks in ftrace_make_call() and ftrace_make_nop() are
+incorrect, erroneously permitting a forwards branch of 128M and
+erroneously rejecting a backwards branch of 128M.
 
-Fixes: a949e86c0d780 ("Drivers: hv: vmbus: Resolve race between init_vp_index() and CPU hotplug")
-Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1654794996-13244-1-git-send-email-ssengar@linux.microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+This is because both functions calculate the offset backwards,
+calculating the offset *from* the target *to* the branch, rather than
+the other way around as the later comparisons expect.
+
+If an out-of-range branch were erroeously permitted, this would later be
+rejected by aarch64_insn_gen_branch_imm() as branch_imm_common() checks
+the bounds correctly, resulting in warnings and the placement of a BRK
+instruction. Note that this can only happen for a forwards branch of
+exactly 128M, and so the caller would need to be exactly 128M bytes
+below the relevant ftrace trampoline.
+
+If an in-range branch were erroeously rejected, then:
+
+* For modules when CONFIG_ARM64_MODULE_PLTS=y, this would result in the
+  use of a PLT entry, which is benign.
+
+  Note that this is the common case, as this is selected by
+  CONFIG_RANDOMIZE_BASE (and therefore RANDOMIZE_MODULE_REGION_FULL),
+  which distributions typically seelct. This is also selected by
+  CONFIG_ARM64_ERRATUM_843419.
+
+* For modules when CONFIG_ARM64_MODULE_PLTS=n, this would result in
+  internal ftrace failures.
+
+* For core kernel text, this would result in internal ftrace failues.
+
+  Note that for this to happen, the kernel text would need to be at
+  least 128M bytes in size, and typical configurations are smaller tha
+  this.
+
+Fix this by calculating the offset *from* the branch *to* the target in
+both functions.
+
+Fixes: f8af0b364e24 ("arm64: ftrace: don't validate branch via PLT in ftrace_make_nop()")
+Fixes: e71a4e1bebaf ("arm64: ftrace: add support for far branches to dynamic ftrace")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Tested-by: "Ivan T. Ivanov" <iivanov@suse.de>
+Reviewed-by: Chengming Zhou <zhouchengming@bytedance.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20220614080944.1349146-2-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/channel_mgmt.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/kernel/ftrace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
-index ce76fc382799..07003019263a 100644
---- a/drivers/hv/channel_mgmt.c
-+++ b/drivers/hv/channel_mgmt.c
-@@ -637,6 +637,7 @@ static void vmbus_process_offer(struct vmbus_channel *newchannel)
- 		 */
- 		if (newchannel->offermsg.offer.sub_channel_index == 0) {
- 			mutex_unlock(&vmbus_connection.channel_mutex);
-+			cpus_read_unlock();
- 			/*
- 			 * Don't call free_channel(), because newchannel->kobj
- 			 * is not initialized yet.
+diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
+index 86a5cf9bc19a..e21a01b99999 100644
+--- a/arch/arm64/kernel/ftrace.c
++++ b/arch/arm64/kernel/ftrace.c
+@@ -83,7 +83,7 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
+ {
+ 	unsigned long pc = rec->ip;
+ 	u32 old, new;
+-	long offset = (long)pc - (long)addr;
++	long offset = (long)addr - (long)pc;
+ 
+ 	if (offset < -SZ_128M || offset >= SZ_128M) {
+ 		struct module *mod;
+@@ -182,7 +182,7 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
+ 	unsigned long pc = rec->ip;
+ 	bool validate = true;
+ 	u32 old = 0, new;
+-	long offset = (long)pc - (long)addr;
++	long offset = (long)addr - (long)pc;
+ 
+ 	if (offset < -SZ_128M || offset >= SZ_128M) {
+ 		u32 replaced;
 -- 
 2.35.1
 
