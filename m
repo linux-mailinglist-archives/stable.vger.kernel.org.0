@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C344C551E75
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0EA8551ECB
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241574AbiFTOCC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:02:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44182 "EHLO
+        id S1349114AbiFTOAu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:00:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351873AbiFTNzf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:55:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70BD5344F2;
-        Mon, 20 Jun 2022 06:21:42 -0700 (PDT)
+        with ESMTP id S1351918AbiFTNzj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:55:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A224C34645;
+        Mon, 20 Jun 2022 06:21:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE01A60FF3;
-        Mon, 20 Jun 2022 13:21:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1747C341C5;
-        Mon, 20 Jun 2022 13:21:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B68A2B80E7D;
+        Mon, 20 Jun 2022 13:21:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08C0AC3411B;
+        Mon, 20 Jun 2022 13:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731299;
-        bh=ytZ1+hFyV2RqybENQgs4g/BucLFJXxFLio4+veEmxzc=;
+        s=korg; t=1655731302;
+        bh=OR3RQNyE27ZIpiYht6F5EFvIBUfv9fN4ckMXp3vcjGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KOHp0NJYFhbjaHZAEJyIGQDQ1c13v0+AUXGErPd8Ajo6lFUol4rBIQu2pt+Ey0F1l
-         wjovJDgCzsMat7lK43cxcKOwrIPbate8hhk8IGPu/IH5YDpc812xjUKY9Mehs1zRtq
-         ULsJryZ2L0ngtMOLm2kLE5wvXgURGFNqNZ8cf9Cc=
+        b=xoWaOU2L6THJTISXs/w3YxbbKMPJpGpi7DGX18RHtrputTRcGE1Vl2FWYxk3Jx3J3
+         RP4ffhKT8w6zaBHkM/hUX61RAOCBDzn5QriHeVQEBneyas8kKBTaFvFEFSJvLp0re/
+         1snZlU+OlsMmOJZoCRDQ9J/3V7nsRChrWi+63BU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 216/240] faddr2line: Fix overlapping text section failures, the sequel
-Date:   Mon, 20 Jun 2022 14:51:57 +0200
-Message-Id: <20220620124745.230302229@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 217/240] irqchip/gic/realview: Fix refcount leak in realview_gic_of_init
+Date:   Mon, 20 Jun 2022 14:51:58 +0200
+Message-Id: <20220620124745.258304360@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -54,137 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit dcea997beed694cbd8705100ca1a6eb0d886de69 ]
+[ Upstream commit f4b98e314888cc51486421bcf6d52852452ea48b ]
 
-If a function lives in a section other than .text, but .text also exists
-in the object, faddr2line may wrongly assume .text.  This can result in
-comically wrong output.  For example:
+of_find_matching_node_and_match() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-  $ scripts/faddr2line vmlinux.o enter_from_user_mode+0x1c
-  enter_from_user_mode+0x1c/0x30:
-  find_next_bit at /home/jpoimboe/git/linux/./include/linux/find.h:40
-  (inlined by) perf_clear_dirty_counters at /home/jpoimboe/git/linux/arch/x86/events/core.c:2504
-
-Fix it by passing the section name to addr2line, unless the object file
-is vmlinux, in which case the symbol table uses absolute addresses.
-
-Fixes: 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section failures")
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Link: https://lore.kernel.org/r/7d25bc1408bd3a750ac26e60d2f2815a5f4a8363.1654130536.git.jpoimboe@kernel.org
+Fixes: 82b0a434b436 ("irqchip/gic/realview: Support more RealView DCC variants")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220601080930.31005-2-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/faddr2line | 45 ++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 34 insertions(+), 11 deletions(-)
+ drivers/irqchip/irq-gic-realview.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/scripts/faddr2line b/scripts/faddr2line
-index 0e6268d59883..94ed98dd899f 100755
---- a/scripts/faddr2line
-+++ b/scripts/faddr2line
-@@ -95,17 +95,25 @@ __faddr2line() {
- 	local print_warnings=$4
+diff --git a/drivers/irqchip/irq-gic-realview.c b/drivers/irqchip/irq-gic-realview.c
+index b4c1924f0255..38fab02ffe9d 100644
+--- a/drivers/irqchip/irq-gic-realview.c
++++ b/drivers/irqchip/irq-gic-realview.c
+@@ -57,6 +57,7 @@ realview_gic_of_init(struct device_node *node, struct device_node *parent)
  
- 	local sym_name=${func_addr%+*}
--	local offset=${func_addr#*+}
--	offset=${offset%/*}
-+	local func_offset=${func_addr#*+}
-+	func_offset=${func_offset%/*}
- 	local user_size=
-+	local file_type
-+	local is_vmlinux=0
- 	[[ $func_addr =~ "/" ]] && user_size=${func_addr#*/}
- 
--	if [[ -z $sym_name ]] || [[ -z $offset ]] || [[ $sym_name = $func_addr ]]; then
-+	if [[ -z $sym_name ]] || [[ -z $func_offset ]] || [[ $sym_name = $func_addr ]]; then
- 		warn "bad func+offset $func_addr"
- 		DONE=1
- 		return
- 	fi
- 
-+	# vmlinux uses absolute addresses in the section table rather than
-+	# section offsets.
-+	local file_type=$(${READELF} --file-header $objfile |
-+		${AWK} '$1 == "Type:" { print $2; exit }')
-+	[[ $file_type = "EXEC" ]] && is_vmlinux=1
-+
- 	# Go through each of the object's symbols which match the func name.
- 	# In rare cases there might be duplicates, in which case we print all
- 	# matches.
-@@ -114,9 +122,11 @@ __faddr2line() {
- 		local sym_addr=0x${fields[1]}
- 		local sym_elf_size=${fields[2]}
- 		local sym_sec=${fields[6]}
-+		local sec_size
-+		local sec_name
- 
- 		# Get the section size:
--		local sec_size=$(${READELF} --section-headers --wide $objfile |
-+		sec_size=$(${READELF} --section-headers --wide $objfile |
- 			sed 's/\[ /\[/' |
- 			${AWK} -v sec=$sym_sec '$1 == "[" sec "]" { print "0x" $6; exit }')
- 
-@@ -126,6 +136,17 @@ __faddr2line() {
- 			return
- 		fi
- 
-+		# Get the section name:
-+		sec_name=$(${READELF} --section-headers --wide $objfile |
-+			sed 's/\[ /\[/' |
-+			${AWK} -v sec=$sym_sec '$1 == "[" sec "]" { print $2; exit }')
-+
-+		if [[ -z $sec_name ]]; then
-+			warn "bad section name: section: $sym_sec"
-+			DONE=1
-+			return
-+		fi
-+
- 		# Calculate the symbol size.
- 		#
- 		# Unfortunately we can't use the ELF size, because kallsyms
-@@ -174,10 +195,10 @@ __faddr2line() {
- 
- 		sym_size=0x$(printf %x $sym_size)
- 
--		# Calculate the section address from user-supplied offset:
--		local addr=$(($sym_addr + $offset))
-+		# Calculate the address from user-supplied offset:
-+		local addr=$(($sym_addr + $func_offset))
- 		if [[ -z $addr ]] || [[ $addr = 0 ]]; then
--			warn "bad address: $sym_addr + $offset"
-+			warn "bad address: $sym_addr + $func_offset"
- 			DONE=1
- 			return
- 		fi
-@@ -191,9 +212,9 @@ __faddr2line() {
- 		fi
- 
- 		# Make sure the provided offset is within the symbol's range:
--		if [[ $offset -gt $sym_size ]]; then
-+		if [[ $func_offset -gt $sym_size ]]; then
- 			[[ $print_warnings = 1 ]] &&
--				echo "skipping $sym_name address at $addr due to size mismatch ($offset > $sym_size)"
-+				echo "skipping $sym_name address at $addr due to size mismatch ($func_offset > $sym_size)"
- 			continue
- 		fi
- 
-@@ -202,11 +223,13 @@ __faddr2line() {
- 		[[ $FIRST = 0 ]] && echo
- 		FIRST=0
- 
--		echo "$sym_name+$offset/$sym_size:"
-+		echo "$sym_name+$func_offset/$sym_size:"
- 
- 		# Pass section address to addr2line and strip absolute paths
- 		# from the output:
--		local output=$(${ADDR2LINE} -fpie $objfile $addr | sed "s; $dir_prefix\(\./\)*; ;")
-+		local args="--functions --pretty-print --inlines --exe=$objfile"
-+		[[ $is_vmlinux = 0 ]] && args="$args --section=$sec_name"
-+		local output=$(${ADDR2LINE} $args $addr | sed "s; $dir_prefix\(\./\)*; ;")
- 		[[ -z $output ]] && continue
- 
- 		# Default output (non --list):
+ 	/* The PB11MPCore GIC needs to be configured in the syscon */
+ 	map = syscon_node_to_regmap(np);
++	of_node_put(np);
+ 	if (!IS_ERR(map)) {
+ 		/* new irq mode with no DCC */
+ 		regmap_write(map, REALVIEW_SYS_LOCK_OFFSET,
 -- 
 2.35.1
 
