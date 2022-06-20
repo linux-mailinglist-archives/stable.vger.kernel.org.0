@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABE1C551DD6
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B10D6551E45
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349410AbiFTOCl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:02:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45278 "EHLO
+        id S239649AbiFTOAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:00:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352842AbiFTN5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:57:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78B5736B63;
+        with ESMTP id S1352818AbiFTN5H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:57:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78BE736B76;
         Mon, 20 Jun 2022 06:23:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1357EB80E78;
-        Mon, 20 Jun 2022 13:22:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62310C341CA;
-        Mon, 20 Jun 2022 13:22:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8048360FAD;
+        Mon, 20 Jun 2022 13:23:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 754DDC341C0;
+        Mon, 20 Jun 2022 13:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731377;
-        bh=OGbCoJXUuZjhdXifhTqNW6HdfxPMFypJMYAS7DP509w=;
+        s=korg; t=1655731380;
+        bh=XaQf1WtlNVXvORkpGmBBusqXihg7/XyyCNcKtkHJsc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enaDXNcgDYE12zAZcUR/nAF8jZGwsMZegzMf1EdthbyZtMoJNr7tdT6emz6b7tvL6
-         QjdJjlD+LfoDF/PkioBfPcoi/x0auNChk6G7eTR7yYvHgOaqWVisuHnQ+05XffbePs
-         So/lCl2fK16XUUfDqwW48q3Il5PTBMjqg93ogIyg=
+        b=IJPMpN6TvW5MuBdwtEJVACuX14OSQF4VNf7yVo0b2v1tVQArBaGO6X6Rm6op2ESb7
+         IT4z5T/8EGG654qwQIoe0Y9WhooE4Wt3ul4lBXujzO5vEfbwvLjh6xb3N+XdaJ8zTC
+         O08yxPbYECeVLNpUWbypoUc/hgtrFqCyEFZej4pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Subject: [PATCH 5.4 237/240] arm64: kprobes: Use BRK instead of single-step when executing instructions out-of-line
-Date:   Mon, 20 Jun 2022 14:52:18 +0200
-Message-Id: <20220620124745.818296028@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Schwab <schwab@linux-m68k.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.4 238/240] RISC-V: fix barrier() use in <vdso/processor.h>
+Date:   Mon, 20 Jun 2022 14:52:19 +0200
+Message-Id: <20220620124745.846319559@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -55,235 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 7ee31a3aa8f490c6507bc4294df6b70bed1c593e upstream.
+commit 30aca1bacb398dec6c1ed5eeca33f355bd7b6203 upstream.
 
-Commit 36dadef23fcc ("kprobes: Init kprobes in early_initcall") enabled
-using kprobes from early_initcall. Unfortunately at this point the
-hardware debug infrastructure is not operational. The OS lock may still
-be locked, and the hardware watchpoints may have unknown values when
-kprobe enables debug monitors to single-step instructions.
+riscv's <vdso/processor.h> uses barrier() so it should include
+<asm/barrier.h>
 
-Rather than using hardware single-step, append a BRK instruction after
-the instruction to be executed out-of-line.
+Fixes this build error:
+  CC [M]  drivers/net/ethernet/emulex/benet/be_main.o
+In file included from ./include/vdso/processor.h:10,
+                 from ./arch/riscv/include/asm/processor.h:11,
+                 from ./include/linux/prefetch.h:15,
+                 from drivers/net/ethernet/emulex/benet/be_main.c:14:
+./arch/riscv/include/asm/vdso/processor.h: In function 'cpu_relax':
+./arch/riscv/include/asm/vdso/processor.h:14:2: error: implicit declaration of function 'barrier' [-Werror=implicit-function-declaration]
+   14 |  barrier();
 
-Fixes: 36dadef23fcc ("kprobes: Init kprobes in early_initcall")
-Suggested-by: Will Deacon <will@kernel.org>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20201103134900.337243-1-jean-philippe@linaro.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+This happens with a total of 5 networking drivers -- they all use
+<linux/prefetch.h>.
+
+rv64 allmodconfig now builds cleanly after this patch.
+
+Fixes fallout from:
+815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
+
+Fixes: ad5d1122b82f ("riscv: use vDSO common flow to reduce the latency of the time-related functions")
+Reported-by: Andreas Schwab <schwab@linux-m68k.org>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Acked-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+[sudip: change in old path]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/brk-imm.h        |    2 
- arch/arm64/include/asm/debug-monitors.h |    1 
- arch/arm64/include/asm/kprobes.h        |    2 
- arch/arm64/kernel/probes/kprobes.c      |   69 ++++++++++----------------------
- 4 files changed, 27 insertions(+), 47 deletions(-)
+ arch/riscv/include/asm/processor.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/arm64/include/asm/brk-imm.h
-+++ b/arch/arm64/include/asm/brk-imm.h
-@@ -10,6 +10,7 @@
-  * #imm16 values used for BRK instruction generation
-  * 0x004: for installing kprobes
-  * 0x005: for installing uprobes
-+ * 0x006: for kprobe software single-step
-  * Allowed values for kgdb are 0x400 - 0x7ff
-  * 0x100: for triggering a fault on purpose (reserved)
-  * 0x400: for dynamic BRK instruction
-@@ -19,6 +20,7 @@
-  */
- #define KPROBES_BRK_IMM			0x004
- #define UPROBES_BRK_IMM			0x005
-+#define KPROBES_BRK_SS_IMM		0x006
- #define FAULT_BRK_IMM			0x100
- #define KGDB_DYN_DBG_BRK_IMM		0x400
- #define KGDB_COMPILED_DBG_BRK_IMM	0x401
---- a/arch/arm64/include/asm/debug-monitors.h
-+++ b/arch/arm64/include/asm/debug-monitors.h
-@@ -53,6 +53,7 @@
+--- a/arch/riscv/include/asm/processor.h
++++ b/arch/riscv/include/asm/processor.h
+@@ -22,6 +22,8 @@
  
- /* kprobes BRK opcodes with ESR encoding  */
- #define BRK64_OPCODE_KPROBES	(AARCH64_BREAK_MON | (KPROBES_BRK_IMM << 5))
-+#define BRK64_OPCODE_KPROBES_SS	(AARCH64_BREAK_MON | (KPROBES_BRK_SS_IMM << 5))
- /* uprobes BRK opcodes with ESR encoding  */
- #define BRK64_OPCODE_UPROBES	(AARCH64_BREAK_MON | (UPROBES_BRK_IMM << 5))
+ #ifndef __ASSEMBLY__
  
---- a/arch/arm64/include/asm/kprobes.h
-+++ b/arch/arm64/include/asm/kprobes.h
-@@ -16,7 +16,7 @@
- #include <linux/percpu.h>
- 
- #define __ARCH_WANT_KPROBES_INSN_SLOT
--#define MAX_INSN_SIZE			1
-+#define MAX_INSN_SIZE			2
- 
- #define flush_insn_slot(p)		do { } while (0)
- #define kretprobe_blacklist_size	0
---- a/arch/arm64/kernel/probes/kprobes.c
-+++ b/arch/arm64/kernel/probes/kprobes.c
-@@ -36,25 +36,16 @@ DEFINE_PER_CPU(struct kprobe_ctlblk, kpr
- static void __kprobes
- post_kprobe_handler(struct kprobe_ctlblk *, struct pt_regs *);
- 
--static int __kprobes patch_text(kprobe_opcode_t *addr, u32 opcode)
--{
--	void *addrs[1];
--	u32 insns[1];
--
--	addrs[0] = addr;
--	insns[0] = opcode;
--
--	return aarch64_insn_patch_text(addrs, insns, 1);
--}
--
- static void __kprobes arch_prepare_ss_slot(struct kprobe *p)
- {
-+	kprobe_opcode_t *addr = p->ainsn.api.insn;
-+	void *addrs[] = {addr, addr + 1};
-+	u32 insns[] = {p->opcode, BRK64_OPCODE_KPROBES_SS};
++#include <asm/barrier.h>
 +
- 	/* prepare insn slot */
--	patch_text(p->ainsn.api.insn, p->opcode);
-+	aarch64_insn_patch_text(addrs, insns, 2);
+ struct task_struct;
+ struct pt_regs;
  
--	flush_icache_range((uintptr_t) (p->ainsn.api.insn),
--			   (uintptr_t) (p->ainsn.api.insn) +
--			   MAX_INSN_SIZE * sizeof(kprobe_opcode_t));
-+	flush_icache_range((uintptr_t)addr, (uintptr_t)(addr + MAX_INSN_SIZE));
- 
- 	/*
- 	 * Needs restoring of return address after stepping xol.
-@@ -134,13 +125,18 @@ void *alloc_insn_page(void)
- /* arm kprobe: install breakpoint in text */
- void __kprobes arch_arm_kprobe(struct kprobe *p)
- {
--	patch_text(p->addr, BRK64_OPCODE_KPROBES);
-+	void *addr = p->addr;
-+	u32 insn = BRK64_OPCODE_KPROBES;
-+
-+	aarch64_insn_patch_text(&addr, &insn, 1);
- }
- 
- /* disarm kprobe: remove breakpoint from text */
- void __kprobes arch_disarm_kprobe(struct kprobe *p)
- {
--	patch_text(p->addr, p->opcode);
-+	void *addr = p->addr;
-+
-+	aarch64_insn_patch_text(&addr, &p->opcode, 1);
- }
- 
- void __kprobes arch_remove_kprobe(struct kprobe *p)
-@@ -169,20 +165,15 @@ static void __kprobes set_current_kprobe
- }
- 
- /*
-- * Interrupts need to be disabled before single-step mode is set, and not
-- * reenabled until after single-step mode ends.
-- * Without disabling interrupt on local CPU, there is a chance of
-- * interrupt occurrence in the period of exception return and  start of
-- * out-of-line single-step, that result in wrongly single stepping
-- * into the interrupt handler.
-+ * Mask all of DAIF while executing the instruction out-of-line, to keep things
-+ * simple and avoid nesting exceptions. Interrupts do have to be disabled since
-+ * the kprobe state is per-CPU and doesn't get migrated.
-  */
- static void __kprobes kprobes_save_local_irqflag(struct kprobe_ctlblk *kcb,
- 						struct pt_regs *regs)
- {
- 	kcb->saved_irqflag = regs->pstate & DAIF_MASK;
--	regs->pstate |= PSR_I_BIT;
--	/* Unmask PSTATE.D for enabling software step exceptions. */
--	regs->pstate &= ~PSR_D_BIT;
-+	regs->pstate |= DAIF_MASK;
- }
- 
- static void __kprobes kprobes_restore_local_irqflag(struct kprobe_ctlblk *kcb,
-@@ -225,10 +216,7 @@ static void __kprobes setup_singlestep(s
- 		slot = (unsigned long)p->ainsn.api.insn;
- 
- 		set_ss_context(kcb, slot);	/* mark pending ss */
--
--		/* IRQs and single stepping do not mix well. */
- 		kprobes_save_local_irqflag(kcb, regs);
--		kernel_enable_single_step(regs);
- 		instruction_pointer_set(regs, slot);
- 	} else {
- 		/* insn simulation */
-@@ -279,12 +267,8 @@ post_kprobe_handler(struct kprobe_ctlblk
- 	}
- 	/* call post handler */
- 	kcb->kprobe_status = KPROBE_HIT_SSDONE;
--	if (cur->post_handler)	{
--		/* post_handler can hit breakpoint and single step
--		 * again, so we enable D-flag for recursive exception.
--		 */
-+	if (cur->post_handler)
- 		cur->post_handler(cur, regs, 0);
--	}
- 
- 	reset_current_kprobe();
- }
-@@ -308,8 +292,6 @@ int __kprobes kprobe_fault_handler(struc
- 		if (!instruction_pointer(regs))
- 			BUG();
- 
--		kernel_disable_single_step();
--
- 		if (kcb->kprobe_status == KPROBE_REENTER)
- 			restore_previous_kprobe(kcb);
- 		else
-@@ -371,10 +353,6 @@ static void __kprobes kprobe_handler(str
- 			 * pre-handler and it returned non-zero, it will
- 			 * modify the execution path and no need to single
- 			 * stepping. Let's just reset current kprobe and exit.
--			 *
--			 * pre_handler can hit a breakpoint and can step thru
--			 * before return, keep PSTATE D-flag enabled until
--			 * pre_handler return back.
- 			 */
- 			if (!p->pre_handler || !p->pre_handler(p, regs)) {
- 				setup_singlestep(p, regs, kcb, 0);
-@@ -405,7 +383,7 @@ kprobe_ss_hit(struct kprobe_ctlblk *kcb,
- }
- 
- static int __kprobes
--kprobe_single_step_handler(struct pt_regs *regs, unsigned int esr)
-+kprobe_breakpoint_ss_handler(struct pt_regs *regs, unsigned int esr)
- {
- 	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
- 	int retval;
-@@ -415,16 +393,15 @@ kprobe_single_step_handler(struct pt_reg
- 
- 	if (retval == DBG_HOOK_HANDLED) {
- 		kprobes_restore_local_irqflag(kcb, regs);
--		kernel_disable_single_step();
--
- 		post_kprobe_handler(kcb, regs);
- 	}
- 
- 	return retval;
- }
- 
--static struct step_hook kprobes_step_hook = {
--	.fn = kprobe_single_step_handler,
-+static struct break_hook kprobes_break_ss_hook = {
-+	.imm = KPROBES_BRK_SS_IMM,
-+	.fn = kprobe_breakpoint_ss_handler,
- };
- 
- static int __kprobes
-@@ -568,7 +545,7 @@ int __kprobes arch_trampoline_kprobe(str
- int __init arch_init_kprobes(void)
- {
- 	register_kernel_break_hook(&kprobes_break_hook);
--	register_kernel_step_hook(&kprobes_step_hook);
-+	register_kernel_break_hook(&kprobes_break_ss_hook);
- 
- 	return 0;
- }
 
 
