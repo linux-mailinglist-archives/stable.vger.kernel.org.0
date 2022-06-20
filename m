@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 424B4551A70
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92516551C44
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243573AbiFTNA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:00:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37204 "EHLO
+        id S1347534AbiFTNpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:45:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243673AbiFTM62 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:58:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01356193CB;
-        Mon, 20 Jun 2022 05:55:48 -0700 (PDT)
+        with ESMTP id S1348324AbiFTNnp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:43:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA58F2B27C;
+        Mon, 20 Jun 2022 06:15:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 644C3B811AC;
-        Mon, 20 Jun 2022 12:55:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC0E7C3411B;
-        Mon, 20 Jun 2022 12:55:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83903B811E1;
+        Mon, 20 Jun 2022 13:15:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B95C341C0;
+        Mon, 20 Jun 2022 13:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729744;
-        bh=PCNgaEBVRKBmezcn+MpndPZjURty+KU0BWVj3KL5+4Q=;
+        s=korg; t=1655730924;
+        bh=nBIrK65y4Z+lIqo3uyfFJGQ7Z+6nhhza/5yLAwPOjTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=biIL677foJ2TVZyRUg7eN0rNqZptOgyldhUNRZUjKOu2HgGpNjC7mVyFvSSXUShP6
-         hXDgrM9WLsSLYWVXdT+YEOCWoNQqbeI5sdAx/R/ZOLBvHpKRzc8X50rSSzUUXQ2pnh
-         9D684JDLSbRwt2kDKLxX9AJDu67iqn0EpEgHV7jw=
+        b=yL/VlYcp3J6yyubR/bInFm22m9Mow38sPD2n65xNCHQt+pqtLpE0fBKcs++UQkEXX
+         5BQ1zR0Gb0nG1CPZQ3Q/c5inWhsa8iS09DMuTBIG8miSDnv7w6YsRXHf1omXGQ+UlL
+         5kmJkipFhFO34A2NTAC44vKoNSVIObK8MbJ3OA+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.18 060/141] i40e: Fix call trace in setup_tx_descriptors
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Eric Biggers <ebiggers@google.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 097/240] random: group userspace read/write functions
 Date:   Mon, 20 Jun 2022 14:49:58 +0200
-Message-Id: <20220620124731.312906413@linuxfoundation.org>
+Message-Id: <20220620124741.827434754@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,83 +55,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit fd5855e6b1358e816710afee68a1d2bc685176ca ]
+commit a6adf8e7a605250b911e94793fd077933709ff9e upstream.
 
-After PF reset and ethtool -t there was call trace in dmesg
-sometimes leading to panic. When there was some time, around 5
-seconds, between reset and test there were no errors.
+This pulls all of the userspace read/write-focused functions into the
+fifth labeled section.
 
-Problem was that pf reset calls i40e_vsi_close in prep_for_reset
-and ethtool -t calls i40e_vsi_close in diag_test. If there was not
-enough time between those commands the second i40e_vsi_close starts
-before previous i40e_vsi_close was done which leads to crash.
+No functional changes.
 
-Add check to diag_test if pf is in reset and don't start offline
-tests if it is true.
-Add netif_info("testing failed") into unhappy path of i40e_diag_test()
-
-Fixes: e17bc411aea8 ("i40e: Disable offline diagnostics if VFs are enabled")
-Fixes: 510efb2682b3 ("i40e: Fix ethtool offline diagnostic with netqueues")
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/intel/i40e/i40e_ethtool.c    | 25 +++++++++++++------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ drivers/char/random.c |  125 ++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 77 insertions(+), 48 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index e48499624d22..06c05a6b8b71 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -2584,15 +2584,16 @@ static void i40e_diag_test(struct net_device *netdev,
- 
- 		set_bit(__I40E_TESTING, pf->state);
- 
-+		if (test_bit(__I40E_RESET_RECOVERY_PENDING, pf->state) ||
-+		    test_bit(__I40E_RESET_INTR_RECEIVED, pf->state)) {
-+			dev_warn(&pf->pdev->dev,
-+				 "Cannot start offline testing when PF is in reset state.\n");
-+			goto skip_ol_tests;
-+		}
-+
- 		if (i40e_active_vfs(pf) || i40e_active_vmdqs(pf)) {
- 			dev_warn(&pf->pdev->dev,
- 				 "Please take active VFs and Netqueues offline and restart the adapter before running NIC diagnostics\n");
--			data[I40E_ETH_TEST_REG]		= 1;
--			data[I40E_ETH_TEST_EEPROM]	= 1;
--			data[I40E_ETH_TEST_INTR]	= 1;
--			data[I40E_ETH_TEST_LINK]	= 1;
--			eth_test->flags |= ETH_TEST_FL_FAILED;
--			clear_bit(__I40E_TESTING, pf->state);
- 			goto skip_ol_tests;
- 		}
- 
-@@ -2639,9 +2640,17 @@ static void i40e_diag_test(struct net_device *netdev,
- 		data[I40E_ETH_TEST_INTR] = 0;
- 	}
- 
--skip_ol_tests:
--
- 	netif_info(pf, drv, netdev, "testing finished\n");
-+	return;
-+
-+skip_ol_tests:
-+	data[I40E_ETH_TEST_REG]		= 1;
-+	data[I40E_ETH_TEST_EEPROM]	= 1;
-+	data[I40E_ETH_TEST_INTR]	= 1;
-+	data[I40E_ETH_TEST_LINK]	= 1;
-+	eth_test->flags |= ETH_TEST_FL_FAILED;
-+	clear_bit(__I40E_TESTING, pf->state);
-+	netif_info(pf, drv, netdev, "testing failed\n");
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1472,30 +1472,61 @@ static void try_to_generate_entropy(void
+ 	mix_pool_bytes(&stack.now, sizeof(stack.now));
  }
  
- static void i40e_get_wol(struct net_device *netdev,
--- 
-2.35.1
-
+-static ssize_t urandom_read(struct file *file, char __user *buf, size_t nbytes,
+-			    loff_t *ppos)
++
++/**********************************************************************
++ *
++ * Userspace reader/writer interfaces.
++ *
++ * getrandom(2) is the primary modern interface into the RNG and should
++ * be used in preference to anything else.
++ *
++ * Reading from /dev/random has the same functionality as calling
++ * getrandom(2) with flags=0. In earlier versions, however, it had
++ * vastly different semantics and should therefore be avoided, to
++ * prevent backwards compatibility issues.
++ *
++ * Reading from /dev/urandom has the same functionality as calling
++ * getrandom(2) with flags=GRND_INSECURE. Because it does not block
++ * waiting for the RNG to be ready, it should not be used.
++ *
++ * Writing to either /dev/random or /dev/urandom adds entropy to
++ * the input pool but does not credit it.
++ *
++ * Polling on /dev/random indicates when the RNG is initialized, on
++ * the read side, and when it wants new entropy, on the write side.
++ *
++ * Both /dev/random and /dev/urandom have the same set of ioctls for
++ * adding entropy, getting the entropy count, zeroing the count, and
++ * reseeding the crng.
++ *
++ **********************************************************************/
++
++SYSCALL_DEFINE3(getrandom, char __user *, buf, size_t, count, unsigned int,
++		flags)
+ {
+-	static int maxwarn = 10;
++	if (flags & ~(GRND_NONBLOCK | GRND_RANDOM | GRND_INSECURE))
++		return -EINVAL;
+ 
+-	if (!crng_ready() && maxwarn > 0) {
+-		maxwarn--;
+-		if (__ratelimit(&urandom_warning))
+-			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
+-				  current->comm, nbytes);
+-	}
++	/*
++	 * Requesting insecure and blocking randomness at the same time makes
++	 * no sense.
++	 */
++	if ((flags & (GRND_INSECURE | GRND_RANDOM)) == (GRND_INSECURE | GRND_RANDOM))
++		return -EINVAL;
+ 
+-	return get_random_bytes_user(buf, nbytes);
+-}
++	if (count > INT_MAX)
++		count = INT_MAX;
+ 
+-static ssize_t random_read(struct file *file, char __user *buf, size_t nbytes,
+-			   loff_t *ppos)
+-{
+-	int ret;
++	if (!(flags & GRND_INSECURE) && !crng_ready()) {
++		int ret;
+ 
+-	ret = wait_for_random_bytes();
+-	if (ret != 0)
+-		return ret;
+-	return get_random_bytes_user(buf, nbytes);
++		if (flags & GRND_NONBLOCK)
++			return -EAGAIN;
++		ret = wait_for_random_bytes();
++		if (unlikely(ret))
++			return ret;
++	}
++	return get_random_bytes_user(buf, count);
+ }
+ 
+ static __poll_t random_poll(struct file *file, poll_table *wait)
+@@ -1547,6 +1578,32 @@ static ssize_t random_write(struct file
+ 	return (ssize_t)count;
+ }
+ 
++static ssize_t urandom_read(struct file *file, char __user *buf, size_t nbytes,
++			    loff_t *ppos)
++{
++	static int maxwarn = 10;
++
++	if (!crng_ready() && maxwarn > 0) {
++		maxwarn--;
++		if (__ratelimit(&urandom_warning))
++			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
++				  current->comm, nbytes);
++	}
++
++	return get_random_bytes_user(buf, nbytes);
++}
++
++static ssize_t random_read(struct file *file, char __user *buf, size_t nbytes,
++			   loff_t *ppos)
++{
++	int ret;
++
++	ret = wait_for_random_bytes();
++	if (ret != 0)
++		return ret;
++	return get_random_bytes_user(buf, nbytes);
++}
++
+ static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+ {
+ 	int size, ent_count;
+@@ -1555,7 +1612,7 @@ static long random_ioctl(struct file *f,
+ 
+ 	switch (cmd) {
+ 	case RNDGETENTCNT:
+-		/* inherently racy, no point locking */
++		/* Inherently racy, no point locking. */
+ 		if (put_user(input_pool.entropy_count, p))
+ 			return -EFAULT;
+ 		return 0;
+@@ -1631,34 +1688,6 @@ const struct file_operations urandom_fop
+ 	.llseek = noop_llseek,
+ };
+ 
+-SYSCALL_DEFINE3(getrandom, char __user *, buf, size_t, count, unsigned int,
+-		flags)
+-{
+-	if (flags & ~(GRND_NONBLOCK | GRND_RANDOM | GRND_INSECURE))
+-		return -EINVAL;
+-
+-	/*
+-	 * Requesting insecure and blocking randomness at the same time makes
+-	 * no sense.
+-	 */
+-	if ((flags & (GRND_INSECURE | GRND_RANDOM)) == (GRND_INSECURE | GRND_RANDOM))
+-		return -EINVAL;
+-
+-	if (count > INT_MAX)
+-		count = INT_MAX;
+-
+-	if (!(flags & GRND_INSECURE) && !crng_ready()) {
+-		int ret;
+-
+-		if (flags & GRND_NONBLOCK)
+-			return -EAGAIN;
+-		ret = wait_for_random_bytes();
+-		if (unlikely(ret))
+-			return ret;
+-	}
+-	return get_random_bytes_user(buf, count);
+-}
+-
+ /********************************************************************
+  *
+  * Sysctl interface
 
 
