@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1654551C85
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:49:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E09A5551C82
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:49:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344497AbiFTNY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:24:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37744 "EHLO
+        id S1345628AbiFTNOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:14:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346207AbiFTNY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FDF4237FE;
-        Mon, 20 Jun 2022 06:09:47 -0700 (PDT)
+        with ESMTP id S1343578AbiFTNMY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:12:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F5B11D328;
+        Mon, 20 Jun 2022 06:05:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA35EB811DC;
-        Mon, 20 Jun 2022 13:08:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D56DC3411B;
-        Mon, 20 Jun 2022 13:08:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1B8F614F4;
+        Mon, 20 Jun 2022 13:04:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B485DC3411B;
+        Mon, 20 Jun 2022 13:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730526;
-        bh=d+Sd3pkdwyWjKKIEML2KReblaje9FPliZz3Y2tO3UCM=;
+        s=korg; t=1655730245;
+        bh=GYU38HEj4rh8+X71tEHJGkKhTn4HiMBRUlYTJJu1n1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ooHsu/G9DVjQo4qc53c8TjzmNGTfY9gnGjDHLPHj3ISyINXFK000mIKolONTeaney
-         RrbkD4S+CQ1M1sPLBDdCtXtA89IyRdIPj3WFMwk+peTLzFFWKiV/BV9/sqxlihYWQ1
-         Oq9Vnadur14fjNpH930L1FecM/IsuNYqXH9QdK3k=
+        b=hS/P4HDDr67NvzmQmihjeEiq+otZoEN6SVshYrz9HoPZPK7W1tMjRz7ZgmfzmWhZn
+         0BiVDXshGmu+BdUIX2MzjSFwQGOTsGfy2lABIJ+HBr34Cf5r1BdN2nmF1k5LB2PeH7
+         ktr8k/CDzsMo2suvVhLw0neddIsYEPg77XEOlVLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.15 081/106] mei: hbm: drop capability response on early shutdown
-Date:   Mon, 20 Jun 2022 14:51:40 +0200
-Message-Id: <20220620124726.790509332@linuxfoundation.org>
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        David Rientjes <rientjes@google.com>
+Subject: [PATCH 5.10 78/84] dma-direct: dont over-decrypt memory
+Date:   Mon, 20 Jun 2022 14:51:41 +0200
+Message-Id: <20220620124723.196723432@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit 68553650bc9c57c7e530c84e5b2945e9dfe1a560 upstream.
+commit 4a37f3dd9a83186cb88d44808ab35b78375082c9 upstream.
 
-Drop HBM responses also in the early shutdown phase where
-the usual traffic is allowed.
-Extend the rule that drop HBM responses received during the shutdown
-phase by also in MEI_DEV_POWERING_DOWN state.
-This resolves the stall if the driver is stopping in the middle
-of the link initialization or link reset.
+The original x86 sev_alloc() only called set_memory_decrypted() on
+memory returned by alloc_pages_node(), so the page order calculation
+fell out of that logic. However, the common dma-direct code has several
+potential allocators, not all of which are guaranteed to round up the
+underlying allocation to a power-of-two size, so carrying over that
+calculation for the encryption/decryption size was a mistake. Fix it by
+rounding to a *number* of pages, rather than an order.
 
-Drop the capabilities response on early shutdown.
+Until recently there was an even worse interaction with DMA_DIRECT_REMAP
+where we could have ended up decrypting part of the next adjacent
+vmalloc area, only averted by no architecture actually supporting both
+configs at once. Don't ask how I found that one out...
 
-Fixes: 6d7163f2c49f ("mei: hbm: drop hbm responses on early shutdown")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20220606144225.282375-2-tomas.winkler@intel.com
+Fixes: c10f07aa27da ("dma/direct: Handle force decryption for DMA coherent buffers in common code")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: David Rientjes <rientjes@google.com>
+[ backport the functional change without all the prior refactoring ]
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/hbm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/dma/direct.c |   16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
---- a/drivers/misc/mei/hbm.c
-+++ b/drivers/misc/mei/hbm.c
-@@ -1351,7 +1351,8 @@ int mei_hbm_dispatch(struct mei_device *
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -188,7 +188,7 @@ void *dma_direct_alloc(struct device *de
+ 			goto out_free_pages;
+ 		if (force_dma_unencrypted(dev)) {
+ 			err = set_memory_decrypted((unsigned long)ret,
+-						   1 << get_order(size));
++						   PFN_UP(size));
+ 			if (err)
+ 				goto out_free_pages;
+ 		}
+@@ -210,7 +210,7 @@ void *dma_direct_alloc(struct device *de
+ 	ret = page_address(page);
+ 	if (force_dma_unencrypted(dev)) {
+ 		err = set_memory_decrypted((unsigned long)ret,
+-					   1 << get_order(size));
++					   PFN_UP(size));
+ 		if (err)
+ 			goto out_free_pages;
+ 	}
+@@ -231,7 +231,7 @@ done:
+ out_encrypt_pages:
+ 	if (force_dma_unencrypted(dev)) {
+ 		err = set_memory_encrypted((unsigned long)page_address(page),
+-					   1 << get_order(size));
++					   PFN_UP(size));
+ 		/* If memory cannot be re-encrypted, it must be leaked */
+ 		if (err)
+ 			return NULL;
+@@ -244,8 +244,6 @@ out_free_pages:
+ void dma_direct_free(struct device *dev, size_t size,
+ 		void *cpu_addr, dma_addr_t dma_addr, unsigned long attrs)
+ {
+-	unsigned int page_order = get_order(size);
+-
+ 	if ((attrs & DMA_ATTR_NO_KERNEL_MAPPING) &&
+ 	    !force_dma_unencrypted(dev)) {
+ 		/* cpu_addr is a struct page cookie, not a kernel address */
+@@ -266,7 +264,7 @@ void dma_direct_free(struct device *dev,
+ 		return;
  
- 		if (dev->dev_state != MEI_DEV_INIT_CLIENTS ||
- 		    dev->hbm_state != MEI_HBM_CAP_SETUP) {
--			if (dev->dev_state == MEI_DEV_POWER_DOWN) {
-+			if (dev->dev_state == MEI_DEV_POWER_DOWN ||
-+			    dev->dev_state == MEI_DEV_POWERING_DOWN) {
- 				dev_dbg(dev->dev, "hbm: capabilities response: on shutdown, ignoring\n");
- 				return 0;
- 			}
+ 	if (force_dma_unencrypted(dev))
+-		set_memory_encrypted((unsigned long)cpu_addr, 1 << page_order);
++		set_memory_encrypted((unsigned long)cpu_addr, PFN_UP(size));
+ 
+ 	if (IS_ENABLED(CONFIG_DMA_REMAP) && is_vmalloc_addr(cpu_addr))
+ 		vunmap(cpu_addr);
+@@ -302,8 +300,7 @@ struct page *dma_direct_alloc_pages(stru
+ 
+ 	ret = page_address(page);
+ 	if (force_dma_unencrypted(dev)) {
+-		if (set_memory_decrypted((unsigned long)ret,
+-				1 << get_order(size)))
++		if (set_memory_decrypted((unsigned long)ret, PFN_UP(size)))
+ 			goto out_free_pages;
+ 	}
+ 	memset(ret, 0, size);
+@@ -318,7 +315,6 @@ void dma_direct_free_pages(struct device
+ 		struct page *page, dma_addr_t dma_addr,
+ 		enum dma_data_direction dir)
+ {
+-	unsigned int page_order = get_order(size);
+ 	void *vaddr = page_address(page);
+ 
+ 	/* If cpu_addr is not from an atomic pool, dma_free_from_pool() fails */
+@@ -327,7 +323,7 @@ void dma_direct_free_pages(struct device
+ 		return;
+ 
+ 	if (force_dma_unencrypted(dev))
+-		set_memory_encrypted((unsigned long)vaddr, 1 << page_order);
++		set_memory_encrypted((unsigned long)vaddr, PFN_UP(size));
+ 
+ 	dma_free_contiguous(dev, page, size);
+ }
 
 
