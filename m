@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD4E6551CD3
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E09F55198C
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346899AbiFTNhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:37:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37144 "EHLO
+        id S243057AbiFTMyL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:54:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346888AbiFTNgz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:36:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E64CC1EC44;
-        Mon, 20 Jun 2022 06:13:58 -0700 (PDT)
+        with ESMTP id S242983AbiFTMx7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:53:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9893317053;
+        Mon, 20 Jun 2022 05:53:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87BFD60ECD;
-        Mon, 20 Jun 2022 13:13:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90D60C3411B;
-        Mon, 20 Jun 2022 13:13:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 512EBB811AB;
+        Mon, 20 Jun 2022 12:53:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73CE5C3411B;
+        Mon, 20 Jun 2022 12:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730802;
-        bh=ZDfu5CQCYc0Tiz0YhFCXWlPQPKh8EEqa7qJFhykOJGs=;
+        s=korg; t=1655729627;
+        bh=tzW7zB6n+0Qkd9R+/zK1+fs/LETpXudDWxsaCRdi3+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mUedlm91mrDKBUdM3fbiJ/cSZzOBNm13bYC97VR9xRY2haeDWec11FO4EHg++3+AT
-         QxXaNqCeEz91X0UGaeQTE0d3u/whjfIuikFn0nulhJxa+MsWhfMxCYC6AltobTQq9/
-         uSrq9FTf9PTpaAVctGBeYbrJiXcFJ3GRJL9Zw4Fc=
+        b=Q6nXQ5nyOitwmIj62GsCRxwWHFT395+gHGvjUnhjhehS941cGTAM2m54idma0hN1j
+         ochIxNyoqaMGJUiMeEIlUMhO1lfUbeeb0dF67cx1/+4XR39fGFcKlYSvdXnTEdH8Fj
+         hsKGRcjaWanjDr4GfLTGyLCXeB2Kk9zWg8JQmbf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 059/240] random: access input_pool_data directly rather than through pointer
-Date:   Mon, 20 Jun 2022 14:49:20 +0200
-Message-Id: <20220620124739.999719553@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 023/141] ASoC: es8328: Fix event generation for deemphasis control
+Date:   Mon, 20 Jun 2022 14:49:21 +0200
+Message-Id: <20220620124730.210344113@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 6c0eace6e1499712583b6ee62d95161e8b3449f5 upstream.
+[ Upstream commit 8259610c2ec01c5cbfb61882ae176aabacac9c19 ]
 
-This gets rid of another abstraction we no longer need. It would be nice
-if we could instead make pool an array rather than a pointer, but the
-latent entropy plugin won't be able to do its magic in that case. So
-instead we put all accesses to the input pool's actual data through the
-input_pool_data array directly.
+Currently the put() method for the deemphasis control returns 0 when a new
+value is written to the control even if the value changed, meaning events
+are not generated. Fix this, skip the work of updating the value when it is
+unchanged and then return 1 after having done so.
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220603123937.4013603-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |   21 ++++++++-------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
+ sound/soc/codecs/es8328.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -496,17 +496,12 @@ MODULE_PARM_DESC(ratelimit_disable, "Dis
- static u32 input_pool_data[POOL_WORDS] __latent_entropy;
+diff --git a/sound/soc/codecs/es8328.c b/sound/soc/codecs/es8328.c
+index 3f00ead97006..dd53dfd87b04 100644
+--- a/sound/soc/codecs/es8328.c
++++ b/sound/soc/codecs/es8328.c
+@@ -161,13 +161,16 @@ static int es8328_put_deemph(struct snd_kcontrol *kcontrol,
+ 	if (deemph > 1)
+ 		return -EINVAL;
  
- static struct {
--	/* read-only data: */
--	u32 *pool;
--
--	/* read-write data: */
- 	spinlock_t lock;
- 	u16 add_ptr;
- 	u16 input_rotate;
- 	int entropy_count;
- } input_pool = {
- 	.lock = __SPIN_LOCK_UNLOCKED(input_pool.lock),
--	.pool = input_pool_data
- };
++	if (es8328->deemph == deemph)
++		return 0;
++
+ 	ret = es8328_set_deemph(component);
+ 	if (ret < 0)
+ 		return ret;
  
- static ssize_t extract_entropy(void *buf, size_t nbytes, int min);
-@@ -544,15 +539,15 @@ static void _mix_pool_bytes(const void *
- 		i = (i - 1) & POOL_WORDMASK;
+ 	es8328->deemph = deemph;
  
- 		/* XOR in the various taps */
--		w ^= input_pool.pool[i];
--		w ^= input_pool.pool[(i + POOL_TAP1) & POOL_WORDMASK];
--		w ^= input_pool.pool[(i + POOL_TAP2) & POOL_WORDMASK];
--		w ^= input_pool.pool[(i + POOL_TAP3) & POOL_WORDMASK];
--		w ^= input_pool.pool[(i + POOL_TAP4) & POOL_WORDMASK];
--		w ^= input_pool.pool[(i + POOL_TAP5) & POOL_WORDMASK];
-+		w ^= input_pool_data[i];
-+		w ^= input_pool_data[(i + POOL_TAP1) & POOL_WORDMASK];
-+		w ^= input_pool_data[(i + POOL_TAP2) & POOL_WORDMASK];
-+		w ^= input_pool_data[(i + POOL_TAP3) & POOL_WORDMASK];
-+		w ^= input_pool_data[(i + POOL_TAP4) & POOL_WORDMASK];
-+		w ^= input_pool_data[(i + POOL_TAP5) & POOL_WORDMASK];
+-	return 0;
++	return 1;
+ }
  
- 		/* Mix the result back in with a twist */
--		input_pool.pool[i] = (w >> 3) ^ twist_table[w & 7];
-+		input_pool_data[i] = (w >> 3) ^ twist_table[w & 7];
  
- 		/*
- 		 * Normally, we add 7 bits of rotation to the pool.
-@@ -1369,7 +1364,7 @@ static void extract_buf(u8 *out)
- 
- 	/* Generate a hash across the pool */
- 	spin_lock_irqsave(&input_pool.lock, flags);
--	blake2s_update(&state, (const u8 *)input_pool.pool, POOL_BYTES);
-+	blake2s_update(&state, (const u8 *)input_pool_data, POOL_BYTES);
- 	blake2s_final(&state, hash); /* final zeros out state */
- 
- 	/*
+-- 
+2.35.1
+
 
 
