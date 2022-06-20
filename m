@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0F3F551C65
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24C8E551C3D
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345221AbiFTNcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:32:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52864 "EHLO
+        id S1346370AbiFTNeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:34:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345367AbiFTNcW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:32:22 -0400
+        with ESMTP id S1347564AbiFTNeH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:34:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A8725C7E;
-        Mon, 20 Jun 2022 06:12:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C64E91D33D;
+        Mon, 20 Jun 2022 06:13:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE65C60EA0;
-        Mon, 20 Jun 2022 13:12:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B12F7C3411B;
-        Mon, 20 Jun 2022 13:12:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1165360EC6;
+        Mon, 20 Jun 2022 13:12:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00434C3411B;
+        Mon, 20 Jun 2022 13:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730756;
-        bh=YAUKsAuc2AWmejvbJm7d9pwZjKJnlLRzpTNJ8hmemsc=;
+        s=korg; t=1655730759;
+        bh=mvbc0UwFRxHk3S/6WpcJH1rq+Wb+kHQBfZvG3cSrfQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UTQRJShqMOXB0Y0IN3t+GwPpixNAQt77iJ+5/jE5UHZXA1Xesuh8v3uE2T12b1Vka
-         f44cQfRs/qQrTxW8GQf7Gv6SY+WDfx2Cm3/Dnkf0tRhsLK0sVZs1AmDHHSysNcffwB
-         ntSX3i4wj72AuM06272gN4SNm0xxK2P0lO0ivSWs=
+        b=CDV2jJPOo0xEsOpzaEeopYPfXCy9+ILkX08PitGHMDXrcsNbcdweuPy+nQTiQrNCB
+         Jcy2kjW9KIl52sG4cUtNVm3qzXjpI9n5F6sIhN29Se4ZbUAMkXxRXK3dqpX9q2HNnA
+         qbLhhgbuiZ+BJUNNcK1eCBuGEuMISrFMvbZSWjZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-crypto@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 046/240] random: early initialization of ChaCha constants
-Date:   Mon, 20 Jun 2022 14:49:07 +0200
-Message-Id: <20220620124739.403999643@linuxfoundation.org>
+Subject: [PATCH 5.4 047/240] random: avoid superfluous call to RDRAND in CRNG extraction
+Date:   Mon, 20 Jun 2022 14:49:08 +0200
+Message-Id: <20220620124739.458601247@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -56,73 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Brodowski <linux@dominikbrodowski.net>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 96562f286884e2db89c74215b199a1084b5fb7f7 upstream.
+commit 2ee25b6968b1b3c66ffa408de23d023c1bce81cf upstream.
 
-Previously, the ChaCha constants for the primary pool were only
-initialized in crng_initialize_primary(), called by rand_initialize().
-However, some randomness is actually extracted from the primary pool
-beforehand, e.g. by kmem_cache_create(). Therefore, statically
-initialize the ChaCha constants for the primary pool.
+RDRAND is not fast. RDRAND is actually quite slow. We've known this for
+a while, which is why functions like get_random_u{32,64} were converted
+to use batching of our ChaCha-based CRNG instead.
 
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: <linux-crypto@vger.kernel.org>
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Yet CRNG extraction still includes a call to RDRAND, in the hot path of
+every call to get_random_bytes(), /dev/urandom, and getrandom(2).
+
+This call to RDRAND here seems quite superfluous. CRNG is already
+extracting things based on a 256-bit key, based on good entropy, which
+is then reseeded periodically, updated, backtrack-mutated, and so
+forth. The CRNG extraction construction is something that we're already
+relying on to be secure and solid. If it's not, that's a serious
+problem, and it's unlikely that mixing in a measly 32 bits from RDRAND
+is going to alleviate things.
+
+And in the case where the CRNG doesn't have enough entropy yet, we're
+already initializing the ChaCha key row with RDRAND in
+crng_init_try_arch_early().
+
+Removing the call to RDRAND improves performance on an i7-11850H by
+370%. In other words, the vast majority of the work done by
+extract_crng() prior to this commit was devoted to fetching 32 bits of
+RDRAND.
+
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c   |    5 ++++-
- include/crypto/chacha.h |   15 +++++++++++----
- 2 files changed, 15 insertions(+), 5 deletions(-)
+ drivers/char/random.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -458,6 +458,10 @@ struct crng_state {
- 
- static struct crng_state primary_crng = {
- 	.lock = __SPIN_LOCK_UNLOCKED(primary_crng.lock),
-+	.state[0] = CHACHA_CONSTANT_EXPA,
-+	.state[1] = CHACHA_CONSTANT_ND_3,
-+	.state[2] = CHACHA_CONSTANT_2_BY,
-+	.state[3] = CHACHA_CONSTANT_TE_K,
- };
- 
- /*
-@@ -824,7 +828,6 @@ static void crng_initialize_secondary(st
- 
- static void __init crng_initialize_primary(struct crng_state *crng)
+@@ -1024,7 +1024,7 @@ static void crng_reseed(struct crng_stat
+ static void _extract_crng(struct crng_state *crng,
+ 			  __u8 out[CHACHA_BLOCK_SIZE])
  {
--	chacha_init_consts(crng->state);
- 	_extract_entropy(&input_pool, &crng->state[4], sizeof(__u32) * 12, 0);
- 	if (crng_init_try_arch_early(crng) && trust_cpu && crng_init < 2) {
- 		invalidate_batched_entropy();
---- a/include/crypto/chacha.h
-+++ b/include/crypto/chacha.h
-@@ -51,12 +51,19 @@ int crypto_chacha12_setkey(struct crypto
- int crypto_chacha_crypt(struct skcipher_request *req);
- int crypto_xchacha_crypt(struct skcipher_request *req);
+-	unsigned long v, flags, init_time;
++	unsigned long flags, init_time;
  
-+enum chacha_constants { /* expand 32-byte k */
-+	CHACHA_CONSTANT_EXPA = 0x61707865U,
-+	CHACHA_CONSTANT_ND_3 = 0x3320646eU,
-+	CHACHA_CONSTANT_2_BY = 0x79622d32U,
-+	CHACHA_CONSTANT_TE_K = 0x6b206574U
-+};
-+
- static inline void chacha_init_consts(u32 *state)
- {
--	state[0]  = 0x61707865; /* "expa" */
--	state[1]  = 0x3320646e; /* "nd 3" */
--	state[2]  = 0x79622d32; /* "2-by" */
--	state[3]  = 0x6b206574; /* "te k" */
-+	state[0]  = CHACHA_CONSTANT_EXPA;
-+	state[1]  = CHACHA_CONSTANT_ND_3;
-+	state[2]  = CHACHA_CONSTANT_2_BY;
-+	state[3]  = CHACHA_CONSTANT_TE_K;
- }
- 
- #endif /* _CRYPTO_CHACHA_H */
+ 	if (crng_ready()) {
+ 		init_time = READ_ONCE(crng->init_time);
+@@ -1034,8 +1034,6 @@ static void _extract_crng(struct crng_st
+ 				    &input_pool : NULL);
+ 	}
+ 	spin_lock_irqsave(&crng->lock, flags);
+-	if (arch_get_random_long(&v))
+-		crng->state[14] ^= v;
+ 	chacha20_block(&crng->state[0], out);
+ 	if (crng->state[12] == 0)
+ 		crng->state[13]++;
 
 
