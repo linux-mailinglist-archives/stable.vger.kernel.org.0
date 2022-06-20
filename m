@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A40255198F
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3A3C551D20
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243559AbiFTNAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:00:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47280 "EHLO
+        id S1347995AbiFTNqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:46:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244579AbiFTM7n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:59:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 434F419FB9;
-        Mon, 20 Jun 2022 05:56:38 -0700 (PDT)
+        with ESMTP id S1348028AbiFTNpR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:45:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 871D92DAA6;
+        Mon, 20 Jun 2022 06:16:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 919D6B811A0;
-        Mon, 20 Jun 2022 12:56:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE15FC341C4;
-        Mon, 20 Jun 2022 12:56:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 671DB60FF2;
+        Mon, 20 Jun 2022 13:16:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B24BC3411B;
+        Mon, 20 Jun 2022 13:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729795;
-        bh=D2UwmSnr5W4IRYDH4+1SoWClJ8DsSUAmAlrFDCiml44=;
+        s=korg; t=1655730975;
+        bh=6cEbCemrHSo5uu84Ne4VBpDDNncNXsxqhB5T/ss4p+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kyB1MXYhVucFYGssMdM9NFWpfTypS6ELzgceS/IOLpHnQF0SoJsahtKTZoh9XBW/M
-         bCWLCP02dNs75VmT6UWz1Zr4HvDti5zFgWJOid4p59NrWvGfGVkQPnzAhmSumYMFwP
-         pMKKKg3X1Ks6VPOEEk+Iy//cKy7s28IcNIAfKaaU=
+        b=Y5GBJGOZFDFOVy66wlKiTF5SRtNqqPaa1fzeaycwGOd0DTrfBMpBodnpwLBTvNK7J
+         8cJgyOxbAfKUnWsf7DEmr61rQbHy1TmaZY8Uscv2JbqLKOoMm7N/4T1vps31fhn55a
+         3EM6mCePl8jTh4SP8wbHT9lupHYFpaCcqI0CHFeM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marius Hoch <mail@mariushoch.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 026/141] Input: soc_button_array - also add Lenovo Yoga Tablet2 1051F to dmi_use_low_level_irq
-Date:   Mon, 20 Jun 2022 14:49:24 +0200
-Message-Id: <20220620124730.302867023@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 064/240] random: only call crng_finalize_init() for primary_crng
+Date:   Mon, 20 Jun 2022 14:49:25 +0200
+Message-Id: <20220620124740.232044992@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marius Hoch <mail@mariushoch.de>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
 
-[ Upstream commit 6ab2e51898cd4343bbdf8587af8ce8fbabddbcb5 ]
+commit 9d5505f1eebeca778074a0260ed077fd85f8792c upstream.
 
-Commit 223f61b8c5ad ("Input: soc_button_array - add Lenovo Yoga Tablet2
-1051L to the dmi_use_low_level_irq list") added the 1051L to this list
-already, but the same problem applies to the 1051F. As there are no
-further 1051 variants (just the F/L), we can just DMI match 1051.
+crng_finalize_init() returns instantly if it is called for another pool
+than primary_crng. The test whether crng_finalize_init() is still required
+can be moved to the relevant caller in crng_reseed(), and
+crng_need_final_init can be reset to false if crng_finalize_init() is
+called with workqueues ready. Then, no previous callsite will call
+crng_finalize_init() unless it is needed, and we can get rid of the
+superfluous function parameter.
 
-Tested on a Lenovo Yoga Tablet2 1051F: Without this patch the
-home-button stops working after a wakeup from suspend.
-
-Signed-off-by: Marius Hoch <mail@mariushoch.de>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220603120246.3065-1-mail@mariushoch.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/misc/soc_button_array.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/random.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index cbb1599a520e..480476121c01 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -85,13 +85,13 @@ static const struct dmi_system_id dmi_use_low_level_irq[] = {
- 	},
- 	{
- 		/*
--		 * Lenovo Yoga Tab2 1051L, something messes with the home-button
-+		 * Lenovo Yoga Tab2 1051F/1051L, something messes with the home-button
- 		 * IRQ settings, leading to a non working home-button.
- 		 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "60073"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "1051L"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "1051"),
- 		},
- 	},
- 	{} /* Terminating entry */
--- 
-2.35.1
-
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -800,10 +800,8 @@ static void __init crng_initialize_prima
+ 	primary_crng.init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
+ }
+ 
+-static void crng_finalize_init(struct crng_state *crng)
++static void crng_finalize_init(void)
+ {
+-	if (crng != &primary_crng || crng_init >= 2)
+-		return;
+ 	if (!system_wq) {
+ 		/* We can't call numa_crng_init until we have workqueues,
+ 		 * so mark this for processing later. */
+@@ -814,6 +812,7 @@ static void crng_finalize_init(struct cr
+ 	invalidate_batched_entropy();
+ 	numa_crng_init();
+ 	crng_init = 2;
++	crng_need_final_init = false;
+ 	process_random_ready_list();
+ 	wake_up_interruptible(&crng_init_wait);
+ 	kill_fasync(&fasync, SIGIO, POLL_IN);
+@@ -980,7 +979,8 @@ static void crng_reseed(struct crng_stat
+ 	memzero_explicit(&buf, sizeof(buf));
+ 	WRITE_ONCE(crng->init_time, jiffies);
+ 	spin_unlock_irqrestore(&crng->lock, flags);
+-	crng_finalize_init(crng);
++	if (crng == &primary_crng && crng_init < 2)
++		crng_finalize_init();
+ }
+ 
+ static void _extract_crng(struct crng_state *crng, u8 out[CHACHA_BLOCK_SIZE])
+@@ -1697,7 +1697,7 @@ int __init rand_initialize(void)
+ {
+ 	init_std_data();
+ 	if (crng_need_final_init)
+-		crng_finalize_init(&primary_crng);
++		crng_finalize_init();
+ 	crng_initialize_primary();
+ 	crng_global_init_time = jiffies;
+ 	if (ratelimit_disable) {
 
 
