@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDC6E5519B5
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5639551BBE
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242950AbiFTMyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:54:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36908 "EHLO
+        id S1347095AbiFTNhn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:37:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242912AbiFTMxo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:53:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74CB1140A7;
-        Mon, 20 Jun 2022 05:53:41 -0700 (PDT)
+        with ESMTP id S1346394AbiFTNg4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:36:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F50286EF;
+        Mon, 20 Jun 2022 06:13:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35C55B811A2;
-        Mon, 20 Jun 2022 12:53:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7090EC3411B;
-        Mon, 20 Jun 2022 12:53:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6335F60EAA;
+        Mon, 20 Jun 2022 13:13:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 552A4C3411B;
+        Mon, 20 Jun 2022 13:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729618;
-        bh=/S8yQzz0bEZtXnByi4TQCeaXrYJNa/rP7ocesI2o9rc=;
+        s=korg; t=1655730795;
+        bh=0s3rgN7V8B/SNOGrVRL6vMVT2m8RYFS1zLvvjA8XEWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XtJb6mvVbX+lNZoquJkhEsvdtl+K+Drvsbro7mgbjQmgunvFW3qRXaW9tS7O3WReQ
-         vI/8whB+86LP6xRa0Zi0mv7do2fsyf7R6replqAraWuP3R45AbGG7ow5+MZfLMKuVO
-         M4hVUban8wLHwQfd2U1sJj3Xlct1GrcW/qGmKB0Y=
+        b=PjsMFKzeamBiLcxv5LbumvsJ2JI8DPkwABFqtjQW023Le/XEJIKup8dtkfUbKUxT6
+         5iq7pQ1JJQpGWzI8cWw/JgIVya7yVDdd4KJwEXKATkRFjIvU7eLcv1blaCQPnv370l
+         lPsfLt9nq74M2SEUQVPOscJwuJj4Jzrz/ADyMkEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 020/141] ata: libata-core: fix NULL pointer deref in ata_host_alloc_pinfo()
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 057/240] random: prepend remaining pool constants with POOL_
 Date:   Mon, 20 Jun 2022 14:49:18 +0200
-Message-Id: <20220620124730.118972624@linuxfoundation.org>
+Message-Id: <20220620124739.893312986@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit bf476fe22aa1851bab4728e0c49025a6a0bea307 ]
+commit b3d51c1f542113342ddfbf6007e38a684b9dbec9 upstream.
 
-In an unlikely (and probably wrong?) case that the 'ppi' parameter of
-ata_host_alloc_pinfo() points to an array starting with a NULL pointer,
-there's going to be a kernel oops as the 'pi' local variable won't get
-reassigned from the initial value of NULL. Initialize 'pi' instead to
-'&ata_dummy_port_info' to fix the possible kernel oops for good...
+The other pool constants are prepended with POOL_, but not these last
+ones. Rename them. This will then let us move them into the enum in the
+following commit.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE static
-analysis tool.
-
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/random.c |   40 ++++++++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index 3d57fa84e2be..ea9671821258 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -5506,7 +5506,7 @@ struct ata_host *ata_host_alloc_pinfo(struct device *dev,
- 				      const struct ata_port_info * const * ppi,
- 				      int n_ports)
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -362,11 +362,11 @@
+  * To allow fractional bits to be tracked, the entropy_count field is
+  * denominated in units of 1/8th bits.
+  *
+- * 2*(ENTROPY_SHIFT + poolbitshift) must <= 31, or the multiply in
++ * 2*(POOL_ENTROPY_SHIFT + poolbitshift) must <= 31, or the multiply in
+  * credit_entropy_bits() needs to be 64 bits wide.
+  */
+-#define ENTROPY_SHIFT 3
+-#define ENTROPY_BITS() (input_pool.entropy_count >> ENTROPY_SHIFT)
++#define POOL_ENTROPY_SHIFT 3
++#define POOL_ENTROPY_BITS() (input_pool.entropy_count >> POOL_ENTROPY_SHIFT)
+ 
+ /*
+  * If the entropy count falls under this number of bits, then we
+@@ -426,7 +426,7 @@ enum poolinfo {
+ 	POOL_BYTES = POOL_WORDS * sizeof(u32),
+ 	POOL_BITS = POOL_BYTES * 8,
+ 	POOL_BITSHIFT = ilog2(POOL_WORDS) + 5,
+-	POOL_FRACBITS = POOL_WORDS << (ENTROPY_SHIFT + 5),
++	POOL_FRACBITS = POOL_WORDS << (POOL_ENTROPY_SHIFT + 5),
+ 
+ 	/* x^128 + x^104 + x^76 + x^51 +x^25 + x + 1 */
+ 	POOL_TAP1 = 104,
+@@ -650,7 +650,7 @@ static void process_random_ready_list(vo
+ static void credit_entropy_bits(int nbits)
  {
--	const struct ata_port_info *pi;
-+	const struct ata_port_info *pi = &ata_dummy_port_info;
- 	struct ata_host *host;
- 	int i, j;
+ 	int entropy_count, entropy_bits, orig;
+-	int nfrac = nbits << ENTROPY_SHIFT;
++	int nfrac = nbits << POOL_ENTROPY_SHIFT;
  
-@@ -5514,7 +5514,7 @@ struct ata_host *ata_host_alloc_pinfo(struct device *dev,
- 	if (!host)
- 		return NULL;
+ 	if (!nbits)
+ 		return;
+@@ -683,7 +683,7 @@ retry:
+ 		 * turns no matter how large nbits is.
+ 		 */
+ 		int pnfrac = nfrac;
+-		const int s = POOL_BITSHIFT + ENTROPY_SHIFT + 2;
++		const int s = POOL_BITSHIFT + POOL_ENTROPY_SHIFT + 2;
+ 		/* The +2 corresponds to the /4 in the denominator */
  
--	for (i = 0, j = 0, pi = NULL; i < host->n_ports; i++) {
-+	for (i = 0, j = 0; i < host->n_ports; i++) {
- 		struct ata_port *ap = host->ports[i];
+ 		do {
+@@ -704,9 +704,9 @@ retry:
+ 	if (cmpxchg(&input_pool.entropy_count, orig, entropy_count) != orig)
+ 		goto retry;
  
- 		if (ppi[j])
--- 
-2.35.1
-
+-	trace_credit_entropy_bits(nbits, entropy_count >> ENTROPY_SHIFT, _RET_IP_);
++	trace_credit_entropy_bits(nbits, entropy_count >> POOL_ENTROPY_SHIFT, _RET_IP_);
+ 
+-	entropy_bits = entropy_count >> ENTROPY_SHIFT;
++	entropy_bits = entropy_count >> POOL_ENTROPY_SHIFT;
+ 	if (crng_init < 2 && entropy_bits >= 128)
+ 		crng_reseed(&primary_crng, true);
+ }
+@@ -1187,7 +1187,7 @@ void add_input_randomness(unsigned int t
+ 	last_value = value;
+ 	add_timer_randomness(&input_timer_state,
+ 			     (type << 4) ^ code ^ (code >> 4) ^ value);
+-	trace_add_input_randomness(ENTROPY_BITS());
++	trace_add_input_randomness(POOL_ENTROPY_BITS());
+ }
+ EXPORT_SYMBOL_GPL(add_input_randomness);
+ 
+@@ -1286,7 +1286,7 @@ void add_disk_randomness(struct gendisk
+ 		return;
+ 	/* first major is 1, so we get >= 0x200 here */
+ 	add_timer_randomness(disk->random, 0x100 + disk_devt(disk));
+-	trace_add_disk_randomness(disk_devt(disk), ENTROPY_BITS());
++	trace_add_disk_randomness(disk_devt(disk), POOL_ENTROPY_BITS());
+ }
+ EXPORT_SYMBOL_GPL(add_disk_randomness);
+ #endif
+@@ -1313,7 +1313,7 @@ retry:
+ 	entropy_count = orig = READ_ONCE(input_pool.entropy_count);
+ 	ibytes = nbytes;
+ 	/* never pull more than available */
+-	have_bytes = entropy_count >> (ENTROPY_SHIFT + 3);
++	have_bytes = entropy_count >> (POOL_ENTROPY_SHIFT + 3);
+ 
+ 	if (have_bytes < 0)
+ 		have_bytes = 0;
+@@ -1325,7 +1325,7 @@ retry:
+ 		pr_warn("negative entropy count: count %d\n", entropy_count);
+ 		entropy_count = 0;
+ 	}
+-	nfrac = ibytes << (ENTROPY_SHIFT + 3);
++	nfrac = ibytes << (POOL_ENTROPY_SHIFT + 3);
+ 	if ((size_t) entropy_count > nfrac)
+ 		entropy_count -= nfrac;
+ 	else
+@@ -1335,7 +1335,7 @@ retry:
+ 		goto retry;
+ 
+ 	trace_debit_entropy(8 * ibytes);
+-	if (ibytes && ENTROPY_BITS() < random_write_wakeup_bits) {
++	if (ibytes && POOL_ENTROPY_BITS() < random_write_wakeup_bits) {
+ 		wake_up_interruptible(&random_write_wait);
+ 		kill_fasync(&fasync, SIGIO, POLL_OUT);
+ 	}
+@@ -1423,7 +1423,7 @@ static ssize_t _extract_entropy(void *bu
+  */
+ static ssize_t extract_entropy(void *buf, size_t nbytes, int min)
+ {
+-	trace_extract_entropy(nbytes, ENTROPY_BITS(), _RET_IP_);
++	trace_extract_entropy(nbytes, POOL_ENTROPY_BITS(), _RET_IP_);
+ 	nbytes = account(nbytes, min);
+ 	return _extract_entropy(buf, nbytes);
+ }
+@@ -1749,9 +1749,9 @@ urandom_read_nowarn(struct file *file, c
+ {
+ 	int ret;
+ 
+-	nbytes = min_t(size_t, nbytes, INT_MAX >> (ENTROPY_SHIFT + 3));
++	nbytes = min_t(size_t, nbytes, INT_MAX >> (POOL_ENTROPY_SHIFT + 3));
+ 	ret = extract_crng_user(buf, nbytes);
+-	trace_urandom_read(8 * nbytes, 0, ENTROPY_BITS());
++	trace_urandom_read(8 * nbytes, 0, POOL_ENTROPY_BITS());
+ 	return ret;
+ }
+ 
+@@ -1791,7 +1791,7 @@ random_poll(struct file *file, poll_tabl
+ 	mask = 0;
+ 	if (crng_ready())
+ 		mask |= EPOLLIN | EPOLLRDNORM;
+-	if (ENTROPY_BITS() < random_write_wakeup_bits)
++	if (POOL_ENTROPY_BITS() < random_write_wakeup_bits)
+ 		mask |= EPOLLOUT | EPOLLWRNORM;
+ 	return mask;
+ }
+@@ -1847,7 +1847,7 @@ static long random_ioctl(struct file *f,
+ 	switch (cmd) {
+ 	case RNDGETENTCNT:
+ 		/* inherently racy, no point locking */
+-		ent_count = ENTROPY_BITS();
++		ent_count = POOL_ENTROPY_BITS();
+ 		if (put_user(ent_count, p))
+ 			return -EFAULT;
+ 		return 0;
+@@ -2005,7 +2005,7 @@ static int proc_do_entropy(struct ctl_ta
+ 	struct ctl_table fake_table;
+ 	int entropy_count;
+ 
+-	entropy_count = *(int *)table->data >> ENTROPY_SHIFT;
++	entropy_count = *(int *)table->data >> POOL_ENTROPY_SHIFT;
+ 
+ 	fake_table.data = &entropy_count;
+ 	fake_table.maxlen = sizeof(entropy_count);
+@@ -2224,7 +2224,7 @@ void add_hwgenerator_randomness(const ch
+ 	 */
+ 	wait_event_interruptible(random_write_wait,
+ 			!system_wq || kthread_should_stop() ||
+-			ENTROPY_BITS() <= random_write_wakeup_bits);
++			POOL_ENTROPY_BITS() <= random_write_wakeup_bits);
+ 	mix_pool_bytes(buffer, count);
+ 	credit_entropy_bits(entropy);
+ }
 
 
