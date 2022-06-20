@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D73C5519A8
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2BA551D48
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243489AbiFTNAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:00:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38812 "EHLO
+        id S244163AbiFTNuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:50:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244685AbiFTM7s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:59:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C37B1A06D;
-        Mon, 20 Jun 2022 05:56:43 -0700 (PDT)
+        with ESMTP id S1349197AbiFTNsb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:48:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1097C2F03B;
+        Mon, 20 Jun 2022 06:17:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17EBF614F0;
-        Mon, 20 Jun 2022 12:56:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AC5EC3411B;
-        Mon, 20 Jun 2022 12:56:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 427A8B811C6;
+        Mon, 20 Jun 2022 13:16:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DBFAC3411B;
+        Mon, 20 Jun 2022 13:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729801;
-        bh=E2c6JwTTTgoenhfa01rg3ytkD9oy+z5TCsPOtlv3pdI=;
+        s=korg; t=1655730985;
+        bh=kLu6oEFnz7kWzqySjKoPppP6306WDVKu2D0M9xJxpzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJnK9P0HrOCJtvc3hG0K2w80ErOVtEdSwUh42vcplttPXkdWZoQb05nwrTrAOicvC
-         XkzEEa3EBhLU7o0Bclfn/9wPdvCC/Ayv2MHZtp3ZQRI56R7hArpJbJXSorkcbJun9G
-         b2KEZ9A7p2jQAWLRaYZcS4c2zki53TkfjZogIUUw=
+        b=eDa9nYR2rklghfW4NFDB2DRU1lmpfU47m5lotZyGzXqqXMlH+a0uNYYpeL+C7RuEz
+         sQJlT2QYBa9ijqDKBoadRxzYREndaTZupTRPZoF0CZ248gHFzMKcErUv0mASNZ7mKv
+         1VPuQ0YUmBDlMUXfNX+C5acDLmt32vH90Zi/9YyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 080/141] net: bgmac: Fix an erroneous kfree() in bgmac_remove()
-Date:   Mon, 20 Jun 2022 14:50:18 +0200
-Message-Id: <20220620124731.903001364@linuxfoundation.org>
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 118/240] random: skip fast_init if hwrng provides large chunk of entropy
+Date:   Mon, 20 Jun 2022 14:50:19 +0200
+Message-Id: <20220620124742.432273887@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit d7dd6eccfbc95ac47a12396f84e7e1b361db654b ]
+commit af704c856e888fb044b058d731d61b46eeec499d upstream.
 
-'bgmac' is part of a managed resource allocated with bgmac_alloc(). It
-should not be freed explicitly.
+At boot time, EFI calls add_bootloader_randomness(), which in turn calls
+add_hwgenerator_randomness(). Currently add_hwgenerator_randomness()
+feeds the first 64 bytes of randomness to the "fast init"
+non-crypto-grade phase. But if add_hwgenerator_randomness() gets called
+with more than POOL_MIN_BITS of entropy, there's no point in passing it
+off to the "fast init" stage, since that's enough entropy to bootstrap
+the real RNG. The "fast init" stage is just there to provide _something_
+in the case where we don't have enough entropy to properly bootstrap the
+RNG. But if we do have enough entropy to bootstrap the RNG, the current
+logic doesn't serve a purpose. So, in the case where we're passed
+greater than or equal to POOL_MIN_BITS of entropy, this commit makes us
+skip the "fast init" phase.
 
-Remove the erroneous kfree() from the .remove() function.
-
-Fixes: 34a5102c3235 ("net: bgmac: allocate struct bgmac just once & don't copy it")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/a026153108dd21239036a032b95c25b5cece253b.1655153616.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bgmac-bcma.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bgmac-bcma.c b/drivers/net/ethernet/broadcom/bgmac-bcma.c
-index e6f48786949c..02bd3cf9a260 100644
---- a/drivers/net/ethernet/broadcom/bgmac-bcma.c
-+++ b/drivers/net/ethernet/broadcom/bgmac-bcma.c
-@@ -332,7 +332,6 @@ static void bgmac_remove(struct bcma_device *core)
- 	bcma_mdio_mii_unregister(bgmac->mii_bus);
- 	bgmac_enet_remove(bgmac);
- 	bcma_set_drvdata(core, NULL);
--	kfree(bgmac);
- }
- 
- static struct bcma_driver bgmac_bcma_driver = {
--- 
-2.35.1
-
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1120,7 +1120,7 @@ void rand_initialize_disk(struct gendisk
+ void add_hwgenerator_randomness(const void *buffer, size_t count,
+ 				size_t entropy)
+ {
+-	if (unlikely(crng_init == 0)) {
++	if (unlikely(crng_init == 0 && entropy < POOL_MIN_BITS)) {
+ 		size_t ret = crng_pre_init_inject(buffer, count, true);
+ 		mix_pool_bytes(buffer, ret);
+ 		count -= ret;
 
 
