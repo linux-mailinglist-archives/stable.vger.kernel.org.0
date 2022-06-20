@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52F895511E5
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 350995511E2
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 09:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239560AbiFTHvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 03:51:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46564 "EHLO
+        id S239562AbiFTHvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 03:51:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239567AbiFTHvR (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E329ADEEF
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:16 -0700 (PDT)
+        with ESMTP id S239560AbiFTHvO (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 20 Jun 2022 03:51:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C055DEEF
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 00:51:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8316961213
-        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92853C341C4;
-        Mon, 20 Jun 2022 07:51:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB55E611FB
+        for <Stable@vger.kernel.org>; Mon, 20 Jun 2022 07:51:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ACF4C3411B;
+        Mon, 20 Jun 2022 07:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655711476;
-        bh=HVARpJJm6HdVEuGlhlR/QzlRporuJ50Kz8kGEgi/CnU=;
+        s=korg; t=1655711473;
+        bh=A3sljhsoxJ0n/Phn9N9j0eIM+2LvwgENmC1UOzof12Q=;
         h=Subject:To:From:Date:From;
-        b=tq0TArmcrxbBIzpIBI3diMOl7QuH0cjlVJLc5rIFxIxoN7wAAGGh/iADiR9g0WIiL
-         asDcAQKgHR4F4k+VptZSrbLueh5ZBsLEgsKFNwRvAF9kLwI0lQAV+MS1Ov0nboiIF0
-         lkpW21DWjbxxCePEdvgT/wvZYU9yGuKuDvcHnKKg=
-Subject: patch "iio: adc: stm32: Fix IRQs on STM32F4 by removing custom spurious IRQs" added to char-misc-linus
-To:     yannick.brosseau@gmail.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, fabrice.gasnier@foss.st.com
+        b=DZvifct5xwCdLs+N7+3yz43H97aV6cs6fVvPerurnzYV3BzHK+lE/NVtK0LI6b6y/
+         lSht8GOB+PA57ThzlUIKoZ5PPixX+6/Oz5d50QMAGixDLAdfYLL85n3SMsLzdS+LGL
+         1HOAVMrIutIwE6vqZscEKAoRGlBbZUsMT0nZCLxU=
+Subject: patch "iio: adc: aspeed: Fix refcount leak in aspeed_adc_set_trim_data" added to char-misc-linus
+To:     linmq006@gmail.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 20 Jun 2022 09:50:42 +0200
-Message-ID: <16557114425119@kroah.com>
+Message-ID: <165571144261109@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: stm32: Fix IRQs on STM32F4 by removing custom spurious IRQs
+    iio: adc: aspeed: Fix refcount leak in aspeed_adc_set_trim_data
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,64 +65,36 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 99bded02dae5e1e2312813506c41dc8db2fb656c Mon Sep 17 00:00:00 2001
-From: Yannick Brosseau <yannick.brosseau@gmail.com>
-Date: Mon, 16 May 2022 16:39:39 -0400
-Subject: iio: adc: stm32: Fix IRQs on STM32F4 by removing custom spurious IRQs
- message
+From 8a2b6b5687984a010ed094b4f436a2f091987758 Mon Sep 17 00:00:00 2001
+From: Miaoqian Lin <linmq006@gmail.com>
+Date: Mon, 16 May 2022 11:52:02 +0400
+Subject: iio: adc: aspeed: Fix refcount leak in aspeed_adc_set_trim_data
 
-The check for spurious IRQs introduced in 695e2f5c289bb assumed that the bits
-in the control and status registers are aligned. This is true for the H7 and MP1
-version, but not the F4. The interrupt was then never handled on the F4.
+of_find_node_by_name() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-Instead of increasing the complexity of the comparison and check each bit specifically,
-we remove this check completely and rely on the generic handler for spurious IRQs.
-
-Fixes: 695e2f5c289b ("iio: adc: stm32-adc: fix a regression when using dma and irq")
-Signed-off-by: Yannick Brosseau <yannick.brosseau@gmail.com>
-Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20220516203939.3498673-3-yannick.brosseau@gmail.com
+Fixes: d0a4c17b4073 ("iio: adc: aspeed: Get and set trimming data.")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220516075206.34580-1-linmq006@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/stm32-adc.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/iio/adc/aspeed_adc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/adc/stm32-adc.c b/drivers/iio/adc/stm32-adc.c
-index a68ecbda6480..8c5f05f593ab 100644
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -1407,7 +1407,6 @@ static irqreturn_t stm32_adc_threaded_isr(int irq, void *data)
- 	struct stm32_adc *adc = iio_priv(indio_dev);
- 	const struct stm32_adc_regspec *regs = adc->cfg->regs;
- 	u32 status = stm32_adc_readl(adc, regs->isr_eoc.reg);
--	u32 mask = stm32_adc_readl(adc, regs->ier_eoc.reg);
- 
- 	/* Check ovr status right now, as ovr mask should be already disabled */
- 	if (status & regs->isr_ovr.mask) {
-@@ -1422,11 +1421,6 @@ static irqreturn_t stm32_adc_threaded_isr(int irq, void *data)
- 		return IRQ_HANDLED;
+diff --git a/drivers/iio/adc/aspeed_adc.c b/drivers/iio/adc/aspeed_adc.c
+index 0793d2474cdc..9341e0e0eb55 100644
+--- a/drivers/iio/adc/aspeed_adc.c
++++ b/drivers/iio/adc/aspeed_adc.c
+@@ -186,6 +186,7 @@ static int aspeed_adc_set_trim_data(struct iio_dev *indio_dev)
+ 		return -EOPNOTSUPP;
  	}
- 
--	if (!(status & mask))
--		dev_err_ratelimited(&indio_dev->dev,
--				    "Unexpected IRQ: IER=0x%08x, ISR=0x%08x\n",
--				    mask, status);
--
- 	return IRQ_NONE;
- }
- 
-@@ -1436,10 +1430,6 @@ static irqreturn_t stm32_adc_isr(int irq, void *data)
- 	struct stm32_adc *adc = iio_priv(indio_dev);
- 	const struct stm32_adc_regspec *regs = adc->cfg->regs;
- 	u32 status = stm32_adc_readl(adc, regs->isr_eoc.reg);
--	u32 mask = stm32_adc_readl(adc, regs->ier_eoc.reg);
--
--	if (!(status & mask))
--		return IRQ_WAKE_THREAD;
- 
- 	if (status & regs->isr_ovr.mask) {
- 		/*
+ 	scu = syscon_node_to_regmap(syscon);
++	of_node_put(syscon);
+ 	if (IS_ERR(scu)) {
+ 		dev_warn(data->dev, "Failed to get syscon regmap\n");
+ 		return -EOPNOTSUPP;
 -- 
 2.36.1
 
