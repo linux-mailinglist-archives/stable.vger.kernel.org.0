@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 584AA551D57
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D376551A60
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348763AbiFTNuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36862 "EHLO
+        id S243104AbiFTMzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:55:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350844AbiFTNt4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:49:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B55530F49;
-        Mon, 20 Jun 2022 06:18:22 -0700 (PDT)
+        with ESMTP id S243108AbiFTMyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:54:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F37717AB5;
+        Mon, 20 Jun 2022 05:54:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 630B660AC0;
-        Mon, 20 Jun 2022 13:12:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C7AEC3411B;
-        Mon, 20 Jun 2022 13:12:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32400614EE;
+        Mon, 20 Jun 2022 12:54:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E1F5C36AE2;
+        Mon, 20 Jun 2022 12:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730749;
-        bh=i3hMr2zvbLMfhNtdbaivhSFl4gNmB97jXjyHRJ9vF78=;
+        s=korg; t=1655729652;
+        bh=O2vdw0HEg897hRd43A10FqgazzP4XDA4R8BDuGWT6UM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OuyRd5/J2meuuyILZQZdRzUcynzoTfu0kpFhzoa14Yn2WzMWrt95QkzuDB3C+E6HO
-         8NEqkDEqn+IR0JvAWlR/4l2SxIvlq0NKRBFRbb5exFH+Fd6DTLbfrapwnobRVlmqd5
-         EoyFVdYmzcxd29D4pG3ebCuqbAUWvzMoGvXTOYGA=
+        b=LRBVb5Mhxhr/aAVlGmUw9c+yWnqaeC0NXSKXQzvSKFbBY2XrkyFiFsLZ0IGMu7f8j
+         rJI+QDKaOt1zjXxXQ8y1s5PdVYrFWHY1foMHFJqWUZywiKtFXR1dT1GHW/XPyEL0mR
+         65yw5Q+KGhz/XeEzs/5C/X1Gd4Itru6sjKp8i+EQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 044/240] random: use IS_ENABLED(CONFIG_NUMA) instead of ifdefs
-Date:   Mon, 20 Jun 2022 14:49:05 +0200
-Message-Id: <20220620124739.317913384@linuxfoundation.org>
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Sherry Wang <YAO.WANG1@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 008/141] drm/amd/display: Read Golden Settings Table from VBIOS
+Date:   Mon, 20 Jun 2022 14:49:06 +0200
+Message-Id: <20220620124729.763572134@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,100 +58,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Sherry Wang <YAO.WANG1@amd.com>
 
-commit 7b87324112df2e1f9b395217361626362dcfb9fb upstream.
+[ Upstream commit 4b81dd2cc6f4f4e8cea0ed6ee8d5193a8ae14a72 ]
 
-Rather than an awkward combination of ifdefs and __maybe_unused, we can
-ensure more source gets parsed, regardless of the configuration, by
-using IS_ENABLED for the CONFIG_NUMA conditional code. This makes things
-cleaner and easier to follow.
+[Why]
+Dmub read AUX_DPHY_RX_CONTROL0 from Golden Setting Table,
+but driver will set it to default value 0x103d1110, which
+causes issue in some case
 
-I've confirmed that on !CONFIG_NUMA, we don't wind up with excess code
-by accident; the generated object file is the same.
+[How]
+Remove the driver code, use the value set by dmub in
+dp_aux_init
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Sherry Wang <YAO.WANG1@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |   32 ++++++++++++--------------------
- 1 file changed, 12 insertions(+), 20 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_dio_link_encoder.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -760,7 +760,6 @@ static int credit_entropy_bits_safe(stru
- 
- static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
- 
--#ifdef CONFIG_NUMA
- /*
-  * Hack to deal with crazy userspace progams when they are all trying
-  * to access /dev/urandom in parallel.  The programs are almost
-@@ -768,7 +767,6 @@ static DECLARE_WAIT_QUEUE_HEAD(crng_init
-  * their brain damage.
-  */
- static struct crng_state **crng_node_pool __read_mostly;
--#endif
- 
- static void invalidate_batched_entropy(void);
- static void numa_crng_init(void);
-@@ -816,7 +814,7 @@ static bool __init crng_init_try_arch_ea
- 	return arch_init;
- }
- 
--static void __maybe_unused crng_initialize_secondary(struct crng_state *crng)
-+static void crng_initialize_secondary(struct crng_state *crng)
- {
- 	memcpy(&crng->state[0], "expand 32-byte k", 16);
- 	_get_random_bytes(&crng->state[4], sizeof(__u32) * 12);
-@@ -867,7 +865,6 @@ static void crng_finalize_init(struct cr
- 	}
- }
- 
--#ifdef CONFIG_NUMA
- static void do_numa_crng_init(struct work_struct *work)
- {
- 	int i;
-@@ -894,29 +891,24 @@ static DECLARE_WORK(numa_crng_init_work,
- 
- static void numa_crng_init(void)
- {
--	schedule_work(&numa_crng_init_work);
-+	if (IS_ENABLED(CONFIG_NUMA))
-+		schedule_work(&numa_crng_init_work);
- }
- 
- static struct crng_state *select_crng(void)
- {
--	struct crng_state **pool;
--	int nid = numa_node_id();
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_dio_link_encoder.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_dio_link_encoder.c
+index d94fd1010deb..8b12b4111c88 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_dio_link_encoder.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_dio_link_encoder.c
+@@ -230,9 +230,7 @@ static void enc31_hw_init(struct link_encoder *enc)
+ 	AUX_RX_PHASE_DETECT_LEN,  [21,20] = 0x3 default is 3
+ 	AUX_RX_DETECTION_THRESHOLD [30:28] = 1
+ */
+-	AUX_REG_WRITE(AUX_DPHY_RX_CONTROL0, 0x103d1110);
 -
--	/* pairs with cmpxchg_release() in do_numa_crng_init() */
--	pool = READ_ONCE(crng_node_pool);
--	if (pool && pool[nid])
--		return pool[nid];
--
--	return &primary_crng;
--}
--#else
--static void numa_crng_init(void) {}
-+	if (IS_ENABLED(CONFIG_NUMA)) {
-+		struct crng_state **pool;
-+		int nid = numa_node_id();
-+
-+		/* pairs with cmpxchg_release() in do_numa_crng_init() */
-+		pool = READ_ONCE(crng_node_pool);
-+		if (pool && pool[nid])
-+			return pool[nid];
-+	}
+-	AUX_REG_WRITE(AUX_DPHY_TX_CONTROL, 0x21c7a);
++	// dmub will read AUX_DPHY_RX_CONTROL0/AUX_DPHY_TX_CONTROL from vbios table in dp_aux_init
  
--static struct crng_state *select_crng(void)
--{
- 	return &primary_crng;
- }
--#endif
- 
- /*
-  * crng_fast_load() can be called by code in the interrupt service
+ 	//AUX_DPHY_TX_REF_CONTROL'AUX_TX_REF_DIV HW default is 0x32;
+ 	// Set AUX_TX_REF_DIV Divider to generate 2 MHz reference from refclk
+-- 
+2.35.1
+
 
 
