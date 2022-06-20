@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73E655519FF
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B10E551D52
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243615AbiFTNC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:02:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47430 "EHLO
+        id S242185AbiFTNud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:50:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243622AbiFTNBl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:01:41 -0400
+        with ESMTP id S1348819AbiFTNrL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:47:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339AB1A805;
-        Mon, 20 Jun 2022 05:57:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FEAE2E9D4;
+        Mon, 20 Jun 2022 06:17:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71472B811B3;
-        Mon, 20 Jun 2022 12:57:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A09BEC3411B;
-        Mon, 20 Jun 2022 12:57:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DCD2EB811D5;
+        Mon, 20 Jun 2022 13:17:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28560C3411B;
+        Mon, 20 Jun 2022 13:17:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729839;
-        bh=0NiU3q04Yw7ZAx4tls9RQONgYiwgPEBbj0htnP3IXHk=;
+        s=korg; t=1655731026;
+        bh=9peonJ0+z8RcmYnm5XSbbaEivH1c0xcB7jk9cS6OWwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gikJ4s+gkI3NjHhaxKF5kQfolC0UMqPQPtkZRGV9wuJRZw3f0QNercwYD7cHWpHDd
-         8gyHysfT0W+b69UXfklhHiDGTH7UykzF1T+n9XAj/UgyF0/Rv+nWwUKQou715SiYYy
-         lmvco4ee1qzDP6+LnZvInTTz+G9nEI1KjZD7kMdE=
+        b=DOjxuyTrzFMrBNqLa01sh+4St984YHKF+ff+gZ9ND7wz+Qfua6G6k5xrUIyxi/W3H
+         yv2Gk1zfYSixMJegsBdHWk9tNQYdB7p1RIK4ypjg3ueBet+uNbMUehHvYP20EX9nVi
+         IDpPnrxz+fWpdUxS0n+cXQLl39wqOFfZtu+UNxbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 092/141] irqchip/apple-aic: Fix refcount leak in build_fiq_affinity
-Date:   Mon, 20 Jun 2022 14:50:30 +0200
-Message-Id: <20220620124732.264561958@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Stafford Horne <shorne@gmail.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 130/240] init: call time_init() before rand_initialize()
+Date:   Mon, 20 Jun 2022 14:50:31 +0200
+Message-Id: <20220620124742.778536366@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit b1ac803f47cb1615468f35cf1ccb553c52087301 ]
+commit fe222a6ca2d53c38433cba5d3be62a39099e708e upstream.
 
-of_find_node_by_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+Currently time_init() is called after rand_initialize(), but
+rand_initialize() makes use of the timer on various platforms, and
+sometimes this timer needs to be initialized by time_init() first. In
+order for random_get_entropy() to not return zero during early boot when
+it's potentially used as an entropy source, reverse the order of these
+two calls. The block doing random initialization was right before
+time_init() before, so changing the order shouldn't have any complicated
+effects.
 
-Fixes: a5e8801202b3 ("irqchip/apple-aic: Parse FIQ affinities from device-tree")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220601080930.31005-3-linmq006@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-apple-aic.c | 1 +
- 1 file changed, 1 insertion(+)
+ init/main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-apple-aic.c b/drivers/irqchip/irq-apple-aic.c
-index 12dd48727a15..478d0af16d9f 100644
---- a/drivers/irqchip/irq-apple-aic.c
-+++ b/drivers/irqchip/irq-apple-aic.c
-@@ -1035,6 +1035,7 @@ static void build_fiq_affinity(struct aic_irq_chip *ic, struct device_node *aff)
- 			continue;
+--- a/init/main.c
++++ b/init/main.c
+@@ -680,11 +680,13 @@ asmlinkage __visible void __init start_k
+ 	hrtimers_init();
+ 	softirq_init();
+ 	timekeeping_init();
++	time_init();
  
- 		cpu = of_cpu_node_to_id(cpu_node);
-+		of_node_put(cpu_node);
- 		if (WARN_ON(cpu < 0))
- 			continue;
+ 	/*
+ 	 * For best initial stack canary entropy, prepare it after:
+ 	 * - setup_arch() for any UEFI RNG entropy and boot cmdline access
+ 	 * - timekeeping_init() for ktime entropy used in rand_initialize()
++	 * - time_init() for making random_get_entropy() work on some platforms
+ 	 * - rand_initialize() to get any arch-specific entropy like RDRAND
+ 	 * - add_latent_entropy() to get any latent entropy
+ 	 * - adding command line entropy
+@@ -694,7 +696,6 @@ asmlinkage __visible void __init start_k
+ 	add_device_randomness(command_line, strlen(command_line));
+ 	boot_init_stack_canary();
  
--- 
-2.35.1
-
+-	time_init();
+ 	perf_event_init();
+ 	profile_init();
+ 	call_function_init();
 
 
