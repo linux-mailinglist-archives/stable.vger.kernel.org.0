@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FD52551D4A
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74BEB551CF6
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348394AbiFTNuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34638 "EHLO
+        id S244631AbiFTNLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:11:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349230AbiFTNsc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:48:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6E652F386;
-        Mon, 20 Jun 2022 06:17:48 -0700 (PDT)
+        with ESMTP id S245699AbiFTNJV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95E463D5;
+        Mon, 20 Jun 2022 06:04:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2575B811CF;
-        Mon, 20 Jun 2022 13:06:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BABB7C3411B;
-        Mon, 20 Jun 2022 13:06:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0ED56B811D5;
+        Mon, 20 Jun 2022 13:02:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ADF2C341C4;
+        Mon, 20 Jun 2022 13:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730408;
-        bh=49UHEjZkavBlhxGLg93/47bcstLUd7lqA2dOgyY7vcg=;
+        s=korg; t=1655730159;
+        bh=kO5U/4nrteTwo8hU3LdQpFlYmYPlmRjaszQnTgg4vXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qj3O+zyQlmw6JNLB6B3VOza12uWz+yRleTIbcoXy+yWAxr6apBp4ITWUHsbXG4ore
-         tnPTFjrSb2rM1RoGEH/vb25o1Mkh9e7E3RajEH1tsKsdZbZ31k69hTC1mapHLvEqCW
-         kEVVIrug8fNmjIlsY3/DgkUqTL4izvi6XV72bYOc=
+        b=BF/bN58Iu0eoT11X4TWfBEa1Xz7MUqF2U7CfcaoRnw2QdKmzZ5zdkPRj47yRkr+rP
+         DOBlaExUM+7VYR07PGd2x825EO5GdCyoiMmGlJ1aNnz44eENRq8y2/jb5jpHZxxIfi
+         XHFobSzK9MhLNAj+Et89osRWFeCermYMbXtpECmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phillip Potter <phil@philpotter.co.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 044/106] staging: r8188eu: fix rtw_alloc_hwxmits error detection for now
+        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.10 40/84] i40e: Fix call trace in setup_tx_descriptors
 Date:   Mon, 20 Jun 2022 14:51:03 +0200
-Message-Id: <20220620124725.690688383@linuxfoundation.org>
+Message-Id: <20220620124722.076200599@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
+References: <20220620124720.882450983@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +56,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-[ Upstream commit 5b7419ae1d208cab1e2826d473d8dab045aa75c7 ]
+[ Upstream commit fd5855e6b1358e816710afee68a1d2bc685176ca ]
 
-In _rtw_init_xmit_priv, we use the res variable to store the error
-return from the newly converted rtw_alloc_hwxmits function. Sadly, the
-calling function interprets res using _SUCCESS and _FAIL still, meaning
-we change the semantics of the variable, even in the success case.
+After PF reset and ethtool -t there was call trace in dmesg
+sometimes leading to panic. When there was some time, around 5
+seconds, between reset and test there were no errors.
 
-This leads to the following on boot:
-r8188eu 1-2:1.0: _rtw_init_xmit_priv failed
+Problem was that pf reset calls i40e_vsi_close in prep_for_reset
+and ethtool -t calls i40e_vsi_close in diag_test. If there was not
+enough time between those commands the second i40e_vsi_close starts
+before previous i40e_vsi_close was done which leads to crash.
 
-In the long term, we should reverse these semantics, but for now, this
-fixes the driver. Also, inside rtw_alloc_hwxmits remove the if blocks,
-as HWXMIT_ENTRY is always 4.
+Add check to diag_test if pf is in reset and don't start offline
+tests if it is true.
+Add netif_info("testing failed") into unhappy path of i40e_diag_test()
 
-Fixes: f94b47c6bde6 ("staging: r8188eu: add check for kzalloc")
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20220521204741.921-1-phil@philpotter.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e17bc411aea8 ("i40e: Disable offline diagnostics if VFs are enabled")
+Fixes: 510efb2682b3 ("i40e: Fix ethtool offline diagnostic with netqueues")
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/r8188eu/core/rtw_xmit.c | 20 +++++---------------
- 1 file changed, 5 insertions(+), 15 deletions(-)
+ .../net/ethernet/intel/i40e/i40e_ethtool.c    | 25 +++++++++++++------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/r8188eu/core/rtw_xmit.c b/drivers/staging/r8188eu/core/rtw_xmit.c
-index 0ee4f88a60d4..af13079a6d2c 100644
---- a/drivers/staging/r8188eu/core/rtw_xmit.c
-+++ b/drivers/staging/r8188eu/core/rtw_xmit.c
-@@ -179,8 +179,7 @@ s32	_rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index a2bdb2906519..63054061966e 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -2582,15 +2582,16 @@ static void i40e_diag_test(struct net_device *netdev,
  
- 	pxmitpriv->free_xmit_extbuf_cnt = num_xmit_extbuf;
+ 		set_bit(__I40E_TESTING, pf->state);
  
--	res = rtw_alloc_hwxmits(padapter);
--	if (res) {
-+	if (rtw_alloc_hwxmits(padapter)) {
- 		res = _FAIL;
- 		goto exit;
++		if (test_bit(__I40E_RESET_RECOVERY_PENDING, pf->state) ||
++		    test_bit(__I40E_RESET_INTR_RECEIVED, pf->state)) {
++			dev_warn(&pf->pdev->dev,
++				 "Cannot start offline testing when PF is in reset state.\n");
++			goto skip_ol_tests;
++		}
++
+ 		if (i40e_active_vfs(pf) || i40e_active_vmdqs(pf)) {
+ 			dev_warn(&pf->pdev->dev,
+ 				 "Please take active VFs and Netqueues offline and restart the adapter before running NIC diagnostics\n");
+-			data[I40E_ETH_TEST_REG]		= 1;
+-			data[I40E_ETH_TEST_EEPROM]	= 1;
+-			data[I40E_ETH_TEST_INTR]	= 1;
+-			data[I40E_ETH_TEST_LINK]	= 1;
+-			eth_test->flags |= ETH_TEST_FL_FAILED;
+-			clear_bit(__I40E_TESTING, pf->state);
+ 			goto skip_ol_tests;
+ 		}
+ 
+@@ -2637,9 +2638,17 @@ static void i40e_diag_test(struct net_device *netdev,
+ 		data[I40E_ETH_TEST_INTR] = 0;
  	}
-@@ -1534,19 +1533,10 @@ int rtw_alloc_hwxmits(struct adapter *padapter)
  
- 	hwxmits = pxmitpriv->hwxmits;
- 
--	if (pxmitpriv->hwxmit_entry == 5) {
--		hwxmits[0] .sta_queue = &pxmitpriv->bm_pending;
--		hwxmits[1] .sta_queue = &pxmitpriv->vo_pending;
--		hwxmits[2] .sta_queue = &pxmitpriv->vi_pending;
--		hwxmits[3] .sta_queue = &pxmitpriv->bk_pending;
--		hwxmits[4] .sta_queue = &pxmitpriv->be_pending;
--	} else if (pxmitpriv->hwxmit_entry == 4) {
--		hwxmits[0] .sta_queue = &pxmitpriv->vo_pending;
--		hwxmits[1] .sta_queue = &pxmitpriv->vi_pending;
--		hwxmits[2] .sta_queue = &pxmitpriv->be_pending;
--		hwxmits[3] .sta_queue = &pxmitpriv->bk_pending;
--	} else {
--	}
-+	hwxmits[0].sta_queue = &pxmitpriv->vo_pending;
-+	hwxmits[1].sta_queue = &pxmitpriv->vi_pending;
-+	hwxmits[2].sta_queue = &pxmitpriv->be_pending;
-+	hwxmits[3].sta_queue = &pxmitpriv->bk_pending;
- 
- 	return 0;
+-skip_ol_tests:
+-
+ 	netif_info(pf, drv, netdev, "testing finished\n");
++	return;
++
++skip_ol_tests:
++	data[I40E_ETH_TEST_REG]		= 1;
++	data[I40E_ETH_TEST_EEPROM]	= 1;
++	data[I40E_ETH_TEST_INTR]	= 1;
++	data[I40E_ETH_TEST_LINK]	= 1;
++	eth_test->flags |= ETH_TEST_FL_FAILED;
++	clear_bit(__I40E_TESTING, pf->state);
++	netif_info(pf, drv, netdev, "testing failed\n");
  }
+ 
+ static void i40e_get_wol(struct net_device *netdev,
 -- 
 2.35.1
 
