@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1030551BD5
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D269B5519F1
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347101AbiFTNkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:40:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46052 "EHLO
+        id S243402AbiFTM5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:57:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348930AbiFTNj2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:39:28 -0400
+        with ESMTP id S243472AbiFTM47 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:56:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5218B29C8F;
-        Mon, 20 Jun 2022 06:14:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3470618E35;
+        Mon, 20 Jun 2022 05:55:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 685AF60C1A;
-        Mon, 20 Jun 2022 13:14:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6038EC3411B;
-        Mon, 20 Jun 2022 13:14:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 07BD8614EC;
+        Mon, 20 Jun 2022 12:55:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 141D9C3411B;
+        Mon, 20 Jun 2022 12:55:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730882;
-        bh=04Pz+fF0w/7kWMaXUXaQSnSuQMtY6Y5I1iVKp9GXD5o=;
+        s=korg; t=1655729705;
+        bh=LUqjWhd2x19oH7kQGPvqJsFKkYqV5H/4feAZdzzEdv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=po4qyEmkriMo2g385Sm0cy7TUWnmVdmLmWex/5BOVm9bQF8HDSfKJmw44Rwux+0+O
-         OFq/VBjUbI7eYMvgwD3U/bIejwl3YpyWarwUbyPrOgwqjzr95OLW3GwZUadp9xaDAs
-         /iiz4RjLtvk0jrAVt7tmNo3TvBwRdEtAbQnHza5g=
+        b=ax588mkbze4xDLODyWtIkUgJuOyCk8Sy9QgvicIpXVYF/K03JHKQA4PAtGKO+/wi/
+         rkelbSKSSmYi8UOJ+yOqEqKNF5u/RwSDzCB367hmB+TK1XuIy1NoS9hGkTKNokvtG4
+         r0j/Zfjqnft+EN5ozE5dFGLNtA3Qw2L4fiups1D4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@google.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 085/240] random: tie batched entropy generation to base_crng generation
+        stable@vger.kernel.org, George D Sworo <george.d.sworo@intel.com>,
+        "David E. Box" <david.e.box@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 048/141] platform/x86/intel: pmc: Support Intel Raptorlake P
 Date:   Mon, 20 Jun 2022 14:49:46 +0200
-Message-Id: <20220620124741.407728341@linuxfoundation.org>
+Message-Id: <20220620124730.955235929@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,131 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: George D Sworo <george.d.sworo@intel.com>
 
-commit 0791e8b655cc373718f0f58800fdc625a3447ac5 upstream.
+[ Upstream commit 552f3b801de6eb062b225a76e140995483a0609c ]
 
-Now that we have an explicit base_crng generation counter, we don't need
-a separate one for batched entropy. Rather, we can just move the
-generation forward every time we change crng_init state or update the
-base_crng key.
+Add Raptorlake P to the list of the platforms that intel_pmc_core driver
+supports for pmc_core device. Raptorlake P PCH is based on Alderlake P
+PCH.
 
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: George D Sworo <george.d.sworo@intel.com>
+Reviewed-by: David E. Box <david.e.box@linux.intel.com>
+Link: https://lore.kernel.org/r/20220602012617.20100-1-george.d.sworo@intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |   29 ++++++++---------------------
- 1 file changed, 8 insertions(+), 21 deletions(-)
+ drivers/platform/x86/intel/pmc/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -428,8 +428,6 @@ static DEFINE_PER_CPU(struct crng, crngs
- 
- static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
- 
--static void invalidate_batched_entropy(void);
--
- /*
-  * crng_fast_load() can be called by code in the interrupt service
-  * path.  So we can't afford to dilly-dally. Returns the number of
-@@ -452,7 +450,7 @@ static size_t crng_fast_load(const void
- 		src++; crng_init_cnt++; len--; ret++;
- 	}
- 	if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
--		invalidate_batched_entropy();
-+		++base_crng.generation;
- 		crng_init = 1;
- 	}
- 	spin_unlock_irqrestore(&base_crng.lock, flags);
-@@ -529,7 +527,6 @@ static void crng_reseed(void)
- 	WRITE_ONCE(base_crng.generation, next_gen);
- 	WRITE_ONCE(base_crng.birth, jiffies);
- 	if (crng_init < 2) {
--		invalidate_batched_entropy();
- 		crng_init = 2;
- 		finalize_init = true;
- 	}
-@@ -1254,8 +1251,9 @@ int __init rand_initialize(void)
- 	mix_pool_bytes(utsname(), sizeof(*(utsname())));
- 
- 	extract_entropy(base_crng.key, sizeof(base_crng.key));
-+	++base_crng.generation;
-+
- 	if (arch_init && trust_cpu && crng_init < 2) {
--		invalidate_batched_entropy();
- 		crng_init = 2;
- 		pr_notice("crng init done (trusting CPU's manufacturer)\n");
- 	}
-@@ -1595,8 +1593,6 @@ struct ctl_table random_table[] = {
- };
- #endif	/* CONFIG_SYSCTL */
- 
--static atomic_t batch_generation = ATOMIC_INIT(0);
--
- struct batched_entropy {
- 	union {
- 		/*
-@@ -1609,8 +1605,8 @@ struct batched_entropy {
- 		u64 entropy_u64[CHACHA_BLOCK_SIZE * 3 / (2 * sizeof(u64))];
- 		u32 entropy_u32[CHACHA_BLOCK_SIZE * 3 / (2 * sizeof(u32))];
- 	};
-+	unsigned long generation;
- 	unsigned int position;
--	int generation;
+diff --git a/drivers/platform/x86/intel/pmc/core.c b/drivers/platform/x86/intel/pmc/core.c
+index ac19fcc9abbf..8ee15a7252c7 100644
+--- a/drivers/platform/x86/intel/pmc/core.c
++++ b/drivers/platform/x86/intel/pmc/core.c
+@@ -1912,6 +1912,7 @@ static const struct x86_cpu_id intel_pmc_core_ids[] = {
+ 	X86_MATCH_INTEL_FAM6_MODEL(ROCKETLAKE,		&tgl_reg_map),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_L,		&tgl_reg_map),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE,		&adl_reg_map),
++	X86_MATCH_INTEL_FAM6_MODEL(RAPTORLAKE_P,        &tgl_reg_map),
+ 	{}
  };
  
- /*
-@@ -1629,14 +1625,14 @@ u64 get_random_u64(void)
- 	unsigned long flags;
- 	struct batched_entropy *batch;
- 	static void *previous;
--	int next_gen;
-+	unsigned long next_gen;
- 
- 	warn_unseeded_randomness(&previous);
- 
- 	local_irq_save(flags);
- 	batch = raw_cpu_ptr(&batched_entropy_u64);
- 
--	next_gen = atomic_read(&batch_generation);
-+	next_gen = READ_ONCE(base_crng.generation);
- 	if (batch->position >= ARRAY_SIZE(batch->entropy_u64) ||
- 	    next_gen != batch->generation) {
- 		_get_random_bytes(batch->entropy_u64, sizeof(batch->entropy_u64));
-@@ -1662,14 +1658,14 @@ u32 get_random_u32(void)
- 	unsigned long flags;
- 	struct batched_entropy *batch;
- 	static void *previous;
--	int next_gen;
-+	unsigned long next_gen;
- 
- 	warn_unseeded_randomness(&previous);
- 
- 	local_irq_save(flags);
- 	batch = raw_cpu_ptr(&batched_entropy_u32);
- 
--	next_gen = atomic_read(&batch_generation);
-+	next_gen = READ_ONCE(base_crng.generation);
- 	if (batch->position >= ARRAY_SIZE(batch->entropy_u32) ||
- 	    next_gen != batch->generation) {
- 		_get_random_bytes(batch->entropy_u32, sizeof(batch->entropy_u32));
-@@ -1685,15 +1681,6 @@ u32 get_random_u32(void)
- }
- EXPORT_SYMBOL(get_random_u32);
- 
--/* It's important to invalidate all potential batched entropy that might
-- * be stored before the crng is initialized, which we can do lazily by
-- * bumping the generation counter.
-- */
--static void invalidate_batched_entropy(void)
--{
--	atomic_inc(&batch_generation);
--}
--
- /**
-  * randomize_page - Generate a random, page aligned address
-  * @start:	The smallest acceptable address the caller will take.
+-- 
+2.35.1
+
 
 
