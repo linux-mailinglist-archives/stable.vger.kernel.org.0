@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FBCA551C27
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 074C8551BB6
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245627AbiFTNLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:11:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54228 "EHLO
+        id S244618AbiFTNLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:11:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344592AbiFTNKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:10:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13B011CFF7;
-        Mon, 20 Jun 2022 06:05:33 -0700 (PDT)
+        with ESMTP id S245718AbiFTNJW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:09:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151E4B1C8;
+        Mon, 20 Jun 2022 06:04:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6151FB811CB;
-        Mon, 20 Jun 2022 13:02:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60CA5C3411B;
-        Mon, 20 Jun 2022 13:02:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF4F36154F;
+        Mon, 20 Jun 2022 13:02:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9B60C341C5;
+        Mon, 20 Jun 2022 13:02:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730163;
-        bh=K76a5TvFGJUF2CBEP0W6kloGTiafSGkY5l+yzkmeFvY=;
+        s=korg; t=1655730166;
+        bh=qvQ+DoApFMSYGyUqTdbIgWetXlmQvXHjNbqiyeHETKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XAc0ooHYzSCwV02GoACsU0hzVcxkhF5ay8owDTRnJEH02WzkYVNN4e6RW6qoAEZ+p
-         O058OmMpzHoI4OtaSGBLZKj4kLIjgOW45QOnM7/tUBcEhlTaYODW2jF30PlJiF3eOX
-         Xa19oHkqFDSgjYsCkMwSfB51Eo+AK+rVvEFO0dWM=
+        b=joH3Aw7gnEum8VUuZZ517AuKV7Yux2m3upRB61sO0S+kFe9llEyBJPAKUTb1hDp+1
+         AQaDwroLkXuJukYFHcKE6xHO0jeJ2LqcOmhWi8pdowNs+Xhthg5ZTqBSeMDgPEnXNh
+         DLj0eNF8NmOr+3EHICqqQosUbG0XaT1/TJTBXZrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Saurabh Sengar <ssengar@linux.microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 41/84] Drivers: hv: vmbus: Release cpu lock in error case
-Date:   Mon, 20 Jun 2022 14:51:04 +0200
-Message-Id: <20220620124722.107170698@linuxfoundation.org>
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 42/84] tty: goldfish: Fix free_irq() on remove
+Date:   Mon, 20 Jun 2022 14:51:05 +0200
+Message-Id: <20220620124722.135562596@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
 References: <20220620124720.882450983@linuxfoundation.org>
@@ -55,34 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurabh Sengar <ssengar@linux.microsoft.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 656c5ba50b7172a0ea25dc1b37606bd51d01fe8d ]
+[ Upstream commit 499e13aac6c762e1e828172b0f0f5275651d6512 ]
 
-In case of invalid sub channel, release cpu lock before returning.
+Pass the correct dev_id to free_irq() to fix this splat when the driver
+is unbound:
 
-Fixes: a949e86c0d780 ("Drivers: hv: vmbus: Resolve race between init_vp_index() and CPU hotplug")
-Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1654794996-13244-1-git-send-email-ssengar@linux.microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+ WARNING: CPU: 0 PID: 30 at kernel/irq/manage.c:1895 free_irq
+ Trying to free already-free IRQ 65
+ Call Trace:
+  warn_slowpath_fmt
+  free_irq
+  goldfish_tty_remove
+  platform_remove
+  device_remove
+  device_release_driver_internal
+  device_driver_detach
+  unbind_store
+  drv_attr_store
+  ...
+
+Fixes: 465893e18878e119 ("tty: goldfish: support platform_device with id -1")
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Link: https://lore.kernel.org/r/20220609141704.1080024-1-vincent.whitchurch@axis.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/channel_mgmt.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/goldfish.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
-index 5dbb949b1afd..10188b1a6a08 100644
---- a/drivers/hv/channel_mgmt.c
-+++ b/drivers/hv/channel_mgmt.c
-@@ -606,6 +606,7 @@ static void vmbus_process_offer(struct vmbus_channel *newchannel)
- 		 */
- 		if (newchannel->offermsg.offer.sub_channel_index == 0) {
- 			mutex_unlock(&vmbus_connection.channel_mutex);
-+			cpus_read_unlock();
- 			/*
- 			 * Don't call free_channel(), because newchannel->kobj
- 			 * is not initialized yet.
+diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
+index abc84d84f638..9180ca5e4dcd 100644
+--- a/drivers/tty/goldfish.c
++++ b/drivers/tty/goldfish.c
+@@ -428,7 +428,7 @@ static int goldfish_tty_remove(struct platform_device *pdev)
+ 	tty_unregister_device(goldfish_tty_driver, qtty->console.index);
+ 	iounmap(qtty->base);
+ 	qtty->base = NULL;
+-	free_irq(qtty->irq, pdev);
++	free_irq(qtty->irq, qtty);
+ 	tty_port_destroy(&qtty->port);
+ 	goldfish_tty_current_line_count--;
+ 	if (goldfish_tty_current_line_count == 0)
 -- 
 2.35.1
 
