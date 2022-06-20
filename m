@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4310551E57
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B4D9551E3B
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232891AbiFTOUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:20:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50552 "EHLO
+        id S1350508AbiFTODS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:03:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351115AbiFTOSc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 10:18:32 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2490938D93;
-        Mon, 20 Jun 2022 06:33:08 -0700 (PDT)
+        with ESMTP id S1350819AbiFTNxw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:53:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 911FE20BF0;
+        Mon, 20 Jun 2022 06:20:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 427B4CE1394;
-        Mon, 20 Jun 2022 13:07:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E093C3411B;
-        Mon, 20 Jun 2022 13:07:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B39461209;
+        Mon, 20 Jun 2022 13:19:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1202DC3411B;
+        Mon, 20 Jun 2022 13:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730465;
-        bh=P9YpZFue1tW+UBDOFxFwfnTgZzInENd113+wr2whioA=;
+        s=korg; t=1655731184;
+        bh=YEOkS9rYWaYZ21ChQDwOws+yUKUG4JodqoNMAASmEAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVwGh1DDG7rLM4weRD4EMLBGTmJtjBHSSDliPbpXu5c9bbGYoZwRAWBfFT3yZtZ2p
-         C/7VsOmnoIQvxMOWcP5XiKKlwIBpsgXJ/sk7l/o/IuarGyaI7fDCmleAmbpXQRsuet
-         ybE/t/qsBQus6TBGVD8/49eVQWfMIm9kDG3kigfE=
+        b=nHfK00kACUpV3nRpl7pk1V/TUqnDgEeO/G7qKDtBS3EHxbaeqkRzGIG8Tzf6keOcN
+         xyt6HnE0b/+8cv2icTjIMW4LEOeXlkbBid2244Htw1eOy/MY3YlJ+Q23ygr0g0sxm5
+         6tcpXijcHsOHpjj7wOPZNBSMbZNTHCbCBASg6Bdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 061/106] net: hns3: set port base vlan tbl_sta to false before removing old vlan
-Date:   Mon, 20 Jun 2022 14:51:20 +0200
-Message-Id: <20220620124726.205777811@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 180/240] random: account for arch randomness in bits
+Date:   Mon, 20 Jun 2022 14:51:21 +0200
+Message-Id: <20220620124744.210464077@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 9eda7d8bcbdb6909f202edeedff51948f1cad1e5 ]
+commit 77fc95f8c0dc9e1f8e620ec14d2fb65028fb7adc upstream.
 
-When modify port base vlan, the port base vlan tbl_sta needs to set to
-false before removing old vlan, to indicate this operation is not finish.
+Rather than accounting in bytes and multiplying (shifting), we can just
+account in bits and avoid the shift. The main motivation for this is
+there are other patches in flux that expand this code a bit, and
+avoiding the duplication of "* 8" everywhere makes things a bit clearer.
 
-Fixes: c0f46de30c96 ("net: hns3: fix port base vlan add fail when concurrent with reset")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 12e45a2a6308 ("random: credit architectural init the exact amount")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/random.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index cdd1d2ebdde2..15098570047b 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -10411,6 +10411,7 @@ static int hclge_modify_port_base_vlan_tag(struct hclge_vport *vport,
- 	if (ret)
- 		return ret;
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -809,7 +809,7 @@ early_param("random.trust_bootloader", p
+ int __init random_init(const char *command_line)
+ {
+ 	ktime_t now = ktime_get_real();
+-	unsigned int i, arch_bytes;
++	unsigned int i, arch_bits;
+ 	unsigned long entropy;
  
-+	vport->port_base_vlan_cfg.tbl_sta = false;
- 	/* remove old VLAN tag */
- 	if (old_info->vlan_tag == 0)
- 		ret = hclge_set_vf_vlan_common(hdev, vport->vport_id,
--- 
-2.35.1
-
+ #if defined(LATENT_ENTROPY_PLUGIN)
+@@ -817,12 +817,12 @@ int __init random_init(const char *comma
+ 	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
+ #endif
+ 
+-	for (i = 0, arch_bytes = BLAKE2S_BLOCK_SIZE;
++	for (i = 0, arch_bits = BLAKE2S_BLOCK_SIZE * 8;
+ 	     i < BLAKE2S_BLOCK_SIZE; i += sizeof(entropy)) {
+ 		if (!arch_get_random_seed_long_early(&entropy) &&
+ 		    !arch_get_random_long_early(&entropy)) {
+ 			entropy = random_get_entropy();
+-			arch_bytes -= sizeof(entropy);
++			arch_bits -= sizeof(entropy) * 8;
+ 		}
+ 		_mix_pool_bytes(&entropy, sizeof(entropy));
+ 	}
+@@ -834,7 +834,7 @@ int __init random_init(const char *comma
+ 	if (crng_ready())
+ 		crng_reseed();
+ 	else if (trust_cpu)
+-		_credit_init_bits(arch_bytes * 8);
++		_credit_init_bits(arch_bits);
+ 
+ 	return 0;
+ }
 
 
