@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2EB95519F7
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8866D551C6D
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242876AbiFTMxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:53:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36752 "EHLO
+        id S1346319AbiFTNel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:34:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242864AbiFTMxe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:53:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4D88B7F;
-        Mon, 20 Jun 2022 05:53:33 -0700 (PDT)
+        with ESMTP id S1347392AbiFTNeE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:34:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75EA01DA42;
+        Mon, 20 Jun 2022 06:13:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41082614CE;
-        Mon, 20 Jun 2022 12:53:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34702C3411C;
-        Mon, 20 Jun 2022 12:53:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF676B80E2F;
+        Mon, 20 Jun 2022 13:13:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BB1C3411C;
+        Mon, 20 Jun 2022 13:13:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729612;
-        bh=jvY6zLIFYZFwPqwJyHm4FYdTHBXHgYFw9HzPnyPYv5M=;
+        s=korg; t=1655730792;
+        bh=zC0rhojZPGoDhoHSXiKLJ+XGxJ+VMgmJnAnInp68XIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7qHylR+4W7oXO2JhzalvVzXeIbeJH/OIRfvADiDi6/hIwenGN+ALB+X/iCNz4Dju
-         V1zKZKJ/uQLK2/+NSUyj02pvFe86+vruTZEIIQ0i28M3qkYVPeR52xoLIEhpRivOQp
-         Yn8yBy6aEsKvRu2nZIrQKGir4SFFM9r4IFFjJOeQ=
+        b=eIttD3E3jiysFqKxT7CsdQb94GzuZuQ90ikhVbbhmSw+E90B8F/yOx4jjzYwUclr6
+         O6suHtpsD7irduL3Exhu93XhNcWBdYgvTjSKdjmNjN8wZYe8bSdEy+bWL2X0BeSxAm
+         7Oz2nMY4fvleInpOdpTEK3ke9c97wmkmnZwZRASk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lang Yu <Lang.Yu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 019/141] drm/amdkfd: add pinned BOs to kfd_bo_list
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 056/240] random: de-duplicate INPUT_POOL constants
 Date:   Mon, 20 Jun 2022 14:49:17 +0200
-Message-Id: <20220620124730.087677638@linuxfoundation.org>
+Message-Id: <20220620124739.846276857@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lang Yu <Lang.Yu@amd.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 4fac4fcf4500bce515b0f32195e7bb86aa0246c6 ]
+commit 5b87adf30f1464477169a1d653e9baf8c012bbfe upstream.
 
-The kfd_bo_list is used to restore process BOs after
-evictions. As page tables could be destroyed during
-evictions, we should also update pinned BOs' page tables
-during restoring to make sure they are valid.
+We already had the POOL_* constants, so deduplicate the older INPUT_POOL
+ones. As well, fold EXTRACT_SIZE into the poolinfo enum, since it's
+related.
 
-So for pinned BOs,
-1, Validate them and update their page tables.
-2, Don't add eviction fence for them.
-
-v2:
- - Don't handle pinned ones specially in BO validation.(Felix)
-
-Signed-off-by: Lang Yu <Lang.Yu@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/char/random.c |   17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index cd89d2e46852..f4509656ea8c 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -1955,9 +1955,6 @@ int amdgpu_amdkfd_gpuvm_map_gtt_bo_to_kernel(struct amdgpu_device *adev,
- 		return -EINVAL;
- 	}
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -359,13 +359,6 @@
+ /* #define ADD_INTERRUPT_BENCH */
  
--	/* delete kgd_mem from kfd_bo_list to avoid re-validating
--	 * this BO in BO's restoring after eviction.
--	 */
- 	mutex_lock(&mem->process_info->lock);
- 
- 	ret = amdgpu_bo_reserve(bo, true);
-@@ -1980,7 +1977,6 @@ int amdgpu_amdkfd_gpuvm_map_gtt_bo_to_kernel(struct amdgpu_device *adev,
- 
- 	amdgpu_amdkfd_remove_eviction_fence(
- 		bo, mem->process_info->eviction_fence);
--	list_del_init(&mem->validate_list.head);
- 
- 	if (size)
- 		*size = amdgpu_bo_size(bo);
-@@ -2544,12 +2540,15 @@ int amdgpu_amdkfd_gpuvm_restore_process_bos(void *info, struct dma_fence **ef)
- 	process_info->eviction_fence = new_fence;
- 	*ef = dma_fence_get(&new_fence->base);
- 
--	/* Attach new eviction fence to all BOs */
-+	/* Attach new eviction fence to all BOs except pinned ones */
- 	list_for_each_entry(mem, &process_info->kfd_bo_list,
--		validate_list.head)
-+		validate_list.head) {
-+		if (mem->bo->tbo.pin_count)
-+			continue;
-+
- 		amdgpu_bo_fence(mem->bo,
- 			&process_info->eviction_fence->base, true);
+ /*
+- * Configuration information
+- */
+-#define INPUT_POOL_SHIFT	12
+-#define INPUT_POOL_WORDS	(1 << (INPUT_POOL_SHIFT-5))
+-#define EXTRACT_SIZE		(BLAKE2S_HASH_SIZE / 2)
 -
-+	}
- 	/* Attach eviction fence to PD / PT BOs */
- 	list_for_each_entry(peer_vm, &process_info->vm_list_head,
- 			    vm_list_node) {
--- 
-2.35.1
-
+-/*
+  * To allow fractional bits to be tracked, the entropy_count field is
+  * denominated in units of 1/8th bits.
+  *
+@@ -440,7 +433,9 @@ enum poolinfo {
+ 	POOL_TAP2 = 76,
+ 	POOL_TAP3 = 51,
+ 	POOL_TAP4 = 25,
+-	POOL_TAP5 = 1
++	POOL_TAP5 = 1,
++
++	EXTRACT_SIZE = BLAKE2S_HASH_SIZE / 2
+ };
+ 
+ /*
+@@ -503,7 +498,7 @@ MODULE_PARM_DESC(ratelimit_disable, "Dis
+  *
+  **********************************************************************/
+ 
+-static u32 input_pool_data[INPUT_POOL_WORDS] __latent_entropy;
++static u32 input_pool_data[POOL_WORDS] __latent_entropy;
+ 
+ static struct {
+ 	/* read-only data: */
+@@ -1961,7 +1956,7 @@ SYSCALL_DEFINE3(getrandom, char __user *
+ #include <linux/sysctl.h>
+ 
+ static int min_write_thresh;
+-static int max_write_thresh = INPUT_POOL_WORDS * 32;
++static int max_write_thresh = POOL_BITS;
+ static int random_min_urandom_seed = 60;
+ static char sysctl_bootid[16];
+ 
+@@ -2018,7 +2013,7 @@ static int proc_do_entropy(struct ctl_ta
+ 	return proc_dointvec(&fake_table, write, buffer, lenp, ppos);
+ }
+ 
+-static int sysctl_poolsize = INPUT_POOL_WORDS * 32;
++static int sysctl_poolsize = POOL_BITS;
+ extern struct ctl_table random_table[];
+ struct ctl_table random_table[] = {
+ 	{
 
 
