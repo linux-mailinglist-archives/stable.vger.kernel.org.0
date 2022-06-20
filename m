@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3F9551D3F
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 389E6551A09
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241878AbiFTNuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56020 "EHLO
+        id S243599AbiFTNA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:00:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348180AbiFTNr6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:47:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A722ED6A;
-        Mon, 20 Jun 2022 06:17:40 -0700 (PDT)
+        with ESMTP id S244659AbiFTM7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:59:47 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BFB61A052;
+        Mon, 20 Jun 2022 05:56:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31AE7B80E7D;
-        Mon, 20 Jun 2022 13:16:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 852B2C3411C;
-        Mon, 20 Jun 2022 13:16:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 533C4CE138A;
+        Mon, 20 Jun 2022 12:56:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0338BC3411B;
+        Mon, 20 Jun 2022 12:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730978;
-        bh=tgP0RprB/ziOwGFh2YoA80OFebgvpaanFA8mfj0LnTo=;
+        s=korg; t=1655729798;
+        bh=WvDC5wxXqXnNA8e+WNw8hqCRYkEqfWusLnMux/2jvUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KknvPXb/U0HCEFNU+svlcNY1oJ88j8VJ+VwrTiRbaJobG56zps7gjs8taChW3pOaA
-         sYoFfmQsXHXXGx/YTXSO7OJ/4raajpByOs1X2J722uYtF8xp3z5XAxJLhKazo2/d5r
-         WnksOWk7OOa7rOAXEtpNFk/VCQWbX2LI3udpI8Rk=
+        b=s1oeeo1Hp30SzjqTNIhqf9QkFwEn0oOEOLCBL8rFQVNQgfOJ9TZlcMK7JegSuTpfh
+         L8W8Tj4j+v9xEx8zmeuc6lkYO9ReSn2VvqRbBA6Db6GrujK44n+PXxqgZbu/vGJS5Q
+         KStCc/BbSO1DGzyG0RKUVX06o0G6k8bqaBvgEuVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 108/240] random: cleanup UUID handling
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 071/141] net: hns3: restore tm priority/qset to default settings when tc disabled
 Date:   Mon, 20 Jun 2022 14:50:09 +0200
-Message-Id: <20220620124742.144898647@linuxfoundation.org>
+Message-Id: <20220620124731.634745023@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,93 +54,247 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-commit 64276a9939ff414f2f0db38036cf4e1a0a703394 upstream.
+[ Upstream commit e93530ae0e5d8fcf2d908933d206e0c93bc3c09b ]
 
-Rather than hard coding various lengths, we can use the right constants.
-Strings should be `char *` while buffers should be `u8 *`. Rather than
-have a nonsensical and unused maxlength, just remove it. Finally, use
-snprintf instead of sprintf, just out of good hygiene.
+Currently, settings parameters of schedule mode, dwrr, shaper of tm
+priority or qset of one tc are only be set when tc is enabled, they are
+not restored to the default settings when tc is disabled. It confuses
+users when they cat tm_priority or tm_qset files of debugfs. So this
+patch fixes it.
 
-As well, remove the old comment about returning a binary UUID via the
-binary sysctl syscall. That syscall was removed from the kernel in 5.5,
-and actually, the "uuid_strategy" function and related infrastructure
-for even serving it via the binary sysctl syscall was removed with
-894d2491153a ("sysctl drivers: Remove dead binary sysctl support") back
-in 2.6.33.
-
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 848440544b41 ("net: hns3: Add support of TX Scheduler & Shaper to HNS3 driver")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |   29 +++++++++++++----------------
- 1 file changed, 13 insertions(+), 16 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |  1 +
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 95 +++++++++++++------
+ 2 files changed, 65 insertions(+), 31 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1656,22 +1656,25 @@ const struct file_operations urandom_fop
- static int sysctl_random_min_urandom_seed = 60;
- static int sysctl_random_write_wakeup_bits = POOL_MIN_BITS;
- static int sysctl_poolsize = POOL_BITS;
--static char sysctl_bootid[16];
-+static u8 sysctl_bootid[UUID_SIZE];
- 
- /*
-  * This function is used to return both the bootid UUID, and random
-- * UUID.  The difference is in whether table->data is NULL; if it is,
-+ * UUID. The difference is in whether table->data is NULL; if it is,
-  * then a new UUID is generated and returned to the user.
-- *
-- * If the user accesses this via the proc interface, the UUID will be
-- * returned as an ASCII string in the standard UUID format; if via the
-- * sysctl system call, as 16 bytes of binary data.
-  */
- static int proc_do_uuid(struct ctl_table *table, int write,
- 			void __user *buffer, size_t *lenp, loff_t *ppos)
- {
--	struct ctl_table fake_table;
--	unsigned char buf[64], tmp_uuid[16], *uuid;
-+	u8 tmp_uuid[UUID_SIZE], *uuid;
-+	char uuid_string[UUID_STRING_LEN + 1];
-+	struct ctl_table fake_table = {
-+		.data = uuid_string,
-+		.maxlen = UUID_STRING_LEN
-+	};
-+
-+	if (write)
-+		return -EPERM;
- 
- 	uuid = table->data;
- 	if (!uuid) {
-@@ -1686,12 +1689,8 @@ static int proc_do_uuid(struct ctl_table
- 		spin_unlock(&bootid_spinlock);
- 	}
- 
--	sprintf(buf, "%pU", uuid);
--
--	fake_table.data = buf;
--	fake_table.maxlen = sizeof(buf);
--
--	return proc_dostring(&fake_table, write, buffer, lenp, ppos);
-+	snprintf(uuid_string, sizeof(uuid_string), "%pU", uuid);
-+	return proc_dostring(&fake_table, 0, buffer, lenp, ppos);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 79c64f4e67d2..3affcdb34c91 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -765,6 +765,7 @@ struct hnae3_tc_info {
+ 	u8 prio_tc[HNAE3_MAX_USER_PRIO]; /* TC indexed by prio */
+ 	u16 tqp_count[HNAE3_MAX_TC];
+ 	u16 tqp_offset[HNAE3_MAX_TC];
++	u8 max_tc; /* Total number of TCs */
+ 	u8 num_tc; /* Total number of enabled TCs */
+ 	bool mqprio_active;
+ };
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+index 1f87a8a3fe32..ad53a3447322 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+@@ -282,8 +282,8 @@ static int hclge_tm_pg_to_pri_map_cfg(struct hclge_dev *hdev,
+ 	return hclge_cmd_send(&hdev->hw, &desc, 1);
  }
  
- extern struct ctl_table random_table[];
-@@ -1727,13 +1726,11 @@ struct ctl_table random_table[] = {
- 	{
- 		.procname	= "boot_id",
- 		.data		= &sysctl_bootid,
--		.maxlen		= 16,
- 		.mode		= 0444,
- 		.proc_handler	= proc_do_uuid,
- 	},
- 	{
- 		.procname	= "uuid",
--		.maxlen		= 16,
- 		.mode		= 0444,
- 		.proc_handler	= proc_do_uuid,
- 	},
+-static int hclge_tm_qs_to_pri_map_cfg(struct hclge_dev *hdev,
+-				      u16 qs_id, u8 pri)
++static int hclge_tm_qs_to_pri_map_cfg(struct hclge_dev *hdev, u16 qs_id, u8 pri,
++				      bool link_vld)
+ {
+ 	struct hclge_qs_to_pri_link_cmd *map;
+ 	struct hclge_desc desc;
+@@ -294,7 +294,7 @@ static int hclge_tm_qs_to_pri_map_cfg(struct hclge_dev *hdev,
+ 
+ 	map->qs_id = cpu_to_le16(qs_id);
+ 	map->priority = pri;
+-	map->link_vld = HCLGE_TM_QS_PRI_LINK_VLD_MSK;
++	map->link_vld = link_vld ? HCLGE_TM_QS_PRI_LINK_VLD_MSK : 0;
+ 
+ 	return hclge_cmd_send(&hdev->hw, &desc, 1);
+ }
+@@ -642,11 +642,13 @@ static void hclge_tm_update_kinfo_rss_size(struct hclge_vport *vport)
+ 	 * one tc for VF for simplicity. VF's vport_id is non zero.
+ 	 */
+ 	if (vport->vport_id) {
++		kinfo->tc_info.max_tc = 1;
+ 		kinfo->tc_info.num_tc = 1;
+ 		vport->qs_offset = HNAE3_MAX_TC +
+ 				   vport->vport_id - HCLGE_VF_VPORT_START_NUM;
+ 		vport_max_rss_size = hdev->vf_rss_size_max;
+ 	} else {
++		kinfo->tc_info.max_tc = hdev->tc_max;
+ 		kinfo->tc_info.num_tc =
+ 			min_t(u16, vport->alloc_tqps, hdev->tm_info.num_tc);
+ 		vport->qs_offset = 0;
+@@ -714,14 +716,22 @@ static void hclge_tm_vport_info_update(struct hclge_dev *hdev)
+ 
+ static void hclge_tm_tc_info_init(struct hclge_dev *hdev)
+ {
+-	u8 i;
++	u8 i, tc_sch_mode;
++	u32 bw_limit;
++
++	for (i = 0; i < hdev->tc_max; i++) {
++		if (i < hdev->tm_info.num_tc) {
++			tc_sch_mode = HCLGE_SCH_MODE_DWRR;
++			bw_limit = hdev->tm_info.pg_info[0].bw_limit;
++		} else {
++			tc_sch_mode = HCLGE_SCH_MODE_SP;
++			bw_limit = 0;
++		}
+ 
+-	for (i = 0; i < hdev->tm_info.num_tc; i++) {
+ 		hdev->tm_info.tc_info[i].tc_id = i;
+-		hdev->tm_info.tc_info[i].tc_sch_mode = HCLGE_SCH_MODE_DWRR;
++		hdev->tm_info.tc_info[i].tc_sch_mode = tc_sch_mode;
+ 		hdev->tm_info.tc_info[i].pgid = 0;
+-		hdev->tm_info.tc_info[i].bw_limit =
+-			hdev->tm_info.pg_info[0].bw_limit;
++		hdev->tm_info.tc_info[i].bw_limit = bw_limit;
+ 	}
+ 
+ 	for (i = 0; i < HNAE3_MAX_USER_PRIO; i++)
+@@ -926,10 +936,13 @@ static int hclge_tm_pri_q_qs_cfg_tc_base(struct hclge_dev *hdev)
+ 	for (k = 0; k < hdev->num_alloc_vport; k++) {
+ 		struct hnae3_knic_private_info *kinfo = &vport[k].nic.kinfo;
+ 
+-		for (i = 0; i < kinfo->tc_info.num_tc; i++) {
++		for (i = 0; i < kinfo->tc_info.max_tc; i++) {
++			u8 pri = i < kinfo->tc_info.num_tc ? i : 0;
++			bool link_vld = i < kinfo->tc_info.num_tc;
++
+ 			ret = hclge_tm_qs_to_pri_map_cfg(hdev,
+ 							 vport[k].qs_offset + i,
+-							 i);
++							 pri, link_vld);
+ 			if (ret)
+ 				return ret;
+ 		}
+@@ -949,7 +962,7 @@ static int hclge_tm_pri_q_qs_cfg_vnet_base(struct hclge_dev *hdev)
+ 		for (i = 0; i < HNAE3_MAX_TC; i++) {
+ 			ret = hclge_tm_qs_to_pri_map_cfg(hdev,
+ 							 vport[k].qs_offset + i,
+-							 k);
++							 k, true);
+ 			if (ret)
+ 				return ret;
+ 		}
+@@ -989,33 +1002,39 @@ static int hclge_tm_pri_tc_base_shaper_cfg(struct hclge_dev *hdev)
+ {
+ 	u32 max_tm_rate = hdev->ae_dev->dev_specs.max_tm_rate;
+ 	struct hclge_shaper_ir_para ir_para;
+-	u32 shaper_para;
++	u32 shaper_para_c, shaper_para_p;
+ 	int ret;
+ 	u32 i;
+ 
+-	for (i = 0; i < hdev->tm_info.num_tc; i++) {
++	for (i = 0; i < hdev->tc_max; i++) {
+ 		u32 rate = hdev->tm_info.tc_info[i].bw_limit;
+ 
+-		ret = hclge_shaper_para_calc(rate, HCLGE_SHAPER_LVL_PRI,
+-					     &ir_para, max_tm_rate);
+-		if (ret)
+-			return ret;
++		if (rate) {
++			ret = hclge_shaper_para_calc(rate, HCLGE_SHAPER_LVL_PRI,
++						     &ir_para, max_tm_rate);
++			if (ret)
++				return ret;
++
++			shaper_para_c = hclge_tm_get_shapping_para(0, 0, 0,
++								   HCLGE_SHAPER_BS_U_DEF,
++								   HCLGE_SHAPER_BS_S_DEF);
++			shaper_para_p = hclge_tm_get_shapping_para(ir_para.ir_b,
++								   ir_para.ir_u,
++								   ir_para.ir_s,
++								   HCLGE_SHAPER_BS_U_DEF,
++								   HCLGE_SHAPER_BS_S_DEF);
++		} else {
++			shaper_para_c = 0;
++			shaper_para_p = 0;
++		}
+ 
+-		shaper_para = hclge_tm_get_shapping_para(0, 0, 0,
+-							 HCLGE_SHAPER_BS_U_DEF,
+-							 HCLGE_SHAPER_BS_S_DEF);
+ 		ret = hclge_tm_pri_shapping_cfg(hdev, HCLGE_TM_SHAP_C_BUCKET, i,
+-						shaper_para, rate);
++						shaper_para_c, rate);
+ 		if (ret)
+ 			return ret;
+ 
+-		shaper_para = hclge_tm_get_shapping_para(ir_para.ir_b,
+-							 ir_para.ir_u,
+-							 ir_para.ir_s,
+-							 HCLGE_SHAPER_BS_U_DEF,
+-							 HCLGE_SHAPER_BS_S_DEF);
+ 		ret = hclge_tm_pri_shapping_cfg(hdev, HCLGE_TM_SHAP_P_BUCKET, i,
+-						shaper_para, rate);
++						shaper_para_p, rate);
+ 		if (ret)
+ 			return ret;
+ 	}
+@@ -1125,7 +1144,7 @@ static int hclge_tm_pri_tc_base_dwrr_cfg(struct hclge_dev *hdev)
+ 	int ret;
+ 	u32 i, k;
+ 
+-	for (i = 0; i < hdev->tm_info.num_tc; i++) {
++	for (i = 0; i < hdev->tc_max; i++) {
+ 		pg_info =
+ 			&hdev->tm_info.pg_info[hdev->tm_info.tc_info[i].pgid];
+ 		dwrr = pg_info->tc_dwrr[i];
+@@ -1135,9 +1154,15 @@ static int hclge_tm_pri_tc_base_dwrr_cfg(struct hclge_dev *hdev)
+ 			return ret;
+ 
+ 		for (k = 0; k < hdev->num_alloc_vport; k++) {
++			struct hnae3_knic_private_info *kinfo = &vport[k].nic.kinfo;
++
++			if (i >= kinfo->tc_info.max_tc)
++				continue;
++
++			dwrr = i < kinfo->tc_info.num_tc ? vport[k].dwrr : 0;
+ 			ret = hclge_tm_qs_weight_cfg(
+ 				hdev, vport[k].qs_offset + i,
+-				vport[k].dwrr);
++				dwrr);
+ 			if (ret)
+ 				return ret;
+ 		}
+@@ -1303,6 +1328,7 @@ static int hclge_tm_schd_mode_tc_base_cfg(struct hclge_dev *hdev, u8 pri_id)
+ {
+ 	struct hclge_vport *vport = hdev->vport;
+ 	int ret;
++	u8 mode;
+ 	u16 i;
+ 
+ 	ret = hclge_tm_pri_schd_mode_cfg(hdev, pri_id);
+@@ -1310,9 +1336,16 @@ static int hclge_tm_schd_mode_tc_base_cfg(struct hclge_dev *hdev, u8 pri_id)
+ 		return ret;
+ 
+ 	for (i = 0; i < hdev->num_alloc_vport; i++) {
++		struct hnae3_knic_private_info *kinfo = &vport[i].nic.kinfo;
++
++		if (pri_id >= kinfo->tc_info.max_tc)
++			continue;
++
++		mode = pri_id < kinfo->tc_info.num_tc ? HCLGE_SCH_MODE_DWRR :
++		       HCLGE_SCH_MODE_SP;
+ 		ret = hclge_tm_qs_schd_mode_cfg(hdev,
+ 						vport[i].qs_offset + pri_id,
+-						HCLGE_SCH_MODE_DWRR);
++						mode);
+ 		if (ret)
+ 			return ret;
+ 	}
+@@ -1353,7 +1386,7 @@ static int hclge_tm_lvl34_schd_mode_cfg(struct hclge_dev *hdev)
+ 	u8 i;
+ 
+ 	if (hdev->tx_sch_mode == HCLGE_FLAG_TC_BASE_SCH_MODE) {
+-		for (i = 0; i < hdev->tm_info.num_tc; i++) {
++		for (i = 0; i < hdev->tc_max; i++) {
+ 			ret = hclge_tm_schd_mode_tc_base_cfg(hdev, i);
+ 			if (ret)
+ 				return ret;
+-- 
+2.35.1
+
 
 
