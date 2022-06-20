@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DFBB551D03
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFAC8551A91
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346447AbiFTNg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:36:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33988 "EHLO
+        id S244696AbiFTNH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:07:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346449AbiFTNg0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:36:26 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11B0E27FEF;
-        Mon, 20 Jun 2022 06:13:48 -0700 (PDT)
+        with ESMTP id S231754AbiFTNF4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:05:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B800E1A044;
+        Mon, 20 Jun 2022 06:00:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 36EB8CE1396;
-        Mon, 20 Jun 2022 13:08:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0534AC3411C;
-        Mon, 20 Jun 2022 13:08:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C2A9B811B9;
+        Mon, 20 Jun 2022 13:00:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9AD1C3411B;
+        Mon, 20 Jun 2022 13:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730491;
-        bh=oQsea3d6+jlOdY/dy8UGPuBU1fISG0mgP6bNaoD2Nfs=;
+        s=korg; t=1655730021;
+        bh=jEjmNSh47oqp7uebHlYwyx7toZeZXvjP9kh3xiYrcNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CqxnYzwW2Mi9AIQEYYnl+yziudZ5M+0m0DFvv6xYOL9YLy7EDKySCOLY9F/33gyy/
-         4OP4bSYXQq579D5CikTEghXGk66rFhVIEi8cfmrKrRM1M6nMAx5wG84vcw2vo2GYtm
-         Jzm449jL7/2TiSqNesWAugCXbvG1+rWg8BIJcJVY=
+        b=YQR+yTBsFekN7oF6VPVg0bBgArZYU4yGbiyHtb2zxXJf6tyNeI6wlkVjaTPUakrGE
+         6aLtKsc3cZJIZRt/2uTdIr4V0vGs/71VmfQdu9E0WB9xhAI3uuYCCHY2syaW2l8qtO
+         XGNFsp1PrkCcGOrEnN/VoPz12C8/JXTW8ZenuD5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 037/106] netfs: gcc-12: temporarily disable -Wattribute-warning for now
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Christoph Hellwig <hch@lst.de>, Song Liu <song@kernel.org>
+Subject: [PATCH 5.18 118/141] md/raid5-ppl: Fix argument order in bio_alloc_bioset()
 Date:   Mon, 20 Jun 2022 14:50:56 +0200
-Message-Id: <20220620124725.487019932@linuxfoundation.org>
+Message-Id: <20220620124733.039144373@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,107 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 507160f46c55913955d272ebf559d63809a8e560 ]
+commit f34fdcd4a0e7a0b92340ad7e48e7bcff9393fab5 upstream.
 
-This is a pure band-aid so that I can continue merging stuff from people
-while some of the gcc-12 fallout gets sorted out.
+bio_alloc_bioset() takes a block device, number of vectors, the
+OP flags, the GFP mask and the bio set. However when the prototype
+was changed, the callisite in ppl_do_flush() had the OP flags and
+the GFP flags reversed. This introduced some sparse error:
 
-In particular, gcc-12 is very unhappy about the kinds of pointer
-arithmetic tricks that netfs does, and that makes the fortify checks
-trigger in afs and ceph:
+  drivers/md/raid5-ppl.c:632:57: warning: incorrect type in argument 3
+				    (different base types)
+  drivers/md/raid5-ppl.c:632:57:    expected unsigned int opf
+  drivers/md/raid5-ppl.c:632:57:    got restricted gfp_t [usertype]
+  drivers/md/raid5-ppl.c:633:61: warning: incorrect type in argument 4
+  				    (different base types)
+  drivers/md/raid5-ppl.c:633:61:    expected restricted gfp_t [usertype]
+				    gfp_mask
+  drivers/md/raid5-ppl.c:633:61:    got unsigned long long
 
-  In function ‘fortify_memset_chk’,
-      inlined from ‘netfs_i_context_init’ at include/linux/netfs.h:327:2,
-      inlined from ‘afs_set_netfs_context’ at fs/afs/inode.c:61:2,
-      inlined from ‘afs_root_iget’ at fs/afs/inode.c:543:2:
-  include/linux/fortify-string.h:258:25: warning: call to ‘__write_overflow_field’ declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
-    258 |                         __write_overflow_field(p_size_field, size);
-        |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The sparse error introduction may not have been reported correctly by
+0day due to other work that was cleaning up other sparse errors in this
+area.
 
-and the reason is that netfs_i_context_init() is passed a 'struct inode'
-pointer, and then it does
-
-        struct netfs_i_context *ctx = netfs_i_context(inode);
-
-        memset(ctx, 0, sizeof(*ctx));
-
-where that netfs_i_context() function just does pointer arithmetic on
-the inode pointer, knowing that the netfs_i_context is laid out
-immediately after it in memory.
-
-This is all truly disgusting, since the whole "netfs_i_context is laid
-out immediately after it in memory" is not actually remotely true in
-general, but is just made to be that way for afs and ceph.
-
-See for example fs/cifs/cifsglob.h:
-
-  struct cifsInodeInfo {
-        struct {
-                /* These must be contiguous */
-                struct inode    vfs_inode;      /* the VFS's inode record */
-                struct netfs_i_context netfs_ctx; /* Netfslib context */
-        };
-	[...]
-
-and realize that this is all entirely wrong, and the pointer arithmetic
-that netfs_i_context() is doing is also very very wrong and wouldn't
-give the right answer if netfs_ctx had different alignment rules from a
-'struct inode', for example).
-
-Anyway, that's just a long-winded way to say "the gcc-12 warning is
-actually quite reasonable, and our code happens to work but is pretty
-disgusting".
-
-This is getting fixed properly, but for now I made the mistake of
-thinking "the week right after the merge window tends to be calm for me
-as people take a breather" and I did a sustem upgrade.  And I got gcc-12
-as a result, so to continue merging fixes from people and not have the
-end result drown in warnings, I am fixing all these gcc-12 issues I hit.
-
-Including with these kinds of temporary fixes.
-
-Cc: Kees Cook <keescook@chromium.org>
-Cc: David Howells <dhowells@redhat.com>
-Link: https://lore.kernel.org/all/AEEBCF5D-8402-441D-940B-105AA718C71F@chromium.org/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 609be1066731 ("block: pass a block_device and opf to bio_alloc_bioset")
+Cc: stable@vger.kernel.org # 5.18+
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/afs/inode.c  | 3 +++
- fs/ceph/inode.c | 3 +++
- 2 files changed, 6 insertions(+)
+ drivers/md/raid5-ppl.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/afs/inode.c b/fs/afs/inode.c
-index a47666ba48f5..5c5b3cb05a5f 100644
---- a/fs/afs/inode.c
-+++ b/fs/afs/inode.c
-@@ -25,6 +25,9 @@
- #include "internal.h"
- #include "afs_fs.h"
+--- a/drivers/md/raid5-ppl.c
++++ b/drivers/md/raid5-ppl.c
+@@ -629,9 +629,9 @@ static void ppl_do_flush(struct ppl_io_u
+ 		if (bdev) {
+ 			struct bio *bio;
  
-+// Temporary: netfs does disgusting things with inode pointers
-+#pragma GCC diagnostic ignored "-Wattribute-warning"
-+
- static const struct inode_operations afs_symlink_inode_operations = {
- 	.get_link	= page_get_link,
- };
-diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index 42e449d3f18b..2fc5ea85f08d 100644
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -20,6 +20,9 @@
- #include "cache.h"
- #include <linux/ceph/decode.h>
+-			bio = bio_alloc_bioset(bdev, 0, GFP_NOIO,
++			bio = bio_alloc_bioset(bdev, 0,
+ 					       REQ_OP_WRITE | REQ_PREFLUSH,
+-					       &ppl_conf->flush_bs);
++					       GFP_NOIO, &ppl_conf->flush_bs);
+ 			bio->bi_private = io;
+ 			bio->bi_end_io = ppl_flush_endio;
  
-+// Temporary: netfs does disgusting things with inode pointers
-+#pragma GCC diagnostic ignored "-Wattribute-warning"
-+
- /*
-  * Ceph inode operations
-  *
--- 
-2.35.1
-
 
 
