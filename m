@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8557551C2C
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:48:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 691C1551A39
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346213AbiFTNb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:31:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53304 "EHLO
+        id S242185AbiFTMyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:54:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345010AbiFTNaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:30:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65033252A2;
-        Mon, 20 Jun 2022 06:12:19 -0700 (PDT)
+        with ESMTP id S242999AbiFTMyB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:54:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA13B18395;
+        Mon, 20 Jun 2022 05:53:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C278ACE1395;
-        Mon, 20 Jun 2022 13:12:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE719C3411B;
-        Mon, 20 Jun 2022 13:12:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDADE614CE;
+        Mon, 20 Jun 2022 12:53:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D63C9C341C4;
+        Mon, 20 Jun 2022 12:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730737;
-        bh=ChMZ6YC+YGzfupv2KqLrsZgii0m7ZJfR/sfxhZSyKMw=;
+        s=korg; t=1655729637;
+        bh=ibMduh7HuIyviPvicq4OHZNjcigY+9TDiyymYuZPtYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2AsrFxXXjwZsJDMnVBkNibie2dOrETS5BwSMUTjhvRbdtde9prD4yuN7Qcu1+qTM9
-         TA+WrduCfvJcjQwWHRnomIcSBtNJTp+Y2X1RhZvWC01uub/nepvSpeOWWJRjcMzLn0
-         +O/DKglZy5Eq9LO9g+D8z1ommib85M6lMR34D8kQ=
+        b=yoLS0PjJWczGhUnEBgosskr939yMPBLGH5/O9VNrg52ZytbbQh+48sXG0azej0oQK
+         BWU8LUtCx9IsOpx+8IZ2/CcJkmyfdJUucFdsrEA8AEfdYF3m+MHkD55H+JniAildti
+         /WibLJqNZwG3JFznIuk+tTnqb8SW51PJt7oTvV7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 040/240] random: do not sign extend bytes for rotation when mixing
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.18 003/141] arm64: dts: imx8mn-beacon: Enable RTS-CTS on UART3
 Date:   Mon, 20 Jun 2022 14:49:01 +0200
-Message-Id: <20220620124739.101869255@linuxfoundation.org>
+Message-Id: <20220620124729.615182130@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,33 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Adam Ford <aford173@gmail.com>
 
-commit 0d9488ffbf2faddebc6bac055bfa6c93b94056a3 upstream.
+commit 5446ff1a67160ad92d9aae9530846aa54750be36 upstream.
 
-By using `char` instead of `unsigned char`, certain platforms will sign
-extend the byte when `w = rol32(*bytes++, input_rotate)` is called,
-meaning that bit 7 is overrepresented when mixing. This isn't a real
-problem (unless the mixer itself is already broken) since it's still
-invertible, but it's not quite correct either. Fix this by using an
-explicit unsigned type.
+There is a header for a DB9 serial port, but any attempts to use
+hardware handshaking fail.  Enable RTS and CTS pin muxing and enable
+handshaking in the uart node.
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mn-beacon-baseboard.dtsi |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -548,7 +548,7 @@ static void _mix_pool_bytes(struct entro
- 	unsigned long i, tap1, tap2, tap3, tap4, tap5;
- 	int input_rotate;
- 	int wordmask = r->poolinfo->poolwords - 1;
--	const char *bytes = in;
-+	const unsigned char *bytes = in;
- 	__u32 w;
+--- a/arch/arm64/boot/dts/freescale/imx8mn-beacon-baseboard.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mn-beacon-baseboard.dtsi
+@@ -175,6 +175,7 @@
+ 	pinctrl-0 = <&pinctrl_uart3>;
+ 	assigned-clocks = <&clk IMX8MN_CLK_UART3>;
+ 	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_80M>;
++	uart-has-rtscts;
+ 	status = "okay";
+ };
  
- 	tap1 = r->poolinfo->tap1;
+@@ -258,6 +259,8 @@
+ 		fsl,pins = <
+ 			MX8MN_IOMUXC_ECSPI1_SCLK_UART3_DCE_RX	0x40
+ 			MX8MN_IOMUXC_ECSPI1_MOSI_UART3_DCE_TX	0x40
++			MX8MN_IOMUXC_ECSPI1_MISO_UART3_DCE_CTS_B	0x40
++			MX8MN_IOMUXC_ECSPI1_SS0_UART3_DCE_RTS_B	0x40
+ 		>;
+ 	};
+ 
 
 
