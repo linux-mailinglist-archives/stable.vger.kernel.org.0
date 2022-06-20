@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B706A551B67
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCCC5551D46
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343794AbiFTNVE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:21:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58274 "EHLO
+        id S1348084AbiFTNuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:50:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344839AbiFTNTc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:19:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 132771B799;
-        Mon, 20 Jun 2022 06:08:10 -0700 (PDT)
+        with ESMTP id S1349194AbiFTNs3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:48:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F5802EA24;
+        Mon, 20 Jun 2022 06:17:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F7FA61535;
-        Mon, 20 Jun 2022 13:06:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7330FC3411B;
-        Mon, 20 Jun 2022 13:06:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 230A161017;
+        Mon, 20 Jun 2022 13:16:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16DE9C3411B;
+        Mon, 20 Jun 2022 13:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730382;
-        bh=bk35GxZMSvgCi98hPj3XUWJh2GZvRMQ+zORPkX2Ju3s=;
+        s=korg; t=1655731006;
+        bh=5ytWGEPki7zvNjF/6JjZcMbuk3kQQxptfDHVJxBB9QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lLwXYUROnag38GrYyuNFt0Qu4IS9dzl9zu/m0qNnFvCalFXuRsFvDiuccvaGzfXtv
-         Da1mWnuTrOh5vls6RHsTeo7ixcGHyW1HBjrIQ7fsrgPxMuHgg0tZENLYt8QJTtkF4p
-         Ozzh2osDysjTfj/V9nC4+U6nhBVql+oIS1NqOvrY=
+        b=Hfjbz/BVtHuqvp2yOv8wzDibAt8ojXKRdQFh9HUH+cuDfSoLZK35TozDlJzGD+7VN
+         u6jGZ4bvdB/dezYZDJ8f8KSMBDbSlk4xe27TPeCL2HoOTLG21b8L80F3DPe4nbitWN
+         7U0HOgzQqsQvrh4VQjMacEfilDgm9Dg9Ne0fkSQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Lin <ctlin0@nuvoton.com>,
-        John Hsu <kchsu0@nuvoton.com>, Seven Li <wtli@nuvoton.com>,
-        Hui Wang <hui.wang@canonical.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 006/106] ASoC: nau8822: Add operation for internal PLL off and on
-Date:   Mon, 20 Jun 2022 14:50:25 +0200
-Message-Id: <20220620124724.575094372@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Theodore Tso <tytso@mit.edu>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 125/240] random: check for signals every PAGE_SIZE chunk of /dev/[u]random
+Date:   Mon, 20 Jun 2022 14:50:26 +0200
+Message-Id: <20220620124742.634945767@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit aeca8a3295022bcec46697f16e098140423d8463 ]
+commit e3c1c4fd9e6d14059ed93ebfe15e1c57793b1a05 upstream.
 
-We tried to enable the audio on an imx6sx EVB with the codec nau8822,
-after setting the internal PLL fractional parameters, the audio still
-couldn't work and the there was no sdma irq at all.
+In 1448769c9cdb ("random: check for signal_pending() outside of
+need_resched() check"), Jann pointed out that we previously were only
+checking the TIF_NOTIFY_SIGNAL and TIF_SIGPENDING flags if the process
+had TIF_NEED_RESCHED set, which meant in practice, super long reads to
+/dev/[u]random would delay signal handling by a long time. I tried this
+using the below program, and indeed I wasn't able to interrupt a
+/dev/urandom read until after several megabytes had been read. The bug
+he fixed has always been there, and so code that reads from /dev/urandom
+without checking the return value of read() has mostly worked for a long
+time, for most sizes, not just for <= 256.
 
-After checking with the section "8.1.1 Phase Locked Loop (PLL) Design
-Example" of "NAU88C22 Datasheet Rev 0.6", we found we need to
-turn off the PLL before programming fractional parameters and turn on
-the PLL after programming.
+Maybe it makes sense to keep that code working. The reason it was so
+small prior, ignoring the fact that it didn't work anyway, was likely
+because /dev/random used to block, and that could happen for pretty
+large lengths of time while entropy was gathered. But now, it's just a
+chacha20 call, which is extremely fast and is just operating on pure
+data, without having to wait for some external event. In that sense,
+/dev/[u]random is a lot more like /dev/zero.
 
-After this change, the audio driver could record and play sound and
-the sdma's irq is triggered when playing or recording.
+Taking a page out of /dev/zero's read_zero() function, it always returns
+at least one chunk, and then checks for signals after each chunk. Chunk
+sizes there are of length PAGE_SIZE. Let's just copy the same thing for
+/dev/[u]random, and check for signals and cond_resched() for every
+PAGE_SIZE amount of data. This makes the behavior more consistent with
+expectations, and should mitigate the impact of Jann's fix for the
+age-old signal check bug.
 
-Cc: David Lin <ctlin0@nuvoton.com>
-Cc: John Hsu <kchsu0@nuvoton.com>
-Cc: Seven Li <wtli@nuvoton.com>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20220530040151.95221-2-hui.wang@canonical.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+---- test program ----
+
+  #include <unistd.h>
+  #include <signal.h>
+  #include <stdio.h>
+  #include <sys/random.h>
+
+  static unsigned char x[~0U];
+
+  static void handle(int) { }
+
+  int main(int argc, char *argv[])
+  {
+    pid_t pid = getpid(), child;
+    signal(SIGUSR1, handle);
+    if (!(child = fork())) {
+      for (;;)
+        kill(pid, SIGUSR1);
+    }
+    pause();
+    printf("interrupted after reading %zd bytes\n", getrandom(x, sizeof(x), 0));
+    kill(child, SIGTERM);
+    return 0;
+  }
+
+Cc: Jann Horn <jannh@google.com>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/nau8822.c | 4 ++++
- sound/soc/codecs/nau8822.h | 3 +++
- 2 files changed, 7 insertions(+)
+ drivers/char/random.c |   17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/codecs/nau8822.c b/sound/soc/codecs/nau8822.c
-index 58123390c7a3..b436e532993d 100644
---- a/sound/soc/codecs/nau8822.c
-+++ b/sound/soc/codecs/nau8822.c
-@@ -740,6 +740,8 @@ static int nau8822_set_pll(struct snd_soc_dai *dai, int pll_id, int source,
- 		pll_param->pll_int, pll_param->pll_frac,
- 		pll_param->mclk_scaler, pll_param->pre_factor);
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -523,7 +523,6 @@ EXPORT_SYMBOL(get_random_bytes);
  
-+	snd_soc_component_update_bits(component,
-+		NAU8822_REG_POWER_MANAGEMENT_1, NAU8822_PLL_EN_MASK, NAU8822_PLL_OFF);
- 	snd_soc_component_update_bits(component,
- 		NAU8822_REG_PLL_N, NAU8822_PLLMCLK_DIV2 | NAU8822_PLLN_MASK,
- 		(pll_param->pre_factor ? NAU8822_PLLMCLK_DIV2 : 0) |
-@@ -757,6 +759,8 @@ static int nau8822_set_pll(struct snd_soc_dai *dai, int pll_id, int source,
- 		pll_param->mclk_scaler << NAU8822_MCLKSEL_SFT);
- 	snd_soc_component_update_bits(component,
- 		NAU8822_REG_CLOCKING, NAU8822_CLKM_MASK, NAU8822_CLKM_PLL);
-+	snd_soc_component_update_bits(component,
-+		NAU8822_REG_POWER_MANAGEMENT_1, NAU8822_PLL_EN_MASK, NAU8822_PLL_ON);
+ static ssize_t get_random_bytes_user(void __user *buf, size_t nbytes)
+ {
+-	bool large_request = nbytes > 256;
+ 	ssize_t ret = 0;
+ 	size_t len;
+ 	u32 chacha_state[CHACHA_BLOCK_SIZE / sizeof(u32)];
+@@ -549,15 +548,6 @@ static ssize_t get_random_bytes_user(voi
+ 	}
  
- 	return 0;
- }
-diff --git a/sound/soc/codecs/nau8822.h b/sound/soc/codecs/nau8822.h
-index 489191ff187e..b45d42c15de6 100644
---- a/sound/soc/codecs/nau8822.h
-+++ b/sound/soc/codecs/nau8822.h
-@@ -90,6 +90,9 @@
- #define NAU8822_REFIMP_3K			0x3
- #define NAU8822_IOBUF_EN			(0x1 << 2)
- #define NAU8822_ABIAS_EN			(0x1 << 3)
-+#define NAU8822_PLL_EN_MASK			(0x1 << 5)
-+#define NAU8822_PLL_ON				(0x1 << 5)
-+#define NAU8822_PLL_OFF				(0x0 << 5)
+ 	do {
+-		if (large_request) {
+-			if (signal_pending(current)) {
+-				if (!ret)
+-					ret = -ERESTARTSYS;
+-				break;
+-			}
+-			cond_resched();
+-		}
+-
+ 		chacha20_block(chacha_state, output);
+ 		if (unlikely(chacha_state[12] == 0))
+ 			++chacha_state[13];
+@@ -571,6 +561,13 @@ static ssize_t get_random_bytes_user(voi
+ 		nbytes -= len;
+ 		buf += len;
+ 		ret += len;
++
++		BUILD_BUG_ON(PAGE_SIZE % CHACHA_BLOCK_SIZE != 0);
++		if (!(ret % PAGE_SIZE) && nbytes) {
++			if (signal_pending(current))
++				break;
++			cond_resched();
++		}
+ 	} while (nbytes);
  
- /* NAU8822_REG_AUDIO_INTERFACE (0x4) */
- #define NAU8822_AIFMT_MASK			(0x3 << 3)
--- 
-2.35.1
-
+ 	memzero_explicit(output, sizeof(output));
 
 
