@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F27755519BB
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4D62551A37
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243396AbiFTMz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:55:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38642 "EHLO
+        id S243409AbiFTM4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:56:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243184AbiFTMzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:55:11 -0400
+        with ESMTP id S243072AbiFTMzO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:55:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C4AA193EA;
-        Mon, 20 Jun 2022 05:54:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54128193D4;
+        Mon, 20 Jun 2022 05:54:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D189A614F0;
-        Mon, 20 Jun 2022 12:54:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD766C3411B;
-        Mon, 20 Jun 2022 12:54:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E72D9614EB;
+        Mon, 20 Jun 2022 12:54:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9BBEC3411C;
+        Mon, 20 Jun 2022 12:54:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729680;
-        bh=3+TjRApg31Kdh5COe4/h8BpJnLyMhiRmcAOy4HX2bjc=;
+        s=korg; t=1655729684;
+        bh=Nc4h6bd5VOFVAoL8VfnNszRDRrDW6XCZctGLW0J005k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WPNG59mn6QIm7v35j2xuc8Z+Z+u+sf6ZkYH0FO4ZpFwS2HX05CJ7X1NKZJJzDYP5S
-         HbXxN7vpvvP7DGqicICDEaW1slvYXNOtXTco4uan9AVoeGOcCGxNi3kl4CiWk6/ZBk
-         72EyH3ZOAhjr5ak6GlKQiIDJ3jR8+NKnbb3mQgsk=
+        b=Y71f6qeAQNwjtZZVcSQEU2Qszk4MrHCFN37fK/KIBmZbPwaVRoIY2qJiknU2gW7Vd
+         O+zGA+UR7xt5NOArOFqGb4h1LhkVt56v87u1GiOXfFh9/CdOYQqaW3Ar/W93lYC/S1
+         1fN2qHNgImyWvZOhWPwiyF/kDa7C2mP/96MYTcrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 041/141] mellanox: mlx5: avoid uninitialized variable warning with gcc-12
-Date:   Mon, 20 Jun 2022 14:49:39 +0200
-Message-Id: <20220620124730.749469733@linuxfoundation.org>
+Subject: [PATCH 5.18 042/141] gcc-12: disable -Warray-bounds universally for now
+Date:   Mon, 20 Jun 2022 14:49:40 +0200
+Message-Id: <20220620124730.778643675@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
 References: <20220620124729.509745706@linuxfoundation.org>
@@ -56,45 +57,116 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 842c3b3ddc5f4d17275edbaa09e23d712bf8b915 ]
+[ Upstream commit f0be87c42cbd341d436d06da4792e6b0c83c3aeb ]
 
-gcc-12 started warning about 'tracker' being used uninitialized:
+In commit 8b202ee21839 ("s390: disable -Warray-bounds") the s390 people
+disabled the '-Warray-bounds' warning for gcc-12, because the new logic
+in gcc would cause warnings for their use of the S390_lowcore macro,
+which accesses absolute pointers.
 
-  drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c: In function ‘mlx5_do_bond’:
-  drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c:786:28: warning: ‘tracker’ is used uninitialized [-Wuninitialized]
-    786 |         struct lag_tracker tracker;
-        |                            ^~~~~~~
+It turns out gcc-12 has many other issues in this area, so this takes
+that s390 warning disable logic, and turns it into a kernel build config
+entry instead.
 
-which seems to be because it doesn't track how the use (and
-initialization) is bound by the 'do_bond' flag.
+Part of the intent is that we can make this all much more targeted, and
+use this conflig flag to disable it in only particular configurations
+that cause problems, with the s390 case as an example:
 
-But admittedly that 'do_bond' usage is fairly complicated, and involves
-passing it around as an argument to helper functions, so it's somewhat
-understandable that gcc doesn't see how that all works.
+        select GCC12_NO_ARRAY_BOUNDS
 
-This function could be rewritten to make the use of that tracker
-variable more obviously safe, but for now I'm just adding the forced
-initialization of it.
+and we could do that for other configuration cases that cause issues.
 
+Or we could possibly use the CONFIG_CC_NO_ARRAY_BOUNDS thing in a more
+targeted way, and disable the warning only for particular uses: again
+the s390 case as an example:
+
+  KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_CC_NO_ARRAY_BOUNDS),-Wno-array-bounds)
+
+but this ends up just doing it globally in the top-level Makefile, since
+the current issues are spread fairly widely all over:
+
+  KBUILD_CFLAGS-$(CONFIG_CC_NO_ARRAY_BOUNDS) += -Wno-array-bounds
+
+We'll try to limit this later, since the gcc-12 problems are rare enough
+that *much* of the kernel can be built with it without disabling this
+warning.
+
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Makefile           |  1 +
+ arch/s390/Kconfig  |  1 +
+ arch/s390/Makefile | 10 +---------
+ init/Kconfig       |  9 +++++++++
+ 4 files changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-index a8b98242edb1..a1e9d3051533 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-@@ -561,7 +561,7 @@ static void mlx5_do_bond(struct mlx5_lag *ldev)
- {
- 	struct mlx5_core_dev *dev0 = ldev->pf[MLX5_LAG_P1].dev;
- 	struct mlx5_core_dev *dev1 = ldev->pf[MLX5_LAG_P2].dev;
--	struct lag_tracker tracker;
-+	struct lag_tracker tracker = { };
- 	bool do_bond, roce_lag;
- 	int err;
+diff --git a/Makefile b/Makefile
+index 476cbe751b17..d19e3b425bd6 100644
+--- a/Makefile
++++ b/Makefile
+@@ -787,6 +787,7 @@ stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
+ KBUILD_CFLAGS += $(stackp-flags-y)
  
+ KBUILD_CFLAGS-$(CONFIG_WERROR) += -Werror
++KBUILD_CFLAGS-$(CONFIG_CC_NO_ARRAY_BOUNDS) += -Wno-array-bounds
+ KBUILD_CFLAGS += $(KBUILD_CFLAGS-y) $(CONFIG_CC_IMPLICIT_FALLTHROUGH)
+ 
+ ifdef CONFIG_CC_IS_CLANG
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index e084c72104f8..359b0cc0dc35 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -125,6 +125,7 @@ config S390
+ 	select CLONE_BACKWARDS2
+ 	select DMA_OPS if PCI
+ 	select DYNAMIC_FTRACE if FUNCTION_TRACER
++	select GCC12_NO_ARRAY_BOUNDS
+ 	select GENERIC_ALLOCATOR
+ 	select GENERIC_CPU_AUTOPROBE
+ 	select GENERIC_CPU_VULNERABILITIES
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index df325eacf62d..eba70d585cb2 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -30,15 +30,7 @@ KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
+ KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
+-
+-ifdef CONFIG_CC_IS_GCC
+-	ifeq ($(call cc-ifversion, -ge, 1200, y), y)
+-		ifeq ($(call cc-ifversion, -lt, 1300, y), y)
+-			KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
+-			KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, array-bounds)
+-		endif
+-	endif
+-endif
++KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_CC_NO_ARRAY_BOUNDS),-Wno-array-bounds)
+ 
+ UTS_MACHINE	:= s390x
+ STACK_SIZE	:= $(if $(CONFIG_KASAN),65536,16384)
+diff --git a/init/Kconfig b/init/Kconfig
+index b19e2eeaae80..fa63cc019ebf 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -899,6 +899,15 @@ config CC_IMPLICIT_FALLTHROUGH
+ 	default "-Wimplicit-fallthrough=5" if CC_IS_GCC && $(cc-option,-Wimplicit-fallthrough=5)
+ 	default "-Wimplicit-fallthrough" if CC_IS_CLANG && $(cc-option,-Wunreachable-code-fallthrough)
+ 
++# Currently, disable gcc-12 array-bounds globally.
++# We may want to target only particular configurations some day.
++config GCC12_NO_ARRAY_BOUNDS
++	def_bool y
++
++config CC_NO_ARRAY_BOUNDS
++	bool
++	default y if CC_IS_GCC && GCC_VERSION >= 120000 && GCC_VERSION < 130000 && GCC12_NO_ARRAY_BOUNDS
++
+ #
+ # For architectures that know their GCC __int128 support is sound
+ #
 -- 
 2.35.1
 
