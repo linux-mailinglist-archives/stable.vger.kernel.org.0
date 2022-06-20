@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D4F551D07
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D624551A7B
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344183AbiFTNYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:24:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57624 "EHLO
+        id S244942AbiFTNGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:06:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345135AbiFTNXj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:23:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 181186577;
-        Mon, 20 Jun 2022 06:09:16 -0700 (PDT)
+        with ESMTP id S244094AbiFTNEe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:34 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 057DE13CCB;
+        Mon, 20 Jun 2022 05:59:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E13DC60A21;
-        Mon, 20 Jun 2022 13:07:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E49C8C3411B;
-        Mon, 20 Jun 2022 13:07:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 542AFCE1386;
+        Mon, 20 Jun 2022 12:59:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3292FC3411C;
+        Mon, 20 Jun 2022 12:59:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730459;
-        bh=frZO+DvsRWIjr3bnyrZmYD0sFkxeG+az98JGpxuLi2c=;
+        s=korg; t=1655729993;
+        bh=zKDGnQNZ3Lcx01ngixrSGF90RNivdIWvffi8qbGBins=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VA5m9S0U2HR8E0Zoc0FK2b0ANUqdPdT73VnHgT3hJppSWS0DtcZOxBL0pVmsnUuD/
-         BJNWm/QXP0akLni5y0QJukdztQfH5B96aokeL142ui67eHdzoOs3i/1Y+wCL/oBKg0
-         MKdebDy7ANY6ud91y79cv39pGrgmqPs0w2dMfi6o=
+        b=BvJdd455yw7tMD0HR4B++j6+3USh9lXBTtaIrQGj+XgeQ1QdxOM1HKWn9UzDu6Tl4
+         dQcUtE4sU/GaDGPIizRQd6A4JoBjRu78s9mYqQkhjZxTXUyA0eeFkJIJ3a0l/31PSE
+         dylJ58GPLoruubDKcmtzZO/Q/JYOzz/LoxCOITZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alan Previn <alan.previn.teres.alexis@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 059/106] drm/i915/reset: Fix error_state_read ptr + offset use
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.18 140/141] dm: fix bio_set allocation
 Date:   Mon, 20 Jun 2022 14:51:18 +0200
-Message-Id: <20220620124726.149338743@linuxfoundation.org>
+Message-Id: <20220620124733.697765253@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,144 +53,224 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Previn <alan.previn.teres.alexis@intel.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit c9b576d0c7bf55aeae1a736da7974fa202c4394d ]
+commit 29dec90a0f1d961b93f34f910e9319d8cb23edbd upstream.
 
-Fix our pointer offset usage in error_state_read
-when there is no i915_gpu_coredump but buf offset
-is non-zero.
+The use of bioset_init_from_src mean that the pre-allocated pools weren't
+used for anything except parameter passing, and the integrity pool
+creation got completely lost for the actual live mapped_device.  Fix that
+by assigning the actual preallocated dm_md_mempools to the mapped_device
+and using that for I/O instead of creating new mempools.
 
-This fixes a kernel page fault can happen when
-multiple tests are running concurrently in a loop
-and one is producing engine resets and consuming
-the i915 error_state dump while the other is
-forcing full GT resets. (takes a while to trigger).
-
-The dmesg call trace:
-
-[ 5590.803000] BUG: unable to handle page fault for address:
-               ffffffffa0b0e000
-[ 5590.803009] #PF: supervisor read access in kernel mode
-[ 5590.803013] #PF: error_code(0x0000) - not-present page
-[ 5590.803016] PGD 5814067 P4D 5814067 PUD 5815063 PMD 109de4067
-               PTE 0
-[ 5590.803022] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[ 5590.803026] CPU: 5 PID: 13656 Comm: i915_hangman Tainted: G U
-                    5.17.0-rc5-ups69-guc-err-capt-rev6+ #136
-[ 5590.803033] Hardware name: Intel Corporation Alder Lake Client
-                    Platform/AlderLake-M LP4x RVP, BIOS ADLPFWI1.R00.
-                    3031.A02.2201171222	01/17/2022
-[ 5590.803039] RIP: 0010:memcpy_erms+0x6/0x10
-[ 5590.803045] Code: fe ff ff cc eb 1e 0f 1f 00 48 89 f8 48 89 d1
-                     48 c1 e9 03 83 e2 07 f3 48 a5 89 d1 f3 a4 c3
-                     66 0f 1f 44 00 00 48 89 f8 48 89 d1 <f3> a4
-                     c3 0f 1f 80 00 00 00 00 48 89 f8 48 83 fa 20
-                     72 7e 40 38 fe
-[ 5590.803054] RSP: 0018:ffffc90003a8fdf0 EFLAGS: 00010282
-[ 5590.803057] RAX: ffff888107ee9000 RBX: ffff888108cb1a00
-               RCX: 0000000000000f8f
-[ 5590.803061] RDX: 0000000000001000 RSI: ffffffffa0b0e000
-               RDI: ffff888107ee9071
-[ 5590.803065] RBP: 0000000000000000 R08: 0000000000000001
-               R09: 0000000000000001
-[ 5590.803069] R10: 0000000000000001 R11: 0000000000000002
-               R12: 0000000000000019
-[ 5590.803073] R13: 0000000000174fff R14: 0000000000001000
-               R15: ffff888107ee9000
-[ 5590.803077] FS: 00007f62a99bee80(0000) GS:ffff88849f880000(0000)
-               knlGS:0000000000000000
-[ 5590.803082] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 5590.803085] CR2: ffffffffa0b0e000 CR3: 000000010a1a8004
-               CR4: 0000000000770ee0
-[ 5590.803089] PKRU: 55555554
-[ 5590.803091] Call Trace:
-[ 5590.803093] <TASK>
-[ 5590.803096] error_state_read+0xa1/0xd0 [i915]
-[ 5590.803175] kernfs_fop_read_iter+0xb2/0x1b0
-[ 5590.803180] new_sync_read+0x116/0x1a0
-[ 5590.803185] vfs_read+0x114/0x1b0
-[ 5590.803189] ksys_read+0x63/0xe0
-[ 5590.803193] do_syscall_64+0x38/0xc0
-[ 5590.803197] entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 5590.803201] RIP: 0033:0x7f62aaea5912
-[ 5590.803204] Code: c0 e9 b2 fe ff ff 50 48 8d 3d 5a b9 0c 00 e8 05
-                     19 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25
-                     18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff
-                     ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
-[ 5590.803213] RSP: 002b:00007fff5b659ae8 EFLAGS: 00000246
-               ORIG_RAX: 0000000000000000
-[ 5590.803218] RAX: ffffffffffffffda RBX: 0000000000100000
-               RCX: 00007f62aaea5912
-[ 5590.803221] RDX: 000000000008b000 RSI: 00007f62a8c4000f
-               RDI: 0000000000000006
-[ 5590.803225] RBP: 00007f62a8bcb00f R08: 0000000000200010
-               R09: 0000000000101000
-[ 5590.803229] R10: 0000000000000001 R11: 0000000000000246
-               R12: 0000000000000006
-[ 5590.803233] R13: 0000000000075000 R14: 00007f62a8acb010
-               R15: 0000000000200000
-[ 5590.803238] </TASK>
-[ 5590.803240] Modules linked in: i915 ttm drm_buddy drm_dp_helper
-                        drm_kms_helper syscopyarea sysfillrect sysimgblt
-                        fb_sys_fops prime_numbers nfnetlink br_netfilter
-                        overlay mei_pxp mei_hdcp x86_pkg_temp_thermal
-                        coretemp kvm_intel snd_hda_codec_hdmi snd_hda_intel
-                        snd_intel_dspcfg snd_hda_codec snd_hwdep
-                        snd_hda_core snd_pcm mei_me mei fuse ip_tables
-                        x_tables crct10dif_pclmul e1000e crc32_pclmul ptp
-                        i2c_i801 ghash_clmulni_intel i2c_smbus pps_core
-                        [last unloa ded: ttm]
-[ 5590.803277] CR2: ffffffffa0b0e000
-[ 5590.803280] ---[ end trace 0000000000000000 ]---
-
-Fixes: 0e39037b3165 ("drm/i915: Cache the error string")
-Signed-off-by: Alan Previn <alan.previn.teres.alexis@intel.com>
-Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220311004311.514198-2-alan.previn.teres.alexis@intel.com
-(cherry picked from commit 3304033a1e69cd81a2044b4422f0d7e593afb4e6)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2a2a4c510b76 ("dm: use bioset_init_from_src() to copy bio_set")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/i915_sysfs.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/md/dm-core.h  |   11 +++++-
+ drivers/md/dm-rq.c    |    2 -
+ drivers/md/dm-table.c |   11 ------
+ drivers/md/dm.c       |   83 ++++++++++++++------------------------------------
+ drivers/md/dm.h       |    2 -
+ 5 files changed, 34 insertions(+), 75 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_sysfs.c b/drivers/gpu/drm/i915/i915_sysfs.c
-index cdf0e9c6fd73..313c0000a814 100644
---- a/drivers/gpu/drm/i915/i915_sysfs.c
-+++ b/drivers/gpu/drm/i915/i915_sysfs.c
-@@ -445,7 +445,14 @@ static ssize_t error_state_read(struct file *filp, struct kobject *kobj,
- 	struct device *kdev = kobj_to_dev(kobj);
- 	struct drm_i915_private *i915 = kdev_minor_to_i915(kdev);
- 	struct i915_gpu_coredump *gpu;
--	ssize_t ret;
-+	ssize_t ret = 0;
+--- a/drivers/md/dm-core.h
++++ b/drivers/md/dm-core.h
+@@ -32,6 +32,14 @@ struct dm_kobject_holder {
+  * access their members!
+  */
+ 
++/*
++ * For mempools pre-allocation at the table loading time.
++ */
++struct dm_md_mempools {
++	struct bio_set bs;
++	struct bio_set io_bs;
++};
 +
-+	/*
-+	 * FIXME: Concurrent clients triggering resets and reading + clearing
-+	 * dumps can cause inconsistent sysfs reads when a user calls in with a
-+	 * non-zero offset to complete a prior partial read but the
-+	 * gpu_coredump has been cleared or replaced.
-+	 */
+ struct mapped_device {
+ 	struct mutex suspend_lock;
  
- 	gpu = i915_first_error_state(i915);
- 	if (IS_ERR(gpu)) {
-@@ -457,8 +464,10 @@ static ssize_t error_state_read(struct file *filp, struct kobject *kobj,
- 		const char *str = "No error state collected\n";
- 		size_t len = strlen(str);
+@@ -109,8 +117,7 @@ struct mapped_device {
+ 	/*
+ 	 * io objects are allocated from here.
+ 	 */
+-	struct bio_set io_bs;
+-	struct bio_set bs;
++	struct dm_md_mempools *mempools;
  
--		ret = min_t(size_t, count, len - off);
--		memcpy(buf, str + off, ret);
-+		if (off < len) {
-+			ret = min_t(size_t, count, len - off);
-+			memcpy(buf, str + off, ret);
+ 	/* kobject and completion */
+ 	struct dm_kobject_holder kobj_holder;
+--- a/drivers/md/dm-rq.c
++++ b/drivers/md/dm-rq.c
+@@ -319,7 +319,7 @@ static int setup_clone(struct request *c
+ {
+ 	int r;
+ 
+-	r = blk_rq_prep_clone(clone, rq, &tio->md->bs, gfp_mask,
++	r = blk_rq_prep_clone(clone, rq, &tio->md->mempools->bs, gfp_mask,
+ 			      dm_rq_bio_constructor, tio);
+ 	if (r)
+ 		return r;
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -1030,17 +1030,6 @@ static int dm_table_alloc_md_mempools(st
+ 	return 0;
+ }
+ 
+-void dm_table_free_md_mempools(struct dm_table *t)
+-{
+-	dm_free_md_mempools(t->mempools);
+-	t->mempools = NULL;
+-}
+-
+-struct dm_md_mempools *dm_table_get_md_mempools(struct dm_table *t)
+-{
+-	return t->mempools;
+-}
+-
+ static int setup_indexes(struct dm_table *t)
+ {
+ 	int i;
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -131,14 +131,6 @@ static int get_swap_bios(void)
+ 	return latch;
+ }
+ 
+-/*
+- * For mempools pre-allocation at the table loading time.
+- */
+-struct dm_md_mempools {
+-	struct bio_set bs;
+-	struct bio_set io_bs;
+-};
+-
+ struct table_device {
+ 	struct list_head list;
+ 	refcount_t count;
+@@ -573,7 +565,7 @@ static struct dm_io *alloc_io(struct map
+ 	struct dm_target_io *tio;
+ 	struct bio *clone;
+ 
+-	clone = bio_alloc_clone(bio->bi_bdev, bio, GFP_NOIO, &md->io_bs);
++	clone = bio_alloc_clone(bio->bi_bdev, bio, GFP_NOIO, &md->mempools->io_bs);
+ 
+ 	tio = clone_to_tio(clone);
+ 	tio->flags = 0;
+@@ -615,7 +607,7 @@ static struct bio *alloc_tio(struct clon
+ 		clone = &tio->clone;
+ 	} else {
+ 		clone = bio_alloc_clone(ci->bio->bi_bdev, ci->bio,
+-					gfp_mask, &ci->io->md->bs);
++					gfp_mask, &ci->io->md->mempools->bs);
+ 		if (!clone)
+ 			return NULL;
+ 
+@@ -1775,8 +1767,7 @@ static void cleanup_mapped_device(struct
+ {
+ 	if (md->wq)
+ 		destroy_workqueue(md->wq);
+-	bioset_exit(&md->bs);
+-	bioset_exit(&md->io_bs);
++	dm_free_md_mempools(md->mempools);
+ 
+ 	if (md->dax_dev) {
+ 		dax_remove_host(md->disk);
+@@ -1948,48 +1939,6 @@ static void free_dev(struct mapped_devic
+ 	kvfree(md);
+ }
+ 
+-static int __bind_mempools(struct mapped_device *md, struct dm_table *t)
+-{
+-	struct dm_md_mempools *p = dm_table_get_md_mempools(t);
+-	int ret = 0;
+-
+-	if (dm_table_bio_based(t)) {
+-		/*
+-		 * The md may already have mempools that need changing.
+-		 * If so, reload bioset because front_pad may have changed
+-		 * because a different table was loaded.
+-		 */
+-		bioset_exit(&md->bs);
+-		bioset_exit(&md->io_bs);
+-
+-	} else if (bioset_initialized(&md->bs)) {
+-		/*
+-		 * There's no need to reload with request-based dm
+-		 * because the size of front_pad doesn't change.
+-		 * Note for future: If you are to reload bioset,
+-		 * prep-ed requests in the queue may refer
+-		 * to bio from the old bioset, so you must walk
+-		 * through the queue to unprep.
+-		 */
+-		goto out;
+-	}
+-
+-	BUG_ON(!p ||
+-	       bioset_initialized(&md->bs) ||
+-	       bioset_initialized(&md->io_bs));
+-
+-	ret = bioset_init_from_src(&md->bs, &p->bs);
+-	if (ret)
+-		goto out;
+-	ret = bioset_init_from_src(&md->io_bs, &p->io_bs);
+-	if (ret)
+-		bioset_exit(&md->bs);
+-out:
+-	/* mempool bind completed, no longer need any mempools in the table */
+-	dm_table_free_md_mempools(t);
+-	return ret;
+-}
+-
+ /*
+  * Bind a table to the device.
+  */
+@@ -2043,12 +1992,28 @@ static struct dm_table *__bind(struct ma
+ 		 * immutable singletons - used to optimize dm_mq_queue_rq.
+ 		 */
+ 		md->immutable_target = dm_table_get_immutable_target(t);
+-	}
+ 
+-	ret = __bind_mempools(md, t);
+-	if (ret) {
+-		old_map = ERR_PTR(ret);
+-		goto out;
++		/*
++		 * There is no need to reload with request-based dm because the
++		 * size of front_pad doesn't change.
++		 *
++		 * Note for future: If you are to reload bioset, prep-ed
++		 * requests in the queue may refer to bio from the old bioset,
++		 * so you must walk through the queue to unprep.
++		 */
++		if (!md->mempools) {
++			md->mempools = t->mempools;
++			t->mempools = NULL;
 +		}
++	} else {
++		/*
++		 * The md may already have mempools that need changing.
++		 * If so, reload bioset because front_pad may have changed
++		 * because a different table was loaded.
++		 */
++		dm_free_md_mempools(md->mempools);
++		md->mempools = t->mempools;
++		t->mempools = NULL;
  	}
  
- 	return ret;
--- 
-2.35.1
-
+ 	ret = dm_table_set_restrictions(t, md->queue, limits);
+--- a/drivers/md/dm.h
++++ b/drivers/md/dm.h
+@@ -71,8 +71,6 @@ struct dm_target *dm_table_get_immutable
+ struct dm_target *dm_table_get_wildcard_target(struct dm_table *t);
+ bool dm_table_bio_based(struct dm_table *t);
+ bool dm_table_request_based(struct dm_table *t);
+-void dm_table_free_md_mempools(struct dm_table *t);
+-struct dm_md_mempools *dm_table_get_md_mempools(struct dm_table *t);
+ 
+ void dm_lock_md_type(struct mapped_device *md);
+ void dm_unlock_md_type(struct mapped_device *md);
 
 
