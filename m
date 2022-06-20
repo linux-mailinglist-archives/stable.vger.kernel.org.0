@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AC94551BA5
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0862B551A75
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:08:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245638AbiFTNP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:15:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42098 "EHLO
+        id S243765AbiFTNER (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:04:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345585AbiFTNOi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:14:38 -0400
+        with ESMTP id S244318AbiFTNDc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:03:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39EC02018A;
-        Mon, 20 Jun 2022 06:07:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D4213D39;
+        Mon, 20 Jun 2022 05:58:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08CF8B811CB;
-        Mon, 20 Jun 2022 13:05:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11880C36AEF;
-        Mon, 20 Jun 2022 13:05:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DC7AB811B9;
+        Mon, 20 Jun 2022 12:58:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9914DC3411B;
+        Mon, 20 Jun 2022 12:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730344;
-        bh=fc7MFvLBl5S0Dpre7Mc7IFBpLtZ3FB1t+p8Ol2drvI4=;
+        s=korg; t=1655729880;
+        bh=suxF+OV9SOJgom/P/dRCfVxDLXXQLItXBadyBvTXuKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GMLGUH5kC7kXdxVPXZ7i1TyeVFdaEJ6YtBi053jJV9WXZPKgiwN8A8swc0ww4tmZj
-         HL93kH0nwLJnImo0aGgw2ZILUSmdVnZPRR/nJTPjWtV+qLCBFaj5smNGkxsOt2s1uk
-         7Ewj4z1lz6ZXM3OGjvCYwVz00Gy1Ey5CFCCjug5Y=
+        b=WRu8sbff12huunyIbVME0POP+olaK2caeV9egaJqUJ7/i1ceM9B8KeZFxM1gm8PmX
+         EzgoRUI6SrPFTR4h/v9IH91XpvTFeFwq56HzDh+DO+DcxJXy0XnROxGYFC14ntEAlY
+         E+oAbXp1HZ/RBi/Z1xJC5oHIfBzLkdFKaIwhXqVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wentao Wang <wwentao@vmware.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 023/106] scsi: vmw_pvscsi: Expand vcpuHint to 16 bits
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.18 104/141] USB: serial: option: add support for Cinterion MV31 with new baseline
 Date:   Mon, 20 Jun 2022 14:50:42 +0200
-Message-Id: <20220620124725.069953812@linuxfoundation.org>
+Message-Id: <20220620124732.617443267@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
-References: <20220620124724.380838401@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wentao Wang <wwentao@vmware.com>
+From: Slark Xiao <slark_xiao@163.com>
 
-[ Upstream commit cf71d59c2eceadfcde0fb52e237990a0909880d7 ]
+commit 158f7585bfcea4aae0ad4128d032a80fec550df1 upstream.
 
-vcpuHint has been expanded to 16 bit on host to enable routing to more
-CPUs. Guest side should align with the change. This change has been tested
-with hosts with 8-bit and 16-bit vcpuHint, on both platforms host side can
-get correct value.
+Adding support for Cinterion device MV31 with Qualcomm
+new baseline. Use different PIDs to separate it from
+previous base line products.
+All interfaces settings keep same as previous.
 
-Link: https://lore.kernel.org/r/EF35F4D5-5DCC-42C5-BCC4-29DF1729B24C@vmware.com
-Signed-off-by: Wentao Wang <wwentao@vmware.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Below is test evidence:
+T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  6 Spd=480 MxCh= 0
+D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00b8 Rev=04.14
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00B8 USB Mobile Broadband
+S:  SerialNumber=90418e79
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+
+T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  7 Spd=480 MxCh= 0
+D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00b9 Rev=04.14
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00B9 USB Mobile Broadband
+S:  SerialNumber=90418e79
+C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+
+For PID 00b8, interface 3 is GNSS port which don't use serial driver.
+
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Link: https://lore.kernel.org/r/20220601034740.5438-1-slark_xiao@163.com
+[ johan: rename defines using a "2" infix ]
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/vmw_pvscsi.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/scsi/vmw_pvscsi.h b/drivers/scsi/vmw_pvscsi.h
-index 51a82f7803d3..9d16cf925483 100644
---- a/drivers/scsi/vmw_pvscsi.h
-+++ b/drivers/scsi/vmw_pvscsi.h
-@@ -331,8 +331,8 @@ struct PVSCSIRingReqDesc {
- 	u8	tag;
- 	u8	bus;
- 	u8	target;
--	u8	vcpuHint;
--	u8	unused[59];
-+	u16	vcpuHint;
-+	u8	unused[58];
- } __packed;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -432,6 +432,8 @@ static void option_instat_callback(struc
+ #define CINTERION_PRODUCT_CLS8			0x00b0
+ #define CINTERION_PRODUCT_MV31_MBIM		0x00b3
+ #define CINTERION_PRODUCT_MV31_RMNET		0x00b7
++#define CINTERION_PRODUCT_MV31_2_MBIM		0x00b8
++#define CINTERION_PRODUCT_MV31_2_RMNET		0x00b9
+ #define CINTERION_PRODUCT_MV32_WA		0x00f1
+ #define CINTERION_PRODUCT_MV32_WB		0x00f2
  
- /*
--- 
-2.35.1
-
+@@ -1979,6 +1981,10 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(3)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
+ 	  .driver_info = RSVD(0)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_MBIM, 0xff),
++	  .driver_info = RSVD(3)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_RMNET, 0xff),
++	  .driver_info = RSVD(0)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
+ 	  .driver_info = RSVD(3)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
 
 
