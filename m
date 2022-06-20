@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C155551E24
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82360551E54
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349424AbiFTOAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:00:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45128 "EHLO
+        id S1349909AbiFTOA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:00:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350916AbiFTNx4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:53:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4BB721810;
-        Mon, 20 Jun 2022 06:20:30 -0700 (PDT)
+        with ESMTP id S1347597AbiFTNyK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:54:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F665220F9;
+        Mon, 20 Jun 2022 06:20:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF51060EC7;
-        Mon, 20 Jun 2022 13:20:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C61FFC3411B;
-        Mon, 20 Jun 2022 13:20:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D572BB811BF;
+        Mon, 20 Jun 2022 13:20:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14866C3411B;
+        Mon, 20 Jun 2022 13:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731229;
-        bh=RLHSQVtkqrazy0mBeNjXkqecGr67GUWi+zQRgtJ/3Bw=;
+        s=korg; t=1655731232;
+        bh=gwmf6peLKhueY78cBZXQsHDQ+B2rOr5tX1pQlxSjuXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKP5kADx7QCkq6zYSIvgjZolK22Y5jZ1Z4j4HMRNB/jbDX3YqOEaD9HCh0tw6104W
-         tAUJkT1tE6q+MNVIkRxYhht00/+zwAl1osXFGeLF2Dkt6fMaVfRJKDiD4y+v6eNiWt
-         3rOq2vzr0NCBjYzXyW0GFzRcN1s7JeeFNNQ+gmyw=
+        b=aMFZUpJU6vDK1HXL36Zwq/rOfLc0C8gUKrHc40OGRt5f8Yyo96ueLxmCvTNXKXpAj
+         mvZJeS2TGxqgyExAA8h+0KwHnHaAiS0RlW1dJ1kbDZdTD+t2UHuh5kbibxd1j7WxqM
+         uZIJiA/LaGMIqRbBy4z75pnT0F8q6quYA7AJ5V0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        stable@vger.kernel.org, Wentao Wang <wwentao@vmware.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 192/240] ASoC: wm_adsp: Fix event generation for wm_adsp_fw_put()
-Date:   Mon, 20 Jun 2022 14:51:33 +0200
-Message-Id: <20220620124744.549777429@linuxfoundation.org>
+Subject: [PATCH 5.4 193/240] scsi: vmw_pvscsi: Expand vcpuHint to 16 bits
+Date:   Mon, 20 Jun 2022 14:51:34 +0200
+Message-Id: <20220620124744.578658384@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -54,37 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Wentao Wang <wwentao@vmware.com>
 
-[ Upstream commit 2abdf9f80019e8244d3806ed0e1c9f725e50b452 ]
+[ Upstream commit cf71d59c2eceadfcde0fb52e237990a0909880d7 ]
 
-Currently wm_adsp_fw_put() returns 0 rather than 1 when updating the value
-of the control, meaning that no event is generated to userspace. Fix this
-by setting the default return value to 1, the code already exits early with
-a return value of 0 if the value is unchanged.
+vcpuHint has been expanded to 16 bit on host to enable routing to more
+CPUs. Guest side should align with the change. This change has been tested
+with hosts with 8-bit and 16-bit vcpuHint, on both platforms host side can
+get correct value.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220603115003.3865834-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/EF35F4D5-5DCC-42C5-BCC4-29DF1729B24C@vmware.com
+Signed-off-by: Wentao Wang <wwentao@vmware.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm_adsp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/vmw_pvscsi.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
-index 13672928da99..aedfa6b2895b 100644
---- a/sound/soc/codecs/wm_adsp.c
-+++ b/sound/soc/codecs/wm_adsp.c
-@@ -791,7 +791,7 @@ int wm_adsp_fw_put(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
- 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
- 	struct wm_adsp *dsp = snd_soc_component_get_drvdata(component);
--	int ret = 0;
-+	int ret = 1;
+diff --git a/drivers/scsi/vmw_pvscsi.h b/drivers/scsi/vmw_pvscsi.h
+index 75966d3f326e..d87c12324c03 100644
+--- a/drivers/scsi/vmw_pvscsi.h
++++ b/drivers/scsi/vmw_pvscsi.h
+@@ -333,8 +333,8 @@ struct PVSCSIRingReqDesc {
+ 	u8	tag;
+ 	u8	bus;
+ 	u8	target;
+-	u8	vcpuHint;
+-	u8	unused[59];
++	u16	vcpuHint;
++	u8	unused[58];
+ } __packed;
  
- 	if (ucontrol->value.enumerated.item[0] == dsp[e->shift_l].fw)
- 		return 0;
+ /*
 -- 
 2.35.1
 
