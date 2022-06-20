@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A984551D4B
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82D24551BA1
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348395AbiFTNuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36486 "EHLO
+        id S244710AbiFTNO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:14:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349313AbiFTNsj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:48:39 -0400
+        with ESMTP id S1343519AbiFTNNM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:13:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E74EBBCE;
-        Mon, 20 Jun 2022 06:17:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C7AF1E3DA;
+        Mon, 20 Jun 2022 06:05:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CB1E606DC;
-        Mon, 20 Jun 2022 13:17:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95BBFC3411B;
-        Mon, 20 Jun 2022 13:17:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C44DB61535;
+        Mon, 20 Jun 2022 13:05:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB706C3411C;
+        Mon, 20 Jun 2022 13:05:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731071;
-        bh=sbrL44tMkKlNhB/ubeCGu9MeR5vV2zIzvhWF5VTfUMs=;
+        s=korg; t=1655730354;
+        bh=ToUh3uw+d6OuQ3xQsEOfSMJFmNh46l4CiJEgdqIQs3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAMGYY5uRoRnjd84Mb0z9thu/60S3svqTq1N4Et2b5A+781qNcMZv1uFgD0nvEpm5
-         1rPYQOBjYNODC9Gwb+qJv0cuKbbNLq0Y/JU1+oaFsVLyiUXb1w0gti2e1ZqzDZ1i2T
-         5p/A05kCEbMxoLbswLumzKU3psowcj2ZZum8iNlU=
+        b=A/M96afLJtI2moiWabkrbF84zM3YWL8xBr+H3m1gcCv7mswXed5mc2d2sxV8U2EED
+         NP3BdOIPHJCL0aU1bRla+HPlrze1uP5jFNyRcaInJj7yNPFGO3aEIf+sspRFccnNuS
+         h/BJzv4SaHILgPptX+FA6c4r0amL1Y3tk+Umr10w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 143/240] sparc: use fallback for random_get_entropy() instead of zero
-Date:   Mon, 20 Jun 2022 14:50:44 +0200
-Message-Id: <20220620124743.153369434@linuxfoundation.org>
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 026/106] scsi: lpfc: Allow reduced polling rate for nvme_admin_async_event cmd completion
+Date:   Mon, 20 Jun 2022 14:50:45 +0200
+Message-Id: <20220620124725.159383225@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: James Smart <jsmart2021@gmail.com>
 
-commit ac9756c79797bb98972736b13cfb239fd2cffb79 upstream.
+[ Upstream commit 2e7e9c0c1ec05f18d320ecc8a31eec59d2af1af9 ]
 
-In the event that random_get_entropy() can't access a cycle counter or
-similar, falling back to returning 0 is really not the best we can do.
-Instead, at least calling random_get_entropy_fallback() would be
-preferable, because that always needs to return _something_, even
-falling back to jiffies eventually. It's not as though
-random_get_entropy_fallback() is super high precision or guaranteed to
-be entropic, but basically anything that's not zero all the time is
-better than returning zero all the time.
+NVMe Asynchronous Event Request commands have no command timeout value per
+specifications.
 
-This is accomplished by just including the asm-generic code like on
-other architectures, which means we can get rid of the empty stub
-function here.
+Set WQE option to allow a reduced FLUSH polling rate for I/O error
+detection specifically for nvme_admin_async_event commands.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220603174329.63777-9-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/include/asm/timex_32.h |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/scsi/lpfc/lpfc_hw4.h  |  3 +++
+ drivers/scsi/lpfc/lpfc_nvme.c | 11 +++++++++--
+ 2 files changed, 12 insertions(+), 2 deletions(-)
 
---- a/arch/sparc/include/asm/timex_32.h
-+++ b/arch/sparc/include/asm/timex_32.h
-@@ -9,8 +9,6 @@
+diff --git a/drivers/scsi/lpfc/lpfc_hw4.h b/drivers/scsi/lpfc/lpfc_hw4.h
+index 7359505e6041..824fc8c08840 100644
+--- a/drivers/scsi/lpfc/lpfc_hw4.h
++++ b/drivers/scsi/lpfc/lpfc_hw4.h
+@@ -4448,6 +4448,9 @@ struct wqe_common {
+ #define wqe_sup_SHIFT         6
+ #define wqe_sup_MASK          0x00000001
+ #define wqe_sup_WORD          word11
++#define wqe_ffrq_SHIFT         6
++#define wqe_ffrq_MASK          0x00000001
++#define wqe_ffrq_WORD          word11
+ #define wqe_wqec_SHIFT        7
+ #define wqe_wqec_MASK         0x00000001
+ #define wqe_wqec_WORD         word11
+diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+index 66cb66aea2cf..4fb3dc5092f5 100644
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -1182,7 +1182,8 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
+ {
+ 	struct lpfc_hba *phba = vport->phba;
+ 	struct nvmefc_fcp_req *nCmd = lpfc_ncmd->nvmeCmd;
+-	struct lpfc_iocbq *pwqeq = &(lpfc_ncmd->cur_iocbq);
++	struct nvme_common_command *sqe;
++	struct lpfc_iocbq *pwqeq = &lpfc_ncmd->cur_iocbq;
+ 	union lpfc_wqe128 *wqe = &pwqeq->wqe;
+ 	uint32_t req_len;
  
- #define CLOCK_TICK_RATE	1193180 /* Underlying HZ */
+@@ -1239,8 +1240,14 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
+ 		cstat->control_requests++;
+ 	}
  
--/* XXX Maybe do something better at some point... -DaveM */
--typedef unsigned long cycles_t;
--#define get_cycles()	(0)
-+#include <asm-generic/timex.h>
- 
- #endif
+-	if (pnode->nlp_nvme_info & NLP_NVME_NSLER)
++	if (pnode->nlp_nvme_info & NLP_NVME_NSLER) {
+ 		bf_set(wqe_erp, &wqe->generic.wqe_com, 1);
++		sqe = &((struct nvme_fc_cmd_iu *)
++			nCmd->cmdaddr)->sqe.common;
++		if (sqe->opcode == nvme_admin_async_event)
++			bf_set(wqe_ffrq, &wqe->generic.wqe_com, 1);
++	}
++
+ 	/*
+ 	 * Finish initializing those WQE fields that are independent
+ 	 * of the nvme_cmnd request_buffer
+-- 
+2.35.1
+
 
 
