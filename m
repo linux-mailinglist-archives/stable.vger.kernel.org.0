@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEDA55519D9
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78B55551D00
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243359AbiFTMzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:55:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36908 "EHLO
+        id S1346843AbiFTNj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:39:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243135AbiFTMzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:55:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CBEF193C0;
-        Mon, 20 Jun 2022 05:54:35 -0700 (PDT)
+        with ESMTP id S1347337AbiFTNi0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:38:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B94D28737;
+        Mon, 20 Jun 2022 06:14:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADB7F61476;
-        Mon, 20 Jun 2022 12:54:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C001BC3411B;
-        Mon, 20 Jun 2022 12:54:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BFF48B80E7D;
+        Mon, 20 Jun 2022 13:14:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18AF3C3411B;
+        Mon, 20 Jun 2022 13:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729674;
-        bh=HJuwirrEietMOqxRTqIzoOclb8YqjBXr2ORRAqpYdoU=;
+        s=korg; t=1655730853;
+        bh=hwxcHasEV/bb2nOwjqLI3dCmvo+Iqwr+zYuY74pKObQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CNItky0iA5bzPe0kxiu+zmQdBwM6yRym8edhHTJYFyZqm8o2OZQppWbnwtWq+je6J
-         K2qFk7UBJUivGMF+oB6+67Mmns+2+IJvFluxGAoOrY7T6qHDOUCupfm4mDpoZkDJqg
-         hACvvzyrViHsY8LUY654PMmTZsmOtROCHg4aq2v8=
+        b=19vjOpIiBbRQkAvZ2G6Ba68F/MsjUhs57cr7Ba23aO+bqFEDa99rlL9yJspDwv3cN
+         uOMkjJL0AjBJGkzNo7aLBpJp5HfEBIVGGCMekykfhp+c+WPo1Z4DadZNY3km0Jg3vM
+         nvvmDB5xoCSsI+9EIgu9Lc3i6aHgtJyxlcXPz7aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Lin <chen45464546@163.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 039/141] net: ethernet: mtk_eth_soc: fix misuse of mem alloc interface netdev[napi]_alloc_frag
-Date:   Mon, 20 Jun 2022 14:49:37 +0200
-Message-Id: <20220620124730.691939953@linuxfoundation.org>
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 077/240] random: do not xor RDRAND when writing into /dev/random
+Date:   Mon, 20 Jun 2022 14:49:38 +0200
+Message-Id: <20220620124740.911494938@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Lin <chen45464546@163.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 2f2c0d2919a14002760f89f4e02960c735a316d2 ]
+commit 91c2afca290ed3034841c8c8532e69ed9e16cf34 upstream.
 
-When rx_flag == MTK_RX_FLAGS_HWLRO,
-rx_data_len = MTK_MAX_LRO_RX_LENGTH(4096 * 3) > PAGE_SIZE.
-netdev_alloc_frag is for alloction of page fragment only.
-Reference to other drivers and Documentation/vm/page_frags.rst
+Continuing the reasoning of "random: ensure early RDSEED goes through
+mixer on init", we don't want RDRAND interacting with anything without
+going through the mixer function, as a backdoored CPU could presumably
+cancel out data during an xor, which it'd have a harder time doing when
+being forced through a cryptographic hash function. There's actually no
+need at all to be calling RDRAND in write_pool(), because before we
+extract from the pool, we always do so with 32 bytes of RDSEED hashed in
+at that stage. Xoring at this stage is needless and introduces a minor
+liability.
 
-Branch to use __get_free_pages when ring->frag_size > PAGE_SIZE.
-
-Signed-off-by: Chen Lin <chen45464546@163.com>
-Link: https://lore.kernel.org/r/1654692413-2598-1-git-send-email-chen45464546@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/char/random.c |   14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index a50090e62c8f..c075670bc562 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -778,6 +778,17 @@ static inline bool mtk_rx_get_desc(struct mtk_rx_dma *rxd,
- 	return true;
- }
- 
-+static void *mtk_max_lro_buf_alloc(gfp_t gfp_mask)
-+{
-+	unsigned int size = mtk_max_frag_size(MTK_MAX_LRO_RX_LENGTH);
-+	unsigned long data;
-+
-+	data = __get_free_pages(gfp_mask | __GFP_COMP | __GFP_NOWARN,
-+				get_order(size));
-+
-+	return (void *)data;
-+}
-+
- /* the qdma core needs scratch memory to be setup */
- static int mtk_init_fq_dma(struct mtk_eth *eth)
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1305,25 +1305,15 @@ static __poll_t random_poll(struct file
+ static int write_pool(const char __user *buffer, size_t count)
  {
-@@ -1269,7 +1280,10 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
- 			goto release_desc;
+ 	size_t bytes;
+-	u32 t, buf[16];
++	u8 buf[BLAKE2S_BLOCK_SIZE];
+ 	const char __user *p = buffer;
  
- 		/* alloc new buffer */
--		new_data = napi_alloc_frag(ring->frag_size);
-+		if (ring->frag_size <= PAGE_SIZE)
-+			new_data = napi_alloc_frag(ring->frag_size);
-+		else
-+			new_data = mtk_max_lro_buf_alloc(GFP_ATOMIC);
- 		if (unlikely(!new_data)) {
- 			netdev->stats.rx_dropped++;
- 			goto release_desc;
-@@ -1683,7 +1697,10 @@ static int mtk_rx_alloc(struct mtk_eth *eth, int ring_no, int rx_flag)
- 		return -ENOMEM;
- 
- 	for (i = 0; i < rx_dma_size; i++) {
--		ring->data[i] = netdev_alloc_frag(ring->frag_size);
-+		if (ring->frag_size <= PAGE_SIZE)
-+			ring->data[i] = netdev_alloc_frag(ring->frag_size);
-+		else
-+			ring->data[i] = mtk_max_lro_buf_alloc(GFP_KERNEL);
- 		if (!ring->data[i])
- 			return -ENOMEM;
+ 	while (count > 0) {
+-		int b, i = 0;
+-
+ 		bytes = min(count, sizeof(buf));
+-		if (copy_from_user(&buf, p, bytes))
++		if (copy_from_user(buf, p, bytes))
+ 			return -EFAULT;
+-
+-		for (b = bytes; b > 0; b -= sizeof(u32), i++) {
+-			if (!arch_get_random_int(&t))
+-				break;
+-			buf[i] ^= t;
+-		}
+-
+ 		count -= bytes;
+ 		p += bytes;
+-
+ 		mix_pool_bytes(buf, bytes);
+ 		cond_resched();
  	}
--- 
-2.35.1
-
 
 
