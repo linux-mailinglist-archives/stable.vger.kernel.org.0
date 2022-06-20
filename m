@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DCDF55189B
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F59E55189C
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:16:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241713AbiFTMPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:15:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34910 "EHLO
+        id S241589AbiFTMQt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:16:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240966AbiFTMPj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:15:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2B94279
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:15:38 -0700 (PDT)
+        with ESMTP id S235801AbiFTMQt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:16:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F73279
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:16:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AAD461446
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 12:15:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45580C341C4;
-        Mon, 20 Jun 2022 12:15:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55971B8110A
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 12:16:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2F52C3411B;
+        Mon, 20 Jun 2022 12:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655727337;
-        bh=kQIpaEi74/Yb1n5/CfXGcvOrJrQV42io0LNE3T6Ul9s=;
+        s=korg; t=1655727405;
+        bh=wNpryC6Q4A7NOFOCaIyLuM4impORjvx2ULnXXsajNZg=;
         h=Subject:To:Cc:From:Date:From;
-        b=wbJs3WsMIodxZjOrX9aZ2G6u/ABvKowxJnzGMhTKPilej2ggUyXXTlncY1E85Zw/1
-         qforwO2L+qnTPXXlRHwt1z6ACsY2Z/t3epjpR52KxeQa5lmwTDBtUT6ALVdvFT6LQ6
-         9xUDC0TAfnZ4i3oJZQZG4q60AAwCG+a/y61eM0cU=
-Subject: FAILED: patch "[PATCH] ext4: fix up test_dummy_encryption handling for new mount API" failed to apply to 5.18-stable tree
-To:     ebiggers@google.com, tytso@mit.edu
+        b=e1aPQkAaXMcrLtGCW2bhG6mYeKs0L0u87LEjccMQXxfrLVW4q+eVcUF7O0z6rot4e
+         YucuFa9uAs0LAEsbjrScJhniM6B6bjnmHOsu1OPS+R3078SvCXW5GVlV/fbmt4eg3b
+         GpboLQVzsnalNpe5gLTLPfa6AVlAHa9b98E6WlFc=
+Subject: FAILED: patch "[PATCH] zonefs: fix zonefs_iomap_begin() for reads" failed to apply to 5.18-stable tree
+To:     damien.lemoal@opensource.wdc.com, Jorgen.Hansen@wdc.com,
+        hch@lst.de, johannes.thumshirn@wdc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jun 2022 14:15:34 +0200
-Message-ID: <1655727334244122@kroah.com>
+Date:   Mon, 20 Jun 2022 14:16:42 +0200
+Message-ID: <165572740210477@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,269 +60,259 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 85456054e10b0247920b00422d27365e689d9f4a Mon Sep 17 00:00:00 2001
-From: Eric Biggers <ebiggers@google.com>
-Date: Wed, 25 May 2022 21:04:12 -0700
-Subject: [PATCH] ext4: fix up test_dummy_encryption handling for new mount API
+From c1c1204c0d0c1dccc1310b9277fb2bd8b663d8fe Mon Sep 17 00:00:00 2001
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Date: Mon, 23 May 2022 16:29:10 +0900
+Subject: [PATCH] zonefs: fix zonefs_iomap_begin() for reads
 
-Since ext4 was converted to the new mount API, the test_dummy_encryption
-mount option isn't being handled entirely correctly, because the needed
-fscrypt_set_test_dummy_encryption() helper function combines
-parsing/checking/applying into one function.  That doesn't work well
-with the new mount API, which split these into separate steps.
+If a readahead is issued to a sequential zone file with an offset
+exactly equal to the current file size, the iomap type is set to
+IOMAP_UNWRITTEN, which will prevent an IO, but the iomap length is
+calculated as 0. This causes a WARN_ON() in iomap_iter():
 
-This was sort of okay anyway, due to the parsing logic that was copied
-from fscrypt_set_test_dummy_encryption() into ext4_parse_param(),
-combined with an additional check in ext4_check_test_dummy_encryption().
-However, these overlooked the case of changing the value of
-test_dummy_encryption on remount, which isn't allowed but ext4 wasn't
-detecting until ext4_apply_options() when it's too late to fail.
-Another bug is that if test_dummy_encryption was specified multiple
-times with an argument, memory was leaked.
+[17309.548939] WARNING: CPU: 3 PID: 2137 at fs/iomap/iter.c:34 iomap_iter+0x9cf/0xe80
+[...]
+[17309.650907] RIP: 0010:iomap_iter+0x9cf/0xe80
+[...]
+[17309.754560] Call Trace:
+[17309.757078]  <TASK>
+[17309.759240]  ? lock_is_held_type+0xd8/0x130
+[17309.763531]  iomap_readahead+0x1a8/0x870
+[17309.767550]  ? iomap_read_folio+0x4c0/0x4c0
+[17309.771817]  ? lockdep_hardirqs_on_prepare+0x400/0x400
+[17309.778848]  ? lock_release+0x370/0x750
+[17309.784462]  ? folio_add_lru+0x217/0x3f0
+[17309.790220]  ? reacquire_held_locks+0x4e0/0x4e0
+[17309.796543]  read_pages+0x17d/0xb60
+[17309.801854]  ? folio_add_lru+0x238/0x3f0
+[17309.807573]  ? readahead_expand+0x5f0/0x5f0
+[17309.813554]  ? policy_node+0xb5/0x140
+[17309.819018]  page_cache_ra_unbounded+0x27d/0x450
+[17309.825439]  filemap_get_pages+0x500/0x1450
+[17309.831444]  ? filemap_add_folio+0x140/0x140
+[17309.837519]  ? lock_is_held_type+0xd8/0x130
+[17309.843509]  filemap_read+0x28c/0x9f0
+[17309.848953]  ? zonefs_file_read_iter+0x1ea/0x4d0 [zonefs]
+[17309.856162]  ? trace_contention_end+0xd6/0x130
+[17309.862416]  ? __mutex_lock+0x221/0x1480
+[17309.868151]  ? zonefs_file_read_iter+0x166/0x4d0 [zonefs]
+[17309.875364]  ? filemap_get_pages+0x1450/0x1450
+[17309.881647]  ? __mutex_unlock_slowpath+0x15e/0x620
+[17309.888248]  ? wait_for_completion_io_timeout+0x20/0x20
+[17309.895231]  ? lock_is_held_type+0xd8/0x130
+[17309.901115]  ? lock_is_held_type+0xd8/0x130
+[17309.906934]  zonefs_file_read_iter+0x356/0x4d0 [zonefs]
+[17309.913750]  new_sync_read+0x2d8/0x520
+[17309.919035]  ? __x64_sys_lseek+0x1d0/0x1d0
 
-Fix this up properly by using the new helper functions that allow
-splitting up the parse/check/apply steps for test_dummy_encryption.
+Furthermore, this causes iomap_readahead() to loop forever as
+iomap_readahead_iter() always returns 0, making no progress.
 
-Fixes: cebe85d570cf ("ext4: switch to the new mount api")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20220526040412.173025-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fix this by treating reads after the file size as access to holes,
+setting the iomap type to IOMAP_HOLE, the iomap addr to IOMAP_NULL_ADDR
+and using the length argument as is for the iomap length. To simplify
+the code with this change, zonefs_iomap_begin() is split into the read
+variant, zonefs_read_iomap_begin() and zonefs_read_iomap_ops, and the
+write variant, zonefs_write_iomap_begin() and zonefs_write_iomap_ops.
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 13d562d11235..845f2f8aee5f 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -87,7 +87,7 @@ static struct inode *ext4_get_journal_inode(struct super_block *sb,
- static int ext4_validate_options(struct fs_context *fc);
- static int ext4_check_opt_consistency(struct fs_context *fc,
- 				      struct super_block *sb);
--static int ext4_apply_options(struct fs_context *fc, struct super_block *sb);
-+static void ext4_apply_options(struct fs_context *fc, struct super_block *sb);
- static int ext4_parse_param(struct fs_context *fc, struct fs_parameter *param);
- static int ext4_get_tree(struct fs_context *fc);
- static int ext4_reconfigure(struct fs_context *fc);
-@@ -1870,31 +1870,12 @@ ext4_sb_read_encoding(const struct ext4_super_block *es)
- }
- #endif
- 
--static int ext4_set_test_dummy_encryption(struct super_block *sb, char *arg)
--{
--#ifdef CONFIG_FS_ENCRYPTION
--	struct ext4_sb_info *sbi = EXT4_SB(sb);
--	int err;
--
--	err = fscrypt_set_test_dummy_encryption(sb, arg,
--						&sbi->s_dummy_enc_policy);
--	if (err) {
--		ext4_msg(sb, KERN_WARNING,
--			 "Error while setting test dummy encryption [%d]", err);
--		return err;
--	}
--	ext4_msg(sb, KERN_WARNING, "Test dummy encryption mode enabled");
--#endif
--	return 0;
--}
--
- #define EXT4_SPEC_JQUOTA			(1 <<  0)
- #define EXT4_SPEC_JQFMT				(1 <<  1)
- #define EXT4_SPEC_DATAJ				(1 <<  2)
- #define EXT4_SPEC_SB_BLOCK			(1 <<  3)
- #define EXT4_SPEC_JOURNAL_DEV			(1 <<  4)
- #define EXT4_SPEC_JOURNAL_IOPRIO		(1 <<  5)
--#define EXT4_SPEC_DUMMY_ENCRYPTION		(1 <<  6)
- #define EXT4_SPEC_s_want_extra_isize		(1 <<  7)
- #define EXT4_SPEC_s_max_batch_time		(1 <<  8)
- #define EXT4_SPEC_s_min_batch_time		(1 <<  9)
-@@ -1911,7 +1892,7 @@ static int ext4_set_test_dummy_encryption(struct super_block *sb, char *arg)
- 
- struct ext4_fs_context {
- 	char		*s_qf_names[EXT4_MAXQUOTAS];
--	char		*test_dummy_enc_arg;
-+	struct fscrypt_dummy_policy dummy_enc_policy;
- 	int		s_jquota_fmt;	/* Format of quota to use */
- #ifdef CONFIG_EXT4_DEBUG
- 	int s_fc_debug_max_replay;
-@@ -1953,7 +1934,7 @@ static void ext4_fc_free(struct fs_context *fc)
- 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
- 		kfree(ctx->s_qf_names[i]);
- 
--	kfree(ctx->test_dummy_enc_arg);
-+	fscrypt_free_dummy_policy(&ctx->dummy_enc_policy);
- 	kfree(ctx);
+Reported-by: Jorgen Hansen <Jorgen.Hansen@wdc.com>
+Fixes: 8dcc1a9d90c1 ("fs: New zonefs file system")
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Jorgen Hansen <Jorgen.Hansen@wdc.com>
+
+diff --git a/fs/zonefs/super.c b/fs/zonefs/super.c
+index 123464d2145a..053299758deb 100644
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -110,15 +110,51 @@ static inline void zonefs_i_size_write(struct inode *inode, loff_t isize)
+ 	}
  }
  
-@@ -2029,6 +2010,29 @@ static int unnote_qf_name(struct fs_context *fc, int qtype)
- }
- #endif
+-static int zonefs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
+-			      unsigned int flags, struct iomap *iomap,
+-			      struct iomap *srcmap)
++static int zonefs_read_iomap_begin(struct inode *inode, loff_t offset,
++				   loff_t length, unsigned int flags,
++				   struct iomap *iomap, struct iomap *srcmap)
+ {
+ 	struct zonefs_inode_info *zi = ZONEFS_I(inode);
+ 	struct super_block *sb = inode->i_sb;
+ 	loff_t isize;
  
-+static int ext4_parse_test_dummy_encryption(const struct fs_parameter *param,
-+					    struct ext4_fs_context *ctx)
-+{
-+	int err;
+-	/* All I/Os should always be within the file maximum size */
++	/*
++	 * All blocks are always mapped below EOF. If reading past EOF,
++	 * act as if there is a hole up to the file maximum size.
++	 */
++	mutex_lock(&zi->i_truncate_mutex);
++	iomap->bdev = inode->i_sb->s_bdev;
++	iomap->offset = ALIGN_DOWN(offset, sb->s_blocksize);
++	isize = i_size_read(inode);
++	if (iomap->offset >= isize) {
++		iomap->type = IOMAP_HOLE;
++		iomap->addr = IOMAP_NULL_ADDR;
++		iomap->length = length;
++	} else {
++		iomap->type = IOMAP_MAPPED;
++		iomap->addr = (zi->i_zsector << SECTOR_SHIFT) + iomap->offset;
++		iomap->length = isize - iomap->offset;
++	}
++	mutex_unlock(&zi->i_truncate_mutex);
 +
-+	if (!IS_ENABLED(CONFIG_FS_ENCRYPTION)) {
-+		ext4_msg(NULL, KERN_WARNING,
-+			 "test_dummy_encryption option not supported");
-+		return -EINVAL;
-+	}
-+	err = fscrypt_parse_test_dummy_encryption(param,
-+						  &ctx->dummy_enc_policy);
-+	if (err == -EINVAL) {
-+		ext4_msg(NULL, KERN_WARNING,
-+			 "Value of option \"%s\" is unrecognized", param->key);
-+	} else if (err == -EEXIST) {
-+		ext4_msg(NULL, KERN_WARNING,
-+			 "Conflicting test_dummy_encryption options");
-+		return -EINVAL;
-+	}
-+	return err;
++	trace_zonefs_iomap_begin(inode, iomap);
++
++	return 0;
 +}
 +
- #define EXT4_SET_CTX(name)						\
- static inline void ctx_set_##name(struct ext4_fs_context *ctx,		\
- 				  unsigned long flag)			\
-@@ -2291,29 +2295,7 @@ static int ext4_parse_param(struct fs_context *fc, struct fs_parameter *param)
- 		ctx->spec |= EXT4_SPEC_JOURNAL_IOPRIO;
- 		return 0;
- 	case Opt_test_dummy_encryption:
--#ifdef CONFIG_FS_ENCRYPTION
--		if (param->type == fs_value_is_flag) {
--			ctx->spec |= EXT4_SPEC_DUMMY_ENCRYPTION;
--			ctx->test_dummy_enc_arg = NULL;
--			return 0;
--		}
--		if (*param->string &&
--		    !(!strcmp(param->string, "v1") ||
--		      !strcmp(param->string, "v2"))) {
--			ext4_msg(NULL, KERN_WARNING,
--				 "Value of option \"%s\" is unrecognized",
--				 param->key);
--			return -EINVAL;
--		}
--		ctx->spec |= EXT4_SPEC_DUMMY_ENCRYPTION;
--		ctx->test_dummy_enc_arg = kmemdup_nul(param->string, param->size,
--						      GFP_KERNEL);
--		return 0;
--#else
--		ext4_msg(NULL, KERN_WARNING,
--			 "test_dummy_encryption option not supported");
--		return -EINVAL;
--#endif
-+		return ext4_parse_test_dummy_encryption(param, ctx);
- 	case Opt_dax:
- 	case Opt_dax_type:
- #ifdef CONFIG_FS_DAX
-@@ -2504,7 +2486,8 @@ static int parse_apply_sb_mount_options(struct super_block *sb,
- 	if (s_ctx->spec & EXT4_SPEC_JOURNAL_IOPRIO)
- 		m_ctx->journal_ioprio = s_ctx->journal_ioprio;
++static const struct iomap_ops zonefs_read_iomap_ops = {
++	.iomap_begin	= zonefs_read_iomap_begin,
++};
++
++static int zonefs_write_iomap_begin(struct inode *inode, loff_t offset,
++				    loff_t length, unsigned int flags,
++				    struct iomap *iomap, struct iomap *srcmap)
++{
++	struct zonefs_inode_info *zi = ZONEFS_I(inode);
++	struct super_block *sb = inode->i_sb;
++	loff_t isize;
++
++	/* All write I/Os should always be within the file maximum size */
+ 	if (WARN_ON_ONCE(offset + length > zi->i_max_size))
+ 		return -EIO;
  
--	ret = ext4_apply_options(fc, sb);
-+	ext4_apply_options(fc, sb);
-+	ret = 0;
- 
- out_free:
- 	if (fc) {
-@@ -2673,11 +2656,11 @@ static int ext4_check_quota_consistency(struct fs_context *fc,
- static int ext4_check_test_dummy_encryption(const struct fs_context *fc,
- 					    struct super_block *sb)
- {
--#ifdef CONFIG_FS_ENCRYPTION
- 	const struct ext4_fs_context *ctx = fc->fs_private;
- 	const struct ext4_sb_info *sbi = EXT4_SB(sb);
-+	int err;
- 
--	if (!(ctx->spec & EXT4_SPEC_DUMMY_ENCRYPTION))
-+	if (!fscrypt_is_dummy_policy_set(&ctx->dummy_enc_policy))
- 		return 0;
- 
- 	if (!ext4_has_feature_encrypt(sb)) {
-@@ -2691,14 +2674,46 @@ static int ext4_check_test_dummy_encryption(const struct fs_context *fc,
- 	 * needed to allow it to be set or changed during remount.  We do allow
- 	 * it to be specified during remount, but only if there is no change.
+@@ -128,7 +164,7 @@ static int zonefs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
+ 	 * operation.
  	 */
--	if (fc->purpose == FS_CONTEXT_FOR_RECONFIGURE &&
--	    !sbi->s_dummy_enc_policy.policy) {
-+	if (fc->purpose == FS_CONTEXT_FOR_RECONFIGURE) {
-+		if (fscrypt_dummy_policies_equal(&sbi->s_dummy_enc_policy,
-+						 &ctx->dummy_enc_policy))
-+			return 0;
- 		ext4_msg(NULL, KERN_WARNING,
--			 "Can't set test_dummy_encryption on remount");
-+			 "Can't set or change test_dummy_encryption on remount");
+ 	if (WARN_ON_ONCE(zi->i_ztype == ZONEFS_ZTYPE_SEQ &&
+-			 (flags & IOMAP_WRITE) && !(flags & IOMAP_DIRECT)))
++			 !(flags & IOMAP_DIRECT)))
+ 		return -EIO;
+ 
+ 	/*
+@@ -137,47 +173,44 @@ static int zonefs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
+ 	 * write pointer) and unwriten beyond.
+ 	 */
+ 	mutex_lock(&zi->i_truncate_mutex);
++	iomap->bdev = inode->i_sb->s_bdev;
++	iomap->offset = ALIGN_DOWN(offset, sb->s_blocksize);
++	iomap->addr = (zi->i_zsector << SECTOR_SHIFT) + iomap->offset;
+ 	isize = i_size_read(inode);
+-	if (offset >= isize)
++	if (iomap->offset >= isize) {
+ 		iomap->type = IOMAP_UNWRITTEN;
+-	else
++		iomap->length = zi->i_max_size - iomap->offset;
++	} else {
+ 		iomap->type = IOMAP_MAPPED;
+-	if (flags & IOMAP_WRITE)
+-		length = zi->i_max_size - offset;
+-	else
+-		length = min(length, isize - offset);
++		iomap->length = isize - iomap->offset;
++	}
+ 	mutex_unlock(&zi->i_truncate_mutex);
+ 
+-	iomap->offset = ALIGN_DOWN(offset, sb->s_blocksize);
+-	iomap->length = ALIGN(offset + length, sb->s_blocksize) - iomap->offset;
+-	iomap->bdev = inode->i_sb->s_bdev;
+-	iomap->addr = (zi->i_zsector << SECTOR_SHIFT) + iomap->offset;
+-
+ 	trace_zonefs_iomap_begin(inode, iomap);
+ 
+ 	return 0;
+ }
+ 
+-static const struct iomap_ops zonefs_iomap_ops = {
+-	.iomap_begin	= zonefs_iomap_begin,
++static const struct iomap_ops zonefs_write_iomap_ops = {
++	.iomap_begin	= zonefs_write_iomap_begin,
+ };
+ 
+ static int zonefs_read_folio(struct file *unused, struct folio *folio)
+ {
+-	return iomap_read_folio(folio, &zonefs_iomap_ops);
++	return iomap_read_folio(folio, &zonefs_read_iomap_ops);
+ }
+ 
+ static void zonefs_readahead(struct readahead_control *rac)
+ {
+-	iomap_readahead(rac, &zonefs_iomap_ops);
++	iomap_readahead(rac, &zonefs_read_iomap_ops);
+ }
+ 
+ /*
+  * Map blocks for page writeback. This is used only on conventional zone files,
+  * which implies that the page range can only be within the fixed inode size.
+  */
+-static int zonefs_map_blocks(struct iomap_writepage_ctx *wpc,
+-			     struct inode *inode, loff_t offset)
++static int zonefs_write_map_blocks(struct iomap_writepage_ctx *wpc,
++				   struct inode *inode, loff_t offset)
+ {
+ 	struct zonefs_inode_info *zi = ZONEFS_I(inode);
+ 
+@@ -191,12 +224,12 @@ static int zonefs_map_blocks(struct iomap_writepage_ctx *wpc,
+ 	    offset < wpc->iomap.offset + wpc->iomap.length)
+ 		return 0;
+ 
+-	return zonefs_iomap_begin(inode, offset, zi->i_max_size - offset,
+-				  IOMAP_WRITE, &wpc->iomap, NULL);
++	return zonefs_write_iomap_begin(inode, offset, zi->i_max_size - offset,
++					IOMAP_WRITE, &wpc->iomap, NULL);
+ }
+ 
+ static const struct iomap_writeback_ops zonefs_writeback_ops = {
+-	.map_blocks		= zonefs_map_blocks,
++	.map_blocks		= zonefs_write_map_blocks,
+ };
+ 
+ static int zonefs_writepage(struct page *page, struct writeback_control *wbc)
+@@ -226,7 +259,8 @@ static int zonefs_swap_activate(struct swap_info_struct *sis,
  		return -EINVAL;
  	}
--#endif /* CONFIG_FS_ENCRYPTION */
--	return 0;
-+	/* Also make sure s_mount_opts didn't contain a conflicting value. */
-+	if (fscrypt_is_dummy_policy_set(&sbi->s_dummy_enc_policy)) {
-+		if (fscrypt_dummy_policies_equal(&sbi->s_dummy_enc_policy,
-+						 &ctx->dummy_enc_policy))
-+			return 0;
-+		ext4_msg(NULL, KERN_WARNING,
-+			 "Conflicting test_dummy_encryption options");
-+		return -EINVAL;
-+	}
-+	/*
-+	 * fscrypt_add_test_dummy_key() technically changes the super_block, so
-+	 * technically it should be delayed until ext4_apply_options() like the
-+	 * other changes.  But since we never get here for remounts (see above),
-+	 * and this is the last chance to report errors, we do it here.
-+	 */
-+	err = fscrypt_add_test_dummy_key(sb, &ctx->dummy_enc_policy);
-+	if (err)
-+		ext4_msg(NULL, KERN_WARNING,
-+			 "Error adding test dummy encryption key [%d]", err);
-+	return err;
-+}
-+
-+static void ext4_apply_test_dummy_encryption(struct ext4_fs_context *ctx,
-+					     struct super_block *sb)
-+{
-+	if (!fscrypt_is_dummy_policy_set(&ctx->dummy_enc_policy) ||
-+	    /* if already set, it was already verified to be the same */
-+	    fscrypt_is_dummy_policy_set(&EXT4_SB(sb)->s_dummy_enc_policy))
-+		return;
-+	EXT4_SB(sb)->s_dummy_enc_policy = ctx->dummy_enc_policy;
-+	memset(&ctx->dummy_enc_policy, 0, sizeof(ctx->dummy_enc_policy));
-+	ext4_msg(sb, KERN_WARNING, "Test dummy encryption mode enabled");
+ 
+-	return iomap_swapfile_activate(sis, swap_file, span, &zonefs_iomap_ops);
++	return iomap_swapfile_activate(sis, swap_file, span,
++				       &zonefs_read_iomap_ops);
  }
  
- static int ext4_check_opt_consistency(struct fs_context *fc,
-@@ -2785,11 +2800,10 @@ static int ext4_check_opt_consistency(struct fs_context *fc,
- 	return ext4_check_quota_consistency(fc, sb);
- }
+ static const struct address_space_operations zonefs_file_aops = {
+@@ -647,7 +681,7 @@ static vm_fault_t zonefs_filemap_page_mkwrite(struct vm_fault *vmf)
  
--static int ext4_apply_options(struct fs_context *fc, struct super_block *sb)
-+static void ext4_apply_options(struct fs_context *fc, struct super_block *sb)
- {
- 	struct ext4_fs_context *ctx = fc->fs_private;
- 	struct ext4_sb_info *sbi = fc->s_fs_info;
--	int ret = 0;
+ 	/* Serialize against truncates */
+ 	filemap_invalidate_lock_shared(inode->i_mapping);
+-	ret = iomap_page_mkwrite(vmf, &zonefs_iomap_ops);
++	ret = iomap_page_mkwrite(vmf, &zonefs_write_iomap_ops);
+ 	filemap_invalidate_unlock_shared(inode->i_mapping);
  
- 	sbi->s_mount_opt &= ~ctx->mask_s_mount_opt;
- 	sbi->s_mount_opt |= ctx->vals_s_mount_opt;
-@@ -2825,11 +2839,7 @@ static int ext4_apply_options(struct fs_context *fc, struct super_block *sb)
- #endif
+ 	sb_end_pagefault(inode->i_sb);
+@@ -899,7 +933,7 @@ static ssize_t zonefs_file_dio_write(struct kiocb *iocb, struct iov_iter *from)
+ 	if (append)
+ 		ret = zonefs_file_dio_append(iocb, from);
+ 	else
+-		ret = iomap_dio_rw(iocb, from, &zonefs_iomap_ops,
++		ret = iomap_dio_rw(iocb, from, &zonefs_write_iomap_ops,
+ 				   &zonefs_write_dio_ops, 0, NULL, 0);
+ 	if (zi->i_ztype == ZONEFS_ZTYPE_SEQ &&
+ 	    (ret > 0 || ret == -EIOCBQUEUED)) {
+@@ -948,7 +982,7 @@ static ssize_t zonefs_file_buffered_write(struct kiocb *iocb,
+ 	if (ret <= 0)
+ 		goto inode_unlock;
  
- 	ext4_apply_quota_options(fc, sb);
--
--	if (ctx->spec & EXT4_SPEC_DUMMY_ENCRYPTION)
--		ret = ext4_set_test_dummy_encryption(sb, ctx->test_dummy_enc_arg);
--
--	return ret;
-+	ext4_apply_test_dummy_encryption(ctx, sb);
- }
- 
- 
-@@ -4552,9 +4562,7 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
- 	if (err < 0)
- 		goto failed_mount;
- 
--	err = ext4_apply_options(fc, sb);
--	if (err < 0)
--		goto failed_mount;
-+	ext4_apply_options(fc, sb);
- 
- #if IS_ENABLED(CONFIG_UNICODE)
- 	if (ext4_has_feature_casefold(sb) && !sb->s_encoding) {
+-	ret = iomap_file_buffered_write(iocb, from, &zonefs_iomap_ops);
++	ret = iomap_file_buffered_write(iocb, from, &zonefs_write_iomap_ops);
+ 	if (ret > 0)
+ 		iocb->ki_pos += ret;
+ 	else if (ret == -EIO)
+@@ -1041,7 +1075,7 @@ static ssize_t zonefs_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 			goto inode_unlock;
+ 		}
+ 		file_accessed(iocb->ki_filp);
+-		ret = iomap_dio_rw(iocb, to, &zonefs_iomap_ops,
++		ret = iomap_dio_rw(iocb, to, &zonefs_read_iomap_ops,
+ 				   &zonefs_read_dio_ops, 0, NULL, 0);
+ 	} else {
+ 		ret = generic_file_read_iter(iocb, to);
 
