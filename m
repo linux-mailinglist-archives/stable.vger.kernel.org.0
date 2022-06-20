@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E22F7551899
+	by mail.lfdr.de (Postfix) with ESMTP id 96C1E551898
 	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 14:15:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235801AbiFTMOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:14:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33658 "EHLO
+        id S242238AbiFTMOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:14:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242384AbiFTMOM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:14:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB28D9FF8
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:14:11 -0700 (PDT)
+        with ESMTP id S242591AbiFTMOW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:14:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C64118B2B
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 05:14:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7509961447
-        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 12:14:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BD98C341C4;
-        Mon, 20 Jun 2022 12:14:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABD4E613F8
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 12:14:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B9E2C3411C;
+        Mon, 20 Jun 2022 12:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655727250;
-        bh=5Cci41duwUV0If1SMKEV4n7LuL5yvexlRdjH0sdfIuk=;
+        s=korg; t=1655727259;
+        bh=6j1BgUwFvezsSWrboXKMYhtIjNEEyCIIF8dRtwEgZu4=;
         h=Subject:To:Cc:From:Date:From;
-        b=Xl6CeGZhsEmg+bCHgRMCwXB6jwXLxYcA6HKyBOsJzLLvH299f+B34rFeoVajq7z9i
-         hbw4TjYQ0bwQItoikFq7keKfffgUI/0VHAtuo2BKKkR/kz9oTQvZoRMkwCGRy8orFx
-         hCwgEMJMB7B55TuEr9ypFFZVricZVWTjpkOnktB4=
-Subject: FAILED: patch "[PATCH] io_uring: fix not locked access to fixed buf table" failed to apply to 5.18-stable tree
+        b=R9vhMU8o7VwDPrq1Ga4+h2imevDUh4j7JYYX1BUoaoF6n7D+/GYNO7MM1kub4iJ+v
+         HahjfR1NUCWb77UJJaMtz8R1Y1QTkBcksIHpcOOV/P8TTQbhpPZWamwpKRKzDzwvme
+         M77TuZQh3XelSDLCYPEohQWILpK/pluJFPKrvrfk=
+Subject: FAILED: patch "[PATCH] io_uring: fix not locked access to fixed buf table" failed to apply to 5.15-stable tree
 To:     asml.silence@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jun 2022 14:14:07 +0200
-Message-ID: <1655727247208205@kroah.com>
+Date:   Mon, 20 Jun 2022 14:14:08 +0200
+Message-ID: <1655727248167248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.18-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
