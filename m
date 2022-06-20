@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE11F551E52
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A55DB551DEF
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236809AbiFTODf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:03:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45140 "EHLO
+        id S1346940AbiFTOB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:01:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347722AbiFTN5R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:57:17 -0400
+        with ESMTP id S1352775AbiFTN5D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:57:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 686A6377E1;
-        Mon, 20 Jun 2022 06:23:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9ED13F60;
+        Mon, 20 Jun 2022 06:22:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAD9C60EC7;
-        Mon, 20 Jun 2022 13:22:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACB97C3411B;
-        Mon, 20 Jun 2022 13:22:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AF666129B;
+        Mon, 20 Jun 2022 13:22:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE47EC3411B;
+        Mon, 20 Jun 2022 13:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731352;
-        bh=lmx12xyyH4sS1e3SCxv2MacjkNSxnGdVrtzoBmi1DsY=;
+        s=korg; t=1655731355;
+        bh=flmuJNQMN5SPnQ7kfBxwfFnmeOGff5nDkDe3k7i3V4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SiwyiDXXsygz2f5I8RVcySM6z4Of6lIyWmYe+79qgwN48ItdwgGtHFr1z0OsmZ7SG
-         anlCIf7XkX9VvoDtC9c7FYoRYTs3tz/rU34UbWBrQKZ1w/nNouCqu24kvR5vlWPE26
-         bkYSSiSIU6eWQQxrt2HgG1EvY68BZdNs4MSuabGc=
+        b=LYmBm4TUyOkhhaCrB3NgEnexVJkVFHQwF4WmCaNVDyXoV/xSlDAV0OuWRvEK1kvUC
+         F49AkhrteAXQFQlaDXyS87CVBojFNQDt3YEw22F3eyDnqUnKbDdjIQh3A78rxNsd3l
+         NsdnVwdmr0XKa1DPvS/WaTe+2O2GWSQjcMgBqP/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Zhang Yi <yi.zhang@huawei.com>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 230/240] ext4: add reserved GDT blocks check
-Date:   Mon, 20 Jun 2022 14:52:11 +0200
-Message-Id: <20220620124745.622329368@linuxfoundation.org>
+        stable@vger.kernel.org, Jeremy Szu <jeremy.szu@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.4 231/240] ALSA: hda/realtek: fix mute/micmute LEDs for HP 440 G8
+Date:   Mon, 20 Jun 2022 14:52:12 +0200
+Message-Id: <20220620124745.650869795@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -55,74 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Jeremy Szu <jeremy.szu@canonical.com>
 
-commit b55c3cd102a6f48b90e61c44f7f3dda8c290c694 upstream.
+commit e7d66cf799390166e90f9a5715f2eede4fe06d51 upstream.
 
-We capture a NULL pointer issue when resizing a corrupt ext4 image which
-is freshly clear resize_inode feature (not run e2fsck). It could be
-simply reproduced by following steps. The problem is because of the
-resize_inode feature was cleared, and it will convert the filesystem to
-meta_bg mode in ext4_resize_fs(), but the es->s_reserved_gdt_blocks was
-not reduced to zero, so could we mistakenly call reserve_backup_gdb()
-and passing an uninitialized resize_inode to it when adding new group
-descriptors.
+The HP EliteBook 840 G8 Notebook PC is using ALC236 codec which is
+using 0x02 to control mute LED and 0x01 to control micmute LED.
+Therefore, add a quirk to make it works.
 
- mkfs.ext4 /dev/sda 3G
- tune2fs -O ^resize_inode /dev/sda #forget to run requested e2fsck
- mount /dev/sda /mnt
- resize2fs /dev/sda 8G
-
- ========
- BUG: kernel NULL pointer dereference, address: 0000000000000028
- CPU: 19 PID: 3243 Comm: resize2fs Not tainted 5.18.0-rc7-00001-gfde086c5ebfd #748
- ...
- RIP: 0010:ext4_flex_group_add+0xe08/0x2570
- ...
- Call Trace:
-  <TASK>
-  ext4_resize_fs+0xbec/0x1660
-  __ext4_ioctl+0x1749/0x24e0
-  ext4_ioctl+0x12/0x20
-  __x64_sys_ioctl+0xa6/0x110
-  do_syscall_64+0x3b/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f2dd739617b
- ========
-
-The fix is simple, add a check in ext4_resize_begin() to make sure that
-the es->s_reserved_gdt_blocks is zero when the resize_inode feature is
-disabled.
-
-Cc: stable@kernel.org
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220601092717.763694-1-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Jeremy Szu <jeremy.szu@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210316074626.79895-1-jeremy.szu@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/resize.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/pci/hda/patch_realtek.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -53,6 +53,16 @@ int ext4_resize_begin(struct super_block
- 		return -EPERM;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4296,6 +4296,12 @@ static void alc_fixup_hp_gpio_led(struct
+ 	}
+ }
  
- 	/*
-+	 * If the reserved GDT blocks is non-zero, the resize_inode feature
-+	 * should always be set.
-+	 */
-+	if (EXT4_SB(sb)->s_es->s_reserved_gdt_blocks &&
-+	    !ext4_has_feature_resize_inode(sb)) {
-+		ext4_error(sb, "resize_inode disabled but reserved GDT blocks non-zero");
-+		return -EFSCORRUPTED;
-+	}
++static void alc236_fixup_hp_gpio_led(struct hda_codec *codec,
++				const struct hda_fixup *fix, int action)
++{
++	alc_fixup_hp_gpio_led(codec, action, 0x02, 0x01);
++}
 +
-+	/*
- 	 * If we are not using the primary superblock/GDT copy don't resize,
-          * because the user tools have no way of handling this.  Probably a
-          * bad time to do it anyways.
+ static void alc269_fixup_hp_gpio_led(struct hda_codec *codec,
+ 				const struct hda_fixup *fix, int action)
+ {
+@@ -6477,6 +6483,7 @@ enum {
+ 	ALC294_FIXUP_ASUS_GU502_VERBS,
+ 	ALC285_FIXUP_HP_GPIO_LED,
+ 	ALC285_FIXUP_HP_MUTE_LED,
++	ALC236_FIXUP_HP_GPIO_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED,
+ 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
+ 	ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
+@@ -7753,6 +7760,10 @@ static const struct hda_fixup alc269_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc285_fixup_hp_mute_led,
+ 	},
++	[ALC236_FIXUP_HP_GPIO_LED] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc236_fixup_hp_gpio_led,
++	},
+ 	[ALC236_FIXUP_HP_MUTE_LED] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc236_fixup_hp_mute_led,
+@@ -8174,6 +8185,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x8760, "HP", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x877d, "HP", ALC236_FIXUP_HP_MUTE_LED),
++	SND_PCI_QUIRK(0x103c, 0x87e5, "HP ProBook 440 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
+ 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
 
 
