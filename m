@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F9905519B0
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2466551BDB
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244781AbiFTNF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:05:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51022 "EHLO
+        id S243202AbiFTNYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:24:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239006AbiFTNEK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:04:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BD7D17053;
-        Mon, 20 Jun 2022 05:59:27 -0700 (PDT)
+        with ESMTP id S1344764AbiFTNWm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:22:42 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A41922B39;
+        Mon, 20 Jun 2022 06:09:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1736F61535;
-        Mon, 20 Jun 2022 12:59:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E1E5C3411B;
-        Mon, 20 Jun 2022 12:59:25 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C8A5CCE13A3;
+        Mon, 20 Jun 2022 13:07:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7CD4C3411C;
+        Mon, 20 Jun 2022 13:07:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729966;
-        bh=SjXAoznO5JPsYpcWKUijlKX7Px6pqsQqLLa1A/Kne20=;
+        s=korg; t=1655730437;
+        bh=6EaLjYzD/ruPvAaXLtzJt0qrZalsWQFHEqW758x/Zhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cLAyI4ZROC+Wk5pXpeY6CVul6BieYdWKCLtWKe/agY2j1S5wNt08nweOsk0KIHlyZ
-         mN/jfTZhyDF3cMmYYNxeqfobF923QCmtKd6f4wvuXEmM3wuSBuDvAgbRY/AXI/6sDY
-         XtACUQavjdO3JExDoM1l8cXPZvarOQ8sUfDix85Y=
+        b=e8WIOy4F6FaIEx+AFxdFBVhK6Ny8/R1nDR8uCaxMiQsq8qoFo+67De4Ewfypsd0Vd
+         e1SUhPwCssR7Jjzdi1P0cZLU3iKAqPXR04FlfINLDtRUW3rj4DzGuyNnI6+16zQWwS
+         5hVsMn7fY5Nr9+Qp3IBsF+9hq/oXNh4ePUT3iBQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Murilo Opsfelder Araujo <muriloo@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Christophe de Dinechin <dinechin@redhat.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.18 133/141] virtio-pci: Remove wrong address verification in vp_del_vqs()
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
+        Bharathi Sreenivas <bharathi.sreenivas@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 052/106] i40e: Fix calculating the number of queue pairs
 Date:   Mon, 20 Jun 2022 14:51:11 +0200
-Message-Id: <20220620124733.488734442@linuxfoundation.org>
+Message-Id: <20220620124725.933899989@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
+From: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
 
-commit 7e415282b41bf0d15c6e0fe268f822d9b083f2f7 upstream.
+[ Upstream commit 0bb050670ac90a167ecfa3f9590f92966c9a3677 ]
 
-GCC 12 enhanced -Waddress when comparing array address to null [0],
-which warns:
+If ADQ is enabled for a VF, then actual number of queue pair
+is a number of currently available traffic classes for this VF.
 
-    drivers/virtio/virtio_pci_common.c: In function ‘vp_del_vqs’:
-    drivers/virtio/virtio_pci_common.c:257:29: warning: the comparison will always evaluate as ‘true’ for the pointer operand in ‘vp_dev->msix_affinity_masks + (sizetype)((long unsigned int)i * 256)’ must not be NULL [-Waddress]
-      257 |                         if (vp_dev->msix_affinity_masks[i])
-          |                             ^~~~~~
+Without this change the configuration of the Rx/Tx queues
+fails with error.
 
-In fact, the verification is comparing the result of a pointer
-arithmetic, the address "msix_affinity_masks + i", which will always
-evaluate to true.
-
-Under the hood, free_cpumask_var() calls kfree(), which is safe to pass
-NULL, not requiring non-null verification.  So remove the verification
-to make compiler happy (happy compiler, happy life).
-
-[0] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102103
-
-Signed-off-by: Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
-Message-Id: <20220415023002.49805-1-muriloo@linux.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Christophe de Dinechin <dinechin@redhat.com>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d29e0d233e0d ("i40e: missing input validation on VF message handling by the PF")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Tested-by: Bharathi Sreenivas <bharathi.sreenivas@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_pci_common.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -254,8 +254,7 @@ void vp_del_vqs(struct virtio_device *vd
- 
- 	if (vp_dev->msix_affinity_masks) {
- 		for (i = 0; i < vp_dev->msix_vectors; i++)
--			if (vp_dev->msix_affinity_masks[i])
--				free_cpumask_var(vp_dev->msix_affinity_masks[i]);
-+			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index babf8b7fa767..6c1e668f4ebf 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -2282,7 +2282,7 @@ static int i40e_vc_config_queues_msg(struct i40e_vf *vf, u8 *msg)
  	}
  
- 	if (vp_dev->msix_enabled) {
+ 	if (vf->adq_enabled) {
+-		for (i = 0; i < I40E_MAX_VF_VSI; i++)
++		for (i = 0; i < vf->num_tc; i++)
+ 			num_qps_all += vf->ch[i].num_qps;
+ 		if (num_qps_all != qci->num_queue_pairs) {
+ 			aq_ret = I40E_ERR_PARAM;
+-- 
+2.35.1
+
 
 
