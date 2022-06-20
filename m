@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7D635519AF
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A574551A13
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243122AbiFTMyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:54:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36910 "EHLO
+        id S243140AbiFTMyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 08:54:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243037AbiFTMyJ (ORCPT
+        with ESMTP id S243038AbiFTMyJ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:54:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52E0713D05;
-        Mon, 20 Jun 2022 05:54:03 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD95183B0;
+        Mon, 20 Jun 2022 05:54:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1D95B811A5;
-        Mon, 20 Jun 2022 12:54:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2971C3411B;
-        Mon, 20 Jun 2022 12:53:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48767614B7;
+        Mon, 20 Jun 2022 12:54:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56FCBC3411B;
+        Mon, 20 Jun 2022 12:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729640;
-        bh=ZWtcHloOu6ofyAaoiLZjNBR4ku6v8PDGWroEVzoiiTA=;
+        s=korg; t=1655729643;
+        bh=z4nS/GuBUxpX0GXkgOCIkr9OBX7vs0RMQDyx7CNotDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zb7WO5yXsiSeMrApoNZPB6xFhbezsU+hc+FAX13gtTI5+oFK71Gv5g6oKMTfYWcUG
-         ePaCeCgs4jG6R3sj22v319Z5LR7WQ1clKQeR9ud8dFTUWiw09WBe1Din0axIvZ7o1X
-         MLoOMGX0a+kifeuVXhNDNVWxKciS6tCMfhnb0igs=
+        b=YNymwzfhmu1rKtVuJrTIV3aAukFtZNmXg8nzbfyaPkMt//IRC+fKgLEwZGzfcCaUL
+         g7XGIQKfgLk3Qc61A1uOetnx+wDWiztwA9JylDGlttcD7R5Qj/hyHRRhkXexbgJEO1
+         8WA23l/aboPOhkqOdprSvJizP7Qn619ojohGawQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.18 004/141] io_uring: reinstate the inflight tracking
-Date:   Mon, 20 Jun 2022 14:49:02 +0200
-Message-Id: <20220620124729.645732782@linuxfoundation.org>
+        stable@vger.kernel.org, Wanming Hu <huwanming@huaweil.com>,
+        He Ying <heying24@huawei.com>,
+        Chen Jingwen <chenjingwen6@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 005/141] powerpc/kasan: Silence KASAN warnings in __get_wchan()
+Date:   Mon, 20 Jun 2022 14:49:03 +0200
+Message-Id: <20220620124729.674826505@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
 References: <20220620124729.509745706@linuxfoundation.org>
@@ -52,203 +57,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: He Ying <heying24@huawei.com>
 
-commit 9cae36a094e7e9d6e5fe8b6dcd4642138b3eb0c7 upstream.
+[ Upstream commit a1b29ba2f2c171b9bea73be993bfdf0a62d37d15 ]
 
-After some debugging, it was realized that we really do still need the
-old inflight tracking for any file type that has io_uring_fops assigned.
-If we don't, then trivial circular references will mean that we never get
-the ctx cleaned up and hence it'll leak.
+The following KASAN warning was reported in our kernel.
 
-Just bring back the inflight tracking, which then also means we can
-eliminate the conditional dropping of the file when task_work is queued.
+  BUG: KASAN: stack-out-of-bounds in get_wchan+0x188/0x250
+  Read of size 4 at addr d216f958 by task ps/14437
 
-Fixes: d5361233e9ab ("io_uring: drop the old style inflight file tracking")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  CPU: 3 PID: 14437 Comm: ps Tainted: G           O      5.10.0 #1
+  Call Trace:
+  [daa63858] [c0654348] dump_stack+0x9c/0xe4 (unreliable)
+  [daa63888] [c035cf0c] print_address_description.constprop.3+0x8c/0x570
+  [daa63908] [c035d6bc] kasan_report+0x1ac/0x218
+  [daa63948] [c00496e8] get_wchan+0x188/0x250
+  [daa63978] [c0461ec8] do_task_stat+0xce8/0xe60
+  [daa63b98] [c0455ac8] proc_single_show+0x98/0x170
+  [daa63bc8] [c03cab8c] seq_read_iter+0x1ec/0x900
+  [daa63c38] [c03cb47c] seq_read+0x1dc/0x290
+  [daa63d68] [c037fc94] vfs_read+0x164/0x510
+  [daa63ea8] [c03808e4] ksys_read+0x144/0x1d0
+  [daa63f38] [c005b1dc] ret_from_syscall+0x0/0x38
+  --- interrupt: c00 at 0x8fa8f4
+      LR = 0x8fa8cc
+
+  The buggy address belongs to the page:
+  page:98ebcdd2 refcount:0 mapcount:0 mapping:00000000 index:0x2 pfn:0x1216f
+  flags: 0x0()
+  raw: 00000000 00000000 01010122 00000000 00000002 00000000 ffffffff 00000000
+  raw: 00000000
+  page dumped because: kasan: bad access detected
+
+  Memory state around the buggy address:
+   d216f800: 00 00 00 00 00 f1 f1 f1 f1 00 00 00 00 00 00 00
+   d216f880: f2 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  >d216f900: 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00
+                                            ^
+   d216f980: f2 f2 f2 f2 f2 f2 f2 00 00 00 00 00 00 00 00 00
+   d216fa00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+After looking into this issue, I find the buggy address belongs
+to the task stack region. It seems KASAN has something wrong.
+I look into the code of __get_wchan in x86 architecture and
+find the same issue has been resolved by the commit
+f7d27c35ddff ("x86/mm, kasan: Silence KASAN warnings in get_wchan()").
+The solution could be applied to powerpc architecture too.
+
+As Andrey Ryabinin said, get_wchan() is racy by design, it may
+access volatile stack of running task, thus it may access
+redzone in a stack frame and cause KASAN to warn about this.
+
+Use READ_ONCE_NOCHECK() to silence these warnings.
+
+Reported-by: Wanming Hu <huwanming@huaweil.com>
+Signed-off-by: He Ying <heying24@huawei.com>
+Signed-off-by: Chen Jingwen <chenjingwen6@huawei.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220121014418.155675-1-heying24@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |   82 +++++++++++++++++++++++++++++++++++++++-------------------
- 1 file changed, 56 insertions(+), 26 deletions(-)
+ arch/powerpc/kernel/process.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -111,7 +111,8 @@
- 			IOSQE_IO_DRAIN | IOSQE_CQE_SKIP_SUCCESS)
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index 984813a4d5dc..a75d20f23dac 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -2160,12 +2160,12 @@ static unsigned long ___get_wchan(struct task_struct *p)
+ 		return 0;
  
- #define IO_REQ_CLEAN_FLAGS (REQ_F_BUFFER_SELECTED | REQ_F_NEED_CLEANUP | \
--				REQ_F_POLLED | REQ_F_CREDS | REQ_F_ASYNC_DATA)
-+				REQ_F_POLLED | REQ_F_INFLIGHT | REQ_F_CREDS | \
-+				REQ_F_ASYNC_DATA)
- 
- #define IO_TCTX_REFS_CACHE_NR	(1U << 10)
- 
-@@ -493,6 +494,7 @@ struct io_uring_task {
- 	const struct io_ring_ctx *last;
- 	struct io_wq		*io_wq;
- 	struct percpu_counter	inflight;
-+	atomic_t		inflight_tracked;
- 	atomic_t		in_idle;
- 
- 	spinlock_t		task_lock;
-@@ -1186,8 +1188,6 @@ static void io_clean_op(struct io_kiocb
- static inline struct file *io_file_get_fixed(struct io_kiocb *req, int fd,
- 					     unsigned issue_flags);
- static inline struct file *io_file_get_normal(struct io_kiocb *req, int fd);
--static void io_drop_inflight_file(struct io_kiocb *req);
--static bool io_assign_file(struct io_kiocb *req, unsigned int issue_flags);
- static void __io_queue_sqe(struct io_kiocb *req);
- static void io_rsrc_put_work(struct work_struct *work);
- 
-@@ -1435,9 +1435,29 @@ static bool io_match_task(struct io_kioc
- 			  bool cancel_all)
- 	__must_hold(&req->ctx->timeout_lock)
- {
-+	struct io_kiocb *req;
-+
- 	if (task && head->task != task)
- 		return false;
--	return cancel_all;
-+	if (cancel_all)
-+		return true;
-+
-+	io_for_each_link(req, head) {
-+		if (req->flags & REQ_F_INFLIGHT)
-+			return true;
-+	}
-+	return false;
-+}
-+
-+static bool io_match_linked(struct io_kiocb *head)
-+{
-+	struct io_kiocb *req;
-+
-+	io_for_each_link(req, head) {
-+		if (req->flags & REQ_F_INFLIGHT)
-+			return true;
-+	}
-+	return false;
- }
- 
- /*
-@@ -1447,9 +1467,24 @@ static bool io_match_task(struct io_kioc
- static bool io_match_task_safe(struct io_kiocb *head, struct task_struct *task,
- 			       bool cancel_all)
- {
-+	bool matched;
-+
- 	if (task && head->task != task)
- 		return false;
--	return cancel_all;
-+	if (cancel_all)
-+		return true;
-+
-+	if (head->flags & REQ_F_LINK_TIMEOUT) {
-+		struct io_ring_ctx *ctx = head->ctx;
-+
-+		/* protect against races with linked timeouts */
-+		spin_lock_irq(&ctx->timeout_lock);
-+		matched = io_match_linked(head);
-+		spin_unlock_irq(&ctx->timeout_lock);
-+	} else {
-+		matched = io_match_linked(head);
-+	}
-+	return matched;
- }
- 
- static inline bool req_has_async_data(struct io_kiocb *req)
-@@ -1608,6 +1643,14 @@ static inline bool io_req_ffs_set(struct
- 	return req->flags & REQ_F_FIXED_FILE;
- }
- 
-+static inline void io_req_track_inflight(struct io_kiocb *req)
-+{
-+	if (!(req->flags & REQ_F_INFLIGHT)) {
-+		req->flags |= REQ_F_INFLIGHT;
-+		atomic_inc(&current->io_uring->inflight_tracked);
-+	}
-+}
-+
- static struct io_kiocb *__io_prep_linked_timeout(struct io_kiocb *req)
- {
- 	if (WARN_ON_ONCE(!req->link))
-@@ -2516,8 +2559,6 @@ static void io_req_task_work_add(struct
- 
- 	WARN_ON_ONCE(!tctx);
- 
--	io_drop_inflight_file(req);
--
- 	spin_lock_irqsave(&tctx->task_lock, flags);
- 	if (priority)
- 		wq_list_add_tail(&req->io_task_work.node, &tctx->prior_task_list);
-@@ -5869,10 +5910,6 @@ static int io_poll_check_events(struct i
- 
- 		if (!req->result) {
- 			struct poll_table_struct pt = { ._key = req->apoll_events };
--			unsigned flags = locked ? 0 : IO_URING_F_UNLOCKED;
--
--			if (unlikely(!io_assign_file(req, flags)))
--				return -EBADF;
- 			req->result = vfs_poll(req->file, &pt) & req->apoll_events;
+ 	do {
+-		sp = *(unsigned long *)sp;
++		sp = READ_ONCE_NOCHECK(*(unsigned long *)sp);
+ 		if (!validate_sp(sp, p, STACK_FRAME_OVERHEAD) ||
+ 		    task_is_running(p))
+ 			return 0;
+ 		if (count > 0) {
+-			ip = ((unsigned long *)sp)[STACK_FRAME_LR_SAVE];
++			ip = READ_ONCE_NOCHECK(((unsigned long *)sp)[STACK_FRAME_LR_SAVE]);
+ 			if (!in_sched_functions(ip))
+ 				return ip;
  		}
- 
-@@ -7097,6 +7134,11 @@ static void io_clean_op(struct io_kiocb
- 		kfree(req->apoll);
- 		req->apoll = NULL;
- 	}
-+	if (req->flags & REQ_F_INFLIGHT) {
-+		struct io_uring_task *tctx = req->task->io_uring;
-+
-+		atomic_dec(&tctx->inflight_tracked);
-+	}
- 	if (req->flags & REQ_F_CREDS)
- 		put_cred(req->creds);
- 	if (req->flags & REQ_F_ASYNC_DATA) {
-@@ -7393,19 +7435,6 @@ out:
- 	return file;
- }
- 
--/*
-- * Drop the file for requeue operations. Only used of req->file is the
-- * io_uring descriptor itself.
-- */
--static void io_drop_inflight_file(struct io_kiocb *req)
--{
--	if (unlikely(req->flags & REQ_F_INFLIGHT)) {
--		fput(req->file);
--		req->file = NULL;
--		req->flags &= ~REQ_F_INFLIGHT;
--	}
--}
--
- static struct file *io_file_get_normal(struct io_kiocb *req, int fd)
- {
- 	struct file *file = fget(fd);
-@@ -7414,7 +7443,7 @@ static struct file *io_file_get_normal(s
- 
- 	/* we don't allow fixed io_uring files */
- 	if (file && file->f_op == &io_uring_fops)
--		req->flags |= REQ_F_INFLIGHT;
-+		io_req_track_inflight(req);
- 	return file;
- }
- 
-@@ -9211,6 +9240,7 @@ static __cold int io_uring_alloc_task_co
- 	xa_init(&tctx->xa);
- 	init_waitqueue_head(&tctx->wait);
- 	atomic_set(&tctx->in_idle, 0);
-+	atomic_set(&tctx->inflight_tracked, 0);
- 	task->io_uring = tctx;
- 	spin_lock_init(&tctx->task_lock);
- 	INIT_WQ_LIST(&tctx->task_list);
-@@ -10402,7 +10432,7 @@ static __cold void io_uring_clean_tctx(s
- static s64 tctx_inflight(struct io_uring_task *tctx, bool tracked)
- {
- 	if (tracked)
--		return 0;
-+		return atomic_read(&tctx->inflight_tracked);
- 	return percpu_counter_sum(&tctx->inflight);
- }
- 
+-- 
+2.35.1
+
 
 
