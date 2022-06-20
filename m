@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B8A1551C8F
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:50:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CFF7551B44
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245089AbiFTNPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:15:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42116 "EHLO
+        id S1343691AbiFTNZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:25:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344798AbiFTNOE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:14:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA0B1F2E3;
-        Mon, 20 Jun 2022 06:06:20 -0700 (PDT)
+        with ESMTP id S1345801AbiFTNYH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 882455F9D;
+        Mon, 20 Jun 2022 06:09:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B07CB811C0;
-        Mon, 20 Jun 2022 13:04:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDC65C3411B;
-        Mon, 20 Jun 2022 13:04:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7680160C1A;
+        Mon, 20 Jun 2022 13:08:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C971C3411B;
+        Mon, 20 Jun 2022 13:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730270;
-        bh=suxF+OV9SOJgom/P/dRCfVxDLXXQLItXBadyBvTXuKQ=;
+        s=korg; t=1655730513;
+        bh=SvfY2p2vD+jYDy9LBAcHzZUwW9oj7korxobSZ2zmMe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OiEqX8l7PU8ee4WmKvgSd29d6vwzOC54UuQMciNrZTtvytWiNiX993ddlh7dz98lG
-         1C2HTeuCjg7JzpVfvOFqfDQ3TeB3ahHl0zH+Cikc4PHgx86zYqtOTxQyLNeemX8hvk
-         xyoX3PLDgI8UYY3T0cT8urgoGVfKldm4GBZV1Plc=
+        b=LibbP+e5oZWEsVjoV6NW7uVBMX8YakSB0G09zO0hVdwV/RcTKB7IB8rcr/QxCbmoc
+         02fX4iX6e0dvMs91vwUOCsYtonRVgfnEbnjxp7dFlEEck+2ZSg2iIH1Vq1xrq/lulE
+         Rha+Lf5ZFDgzW7JshBic0WOi3rLehoJecggXwKuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 63/84] USB: serial: option: add support for Cinterion MV31 with new baseline
+        stable@vger.kernel.org, Thomas Osterried <thomas@osterried.de>,
+        Duoming Zhou <duoming@zju.edu.cn>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 067/106] net: ax25: Fix deadlock caused by skb_recv_datagram in ax25_recvmsg
 Date:   Mon, 20 Jun 2022 14:51:26 +0200
-Message-Id: <20220620124722.753815065@linuxfoundation.org>
+Message-Id: <20220620124726.382952941@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
-References: <20220620124720.882450983@linuxfoundation.org>
+In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
+References: <20220620124724.380838401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +57,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 158f7585bfcea4aae0ad4128d032a80fec550df1 upstream.
+[ Upstream commit 219b51a6f040fa5367adadd7d58c4dda0896a01d ]
 
-Adding support for Cinterion device MV31 with Qualcomm
-new baseline. Use different PIDs to separate it from
-previous base line products.
-All interfaces settings keep same as previous.
+The skb_recv_datagram() in ax25_recvmsg() will hold lock_sock
+and block until it receives a packet from the remote. If the client
+doesn`t connect to server and calls read() directly, it will not
+receive any packets forever. As a result, the deadlock will happen.
 
-Below is test evidence:
-T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  6 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00b8 Rev=04.14
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00B8 USB Mobile Broadband
-S:  SerialNumber=90418e79
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+The fail log caused by deadlock is shown below:
 
-T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  7 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00b9 Rev=04.14
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00B9 USB Mobile Broadband
-S:  SerialNumber=90418e79
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+[  369.606973] INFO: task ax25_deadlock:157 blocked for more than 245 seconds.
+[  369.608919] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[  369.613058] Call Trace:
+[  369.613315]  <TASK>
+[  369.614072]  __schedule+0x2f9/0xb20
+[  369.615029]  schedule+0x49/0xb0
+[  369.615734]  __lock_sock+0x92/0x100
+[  369.616763]  ? destroy_sched_domains_rcu+0x20/0x20
+[  369.617941]  lock_sock_nested+0x6e/0x70
+[  369.618809]  ax25_bind+0xaa/0x210
+[  369.619736]  __sys_bind+0xca/0xf0
+[  369.620039]  ? do_futex+0xae/0x1b0
+[  369.620387]  ? __x64_sys_futex+0x7c/0x1c0
+[  369.620601]  ? fpregs_assert_state_consistent+0x19/0x40
+[  369.620613]  __x64_sys_bind+0x11/0x20
+[  369.621791]  do_syscall_64+0x3b/0x90
+[  369.622423]  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+[  369.623319] RIP: 0033:0x7f43c8aa8af7
+[  369.624301] RSP: 002b:00007f43c8197ef8 EFLAGS: 00000246 ORIG_RAX: 0000000000000031
+[  369.625756] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f43c8aa8af7
+[  369.626724] RDX: 0000000000000010 RSI: 000055768e2021d0 RDI: 0000000000000005
+[  369.628569] RBP: 00007f43c8197f00 R08: 0000000000000011 R09: 00007f43c8198700
+[  369.630208] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fff845e6afe
+[  369.632240] R13: 00007fff845e6aff R14: 00007f43c8197fc0 R15: 00007f43c8198700
 
-For PID 00b8, interface 3 is GNSS port which don't use serial driver.
+This patch replaces skb_recv_datagram() with an open-coded variant of it
+releasing the socket lock before the __skb_wait_for_more_packets() call
+and re-acquiring it after such call in order that other functions that
+need socket lock could be executed.
 
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20220601034740.5438-1-slark_xiao@163.com
-[ johan: rename defines using a "2" infix ]
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+what's more, the socket lock will be released only when recvmsg() will
+block and that should produce nicer overall behavior.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Suggested-by: Thomas Osterried <thomas@osterried.de>
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reported-by: Thomas Habets <thomas@@habets.se>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/ax25/af_ax25.c | 34 ++++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -432,6 +432,8 @@ static void option_instat_callback(struc
- #define CINTERION_PRODUCT_CLS8			0x00b0
- #define CINTERION_PRODUCT_MV31_MBIM		0x00b3
- #define CINTERION_PRODUCT_MV31_RMNET		0x00b7
-+#define CINTERION_PRODUCT_MV31_2_MBIM		0x00b8
-+#define CINTERION_PRODUCT_MV31_2_RMNET		0x00b9
- #define CINTERION_PRODUCT_MV32_WA		0x00f1
- #define CINTERION_PRODUCT_MV32_WB		0x00f2
+diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
+index 7b69503dc46a..f99ed1eddf5e 100644
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -1654,9 +1654,12 @@ static int ax25_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 			int flags)
+ {
+ 	struct sock *sk = sock->sk;
+-	struct sk_buff *skb;
++	struct sk_buff *skb, *last;
++	struct sk_buff_head *sk_queue;
+ 	int copied;
+ 	int err = 0;
++	int off = 0;
++	long timeo;
  
-@@ -1979,6 +1981,10 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(3)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
- 	  .driver_info = RSVD(0)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_MBIM, 0xff),
-+	  .driver_info = RSVD(3)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_RMNET, 0xff),
-+	  .driver_info = RSVD(0)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
- 	  .driver_info = RSVD(3)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
+ 	lock_sock(sk);
+ 	/*
+@@ -1668,11 +1671,29 @@ static int ax25_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 		goto out;
+ 	}
+ 
+-	/* Now we can treat all alike */
+-	skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT,
+-				flags & MSG_DONTWAIT, &err);
+-	if (skb == NULL)
+-		goto out;
++	/*  We need support for non-blocking reads. */
++	sk_queue = &sk->sk_receive_queue;
++	skb = __skb_try_recv_datagram(sk, sk_queue, flags, &off, &err, &last);
++	/* If no packet is available, release_sock(sk) and try again. */
++	if (!skb) {
++		if (err != -EAGAIN)
++			goto out;
++		release_sock(sk);
++		timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
++		while (timeo && !__skb_wait_for_more_packets(sk, sk_queue, &err,
++							     &timeo, last)) {
++			skb = __skb_try_recv_datagram(sk, sk_queue, flags, &off,
++						      &err, &last);
++			if (skb)
++				break;
++
++			if (err != -EAGAIN)
++				goto done;
++		}
++		if (!skb)
++			goto done;
++		lock_sock(sk);
++	}
+ 
+ 	if (!sk_to_ax25(sk)->pidincl)
+ 		skb_pull(skb, 1);		/* Remove PID */
+@@ -1719,6 +1740,7 @@ static int ax25_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ out:
+ 	release_sock(sk);
+ 
++done:
+ 	return err;
+ }
+ 
+-- 
+2.35.1
+
 
 
