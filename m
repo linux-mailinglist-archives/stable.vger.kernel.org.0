@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8364551EB7
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A97D6551EA3
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 16:27:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345710AbiFTOAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 10:00:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36716 "EHLO
+        id S1349025AbiFTOCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 10:02:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349228AbiFTNwi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:52:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E1453152A;
-        Mon, 20 Jun 2022 06:19:11 -0700 (PDT)
+        with ESMTP id S1351486AbiFTNyw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:54:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F57B32EF3;
+        Mon, 20 Jun 2022 06:21:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22137B80E7A;
-        Mon, 20 Jun 2022 13:13:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 739A0C3411B;
-        Mon, 20 Jun 2022 13:13:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A656060ECD;
+        Mon, 20 Jun 2022 13:16:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B0FCC3411B;
+        Mon, 20 Jun 2022 13:16:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730817;
-        bh=05oCL9/vwRD2ONushJmIq7RlXP0+bm7pgIUFoypvMaI=;
+        s=korg; t=1655730966;
+        bh=CyisIf9INCjyFHjfwTjNSEOJjVael70+fsDzwWHhi9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bxMdSyjQK42mAtYTU21TdRqyO8yOlgpRubuRR/+ZeZFHK+iuasSJz2pkq0LsfLnjD
-         XGwJjdCNgcP48qXNCd2jI+rkoMchrQlDtBwaMxW9JHbZfD0+zonp5HbVfEoQUfK6n4
-         ZSlBZMOK/idpXphQZY+GzZRBlRYkbEGtvcQjCBi8=
+        b=uSB5N0nQMzVZNX7h/mdm89NLtpsXYvplLD/H2BLX3PgZ2g673WvQO31uZC7c28quj
+         PNDLu9poOXe9W++7dyEGEmNdEKX69+oEJTKtPQ/wGjG271/pJi1Mc4dDY9kkZ9uM3i
+         IU9z0vMLAj7G+Jpc1udLfCzyKSQE23qNSXT8qCEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 063/240] random: access primary_pool directly rather than through pointer
-Date:   Mon, 20 Jun 2022 14:49:24 +0200
-Message-Id: <20220620124740.181296930@linuxfoundation.org>
+Subject: [PATCH 5.4 071/240] random: remove batched entropy locking
+Date:   Mon, 20 Jun 2022 14:49:32 +0200
+Message-Id: <20220620124740.504525232@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
 References: <20220620124737.799371052@linuxfoundation.org>
@@ -54,70 +58,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Brodowski <linux@dominikbrodowski.net>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit ebf7606388732ecf2821ca21087e9446cb4a5b57 upstream.
+commit 77760fd7f7ae3dfd03668204e708d1568d75447d upstream.
 
-Both crng_initialize_primary() and crng_init_try_arch_early() are
-only called for the primary_pool. Accessing it directly instead of
-through a function parameter simplifies the code.
+Rather than use spinlocks to protect batched entropy, we can instead
+disable interrupts locally, since we're dealing with per-cpu data, and
+manage resets with a basic generation counter. At the same time, we
+can't quite do this on PREEMPT_RT, where we still want spinlocks-as-
+mutexes semantics. So we use a local_lock_t, which provides the right
+behavior for each. Because this is a per-cpu lock, that generation
+counter is still doing the necessary CPU-to-CPU communication.
 
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+This should improve performance a bit. It will also fix the linked splat
+that Jonathan received with a PROVE_RAW_LOCK_NESTING=y.
+
+Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Suggested-by: Andy Lutomirski <luto@kernel.org>
+Reported-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Tested-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Link: https://lore.kernel.org/lkml/YfMa0QgsjCVdRAvJ@latitude/
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/char/random.c |   58 +++++++++++++++++++++++---------------------------
+ 1 file changed, 27 insertions(+), 31 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -762,7 +762,7 @@ static bool crng_init_try_arch(struct cr
- 	return arch_init;
- }
+@@ -1721,13 +1721,15 @@ struct ctl_table random_table[] = {
+ };
+ #endif	/* CONFIG_SYSCTL */
  
--static bool __init crng_init_try_arch_early(struct crng_state *crng)
-+static bool __init crng_init_try_arch_early(void)
++static atomic_t batch_generation = ATOMIC_INIT(0);
++
+ struct batched_entropy {
+ 	union {
+ 		u64 entropy_u64[CHACHA_BLOCK_SIZE / sizeof(u64)];
+ 		u32 entropy_u32[CHACHA_BLOCK_SIZE / sizeof(u32)];
+ 	};
+ 	unsigned int position;
+-	spinlock_t batch_lock;
++	int generation;
+ };
+ 
+ /*
+@@ -1738,9 +1740,7 @@ struct batched_entropy {
+  * wait_for_random_bytes() should be called and return 0 at least once at any
+  * point prior.
+  */
+-static DEFINE_PER_CPU(struct batched_entropy, batched_entropy_u64) = {
+-	.batch_lock = __SPIN_LOCK_UNLOCKED(batched_entropy_u64.lock),
+-};
++static DEFINE_PER_CPU(struct batched_entropy, batched_entropy_u64);
+ 
+ u64 get_random_u64(void)
  {
- 	int i;
- 	bool arch_init = true;
-@@ -774,7 +774,7 @@ static bool __init crng_init_try_arch_ea
- 			rv = random_get_entropy();
- 			arch_init = false;
- 		}
--		crng->state[i] ^= rv;
-+		primary_crng.state[i] ^= rv;
+@@ -1748,67 +1748,63 @@ u64 get_random_u64(void)
+ 	unsigned long flags;
+ 	struct batched_entropy *batch;
+ 	static void *previous;
++	int next_gen;
+ 
+ 	warn_unseeded_randomness(&previous);
+ 
++	local_irq_save(flags);
+ 	batch = raw_cpu_ptr(&batched_entropy_u64);
+-	spin_lock_irqsave(&batch->batch_lock, flags);
+-	if (batch->position % ARRAY_SIZE(batch->entropy_u64) == 0) {
++
++	next_gen = atomic_read(&batch_generation);
++	if (batch->position % ARRAY_SIZE(batch->entropy_u64) == 0 ||
++	    next_gen != batch->generation) {
+ 		extract_crng((u8 *)batch->entropy_u64);
+ 		batch->position = 0;
++		batch->generation = next_gen;
  	}
- 
- 	return arch_init;
-@@ -788,16 +788,16 @@ static void crng_initialize_secondary(st
- 	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
++
+ 	ret = batch->entropy_u64[batch->position++];
+-	spin_unlock_irqrestore(&batch->batch_lock, flags);
++	local_irq_restore(flags);
+ 	return ret;
  }
+ EXPORT_SYMBOL(get_random_u64);
  
--static void __init crng_initialize_primary(struct crng_state *crng)
-+static void __init crng_initialize_primary(void)
+-static DEFINE_PER_CPU(struct batched_entropy, batched_entropy_u32) = {
+-	.batch_lock = __SPIN_LOCK_UNLOCKED(batched_entropy_u32.lock),
+-};
++static DEFINE_PER_CPU(struct batched_entropy, batched_entropy_u32);
++
+ u32 get_random_u32(void)
  {
--	_extract_entropy(&crng->state[4], sizeof(u32) * 12);
--	if (crng_init_try_arch_early(crng) && trust_cpu && crng_init < 2) {
-+	_extract_entropy(&primary_crng.state[4], sizeof(u32) * 12);
-+	if (crng_init_try_arch_early() && trust_cpu && crng_init < 2) {
- 		invalidate_batched_entropy();
- 		numa_crng_init();
- 		crng_init = 2;
- 		pr_notice("crng init done (trusting CPU's manufacturer)\n");
+ 	u32 ret;
+ 	unsigned long flags;
+ 	struct batched_entropy *batch;
+ 	static void *previous;
++	int next_gen;
+ 
+ 	warn_unseeded_randomness(&previous);
+ 
++	local_irq_save(flags);
+ 	batch = raw_cpu_ptr(&batched_entropy_u32);
+-	spin_lock_irqsave(&batch->batch_lock, flags);
+-	if (batch->position % ARRAY_SIZE(batch->entropy_u32) == 0) {
++
++	next_gen = atomic_read(&batch_generation);
++	if (batch->position % ARRAY_SIZE(batch->entropy_u32) == 0 ||
++	    next_gen != batch->generation) {
+ 		extract_crng((u8 *)batch->entropy_u32);
+ 		batch->position = 0;
++		batch->generation = next_gen;
  	}
--	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
-+	primary_crng.init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
++
+ 	ret = batch->entropy_u32[batch->position++];
+-	spin_unlock_irqrestore(&batch->batch_lock, flags);
++	local_irq_restore(flags);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(get_random_u32);
+ 
+ /* It's important to invalidate all potential batched entropy that might
+  * be stored before the crng is initialized, which we can do lazily by
+- * simply resetting the counter to zero so that it's re-extracted on the
+- * next usage. */
++ * bumping the generation counter.
++ */
+ static void invalidate_batched_entropy(void)
+ {
+-	int cpu;
+-	unsigned long flags;
+-
+-	for_each_possible_cpu(cpu) {
+-		struct batched_entropy *batched_entropy;
+-
+-		batched_entropy = per_cpu_ptr(&batched_entropy_u32, cpu);
+-		spin_lock_irqsave(&batched_entropy->batch_lock, flags);
+-		batched_entropy->position = 0;
+-		spin_unlock(&batched_entropy->batch_lock);
+-
+-		batched_entropy = per_cpu_ptr(&batched_entropy_u64, cpu);
+-		spin_lock(&batched_entropy->batch_lock);
+-		batched_entropy->position = 0;
+-		spin_unlock_irqrestore(&batched_entropy->batch_lock, flags);
+-	}
++	atomic_inc(&batch_generation);
  }
  
- static void crng_finalize_init(struct crng_state *crng)
-@@ -1698,7 +1698,7 @@ int __init rand_initialize(void)
- 	init_std_data();
- 	if (crng_need_final_init)
- 		crng_finalize_init(&primary_crng);
--	crng_initialize_primary(&primary_crng);
-+	crng_initialize_primary();
- 	crng_global_init_time = jiffies;
- 	if (ratelimit_disable) {
- 		urandom_warning.interval = 0;
+ /**
 
 
