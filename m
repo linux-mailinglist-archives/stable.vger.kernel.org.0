@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6905C551D40
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D624551985
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:06:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244520AbiFTNuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:50:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34800 "EHLO
+        id S243472AbiFTNEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:04:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348435AbiFTNsA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:48:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 239692ED77;
-        Mon, 20 Jun 2022 06:17:42 -0700 (PDT)
+        with ESMTP id S244123AbiFTNDB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:03:01 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50414B70;
+        Mon, 20 Jun 2022 05:57:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32049B811C7;
-        Mon, 20 Jun 2022 13:17:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8613EC3411B;
-        Mon, 20 Jun 2022 13:17:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B029ACE138A;
+        Mon, 20 Jun 2022 12:57:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A221BC3411B;
+        Mon, 20 Jun 2022 12:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655731055;
-        bh=Af/mC/zq4tKhaB0LwhH5Vk0R8nnqO8wO9ms7HejQAZU=;
+        s=korg; t=1655729868;
+        bh=orVY5jXm62Jz5UFZUXwbsEjISfrzWWrNVjdLMJi/c1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2oNKjbMQ4P8qx0z9w9bfJZl3Zqx2orA9I1JQwplwhIUstHC8Mul8szqs+G73ylUd
-         gwtVpvvZ4WJ8SZqzCUgGQigHdoMEdvU15aECPYblxAU2Mb3z4ZAIK3Z18PRumd5kuK
-         PtotSEwmaiLIJ/48h+iAi/MGmHR8inXQHaFYrjmU=
+        b=dNlorHNZ5X00R9MATbA120V36xxjOXJLLoDppcPVss6Gzc/EjCauWhop1bF1+uWwT
+         egIZNvLYJBT+dg8LaF64w5/Q2MNiPoZ+N95mDdbV88wGauTKqKN/fRKRNpiThO61kE
+         GLEGFTrkEp+7dr+Eze1qpGV3jyTOBqxNLqQoUUH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 138/240] mips: use fallback for random_get_entropy() instead of just c0 random
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.18 101/141] mei: me: add raptor lake point S DID
 Date:   Mon, 20 Jun 2022 14:50:39 +0200
-Message-Id: <20220620124743.007639709@linuxfoundation.org>
+Message-Id: <20220620124732.530201907@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
-References: <20220620124737.799371052@linuxfoundation.org>
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 1c99c6a7c3c599a68321b01b9ec243215ede5a68 upstream.
+commit 3ed8c7d39cfef831fe508fc1308f146912fa72e6 upstream.
 
-For situations in which we don't have a c0 counter register available,
-we've been falling back to reading the c0 "random" register, which is
-usually bounded by the amount of TLB entries and changes every other
-cycle or so. This means it wraps extremely often. We can do better by
-combining this fast-changing counter with a potentially slower-changing
-counter from random_get_entropy_fallback() in the more significant bits.
-This commit combines the two, taking into account that the changing bits
-are in a different bit position depending on the CPU model. In addition,
-we previously were falling back to 0 for ancient CPUs that Linux does
-not support anyway; remove that dead path entirely.
+Add Raptor (Point) Lake S device id.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Tested-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20220606144225.282375-3-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/asm/timex.h |   17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/misc/mei/hw-me-regs.h |    2 ++
+ drivers/misc/mei/pci-me.c     |    2 ++
+ 2 files changed, 4 insertions(+)
 
---- a/arch/mips/include/asm/timex.h
-+++ b/arch/mips/include/asm/timex.h
-@@ -76,25 +76,24 @@ static inline cycles_t get_cycles(void)
- 	else
- 		return 0;	/* no usable counter */
- }
-+#define get_cycles get_cycles
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -109,6 +109,8 @@
+ #define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
+ #define MEI_DEV_ID_ADP_N      0x54E0  /* Alder Lake Point N */
  
- /*
-  * Like get_cycles - but where c0_count is not available we desperately
-  * use c0_random in an attempt to get at least a little bit of entropy.
-- *
-- * R6000 and R6000A neither have a count register nor a random register.
-- * That leaves no entropy source in the CPU itself.
-  */
- static inline unsigned long random_get_entropy(void)
- {
--	unsigned int prid = read_c0_prid();
--	unsigned int imp = prid & PRID_IMP_MASK;
-+	unsigned int c0_random;
- 
--	if (can_use_mips_counter(prid))
-+	if (can_use_mips_counter(read_c0_prid()))
- 		return read_c0_count();
--	else if (likely(imp != PRID_IMP_R6000 && imp != PRID_IMP_R6000A))
--		return read_c0_random();
++#define MEI_DEV_ID_RPL_S      0x7A68  /* Raptor Lake Point S */
 +
-+	if (cpu_has_3kex)
-+		c0_random = (read_c0_random() >> 8) & 0x3f;
- 	else
--		return 0;	/* no usable register */
-+		c0_random = read_c0_random() & 0x3f;
-+	return (random_get_entropy_fallback() << 6) | (0x3f - c0_random);
- }
- #define random_get_entropy random_get_entropy
+ /*
+  * MEI HW Section
+  */
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -116,6 +116,8 @@ static const struct pci_device_id mei_me
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_P, MEI_ME_PCH15_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_N, MEI_ME_PCH15_CFG)},
  
++	{MEI_PCI_DEVICE(MEI_DEV_ID_RPL_S, MEI_ME_PCH15_CFG)},
++
+ 	/* required last entry */
+ 	{0, }
+ };
 
 
