@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A796E551B86
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9706F551B31
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:46:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244794AbiFTN3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 09:29:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40144 "EHLO
+        id S1344405AbiFTNZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:25:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345217AbiFTN0r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:26:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 977081AF06;
-        Mon, 20 Jun 2022 06:10:54 -0700 (PDT)
+        with ESMTP id S1346346AbiFTNYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:24:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F32EA1A832;
+        Mon, 20 Jun 2022 06:09:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F3F9B811C0;
-        Mon, 20 Jun 2022 13:09:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 981BFC3411B;
-        Mon, 20 Jun 2022 13:09:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B765ECE138F;
+        Mon, 20 Jun 2022 13:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A33F1C3411B;
+        Mon, 20 Jun 2022 13:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655730577;
-        bh=uGrc4TFtsDDheb0tYM3honumC3oheP7ORB0HHwlNEes=;
+        s=korg; t=1655730580;
+        bh=Xe+h4iyc1g7IGzQn4fral4hbvm2IbRAE0ps/UrG4ouI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TWHdjxF+ncdQQoGzTqBCTnox2hvj8m6Y3hcpgVhwwDN1y5tELZM7c3osqN6IrPQSJ
-         msftyRxRXMlYzEpT42tbTKFp5EmnS7vIYYJHQtMMqbVLZcD+wAQnMAbe3/PD4SwRkN
-         ssAUCSlPllZcuaZK/qgTFQngZfJ4G1kc+dTV3IkU=
+        b=vF45/hZ0NUJ/RTZ2yXguUWKAPvBc1nub7McXAsnVQU3SyQ6aRFh6KTh6MpP/yg9uj
+         gP6VrE4arwIkgz4ri2aKejNqFVIL6t467nX4XksAqLIB/lw90J7U8nCUMoaFGL5edd
+         c6foZ5VPpa7Ff1ELYsaOMKzUYdd49XcvUKCRab80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.15 097/106] cfi: Fix __cfi_slowpath_diag RCU usage with cpuidle
-Date:   Mon, 20 Jun 2022 14:51:56 +0200
-Message-Id: <20220620124727.260974814@linuxfoundation.org>
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        stable@kernel.org, Jan Kara <jack@suse.cz>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 098/106] ext4: fix super block checksum incorrect after mount
+Date:   Mon, 20 Jun 2022 14:51:57 +0200
+Message-Id: <20220620124727.289134263@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220620124724.380838401@linuxfoundation.org>
 References: <20220620124724.380838401@linuxfoundation.org>
@@ -53,76 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 57cd6d157eb479f0a8e820fd36b7240845c8a937 upstream.
+commit 9b6641dd95a0c441b277dd72ba22fed8d61f76ad upstream.
 
-RCU_NONIDLE usage during __cfi_slowpath_diag can result in an invalid
-RCU state in the cpuidle code path:
+We got issue as follows:
+[home]# mount  /dev/sda  test
+EXT4-fs (sda): warning: mounting fs with errors, running e2fsck is recommended
+[home]# dmesg
+EXT4-fs (sda): warning: mounting fs with errors, running e2fsck is recommended
+EXT4-fs (sda): Errors on filesystem, clearing orphan list.
+EXT4-fs (sda): recovery complete
+EXT4-fs (sda): mounted filesystem with ordered data mode. Quota mode: none.
+[home]# debugfs /dev/sda
+debugfs 1.46.5 (30-Dec-2021)
+Checksum errors in superblock!  Retrying...
 
-  WARNING: CPU: 1 PID: 0 at kernel/rcu/tree.c:613 rcu_eqs_enter+0xe4/0x138
-  ...
-  Call trace:
-    rcu_eqs_enter+0xe4/0x138
-    rcu_idle_enter+0xa8/0x100
-    cpuidle_enter_state+0x154/0x3a8
-    cpuidle_enter+0x3c/0x58
-    do_idle.llvm.6590768638138871020+0x1f4/0x2ec
-    cpu_startup_entry+0x28/0x2c
-    secondary_start_kernel+0x1b8/0x220
-    __secondary_switched+0x94/0x98
+Reason is ext4_orphan_cleanup will reset ‘s_last_orphan’ but not update
+super block checksum.
 
-Instead, call rcu_irq_enter/exit to wake up RCU only when needed and
-disable interrupts for the entire CFI shadow/module check when we do.
+To solve above issue, defer update super block checksum after
+ext4_orphan_cleanup.
 
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Link: https://lore.kernel.org/r/20220531175910.890307-1-samitolvanen@google.com
-Fixes: cf68fffb66d6 ("add support for Clang CFI")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Cc: stable@kernel.org
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220525012904.1604737-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cfi.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ fs/ext4/super.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/kernel/cfi.c
-+++ b/kernel/cfi.c
-@@ -281,6 +281,8 @@ static inline cfi_check_fn find_module_c
- static inline cfi_check_fn find_check_fn(unsigned long ptr)
- {
- 	cfi_check_fn fn = NULL;
-+	unsigned long flags;
-+	bool rcu_idle;
- 
- 	if (is_kernel_text(ptr))
- 		return __cfi_check;
-@@ -290,13 +292,21 @@ static inline cfi_check_fn find_check_fn
- 	 * the shadow and __module_address use RCU, so we need to wake it
- 	 * up if necessary.
- 	 */
--	RCU_NONIDLE({
--		if (IS_ENABLED(CONFIG_CFI_CLANG_SHADOW))
--			fn = find_shadow_check_fn(ptr);
-+	rcu_idle = !rcu_is_watching();
-+	if (rcu_idle) {
-+		local_irq_save(flags);
-+		rcu_irq_enter();
-+	}
- 
--		if (!fn)
--			fn = find_module_check_fn(ptr);
--	});
-+	if (IS_ENABLED(CONFIG_CFI_CLANG_SHADOW))
-+		fn = find_shadow_check_fn(ptr);
-+	if (!fn)
-+		fn = find_module_check_fn(ptr);
-+
-+	if (rcu_idle) {
-+		rcu_irq_exit();
-+		local_irq_restore(flags);
-+	}
- 
- 	return fn;
- }
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4909,14 +4909,6 @@ no_journal:
+ 		err = percpu_counter_init(&sbi->s_freeinodes_counter, freei,
+ 					  GFP_KERNEL);
+ 	}
+-	/*
+-	 * Update the checksum after updating free space/inode
+-	 * counters.  Otherwise the superblock can have an incorrect
+-	 * checksum in the buffer cache until it is written out and
+-	 * e2fsprogs programs trying to open a file system immediately
+-	 * after it is mounted can fail.
+-	 */
+-	ext4_superblock_csum_set(sb);
+ 	if (!err)
+ 		err = percpu_counter_init(&sbi->s_dirs_counter,
+ 					  ext4_count_dirs(sb), GFP_KERNEL);
+@@ -4974,6 +4966,14 @@ no_journal:
+ 	EXT4_SB(sb)->s_mount_state |= EXT4_ORPHAN_FS;
+ 	ext4_orphan_cleanup(sb, es);
+ 	EXT4_SB(sb)->s_mount_state &= ~EXT4_ORPHAN_FS;
++	/*
++	 * Update the checksum after updating free space/inode counters and
++	 * ext4_orphan_cleanup. Otherwise the superblock can have an incorrect
++	 * checksum in the buffer cache until it is written out and
++	 * e2fsprogs programs trying to open a file system immediately
++	 * after it is mounted can fail.
++	 */
++	ext4_superblock_csum_set(sb);
+ 	if (needs_recovery) {
+ 		ext4_msg(sb, KERN_INFO, "recovery complete");
+ 		err = ext4_mark_recovery_complete(sb, es);
 
 
