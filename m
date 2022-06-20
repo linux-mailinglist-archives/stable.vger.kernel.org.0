@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECD7C551A42
-	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79662551B9B
+	for <lists+stable@lfdr.de>; Mon, 20 Jun 2022 15:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243081AbiFTMyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 08:54:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37230 "EHLO
+        id S1346473AbiFTNhn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 09:37:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242989AbiFTMx7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 08:53:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42E8B17E06;
-        Mon, 20 Jun 2022 05:53:53 -0700 (PDT)
+        with ESMTP id S1346645AbiFTNg5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 09:36:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF72B193E0;
+        Mon, 20 Jun 2022 06:14:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3BB6B811A5;
-        Mon, 20 Jun 2022 12:53:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55736C3411C;
-        Mon, 20 Jun 2022 12:53:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2683F60ED5;
+        Mon, 20 Jun 2022 13:13:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36428C3411C;
+        Mon, 20 Jun 2022 13:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655729630;
-        bh=QyA7bmOpgTHe++ypbwOYleAT8DYMiXUQDDhCe7vK3cc=;
+        s=korg; t=1655730811;
+        bh=RG6VjW3XhSd7agEEKPH/P8cAoVf6or+rlbFXWJgkVVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4reRu58WatLWps4L5lDAlW/o/JTocbGs046dasQIoygkUCO1/8tMs5iOBsTBkMYF
-         lVTqaD1zLFLxHtQc4FzY/SAxKBxiGbnXmOGAfS4uRducsgkDDtNFo9p1lu/hOnm6KY
-         cbr1piQcy2kXRGNf1Fs5LzrLXU1Oe6XFKxnyersg=
+        b=q0FhOVP4nshTmvZ5jx2uzbM2q1TNcnwwtX9ZCsYNC4arWmLqDdgkrogI4vRMEgQIj
+         fDKiqlJlyx2WoXrFMNu++/T8H3bLPjUOdqYV0Hp0VsUJ79LMw1Jp8jzRko1hkSEHkj
+         G/sfFgKS2pBCZ+QCzW56qSMm+tT2+6rIyNrDK/MY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 024/141] ASoC: wm_adsp: Fix event generation for wm_adsp_fw_put()
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 061/240] random: simplify arithmetic function flow in account()
 Date:   Mon, 20 Jun 2022 14:49:22 +0200
-Message-Id: <20220620124730.243537395@linuxfoundation.org>
+Message-Id: <20220620124740.087011903@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-References: <20220620124729.509745706@linuxfoundation.org>
+In-Reply-To: <20220620124737.799371052@linuxfoundation.org>
+References: <20220620124737.799371052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 2abdf9f80019e8244d3806ed0e1c9f725e50b452 ]
+commit a254a0e4093fce8c832414a83940736067eed515 upstream.
 
-Currently wm_adsp_fw_put() returns 0 rather than 1 when updating the value
-of the control, meaning that no event is generated to userspace. Fix this
-by setting the default return value to 1, the code already exits early with
-a return value of 0 if the value is unchanged.
+Now that have_bytes is never modified, we can simplify this function.
+First, we move the check for negative entropy_count to be first. That
+ensures that subsequent reads of this will be non-negative. Then,
+have_bytes and ibytes can be folded into their one use site in the
+min_t() function.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220603115003.3865834-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wm_adsp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/random.c |   17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
-index e32c8ded181d..9cfd4f18493f 100644
---- a/sound/soc/codecs/wm_adsp.c
-+++ b/sound/soc/codecs/wm_adsp.c
-@@ -333,7 +333,7 @@ int wm_adsp_fw_put(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
- 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
- 	struct wm_adsp *dsp = snd_soc_component_get_drvdata(component);
--	int ret = 0;
-+	int ret = 1;
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1293,7 +1293,7 @@ EXPORT_SYMBOL_GPL(add_disk_randomness);
+  */
+ static size_t account(size_t nbytes, int min)
+ {
+-	int entropy_count, orig, have_bytes;
++	int entropy_count, orig;
+ 	size_t ibytes, nfrac;
  
- 	if (ucontrol->value.enumerated.item[0] == dsp[e->shift_l].fw)
- 		return 0;
--- 
-2.35.1
-
+ 	BUG_ON(input_pool.entropy_count > POOL_FRACBITS);
+@@ -1301,20 +1301,15 @@ static size_t account(size_t nbytes, int
+ 	/* Can we pull enough? */
+ retry:
+ 	entropy_count = orig = READ_ONCE(input_pool.entropy_count);
+-	ibytes = nbytes;
+-	/* never pull more than available */
+-	have_bytes = entropy_count >> (POOL_ENTROPY_SHIFT + 3);
+-
+-	if (have_bytes < 0)
+-		have_bytes = 0;
+-	ibytes = min_t(size_t, ibytes, have_bytes);
+-	if (ibytes < min)
+-		ibytes = 0;
+-
+ 	if (WARN_ON(entropy_count < 0)) {
+ 		pr_warn("negative entropy count: count %d\n", entropy_count);
+ 		entropy_count = 0;
+ 	}
++
++	/* never pull more than available */
++	ibytes = min_t(size_t, nbytes, entropy_count >> (POOL_ENTROPY_SHIFT + 3));
++	if (ibytes < min)
++		ibytes = 0;
+ 	nfrac = ibytes << (POOL_ENTROPY_SHIFT + 3);
+ 	if ((size_t)entropy_count > nfrac)
+ 		entropy_count -= nfrac;
 
 
