@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 453A7553DC0
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 028E9553DBC
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356326AbiFUV0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:26:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42654 "EHLO
+        id S1356498AbiFUV0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:26:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356056AbiFUVZs (ORCPT
+        with ESMTP id S1356371AbiFUVZs (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 17:25:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA013055D;
-        Tue, 21 Jun 2022 14:21:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BFD830F79;
+        Tue, 21 Jun 2022 14:21:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1DF8612E9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBD50615B2;
+        Tue, 21 Jun 2022 21:21:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4B21C341C8;
         Tue, 21 Jun 2022 21:21:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D7FDC3411C;
-        Tue, 21 Jun 2022 21:21:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655846495;
-        bh=fq+yHa6pssyqn9w5NdgWQCplgcXLfqXZDZuY6MEMMA0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Zg13X1PgSL5ZatLKsEb1FdCaRvtfKq5ln7sulvo5u4sQNFpCCTVEv28SWenzqyKyy
-         hWVNczNQmmEjKG3GuqegQrB8oNm1Q+VO69TiMGpet4Cm5//mHP9DS6qciV5Kc3hK2i
-         FPYZCO7qH75RscPhwUh0Aa/2LatpR559CMMJ08GI261nAqI/ORGS1Pygj4GXRVhqPP
-         sVwUnrutA5w7S0Iqcf8f3/VBt1/YxPjqL4206uDhCcUImXpPmMJRMfYODGiumJvW5h
-         E6ZujmF41bTSMw/rSCmv4ogdG0Duatjdk+6lfJAhNi4xCdEm/9MMHDYxiVHUqxoh30
-         ZH0PO2jlTTEUA==
+        s=k20201202; t=1655846496;
+        bh=lA4cyhfT4WUz1YeN3u1XI6CDz0PBEt6aK1piNZIeHX4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=lg774vFbzk1wYIMavp9/wfOk527BAZSDUkJY24T8EonsNGADY6Ff+eWav+aUcuI1T
+         e/m/Eds+31Dr+qSxWBwMXnYGmXq8OD+VHzx6nHWfMboMD4OeFm6c86EDijzU4sTJV/
+         K16cV0sxP3BZS+ojVnSgn0tnuGVXv+N4JwHrnwkAKb0Em0IlD6H3jyNJInwXRokiKI
+         JE263Xd09eFAyl5/NvxQ6WWVpN9kZxNJsHZh0fItsq7nwqj7dPzYOvaHxSpmmKAe7p
+         W3B/+ZWC9zLYGE/CiZNlKsYhInIZokbOxW1clUCnNaoGIS9ZZ6dGoy+TkxuDyUlwwC
+         t8tgOWkCwy/yw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.18 1/3] KVM: x86: disable preemption while updating apicv inhibition
-Date:   Tue, 21 Jun 2022 17:21:30 -0400
-Message-Id: <20220621212132.251759-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH MANUALSEL 5.18 2/3] KVM: x86: disable preemption around the call to kvm_arch_vcpu_{un|}blocking
+Date:   Tue, 21 Jun 2022 17:21:31 -0400
+Message-Id: <20220621212132.251759-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220621212132.251759-1-sashal@kernel.org>
+References: <20220621212132.251759-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,49 +58,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxim Levitsky <mlevitsk@redhat.com>
 
-[ Upstream commit 66c768d30e64e1280520f34dbef83419f55f3459 ]
+[ Upstream commit 18869f26df1a11ed11031dfb7392bc7d774062e8 ]
 
-Currently nothing prevents preemption in kvm_vcpu_update_apicv.
+On SVM, if preemption happens right after the call to finish_rcuwait
+but before call to kvm_arch_vcpu_unblocking on SVM/AVIC, it itself
+will re-enable AVIC, and then we will try to re-enable it again
+in kvm_arch_vcpu_unblocking which will lead to a warning
+in __avic_vcpu_load.
 
-On SVM, If the preemption happens after we update the
-vcpu->arch.apicv_active, the preemption itself will
-'update' the inhibition since the AVIC will be first disabled
-on vCPU unload and then enabled, when the current task
-is loaded again.
-
-Then we will try to update it again, which will lead to a warning
-in __avic_vcpu_load, that the AVIC is already enabled.
-
-Fix this by disabling preemption in this code.
+The same problem can happen if the vCPU is preempted right after the call
+to kvm_arch_vcpu_blocking but before the call to prepare_to_rcuwait
+and in this case, we will end up with AVIC enabled during sleep -
+Ooops.
 
 Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20220606180829.102503-6-mlevitsk@redhat.com>
+Message-Id: <20220606180829.102503-7-mlevitsk@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 2 ++
- 1 file changed, 2 insertions(+)
+ virt/kvm/kvm_main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 558d1f2ab5b4..5523bd4b3702 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9765,6 +9765,7 @@ void kvm_vcpu_update_apicv(struct kvm_vcpu *vcpu)
- 		return;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 5ab12214e18d..a11a1df2b71f 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -3327,9 +3327,11 @@ bool kvm_vcpu_block(struct kvm_vcpu *vcpu)
  
- 	down_read(&vcpu->kvm->arch.apicv_update_lock);
+ 	vcpu->stat.generic.blocking = 1;
+ 
 +	preempt_disable();
- 
- 	activate = kvm_apicv_activated(vcpu->kvm);
- 	if (vcpu->arch.apicv_active == activate)
-@@ -9784,6 +9785,7 @@ void kvm_vcpu_update_apicv(struct kvm_vcpu *vcpu)
- 		kvm_make_request(KVM_REQ_EVENT, vcpu);
- 
- out:
+ 	kvm_arch_vcpu_blocking(vcpu);
+-
+ 	prepare_to_rcuwait(wait);
 +	preempt_enable();
- 	up_read(&vcpu->kvm->arch.apicv_update_lock);
- }
- EXPORT_SYMBOL_GPL(kvm_vcpu_update_apicv);
++
+ 	for (;;) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 
+@@ -3339,9 +3341,11 @@ bool kvm_vcpu_block(struct kvm_vcpu *vcpu)
+ 		waited = true;
+ 		schedule();
+ 	}
+-	finish_rcuwait(wait);
+ 
++	preempt_disable();
++	finish_rcuwait(wait);
+ 	kvm_arch_vcpu_unblocking(vcpu);
++	preempt_enable();
+ 
+ 	vcpu->stat.generic.blocking = 0;
+ 
 -- 
 2.35.1
 
