@@ -2,87 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B5AE5539B2
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 20:48:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02B77553A1C
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 21:16:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351385AbiFUSsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 14:48:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46524 "EHLO
+        id S1353238AbiFUTQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 15:16:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229877AbiFUSsB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 14:48:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 059E1D134;
-        Tue, 21 Jun 2022 11:47:58 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93C85616F7;
-        Tue, 21 Jun 2022 18:47:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60DAEC341C4;
-        Tue, 21 Jun 2022 18:47:56 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="ezJM0ZjI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1655837274;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=GlYZcKElYGV2iK1XBEvZIDxk1bR0rIwRS2M0K6D36VU=;
-        b=ezJM0ZjIbTQHLkvi2SKGBexDkAX+8Tho6UJYFkD/LP5yOWR8DsK1Dbk/0lKbikmiUNXzt+
-        G73pxPS2hFbiO+xHT3ApWGGZ92oD+DqLcuJINJtYbSgru5ANj20iy+6CuVVwBfq8Of/RjH
-        5A70B1EJYD7o3KbIFH8mqJiuzRSTcQY=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 415ea671 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Tue, 21 Jun 2022 18:47:54 +0000 (UTC)
-Date:   Tue, 21 Jun 2022 20:47:52 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v5] powerpc/powernv: wire up rng during setup_arch
-Message-ID: <YrISWLwm8m7OPFom@zx2c4.com>
-References: <20220620124531.78075-1-Jason@zx2c4.com>
- <20220621140849.127227-1-Jason@zx2c4.com>
- <246d8bf0-2bee-7e1b-e0af-408920ece309@csgroup.eu>
+        with ESMTP id S1353092AbiFUTQT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 15:16:19 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DEEB19034;
+        Tue, 21 Jun 2022 12:16:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1655838978; x=1687374978;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=7oB2+/tAQ0YbLfBu8lpkzq06X+Z13qiz2lNUmx1L1VE=;
+  b=lcYWsou+q5rKCkusMU1aZ/A6y8TdlzEIaX7h07N1R8kN+5lgzPz8pBAf
+   xfXyDCqeQdYMA+IRRzi1UYwaP9n+VYomf3F+EvjPZmOLpZ3v3z3SJptFT
+   ywI5i0WcNtY0tfM7xOLJWYYOLUCA7xcKUchOlYevJNqlcFLlu43m5eplc
+   QRNBqF5BUHNpECtDCyBb85NMz/Uxh0mA8Kq6xourAV/tKc4K2yCWAlpZ2
+   ajo437g2aNOMxAARDH2gKbO1FBB2zEqX8lJ+bGqpEftqthO/WhIrOQNtc
+   uaEJvLRQV7TnuWJlvQkrnAV0TdeztpIDnmenubFX8s+YNpQROoFtTgpGR
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10385"; a="280945616"
+X-IronPort-AV: E=Sophos;i="5.92,210,1650956400"; 
+   d="scan'208";a="280945616"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jun 2022 12:16:17 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,210,1650956400"; 
+   d="scan'208";a="585403997"
+Received: from irvmail001.ir.intel.com ([10.43.11.63])
+  by orsmga007.jf.intel.com with ESMTP; 21 Jun 2022 12:16:11 -0700
+Received: from newjersey.igk.intel.com (newjersey.igk.intel.com [10.102.20.203])
+        by irvmail001.ir.intel.com (8.14.3/8.13.6/MailSET/Hub) with ESMTP id 25LJG7oA012650;
+        Tue, 21 Jun 2022 20:16:09 +0100
+From:   Alexander Lobakin <alexandr.lobakin@intel.com>
+To:     Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>
+Cc:     Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matt Turner <mattst88@gmail.com>,
+        Brian Cain <bcain@quicinc.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Kees Cook <keescook@chromium.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>
+Subject: [PATCH v4 1/8] ia64, processor: fix -Wincompatible-pointer-types in ia64_get_irr()
+Date:   Tue, 21 Jun 2022 21:15:46 +0200
+Message-Id: <20220621191553.69455-2-alexandr.lobakin@intel.com>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220621191553.69455-1-alexandr.lobakin@intel.com>
+References: <20220621191553.69455-1-alexandr.lobakin@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <246d8bf0-2bee-7e1b-e0af-408920ece309@csgroup.eu>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Christophe,
+test_bit(), as any other bitmap op, takes `unsigned long *` as a
+second argument (pointer to the actual bitmap), as any bitmap
+itself is an array of unsigned longs. However, the ia64_get_irr()
+code passes a ref to `u64` as a second argument.
+This works with the ia64 bitops implementation due to that they
+have `void *` as the second argument and then cast it later on.
+This works with the bitmap API itself due to that `unsigned long`
+has the same size on ia64 as `u64` (`unsigned long long`), but
+from the compiler PoV those two are different.
+Define @irr as `unsigned long` to fix that. That implies no
+functional changes. Has been hidden for 16 years!
 
-On Tue, Jun 21, 2022 at 06:33:11PM +0000, Christophe Leroy wrote:
-> Le 21/06/2022 à 16:08, Jason A. Donenfeld a écrit :
-> > The platform's RNG must be available before random_init() in order to be
-> > useful for initial seeding, which in turn means that it needs to be
-> > called from setup_arch(), rather than from an init call. Fortunately,
-> > each platform already has a setup_arch function pointer, which means we
-> > can wire it up that way. Complicating things, however, is that POWER8
-> > systems need some per-cpu state and kmalloc, which isn't available at
-> > this stage. So we split things up into an early phase and a later
-> > opportunistic phase. This commit also removes some noisy log messages
-> > that don't add much.
-> 
-> Regarding the kmalloc(), I have not looked at it in details, but usually 
-> you can use memblock_alloc() when kmalloc is not available yet.
+Fixes: a58786917ce2 ("[IA64] avoid broken SAL_CACHE_FLUSH implementations")
+Cc: stable@vger.kernel.org # 2.6.16+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Yury Norov <yury.norov@gmail.com>
+---
+ arch/ia64/include/asm/processor.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-That seems a bit excessive, especially as those allocations are long
-lived. And we don't even *need* it that early, but just before
-random_init(). Michael is running this v5 on the test rig overnight, so
-we'll learn in the Australian morning whether this finally did the trick
-(I hope).
+diff --git a/arch/ia64/include/asm/processor.h b/arch/ia64/include/asm/processor.h
+index 7cbce290f4e5..757c2f6d8d4b 100644
+--- a/arch/ia64/include/asm/processor.h
++++ b/arch/ia64/include/asm/processor.h
+@@ -538,7 +538,7 @@ ia64_get_irr(unsigned int vector)
+ {
+ 	unsigned int reg = vector / 64;
+ 	unsigned int bit = vector % 64;
+-	u64 irr;
++	unsigned long irr;
+ 
+ 	switch (reg) {
+ 	case 0: irr = ia64_getreg(_IA64_REG_CR_IRR0); break;
+-- 
+2.36.1
 
-Jason
