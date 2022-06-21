@@ -2,139 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0397B553E2E
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:52:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00572553EC1
+	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 00:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354308AbiFUVwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:52:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37648 "EHLO
+        id S229951AbiFUWzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 18:55:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243597AbiFUVwV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 17:52:21 -0400
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2137.outbound.protection.outlook.com [40.107.243.137])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20C0C1EAE7;
-        Tue, 21 Jun 2022 14:52:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RoGfpTuErRq0AmoVNVbnTlG7d2LK4EAvQ8pMoKXRyqCb3IcwijCK+8y1pKCixfjV0ZrSf2iImOclG++Kckb7ik8Kq8oxYFd1vwjVL8RS5VT/ig62HNxw3TESZCqDW1GLk95WrzB9f6VYxk2esNitVnn52m5F1mWDiHsFCMZ3+Enos+d1IjfK5uRBqpgKrXr5Zu5ux/PE2ZzSXQ0+mPy3r7qK9H3ke5HRNy3quCyxXcHYPts83iC5cl4hKJ7vdbA9MB0OPhK7ufVa6ZdO7fQ/p35N5kB4MyUT6FD9UNkyb3M/wvvfypVdngCIoLh/46DJZiroO52u1W64kJoU5XGb+A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=g5ZiG3UMcP1ddpGYczTySMDn2ThsqXt99isJQTIlilg=;
- b=YnjMTpzwn6MmmBHmEaDXmactVypc787DHWjghO2dvJ1tpMGLQdYcnMe0lzKlhsnNgXW6Hod8Ak+7093mUyFfZa6lRn7KZPEa3giXP8PFaX6qSOHnEL1TgSRT9FlKO75Yh55J4Aje5+hQWYsq0DyNPPqVH0kcEc2iTM3nKezLufNzslnGcEI77FyfGNlm06IFP/gkDzPRJQoUvnsKxV0vY0YsUvPDeFl7WBarZV5RnK3bOxUYb9Zxv3TBHqaxP5clA56IHgnZKx6GIneOIElCw2DRcT10qDHBCTqUs3nJiXRJttMa4ognVcUoUd6oZB3n2Lf6P12j0ReRj1e/bKlNzg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=g5ZiG3UMcP1ddpGYczTySMDn2ThsqXt99isJQTIlilg=;
- b=bzpp9/PB7oP20uuHGju5C3mG88qiDlBhrJ/gEDB1XGaOaEVmYLj1ZQtMh9irrifqGiGPHN+OiuWJXIAd75mlCGKSDPxVZrz4LlSytqJmXKYuS+yPcXXuUNYsPSn0SB4xzH/l746FRrG8zNTSVmD4aX9r7E7s240idSdjd5SisGg=
-Received: from DM5PR21MB1749.namprd21.prod.outlook.com (2603:10b6:4:9f::21) by
- SA0PR21MB1962.namprd21.prod.outlook.com (2603:10b6:806:e2::18) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5395.1; Tue, 21 Jun 2022 21:52:19 +0000
-Received: from DM5PR21MB1749.namprd21.prod.outlook.com
- ([fe80::f4e3:b5d6:2808:f49c]) by DM5PR21MB1749.namprd21.prod.outlook.com
- ([fe80::f4e3:b5d6:2808:f49c%9]) with mapi id 15.20.5395.003; Tue, 21 Jun 2022
- 21:52:19 +0000
-From:   Haiyang Zhang <haiyangz@microsoft.com>
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>
-CC:     "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        KY Srinivasan <kys@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Paul Rosswurm <paulros@microsoft.com>,
-        Shachar Raindel <shacharr@microsoft.com>
-Subject: request to stable branch [PATCH] net: mana: Add handling of
- CQE_RX_TRUNCATED
-Thread-Topic: request to stable branch [PATCH] net: mana: Add handling of
- CQE_RX_TRUNCATED
-Thread-Index: AdiFuS0gsEA8apHWS7yubgWv6dh4LQ==
-Date:   Tue, 21 Jun 2022 21:52:19 +0000
-Message-ID: <DM5PR21MB1749E3A19B16CF6AED1A365DCAB39@DM5PR21MB1749.namprd21.prod.outlook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=ffd59120-5a45-4d9f-8589-6462174f1e73;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2022-06-21T21:41:17Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 69f3b211-f5b9-4c38-df4f-08da53d05057
-x-ms-traffictypediagnostic: SA0PR21MB1962:EE_
-x-microsoft-antispam-prvs: <SA0PR21MB196227FBDFEF22B59816D278CAB39@SA0PR21MB1962.namprd21.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: mNTNUmj7U89WEvH8hplXJ9khYDEH/DQpIg9mU1CfFGKVUlAiG62R98nVD9iUbV62THgdOJqNOiTmK57xSzyJ40R258KWAUWWefQEd2s1mMYSfCHcJva3UUs+PbbI72M+N5Z44jtWcM/DIkfCPh9Mza75pdhVQzl0VpTx4AOBrKWTYQ1OozxlHA9pCwqx42wRkmHpUz0YhsZaqa+l9Iex328rMcFN3w1HliJD4Mn5ij5R7q6JVxnbnf5qbiFn1gkHR3mGriDjq99uC+CETRGy0iOX7B3Dfj3yTYNFI9jB5l7KHYuPGyOZGu6wI9iNn5y4CQf7wCsgGO6JtrSUN4n5oDwcls6Nzzc3MKuRw5Lpf5q6GVIv0IEeV1lFw4JfxlXTzSYrNpR8HUDkUvi6iaqcK6p90TD/OpKOhm9IBceGqzicYeco3KZxhOR/kOic58nyL0nF+gI6zvAU0BGzL+fTy1eTK3VQIM6Ofjd7MxWPiT18THDLwkz4j1GguvgW2w0FcFHOLK12wM87N/8gQvrrugONpE7SCXcBDY9opTjUP4N535o8UVcnCal98pTf1nUl7J1w4m3XO5OZcT91EiWjAnNamWtM8gpk6Rn08koahIa/vRT9pA4YasV/NTxvaittIjNAdBCMTLaq469/MbPI1rCV5FqHwpRis1oJQD5+rPnwqcoqeJOK0ji7OU53U9J9aHfBzXvNOVRgnoufPv+fYxAqQ27UkzJC4jO8mZSwh4UVU/jDpR52biRfxNKpHLpf
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM5PR21MB1749.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(39860400002)(136003)(376002)(346002)(396003)(451199009)(54906003)(316002)(71200400001)(86362001)(110136005)(2906002)(4326008)(8990500004)(10290500003)(26005)(9686003)(66946007)(4744005)(6506007)(38100700002)(8936002)(7696005)(66476007)(64756008)(41300700001)(478600001)(55016003)(66556008)(66446008)(8676002)(122000001)(5660300002)(82960400001)(33656002)(82950400001)(52536014)(76116006)(186003)(107886003)(38070700005);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?vUX5xDcbwajaIEUVkfNI4RX4UuOiJHM8aIAIAnHMW+vZcyXkYLRIFHvcb/wV?=
- =?us-ascii?Q?3Y5bn4qLq91Y0NeZX3hVm6owzWqPnQkxVM0EMxEHRD9SWFY5vNdhgKpMCuYv?=
- =?us-ascii?Q?/S9rYfD8enp0xzZoyBM/O4GIU8Nqa71PrOJIRgWi3rSUUkjLcxEIVpy/GkxJ?=
- =?us-ascii?Q?nzZpB0vqQNeUaQ5jkk/2KMpCipXPdgAjUQc91z3achSZrC4CGU1jxnLjB4Wf?=
- =?us-ascii?Q?zkN1+SHDpK93QagxhfkxiQ8B+woNeGL2aeaHTgaFJg1/dQ4pQBlC1B9PqmGk?=
- =?us-ascii?Q?lRcwpKHqtfntjoDDl8vpMAkkF2nOz141DkVYoVqLvKy5DQKM2gV4cu+OCgNG?=
- =?us-ascii?Q?1VBJYxZHemy2kK14dhM2ubTHYcDHoO4MuYFc8Rf+yzFZWVBgu6wYEmj1s/kw?=
- =?us-ascii?Q?/nlZKMiXvL06LaoqWW00gd+DecEKRwr9m5D9QQewi2GrkuMNNNBh0s+8VKPO?=
- =?us-ascii?Q?m8HrkMtDQ/osKBnOoo0js69qY1rsvLuD7RzxzSAin5mzsPxZ8tRQHWGSIWUU?=
- =?us-ascii?Q?0zBpUMwokuyNwsQSW48EHFvKFtEDIagBG1YXbiQdLZth0GW/OiVy0cjlwwlD?=
- =?us-ascii?Q?HllKhOdhLCABMfPeVgmNzWmscD3Ek6c505sReirOZYkFY/Wsg316LzSuVQD/?=
- =?us-ascii?Q?DUccQO3Z3cjNFS8+7QE2+pxlf2QiZjCFE1KODT+oUquAdEyKLaGfRO2+sBxg?=
- =?us-ascii?Q?gKClxd3xhZUK3TnZ/zH+w0uzdTbnZAVuzm27hThBwPsAtN7ncPVw9x0qaEZ0?=
- =?us-ascii?Q?2uSp+13145OmL5rCA/7jbCXvST4jtVQQtZ0DY0TJtk7HELkvQrdYUhs4qHVI?=
- =?us-ascii?Q?B8/8FWbo6OmhiFHyr8/mqDRHi+b2kpYfs/YKrkSxXY/XXiJeiXqHd8B5jcT3?=
- =?us-ascii?Q?Qe7dHFtEjpCBb0c8aj374v16LC0MgogUfz4XI1Qt6d7umrLXSS3Z99iRDu0o?=
- =?us-ascii?Q?oqcTNlKlVrJg+rWSPRs9VzRxOxAmAfymuyodPowbkDiAZ3JYXRnsvC9FK5EX?=
- =?us-ascii?Q?sLczvUvgRvtSEqfr3cYRAAQUhKMamFtcBGUWtHXOzKfx8erxn5e+7L71ABgO?=
- =?us-ascii?Q?XwAKH0Lr3BAuNopH96zmjFGXrN+ecEJIz8aj2lXoLd2B2aaXq1jvUjUJ4Y24?=
- =?us-ascii?Q?m3V4GSxsyz8z077DIOOv3XAaDwfYuHRmr/UQQPRVExDnDF56LYTdyeO2zQek?=
- =?us-ascii?Q?zHwfwa3QqH0+0la/hdv6P8wedxFU+pXDPAFZLN21F+tqp8tiiyb0ZXuBLMEo?=
- =?us-ascii?Q?qsO8mTdnONG2JmxrDhz3m+15g2r5A9ao6BcxTgoVowRV2FVY7remlrL9vzeR?=
- =?us-ascii?Q?fwIdlWFRJkAvZyLjm1kU1Xx0W1pEiPm7+8VJPBDamrz6r/xIe56sz5i0Mlbr?=
- =?us-ascii?Q?Hj6Fj2ItMbBga+FhW0LRE7hqQOpVbWwm+OQPkyvCa0j4nccSVzgCWUJhZLsQ?=
- =?us-ascii?Q?QjNuHMbxUDh8MwXMDmdZRb/Frgk81JxdHGtZsxxlXu0/sF7JQm6eh1+n/ha0?=
- =?us-ascii?Q?ynagfC/WjdPrAr7M1vbgFyQdXEUZRZItBzOXqpQUjutU5fE+9yGmhTSVEiKV?=
- =?us-ascii?Q?nynVoI7t2O3hpmaGMCN0rRbrNrMUhsfN2iHLRo73?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229753AbiFUWzQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 18:55:16 -0400
+Received: from maynard.decadent.org.uk (maynard.decadent.org.uk [95.217.213.242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1182E6BD
+        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 15:55:15 -0700 (PDT)
+Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
+        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1o3mIL-0003w7-BZ; Wed, 22 Jun 2022 00:24:25 +0200
+Received: from ben by deadeye with local (Exim 4.95)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1o3mIK-001pZy-Q9;
+        Wed, 22 Jun 2022 00:24:24 +0200
+Message-ID: <c07281c6d7faa8042cff0a3da7a273eb617cfa13.camel@decadent.org.uk>
+Subject: [stable] Improved TCP source port randomisation
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable <stable@vger.kernel.org>, Willy Tarreau <w@1wt.eu>,
+        Eric Dumazet <edumazet@google.com>,
+        Amit Klein <aksecurity@gmail.com>
+Date:   Wed, 22 Jun 2022 00:24:19 +0200
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-dTlylauhtNLFnkPNeWRY"
+User-Agent: Evolution 3.44.1-2 
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DM5PR21MB1749.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 69f3b211-f5b9-4c38-df4f-08da53d05057
-X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Jun 2022 21:52:19.2273
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: he0GCDvJKvO0WgvN+T3eSjLIFggefvGym8VtA2VqB2Nsl19tvw0KrbtuoQfMxynZ+b0E7HrKLNFsBuVxukJpvw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR21MB1962
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+X-SA-Exim-Connect-IP: 91.181.7.168
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,HEXHASH_WORD,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-To stable tree maintainers:
 
-Patch: net: mana: Add handling of CQE_RX_TRUNCATED
+--=-dTlylauhtNLFnkPNeWRY
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-commit e4b7621982d29f26ff4d39af389e5e675a4ffed4 upstream
+Please pick the following commits for 5.4 and 5.10 stable branches:
 
-Why you think it should be applied:
-	This patch fixes the handling of CQE_RX_TRUNCATED case, otherwise someone =
-can easily attack it by sending a jumbo packet and cause the driver misbeha=
-ve.
+90564f36f1c3071d1e0c617cde342f9706e250be tcp: add some entropy in __inet_ha=
+sh_connect()
+506884b616e95714af173c47b89e7d1f5157c190 tcp: use different parts of the po=
+rt_offset for index and offset
+dabeb1baad260b2308477991f3006f4a1ac80d6d tcp: add small random increments t=
+o the source port
+735ad25586cd381a3fdc8283e2d1cd4d65f0e9e7 tcp: dynamically allocate the pert=
+urb table used by source ports
+ada9e93075c7d54a7fd28bae5429ed30ddd89bfa tcp: increase source port perturb =
+table to 2^16
+82f233b30b728249d1c374b77d722b2e4f55a631 tcp: drop the hash_32() part from =
+the index calculation
 
-What kernel version you wish it to be applied to:=20
-	5.15.x
+I will send backports for older branches after this.
 
-Thanks,
-- Haiyang=09
+(All stable branches have the other 2 commits from this series; I'm not
+sure why the whole series wasn't applied.)
+
+Ben.
+
+--=20
+Ben Hutchings
+Man invented language to satisfy his deep need to complain.
+                                                          - Lily Tomlin
+
+--=-dTlylauhtNLFnkPNeWRY
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmKyRRQACgkQ57/I7JWG
+EQn00RAAsnfcom/hYHUQ9WTLv7L548HL2iCG7p9hxlwU91/3BJ9xCW2ylZsO6tYI
+i1RWCQNm0c6mBNGMFyP/SNR7DpKsEbcJkeX7B2gLlxVKRCSL1Ash4NiPWoQeF5IK
+fsabmobJfqfhnadimypQ3EjVpGRyyGr3ocH3p6v2iUntjBKaPKB/E+oGLfKwrzjw
+dpSWcLWm77N7dBxWSiKzRFCdQz+Ihbg2+4c6pmY2adIpfCpugyG7sgdRcp5BnpSy
+I7X+tV87pBl3VxDxFBXbkFVej9Tk8DmUREgEvG7nQIvWUiIEJInEfs4LzRnvGzjV
+L1UBqECnH4b4jqiHp3qMBjwaiaqtzNe4IvqTyImYOYE9rjstErqNvODKMI4AlM5F
+zwrqjb4ym+TKp6JtK4mm9L50GBjIINpWtWI7zJYPZNX5Qdw7Vz0aDZVmSWYJvRN2
+MQfyB0vP3oQwC3kRgsY7rS1YLftTYIKLrZF8IIJXOGl5DIMwtFJElTnj9dQZdTOq
+qd3P0DMIN8eil9NIJ31oVggh/to9H6ICjZ3T469YYWE0aKqmi8fcbvH2PAh7faGp
+bnJ7wQn6tpMX+rvONJyrAFYxJGNXZefgX4PUqjiTDurEsT+TyUToaltyUHAW6u7t
+fVASH1ruOPol3ECj5ViBLnukvq9dF64/51kholmRKizZnfuicD4=
+=Abkl
+-----END PGP SIGNATURE-----
+
+--=-dTlylauhtNLFnkPNeWRY--
