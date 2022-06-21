@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21853553D2F
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33609553C82
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:10:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355430AbiFUVBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:01:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55474 "EHLO
+        id S1355743AbiFUVBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:01:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355338AbiFUU50 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:57:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3094532044;
-        Tue, 21 Jun 2022 13:50:56 -0700 (PDT)
+        with ESMTP id S1355231AbiFUU5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:57:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6192232059;
+        Tue, 21 Jun 2022 13:50:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C84F0B81B38;
-        Tue, 21 Jun 2022 20:50:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF7A5C341C7;
-        Tue, 21 Jun 2022 20:50:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4861F618C2;
+        Tue, 21 Jun 2022 20:50:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FE98C3411C;
+        Tue, 21 Jun 2022 20:50:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655844654;
-        bh=vYAOtJIbQpgVQtzt6pH+NKd0bbm6APv6baei1cRDblE=;
+        s=k20201202; t=1655844655;
+        bh=xgy/yEXvcMh2r2fyvGlviOnY/dveL3HAV6Wo8r2f3BQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Swri0b0HMCP8/PrE+dcON566yzNyRiIOYzN407xIPPteeyOffouFkUsXTiTnzJN1C
-         YY8y+5fZSLhMMHbDLofM+7ibZn1y9YYP9JDmRTlUhpyyvhNuqRYynjcxZypamEp7BJ
-         gaIn6GPC0oNSuRut3fVVkQpNAn1u+YfZi8eFXgJAzV50hOut5xHIHCnyYT3C8+FbfJ
-         wZb7nq6uMu9T5DpP87rIAs0ZhATSV/i6PQoR4VHgLTuwfFuad/qkx2TE0nNyy/gPg7
-         tcr5kdJ8mG4nqhqZO7CEtamBXm5DWaejVRIrKpEHz9gRudIY8gxKj2TcLNS9PvHl4J
-         bJJQC4IoEcUYA==
+        b=FyMkhRrO4gfzYlyaa14bHL3IDxL4X6eYmhsmpeq5OT43+DJCkWWNG56QnasFxA/VJ
+         4yFLArIYvyEjgoRvypFrVrCC0BTFRx2p1iPN0rY+bdRq/Y6mS0JLiauek+zZkXupwF
+         uk6WS7iP68mhYyt1NLbozcjQa0KEOfGAsYZfquDkpgE38b8JH4uI4C2GFRbthB8fvG
+         AtvXbCAWaLQM64SAbSEN7vq+A77DTx4uaa6tNlsRpuihobEjBF6pCW0tmfEEUZ9AM7
+         SvNJO7gQMoAYuQxvAc3aVvnaQ+ydZHdfKNr2c+3/OVCYCFtUKGmGeuZkqt596Iiamf
+         cuF40CPWE26kw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, axboe@fb.com,
         sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 08/17] nvme-pci: smi has bogus namespace ids
-Date:   Tue, 21 Jun 2022 16:50:31 -0400
-Message-Id: <20220621205041.250426-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 09/17] nvme-pci: sk hynix p31 has bogus namespace ids
+Date:   Tue, 21 Jun 2022 16:50:32 -0400
+Message-Id: <20220621205041.250426-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220621205041.250426-1-sashal@kernel.org>
 References: <20220621205041.250426-1-sashal@kernel.org>
@@ -58,32 +58,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit c98a879312caf775c9768faed25ce1c013b4df04 ]
+[ Upstream commit c4f01a776b28378f4f61b53f8cb0e358f4fa3721 ]
 
 Add the quirk.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216096
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216049
 Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 93d1f12f31bb..f06bc7596e2b 100644
+index f06bc7596e2b..78e382651198 100644
 --- a/drivers/nvme/host/pci.c
 +++ b/drivers/nvme/host/pci.c
-@@ -3328,7 +3328,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 	{ PCI_VDEVICE(REDHAT, 0x0010),	/* Qemu emulated controller */
- 		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x126f, 0x2263),	/* Silicon Motion unidentified */
--		.driver_data = NVME_QUIRK_NO_NS_DESC_LIST, },
-+		.driver_data = NVME_QUIRK_NO_NS_DESC_LIST |
-+				NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x1bb1, 0x0100),   /* Seagate Nytro Flash Storage */
- 		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY |
- 				NVME_QUIRK_NO_NS_DESC_LIST, },
+@@ -3359,6 +3359,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_DEVICE(0x1c5c, 0x1504),   /* SK Hynix PC400 */
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x1c5c, 0x174a),   /* SK Hynix P31 SSD */
++		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x15b7, 0x2001),   /*  Sandisk Skyhawk */
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+ 	{ PCI_DEVICE(0x1d97, 0x2263),   /* SPCC */
 -- 
 2.35.1
 
