@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99DDE553CBC
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9CA8553C68
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:10:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355162AbiFUVB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:01:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55038 "EHLO
+        id S1355425AbiFUVBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:01:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355356AbiFUU5d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:57:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB0DD32050;
-        Tue, 21 Jun 2022 13:50:57 -0700 (PDT)
+        with ESMTP id S1355265AbiFUU5E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:57:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39B8331DE4;
+        Tue, 21 Jun 2022 13:50:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C3AE6183B;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17B4CB81B44;
+        Tue, 21 Jun 2022 20:50:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E85C341CC;
         Tue, 21 Jun 2022 20:50:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DD5DC36AE3;
-        Tue, 21 Jun 2022 20:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655844608;
-        bh=ENIfgnKT4F0lNJ/qDorl7uOUPZuK/leAw14sJdKKXfg=;
+        s=k20201202; t=1655844609;
+        bh=dYeMXC/I1UG+a3arq2DtrBxIkqqwzlUENAaahKPMSeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLNmfM2oCxdf6aGGLtca1KYb7iwW3DsjzNkbx1nQPyvT+ZmLUNSeXWdlCJ2/E8lXP
-         xsu1iIJTzVSC+W4pSDy0TcU8YoMJoHcw4Mhralr5el+l+JvKyMMVGMiQ9pbkTeGnqc
-         OIFEBKvGErjTWwlGrpop/Mkmqr/umjGwqJ2EtUcBA/Z1pI3lA4rDqK/oFA8YzbYExX
-         xQpVDGnqhkgW+/IXL11UCpJX39o0mEsmaHgO0hR+pP94I4Yjg6C2DeS26SkZk67neh
-         xJ3HDXoZ6hXw3iXVsyP8nCM9uCraoPl/jQf7jTwVGMjIBaxkvd1Hej0uRioYpRDHTy
-         8WnVzwh4AbMlw==
+        b=ltDgMi9wZP2GkooHTcuXTbbQIiy/PJOIoKH7lLhgaaxoZay6I9dqMEF2nCuHZJuNB
+         RDsQmJJPu6gQ7sgHyzn+1EzBIw49ipShwub8t1FsCqCqDKqOrq2bNI6TyRoW2K425Y
+         6TIS7id8363X8wPiRtIz7quJ6sgaTV/Z2aTpsmorNzWS63ra9MsH+uITZsu+9h31Yh
+         QLootXIr0eVwer3fYMuGc6AesRoan9TQvUv+SQwj7903fgfyQ+NWs8fyU8rTa+uov8
+         TYCTJIem9c2F0rJ3iityfnD7uVdVBKsqmO3d/Fzs9lc3llbDEDFHSDPlAsY/tvaIGp
+         5N7n23JGZMazA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shyam Prasad N <sprasad@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
-        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.18 21/22] cifs: when a channel is not found for server, log its connection id
-Date:   Tue, 21 Jun 2022 16:49:27 -0400
-Message-Id: <20220621204928.249907-21-sashal@kernel.org>
+Cc:     Baokun Li <libaokun1@huawei.com>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 22/22] ext4: correct the judgment of BUG in ext4_mb_normalize_request
+Date:   Tue, 21 Jun 2022 16:49:28 -0400
+Message-Id: <20220621204928.249907-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220621204928.249907-1-sashal@kernel.org>
 References: <20220621204928.249907-1-sashal@kernel.org>
@@ -57,36 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit 5d24968f5b7e00bae564b1646c3b9e0e3750aabe ]
+[ Upstream commit cf4ff938b47fc5c00b0ccce53a3b50eca9b32281 ]
 
-cifs_ses_get_chan_index gets the index for a given server pointer.
-When a match is not found, we warn about a possible bug.
-However, printing details about the non-matching server could be
-more useful to debug here.
+ext4_mb_normalize_request() can move logical start of allocated blocks
+to reduce fragmentation and better utilize preallocation. However logical
+block requested as a start of allocation (ac->ac_o_ex.fe_logical) should
+always be covered by allocated blocks so we should check that by
+modifying and to or in the assertion.
 
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220528110017.354175-3-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/sess.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ext4/mballoc.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/sess.c b/fs/cifs/sess.c
-index 83b9047c945a..453ce8f52b8b 100644
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -81,6 +81,9 @@ cifs_ses_get_chan_index(struct cifs_ses *ses,
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index 87d85ce04d58..2ab01cbc0936 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -4179,7 +4179,22 @@ ext4_mb_normalize_request(struct ext4_allocation_context *ac,
  	}
+ 	rcu_read_unlock();
  
- 	/* If we didn't find the channel, it is likely a bug */
-+	if (server)
-+		cifs_dbg(VFS, "unable to get chan index for server: 0x%llx",
-+			 server->conn_id);
- 	WARN_ON(1);
- 	return 0;
- }
+-	if (start + size <= ac->ac_o_ex.fe_logical &&
++	/*
++	 * In this function "start" and "size" are normalized for better
++	 * alignment and length such that we could preallocate more blocks.
++	 * This normalization is done such that original request of
++	 * ac->ac_o_ex.fe_logical & fe_len should always lie within "start" and
++	 * "size" boundaries.
++	 * (Note fe_len can be relaxed since FS block allocation API does not
++	 * provide gurantee on number of contiguous blocks allocation since that
++	 * depends upon free space left, etc).
++	 * In case of inode pa, later we use the allocated blocks
++	 * [pa_start + fe_logical - pa_lstart, fe_len/size] from the preallocated
++	 * range of goal/best blocks [start, size] to put it at the
++	 * ac_o_ex.fe_logical extent of this inode.
++	 * (See ext4_mb_use_inode_pa() for more details)
++	 */
++	if (start + size <= ac->ac_o_ex.fe_logical ||
+ 			start > ac->ac_o_ex.fe_logical) {
+ 		ext4_msg(ac->ac_sb, KERN_ERR,
+ 			 "start %lu, size %lu, fe_logical %lu",
 -- 
 2.35.1
 
