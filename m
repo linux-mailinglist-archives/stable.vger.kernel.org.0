@@ -2,193 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 247D2553DCB
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:29:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17165553E11
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:47:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356363AbiFUV1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:27:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43576 "EHLO
+        id S1354458AbiFUVrM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:47:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356329AbiFUV1Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 17:27:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF57831903;
-        Tue, 21 Jun 2022 14:23:54 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05689615C4;
-        Tue, 21 Jun 2022 21:23:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8262C341CD;
-        Tue, 21 Jun 2022 21:23:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655846633;
-        bh=AUwJQFjWD+dH9vMB2CGy6GHv3Nbic7JM9dRbj8udzOE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DeG8KjisY7vHv5JpcvSOuqBVy1lxuIrVlstUPuOE/zamI81fBt9CvBVN0+LJj50OB
-         W2p/aQ3Aq0OOCy9w+unBRaQClV9qYH9JNHQJweSgNwOGa/LbaOlMXtuqrVOOWLZtm9
-         yH3jbaZIq4o0Ns5s2Z+Rz+n1QUL6e+h5n+vMG7aXf3wnG1cUB+viLvrBHI6bYSnRlq
-         LV2ljdZ6Mk8xEJob6ThJtxTFYM76NlZ4KmKHo1xhrap7ao4hh+V/Ii757T6cuEcO6p
-         uu6JNsYlg55KTjIXDoe/DWcb4sxG165DA5PEQK2rUhM7ryyOQF6J2IpeDVgDeketfm
-         Cz0PjzXgKQBYg==
-Date:   Tue, 21 Jun 2022 17:23:51 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>, Jann Horn <jannh@google.com>,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH MANUALSEL 5.18 1/6] KVM: x86: do not report a vCPU as
- preempted outside instruction boundaries
-Message-ID: <YrI25yOy7WMqr+x3@sashalap>
-References: <20220614021116.1101331-1-sashal@kernel.org>
+        with ESMTP id S1354895AbiFUVrL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 17:47:11 -0400
+Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A841818391
+        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 14:47:10 -0700 (PDT)
+Received: by mail-oi1-x232.google.com with SMTP id w16so18780712oie.5
+        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 14:47:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=4B7aVbqWFzGCq33NlsEkQcm/jsegAOEwkVb1IKw6lso=;
+        b=AgNp04iAHOZAOiJfs5ixkzSdzmxRvKgddI5dpUPe5SR+uEBpkQSirGBFzgnh6QDnFL
+         4bvN5ztV1PnHepFE4q9tUXpxmEZY6+p1sze068GCjOmfSkk/X1Jj6yhU2xbMTkUnCFgr
+         /zlRPXWhXC8iSz/GGI/tQr0g6dXs2PieZr8N8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=4B7aVbqWFzGCq33NlsEkQcm/jsegAOEwkVb1IKw6lso=;
+        b=FtFDUfXwE28bQq/0/JTNLwLtRsakDg2Xa8iwEC6hZ5o0ajtrsXg7ukjeRKBREuqvJ5
+         /MNTs2CCHtVgk1fK6oEV0g/d1tWyAo50IBKhh8yAjtyf96NzvGUFCLtKd4jQjAKq7Qng
+         sUjtSrg1XLrMa+IuHtcm5hSYYzah7dsrLnR93aRveakKqx6Ag/vqOFLKcHgwguS/Yjm+
+         jUseUufxX7ABI+ciWg/Kwy1IQA+FdoIjDrEJYBtimCKH84F0znE8Q/EEmTllBWUNFxSD
+         zxoqH8ipBA4rD00xkQOrKNtyZYGyqPYZhRv38XAjMJLG7apLKLzvweON+vdfd2KZ6pJW
+         a9HQ==
+X-Gm-Message-State: AOAM5310PQtA4Rx1Pv5ISzz+TR/V5ZI5i9PQcPR1s/5xLypBp8FzwVNP
+        Y4NN4NIlPVtC5MswRWBlbyCWtg==
+X-Google-Smtp-Source: ABdhPJx4WApb4tVvFpAl3IVaT8gTGCiCAY6M+HpL9AEayoZQWpPPp9vMeqHivLHHHXXPkwqJInndog==
+X-Received: by 2002:a05:6808:1999:b0:32f:2fc:aed1 with SMTP id bj25-20020a056808199900b0032f02fcaed1mr20685051oib.255.1655848029871;
+        Tue, 21 Jun 2022 14:47:09 -0700 (PDT)
+Received: from [192.168.1.128] ([38.15.45.1])
+        by smtp.gmail.com with ESMTPSA id q7-20020a9d6307000000b0060bff068228sm10038190otk.66.2022.06.21.14.47.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 21 Jun 2022 14:47:09 -0700 (PDT)
+Subject: Re: [PATCH 5.18 000/141] 5.18.6-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20220620124729.509745706@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <447c09a3-7697-9fe8-b475-d75cfc7bd95e@linuxfoundation.org>
+Date:   Tue, 21 Jun 2022 15:47:06 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20220614021116.1101331-1-sashal@kernel.org>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Paolo, ping?
+On 6/20/22 6:48 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.18.6 release.
+> There are 141 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 22 Jun 2022 12:47:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.6-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-On Mon, Jun 13, 2022 at 10:11:10PM -0400, Sasha Levin wrote:
->From: Paolo Bonzini <pbonzini@redhat.com>
->
->[ Upstream commit 6cd88243c7e03845a450795e134b488fc2afb736 ]
->
->If a vCPU is outside guest mode and is scheduled out, it might be in the
->process of making a memory access.  A problem occurs if another vCPU uses
->the PV TLB flush feature during the period when the vCPU is scheduled
->out, and a virtual address has already been translated but has not yet
->been accessed, because this is equivalent to using a stale TLB entry.
->
->To avoid this, only report a vCPU as preempted if sure that the guest
->is at an instruction boundary.  A rescheduling request will be delivered
->to the host physical CPU as an external interrupt, so for simplicity
->consider any vmexit *not* instruction boundary except for external
->interrupts.
->
->It would in principle be okay to report the vCPU as preempted also
->if it is sleeping in kvm_vcpu_block(): a TLB flush IPI will incur the
->vmentry/vmexit overhead unnecessarily, and optimistic spinning is
->also unlikely to succeed.  However, leave it for later because right
->now kvm_vcpu_check_block() is doing memory accesses.  Even
->though the TLB flush issue only applies to virtual memory address,
->it's very much preferrable to be conservative.
->
->Reported-by: Jann Horn <jannh@google.com>
->Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
->Signed-off-by: Sasha Levin <sashal@kernel.org>
->---
-> arch/x86/include/asm/kvm_host.h |  3 +++
-> arch/x86/kvm/svm/svm.c          |  2 ++
-> arch/x86/kvm/vmx/vmx.c          |  1 +
-> arch/x86/kvm/x86.c              | 22 ++++++++++++++++++++++
-> 4 files changed, 28 insertions(+)
->
->diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
->index 4ff36610af6a..9fdaa847d4b6 100644
->--- a/arch/x86/include/asm/kvm_host.h
->+++ b/arch/x86/include/asm/kvm_host.h
->@@ -651,6 +651,7 @@ struct kvm_vcpu_arch {
-> 	u64 ia32_misc_enable_msr;
-> 	u64 smbase;
-> 	u64 smi_count;
->+	bool at_instruction_boundary;
-> 	bool tpr_access_reporting;
-> 	bool xsaves_enabled;
-> 	bool xfd_no_write_intercept;
->@@ -1289,6 +1290,8 @@ struct kvm_vcpu_stat {
-> 	u64 nested_run;
-> 	u64 directed_yield_attempted;
-> 	u64 directed_yield_successful;
->+	u64 preemption_reported;
->+	u64 preemption_other;
-> 	u64 guest_mode;
-> };
->
->diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
->index 7e45d03cd018..5842abf1eac4 100644
->--- a/arch/x86/kvm/svm/svm.c
->+++ b/arch/x86/kvm/svm/svm.c
->@@ -4165,6 +4165,8 @@ static int svm_check_intercept(struct kvm_vcpu *vcpu,
->
-> static void svm_handle_exit_irqoff(struct kvm_vcpu *vcpu)
-> {
->+	if (to_svm(vcpu)->vmcb->control.exit_code == SVM_EXIT_INTR)
->+		vcpu->arch.at_instruction_boundary = true;
-> }
->
-> static void svm_sched_in(struct kvm_vcpu *vcpu, int cpu)
->diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
->index 982df9c000d3..c44f8e1d30c8 100644
->--- a/arch/x86/kvm/vmx/vmx.c
->+++ b/arch/x86/kvm/vmx/vmx.c
->@@ -6549,6 +6549,7 @@ static void handle_external_interrupt_irqoff(struct kvm_vcpu *vcpu)
-> 		return;
->
-> 	handle_interrupt_nmi_irqoff(vcpu, gate_offset(desc));
->+	vcpu->arch.at_instruction_boundary = true;
-> }
->
-> static void vmx_handle_exit_irqoff(struct kvm_vcpu *vcpu)
->diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
->index 39c571224ac2..36453517e847 100644
->--- a/arch/x86/kvm/x86.c
->+++ b/arch/x86/kvm/x86.c
->@@ -291,6 +291,8 @@ const struct _kvm_stats_desc kvm_vcpu_stats_desc[] = {
-> 	STATS_DESC_COUNTER(VCPU, nested_run),
-> 	STATS_DESC_COUNTER(VCPU, directed_yield_attempted),
-> 	STATS_DESC_COUNTER(VCPU, directed_yield_successful),
->+	STATS_DESC_COUNTER(VCPU, preemption_reported),
->+	STATS_DESC_COUNTER(VCPU, preemption_other),
-> 	STATS_DESC_ICOUNTER(VCPU, guest_mode)
-> };
->
->@@ -4604,6 +4606,19 @@ static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
-> 	struct kvm_memslots *slots;
-> 	static const u8 preempted = KVM_VCPU_PREEMPTED;
->
->+	/*
->+	 * The vCPU can be marked preempted if and only if the VM-Exit was on
->+	 * an instruction boundary and will not trigger guest emulation of any
->+	 * kind (see vcpu_run).  Vendor specific code controls (conservatively)
->+	 * when this is true, for example allowing the vCPU to be marked
->+	 * preempted if and only if the VM-Exit was due to a host interrupt.
->+	 */
->+	if (!vcpu->arch.at_instruction_boundary) {
->+		vcpu->stat.preemption_other++;
->+		return;
->+	}
->+
->+	vcpu->stat.preemption_reported++;
-> 	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
-> 		return;
->
->@@ -10358,6 +10373,13 @@ static int vcpu_run(struct kvm_vcpu *vcpu)
-> 	vcpu->arch.l1tf_flush_l1d = true;
->
-> 	for (;;) {
->+		/*
->+		 * If another guest vCPU requests a PV TLB flush in the middle
->+		 * of instruction emulation, the rest of the emulation could
->+		 * use a stale page translation. Assume that any code after
->+		 * this point can start executing an instruction.
->+		 */
->+		vcpu->arch.at_instruction_boundary = false;
-> 		if (kvm_vcpu_running(vcpu)) {
-> 			r = vcpu_enter_guest(vcpu);
-> 		} else {
->-- 
->2.35.1
->
+Compiled and booted on my test system. No dmesg regressions.
 
--- 
-Thanks,
-Sasha
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+
+thanks,
+-- Shuah
