@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B9A9553DB8
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:27:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 247D2553DCB
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:29:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356575AbiFUV0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:26:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43572 "EHLO
+        id S1356363AbiFUV1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:27:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356431AbiFUVZw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 17:25:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 696BB30F65;
-        Tue, 21 Jun 2022 14:21:47 -0700 (PDT)
+        with ESMTP id S1356329AbiFUV1Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 17:27:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF57831903;
+        Tue, 21 Jun 2022 14:23:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0932B615A8;
-        Tue, 21 Jun 2022 21:21:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97576C3411D;
-        Tue, 21 Jun 2022 21:21:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05689615C4;
+        Tue, 21 Jun 2022 21:23:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8262C341CD;
+        Tue, 21 Jun 2022 21:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655846506;
-        bh=3+kfBJXx7bJFsPBrjotmt2oV78Cw71odr1QKUuLojLM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJJq2VgXa+HRfEWPrWr6wGrH+KLybyVRS3X29halPEF+fdhKVk8eCcIC1pamlw2sM
-         R7Ne+cBgx1qbNzTgtw/0YL/UXvWWoZ9rCiMRMJw/NClyPi246FStSKOJGjnXDc4E1j
-         dddHKRbdgP9qUfv0z9TMDiwhwyBkeOde5OInh55dqd2NGigPUr7cyQvb2y/eRlHDO0
-         RAdQsQFa2q919yDxwUBFh1m5A7bj7nAcSeBmR9sNYLvW7oSb2dnwbdHv5qW9eb9Nfv
-         GDCS+aR9vhdSJXEdTUNn5tQp5gliSo3ze80cISGnWcjJKNdPq/B9gnCy5T3DDcMz+4
-         xaMaVDqas3dvg==
+        s=k20201202; t=1655846633;
+        bh=AUwJQFjWD+dH9vMB2CGy6GHv3Nbic7JM9dRbj8udzOE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DeG8KjisY7vHv5JpcvSOuqBVy1lxuIrVlstUPuOE/zamI81fBt9CvBVN0+LJj50OB
+         W2p/aQ3Aq0OOCy9w+unBRaQClV9qYH9JNHQJweSgNwOGa/LbaOlMXtuqrVOOWLZtm9
+         yH3jbaZIq4o0Ns5s2Z+Rz+n1QUL6e+h5n+vMG7aXf3wnG1cUB+viLvrBHI6bYSnRlq
+         LV2ljdZ6Mk8xEJob6ThJtxTFYM76NlZ4KmKHo1xhrap7ao4hh+V/Ii757T6cuEcO6p
+         uu6JNsYlg55KTjIXDoe/DWcb4sxG165DA5PEQK2rUhM7ryyOQF6J2IpeDVgDeketfm
+         Cz0PjzXgKQBYg==
+Date:   Tue, 21 Jun 2022 17:23:51 -0400
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Matlack <dmatlack@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        bgardon@google.com, kvm@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.17 3/3] KVM: selftests: Restrict test region to 48-bit physical addresses when using nested
-Date:   Tue, 21 Jun 2022 17:21:39 -0400
-Message-Id: <20220621212139.251808-3-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220621212139.251808-1-sashal@kernel.org>
-References: <20220621212139.251808-1-sashal@kernel.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, Jann Horn <jannh@google.com>,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH MANUALSEL 5.18 1/6] KVM: x86: do not report a vCPU as
+ preempted outside instruction boundaries
+Message-ID: <YrI25yOy7WMqr+x3@sashalap>
+References: <20220614021116.1101331-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20220614021116.1101331-1-sashal@kernel.org>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -59,76 +55,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Matlack <dmatlack@google.com>
+Paolo, ping?
 
-[ Upstream commit e0f3f46e42064a51573914766897b4ab95d943e3 ]
+On Mon, Jun 13, 2022 at 10:11:10PM -0400, Sasha Levin wrote:
+>From: Paolo Bonzini <pbonzini@redhat.com>
+>
+>[ Upstream commit 6cd88243c7e03845a450795e134b488fc2afb736 ]
+>
+>If a vCPU is outside guest mode and is scheduled out, it might be in the
+>process of making a memory access.  A problem occurs if another vCPU uses
+>the PV TLB flush feature during the period when the vCPU is scheduled
+>out, and a virtual address has already been translated but has not yet
+>been accessed, because this is equivalent to using a stale TLB entry.
+>
+>To avoid this, only report a vCPU as preempted if sure that the guest
+>is at an instruction boundary.  A rescheduling request will be delivered
+>to the host physical CPU as an external interrupt, so for simplicity
+>consider any vmexit *not* instruction boundary except for external
+>interrupts.
+>
+>It would in principle be okay to report the vCPU as preempted also
+>if it is sleeping in kvm_vcpu_block(): a TLB flush IPI will incur the
+>vmentry/vmexit overhead unnecessarily, and optimistic spinning is
+>also unlikely to succeed.  However, leave it for later because right
+>now kvm_vcpu_check_block() is doing memory accesses.  Even
+>though the TLB flush issue only applies to virtual memory address,
+>it's very much preferrable to be conservative.
+>
+>Reported-by: Jann Horn <jannh@google.com>
+>Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+>Signed-off-by: Sasha Levin <sashal@kernel.org>
+>---
+> arch/x86/include/asm/kvm_host.h |  3 +++
+> arch/x86/kvm/svm/svm.c          |  2 ++
+> arch/x86/kvm/vmx/vmx.c          |  1 +
+> arch/x86/kvm/x86.c              | 22 ++++++++++++++++++++++
+> 4 files changed, 28 insertions(+)
+>
+>diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+>index 4ff36610af6a..9fdaa847d4b6 100644
+>--- a/arch/x86/include/asm/kvm_host.h
+>+++ b/arch/x86/include/asm/kvm_host.h
+>@@ -651,6 +651,7 @@ struct kvm_vcpu_arch {
+> 	u64 ia32_misc_enable_msr;
+> 	u64 smbase;
+> 	u64 smi_count;
+>+	bool at_instruction_boundary;
+> 	bool tpr_access_reporting;
+> 	bool xsaves_enabled;
+> 	bool xfd_no_write_intercept;
+>@@ -1289,6 +1290,8 @@ struct kvm_vcpu_stat {
+> 	u64 nested_run;
+> 	u64 directed_yield_attempted;
+> 	u64 directed_yield_successful;
+>+	u64 preemption_reported;
+>+	u64 preemption_other;
+> 	u64 guest_mode;
+> };
+>
+>diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+>index 7e45d03cd018..5842abf1eac4 100644
+>--- a/arch/x86/kvm/svm/svm.c
+>+++ b/arch/x86/kvm/svm/svm.c
+>@@ -4165,6 +4165,8 @@ static int svm_check_intercept(struct kvm_vcpu *vcpu,
+>
+> static void svm_handle_exit_irqoff(struct kvm_vcpu *vcpu)
+> {
+>+	if (to_svm(vcpu)->vmcb->control.exit_code == SVM_EXIT_INTR)
+>+		vcpu->arch.at_instruction_boundary = true;
+> }
+>
+> static void svm_sched_in(struct kvm_vcpu *vcpu, int cpu)
+>diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+>index 982df9c000d3..c44f8e1d30c8 100644
+>--- a/arch/x86/kvm/vmx/vmx.c
+>+++ b/arch/x86/kvm/vmx/vmx.c
+>@@ -6549,6 +6549,7 @@ static void handle_external_interrupt_irqoff(struct kvm_vcpu *vcpu)
+> 		return;
+>
+> 	handle_interrupt_nmi_irqoff(vcpu, gate_offset(desc));
+>+	vcpu->arch.at_instruction_boundary = true;
+> }
+>
+> static void vmx_handle_exit_irqoff(struct kvm_vcpu *vcpu)
+>diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+>index 39c571224ac2..36453517e847 100644
+>--- a/arch/x86/kvm/x86.c
+>+++ b/arch/x86/kvm/x86.c
+>@@ -291,6 +291,8 @@ const struct _kvm_stats_desc kvm_vcpu_stats_desc[] = {
+> 	STATS_DESC_COUNTER(VCPU, nested_run),
+> 	STATS_DESC_COUNTER(VCPU, directed_yield_attempted),
+> 	STATS_DESC_COUNTER(VCPU, directed_yield_successful),
+>+	STATS_DESC_COUNTER(VCPU, preemption_reported),
+>+	STATS_DESC_COUNTER(VCPU, preemption_other),
+> 	STATS_DESC_ICOUNTER(VCPU, guest_mode)
+> };
+>
+>@@ -4604,6 +4606,19 @@ static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
+> 	struct kvm_memslots *slots;
+> 	static const u8 preempted = KVM_VCPU_PREEMPTED;
+>
+>+	/*
+>+	 * The vCPU can be marked preempted if and only if the VM-Exit was on
+>+	 * an instruction boundary and will not trigger guest emulation of any
+>+	 * kind (see vcpu_run).  Vendor specific code controls (conservatively)
+>+	 * when this is true, for example allowing the vCPU to be marked
+>+	 * preempted if and only if the VM-Exit was due to a host interrupt.
+>+	 */
+>+	if (!vcpu->arch.at_instruction_boundary) {
+>+		vcpu->stat.preemption_other++;
+>+		return;
+>+	}
+>+
+>+	vcpu->stat.preemption_reported++;
+> 	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
+> 		return;
+>
+>@@ -10358,6 +10373,13 @@ static int vcpu_run(struct kvm_vcpu *vcpu)
+> 	vcpu->arch.l1tf_flush_l1d = true;
+>
+> 	for (;;) {
+>+		/*
+>+		 * If another guest vCPU requests a PV TLB flush in the middle
+>+		 * of instruction emulation, the rest of the emulation could
+>+		 * use a stale page translation. Assume that any code after
+>+		 * this point can start executing an instruction.
+>+		 */
+>+		vcpu->arch.at_instruction_boundary = false;
+> 		if (kvm_vcpu_running(vcpu)) {
+> 			r = vcpu_enter_guest(vcpu);
+> 		} else {
+>-- 
+>2.35.1
+>
 
-The selftests nested code only supports 4-level paging at the moment.
-This means it cannot map nested guest physical addresses with more than
-48 bits. Allow perf_test_util nested mode to work on hosts with more
-than 48 physical addresses by restricting the guest test region to
-48-bits.
-
-While here, opportunistically fix an off-by-one error when dealing with
-vm_get_max_gfn(). perf_test_util.c was treating this as the maximum
-number of GFNs, rather than the maximum allowed GFN. This didn't result
-in any correctness issues, but it did end up shifting the test region
-down slightly when using huge pages.
-
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: David Matlack <dmatlack@google.com>
-Message-Id: <20220520233249.3776001-12-dmatlack@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- .../testing/selftests/kvm/lib/perf_test_util.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
-
-diff --git a/tools/testing/selftests/kvm/lib/perf_test_util.c b/tools/testing/selftests/kvm/lib/perf_test_util.c
-index 722df3a28791..ddd68ba0c99f 100644
---- a/tools/testing/selftests/kvm/lib/perf_test_util.c
-+++ b/tools/testing/selftests/kvm/lib/perf_test_util.c
-@@ -110,6 +110,7 @@ struct kvm_vm *perf_test_create_vm(enum vm_guest_mode mode, int vcpus,
- 	struct kvm_vm *vm;
- 	uint64_t guest_num_pages;
- 	uint64_t backing_src_pagesz = get_backing_src_pagesz(backing_src);
-+	uint64_t region_end_gfn;
- 	int i;
- 
- 	pr_info("Testing guest mode: %s\n", vm_guest_mode_string(mode));
-@@ -144,18 +145,29 @@ struct kvm_vm *perf_test_create_vm(enum vm_guest_mode mode, int vcpus,
- 
- 	pta->vm = vm;
- 
-+	/* Put the test region at the top guest physical memory. */
-+	region_end_gfn = vm_get_max_gfn(vm) + 1;
-+
-+#ifdef __x86_64__
-+	/*
-+	 * When running vCPUs in L2, restrict the test region to 48 bits to
-+	 * avoid needing 5-level page tables to identity map L2.
-+	 */
-+	if (pta->nested)
-+		region_end_gfn = min(region_end_gfn, (1UL << 48) / pta->guest_page_size);
-+#endif
- 	/*
- 	 * If there should be more memory in the guest test region than there
- 	 * can be pages in the guest, it will definitely cause problems.
- 	 */
--	TEST_ASSERT(guest_num_pages < vm_get_max_gfn(vm),
-+	TEST_ASSERT(guest_num_pages < region_end_gfn,
- 		    "Requested more guest memory than address space allows.\n"
- 		    "    guest pages: %" PRIx64 " max gfn: %" PRIx64
- 		    " vcpus: %d wss: %" PRIx64 "]\n",
--		    guest_num_pages, vm_get_max_gfn(vm), vcpus,
-+		    guest_num_pages, region_end_gfn - 1, vcpus,
- 		    vcpu_memory_bytes);
- 
--	pta->gpa = (vm_get_max_gfn(vm) - guest_num_pages) * pta->guest_page_size;
-+	pta->gpa = (region_end_gfn - guest_num_pages) * pta->guest_page_size;
- 	pta->gpa = align_down(pta->gpa, backing_src_pagesz);
- #ifdef __s390x__
- 	/* Align to 1M (segment size) */
 -- 
-2.35.1
-
+Thanks,
+Sasha
