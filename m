@@ -2,252 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB8215536E9
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 17:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4770955371F
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 18:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353208AbiFUP4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 11:56:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35646 "EHLO
+        id S1351787AbiFUP6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 11:58:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353247AbiFUP4j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 11:56:39 -0400
-Received: from mail-yw1-x1135.google.com (mail-yw1-x1135.google.com [IPv6:2607:f8b0:4864:20::1135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09DBB2FE51
-        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 08:54:34 -0700 (PDT)
-Received: by mail-yw1-x1135.google.com with SMTP id 00721157ae682-317741c86fdso133605707b3.2
-        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 08:54:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=g7DzGnPqhJYhmGX1M4tOZss3trUT8bJb1NJPEsm7I1c=;
-        b=RVEZbC0Sl753wSBYDrWsS5Of6x5OKyXZHILZ5cD4whXkc5Hue6OwknrLNuMFxr9yjB
-         cS2K5wPf7C5eklorQdt2O+DMCrRoVSWUESng4Ih/mAKlLIo2DTT18y/pd4KvDJePu77o
-         iyEESwuqCh3td5jlRBnFDjrrgSdHbD5JhZFiHnC0WsaskX9tu4JVZbaLqXibiki5KDWX
-         +ZB0RH3/b9HaqxJxhlbrIycxD2v4XuK8xci1uUMDZXEzMT/SeKPyrmaoUl6RfmD0Fl2H
-         rkuYqA0uaGNUtal5r3GeMjSf9yuDftp3vJRTG5W/9jJDDnEed4fI2qlyAKlFVVYHIZ0y
-         /hdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=g7DzGnPqhJYhmGX1M4tOZss3trUT8bJb1NJPEsm7I1c=;
-        b=1xVPw8LEYoLzSCDZFpHXdXLBBuK51vPI82PmdDkIYB8AxFbCX+K2plpt/asTqva1C+
-         hiJJDi1WCPcltdJA85eUFXr3w/3L0vYU7pGjaqtyDtoHFq3DMExKjmdEEAB8qALBSIfJ
-         3a9cKRoNHmZ6I321t0ofjwVv960ZnPjUixeg88sCaTLOy1UnG3d9wo+IsQ9N/jo9NHak
-         kmhKdh+ohn/XlzGneh3xNFayOxyx4NjKQg4w5BKpsxaaKpKL6bdRmpn+eP8/5cOLhxVa
-         oJquSZDYCXt87euATyrPNq4ub26K107UgVEQR5VnvdGoItMzJUvfMbElC5eJXlj66ZwH
-         3MNw==
-X-Gm-Message-State: AJIora+j4t7gwS9pJguFQD9aeieiLX/RUsicR27pPRp8HsHzFJAgKcpD
-        dYiu3wgzbimh63lsonqnMphqPi5q7oZr+agb7fdpQw==
-X-Google-Smtp-Source: AGRyM1vA9lQAbhS/dLGCcClr8Q4Iou7B67Euo0I/l3wmSat0GaH4PfDeAmvH+hYuiqo9od7R4apuK2bqiVaTyrLAuus=
-X-Received: by 2002:a0d:f242:0:b0:317:be2a:83df with SMTP id
- b63-20020a0df242000000b00317be2a83dfmr14415190ywf.376.1655826873550; Tue, 21
- Jun 2022 08:54:33 -0700 (PDT)
+        with ESMTP id S1353251AbiFUP5i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 11:57:38 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E9262E0A9
+        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 08:56:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1655826941;
+        bh=BzU42V0H1h+U6Qhi9dvKHtFP5wA0p3BIum94gm8Uw2E=;
+        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=kB/SHK4V/zfgfM0/+1ULy3TNO7gCnglfoeEhdAz61fbKaF4OYIYUhb7rLvn/fiWTD
+         u8CQALzw2Ut5iS9h8kBydFQ0o6V+GVXYUXorsJ4gP5M0ncuXSiq9XuLPwpU1Rc6AN8
+         F+40EdHBNZNQ6LKVqVsBAZK/uF1D70dKS0zpUO1E=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.20.60] ([92.116.178.187]) by mail.gmx.net (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MgeoI-1nTG0P1m7o-00h2fN; Tue, 21
+ Jun 2022 17:55:41 +0200
+Message-ID: <c9d168fe-cb68-f6a6-8f1f-9a6162a61e6a@gmx.de>
+Date:   Tue, 21 Jun 2022 17:55:12 +0200
 MIME-Version: 1.0
-References: <20220620124729.509745706@linuxfoundation.org>
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 21 Jun 2022 21:24:22 +0530
-Message-ID: <CA+G9fYu3qaDOOShLx3gvWuRi0z4i31UvNNQXYjSnhhZ8RT3-GA@mail.gmail.com>
-Subject: Re: [PATCH 5.18 000/141] 5.18.6-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH] drm/fb-helper: Make set_var validation stricter
+Content-Language: en-US
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel@daenzer.net>
+Cc:     security@kernel.org, Daniel Stone <daniels@collabora.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        openeuler-security@openeuler.org, guodaxing@huawei.com,
+        Weigang <weigang12@huawei.com>,
+        Daniel Vetter <daniel.vetter@intel.com>
+References: <20220621092319.379049-1-daniel.vetter@ffwll.ch>
+ <8701b28a-fb86-c95f-6a3e-ddea9cd10b97@gmx.de>
+ <CAKMK7uG3DxXx067oxHTphRjoi34AA=C9YenV3gJT_T+Vo9MOFA@mail.gmail.com>
+ <CAKMK7uEOBb2ebFAvAvTk2bJdAHw07bQxezSdVOJS1=odg+zbDg@mail.gmail.com>
+From:   Helge Deller <deller@gmx.de>
+In-Reply-To: <CAKMK7uEOBb2ebFAvAvTk2bJdAHw07bQxezSdVOJS1=odg+zbDg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-Provags-ID: V03:K1:uIXvC9qB4NNiHLSVv6tNfRMNc105Jez0GTH2abXlp+8qcwGqVzT
+ zhF4hVsWFDYh4wNDtvWK7De7tD0hGxF9KxiyFWQdhuHpbM29rXTxY6wwvsQbT5yz4wvzkUz
+ qLiBtMzoYo/pd+EOkun3oQEPzJZSehi6ZayQ6aw3CyhmUqvROb80et+v483baFdqBy0yaMT
+ U+03ZYSDf0OpXGCsXov0Q==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:UvhCYurQG1U=:+eGyUejN1riRzg4L6Lh9Du
+ X0xNzuvShipi5pxcao3eLB3mjg5khtry+/myfldyBtenrT/Q9q4Qcr+GQ4YY7iLIsRcROb1rJ
+ RBw8zGowpQ8MIOd6/93gsgExJR4EPRgGjAIDQB5uRdy4nd9TIKaA1hUSRIqh2klHaa4EoaSxY
+ 95k18+90ePnBlGrOI0BmD7xj4bw40YnqBLH2hXSweGJSlscPLzItXoFhXfZgX8xqoW+BK8kAZ
+ ePEGvQlVnAH3z1fnhLwMBsO4FcXW6E9L8n+k+jRbokKbjChEbIlijyjE7J0C6Ea1W4o64AN/o
+ 3pQot6fb3m0uSZGVUMR+kEF1ZsRa6fXR1r7Gk6OqVKdYs8kWoc6dJdZlfOHk+5m8BHcxpcCbd
+ T9h+XK6VJt0jcAq15o6VUeo2jtrVOiLDAD31c73X5wz/PptDKmBy6fJ2qSmKcyVGwQYRReCXM
+ C1kqBfTIErIAidTZaq6oxwAkMmfUhwvtbH6OxOMdq74pk47ay/IQtM9T6ifeshNFgfsGYFYfk
+ LQh55RDIXi1UdMR5xhyuXrPKnDpAr4qZlsYbN9aOHGpx6o3XnhMN55YtdMMB/hbaru2H/ytkN
+ FMoRMiSuHsMiFUoKQvst/TKK+1ozVVrrP/tAcWcn6SH5a1e10ww7cTeCLBcJpg771RbQkr0L2
+ 0b8Gigkzd1O8cPs7Q6vkP9p2EY/D1i6iHiivYSiv95vWVWjb7IGBblXr0MBNIGheHNQVVU3Kq
+ WO/7cWSGTwpzK0slIrrfHAub5b12ppjCIdp74GoCuj+xwCo8xjhvp2upoCyXESyfFjQRgDzPg
+ oeySAF/aYzBzAKWZotIwz5tcYdzi557nWumxTELkcaHC39T/tnvBsK+GTxywVBsQuvLVHJPae
+ v6KKiQ2NZUPb1S52ZJNP5LJccCodn248vYktrf2RPM03XLXt6WiutUSLKD2nGQyvEuLI1Indq
+ lNNfn4a2igY87aEPf82+KMHDnG2QHcy605RNovlJnmm7mJb75JHjH9vZGPEEyi2G7gCi4P9vN
+ bklsGjUDJWbOTBiPooYkrDaJevkbE97zT2Fswe2kbbLZKftuRjVVY3Z81PFsS4m1oJsnXBo0L
+ +YOSKjqQ6goP53AsTp/F2neSZ9oT71JDo99gmIIgGt0hTUtru/Ij/kTLA==
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 20 Jun 2022 at 18:24, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On 6/21/22 17:40, Daniel Vetter wrote:
+> On Tue, 21 Jun 2022 at 17:37, Daniel Vetter <daniel.vetter@ffwll.ch> wro=
+te:
+>>
+>> On Tue, 21 Jun 2022 at 16:57, Helge Deller <deller@gmx.de> wrote:
+>>>
+>>> On 6/21/22 11:23, Daniel Vetter wrote:
+>>>> The drm fbdev emulation does not forward mode changes to the driver,
+>>>> and hence all changes where rejected in 865afb11949e ("drm/fb-helper:
+>>>> reject any changes to the fbdev").
+>>>>
+>>>> Unfortunately this resulted in bugs on multiple monitor systems with
+>>>> different resolutions. In that case the fbdev emulation code sizes th=
+e
+>>>> underlying framebuffer for the largest screen (which dictates
+>>>> x/yres_virtual), but adjust the fbdev x/yres to match the smallest
+>>>> resolution. The above mentioned patch failed to realize that, and
+>>>> errornously validated x/yres against the fb dimensions.
+>>>>
+>>>> This was fixed by just dropping the validation for too small sizes,
+>>>> which restored vt switching with 12ffed96d436 ("drm/fb-helper: Allow
+>>>> var->x/yres(_virtual) < fb->width/height again").
+>>>>
+>>>> But this also restored all kinds of validation issues and their
+>>>> fallout in the notoriously buggy fbcon code for too small sizes. Sinc=
+e
+>>>> no one is volunteering to really make fbcon and vc/vt fully robust
+>>>> against these math issues make sure this barn door is closed for good
+>>>> again.
+>>>
+>>> I don't understand why you are blaming fbcon here (again)...
+>>>
+>>> The real problem is that user-provided input (virt/physical screen siz=
+es)
+>>> isn't correctly validated.
+>>> And that's even what your patch below does.
+>>
+>> I don't want to play whack-a-mole in here. And what I tried to do here
+>> (but oh well, too many things would break) is outright disallow any
+>> changes, not just try to validate (and probably in vain) that the
+>> changes look decent. Because making stuff invariant also solves all
+>> the locking fun. And sure even then we could have bugs that break
+>> stuff, but since everything would be invariant people would notice
+>> when booting, instead of trying to hit corner cases using syzkaller
+>> for stuff that mostly only syzkaller exercises.
+>>
+>> And I'm pretty sure syzkaller isn't good enough to really hit
+>> concurrency issues, it has a pretty hard time just finding basic
+>> validation bugs like this.
 >
-> This is the start of the stable review cycle for the 5.18.6 release.
-> There are 141 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> Like I'm pretty sure if you make the font big enough and yres small
+> enough this can all blow up right away again, but I also really don't
+> want to find out.
+
+Yes, the font thing is something which came to my mind as well.
+But that's probably another patch...
+
+> And once you fix that you get to fix the races of changing fonts
+> through vt against changing resolution through fbdev ioctls, and at
+> that point you have a neat locking problem to solve.
+
+Yes, maybe.
+But people need/want to be able to change screen resolutions and fonts, so
+it has to be made working somehow, e.g. by returning -EAGAIN temporarily.
+
+Helge
+
+
+> -Daniel
 >
-> Responses should be made by Wed, 22 Jun 2022 12:47:02 +0000.
-> Anything received after that time might be too late.
+>>> Helge
+>>>
+>>>> Since it's a bit tricky to remember the x/yres we picked across both
+>>>> the newer generic fbdev emulation and the older code with more driver
+>>>> involvement, we simply check that it doesn't change. This relies on
+>>>> drm_fb_helper_fill_var() having done things correctly, and nothing
+>>>> having trampled it yet.
+>>>>
+>>>> Note that this leaves all the other fbdev drivers out in the rain.
+>>>> Given that distros have finally started to move away from those
+>>>> completely for real I think that's good enough. The code it spaghetti
+>>>> enough that I do not feel confident to even review fixes for it.
+>>>>
+>>>> What might help fbdev is doing something similar to what was done in
+>>>> a49145acfb97 ("fbmem: add margin check to fb_check_caps()") and ensur=
+e
+>>>> x/yres_virtual aren't too small, for some value of "too small". Maybe
+>>>> checking that they're at least x/yres makes sense?
+>>>>
+>>>> Fixes: 12ffed96d436 ("drm/fb-helper: Allow var->x/yres(_virtual) < fb=
+->width/height again")
+>>>> Cc: Michel D=C3=A4nzer <michel.daenzer@amd.com>
+>>>> Cc: Daniel Stone <daniels@collabora.com>
+>>>> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+>>>> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+>>>> Cc: Maxime Ripard <mripard@kernel.org>
+>>>> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+>>>> Cc: <stable@vger.kernel.org> # v4.11+
+>>>> Cc: Helge Deller <deller@gmx.de>
+>>>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>>> Cc: openeuler-security@openeuler.org
+>>>> Cc: guodaxing@huawei.com
+>>>> Cc: Weigang (Jimmy) <weigang12@huawei.com>
+>>>> Reported-by: Weigang (Jimmy) <weigang12@huawei.com>
+>>>> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+>>>> ---
+>>>> Note: Weigang asked for this to stay under embargo until it's all
+>>>> review and tested.
+>>>> -Daniel
+>>>> ---
+>>>>  drivers/gpu/drm/drm_fb_helper.c | 4 ++--
+>>>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>>>
+>>>> diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb=
+_helper.c
+>>>> index 695997ae2a7c..5664a177a404 100644
+>>>> --- a/drivers/gpu/drm/drm_fb_helper.c
+>>>> +++ b/drivers/gpu/drm/drm_fb_helper.c
+>>>> @@ -1355,8 +1355,8 @@ int drm_fb_helper_check_var(struct fb_var_scree=
+ninfo *var,
+>>>>        * to KMS, hence fail if different settings are requested.
+>>>>        */
+>>>>       if (var->bits_per_pixel > fb->format->cpp[0] * 8 ||
+>>>> -         var->xres > fb->width || var->yres > fb->height ||
+>>>> -         var->xres_virtual > fb->width || var->yres_virtual > fb->he=
+ight) {
+>>>> +         var->xres !=3D info->var.xres || var->yres !=3D info->var.y=
+res ||
+>>>> +         var->xres_virtual !=3D fb->width || var->yres_virtual !=3D =
+fb->height) {
+>>>>               drm_dbg_kms(dev, "fb requested width/height/bpp can't f=
+it in current fb "
+>>>>                         "request %dx%d-%d (virtual %dx%d) > %dx%d-%d\=
+n",
+>>>>                         var->xres, var->yres, var->bits_per_pixel,
+>>>
+>>
+>>
+>> --
+>> Daniel Vetter
+>> Software Engineer, Intel Corporation
+>> http://blog.ffwll.ch
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.18.6-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.18.y
-> and the diffstat can be found below.
 >
-> thanks,
 >
-> greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 5.18.6-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.18.y
-* git commit: 1cf3647a86ad5204a01c7495a62a13d07f02d51c
-* git describe: v5.18.5-142-g1cf3647a86ad
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.18.y/build/v5.18=
-.5-142-g1cf3647a86ad
-
-## Test Regressions (compared to v5.18-48-g10e6e3d47333)
-No test regressions found.
-
-## Metric Regressions (compared to v5.18-48-g10e6e3d47333)
-No metric regressions found.
-
-## Test Fixes (compared to v5.18-48-g10e6e3d47333)
-No test fixes found.
-
-## Metric Fixes (compared to v5.18-48-g10e6e3d47333)
-No metric fixes found.
-
-## Test result summary
-total: 123299, pass: 111561, fail: 547, skip: 10306, xfail: 885
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 319 total, 316 passed, 3 failed
-* arm64: 64 total, 62 passed, 2 failed
-* i386: 57 total, 50 passed, 7 failed
-* mips: 41 total, 38 passed, 3 failed
-* parisc: 14 total, 14 passed, 0 failed
-* powerpc: 65 total, 56 passed, 9 failed
-* riscv: 32 total, 27 passed, 5 failed
-* s390: 23 total, 20 passed, 3 failed
-* sh: 26 total, 24 passed, 2 failed
-* sparc: 14 total, 14 passed, 0 failed
-* x86_64: 62 total, 58 passed, 4 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-gpio
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-lib
-* kselftest-membarrier
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-zram
-* kunit
-* kunit/15
-* kunit/261
-* kunit/3
-* kunit/427
-* kunit/90
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-cap_bounds-tests
-* ltp-commands
-* ltp-commands-tests
-* ltp-containers
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps
-* ltp-filecaps-tests
-* ltp-fs
-* ltp-fs-tests
-* ltp-fs_bind
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple
-* ltp-fs_perms_simple-tests
-* ltp-fsx
-* ltp-fsx-tests
-* ltp-hugetlb
-* ltp-hugetlb-tests
-* ltp-io
-* ltp-io-tests
-* ltp-ipc
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-pty-tests
-* ltp-sched
-* ltp-sched-tests
-* ltp-securebits
-* ltp-securebits-tests
-* ltp-smoke
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
