@@ -2,200 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0948552F92
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 12:20:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E7BF552FAA
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 12:25:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241404AbiFUKUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 06:20:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53294 "EHLO
+        id S1348488AbiFUKZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 06:25:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229616AbiFUKUb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 06:20:31 -0400
-Received: from mail-oa1-x30.google.com (mail-oa1-x30.google.com [IPv6:2001:4860:4864:20::30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C658628706
-        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 03:20:29 -0700 (PDT)
-Received: by mail-oa1-x30.google.com with SMTP id 586e51a60fabf-fb6b4da1dfso17778029fac.4
-        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 03:20:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Q1y5ykfuwzaIhfMftCW0ZPynnysLI/Qwn7Z8Dl6y9VY=;
-        b=RnPGuAIjnlZOlpz+6FZVR4D8s2YbC6novHsOQZindmm7O+TnuORlnZkzrRwxWVfg76
-         dZIYDhwL5ppox7J2C66z+lScVfnPyc3bhSLB9e9EG1TahPZuF8h5+ximupKlr1b3YwLI
-         mGwcH2z35e6LB9tv83DFR9iQtBBWksH4zB1LU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Q1y5ykfuwzaIhfMftCW0ZPynnysLI/Qwn7Z8Dl6y9VY=;
-        b=WIiZG2mmUCzToFTudIGPS1tv/+VqTAT1bwq/GOpXqTQ5bPI6WF+fjWzo0T+hoqxfXs
-         U+C93kVTS5kvFHo3wrE1JrR2IfEdmfteRBDMBo9H/O9iy6syhaHZOMvzSVXKKjnkrw5X
-         Tmst3MmH+JFF5AIbZrY3pqMzbkicAEKZ3gtmrfqMkjJ2hV6VgZcORvSBM0Fxy+RRlV81
-         JRyJjHOf+nNzI/4vaxDXGuoKy2Lnb4OMJi/zbiX7F4q6WgVIEe2X4rlU4Qa8wACctgFr
-         invNsTCEjJ+6yyKLV3/SoOZJJDcT/qA9i/xuP2wpZVwHH+KvdJa7+Edn+PhfFZmHXBZ+
-         US6g==
-X-Gm-Message-State: AJIora+DxSOZbQL3DJJV/t0K8Wf99X5ni73EAIqXawTJQsgCRaZ19IwE
-        bwopB4zqJtsaXW318l90sZbFPmrFHYhJRDakjuLhxQ==
-X-Google-Smtp-Source: AGRyM1uy0B57/B/o6uV+59QhaxBKSeVhCN+KL760xH3olWTL6epvRf32oj6PlISM4ckk/2W2LG5QqniQZ6lSfsFzTNM=
-X-Received: by 2002:a05:6870:e98b:b0:fe:219a:2449 with SMTP id
- r11-20020a056870e98b00b000fe219a2449mr21376619oao.228.1655806829125; Tue, 21
- Jun 2022 03:20:29 -0700 (PDT)
+        with ESMTP id S1346086AbiFUKY7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 06:24:59 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6859E2898F;
+        Tue, 21 Jun 2022 03:24:58 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 287E021DE0;
+        Tue, 21 Jun 2022 10:24:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1655807097; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+LL1dq+apRByD46C4qt8iyxS+9kz4FX5965o6Hrr9kI=;
+        b=aHBePNtYp/dfR3sfYIr0qzyQOZiSnLsaIrrQLFFKP0++ROHz4OMWG02IvT8L4YF8DbTUJL
+        6oRN7cntcTpKeEPakIhoqxZGEqtpHOQbzhWpS/DR6/b/6A8+WivwRf/O4UDFG+wqVpVDSZ
+        9If7qhn3HvUa3wMvUyPBWyk11A8Nabw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1655807097;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+LL1dq+apRByD46C4qt8iyxS+9kz4FX5965o6Hrr9kI=;
+        b=iwfaTRWJz4JJ7spVJ9vo0wxLmsYxO0e67XZiYuYKgmDAs1OcrF4lTVy94Ulxs5gAYZABAJ
+        WSHvwYSllt6Ng0Bg==
+Received: from quack3.suse.cz (unknown [10.100.224.230])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id AEF5F2C141;
+        Tue, 21 Jun 2022 10:24:56 +0000 (UTC)
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id CE5C3A03DF; Tue, 21 Jun 2022 12:24:55 +0200 (CEST)
+From:   Jan Kara <jack@suse.cz>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     <linux-block@vger.kernel.org>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Niklas Cassel <Niklas.Cassel@wdc.com>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/9] block: fix default IO priority handling again
+Date:   Tue, 21 Jun 2022 12:24:38 +0200
+Message-Id: <20220621102455.13183-1-jack@suse.cz>
+X-Mailer: git-send-email 2.35.3
+In-Reply-To: <20220621102201.26337-1-jack@suse.cz>
+References: <20220621102201.26337-1-jack@suse.cz>
 MIME-Version: 1.0
-References: <20220621092319.379049-1-daniel.vetter@ffwll.ch> <303b9f91-9214-5243-8224-a11953960839@suse.de>
-In-Reply-To: <303b9f91-9214-5243-8224-a11953960839@suse.de>
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-Date:   Tue, 21 Jun 2022 12:20:18 +0200
-Message-ID: <CAKMK7uHH5Rw=0q-KsO_pZ54mGQAsQuiMLNepn8gviBNeVu4JKg@mail.gmail.com>
-Subject: Re: [PATCH] drm/fb-helper: Make set_var validation stricter
-To:     Thomas Zimmermann <tzimmermann@suse.de>,
-        =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel@daenzer.net>
-Cc:     security@kernel.org, Daniel Stone <daniels@collabora.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>, stable@vger.kernel.org,
-        Helge Deller <deller@gmx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        openeuler-security@openeuler.org, guodaxing@huawei.com,
-        Weigang <weigang12@huawei.com>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3355; h=from:subject; bh=5Ogre5KU1EfoWt3GA/j6Xv+dEaBz2FnoJscfrVh0sr4=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBisZxmoyWjApEg1smue+DzBMpbA8NBsL+z2EMCkCzG i4BMSB6JATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYrGcZgAKCRCcnaoHP2RA2UKJCA C7cQqOQK2/oXPwq5YrSXmvn19b794aXzfOSm35wb8GGxWtJudKYEumlMw1FNY0K/KAAYQXIUN17gw3 Q3uwqP5Qwfvk2cOLdU1J02G7qPDAOcHUAPIP3Lo2XJq2zBAT565Itfe/naUukv/K7Oxfk8hrc2unR8 UcXW8SrsvJ+FO1mNqqJ4gJ5VzPI+/Wr1mfxjSsq6ZEI3/p8x0kj766JyqRHvattwXazcSGPJOu8z2L /RZGoSzRz1HglD6Vs69RcFVZ0CeernhkFryTOqsrwn597jjAgBLlASn1cSmzcVAbm3SdCKzkPCoRbI ATf+4aMhl9vlM7BJLu+7KbqHXQOwU6
+X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 21 Jun 2022 at 12:15, Thomas Zimmermann <tzimmermann@suse.de> wrote=
-:
->
-> Hi
->
-> Am 21.06.22 um 11:23 schrieb Daniel Vetter:
-> > The drm fbdev emulation does not forward mode changes to the driver,
-> > and hence all changes where rejected in 865afb11949e ("drm/fb-helper:
-> > reject any changes to the fbdev").
-> >
-> > Unfortunately this resulted in bugs on multiple monitor systems with
-> > different resolutions. In that case the fbdev emulation code sizes the
-> > underlying framebuffer for the largest screen (which dictates
-> > x/yres_virtual), but adjust the fbdev x/yres to match the smallest
-> > resolution. The above mentioned patch failed to realize that, and
-> > errornously validated x/yres against the fb dimensions.
-> >
-> > This was fixed by just dropping the validation for too small sizes,
-> > which restored vt switching with 12ffed96d436 ("drm/fb-helper: Allow
-> > var->x/yres(_virtual) < fb->width/height again").
-> >
-> > But this also restored all kinds of validation issues and their
-> > fallout in the notoriously buggy fbcon code for too small sizes. Since
-> > no one is volunteering to really make fbcon and vc/vt fully robust
-> > against these math issues make sure this barn door is closed for good
-> > again.
-> >
-> > Since it's a bit tricky to remember the x/yres we picked across both
-> > the newer generic fbdev emulation and the older code with more driver
-> > involvement, we simply check that it doesn't change. This relies on
-> > drm_fb_helper_fill_var() having done things correctly, and nothing
-> > having trampled it yet.
-> >
-> > Note that this leaves all the other fbdev drivers out in the rain.
-> > Given that distros have finally started to move away from those
-> > completely for real I think that's good enough. The code it spaghetti
-> > enough that I do not feel confident to even review fixes for it.
-> >
-> > What might help fbdev is doing something similar to what was done in
-> > a49145acfb97 ("fbmem: add margin check to fb_check_caps()") and ensure
-> > x/yres_virtual aren't too small, for some value of "too small". Maybe
-> > checking that they're at least x/yres makes sense?
-> >
-> > Fixes: 12ffed96d436 ("drm/fb-helper: Allow var->x/yres(_virtual) < fb->=
-width/height again")
-> > Cc: Michel D=C3=A4nzer <michel.daenzer@amd.com>
-> > Cc: Daniel Stone <daniels@collabora.com>
-> > Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> > Cc: Maxime Ripard <mripard@kernel.org>
-> > Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> > Cc: <stable@vger.kernel.org> # v4.11+
-> > Cc: Helge Deller <deller@gmx.de>
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Cc: openeuler-security@openeuler.org
-> > Cc: guodaxing@huawei.com
-> > Cc: Weigang (Jimmy) <weigang12@huawei.com>
-> > Reported-by: Weigang (Jimmy) <weigang12@huawei.com>
-> > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> > ---
-> > Note: Weigang asked for this to stay under embargo until it's all
-> > review and tested.
-> > -Daniel
-> > ---
-> >   drivers/gpu/drm/drm_fb_helper.c | 4 ++--
-> >   1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_h=
-elper.c
-> > index 695997ae2a7c..5664a177a404 100644
-> > --- a/drivers/gpu/drm/drm_fb_helper.c
-> > +++ b/drivers/gpu/drm/drm_fb_helper.c
-> > @@ -1355,8 +1355,8 @@ int drm_fb_helper_check_var(struct fb_var_screeni=
-nfo *var,
-> >        * to KMS, hence fail if different settings are requested.
-> >        */
-> >       if (var->bits_per_pixel > fb->format->cpp[0] * 8 ||
-> > -         var->xres > fb->width || var->yres > fb->height ||
-> > -         var->xres_virtual > fb->width || var->yres_virtual > fb->heig=
-ht) {
-> > +         var->xres !=3D info->var.xres || var->yres !=3D info->var.yre=
-s ||
->
-> This looks reasonable. We effectively only support a single resolution he=
-re.
->
-> > +         var->xres_virtual !=3D fb->width || var->yres_virtual !=3D fb=
-->height) {
->
-> AFAIU this change would require that all userspace always uses maximum
-> values for {xres,yres}_virtual. Seems unrealistic to me.
+Commit e70344c05995 ("block: fix default IO priority handling")
+introduced an inconsistency in get_current_ioprio() that tasks without
+IO context return IOPRIO_DEFAULT priority while tasks with freshly
+allocated IO context will return 0 (IOPRIO_CLASS_NONE/0) IO priority.
+Tasks without IO context used to be rare before 5a9d041ba2f6 ("block:
+move io_context creation into where it's needed") but after this commit
+they became common because now only BFQ IO scheduler setups task's IO
+context. Similar inconsistency is there for get_task_ioprio() so this
+inconsistency is now exposed to userspace and userspace will see
+different IO priority for tasks operating on devices with BFQ compared
+to devices without BFQ. Furthemore the changes done by commit
+e70344c05995 change the behavior when no IO priority is set for BFQ IO
+scheduler which is also documented in ioprio_set(2) manpage:
 
-The thing is, they kinda have to, because that's always going to be
-the actually visible part :-) Otoh I guess we could also allow virtual
-size to match the fbdev real size, but maybe that kind of sanity check
-should be done in fbmem.c?
+"If no I/O scheduler has been set for a thread, then by default the I/O
+priority will follow the CPU nice value (setpriority(2)).  In Linux
+kernels before version 2.6.24, once an I/O priority had been set using
+ioprio_set(), there was no way to reset the I/O scheduling behavior to
+the default. Since Linux 2.6.24, specifying ioprio as 0 can be used to
+reset to the default I/O scheduling behavior."
 
-Tbh for these kind of things I'm leaning towards "let's wait until we
-get a regression report", since there's simply too many random bugs
-all over in the fbcon/vc/vt code when sou start resizing stuff. So I'm
-very heavily leaning towards rejecting everything (and e.g. we should
-have fixed this all up already in 2020 when the bugfix for x/yres
-related underflows landed in 2020 imo).
--Daniel
+So make sure we default to IOPRIO_CLASS_NONE as used to be the case
+before commit e70344c05995. Also cleanup alloc_io_context() to
+explicitely set this IO priority for the allocated IO context to avoid
+future surprises. Note that we tweak ioprio_best() to maintain
+ioprio_get(2) behavior and make this commit easily backportable.
 
-> Best regards
-> Thomas
->
->
-> >               drm_dbg_kms(dev, "fb requested width/height/bpp can't fit=
- in current fb "
-> >                         "request %dx%d-%d (virtual %dx%d) > %dx%d-%d\n"=
-,
-> >                         var->xres, var->yres, var->bits_per_pixel,
->
-> --
-> Thomas Zimmermann
-> Graphics Driver Developer
-> SUSE Software Solutions Germany GmbH
-> Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-> (HRB 36809, AG N=C3=BCrnberg)
-> Gesch=C3=A4ftsf=C3=BChrer: Ivo Totev
+CC: stable@vger.kernel.org
+Fixes: e70344c05995 ("block: fix default IO priority handling")
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ block/blk-ioc.c        | 2 ++
+ block/ioprio.c         | 4 ++--
+ include/linux/ioprio.h | 2 +-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
+diff --git a/block/blk-ioc.c b/block/blk-ioc.c
+index df9cfe4ca532..63fc02042408 100644
+--- a/block/blk-ioc.c
++++ b/block/blk-ioc.c
+@@ -247,6 +247,8 @@ static struct io_context *alloc_io_context(gfp_t gfp_flags, int node)
+ 	INIT_HLIST_HEAD(&ioc->icq_list);
+ 	INIT_WORK(&ioc->release_work, ioc_release_fn);
+ #endif
++	ioc->ioprio = IOPRIO_DEFAULT;
++
+ 	return ioc;
+ }
+ 
+diff --git a/block/ioprio.c b/block/ioprio.c
+index 2fe068fcaad5..2a34cbca18ae 100644
+--- a/block/ioprio.c
++++ b/block/ioprio.c
+@@ -157,9 +157,9 @@ static int get_task_ioprio(struct task_struct *p)
+ int ioprio_best(unsigned short aprio, unsigned short bprio)
+ {
+ 	if (!ioprio_valid(aprio))
+-		aprio = IOPRIO_DEFAULT;
++		aprio = IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, IOPRIO_BE_NORM);
+ 	if (!ioprio_valid(bprio))
+-		bprio = IOPRIO_DEFAULT;
++		bprio = IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, IOPRIO_BE_NORM);
+ 
+ 	return min(aprio, bprio);
+ }
+diff --git a/include/linux/ioprio.h b/include/linux/ioprio.h
+index 3f53bc27a19b..3d088a88f832 100644
+--- a/include/linux/ioprio.h
++++ b/include/linux/ioprio.h
+@@ -11,7 +11,7 @@
+ /*
+  * Default IO priority.
+  */
+-#define IOPRIO_DEFAULT	IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, IOPRIO_BE_NORM)
++#define IOPRIO_DEFAULT	IOPRIO_PRIO_VALUE(IOPRIO_CLASS_NONE, 0)
+ 
+ /*
+  * Check that a priority value has a valid class.
+-- 
+2.35.3
 
-
---=20
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
