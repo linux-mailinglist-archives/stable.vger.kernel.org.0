@@ -2,153 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 576B5552E2B
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 11:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A9A4552E86
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 11:37:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347043AbiFUJXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 05:23:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35674 "EHLO
+        id S1349107AbiFUJhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 05:37:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348386AbiFUJX3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 05:23:29 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E11C12AC7
-        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 02:23:26 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id o7so26171721eja.1
-        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 02:23:26 -0700 (PDT)
+        with ESMTP id S1349111AbiFUJhF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 05:37:05 -0400
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1177C27173;
+        Tue, 21 Jun 2022 02:37:02 -0700 (PDT)
+Received: by mail-wr1-x435.google.com with SMTP id e25so14199695wrc.13;
+        Tue, 21 Jun 2022 02:37:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=qbELiqSLi85gsXapGdgiJUKeJb9b+cPRqwhQW05UAmo=;
-        b=BVIknWOzy9OfMg74xsppNXa17MwFOE+D9Fj27bJXoyUth58xfg9KodHm04UlOO9xhW
-         /TH7tDNvGlWCWpUnEcH8rSxH3qhqew0rU4TzuXDGJz6HNPeXTrgxKY2vbA8KrMHdlHMe
-         kWKGlgPnc4tCxAnoBr4a52JHR00+TvWQqdHQY=
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=P/HgWE5zx6ak8pGZYSWP8wvpjOQw9jeFYu+LvoDV+xs=;
+        b=A0jeweQvtYrqb4j0jMeIU/WN0N2S/IFolNmvLtlV/t6KF95L6rCQCjezpjQUfYQyOY
+         vTA9/gfs2D+EcKRl6aw0mFfiKlsZAPYJkPgEirvKmFbpgv1vWwTYIfsq2rUhD1fnTDWG
+         IZZy2J0CrfBQk1mfK6Cp9phZ8QGhoEarQYgJ1k8V0L4qWzSkCP7xH9Kur+xthd6PAxnb
+         d3tNjhlMqwIIBNcVXq6DUcwZDJ45AWurjTIy6epq9HGBzu/DeHQxJ2/FuQnborzROz1H
+         /2TUtmhvMDVBnV5AlDvgAPf146y8DacC+8J74qXZN+kaCMNtYdDVpgDG85kxorR65l9+
+         YCBg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=qbELiqSLi85gsXapGdgiJUKeJb9b+cPRqwhQW05UAmo=;
-        b=4slGABoh9Fm7EMPPcPnMG1e2b221lzfhj8g3AH+RqTXc4WutJhzPu0vIib1w2kz8eX
-         8xnpHrUmhvfSby5SfAALEtYJtVcQZQlWf/E+tmPT3XUIyZ3OIySB+g6vAmV51EY8orrU
-         DJzSX2S/YQmgpuQVZkrLeS/iULa/w71RlBv5RVIaUzOFY+9o3GYz3puQvGmIr1TwwlIt
-         5Dyp4BHBV8Z11Xh9qPYVviBpZbIxTuX4D4zK9HzEAyIcW1YlYbOLhdYrLFyYC0Pi4U0E
-         uxljxIXi6gT9a5pSUbS+LtPtfwmmayGEqKLp/6fk47tPumoOdRyZfWEKHXdbYVHfyD5l
-         SRJQ==
-X-Gm-Message-State: AJIora9j+BoqrQkrJM1DJMNgTl5qrY35lUjeRKED4xsi7MZed4yyv9+I
-        SW6Izs6Kph9+hs3pEzGO9u2jkg==
-X-Google-Smtp-Source: AGRyM1udVaIakTEaLx4Ctjy5hGH2giADFLC4SvB92taoK75hx+Fxs14kFmdAGkjk2Hn1lXkUccPp2A==
-X-Received: by 2002:a17:907:7202:b0:722:e4d6:2e17 with SMTP id dr2-20020a170907720200b00722e4d62e17mr2060261ejc.434.1655803405056;
-        Tue, 21 Jun 2022 02:23:25 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id k10-20020a17090632ca00b00722e7919835sm215924ejk.111.2022.06.21.02.23.24
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=P/HgWE5zx6ak8pGZYSWP8wvpjOQw9jeFYu+LvoDV+xs=;
+        b=aOlGpmQ9T6hDwk29u/wvNr+ayglv5VCZRLot+FRtMJdPQiRtE+mJbG/Q5PBSb384iY
+         TecvvduhgPHWD9GHLq/rqY9WYzMKB3YzGCBb5KpjluDjGVaV7tdCl7w/XdRyfbx4GnZP
+         Is9fcGUye7O9o6JbHS4aFr25QGszG5f94iva4TVFWELBMZrvw6RXSrmwX/7fEVmPIuuf
+         lUl8ISEBoa77o+m6RPEwwXKyWDRwhm0lO7p7oVnWxBts9UVwfxNh36KZYGH3Bei/O1tX
+         LlHoo0+8bJe0Z8W+6t7FawJHt8SUhP7MI5tmZpV7mbis+QJWlvj0bpNiO9/zZRhnPHGc
+         ZVMw==
+X-Gm-Message-State: AJIora/qSkPeFsevTrFaes7YewUtbKAh+jPIzrfUWS3AUGpUPqRs0IUa
+        ozEX9+S8+ZGWqdEZmK9Hyh5Ft4WI3uc=
+X-Google-Smtp-Source: AGRyM1u5tlS/ABAdrQ/7V3A5WvprA/ds4q8szC1BQSSYZSFsaxekTuslkLh880M9dpDlm/oU+PjSSQ==
+X-Received: by 2002:adf:d229:0:b0:21a:3916:84ff with SMTP id k9-20020adfd229000000b0021a391684ffmr25134606wrh.349.1655804221272;
+        Tue, 21 Jun 2022 02:37:01 -0700 (PDT)
+Received: from debian (host-78-150-47-22.as13285.net. [78.150.47.22])
+        by smtp.gmail.com with ESMTPSA id bv27-20020a0560001f1b00b0021b84ac7a05sm6184698wrb.0.2022.06.21.02.36.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jun 2022 02:23:24 -0700 (PDT)
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-To:     security@kernel.org
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>,
-        Daniel Stone <daniels@collabora.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        openeuler-security@openeuler.org, guodaxing@huawei.com,
-        Weigang <weigang12@huawei.com>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: [PATCH] drm/fb-helper: Make set_var validation stricter
-Date:   Tue, 21 Jun 2022 11:23:19 +0200
-Message-Id: <20220621092319.379049-1-daniel.vetter@ffwll.ch>
-X-Mailer: git-send-email 2.36.0
+        Tue, 21 Jun 2022 02:37:00 -0700 (PDT)
+Date:   Tue, 21 Jun 2022 10:36:58 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 5.10 00/84] 5.10.124-rc1 review
+Message-ID: <YrGROt9cmGYR+Bx3@debian>
+References: <20220620124720.882450983@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220620124720.882450983@linuxfoundation.org>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The drm fbdev emulation does not forward mode changes to the driver,
-and hence all changes where rejected in 865afb11949e ("drm/fb-helper:
-reject any changes to the fbdev").
+Hi Greg,
 
-Unfortunately this resulted in bugs on multiple monitor systems with
-different resolutions. In that case the fbdev emulation code sizes the
-underlying framebuffer for the largest screen (which dictates
-x/yres_virtual), but adjust the fbdev x/yres to match the smallest
-resolution. The above mentioned patch failed to realize that, and
-errornously validated x/yres against the fb dimensions.
+On Mon, Jun 20, 2022 at 02:50:23PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.124 release.
+> There are 84 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 22 Jun 2022 12:47:02 +0000.
+> Anything received after that time might be too late.
 
-This was fixed by just dropping the validation for too small sizes,
-which restored vt switching with 12ffed96d436 ("drm/fb-helper: Allow
-var->x/yres(_virtual) < fb->width/height again").
+Build test (gcc version 11.3.1 20220612):
+mips: 63 configs -> no failure
+arm: 104 configs -> no failure
+arm64: 3 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
 
-But this also restored all kinds of validation issues and their
-fallout in the notoriously buggy fbcon code for too small sizes. Since
-no one is volunteering to really make fbcon and vc/vt fully robust
-against these math issues make sure this barn door is closed for good
-again.
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
 
-Since it's a bit tricky to remember the x/yres we picked across both
-the newer generic fbdev emulation and the older code with more driver
-involvement, we simply check that it doesn't change. This relies on
-drm_fb_helper_fill_var() having done things correctly, and nothing
-having trampled it yet.
+[1]. https://openqa.qa.codethink.co.uk/tests/1361
+[2]. https://openqa.qa.codethink.co.uk/tests/1364
 
-Note that this leaves all the other fbdev drivers out in the rain.
-Given that distros have finally started to move away from those
-completely for real I think that's good enough. The code it spaghetti
-enough that I do not feel confident to even review fixes for it.
 
-What might help fbdev is doing something similar to what was done in
-a49145acfb97 ("fbmem: add margin check to fb_check_caps()") and ensure
-x/yres_virtual aren't too small, for some value of "too small". Maybe
-checking that they're at least x/yres makes sense?
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-Fixes: 12ffed96d436 ("drm/fb-helper: Allow var->x/yres(_virtual) < fb->width/height again")
-Cc: Michel Dänzer <michel.daenzer@amd.com>
-Cc: Daniel Stone <daniels@collabora.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: <stable@vger.kernel.org> # v4.11+
-Cc: Helge Deller <deller@gmx.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: openeuler-security@openeuler.org
-Cc: guodaxing@huawei.com
-Cc: Weigang (Jimmy) <weigang12@huawei.com>
-Reported-by: Weigang (Jimmy) <weigang12@huawei.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
----
-Note: Weigang asked for this to stay under embargo until it's all
-review and tested.
--Daniel
----
- drivers/gpu/drm/drm_fb_helper.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 695997ae2a7c..5664a177a404 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -1355,8 +1355,8 @@ int drm_fb_helper_check_var(struct fb_var_screeninfo *var,
- 	 * to KMS, hence fail if different settings are requested.
- 	 */
- 	if (var->bits_per_pixel > fb->format->cpp[0] * 8 ||
--	    var->xres > fb->width || var->yres > fb->height ||
--	    var->xres_virtual > fb->width || var->yres_virtual > fb->height) {
-+	    var->xres != info->var.xres || var->yres != info->var.yres ||
-+	    var->xres_virtual != fb->width || var->yres_virtual != fb->height) {
- 		drm_dbg_kms(dev, "fb requested width/height/bpp can't fit in current fb "
- 			  "request %dx%d-%d (virtual %dx%d) > %dx%d-%d\n",
- 			  var->xres, var->yres, var->bits_per_pixel,
--- 
-2.36.0
+--
+Regards
+Sudip
 
