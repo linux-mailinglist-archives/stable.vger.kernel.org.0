@@ -2,108 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50309553CC6
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEA1C553D60
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:18:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355292AbiFUVB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:01:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39150 "EHLO
+        id S1355338AbiFUVMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:12:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355521AbiFUVAW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 17:00:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5EB251;
-        Tue, 21 Jun 2022 13:52:52 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E5AC61889;
-        Tue, 21 Jun 2022 20:51:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46C1CC3411C;
-        Tue, 21 Jun 2022 20:51:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655844713;
-        bh=KwerngsYtFpUrIgVr8GhjnNEOLun8jlnxhGqGPCTDNQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bpIh9MLzCcCKBvfpyO8LfYjKN/kM7Zfh/12dM5SUk33KoswKuFEtMM0qnXrzAJKYj
-         OZXR3MNneEjpCxFkzXGhneN9FRvPsNbwNOgUk1ywqgDcEgZvBytwLQkkD9U9b4n4bU
-         30YyVK20E2s+G8JEpKtQ4C2tjZka80WD9uzXJy59s53HYj2t4cCoIYBVsrRqvGedyK
-         WgAoJJAVS78/rEaPqHn8VGfYyFDQ1RQm+F3kGuNlM85kExqvRg/+JnqFYHvoZzZsvI
-         nSxlva1rgzbCLVDPFyjCDGKXRrzd0Qg6bFUaHrmBd1eFM5s0O3jdmyJUt84PHJUwwX
-         ZU7apg4ECktMA==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Baokun Li <libaokun1@huawei.com>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/3] ext4: correct the judgment of BUG in ext4_mb_normalize_request
-Date:   Tue, 21 Jun 2022 16:51:47 -0400
-Message-Id: <20220621205148.251040-3-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220621205148.251040-1-sashal@kernel.org>
-References: <20220621205148.251040-1-sashal@kernel.org>
+        with ESMTP id S1355354AbiFUVMj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 17:12:39 -0400
+Received: from mail.mutex.one (mail.mutex.one [62.77.152.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 524FE3AA4D;
+        Tue, 21 Jun 2022 13:58:35 -0700 (PDT)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by mail.mutex.one (Postfix) with ESMTP id 4E46C16C00A0;
+        Tue, 21 Jun 2022 23:58:18 +0300 (EEST)
+X-Virus-Scanned: Debian amavisd-new at mail.mutex.one
+Received: from mail.mutex.one ([127.0.0.1])
+        by localhost (mail.mutex.one [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id Jk9ZoUcCUrVN; Tue, 21 Jun 2022 23:58:17 +0300 (EEST)
+From:   Marian Postevca <posteuca@mutex.one>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mutex.one; s=default;
+        t=1655845097; bh=vpNthc+lldxuvJbZ7zxIciUxabh3k038ETcMBiLjAOs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=RxSc0hQi5h2gzEr2CUj6KMIEzlaUYhp21qBaf+RtgAXfqkJ9cjyOgSzNyiOl7hfz1
+         jrWPr20+WF+PD7DyfR2y8p+7OOx1hgBKGzOJgShlDIA2Lx8n+c/zeKVHs64XV9PXt2
+         1sNpTadLLnTVdvwo2yT7Kq5RM2z5Syq1dTKePbVs=
+To:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Marian Postevca <posteuca@mutex.one>,
+        Maximilian Senftleben <kernel@mail.msdigital.de>,
+        stable@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 4.14] usb: gadget: u_ether: fix regression in setting fixed MAC address
+Date:   Tue, 21 Jun 2022 23:54:07 +0300
+Message-Id: <20220621205406.22599-1-posteuca@mutex.one>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+commit b337af3a4d6147000b7ca6b3438bf5c820849b37 upstream.
 
-[ Upstream commit cf4ff938b47fc5c00b0ccce53a3b50eca9b32281 ]
+In systemd systems setting a fixed MAC address through
+the "dev_addr" module argument fails systematically.
+When checking the MAC address after the interface is created
+it always has the same but different MAC address to the one
+supplied as argument.
 
-ext4_mb_normalize_request() can move logical start of allocated blocks
-to reduce fragmentation and better utilize preallocation. However logical
-block requested as a start of allocation (ac->ac_o_ex.fe_logical) should
-always be covered by allocated blocks so we should check that by
-modifying and to or in the assertion.
+This is partially caused by systemd which by default will
+set an internally generated permanent MAC address for interfaces
+that are marked as having a randomly generated address.
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220528110017.354175-3-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Commit 890d5b40908bfd1a ("usb: gadget: u_ether: fix race in
+setting MAC address in setup phase") didn't take into account
+the fact that the interface must be marked as having a set
+MAC address when it's set as module argument.
+
+Fixed by marking the interface with NET_ADDR_SET when
+the "dev_addr" module argument is supplied.
+
+Reported-by: Maximilian Senftleben <kernel@mail.msdigital.de>
+Cc: stable@vger.kernel.org
+Fixes: 890d5b40908bfd1a ("usb: gadget: u_ether: fix race in setting MAC address in setup phase")
+Signed-off-by: Marian Postevca <posteuca@mutex.one>
 ---
- fs/ext4/mballoc.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/u_ether.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index 2a7fb2cf19b8..827c73485683 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -3214,7 +3214,22 @@ ext4_mb_normalize_request(struct ext4_allocation_context *ac,
- 	}
- 	rcu_read_unlock();
+diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
+index f59c20457e658..2d45233ba027e 100644
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -776,9 +776,13 @@ struct eth_dev *gether_setup_name(struct usb_gadget *g,
+ 	dev->qmult = qmult;
+ 	snprintf(net->name, sizeof(net->name), "%s%%d", netname);
  
--	if (start + size <= ac->ac_o_ex.fe_logical &&
-+	/*
-+	 * In this function "start" and "size" are normalized for better
-+	 * alignment and length such that we could preallocate more blocks.
-+	 * This normalization is done such that original request of
-+	 * ac->ac_o_ex.fe_logical & fe_len should always lie within "start" and
-+	 * "size" boundaries.
-+	 * (Note fe_len can be relaxed since FS block allocation API does not
-+	 * provide gurantee on number of contiguous blocks allocation since that
-+	 * depends upon free space left, etc).
-+	 * In case of inode pa, later we use the allocated blocks
-+	 * [pa_start + fe_logical - pa_lstart, fe_len/size] from the preallocated
-+	 * range of goal/best blocks [start, size] to put it at the
-+	 * ac_o_ex.fe_logical extent of this inode.
-+	 * (See ext4_mb_use_inode_pa() for more details)
-+	 */
-+	if (start + size <= ac->ac_o_ex.fe_logical ||
- 			start > ac->ac_o_ex.fe_logical) {
- 		ext4_msg(ac->ac_sb, KERN_ERR,
- 			 "start %lu, size %lu, fe_logical %lu",
+-	if (get_ether_addr(dev_addr, net->dev_addr))
++	if (get_ether_addr(dev_addr, net->dev_addr)) {
++		net->addr_assign_type = NET_ADDR_RANDOM;
+ 		dev_warn(&g->dev,
+ 			"using random %s ethernet address\n", "self");
++	} else {
++		net->addr_assign_type = NET_ADDR_SET;
++	}
+ 	if (get_ether_addr(host_addr, dev->host_mac))
+ 		dev_warn(&g->dev,
+ 			"using random %s ethernet address\n", "host");
+@@ -835,6 +839,9 @@ struct net_device *gether_setup_name_default(const char *netname)
+ 	INIT_LIST_HEAD(&dev->tx_reqs);
+ 	INIT_LIST_HEAD(&dev->rx_reqs);
+ 
++	/* by default we always have a random MAC address */
++	net->addr_assign_type = NET_ADDR_RANDOM;
++
+ 	skb_queue_head_init(&dev->rx_frames);
+ 
+ 	/* network device setup */
+@@ -872,7 +879,6 @@ int gether_register_netdev(struct net_device *net)
+ 	g = dev->gadget;
+ 
+ 	memcpy(net->dev_addr, dev->dev_mac, ETH_ALEN);
+-	net->addr_assign_type = NET_ADDR_RANDOM;
+ 
+ 	status = register_netdev(net);
+ 	if (status < 0) {
+@@ -912,6 +918,7 @@ int gether_set_dev_addr(struct net_device *net, const char *dev_addr)
+ 	if (get_ether_addr(dev_addr, new_addr))
+ 		return -EINVAL;
+ 	memcpy(dev->dev_mac, new_addr, ETH_ALEN);
++	net->addr_assign_type = NET_ADDR_SET;
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(gether_set_dev_addr);
 -- 
 2.35.1
 
