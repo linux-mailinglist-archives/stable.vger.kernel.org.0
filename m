@@ -2,94 +2,366 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F377F5528B5
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 02:48:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E288A5528D7
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 02:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237461AbiFUAry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jun 2022 20:47:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56934 "EHLO
+        id S241907AbiFUA6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jun 2022 20:58:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244761AbiFUArx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 20:47:53 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 038E7CCC;
-        Mon, 20 Jun 2022 17:47:53 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id f65so11646287pgc.7;
-        Mon, 20 Jun 2022 17:47:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=O53mHHJWd6UV+P16Qtz3XA3RgnBQel2/JoeNnwuv+wU=;
-        b=pe46MhYVxWnHKW7wKCvzo7uKTDQZBXbtDZt3S5RAvKVt81CiMcQ/Klk0WBtVX1yNeI
-         9WXmop7cLQgb+cL0G4HtcP4+ipevA1jDuMOZxC+k+GNKG8Gj9jxnNdgv44Lyo5thkzki
-         Zmj/md2AkIUOly2jIpwzcaREjHEK1X+PMS7+v1BSpy6PC0BhI5dYwPjSfHP8wBlps8jT
-         mlaXJpRipCWZPIxeVXer+gzNcu8Tk9Pw3CzQV9gzn1L+Gh26KMoVYy6zHWJwlKMf/HRf
-         9vroUEUFh3CTUSX/pIYhKHAi28njDr7a5JpOM+XuKuv/1Wd9rxyEgsQa6ERttXwl2Yeu
-         s1ww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=O53mHHJWd6UV+P16Qtz3XA3RgnBQel2/JoeNnwuv+wU=;
-        b=p/w9yPsn/sl2gTH6+JjSAKEKt3MS2jpwMnAAKT/SoFKFeqd6sLzUl+FCeOJgRYPZU5
-         eE/AKdY4WKcKuF6+GH7aZJ1o4a6YLTF3BNdW9yN36Q/qn5FzJCOno/qHNB714sZFqjxm
-         Rjc8S+UG3cnHd6QaR609jYP1D2LflxlnHgxonzxIeykxtVoqpyVO6K7M2F6SY3zM0+2P
-         jyYBMpGhqgH3YLCAfudd/qKIQVF6afhPx6yTG09oJElNKyiGdTVicfvIg6ZhINjedC3/
-         TTvuH5IkgAOnrTp05ANxhjraMkEzFBo97YZnhSxsVJ/oFFwvbetbGwgSK3C8C2uQEIbI
-         OgkA==
-X-Gm-Message-State: AJIora+YElTpWwjVmEoASmkLFhJj/38a9KWXte56vn3K/ryhuhHBJwFW
-        pCgZ01BNGG49ShCu9q1+FCk=
-X-Google-Smtp-Source: AGRyM1ts25I394P4+MA8quk1K4ApymCUOBBIwg/5CLYxIprRxPr1tklV7r2SFRmYznDZ3+3jCel6+A==
-X-Received: by 2002:a05:6a00:1a91:b0:51c:2ef4:fa1c with SMTP id e17-20020a056a001a9100b0051c2ef4fa1cmr27329809pfv.75.1655772472559;
-        Mon, 20 Jun 2022 17:47:52 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c10-20020aa7952a000000b0050dc762819esm4607010pfp.120.2022.06.20.17.47.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jun 2022 17:47:52 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Mon, 20 Jun 2022 17:47:51 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.18 000/141] 5.18.6-rc1 review
-Message-ID: <20220621004751.GD2242037@roeck-us.net>
-References: <20220620124729.509745706@linuxfoundation.org>
+        with ESMTP id S241445AbiFUA6W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jun 2022 20:58:22 -0400
+Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1856479
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 17:58:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1655773100; x=1687309100;
+  h=from:to:subject:date:message-id:in-reply-to:references:
+   mime-version:content-transfer-encoding;
+  bh=C7FAGDn/hE3aml/Dp3K/pl19DAZ7KNz0oSLCuErRe28=;
+  b=muD23eh/zTe/KUt8NFw/LbTVS5olgYujISHrsj4IEPjmaFp9xcDCpSOa
+   2Os63VCMpfftkEEq7AwpM//fmsWYDGtrrdMnyPiVtgynW1z/OQNd0x2tx
+   CyqImrAktHxviPkHfNjOfV/CEqYO+/iUbdzyUrqd9mftzk8LP/ECnjqcz
+   UT/XV16D0PfntjrCwFwj+BtcrDnz/i19SH+SIraTZzFGYqKh1c2qrRkId
+   OUBz2E9eP/9inIyxUZO9BmWsghTfM0aOipWFLBSejfsTh9LOO5sEbQ5dL
+   TxEd8L7/koiMfr/VJFVkRv+NSEzYj+TmO93N35zyeGfdP3Wo0MzqLrb4M
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.92,207,1650902400"; 
+   d="scan'208";a="203667815"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 21 Jun 2022 08:58:20 +0800
+IronPort-SDR: IZICWWXmKHr42wodL0QU+Q7O9w7Z5RjS8nT6rYYFhvliSe7bsHprXSwltnIDyvLFmwKWJ5qJPZ
+ BYvoGyvAI4G0Pwlx2h9IcVee9Bbn6yKYIqoLj7L085VLlFtCOQoT1IBff33LDyxL7UP2lmcT7K
+ IhmCyJG1wHRNarvTJhkaYXhsxChkPSsZGlgATrfuzagkSnzR9+1ghK1HfNrGPrllp+94iUqOmE
+ DOpmzt3SyWd9+LUbSbCtGxpn8f/F7oeb1aUw2vyVnkjgYF7dcZKeamXoIaCyfAKwWgax6ruu6E
+ ZsyHWLyCpnTq5xrDkVZ0jBBN
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 20 Jun 2022 17:20:51 -0700
+IronPort-SDR: LLsdv/SPKlIfow+MVKYyVBOvNlcRtJNNyt2PHJfFD/qXFZKIe3PkICIhOTtkx8ci1Ee58V0UIX
+ ZZgXLR/SxuR0f/kaMHqTEnOOgHJlA1QUG0fB07GCUgUUWx0KqUSwzfkGbBMAaiFdirQwrRJZzI
+ 6ibE1zTdETfiHy6dtja4f8/u6da5tPoOJkcAM4NPVevYW0VR0FP6Z7v12k3gMktmtmalGnl7RZ
+ k8rtzw7krd3yMa6cH4ZQYdQYHfFR+nGs6GFyAraKuJEhtEKA81LIaHYUNgx6+897NCOhot6WMT
+ XBY=
+WDCIronportException: Internal
+Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
+  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 20 Jun 2022 17:58:21 -0700
+Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4LRp6N0hWZz1SVp1
+        for <stable@vger.kernel.org>; Mon, 20 Jun 2022 17:58:20 -0700 (PDT)
+Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
+        reason="pass (just generated, assumed good)"
+        header.d=opensource.wdc.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+        opensource.wdc.com; h=content-transfer-encoding:mime-version
+        :references:in-reply-to:x-mailer:message-id:date:subject:to
+        :from; s=dkim; t=1655773099; x=1658365100; bh=C7FAGDn/hE3aml/Dp3
+        K/pl19DAZ7KNz0oSLCuErRe28=; b=U7aV5feJFVPPBbFFV8ukVWoVT/LydZtRo0
+        lzISq/JEk3dIflt2LMbyt7zVaO7YWwBmWPwH/8z77f/Gl0+tEWn0B+FDdkzUOrMs
+        GY1JpxQ5u/uHjRZ8ksbeXjSJd/biVP3rUt05ldxD6DYliUAhCZ11D6fqvcwgK2KR
+        F4rioUDDrSnmP4FtR55r/s2hmHBrUSbn1qHNrvapzCorYu8E1C+0BJTwa+4YB1ap
+        sRXfP0REqHSGl+Odyb4N/nwY9ynMNt0EDErR7F1+NFp1cmSEcJToHjshSFoXD7GD
+        ObQSh2Pm0jbZU01fuvYszTo5qIw2MoKAGcadEMRK39pg82qsvcfg==
+X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
+Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
+        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 4PdeG4iHTb6v for <stable@vger.kernel.org>;
+        Mon, 20 Jun 2022 17:58:19 -0700 (PDT)
+Received: from washi.fujisawa.hgst.com (washi.fujisawa.hgst.com [10.149.53.254])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4LRp6M0hf5z1SVnx;
+        Mon, 20 Jun 2022 17:58:18 -0700 (PDT)
+From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] zonefs: fix zonefs_iomap_begin() for reads
+Date:   Tue, 21 Jun 2022 09:58:17 +0900
+Message-Id: <20220621005817.706795-1-damien.lemoal@opensource.wdc.com>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <165572740210477@kroah.com>
+References: <165572740210477@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220620124729.509745706@linuxfoundation.org>
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 20, 2022 at 02:48:58PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.18.6 release.
-> There are 141 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 22 Jun 2022 12:47:02 +0000.
-> Anything received after that time might be too late.
-> 
+commit c1c1204c0d0c1dccc1310b9277fb2bd8b663d8fe upstream
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 489 pass: 489 fail: 0
+If a readahead is issued to a sequential zone file with an offset
+exactly equal to the current file size, the iomap type is set to
+IOMAP_UNWRITTEN, which will prevent an IO, but the iomap length is
+calculated as 0. This causes a WARN_ON() in iomap_iter():
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+[17309.548939] WARNING: CPU: 3 PID: 2137 at fs/iomap/iter.c:34 iomap_iter=
++0x9cf/0xe80
+[...]
+[17309.650907] RIP: 0010:iomap_iter+0x9cf/0xe80
+[...]
+[17309.754560] Call Trace:
+[17309.757078]  <TASK>
+[17309.759240]  ? lock_is_held_type+0xd8/0x130
+[17309.763531]  iomap_readahead+0x1a8/0x870
+[17309.767550]  ? iomap_read_folio+0x4c0/0x4c0
+[17309.771817]  ? lockdep_hardirqs_on_prepare+0x400/0x400
+[17309.778848]  ? lock_release+0x370/0x750
+[17309.784462]  ? folio_add_lru+0x217/0x3f0
+[17309.790220]  ? reacquire_held_locks+0x4e0/0x4e0
+[17309.796543]  read_pages+0x17d/0xb60
+[17309.801854]  ? folio_add_lru+0x238/0x3f0
+[17309.807573]  ? readahead_expand+0x5f0/0x5f0
+[17309.813554]  ? policy_node+0xb5/0x140
+[17309.819018]  page_cache_ra_unbounded+0x27d/0x450
+[17309.825439]  filemap_get_pages+0x500/0x1450
+[17309.831444]  ? filemap_add_folio+0x140/0x140
+[17309.837519]  ? lock_is_held_type+0xd8/0x130
+[17309.843509]  filemap_read+0x28c/0x9f0
+[17309.848953]  ? zonefs_file_read_iter+0x1ea/0x4d0 [zonefs]
+[17309.856162]  ? trace_contention_end+0xd6/0x130
+[17309.862416]  ? __mutex_lock+0x221/0x1480
+[17309.868151]  ? zonefs_file_read_iter+0x166/0x4d0 [zonefs]
+[17309.875364]  ? filemap_get_pages+0x1450/0x1450
+[17309.881647]  ? __mutex_unlock_slowpath+0x15e/0x620
+[17309.888248]  ? wait_for_completion_io_timeout+0x20/0x20
+[17309.895231]  ? lock_is_held_type+0xd8/0x130
+[17309.901115]  ? lock_is_held_type+0xd8/0x130
+[17309.906934]  zonefs_file_read_iter+0x356/0x4d0 [zonefs]
+[17309.913750]  new_sync_read+0x2d8/0x520
+[17309.919035]  ? __x64_sys_lseek+0x1d0/0x1d0
 
-Guenter
+Furthermore, this causes iomap_readahead() to loop forever as
+iomap_readahead_iter() always returns 0, making no progress.
+
+Fix this by treating reads after the file size as access to holes,
+setting the iomap type to IOMAP_HOLE, the iomap addr to IOMAP_NULL_ADDR
+and using the length argument as is for the iomap length. To simplify
+the code with this change, zonefs_iomap_begin() is split into the read
+variant, zonefs_read_iomap_begin() and zonefs_read_iomap_ops, and the
+write variant, zonefs_write_iomap_begin() and zonefs_write_iomap_ops.
+
+Reported-by: Jorgen Hansen <Jorgen.Hansen@wdc.com>
+Fixes: 8dcc1a9d90c1 ("fs: New zonefs file system")
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Jorgen Hansen <Jorgen.Hansen@wdc.com>
+---
+ fs/zonefs/super.c | 94 ++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 64 insertions(+), 30 deletions(-)
+
+diff --git a/fs/zonefs/super.c b/fs/zonefs/super.c
+index 1c2ece961128..15a4c7c07a3b 100644
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -72,15 +72,51 @@ static inline void zonefs_i_size_write(struct inode *=
+inode, loff_t isize)
+ 		zi->i_flags &=3D ~ZONEFS_ZONE_OPEN;
+ }
+=20
+-static int zonefs_iomap_begin(struct inode *inode, loff_t offset, loff_t=
+ length,
+-			      unsigned int flags, struct iomap *iomap,
+-			      struct iomap *srcmap)
++static int zonefs_read_iomap_begin(struct inode *inode, loff_t offset,
++				   loff_t length, unsigned int flags,
++				   struct iomap *iomap, struct iomap *srcmap)
+ {
+ 	struct zonefs_inode_info *zi =3D ZONEFS_I(inode);
+ 	struct super_block *sb =3D inode->i_sb;
+ 	loff_t isize;
+=20
+-	/* All I/Os should always be within the file maximum size */
++	/*
++	 * All blocks are always mapped below EOF. If reading past EOF,
++	 * act as if there is a hole up to the file maximum size.
++	 */
++	mutex_lock(&zi->i_truncate_mutex);
++	iomap->bdev =3D inode->i_sb->s_bdev;
++	iomap->offset =3D ALIGN_DOWN(offset, sb->s_blocksize);
++	isize =3D i_size_read(inode);
++	if (iomap->offset >=3D isize) {
++		iomap->type =3D IOMAP_HOLE;
++		iomap->addr =3D IOMAP_NULL_ADDR;
++		iomap->length =3D length;
++	} else {
++		iomap->type =3D IOMAP_MAPPED;
++		iomap->addr =3D (zi->i_zsector << SECTOR_SHIFT) + iomap->offset;
++		iomap->length =3D isize - iomap->offset;
++	}
++	mutex_unlock(&zi->i_truncate_mutex);
++
++	trace_zonefs_iomap_begin(inode, iomap);
++
++	return 0;
++}
++
++static const struct iomap_ops zonefs_read_iomap_ops =3D {
++	.iomap_begin	=3D zonefs_read_iomap_begin,
++};
++
++static int zonefs_write_iomap_begin(struct inode *inode, loff_t offset,
++				    loff_t length, unsigned int flags,
++				    struct iomap *iomap, struct iomap *srcmap)
++{
++	struct zonefs_inode_info *zi =3D ZONEFS_I(inode);
++	struct super_block *sb =3D inode->i_sb;
++	loff_t isize;
++
++	/* All write I/Os should always be within the file maximum size */
+ 	if (WARN_ON_ONCE(offset + length > zi->i_max_size))
+ 		return -EIO;
+=20
+@@ -90,7 +126,7 @@ static int zonefs_iomap_begin(struct inode *inode, lof=
+f_t offset, loff_t length,
+ 	 * operation.
+ 	 */
+ 	if (WARN_ON_ONCE(zi->i_ztype =3D=3D ZONEFS_ZTYPE_SEQ &&
+-			 (flags & IOMAP_WRITE) && !(flags & IOMAP_DIRECT)))
++			 !(flags & IOMAP_DIRECT)))
+ 		return -EIO;
+=20
+ 	/*
+@@ -99,47 +135,44 @@ static int zonefs_iomap_begin(struct inode *inode, l=
+off_t offset, loff_t length,
+ 	 * write pointer) and unwriten beyond.
+ 	 */
+ 	mutex_lock(&zi->i_truncate_mutex);
++	iomap->bdev =3D inode->i_sb->s_bdev;
++	iomap->offset =3D ALIGN_DOWN(offset, sb->s_blocksize);
++	iomap->addr =3D (zi->i_zsector << SECTOR_SHIFT) + iomap->offset;
+ 	isize =3D i_size_read(inode);
+-	if (offset >=3D isize)
++	if (iomap->offset >=3D isize) {
+ 		iomap->type =3D IOMAP_UNWRITTEN;
+-	else
++		iomap->length =3D zi->i_max_size - iomap->offset;
++	} else {
+ 		iomap->type =3D IOMAP_MAPPED;
+-	if (flags & IOMAP_WRITE)
+-		length =3D zi->i_max_size - offset;
+-	else
+-		length =3D min(length, isize - offset);
++		iomap->length =3D isize - iomap->offset;
++	}
+ 	mutex_unlock(&zi->i_truncate_mutex);
+=20
+-	iomap->offset =3D ALIGN_DOWN(offset, sb->s_blocksize);
+-	iomap->length =3D ALIGN(offset + length, sb->s_blocksize) - iomap->offs=
+et;
+-	iomap->bdev =3D inode->i_sb->s_bdev;
+-	iomap->addr =3D (zi->i_zsector << SECTOR_SHIFT) + iomap->offset;
+-
+ 	trace_zonefs_iomap_begin(inode, iomap);
+=20
+ 	return 0;
+ }
+=20
+-static const struct iomap_ops zonefs_iomap_ops =3D {
+-	.iomap_begin	=3D zonefs_iomap_begin,
++static const struct iomap_ops zonefs_write_iomap_ops =3D {
++	.iomap_begin	=3D zonefs_write_iomap_begin,
+ };
+=20
+ static int zonefs_readpage(struct file *unused, struct page *page)
+ {
+-	return iomap_readpage(page, &zonefs_iomap_ops);
++	return iomap_readpage(page, &zonefs_read_iomap_ops);
+ }
+=20
+ static void zonefs_readahead(struct readahead_control *rac)
+ {
+-	iomap_readahead(rac, &zonefs_iomap_ops);
++	iomap_readahead(rac, &zonefs_read_iomap_ops);
+ }
+=20
+ /*
+  * Map blocks for page writeback. This is used only on conventional zone=
+ files,
+  * which implies that the page range can only be within the fixed inode =
+size.
+  */
+-static int zonefs_map_blocks(struct iomap_writepage_ctx *wpc,
+-			     struct inode *inode, loff_t offset)
++static int zonefs_write_map_blocks(struct iomap_writepage_ctx *wpc,
++				   struct inode *inode, loff_t offset)
+ {
+ 	struct zonefs_inode_info *zi =3D ZONEFS_I(inode);
+=20
+@@ -153,12 +186,12 @@ static int zonefs_map_blocks(struct iomap_writepage=
+_ctx *wpc,
+ 	    offset < wpc->iomap.offset + wpc->iomap.length)
+ 		return 0;
+=20
+-	return zonefs_iomap_begin(inode, offset, zi->i_max_size - offset,
+-				  IOMAP_WRITE, &wpc->iomap, NULL);
++	return zonefs_write_iomap_begin(inode, offset, zi->i_max_size - offset,
++					IOMAP_WRITE, &wpc->iomap, NULL);
+ }
+=20
+ static const struct iomap_writeback_ops zonefs_writeback_ops =3D {
+-	.map_blocks		=3D zonefs_map_blocks,
++	.map_blocks		=3D zonefs_write_map_blocks,
+ };
+=20
+ static int zonefs_writepage(struct page *page, struct writeback_control =
+*wbc)
+@@ -188,7 +221,8 @@ static int zonefs_swap_activate(struct swap_info_stru=
+ct *sis,
+ 		return -EINVAL;
+ 	}
+=20
+-	return iomap_swapfile_activate(sis, swap_file, span, &zonefs_iomap_ops)=
+;
++	return iomap_swapfile_activate(sis, swap_file, span,
++				       &zonefs_read_iomap_ops);
+ }
+=20
+ static const struct address_space_operations zonefs_file_aops =3D {
+@@ -607,7 +641,7 @@ static vm_fault_t zonefs_filemap_page_mkwrite(struct =
+vm_fault *vmf)
+=20
+ 	/* Serialize against truncates */
+ 	filemap_invalidate_lock_shared(inode->i_mapping);
+-	ret =3D iomap_page_mkwrite(vmf, &zonefs_iomap_ops);
++	ret =3D iomap_page_mkwrite(vmf, &zonefs_write_iomap_ops);
+ 	filemap_invalidate_unlock_shared(inode->i_mapping);
+=20
+ 	sb_end_pagefault(inode->i_sb);
+@@ -860,7 +894,7 @@ static ssize_t zonefs_file_dio_write(struct kiocb *io=
+cb, struct iov_iter *from)
+ 	if (append)
+ 		ret =3D zonefs_file_dio_append(iocb, from);
+ 	else
+-		ret =3D iomap_dio_rw(iocb, from, &zonefs_iomap_ops,
++		ret =3D iomap_dio_rw(iocb, from, &zonefs_write_iomap_ops,
+ 				   &zonefs_write_dio_ops, 0, 0);
+ 	if (zi->i_ztype =3D=3D ZONEFS_ZTYPE_SEQ &&
+ 	    (ret > 0 || ret =3D=3D -EIOCBQUEUED)) {
+@@ -902,7 +936,7 @@ static ssize_t zonefs_file_buffered_write(struct kioc=
+b *iocb,
+ 	if (ret <=3D 0)
+ 		goto inode_unlock;
+=20
+-	ret =3D iomap_file_buffered_write(iocb, from, &zonefs_iomap_ops);
++	ret =3D iomap_file_buffered_write(iocb, from, &zonefs_write_iomap_ops);
+ 	if (ret > 0)
+ 		iocb->ki_pos +=3D ret;
+ 	else if (ret =3D=3D -EIO)
+@@ -995,7 +1029,7 @@ static ssize_t zonefs_file_read_iter(struct kiocb *i=
+ocb, struct iov_iter *to)
+ 			goto inode_unlock;
+ 		}
+ 		file_accessed(iocb->ki_filp);
+-		ret =3D iomap_dio_rw(iocb, to, &zonefs_iomap_ops,
++		ret =3D iomap_dio_rw(iocb, to, &zonefs_read_iomap_ops,
+ 				   &zonefs_read_dio_ops, 0, 0);
+ 	} else {
+ 		ret =3D generic_file_read_iter(iocb, to);
+--=20
+2.36.1
+
