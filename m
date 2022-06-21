@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 030CC553CC5
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 106FC553C75
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:10:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355789AbiFUVBi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:01:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39066 "EHLO
+        id S1355629AbiFUVAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:00:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355619AbiFUU6q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:58:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D3113D52;
-        Tue, 21 Jun 2022 13:51:33 -0700 (PDT)
+        with ESMTP id S1356131AbiFUU7b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:59:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C13133E17;
+        Tue, 21 Jun 2022 13:52:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5A7261881;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AA8361882;
+        Tue, 21 Jun 2022 20:51:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA05DC385A2;
         Tue, 21 Jun 2022 20:51:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1A12C341C4;
-        Tue, 21 Jun 2022 20:51:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655844692;
-        bh=OS6MEuR2j6tecmiPEZ5ZVVAUFVQAjV+wZkZo9Lbcuzo=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BdMUv+Ek/X9laiviVKxogwFzkPJcWJ7QeVcFBl04PcrTl6hLPqqQIPzaxDT0D/gaE
-         L/9SP6r0R74S51bC2FBJfwcUNBWKpWri/tnj7k4fuUc4w91VzwlDDQBckZOVAVi1K3
-         xjCJ9tQBzSOsqf7fVcgOccPlhpIVFqCVtKUSugAAPjRvvQ3jW/MZZXGibIAA+RJ6py
-         nGUloMAYN3AhHOwP+TNVt2f6GX/CL+GvvIxnht6+/grahYaE17jVwVSV7Eh0mv6VYh
-         2scZg52T+hYoV9qCjmuYkCucsZlOpTeOFSnzbWGAi3GdJc5eb94Qsg/L5ft5vby68c
-         B1SCHMN8yA6QA==
+        s=k20201202; t=1655844693;
+        bh=mIKC5xOk8DCT9W6kql28/G4V3epGSHnj9RDl/rWzKvM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=oqGUwWABRkkHoG5KFL9QfNrhKUW3KcU3gmN/lREMK7Oh8pBH3wCVGUWywZo39hr5k
+         0+Ue0abXtA4IC4NDu3IkbWpg1xXJNv0Fpkbfhq/gslBzWuLSxLyWZldgx4GwX9WuQS
+         +08MYCkkG9Cv2+ueQ95XurEN9rI9PkMX/5Ld8dsQ6VUJOXryj2JQYjtguDqUE0ptOD
+         28vHiEPUomAIW7/d63gkWi+WM5EFcI0gCGDdkMmnzuz5qbkxgFa7T+SHDhkkclpyRD
+         IcAzlyiho4BhP2qkTFG6g2xw3snEhnFP4OPyHW0czXVdZXo12LrCpFX8bjxnqQls4Q
+         bCQZqyS6pb4sw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Liu Ying <victor.liu@nxp.com>, Sasha Levin <sashal@kernel.org>,
-        tglx@linutronix.de
-Subject: [PATCH AUTOSEL 4.19 1/7] genirq: PM: Use runtime PM for chained interrupts
-Date:   Tue, 21 Jun 2022 16:51:23 -0400
-Message-Id: <20220621205130.250874-1-sashal@kernel.org>
+Cc:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        tglx@linutronix.de, mhiramat@kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 2/7] irqchip/uniphier-aidet: Add compatible string for NX1 SoC
+Date:   Tue, 21 Jun 2022 16:51:24 -0400
+Message-Id: <20220621205130.250874-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220621205130.250874-1-sashal@kernel.org>
+References: <20220621205130.250874-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,53 +57,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 668a9fe5c6a1bcac6b65d5e9b91a9eca86f782a3 ]
+[ Upstream commit e3f056a7aafabe4ac3ad4b7465ba821b44a7e639 ]
 
-When requesting an interrupt, we correctly call into the runtime
-PM framework to guarantee that the underlying interrupt controller
-is up and running.
+Add the compatible string to support UniPhier NX1 SoC, which has the same
+kinds of controls as the other UniPhier SoCs.
 
-However, we fail to do so for chained interrupt controllers, as
-the mux interrupt is not requested along the same path.
-
-Augment __irq_do_set_handler() to call into the runtime PM code
-in this case, making sure the PM flow is the same for all interrupts.
-
-Reported-by: Lucas Stach <l.stach@pengutronix.de>
-Tested-by: Liu Ying <victor.liu@nxp.com>
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/26973cddee5f527ea17184c0f3fccb70bc8969a0.camel@pengutronix.de
+Link: https://lore.kernel.org/r/1653023822-19229-3-git-send-email-hayashi.kunihiko@socionext.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/chip.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-uniphier-aidet.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/irq/chip.c b/kernel/irq/chip.c
-index 9afbd89b6096..356b289b8086 100644
---- a/kernel/irq/chip.c
-+++ b/kernel/irq/chip.c
-@@ -964,8 +964,10 @@ __irq_do_set_handler(struct irq_desc *desc, irq_flow_handler_t handle,
- 		if (desc->irq_data.chip != &no_irq_chip)
- 			mask_ack_irq(desc);
- 		irq_state_set_disabled(desc);
--		if (is_chained)
-+		if (is_chained) {
- 			desc->action = NULL;
-+			WARN_ON(irq_chip_pm_put(irq_desc_get_irq_data(desc)));
-+		}
- 		desc->depth = 1;
- 	}
- 	desc->handle_irq = handle;
-@@ -991,6 +993,7 @@ __irq_do_set_handler(struct irq_desc *desc, irq_flow_handler_t handle,
- 		irq_settings_set_norequest(desc);
- 		irq_settings_set_nothread(desc);
- 		desc->action = &chained_action;
-+		WARN_ON(irq_chip_pm_get(irq_desc_get_irq_data(desc)));
- 		irq_activate_and_startup(desc, IRQ_RESEND);
- 	}
- }
+diff --git a/drivers/irqchip/irq-uniphier-aidet.c b/drivers/irqchip/irq-uniphier-aidet.c
+index 7ba7f253470e..b400f084e2cb 100644
+--- a/drivers/irqchip/irq-uniphier-aidet.c
++++ b/drivers/irqchip/irq-uniphier-aidet.c
+@@ -247,6 +247,7 @@ static const struct of_device_id uniphier_aidet_match[] = {
+ 	{ .compatible = "socionext,uniphier-ld11-aidet" },
+ 	{ .compatible = "socionext,uniphier-ld20-aidet" },
+ 	{ .compatible = "socionext,uniphier-pxs3-aidet" },
++	{ .compatible = "socionext,uniphier-nx1-aidet" },
+ 	{ /* sentinel */ }
+ };
+ 
 -- 
 2.35.1
 
