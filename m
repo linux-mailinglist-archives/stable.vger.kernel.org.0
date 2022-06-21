@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D5C7553C61
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:10:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 433D2553D0B
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355626AbiFUVBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:01:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
+        id S1355630AbiFUVAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:00:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356250AbiFUU7o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:59:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7949333A3D;
-        Tue, 21 Jun 2022 13:52:32 -0700 (PDT)
+        with ESMTP id S1355699AbiFUU6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:58:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9127A32ED3;
+        Tue, 21 Jun 2022 13:51:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 198456188D;
-        Tue, 21 Jun 2022 20:51:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08818C36AE2;
-        Tue, 21 Jun 2022 20:51:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F59CB81B2F;
+        Tue, 21 Jun 2022 20:51:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A5A9C385A2;
+        Tue, 21 Jun 2022 20:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655844694;
-        bh=mgM1U4HzcvMMp0z+maQndZhe3LltKXwQl4NU4lVOCfY=;
+        s=k20201202; t=1655844695;
+        bh=dA8eO3kJ42RFGQFpPPCVUellUtKHSutFT3VRfj0OK3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJHaki0PQhYVVI8Q+qF1U18MWesRGZUN9YQ8sYUF6DHgEATv03spF4jhwgQPsZmMt
-         ogStxju23lKZLv5oG1uRyWA8FMxn3fn/4SVI8zMW7/gO5ajSc5dSJ8lQ2772Y2yx8V
-         pBgV3cDefrGAivWPB+s0E1xRGyMrMjPL/O9PlY0ViBV7VCLfN39AlS5z5rxRJ2M+yZ
-         NEMTYHMTHniapQ5mtWThEbOezSXbnT8hCXPZiwO8nteD/vWTbaqGCnSItBvbM6FPt/
-         Imy39wKZ7M4aMvko8O67KzpQbq0CKd82s1ROMQLRzdeM+EQwnr7Y5gRiELb1Vt4NM9
-         pVa5EnUK4CkaQ==
+        b=jr1AdTHsJn6nEz99XerquZB+35OAWxs65emNEe7EYr4BjADn6y5rvg85Q2XmanKK2
+         +reeh+rLprVF5RvFoX9P77grfvxE3B4RfU1sD3KCOAiAO1Qq0gT7kraoFqY9hGFFmq
+         V8wQMZH4KpPu+fF2Y6r9rKdsvbHNiKnvYjFIXyPc3n6E8VeFt48X12HqHVuz/xu+xZ
+         cuDNEZMugWOQVFOim7TFck3rzHr+KLSkrF7IygZw8Kiv8f7vuRo4dtV39aGGTQBgrA
+         /GUFU9nqxvfjYdxb7Cdcn4EYLzqspE/Lt7icuFDda/ZM2hIc99LDwumPkqmT7yFTNX
+         a1tBU2rxHRn5w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 3/7] mei: me: set internal pg flag to off on hardware reset
-Date:   Tue, 21 Jun 2022 16:51:25 -0400
-Message-Id: <20220621205130.250874-3-sashal@kernel.org>
+Cc:     Keith Busch <kbusch@kernel.org>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
+        sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 4/7] nvme-pci: add trouble shooting steps for timeouts
+Date:   Tue, 21 Jun 2022 16:51:26 -0400
+Message-Id: <20220621205130.250874-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220621205130.250874-1-sashal@kernel.org>
 References: <20220621205130.250874-1-sashal@kernel.org>
@@ -57,39 +58,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit 9f4639373e6756e1ccf0029f861f1061db3c3616 ]
+[ Upstream commit 4641a8e6e145f595059e695f0f8dbbe608134086 ]
 
-Link reset flow is always performed in the runtime resumed state.
-The internal PG state may be left as ON after the suspend
-and will not be updated upon the resume if the D0i3 is not supported.
+Many users have encountered IO timeouts with a CSTS value of 0xffffffff,
+which indicates a failure to read the register. While there are various
+potential causes for this observation, faulty NVMe APST has been the
+culprit quite frequently. Add the recommended troubleshooting steps in
+the error output when this condition occurs.
 
-Ensure that the internal PG state is set to the right value on the flow
-entrance in case the firmware does not support D0i3.
-
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20220606144225.282375-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mei/hw-me.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nvme/host/pci.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/misc/mei/hw-me.c b/drivers/misc/mei/hw-me.c
-index 60c8c84181a9..ba12be7ec7df 100644
---- a/drivers/misc/mei/hw-me.c
-+++ b/drivers/misc/mei/hw-me.c
-@@ -1138,6 +1138,8 @@ static int mei_me_hw_reset(struct mei_device *dev, bool intr_enable)
- 			ret = mei_me_d0i3_exit_sync(dev);
- 			if (ret)
- 				return ret;
-+		} else {
-+			hw->pg_state = MEI_PG_OFF;
- 		}
- 	}
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index b06d2b6bd3fe..f9fd62b894dc 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1138,6 +1138,14 @@ static void nvme_warn_reset(struct nvme_dev *dev, u32 csts)
+ 		dev_warn(dev->ctrl.device,
+ 			 "controller is down; will reset: CSTS=0x%x, PCI_STATUS read failed (%d)\n",
+ 			 csts, result);
++
++	if (csts != ~0)
++		return;
++
++	dev_warn(dev->ctrl.device,
++		 "Does your device have a faulty power saving mode enabled?\n");
++	dev_warn(dev->ctrl.device,
++		 "Try \"nvme_core.default_ps_max_latency_us=0 pcie_aspm=off\" and report a bug\n");
+ }
  
+ static enum blk_eh_timer_return nvme_timeout(struct request *req, bool reserved)
 -- 
 2.35.1
 
