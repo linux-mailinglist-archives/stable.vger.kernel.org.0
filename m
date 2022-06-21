@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D131553D2D
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA840553D19
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355248AbiFUU47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 16:56:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55170 "EHLO
+        id S1355272AbiFUU5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 16:57:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355119AbiFUU4V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:56:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00DDE31532;
-        Tue, 21 Jun 2022 13:50:24 -0700 (PDT)
+        with ESMTP id S1355156AbiFUU4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:56:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323FE31917;
+        Tue, 21 Jun 2022 13:50:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74261B81B38;
-        Tue, 21 Jun 2022 20:49:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C27CC341C5;
-        Tue, 21 Jun 2022 20:49:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 057406184B;
+        Tue, 21 Jun 2022 20:49:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FA28C341C4;
+        Tue, 21 Jun 2022 20:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655844595;
-        bh=3POKS7eqdY7o25MR6JJowXEP8imSIiQYhNPSKvJWOXI=;
+        s=k20201202; t=1655844596;
+        bh=cX2vaQcjG25rTY4OOOiTSbbjnXa7+ypoNkn+zs28OZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i88MvBhaXVnPg7hyQSEKxEVXnCSpfCzCyqEZ7vDxoAykmoFRQv10cCCWSHN/HZt4t
-         5NjpXglkH81CkHYp3UR/5G9jovZFnu1xNCfeMoG0eW31FUgBwYIhY+n9fEmoNIlTuS
-         utprI14GgZE7RpCnoXwxDUK+PbilofXwuzXLNWcb0ULRuPc4XcO6PsMFCrjqSKx6jj
-         nop9AO6f3/hYBbWGLl3CUwALM8fCqM6bPwqCJWC6ctfa3OxhWQ81jcX8jA6I1wLTeZ
-         R/ceQbiLdF6JeFmummn9oCyk7n3qwFaitFcSHPlQP05te81ga0KE+KooypNrPoscgV
-         LqEaD5CzMB7ew==
+        b=rSAVXe1xb+VW4vcdE8CYCPSqyhMj9JOJUnUPmHqPHzpKankE80vQOHJ4Y8uafDRgy
+         /dLwFbwgUQyphSn6tQ47CSjmIugX4pW1DUsDq/3dlt0xEByNkupemJuVes4bj2mXD2
+         rgDmBDQ9pp4IxkUIWhzRrMpumFwrKiOy4IZQmtkTT5rNCITBjx5zjFUfsw0tO19TGb
+         CaXyootWMjo4UR8oBNkNRCgqo+z51LqjvvsnKCk1Tey0VkPrlCHM6uzTRlo8Cam9Zk
+         YR7qsw/OekZ+IQ+eDO0RKLiP0s05cVVk/47BfqsM1Oueu0eiVWN+iYrqlZz67FHkdI
+         pYpt3LY5Kh4Ug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ning Wang <ningwang35@outlook.com>, Christoph Hellwig <hch@lst.de>,
+Cc:     "rasheed.hsueh" <rasheed.hsueh@lcfc.corp-partner.google.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
         axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 12/22] nvme-pci: avoid the deepest sleep state on ZHITAI TiPro7000 SSDs
-Date:   Tue, 21 Jun 2022 16:49:18 -0400
-Message-Id: <20220621204928.249907-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 13/22] nvme-pci: disable write zeros support on UMIC and Samsung SSDs
+Date:   Tue, 21 Jun 2022 16:49:19 -0400
+Message-Id: <20220621204928.249907-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220621204928.249907-1-sashal@kernel.org>
 References: <20220621204928.249907-1-sashal@kernel.org>
@@ -56,62 +58,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ning Wang <ningwang35@outlook.com>
+From: "rasheed.hsueh" <rasheed.hsueh@lcfc.corp-partner.google.com>
 
-[ Upstream commit 6b961bce50e489186232cef51036ddb8d672bc3b ]
+[ Upstream commit 43047e082b90ead395c44b0e8497bc853bd13845 ]
 
-When ZHITAI TiPro7000 SSDs entered deepest power state(ps4)
-it has the same APST sleep problem as Kingston A2000.
-by chance the system crashes and displays the same dmesg info:
+Like commit 5611ec2b9814 ("nvme-pci: prevent SK hynix PC400 from using
+Write Zeroes command"), UMIS and Samsung has the same issue:
+[ 6305.633887] blk_update_request: operation not supported error,
+dev nvme0n1, sector 340812032 op 0x9:(WRITE_ZEROES) flags 0x0
+phys_seg 0 prio class 0
 
-https://bugzilla.kernel.org/show_bug.cgi?id=195039#c65
+So also disable Write Zeroes command on UMIS and Samsung.
 
-As the Archlinux wiki suggest (enlat + exlat) < 25000 is fine
-and my testing shows no system crashes ever since.
-Therefore disabling the deepest power state will fix the APST sleep issue.
-
-https://wiki.archlinux.org/title/Solid_state_drive/NVMe
-
-This is the APST data from 'nvme id-ctrl /dev/nvme1'
-
-NVME Identify Controller:
-vid       : 0x1e49
-ssvid     : 0x1e49
-sn        : [...]
-mn        : ZHITAI TiPro7000 1TB
-fr        : ZTA32F3Y
-[...]
-ps    0 : mp:3.50W operational enlat:5 exlat:5 rrt:0 rrl:0
-          rwt:0 rwl:0 idle_power:- active_power:-
-ps    1 : mp:3.30W operational enlat:50 exlat:100 rrt:1 rrl:1
-          rwt:1 rwl:1 idle_power:- active_power:-
-ps    2 : mp:2.80W operational enlat:50 exlat:200 rrt:2 rrl:2
-          rwt:2 rwl:2 idle_power:- active_power:-
-ps    3 : mp:0.1500W non-operational enlat:500 exlat:5000 rrt:3 rrl:3
-          rwt:3 rwl:3 idle_power:- active_power:-
-ps    4 : mp:0.0200W non-operational enlat:2000 exlat:60000 rrt:4 rrl:4
-          rwt:4 rwl:4 idle_power:- active_power:-
-
-Signed-off-by: Ning Wang <ningwang35@outlook.com>
+Signed-off-by: rasheed.hsueh <rasheed.hsueh@lcfc.corp-partner.google.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nvme/host/pci.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 6f9672e92b9c..7d5e40f5a993 100644
+index 7d5e40f5a993..04de777857aa 100644
 --- a/drivers/nvme/host/pci.c
 +++ b/drivers/nvme/host/pci.c
-@@ -3486,6 +3486,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x1cc1, 0x5350),   /* ADATA XPG GAMMIX S50 */
- 		.driver_data = NVME_QUIRK_BOGUS_NID, },
-+	{ PCI_DEVICE(0x1e49, 0x0041),   /* ZHITAI TiPro7000 NVMe SSD */
-+		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
- 		.driver_data = NVME_QUIRK_DMA_ADDRESS_BITS_48, },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0065),
+@@ -3476,6 +3476,14 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+ 	{ PCI_DEVICE(0x1d97, 0x2263),   /* SPCC */
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x144d, 0xa80b),   /* Samsung PM9B1 256G and 512G */
++		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x144d, 0xa809),   /* Samsung MZALQ256HBJD 256G */
++		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x1cc4, 0x6303),   /* UMIS RPJTJ512MGE1QDY 512G */
++		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x1cc4, 0x6302),   /* UMIS RPJTJ256MGE1QDY 256G */
++		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+ 	{ PCI_DEVICE(0x2646, 0x2262),   /* KINGSTON SKC2000 NVMe SSD */
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(0x2646, 0x2263),   /* KINGSTON A2000 NVMe SSD  */
 -- 
 2.35.1
 
