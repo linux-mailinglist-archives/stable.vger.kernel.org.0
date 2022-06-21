@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9E7C553DA9
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:27:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 393AE553DAA
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:27:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356521AbiFUV0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1356156AbiFUV0T (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 21 Jun 2022 17:26:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43508 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356175AbiFUVZu (ORCPT
+        with ESMTP id S1356037AbiFUVZu (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 17:25:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD5223120A;
-        Tue, 21 Jun 2022 14:21:41 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89EA53121B;
+        Tue, 21 Jun 2022 14:21:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D055B81B1F;
-        Tue, 21 Jun 2022 21:21:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EA16C3411C;
-        Tue, 21 Jun 2022 21:21:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F03A615A5;
+        Tue, 21 Jun 2022 21:21:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B2B8C3411C;
+        Tue, 21 Jun 2022 21:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655846499;
-        bh=3+kfBJXx7bJFsPBrjotmt2oV78Cw71odr1QKUuLojLM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gIxayzdB+vG0w+xIdQER2id6GxgCY1T4ky3Qb3uQStnmzPvYkrZMYAfOndRAONyAr
-         7WS9sIzkuur4XUhdbgPFYWQr+VC0AnbCx2nFqvwBqk/PNi5MZSDTzxFgzdZ4jw++3x
-         Zmq2tqSwZQdpfSHcpZqz09EJLRnSzN5tX7krsqFCF0gYwogvLAaQZtKOLDKppr9DX3
-         dsbOC8u7oQqXGaezOUK5BqdbfrshLEUbTFmLc/9LmZDjCDQ3EFd1NztdZR0Y7b9Go5
-         CGgTjlKcUZ6yAx4NoZmyPEVoUJPR4uWTOYTycX3hn2F2BheOLQs6EHZH2ZahniYim+
-         dP98j5Yy567rQ==
+        s=k20201202; t=1655846502;
+        bh=KtkOG/ERJjQUv0N/orDTSLTsAF0g4uTxZJXILtA9Y1A=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Rb53o1TDYMg1DmHZ1lU1Cm+ctEzyxgIT0jpHrcV8zatSEhYwT/C1m/PbTP7D9q8nT
+         gaQg5v6LTZNivML+c8KLc5bWpnE2nlN5axJtLbf+1WnahRohCbb20C/LTmD6+uMcy0
+         jZZ/oZIkPeoMRolJqfs8u7N+UQhQCiMgciCRVYDaX/eD+jCnUn01+kLgM8UnIjemSU
+         XVyMl7i0GcVntYww7hkahxGv5swpnCg60VFZz59C8fJ1G1jyhC0+ARZYOt5PMwbJQK
+         VCXbV4Li+aIn/ubdB4ogjzJ9oZYsQVlkDjmXgS964diasZJPdO+bWT66NInWqF74YZ
+         Q5aIC2xtHzNaw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Matlack <dmatlack@google.com>,
-        Sean Christopherson <seanjc@google.com>,
+Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        bgardon@google.com, kvm@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.18 3/3] KVM: selftests: Restrict test region to 48-bit physical addresses when using nested
-Date:   Tue, 21 Jun 2022 17:21:32 -0400
-Message-Id: <20220621212132.251759-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, kvm@vger.kernel.org
+Subject: [PATCH MANUALSEL 5.17 1/3] KVM: x86: disable preemption while updating apicv inhibition
+Date:   Tue, 21 Jun 2022 17:21:37 -0400
+Message-Id: <20220621212139.251808-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220621212132.251759-1-sashal@kernel.org>
-References: <20220621212132.251759-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,76 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Matlack <dmatlack@google.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-[ Upstream commit e0f3f46e42064a51573914766897b4ab95d943e3 ]
+[ Upstream commit 66c768d30e64e1280520f34dbef83419f55f3459 ]
 
-The selftests nested code only supports 4-level paging at the moment.
-This means it cannot map nested guest physical addresses with more than
-48 bits. Allow perf_test_util nested mode to work on hosts with more
-than 48 physical addresses by restricting the guest test region to
-48-bits.
+Currently nothing prevents preemption in kvm_vcpu_update_apicv.
 
-While here, opportunistically fix an off-by-one error when dealing with
-vm_get_max_gfn(). perf_test_util.c was treating this as the maximum
-number of GFNs, rather than the maximum allowed GFN. This didn't result
-in any correctness issues, but it did end up shifting the test region
-down slightly when using huge pages.
+On SVM, If the preemption happens after we update the
+vcpu->arch.apicv_active, the preemption itself will
+'update' the inhibition since the AVIC will be first disabled
+on vCPU unload and then enabled, when the current task
+is loaded again.
 
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: David Matlack <dmatlack@google.com>
-Message-Id: <20220520233249.3776001-12-dmatlack@google.com>
+Then we will try to update it again, which will lead to a warning
+in __avic_vcpu_load, that the AVIC is already enabled.
+
+Fix this by disabling preemption in this code.
+
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220606180829.102503-6-mlevitsk@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../testing/selftests/kvm/lib/perf_test_util.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ arch/x86/kvm/x86.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/kvm/lib/perf_test_util.c b/tools/testing/selftests/kvm/lib/perf_test_util.c
-index 722df3a28791..ddd68ba0c99f 100644
---- a/tools/testing/selftests/kvm/lib/perf_test_util.c
-+++ b/tools/testing/selftests/kvm/lib/perf_test_util.c
-@@ -110,6 +110,7 @@ struct kvm_vm *perf_test_create_vm(enum vm_guest_mode mode, int vcpus,
- 	struct kvm_vm *vm;
- 	uint64_t guest_num_pages;
- 	uint64_t backing_src_pagesz = get_backing_src_pagesz(backing_src);
-+	uint64_t region_end_gfn;
- 	int i;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 5204283da798..0e456c82a00b 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9668,6 +9668,7 @@ void kvm_vcpu_update_apicv(struct kvm_vcpu *vcpu)
+ 		return;
  
- 	pr_info("Testing guest mode: %s\n", vm_guest_mode_string(mode));
-@@ -144,18 +145,29 @@ struct kvm_vm *perf_test_create_vm(enum vm_guest_mode mode, int vcpus,
+ 	down_read(&vcpu->kvm->arch.apicv_update_lock);
++	preempt_disable();
  
- 	pta->vm = vm;
+ 	activate = kvm_apicv_activated(vcpu->kvm);
+ 	if (vcpu->arch.apicv_active == activate)
+@@ -9687,6 +9688,7 @@ void kvm_vcpu_update_apicv(struct kvm_vcpu *vcpu)
+ 		kvm_make_request(KVM_REQ_EVENT, vcpu);
  
-+	/* Put the test region at the top guest physical memory. */
-+	region_end_gfn = vm_get_max_gfn(vm) + 1;
-+
-+#ifdef __x86_64__
-+	/*
-+	 * When running vCPUs in L2, restrict the test region to 48 bits to
-+	 * avoid needing 5-level page tables to identity map L2.
-+	 */
-+	if (pta->nested)
-+		region_end_gfn = min(region_end_gfn, (1UL << 48) / pta->guest_page_size);
-+#endif
- 	/*
- 	 * If there should be more memory in the guest test region than there
- 	 * can be pages in the guest, it will definitely cause problems.
- 	 */
--	TEST_ASSERT(guest_num_pages < vm_get_max_gfn(vm),
-+	TEST_ASSERT(guest_num_pages < region_end_gfn,
- 		    "Requested more guest memory than address space allows.\n"
- 		    "    guest pages: %" PRIx64 " max gfn: %" PRIx64
- 		    " vcpus: %d wss: %" PRIx64 "]\n",
--		    guest_num_pages, vm_get_max_gfn(vm), vcpus,
-+		    guest_num_pages, region_end_gfn - 1, vcpus,
- 		    vcpu_memory_bytes);
- 
--	pta->gpa = (vm_get_max_gfn(vm) - guest_num_pages) * pta->guest_page_size;
-+	pta->gpa = (region_end_gfn - guest_num_pages) * pta->guest_page_size;
- 	pta->gpa = align_down(pta->gpa, backing_src_pagesz);
- #ifdef __s390x__
- 	/* Align to 1M (segment size) */
+ out:
++	preempt_enable();
+ 	up_read(&vcpu->kvm->arch.apicv_update_lock);
+ }
+ EXPORT_SYMBOL_GPL(kvm_vcpu_update_apicv);
 -- 
 2.35.1
 
