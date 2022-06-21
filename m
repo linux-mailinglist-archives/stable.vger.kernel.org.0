@@ -2,76 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1807A553510
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 16:59:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C3FC553597
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 17:14:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349045AbiFUO7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 10:59:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36222 "EHLO
+        id S1351477AbiFUPOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 11:14:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352119AbiFUO6f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 10:58:35 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3AE238B3
-        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 07:58:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1655823459;
-        bh=2aoALuBN00PmSduFlvoiJAMS9RSBNzGb6YDz57hSH1E=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=djCN/8gyhyDdNOWu4iPYK0d7o+FkPgrY6MaGaQhBgDK1wq9Kw5O5Cf1/57dL2vmEm
-         lymJjAgBheG/LxZUu9xYSefZac6++MaisgpEiMPtW9fqcQBfLGq8v1EPDG4EOGvJ0l
-         182ID0St4IhU64xoqnPn8nEiZIcOTHtl2EndpEiM=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.20.60] ([92.116.178.187]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MK3W0-1oP2C51NOg-00LT4V; Tue, 21
- Jun 2022 16:57:39 +0200
-Message-ID: <8701b28a-fb86-c95f-6a3e-ddea9cd10b97@gmx.de>
-Date:   Tue, 21 Jun 2022 16:57:13 +0200
+        with ESMTP id S1352770AbiFUPNi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 11:13:38 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 527552CDFA;
+        Tue, 21 Jun 2022 08:12:31 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id z11so13653656edp.9;
+        Tue, 21 Jun 2022 08:12:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=LU/OkmDAL+vY/i1/LTdgZ8fR3Suk3NR9q9oRePr0Tbg=;
+        b=K4y0cJ8ttDzz/9xM67cbuUDZf7b81dbH6VmKSWMXgWKDMc5ZtvCa7PJGPxeMeY9Br+
+         eLDLhVgDRoWLqg1+tw2JqOUAPLAxFgb+jKudFlh+KflFmZQWn2UMwriCJUjI7yhmvmq9
+         dPyr4Xga14qlMWcUG6Sspzj7EBscefmbnzUvdIC/wWiJXDaX1aKFgFZSYQrPwNC5f9Nw
+         5PLnxNV+SEsnrOUVWWDNj1cRE/IWgyUJ3Gzjjqbj7mXe2FAup2/Y2lfISzgU88IIpxfT
+         BoKHrt824YPyKPfexhkncfa6LRqhtmvcwsSmPooUh3xqbo0H4Hvvxmva3buAC5CHi3SG
+         BJgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=LU/OkmDAL+vY/i1/LTdgZ8fR3Suk3NR9q9oRePr0Tbg=;
+        b=ctt8M6cSeY+vly5WJhw88WU8VlfE3uZH3NcP3FLJ6nzfWouzwMLTMcnMXPRcGeJOMa
+         RbcNJIgu1Ss8YpTSD99Gr5/ZdAi3Gyir+PZBiJI76YLBadwRlmeR2b9LVRh9aNqGBXk3
+         BOulw1XPaz5pGNGlmcwtaVBBUcpqEPLk0mkhGR38hZUb6536pfs5WMidW8JZLkDH8PqW
+         L6Hhg19hcrNyWJH0OQefKri7Bto6D8kb+VeqZ2WHPy1MOqx59Jwvh3GEWJX2uSZLDXqx
+         WQReWzzt93pvC/1Oae5v2TMv1jZTLRexiLffpLf2Og2RpNHCS7HC7OOx12Rj35mrqstU
+         Wh8A==
+X-Gm-Message-State: AJIora/Oc5QFMg3RaO5E40d2z5xRDIc7dDb9hnGXUmnDaTnZi8h1/Bg0
+        Qc98nEt+3h5+Q7Dn6CAf3iU=
+X-Google-Smtp-Source: AGRyM1ujwkeb9wGg4k+jngzeJaKTh4TUZEbqd1al5yboqQIniK7hzUuvDLzXS5hhEJh6BA5VqxF1Hw==
+X-Received: by 2002:aa7:dbd7:0:b0:433:55a6:e3c4 with SMTP id v23-20020aa7dbd7000000b0043355a6e3c4mr36980333edt.74.1655824349229;
+        Tue, 21 Jun 2022 08:12:29 -0700 (PDT)
+Received: from localhost.localdomain (93-42-70-190.ip85.fastwebnet.it. [93.42.70.190])
+        by smtp.googlemail.com with ESMTPSA id ky20-20020a170907779400b006f4cb79d9a8sm7835731ejc.75.2022.06.21.08.12.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Jun 2022 08:12:28 -0700 (PDT)
+From:   Christian Marangi <ansuelsmth@gmail.com>
+To:     Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Jonathan McDowell <noodles@earth.li>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Christian Marangi <ansuelsmth@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH net v2] net: dsa: qca8k: reset cpu port on MTU change
+Date:   Tue, 21 Jun 2022 17:11:22 +0200
+Message-Id: <20220621151122.10220-1-ansuelsmth@gmail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH] drm/fb-helper: Make set_var validation stricter
-Content-Language: en-US
-To:     Daniel Vetter <daniel.vetter@ffwll.ch>, security@kernel.org
-Cc:     =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel.daenzer@amd.com>,
-        Daniel Stone <daniels@collabora.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        openeuler-security@openeuler.org, guodaxing@huawei.com,
-        Weigang <weigang12@huawei.com>,
-        Daniel Vetter <daniel.vetter@intel.com>
-References: <20220621092319.379049-1-daniel.vetter@ffwll.ch>
-From:   Helge Deller <deller@gmx.de>
-In-Reply-To: <20220621092319.379049-1-daniel.vetter@ffwll.ch>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:olwoDj5ajuFNfyUfJO/5W6aI2NBbLy52fS5aI3h3pi86Z3yubUZ
- smFWLU1PetueAJMKH8IM/jykyH7Hl/2vtsUWGasS5/gW2fn03IC+FlR1/S9mjytzgBApqu7
- F7mqNCHW61pQZaEYNMZkpH6lI9xJzWJ+SGP2FvgEEzjAp9kX5iRqkJNF1FYGeH696vvmoxi
- B02+h6PU5y77YBzXn5tjA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:vj27VgHztt4=:C/9MzOiLcv+gOEwJfOFi+j
- eHpTIu5kmJp3Bil79v3h15/am0vBEQ/Ls7cHB85EHOclC1K9ql2R0bqdvl9JL4LlvpTrAGLpH
- s3caiH4urVGkVhUkMQ8pdDpVsrlkKyeg/E/nVOpjS96cVI11qXAldGMn/5b2MukPQNQTn/u1f
- QgCXuWkiFeHw0NtF1gEbRBYcjtTMMgQyyqwqlwuJcThJN1b97QrIOI9pME2lZIexiROEwSmYE
- 5m4lD/x4HOBTm1Hr1d19/qRowpukXko/YB6u1Yr4ankYcOAfd7JNDYrn8WQbAYyNpGYhn2EoC
- KKhXsii2SAkj4qOgYVVoQP03gAfoxnUMyX2rKqa9xQS6Ms/hEMXW1sAswYxnfjHxfydVmxXbL
- hISbycNxek6c2Mh8JmpJQt/4Iv4qXJ+vRcvuPNrOBNcOBj+T3R35WseeDRcUxOqXW0miwW6bB
- OULkVktE7PE6OT1Xf+Vko1bIGCD+IY489hgmeyvZZuML+liu4nI8l94dWWhvzTrIEN9i8+r9a
- UXdbZTu3a4N4f/M2FzAWLRiGCabENHG1y7Sc35K0EVEluHsm9pdZeiZIEPdZAExR6CrRQ1a55
- re7o2OXNELUHh27lPC9WYn1SKPXEKVZLFOSUkC9Na0H9MBPRLyYzQ1Agx+7aFtYM3RxMZA3MR
- q4w+XMFIjKOXpDbVJkcpdmb9ke2AUZ1yjvXTsJ/mfWUlmT1ulO7EKhxOb5h8mzhJ/nZLTwgZw
- 4jNxhiukshqgkZ2bJ7WPVtgOoDK1S+oxVuYIZXQmTGYg1rvWDGci+cgEWz/j7LGs7aZ0YKiWQ
- hzgPTEPq/dVyyJmEsFcS93Y869VSMWfQ9k4AmDPoJksxAtNYvSQQ0MjYlRw85Lwpgskxv+ikc
- /j+kR5VUQhB2X0etxZHWwur2mZMBDWfWm5DRgVj5m8M95PFHUOnVvZpQ4PcBKdfrW1+UTqn7D
- eacG1BX6sOcjIKcZc6jBZeqUZAhIbo0nSol2eIJllD4fjlxWLokOS8Se6l4MR3bpeCkP9+yUe
- ZeBVwOvJaf7F6tL+88mc+4LKNy4hFDp3/lpVaXb7IF6X3UGro1VdNsu863LGCu6FSsGVwxZ10
- oX6pTIZlcFW5+FMSTaOnZIBeN+FSrWmkRiYKM8EwxERfNJLWcZ3OKyQGQ==
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -79,93 +75,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/21/22 11:23, Daniel Vetter wrote:
-> The drm fbdev emulation does not forward mode changes to the driver,
-> and hence all changes where rejected in 865afb11949e ("drm/fb-helper:
-> reject any changes to the fbdev").
->
-> Unfortunately this resulted in bugs on multiple monitor systems with
-> different resolutions. In that case the fbdev emulation code sizes the
-> underlying framebuffer for the largest screen (which dictates
-> x/yres_virtual), but adjust the fbdev x/yres to match the smallest
-> resolution. The above mentioned patch failed to realize that, and
-> errornously validated x/yres against the fb dimensions.
->
-> This was fixed by just dropping the validation for too small sizes,
-> which restored vt switching with 12ffed96d436 ("drm/fb-helper: Allow
-> var->x/yres(_virtual) < fb->width/height again").
->
-> But this also restored all kinds of validation issues and their
-> fallout in the notoriously buggy fbcon code for too small sizes. Since
-> no one is volunteering to really make fbcon and vc/vt fully robust
-> against these math issues make sure this barn door is closed for good
-> again.
+It was discovered that the Documentation lacks of a fundamental detail
+on how to correctly change the MAX_FRAME_SIZE of the switch.
 
-I don't understand why you are blaming fbcon here (again)...
+In fact if the MAX_FRAME_SIZE is changed while the cpu port is on, the
+switch panics and cease to send any packet. This cause the mgmt ethernet
+system to not receive any packet (the slow fallback still works) and
+makes the device not reachable. To recover from this a switch reset is
+required.
 
-The real problem is that user-provided input (virt/physical screen sizes)
-isn't correctly validated.
-And that's even what your patch below does.
+To correctly handle this, turn off the cpu ports before changing the
+MAX_FRAME_SIZE and turn on again after the value is applied.
 
-Helge
+Fixes: f58d2598cf70 ("net: dsa: qca8k: implement the port MTU callbacks")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+v2:
+- Split from original series sent to net-next and rebased
+- Added the stable cc tag
 
-> Since it's a bit tricky to remember the x/yres we picked across both
-> the newer generic fbdev emulation and the older code with more driver
-> involvement, we simply check that it doesn't change. This relies on
-> drm_fb_helper_fill_var() having done things correctly, and nothing
-> having trampled it yet.
->
-> Note that this leaves all the other fbdev drivers out in the rain.
-> Given that distros have finally started to move away from those
-> completely for real I think that's good enough. The code it spaghetti
-> enough that I do not feel confident to even review fixes for it.
->
-> What might help fbdev is doing something similar to what was done in
-> a49145acfb97 ("fbmem: add margin check to fb_check_caps()") and ensure
-> x/yres_virtual aren't too small, for some value of "too small". Maybe
-> checking that they're at least x/yres makes sense?
->
-> Fixes: 12ffed96d436 ("drm/fb-helper: Allow var->x/yres(_virtual) < fb->w=
-idth/height again")
-> Cc: Michel D=C3=A4nzer <michel.daenzer@amd.com>
-> Cc: Daniel Stone <daniels@collabora.com>
-> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Cc: Maxime Ripard <mripard@kernel.org>
-> Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: <stable@vger.kernel.org> # v4.11+
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: openeuler-security@openeuler.org
-> Cc: guodaxing@huawei.com
-> Cc: Weigang (Jimmy) <weigang12@huawei.com>
-> Reported-by: Weigang (Jimmy) <weigang12@huawei.com>
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> ---
-> Note: Weigang asked for this to stay under embargo until it's all
-> review and tested.
-> -Daniel
-> ---
->  drivers/gpu/drm/drm_fb_helper.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_he=
-lper.c
-> index 695997ae2a7c..5664a177a404 100644
-> --- a/drivers/gpu/drm/drm_fb_helper.c
-> +++ b/drivers/gpu/drm/drm_fb_helper.c
-> @@ -1355,8 +1355,8 @@ int drm_fb_helper_check_var(struct fb_var_screenin=
-fo *var,
->  	 * to KMS, hence fail if different settings are requested.
->  	 */
->  	if (var->bits_per_pixel > fb->format->cpp[0] * 8 ||
-> -	    var->xres > fb->width || var->yres > fb->height ||
-> -	    var->xres_virtual > fb->width || var->yres_virtual > fb->height) {
-> +	    var->xres !=3D info->var.xres || var->yres !=3D info->var.yres ||
-> +	    var->xres_virtual !=3D fb->width || var->yres_virtual !=3D fb->hei=
-ght) {
->  		drm_dbg_kms(dev, "fb requested width/height/bpp can't fit in current =
-fb "
->  			  "request %dx%d-%d (virtual %dx%d) > %dx%d-%d\n",
->  			  var->xres, var->yres, var->bits_per_pixel,
+ drivers/net/dsa/qca8k.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/dsa/qca8k.c b/drivers/net/dsa/qca8k.c
+index 2727d3169c25..1cbb05b0323f 100644
+--- a/drivers/net/dsa/qca8k.c
++++ b/drivers/net/dsa/qca8k.c
+@@ -2334,6 +2334,7 @@ static int
+ qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+ {
+ 	struct qca8k_priv *priv = ds->priv;
++	int ret;
+ 
+ 	/* We have only have a general MTU setting.
+ 	 * DSA always set the CPU port's MTU to the largest MTU of the slave
+@@ -2344,8 +2345,27 @@ qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+ 	if (!dsa_is_cpu_port(ds, port))
+ 		return 0;
+ 
++	/* To change the MAX_FRAME_SIZE the cpu ports must be off or
++	 * the switch panics.
++	 * Turn off both cpu ports before applying the new value to prevent
++	 * this.
++	 */
++	if (priv->port_enabled_map & BIT(0))
++		qca8k_port_set_status(priv, 0, 0);
++
++	if (priv->port_enabled_map & BIT(6))
++		qca8k_port_set_status(priv, 6, 0);
++
+ 	/* Include L2 header / FCS length */
+-	return qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, new_mtu + ETH_HLEN + ETH_FCS_LEN);
++	ret = qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, new_mtu + ETH_HLEN + ETH_FCS_LEN);
++
++	if (priv->port_enabled_map & BIT(0))
++		qca8k_port_set_status(priv, 0, 1);
++
++	if (priv->port_enabled_map & BIT(6))
++		qca8k_port_set_status(priv, 6, 1);
++
++	return ret;
+ }
+ 
+ static int
+-- 
+2.36.1
 
