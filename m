@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9938553EEA
-	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 01:28:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC2E9553EEC
+	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 01:30:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355172AbiFUX2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 19:28:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38038 "EHLO
+        id S1354518AbiFUXaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 19:30:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353746AbiFUX2K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 19:28:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 529F6656E;
-        Tue, 21 Jun 2022 16:28:08 -0700 (PDT)
+        with ESMTP id S1353804AbiFUXaW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 19:30:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02E6530576;
+        Tue, 21 Jun 2022 16:30:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC363615AB;
-        Tue, 21 Jun 2022 23:28:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69365C3411C;
-        Tue, 21 Jun 2022 23:28:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1982BB81BB3;
+        Tue, 21 Jun 2022 23:30:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D47C3C3411C;
+        Tue, 21 Jun 2022 23:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1655854087;
-        bh=MLCTqfOs6yAgR0NZ52fYuUxM9X9CcUe4vvLHeay2chU=;
+        s=korg; t=1655854217;
+        bh=RwI86nhuUxpVDtPJHRd3R7ztuUZQ5mf73GKgtZbu0gA=;
         h=Date:To:From:Subject:From;
-        b=XQBznSr1B1q2+dQhUabNmEz+3G227xzesdKCZv7aKPRH8frJBkySHRTkIa2GliAil
-         HyvEzAqq1+SlNWppWrLCDUUtWvcJxlufz7bGwMN4GaJRLEJGzsO5kB9Ys2vhCHwx2K
-         Z8Ha6szPGbCtoQwvqekWgLAtNUnMXhBzWcJwc/lQ=
-Date:   Tue, 21 Jun 2022 16:27:59 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, sj@kernel.org,
-        baolin.wang@linux.alibaba.com, akpm@linux-foundation.org
+        b=ZBCegqNs8z7NnvFB18UYfdD23DBmhTfLXXDICvWlfjjA+E/lOq2kcWDoXXEUC1xtM
+         lheQ5bCiRKshcfAugpuPQqbCc/MYfTyZKRog/SJ+B+n6Dk9WBvvNk7nPyjvI4gZbqo
+         EODBDVF1UtF6QXYLTvv/LC88dWlsU5TAgvCx2U9k=
+Date:   Tue, 21 Jun 2022 16:30:10 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        mike.kravetz@oracle.com, duanxiongchun@bytedance.com,
+        songmuchun@bytedance.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-damon-use-set_huge_pte_at-to-make-huge-pte-old.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220621232806.69365C3411C@smtp.kernel.org>
+Subject: + mm-sparsemem-fix-missing-higher-order-allocation-splitting.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220621233016.D47C3C3411C@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_RED autolearn=ham
@@ -46,12 +47,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/damon: use set_huge_pte_at() to make huge pte old
+     Subject: mm: sparsemem: fix missing higher order allocation splitting
 has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-damon-use-set_huge_pte_at-to-make-huge-pte-old.patch
+     mm-sparsemem-fix-missing-higher-order-allocation-splitting.patch
 
 This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-damon-use-set_huge_pte_at-to-make-huge-pte-old.patch
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-sparsemem-fix-missing-higher-order-allocation-splitting.patch
 
 This patch will later appear in the mm-hotfixes-unstable branch at
     git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
@@ -69,48 +70,68 @@ branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 and is updated there every 2-3 working days
 
 ------------------------------------------------------
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
-Subject: mm/damon: use set_huge_pte_at() to make huge pte old
-Date: Mon, 20 Jun 2022 10:34:42 +0800
+From: Muchun Song <songmuchun@bytedance.com>
+Subject: mm: sparsemem: fix missing higher order allocation splitting
+Date: Mon, 20 Jun 2022 10:30:19 +0800
 
-The huge_ptep_set_access_flags() can not make the huge pte old according
-to the discussion [1], that means we will always mornitor the young state
-of the hugetlb though we stopped accessing the hugetlb, as a result DAMON
-will get inaccurate accessing statistics.
+Higher order allocations for vmemmap pages from buddy allocator must be
+able to be treated as indepdenent small pages as they can be freed
+individually by the caller.  There is no problem for higher order vmemmap
+pages allocated at boot time since each individual small page will be
+initialized at boot time.  However, it will be an issue for memory hotplug
+case since those higher order vmemmap pages are allocated from buddy
+allocator without initializing each individual small page's refcount.  The
+system will panic in put_page_testzero() when CONFIG_DEBUG_VM is enabled
+if the vmemmap page is freed.
 
-So changing to use set_huge_pte_at() to make the huge pte old to fix this
-issue.
-
-[1] https://lore.kernel.org/all/Yqy97gXI4Nqb7dYo@arm.com/
-
-Link: https://lkml.kernel.org/r/1655692482-28797-1-git-send-email-baolin.wang@linux.alibaba.com
-Fixes: 49f4203aae06 ("mm/damon: add access checking for hugetlb pages")
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Reviewed-by: SeongJae Park <sj@kernel.org>
+Link: https://lkml.kernel.org/r/20220620023019.94257-1-songmuchun@bytedance.com
+Fixes: d8d55f5616cf ("mm: sparsemem: use page table lock to protect kernel pmd operations")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/damon/vaddr.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ mm/sparse-vmemmap.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/mm/damon/vaddr.c~mm-damon-use-set_huge_pte_at-to-make-huge-pte-old
-+++ a/mm/damon/vaddr.c
-@@ -336,8 +336,7 @@ static void damon_hugetlb_mkold(pte_t *p
- 	if (pte_young(entry)) {
- 		referenced = true;
- 		entry = pte_mkold(entry);
--		huge_ptep_set_access_flags(vma, addr, pte, entry,
--					   vma->vm_flags & VM_WRITE);
-+		set_huge_pte_at(mm, addr, pte, entry);
- 	}
+--- a/mm/sparse-vmemmap.c~mm-sparsemem-fix-missing-higher-order-allocation-splitting
++++ a/mm/sparse-vmemmap.c
+@@ -78,6 +78,14 @@ static int __split_vmemmap_huge_pmd(pmd_
  
- #ifdef CONFIG_MMU_NOTIFIER
+ 	spin_lock(&init_mm.page_table_lock);
+ 	if (likely(pmd_leaf(*pmd))) {
++		/*
++		 * Higher order allocations from buddy allocator must be able to
++		 * be treated as indepdenent small pages (as they can be freed
++		 * individually).
++		 */
++		if (!PageReserved(page))
++			split_page(page, get_order(PMD_SIZE));
++
+ 		/* Make pte visible before pmd. See comment in pmd_install(). */
+ 		smp_wmb();
+ 		pmd_populate_kernel(&init_mm, pmd, pgtable);
 _
 
-Patches currently in -mm which might be from baolin.wang@linux.alibaba.com are
+Patches currently in -mm which might be from songmuchun@bytedance.com are
 
-mm-damon-use-set_huge_pte_at-to-make-huge-pte-old.patch
-mm-hugetlb-remove-unnecessary-huge_ptep_set_access_flags-in-hugetlb_mcopy_atomic_pte.patch
-mm-rmap-simplify-the-hugetlb-handling-when-unmapping-or-migration.patch
+mm-sparsemem-fix-missing-higher-order-allocation-splitting.patch
+mm-memory_hotplug-enumerate-all-supported-section-flags.patch
+mm-memory_hotplug-enumerate-all-supported-section-flags-v5.patch
+mm-memory_hotplug-make-hugetlb_optimize_vmemmap-compatible-with-memmap_on_memory.patch
+mm-memory_hotplug-make-hugetlb_optimize_vmemmap-compatible-with-memmap_on_memory-v5.patch
+mm-hugetlb-remove-minimum_order-variable.patch
+mm-memcontrol-remove-dead-code-and-comments.patch
+mm-rename-unlock_page_lruvec_irq-_irqrestore-to-lruvec_unlock_irq-_irqrestore.patch
+mm-memcontrol-prepare-objcg-api-for-non-kmem-usage.patch
+mm-memcontrol-make-lruvec-lock-safe-when-lru-pages-are-reparented.patch
+mm-vmscan-rework-move_pages_to_lru.patch
+mm-thp-make-split-queue-lock-safe-when-lru-pages-are-reparented.patch
+mm-memcontrol-make-all-the-callers-of-foliopage_memcg-safe.patch
+mm-memcontrol-introduce-memcg_reparent_ops.patch
+mm-memcontrol-use-obj_cgroup-apis-to-charge-the-lru-pages.patch
+mm-lru-add-vm_warn_on_once_folio-to-lru-maintenance-function.patch
+mm-lru-use-lruvec-lock-to-serialize-memcg-changes.patch
 
