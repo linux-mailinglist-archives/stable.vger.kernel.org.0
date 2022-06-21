@@ -2,125 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28D96553D9D
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:25:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 453A7553DC0
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:27:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356400AbiFUVZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:25:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37854 "EHLO
+        id S1356326AbiFUV0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:26:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356268AbiFUVYp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 17:24:45 -0400
-Received: from mail.mutex.one (mail.mutex.one [62.77.152.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B923B18E0E;
-        Tue, 21 Jun 2022 14:18:28 -0700 (PDT)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by mail.mutex.one (Postfix) with ESMTP id E5E4C16C007C;
-        Wed, 22 Jun 2022 00:18:26 +0300 (EEST)
-X-Virus-Scanned: Debian amavisd-new at mail.mutex.one
-Received: from mail.mutex.one ([127.0.0.1])
-        by localhost (mail.mutex.one [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id zQoGK-iPBWcY; Wed, 22 Jun 2022 00:18:26 +0300 (EEST)
-From:   Marian Postevca <posteuca@mutex.one>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mutex.one; s=default;
-        t=1655846306; bh=SZv4GmVYSWyJ0KWMqNxRyKQ/A9DysKbi7PuZ+/S+Bqg=;
+        with ESMTP id S1356056AbiFUVZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 17:25:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA013055D;
+        Tue, 21 Jun 2022 14:21:36 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1DF8612E9;
+        Tue, 21 Jun 2022 21:21:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D7FDC3411C;
+        Tue, 21 Jun 2022 21:21:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655846495;
+        bh=fq+yHa6pssyqn9w5NdgWQCplgcXLfqXZDZuY6MEMMA0=;
         h=From:To:Cc:Subject:Date:From;
-        b=inJWNUVE4J5xReNj+7doC1XjK65aw9Z9horZfbUslh+5HPZBByaDldsMkKS+iuaC3
-         3R5Qs2RMEBQQsfody48Raw6eNQP94opuiJ3ZGvSRKg77QXj6tVolLcr1L3e77Q/X4h
-         kuEzzVTdT0Sx7I5bhKWvDQf3hypwDAv4FMKbudHU=
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Marian Postevca <posteuca@mutex.one>,
-        Maximilian Senftleben <kernel@mail.msdigital.de>,
-        stable@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 4.19] usb: gadget: u_ether: fix regression in setting fixed MAC address
-Date:   Wed, 22 Jun 2022 00:18:00 +0300
-Message-Id: <20220621211800.18457-1-posteuca@mutex.one>
+        b=Zg13X1PgSL5ZatLKsEb1FdCaRvtfKq5ln7sulvo5u4sQNFpCCTVEv28SWenzqyKyy
+         hWVNczNQmmEjKG3GuqegQrB8oNm1Q+VO69TiMGpet4Cm5//mHP9DS6qciV5Kc3hK2i
+         FPYZCO7qH75RscPhwUh0Aa/2LatpR559CMMJ08GI261nAqI/ORGS1Pygj4GXRVhqPP
+         sVwUnrutA5w7S0Iqcf8f3/VBt1/YxPjqL4206uDhCcUImXpPmMJRMfYODGiumJvW5h
+         E6ZujmF41bTSMw/rSCmv4ogdG0Duatjdk+6lfJAhNi4xCdEm/9MMHDYxiVHUqxoh30
+         ZH0PO2jlTTEUA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, kvm@vger.kernel.org
+Subject: [PATCH MANUALSEL 5.18 1/3] KVM: x86: disable preemption while updating apicv inhibition
+Date:   Tue, 21 Jun 2022 17:21:30 -0400
+Message-Id: <20220621212132.251759-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b337af3a4d6147000b7ca6b3438bf5c820849b37 upstream.
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-In systemd systems setting a fixed MAC address through
-the "dev_addr" module argument fails systematically.
-When checking the MAC address after the interface is created
-it always has the same but different MAC address to the one
-supplied as argument.
+[ Upstream commit 66c768d30e64e1280520f34dbef83419f55f3459 ]
 
-This is partially caused by systemd which by default will
-set an internally generated permanent MAC address for interfaces
-that are marked as having a randomly generated address.
+Currently nothing prevents preemption in kvm_vcpu_update_apicv.
 
-Commit 890d5b40908bfd1a ("usb: gadget: u_ether: fix race in
-setting MAC address in setup phase") didn't take into account
-the fact that the interface must be marked as having a set
-MAC address when it's set as module argument.
+On SVM, If the preemption happens after we update the
+vcpu->arch.apicv_active, the preemption itself will
+'update' the inhibition since the AVIC will be first disabled
+on vCPU unload and then enabled, when the current task
+is loaded again.
 
-Fixed by marking the interface with NET_ADDR_SET when
-the "dev_addr" module argument is supplied.
+Then we will try to update it again, which will lead to a warning
+in __avic_vcpu_load, that the AVIC is already enabled.
 
-Reported-by: Maximilian Senftleben <kernel@mail.msdigital.de>
-Cc: stable@vger.kernel.org
-Fixes: 890d5b40908bfd1a ("usb: gadget: u_ether: fix race in setting MAC address in setup phase")
-Signed-off-by: Marian Postevca <posteuca@mutex.one>
+Fix this by disabling preemption in this code.
+
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220606180829.102503-6-mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_ether.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/x86/kvm/x86.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index 1b3e674e6330d..2fe91f120bb1d 100644
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -772,9 +772,13 @@ struct eth_dev *gether_setup_name(struct usb_gadget *g,
- 	dev->qmult = qmult;
- 	snprintf(net->name, sizeof(net->name), "%s%%d", netname);
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 558d1f2ab5b4..5523bd4b3702 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9765,6 +9765,7 @@ void kvm_vcpu_update_apicv(struct kvm_vcpu *vcpu)
+ 		return;
  
--	if (get_ether_addr(dev_addr, net->dev_addr))
-+	if (get_ether_addr(dev_addr, net->dev_addr)) {
-+		net->addr_assign_type = NET_ADDR_RANDOM;
- 		dev_warn(&g->dev,
- 			"using random %s ethernet address\n", "self");
-+	} else {
-+		net->addr_assign_type = NET_ADDR_SET;
-+	}
- 	if (get_ether_addr(host_addr, dev->host_mac))
- 		dev_warn(&g->dev,
- 			"using random %s ethernet address\n", "host");
-@@ -831,6 +835,9 @@ struct net_device *gether_setup_name_default(const char *netname)
- 	INIT_LIST_HEAD(&dev->tx_reqs);
- 	INIT_LIST_HEAD(&dev->rx_reqs);
+ 	down_read(&vcpu->kvm->arch.apicv_update_lock);
++	preempt_disable();
  
-+	/* by default we always have a random MAC address */
-+	net->addr_assign_type = NET_ADDR_RANDOM;
-+
- 	skb_queue_head_init(&dev->rx_frames);
+ 	activate = kvm_apicv_activated(vcpu->kvm);
+ 	if (vcpu->arch.apicv_active == activate)
+@@ -9784,6 +9785,7 @@ void kvm_vcpu_update_apicv(struct kvm_vcpu *vcpu)
+ 		kvm_make_request(KVM_REQ_EVENT, vcpu);
  
- 	/* network device setup */
-@@ -868,7 +875,6 @@ int gether_register_netdev(struct net_device *net)
- 	g = dev->gadget;
- 
- 	memcpy(net->dev_addr, dev->dev_mac, ETH_ALEN);
--	net->addr_assign_type = NET_ADDR_RANDOM;
- 
- 	status = register_netdev(net);
- 	if (status < 0) {
-@@ -908,6 +914,7 @@ int gether_set_dev_addr(struct net_device *net, const char *dev_addr)
- 	if (get_ether_addr(dev_addr, new_addr))
- 		return -EINVAL;
- 	memcpy(dev->dev_mac, new_addr, ETH_ALEN);
-+	net->addr_assign_type = NET_ADDR_SET;
- 	return 0;
+ out:
++	preempt_enable();
+ 	up_read(&vcpu->kvm->arch.apicv_update_lock);
  }
- EXPORT_SYMBOL_GPL(gether_set_dev_addr);
+ EXPORT_SYMBOL_GPL(kvm_vcpu_update_apicv);
 -- 
 2.35.1
 
