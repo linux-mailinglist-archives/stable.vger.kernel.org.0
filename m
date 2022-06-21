@@ -2,99 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21388553098
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 13:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 790DF5530F0
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 13:36:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348880AbiFULTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 07:19:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35510 "EHLO
+        id S1349548AbiFULgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 07:36:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348993AbiFULTb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 07:19:31 -0400
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 321642A267
-        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 04:19:30 -0700 (PDT)
-Received: by mail-ej1-f48.google.com with SMTP id h23so26722791ejj.12
-        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 04:19:30 -0700 (PDT)
+        with ESMTP id S240753AbiFULgW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 07:36:22 -0400
+Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E9727B0C
+        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 04:36:20 -0700 (PDT)
+Received: by mail-yb1-xb2a.google.com with SMTP id p69so12275167ybc.5
+        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 04:36:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=uy109NGVZOqUEqj/HN5Y0t40mZp/IMiopZZkWsBlk7s=;
+        b=DciPG/qBcySyL8QdjZ91hqdz8NxGLHRi+rsDligXjJjIqGZLxsljBQweaAIIFQO7+A
+         04UeUl94pSTbJXHqsuCoLevwd0LWadQJ9WQwcuyRFx8XRvXm9lpjThaulh3G3SqnTc/l
+         whIzWH6Osa8D9pySuIl+skA5iHRKHpTIRBABHRfhnZDqDAcu6/KLKVmBRF8istBSmrr5
+         MKsGLddC19ECfObAq5NP/2KthnXjxasSjgUL2W0yuM223knBgbmGDNWVJjavhB2AO3Z0
+         0KCG5HZ4tL5Gn5s/7676+CN7KT+nO+9aAMqUuZ4gcL5uI5dXd/k15uv6VY/QG0EeCSj6
+         cc1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=6GT3pTetXf6hbaKxFB1K/Bvj+tAXWxjXhsuH42cKoLI=;
-        b=aGM6Hxjy36WtrC345EZ59/McX3cMJ6vaI/erHJPgoNnY8d7nI7AaPi+EuR/PGxrjPN
-         g0WpeXAGdG5ykSaxz7IJflOkaPuOK45oYTb0EYPLnnFqr9bRP+MAugv/Oi98ycDGKR9z
-         R8qM+MuBdxEM4X41ZlN+pShL+DZ0sjjE9lOEgJoF7RRgCzgUNDN4t5wFiY0IbEZV6giQ
-         rh01dT7MOZiyxSdkIH4JOJzN0hSewJhVka/NGIJVWZzJ5LGrXZVUg3TBR6xBCzMVU/5R
-         w/kgAjAieX4CfVRN6WPTEakWYsePDkpakrbobek4CJnun0iJ7p8PvZUha2E8Zi5W28Vb
-         kkrQ==
-X-Gm-Message-State: AJIora920Ioxb9FqsjUk7wsu387yipDsnIdWpQ+zmJ6BUAx7yB++z716
-        GtJQ558ioHQykDnL1Lg3366k7kuPM6jgJQ==
-X-Google-Smtp-Source: AGRyM1u1J+kNTkEXAdpYu8b29eIyNCh84jpe3jQQxT1OzcAUSu0uq62Mw1pWF1leiIZ415dQVWsXAw==
-X-Received: by 2002:a17:906:d7:b0:718:df95:985 with SMTP id 23-20020a17090600d700b00718df950985mr24653634eji.582.1655810368765;
-        Tue, 21 Jun 2022 04:19:28 -0700 (PDT)
-Received: from ?IPV6:2a0b:e7c0:0:107::70f? ([2a0b:e7c0:0:107::70f])
-        by smtp.gmail.com with ESMTPSA id k11-20020a17090632cb00b00705cdfec71esm7475131ejk.7.2022.06.21.04.19.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 21 Jun 2022 04:19:28 -0700 (PDT)
-Message-ID: <d323af21-74a7-f4bf-a379-f7d48ad4263b@kernel.org>
-Date:   Tue, 21 Jun 2022 13:19:27 +0200
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=uy109NGVZOqUEqj/HN5Y0t40mZp/IMiopZZkWsBlk7s=;
+        b=2eMMhDKCNaV9rR2chHWvldEtuhNzVgXouEaNNBmndRN2srIIYHAMcSCA03c2cBhK91
+         CMJfM3aoJ82S3TrLHQy27P0Gu9Ky1rjAu5frwzSChSV7SSLFOi+oSOmtbvCJa0O0q9lZ
+         P4Y1fZzTjBpq5Qyttn+FRLeAj/15sCxcta9kfaqVnEnhkT7xHNpt8XTknCXzuWtE8XsG
+         kTWfWaqQ37VVe6oHIK8tF56mpzDPiU5UWFSMKTithO7DNbi9T4iD0W/oo+3V1mVJ0H1g
+         UQXv1y3F19Ahdt1QrPDs/L+aG4BA+I4Hwv2vMlhjoOxPWW3qxZwrcAB6VVXd1IK7cBfh
+         SftQ==
+X-Gm-Message-State: AJIora/C0mVW8VZNqgZ9evs7gD9F6nxR4BYLuwr3IT8561AdVaS8us8U
+        UgqxNLYLKnPI3rqgyHgTVrVSma6/T486llXD8ez8fw==
+X-Google-Smtp-Source: AGRyM1tcF++iYfbTZttOCVuR7F9KlAl8n2ir52MtJi2F8U5CjNtCVCAsJDxNYGFxGoMEhNyLf7lLtztOVyXOZZrYRNo=
+X-Received: by 2002:a25:cb12:0:b0:668:be92:a574 with SMTP id
+ b18-20020a25cb12000000b00668be92a574mr21688868ybg.617.1655811379693; Tue, 21
+ Jun 2022 04:36:19 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: patch request for 5.18-stable to fix gcc-12 build (hopefully
- last)
-Content-Language: en-US
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Stable <stable@vger.kernel.org>
-References: <YrGZxGoKgKxcvVTG@debian>
- <ce23efa0-70d3-41f4-eb4a-ea047e0dfb91@kernel.org>
- <CADVatmN869Y6r7=ds2s_K0yXGN4RYKnZZy5413V+V8Eq+3WHuw@mail.gmail.com>
-From:   Jiri Slaby <jirislaby@kernel.org>
-In-Reply-To: <CADVatmN869Y6r7=ds2s_K0yXGN4RYKnZZy5413V+V8Eq+3WHuw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+References: <20220620124724.380838401@linuxfoundation.org> <CA+G9fYsvY-0ub_CXbb5is0vRLQ9+SaPS8Op=9mZzCkeccUN+mg@mail.gmail.com>
+ <YrGHheX8D0iIz+db@kroah.com> <YrGTT/MLbCuHanhB@zx2c4.com> <YrGe64z7Al+V3bvB@kroah.com>
+In-Reply-To: <YrGe64z7Al+V3bvB@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 21 Jun 2022 17:06:08 +0530
+Message-ID: <CA+G9fYs7+kA6pzCZZNBxrwx-2-OFZfV+5Zk4B8a=uE=VUFykFg@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/106] 5.15.49-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        torvalds@linux-foundation.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21. 06. 22, 13:14, Sudip Mukherjee wrote:
-> On Tue, Jun 21, 2022 at 11:39 AM Jiri Slaby <jirislaby@kernel.org> wrote:
->>
->> On 21. 06. 22, 12:13, Sudip Mukherjee wrote:
->>> Hi Greg,
->>>
->>> The following will be needed for the gcc-12 builds:
->>>
->>> ee3db469dd31 ("wifi: rtlwifi: remove always-true condition pointed out by GCC 12")
->>> 32329216ca1d ("eth: sun: cassini: remove dead code")
->>> dbbc7d04c549 ("net: wwan: iosm: remove pointless null check")
->>>
->>>
->>> With this 3 applied on top of v5.18.6-rc1 allmodconfig for x86_64, riscv
->>> and mips passes. (not checked other arch yet)
->>>
->>> Will request you to add these to 5.18-stable queue please.
->>
->> On the top of that, I had to apply this too:
->> aeb84412037b x86/boot: Wrap literal addresses in absolute_pointer()
-> 
-> uhhh... I thought -Warray-bounds has been disabled by:
-> f0be87c42cbd ("gcc-12: disable '-Warray-bounds' universally for now")
-> which is in v5.18.6-rc1 now.
-> 
-> Are you sure you still need that ?
+On Tue, 21 Jun 2022 at 16:05, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, Jun 21, 2022 at 11:45:51AM +0200, Jason A. Donenfeld wrote:
+> > On Tue, Jun 21, 2022 at 10:55:33AM +0200, Greg Kroah-Hartman wrote:
+> > > On Tue, Jun 21, 2022 at 02:06:06PM +0530, Naresh Kamboju wrote:
+> > > > On Mon, 20 Jun 2022 at 18:36, Greg Kroah-Hartman
+> > > > <gregkh@linuxfoundation.org> wrote:
+> > > > >
+> > > > > This is the start of the stable review cycle for the 5.15.49 release.
+> > > > > There are 106 patches in this series, all will be posted as a response
+> > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > let me know.
+> > > > >
+> > > > > Responses should be made by Wed, 22 Jun 2022 12:47:02 +0000.
+> > > > > Anything received after that time might be too late.
+> > > > >
+> > > > > The whole patch series can be found in one patch at:
+> > > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.49-rc1.gz
+> > > > > or in the git tree and branch at:
+> > > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> > > > > and the diffstat can be found below.
+> > > > >
+> > > > > thanks,
+> > > > >
+> > > > > greg k-h
+> > > >
+> > > > Following commit causing regression while building allmodconfig for clang-13
+> > > > on arm64, riscv and x86_64.
+> > > >
+> > > > > Linus Torvalds <torvalds@linux-foundation.org>
+> > > > >     netfs: gcc-12: temporarily disable '-Wattribute-warning' for now
+> > > >
+> > > > fs/afs/inode.c:29:32: error: unknown warning group
+> > > > '-Wattribute-warning', ignored [-Werror,-Wunknown-warning-option]
+> > > > #pragma GCC diagnostic ignored "-Wattribute-warning"
+> > > >                                ^
+> > > > 1 error generated.
+> > > >
+> > > > Regressions:
+> > > >   - arm64/build/clang-13-allmodconfig - Failed
+> > > >   - riscv/build/clang-13-allmodconfig - Failed
+> > > >   - x86_64/build/clang-13-allmodconfig - Failed
+> > >
+> > > Does Linus's tree also show this issue?
+> >
+> > Linus' tree got rid of the pragma with:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/fs/afs/inode.c?id=874c8ca1e60b2c564a48f7e7acc40d328d5c8733
+>
+> That isn't going to work on 5.15.y at all without a lot of hand tweaking :(
+>
+> > and then a subsequent cleanup:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/fs/afs/inode.c?id=e81fb4198e27925b151aad1450e0fd607d6733f
+>
+> That doesn't work on 5.18 either.
+>
+> I guess I'll go revert the 5.15 patch here for now and let others sort
+> it all out when they want to build 5.15 with gcc-12.
 
-Yes -- I'd say realmode doesn't copy KBUILD_CFLAGS.
+Whereas clang-14 builds pass. I am considering this as a waiver.
+The problem is with clang-13. you may keep the above patch which is
+adding support for gcc-12.
 
--- 
-js
-suse labs
+We will stop building with clang-13 and we will upgrade our toolchains to
+clang-15 (when released and current clang-nightly builds are in production)
+and gcc-12 builds are running in staging. We would like to bump versions soon.
+
+- Naresh
