@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2DF9553CB8
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:10:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70614553D22
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355358AbiFUU5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 16:57:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55008 "EHLO
+        id S1355336AbiFUVBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:01:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355088AbiFUU4n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:56:43 -0400
+        with ESMTP id S1355452AbiFUU6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:58:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571563193E;
-        Tue, 21 Jun 2022 13:50:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4558632072;
+        Tue, 21 Jun 2022 13:51:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62F8E6188C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CBEF618A9;
+        Tue, 21 Jun 2022 20:50:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D1AAC385A2;
         Tue, 21 Jun 2022 20:50:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20D40C36AE3;
-        Tue, 21 Jun 2022 20:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655844628;
-        bh=zpLKCkQY/8KfHNxFiYi9fhfvsQMWTfiFxQihdr9gz+M=;
+        s=k20201202; t=1655844630;
+        bh=+lZaMnFOoxnUhYX883BYYPwc6fIp1y4d7L22V3SpJfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h2WZ/SP7202lQiRc+VA3ataLbPN5XFOzpbkMjT37g5hfppypFvmg/PgCNcG1gpBqD
-         tD2mT0S5A424TP22G8KvLxY9rNW5KYY7tR2aucFL4nDNDmYrq2qQV6cmvwsp9MIwsv
-         qqKgkrbeZdtQRNksyYfcESjrBwwX39OHOBScfhUb/C2MKn8Gzgd0HXZ/SqMTXGgdPA
-         Qg6O4NFI2rg4m8ae1tUt9MB12LYz6rV2Af8y84RP+ZDhiof/NyJ1QrN4umFYc8fty9
-         ZFYXr+VPcm+0gmN8bh2zZRfW1/xB1Rk0ti6R++B9XgjRDaH3Rn84cRVhjumqElbr5J
-         /o+eIGqWtkavw==
+        b=fJYqdzpRmNBsXFi4BrkYV9kbew1f0vU77HszQG9IQq+cKGqmsPWq7bhWNscydfUM+
+         RW+sW39MdkmrgMUewza0lXnWIqcnYTMMhYX4yTSb5SYo/FhM7wxnJ0uKHJNiudVwre
+         y5sREzMIs+0EqDWuKd+bcQV1nXArQ8fLtY2k5evbYPU8SE+DXw4xsgiHmMDbcgmRoJ
+         NLwcmAsO4IZ5F4YNODULUy9lOGHv0SsQj+BAkut4FZAk7LHvy0ltXeLk1yDyu2cEal
+         l5q0aT0dYFpePc1LdoNaQeb7JYWf8lKYx17g4Sag5VstMHD+p8pjpmceOAdX6anbKt
+         T17lQR9YIFXxA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
-        sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.17 10/20] nvme-pci: sk hynix p31 has bogus namespace ids
-Date:   Tue, 21 Jun 2022 16:50:00 -0400
-Message-Id: <20220621205010.250185-10-sashal@kernel.org>
+Cc:     Ning Wang <ningwang35@outlook.com>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.17 11/20] nvme-pci: avoid the deepest sleep state on ZHITAI TiPro7000 SSDs
+Date:   Tue, 21 Jun 2022 16:50:01 -0400
+Message-Id: <20220621205010.250185-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220621205010.250185-1-sashal@kernel.org>
 References: <20220621205010.250185-1-sashal@kernel.org>
@@ -56,14 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Ning Wang <ningwang35@outlook.com>
 
-[ Upstream commit c4f01a776b28378f4f61b53f8cb0e358f4fa3721 ]
+[ Upstream commit 6b961bce50e489186232cef51036ddb8d672bc3b ]
 
-Add the quirk.
+When ZHITAI TiPro7000 SSDs entered deepest power state(ps4)
+it has the same APST sleep problem as Kingston A2000.
+by chance the system crashes and displays the same dmesg info:
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216049
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c65
+
+As the Archlinux wiki suggest (enlat + exlat) < 25000 is fine
+and my testing shows no system crashes ever since.
+Therefore disabling the deepest power state will fix the APST sleep issue.
+
+https://wiki.archlinux.org/title/Solid_state_drive/NVMe
+
+This is the APST data from 'nvme id-ctrl /dev/nvme1'
+
+NVME Identify Controller:
+vid       : 0x1e49
+ssvid     : 0x1e49
+sn        : [...]
+mn        : ZHITAI TiPro7000 1TB
+fr        : ZTA32F3Y
+[...]
+ps    0 : mp:3.50W operational enlat:5 exlat:5 rrt:0 rrl:0
+          rwt:0 rwl:0 idle_power:- active_power:-
+ps    1 : mp:3.30W operational enlat:50 exlat:100 rrt:1 rrl:1
+          rwt:1 rwl:1 idle_power:- active_power:-
+ps    2 : mp:2.80W operational enlat:50 exlat:200 rrt:2 rrl:2
+          rwt:2 rwl:2 idle_power:- active_power:-
+ps    3 : mp:0.1500W non-operational enlat:500 exlat:5000 rrt:3 rrl:3
+          rwt:3 rwl:3 idle_power:- active_power:-
+ps    4 : mp:0.0200W non-operational enlat:2000 exlat:60000 rrt:4 rrl:4
+          rwt:4 rwl:4 idle_power:- active_power:-
+
+Signed-off-by: Ning Wang <ningwang35@outlook.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -71,18 +100,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 666746e3bcb6..5934abc24fb3 100644
+index 5934abc24fb3..70dc05c60f2b 100644
 --- a/drivers/nvme/host/pci.c
 +++ b/drivers/nvme/host/pci.c
-@@ -3450,6 +3450,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
- 	{ PCI_DEVICE(0x1c5c, 0x1504),   /* SK Hynix PC400 */
- 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
-+	{ PCI_DEVICE(0x1c5c, 0x174a),   /* SK Hynix P31 SSD */
-+		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x15b7, 0x2001),   /*  Sandisk Skyhawk */
- 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
- 	{ PCI_DEVICE(0x1d97, 0x2263),   /* SPCC */
+@@ -3466,6 +3466,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1cc1, 0x5350),   /* ADATA XPG GAMMIX S50 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
++	{ PCI_DEVICE(0x1e49, 0x0041),   /* ZHITAI TiPro7000 NVMe SSD */
++		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
+ 		.driver_data = NVME_QUIRK_DMA_ADDRESS_BITS_48, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0065),
 -- 
 2.35.1
 
