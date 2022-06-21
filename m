@@ -2,129 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A71955360F
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 17:28:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0484555363B
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 17:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235017AbiFUP1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 11:27:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38622 "EHLO
+        id S1351597AbiFUPh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 11:37:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351675AbiFUP1k (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 21 Jun 2022 11:27:40 -0400
-Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37F9F2A961
-        for <Stable@vger.kernel.org>; Tue, 21 Jun 2022 08:27:39 -0700 (PDT)
-Received: by mail-io1-xd2d.google.com with SMTP id y79so14616175iof.2
-        for <Stable@vger.kernel.org>; Tue, 21 Jun 2022 08:27:39 -0700 (PDT)
+        with ESMTP id S1352741AbiFUPhj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 11:37:39 -0400
+Received: from mail-oa1-x2e.google.com (mail-oa1-x2e.google.com [IPv6:2001:4860:4864:20::2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BBA72AC5F
+        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 08:37:38 -0700 (PDT)
+Received: by mail-oa1-x2e.google.com with SMTP id 586e51a60fabf-101d2e81bceso10031116fac.0
+        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 08:37:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=ffwll.ch; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=Kpsk6t7byF0Wefcv3WDRoOBLZsTnqCGH43ttikkBli0=;
-        b=diEDXlL4V5gzIPX49G2vAqqwGRgWZ6slJC0goYyw3QOvCihM+IodGR/ht3T8TWbDPd
-         ivqcrz8tb/pv+djwgPMz2pduRQrwOHNhGpmOH0IhDRpWj8CUZCXEiqRufEIAwUDfFSo0
-         UMHn2sX4xk6FwWEUlMMFkxsvL8hRx4iXtFzXW767UfMpXPu0tJjhAuw1FWSXU1XiaemQ
-         4wssDsaQ6V/aerGvaTqCSlexDePsEaUWWUwzRVUDxY27fWijampUbZIa1fdkvxK5N/7+
-         dDQJI08X27TTom3j3FCnTU5V0AhD1swUMRkO53bRamKjAMguygpg/KHUC0kGhIteD+e1
-         a6iw==
+        bh=1hsFe+lmUa/9RV5YTCwkhmBLS1dKqbvQQjZx9G+nizk=;
+        b=QxjnxuE7/UUXBX8eR/y5eq0TCGY4lWSQl1JIoYIjqmXgw8ZCM5sx3p6unNeDitKxGt
+         IWIWByONfgFvgDNKq9DMitCSt1SA/38hP6NyEDKaz9xFLtzXr3IOopkCyM7Sp5/J22wL
+         wnVYhOeWf195UVEeZl4/uywJdOmQ1QEtO0wFo=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Kpsk6t7byF0Wefcv3WDRoOBLZsTnqCGH43ttikkBli0=;
-        b=r95lMrCVoeju/8vEhc1qvNzXJnobRMB0Iydp1g69nTQQ9nuy7Sx3v2/veWadkGbYw3
-         w3cekvSv5OV2gUbsDRR6bAiPesOSFxDgvto+QscYxjeiE+DTZ6Ijj6crJ0yAUC26eZ0+
-         7z+PTVr7lx2jTGWG9XiVYJFdCIV4RT502mAtgz5iOg86XAMeadgKNMQSvDFX2CYvxYzF
-         gogIUDLhyG9JuN+4xXo2P7ZV8heGV3NUctzn/d0BWIhnvMs6oqO85alh8tCinMcJKU+2
-         p2EFijzKxxSV+tdYmo+9k8DgUlL8aq3VG0/COl0WwQH3RU3kCIcJFSZkIbhU5C+NOLvh
-         hGUQ==
-X-Gm-Message-State: AJIora9JWO4ZmhxLXB4H29O2FIAC77Be820m9LS5EOricvxNiLKLCywu
-        3ekQQ6YJ/VD0fby3+obBVSb/DLGm23HMwL1Q1uSa0xR/
-X-Google-Smtp-Source: AGRyM1sj8DA3Go524KZ+JYb/qgy/gAH5DnEJ7tsR/9AEH6eXTwGJblPJ5Crf7j65Pbur15EGiTUj9tnf+rgYlH4AyEY=
-X-Received: by 2002:a05:6602:2f05:b0:66a:381e:1754 with SMTP id
- q5-20020a0566022f0500b0066a381e1754mr14535968iow.144.1655825258649; Tue, 21
- Jun 2022 08:27:38 -0700 (PDT)
+        bh=1hsFe+lmUa/9RV5YTCwkhmBLS1dKqbvQQjZx9G+nizk=;
+        b=Wvx8478YeCN+sf5pa1gAf64VHrHoOcNnjbce0OzKG559RJdK1OhWmdxptNpIypPG5V
+         v5I/9+RLYZ7eD18zs+IH9dhSiQirxLLvgwFT+v8W8HDxhMMLk8wEIAigKCLu40XUwBB1
+         MfymFg1CamqTak8QmY5hj1DoJGand7ZkoabylSm78ojuRGXe79aq/irMSjem5Udfu6+Q
+         kxOqG8V0EU6o4x3JJ/lZrFufxx2cCHR10KbJe4+M2X/WErC3Ts0meJpI755CzsjzHL/i
+         4m9D6AScVhsHtgOeLHgNBhNCYW7caVKAQgi4cL3TtHxhWbpXV78DBCb270rIl14IlmYE
+         Qimg==
+X-Gm-Message-State: AJIora/K3YiulYBtwX4PV2f2xm2vEIl0SD2Ch6LpIK+a1jdid9xhBW/L
+        MzUmZ1+O75croQvgdnvttcHUjPYZM/tTZnLBcvGoHw==
+X-Google-Smtp-Source: AGRyM1vjW1d0pv/HWnWQQutlnH2/U32yFYsLteL91Y4s7T1sq+zyauQBb6ArpXrM9HQ07CPL91isBdXE3hiPltJ8RK0=
+X-Received: by 2002:a05:6870:e98b:b0:fe:219a:2449 with SMTP id
+ r11-20020a056870e98b00b000fe219a2449mr22258279oao.228.1655825857022; Tue, 21
+ Jun 2022 08:37:37 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220621152340.2475484-1-aurabindo.pillai@amd.com> <20220621152340.2475484-2-aurabindo.pillai@amd.com>
-In-Reply-To: <20220621152340.2475484-2-aurabindo.pillai@amd.com>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Tue, 21 Jun 2022 11:27:27 -0400
-Message-ID: <CADnq5_Ox00B4PQrcBFyp4F69_DxAQvUyLuPqY6fxdzpvfOF0YQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] drm/amd/display: fix incorrect comparison in DML
-To:     Aurabindo Pillai <aurabindo.pillai@amd.com>
-Cc:     amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        "Siqueira, Rodrigo" <rodrigo.siqueira@amd.com>,
-        "for 3.8" <Stable@vger.kernel.org>
+References: <20220621092319.379049-1-daniel.vetter@ffwll.ch> <8701b28a-fb86-c95f-6a3e-ddea9cd10b97@gmx.de>
+In-Reply-To: <8701b28a-fb86-c95f-6a3e-ddea9cd10b97@gmx.de>
+From:   Daniel Vetter <daniel.vetter@ffwll.ch>
+Date:   Tue, 21 Jun 2022 17:37:25 +0200
+Message-ID: <CAKMK7uG3DxXx067oxHTphRjoi34AA=C9YenV3gJT_T+Vo9MOFA@mail.gmail.com>
+Subject: Re: [PATCH] drm/fb-helper: Make set_var validation stricter
+To:     Helge Deller <deller@gmx.de>
+Cc:     security@kernel.org,
+        =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel.daenzer@amd.com>,
+        Daniel Stone <daniels@collabora.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        openeuler-security@openeuler.org, guodaxing@huawei.com,
+        Weigang <weigang12@huawei.com>,
+        Daniel Vetter <daniel.vetter@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Series is:
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
+On Tue, 21 Jun 2022 at 16:57, Helge Deller <deller@gmx.de> wrote:
+>
+> On 6/21/22 11:23, Daniel Vetter wrote:
+> > The drm fbdev emulation does not forward mode changes to the driver,
+> > and hence all changes where rejected in 865afb11949e ("drm/fb-helper:
+> > reject any changes to the fbdev").
+> >
+> > Unfortunately this resulted in bugs on multiple monitor systems with
+> > different resolutions. In that case the fbdev emulation code sizes the
+> > underlying framebuffer for the largest screen (which dictates
+> > x/yres_virtual), but adjust the fbdev x/yres to match the smallest
+> > resolution. The above mentioned patch failed to realize that, and
+> > errornously validated x/yres against the fb dimensions.
+> >
+> > This was fixed by just dropping the validation for too small sizes,
+> > which restored vt switching with 12ffed96d436 ("drm/fb-helper: Allow
+> > var->x/yres(_virtual) < fb->width/height again").
+> >
+> > But this also restored all kinds of validation issues and their
+> > fallout in the notoriously buggy fbcon code for too small sizes. Since
+> > no one is volunteering to really make fbcon and vc/vt fully robust
+> > against these math issues make sure this barn door is closed for good
+> > again.
+>
+> I don't understand why you are blaming fbcon here (again)...
+>
+> The real problem is that user-provided input (virt/physical screen sizes)
+> isn't correctly validated.
+> And that's even what your patch below does.
 
-On Tue, Jun 21, 2022 at 11:23 AM Aurabindo Pillai
-<aurabindo.pillai@amd.com> wrote:
+I don't want to play whack-a-mole in here. And what I tried to do here
+(but oh well, too many things would break) is outright disallow any
+changes, not just try to validate (and probably in vain) that the
+changes look decent. Because making stuff invariant also solves all
+the locking fun. And sure even then we could have bugs that break
+stuff, but since everything would be invariant people would notice
+when booting, instead of trying to hit corner cases using syzkaller
+for stuff that mostly only syzkaller exercises.
+
+And I'm pretty sure syzkaller isn't good enough to really hit
+concurrency issues, it has a pretty hard time just finding basic
+validation bugs like this.
+-Daniel
+
+> Helge
 >
-> [Why&How]
-> GCC 12 catches the following incorrect comparison in the if arm
+> > Since it's a bit tricky to remember the x/yres we picked across both
+> > the newer generic fbdev emulation and the older code with more driver
+> > involvement, we simply check that it doesn't change. This relies on
+> > drm_fb_helper_fill_var() having done things correctly, and nothing
+> > having trampled it yet.
+> >
+> > Note that this leaves all the other fbdev drivers out in the rain.
+> > Given that distros have finally started to move away from those
+> > completely for real I think that's good enough. The code it spaghetti
+> > enough that I do not feel confident to even review fixes for it.
+> >
+> > What might help fbdev is doing something similar to what was done in
+> > a49145acfb97 ("fbmem: add margin check to fb_check_caps()") and ensure
+> > x/yres_virtual aren't too small, for some value of "too small". Maybe
+> > checking that they're at least x/yres makes sense?
+> >
+> > Fixes: 12ffed96d436 ("drm/fb-helper: Allow var->x/yres(_virtual) < fb->=
+width/height again")
+> > Cc: Michel D=C3=A4nzer <michel.daenzer@amd.com>
+> > Cc: Daniel Stone <daniels@collabora.com>
+> > Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> > Cc: Maxime Ripard <mripard@kernel.org>
+> > Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> > Cc: <stable@vger.kernel.org> # v4.11+
+> > Cc: Helge Deller <deller@gmx.de>
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Cc: openeuler-security@openeuler.org
+> > Cc: guodaxing@huawei.com
+> > Cc: Weigang (Jimmy) <weigang12@huawei.com>
+> > Reported-by: Weigang (Jimmy) <weigang12@huawei.com>
+> > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> > ---
+> > Note: Weigang asked for this to stay under embargo until it's all
+> > review and tested.
+> > -Daniel
+> > ---
+> >  drivers/gpu/drm/drm_fb_helper.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_h=
+elper.c
+> > index 695997ae2a7c..5664a177a404 100644
+> > --- a/drivers/gpu/drm/drm_fb_helper.c
+> > +++ b/drivers/gpu/drm/drm_fb_helper.c
+> > @@ -1355,8 +1355,8 @@ int drm_fb_helper_check_var(struct fb_var_screeni=
+nfo *var,
+> >        * to KMS, hence fail if different settings are requested.
+> >        */
+> >       if (var->bits_per_pixel > fb->format->cpp[0] * 8 ||
+> > -         var->xres > fb->width || var->yres > fb->height ||
+> > -         var->xres_virtual > fb->width || var->yres_virtual > fb->heig=
+ht) {
+> > +         var->xres !=3D info->var.xres || var->yres !=3D info->var.yre=
+s ||
+> > +         var->xres_virtual !=3D fb->width || var->yres_virtual !=3D fb=
+->height) {
+> >               drm_dbg_kms(dev, "fb requested width/height/bpp can't fit=
+ in current fb "
+> >                         "request %dx%d-%d (virtual %dx%d) > %dx%d-%d\n"=
+,
+> >                         var->xres, var->yres, var->bits_per_pixel,
 >
-> drivers/gpu/drm/amd/amdgpu/../dal-dev/dc/dml/dcn32/display_mode_vba_32.c:=
- In function =E2=80=98dml32_ModeSupportAndSystemConfigurationFull=E2=80=99:
-> drivers/gpu/drm/amd/amdgpu/../dal-dev/dc/dml/dcn32/display_mode_vba_32.c:=
-3740:33: error: the comparison will always evaluate as =E2=80=98true=E2=80=
-=99 for the address of =E2=80=98USRRetrainingSupport=E2=80=99 will never be=
- NULL [-Werror=3Daddress]
-> 3740 | || &mode_lib->vba.USRRetrainingSupport[i][j])) {
-> | ^~
-> In file included from ./drivers/gpu/drm/amd/amdgpu/../dal-dev/dc/dml/disp=
-lay_mode_lib.h:32,
-> from ./drivers/gpu/drm/amd/amdgpu/../dal-dev/dc/dc.h:45,
-> from drivers/gpu/drm/amd/amdgpu/../dal-dev/dc/dml/dcn32/display_mode_vba_=
-32.c:30:
-> ./drivers/gpu/drm/amd/amdgpu/../dal-dev/dc/dml/display_mode_vba.h:1175:14=
-: note: =E2=80=98USRRetrainingSupport=E2=80=99 declared here
-> 1175 | bool USRRetrainingSupport[DC__VOLTAGE_STATES][2];
-> |
->
-> Fix this by remove preceding & so that value is compared instead of
-> address
->
-> Fixes: d03037269bf2 ("drm/amd/display: DML changes for DCN32/321")
-> Cc: Stable@vger.kernel.org
-> Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-> ---
->  drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32=
-.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c
-> index c920d71fbd56..510b7a81ee12 100644
-> --- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c
-> +++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c
-> @@ -3725,7 +3725,7 @@ void dml32_ModeSupportAndSystemConfigurationFull(st=
-ruct display_mode_lib *mode_l
->                                 && (!mode_lib->vba.FCLKChangeRequirementF=
-inal || i =3D=3D v->soc.num_states - 1
->                                 || mode_lib->vba.FCLKChangeSupport[i][j] =
-!=3D dm_fclock_change_unsupported)
->                                 && (!mode_lib->vba.USRRetrainingRequiredF=
-inal
-> -                               || &mode_lib->vba.USRRetrainingSupport[i]=
-[j])) {
-> +                               || mode_lib->vba.USRRetrainingSupport[i][=
-j])) {
->                                 mode_lib->vba.ModeSupport[i][j] =3D true;
->                         } else {
->                                 mode_lib->vba.ModeSupport[i][j] =3D false=
-;
-> --
-> 2.36.1
->
+
+
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
