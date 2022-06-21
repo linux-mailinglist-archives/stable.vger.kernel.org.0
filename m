@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7C8C553CAB
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:10:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30ECD553CBA
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355067AbiFUU4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 16:56:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55030 "EHLO
+        id S1354562AbiFUU40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 16:56:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355089AbiFUU4H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:56:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 587DF31521;
-        Tue, 21 Jun 2022 13:50:19 -0700 (PDT)
+        with ESMTP id S1355702AbiFUUyo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:54:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF298313B1;
+        Tue, 21 Jun 2022 13:50:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFA2861874;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FD11B81B3A;
+        Tue, 21 Jun 2022 20:49:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FA54C341C5;
         Tue, 21 Jun 2022 20:49:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A66AC3411C;
-        Tue, 21 Jun 2022 20:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655844589;
-        bh=MLsaPkWl4pwEb56jRphAPhW21owYM+eoMh1VETT6uFc=;
+        s=k20201202; t=1655844590;
+        bh=uZjgm7qavAbocjanMQ8eDS7EXa62sZGIK8QR7SKRvLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EgwC5tEmVdGWRBDptbYYAMAgIFGdS/TZWUjxnoo4GjPJbi16+ujK5MxVXhxX5HCDY
-         /33ihcNcFU27nWBZZ1uyGSJKXlph7fsBqzPyulgMlOdCL8kP7WyzgJhJ0KlfH/Co1l
-         qFm2DtcIASblXsPLhTxvOpnR/3Sh7cPTWE113qbQV34GK2SUIhp+1jDccm4HM/dE74
-         Qw2sSQ4de2S9lM90r8rxJ9RrVQm0E4YVFMkTCjr692ubV3YPkyepspTNWyIyOfX77y
-         S6wYncEBBLkw7V76i1t16qHhbcTWqoG8ck+Pq0LMr5/DjckiDF1raVbA35AHhQdu/t
-         JAjWK0ZHRlH8w==
+        b=AdC5mL00lB2Rf6MZXkKOU0Vu6q7zTD+2cUV6CbM3zsEcXkFHHGGLvZCndoVHzDmLz
+         SA+F8HBYfS1TUWL7td3hi0XOIGLul0bYdK4dwlZdMnRK8VpR3HwodX15O/PpGvao13
+         Pkkn2YjUE45RcEZSNT27yqpX+Z/bZjTXJH/Jmo8jkLH/dFFs/bNVVgRY7DOBr34kJo
+         6RVkbc6OLrMKV5vASXWb2WO4+W+LXJ3UwU19+OiZLImKkzHfJgDssye66Ff+tifGna
+         ftg8PkYFbmAiv+fjw2LrFdtE4X0T5LqaR2jFLiNZFMbyezIxdcpECkNjTeeqvq00pk
+         HLOtxeGFOYUxA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keith Busch <kbusch@kernel.org>,
+Cc:     Stefan Reiter <stefan@pimaker.at>,
         Chaitanya Kulkarni <kch@nvidia.com>,
         Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
-        sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 07/22] nvme-pci: add trouble shooting steps for timeouts
-Date:   Tue, 21 Jun 2022 16:49:13 -0400
-Message-Id: <20220621204928.249907-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.18 08/22] nvme-pci: add NVME_QUIRK_BOGUS_NID for ADATA XPG GAMMIX S50
+Date:   Tue, 21 Jun 2022 16:49:14 -0400
+Message-Id: <20220621204928.249907-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220621204928.249907-1-sashal@kernel.org>
 References: <20220621204928.249907-1-sashal@kernel.org>
@@ -58,43 +58,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Stefan Reiter <stefan@pimaker.at>
 
-[ Upstream commit 4641a8e6e145f595059e695f0f8dbbe608134086 ]
+[ Upstream commit 3765fad508964f433ac111c127d6bedd19bdfa04 ]
 
-Many users have encountered IO timeouts with a CSTS value of 0xffffffff,
-which indicates a failure to read the register. While there are various
-potential causes for this observation, faulty NVMe APST has been the
-culprit quite frequently. Add the recommended troubleshooting steps in
-the error output when this condition occurs.
+ADATA XPG GAMMIX S50 drives report bogus eui64 values that appear to
+be the same across drives in one system. Quirk them out so they are
+not marked as "non globally unique" duplicates.
 
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Stefan Reiter <stefan@pimaker.at>
 Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 37e05c83786d..a4393c5ca8db 100644
+index a4393c5ca8db..37a2a88d35c9 100644
 --- a/drivers/nvme/host/pci.c
 +++ b/drivers/nvme/host/pci.c
-@@ -1334,6 +1334,14 @@ static void nvme_warn_reset(struct nvme_dev *dev, u32 csts)
- 		dev_warn(dev->ctrl.device,
- 			 "controller is down; will reset: CSTS=0x%x, PCI_STATUS read failed (%d)\n",
- 			 csts, result);
-+
-+	if (csts != ~0)
-+		return;
-+
-+	dev_warn(dev->ctrl.device,
-+		 "Does your device have a faulty power saving mode enabled?\n");
-+	dev_warn(dev->ctrl.device,
-+		 "Try \"nvme_core.default_ps_max_latency_us=0 pcie_aspm=off\" and report a bug\n");
- }
- 
- static enum blk_eh_timer_return nvme_timeout(struct request *req, bool reserved)
+@@ -3479,6 +3479,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1e4B, 0x1202),   /* MAXIO MAP1202 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
++	{ PCI_DEVICE(0x1cc1, 0x5350),   /* ADATA XPG GAMMIX S50 */
++		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
+ 		.driver_data = NVME_QUIRK_DMA_ADDRESS_BITS_48, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0065),
 -- 
 2.35.1
 
