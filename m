@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2AB9553D21
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 030CC553CC5
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355520AbiFUVBm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:01:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38982 "EHLO
+        id S1355789AbiFUVBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:01:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355598AbiFUU6o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:58:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E967C326F3;
-        Tue, 21 Jun 2022 13:51:29 -0700 (PDT)
+        with ESMTP id S1355619AbiFUU6q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:58:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D3113D52;
+        Tue, 21 Jun 2022 13:51:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA47C6183B;
-        Tue, 21 Jun 2022 20:51:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94DF6C385A2;
-        Tue, 21 Jun 2022 20:51:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5A7261881;
+        Tue, 21 Jun 2022 20:51:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1A12C341C4;
+        Tue, 21 Jun 2022 20:51:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655844689;
-        bh=5cfSsR49ICkkto/rbTYLgXlc/dy8t7POGWWC9kNAcoY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQyugMaGkYGcDGQtqkazeplsUqcAYbaolhd46DNjGskjt7ny7W1CEFPEv3ly+hJ2D
-         /n4OrqQ32/kv+eC/yA2/oQCVBnSw57xLE5iEGP5mVFFc4PUwk7nmgZ2IyKRl0YWZCx
-         vjFoSxm12xBllCvB9QcJh1Vo74dI+LwQWalzYnmarGeZBIdbKbiKKXROi5o9lkWTlE
-         GZexOQYmKzLVv1kkGURzMzuK5VjPHNp/Iecyl1/oQ69QPyT5sF7dEzkDZC07LhkEZk
-         m2XBj+0plcM/3anQpB38/ATwa0zI8ajw04tybjo05JK18uvHZf4qCTCs5V+eGWtfOM
-         CCC4HSwuLy4Tw==
+        s=k20201202; t=1655844692;
+        bh=OS6MEuR2j6tecmiPEZ5ZVVAUFVQAjV+wZkZo9Lbcuzo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BdMUv+Ek/X9laiviVKxogwFzkPJcWJ7QeVcFBl04PcrTl6hLPqqQIPzaxDT0D/gaE
+         L/9SP6r0R74S51bC2FBJfwcUNBWKpWri/tnj7k4fuUc4w91VzwlDDQBckZOVAVi1K3
+         xjCJ9tQBzSOsqf7fVcgOccPlhpIVFqCVtKUSugAAPjRvvQ3jW/MZZXGibIAA+RJ6py
+         nGUloMAYN3AhHOwP+TNVt2f6GX/CL+GvvIxnht6+/grahYaE17jVwVSV7Eh0mv6VYh
+         2scZg52T+hYoV9qCjmuYkCucsZlOpTeOFSnzbWGAi3GdJc5eb94Qsg/L5ft5vby68c
+         B1SCHMN8yA6QA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Baokun Li <libaokun1@huawei.com>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 7/7] ext4: correct the judgment of BUG in ext4_mb_normalize_request
-Date:   Tue, 21 Jun 2022 16:51:19 -0400
-Message-Id: <20220621205120.250779-7-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Liu Ying <victor.liu@nxp.com>, Sasha Levin <sashal@kernel.org>,
+        tglx@linutronix.de
+Subject: [PATCH AUTOSEL 4.19 1/7] genirq: PM: Use runtime PM for chained interrupts
+Date:   Tue, 21 Jun 2022 16:51:23 -0400
+Message-Id: <20220621205130.250874-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220621205120.250779-1-sashal@kernel.org>
-References: <20220621205120.250779-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,53 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit cf4ff938b47fc5c00b0ccce53a3b50eca9b32281 ]
+[ Upstream commit 668a9fe5c6a1bcac6b65d5e9b91a9eca86f782a3 ]
 
-ext4_mb_normalize_request() can move logical start of allocated blocks
-to reduce fragmentation and better utilize preallocation. However logical
-block requested as a start of allocation (ac->ac_o_ex.fe_logical) should
-always be covered by allocated blocks so we should check that by
-modifying and to or in the assertion.
+When requesting an interrupt, we correctly call into the runtime
+PM framework to guarantee that the underlying interrupt controller
+is up and running.
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220528110017.354175-3-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+However, we fail to do so for chained interrupt controllers, as
+the mux interrupt is not requested along the same path.
+
+Augment __irq_do_set_handler() to call into the runtime PM code
+in this case, making sure the PM flow is the same for all interrupts.
+
+Reported-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Liu Ying <victor.liu@nxp.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/26973cddee5f527ea17184c0f3fccb70bc8969a0.camel@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/mballoc.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ kernel/irq/chip.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index 0307702d114d..a16c770b02cc 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -3244,7 +3244,22 @@ ext4_mb_normalize_request(struct ext4_allocation_context *ac,
+diff --git a/kernel/irq/chip.c b/kernel/irq/chip.c
+index 9afbd89b6096..356b289b8086 100644
+--- a/kernel/irq/chip.c
++++ b/kernel/irq/chip.c
+@@ -964,8 +964,10 @@ __irq_do_set_handler(struct irq_desc *desc, irq_flow_handler_t handle,
+ 		if (desc->irq_data.chip != &no_irq_chip)
+ 			mask_ack_irq(desc);
+ 		irq_state_set_disabled(desc);
+-		if (is_chained)
++		if (is_chained) {
+ 			desc->action = NULL;
++			WARN_ON(irq_chip_pm_put(irq_desc_get_irq_data(desc)));
++		}
+ 		desc->depth = 1;
  	}
- 	rcu_read_unlock();
- 
--	if (start + size <= ac->ac_o_ex.fe_logical &&
-+	/*
-+	 * In this function "start" and "size" are normalized for better
-+	 * alignment and length such that we could preallocate more blocks.
-+	 * This normalization is done such that original request of
-+	 * ac->ac_o_ex.fe_logical & fe_len should always lie within "start" and
-+	 * "size" boundaries.
-+	 * (Note fe_len can be relaxed since FS block allocation API does not
-+	 * provide gurantee on number of contiguous blocks allocation since that
-+	 * depends upon free space left, etc).
-+	 * In case of inode pa, later we use the allocated blocks
-+	 * [pa_start + fe_logical - pa_lstart, fe_len/size] from the preallocated
-+	 * range of goal/best blocks [start, size] to put it at the
-+	 * ac_o_ex.fe_logical extent of this inode.
-+	 * (See ext4_mb_use_inode_pa() for more details)
-+	 */
-+	if (start + size <= ac->ac_o_ex.fe_logical ||
- 			start > ac->ac_o_ex.fe_logical) {
- 		ext4_msg(ac->ac_sb, KERN_ERR,
- 			 "start %lu, size %lu, fe_logical %lu",
+ 	desc->handle_irq = handle;
+@@ -991,6 +993,7 @@ __irq_do_set_handler(struct irq_desc *desc, irq_flow_handler_t handle,
+ 		irq_settings_set_norequest(desc);
+ 		irq_settings_set_nothread(desc);
+ 		desc->action = &chained_action;
++		WARN_ON(irq_chip_pm_get(irq_desc_get_irq_data(desc)));
+ 		irq_activate_and_startup(desc, IRQ_RESEND);
+ 	}
+ }
 -- 
 2.35.1
 
