@@ -2,119 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6470B552FCF
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 12:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ECD4552FCD
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 12:35:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230145AbiFUKf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 06:35:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34890 "EHLO
+        id S230029AbiFUKf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 06:35:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229464AbiFUKf2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 06:35:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 533E928992;
-        Tue, 21 Jun 2022 03:35:28 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0724616AE;
-        Tue, 21 Jun 2022 10:35:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81E4AC3411C;
-        Tue, 21 Jun 2022 10:35:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655807727;
-        bh=jT5AulgH64dsnmHs3aAyEDc7vv1kewlaFAqQ7BeBlqc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ii6wg2yxwXexbcmBmDjKrultdv9eK3ub2CwcWP+Wgm9B8+6MitNMk7eyVxvTBn0UY
-         gQRqVK1OHaw9blnvXaBzSlMMejhqTT0BtKAHsF0Co6e+IIFG9oPMlhGgjQSbhlFD27
-         uqB013dHtjzWtfuat4+aTlrx5BI51mt0QCEFn7Ck=
-Date:   Tue, 21 Jun 2022 12:35:23 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        torvalds@linux-foundation.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.15 000/106] 5.15.49-rc1 review
-Message-ID: <YrGe64z7Al+V3bvB@kroah.com>
-References: <20220620124724.380838401@linuxfoundation.org>
- <CA+G9fYsvY-0ub_CXbb5is0vRLQ9+SaPS8Op=9mZzCkeccUN+mg@mail.gmail.com>
- <YrGHheX8D0iIz+db@kroah.com>
- <YrGTT/MLbCuHanhB@zx2c4.com>
+        with ESMTP id S229464AbiFUKf0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 06:35:26 -0400
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 968AB13DD1
+        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 03:35:24 -0700 (PDT)
+Received: by mail-yb1-xb2d.google.com with SMTP id n144so19660880ybf.12
+        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 03:35:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=9JyN4vcdBHeSOip4uJWIp/6fUP6jK/W1bnUguqxYVyo=;
+        b=Xo0bUA2OdtfXqqOhy9IaTrgv3JdUWInIjgWtfWoqKlDiAg+JhHKr5udNio0TLY54UP
+         pCMSXWckLTZunk7DS57uCV9vu6cV0PFxIIr1VESBkhteD8Qeku7ESNYhU0p9OhvhXgzH
+         feifKb31qzWs71xSsy38A62tvgQtrZ8qmWwj2FNqpswrVNR6EkqnQdU2uHyOUw+hDKJD
+         SKnWARgsVk0hH+eTk632JDG9/0p+dB1lP8QyQDE4prU7gUCHJv6btV3xV71wagtAzZQ2
+         3IPbkICxNQ5WMrLXPJpR83feMzq3sr39E2/M39rHpEPpr6hD4dhW0RpT8frkUiS8EG6l
+         1z4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=9JyN4vcdBHeSOip4uJWIp/6fUP6jK/W1bnUguqxYVyo=;
+        b=jYT/m7x20om2JtIggpO72E39HyRajcn1rKGFw3abnd0sCQIwsCigvSYpzh23F3AxJf
+         ybgP7YHTvGerWz7Xfc1xMEsZB5poqZLemisQrw2ZkR/BpMOXLl8hkZqLlxKlCkfCGMsN
+         vnbjwHjHGhlEC6TcUXFJb6B4BMhU4n3FK2B6KwmRUbbm+0aeojy19Zr/HaSounZbc1Qi
+         DMzWwSUxQrC7ltUEvtWQCZkSM19G3f1UiQxWiRm23FG0A4yNwCqCQ+UwW90/1dG4j2Dz
+         lN3f+JH20hs/14dLzmKn8BPEJWZ88P2AxosA3cQo8QdxRIpKVooGKAKLYOwK0PV2WApr
+         smug==
+X-Gm-Message-State: AJIora/UQQ/tQBqi3ufu6zvkNJXJtogR7O2vXEo+B/Gk9ntGVW74zDDd
+        36fYtgWpAKvHzC06jZeO7Bjk0AHZdyrozq/eRsw=
+X-Google-Smtp-Source: AGRyM1utWf4xqk4kMfn1nx/z5dKkZdx9jEUeIL02rgCOfwIuy/veSmqfetteclW//PGzmFCcBY44ohB1C3a1UJWbIcU=
+X-Received: by 2002:a25:ba84:0:b0:669:7107:bd07 with SMTP id
+ s4-20020a25ba84000000b006697107bd07mr576768ybg.77.1655807723841; Tue, 21 Jun
+ 2022 03:35:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YrGTT/MLbCuHanhB@zx2c4.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Reply-To: oliverbaruch6@gmail.com
+Sender: oliveredde2@gmail.com
+Received: by 2002:a05:7000:b685:0:0:0:0 with HTTP; Tue, 21 Jun 2022 03:35:23
+ -0700 (PDT)
+From:   Mr Oliver <oliverbaruch6@gmail.com>
+Date:   Tue, 21 Jun 2022 11:35:23 +0100
+X-Google-Sender-Auth: amkTga3leG3RCbLBMNyojci3BJY
+Message-ID: <CALGDVD3K2Mn3NxXG2xsw4CHmCzfmx0KnHSYkLHeB7TjWZkAH7A@mail.gmail.com>
+Subject: Business Proposal
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=3.1 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_MONEY autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ***
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 21, 2022 at 11:45:51AM +0200, Jason A. Donenfeld wrote:
-> On Tue, Jun 21, 2022 at 10:55:33AM +0200, Greg Kroah-Hartman wrote:
-> > On Tue, Jun 21, 2022 at 02:06:06PM +0530, Naresh Kamboju wrote:
-> > > On Mon, 20 Jun 2022 at 18:36, Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > This is the start of the stable review cycle for the 5.15.49 release.
-> > > > There are 106 patches in this series, all will be posted as a response
-> > > > to this one.  If anyone has any issues with these being applied, please
-> > > > let me know.
-> > > >
-> > > > Responses should be made by Wed, 22 Jun 2022 12:47:02 +0000.
-> > > > Anything received after that time might be too late.
-> > > >
-> > > > The whole patch series can be found in one patch at:
-> > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.49-rc1.gz
-> > > > or in the git tree and branch at:
-> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> > > > and the diffstat can be found below.
-> > > >
-> > > > thanks,
-> > > >
-> > > > greg k-h
-> > > 
-> > > Following commit causing regression while building allmodconfig for clang-13
-> > > on arm64, riscv and x86_64.
-> > > 
-> > > > Linus Torvalds <torvalds@linux-foundation.org>
-> > > >     netfs: gcc-12: temporarily disable '-Wattribute-warning' for now
-> > > 
-> > > fs/afs/inode.c:29:32: error: unknown warning group
-> > > '-Wattribute-warning', ignored [-Werror,-Wunknown-warning-option]
-> > > #pragma GCC diagnostic ignored "-Wattribute-warning"
-> > >                                ^
-> > > 1 error generated.
-> > > 
-> > > Regressions:
-> > >   - arm64/build/clang-13-allmodconfig - Failed
-> > >   - riscv/build/clang-13-allmodconfig - Failed
-> > >   - x86_64/build/clang-13-allmodconfig - Failed
-> > 
-> > Does Linus's tree also show this issue?
-> 
-> Linus' tree got rid of the pragma with:
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/fs/afs/inode.c?id=874c8ca1e60b2c564a48f7e7acc40d328d5c8733
+-- 
+Premier Oil Plc,
+23 Lower Belgrave Street SW1W 0NR.London.
+Attention: Account/Finance manager
 
-That isn't going to work on 5.15.y at all without a lot of hand tweaking :(
+Hello, My name is  Mr Oliver Baruch,  Account/Finance manager in
+(Premier Oil PLC).
+I have a business proposal that will be beneficial to you and me.
+please contact me for more details of the business to you. thanks.
 
-> and then a subsequent cleanup:
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/fs/afs/inode.c?id=e81fb4198e27925b151aad1450e0fd607d6733f
-
-That doesn't work on 5.18 either.
-
-I guess I'll go revert the 5.15 patch here for now and let others sort
-it all out when they want to build 5.15 with gcc-12.
-
-thanks,
-
-greg k-h
+Forward your response to this email:  email: oliverbaruch6@gmail.com
