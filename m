@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 498E2553CFB
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1AB4553CE8
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355145AbiFUU5E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 16:57:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55256 "EHLO
+        id S1355224AbiFUU4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 16:56:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355151AbiFUU4X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:56:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA78B3190C;
-        Tue, 21 Jun 2022 13:50:30 -0700 (PDT)
+        with ESMTP id S1355094AbiFUU4H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:56:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 394F33151F;
+        Tue, 21 Jun 2022 13:50:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 025B6B80F63;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77F9561853;
         Tue, 21 Jun 2022 20:50:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14DFCC341C6;
-        Tue, 21 Jun 2022 20:50:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 264B6C341C5;
+        Tue, 21 Jun 2022 20:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655844601;
-        bh=dIM7iEccu207ZB7h7nXDFCY96ISltuBe6kC/RN40lTk=;
+        s=k20201202; t=1655844602;
+        bh=mYs+OySSMf8z50zoQS53kzfaW17qerZ2Jx2a5WUQwFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cGNK90eqggrBIzYtpOUPNZliC5gJr5zsIC4gCIenw5WBv0sp4oDPUV+o1V3Jf5pk6
-         1/jS3ccirum1uPWrnNaZLm69BkBu+w7Q1IUPE/T4TogwLG7+bD0saRU/gOiYzpi61w
-         a7F+1hUwTAuZsOtYJeq4a+ObNn4L/zX6dXUxbGvgQw5LqJ1mr/kMv7FOCQh/RY68Il
-         c8S6rQht/ZW0Avbkjs9nNdteY1Om9TQ3sXMFTb2foFIKH4wYIEDEVln6kOWoXizVs0
-         XaXPZdLXGe8VZZrBUawBV3vq5u8/SeCAtkz1/iUv6yYY1l0i+0hP0gywRbxs1g8pF9
-         LyZFyGI/5dPPw==
+        b=N1du+P5rGQM+9aCNzACsZoIeMvmbcfuj3vuGaTFpDfzFTZqXhA5BSK1kZC6GqBzJg
+         JcLZdbUp/NQgiq7pqQYKFNEjm2FDmbjdn0saV3DR6WkHlZkEi73b8PiD389nLPQq3H
+         EyIs+AgkzjGqyvHnEindyQSaYlpa/VLz81N54HHf05oWddYgw3J4ief9jhmC7H/d4c
+         IKEEwkYcZufSDfi9oIRltRfCvRjUubp6KxwGJMr7vmJgXAU7zD/XYA+I0T90ULF0r1
+         j77t3OGSWQkA3mDjoGtokWFq6R92AthnozgythNpHi+Rv3E8pJcJOizVR9WWccOnaN
+         k5NR4GfOaRs4A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, jack@suse.com,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 15/22] ext2: fix fs corruption when trying to remove a non-empty directory with IO error
-Date:   Tue, 21 Jun 2022 16:49:21 -0400
-Message-Id: <20220621204928.249907-15-sashal@kernel.org>
+Cc:     Zhang Yi <yi.zhang@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Jan Kara <jack@suse.cz>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 16/22] ext4: fix warning when submitting superblock in ext4_commit_super()
+Date:   Tue, 21 Jun 2022 16:49:22 -0400
+Message-Id: <20220621204928.249907-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220621204928.249907-1-sashal@kernel.org>
 References: <20220621204928.249907-1-sashal@kernel.org>
@@ -56,81 +58,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit 27cfa258951a465e3eae63ee1e715e902cd45578 ]
+[ Upstream commit 15baa7dcadf1c4f0b4f752dc054191855ff2d78e ]
 
-We got issue as follows:
-[home]# mount  /dev/sdd  test
-[home]# cd test
-[test]# ls
-dir1  lost+found
-[test]# rmdir  dir1
-ext2_empty_dir: inject fault
-[test]# ls
-lost+found
-[test]# cd ..
-[home]# umount test
-[home]# fsck.ext2 -fn  /dev/sdd
-e2fsck 1.42.9 (28-Dec-2013)
-Pass 1: Checking inodes, blocks, and sizes
-Inode 4065, i_size is 0, should be 1024.  Fix? no
+We have already check the io_error and uptodate flag before submitting
+the superblock buffer, and re-set the uptodate flag if it has been
+failed to write out. But it was lockless and could be raced by another
+ext4_commit_super(), and finally trigger '!uptodate' WARNING when
+marking buffer dirty. Fix it by submit buffer directly.
 
-Pass 2: Checking directory structure
-Pass 3: Checking directory connectivity
-Unconnected directory inode 4065 (/???)
-Connect to /lost+found? no
-
-'..' in ... (4065) is / (2), should be <The NULL inode> (0).
-Fix? no
-
-Pass 4: Checking reference counts
-Inode 2 ref count is 3, should be 4.  Fix? no
-
-Inode 4065 ref count is 2, should be 3.  Fix? no
-
-Pass 5: Checking group summary information
-
-/dev/sdd: ********** WARNING: Filesystem still has errors **********
-
-/dev/sdd: 14/128016 files (0.0% non-contiguous), 18477/512000 blocks
-
-Reason is same with commit 7aab5c84a0f6. We can't assume directory
-is empty when read directory entry failed.
-
-Link: https://lore.kernel.org/r/20220615090010.1544152-1-yebin10@huawei.com
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220520023216.3065073-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext2/dir.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ fs/ext4/super.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/fs/ext2/dir.c b/fs/ext2/dir.c
-index 2c2f179b6977..43de293cef56 100644
---- a/fs/ext2/dir.c
-+++ b/fs/ext2/dir.c
-@@ -672,17 +672,14 @@ int ext2_empty_dir (struct inode * inode)
- 	void *page_addr = NULL;
- 	struct page *page = NULL;
- 	unsigned long i, npages = dir_pages(inode);
--	int dir_has_error = 0;
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index a0c79304f92f..9e89cbc0eec6 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -6022,7 +6022,6 @@ static void ext4_update_super(struct super_block *sb)
+ static int ext4_commit_super(struct super_block *sb)
+ {
+ 	struct buffer_head *sbh = EXT4_SB(sb)->s_sbh;
+-	int error = 0;
  
- 	for (i = 0; i < npages; i++) {
- 		char *kaddr;
- 		ext2_dirent * de;
--		page = ext2_get_page(inode, i, dir_has_error, &page_addr);
-+		page = ext2_get_page(inode, i, 0, &page_addr);
+ 	if (!sbh)
+ 		return -EINVAL;
+@@ -6031,6 +6030,13 @@ static int ext4_commit_super(struct super_block *sb)
  
--		if (IS_ERR(page)) {
--			dir_has_error = 1;
--			continue;
--		}
-+		if (IS_ERR(page))
-+			goto not_empty;
+ 	ext4_update_super(sb);
  
- 		kaddr = page_addr;
- 		de = (ext2_dirent *)kaddr;
++	lock_buffer(sbh);
++	/* Buffer got discarded which means block device got invalidated */
++	if (!buffer_mapped(sbh)) {
++		unlock_buffer(sbh);
++		return -EIO;
++	}
++
+ 	if (buffer_write_io_error(sbh) || !buffer_uptodate(sbh)) {
+ 		/*
+ 		 * Oh, dear.  A previous attempt to write the
+@@ -6045,17 +6051,21 @@ static int ext4_commit_super(struct super_block *sb)
+ 		clear_buffer_write_io_error(sbh);
+ 		set_buffer_uptodate(sbh);
+ 	}
+-	BUFFER_TRACE(sbh, "marking dirty");
+-	mark_buffer_dirty(sbh);
+-	error = __sync_dirty_buffer(sbh,
+-		REQ_SYNC | (test_opt(sb, BARRIER) ? REQ_FUA : 0));
++	get_bh(sbh);
++	/* Clear potential dirty bit if it was journalled update */
++	clear_buffer_dirty(sbh);
++	sbh->b_end_io = end_buffer_write_sync;
++	submit_bh(REQ_OP_WRITE,
++		  REQ_SYNC | (test_opt(sb, BARRIER) ? REQ_FUA : 0), sbh);
++	wait_on_buffer(sbh);
+ 	if (buffer_write_io_error(sbh)) {
+ 		ext4_msg(sb, KERN_ERR, "I/O error while writing "
+ 		       "superblock");
+ 		clear_buffer_write_io_error(sbh);
+ 		set_buffer_uptodate(sbh);
++		return -EIO;
+ 	}
+-	return error;
++	return 0;
+ }
+ 
+ /*
 -- 
 2.35.1
 
