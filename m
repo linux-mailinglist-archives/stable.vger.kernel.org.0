@@ -2,143 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C3FC553597
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 17:14:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 240A85535A7
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 17:15:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351477AbiFUPOE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 11:14:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44710 "EHLO
+        id S1352608AbiFUPOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 11:14:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352770AbiFUPNi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 11:13:38 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 527552CDFA;
-        Tue, 21 Jun 2022 08:12:31 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id z11so13653656edp.9;
-        Tue, 21 Jun 2022 08:12:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=LU/OkmDAL+vY/i1/LTdgZ8fR3Suk3NR9q9oRePr0Tbg=;
-        b=K4y0cJ8ttDzz/9xM67cbuUDZf7b81dbH6VmKSWMXgWKDMc5ZtvCa7PJGPxeMeY9Br+
-         eLDLhVgDRoWLqg1+tw2JqOUAPLAxFgb+jKudFlh+KflFmZQWn2UMwriCJUjI7yhmvmq9
-         dPyr4Xga14qlMWcUG6Sspzj7EBscefmbnzUvdIC/wWiJXDaX1aKFgFZSYQrPwNC5f9Nw
-         5PLnxNV+SEsnrOUVWWDNj1cRE/IWgyUJ3Gzjjqbj7mXe2FAup2/Y2lfISzgU88IIpxfT
-         BoKHrt824YPyKPfexhkncfa6LRqhtmvcwsSmPooUh3xqbo0H4Hvvxmva3buAC5CHi3SG
-         BJgw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=LU/OkmDAL+vY/i1/LTdgZ8fR3Suk3NR9q9oRePr0Tbg=;
-        b=ctt8M6cSeY+vly5WJhw88WU8VlfE3uZH3NcP3FLJ6nzfWouzwMLTMcnMXPRcGeJOMa
-         RbcNJIgu1Ss8YpTSD99Gr5/ZdAi3Gyir+PZBiJI76YLBadwRlmeR2b9LVRh9aNqGBXk3
-         BOulw1XPaz5pGNGlmcwtaVBBUcpqEPLk0mkhGR38hZUb6536pfs5WMidW8JZLkDH8PqW
-         L6Hhg19hcrNyWJH0OQefKri7Bto6D8kb+VeqZ2WHPy1MOqx59Jwvh3GEWJX2uSZLDXqx
-         WQReWzzt93pvC/1Oae5v2TMv1jZTLRexiLffpLf2Og2RpNHCS7HC7OOx12Rj35mrqstU
-         Wh8A==
-X-Gm-Message-State: AJIora/Oc5QFMg3RaO5E40d2z5xRDIc7dDb9hnGXUmnDaTnZi8h1/Bg0
-        Qc98nEt+3h5+Q7Dn6CAf3iU=
-X-Google-Smtp-Source: AGRyM1ujwkeb9wGg4k+jngzeJaKTh4TUZEbqd1al5yboqQIniK7hzUuvDLzXS5hhEJh6BA5VqxF1Hw==
-X-Received: by 2002:aa7:dbd7:0:b0:433:55a6:e3c4 with SMTP id v23-20020aa7dbd7000000b0043355a6e3c4mr36980333edt.74.1655824349229;
-        Tue, 21 Jun 2022 08:12:29 -0700 (PDT)
-Received: from localhost.localdomain (93-42-70-190.ip85.fastwebnet.it. [93.42.70.190])
-        by smtp.googlemail.com with ESMTPSA id ky20-20020a170907779400b006f4cb79d9a8sm7835731ejc.75.2022.06.21.08.12.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jun 2022 08:12:28 -0700 (PDT)
-From:   Christian Marangi <ansuelsmth@gmail.com>
-To:     Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jonathan McDowell <noodles@earth.li>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Christian Marangi <ansuelsmth@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH net v2] net: dsa: qca8k: reset cpu port on MTU change
-Date:   Tue, 21 Jun 2022 17:11:22 +0200
-Message-Id: <20220621151122.10220-1-ansuelsmth@gmail.com>
-X-Mailer: git-send-email 2.36.1
+        with ESMTP id S1352963AbiFUPN7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 11:13:59 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22FC62C675;
+        Tue, 21 Jun 2022 08:12:49 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5923ACE1AD9;
+        Tue, 21 Jun 2022 15:12:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF077C3411C;
+        Tue, 21 Jun 2022 15:12:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1655824365;
+        bh=N33miZAbj1eyWWxBmejWAKLKM/v6H0vsxvVkz0oDr90=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=w6nBDsLTQo0L9K20Lm6+yJi/09kP6uhk/T9noNNCe/HlHzKyBovLVjyOCVOxlAe0x
+         vsjL0YS3rLHF2kmeM7Xp8pagK13r/qNvIG3UaqM+NCSzXMM4pUdAQL+5hKfLPqvy+2
+         lWCsL4cMyjr/GBchGs8kgszG5BMzhwV2O11eExyY=
+Date:   Tue, 21 Jun 2022 17:12:42 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        torvalds@linux-foundation.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.15 000/106] 5.15.49-rc1 review
+Message-ID: <YrHf6j/9ZvBWaNRd@kroah.com>
+References: <20220620124724.380838401@linuxfoundation.org>
+ <CA+G9fYsvY-0ub_CXbb5is0vRLQ9+SaPS8Op=9mZzCkeccUN+mg@mail.gmail.com>
+ <YrGHheX8D0iIz+db@kroah.com>
+ <YrGTT/MLbCuHanhB@zx2c4.com>
+ <YrGe64z7Al+V3bvB@kroah.com>
+ <CA+G9fYs7+kA6pzCZZNBxrwx-2-OFZfV+5Zk4B8a=uE=VUFykFg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYs7+kA6pzCZZNBxrwx-2-OFZfV+5Zk4B8a=uE=VUFykFg@mail.gmail.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It was discovered that the Documentation lacks of a fundamental detail
-on how to correctly change the MAX_FRAME_SIZE of the switch.
+On Tue, Jun 21, 2022 at 05:06:08PM +0530, Naresh Kamboju wrote:
+> On Tue, 21 Jun 2022 at 16:05, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Tue, Jun 21, 2022 at 11:45:51AM +0200, Jason A. Donenfeld wrote:
+> > > On Tue, Jun 21, 2022 at 10:55:33AM +0200, Greg Kroah-Hartman wrote:
+> > > > On Tue, Jun 21, 2022 at 02:06:06PM +0530, Naresh Kamboju wrote:
+> > > > > On Mon, 20 Jun 2022 at 18:36, Greg Kroah-Hartman
+> > > > > <gregkh@linuxfoundation.org> wrote:
+> > > > > >
+> > > > > > This is the start of the stable review cycle for the 5.15.49 release.
+> > > > > > There are 106 patches in this series, all will be posted as a response
+> > > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > > let me know.
+> > > > > >
+> > > > > > Responses should be made by Wed, 22 Jun 2022 12:47:02 +0000.
+> > > > > > Anything received after that time might be too late.
+> > > > > >
+> > > > > > The whole patch series can be found in one patch at:
+> > > > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.49-rc1.gz
+> > > > > > or in the git tree and branch at:
+> > > > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> > > > > > and the diffstat can be found below.
+> > > > > >
+> > > > > > thanks,
+> > > > > >
+> > > > > > greg k-h
+> > > > >
+> > > > > Following commit causing regression while building allmodconfig for clang-13
+> > > > > on arm64, riscv and x86_64.
+> > > > >
+> > > > > > Linus Torvalds <torvalds@linux-foundation.org>
+> > > > > >     netfs: gcc-12: temporarily disable '-Wattribute-warning' for now
+> > > > >
+> > > > > fs/afs/inode.c:29:32: error: unknown warning group
+> > > > > '-Wattribute-warning', ignored [-Werror,-Wunknown-warning-option]
+> > > > > #pragma GCC diagnostic ignored "-Wattribute-warning"
+> > > > >                                ^
+> > > > > 1 error generated.
+> > > > >
+> > > > > Regressions:
+> > > > >   - arm64/build/clang-13-allmodconfig - Failed
+> > > > >   - riscv/build/clang-13-allmodconfig - Failed
+> > > > >   - x86_64/build/clang-13-allmodconfig - Failed
+> > > >
+> > > > Does Linus's tree also show this issue?
+> > >
+> > > Linus' tree got rid of the pragma with:
+> > > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/fs/afs/inode.c?id=874c8ca1e60b2c564a48f7e7acc40d328d5c8733
+> >
+> > That isn't going to work on 5.15.y at all without a lot of hand tweaking :(
+> >
+> > > and then a subsequent cleanup:
+> > > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/fs/afs/inode.c?id=e81fb4198e27925b151aad1450e0fd607d6733f
+> >
+> > That doesn't work on 5.18 either.
+> >
+> > I guess I'll go revert the 5.15 patch here for now and let others sort
+> > it all out when they want to build 5.15 with gcc-12.
+> 
+> Whereas clang-14 builds pass. I am considering this as a waiver.
+> The problem is with clang-13. you may keep the above patch which is
+> adding support for gcc-12.
+> 
+> We will stop building with clang-13 and we will upgrade our toolchains to
+> clang-15 (when released and current clang-nightly builds are in production)
+> and gcc-12 builds are running in staging. We would like to bump versions soon.
 
-In fact if the MAX_FRAME_SIZE is changed while the cpu port is on, the
-switch panics and cease to send any packet. This cause the mgmt ethernet
-system to not receive any packet (the slow fallback still works) and
-makes the device not reachable. To recover from this a switch reset is
-required.
+No, for now I've dropped this.  If people want to run gcc-12 builds then
+I need backported patches for them.
 
-To correctly handle this, turn off the cpu ports before changing the
-MAX_FRAME_SIZE and turn on again after the value is applied.
+thanks,
 
-Fixes: f58d2598cf70 ("net: dsa: qca8k: implement the port MTU callbacks")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
----
-v2:
-- Split from original series sent to net-next and rebased
-- Added the stable cc tag
-
- drivers/net/dsa/qca8k.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/net/dsa/qca8k.c b/drivers/net/dsa/qca8k.c
-index 2727d3169c25..1cbb05b0323f 100644
---- a/drivers/net/dsa/qca8k.c
-+++ b/drivers/net/dsa/qca8k.c
-@@ -2334,6 +2334,7 @@ static int
- qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
- {
- 	struct qca8k_priv *priv = ds->priv;
-+	int ret;
- 
- 	/* We have only have a general MTU setting.
- 	 * DSA always set the CPU port's MTU to the largest MTU of the slave
-@@ -2344,8 +2345,27 @@ qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
- 	if (!dsa_is_cpu_port(ds, port))
- 		return 0;
- 
-+	/* To change the MAX_FRAME_SIZE the cpu ports must be off or
-+	 * the switch panics.
-+	 * Turn off both cpu ports before applying the new value to prevent
-+	 * this.
-+	 */
-+	if (priv->port_enabled_map & BIT(0))
-+		qca8k_port_set_status(priv, 0, 0);
-+
-+	if (priv->port_enabled_map & BIT(6))
-+		qca8k_port_set_status(priv, 6, 0);
-+
- 	/* Include L2 header / FCS length */
--	return qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, new_mtu + ETH_HLEN + ETH_FCS_LEN);
-+	ret = qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, new_mtu + ETH_HLEN + ETH_FCS_LEN);
-+
-+	if (priv->port_enabled_map & BIT(0))
-+		qca8k_port_set_status(priv, 0, 1);
-+
-+	if (priv->port_enabled_map & BIT(6))
-+		qca8k_port_set_status(priv, 6, 1);
-+
-+	return ret;
- }
- 
- static int
--- 
-2.36.1
-
+greg k-h
