@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C492553CF7
-	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:11:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F39D553C95
+	for <lists+stable@lfdr.de>; Tue, 21 Jun 2022 23:10:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355548AbiFUVBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 17:01:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36890 "EHLO
+        id S1355088AbiFUVAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 17:00:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355451AbiFUU6J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:58:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F55832071;
-        Tue, 21 Jun 2022 13:51:05 -0700 (PDT)
+        with ESMTP id S1355702AbiFUU6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 16:58:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF8F5FD9;
+        Tue, 21 Jun 2022 13:51:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8320B81B43;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24C59B81B4A;
+        Tue, 21 Jun 2022 20:51:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39D07C385A2;
         Tue, 21 Jun 2022 20:51:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F56CC3411C;
-        Tue, 21 Jun 2022 20:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655844663;
-        bh=1nCe2vNL3CdFgMlwOCIA5leKZTxpAVMHSxUCBmDJ+8o=;
+        s=k20201202; t=1655844664;
+        bh=1+1z5uVlWP+XLsrvQTFOVVUkqA+h6T8T/7N0LHcEo8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IiO3tQoBYR5UgM1imem2I2fRIRFBYTUDFrrjNzIwm3/fgORD7XS8XCKH1+CIRElJV
-         wIRSvqMuLDBh6PPpdBjyFg8WxMWMXIzRO+NAamghW78+QI/0ieULS94k5i6TYjFPpw
-         IsEQue4YafCMo3IPdXW683a2OFtzbxfmepGhPoc9jgJoMo28vaeCoHWST+9947Iu6C
-         Do0ul3wRfBO9x2uEc4KpPtMQDYGyT90DY/v6cVROJ/kNR5OuPxVnWKpfIY1HwXD0eK
-         lNsV4xyp9NthlE95KuTVcOqjGZPmA+Zvh4dgc2rYlFKeKpCr1yw2Bl6JFcOHpN/Ynl
-         BAIECqqaMRXsA==
+        b=eAl2n0mzaAniPT8it8ZI3AUdizaCyJ3m7QFFxTYyENDMja/RE2NiwgpqPfzc1BIWD
+         VUuvUtbuXx7KlG+G8BlVK6plvwNCrKWawK8nl6bJ+UBWR8tfobb3drKjSNJl+FXkHp
+         eFdfXEbIXBQWatvfQt5YQO76gxZVUvS4sxfGs6MoTssPZW849C3CJonhBRD/W0DJts
+         4SPXN66o83y/BNRg+gCjCd6GRKUno1XbrWXJAHI5DkWwd9mojXaA3Gsi4/l+lrRB78
+         ErPacWv2jsnvOGp9xtpAVjtRNYXmovQCfetMoc8Ef6TM30HVmAI7UOgIYKkW7E4U+8
+         NLmKGqUUpigjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ming Lei <ming.lei@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Yu Kuai <yukuai3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 16/17] blk-mq: don't clear flush_rq from tags->rqs[]
-Date:   Tue, 21 Jun 2022 16:50:39 -0400
-Message-Id: <20220621205041.250426-16-sashal@kernel.org>
+Cc:     Baokun Li <libaokun1@huawei.com>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 17/17] ext4: correct the judgment of BUG in ext4_mb_normalize_request
+Date:   Tue, 21 Jun 2022 16:50:40 -0400
+Message-Id: <20220621205041.250426-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220621205041.250426-1-sashal@kernel.org>
 References: <20220621205041.250426-1-sashal@kernel.org>
@@ -56,48 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit 6cfeadbff3f8905f2854735ebb88e581402c16c4 ]
+[ Upstream commit cf4ff938b47fc5c00b0ccce53a3b50eca9b32281 ]
 
-commit 364b61818f65 ("blk-mq: clearing flush request reference in
-tags->rqs[]") is added to clear the to-be-free flush request from
-tags->rqs[] for avoiding use-after-free on the flush rq.
+ext4_mb_normalize_request() can move logical start of allocated blocks
+to reduce fragmentation and better utilize preallocation. However logical
+block requested as a start of allocation (ac->ac_o_ex.fe_logical) should
+always be covered by allocated blocks so we should check that by
+modifying and to or in the assertion.
 
-Yu Kuai reported that blk_mq_clear_flush_rq_mapping() slows down boot time
-by ~8s because running scsi probe which may create and remove lots of
-unpresent LUNs on megaraid-sas which uses BLK_MQ_F_TAG_HCTX_SHARED and
-each request queue has lots of hw queues.
-
-Improve the situation by not running blk_mq_clear_flush_rq_mapping if
-disk isn't added when there can't be any flush request issued.
-
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reported-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20220616014401.817001-4-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220528110017.354175-3-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/ext4/mballoc.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 95da44063e65..cc313b364691 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2681,8 +2681,9 @@ static void blk_mq_exit_hctx(struct request_queue *q,
- 	if (blk_mq_hw_queue_mapped(hctx))
- 		blk_mq_tag_idle(hctx);
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index 20ac3c74b51d..b01584e140ac 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -4171,7 +4171,22 @@ ext4_mb_normalize_request(struct ext4_allocation_context *ac,
+ 	}
+ 	rcu_read_unlock();
  
--	blk_mq_clear_flush_rq_mapping(set->tags[hctx_idx],
--			set->queue_depth, flush_rq);
-+	if (blk_queue_init_done(q))
-+		blk_mq_clear_flush_rq_mapping(set->tags[hctx_idx],
-+				set->queue_depth, flush_rq);
- 	if (set->ops->exit_request)
- 		set->ops->exit_request(set, flush_rq, hctx_idx);
- 
+-	if (start + size <= ac->ac_o_ex.fe_logical &&
++	/*
++	 * In this function "start" and "size" are normalized for better
++	 * alignment and length such that we could preallocate more blocks.
++	 * This normalization is done such that original request of
++	 * ac->ac_o_ex.fe_logical & fe_len should always lie within "start" and
++	 * "size" boundaries.
++	 * (Note fe_len can be relaxed since FS block allocation API does not
++	 * provide gurantee on number of contiguous blocks allocation since that
++	 * depends upon free space left, etc).
++	 * In case of inode pa, later we use the allocated blocks
++	 * [pa_start + fe_logical - pa_lstart, fe_len/size] from the preallocated
++	 * range of goal/best blocks [start, size] to put it at the
++	 * ac_o_ex.fe_logical extent of this inode.
++	 * (See ext4_mb_use_inode_pa() for more details)
++	 */
++	if (start + size <= ac->ac_o_ex.fe_logical ||
+ 			start > ac->ac_o_ex.fe_logical) {
+ 		ext4_msg(ac->ac_sb, KERN_ERR,
+ 			 "start %lu, size %lu, fe_logical %lu",
 -- 
 2.35.1
 
