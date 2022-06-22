@@ -2,153 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF0D55428C
-	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 08:08:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 547E155434C
+	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 09:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356805AbiFVGDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jun 2022 02:03:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53464 "EHLO
+        id S1351750AbiFVGxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jun 2022 02:53:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357132AbiFVGDq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 02:03:46 -0400
-X-Greylist: delayed 1200 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 21 Jun 2022 23:03:42 PDT
-Received: from smtp.wave.syn-alias.com (smtp.wave.syn-alias.com [129.159.93.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6107D15738
-        for <stable@vger.kernel.org>; Tue, 21 Jun 2022 23:03:41 -0700 (PDT)
-X-Authed-Username: cnlhbGVAd2F2ZWNhYmxlLmNvbQ==
-Authentication-Results: smtp02.wave.email-ash1.sync.lan header.from=ryale@wavecable.com; sender-id=softfail
-Authentication-Results: smtp02.wave.email-ash1.sync.lan smtp.mail=ryale@wavecable.com; spf=softfail; sender-id=softfail
-Received: from [10.219.157.116] ([10.219.157.116:18274] helo=md04.wave.email-ash1.sync.lan)
-        by mail.wavecable.com (envelope-from <ryale@wavecable.com>)
-        (ecelerity 4.4.0.19839 r(msys-ecelerity:tags/4.4.0.0^0)) with ESMTP
-        id C6/A6-13576-B0CA2B26; Wed, 22 Jun 2022 01:43:39 -0400
-Date:   Wed, 22 Jun 2022 01:43:38 -0400 (EDT)
-From:   Raj singh <ryale@wavecable.com>
-To:     mc joe <mcjo9470@gmail.com>
-Cc:     mcjo9470@gmail.com
-Message-ID: <1826140021.37033801.1655876618857.JavaMail.zimbra@wavecable.com>
-In-Reply-To: <CABMFHCLUO5cjcLDNDhfRN3VZkPitkdWL6RWdUqEPxpebeY_0Fg@mail.gmail.com>
-References: <CABMFHCLUO5cjcLDNDhfRN3VZkPitkdWL6RWdUqEPxpebeY_0Fg@mail.gmail.com>
-Subject: P v ;
+        with ESMTP id S1352098AbiFVGx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 02:53:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65843FD1C;
+        Tue, 21 Jun 2022 23:53:26 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0EB92B81A8C;
+        Wed, 22 Jun 2022 06:53:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9A1DC34114;
+        Wed, 22 Jun 2022 06:53:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655880803;
+        bh=fkCnpyOGxXVQBQzpIq+Cax/ef+Xx5fbgJz5m7udLC4Q=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=la0eq7ccOqwl+3Lvmh43wZ9e3iiF0FnyS9XkdlnBatlX35ZzkaVpGY3dY6ZAniJZH
+         C4ByUlmUd6reQ/Z5XRZtmMxCA06QEnV+DlmFY8eMJagmb6Wx0HPrx+SlOQT29dimf/
+         e24paj8OcscGYq92PM5deNGqXGRACavtsuf/dfgACY+L/iLuSxmz0QkAOaow4lcTQT
+         4AtCCKAM+ER1fJtr9Hm4cAmAeQ6epvJOUucm9KOHQ2YGg/zNyPX8b/x0zXyaGSFQl3
+         JXAAuRfjawt0l1Fr13j9pDU5RcUr9O2Y5POs3Eg/WEjIIwTFDb8V0os664Qz/iYkoe
+         EyftOkdCoCnqA==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1o3uEo-0004NB-UT; Wed, 22 Jun 2022 08:53:19 +0200
+Date:   Wed, 22 Jun 2022 08:53:18 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        charles-yeh@prolific.com.tw, Charles Yeh <charlesyeh522@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] USB: serial: pl2303: add support for more HXN (G) types
+Message-ID: <YrK8Xmv3vT1VFw+q@hovoldconsulting.com>
+References: <20220621085855.6252-1-johan@kernel.org>
+ <YrGKK7Ua20Boz1oZ@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [154.21.208.156]
-X-Mailer: Zimbra 9.0.0_GA_4157 (ZimbraWebClient - GC102 (Win)/9.0.0_GA_4157)
-Thread-Topic: P v ;
-Thread-Index: vgTo0ZwyJvalOCx+1LfFGRQU5/YV/A==
-X-Vade-Verdict: spam:high
-X-Vade-Analysis-1: gggruggvucftvghtrhhoucdtuddrgedvfedrudefgedgleelucetufdoteggodetrfdotffvucfrrhho
-X-Vade-Analysis-2: fhhilhgvmecuufgjpfetvefqtfdphgetggfgpdfgpfggqdghtegggfdpqfgfvfenuceurghilhhouhht
-X-Vade-Analysis-3: mecufedtudenucfuphgrmhfuuhgsjhgvtghtqdhouhhtpghrthculdehtddtmdenucfjughrpeffhffv
-X-Vade-Analysis-4: vefkjghfufggtgfgihfothesthejtgdtredtjeenucfhrhhomheptfgrjhcushhinhhghhcuoehrhigr
-X-Vade-Analysis-5: lhgvseifrghvvggtrggslhgvrdgtohhmqeenucggtffrrghtthgvrhhnpeelueeiuefftdeujeejieei
-X-Vade-Analysis-6: hfduuedtfedtfefhheehjefgtdejvdfggfeuiefghfenucfkphepuddtrddvudelrdduheejrdduudei
-X-Vade-Analysis-7: pdduheegrddvuddrvddtkedrudehieenucfuphgrmhfkphepudehgedrvddurddvtdekrdduheeinecu
-X-Vade-Analysis-8: vehluhhsthgvrhfuihiivgepjeenucfrrghrrghmpehinhgvthepuddtrddvudelrdduheejrdduudei
-X-Vade-Analysis-9: pdhhvghlohepmhgutdegrdifrghvvgdrvghmrghilhdqrghshhdurdhshihntgdrlhgrnhdpmhgrihhl
-X-Vade-Analysis-10: fhhrohhmpehrhigrlhgvseifrghvvggtrggslhgvrdgtohhmpdhrtghpthhtohepmhgtjhholeegjedt
-X-Vade-Analysis-11: sehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhguhhhirhhshhhukhhlrgesghhmrghilhdrtgho
-X-Vade-Analysis-12: mhdprhgtphhtthhopehsshhuihgushhpsggrnhhgrghlohhrvgesghhmrghilhdrtghomhdprhgtphht
-X-Vade-Analysis-13: thhopehsshhujhgrthgrjeduieesghhmrghilhdrtghomhdprhgtphhtthhopehsshhulhgvmhgrnhes
-X-Vade-Analysis-14: vggutghilhdrtghordhinhdprhgtphhtthhopehsshhumhgrnheijeelvdesghhmrghilhdrtghomhdp
-X-Vade-Analysis-15: rhgtphhtthhopehsshhumhgrnhgpmheshigrhhhoohdrtghordhinhdprhgtphhtthhopehsshhumhgr
-X-Vade-Analysis-16: shhhrghkthhiudesghhmrghilhdrtghomhdprhgtphhtthhopehsshhunhguvghrphhrohesghhmrghi
-X-Vade-Analysis-17: lhdrtghomhdprhgtphhtthhopehsshhunhguhhgrnhdugeesghhmrghilhdrtghomhdprhgtphhtthho
-X-Vade-Analysis-18: pehsshhunhhilhekuddvvddttddvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhhnihhltghl
-X-Vade-Analysis-19: khesghhmrghilhdrtghomhdprhgtphhtthhopehsshhunhhnhiekfeekfeesghhmrghilhdrtghomhdp
-X-Vade-Analysis-20: rhgtphhtthhopehsshhuphhsudesghhmrghilhdrtghomhdprhgtphhtthhopehsshhuphhvphesghhm
-X-Vade-Analysis-21: rghilhdrtghomhdprhgtphhtthhopehsshhurhdrphhhhihssehgmhgrihhlrdgtohhmpdhrtghpthht
-X-Vade-Analysis-22: ohepshhsuhhrvghshhesghhmrghilhdrtghomhdprhgtphhtthhopehsshhurhgvshhhrdgtphgtsges
-X-Vade-Analysis-23: nhhitgdrihhnpdhrtghpthhtohepshhsuhhrvghshhdrnhhithhtsehgmhgrihhlrdgtohhmpdhrtghp
-X-Vade-Analysis-24: thhtohepshhsuhhrvghshhdvgedtgeesghhmrghilhdrtghomhdprhgtphhtthhopehsshhurhgvshhh
-X-Vade-Analysis-25: khdvheesghhmrghilhdrtghomhdprhgtphhtthhopehsshhushguhihlihgssehgmhgrihhlrdgtohhm
-X-Vade-Analysis-26: pdhrtghpthhtohepshhsuhhshhgrnhhthhesghhmrghilhdrtghomhdprhgtphhtthhopehsshhushhi
-X-Vade-Analysis-27: nhguohhrvgesghhmrghilhdrtghomhdprhgtphhtthhopehsshhushhrvghgsehgmhgrihhlrdgtohhm
-X-Vade-Analysis-28: pdhrtghpthhtohepshhsuhhsrhgvghesshgrnhgthhgrrhhnvghtrdhinhdprhgtphhtthhopehsshhu
-X-Vade-Analysis-29: thhkmhesthhkmhhithdrrggtrdhinhdprhgtphhtthhopehsshhuuhguughhhhhiihhrrhesghhmrghi
-X-Vade-Analysis-30: lhdrtghomhdprhgtphhtthhopehsshhvsehlphhgtgihlhhinhguvghrrdhnvghtpdhrtghpthhtohep
-X-Vade-Analysis-31: shhsvhdruggvlhhhihesshhtvggvlhhsthhrohhnghdrtghomhdprhgtphhtthhopehsshhvrdgvnhht
-X-Vade-Analysis-32: vghrphhrihhsvgesghhmrghilhdrtghomhdprhgtphhtthhopehsshhvrdhrphhrsehgmhgrihhlrdgt
-X-Vade-Analysis-33: ohhmpdhrtghpthhtohepshhsvhgrrdhsuhhrvghshhesghhmrghilhdrtghomhdprhgtphhtthhopehs
-X-Vade-Analysis-34: shhvrghiugihrghhvggrlhhthhgtrghrvgesghhmrghilhdrtghomhdprhgtphhtthhopehsshhvrghl
-X-Vade-Analysis-35: uhgvrhhssehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhgrrhgrthhikhhrughpsehgmhgrihhl
-X-Vade-Analysis-36: rdgtohhmpdhrtghpthhtohepshhsvhgttggsvgesghhmrghilhdrtghomhdprhgtphhtthhopehsshhv
-X-Vade-Analysis-37: tghphhgrrhhmrggthiesghhmrghilhdrtghomhdprhgtphhtthhopehsshhvvghfrghrihgurggsrggu
-X-Vade-Analysis-38: sehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhgvmhhurhhisehgmhgrihhlrdgtohhmpdhrtghp
-X-Vade-Analysis-39: thhtohepshhsvhgvnhhgghesghhmrghilhdrtghomhdprhgtphhtthhopehsshhvvghtrhihseihrghh
-X-Vade-Analysis-40: ohhordgtohhmpdhrtghpthhtohepshhsvhhftggsvgesghhmrghilhdrtghomhdprhgtphhtthhopehs
-X-Vade-Analysis-41: shhvfhgtsggvsehrvgguihhffhhmrghilhdrtghomhdprhgtphhtthhopefushhvihhsvghnsegjrghh
-X-Vade-Analysis-42: ohhordevohhmpdhrtghpthhtohepshhsvhhjshejudeisehgmhgrihhlrdgtohhmpdhrtghpthhtohep
-X-Vade-Analysis-43: shhsvhhktghhohhkkhgrugihsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhhmuddttdeksehg
-X-Vade-Analysis-44: mhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhhmsgejsehgmhgrihhlrdgtohhmpdhrtghpthhtohep
-X-Vade-Analysis-45: shhsvhhnihguhhhisehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhhprghmmhgrlhesghhmrghi
-X-Vade-Analysis-46: lhdrtghomhdprhgtphhtthhopehsshhvphhrrghsrgguphgvrhhiohesghhmrghilhdrtghomhdprhgt
-X-Vade-Analysis-47: phhtthhopehsshhvshdrvhhiughhhigrsghhrghrrghtihesghhmrghilhdrtghomhdprhgtphhtthho
-X-Vade-Analysis-48: pehsshhvshgthhhoohhlvddtuddusehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhhtphgrtghk
-X-Vade-Analysis-49: sehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhhvrghluhhvrgesghhmrghilhdrtghomhdprhgt
-X-Vade-Analysis-50: phhtthhopehsshhvvhhsuggvohhrihgrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsfidrrhhj
-X-Vade-Analysis-51: hiesghhmrghilhdrtghomhdprhgtphhtthhopehsshifrghmihdukeehfeesghhmrghilhdrtghomhdp
-X-Vade-Analysis-52: rhgtphhtthhopehsshifrghmihhnrghthhgrnhhmugesghhmrghilhdrtghomhdprhgtphhtthhopehs
-X-Vade-Analysis-53: shifrghrnhhkrghrsehnrggtohdrghhovhdrihhnpdhrtghpthhtohepshhsfigrthhmrghnrghnuggr
-X-Vade-Analysis-54: sehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsfigsrhgrnhgthhhifhgtugesghhmrghilhdrtgho
-X-Vade-Analysis-55: mhdprhgtphhtthhopehsshifughotgesvhhghhhttgdrghhovhdrthifpdhrtghpthhtohepshhsfihf
-X-Vade-Analysis-56: thdvtddugeesghhmrghilhdrtghomhdprhgtphhtthhopehsshifghhhmhhouggvvddttdelsehgmhgr
-X-Vade-Analysis-57: ihhlrdgtohhmpdhrtghpthhtohepshhsfihoohgutghulhhtuhhrvgesghhmrghilhdrtghomhdprhgt
-X-Vade-Analysis-58: phhtthhopehsshihphhvthhithhighgrhigrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhshihs
-X-Vade-Analysis-59: rghnjhgrhiesghhmrghilhdrtghomhdprhgtphhtthhopehsshihuhhvrghkshifrghsrghhrgihrghs
-X-Vade-Analysis-60: rghnghhhsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsiigprghshhhrrghfsehrvgguihhffhhm
-X-Vade-Analysis-61: rghilhdrtghomhdprhgtphhtthhopehsshiirghmuhesghhmrghilhdrtghomhdprhgtphhtthhopehs
-X-Vade-Analysis-62: shiiohhnvgduheesghhmrghilhdrtghomhdprhgtphhtthhopehsthesghhmrghilhdrtghomhdprhgt
-X-Vade-Analysis-63: phhtthhopehsthdrrghlohihshhiuhhssggrnhhgrghrmhgruhesghhmrghilhdrtghomhdprhgtphht
-X-Vade-Analysis-64: thhopehsthdrfhhrrghntghishhhohhmvghpkhhtsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshht
-X-Vade-Analysis-65: rdhjohhhnhhsrdhstghhohholhhmvghhsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrdhjohhs
-X-Vade-Analysis-66: vghphhhgrhgrnhhithgvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrdhkrdgtrdhmvghmohhr
-X-Vade-Analysis-67: ihgrlhesghhmrghilhdrtghomhdprhgtphhtthhopehsthdrmhgrrhihshdrudelsehgmhgrihhlrdgt
-X-Vade-Analysis-68: ohhmpdhrtghpthhtohepshhtrdhmihhlrghgrhgvshgtohhpvghrthhivhgvsehgmhgrihhlrdgtohhm
-X-Vade-Analysis-69: pdhrtghpthhtohepshhtrdhmohhhrghnseihrghhohhordgtohhmpdhrtghpthhtohepshhtrdhmohhn
-X-Vade-Analysis-70: ihgtrghkuhhmsghlrgeshigrhhhoohdrtghomhdprhgtphhtthhopehsthdrmhiiphduleektdesghhm
-X-Vade-Analysis-71: rghilhdrtghomhdprhgtphhtthhopehsthdrthhhohhmrghsshhhrghsthhrihhpuhhrrghmsehgmhgr
-X-Vade-Analysis-72: ihhlrdgtohhmpdhrtghpthhtohepshhtrdigrghvihgvrhhsshgthhhoohhlsggrlhhlihgrsehgmhgr
-X-Vade-Analysis-73: ihhlrdgtohhmpdhrtghpthhtohepufhtvdehleejfedvgeesghhmrghilhdrtghomhdprhgtphhtthho
-X-Vade-Analysis-74: pehsthdvuggvlhesnhhitgdrihhnpdhrtghpthhtohepuffvieesshgrnhhmrghrghhrohhuphdrtgho
-X-Vade-Analysis-75: mhdprhgtphhtthhopehsthgpphhrohguuhgtthhsvddtuddvsehhohhtmhgrihhlrdgtohhmpdhrtghp
-X-Vade-Analysis-76: thhtohepshhtrgesghhnshgrihhnughirgdrtghomhdprhgtphhtthhopefuthgrsefurghthhhguhhr
-X-Vade-Analysis-77: uhdrvehomhdprhgtphhtthhopehsthgrrdgrsgguuhhrrhgrhhhmrghnsehgmhgrihhlrdgtohhmpdhr
-X-Vade-Analysis-78: tghpthhtohepshhtrgdrrhgrthhhvddtudejsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrggr
-X-Vade-Analysis-79: nhefsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrggslhgvsehvghgvrhdrkhgvrhhnvgdrohhr
-X-Vade-Analysis-80: ghdprhgtphhtthhopehsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehs
-X-Vade-Analysis-81: thgrughinhhgtghouhhnshgvlhhgnhgtthgusehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrghf
-X-Vade-Analysis-82: fhdrvghnvhhishesghhmrghilhdrtghomhdprhgtphhtthhopehsthgrfhhfnhhusghitgesghhmrghi
-X-Vade-Analysis-83: lhdrtghomhdprhgtphhtthhopehsthgrfhhfohhffhhitggvrhhtohgtshesghhmrghilhdrtghomhdp
-X-Vade-Analysis-84: rhgtphhtthhopehsthgrfhhtvghrkhhoughimhdtkedufeesghhmrghilhdrtghomhdprhgtphhtthho
-X-Vade-Analysis-85: pehsthgrfhihshhiuggrkhesghhmrghilhdrtghomhdprhgtphhtthhopehsthgrghhinhesghhmrghi
-X-Vade-Analysis-86: lhdrtghomhdprhgtphhtthhopehsthgrghhnvghsvghhshesghhmrghilhdrtghomhdprhgtphhtthho
-X-Vade-Analysis-87: pefuthgrlhhirghnkhgruhhrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrghlihhnfeegfeel
-X-Vade-Analysis-88: sehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrghllhhiohhnrghirhgtohhnsehgmhgrihhlrdgt
-X-Vade-Analysis-89: ohhmpdhrtghpthhtohepshhtrghllhhiohhntghntgesghhmrghilhdrtghomhdprhgtphhtthhopehs
-X-Vade-Analysis-90: thgrlhhmrggtvghnthgvrhhprhhishgvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrghlphhh
-X-Vade-Analysis-91: rgdukeeludesghhmrghilhdrtghomhdprhgtphhtthhopehsthgrlhhukhgurghruddvuddvsehgmhgr
-X-Vade-Analysis-92: ihhlrdgtohhmpdhrtghpthhtohepshhtrghlfigrrhhtkhgrrhhthhhikhesghhmrghilhdrtghomhdp
-X-Vade-Analysis-93: rhgtphhtthhopehsthgrlhifrghrthhmvghtrghltghosehgmhgrihhlrdgtohhmpdhrtghpthhtohep
-X-Vade-Analysis-94: shhtrghmsgholhhisehsfihilhgtohhpphgvrhdrtghomhdprhgtphhtthhopehsthgrmhhgrggughgv
-X-Vade-Analysis-95: sehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrghmphhinhhgsheshihmrghilhdrtghomhdprhgt
-X-Vade-Analysis-96: phhtthhopehsthgrmhihieefsehhohhtmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrghnuggrrhgu
-X-Vade-Analysis-97: jeekieegsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrghnuggrrhguhhhmvddtudeksehgmhgr
-X-Vade-Analysis-98: ihhlrdgtohhmpdhrtghpthhtohepshhtrghnuggrrhguihhnughushhtrhhivghskeeksehgmhgrihhl
-X-Vade-Analysis-99: rdgtohhmpdhrtghpthhtohepshhtrghnughinhhgtghouhhnshgvlhhgnhgtthgusehgmhgrihhlrdgt
-X-Vade-Analysis-100: ohhmpdhrtghpthhtohepshhtrghnughrvgifshhsphhlvgguuhesghhmrghilhdrtghomhdprhgtphht
-X-Vade-Analysis-101: thhopehsthgrnhgvkhiirghisehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrghnghgruggvsehg
-X-Vade-Analysis-102: mhgrihhlrdgtohhmpdhrtghpthhtohepshhtrghnlhgvhidrshholhgrtggvsehgmhgrihhlrdgtohhm
-X-Vade-Analysis-103: pdhrtghpthhtohepshhtrghnlhgvhih
-X-Vade-Client: EMERALD
-X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_50,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YrGKK7Ua20Boz1oZ@kroah.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello sir ;
+On Tue, Jun 21, 2022 at 11:06:51AM +0200, Greg Kroah-Hartman wrote:
+> On Tue, Jun 21, 2022 at 10:58:55AM +0200, Johan Hovold wrote:
+> > Add support for further HXN (G) type devices (GT variant, GL variant, GS
+> > variant and GR) and document the bcdDevice mapping.
+> > 
+> > Note that the TA and TB types use the same bcdDevice as some GT and GE
+> > variants, respectively, but that the HX status request can be used to
+> > determine which is which.
+> > 
+> > Also note that we currently do not distinguish between the various HXN
+> > (G) types in the driver but that this may change eventually (e.g. when
+> > adding GPIO support).
+> > 
+> > Reported-by: Charles Yeh <charlesyeh522@gmail.com>
+> > Link: https://lore.kernel.org/r/YrF77b9DdeumUAee@hovoldconsulting.com
+> > Cc: stable@vger.kernel.org	# 5.13
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
+
+> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+Thanks for reviewing. Now applied.
+
+Johan
