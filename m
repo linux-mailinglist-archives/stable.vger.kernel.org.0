@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 479D455554A
-	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 22:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFF5455554C
+	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 22:18:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230184AbiFVURN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jun 2022 16:17:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48218 "EHLO
+        id S229473AbiFVUSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jun 2022 16:18:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229473AbiFVURM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 16:17:12 -0400
+        with ESMTP id S231239AbiFVUSP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 16:18:15 -0400
 Received: from mail.mutex.one (mail.mutex.one [62.77.152.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A583234B99;
-        Wed, 22 Jun 2022 13:17:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C208E12A91;
+        Wed, 22 Jun 2022 13:18:14 -0700 (PDT)
 Received: from localhost (localhost.localdomain [127.0.0.1])
-        by mail.mutex.one (Postfix) with ESMTP id 9290416C007C;
-        Wed, 22 Jun 2022 23:17:09 +0300 (EEST)
+        by mail.mutex.one (Postfix) with ESMTP id 5E13C16C007C;
+        Wed, 22 Jun 2022 23:18:13 +0300 (EEST)
 X-Virus-Scanned: Debian amavisd-new at mail.mutex.one
 Received: from mail.mutex.one ([127.0.0.1])
         by localhost (mail.mutex.one [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id tJAFoSIpfZdJ; Wed, 22 Jun 2022 23:17:09 +0300 (EEST)
+        with ESMTP id 7D_hW6evEOEl; Wed, 22 Jun 2022 23:18:13 +0300 (EEST)
 From:   Marian Postevca <posteuca@mutex.one>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mutex.one; s=default;
-        t=1655929029; bh=F39pPOCk5LJbjzxOxaPcJXDJYJADDBnzr5DdpvKy0h0=;
+        t=1655929093; bh=xwvGetNLY6Ram85X3IvCg95rBMf6H7m9uiOQq0V+Otg=;
         h=From:To:Cc:Subject:Date:From;
-        b=eY/3xvXNSThv9jdP4DWrn83uYiVtakefrX5lm8kB38D1nbA+Dw1HGniJq+VSinl40
-         1rwkiuzoF5md6t6gchvw0YfdURAl8E5qtev7+ZA0q4i+/aWnLH+E836W+oHIFB2jA5
-         8MBDM+gr3t/HK76PbwE+5e8K8FKxQIe+TccBYwTg=
+        b=mdzceMJ+9vLqkHphFpLbUsH/tmEWbC5/9CTIwhGmXZoE8xiA+JzqmIj/cyiD9/jkX
+         mI2KWpNqOoQfQg7sSITw9+QM4S1Z6GgdFAzuYxCgWisbgVLRmg9Pf6aUdSRNYyMCib
+         04IUBNHJbGBVoMy6RdmCDLc52ud0oujI9Vrj4Zvs=
 To:     Felipe Balbi <balbi@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Marian Postevca <posteuca@mutex.one>,
         Maximilian Senftleben <kernel@mail.msdigital.de>,
         stable@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 5.10] usb: gadget: u_ether: fix regression in setting fixed MAC address
-Date:   Wed, 22 Jun 2022 23:16:38 +0300
-Message-Id: <20220622201638.1512-1-posteuca@mutex.one>
+Subject: [PATCH 5.15] usb: gadget: u_ether: fix regression in setting fixed MAC address
+Date:   Wed, 22 Jun 2022 23:18:04 +0300
+Message-Id: <20220622201805.4315-1-posteuca@mutex.one>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -77,10 +77,10 @@ Signed-off-by: Marian Postevca <posteuca@mutex.one>
  1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index a40be8b448c24..64ef97ab9274a 100644
+index d15a54f6c24b9..ef253599dcf96 100644
 --- a/drivers/usb/gadget/function/u_ether.c
 +++ b/drivers/usb/gadget/function/u_ether.c
-@@ -772,9 +772,13 @@ struct eth_dev *gether_setup_name(struct usb_gadget *g,
+@@ -774,9 +774,13 @@ struct eth_dev *gether_setup_name(struct usb_gadget *g,
  	dev->qmult = qmult;
  	snprintf(net->name, sizeof(net->name), "%s%%d", netname);
  
@@ -95,7 +95,7 @@ index a40be8b448c24..64ef97ab9274a 100644
  	if (get_ether_addr(host_addr, dev->host_mac))
  		dev_warn(&g->dev,
  			"using random %s ethernet address\n", "host");
-@@ -831,6 +835,9 @@ struct net_device *gether_setup_name_default(const char *netname)
+@@ -833,6 +837,9 @@ struct net_device *gether_setup_name_default(const char *netname)
  	INIT_LIST_HEAD(&dev->tx_reqs);
  	INIT_LIST_HEAD(&dev->rx_reqs);
  
@@ -105,15 +105,15 @@ index a40be8b448c24..64ef97ab9274a 100644
  	skb_queue_head_init(&dev->rx_frames);
  
  	/* network device setup */
-@@ -868,7 +875,6 @@ int gether_register_netdev(struct net_device *net)
+@@ -869,7 +876,6 @@ int gether_register_netdev(struct net_device *net)
+ 	dev = netdev_priv(net);
  	g = dev->gadget;
  
- 	memcpy(net->dev_addr, dev->dev_mac, ETH_ALEN);
 -	net->addr_assign_type = NET_ADDR_RANDOM;
+ 	eth_hw_addr_set(net, dev->dev_mac);
  
  	status = register_netdev(net);
- 	if (status < 0) {
-@@ -908,6 +914,7 @@ int gether_set_dev_addr(struct net_device *net, const char *dev_addr)
+@@ -910,6 +916,7 @@ int gether_set_dev_addr(struct net_device *net, const char *dev_addr)
  	if (get_ether_addr(dev_addr, new_addr))
  		return -EINVAL;
  	memcpy(dev->dev_mac, new_addr, ETH_ALEN);
