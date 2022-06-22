@@ -2,106 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B79D65543FD
-	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 10:10:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC1FF554961
+	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 14:17:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232060AbiFVHPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jun 2022 03:15:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51540 "EHLO
+        id S1353684AbiFVIeR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jun 2022 04:34:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350659AbiFVHPT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 03:15:19 -0400
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE2F36E1D;
-        Wed, 22 Jun 2022 00:15:18 -0700 (PDT)
-Received: by mail-qv1-f43.google.com with SMTP id n15so19900375qvh.12;
-        Wed, 22 Jun 2022 00:15:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lHEhufuR0BCwdgBJ9UiDykLCzo+7fjj1KMdN8Y47avc=;
-        b=osZL6e19UyN+wUDEWFphga5cbgcSKq902CLx+IBBOgQH2ryjjvsrsV4gHRg0+jCvdM
-         l7+9VPhaDlDy/zOnPdxwiX39Tdpd3RloXlpAQZ1biUT6y/zwBSsR8ZqPERrcuYJNNUO1
-         yKJkh1Ek+AWj+CYKERuKtaZx866REk4LS+uRwkqC6eP1+TkUzLzQc5g/AVtN+WNAu64X
-         +Gb/52jCszcKvRO4gTLw/T+CSeFasnRwOMfghvVGHWfuWb+I0hOvBeWTsr8tol41haUv
-         7gv+mQdnlTMU9IIa5imCN+zyIo0WsljlQaIep6aUxfPKLruxR1Dq6wJBUpnDxFzahFdm
-         8ykA==
-X-Gm-Message-State: AJIora8pTZB0yxE7PjkuNhge68t5IfSVfBROPfCUfBfI7J2iKrJ5FdWZ
-        Dpe/nBLTJfYmhjGsEGexHYtL2PxEIudn0g==
-X-Google-Smtp-Source: AGRyM1vLlVlUEYkp6KfhJmCWmyg6tRO82+0hpeHTNPYk9pbj49uvmhJFD3QGvb+9g2InOcnCWzg2bQ==
-X-Received: by 2002:ac8:7dc2:0:b0:306:6881:2693 with SMTP id c2-20020ac87dc2000000b0030668812693mr1803460qte.16.1655882117867;
-        Wed, 22 Jun 2022 00:15:17 -0700 (PDT)
-Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com. [209.85.128.182])
-        by smtp.gmail.com with ESMTPSA id bp15-20020a05620a458f00b006a72b38e2ecsm15450053qkb.51.2022.06.22.00.15.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Jun 2022 00:15:17 -0700 (PDT)
-Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-3176b6ed923so153599027b3.11;
-        Wed, 22 Jun 2022 00:15:17 -0700 (PDT)
-X-Received: by 2002:a81:574c:0:b0:317:7c3a:45be with SMTP id
- l73-20020a81574c000000b003177c3a45bemr2586631ywb.316.1655882117218; Wed, 22
- Jun 2022 00:15:17 -0700 (PDT)
+        with ESMTP id S1350684AbiFVIeR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 04:34:17 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 268B32622;
+        Wed, 22 Jun 2022 01:34:16 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id D881F1FAFD;
+        Wed, 22 Jun 2022 08:34:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1655886854; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=O1EOyoPBau9TPG/tVZpTYxGahQsskO0hXdQhQeaV5ZI=;
+        b=1kKI8CIouoYNcAsmKhFEPHTiHTc35Pgsbv2AwOxKjg2kYZxS3dqdHBIqk05LAqEqqxMNzV
+        fAz9GtRquUOjc4/HpiZ3BObBLPqdQCWMF/sLaA7tZp6Egw1p9sfeLm41zknuJl5rx7HJvP
+        MN8zfd6PNdyGYOV6ZF2a34FO3BlhGkY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1655886854;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=O1EOyoPBau9TPG/tVZpTYxGahQsskO0hXdQhQeaV5ZI=;
+        b=F9hRTr2toRP77B+V7zp51+ilujZVnD4qUBoSIEyoLokkg8Z35pgLer5jFa3VUDZBALY0Ye
+        JrYKpI/kDjAgFUDQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id A05C6134A9;
+        Wed, 22 Jun 2022 08:34:14 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id dCEvJgbUsmIPDAAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Wed, 22 Jun 2022 08:34:14 +0000
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     drawat.floss@gmail.com, airlied@linux.ie, daniel@ffwll.ch
+Cc:     linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        jani.nikula@linux.intel.com, ville.syrjala@linux.intel.com,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] drm/hyperv-drm: Include framebuffer and EDID headers
+Date:   Wed, 22 Jun 2022 10:34:13 +0200
+Message-Id: <20220622083413.12573-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-References: <20220621204928.249907-1-sashal@kernel.org> <20220621204928.249907-5-sashal@kernel.org>
-In-Reply-To: <20220621204928.249907-5-sashal@kernel.org>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 22 Jun 2022 09:15:06 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdVmkr2sQ6-1pu=B7EscXWY-ZwONo=WGGwDOK_D6VxKc=A@mail.gmail.com>
-Message-ID: <CAMuHMdVmkr2sQ6-1pu=B7EscXWY-ZwONo=WGGwDOK_D6VxKc=A@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.18 05/22] eeprom: at25: Split reads into chunks
- and cap write size
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Brad Bishop <bradleyb@fuzziesquirrel.com>,
-        Eddie James <eajames@linux.ibm.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Ralph Siemsen <ralph.siemsen@linaro.org>,
-        Mark Brown <broonie@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+Fix a number of compile errors by including the correct header
+files. Examples are shown below.
 
-On Tue, Jun 21, 2022 at 10:57 PM Sasha Levin <sashal@kernel.org> wrote:
-> From: Brad Bishop <bradleyb@fuzziesquirrel.com>
->
-> [ Upstream commit 0a35780c755ccec097d15c6b4ff8b246a89f1689 ]
->
-> Make use of spi_max_transfer_size to avoid requesting transfers that are
-> too large for some spi controllers.
->
-> Signed-off-by: Brad Bishop <bradleyb@fuzziesquirrel.com>
-> Signed-off-by: Eddie James <eajames@linux.ibm.com>
-> Signed-off-by: Joel Stanley <joel@jms.id.au>
-> Link: https://lore.kernel.org/r/20220524215142.60047-1-eajames@linux.ibm.com
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+  ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c: In function 'hyperv_blit_to_vram_rect':
+  ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c:25:48: error: invalid use of undefined type 'struct drm_framebuffer'
+   25 |         struct hyperv_drm_device *hv = to_hv(fb->dev);
+      |                                                ^~
 
-Please drop this, as it breaks operation on devices that don't need
-the split, and may cause a buffer overflow on those that do.
+  ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c: In function 'hyperv_connector_get_modes':
+  ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c:59:17: error: implicit declaration of function 'drm_add_modes_noedid' [-Werror=implicit-function-declaration]
+   59 |         count = drm_add_modes_noedid(connector,
+      |                 ^~~~~~~~~~~~~~~~~~~~
 
-https://lore.kernel.org/r/7ae260778d2c08986348ea48ce02ef148100e088.1655817534.git.geert+renesas@glider.be/
+  ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c:62:9: error: implicit declaration of function 'drm_set_preferred_mode'; did you mean 'drm_mm_reserve_node'? [-Werror=implicit-function-declaration]
+   62 |         drm_set_preferred_mode(connector, hv->preferred_width,
+      |         ^~~~~~~~~~~~~~~~~~~~~~
 
-Gr{oetje,eeting}s,
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 76c56a5affeb ("drm/hyperv: Add DRM driver for hyperv synthetic video device")
+Cc: Deepak Rawat <drawat.floss@gmail.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: linux-hyperv@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.14+
+---
+ drivers/gpu/drm/hyperv/hyperv_drm_modeset.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-                        Geert
+diff --git a/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c b/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
+index 27f4fcb058f9..b8e64dd8d3a6 100644
+--- a/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
++++ b/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
+@@ -7,9 +7,11 @@
+ 
+ #include <drm/drm_damage_helper.h>
+ #include <drm/drm_drv.h>
++#include <drm/drm_edid.h>
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_format_helper.h>
+ #include <drm/drm_fourcc.h>
++#include <drm/drm_framebuffer.h>
+ #include <drm/drm_gem_atomic_helper.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_gem_shmem_helper.h>
+-- 
+2.36.1
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
