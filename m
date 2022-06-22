@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8364C5543D3
-	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 10:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B79D65543FD
+	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 10:10:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352477AbiFVHOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jun 2022 03:14:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50592 "EHLO
+        id S232060AbiFVHPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jun 2022 03:15:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352415AbiFVHOU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 03:14:20 -0400
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA44175B4;
-        Wed, 22 Jun 2022 00:14:19 -0700 (PDT)
-Received: by mail-qv1-f48.google.com with SMTP id 88so20384894qva.9;
-        Wed, 22 Jun 2022 00:14:19 -0700 (PDT)
+        with ESMTP id S1350659AbiFVHPT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 03:15:19 -0400
+Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE2F36E1D;
+        Wed, 22 Jun 2022 00:15:18 -0700 (PDT)
+Received: by mail-qv1-f43.google.com with SMTP id n15so19900375qvh.12;
+        Wed, 22 Jun 2022 00:15:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=tuu+Yntf4skl/ZbQbx9nr+7W+bdBdIu+BOyv/WQzLoA=;
-        b=uzQEeuW0JRifzwA0FHkjo13l363M0MKTde+apfkNUO5dH89vN0Rt8zje2eWjkJodbf
-         N4Ta6crdDvwfcMbBHptkaQywWRet3uLw/T67SQ0uWyCSGvwuJk04jRaewhP9Nk6x41Ti
-         9Vzu7a6TIYHawBk70dyTROiOIoFiP5sju6ZAlMn1dZCFLZ0WLQGhH14PuBIV8ICnDh9X
-         3PNqkvlSMUfgUhhp2lMS3YwaNVKquO+tvWx4yX2kOnHni+xmfNe4v+lxS0IFZC6t9+7O
-         p14Gx0T/WhKM3HyFgphuOaPLKXTtM6h8KUhtR+Xf1SjQUxJXCOXTlfVokI/gzlpJDyYy
-         hfVQ==
-X-Gm-Message-State: AJIora/N2Lwvfwai+jwHJwQV4vgCbWal+VophoBmUx7pqhpm5VoyWJzU
-        ejIpnM/micEMHmjOZhWWNZxuGLQWkDyKKQ==
-X-Google-Smtp-Source: AGRyM1tCuf7rEPEbGw7r6xrtNfYmPQiPbK5UVfyjn1vv2pCX1SLu49J4COh1dwmq2hDneVsC7ekj5g==
-X-Received: by 2002:a05:6214:29ec:b0:470:5aec:e15e with SMTP id jv12-20020a05621429ec00b004705aece15emr4087996qvb.102.1655882058448;
-        Wed, 22 Jun 2022 00:14:18 -0700 (PDT)
-Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com. [209.85.219.181])
-        by smtp.gmail.com with ESMTPSA id v11-20020a05620a440b00b006a6a7b4e7besm17266328qkp.109.2022.06.22.00.14.16
+        bh=lHEhufuR0BCwdgBJ9UiDykLCzo+7fjj1KMdN8Y47avc=;
+        b=osZL6e19UyN+wUDEWFphga5cbgcSKq902CLx+IBBOgQH2ryjjvsrsV4gHRg0+jCvdM
+         l7+9VPhaDlDy/zOnPdxwiX39Tdpd3RloXlpAQZ1biUT6y/zwBSsR8ZqPERrcuYJNNUO1
+         yKJkh1Ek+AWj+CYKERuKtaZx866REk4LS+uRwkqC6eP1+TkUzLzQc5g/AVtN+WNAu64X
+         +Gb/52jCszcKvRO4gTLw/T+CSeFasnRwOMfghvVGHWfuWb+I0hOvBeWTsr8tol41haUv
+         7gv+mQdnlTMU9IIa5imCN+zyIo0WsljlQaIep6aUxfPKLruxR1Dq6wJBUpnDxFzahFdm
+         8ykA==
+X-Gm-Message-State: AJIora8pTZB0yxE7PjkuNhge68t5IfSVfBROPfCUfBfI7J2iKrJ5FdWZ
+        Dpe/nBLTJfYmhjGsEGexHYtL2PxEIudn0g==
+X-Google-Smtp-Source: AGRyM1vLlVlUEYkp6KfhJmCWmyg6tRO82+0hpeHTNPYk9pbj49uvmhJFD3QGvb+9g2InOcnCWzg2bQ==
+X-Received: by 2002:ac8:7dc2:0:b0:306:6881:2693 with SMTP id c2-20020ac87dc2000000b0030668812693mr1803460qte.16.1655882117867;
+        Wed, 22 Jun 2022 00:15:17 -0700 (PDT)
+Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com. [209.85.128.182])
+        by smtp.gmail.com with ESMTPSA id bp15-20020a05620a458f00b006a72b38e2ecsm15450053qkb.51.2022.06.22.00.15.17
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Jun 2022 00:14:17 -0700 (PDT)
-Received: by mail-yb1-f181.google.com with SMTP id t1so28631857ybd.2;
-        Wed, 22 Jun 2022 00:14:16 -0700 (PDT)
-X-Received: by 2002:a05:6902:120e:b0:634:6f29:6b84 with SMTP id
- s14-20020a056902120e00b006346f296b84mr2215179ybu.604.1655882056767; Wed, 22
- Jun 2022 00:14:16 -0700 (PDT)
+        Wed, 22 Jun 2022 00:15:17 -0700 (PDT)
+Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-3176b6ed923so153599027b3.11;
+        Wed, 22 Jun 2022 00:15:17 -0700 (PDT)
+X-Received: by 2002:a81:574c:0:b0:317:7c3a:45be with SMTP id
+ l73-20020a81574c000000b003177c3a45bemr2586631ywb.316.1655882117218; Wed, 22
+ Jun 2022 00:15:17 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220621205010.250185-1-sashal@kernel.org> <20220621205010.250185-5-sashal@kernel.org>
-In-Reply-To: <20220621205010.250185-5-sashal@kernel.org>
+References: <20220621204928.249907-1-sashal@kernel.org> <20220621204928.249907-5-sashal@kernel.org>
+In-Reply-To: <20220621204928.249907-5-sashal@kernel.org>
 From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 22 Jun 2022 09:14:05 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXe5PZ-XeU678VxWgWbT8CRcUJgPRQk0pEO49_nnPhFew@mail.gmail.com>
-Message-ID: <CAMuHMdXe5PZ-XeU678VxWgWbT8CRcUJgPRQk0pEO49_nnPhFew@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.17 05/20] eeprom: at25: Split reads into chunks
+Date:   Wed, 22 Jun 2022 09:15:06 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdVmkr2sQ6-1pu=B7EscXWY-ZwONo=WGGwDOK_D6VxKc=A@mail.gmail.com>
+Message-ID: <CAMuHMdVmkr2sQ6-1pu=B7EscXWY-ZwONo=WGGwDOK_D6VxKc=A@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.18 05/22] eeprom: at25: Split reads into chunks
  and cap write size
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -60,7 +60,8 @@ Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Kees Cook <keescook@chromium.org>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Ralph Siemsen <ralph.siemsen@linaro.org>
+        Ralph Siemsen <ralph.siemsen@linaro.org>,
+        Mark Brown <broonie@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
         FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
@@ -74,7 +75,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi Sasha,
 
-On Tue, Jun 21, 2022 at 11:02 PM Sasha Levin <sashal@kernel.org> wrote:
+On Tue, Jun 21, 2022 at 10:57 PM Sasha Levin <sashal@kernel.org> wrote:
 > From: Brad Bishop <bradleyb@fuzziesquirrel.com>
 >
 > [ Upstream commit 0a35780c755ccec097d15c6b4ff8b246a89f1689 ]
