@@ -2,128 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B53C2554BC7
-	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 15:50:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75094554C26
+	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 16:06:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357533AbiFVNu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jun 2022 09:50:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42320 "EHLO
+        id S232608AbiFVOGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jun 2022 10:06:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232302AbiFVNu4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 09:50:56 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A02382F01C;
-        Wed, 22 Jun 2022 06:50:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1655905855; x=1687441855;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=3CohyWmUtUrTBDe+BBE5Y7WDYYBZ1KvVKXJdpbgQSK4=;
-  b=IddE3mk8uIEVU7Cg9GnCssuaErFul+OLkFL5C4+K7fOv33Fwyw4COL6V
-   fC/IUYzYgboyHJX/6IIfBBPNdZVvK8onIDABob53mls0Z4BWWgMcSQ/rj
-   D7sW0CXwknUUJzIjycbVSaHZ7IMbDE7Zy2MZZmPOPPoXN2HKH8j8AemBz
-   fzhj0pCr25WuVHd2P5yHAAqMn5CE739O1JQgjGnn/0xqrOJ1sLNmNSoWw
-   B7Z4lj3D4EYkU7UJiSNqZ5unRv8y3A8/CWzj/tyXSY1+SNmw5kBYLf8Qy
-   Hi0Xtjm+IgR3fWsbzijPmKEPLi200eERO8T+kPEdG2YOSDgpHeyDDpmr+
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10385"; a="269139957"
-X-IronPort-AV: E=Sophos;i="5.92,212,1650956400"; 
-   d="scan'208";a="269139957"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jun 2022 06:50:54 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,212,1650956400"; 
-   d="scan'208";a="730356568"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.163])
-  by fmsmga001.fm.intel.com with SMTP; 22 Jun 2022 06:50:50 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 22 Jun 2022 16:50:50 +0300
-Date:   Wed, 22 Jun 2022 16:50:50 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Thomas Zimmermann <tzimmermann@suse.de>
-Cc:     drawat.floss@gmail.com, airlied@linux.ie, daniel@ffwll.ch,
-        linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        jani.nikula@linux.intel.com,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/hyperv-drm: Include framebuffer and EDID headers
-Message-ID: <YrMeOiMIg89Pwr7R@intel.com>
-References: <20220622083413.12573-1-tzimmermann@suse.de>
+        with ESMTP id S235274AbiFVOGW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 10:06:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6A437BD1;
+        Wed, 22 Jun 2022 07:06:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7E31B81F2F;
+        Wed, 22 Jun 2022 14:06:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98A2DC34114;
+        Wed, 22 Jun 2022 14:06:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655906778;
+        bh=V32Oq5PdZyE2PUlLwoGNPxQgY0tVovIx+oQ1azyoNT0=;
+        h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
+        b=POjo8xAwHIgk0d94B/d1cMAHnUPwBOJC5GtCli01F/NRkB/tpT0OyudXuLTZVpuw3
+         JfrPzf+BiXbRfveuDt6f1yHYj9q03KbBg/HJN+40ph6OZJo217RPm2hzxItRwKx9Pj
+         DlaFFybb0QGFTds02CtmPnyBAHVLsuRRNSeyrimRp6XajDhYYAoMZSFQ2AS4g3EM2g
+         /xOkY6NrdbMrhZXCuCm1rUluqjGtjDlCYl83mbSWDnQBiOft25sg1IWTgogehYV/CH
+         sGvVd5YCeXm9WPeP6V7f7q/d9D9+zSbYfZKT5uKRgypXvNbtEoK9yUrqwFq8cG7+51
+         IPrwsJjWG6ViQ==
+Message-ID: <4c090b50-bfd1-ae90-ac72-ebae3963f578@kernel.org>
+Date:   Wed, 22 Jun 2022 22:06:15 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220622083413.12573-1-tzimmermann@suse.de>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [f2fs-dev] [PATCH 1/3] f2fs: attach inline_data after setting
+ compression
+Content-Language: en-US
+From:   Chao Yu <chao@kernel.org>
+To:     Jaegeuk Kim <jaegeuk@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net
+Cc:     stable@vger.kernel.org
+References: <20220617223106.3517374-1-jaegeuk@kernel.org>
+ <ae324c70-8671-8878-5854-c0910c744379@kernel.org>
+In-Reply-To: <ae324c70-8671-8878-5854-c0910c744379@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 22, 2022 at 10:34:13AM +0200, Thomas Zimmermann wrote:
-> Fix a number of compile errors by including the correct header
-> files. Examples are shown below.
+On 2022/6/19 8:35, Chao Yu wrote:
+> On 2022/6/18 6:31, Jaegeuk Kim wrote:
+>> This fixes the below corruption.
+>>
+>> [345393.335389] F2FS-fs (vdb): sanity_check_inode: inode (ino=6d0, mode=33206) should not have inline_data, run fsck to fix
+>>
+>> Cc: <stable@vger.kernel.org>
+>> Fixes: 677a82b44ebf ("f2fs: fix to do sanity check for inline inode")
+>> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+>> ---
+>>    fs/f2fs/namei.c | 16 ++++++++++------
+>>    1 file changed, 10 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+>> index c549acb52ac4..a841abe6a071 100644
+>> --- a/fs/f2fs/namei.c
+>> +++ b/fs/f2fs/namei.c
+>> @@ -89,8 +89,6 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
+>>    	if (test_opt(sbi, INLINE_XATTR))
+>>    		set_inode_flag(inode, FI_INLINE_XATTR);
+>>    
+>> -	if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
+>> -		set_inode_flag(inode, FI_INLINE_DATA);
+>>    	if (f2fs_may_inline_dentry(inode))
+>>    		set_inode_flag(inode, FI_INLINE_DENTRY);
+>>    
+>> @@ -107,10 +105,6 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
+>>    
+>>    	f2fs_init_extent_tree(inode, NULL);
+>>    
+>> -	stat_inc_inline_xattr(inode);
+>> -	stat_inc_inline_inode(inode);
+>> -	stat_inc_inline_dir(inode);
+>> -
+>>    	F2FS_I(inode)->i_flags =
+>>    		f2fs_mask_flags(mode, F2FS_I(dir)->i_flags & F2FS_FL_INHERITED);
+>>    
+>> @@ -127,6 +121,14 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
+>>    			set_compress_context(inode);
+>>    	}
+>>    
+>> +	/* Should enable inline_data after compression set */
+>> +	if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
+>> +		set_inode_flag(inode, FI_INLINE_DATA);
+>> +
+>> +	stat_inc_inline_xattr(inode);
+>> +	stat_inc_inline_inode(inode);
+>> +	stat_inc_inline_dir(inode);
+>> +
+>>    	f2fs_set_inode_flags(inode);
+>>    
+>>    	trace_f2fs_new_inode(inode, 0);
+>> @@ -325,6 +327,8 @@ static void set_compress_inode(struct f2fs_sb_info *sbi, struct inode *inode,
+>>    		if (!is_extension_exist(name, ext[i], false))
+>>    			continue;
+>>    
+>> +		/* Do not use inline_data with compression */
+>> +		clear_inode_flag(inode, FI_INLINE_DATA);
 > 
->   ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c: In function 'hyperv_blit_to_vram_rect':
->   ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c:25:48: error: invalid use of undefined type 'struct drm_framebuffer'
->    25 |         struct hyperv_drm_device *hv = to_hv(fb->dev);
->       |                                                ^~
+> if (is_inode_set_flag()) {
+> 	clear_inode_flag();
+> 	stat_dec_inline_inode();
+> }
+
+Missed to send new version to mailing list?
+
+https://git.kernel.org/pub/scm/linux/kernel/git/jaegeuk/f2fs.git/commit/?h=dev&id=4cde00d50707c2ef6647b9b96b2cb40b6eb24397
+
+Thanks,
+
 > 
->   ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c: In function 'hyperv_connector_get_modes':
->   ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c:59:17: error: implicit declaration of function 'drm_add_modes_noedid' [-Werror=implicit-function-declaration]
->    59 |         count = drm_add_modes_noedid(connector,
->       |                 ^~~~~~~~~~~~~~~~~~~~
+> Thanks,
 > 
->   ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c:62:9: error: implicit declaration of function 'drm_set_preferred_mode'; did you mean 'drm_mm_reserve_node'? [-Werror=implicit-function-declaration]
->    62 |         drm_set_preferred_mode(connector, hv->preferred_width,
->       |         ^~~~~~~~~~~~~~~~~~~~~~
+>>    		set_compress_context(inode);
+>>    		return;
+>>    	}
 > 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Fixes: 76c56a5affeb ("drm/hyperv: Add DRM driver for hyperv synthetic video device")
-
-Presumably should be
-Fixes: 720cf96d8fec ("drm: Drop drm_framebuffer.h from drm_crtc.h")
-Fixes: 255490f9150d ("drm: Drop drm_edid.h from drm_crtc.h")
-
-Mea culpa
-
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-
-> Cc: Deepak Rawat <drawat.floss@gmail.com>
-> Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Cc: Maxime Ripard <mripard@kernel.org>
-> Cc: linux-hyperv@vger.kernel.org
-> Cc: dri-devel@lists.freedesktop.org
-> Cc: <stable@vger.kernel.org> # v5.14+
-> ---
->  drivers/gpu/drm/hyperv/hyperv_drm_modeset.c | 2 ++
->  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c b/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
-> index 27f4fcb058f9..b8e64dd8d3a6 100644
-> --- a/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
-> +++ b/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
-> @@ -7,9 +7,11 @@
->  
->  #include <drm/drm_damage_helper.h>
->  #include <drm/drm_drv.h>
-> +#include <drm/drm_edid.h>
->  #include <drm/drm_fb_helper.h>
->  #include <drm/drm_format_helper.h>
->  #include <drm/drm_fourcc.h>
-> +#include <drm/drm_framebuffer.h>
->  #include <drm/drm_gem_atomic_helper.h>
->  #include <drm/drm_gem_framebuffer_helper.h>
->  #include <drm/drm_gem_shmem_helper.h>
-> -- 
-> 2.36.1
-
--- 
-Ville Syrjälä
-Intel
+> _______________________________________________
+> Linux-f2fs-devel mailing list
+> Linux-f2fs-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/linux-f2fs-devel
