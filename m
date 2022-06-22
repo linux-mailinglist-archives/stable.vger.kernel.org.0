@@ -2,178 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7879D554854
-	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 14:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4293F5548AA
+	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 14:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357423AbiFVJL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jun 2022 05:11:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36916 "EHLO
+        id S1356294AbiFVKys (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jun 2022 06:54:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357424AbiFVJLB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 05:11:01 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D808340FC;
-        Wed, 22 Jun 2022 02:09:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1655888978; x=1687424978;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=YqWiE296DtyHyhO+yyiOrk24VL3NMTPdoeON0AXOges=;
-  b=kCjJt+K7X9W1JcKdI9hYkiftr0yn3eEgyX/k4bNgelEqRk111jPj/yEO
-   sE5zb3XFhgeNnGJOYtSsCzWDiZtav0Syrv/2CBagy173yPz59V/RVX5wX
-   E3x7MI6IJnyTzUFKX9tEx+VfhVTh05JQtxAkB0itWozYG87UyMm4RQYzn
-   CaA9OMiT39AbQKC/vae/4h5d7Hb0m11fD/e/ifXFdBqfZsqqW7/EQ/nX6
-   xKstiHjdAvAGvYkxkdbta0D3qBnjDqQtydhRQGw684UC4NdXdHBeULSQc
-   d4NNWa1hv996NL3UuYvyuLprdaz9ZHLaHamIh2bx0BjHYKbRZ41g8rR8Q
-   g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10385"; a="281094053"
-X-IronPort-AV: E=Sophos;i="5.92,212,1650956400"; 
-   d="scan'208";a="281094053"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jun 2022 02:09:38 -0700
-X-IronPort-AV: E=Sophos;i="5.92,212,1650956400"; 
-   d="scan'208";a="644091091"
-Received: from zhaohaif-mobl1.ccr.corp.intel.com (HELO [10.254.210.186]) ([10.254.210.186])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jun 2022 02:09:35 -0700
-Message-ID: <b7834cb5-4836-fb2d-1570-a46440341bed@linux.intel.com>
-Date:   Wed, 22 Jun 2022 17:09:32 +0800
+        with ESMTP id S1355885AbiFVKyq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 06:54:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A21233BBE9;
+        Wed, 22 Jun 2022 03:54:44 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44D21B81D54;
+        Wed, 22 Jun 2022 10:54:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41430C34114;
+        Wed, 22 Jun 2022 10:54:41 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="omymolps"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1655895279;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=3mqUcadCW6UR/1/YwZ43oaYtk6UULq2iLUpsNrIk+9o=;
+        b=omymolps9xNQlf2LXOo+XfnFHXJ6m9eFEKaXy7ep8RPyg1XN00c2EFoGxnR++wLBdtm2j1
+        0l2CJUc2nEzjGCPTkCiocjYfyiA4S3VtI4TbQrblIyx1zQ584XfOLm89YkpPRf63k0TPI5
+        BkELDKnc7vg5O0azcmhSoqa6FUKsYRc=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 4bcfdeaf (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Wed, 22 Jun 2022 10:54:39 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH] powerpc/kvm: don't crash on missing rng, and use darn
+Date:   Wed, 22 Jun 2022 12:54:35 +0200
+Message-Id: <20220622105435.203922-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v2 1/1] iommu/vt-d: Fix RID2PASID setup failure
-To:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>
-Cc:     Chenyi Qiang <chenyi.qiang@intel.com>,
-        Liu Yi L <yi.l.liu@intel.com>,
-        Jacob jun Pan <jacob.jun.pan@intel.com>,
-        iommu@lists.linux-foundation.org, iommu@lists.linux.dev,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20220622044120.21813-1-baolu.lu@linux.intel.com>
-From:   Ethan Zhao <haifeng.zhao@linux.intel.com>
-In-Reply-To: <20220622044120.21813-1-baolu.lu@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On POWER8 systems that don't have ibm,power-rng available, a guest that
+ignores the KVM_CAP_PPC_HWRNG flag and calls H_RANDOM anyway will
+dereference a NULL pointer. And on machines with darn instead of
+ibm,power-rng, H_RANDOM won't work at all.
 
-在 2022/6/22 12:41, Lu Baolu 写道:
-> The IOMMU driver shares the pasid table for PCI alias devices. When the
-> RID2PASID entry of the shared pasid table has been filled by the first
-> device, the subsequent devices will encounter the "DMAR: Setup RID2PASID
-> failed" failure as the pasid entry has already been marked as present. As
-> the result, the IOMMU probing process will be aborted.
->
-> This fixes it by skipping RID2PASID setting if the pasid entry has been
-> populated. This works because the IOMMU core ensures that only the same
-> IOMMU domain can be attached to all PCI alias devices at the same time.
-> Therefore the subsequent devices just try to setup the RID2PASID entry
-> with the same domain, which is negligible. This also adds domain validity
-> checks for more confidence anyway.
->
-> Fixes: ef848b7e5a6a0 ("iommu/vt-d: Setup pasid entry for RID2PASID support")
-> Reported-by: Chenyi Qiang <chenyi.qiang@intel.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-> ---
->   drivers/iommu/intel/pasid.c | 22 ++++++++++++++++------
->   1 file changed, 16 insertions(+), 6 deletions(-)
->
-> Change log:
-> v2:
->   - Add domain validity check in RID2PASID entry setup.
->
-> diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
-> index cb4c1d0cf25c..4f3525f3346f 100644
-> --- a/drivers/iommu/intel/pasid.c
-> +++ b/drivers/iommu/intel/pasid.c
-> @@ -575,6 +575,19 @@ static inline int pasid_enable_wpe(struct pasid_entry *pte)
->   	return 0;
->   };
->   
-> +/*
-> + * Return true if @pasid is RID2PASID and the domain @did has already
-> + * been setup to the @pte. Otherwise, return false. PCI alias devices
-> + * probably share the single RID2PASID pasid entry in the shared pasid
-> + * table. It's reasonable that those devices try to set a share domain
-> + * in their probe paths.
-> + */
+This patch kills two birds with one stone, by routing H_RANDOM calls to
+ppc_md.get_random_seed, and doing the real mode check inside of it.
 
-I am thinking about the counter-part, the intel_pasid_tear_down_entry(),
+Cc: stable@vger.kernel.org # v4.1+
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: e928e9cb3601 ("KVM: PPC: Book3S HV: Add fast real-mode H_RANDOM implementation.")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
 
-Multi devices share the same PASID entry, then one was detached from the 
-domain,
-
-so the entry doesn't exist anymore, while another devices don't know 
-about the change,
-
-and they are using the mapping, is it possible case ？shared thing, no 
-refer-counter,
-
-am I missing something ?
+This patch must be applied ontop of:
+1) https://github.com/linuxppc/linux/commit/f3eac426657d985b97c92fa5f7ae1d43f04721f3
+2) https://lore.kernel.org/all/20220622102532.173393-1-Jason@zx2c4.com/
 
 
-Thanks，
+ arch/powerpc/include/asm/archrandom.h |  5 ----
+ arch/powerpc/kvm/book3s_hv_builtin.c  |  5 ++--
+ arch/powerpc/platforms/powernv/rng.c  | 33 +++++++--------------------
+ 3 files changed, 11 insertions(+), 32 deletions(-)
 
-Ethan
-
-
-> +static inline bool
-> +rid2pasid_domain_valid(struct pasid_entry *pte, u32 pasid, u16 did)
-> +{
-> +	return pasid == PASID_RID2PASID && pasid_get_domain_id(pte) == did;
-> +}
-> +
->   /*
->    * Set up the scalable mode pasid table entry for first only
->    * translation type.
-> @@ -595,9 +608,8 @@ int intel_pasid_setup_first_level(struct intel_iommu *iommu,
->   	if (WARN_ON(!pte))
->   		return -EINVAL;
->   
-> -	/* Caller must ensure PASID entry is not in use. */
->   	if (pasid_pte_is_present(pte))
-> -		return -EBUSY;
-> +		return rid2pasid_domain_valid(pte, pasid, did) ? 0 : -EBUSY;
->   
->   	pasid_clear_entry(pte);
->   
-> @@ -698,9 +710,8 @@ int intel_pasid_setup_second_level(struct intel_iommu *iommu,
->   		return -ENODEV;
->   	}
->   
-> -	/* Caller must ensure PASID entry is not in use. */
->   	if (pasid_pte_is_present(pte))
-> -		return -EBUSY;
-> +		return rid2pasid_domain_valid(pte, pasid, did) ? 0 : -EBUSY;
->   
->   	pasid_clear_entry(pte);
->   	pasid_set_domain_id(pte, did);
-> @@ -738,9 +749,8 @@ int intel_pasid_setup_pass_through(struct intel_iommu *iommu,
->   		return -ENODEV;
->   	}
->   
-> -	/* Caller must ensure PASID entry is not in use. */
->   	if (pasid_pte_is_present(pte))
-> -		return -EBUSY;
-> +		return rid2pasid_domain_valid(pte, pasid, did) ? 0 : -EBUSY;
->   
->   	pasid_clear_entry(pte);
->   	pasid_set_domain_id(pte, did);
-
+diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
+index 11d4815841ab..3af27bb84a3d 100644
+--- a/arch/powerpc/include/asm/archrandom.h
++++ b/arch/powerpc/include/asm/archrandom.h
+@@ -38,12 +38,7 @@ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ #endif /* CONFIG_ARCH_RANDOM */
+ 
+ #ifdef CONFIG_PPC_POWERNV
+-int pnv_hwrng_present(void);
+ int pnv_get_random_long(unsigned long *v);
+-int pnv_get_random_real_mode(unsigned long *v);
+-#else
+-static inline int pnv_hwrng_present(void) { return 0; }
+-static inline int pnv_get_random_real_mode(unsigned long *v) { return 0; }
+ #endif
+ 
+ #endif /* _ASM_POWERPC_ARCHRANDOM_H */
+diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
+index 799d40c2ab4f..1c6672826db5 100644
+--- a/arch/powerpc/kvm/book3s_hv_builtin.c
++++ b/arch/powerpc/kvm/book3s_hv_builtin.c
+@@ -176,13 +176,14 @@ EXPORT_SYMBOL_GPL(kvmppc_hcall_impl_hv_realmode);
+ 
+ int kvmppc_hwrng_present(void)
+ {
+-	return pnv_hwrng_present();
++	return ppc_md.get_random_seed != NULL;
+ }
+ EXPORT_SYMBOL_GPL(kvmppc_hwrng_present);
+ 
+ long kvmppc_rm_h_random(struct kvm_vcpu *vcpu)
+ {
+-	if (pnv_get_random_real_mode(&vcpu->arch.regs.gpr[4]))
++	if (ppc_md.get_random_seed &&
++	    ppc_md.get_random_seed(&vcpu->arch.regs.gpr[4]))
+ 		return H_SUCCESS;
+ 
+ 	return H_HARDWARE;
+diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
+index 868bb9777425..c748567cd47e 100644
+--- a/arch/powerpc/platforms/powernv/rng.c
++++ b/arch/powerpc/platforms/powernv/rng.c
+@@ -29,15 +29,6 @@ struct pnv_rng {
+ 
+ static DEFINE_PER_CPU(struct pnv_rng *, pnv_rng);
+ 
+-int pnv_hwrng_present(void)
+-{
+-	struct pnv_rng *rng;
+-
+-	rng = get_cpu_var(pnv_rng);
+-	put_cpu_var(rng);
+-	return rng != NULL;
+-}
+-
+ static unsigned long rng_whiten(struct pnv_rng *rng, unsigned long val)
+ {
+ 	unsigned long parity;
+@@ -58,17 +49,6 @@ static unsigned long rng_whiten(struct pnv_rng *rng, unsigned long val)
+ 	return val;
+ }
+ 
+-int pnv_get_random_real_mode(unsigned long *v)
+-{
+-	struct pnv_rng *rng;
+-
+-	rng = raw_cpu_read(pnv_rng);
+-
+-	*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
+-
+-	return 1;
+-}
+-
+ static int pnv_get_random_darn(unsigned long *v)
+ {
+ 	unsigned long val;
+@@ -105,11 +85,14 @@ int pnv_get_random_long(unsigned long *v)
+ {
+ 	struct pnv_rng *rng;
+ 
+-	rng = get_cpu_var(pnv_rng);
+-
+-	*v = rng_whiten(rng, in_be64(rng->regs));
+-
+-	put_cpu_var(rng);
++	if (mfmsr() & MSR_DR) {
++		rng = raw_cpu_read(pnv_rng);
++		*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
++	} else {
++		rng = get_cpu_var(pnv_rng);
++		*v = rng_whiten(rng, in_be64(rng->regs));
++		put_cpu_var(rng);
++	}
+ 
+ 	return 1;
+ }
 -- 
-AFAIK = As Far As I Know
-AKA = Also Known As
-ASAP = As Soon As Possible
+2.35.1
 
