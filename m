@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50EDA55484F
-	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 14:13:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC535545FB
+	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 14:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357785AbiFVLsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jun 2022 07:48:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59706 "EHLO
+        id S1357791AbiFVLsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jun 2022 07:48:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346969AbiFVLsm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 07:48:42 -0400
-Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90AD03CA41
-        for <stable@vger.kernel.org>; Wed, 22 Jun 2022 04:48:39 -0700 (PDT)
-Received: from mwalle01.kontron.local. (unknown [213.135.10.150])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id BE99622238;
-        Wed, 22 Jun 2022 13:48:37 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1655898518;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Zs1EkfZopk6gYpI9D/aDrFtaGA3Bq1d5LQ1+2qZaZ/M=;
-        b=en02T/e/d9NrIJHmdu52BfnBjUtJUtPCHJIvDG92tORJLbSFGV8Pbh/sWc6Y13R6qtZrNy
-        EQyofvhMzuUWQ+oL/Zqn3F15pRnVwSj2F7bIOYBUh4YrY8EGKvQ08zjTpbS6oRH4Ipp9fc
-        /7jUJGhdqd+djHliLsh6St8rydAQti0=
-From:   Michael Walle <michael@walle.cc>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Sean Anderson <sean.anderson@seco.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Michael Walle <michael@walle.cc>
-Subject: backport of 8cb0cd68bef7 (dt-bindings: nvmem: sfp: Add clock properties)
-Date:   Wed, 22 Jun 2022 13:48:10 +0200
-Message-Id: <20220622114810.3398108-1-michael@walle.cc>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S1346969AbiFVLsu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 07:48:50 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56ABC3CA58;
+        Wed, 22 Jun 2022 04:48:47 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 20F4E1C0B9B; Wed, 22 Jun 2022 13:48:45 +0200 (CEST)
+Date:   Wed, 22 Jun 2022 13:48:44 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        rdunlap@infradead.org
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: Re: [PATCH 4.9 13/20] x86/speculation/mmio: Add mitigation for
+ Processor MMIO Stale Data
+Message-ID: <20220622114844.GA6854@duo.ucw.cz>
+References: <20220614183722.061550591@linuxfoundation.org>
+ <20220614183725.181834522@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
+Content-Disposition: inline
+In-Reply-To: <20220614183725.181834522@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,18 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
 
-This patch should have been picked for the 5.18 branch where the device
-tree binding was introcuded first, but instead it landed in -next without a
-Fixes: tag [1].
+--zYM0uCDKw75PZbzx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Now there is a backwards incompatible change between 5.18 and the upcoming
-5.19. Thus, can this be picked up for the 5.18 tree?
+Hi!
 
-More background can be found in [2].
 
--michael
+> +static int __init mmio_stale_data_parse_cmdline(char *str)
+> +{
+> +	if (!boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA))
+> +		return 0;
+> +
+> +	if (!str)
+> +		return -EINVAL;
+> +
+> +	if (!strcmp(str, "off")) {
+> +		mmio_mitigation =3D MMIO_MITIGATION_OFF;
+> +	} else if (!strcmp(str, "full")) {
+> +		mmio_mitigation =3D MMIO_MITIGATION_VERW;
+> +	} else if (!strcmp(str, "full,nosmt")) {
+> +		mmio_mitigation =3D MMIO_MITIGATION_VERW;
+> +		mmio_nosmt =3D true;
+> +	}
+> +
+> +	return 0;
+> +}
 
-[1] https://lore.kernel.org/r/3b8fc56f64508f7604f3b9e14b048568@walle.cc
-[2] https://lore.kernel.org/r/4a45db184fbadc278624571dfbeb5004@walle.cc
+This is wrong, AFAICT. Returning 0 will pollute init's environment;
+Randy was cleaning those lately and we are even seeing them in
+-stable. See for example b793a01000122d2bd133ba451a76cc135b5e162c.
+
+The early return 0 should disappear, too; we should validate the
+option even on non-buggy machines.
+
+Best regards,
+								Pavel
+
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--zYM0uCDKw75PZbzx
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYrMBnAAKCRAw5/Bqldv6
+8iJtAJsERFxro0FFV011k6a29uJIEIKqNACdHrxH1Umdyzcz1saie73RD0zpgmE=
+=iyCs
+-----END PGP SIGNATURE-----
+
+--zYM0uCDKw75PZbzx--
