@@ -2,136 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC2E9553EEC
-	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 01:30:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82583553FBF
+	for <lists+stable@lfdr.de>; Wed, 22 Jun 2022 02:55:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354518AbiFUXaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jun 2022 19:30:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38894 "EHLO
+        id S1355434AbiFVAy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jun 2022 20:54:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353804AbiFUXaW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 19:30:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02E6530576;
-        Tue, 21 Jun 2022 16:30:20 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1982BB81BB3;
-        Tue, 21 Jun 2022 23:30:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D47C3C3411C;
-        Tue, 21 Jun 2022 23:30:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1655854217;
-        bh=RwI86nhuUxpVDtPJHRd3R7ztuUZQ5mf73GKgtZbu0gA=;
-        h=Date:To:From:Subject:From;
-        b=ZBCegqNs8z7NnvFB18UYfdD23DBmhTfLXXDICvWlfjjA+E/lOq2kcWDoXXEUC1xtM
-         lheQ5bCiRKshcfAugpuPQqbCc/MYfTyZKRog/SJ+B+n6Dk9WBvvNk7nPyjvI4gZbqo
-         EODBDVF1UtF6QXYLTvv/LC88dWlsU5TAgvCx2U9k=
-Date:   Tue, 21 Jun 2022 16:30:10 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        mike.kravetz@oracle.com, duanxiongchun@bytedance.com,
-        songmuchun@bytedance.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-sparsemem-fix-missing-higher-order-allocation-splitting.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220621233016.D47C3C3411C@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_RED autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S1355474AbiFVAy4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jun 2022 20:54:56 -0400
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2057.outbound.protection.outlook.com [40.107.223.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF01031350;
+        Tue, 21 Jun 2022 17:54:53 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=dw8fyVlon9qJopNjKAgtc4NrqgRF5tdu/WwEWHs57gdYzBzBllJYXSrDlr92KJG0DXNDOP8EEXq+8Ozlvq82VwGffHE1pwpeTBxS48C79rraYArsh7qaaDsG5vqZZz1Lr5d+OjozpdC59ynAD3qiatPF+/JNQ2TZOkx1Pwadt3QFkWkxcYYAro2wmMv70IQR8scHnoGieNqjQRF2VzBIhiHUhzPjVZKGeGA70xGciGz6UApmTJs15eEV/baOhoHs3WYrksFNTvLyf76D5a5bop8lYyrOKNztxiXnwb5OLvtrdTQT4JCapghUai3GoHkw3nT20417ecaERpxHPohoiQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/4qcnsEzsReGXlF0v/p/wJHUhIkauYOL3i4UPcyj+9s=;
+ b=bB8GiqCrg3wd3UP1Kj9kIgXJj052MhHG8iMKSQRAepaoFp4mYO7KyTN/rP+weZyfqWzxPkq/Tsy0Bv0QYfaY1KB32koJZx/1aLNbcBPWJCZEhfZq4JfjDC48w3l3hWv7QMyOX1rKW8QwnLqO8BaK/6X8TxCqirs6eFmcuJ7HfAV7S8cvzqDnfz9EzC6fyD5kRW9sZxONNCrgKAc3agZXTgiMLwF80Us6NZpkkZyV6sWCgMCNDuR99w1T+OT0+T5A0RHQD6bb8RVkBHyEy5HKxuy2I3YJ3eitvkcbUfBbKplpUndwGfVrnUqB7MhyteaQOhOoYPNy76SYbtkiw34w2Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.238) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/4qcnsEzsReGXlF0v/p/wJHUhIkauYOL3i4UPcyj+9s=;
+ b=awyiPLF7OymjBX/YmrLk3KZhix279bCBP04WrdPqZS9w6Ip0Q0K0zR/icAi9TyGHVHEMFkYrdHh+8BPDwLxSsWqqKjm/IM/kF/1kPz20Qw+fAYJ0zjB17nsfXbCEtxUGp4lGRvj9pNDRKuZKbKP8EKHkGEoiRPcfBoDDKZuT9aRqChcVyqA/g5nNTVGdBGwtMZq6a9NUvGNdXUTRBYzu4hgsaJIFSnb1EheKwbPi6zKsswSkjGjeeGPm7eIWtId8IKpANJr0tbSb7a+djAP5sr0bHO/+RCub9aSxS3ftpCoe60JjJN819PBdBDZMh6mF80LxDnKw4scrC90i6/n9NQ==
+Received: from MWHPR08CA0037.namprd08.prod.outlook.com (2603:10b6:300:c0::11)
+ by BL1PR12MB5237.namprd12.prod.outlook.com (2603:10b6:208:30b::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5353.14; Wed, 22 Jun
+ 2022 00:54:52 +0000
+Received: from CO1NAM11FT006.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:300:c0:cafe::50) by MWHPR08CA0037.outlook.office365.com
+ (2603:10b6:300:c0::11) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5353.14 via Frontend
+ Transport; Wed, 22 Jun 2022 00:54:52 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.238)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.238 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.238; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.238) by
+ CO1NAM11FT006.mail.protection.outlook.com (10.13.174.246) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5353.14 via Frontend Transport; Wed, 22 Jun 2022 00:54:51 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by DRHQMAIL105.nvidia.com
+ (10.27.9.14) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Wed, 22 Jun
+ 2022 00:54:51 +0000
+Received: from foundations-user-AS-2114GT-DNR-C1-NC24B.nvidia.com
+ (10.126.231.35) by rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.22; Tue, 21 Jun 2022 17:54:50 -0700
+From:   Kechen Lu <kechenl@nvidia.com>
+To:     <kvm@vger.kernel.org>, <pbonzini@redhat.com>
+CC:     <seanjc@google.com>, <chao.gao@intel.com>, <vkuznets@redhat.com>,
+        <somduttar@nvidia.com>, <kechenl@nvidia.com>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+Subject: [RFC PATCH v4 1/7] KVM: x86: only allow exits disable before vCPUs created
+Date:   Tue, 21 Jun 2022 17:49:18 -0700
+Message-ID: <20220622004924.155191-2-kechenl@nvidia.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220622004924.155191-1-kechenl@nvidia.com>
+References: <20220622004924.155191-1-kechenl@nvidia.com>
+MIME-Version: 1.0
+X-NVConfidentiality: public
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.126.231.35]
+X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 9f9d780f-baed-4a95-8fde-08da53e9d0a1
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5237:EE_
+X-Microsoft-Antispam-PRVS: <BL1PR12MB5237F17F69DCAC8BB535DFB5CAB29@BL1PR12MB5237.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: cBOily90FaONk07azMdktj8MTPT5Ermf2pUAx/gLRkJd8/bccl4C2AXCMS3R52bpGd+jKEygzWcmOMylkEaCsm5HdSV2UNO1uKe2GbOP4XBbemHuTC09nyKDlC0jVy/Nnf7XTSE7dWGGhZlDeu+fODPl5IIe4CR4bbjiVRBuhZeQekE46Zna7zCkeAshFrnAt2OeyWwLukE4RBhifGmpRHI/cIH5CxyX4hp+5bj4r8tnnc7GUNnI6oFbd3orDCAns8wxfGIEYa+/2TvssZVUmD8BKDprZTS26qVDtDWE1WkMgmtVOm+A1JS+lMuq1Wyq7WzrHajxYI2ymORU+Non9I71MQiA7g2IN42jZyew5YWppvJO3V+96lJo0sY8HuB/63yV76D3MxwKlNaJfUOiKvOEbLDorPMr7fei0JNm4nu2acEcfiIDZGmG+UwZPm+PJ14zhCc/qH0e0kc2S5vCn2aMTuxY9Ne/lpJogMvROdZS6/FfP+LAxKMi+nN5DKzVa2i9iuGzSXR9ZQb9Z8VnutqXIRUWIeWPH8sboH/Cr0P10wYq9OeXJesSz9WVC7wSuaKNqfHArLv2LmPpS4AiyFifED/Mq57D2qv7xDFO/CPn80OPeDS8+3SngdDLeDg/W5nai5eLYJuDwLUXMYZuo04J1X0xyTaIJO3JcDmfqGqFHyU7UBr97c0LFRSG7IZvkwSe0GawBY9LZOoipiYWF7J33Kw9OS0cQWpWqalHEdlY2WIPcemZ4au8YXNprDtF
+X-Forefront-Antispam-Report: CIP:12.22.5.238;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(136003)(346002)(39860400002)(396003)(376002)(46966006)(40470700004)(36840700001)(4326008)(8936002)(41300700001)(26005)(6666004)(110136005)(82740400003)(54906003)(2906002)(40480700001)(82310400005)(86362001)(36860700001)(356005)(36756003)(47076005)(70586007)(5660300002)(1076003)(336012)(426003)(40460700003)(2616005)(478600001)(186003)(70206006)(81166007)(83380400001)(316002)(7696005)(8676002)(16526019)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Jun 2022 00:54:51.7831
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9f9d780f-baed-4a95-8fde-08da53e9d0a1
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.238];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT006.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5237
+X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Sean Christopherson <seanjc@google.com>
 
-The patch titled
-     Subject: mm: sparsemem: fix missing higher order allocation splitting
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-sparsemem-fix-missing-higher-order-allocation-splitting.patch
+Since VMX and SVM both would never update the control bits if exits
+are disable after vCPUs are created, only allow setting exits
+disable flag before vCPU creation.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-sparsemem-fix-missing-higher-order-allocation-splitting.patch
+Fixes: 4d5422cea3b6 ("KVM: X86: Provide a capability to disable MWAIT
+intercepts")
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Muchun Song <songmuchun@bytedance.com>
-Subject: mm: sparsemem: fix missing higher order allocation splitting
-Date: Mon, 20 Jun 2022 10:30:19 +0800
-
-Higher order allocations for vmemmap pages from buddy allocator must be
-able to be treated as indepdenent small pages as they can be freed
-individually by the caller.  There is no problem for higher order vmemmap
-pages allocated at boot time since each individual small page will be
-initialized at boot time.  However, it will be an issue for memory hotplug
-case since those higher order vmemmap pages are allocated from buddy
-allocator without initializing each individual small page's refcount.  The
-system will panic in put_page_testzero() when CONFIG_DEBUG_VM is enabled
-if the vmemmap page is freed.
-
-Link: https://lkml.kernel.org/r/20220620023019.94257-1-songmuchun@bytedance.com
-Fixes: d8d55f5616cf ("mm: sparsemem: use page table lock to protect kernel pmd operations")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Kechen Lu <kechenl@nvidia.com>
+Cc: stable@vger.kernel.org
 ---
+ Documentation/virt/kvm/api.rst | 1 +
+ arch/x86/kvm/x86.c             | 6 ++++++
+ 2 files changed, 7 insertions(+)
 
- mm/sparse-vmemmap.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
---- a/mm/sparse-vmemmap.c~mm-sparsemem-fix-missing-higher-order-allocation-splitting
-+++ a/mm/sparse-vmemmap.c
-@@ -78,6 +78,14 @@ static int __split_vmemmap_huge_pmd(pmd_
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 11e00a46c610..d0d8749591a8 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -6933,6 +6933,7 @@ branch to guests' 0x200 interrupt vector.
+ :Architectures: x86
+ :Parameters: args[0] defines which exits are disabled
+ :Returns: 0 on success, -EINVAL when args[0] contains invalid exits
++          or if any vCPU has already been created
  
- 	spin_lock(&init_mm.page_table_lock);
- 	if (likely(pmd_leaf(*pmd))) {
-+		/*
-+		 * Higher order allocations from buddy allocator must be able to
-+		 * be treated as indepdenent small pages (as they can be freed
-+		 * individually).
-+		 */
-+		if (!PageReserved(page))
-+			split_page(page, get_order(PMD_SIZE));
+ Valid bits in args[0] are::
+ 
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 158b2e135efc..3ac6329e6d43 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6006,6 +6006,10 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
+ 		if (cap->args[0] & ~KVM_X86_DISABLE_VALID_EXITS)
+ 			break;
+ 
++		mutex_lock(&kvm->lock);
++		if (kvm->created_vcpus)
++			goto disable_exits_unlock;
 +
- 		/* Make pte visible before pmd. See comment in pmd_install(). */
- 		smp_wmb();
- 		pmd_populate_kernel(&init_mm, pmd, pgtable);
-_
-
-Patches currently in -mm which might be from songmuchun@bytedance.com are
-
-mm-sparsemem-fix-missing-higher-order-allocation-splitting.patch
-mm-memory_hotplug-enumerate-all-supported-section-flags.patch
-mm-memory_hotplug-enumerate-all-supported-section-flags-v5.patch
-mm-memory_hotplug-make-hugetlb_optimize_vmemmap-compatible-with-memmap_on_memory.patch
-mm-memory_hotplug-make-hugetlb_optimize_vmemmap-compatible-with-memmap_on_memory-v5.patch
-mm-hugetlb-remove-minimum_order-variable.patch
-mm-memcontrol-remove-dead-code-and-comments.patch
-mm-rename-unlock_page_lruvec_irq-_irqrestore-to-lruvec_unlock_irq-_irqrestore.patch
-mm-memcontrol-prepare-objcg-api-for-non-kmem-usage.patch
-mm-memcontrol-make-lruvec-lock-safe-when-lru-pages-are-reparented.patch
-mm-vmscan-rework-move_pages_to_lru.patch
-mm-thp-make-split-queue-lock-safe-when-lru-pages-are-reparented.patch
-mm-memcontrol-make-all-the-callers-of-foliopage_memcg-safe.patch
-mm-memcontrol-introduce-memcg_reparent_ops.patch
-mm-memcontrol-use-obj_cgroup-apis-to-charge-the-lru-pages.patch
-mm-lru-add-vm_warn_on_once_folio-to-lru-maintenance-function.patch
-mm-lru-use-lruvec-lock-to-serialize-memcg-changes.patch
+ 		if ((cap->args[0] & KVM_X86_DISABLE_EXITS_MWAIT) &&
+ 			kvm_can_mwait_in_guest())
+ 			kvm->arch.mwait_in_guest = true;
+@@ -6016,6 +6020,8 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
+ 		if (cap->args[0] & KVM_X86_DISABLE_EXITS_CSTATE)
+ 			kvm->arch.cstate_in_guest = true;
+ 		r = 0;
++disable_exits_unlock:
++		mutex_unlock(&kvm->lock);
+ 		break;
+ 	case KVM_CAP_MSR_PLATFORM_INFO:
+ 		kvm->arch.guest_can_read_msr_platform_info = cap->args[0];
+-- 
+2.32.0
 
