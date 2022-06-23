@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 720445584EE
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67E9D5584F5
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:51:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229804AbiFWRvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:51:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41170 "EHLO
+        id S232766AbiFWRve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:51:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235174AbiFWRvC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:51:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DD9A4AE30;
-        Thu, 23 Jun 2022 10:12:11 -0700 (PDT)
+        with ESMTP id S235299AbiFWRvM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:51:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1487EAA;
+        Thu, 23 Jun 2022 10:12:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FC5D61CD9;
-        Thu, 23 Jun 2022 17:12:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63B7BC3411B;
-        Thu, 23 Jun 2022 17:12:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0A5B61D17;
+        Thu, 23 Jun 2022 17:12:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E64CC3411B;
+        Thu, 23 Jun 2022 17:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004328;
-        bh=2z9tTJftywRoIVlylQdhtZ47Nl/uIFxFyf3M6FUq6Xo=;
+        s=korg; t=1656004332;
+        bh=qG/z7pGTlu7rIK35JdI01L2yl2wZZo3gEQBsnATcXHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dGZbY254lnjulv5NhvzMyaHRQEl6AoVc60Ic0N3eUSzi6ON4FLSPANyYl8PZNrz2r
-         G+ONtyoXVxHQ3VwT32PodMp0cyFXMad4ThO48R1ppnlzOuxVe+OeWPGfgMQkgspawR
-         H29oK9RIJKbW/9WSISYR2VsmsFhGzRE1Fr2XjH9s=
+        b=XdV/hKH2OOvjwTytUTH7ZLlnv8kjuXpre9cbZwNDH0t6z0S/VLuPRxhyTIiXPM1VV
+         URZc3RuvqJ+XJ1Nw1rPRC/eezaJ2vIMO1MZefiYJBKJHeZd1XOqC7RHdZsEP8glPMG
+         WAzMclbuJnkkkyobp267XbDu5QcbGg0piPGw7UIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marian Postevca <posteuca@mutex.one>
-Subject: [PATCH 5.15 5/9] usb: gadget: u_ether: fix regression in setting fixed MAC address
-Date:   Thu, 23 Jun 2022 18:44:48 +0200
-Message-Id: <20220623164322.448085871@linuxfoundation.org>
+        stable@vger.kernel.org, Simon Sundberg <simon.sundberg@kau.se>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.15 6/9] bpf: Fix calling global functions from BPF_PROG_TYPE_EXT programs
+Date:   Thu, 23 Jun 2022 18:44:49 +0200
+Message-Id: <20220623164322.477144391@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164322.288837280@linuxfoundation.org>
 References: <20220623164322.288837280@linuxfoundation.org>
@@ -52,79 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marian Postevca <posteuca@mutex.one>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-commit b337af3a4d6147000b7ca6b3438bf5c820849b37 upstream.
+commit f858c2b2ca04fc7ead291821a793638ae120c11d upstream.
 
-In systemd systems setting a fixed MAC address through
-the "dev_addr" module argument fails systematically.
-When checking the MAC address after the interface is created
-it always has the same but different MAC address to the one
-supplied as argument.
+The verifier allows programs to call global functions as long as their
+argument types match, using BTF to check the function arguments. One of the
+allowed argument types to such global functions is PTR_TO_CTX; however the
+check for this fails on BPF_PROG_TYPE_EXT functions because the verifier
+uses the wrong type to fetch the vmlinux BTF ID for the program context
+type. This failure is seen when an XDP program is loaded using
+libxdp (which loads it as BPF_PROG_TYPE_EXT and attaches it to a global XDP
+type program).
 
-This is partially caused by systemd which by default will
-set an internally generated permanent MAC address for interfaces
-that are marked as having a randomly generated address.
+Fix the issue by passing in the target program type instead of the
+BPF_PROG_TYPE_EXT type to bpf_prog_get_ctx() when checking function
+argument compatibility.
 
-Commit 890d5b40908bfd1a ("usb: gadget: u_ether: fix race in
-setting MAC address in setup phase") didn't take into account
-the fact that the interface must be marked as having a set
-MAC address when it's set as module argument.
+The first Fixes tag refers to the latest commit that touched the code in
+question, while the second one points to the code that first introduced
+the global function call verification.
 
-Fixed by marking the interface with NET_ADDR_SET when
-the "dev_addr" module argument is supplied.
+v2:
+- Use resolve_prog_type()
 
-Fixes: 890d5b40908bfd1a ("usb: gadget: u_ether: fix race in setting MAC address in setup phase")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marian Postevca <posteuca@mutex.one>
-Link: https://lore.kernel.org/r/20220603153459.32722-1-posteuca@mutex.one
+Fixes: 3363bd0cfbb8 ("bpf: Extend kfunc with PTR_TO_CTX, PTR_TO_MEM argument support")
+Fixes: 51c39bb1d5d1 ("bpf: Introduce function-by-function verification")
+Reported-by: Simon Sundberg <simon.sundberg@kau.se>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Link: https://lore.kernel.org/r/20220606075253.28422-1-toke@redhat.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+[ backport: open-code missing resolve_prog_type() helper, resolve context diff ]
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/u_ether.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ kernel/bpf/btf.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -774,9 +774,13 @@ struct eth_dev *gether_setup_name(struct
- 	dev->qmult = qmult;
- 	snprintf(net->name, sizeof(net->name), "%s%%d", netname);
- 
--	if (get_ether_addr(dev_addr, net->dev_addr))
-+	if (get_ether_addr(dev_addr, net->dev_addr)) {
-+		net->addr_assign_type = NET_ADDR_RANDOM;
- 		dev_warn(&g->dev,
- 			"using random %s ethernet address\n", "self");
-+	} else {
-+		net->addr_assign_type = NET_ADDR_SET;
-+	}
- 	if (get_ether_addr(host_addr, dev->host_mac))
- 		dev_warn(&g->dev,
- 			"using random %s ethernet address\n", "host");
-@@ -833,6 +837,9 @@ struct net_device *gether_setup_name_def
- 	INIT_LIST_HEAD(&dev->tx_reqs);
- 	INIT_LIST_HEAD(&dev->rx_reqs);
- 
-+	/* by default we always have a random MAC address */
-+	net->addr_assign_type = NET_ADDR_RANDOM;
-+
- 	skb_queue_head_init(&dev->rx_frames);
- 
- 	/* network device setup */
-@@ -869,7 +876,6 @@ int gether_register_netdev(struct net_de
- 	dev = netdev_priv(net);
- 	g = dev->gadget;
- 
--	net->addr_assign_type = NET_ADDR_RANDOM;
- 	eth_hw_addr_set(net, dev->dev_mac);
- 
- 	status = register_netdev(net);
-@@ -910,6 +916,7 @@ int gether_set_dev_addr(struct net_devic
- 	if (get_ether_addr(dev_addr, new_addr))
- 		return -EINVAL;
- 	memcpy(dev->dev_mac, new_addr, ETH_ALEN);
-+	net->addr_assign_type = NET_ADDR_SET;
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(gether_set_dev_addr);
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -5441,6 +5441,8 @@ static int btf_check_func_arg_match(stru
+ 				    struct bpf_reg_state *regs,
+ 				    bool ptr_to_mem_ok)
+ {
++	enum bpf_prog_type prog_type = env->prog->type == BPF_PROG_TYPE_EXT ?
++		env->prog->aux->dst_prog->type : env->prog->type;
+ 	struct bpf_verifier_log *log = &env->log;
+ 	const char *func_name, *ref_tname;
+ 	const struct btf_type *t, *ref_t;
+@@ -5533,8 +5535,7 @@ static int btf_check_func_arg_match(stru
+ 					reg_ref_tname);
+ 				return -EINVAL;
+ 			}
+-		} else if (btf_get_prog_ctx_type(log, btf, t,
+-						 env->prog->type, i)) {
++		} else if (btf_get_prog_ctx_type(log, btf, t, prog_type, i)) {
+ 			/* If function expects ctx type in BTF check that caller
+ 			 * is passing PTR_TO_CTX.
+ 			 */
 
 
