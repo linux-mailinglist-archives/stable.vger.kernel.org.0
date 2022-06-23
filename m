@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F3C555832E
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:26:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8712455852A
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233705AbiFWR00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:26:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41738 "EHLO
+        id S235382AbiFWRyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:54:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231434AbiFWRZn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:25:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129074FC4B;
-        Thu, 23 Jun 2022 10:02:35 -0700 (PDT)
+        with ESMTP id S235874AbiFWRxd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:53:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFAB19E725;
+        Thu, 23 Jun 2022 10:14:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFB25B8248E;
-        Thu, 23 Jun 2022 17:02:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26F79C3411B;
-        Thu, 23 Jun 2022 17:02:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D65C4B82489;
+        Thu, 23 Jun 2022 17:14:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1474FC341C4;
+        Thu, 23 Jun 2022 17:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003729;
-        bh=MvmChtpZekwc1pro2CqpRXnB9s5InHzLliiTzjEDIzA=;
+        s=korg; t=1656004451;
+        bh=sXL19wqCbyr+cbKWaI19FppbVCfkIQcc2wyE5ao7Vyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rUkDFVXYctOzBtOnOfwSw87q2v4s7E12MOpXh0VX6gsVSE4PQLcQOpCX//q9i0YN2
-         1mb3F/M70dKC+x0Dny8ReX1G3yaergFQjczKVO/TCxegpnGXuoaTFovDe50Sb94Wwy
-         aV9/pUTEeVW7oGmDou6xtyB//C+lnvYw1Ky5wrEQ=
+        b=vGYw7iePcrpyXX4arqRpnMD4WBnVFpMPLQd+fl9iJqKqgniQPMv5VrVzqC0Nsn9j0
+         Qr7NpTSccDfud4WNbOGHzsf/lSCaXDM4JzswSHfeCCELNMOEXZCttVsQOMyCY5Tvhy
+         LOVywUSP/DyU/q7M/XDgM1RanpXWBDRqPos0wqRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-crypto@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+        Mark Brown <broonie@kernel.org>, Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 068/237] random: early initialization of ChaCha constants
+Subject: [PATCH 4.19 035/234] x86: Remove arch_has_random, arch_has_random_seed
 Date:   Thu, 23 Jun 2022 18:41:42 +0200
-Message-Id: <20220623164345.111471358@linuxfoundation.org>
+Message-Id: <20220623164344.058973220@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
+References: <20220623164343.042598055@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,73 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Brodowski <linux@dominikbrodowski.net>
+From: Richard Henderson <richard.henderson@linaro.org>
 
-commit 96562f286884e2db89c74215b199a1084b5fb7f7 upstream.
+commit 5f2ed7f5b99b54389b74e53309677831ac9cb9d7 upstream.
 
-Previously, the ChaCha constants for the primary pool were only
-initialized in crng_initialize_primary(), called by rand_initialize().
-However, some randomness is actually extracted from the primary pool
-beforehand, e.g. by kmem_cache_create(). Therefore, statically
-initialize the ChaCha constants for the primary pool.
+Use the expansion of these macros directly in arch_get_random_*.
 
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: <linux-crypto@vger.kernel.org>
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+These symbols are currently part of the generic archrandom.h
+interface, but are currently unused and can be removed.
+
+Signed-off-by: Richard Henderson <rth@twiddle.net>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20200110145422.49141-2-broonie@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c     |    5 ++++-
- include/crypto/chacha20.h |   15 +++++++++++----
- 2 files changed, 15 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/archrandom.h |   12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -458,6 +458,10 @@ struct crng_state {
- 
- static struct crng_state primary_crng = {
- 	.lock = __SPIN_LOCK_UNLOCKED(primary_crng.lock),
-+	.state[0] = CHACHA_CONSTANT_EXPA,
-+	.state[1] = CHACHA_CONSTANT_ND_3,
-+	.state[2] = CHACHA_CONSTANT_2_BY,
-+	.state[3] = CHACHA_CONSTANT_TE_K,
- };
- 
- /*
-@@ -824,7 +828,6 @@ static void crng_initialize_secondary(st
- 
- static void __init crng_initialize_primary(struct crng_state *crng)
- {
--	chacha_init_consts(crng->state);
- 	_extract_entropy(&input_pool, &crng->state[4], sizeof(__u32) * 12, 0);
- 	if (crng_init_try_arch_early(crng) && trust_cpu && crng_init < 2) {
- 		invalidate_batched_entropy();
---- a/include/crypto/chacha20.h
-+++ b/include/crypto/chacha20.h
-@@ -25,12 +25,19 @@ int crypto_chacha20_setkey(struct crypto
- 			   unsigned int keysize);
- int crypto_chacha20_crypt(struct skcipher_request *req);
- 
-+enum chacha_constants { /* expand 32-byte k */
-+	CHACHA_CONSTANT_EXPA = 0x61707865U,
-+	CHACHA_CONSTANT_ND_3 = 0x3320646eU,
-+	CHACHA_CONSTANT_2_BY = 0x79622d32U,
-+	CHACHA_CONSTANT_TE_K = 0x6b206574U
-+};
-+
- static inline void chacha_init_consts(u32 *state)
- {
--	state[0]  = 0x61707865; /* "expa" */
--	state[1]  = 0x3320646e; /* "nd 3" */
--	state[2]  = 0x79622d32; /* "2-by" */
--	state[3]  = 0x6b206574; /* "te k" */
-+	state[0]  = CHACHA_CONSTANT_EXPA;
-+	state[1]  = CHACHA_CONSTANT_ND_3;
-+	state[2]  = CHACHA_CONSTANT_2_BY;
-+	state[3]  = CHACHA_CONSTANT_TE_K;
+--- a/arch/x86/include/asm/archrandom.h
++++ b/arch/x86/include/asm/archrandom.h
+@@ -86,10 +86,6 @@ static inline bool rdseed_int(unsigned i
+ 	return ok;
  }
  
- #endif
+-/* Conditional execution based on CPU type */
+-#define arch_has_random()	static_cpu_has(X86_FEATURE_RDRAND)
+-#define arch_has_random_seed()	static_cpu_has(X86_FEATURE_RDSEED)
+-
+ /*
+  * These are the generic interfaces; they must not be declared if the
+  * stubs in <linux/random.h> are to be invoked,
+@@ -99,22 +95,22 @@ static inline bool rdseed_int(unsigned i
+ 
+ static inline bool arch_get_random_long(unsigned long *v)
+ {
+-	return arch_has_random() ? rdrand_long(v) : false;
++	return static_cpu_has(X86_FEATURE_RDRAND) ? rdrand_long(v) : false;
+ }
+ 
+ static inline bool arch_get_random_int(unsigned int *v)
+ {
+-	return arch_has_random() ? rdrand_int(v) : false;
++	return static_cpu_has(X86_FEATURE_RDRAND) ? rdrand_int(v) : false;
+ }
+ 
+ static inline bool arch_get_random_seed_long(unsigned long *v)
+ {
+-	return arch_has_random_seed() ? rdseed_long(v) : false;
++	return static_cpu_has(X86_FEATURE_RDSEED) ? rdseed_long(v) : false;
+ }
+ 
+ static inline bool arch_get_random_seed_int(unsigned int *v)
+ {
+-	return arch_has_random_seed() ? rdseed_int(v) : false;
++	return static_cpu_has(X86_FEATURE_RDSEED) ? rdseed_int(v) : false;
+ }
+ 
+ extern void x86_init_rdrand(struct cpuinfo_x86 *c);
 
 
