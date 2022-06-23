@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2438755871E
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:20:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33B2F55874F
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231547AbiFWSUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:20:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44484 "EHLO
+        id S234485AbiFWSX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:23:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234933AbiFWSSe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:18:34 -0400
+        with ESMTP id S237734AbiFWSXX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:23:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A0DF68021;
-        Thu, 23 Jun 2022 10:24:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDD5BC2C69;
+        Thu, 23 Jun 2022 10:25:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 999CA61F06;
-        Thu, 23 Jun 2022 17:24:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 760EDC341C5;
-        Thu, 23 Jun 2022 17:24:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5418861F0A;
+        Thu, 23 Jun 2022 17:25:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB4A9C341C5;
+        Thu, 23 Jun 2022 17:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656005096;
-        bh=wp9EquvNPqrrsJ/Y1NFOY6uknM5N6T0rAZv5vmCLvqQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=riS+em0i3Fjo8zyg1AkKiULncZBRZqtFCiL7gktucAlYTRSKTJtsqea1PdfSxUwBt
-         bIp5Lfr61de6wc4YmOROhO9sqs7gNEQdF1ZWS5X0QytwOMZnagaCCtjuU30w5gJaaU
-         dzMoHo4e6TnC90G3DFY+5Zf1SDj7JIv6kPWFplNU=
+        s=korg; t=1656005150;
+        bh=SyFyZ2sRAWl65JKjtAQGLYjMGv0I2r4u6CPEgMxxpHE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=UndrPuqlREOVAdbphSJ54FLO4A6s+2z413Pfi+d+k2c6q3trM6Txqulo9U8vN1CY1
+         ZZmCuyKvYYYC3b2aUV4Ga39Iutl9ajMG3ACnhl7d1fwpJjExuBf7zNQ+kt4eBAtb3S
+         bKXp7mUxTcgZ0xzlBUrXP5ppQxNxu39SJ7B3hXPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Kol <moshe.kol@mail.huji.ac.il>,
-        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
-        Amit Klein <aksecurity@gmail.com>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.4 07/11] tcp: dynamically allocate the perturb table used by source ports
-Date:   Thu, 23 Jun 2022 18:45:11 +0200
-Message-Id: <20220623164321.412902424@linuxfoundation.org>
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.18 00/11] 5.18.7-rc1 review
+Date:   Thu, 23 Jun 2022 18:45:12 +0200
+Message-Id: <20220623164322.315085512@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164321.195163701@linuxfoundation.org>
-References: <20220623164321.195163701@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.7-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.18.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.18.7-rc1
+X-KernelTest-Deadline: 2022-06-25T16:43+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -57,61 +62,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+This is the start of the stable review cycle for the 5.18.7 release.
+There are 11 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit e9261476184be1abd486c9434164b2acbe0ed6c2 upstream.
+Responses should be made by Sat, 25 Jun 2022 16:43:11 +0000.
+Anything received after that time might be too late.
 
-We'll need to further increase the size of this table and it's likely
-that at some point its size will not be suitable anymore for a static
-table. Let's allocate it on boot from inet_hashinfo2_init(), which is
-called from tcp_init().
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.7-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+and the diffstat can be found below.
 
-Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
-Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
-Cc: Amit Klein <aksecurity@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Cc: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/inet_hashtables.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+thanks,
 
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -680,7 +680,8 @@ EXPORT_SYMBOL_GPL(inet_unhash);
-  * privacy, this only consumes 1 KB of kernel memory.
-  */
- #define INET_TABLE_PERTURB_SHIFT 8
--static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
-+#define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
-+static u32 *table_perturb;
- 
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 		struct sock *sk, u64 port_offset,
-@@ -723,7 +724,8 @@ int __inet_hash_connect(struct inet_time
- 	if (likely(remaining > 1))
- 		remaining &= ~1U;
- 
--	net_get_random_once(table_perturb, sizeof(table_perturb));
-+	net_get_random_once(table_perturb,
-+			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
- 	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
- 
- 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
-@@ -861,6 +863,12 @@ void __init inet_hashinfo2_init(struct i
- 					    low_limit,
- 					    high_limit);
- 	init_hashinfo_lhash2(h);
-+
-+	/* this one is used for source ports of outgoing connections */
-+	table_perturb = kmalloc_array(INET_TABLE_PERTURB_SIZE,
-+				      sizeof(*table_perturb), GFP_KERNEL);
-+	if (!table_perturb)
-+		panic("TCP: failed to alloc table_perturb");
- }
- 
- int inet_hashinfo2_init_mod(struct inet_hashinfo *h)
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.18.7-rc1
+
+Sean Anderson <sean.anderson@seco.com>
+    dt-bindings: nvmem: sfp: Add clock properties
+
+Toke Høiland-Jørgensen <toke@redhat.com>
+    selftests/bpf: Add selftest for calling global functions from freplace
+
+Toke Høiland-Jørgensen <toke@redhat.com>
+    bpf: Fix calling global functions from BPF_PROG_TYPE_EXT programs
+
+Amir Goldstein <amir73il@gmail.com>
+    fsnotify: consistent behavior for parent not watching children
+
+Amir Goldstein <amir73il@gmail.com>
+    fsnotify: introduce mark type iterator
+
+Kees Cook <keescook@chromium.org>
+    x86/boot: Wrap literal addresses in absolute_pointer()
+
+Jakub Kicinski <kuba@kernel.org>
+    net: wwan: iosm: remove pointless null check
+
+Martin Liška <mliska@suse.cz>
+    eth: sun: cassini: remove dead code
+
+Jakub Kicinski <kuba@kernel.org>
+    wifi: rtlwifi: remove always-true condition pointed out by GCC 12
+
+Damien Le Moal <damien.lemoal@opensource.wdc.com>
+    zonefs: fix zonefs_iomap_begin() for reads
+
+Christian Borntraeger <borntraeger@linux.ibm.com>
+    s390/mm: use non-quiescing sske for KVM switch to keyed guest
+
+
+-------------
+
+Diffstat:
+
+ .../bindings/nvmem/fsl,layerscape-sfp.yaml         | 14 ++++
+ Makefile                                           |  4 +-
+ arch/s390/mm/pgtable.c                             |  2 +-
+ arch/x86/boot/boot.h                               | 36 ++++++---
+ arch/x86/boot/main.c                               |  2 +-
+ drivers/net/ethernet/sun/cassini.c                 |  4 +-
+ .../net/wireless/realtek/rtlwifi/rtl8192de/phy.c   |  5 +-
+ drivers/net/wwan/iosm/iosm_ipc_protocol_ops.c      | 10 ---
+ fs/notify/fanotify/fanotify.c                      | 24 ++----
+ fs/notify/fsnotify.c                               | 85 +++++++++----------
+ fs/zonefs/super.c                                  | 94 +++++++++++++++-------
+ include/linux/fsnotify_backend.h                   | 31 +++++--
+ kernel/bpf/btf.c                                   |  4 +-
+ .../selftests/bpf/prog_tests/fexit_bpf2bpf.c       | 14 ++++
+ .../selftests/bpf/progs/freplace_global_func.c     | 18 +++++
+ 15 files changed, 216 insertions(+), 131 deletions(-)
 
 
