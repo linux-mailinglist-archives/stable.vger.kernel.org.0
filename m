@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B68955858B
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60B3E558585
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:59:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233541AbiFWR7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:59:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51244 "EHLO
+        id S232505AbiFWR7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:59:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235883AbiFWR5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:57:47 -0400
+        with ESMTP id S235931AbiFWR5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:57:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA8C6F4B3;
-        Thu, 23 Jun 2022 10:15:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DEF1B01C9;
+        Thu, 23 Jun 2022 10:15:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C73861E0F;
-        Thu, 23 Jun 2022 17:15:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E21ACC3411B;
-        Thu, 23 Jun 2022 17:15:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F97F61DEE;
+        Thu, 23 Jun 2022 17:15:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6CC7C3411B;
+        Thu, 23 Jun 2022 17:15:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004550;
-        bh=loYafYE5zjmnYdIqVer8tgs+VwSnZs+hHbLy9ZNlDUg=;
+        s=korg; t=1656004553;
+        bh=05oCL9/vwRD2ONushJmIq7RlXP0+bm7pgIUFoypvMaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JOUsGWTZZF+JKHkRdCCMJR1/j1c2oixopmI3IIWgjEeRPYG3tIfY+/caRs4NjpiA9
-         SZz1stXlV9gEcqhp39XCoJzne+aXTpp4nortjdybazpkyYVYi9zNDorwI50XG+AA81
-         A3k8S/IKK6DZhp02ntneKKdX+NAMuW7WcQp2nLa8=
+        b=RcCM5nFuiv+uWbp0Tm5kkx67/0G3CgXmFroOPanosdqjIjVVXf2gD85ED3tavyDu6
+         3IwzdvlT78R1XsUUlGrYexloIWd9MIlVUeyA6wCG9f1LmvUZCWBZ3qUHnSPNNqpUKm
+         R02VX7QAQzH1urkwgYaMHce5GtaKy+dGDhruZAyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: [PATCH 4.19 072/234] random: continually use hwgenerator randomness
-Date:   Thu, 23 Jun 2022 18:42:19 +0200
-Message-Id: <20220623164345.097775946@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.19 073/234] random: access primary_pool directly rather than through pointer
+Date:   Thu, 23 Jun 2022 18:42:20 +0200
+Message-Id: <20220623164345.126646052@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -56,43 +56,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dominik Brodowski <linux@dominikbrodowski.net>
 
-commit c321e907aa4803d562d6e70ebed9444ad082f953 upstream.
+commit ebf7606388732ecf2821ca21087e9446cb4a5b57 upstream.
 
-The rngd kernel thread may sleep indefinitely if the entropy count is
-kept above random_write_wakeup_bits by other entropy sources. To make
-best use of multiple sources of randomness, mix entropy from hardware
-RNGs into the pool at least once within CRNG_RESEED_INTERVAL.
+Both crng_initialize_primary() and crng_init_try_arch_early() are
+only called for the primary_pool. Accessing it directly instead of
+through a function parameter simplifies the code.
 
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/char/random.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -2193,13 +2193,15 @@ void add_hwgenerator_randomness(const ch
- 			return;
+@@ -762,7 +762,7 @@ static bool crng_init_try_arch(struct cr
+ 	return arch_init;
+ }
+ 
+-static bool __init crng_init_try_arch_early(struct crng_state *crng)
++static bool __init crng_init_try_arch_early(void)
+ {
+ 	int i;
+ 	bool arch_init = true;
+@@ -774,7 +774,7 @@ static bool __init crng_init_try_arch_ea
+ 			rv = random_get_entropy();
+ 			arch_init = false;
+ 		}
+-		crng->state[i] ^= rv;
++		primary_crng.state[i] ^= rv;
  	}
  
--	/* Suspend writing if we're above the trickle threshold.
-+	/* Throttle writing if we're above the trickle threshold.
- 	 * We'll be woken up again once below random_write_wakeup_thresh,
--	 * or when the calling thread is about to terminate.
-+	 * when the calling thread is about to terminate, or once
-+	 * CRNG_RESEED_INTERVAL has lapsed.
- 	 */
--	wait_event_interruptible(random_write_wait,
-+	wait_event_interruptible_timeout(random_write_wait,
- 			!system_wq || kthread_should_stop() ||
--			POOL_ENTROPY_BITS() <= random_write_wakeup_bits);
-+			POOL_ENTROPY_BITS() <= random_write_wakeup_bits,
-+			CRNG_RESEED_INTERVAL);
- 	mix_pool_bytes(buffer, count);
- 	credit_entropy_bits(entropy);
+ 	return arch_init;
+@@ -788,16 +788,16 @@ static void crng_initialize_secondary(st
+ 	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
  }
+ 
+-static void __init crng_initialize_primary(struct crng_state *crng)
++static void __init crng_initialize_primary(void)
+ {
+-	_extract_entropy(&crng->state[4], sizeof(u32) * 12);
+-	if (crng_init_try_arch_early(crng) && trust_cpu && crng_init < 2) {
++	_extract_entropy(&primary_crng.state[4], sizeof(u32) * 12);
++	if (crng_init_try_arch_early() && trust_cpu && crng_init < 2) {
+ 		invalidate_batched_entropy();
+ 		numa_crng_init();
+ 		crng_init = 2;
+ 		pr_notice("crng init done (trusting CPU's manufacturer)\n");
+ 	}
+-	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
++	primary_crng.init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
+ }
+ 
+ static void crng_finalize_init(struct crng_state *crng)
+@@ -1698,7 +1698,7 @@ int __init rand_initialize(void)
+ 	init_std_data();
+ 	if (crng_need_final_init)
+ 		crng_finalize_init(&primary_crng);
+-	crng_initialize_primary(&primary_crng);
++	crng_initialize_primary();
+ 	crng_global_init_time = jiffies;
+ 	if (ratelimit_disable) {
+ 		urandom_warning.interval = 0;
 
 
