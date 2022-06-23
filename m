@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E74CD558380
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F4455815B
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233793AbiFWRbX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:31:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51196 "EHLO
+        id S229880AbiFWQ7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:59:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233768AbiFWR3o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:29:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB8BE7FD2A;
-        Thu, 23 Jun 2022 10:04:49 -0700 (PDT)
+        with ESMTP id S233287AbiFWQ5m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:57:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8FD84D63C;
+        Thu, 23 Jun 2022 09:53:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80BFFB82490;
-        Thu, 23 Jun 2022 17:04:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE70DC3411B;
-        Thu, 23 Jun 2022 17:04:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C448461FC2;
+        Thu, 23 Jun 2022 16:53:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C5DDC3411B;
+        Thu, 23 Jun 2022 16:53:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003888;
-        bh=/S1iYXeszMNaRYv4XNqtEEGXovrfJyB6SAipvJMmfqI=;
+        s=korg; t=1656003196;
+        bh=7430oTTUQqiKv+OG9VsykxknV6Vufulp3bf/aPDVebo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hfA2DsTRL8Fk8kefxOMCwzN8RWt4/cXVNshOn3vesj3Ep2q7OfXijw8l/3CZC3idr
-         F0NPKZlapYMPhXGReghtyAJ+s9rTwgcmEjTK5qhVkUp8l8x1suXraRYQ2Kg4f0AUA2
-         Cx4Bm//5LjCWsWOAjDUGc+Ak8GmNv2QBGTd5Pwow=
+        b=lq4HnZg7vg6i7LBx2YR2wj65x1gvVpJ7mPeo5FVjlcJTyurZsDYvTvgLHOPU5BpNm
+         F6nXrqjpSduMyexp3htlBRAJ0oxhee9ntH3WYxRY2IcKe+mXSpSGaNiP4iaL2jBA+v
+         TAQFhdpA00mqrOckU7QOJQBJt0rBBxo4uN7/jYmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 119/237] random: do not take pool spinlock at boot
+Subject: [PATCH 4.9 160/264] random: dont let 644 read-only sysctls be written to
 Date:   Thu, 23 Jun 2022 18:42:33 +0200
-Message-Id: <20220623164346.578536073@linuxfoundation.org>
+Message-Id: <20220623164348.589759301@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +56,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit afba0b80b977b2a8f16234f2acd982f82710ba33 upstream.
+commit 77553cf8f44863b31da242cf24671d76ddb61597 upstream.
 
-Since rand_initialize() is run while interrupts are still off and
-nothing else is running, we don't need to repeatedly take and release
-the pool spinlock, especially in the RDSEED loop.
+We leave around these old sysctls for compatibility, and we keep them
+"writable" for compatibility, but even after writing, we should keep
+reporting the same value. This is consistent with how userspaces tend to
+use sysctl_random_write_wakeup_bits, writing to it, and then later
+reading from it and using the value.
 
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/char/random.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -973,10 +973,10 @@ int __init rand_initialize(void)
- 			rv = random_get_entropy();
- 			arch_init = false;
- 		}
--		mix_pool_bytes(&rv, sizeof(rv));
-+		_mix_pool_bytes(&rv, sizeof(rv));
- 	}
--	mix_pool_bytes(&now, sizeof(now));
--	mix_pool_bytes(utsname(), sizeof(*(utsname())));
-+	_mix_pool_bytes(&now, sizeof(now));
-+	_mix_pool_bytes(utsname(), sizeof(*(utsname())));
+@@ -1663,6 +1663,13 @@ static int proc_do_uuid(struct ctl_table
+ 	return proc_dostring(&fake_table, 0, buffer, lenp, ppos);
+ }
  
- 	extract_entropy(base_crng.key, sizeof(base_crng.key));
- 	++base_crng.generation;
++/* The same as proc_dointvec, but writes don't change anything. */
++static int proc_do_rointvec(struct ctl_table *table, int write, void __user *buffer,
++			    size_t *lenp, loff_t *ppos)
++{
++	return write ? 0 : proc_dointvec(table, 0, buffer, lenp, ppos);
++}
++
+ extern struct ctl_table random_table[];
+ struct ctl_table random_table[] = {
+ 	{
+@@ -1684,14 +1691,14 @@ struct ctl_table random_table[] = {
+ 		.data		= &sysctl_random_write_wakeup_bits,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_do_rointvec,
+ 	},
+ 	{
+ 		.procname	= "urandom_min_reseed_secs",
+ 		.data		= &sysctl_random_min_urandom_seed,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_do_rointvec,
+ 	},
+ 	{
+ 		.procname	= "boot_id",
 
 
