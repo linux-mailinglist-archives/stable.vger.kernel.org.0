@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1EF55580F7
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:54:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9D7A5582AF
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:19:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233280AbiFWQyt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:54:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55366 "EHLO
+        id S229477AbiFWRSv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:18:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233284AbiFWQul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:50:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482BA4F1CF;
-        Thu, 23 Jun 2022 09:48:31 -0700 (PDT)
+        with ESMTP id S233588AbiFWRRx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:17:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E320B885A3;
+        Thu, 23 Jun 2022 09:59:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 830B461F90;
-        Thu, 23 Jun 2022 16:48:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 531DFC3411B;
-        Thu, 23 Jun 2022 16:48:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C454B8248A;
+        Thu, 23 Jun 2022 16:59:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4E9BC3411B;
+        Thu, 23 Jun 2022 16:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002909;
-        bh=6yvFRQG5ebow2dYPSU+snmWBHrNG4pwXJucZeHnDI6c=;
+        s=korg; t=1656003596;
+        bh=AsZmhEC9vfB6DX0K6zIPKTKXQnbgvJ5AfNP0h5XiAWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x0NptpUiae0sT/oAd4ziKEK7PCulMtI2Vu79G1q+b3jt9FUVKtClaDUmkf7PbePWn
-         fyqfurAYXaGH2/4PU5jukKrRGlbTSYWCmaunk1m8aYaHxdSufo7QVs1q+7AC1kiDNK
-         gLyL6lm2tQEShFlMGUMXSEC4/YYye+rvmWduIhsY=
+        b=o842dnH/ZNlVr3cHLIbvk7tK4/SLVs5sKtU6xHHp/TVJMQiJrG3TVf1nzbmfrpH8Y
+         J+//M9hWu6iffy9iaR8kcTCRt4abrW4qYcjMR2vnGtbb/MayJyBpSWUrYMqmkBwk8q
+         OGU30ogpcjoyM6woKUeISz7z3tSsnMaUC4m8yEcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
-        Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 066/264] random: remove some dead code of poolinfo
+Subject: [PATCH 4.14 025/237] crypto: Deduplicate le32_to_cpu_array() and cpu_to_le32_array()
 Date:   Thu, 23 Jun 2022 18:40:59 +0200
-Message-Id: <20220623164345.939620241@linuxfoundation.org>
+Message-Id: <20220623164343.879325145@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +55,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 09a6d00a42ce0e63e2a15be3d070974bcc656ec7 upstream.
+commit 9def051018c08e65c532822749e857eb4b2e12e7 upstream.
 
-Since it is not being used, so delete it.
+Deduplicate le32_to_cpu_array() and cpu_to_le32_array() by moving them
+to the generic header.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Link: https://lore.kernel.org/r/20190607182517.28266-5-tiny.windzz@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+No functional change implied.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   30 ------------------------------
- 1 file changed, 30 deletions(-)
+ crypto/md4.c                      |   17 -----------------
+ crypto/md5.c                      |   17 -----------------
+ include/linux/byteorder/generic.h |   17 +++++++++++++++++
+ 3 files changed, 17 insertions(+), 34 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -432,36 +432,6 @@ static const struct poolinfo {
- 	/* was: x^128 + x^103 + x^76 + x^51 +x^25 + x + 1 */
- 	/* x^128 + x^104 + x^76 + x^51 +x^25 + x + 1 */
- 	{ S(128),	104,	76,	51,	25,	1 },
--	/* was: x^32 + x^26 + x^20 + x^14 + x^7 + x + 1 */
--	/* x^32 + x^26 + x^19 + x^14 + x^7 + x + 1 */
--	{ S(32),	26,	19,	14,	7,	1 },
--#if 0
--	/* x^2048 + x^1638 + x^1231 + x^819 + x^411 + x + 1  -- 115 */
--	{ S(2048),	1638,	1231,	819,	411,	1 },
--
--	/* x^1024 + x^817 + x^615 + x^412 + x^204 + x + 1 -- 290 */
--	{ S(1024),	817,	615,	412,	204,	1 },
--
--	/* x^1024 + x^819 + x^616 + x^410 + x^207 + x^2 + 1 -- 115 */
--	{ S(1024),	819,	616,	410,	207,	2 },
--
--	/* x^512 + x^411 + x^308 + x^208 + x^104 + x + 1 -- 225 */
--	{ S(512),	411,	308,	208,	104,	1 },
--
--	/* x^512 + x^409 + x^307 + x^206 + x^102 + x^2 + 1 -- 95 */
--	{ S(512),	409,	307,	206,	102,	2 },
--	/* x^512 + x^409 + x^309 + x^205 + x^103 + x^2 + 1 -- 95 */
--	{ S(512),	409,	309,	205,	103,	2 },
--
--	/* x^256 + x^205 + x^155 + x^101 + x^52 + x + 1 -- 125 */
--	{ S(256),	205,	155,	101,	52,	1 },
--
--	/* x^128 + x^103 + x^78 + x^51 + x^27 + x^2 + 1 -- 70 */
--	{ S(128),	103,	78,	51,	27,	2 },
--
--	/* x^64 + x^52 + x^39 + x^26 + x^14 + x + 1 -- 15 */
--	{ S(64),	52,	39,	26,	14,	1 },
--#endif
- };
+--- a/crypto/md4.c
++++ b/crypto/md4.c
+@@ -64,23 +64,6 @@ static inline u32 H(u32 x, u32 y, u32 z)
+ #define ROUND2(a,b,c,d,k,s) (a = lshift(a + G(b,c,d) + k + (u32)0x5A827999,s))
+ #define ROUND3(a,b,c,d,k,s) (a = lshift(a + H(b,c,d) + k + (u32)0x6ED9EBA1,s))
  
- /*
+-/* XXX: this stuff can be optimized */
+-static inline void le32_to_cpu_array(u32 *buf, unsigned int words)
+-{
+-	while (words--) {
+-		__le32_to_cpus(buf);
+-		buf++;
+-	}
+-}
+-
+-static inline void cpu_to_le32_array(u32 *buf, unsigned int words)
+-{
+-	while (words--) {
+-		__cpu_to_le32s(buf);
+-		buf++;
+-	}
+-}
+-
+ static void md4_transform(u32 *hash, u32 const *in)
+ {
+ 	u32 a, b, c, d;
+--- a/crypto/md5.c
++++ b/crypto/md5.c
+@@ -32,23 +32,6 @@ const u8 md5_zero_message_hash[MD5_DIGES
+ };
+ EXPORT_SYMBOL_GPL(md5_zero_message_hash);
+ 
+-/* XXX: this stuff can be optimized */
+-static inline void le32_to_cpu_array(u32 *buf, unsigned int words)
+-{
+-	while (words--) {
+-		__le32_to_cpus(buf);
+-		buf++;
+-	}
+-}
+-
+-static inline void cpu_to_le32_array(u32 *buf, unsigned int words)
+-{
+-	while (words--) {
+-		__cpu_to_le32s(buf);
+-		buf++;
+-	}
+-}
+-
+ #define F1(x, y, z)	(z ^ (x & (y ^ z)))
+ #define F2(x, y, z)	F1(z, x, y)
+ #define F3(x, y, z)	(x ^ y ^ z)
+--- a/include/linux/byteorder/generic.h
++++ b/include/linux/byteorder/generic.h
+@@ -156,6 +156,23 @@ static inline void le64_add_cpu(__le64 *
+ 	*var = cpu_to_le64(le64_to_cpu(*var) + val);
+ }
+ 
++/* XXX: this stuff can be optimized */
++static inline void le32_to_cpu_array(u32 *buf, unsigned int words)
++{
++	while (words--) {
++		__le32_to_cpus(buf);
++		buf++;
++	}
++}
++
++static inline void cpu_to_le32_array(u32 *buf, unsigned int words)
++{
++	while (words--) {
++		__cpu_to_le32s(buf);
++		buf++;
++	}
++}
++
+ static inline void be16_add_cpu(__be16 *var, u16 val)
+ {
+ 	*var = cpu_to_be16(be16_to_cpu(*var) + val);
 
 
