@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D51355584F8
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:51:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B5235584FA
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:52:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235161AbiFWRvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:51:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41218 "EHLO
+        id S233502AbiFWRwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:52:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235191AbiFWRvW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:51:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F10563A1;
-        Thu, 23 Jun 2022 10:12:24 -0700 (PDT)
+        with ESMTP id S234794AbiFWRvt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:51:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E7129916C;
+        Thu, 23 Jun 2022 10:12:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88F9F61D02;
-        Thu, 23 Jun 2022 17:12:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74C44C3411B;
-        Thu, 23 Jun 2022 17:12:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1807CB82497;
+        Thu, 23 Jun 2022 17:12:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6014DC3411B;
+        Thu, 23 Jun 2022 17:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004337;
-        bh=qDzmuSiqbUB+FjyDOoGuytMegQAGK7PpdDB2C/Si6hM=;
+        s=korg; t=1656004340;
+        bh=eu8taC3+k0XkN2TBzLNscttMDmRGc+9CZ71xf50kf/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cy5koJkjk+Nw7SjPnE3/4Hb8bWvhNZeBZk3lxslvA0VwhfBY+qjoI/V3JDGTZqhWz
-         Z+fa+ikKL4Tq8uugioc82Y04hvqPa2QaUdblDC6U+nzeqm6MdwoRcaKBPqz8rG49Ag
-         3VJRZdhMdIeb/ehlGQBf2a5RT4N0KS9NLWCgMpnU=
+        b=dzWIarz2lqMdYHPl5BneNmdhzPgvRZe9Ab544mrZa/TcBFx6DSaWHqBZ7CoTF/G8d
+         ibFmuZ61FGk+StazFPdRr55CNLzbWB2/2llywjza1Abk7mox2czd9zjbE7jFs9s8Qy
+         5Amnbgoaqdp45vYWXMBjW4WTL3reMT2oRdU/uAK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Su Bao Cheng <baocheng.su@siemens.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 5.15 8/9] serial: core: Initialize rs485 RTS polarity already on probe
-Date:   Thu, 23 Jun 2022 18:44:51 +0200
-Message-Id: <20220623164322.534186490@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.15 9/9] arm64: mm: Dont invalidate FROM_DEVICE buffers at start of DMA transfer
+Date:   Thu, 23 Jun 2022 18:44:52 +0200
+Message-Id: <20220623164322.563116261@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164322.288837280@linuxfoundation.org>
 References: <20220623164322.288837280@linuxfoundation.org>
@@ -54,153 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Will Deacon <will@kernel.org>
 
-commit 2dd8a74fddd21b95dcc60a2d3c9eaec993419d69 upstream.
+commit c50f11c6196f45c92ca48b16a5071615d4ae0572 upstream.
 
-RTS polarity of rs485-enabled ports is currently initialized on uart
-open via:
+Invalidating the buffer memory in arch_sync_dma_for_device() for
+FROM_DEVICE transfers
 
-tty_port_open()
-  tty_port_block_til_ready()
-    tty_port_raise_dtr_rts()  # if (C_BAUD(tty))
-      uart_dtr_rts()
-        uart_port_dtr_rts()
+When using the streaming DMA API to map a buffer prior to inbound
+non-coherent DMA (i.e. DMA_FROM_DEVICE), we invalidate any dirty CPU
+cachelines so that they will not be written back during the transfer and
+corrupt the buffer contents written by the DMA. This, however, poses two
+potential problems:
 
-There's at least three problems here:
+  (1) If the DMA transfer does not write to every byte in the buffer,
+      then the unwritten bytes will contain stale data once the transfer
+      has completed.
 
-First, if no baud rate is set, RTS polarity is not initialized.
-That's the right thing to do for rs232, but not for rs485, which
-requires that RTS is deasserted unconditionally.
+  (2) If the buffer has a virtual alias in userspace, then stale data
+      may be visible via this alias during the period between performing
+      the cache invalidation and the DMA writes landing in memory.
 
-Second, if the DeviceTree property "linux,rs485-enabled-at-boot-time" is
-present, RTS should be deasserted as early as possible, i.e. on probe.
-Otherwise it may remain asserted until first open.
+Address both of these issues by cleaning (aka writing-back) the dirty
+lines in arch_sync_dma_for_device(DMA_FROM_DEVICE) instead of discarding
+them using invalidation.
 
-Third, even though RTS is deasserted on open and close, it may
-subsequently be asserted by uart_throttle(), uart_unthrottle() or
-uart_set_termios() because those functions aren't rs485-aware.
-(Only uart_tiocmset() is.)
-
-To address these issues, move RTS initialization from uart_port_dtr_rts()
-to uart_configure_port().  Prevent subsequent modification of RTS
-polarity by moving the existing rs485 check from uart_tiocmget() to
-uart_update_mctrl().
-
-That way, RTS is initialized on probe and then remains unmodified unless
-the uart transmits data.  If rs485 is enabled at runtime (instead of at
-boot) through a TIOCSRS485 ioctl(), RTS is initialized by the uart
-driver's ->rs485_config() callback and then likewise remains unmodified.
-
-The PL011 driver initializes RTS on uart open and prevents subsequent
-modification in its ->set_mctrl() callback.  That code is obsoleted by
-the present commit, so drop it.
-
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Su Bao Cheng <baocheng.su@siemens.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/2d2acaf3a69e89b7bf687c912022b11fd29dfa1e.1642909284.git.lukas@wunner.de
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220606152150.GA31568@willie-the-truck
+Signed-off-by: Will Deacon <will@kernel.org>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20220610151228.4562-2-will@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/amba-pl011.c  |   15 +--------------
- drivers/tty/serial/serial_core.c |   34 ++++++++++++----------------------
- 2 files changed, 13 insertions(+), 36 deletions(-)
+ arch/arm64/mm/cache.S |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -1620,13 +1620,6 @@ static void pl011_set_mctrl(struct uart_
- 	    container_of(port, struct uart_amba_port, port);
- 	unsigned int cr;
- 
--	if (port->rs485.flags & SER_RS485_ENABLED) {
--		if (port->rs485.flags & SER_RS485_RTS_AFTER_SEND)
--			mctrl &= ~TIOCM_RTS;
--		else
--			mctrl |= TIOCM_RTS;
--	}
--
- 	cr = pl011_read(uap, REG_CR);
- 
- #define	TIOCMBIT(tiocmbit, uartbit)		\
-@@ -1850,14 +1843,8 @@ static int pl011_startup(struct uart_por
- 	cr = uap->old_cr & (UART011_CR_RTS | UART011_CR_DTR);
- 	cr |= UART01x_CR_UARTEN | UART011_CR_RXE;
- 
--	if (port->rs485.flags & SER_RS485_ENABLED) {
--		if (port->rs485.flags & SER_RS485_RTS_AFTER_SEND)
--			cr &= ~UART011_CR_RTS;
--		else
--			cr |= UART011_CR_RTS;
--	} else {
-+	if (!(port->rs485.flags & SER_RS485_ENABLED))
- 		cr |= UART011_CR_TXE;
--	}
- 
- 	pl011_write(cr, uap, REG_CR);
- 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -144,6 +144,11 @@ uart_update_mctrl(struct uart_port *port
- 	unsigned long flags;
- 	unsigned int old;
- 
-+	if (port->rs485.flags & SER_RS485_ENABLED) {
-+		set &= ~TIOCM_RTS;
-+		clear &= ~TIOCM_RTS;
-+	}
-+
- 	spin_lock_irqsave(&port->lock, flags);
- 	old = port->mctrl;
- 	port->mctrl = (old & ~clear) | set;
-@@ -157,23 +162,10 @@ uart_update_mctrl(struct uart_port *port
- 
- static void uart_port_dtr_rts(struct uart_port *uport, int raise)
- {
--	int rs485_on = uport->rs485_config &&
--		(uport->rs485.flags & SER_RS485_ENABLED);
--	int RTS_after_send = !!(uport->rs485.flags & SER_RS485_RTS_AFTER_SEND);
--
--	if (raise) {
--		if (rs485_on && RTS_after_send) {
--			uart_set_mctrl(uport, TIOCM_DTR);
--			uart_clear_mctrl(uport, TIOCM_RTS);
--		} else {
--			uart_set_mctrl(uport, TIOCM_DTR | TIOCM_RTS);
--		}
--	} else {
--		unsigned int clear = TIOCM_DTR;
--
--		clear |= (!rs485_on || RTS_after_send) ? TIOCM_RTS : 0;
--		uart_clear_mctrl(uport, clear);
--	}
-+	if (raise)
-+		uart_set_mctrl(uport, TIOCM_DTR | TIOCM_RTS);
-+	else
-+		uart_clear_mctrl(uport, TIOCM_DTR | TIOCM_RTS);
- }
- 
- /*
-@@ -1089,11 +1081,6 @@ uart_tiocmset(struct tty_struct *tty, un
- 		goto out;
- 
- 	if (!tty_io_error(tty)) {
--		if (uport->rs485.flags & SER_RS485_ENABLED) {
--			set &= ~TIOCM_RTS;
--			clear &= ~TIOCM_RTS;
--		}
--
- 		uart_update_mctrl(uport, set, clear);
- 		ret = 0;
- 	}
-@@ -2408,6 +2395,9 @@ uart_configure_port(struct uart_driver *
- 		 */
- 		spin_lock_irqsave(&port->lock, flags);
- 		port->mctrl &= TIOCM_DTR;
-+		if (port->rs485.flags & SER_RS485_ENABLED &&
-+		    !(port->rs485.flags & SER_RS485_RTS_AFTER_SEND))
-+			port->mctrl |= TIOCM_RTS;
- 		port->ops->set_mctrl(port, port->mctrl);
- 		spin_unlock_irqrestore(&port->lock, flags);
+--- a/arch/arm64/mm/cache.S
++++ b/arch/arm64/mm/cache.S
+@@ -231,8 +231,6 @@ SYM_FUNC_END_PI(__dma_flush_area)
+  */
+ SYM_FUNC_START_PI(__dma_map_area)
+ 	add	x1, x0, x1
+-	cmp	w2, #DMA_FROM_DEVICE
+-	b.eq	__dma_inv_area
+ 	b	__dma_clean_area
+ SYM_FUNC_END_PI(__dma_map_area)
  
 
 
