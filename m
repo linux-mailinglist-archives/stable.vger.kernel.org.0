@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40C8655844D
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:41:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB2A558216
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:10:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234601AbiFWRky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:40:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46324 "EHLO
+        id S231565AbiFWRKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:10:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234827AbiFWRiU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06BC24707D;
-        Thu, 23 Jun 2022 10:08:35 -0700 (PDT)
+        with ESMTP id S234119AbiFWRIr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:08:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D079655361;
+        Thu, 23 Jun 2022 09:57:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7183B82499;
-        Thu, 23 Jun 2022 17:08:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB72BC3411B;
-        Thu, 23 Jun 2022 17:08:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 713C260FFA;
+        Thu, 23 Jun 2022 16:57:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E83AC3411B;
+        Thu, 23 Jun 2022 16:57:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004113;
-        bh=YEOkS9rYWaYZ21ChQDwOws+yUKUG4JodqoNMAASmEAg=;
+        s=korg; t=1656003424;
+        bh=r8lvdLrTRpr0JO0BJ5yTk+PV/xkIpP+MsXfGHsZLz0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHL1YtkI1/2O8ns+ilzsKBmZBc89GHRLuLujd7+53TiHWUu+M/Wa4R1eGHkKibU91
-         njrC5y692G9XHLa4AbOwfjNPDpW1J00drKiLJ76DDIZRfTmn5Xx3qEnKUP7A3zkoJ4
-         /ShcslJds75psx0vN/P4JUp2F21FLXCBR9AFZKQo=
+        b=SIYex9ktTNMzi3Wod2BTZND8kJG2Xb2rhw6/XZ+in/57ZDXZWIZp1+NokJ1fA9Sdq
+         JN4JSYF9GQhnDSVeNHquNtY8ZdkX4oGAV/dux2OsxVEYO8lzL3Dhwr8ZYn9fqNTQvK
+         W6zkj0PHjPIaObaTkt5m9Xy6fM2tk6zMlM8ZkcNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 193/237] random: account for arch randomness in bits
+        stable@vger.kernel.org, Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 234/264] nfc: nfcmrvl: Fix memory leak in nfcmrvl_play_deferred
 Date:   Thu, 23 Jun 2022 18:43:47 +0200
-Message-Id: <20220623164348.699759354@linuxfoundation.org>
+Message-Id: <20220623164350.698303931@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
 
-commit 77fc95f8c0dc9e1f8e620ec14d2fb65028fb7adc upstream.
+[ Upstream commit 8a4d480702b71184fabcf379b80bf7539716752e ]
 
-Rather than accounting in bytes and multiplying (shifting), we can just
-account in bits and avoid the shift. The main motivation for this is
-there are other patches in flux that expand this code a bit, and
-avoiding the duplication of "* 8" everywhere makes things a bit clearer.
+Similar to the handling of play_deferred in commit 19cfe912c37b
+("Bluetooth: btusb: Fix memory leak in play_deferred"), we thought
+a patch might be needed here as well.
 
-Cc: stable@vger.kernel.org
-Fixes: 12e45a2a6308 ("random: credit architectural init the exact amount")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Currently usb_submit_urb is called directly to submit deferred tx
+urbs after unanchor them.
+
+So the usb_giveback_urb_bh would failed to unref it in usb_unanchor_urb
+and cause memory leak.
+
+Put those urbs in tx_anchor to avoid the leak, and also fix the error
+handling.
+
+Signed-off-by: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220607083230.6182-1-xiaohuizhang@ruc.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/nfc/nfcmrvl/usb.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -809,7 +809,7 @@ early_param("random.trust_bootloader", p
- int __init random_init(const char *command_line)
- {
- 	ktime_t now = ktime_get_real();
--	unsigned int i, arch_bytes;
-+	unsigned int i, arch_bits;
- 	unsigned long entropy;
+diff --git a/drivers/nfc/nfcmrvl/usb.c b/drivers/nfc/nfcmrvl/usb.c
+index 585a0f20835b..3263e2a2bdfd 100644
+--- a/drivers/nfc/nfcmrvl/usb.c
++++ b/drivers/nfc/nfcmrvl/usb.c
+@@ -401,13 +401,25 @@ static void nfcmrvl_play_deferred(struct nfcmrvl_usb_drv_data *drv_data)
+ 	int err;
  
- #if defined(LATENT_ENTROPY_PLUGIN)
-@@ -817,12 +817,12 @@ int __init random_init(const char *comma
- 	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
- #endif
+ 	while ((urb = usb_get_from_anchor(&drv_data->deferred))) {
++		usb_anchor_urb(urb, &drv_data->tx_anchor);
++
+ 		err = usb_submit_urb(urb, GFP_ATOMIC);
+-		if (err)
++		if (err) {
++			kfree(urb->setup_packet);
++			usb_unanchor_urb(urb);
++			usb_free_urb(urb);
+ 			break;
++		}
  
--	for (i = 0, arch_bytes = BLAKE2S_BLOCK_SIZE;
-+	for (i = 0, arch_bits = BLAKE2S_BLOCK_SIZE * 8;
- 	     i < BLAKE2S_BLOCK_SIZE; i += sizeof(entropy)) {
- 		if (!arch_get_random_seed_long_early(&entropy) &&
- 		    !arch_get_random_long_early(&entropy)) {
- 			entropy = random_get_entropy();
--			arch_bytes -= sizeof(entropy);
-+			arch_bits -= sizeof(entropy) * 8;
- 		}
- 		_mix_pool_bytes(&entropy, sizeof(entropy));
+ 		drv_data->tx_in_flight++;
++		usb_free_urb(urb);
++	}
++
++	/* Cleanup the rest deferred urbs. */
++	while ((urb = usb_get_from_anchor(&drv_data->deferred))) {
++		kfree(urb->setup_packet);
++		usb_free_urb(urb);
  	}
-@@ -834,7 +834,7 @@ int __init random_init(const char *comma
- 	if (crng_ready())
- 		crng_reseed();
- 	else if (trust_cpu)
--		_credit_init_bits(arch_bytes * 8);
-+		_credit_init_bits(arch_bits);
- 
- 	return 0;
+-	usb_scuttle_anchored_urbs(&drv_data->deferred);
  }
+ 
+ static int nfcmrvl_resume(struct usb_interface *intf)
+-- 
+2.35.1
+
 
 
