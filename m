@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D76E5580B2
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33782558325
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232298AbiFWQxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:53:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52702 "EHLO
+        id S233190AbiFWRZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:25:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233893AbiFWQvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:49 -0400
+        with ESMTP id S230403AbiFWRZg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:25:36 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F94317E22;
-        Thu, 23 Jun 2022 09:50:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16AF86B8DE;
+        Thu, 23 Jun 2022 10:02:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BBE35CE25DF;
-        Thu, 23 Jun 2022 16:50:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6AD7C3411B;
-        Thu, 23 Jun 2022 16:50:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 456C4CE25E0;
+        Thu, 23 Jun 2022 17:02:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 306D3C3411B;
+        Thu, 23 Jun 2022 17:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003052;
-        bh=t6Ud1QmKjHkiufPQ9QUDPoV9gaf9fUOYXmYkqryVvhU=;
+        s=korg; t=1656003741;
+        bh=098JEv8qMOJ2+stzFJ8AbNnngqYYKlygaRK64/BJu24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2tNpm8PhCPVwqgeWepPxuEO14FVrtQfGMveWBZXOR/t8fQLhOjdicdH5mE/IMOy0
-         WQu7EDvzUg11BQeqqdOdRa2ehrn5HpVAJIjUL2CW6L6FVPxnfmKth5qy3DmXT1BwXD
-         9hW5KzW7Ovbl8vGXmWzIliRIo7gF4Bc2XDHU4pAo=
+        b=gEe4L+ZCKMgWBUtjnJVPRC+JH/JS4Xv9AIF6upUaeHhVYLqWHFa99bV/HP8oso56E
+         qIvK9+W+HRYDILFu6DqJ6+Q04h3H8GRucQbKOcfeuoT0ML4KhiIEVGjYYUcTMiBCpO
+         9h7BAceuGlFm5MVRnzXkvnsH3eo/8nY2W3QADQPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 113/264] random: always wake up entropy writers after extraction
+Subject: [PATCH 4.14 072/237] random: cleanup poolinfo abstraction
 Date:   Thu, 23 Jun 2022 18:41:46 +0200
-Message-Id: <20220623164347.266546242@linuxfoundation.org>
+Message-Id: <20220623164345.225289794@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,176 +56,189 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 489c7fc44b5740d377e8cfdbf0851036e493af00 upstream.
+commit 91ec0fe138f107232cb36bc6112211db37cb5306 upstream.
 
-Now that POOL_BITS == POOL_MIN_BITS, we must unconditionally wake up
-entropy writers after every extraction. Therefore there's no point of
-write_wakeup_threshold, so we can move it to the dustbin of unused
-compatibility sysctls. While we're at it, we can fix a small comparison
-where we were waking up after <= min rather than < min.
+Now that we're only using one polynomial, we can cleanup its
+representation into constants, instead of passing around pointers
+dynamically to select different polynomials. This improves the codegen
+and makes the code a bit more straightforward.
 
-Cc: Theodore Ts'o <tytso@mit.edu>
-Suggested-by: Eric Biggers <ebiggers@kernel.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/sysctl/kernel.txt |   44 ++++++++++++++++++++++++++++++++++++++--
- drivers/char/random.c           |   36 ++++++++++++--------------------
- 2 files changed, 56 insertions(+), 24 deletions(-)
+ drivers/char/random.c |   67 ++++++++++++++++++++++----------------------------
+ 1 file changed, 30 insertions(+), 37 deletions(-)
 
---- a/Documentation/sysctl/kernel.txt
-+++ b/Documentation/sysctl/kernel.txt
-@@ -777,9 +777,49 @@ The kernel command line parameter printk
- a one-time setting until next reboot: once set, it cannot be changed by
- this sysctl interface anymore.
- 
--==============================================================
-+pty
-+===
- 
--randomize_va_space:
-+See Documentation/filesystems/devpts.rst.
-+
-+
-+random
-+======
-+
-+This is a directory, with the following entries:
-+
-+* ``boot_id``: a UUID generated the first time this is retrieved, and
-+  unvarying after that;
-+
-+* ``entropy_avail``: the pool's entropy count, in bits;
-+
-+* ``poolsize``: the entropy pool size, in bits;
-+
-+* ``urandom_min_reseed_secs``: obsolete (used to determine the minimum
-+  number of seconds between urandom pool reseeding). This file is
-+  writable for compatibility purposes, but writing to it has no effect
-+  on any RNG behavior.
-+
-+* ``uuid``: a UUID generated every time this is retrieved (this can
-+  thus be used to generate UUIDs at will);
-+
-+* ``write_wakeup_threshold``: when the entropy count drops below this
-+  (as a number of bits), processes waiting to write to ``/dev/random``
-+  are woken up. This file is writable for compatibility purposes, but
-+  writing to it has no effect on any RNG behavior.
-+
-+If ``drivers/char/random.c`` is built with ``ADD_INTERRUPT_BENCH``
-+defined, these additional entries are present:
-+
-+* ``add_interrupt_avg_cycles``: the average number of cycles between
-+  interrupts used to feed the pool;
-+
-+* ``add_interrupt_avg_deviation``: the standard deviation seen on the
-+  number of cycles between interrupts used to feed the pool.
-+
-+
-+randomize_va_space
-+==================
- 
- This option can be used to select the type of process address
- space randomization that is used in the system, for architectures
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -297,12 +297,6 @@ enum {
+@@ -431,14 +431,20 @@ static int random_write_wakeup_bits = 28
+  * polynomial which improves the resulting TGFSR polynomial to be
+  * irreducible, which we have made here.
   */
- static DECLARE_WAIT_QUEUE_HEAD(random_write_wait);
- static struct fasync_struct *fasync;
--/*
-- * If the entropy count falls under this number of bits, then we
-- * should wake up processes which are selecting or polling on write
-- * access to /dev/random.
-- */
--static int random_write_wakeup_bits = POOL_MIN_BITS;
- 
- static DEFINE_SPINLOCK(random_ready_list_lock);
- static LIST_HEAD(random_ready_list);
-@@ -790,10 +784,8 @@ static void crng_reseed(struct crng_stat
- 				return;
- 		} while (cmpxchg(&input_pool.entropy_count, entropy_count, 0) != entropy_count);
- 		extract_entropy(buf.key, sizeof(buf.key));
--		if (random_write_wakeup_bits) {
--			wake_up_interruptible(&random_write_wait);
--			kill_fasync(&fasync, SIGIO, POLL_OUT);
--		}
-+		wake_up_interruptible(&random_write_wait);
-+		kill_fasync(&fasync, SIGIO, POLL_OUT);
- 	} else {
- 		_extract_crng(&primary_crng, buf.block);
- 		_crng_backtrack_protect(&primary_crng, buf.block,
-@@ -1522,7 +1514,7 @@ static unsigned int random_poll(struct f
- 	mask = 0;
- 	if (crng_ready())
- 		mask |= POLLIN | POLLRDNORM;
--	if (input_pool.entropy_count < random_write_wakeup_bits)
-+	if (input_pool.entropy_count < POOL_MIN_BITS)
- 		mask |= POLLOUT | POLLWRNORM;
- 	return mask;
- }
-@@ -1607,7 +1599,10 @@ static long random_ioctl(struct file *f,
- 		 */
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
--		input_pool.entropy_count = 0;
-+		if (xchg(&input_pool.entropy_count, 0)) {
-+			wake_up_interruptible(&random_write_wait);
-+			kill_fasync(&fasync, SIGIO, POLL_OUT);
-+		}
- 		return 0;
- 	case RNDRESEEDCRNG:
- 		if (!capable(CAP_SYS_ADMIN))
-@@ -1682,9 +1677,9 @@ SYSCALL_DEFINE3(getrandom, char __user *
- 
- #include <linux/sysctl.h>
- 
--static int min_write_thresh;
--static int max_write_thresh = POOL_BITS;
- static int random_min_urandom_seed = 60;
-+static int random_write_wakeup_bits = POOL_MIN_BITS;
-+static int sysctl_poolsize = POOL_BITS;
- static char sysctl_bootid[16];
+-static const struct poolinfo {
+-	int poolbitshift, poolwords, poolbytes, poolfracbits;
+-#define S(x) ilog2(x)+5, (x), (x)*4, (x) << (ENTROPY_SHIFT+5)
+-	int tap1, tap2, tap3, tap4, tap5;
+-} poolinfo_table[] = {
+-	/* was: x^128 + x^103 + x^76 + x^51 +x^25 + x + 1 */
++enum poolinfo {
++	POOL_WORDS = 128,
++	POOL_WORDMASK = POOL_WORDS - 1,
++	POOL_BYTES = POOL_WORDS * sizeof(u32),
++	POOL_BITS = POOL_BYTES * 8,
++	POOL_BITSHIFT = ilog2(POOL_WORDS) + 5,
++	POOL_FRACBITS = POOL_WORDS << (ENTROPY_SHIFT + 5),
++
+ 	/* x^128 + x^104 + x^76 + x^51 +x^25 + x + 1 */
+-	{ S(128),	104,	76,	51,	25,	1 },
++	POOL_TAP1 = 104,
++	POOL_TAP2 = 76,
++	POOL_TAP3 = 51,
++	POOL_TAP4 = 25,
++	POOL_TAP5 = 1
+ };
  
  /*
-@@ -1723,7 +1718,6 @@ static int proc_do_uuid(struct ctl_table
- 	return proc_dostring(&fake_table, write, buffer, lenp, ppos);
- }
+@@ -505,7 +511,6 @@ MODULE_PARM_DESC(ratelimit_disable, "Dis
+ struct entropy_store;
+ struct entropy_store {
+ 	/* read-only data: */
+-	const struct poolinfo *poolinfo;
+ 	__u32 *pool;
+ 	const char *name;
  
--static int sysctl_poolsize = POOL_BITS;
- extern struct ctl_table random_table[];
- struct ctl_table random_table[] = {
- 	{
-@@ -1745,9 +1739,7 @@ struct ctl_table random_table[] = {
- 		.data		= &random_write_wakeup_bits,
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec_minmax,
--		.extra1		= &min_write_thresh,
--		.extra2		= &max_write_thresh,
-+		.proc_handler	= proc_dointvec,
- 	},
- 	{
- 		.procname	= "urandom_min_reseed_secs",
-@@ -1928,13 +1920,13 @@ void add_hwgenerator_randomness(const ch
+@@ -527,7 +532,6 @@ static void crng_reseed(struct crng_stat
+ static __u32 input_pool_data[INPUT_POOL_WORDS] __latent_entropy;
+ 
+ static struct entropy_store input_pool = {
+-	.poolinfo = &poolinfo_table[0],
+ 	.name = "input",
+ 	.lock = __SPIN_LOCK_UNLOCKED(input_pool.lock),
+ 	.pool = input_pool_data
+@@ -550,33 +554,26 @@ static __u32 const twist_table[8] = {
+ static void _mix_pool_bytes(struct entropy_store *r, const void *in,
+ 			    int nbytes)
+ {
+-	unsigned long i, tap1, tap2, tap3, tap4, tap5;
++	unsigned long i;
+ 	int input_rotate;
+-	int wordmask = r->poolinfo->poolwords - 1;
+ 	const unsigned char *bytes = in;
+ 	__u32 w;
+ 
+-	tap1 = r->poolinfo->tap1;
+-	tap2 = r->poolinfo->tap2;
+-	tap3 = r->poolinfo->tap3;
+-	tap4 = r->poolinfo->tap4;
+-	tap5 = r->poolinfo->tap5;
+-
+ 	input_rotate = r->input_rotate;
+ 	i = r->add_ptr;
+ 
+ 	/* mix one byte at a time to simplify size handling and churn faster */
+ 	while (nbytes--) {
+ 		w = rol32(*bytes++, input_rotate);
+-		i = (i - 1) & wordmask;
++		i = (i - 1) & POOL_WORDMASK;
+ 
+ 		/* XOR in the various taps */
+ 		w ^= r->pool[i];
+-		w ^= r->pool[(i + tap1) & wordmask];
+-		w ^= r->pool[(i + tap2) & wordmask];
+-		w ^= r->pool[(i + tap3) & wordmask];
+-		w ^= r->pool[(i + tap4) & wordmask];
+-		w ^= r->pool[(i + tap5) & wordmask];
++		w ^= r->pool[(i + POOL_TAP1) & POOL_WORDMASK];
++		w ^= r->pool[(i + POOL_TAP2) & POOL_WORDMASK];
++		w ^= r->pool[(i + POOL_TAP3) & POOL_WORDMASK];
++		w ^= r->pool[(i + POOL_TAP4) & POOL_WORDMASK];
++		w ^= r->pool[(i + POOL_TAP5) & POOL_WORDMASK];
+ 
+ 		/* Mix the result back in with a twist */
+ 		r->pool[i] = (w >> 3) ^ twist_table[w & 7];
+@@ -674,7 +671,6 @@ static void process_random_ready_list(vo
+ static void credit_entropy_bits(struct entropy_store *r, int nbits)
+ {
+ 	int entropy_count, orig;
+-	const int pool_size = r->poolinfo->poolfracbits;
+ 	int nfrac = nbits << ENTROPY_SHIFT;
+ 
+ 	if (!nbits)
+@@ -708,25 +704,25 @@ retry:
+ 		 * turns no matter how large nbits is.
+ 		 */
+ 		int pnfrac = nfrac;
+-		const int s = r->poolinfo->poolbitshift + ENTROPY_SHIFT + 2;
++		const int s = POOL_BITSHIFT + ENTROPY_SHIFT + 2;
+ 		/* The +2 corresponds to the /4 in the denominator */
+ 
+ 		do {
+-			unsigned int anfrac = min(pnfrac, pool_size/2);
++			unsigned int anfrac = min(pnfrac, POOL_FRACBITS/2);
+ 			unsigned int add =
+-				((pool_size - entropy_count)*anfrac*3) >> s;
++				((POOL_FRACBITS - entropy_count)*anfrac*3) >> s;
+ 
+ 			entropy_count += add;
+ 			pnfrac -= anfrac;
+-		} while (unlikely(entropy_count < pool_size-2 && pnfrac));
++		} while (unlikely(entropy_count < POOL_FRACBITS-2 && pnfrac));
  	}
  
- 	/* Throttle writing if we're above the trickle threshold.
--	 * We'll be woken up again once below random_write_wakeup_thresh,
--	 * when the calling thread is about to terminate, or once
--	 * CRNG_RESEED_INTERVAL has lapsed.
-+	 * We'll be woken up again once below POOL_MIN_BITS, when
-+	 * the calling thread is about to terminate, or once
-+	 * CRNG_RESEED_INTERVAL has elapsed.
- 	 */
- 	wait_event_interruptible_timeout(random_write_wait,
- 			!system_wq || kthread_should_stop() ||
--			input_pool.entropy_count <= random_write_wakeup_bits,
-+			input_pool.entropy_count < POOL_MIN_BITS,
- 			CRNG_RESEED_INTERVAL);
- 	mix_pool_bytes(buffer, count);
- 	credit_entropy_bits(entropy);
+ 	if (WARN_ON(entropy_count < 0)) {
+ 		pr_warn("negative entropy/overflow: pool %s count %d\n",
+ 			r->name, entropy_count);
+ 		entropy_count = 0;
+-	} else if (entropy_count > pool_size)
+-		entropy_count = pool_size;
++	} else if (entropy_count > POOL_FRACBITS)
++		entropy_count = POOL_FRACBITS;
+ 	if (cmpxchg(&r->entropy_count, orig, entropy_count) != orig)
+ 		goto retry;
+ 
+@@ -743,13 +739,11 @@ retry:
+ 
+ static int credit_entropy_bits_safe(struct entropy_store *r, int nbits)
+ {
+-	const int nbits_max = r->poolinfo->poolwords * 32;
+-
+ 	if (nbits < 0)
+ 		return -EINVAL;
+ 
+ 	/* Cap the value to avoid overflows */
+-	nbits = min(nbits,  nbits_max);
++	nbits = min(nbits,  POOL_BITS);
+ 
+ 	credit_entropy_bits(r, nbits);
+ 	return 0;
+@@ -1342,7 +1336,7 @@ static size_t account(struct entropy_sto
+ 	int entropy_count, orig, have_bytes;
+ 	size_t ibytes, nfrac;
+ 
+-	BUG_ON(r->entropy_count > r->poolinfo->poolfracbits);
++	BUG_ON(r->entropy_count > POOL_FRACBITS);
+ 
+ 	/* Can we pull enough? */
+ retry:
+@@ -1408,8 +1402,7 @@ static void extract_buf(struct entropy_s
+ 
+ 	/* Generate a hash across the pool */
+ 	spin_lock_irqsave(&r->lock, flags);
+-	blake2s_update(&state, (const u8 *)r->pool,
+-		       r->poolinfo->poolwords * sizeof(*r->pool));
++	blake2s_update(&state, (const u8 *)r->pool, POOL_BYTES);
+ 	blake2s_final(&state, hash); /* final zeros out state */
+ 
+ 	/*
+@@ -1705,7 +1698,7 @@ static void __init init_std_data(struct
+ 	unsigned long rv;
+ 
+ 	mix_pool_bytes(r, &now, sizeof(now));
+-	for (i = r->poolinfo->poolbytes; i > 0; i -= sizeof(rv)) {
++	for (i = POOL_BYTES; i > 0; i -= sizeof(rv)) {
+ 		if (!arch_get_random_seed_long(&rv) &&
+ 		    !arch_get_random_long(&rv))
+ 			rv = random_get_entropy();
 
 
