@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B881558248
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 229C755852F
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230015AbiFWRNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:13:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47040 "EHLO
+        id S235169AbiFWRyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:54:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231772AbiFWRLn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:11:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33801B7B1;
-        Thu, 23 Jun 2022 09:51:30 -0700 (PDT)
+        with ESMTP id S236006AbiFWRxn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:53:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 955EBABA7F;
+        Thu, 23 Jun 2022 10:14:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95BACB82490;
-        Thu, 23 Jun 2022 16:51:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00AAC3411B;
-        Thu, 23 Jun 2022 16:51:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8CABB82489;
+        Thu, 23 Jun 2022 17:14:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 189DEC3411B;
+        Thu, 23 Jun 2022 17:14:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003088;
-        bh=EfDHez6bplTEEaL8HZ+uQVhkOVviWmPlixb/w9592Jk=;
+        s=korg; t=1656004473;
+        bh=KkAwVWgKLqPdkaSik0c8SYjTlhXMUBJcRaBWsgSUEWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3tqG1rNIxjx8JLuEx0kgbUjE3AQJDfbuOV8fl15J+ooX9ocvJIDh7vEePsuqjSAw
-         mRfsWUZuhfpVXsJScnMoHym2z5KYUJfOfBxVcitnyXiuGNLaKNDznOEvHuC2EhbXIX
-         llfDPEqW/bkxKBVFTueb3nCUnMaOJU17rOl6vk2k=
+        b=UAgLaf4ZeBmY2YmymK98yNw5e0qfjNT7h7cw0Jxr0OexFCMuPFr/HXa82j5NeaE04
+         B6v2TqsBnYxW274OtU06agoZ4A6pG3V0oTsZxNfvtO43xh+zFwBCgy/ObNuHoH0NEM
+         lphiwaNi758ef2RxdLzzRXh5HCkUEX2ta7BxxRrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Jann Horn <jannh@google.com>,
         Eric Biggers <ebiggers@google.com>,
+        Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 124/264] random: remove outdated INT_MAX >> 6 check in urandom_read()
+Subject: [PATCH 4.19 050/234] random: use BLAKE2s instead of SHA1 in extraction
 Date:   Thu, 23 Jun 2022 18:41:57 +0200
-Message-Id: <20220623164347.575405243@linuxfoundation.org>
+Message-Id: <20220623164344.483055494@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
+References: <20220623164343.042598055@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,48 +57,207 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 434537ae54ad37e93555de21b6ac8133d6d773a9 upstream.
+commit 9f9eff85a008b095eafc5f4ecbaf5aca689271c1 upstream.
 
-In 79a8468747c5 ("random: check for increase of entropy_count because of
-signed conversion"), a number of checks were added around what values
-were passed to account(), because account() was doing fancy fixed point
-fractional arithmetic, and a user had some ability to pass large values
-directly into it. One of things in that commit was limiting those values
-to INT_MAX >> 6. The first >> 3 was for bytes to bits, and the next >> 3
-was for bits to 1/8 fractional bits.
+This commit addresses one of the lower hanging fruits of the RNG: its
+usage of SHA1.
 
-However, for several years now, urandom reads no longer touch entropy
-accounting, and so this check serves no purpose. The current flow is:
+BLAKE2s is generally faster, and certainly more secure, than SHA1, which
+has [1] been [2] really [3] very [4] broken [5]. Additionally, the
+current construction in the RNG doesn't use the full SHA1 function, as
+specified, and allows overwriting the IV with RDRAND output in an
+undocumented way, even in the case when RDRAND isn't set to "trusted",
+which means potential malicious IV choices. And its short length means
+that keeping only half of it secret when feeding back into the mixer
+gives us only 2^80 bits of forward secrecy. In other words, not only is
+the choice of hash function dated, but the use of it isn't really great
+either.
 
-urandom_read_nowarn()-->get_random_bytes_user()-->chacha20_block()
+This commit aims to fix both of these issues while also keeping the
+general structure and semantics as close to the original as possible.
+Specifically:
 
-Of course, we don't want that size_t to be truncated when adding it into
-the ssize_t. But we arrive at urandom_read_nowarn() in the first place
-either via ordinary fops, which limits reads to MAX_RW_COUNT, or via
-getrandom() which limits reads to INT_MAX.
+   a) Rather than overwriting the hash IV with RDRAND, we put it into
+      BLAKE2's documented "salt" and "personal" fields, which were
+      specifically created for this type of usage.
+   b) Since this function feeds the full hash result back into the
+      entropy collector, we only return from it half the length of the
+      hash, just as it was done before. This increases the
+      construction's forward secrecy from 2^80 to a much more
+      comfortable 2^128.
+   c) Rather than using the raw "sha1_transform" function alone, we
+      instead use the full proper BLAKE2s function, with finalization.
 
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Jann Horn <jannh@google.com>
+This also has the advantage of supplying 16 bytes at a time rather than
+SHA1's 10 bytes, which, in addition to having a faster compression
+function to begin with, means faster extraction in general. On an Intel
+i7-11850H, this commit makes initial seeding around 131% faster.
+
+BLAKE2s itself has the nice property of internally being based on the
+ChaCha permutation, which the RNG is already using for expansion, so
+there shouldn't be any issue with newness, funkiness, or surprising CPU
+behavior, since it's based on something already in use.
+
+[1] https://eprint.iacr.org/2005/010.pdf
+[2] https://www.iacr.org/archive/crypto2005/36210017/36210017.pdf
+[3] https://eprint.iacr.org/2015/967.pdf
+[4] https://shattered.io/static/shattered.pdf
+[5] https://www.usenix.org/system/files/sec20-leurent.pdf
+
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/char/random.c |   70 +++++++++++++++++++++-----------------------------
+ 1 file changed, 30 insertions(+), 40 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1336,9 +1336,8 @@ void rand_initialize_disk(struct gendisk
- static ssize_t urandom_read_nowarn(struct file *file, char __user *buf,
- 				   size_t nbytes, loff_t *ppos)
- {
--	int ret;
-+	ssize_t ret;
+@@ -1,8 +1,7 @@
+ /*
+  * random.c -- A strong random number generator
+  *
+- * Copyright (C) 2017 Jason A. Donenfeld <Jason@zx2c4.com>. All
+- * Rights Reserved.
++ * Copyright (C) 2017-2022 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
+  *
+  * Copyright Matt Mackall <mpm@selenic.com>, 2003, 2004, 2005
+  *
+@@ -78,12 +77,12 @@
+  * an *estimate* of how many bits of randomness have been stored into
+  * the random number generator's internal state.
+  *
+- * When random bytes are desired, they are obtained by taking the SHA
+- * hash of the contents of the "entropy pool".  The SHA hash avoids
++ * When random bytes are desired, they are obtained by taking the BLAKE2s
++ * hash of the contents of the "entropy pool".  The BLAKE2s hash avoids
+  * exposing the internal state of the entropy pool.  It is believed to
+  * be computationally infeasible to derive any useful information
+- * about the input of SHA from its output.  Even if it is possible to
+- * analyze SHA in some clever way, as long as the amount of data
++ * about the input of BLAKE2s from its output.  Even if it is possible to
++ * analyze BLAKE2s in some clever way, as long as the amount of data
+  * returned from the generator is less than the inherent entropy in
+  * the pool, the output data is totally unpredictable.  For this
+  * reason, the routine decreases its internal estimate of how many
+@@ -93,7 +92,7 @@
+  * If this estimate goes to zero, the routine can still generate
+  * random numbers; however, an attacker may (at least in theory) be
+  * able to infer the future output of the generator from prior
+- * outputs.  This requires successful cryptanalysis of SHA, which is
++ * outputs.  This requires successful cryptanalysis of BLAKE2s, which is
+  * not believed to be feasible, but there is a remote possibility.
+  * Nonetheless, these numbers should be useful for the vast majority
+  * of purposes.
+@@ -348,6 +347,7 @@
+ #include <linux/completion.h>
+ #include <linux/uuid.h>
+ #include <crypto/chacha20.h>
++#include <crypto/blake2s.h>
  
--	nbytes = min_t(size_t, nbytes, INT_MAX >> 6);
- 	ret = get_random_bytes_user(buf, nbytes);
- 	trace_urandom_read(nbytes, input_pool.entropy_count);
- 	return ret;
+ #include <asm/processor.h>
+ #include <linux/uaccess.h>
+@@ -367,10 +367,7 @@
+ #define INPUT_POOL_WORDS	(1 << (INPUT_POOL_SHIFT-5))
+ #define OUTPUT_POOL_SHIFT	10
+ #define OUTPUT_POOL_WORDS	(1 << (OUTPUT_POOL_SHIFT-5))
+-#define EXTRACT_SIZE		10
+-
+-
+-#define LONGS(x) (((x) + sizeof(unsigned long) - 1)/sizeof(unsigned long))
++#define EXTRACT_SIZE		(BLAKE2S_HASH_SIZE / 2)
+ 
+ /*
+  * To allow fractional bits to be tracked, the entropy_count field is
+@@ -406,7 +403,7 @@ static int random_write_wakeup_bits = 28
+  * Thanks to Colin Plumb for suggesting this.
+  *
+  * The mixing operation is much less sensitive than the output hash,
+- * where we use SHA-1.  All that we want of mixing operation is that
++ * where we use BLAKE2s.  All that we want of mixing operation is that
+  * it be a good non-cryptographic hash; i.e. it not produce collisions
+  * when fed "random" data of the sort we expect to see.  As long as
+  * the pool state differs for different inputs, we have preserved the
+@@ -1398,56 +1395,49 @@ retry:
+  */
+ static void extract_buf(struct entropy_store *r, __u8 *out)
+ {
+-	int i;
+-	union {
+-		__u32 w[5];
+-		unsigned long l[LONGS(20)];
+-	} hash;
+-	__u32 workspace[SHA_WORKSPACE_WORDS];
++	struct blake2s_state state __aligned(__alignof__(unsigned long));
++	u8 hash[BLAKE2S_HASH_SIZE];
++	unsigned long *salt;
+ 	unsigned long flags;
+ 
++	blake2s_init(&state, sizeof(hash));
++
+ 	/*
+ 	 * If we have an architectural hardware random number
+-	 * generator, use it for SHA's initial vector
++	 * generator, use it for BLAKE2's salt & personal fields.
+ 	 */
+-	sha_init(hash.w);
+-	for (i = 0; i < LONGS(20); i++) {
++	for (salt = (unsigned long *)&state.h[4];
++	     salt < (unsigned long *)&state.h[8]; ++salt) {
+ 		unsigned long v;
+ 		if (!arch_get_random_long(&v))
+ 			break;
+-		hash.l[i] = v;
++		*salt ^= v;
+ 	}
+ 
+-	/* Generate a hash across the pool, 16 words (512 bits) at a time */
++	/* Generate a hash across the pool */
+ 	spin_lock_irqsave(&r->lock, flags);
+-	for (i = 0; i < r->poolinfo->poolwords; i += 16)
+-		sha_transform(hash.w, (__u8 *)(r->pool + i), workspace);
++	blake2s_update(&state, (const u8 *)r->pool,
++		       r->poolinfo->poolwords * sizeof(*r->pool));
++	blake2s_final(&state, hash); /* final zeros out state */
+ 
+ 	/*
+ 	 * We mix the hash back into the pool to prevent backtracking
+ 	 * attacks (where the attacker knows the state of the pool
+ 	 * plus the current outputs, and attempts to find previous
+-	 * ouputs), unless the hash function can be inverted. By
+-	 * mixing at least a SHA1 worth of hash data back, we make
++	 * outputs), unless the hash function can be inverted. By
++	 * mixing at least a hash worth of hash data back, we make
+ 	 * brute-forcing the feedback as hard as brute-forcing the
+ 	 * hash.
+ 	 */
+-	__mix_pool_bytes(r, hash.w, sizeof(hash.w));
++	__mix_pool_bytes(r, hash, sizeof(hash));
+ 	spin_unlock_irqrestore(&r->lock, flags);
+ 
+-	memzero_explicit(workspace, sizeof(workspace));
+-
+-	/*
+-	 * In case the hash function has some recognizable output
+-	 * pattern, we fold it in half. Thus, we always feed back
+-	 * twice as much data as we output.
++	/* Note that EXTRACT_SIZE is half of hash size here, because above
++	 * we've dumped the full length back into mixer. By reducing the
++	 * amount that we emit, we retain a level of forward secrecy.
+ 	 */
+-	hash.w[0] ^= hash.w[3];
+-	hash.w[1] ^= hash.w[4];
+-	hash.w[2] ^= rol32(hash.w[2], 16);
+-
+-	memcpy(out, &hash, EXTRACT_SIZE);
+-	memzero_explicit(&hash, sizeof(hash));
++	memcpy(out, hash, EXTRACT_SIZE);
++	memzero_explicit(hash, sizeof(hash));
+ }
+ 
+ static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
 
 
