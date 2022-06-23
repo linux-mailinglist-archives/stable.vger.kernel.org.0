@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BFF755835A
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:29:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4E0F5580CB
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232398AbiFWR3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:29:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53434 "EHLO
+        id S232740AbiFWQxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:53:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234288AbiFWR2W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:28:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86B89766B0;
-        Thu, 23 Jun 2022 10:04:02 -0700 (PDT)
+        with ESMTP id S231960AbiFWQwg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:52:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B4C9388B;
+        Thu, 23 Jun 2022 09:52:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D7E56159A;
-        Thu, 23 Jun 2022 17:04:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15CFAC341C5;
-        Thu, 23 Jun 2022 17:04:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8797561FC2;
+        Thu, 23 Jun 2022 16:52:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 629A7C3411B;
+        Thu, 23 Jun 2022 16:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003841;
-        bh=0pZIJ1EM1sGCgtiFXTuClWxYlId2q2/WhS5J3eFT4C0=;
+        s=korg; t=1656003149;
+        bh=hwza0RWJSq4Ba0aX/fWeFoGPUNuhh4zwFJUguPigW9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7LLqsBkWxkI8ng5BI3CzgRDZ6RjHgWqWTw+ZKf3xygBTvV4n+zZ20v1dsApj9V0f
-         8quTO9PHMpty/lbRvL1cHhGKv2LfBDw/G7q+Ikd1CtpXRCteq9FTfN5ID6PS5I7aT3
-         qQueNs1/ixODliObjJwoqnN/1ng9wi94EhrgZGM8=
+        b=mqcPXVvQFjgr8sBNpa4VOjxJn0zEp0w1K1nBqNTo30uUkW/6kv8AMCciAxeSzHMOo
+         n+dCxrox1ivBsuAgBj1wLzYehOWfMjek2LbG0OEMNlNP+I6MAlfRp/uMTGacSoCdZG
+         Zs/yWax4JgU3QYmmle/BkEAe8O/qu1ai8y6hORbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@google.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 105/237] random: remove ifdefd out interrupt bench
+Subject: [PATCH 4.9 146/264] hwrng: core - rewrite better comparison to NULL
 Date:   Thu, 23 Jun 2022 18:42:19 +0200
-Message-Id: <20220623164346.170715336@linuxfoundation.org>
+Message-Id: <20220623164348.196072004@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,112 +54,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Corentin LABBE <clabbe.montjoie@gmail.com>
 
-commit 95e6060c20a7f5db60163274c5222a725ac118f9 upstream.
+commit 2a971e3b248775f808950bdc0ac75f12a2853eff upstream.
 
-With tools like kbench9000 giving more finegrained responses, and this
-basically never having been used ever since it was initially added,
-let's just get rid of this. There *is* still work to be done on the
-interrupt handler, but this really isn't the way it's being developed.
+This patch fix the checkpatch warning "Comparison to NULL could be written "!ptr"
 
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/sysctl/kernel.txt |    9 ---------
- drivers/char/random.c           |   40 ----------------------------------------
- 2 files changed, 49 deletions(-)
+ drivers/char/hw_random/core.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/Documentation/sysctl/kernel.txt
-+++ b/Documentation/sysctl/kernel.txt
-@@ -812,15 +812,6 @@ This is a directory, with the following
-   are woken up. This file is writable for compatibility purposes, but
-   writing to it has no effect on any RNG behavior.
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -439,8 +439,7 @@ int hwrng_register(struct hwrng *rng)
+ 	int err = -EINVAL;
+ 	struct hwrng *old_rng, *tmp;
  
--If ``drivers/char/random.c`` is built with ``ADD_INTERRUPT_BENCH``
--defined, these additional entries are present:
--
--* ``add_interrupt_avg_cycles``: the average number of cycles between
--  interrupts used to feed the pool;
--
--* ``add_interrupt_avg_deviation``: the standard deviation seen on the
--  number of cycles between interrupts used to feed the pool.
--
+-	if (rng->name == NULL ||
+-	    (rng->data_read == NULL && rng->read == NULL))
++	if (!rng->name || (!rng->data_read && !rng->read))
+ 		goto out;
  
- randomize_va_space
- ==================
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -240,8 +240,6 @@
- #define CREATE_TRACE_POINTS
- #include <trace/events/random.h>
- 
--/* #define ADD_INTERRUPT_BENCH */
--
- enum {
- 	POOL_BITS = BLAKE2S_HASH_SIZE * 8,
- 	POOL_MIN_BITS = POOL_BITS /* No point in settling for less. */
-@@ -806,27 +804,6 @@ EXPORT_SYMBOL_GPL(add_input_randomness);
- 
- static DEFINE_PER_CPU(struct fast_pool, irq_randomness);
- 
--#ifdef ADD_INTERRUPT_BENCH
--static unsigned long avg_cycles, avg_deviation;
--
--#define AVG_SHIFT 8 /* Exponential average factor k=1/256 */
--#define FIXED_1_2 (1 << (AVG_SHIFT - 1))
--
--static void add_interrupt_bench(cycles_t start)
--{
--	long delta = random_get_entropy() - start;
--
--	/* Use a weighted moving average */
--	delta = delta - ((avg_cycles + FIXED_1_2) >> AVG_SHIFT);
--	avg_cycles += delta;
--	/* And average deviation */
--	delta = abs(delta) - ((avg_deviation + FIXED_1_2) >> AVG_SHIFT);
--	avg_deviation += delta;
--}
--#else
--#define add_interrupt_bench(x)
--#endif
--
- static u32 get_reg(struct fast_pool *f, struct pt_regs *regs)
- {
- 	u32 *ptr = (u32 *)regs;
-@@ -863,7 +840,6 @@ void add_interrupt_randomness(int irq)
- 		(sizeof(ip) > 4) ? ip >> 32 : get_reg(fast_pool, regs);
- 
- 	fast_mix(fast_pool);
--	add_interrupt_bench(cycles);
- 
- 	if (unlikely(crng_init == 0)) {
- 		if (fast_pool->count >= 64 &&
-@@ -1571,22 +1547,6 @@ struct ctl_table random_table[] = {
- 		.mode		= 0444,
- 		.proc_handler	= proc_do_uuid,
- 	},
--#ifdef ADD_INTERRUPT_BENCH
--	{
--		.procname	= "add_interrupt_avg_cycles",
--		.data		= &avg_cycles,
--		.maxlen		= sizeof(avg_cycles),
--		.mode		= 0444,
--		.proc_handler	= proc_doulongvec_minmax,
--	},
--	{
--		.procname	= "add_interrupt_avg_deviation",
--		.data		= &avg_deviation,
--		.maxlen		= sizeof(avg_deviation),
--		.mode		= 0444,
--		.proc_handler	= proc_doulongvec_minmax,
--	},
--#endif
- 	{ }
- };
- #endif	/* CONFIG_SYSCTL */
+ 	mutex_lock(&rng_mutex);
 
 
