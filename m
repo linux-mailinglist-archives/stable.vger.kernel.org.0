@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 229C755852F
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ADE755834F
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:29:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235169AbiFWRyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:54:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51228 "EHLO
+        id S229496AbiFWR33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:29:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236006AbiFWRxn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:53:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 955EBABA7F;
-        Thu, 23 Jun 2022 10:14:36 -0700 (PDT)
+        with ESMTP id S233793AbiFWR1T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:27:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC22BBE37;
+        Thu, 23 Jun 2022 10:03:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8CABB82489;
-        Thu, 23 Jun 2022 17:14:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 189DEC3411B;
-        Thu, 23 Jun 2022 17:14:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFDCD615C0;
+        Thu, 23 Jun 2022 17:02:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 970B8C3411B;
+        Thu, 23 Jun 2022 17:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004473;
-        bh=KkAwVWgKLqPdkaSik0c8SYjTlhXMUBJcRaBWsgSUEWk=;
+        s=korg; t=1656003779;
+        bh=HhcChL5YvPTJYBIY3v9dtYfwHxqJJtVUUND0dTEoN9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UAgLaf4ZeBmY2YmymK98yNw5e0qfjNT7h7cw0Jxr0OexFCMuPFr/HXa82j5NeaE04
-         B6v2TqsBnYxW274OtU06agoZ4A6pG3V0oTsZxNfvtO43xh+zFwBCgy/ObNuHoH0NEM
-         lphiwaNi758ef2RxdLzzRXh5HCkUEX2ta7BxxRrM=
+        b=g6DbJMoAMxYn+gbgO7xs0oV29aylmQdQ5s8gQcw1zf+7gYITnchsHTQ79FH55UK5x
+         ebYt4f/QiBnRBGBI4WJGIK9v4RWQ8SqBNELWvGh5y2c66ucvl4ul1wo/QDpwXr2hQc
+         igwN/qelQyBH+EOXuNQn7+Yny1LLfwgpIfy+IfMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@google.com>,
-        Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 050/234] random: use BLAKE2s instead of SHA1 in extraction
+Subject: [PATCH 4.14 083/237] random: access input_pool_data directly rather than through pointer
 Date:   Thu, 23 Jun 2022 18:41:57 +0200
-Message-Id: <20220623164344.483055494@linuxfoundation.org>
+Message-Id: <20220623164345.539006894@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
-References: <20220623164343.042598055@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,207 +56,625 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 9f9eff85a008b095eafc5f4ecbaf5aca689271c1 upstream.
+commit 6c0eace6e1499712583b6ee62d95161e8b3449f5 upstream.
 
-This commit addresses one of the lower hanging fruits of the RNG: its
-usage of SHA1.
+This gets rid of another abstraction we no longer need. It would be nice
+if we could instead make pool an array rather than a pointer, but the
+latent entropy plugin won't be able to do its magic in that case. So
+instead we put all accesses to the input pool's actual data through the
+input_pool_data array directly.
 
-BLAKE2s is generally faster, and certainly more secure, than SHA1, which
-has [1] been [2] really [3] very [4] broken [5]. Additionally, the
-current construction in the RNG doesn't use the full SHA1 function, as
-specified, and allows overwriting the IV with RDRAND output in an
-undocumented way, even in the case when RDRAND isn't set to "trusted",
-which means potential malicious IV choices. And its short length means
-that keeping only half of it secret when feeding back into the mixer
-gives us only 2^80 bits of forward secrecy. In other words, not only is
-the choice of hash function dated, but the use of it isn't really great
-either.
-
-This commit aims to fix both of these issues while also keeping the
-general structure and semantics as close to the original as possible.
-Specifically:
-
-   a) Rather than overwriting the hash IV with RDRAND, we put it into
-      BLAKE2's documented "salt" and "personal" fields, which were
-      specifically created for this type of usage.
-   b) Since this function feeds the full hash result back into the
-      entropy collector, we only return from it half the length of the
-      hash, just as it was done before. This increases the
-      construction's forward secrecy from 2^80 to a much more
-      comfortable 2^128.
-   c) Rather than using the raw "sha1_transform" function alone, we
-      instead use the full proper BLAKE2s function, with finalization.
-
-This also has the advantage of supplying 16 bytes at a time rather than
-SHA1's 10 bytes, which, in addition to having a faster compression
-function to begin with, means faster extraction in general. On an Intel
-i7-11850H, this commit makes initial seeding around 131% faster.
-
-BLAKE2s itself has the nice property of internally being based on the
-ChaCha permutation, which the RNG is already using for expansion, so
-there shouldn't be any issue with newness, funkiness, or surprising CPU
-behavior, since it's based on something already in use.
-
-[1] https://eprint.iacr.org/2005/010.pdf
-[2] https://www.iacr.org/archive/crypto2005/36210017/36210017.pdf
-[3] https://eprint.iacr.org/2015/967.pdf
-[4] https://shattered.io/static/shattered.pdf
-[5] https://www.usenix.org/system/files/sec20-leurent.pdf
-
-Reviewed-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   70 +++++++++++++++++++++-----------------------------
- 1 file changed, 30 insertions(+), 40 deletions(-)
+ drivers/char/random.c |  222 +++++++++++++++++++++++---------------------------
+ 1 file changed, 103 insertions(+), 119 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1,8 +1,7 @@
- /*
-  * random.c -- A strong random number generator
+@@ -124,7 +124,7 @@
   *
-- * Copyright (C) 2017 Jason A. Donenfeld <Jason@zx2c4.com>. All
-- * Rights Reserved.
-+ * Copyright (C) 2017-2022 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
+  * The primary kernel interface is
   *
-  * Copyright Matt Mackall <mpm@selenic.com>, 2003, 2004, 2005
+- * 	void get_random_bytes(void *buf, int nbytes);
++ *	void get_random_bytes(void *buf, int nbytes);
   *
-@@ -78,12 +77,12 @@
-  * an *estimate* of how many bits of randomness have been stored into
-  * the random number generator's internal state.
+  * This interface will return the requested number of random bytes,
+  * and place it in the requested buffer.  This is equivalent to a
+@@ -132,10 +132,10 @@
   *
-- * When random bytes are desired, they are obtained by taking the SHA
-- * hash of the contents of the "entropy pool".  The SHA hash avoids
-+ * When random bytes are desired, they are obtained by taking the BLAKE2s
-+ * hash of the contents of the "entropy pool".  The BLAKE2s hash avoids
-  * exposing the internal state of the entropy pool.  It is believed to
-  * be computationally infeasible to derive any useful information
-- * about the input of SHA from its output.  Even if it is possible to
-- * analyze SHA in some clever way, as long as the amount of data
-+ * about the input of BLAKE2s from its output.  Even if it is possible to
-+ * analyze BLAKE2s in some clever way, as long as the amount of data
-  * returned from the generator is less than the inherent entropy in
-  * the pool, the output data is totally unpredictable.  For this
-  * reason, the routine decreases its internal estimate of how many
-@@ -93,7 +92,7 @@
-  * If this estimate goes to zero, the routine can still generate
-  * random numbers; however, an attacker may (at least in theory) be
-  * able to infer the future output of the generator from prior
-- * outputs.  This requires successful cryptanalysis of SHA, which is
-+ * outputs.  This requires successful cryptanalysis of BLAKE2s, which is
-  * not believed to be feasible, but there is a remote possibility.
-  * Nonetheless, these numbers should be useful for the vast majority
-  * of purposes.
-@@ -348,6 +347,7 @@
- #include <linux/completion.h>
- #include <linux/uuid.h>
- #include <crypto/chacha20.h>
-+#include <crypto/blake2s.h>
+  * For less critical applications, there are the functions:
+  *
+- * 	u32 get_random_u32()
+- * 	u64 get_random_u64()
+- * 	unsigned int get_random_int()
+- * 	unsigned long get_random_long()
++ *	u32 get_random_u32()
++ *	u64 get_random_u64()
++ *	unsigned int get_random_int()
++ *	unsigned long get_random_long()
+  *
+  * These are produced by a cryptographic RNG seeded from get_random_bytes,
+  * and so do not deplete the entropy pool as much.  These are recommended
+@@ -197,10 +197,10 @@
+  * from the devices are:
+  *
+  *	void add_device_randomness(const void *buf, unsigned int size);
+- * 	void add_input_randomness(unsigned int type, unsigned int code,
++ *	void add_input_randomness(unsigned int type, unsigned int code,
+  *                                unsigned int value);
+  *	void add_interrupt_randomness(int irq);
+- * 	void add_disk_randomness(struct gendisk *disk);
++ *	void add_disk_randomness(struct gendisk *disk);
+  *	void add_hwgenerator_randomness(const char *buffer, size_t count,
+  *					size_t entropy);
+  *	void add_bootloader_randomness(const void *buf, unsigned int size);
+@@ -296,8 +296,8 @@
+  * /dev/random and /dev/urandom created already, they can be created
+  * by using the commands:
+  *
+- * 	mknod /dev/random c 1 8
+- * 	mknod /dev/urandom c 1 9
++ *	mknod /dev/random c 1 8
++ *	mknod /dev/urandom c 1 9
+  *
+  * Acknowledgements:
+  * =================
+@@ -443,9 +443,9 @@ static DEFINE_SPINLOCK(random_ready_list
+ static LIST_HEAD(random_ready_list);
  
- #include <asm/processor.h>
- #include <linux/uaccess.h>
-@@ -367,10 +367,7 @@
- #define INPUT_POOL_WORDS	(1 << (INPUT_POOL_SHIFT-5))
- #define OUTPUT_POOL_SHIFT	10
- #define OUTPUT_POOL_WORDS	(1 << (OUTPUT_POOL_SHIFT-5))
--#define EXTRACT_SIZE		10
+ struct crng_state {
+-	u32		state[16];
+-	unsigned long	init_time;
+-	spinlock_t	lock;
++	u32 state[16];
++	unsigned long init_time;
++	spinlock_t lock;
+ };
+ 
+ static struct crng_state primary_crng = {
+@@ -469,7 +469,7 @@ static bool crng_need_final_init = false
+ #define crng_ready() (likely(crng_init > 1))
+ static int crng_init_cnt = 0;
+ static unsigned long crng_global_init_time = 0;
+-#define CRNG_INIT_CNT_THRESH (2*CHACHA20_KEY_SIZE)
++#define CRNG_INIT_CNT_THRESH (2 * CHACHA20_KEY_SIZE)
+ static void _extract_crng(struct crng_state *crng, u8 out[CHACHA20_BLOCK_SIZE]);
+ static void _crng_backtrack_protect(struct crng_state *crng,
+ 				    u8 tmp[CHACHA20_BLOCK_SIZE], int used);
+@@ -496,17 +496,12 @@ MODULE_PARM_DESC(ratelimit_disable, "Dis
+ static u32 input_pool_data[POOL_WORDS] __latent_entropy;
+ 
+ static struct {
+-	/* read-only data: */
+-	u32 *pool;
 -
--
--#define LONGS(x) (((x) + sizeof(unsigned long) - 1)/sizeof(unsigned long))
-+#define EXTRACT_SIZE		(BLAKE2S_HASH_SIZE / 2)
+-	/* read-write data: */
+ 	spinlock_t lock;
+ 	u16 add_ptr;
+ 	u16 input_rotate;
+ 	int entropy_count;
+ } input_pool = {
+ 	.lock = __SPIN_LOCK_UNLOCKED(input_pool.lock),
+-	.pool = input_pool_data
+ };
  
- /*
-  * To allow fractional bits to be tracked, the entropy_count field is
-@@ -406,7 +403,7 @@ static int random_write_wakeup_bits = 28
-  * Thanks to Colin Plumb for suggesting this.
-  *
-  * The mixing operation is much less sensitive than the output hash,
-- * where we use SHA-1.  All that we want of mixing operation is that
-+ * where we use BLAKE2s.  All that we want of mixing operation is that
-  * it be a good non-cryptographic hash; i.e. it not produce collisions
-  * when fed "random" data of the sort we expect to see.  As long as
-  * the pool state differs for different inputs, we have preserved the
-@@ -1398,56 +1395,49 @@ retry:
-  */
- static void extract_buf(struct entropy_store *r, __u8 *out)
- {
--	int i;
--	union {
--		__u32 w[5];
--		unsigned long l[LONGS(20)];
--	} hash;
--	__u32 workspace[SHA_WORKSPACE_WORDS];
-+	struct blake2s_state state __aligned(__alignof__(unsigned long));
-+	u8 hash[BLAKE2S_HASH_SIZE];
-+	unsigned long *salt;
- 	unsigned long flags;
+ static ssize_t extract_entropy(void *buf, size_t nbytes, int min);
+@@ -514,7 +509,7 @@ static ssize_t _extract_entropy(void *bu
  
-+	blake2s_init(&state, sizeof(hash));
-+
- 	/*
- 	 * If we have an architectural hardware random number
--	 * generator, use it for SHA's initial vector
-+	 * generator, use it for BLAKE2's salt & personal fields.
- 	 */
--	sha_init(hash.w);
--	for (i = 0; i < LONGS(20); i++) {
-+	for (salt = (unsigned long *)&state.h[4];
-+	     salt < (unsigned long *)&state.h[8]; ++salt) {
- 		unsigned long v;
- 		if (!arch_get_random_long(&v))
- 			break;
--		hash.l[i] = v;
-+		*salt ^= v;
- 	}
+ static void crng_reseed(struct crng_state *crng, bool use_input_pool);
  
--	/* Generate a hash across the pool, 16 words (512 bits) at a time */
-+	/* Generate a hash across the pool */
- 	spin_lock_irqsave(&r->lock, flags);
--	for (i = 0; i < r->poolinfo->poolwords; i += 16)
--		sha_transform(hash.w, (__u8 *)(r->pool + i), workspace);
-+	blake2s_update(&state, (const u8 *)r->pool,
-+		       r->poolinfo->poolwords * sizeof(*r->pool));
-+	blake2s_final(&state, hash); /* final zeros out state */
+-static u32 const twist_table[8] = {
++static const u32 twist_table[8] = {
+ 	0x00000000, 0x3b6e20c8, 0x76dc4190, 0x4db26158,
+ 	0xedb88320, 0xd6d6a3e8, 0x9b64c2b0, 0xa00ae278 };
  
- 	/*
- 	 * We mix the hash back into the pool to prevent backtracking
- 	 * attacks (where the attacker knows the state of the pool
- 	 * plus the current outputs, and attempts to find previous
--	 * ouputs), unless the hash function can be inverted. By
--	 * mixing at least a SHA1 worth of hash data back, we make
-+	 * outputs), unless the hash function can be inverted. By
-+	 * mixing at least a hash worth of hash data back, we make
- 	 * brute-forcing the feedback as hard as brute-forcing the
- 	 * hash.
- 	 */
--	__mix_pool_bytes(r, hash.w, sizeof(hash.w));
-+	__mix_pool_bytes(r, hash, sizeof(hash));
- 	spin_unlock_irqrestore(&r->lock, flags);
+@@ -544,15 +539,15 @@ static void _mix_pool_bytes(const void *
+ 		i = (i - 1) & POOL_WORDMASK;
  
--	memzero_explicit(workspace, sizeof(workspace));
--
--	/*
--	 * In case the hash function has some recognizable output
--	 * pattern, we fold it in half. Thus, we always feed back
--	 * twice as much data as we output.
-+	/* Note that EXTRACT_SIZE is half of hash size here, because above
-+	 * we've dumped the full length back into mixer. By reducing the
-+	 * amount that we emit, we retain a level of forward secrecy.
- 	 */
--	hash.w[0] ^= hash.w[3];
--	hash.w[1] ^= hash.w[4];
--	hash.w[2] ^= rol32(hash.w[2], 16);
--
--	memcpy(out, &hash, EXTRACT_SIZE);
--	memzero_explicit(&hash, sizeof(hash));
-+	memcpy(out, hash, EXTRACT_SIZE);
-+	memzero_explicit(hash, sizeof(hash));
+ 		/* XOR in the various taps */
+-		w ^= input_pool.pool[i];
+-		w ^= input_pool.pool[(i + POOL_TAP1) & POOL_WORDMASK];
+-		w ^= input_pool.pool[(i + POOL_TAP2) & POOL_WORDMASK];
+-		w ^= input_pool.pool[(i + POOL_TAP3) & POOL_WORDMASK];
+-		w ^= input_pool.pool[(i + POOL_TAP4) & POOL_WORDMASK];
+-		w ^= input_pool.pool[(i + POOL_TAP5) & POOL_WORDMASK];
++		w ^= input_pool_data[i];
++		w ^= input_pool_data[(i + POOL_TAP1) & POOL_WORDMASK];
++		w ^= input_pool_data[(i + POOL_TAP2) & POOL_WORDMASK];
++		w ^= input_pool_data[(i + POOL_TAP3) & POOL_WORDMASK];
++		w ^= input_pool_data[(i + POOL_TAP4) & POOL_WORDMASK];
++		w ^= input_pool_data[(i + POOL_TAP5) & POOL_WORDMASK];
+ 
+ 		/* Mix the result back in with a twist */
+-		input_pool.pool[i] = (w >> 3) ^ twist_table[w & 7];
++		input_pool_data[i] = (w >> 3) ^ twist_table[w & 7];
+ 
+ 		/*
+ 		 * Normally, we add 7 bits of rotation to the pool.
+@@ -584,10 +579,10 @@ static void mix_pool_bytes(const void *i
  }
  
- static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
+ struct fast_pool {
+-	u32		pool[4];
+-	unsigned long	last;
+-	u16		reg_idx;
+-	u8		count;
++	u32 pool[4];
++	unsigned long last;
++	u16 reg_idx;
++	u8 count;
+ };
+ 
+ /*
+@@ -715,7 +710,7 @@ static int credit_entropy_bits_safe(int
+ 		return -EINVAL;
+ 
+ 	/* Cap the value to avoid overflows */
+-	nbits = min(nbits,  POOL_BITS);
++	nbits = min(nbits, POOL_BITS);
+ 
+ 	credit_entropy_bits(nbits);
+ 	return 0;
+@@ -727,7 +722,7 @@ static int credit_entropy_bits_safe(int
+  *
+  *********************************************************************/
+ 
+-#define CRNG_RESEED_INTERVAL (300*HZ)
++#define CRNG_RESEED_INTERVAL (300 * HZ)
+ 
+ static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
+ 
+@@ -750,9 +745,9 @@ early_param("random.trust_cpu", parse_tr
+ 
+ static bool crng_init_try_arch(struct crng_state *crng)
+ {
+-	int		i;
+-	bool		arch_init = true;
+-	unsigned long	rv;
++	int i;
++	bool arch_init = true;
++	unsigned long rv;
+ 
+ 	for (i = 4; i < 16; i++) {
+ 		if (!arch_get_random_seed_long(&rv) &&
+@@ -768,9 +763,9 @@ static bool crng_init_try_arch(struct cr
+ 
+ static bool __init crng_init_try_arch_early(struct crng_state *crng)
+ {
+-	int		i;
+-	bool		arch_init = true;
+-	unsigned long	rv;
++	int i;
++	bool arch_init = true;
++	unsigned long rv;
+ 
+ 	for (i = 4; i < 16; i++) {
+ 		if (!arch_get_random_seed_long_early(&rv) &&
+@@ -840,7 +835,7 @@ static void do_numa_crng_init(struct wor
+ 	struct crng_state *crng;
+ 	struct crng_state **pool;
+ 
+-	pool = kcalloc(nr_node_ids, sizeof(*pool), GFP_KERNEL|__GFP_NOFAIL);
++	pool = kcalloc(nr_node_ids, sizeof(*pool), GFP_KERNEL | __GFP_NOFAIL);
+ 	for_each_online_node(i) {
+ 		crng = kmalloc_node(sizeof(struct crng_state),
+ 				    GFP_KERNEL | __GFP_NOFAIL, i);
+@@ -896,7 +891,7 @@ static size_t crng_fast_load(const u8 *c
+ 		spin_unlock_irqrestore(&primary_crng.lock, flags);
+ 		return 0;
+ 	}
+-	p = (u8 *) &primary_crng.state[4];
++	p = (u8 *)&primary_crng.state[4];
+ 	while (len > 0 && crng_init_cnt < CRNG_INIT_CNT_THRESH) {
+ 		p[crng_init_cnt % CHACHA20_KEY_SIZE] ^= *cp;
+ 		cp++; crng_init_cnt++; len--; ret++;
+@@ -926,12 +921,12 @@ static size_t crng_fast_load(const u8 *c
+  */
+ static int crng_slow_load(const u8 *cp, size_t len)
+ {
+-	unsigned long		flags;
+-	static u8		lfsr = 1;
+-	u8			tmp;
+-	unsigned int		i, max = CHACHA20_KEY_SIZE;
+-	const u8 *		src_buf = cp;
+-	u8 *			dest_buf = (u8 *) &primary_crng.state[4];
++	unsigned long flags;
++	static u8 lfsr = 1;
++	u8 tmp;
++	unsigned int i, max = CHACHA20_KEY_SIZE;
++	const u8 *src_buf = cp;
++	u8 *dest_buf = (u8 *)&primary_crng.state[4];
+ 
+ 	if (!spin_trylock_irqsave(&primary_crng.lock, flags))
+ 		return 0;
+@@ -942,7 +937,7 @@ static int crng_slow_load(const u8 *cp,
+ 	if (len > max)
+ 		max = len;
+ 
+-	for (i = 0; i < max ; i++) {
++	for (i = 0; i < max; i++) {
+ 		tmp = lfsr;
+ 		lfsr >>= 1;
+ 		if (tmp & 1)
+@@ -957,11 +952,11 @@ static int crng_slow_load(const u8 *cp,
+ 
+ static void crng_reseed(struct crng_state *crng, bool use_input_pool)
+ {
+-	unsigned long	flags;
+-	int		i, num;
++	unsigned long flags;
++	int i, num;
+ 	union {
+-		u8	block[CHACHA20_BLOCK_SIZE];
+-		u32	key[8];
++		u8 block[CHACHA20_BLOCK_SIZE];
++		u32 key[8];
+ 	} buf;
+ 
+ 	if (use_input_pool) {
+@@ -975,11 +970,11 @@ static void crng_reseed(struct crng_stat
+ 	}
+ 	spin_lock_irqsave(&crng->lock, flags);
+ 	for (i = 0; i < 8; i++) {
+-		unsigned long	rv;
++		unsigned long rv;
+ 		if (!arch_get_random_seed_long(&rv) &&
+ 		    !arch_get_random_long(&rv))
+ 			rv = random_get_entropy();
+-		crng->state[i+4] ^= buf.key[i] ^ rv;
++		crng->state[i + 4] ^= buf.key[i] ^ rv;
+ 	}
+ 	memzero_explicit(&buf, sizeof(buf));
+ 	WRITE_ONCE(crng->init_time, jiffies);
+@@ -987,8 +982,7 @@ static void crng_reseed(struct crng_stat
+ 	crng_finalize_init(crng);
+ }
+ 
+-static void _extract_crng(struct crng_state *crng,
+-			  u8 out[CHACHA20_BLOCK_SIZE])
++static void _extract_crng(struct crng_state *crng, u8 out[CHACHA20_BLOCK_SIZE])
+ {
+ 	unsigned long flags, init_time;
+ 
+@@ -1017,9 +1011,9 @@ static void extract_crng(u8 out[CHACHA20
+ static void _crng_backtrack_protect(struct crng_state *crng,
+ 				    u8 tmp[CHACHA20_BLOCK_SIZE], int used)
+ {
+-	unsigned long	flags;
+-	u32		*s, *d;
+-	int		i;
++	unsigned long flags;
++	u32 *s, *d;
++	int i;
+ 
+ 	used = round_up(used, sizeof(u32));
+ 	if (used + CHACHA20_KEY_SIZE > CHACHA20_BLOCK_SIZE) {
+@@ -1027,9 +1021,9 @@ static void _crng_backtrack_protect(stru
+ 		used = 0;
+ 	}
+ 	spin_lock_irqsave(&crng->lock, flags);
+-	s = (u32 *) &tmp[used];
++	s = (u32 *)&tmp[used];
+ 	d = &crng->state[4];
+-	for (i=0; i < 8; i++)
++	for (i = 0; i < 8; i++)
+ 		*d++ ^= *s++;
+ 	spin_unlock_irqrestore(&crng->lock, flags);
+ }
+@@ -1074,7 +1068,6 @@ static ssize_t extract_crng_user(void __
+ 	return ret;
+ }
+ 
+-
+ /*********************************************************************
+  *
+  * Entropy input management
+@@ -1169,11 +1162,11 @@ static void add_timer_randomness(struct
+ 	 * Round down by 1 bit on general principles,
+ 	 * and limit entropy estimate to 12 bits.
+ 	 */
+-	credit_entropy_bits(min_t(int, fls(delta>>1), 11));
++	credit_entropy_bits(min_t(int, fls(delta >> 1), 11));
+ }
+ 
+ void add_input_randomness(unsigned int type, unsigned int code,
+-				 unsigned int value)
++			  unsigned int value)
+ {
+ 	static unsigned char last_value;
+ 
+@@ -1193,19 +1186,19 @@ static DEFINE_PER_CPU(struct fast_pool,
+ #ifdef ADD_INTERRUPT_BENCH
+ static unsigned long avg_cycles, avg_deviation;
+ 
+-#define AVG_SHIFT 8     /* Exponential average factor k=1/256 */
+-#define FIXED_1_2 (1 << (AVG_SHIFT-1))
++#define AVG_SHIFT 8 /* Exponential average factor k=1/256 */
++#define FIXED_1_2 (1 << (AVG_SHIFT - 1))
+ 
+ static void add_interrupt_bench(cycles_t start)
+ {
+-        long delta = random_get_entropy() - start;
++	long delta = random_get_entropy() - start;
+ 
+-        /* Use a weighted moving average */
+-        delta = delta - ((avg_cycles + FIXED_1_2) >> AVG_SHIFT);
+-        avg_cycles += delta;
+-        /* And average deviation */
+-        delta = abs(delta) - ((avg_deviation + FIXED_1_2) >> AVG_SHIFT);
+-        avg_deviation += delta;
++	/* Use a weighted moving average */
++	delta = delta - ((avg_cycles + FIXED_1_2) >> AVG_SHIFT);
++	avg_cycles += delta;
++	/* And average deviation */
++	delta = abs(delta) - ((avg_deviation + FIXED_1_2) >> AVG_SHIFT);
++	avg_deviation += delta;
+ }
+ #else
+ #define add_interrupt_bench(x)
+@@ -1213,7 +1206,7 @@ static void add_interrupt_bench(cycles_t
+ 
+ static u32 get_reg(struct fast_pool *f, struct pt_regs *regs)
+ {
+-	u32 *ptr = (u32 *) regs;
++	u32 *ptr = (u32 *)regs;
+ 	unsigned int idx;
+ 
+ 	if (regs == NULL)
+@@ -1228,12 +1221,12 @@ static u32 get_reg(struct fast_pool *f,
+ 
+ void add_interrupt_randomness(int irq)
+ {
+-	struct fast_pool	*fast_pool = this_cpu_ptr(&irq_randomness);
+-	struct pt_regs		*regs = get_irq_regs();
+-	unsigned long		now = jiffies;
+-	cycles_t		cycles = random_get_entropy();
+-	u32			c_high, j_high;
+-	u64			ip;
++	struct fast_pool *fast_pool = this_cpu_ptr(&irq_randomness);
++	struct pt_regs *regs = get_irq_regs();
++	unsigned long now = jiffies;
++	cycles_t cycles = random_get_entropy();
++	u32 c_high, j_high;
++	u64 ip;
+ 
+ 	if (cycles == 0)
+ 		cycles = get_reg(fast_pool, regs);
+@@ -1243,8 +1236,8 @@ void add_interrupt_randomness(int irq)
+ 	fast_pool->pool[1] ^= now ^ c_high;
+ 	ip = regs ? instruction_pointer(regs) : _RET_IP_;
+ 	fast_pool->pool[2] ^= ip;
+-	fast_pool->pool[3] ^= (sizeof(ip) > 4) ? ip >> 32 :
+-		get_reg(fast_pool, regs);
++	fast_pool->pool[3] ^=
++		(sizeof(ip) > 4) ? ip >> 32 : get_reg(fast_pool, regs);
+ 
+ 	fast_mix(fast_pool);
+ 	add_interrupt_bench(cycles);
+@@ -1258,8 +1251,7 @@ void add_interrupt_randomness(int irq)
+ 		return;
+ 	}
+ 
+-	if ((fast_pool->count < 64) &&
+-	    !time_after(now, fast_pool->last + HZ))
++	if ((fast_pool->count < 64) && !time_after(now, fast_pool->last + HZ))
+ 		return;
+ 
+ 	if (!spin_trylock(&input_pool.lock))
+@@ -1323,7 +1315,7 @@ retry:
+ 		entropy_count = 0;
+ 	}
+ 	nfrac = ibytes << (POOL_ENTROPY_SHIFT + 3);
+-	if ((size_t) entropy_count > nfrac)
++	if ((size_t)entropy_count > nfrac)
+ 		entropy_count -= nfrac;
+ 	else
+ 		entropy_count = 0;
+@@ -1368,7 +1360,7 @@ static void extract_buf(u8 *out)
+ 
+ 	/* Generate a hash across the pool */
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+-	blake2s_update(&state, (const u8 *)input_pool.pool, POOL_BYTES);
++	blake2s_update(&state, (const u8 *)input_pool_data, POOL_BYTES);
+ 	blake2s_final(&state, hash); /* final zeros out state */
+ 
+ 	/*
+@@ -1426,10 +1418,9 @@ static ssize_t extract_entropy(void *buf
+ }
+ 
+ #define warn_unseeded_randomness(previous) \
+-	_warn_unseeded_randomness(__func__, (void *) _RET_IP_, (previous))
++	_warn_unseeded_randomness(__func__, (void *)_RET_IP_, (previous))
+ 
+-static void _warn_unseeded_randomness(const char *func_name, void *caller,
+-				      void **previous)
++static void _warn_unseeded_randomness(const char *func_name, void *caller, void **previous)
+ {
+ #ifdef CONFIG_WARN_ALL_UNSEEDED_RANDOM
+ 	const bool print_once = false;
+@@ -1437,8 +1428,7 @@ static void _warn_unseeded_randomness(co
+ 	static bool print_once __read_mostly;
+ #endif
+ 
+-	if (print_once ||
+-	    crng_ready() ||
++	if (print_once || crng_ready() ||
+ 	    (previous && (caller == READ_ONCE(*previous))))
+ 		return;
+ 	WRITE_ONCE(*previous, caller);
+@@ -1446,9 +1436,8 @@ static void _warn_unseeded_randomness(co
+ 	print_once = true;
+ #endif
+ 	if (__ratelimit(&unseeded_warning))
+-		printk_deferred(KERN_NOTICE "random: %s called from %pS "
+-				"with crng_init=%d\n", func_name, caller,
+-				crng_init);
++		printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n",
++				func_name, caller, crng_init);
+ }
+ 
+ /*
+@@ -1491,7 +1480,6 @@ void get_random_bytes(void *buf, int nby
+ }
+ EXPORT_SYMBOL(get_random_bytes);
+ 
+-
+ /*
+  * Each time the timer fires, we expect that we got an unpredictable
+  * jump in the cycle counter. Even if the timer is running on another
+@@ -1530,7 +1518,7 @@ static void try_to_generate_entropy(void
+ 	__setup_timer_on_stack(&stack.timer, entropy_timer, 0, 0);
+ 	while (!crng_ready()) {
+ 		if (!timer_pending(&stack.timer))
+-			mod_timer(&stack.timer, jiffies+1);
++			mod_timer(&stack.timer, jiffies + 1);
+ 		mix_pool_bytes(&stack.now, sizeof(stack.now));
+ 		schedule();
+ 		stack.now = random_get_entropy();
+@@ -1740,9 +1728,8 @@ void rand_initialize_disk(struct gendisk
+ }
+ #endif
+ 
+-static ssize_t
+-urandom_read_nowarn(struct file *file, char __user *buf, size_t nbytes,
+-		    loff_t *ppos)
++static ssize_t urandom_read_nowarn(struct file *file, char __user *buf,
++				   size_t nbytes, loff_t *ppos)
+ {
+ 	int ret;
+ 
+@@ -1752,8 +1739,8 @@ urandom_read_nowarn(struct file *file, c
+ 	return ret;
+ }
+ 
+-static ssize_t
+-urandom_read(struct file *file, char __user *buf, size_t nbytes, loff_t *ppos)
++static ssize_t urandom_read(struct file *file, char __user *buf, size_t nbytes,
++			    loff_t *ppos)
+ {
+ 	static int maxwarn = 10;
+ 
+@@ -1767,8 +1754,8 @@ urandom_read(struct file *file, char __u
+ 	return urandom_read_nowarn(file, buf, nbytes, ppos);
+ }
+ 
+-static ssize_t
+-random_read(struct file *file, char __user *buf, size_t nbytes, loff_t *ppos)
++static ssize_t random_read(struct file *file, char __user *buf, size_t nbytes,
++			   loff_t *ppos)
+ {
+ 	int ret;
+ 
+@@ -1778,8 +1765,7 @@ random_read(struct file *file, char __us
+ 	return urandom_read_nowarn(file, buf, nbytes, ppos);
+ }
+ 
+-static unsigned int
+-random_poll(struct file *file, poll_table * wait)
++static unsigned int random_poll(struct file *file, poll_table *wait)
+ {
+ 	unsigned int mask;
+ 
+@@ -1793,8 +1779,7 @@ random_poll(struct file *file, poll_tabl
+ 	return mask;
+ }
+ 
+-static int
+-write_pool(const char __user *buffer, size_t count)
++static int write_pool(const char __user *buffer, size_t count)
+ {
+ 	size_t bytes;
+ 	u32 t, buf[16];
+@@ -1896,35 +1881,35 @@ static int random_fasync(int fd, struct
+ }
+ 
+ const struct file_operations random_fops = {
+-	.read  = random_read,
++	.read = random_read,
+ 	.write = random_write,
+-	.poll  = random_poll,
++	.poll = random_poll,
+ 	.unlocked_ioctl = random_ioctl,
+ 	.fasync = random_fasync,
+ 	.llseek = noop_llseek,
+ };
+ 
+ const struct file_operations urandom_fops = {
+-	.read  = urandom_read,
++	.read = urandom_read,
+ 	.write = random_write,
+ 	.unlocked_ioctl = random_ioctl,
+ 	.fasync = random_fasync,
+ 	.llseek = noop_llseek,
+ };
+ 
+-SYSCALL_DEFINE3(getrandom, char __user *, buf, size_t, count,
+-		unsigned int, flags)
++SYSCALL_DEFINE3(getrandom, char __user *, buf, size_t, count, unsigned int,
++		flags)
+ {
+ 	int ret;
+ 
+-	if (flags & ~(GRND_NONBLOCK|GRND_RANDOM|GRND_INSECURE))
++	if (flags & ~(GRND_NONBLOCK | GRND_RANDOM | GRND_INSECURE))
+ 		return -EINVAL;
+ 
+ 	/*
+ 	 * Requesting insecure and blocking randomness at the same time makes
+ 	 * no sense.
+ 	 */
+-	if ((flags & (GRND_INSECURE|GRND_RANDOM)) == (GRND_INSECURE|GRND_RANDOM))
++	if ((flags & (GRND_INSECURE | GRND_RANDOM)) == (GRND_INSECURE | GRND_RANDOM))
+ 		return -EINVAL;
+ 
+ 	if (count > INT_MAX)
+@@ -2072,7 +2057,7 @@ struct ctl_table random_table[] = {
+ #endif
+ 	{ }
+ };
+-#endif 	/* CONFIG_SYSCTL */
++#endif	/* CONFIG_SYSCTL */
+ 
+ struct batched_entropy {
+ 	union {
+@@ -2092,7 +2077,7 @@ struct batched_entropy {
+  * point prior.
+  */
+ static DEFINE_PER_CPU(struct batched_entropy, batched_entropy_u64) = {
+-	.batch_lock	= __SPIN_LOCK_UNLOCKED(batched_entropy_u64.lock),
++	.batch_lock = __SPIN_LOCK_UNLOCKED(batched_entropy_u64.lock),
+ };
+ 
+ u64 get_random_u64(void)
+@@ -2117,7 +2102,7 @@ u64 get_random_u64(void)
+ EXPORT_SYMBOL(get_random_u64);
+ 
+ static DEFINE_PER_CPU(struct batched_entropy, batched_entropy_u32) = {
+-	.batch_lock	= __SPIN_LOCK_UNLOCKED(batched_entropy_u32.lock),
++	.batch_lock = __SPIN_LOCK_UNLOCKED(batched_entropy_u32.lock),
+ };
+ u32 get_random_u32(void)
+ {
+@@ -2149,7 +2134,7 @@ static void invalidate_batched_entropy(v
+ 	int cpu;
+ 	unsigned long flags;
+ 
+-	for_each_possible_cpu (cpu) {
++	for_each_possible_cpu(cpu) {
+ 		struct batched_entropy *batched_entropy;
+ 
+ 		batched_entropy = per_cpu_ptr(&batched_entropy_u32, cpu);
+@@ -2178,8 +2163,7 @@ static void invalidate_batched_entropy(v
+  * Return: A page aligned address within [start, start + range).  On error,
+  * @start is returned.
+  */
+-unsigned long
+-randomize_page(unsigned long start, unsigned long range)
++unsigned long randomize_page(unsigned long start, unsigned long range)
+ {
+ 	if (!PAGE_ALIGNED(start)) {
+ 		range -= PAGE_ALIGN(start) - start;
 
 
