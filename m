@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E2A0558044
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:52:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86DAD558042
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:52:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232490AbiFWQqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232505AbiFWQqr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 Jun 2022 12:46:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47574 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232554AbiFWQqa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:46:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FFCF4993F;
-        Thu, 23 Jun 2022 09:46:29 -0700 (PDT)
+        with ESMTP id S232565AbiFWQqh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:46:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68E7249B53;
+        Thu, 23 Jun 2022 09:46:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CB8FB82486;
-        Thu, 23 Jun 2022 16:46:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FBD8C3411B;
-        Thu, 23 Jun 2022 16:46:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13BCBB82490;
+        Thu, 23 Jun 2022 16:46:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F55FC3411B;
+        Thu, 23 Jun 2022 16:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002786;
-        bh=c/H6JMemIThUjrcPl0YgwG+2zX/iYSUhorGwS/jkui8=;
+        s=korg; t=1656002789;
+        bh=jowfPDK8woZaDFsJMGdUuGhq2AgGDxQotjFEH04bCi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IYAO1xLMeqPZHZAnjK9MBLGIxppZKG7hbUNhijg8kg7YgB+ALHDlKH4sdjYemTRLT
-         vYC2wiWfiWqP2TMOfZgdGisBMoc8u4XRR10Sffvi+4PZi7swikOigMvM2zUpc0dWwI
-         PC+0Bme9WOt+LjcQqKyKXqCsBNrm3OSBOW0JEr30=
+        b=Wf6iAYu7JrrXEQu5H+Ce1Aljhi7d/XSPfuPxOYfVuNpkQx4eQVZQPBDa1FdiUEnaD
+         smI1oUvWDOzq6jHue4J563Y2D0vMreTvz6GyUASE2xRVF0xxca0BNvG2lTYyH2733h
+         YK8n/W7drjtzOFAYYd454F1Di09ftCRIXg7IcCdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 025/264] random: fix data race on crng_node_pool
-Date:   Thu, 23 Jun 2022 18:40:18 +0200
-Message-Id: <20220623164344.781654325@linuxfoundation.org>
+Subject: [PATCH 4.9 026/264] crypto: chacha20 - Fix keystream alignment for chacha20_block()
+Date:   Thu, 23 Jun 2022 18:40:19 +0200
+Message-Id: <20220623164344.809487453@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
 References: <20220623164344.053938039@linuxfoundation.org>
@@ -56,71 +56,185 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 5d73d1e320c3fd94ea15ba5f79301da9a8bcc7de upstream.
+commit 9f480faec58cd6197a007ea1dcac6b7c3daf1139 upstream.
 
-extract_crng() and crng_backtrack_protect() load crng_node_pool with a
-plain load, which causes undefined behavior if do_numa_crng_init()
-modifies it concurrently.
+When chacha20_block() outputs the keystream block, it uses 'u32' stores
+directly.  However, the callers (crypto/chacha20_generic.c and
+drivers/char/random.c) declare the keystream buffer as a 'u8' array,
+which is not guaranteed to have the needed alignment.
 
-Fix this by using READ_ONCE().  Note: as per the previous discussion
-https://lore.kernel.org/lkml/20211219025139.31085-1-ebiggers@kernel.org/T/#u,
-READ_ONCE() is believed to be sufficient here, and it was requested that
-it be used here instead of smp_load_acquire().
+Fix it by having both callers declare the keystream as a 'u32' array.
+For now this is preferable to switching over to the unaligned access
+macros because chacha20_block() is only being used in cases where we can
+easily control the alignment (stack buffers).
 
-Also change do_numa_crng_init() to set crng_node_pool using
-cmpxchg_release() instead of mb() + cmpxchg(), as the former is
-sufficient here but is more lightweight.
-
-Fixes: 1e7f583af67b ("random: make /dev/urandom scalable for silly userspace programs")
-Cc: stable@vger.kernel.org
 Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ crypto/chacha20_generic.c |    6 +++---
+ drivers/char/random.c     |   24 ++++++++++++------------
+ include/crypto/chacha20.h |    3 ++-
+ lib/chacha20.c            |    2 +-
+ 4 files changed, 18 insertions(+), 17 deletions(-)
 
+--- a/crypto/chacha20_generic.c
++++ b/crypto/chacha20_generic.c
+@@ -23,20 +23,20 @@ static inline u32 le32_to_cpuvp(const vo
+ static void chacha20_docrypt(u32 *state, u8 *dst, const u8 *src,
+ 			     unsigned int bytes)
+ {
+-	u8 stream[CHACHA20_BLOCK_SIZE];
++	u32 stream[CHACHA20_BLOCK_WORDS];
+ 
+ 	if (dst != src)
+ 		memcpy(dst, src, bytes);
+ 
+ 	while (bytes >= CHACHA20_BLOCK_SIZE) {
+ 		chacha20_block(state, stream);
+-		crypto_xor(dst, stream, CHACHA20_BLOCK_SIZE);
++		crypto_xor(dst, (const u8 *)stream, CHACHA20_BLOCK_SIZE);
+ 		bytes -= CHACHA20_BLOCK_SIZE;
+ 		dst += CHACHA20_BLOCK_SIZE;
+ 	}
+ 	if (bytes) {
+ 		chacha20_block(state, stream);
+-		crypto_xor(dst, stream, bytes);
++		crypto_xor(dst, (const u8 *)stream, bytes);
+ 	}
+ }
+ 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -814,8 +814,8 @@ static void do_numa_crng_init(struct wor
- 		crng_initialize(crng);
- 		pool[i] = crng;
- 	}
--	mb();
--	if (cmpxchg(&crng_node_pool, NULL, pool)) {
-+	/* pairs with READ_ONCE() in select_crng() */
-+	if (cmpxchg_release(&crng_node_pool, NULL, pool) != NULL) {
- 		for_each_node(i)
- 			kfree(pool[i]);
- 		kfree(pool);
-@@ -828,8 +828,26 @@ static void numa_crng_init(void)
- {
- 	schedule_work(&numa_crng_init_work);
- }
-+
-+static struct crng_state *select_crng(void)
-+{
-+	struct crng_state **pool;
-+	int nid = numa_node_id();
-+
-+	/* pairs with cmpxchg_release() in do_numa_crng_init() */
-+	pool = READ_ONCE(crng_node_pool);
-+	if (pool && pool[nid])
-+		return pool[nid];
-+
-+	return &primary_crng;
-+}
- #else
- static void numa_crng_init(void) {}
-+
-+static struct crng_state *select_crng(void)
-+{
-+	return &primary_crng;
-+}
- #endif
+@@ -434,9 +434,9 @@ static int crng_init_cnt = 0;
+ static unsigned long crng_global_init_time = 0;
+ #define CRNG_INIT_CNT_THRESH (2*CHACHA20_KEY_SIZE)
+ static void _extract_crng(struct crng_state *crng,
+-			  __u8 out[CHACHA20_BLOCK_SIZE]);
++			  __u32 out[CHACHA20_BLOCK_WORDS]);
+ static void _crng_backtrack_protect(struct crng_state *crng,
+-				    __u8 tmp[CHACHA20_BLOCK_SIZE], int used);
++				    __u32 tmp[CHACHA20_BLOCK_WORDS], int used);
+ static void process_random_ready_list(void);
+ static void _get_random_bytes(void *buf, int nbytes);
  
- /*
+@@ -981,7 +981,7 @@ static void crng_reseed(struct crng_stat
+ 	unsigned long	flags;
+ 	int		i, num;
+ 	union {
+-		__u8	block[CHACHA20_BLOCK_SIZE];
++		__u32	block[CHACHA20_BLOCK_WORDS];
+ 		__u32	key[8];
+ 	} buf;
+ 
+@@ -1029,7 +1029,7 @@ static void crng_reseed(struct crng_stat
+ }
+ 
+ static void _extract_crng(struct crng_state *crng,
+-			  __u8 out[CHACHA20_BLOCK_SIZE])
++			  __u32 out[CHACHA20_BLOCK_WORDS])
+ {
+ 	unsigned long v, flags, init_time;
+ 
+@@ -1049,7 +1049,7 @@ static void _extract_crng(struct crng_st
+ 	spin_unlock_irqrestore(&crng->lock, flags);
+ }
+ 
+-static void extract_crng(__u8 out[CHACHA20_BLOCK_SIZE])
++static void extract_crng(__u32 out[CHACHA20_BLOCK_WORDS])
+ {
+ 	_extract_crng(select_crng(), out);
+ }
+@@ -1059,7 +1059,7 @@ static void extract_crng(__u8 out[CHACHA
+  * enough) to mutate the CRNG key to provide backtracking protection.
+  */
+ static void _crng_backtrack_protect(struct crng_state *crng,
+-				    __u8 tmp[CHACHA20_BLOCK_SIZE], int used)
++				    __u32 tmp[CHACHA20_BLOCK_WORDS], int used)
+ {
+ 	unsigned long	flags;
+ 	__u32		*s, *d;
+@@ -1071,14 +1071,14 @@ static void _crng_backtrack_protect(stru
+ 		used = 0;
+ 	}
+ 	spin_lock_irqsave(&crng->lock, flags);
+-	s = (__u32 *) &tmp[used];
++	s = &tmp[used / sizeof(__u32)];
+ 	d = &crng->state[4];
+ 	for (i=0; i < 8; i++)
+ 		*d++ ^= *s++;
+ 	spin_unlock_irqrestore(&crng->lock, flags);
+ }
+ 
+-static void crng_backtrack_protect(__u8 tmp[CHACHA20_BLOCK_SIZE], int used)
++static void crng_backtrack_protect(__u32 tmp[CHACHA20_BLOCK_WORDS], int used)
+ {
+ 	_crng_backtrack_protect(select_crng(), tmp, used);
+ }
+@@ -1086,7 +1086,7 @@ static void crng_backtrack_protect(__u8
+ static ssize_t extract_crng_user(void __user *buf, size_t nbytes)
+ {
+ 	ssize_t ret = 0, i = CHACHA20_BLOCK_SIZE;
+-	__u8 tmp[CHACHA20_BLOCK_SIZE];
++	__u32 tmp[CHACHA20_BLOCK_WORDS];
+ 	int large_request = (nbytes > 256);
+ 
+ 	while (nbytes) {
+@@ -1672,7 +1672,7 @@ static void _warn_unseeded_randomness(co
+  */
+ static void _get_random_bytes(void *buf, int nbytes)
+ {
+-	__u8 tmp[CHACHA20_BLOCK_SIZE];
++	__u32 tmp[CHACHA20_BLOCK_WORDS];
+ 
+ 	trace_get_random_bytes(nbytes, _RET_IP_);
+ 
+@@ -2273,7 +2273,7 @@ u64 get_random_u64(void)
+ 	batch = raw_cpu_ptr(&batched_entropy_u64);
+ 	spin_lock_irqsave(&batch->batch_lock, flags);
+ 	if (batch->position % ARRAY_SIZE(batch->entropy_u64) == 0) {
+-		extract_crng((u8 *)batch->entropy_u64);
++		extract_crng((__u32 *)batch->entropy_u64);
+ 		batch->position = 0;
+ 	}
+ 	ret = batch->entropy_u64[batch->position++];
+@@ -2297,7 +2297,7 @@ u32 get_random_u32(void)
+ 	batch = raw_cpu_ptr(&batched_entropy_u32);
+ 	spin_lock_irqsave(&batch->batch_lock, flags);
+ 	if (batch->position % ARRAY_SIZE(batch->entropy_u32) == 0) {
+-		extract_crng((u8 *)batch->entropy_u32);
++		extract_crng(batch->entropy_u32);
+ 		batch->position = 0;
+ 	}
+ 	ret = batch->entropy_u32[batch->position++];
+--- a/include/crypto/chacha20.h
++++ b/include/crypto/chacha20.h
+@@ -11,12 +11,13 @@
+ #define CHACHA20_IV_SIZE	16
+ #define CHACHA20_KEY_SIZE	32
+ #define CHACHA20_BLOCK_SIZE	64
++#define CHACHA20_BLOCK_WORDS	(CHACHA20_BLOCK_SIZE / sizeof(u32))
+ 
+ struct chacha20_ctx {
+ 	u32 key[8];
+ };
+ 
+-void chacha20_block(u32 *state, void *stream);
++void chacha20_block(u32 *state, u32 *stream);
+ void crypto_chacha20_init(u32 *state, struct chacha20_ctx *ctx, u8 *iv);
+ int crypto_chacha20_setkey(struct crypto_tfm *tfm, const u8 *key,
+ 			   unsigned int keysize);
+--- a/lib/chacha20.c
++++ b/lib/chacha20.c
+@@ -21,7 +21,7 @@ static inline u32 rotl32(u32 v, u8 n)
+ 	return (v << n) | (v >> (sizeof(v) * 8 - n));
+ }
+ 
+-extern void chacha20_block(u32 *state, void *stream)
++void chacha20_block(u32 *state, u32 *stream)
+ {
+ 	u32 x[16], *out = stream;
+ 	int i;
 
 
