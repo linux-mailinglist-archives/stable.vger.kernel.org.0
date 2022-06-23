@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A566F5582BB
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:19:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1EF55580F7
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:54:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232106AbiFWRS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33144 "EHLO
+        id S233280AbiFWQyt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:54:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233404AbiFWRRk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:17:40 -0400
+        with ESMTP id S233284AbiFWQul (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:50:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D9060C73;
-        Thu, 23 Jun 2022 09:59:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482BA4F1CF;
+        Thu, 23 Jun 2022 09:48:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DB4061573;
-        Thu, 23 Jun 2022 16:59:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB75CC3411B;
-        Thu, 23 Jun 2022 16:59:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 830B461F90;
+        Thu, 23 Jun 2022 16:48:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 531DFC3411B;
+        Thu, 23 Jun 2022 16:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003593;
-        bh=hwdRMpcr3c0hyNdYLNwBv3vwIovC0ChxL5ZZ2uhRUfk=;
+        s=korg; t=1656002909;
+        bh=6yvFRQG5ebow2dYPSU+snmWBHrNG4pwXJucZeHnDI6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uRzT/5eoS+bqk/EYv05K9JV+OVYlTzyQ7FFJ9raL2uyGtt0w98IcVooBRo+n+Pr3F
-         3MuxIgKyQUxYYS4rGisA3ZHwrD3khOnC2A797l5wmEywgSvULR+Db15kVboH7H9uuw
-         fQo8N5n03MLyXtj3N5dsoSTLe/8qoJSl1JO3CagM=
+        b=x0NptpUiae0sT/oAd4ziKEK7PCulMtI2Vu79G1q+b3jt9FUVKtClaDUmkf7PbePWn
+         fyqfurAYXaGH2/4PU5jukKrRGlbTSYWCmaunk1m8aYaHxdSufo7QVs1q+7AC1kiDNK
+         gLyL6lm2tQEShFlMGUMXSEC4/YYye+rvmWduIhsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
+        Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 024/237] Revert "hwrng: core - Freeze khwrng thread during suspend"
-Date:   Thu, 23 Jun 2022 18:40:58 +0200
-Message-Id: <20220623164343.850447279@linuxfoundation.org>
+Subject: [PATCH 4.9 066/264] random: remove some dead code of poolinfo
+Date:   Thu, 23 Jun 2022 18:40:59 +0200
+Message-Id: <20220623164345.939620241@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Yangtao Li <tiny.windzz@gmail.com>
 
-commit 08e97aec700aeff54c4847f170e566cbd7e14e81 upstream.
+commit 09a6d00a42ce0e63e2a15be3d070974bcc656ec7 upstream.
 
-This reverts commit 03a3bb7ae631 ("hwrng: core - Freeze khwrng
-thread during suspend"), ff296293b353 ("random: Support freezable
-kthreads in add_hwgenerator_randomness()") and 59b569480dc8 ("random:
-Use wait_event_freezable() in add_hwgenerator_randomness()").
+Since it is not being used, so delete it.
 
-These patches introduced regressions and we need more time to
-get them ready for mainline.
-
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
+Link: https://lore.kernel.org/r/20190607182517.28266-5-tiny.windzz@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/char/random.c |   30 ------------------------------
+ 1 file changed, 30 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -327,7 +327,6 @@
- #include <linux/percpu.h>
- #include <linux/cryptohash.h>
- #include <linux/fips.h>
--#include <linux/freezer.h>
- #include <linux/ptrace.h>
- #include <linux/workqueue.h>
- #include <linux/irq.h>
-@@ -2431,8 +2430,7 @@ void add_hwgenerator_randomness(const ch
- 	 * We'll be woken up again once below random_write_wakeup_thresh,
- 	 * or when the calling thread is about to terminate.
- 	 */
--	wait_event_freezable(random_write_wait,
--			kthread_should_stop() ||
-+	wait_event_interruptible(random_write_wait, kthread_should_stop() ||
- 			ENTROPY_BITS(&input_pool) <= random_write_wakeup_bits);
- 	mix_pool_bytes(poolp, buffer, count);
- 	credit_entropy_bits(poolp, entropy);
+@@ -432,36 +432,6 @@ static const struct poolinfo {
+ 	/* was: x^128 + x^103 + x^76 + x^51 +x^25 + x + 1 */
+ 	/* x^128 + x^104 + x^76 + x^51 +x^25 + x + 1 */
+ 	{ S(128),	104,	76,	51,	25,	1 },
+-	/* was: x^32 + x^26 + x^20 + x^14 + x^7 + x + 1 */
+-	/* x^32 + x^26 + x^19 + x^14 + x^7 + x + 1 */
+-	{ S(32),	26,	19,	14,	7,	1 },
+-#if 0
+-	/* x^2048 + x^1638 + x^1231 + x^819 + x^411 + x + 1  -- 115 */
+-	{ S(2048),	1638,	1231,	819,	411,	1 },
+-
+-	/* x^1024 + x^817 + x^615 + x^412 + x^204 + x + 1 -- 290 */
+-	{ S(1024),	817,	615,	412,	204,	1 },
+-
+-	/* x^1024 + x^819 + x^616 + x^410 + x^207 + x^2 + 1 -- 115 */
+-	{ S(1024),	819,	616,	410,	207,	2 },
+-
+-	/* x^512 + x^411 + x^308 + x^208 + x^104 + x + 1 -- 225 */
+-	{ S(512),	411,	308,	208,	104,	1 },
+-
+-	/* x^512 + x^409 + x^307 + x^206 + x^102 + x^2 + 1 -- 95 */
+-	{ S(512),	409,	307,	206,	102,	2 },
+-	/* x^512 + x^409 + x^309 + x^205 + x^103 + x^2 + 1 -- 95 */
+-	{ S(512),	409,	309,	205,	103,	2 },
+-
+-	/* x^256 + x^205 + x^155 + x^101 + x^52 + x + 1 -- 125 */
+-	{ S(256),	205,	155,	101,	52,	1 },
+-
+-	/* x^128 + x^103 + x^78 + x^51 + x^27 + x^2 + 1 -- 70 */
+-	{ S(128),	103,	78,	51,	27,	2 },
+-
+-	/* x^64 + x^52 + x^39 + x^26 + x^14 + x + 1 -- 15 */
+-	{ S(64),	52,	39,	26,	14,	1 },
+-#endif
+ };
+ 
+ /*
 
 
