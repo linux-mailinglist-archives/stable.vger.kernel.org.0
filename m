@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BE065580EB
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:54:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47FF85582B5
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:19:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233369AbiFWQyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:54:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50508 "EHLO
+        id S232723AbiFWRSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:18:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233367AbiFWQut (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:50:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06A5B4F1ED;
-        Thu, 23 Jun 2022 09:48:43 -0700 (PDT)
+        with ESMTP id S233796AbiFWRSG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:18:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09DE488B31;
+        Thu, 23 Jun 2022 10:00:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D8C161FB8;
-        Thu, 23 Jun 2022 16:48:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66840C3411B;
-        Thu, 23 Jun 2022 16:48:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF1CEB8248A;
+        Thu, 23 Jun 2022 17:00:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A72FC3411B;
+        Thu, 23 Jun 2022 17:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002921;
-        bh=sXL19wqCbyr+cbKWaI19FppbVCfkIQcc2wyE5ao7Vyg=;
+        s=korg; t=1656003606;
+        bh=bwxSGq6grVVZrNdxLa9wT+rkSqRiuBDi9MFrTtazeEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AjMw9MBnRARioDErIYx3zNksb8nk9ht99kCkEE2GYK+MkPEdDxFVFdkr8sfQ8nUZK
-         a9o0CKNgF/EsiUA8/f1oFJ04QZWAR+1SadoUnhg41YnpkGmJirgIV92CZn9Z9yg0uc
-         NV1sBx2dhBzEOgAePI+xxoMKMtnnvS8+8tJeit9o=
+        b=Pomq92TZMLYPgMerlUmrp30A/kqkrtwrWfJmyeJPBn4LnfogjLlhtZfYGwVVBg/Vo
+         xE6GpH028KLanP/SjNhrdvFL+LEbRcGxYMScDkkk/+/jgH41t8fQ3a6JUfiGCz5a3Z
+         m2jDu+E+HLvmlLN51BBgFAY4kPxR7z+nVovLNS9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
-        Mark Brown <broonie@kernel.org>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 069/264] x86: Remove arch_has_random, arch_has_random_seed
+Subject: [PATCH 4.14 028/237] lib/crypto: sha1: re-roll loops to reduce code size
 Date:   Thu, 23 Jun 2022 18:41:02 +0200
-Message-Id: <20220623164346.023739431@linuxfoundation.org>
+Message-Id: <20220623164343.965751036@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +55,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Henderson <richard.henderson@linaro.org>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 5f2ed7f5b99b54389b74e53309677831ac9cb9d7 upstream.
+commit 9a1536b093bb5bf60689021275fd24d513bb8db0 upstream.
 
-Use the expansion of these macros directly in arch_get_random_*.
+With SHA-1 no longer being used for anything performance oriented, and
+also soon to be phased out entirely, we can make up for the space added
+by unrolled BLAKE2s by simply re-rolling SHA-1. Since SHA-1 is so much
+more complex, re-rolling it more or less takes care of the code size
+added by BLAKE2s. And eventually, hopefully we'll see SHA-1 removed
+entirely from most small kernel builds.
 
-These symbols are currently part of the generic archrandom.h
-interface, but are currently unused and can be removed.
-
-Signed-off-by: Richard Henderson <rth@twiddle.net>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20200110145422.49141-2-broonie@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/archrandom.h |   12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ lib/sha1.c |   95 ++++++++-----------------------------------------------------
+ 1 file changed, 14 insertions(+), 81 deletions(-)
 
---- a/arch/x86/include/asm/archrandom.h
-+++ b/arch/x86/include/asm/archrandom.h
-@@ -86,10 +86,6 @@ static inline bool rdseed_int(unsigned i
- 	return ok;
- }
+--- a/lib/sha1.c
++++ b/lib/sha1.c
+@@ -10,6 +10,7 @@
+ #include <linux/export.h>
+ #include <linux/bitops.h>
+ #include <linux/cryptohash.h>
++#include <linux/string.h>
+ #include <asm/unaligned.h>
  
--/* Conditional execution based on CPU type */
--#define arch_has_random()	static_cpu_has(X86_FEATURE_RDRAND)
--#define arch_has_random_seed()	static_cpu_has(X86_FEATURE_RDSEED)
--
  /*
-  * These are the generic interfaces; they must not be declared if the
-  * stubs in <linux/random.h> are to be invoked,
-@@ -99,22 +95,22 @@ static inline bool rdseed_int(unsigned i
+@@ -55,7 +56,8 @@
+ #define SHA_ROUND(t, input, fn, constant, A, B, C, D, E) do { \
+ 	__u32 TEMP = input(t); setW(t, TEMP); \
+ 	E += TEMP + rol32(A,5) + (fn) + (constant); \
+-	B = ror32(B, 2); } while (0)
++	B = ror32(B, 2); \
++	TEMP = E; E = D; D = C; C = B; B = A; A = TEMP; } while (0)
  
- static inline bool arch_get_random_long(unsigned long *v)
+ #define T_0_15(t, A, B, C, D, E)  SHA_ROUND(t, SHA_SRC, (((C^D)&B)^D) , 0x5a827999, A, B, C, D, E )
+ #define T_16_19(t, A, B, C, D, E) SHA_ROUND(t, SHA_MIX, (((C^D)&B)^D) , 0x5a827999, A, B, C, D, E )
+@@ -82,6 +84,7 @@
+ void sha_transform(__u32 *digest, const char *data, __u32 *array)
  {
--	return arch_has_random() ? rdrand_long(v) : false;
-+	return static_cpu_has(X86_FEATURE_RDRAND) ? rdrand_long(v) : false;
- }
+ 	__u32 A, B, C, D, E;
++	unsigned int i = 0;
  
- static inline bool arch_get_random_int(unsigned int *v)
- {
--	return arch_has_random() ? rdrand_int(v) : false;
-+	return static_cpu_has(X86_FEATURE_RDRAND) ? rdrand_int(v) : false;
- }
+ 	A = digest[0];
+ 	B = digest[1];
+@@ -90,94 +93,24 @@ void sha_transform(__u32 *digest, const
+ 	E = digest[4];
  
- static inline bool arch_get_random_seed_long(unsigned long *v)
- {
--	return arch_has_random_seed() ? rdseed_long(v) : false;
-+	return static_cpu_has(X86_FEATURE_RDSEED) ? rdseed_long(v) : false;
- }
+ 	/* Round 1 - iterations 0-16 take their input from 'data' */
+-	T_0_15( 0, A, B, C, D, E);
+-	T_0_15( 1, E, A, B, C, D);
+-	T_0_15( 2, D, E, A, B, C);
+-	T_0_15( 3, C, D, E, A, B);
+-	T_0_15( 4, B, C, D, E, A);
+-	T_0_15( 5, A, B, C, D, E);
+-	T_0_15( 6, E, A, B, C, D);
+-	T_0_15( 7, D, E, A, B, C);
+-	T_0_15( 8, C, D, E, A, B);
+-	T_0_15( 9, B, C, D, E, A);
+-	T_0_15(10, A, B, C, D, E);
+-	T_0_15(11, E, A, B, C, D);
+-	T_0_15(12, D, E, A, B, C);
+-	T_0_15(13, C, D, E, A, B);
+-	T_0_15(14, B, C, D, E, A);
+-	T_0_15(15, A, B, C, D, E);
++	for (; i < 16; ++i)
++		T_0_15(i, A, B, C, D, E);
  
- static inline bool arch_get_random_seed_int(unsigned int *v)
- {
--	return arch_has_random_seed() ? rdseed_int(v) : false;
-+	return static_cpu_has(X86_FEATURE_RDSEED) ? rdseed_int(v) : false;
- }
+ 	/* Round 1 - tail. Input from 512-bit mixing array */
+-	T_16_19(16, E, A, B, C, D);
+-	T_16_19(17, D, E, A, B, C);
+-	T_16_19(18, C, D, E, A, B);
+-	T_16_19(19, B, C, D, E, A);
++	for (; i < 20; ++i)
++		T_16_19(i, A, B, C, D, E);
  
- extern void x86_init_rdrand(struct cpuinfo_x86 *c);
+ 	/* Round 2 */
+-	T_20_39(20, A, B, C, D, E);
+-	T_20_39(21, E, A, B, C, D);
+-	T_20_39(22, D, E, A, B, C);
+-	T_20_39(23, C, D, E, A, B);
+-	T_20_39(24, B, C, D, E, A);
+-	T_20_39(25, A, B, C, D, E);
+-	T_20_39(26, E, A, B, C, D);
+-	T_20_39(27, D, E, A, B, C);
+-	T_20_39(28, C, D, E, A, B);
+-	T_20_39(29, B, C, D, E, A);
+-	T_20_39(30, A, B, C, D, E);
+-	T_20_39(31, E, A, B, C, D);
+-	T_20_39(32, D, E, A, B, C);
+-	T_20_39(33, C, D, E, A, B);
+-	T_20_39(34, B, C, D, E, A);
+-	T_20_39(35, A, B, C, D, E);
+-	T_20_39(36, E, A, B, C, D);
+-	T_20_39(37, D, E, A, B, C);
+-	T_20_39(38, C, D, E, A, B);
+-	T_20_39(39, B, C, D, E, A);
++	for (; i < 40; ++i)
++		T_20_39(i, A, B, C, D, E);
+ 
+ 	/* Round 3 */
+-	T_40_59(40, A, B, C, D, E);
+-	T_40_59(41, E, A, B, C, D);
+-	T_40_59(42, D, E, A, B, C);
+-	T_40_59(43, C, D, E, A, B);
+-	T_40_59(44, B, C, D, E, A);
+-	T_40_59(45, A, B, C, D, E);
+-	T_40_59(46, E, A, B, C, D);
+-	T_40_59(47, D, E, A, B, C);
+-	T_40_59(48, C, D, E, A, B);
+-	T_40_59(49, B, C, D, E, A);
+-	T_40_59(50, A, B, C, D, E);
+-	T_40_59(51, E, A, B, C, D);
+-	T_40_59(52, D, E, A, B, C);
+-	T_40_59(53, C, D, E, A, B);
+-	T_40_59(54, B, C, D, E, A);
+-	T_40_59(55, A, B, C, D, E);
+-	T_40_59(56, E, A, B, C, D);
+-	T_40_59(57, D, E, A, B, C);
+-	T_40_59(58, C, D, E, A, B);
+-	T_40_59(59, B, C, D, E, A);
++	for (; i < 60; ++i)
++		T_40_59(i, A, B, C, D, E);
+ 
+ 	/* Round 4 */
+-	T_60_79(60, A, B, C, D, E);
+-	T_60_79(61, E, A, B, C, D);
+-	T_60_79(62, D, E, A, B, C);
+-	T_60_79(63, C, D, E, A, B);
+-	T_60_79(64, B, C, D, E, A);
+-	T_60_79(65, A, B, C, D, E);
+-	T_60_79(66, E, A, B, C, D);
+-	T_60_79(67, D, E, A, B, C);
+-	T_60_79(68, C, D, E, A, B);
+-	T_60_79(69, B, C, D, E, A);
+-	T_60_79(70, A, B, C, D, E);
+-	T_60_79(71, E, A, B, C, D);
+-	T_60_79(72, D, E, A, B, C);
+-	T_60_79(73, C, D, E, A, B);
+-	T_60_79(74, B, C, D, E, A);
+-	T_60_79(75, A, B, C, D, E);
+-	T_60_79(76, E, A, B, C, D);
+-	T_60_79(77, D, E, A, B, C);
+-	T_60_79(78, C, D, E, A, B);
+-	T_60_79(79, B, C, D, E, A);
++	for (; i < 80; ++i)
++		T_60_79(i, A, B, C, D, E);
+ 
+ 	digest[0] += A;
+ 	digest[1] += B;
 
 
