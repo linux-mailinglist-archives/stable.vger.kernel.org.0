@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1FAC5583F0
+	by mail.lfdr.de (Postfix) with ESMTP id A06725583EF
 	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:39:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232439AbiFWRjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:39:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34844 "EHLO
+        id S232334AbiFWRjm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:39:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234465AbiFWRhM (ORCPT
+        with ESMTP id S234468AbiFWRhM (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:37:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D6FF84883;
-        Thu, 23 Jun 2022 10:06:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F7905FCC;
+        Thu, 23 Jun 2022 10:06:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DBEFB8249B;
-        Thu, 23 Jun 2022 17:06:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01508C3411B;
-        Thu, 23 Jun 2022 17:06:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70518B82490;
+        Thu, 23 Jun 2022 17:06:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8EE9C341C5;
+        Thu, 23 Jun 2022 17:06:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004013;
-        bh=sbrL44tMkKlNhB/ubeCGu9MeR5vV2zIzvhWF5VTfUMs=;
+        s=korg; t=1656004016;
+        bh=oC7uE7Rw1Ghn9TivFSc7Wmcc7UL8WyT0zdSQsUCYZZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Coq7jGH3lqVeNVQ/wIOX856EdWvXN4ofxU7WgbRNDywZGGr7tKnKmZav+b2CN8Ymu
-         A+8+qmU7mlcjBPPVitmcoELLcjMBxhFlA40L6Zqul+iQURPoC9rBlFrT03pRK+g+K7
-         n5C9Kszti/5DT+N+rJvl8kgJBrr9G5b8OWOld7nU=
+        b=xjHKe2Y5Tn2FTuRVhYTVuMVw2dw2nGMdUcsyOwBQb3OJFLbm54Hifb24Kv4vpR0HA
+         2RwfK0B5Pd7AOLQrZDZVdCZZfIe20jtIEHlgRf6ukDsjnNO2GdJc7Llg6dw8NK6XLq
+         iX68TS2GCs7/R5q9A3umQC8dLB6zk5BwZcZ1osoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
         Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 160/237] sparc: use fallback for random_get_entropy() instead of zero
-Date:   Thu, 23 Jun 2022 18:43:14 +0200
-Message-Id: <20220623164347.757834572@linuxfoundation.org>
+Subject: [PATCH 4.14 161/237] xtensa: use fallback for random_get_entropy() instead of zero
+Date:   Thu, 23 Jun 2022 18:43:15 +0200
+Message-Id: <20220623164347.786826028@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
 References: <20220623164343.132308638@linuxfoundation.org>
@@ -57,7 +57,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit ac9756c79797bb98972736b13cfb239fd2cffb79 upstream.
+commit e10e2f58030c5c211d49042a8c2a1b93d40b2ffb upstream.
 
 In the event that random_get_entropy() can't access a cycle counter or
 similar, falling back to returning 0 is really not the best we can do.
@@ -74,24 +74,32 @@ function here.
 
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: David S. Miller <davem@davemloft.net>
+Acked-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sparc/include/asm/timex_32.h |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/xtensa/include/asm/timex.h |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/arch/sparc/include/asm/timex_32.h
-+++ b/arch/sparc/include/asm/timex_32.h
-@@ -9,8 +9,6 @@
+--- a/arch/xtensa/include/asm/timex.h
++++ b/arch/xtensa/include/asm/timex.h
+@@ -30,10 +30,6 @@
  
- #define CLOCK_TICK_RATE	1193180 /* Underlying HZ */
+ extern unsigned long ccount_freq;
  
--/* XXX Maybe do something better at some point... -DaveM */
--typedef unsigned long cycles_t;
+-typedef unsigned long long cycles_t;
+-
 -#define get_cycles()	(0)
-+#include <asm-generic/timex.h>
+-
+ void local_timer_setup(unsigned cpu);
  
- #endif
+ /*
+@@ -69,4 +65,6 @@ static inline void set_linux_timer (unsi
+ 	WSR_CCOMPARE(LINUX_TIMER, ccompare);
+ }
+ 
++#include <asm-generic/timex.h>
++
+ #endif	/* _XTENSA_TIMEX_H */
 
 
