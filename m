@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF2F5585EF
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:06:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CABC95585F1
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:06:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235970AbiFWSGL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:06:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44434 "EHLO
+        id S235974AbiFWSGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:06:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235901AbiFWSFg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:05:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF48B88591;
-        Thu, 23 Jun 2022 10:17:42 -0700 (PDT)
+        with ESMTP id S235977AbiFWSFl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:05:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F186B8859A;
+        Thu, 23 Jun 2022 10:17:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 750ADB82490;
-        Thu, 23 Jun 2022 17:17:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF670C3411B;
-        Thu, 23 Jun 2022 17:17:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A9B661DE5;
+        Thu, 23 Jun 2022 17:17:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64650C3411B;
+        Thu, 23 Jun 2022 17:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004660;
-        bh=A4x+li2UE3GtKI9uqmdD4/5h/twgrgp5JtGXGyfRAQM=;
+        s=korg; t=1656004663;
+        bh=lwxdwfv9q0du0Q5xiBlzD6K/BrGfI5juH84PKp+aQHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OK/m77CFtbMy1eTdJQrQzWRgb7O7QUmsf8+DNjpmqit8HPo+WOOSNdYH6EE9DeJRK
-         BMr6M8gxop5DWsXiPbOVy3dxtSmaQPrc6GsKaH8SdgNW39PbrrsjvM+a55HWu3YBG+
-         ES5Bnn8mr6pWA8mN3Gq5nYtRg1H+JR9HpvDJPpHI=
+        b=MJdMJuBa6/ACT3pk8Z4vxCn3YbP8CePGLYazAY4HCcBHNIccyfJUyh0JCajXHH+ej
+         X0cA5mTZ1wPiTIZbptPUvdEiRlddEI/sP/JuP12NfqqeVUYoIGch1pXOrvPomMAM6Q
+         5zMpR1QnBKGu/FRcYJbR4xWTiTD4KsxOfnTsxVLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Matt Mackall <mpm@selenic.com>,
+        Theodore Tso <tytso@mit.edu>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Eric Biggers <ebiggers@google.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 108/234] random: check for crng_init == 0 in add_device_randomness()
-Date:   Thu, 23 Jun 2022 18:42:55 +0200
-Message-Id: <20220623164346.113835771@linuxfoundation.org>
+Subject: [PATCH 4.19 109/234] random: pull add_hwgenerator_randomness() declaration into random.h
+Date:   Thu, 23 Jun 2022 18:42:56 +0200
+Message-Id: <20220623164346.142582380@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -57,32 +59,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 1daf2f387652bf3a7044aea042f5023b3f6b189b upstream.
+commit b777c38239fec5a528e59f55b379e31b1a187524 upstream.
 
-This has no real functional change, as crng_pre_init_inject() (and
-before that, crng_slow_init()) always checks for == 0, not >= 2. So
-correct the outer unlocked change to reflect that. Before this used
-crng_ready(), which was not correct.
+add_hwgenerator_randomness() is a function implemented and documented
+inside of random.c. It is the way that hardware RNGs push data into it.
+Therefore, it should be declared in random.h. Otherwise sparse complains
+with:
 
+random.c:1137:6: warning: symbol 'add_hwgenerator_randomness' was not declared. Should it be static?
+
+The alternative would be to include hw_random.h into random.c, but that
+wouldn't really be good for anything except slowing down compile time.
+
+Cc: Matt Mackall <mpm@selenic.com>
 Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
 Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/hw_random/core.c |    1 +
+ include/linux/hw_random.h     |    2 --
+ include/linux/random.h        |    2 ++
+ 3 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1015,7 +1015,7 @@ void add_device_randomness(const void *b
- 	unsigned long time = random_get_entropy() ^ jiffies;
- 	unsigned long flags;
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -15,6 +15,7 @@
+ #include <linux/err.h>
+ #include <linux/fs.h>
+ #include <linux/hw_random.h>
++#include <linux/random.h>
+ #include <linux/kernel.h>
+ #include <linux/kthread.h>
+ #include <linux/sched/signal.h>
+--- a/include/linux/hw_random.h
++++ b/include/linux/hw_random.h
+@@ -59,7 +59,5 @@ extern int devm_hwrng_register(struct de
+ /** Unregister a Hardware Random Number Generator driver. */
+ extern void hwrng_unregister(struct hwrng *rng);
+ extern void devm_hwrng_unregister(struct device *dve, struct hwrng *rng);
+-/** Feed random bits into the pool. */
+-extern void add_hwgenerator_randomness(const void *buffer, size_t count, size_t entropy);
  
--	if (!crng_ready() && size)
-+	if (crng_init == 0 && size)
- 		crng_pre_init_inject(buf, size, false, false);
+ #endif /* LINUX_HWRANDOM_H_ */
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -32,6 +32,8 @@ static inline void add_latent_entropy(vo
+ extern void add_input_randomness(unsigned int type, unsigned int code,
+ 				 unsigned int value) __latent_entropy;
+ extern void add_interrupt_randomness(int irq) __latent_entropy;
++extern void add_hwgenerator_randomness(const void *buffer, size_t count,
++				       size_t entropy);
  
- 	spin_lock_irqsave(&input_pool.lock, flags);
+ extern void get_random_bytes(void *buf, size_t nbytes);
+ extern int wait_for_random_bytes(void);
 
 
