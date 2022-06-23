@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F345C5585F5
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9293E5585F7
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235940AbiFWSGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:06:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44134 "EHLO
+        id S229448AbiFWSGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:06:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235935AbiFWSF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:05:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42182B48D;
-        Thu, 23 Jun 2022 10:17:57 -0700 (PDT)
+        with ESMTP id S235953AbiFWSF6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:05:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E84119C3B;
+        Thu, 23 Jun 2022 10:18:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CBB9061DE5;
-        Thu, 23 Jun 2022 17:17:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 867EEC3411B;
-        Thu, 23 Jun 2022 17:17:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B3E2C61DB6;
+        Thu, 23 Jun 2022 17:17:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 961C8C341C4;
+        Thu, 23 Jun 2022 17:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004676;
-        bh=DJOfc8IEF1VN/EqCHdagr52Mi4FS6cladU3yklwt0is=;
+        s=korg; t=1656004679;
+        bh=GkBeuK2kk2ZetCXTMY55rlqA+JmByd6OMIWVDok54ZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pwoy6OrrEDYqmUroifblvvUA9UPLQEXk2vd+mqyiwC/nJYJmmP/eJzLY74YdFL/EI
-         NkoGvCXeSt07c3A8h4CUVs/j9PW3SHZ+37dccUodxc8u5sZg7kimKq9ojzQVBJApix
-         czv9mEMo47mrN0eJYPHeDdeNRTEmjMm9AQjPcDi4=
+        b=IGTuHsrq5vpc+Sy1S6Q/Rt71bvrnVE50dfKdYdTk6Aoj/NJSjZ03LY42jioziA+/v
+         i4ACZogP7n1mVruoo0coWaDJVRA1Rsvyat2PDAHkRtVoA+xUaNevbGDnoyb6sCHTf8
+         uJRTdwE2gFO2+GxcRhLu5pujmVN6zUlCyQhbaNCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 113/234] random: cleanup UUID handling
-Date:   Thu, 23 Jun 2022 18:43:00 +0200
-Message-Id: <20220623164346.255917163@linuxfoundation.org>
+Subject: [PATCH 4.19 114/234] random: unify cycles_t and jiffies usage and types
+Date:   Thu, 23 Jun 2022 18:43:01 +0200
+Message-Id: <20220623164346.284745091@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -56,91 +56,158 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 64276a9939ff414f2f0db38036cf4e1a0a703394 upstream.
+commit abded93ec1e9692920fe309f07f40bd1035f2940 upstream.
 
-Rather than hard coding various lengths, we can use the right constants.
-Strings should be `char *` while buffers should be `u8 *`. Rather than
-have a nonsensical and unused maxlength, just remove it. Finally, use
-snprintf instead of sprintf, just out of good hygiene.
+random_get_entropy() returns a cycles_t, not an unsigned long, which is
+sometimes 64 bits on various 32-bit platforms, including x86.
+Conversely, jiffies is always unsigned long. This commit fixes things to
+use cycles_t for fields that use random_get_entropy(), named "cycles",
+and unsigned long for fields that use jiffies, named "now". It's also
+good to mix in a cycles_t and a jiffies in the same way for both
+add_device_randomness and add_timer_randomness, rather than using xor in
+one case. Finally, we unify the order of these volatile reads, always
+reading the more precise cycles counter, and then jiffies, so that the
+cycle counter is as close to the event as possible.
 
-As well, remove the old comment about returning a binary UUID via the
-binary sysctl syscall. That syscall was removed from the kernel in 5.5,
-and actually, the "uuid_strategy" function and related infrastructure
-for even serving it via the binary sysctl syscall was removed with
-894d2491153a ("sysctl drivers: Remove dead binary sysctl support") back
-in 2.6.33.
-
+Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   29 +++++++++++++----------------
- 1 file changed, 13 insertions(+), 16 deletions(-)
+ drivers/char/random.c |   56 ++++++++++++++++++++++++--------------------------
+ 1 file changed, 27 insertions(+), 29 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1654,22 +1654,25 @@ const struct file_operations urandom_fop
- static int sysctl_random_min_urandom_seed = 60;
- static int sysctl_random_write_wakeup_bits = POOL_MIN_BITS;
- static int sysctl_poolsize = POOL_BITS;
--static char sysctl_bootid[16];
-+static u8 sysctl_bootid[UUID_SIZE];
- 
- /*
-  * This function is used to return both the bootid UUID, and random
-- * UUID.  The difference is in whether table->data is NULL; if it is,
-+ * UUID. The difference is in whether table->data is NULL; if it is,
-  * then a new UUID is generated and returned to the user.
-- *
-- * If the user accesses this via the proc interface, the UUID will be
-- * returned as an ASCII string in the standard UUID format; if via the
-- * sysctl system call, as 16 bytes of binary data.
-  */
- static int proc_do_uuid(struct ctl_table *table, int write,
- 			void __user *buffer, size_t *lenp, loff_t *ppos)
- {
--	struct ctl_table fake_table;
--	unsigned char buf[64], tmp_uuid[16], *uuid;
-+	u8 tmp_uuid[UUID_SIZE], *uuid;
-+	char uuid_string[UUID_STRING_LEN + 1];
-+	struct ctl_table fake_table = {
-+		.data = uuid_string,
-+		.maxlen = UUID_STRING_LEN
-+	};
-+
-+	if (write)
-+		return -EPERM;
- 
- 	uuid = table->data;
- 	if (!uuid) {
-@@ -1684,12 +1687,8 @@ static int proc_do_uuid(struct ctl_table
- 		spin_unlock(&bootid_spinlock);
- 	}
- 
--	sprintf(buf, "%pU", uuid);
--
--	fake_table.data = buf;
--	fake_table.maxlen = sizeof(buf);
--
--	return proc_dostring(&fake_table, write, buffer, lenp, ppos);
-+	snprintf(uuid_string, sizeof(uuid_string), "%pU", uuid);
-+	return proc_dostring(&fake_table, 0, buffer, lenp, ppos);
+@@ -1015,12 +1015,6 @@ int __init rand_initialize(void)
+ 	return 0;
  }
  
- extern struct ctl_table random_table[];
-@@ -1725,13 +1724,11 @@ struct ctl_table random_table[] = {
- 	{
- 		.procname	= "boot_id",
- 		.data		= &sysctl_bootid,
--		.maxlen		= 16,
- 		.mode		= 0444,
- 		.proc_handler	= proc_do_uuid,
- 	},
- 	{
- 		.procname	= "uuid",
--		.maxlen		= 16,
- 		.mode		= 0444,
- 		.proc_handler	= proc_do_uuid,
- 	},
+-/* There is one of these per entropy source */
+-struct timer_rand_state {
+-	cycles_t last_time;
+-	long last_delta, last_delta2;
+-};
+-
+ /*
+  * Add device- or boot-specific data to the input pool to help
+  * initialize it.
+@@ -1031,19 +1025,26 @@ struct timer_rand_state {
+  */
+ void add_device_randomness(const void *buf, size_t size)
+ {
+-	unsigned long time = random_get_entropy() ^ jiffies;
+-	unsigned long flags;
++	cycles_t cycles = random_get_entropy();
++	unsigned long flags, now = jiffies;
+ 
+ 	if (crng_init == 0 && size)
+ 		crng_pre_init_inject(buf, size, false, false);
+ 
+ 	spin_lock_irqsave(&input_pool.lock, flags);
++	_mix_pool_bytes(&cycles, sizeof(cycles));
++	_mix_pool_bytes(&now, sizeof(now));
+ 	_mix_pool_bytes(buf, size);
+-	_mix_pool_bytes(&time, sizeof(time));
+ 	spin_unlock_irqrestore(&input_pool.lock, flags);
+ }
+ EXPORT_SYMBOL(add_device_randomness);
+ 
++/* There is one of these per entropy source */
++struct timer_rand_state {
++	unsigned long last_time;
++	long last_delta, last_delta2;
++};
++
+ /*
+  * This function adds entropy to the entropy "pool" by using timing
+  * delays.  It uses the timer_rand_state structure to make an estimate
+@@ -1052,29 +1053,26 @@ EXPORT_SYMBOL(add_device_randomness);
+  * The number "num" is also added to the pool - it should somehow describe
+  * the type of event which just happened.  This is currently 0-255 for
+  * keyboard scan codes, and 256 upwards for interrupts.
+- *
+  */
+ static void add_timer_randomness(struct timer_rand_state *state, unsigned int num)
+ {
+-	struct {
+-		long jiffies;
+-		unsigned int cycles;
+-		unsigned int num;
+-	} sample;
++	cycles_t cycles = random_get_entropy();
++	unsigned long flags, now = jiffies;
+ 	long delta, delta2, delta3;
+ 
+-	sample.jiffies = jiffies;
+-	sample.cycles = random_get_entropy();
+-	sample.num = num;
+-	mix_pool_bytes(&sample, sizeof(sample));
++	spin_lock_irqsave(&input_pool.lock, flags);
++	_mix_pool_bytes(&cycles, sizeof(cycles));
++	_mix_pool_bytes(&now, sizeof(now));
++	_mix_pool_bytes(&num, sizeof(num));
++	spin_unlock_irqrestore(&input_pool.lock, flags);
+ 
+ 	/*
+ 	 * Calculate number of bits of randomness we probably added.
+ 	 * We take into account the first, second and third-order deltas
+ 	 * in order to make our estimate.
+ 	 */
+-	delta = sample.jiffies - READ_ONCE(state->last_time);
+-	WRITE_ONCE(state->last_time, sample.jiffies);
++	delta = now - READ_ONCE(state->last_time);
++	WRITE_ONCE(state->last_time, now);
+ 
+ 	delta2 = delta - READ_ONCE(state->last_delta);
+ 	WRITE_ONCE(state->last_delta, delta);
+@@ -1300,10 +1298,10 @@ static void mix_interrupt_randomness(str
+ void add_interrupt_randomness(int irq)
+ {
+ 	enum { MIX_INFLIGHT = 1U << 31 };
++	cycles_t cycles = random_get_entropy();
++	unsigned long now = jiffies;
+ 	struct fast_pool *fast_pool = this_cpu_ptr(&irq_randomness);
+ 	struct pt_regs *regs = get_irq_regs();
+-	unsigned long now = jiffies;
+-	cycles_t cycles = random_get_entropy();
+ 	unsigned int new_count;
+ 
+ 	if (cycles == 0)
+@@ -1378,28 +1376,28 @@ static void entropy_timer(struct timer_l
+ static void try_to_generate_entropy(void)
+ {
+ 	struct {
+-		unsigned long now;
++		cycles_t cycles;
+ 		struct timer_list timer;
+ 	} stack;
+ 
+-	stack.now = random_get_entropy();
++	stack.cycles = random_get_entropy();
+ 
+ 	/* Slow counter - or none. Don't even bother */
+-	if (stack.now == random_get_entropy())
++	if (stack.cycles == random_get_entropy())
+ 		return;
+ 
+ 	timer_setup_on_stack(&stack.timer, entropy_timer, 0);
+ 	while (!crng_ready()) {
+ 		if (!timer_pending(&stack.timer))
+ 			mod_timer(&stack.timer, jiffies + 1);
+-		mix_pool_bytes(&stack.now, sizeof(stack.now));
++		mix_pool_bytes(&stack.cycles, sizeof(stack.cycles));
+ 		schedule();
+-		stack.now = random_get_entropy();
++		stack.cycles = random_get_entropy();
+ 	}
+ 
+ 	del_timer_sync(&stack.timer);
+ 	destroy_timer_on_stack(&stack.timer);
+-	mix_pool_bytes(&stack.now, sizeof(stack.now));
++	mix_pool_bytes(&stack.cycles, sizeof(stack.cycles));
+ }
+ 
+ 
 
 
