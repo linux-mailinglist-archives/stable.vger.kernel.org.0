@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D055583BE
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:34:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACB705583AD
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:33:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232592AbiFWReU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:34:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33612 "EHLO
+        id S233900AbiFWRdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:33:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234323AbiFWRc1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:32:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC18C794E6;
-        Thu, 23 Jun 2022 10:05:17 -0700 (PDT)
+        with ESMTP id S234516AbiFWRcx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:32:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A375794EA;
+        Thu, 23 Jun 2022 10:05:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70E4AB8248E;
-        Thu, 23 Jun 2022 17:05:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE853C3411B;
-        Thu, 23 Jun 2022 17:05:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7208CB82490;
+        Thu, 23 Jun 2022 17:05:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC1B1C3411B;
+        Thu, 23 Jun 2022 17:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003915;
-        bh=qy+mcBOZibGTPH8Xnp59S+ttPXMaFUfHQ9McGWl18NM=;
+        s=korg; t=1656003918;
+        bh=tcAM/eC3BOdTwND22cwidycAGAxgoJ+85Pt40fd/sjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQMg6SGrnYA4lEkOJWiicY8q4B2BRoWp4CI32tJsLP5va5hrV1T8JDRtI81i2fMnf
-         n4NUzuI2+WDIz1xiS/rm1wZuB2mwD8eSIB0cOsR3RIi6001VEiXRzWZGnY9+jkbNC0
-         yJ7ghyHmyUgGLObc8rY0WJNa9CKlnwFc96JIYTQc=
+        b=xyjqLuRYznDvK/vmJLw0TMa1a69Z4vNW0HXyylvH25UOwUPYY7BOLwgUtkeUbf5/o
+         a1vg+td3iNJAUP05cQfq/47/9u6cCz7LITXev+i0pGhOwxVJTtH9nW24k1A7i9nmrs
+         87h9G4htaoWXc6ZzC/zckbt37ZAU75cwtSFMUMgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Theodore Tso <tytso@mit.edu>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 127/237] random: unify cycles_t and jiffies usage and types
-Date:   Thu, 23 Jun 2022 18:42:41 +0200
-Message-Id: <20220623164346.808339914@linuxfoundation.org>
+Subject: [PATCH 4.14 128/237] random: do crng pre-init loading in worker rather than irq
+Date:   Thu, 23 Jun 2022 18:42:42 +0200
+Message-Id: <20220623164346.836548669@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
 References: <20220623164343.132308638@linuxfoundation.org>
@@ -56,158 +61,163 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit abded93ec1e9692920fe309f07f40bd1035f2940 upstream.
+commit c2a7de4feb6e09f23af7accc0f882a8fa92e7ae5 upstream.
 
-random_get_entropy() returns a cycles_t, not an unsigned long, which is
-sometimes 64 bits on various 32-bit platforms, including x86.
-Conversely, jiffies is always unsigned long. This commit fixes things to
-use cycles_t for fields that use random_get_entropy(), named "cycles",
-and unsigned long for fields that use jiffies, named "now". It's also
-good to mix in a cycles_t and a jiffies in the same way for both
-add_device_randomness and add_timer_randomness, rather than using xor in
-one case. Finally, we unify the order of these volatile reads, always
-reading the more precise cycles counter, and then jiffies, so that the
-cycle counter is as close to the event as possible.
+Taking spinlocks from IRQ context is generally problematic for
+PREEMPT_RT. That is, in part, why we take trylocks instead. However, a
+spin_try_lock() is also problematic since another spin_lock() invocation
+can potentially PI-boost the wrong task, as the spin_try_lock() is
+invoked from an IRQ-context, so the task on CPU (random task or idle) is
+not the actual owner.
 
+Additionally, by deferring the crng pre-init loading to the worker, we
+can use the cryptographic hash function rather than xor, which is
+perhaps a meaningful difference when considering this data has only been
+through the relatively weak fast_mix() function.
+
+The biggest downside of this approach is that the pre-init loading is
+now deferred until later, which means things that need random numbers
+after interrupts are enabled, but before workqueues are running -- or
+before this particular worker manages to run -- are going to get into
+trouble. Hopefully in the real world, this window is rather small,
+especially since this code won't run until 64 interrupts had occurred.
+
+Cc: Sultan Alsawaf <sultan@kerneltoast.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Eric Biggers <ebiggers@kernel.org>
 Cc: Theodore Ts'o <tytso@mit.edu>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   56 ++++++++++++++++++++++++--------------------------
- 1 file changed, 27 insertions(+), 29 deletions(-)
+ drivers/char/random.c |   65 ++++++++++++++------------------------------------
+ 1 file changed, 19 insertions(+), 46 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1015,12 +1015,6 @@ int __init rand_initialize(void)
- 	return 0;
- }
- 
--/* There is one of these per entropy source */
--struct timer_rand_state {
--	cycles_t last_time;
--	long last_delta, last_delta2;
--};
--
- /*
-  * Add device- or boot-specific data to the input pool to help
-  * initialize it.
-@@ -1031,19 +1025,26 @@ struct timer_rand_state {
+@@ -441,10 +441,6 @@ static void crng_make_state(u32 chacha_s
+  * boot time when it's better to have something there rather than
+  * nothing.
+  *
+- * There are two paths, a slow one and a fast one. The slow one
+- * hashes the input along with the current key. The fast one simply
+- * xors it in, and should only be used from interrupt context.
+- *
+  * If account is set, then the crng_init_cnt counter is incremented.
+  * This shouldn't be set by functions like add_device_randomness(),
+  * where we can't trust the buffer passed to it is guaranteed to be
+@@ -453,19 +449,15 @@ static void crng_make_state(u32 chacha_s
+  * Returns the number of bytes processed from input, which is bounded
+  * by CRNG_INIT_CNT_THRESH if account is true.
   */
- void add_device_randomness(const void *buf, size_t size)
+-static size_t crng_pre_init_inject(const void *input, size_t len,
+-				   bool fast, bool account)
++static size_t crng_pre_init_inject(const void *input, size_t len, bool account)
  {
--	unsigned long time = random_get_entropy() ^ jiffies;
--	unsigned long flags;
-+	cycles_t cycles = random_get_entropy();
-+	unsigned long flags, now = jiffies;
+ 	static int crng_init_cnt = 0;
++	struct blake2s_state hash;
+ 	unsigned long flags;
+ 
+-	if (fast) {
+-		if (!spin_trylock_irqsave(&base_crng.lock, flags))
+-			return 0;
+-	} else {
+-		spin_lock_irqsave(&base_crng.lock, flags);
+-	}
++	blake2s_init(&hash, sizeof(base_crng.key));
+ 
++	spin_lock_irqsave(&base_crng.lock, flags);
+ 	if (crng_init != 0) {
+ 		spin_unlock_irqrestore(&base_crng.lock, flags);
+ 		return 0;
+@@ -474,21 +466,9 @@ static size_t crng_pre_init_inject(const
+ 	if (account)
+ 		len = min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
+ 
+-	if (fast) {
+-		const u8 *src = input;
+-		size_t i;
+-
+-		for (i = 0; i < len; ++i)
+-			base_crng.key[(crng_init_cnt + i) %
+-				      sizeof(base_crng.key)] ^= src[i];
+-	} else {
+-		struct blake2s_state hash;
+-
+-		blake2s_init(&hash, sizeof(base_crng.key));
+-		blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
+-		blake2s_update(&hash, input, len);
+-		blake2s_final(&hash, base_crng.key);
+-	}
++	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
++	blake2s_update(&hash, input, len);
++	blake2s_final(&hash, base_crng.key);
+ 
+ 	if (account) {
+ 		crng_init_cnt += len;
+@@ -1029,7 +1009,7 @@ void add_device_randomness(const void *b
+ 	unsigned long flags, now = jiffies;
  
  	if (crng_init == 0 && size)
- 		crng_pre_init_inject(buf, size, false, false);
+-		crng_pre_init_inject(buf, size, false, false);
++		crng_pre_init_inject(buf, size, false);
  
  	spin_lock_irqsave(&input_pool.lock, flags);
-+	_mix_pool_bytes(&cycles, sizeof(cycles));
-+	_mix_pool_bytes(&now, sizeof(now));
- 	_mix_pool_bytes(buf, size);
--	_mix_pool_bytes(&time, sizeof(time));
- 	spin_unlock_irqrestore(&input_pool.lock, flags);
- }
- EXPORT_SYMBOL(add_device_randomness);
+ 	_mix_pool_bytes(&cycles, sizeof(cycles));
+@@ -1150,7 +1130,7 @@ void add_hwgenerator_randomness(const vo
+ 				size_t entropy)
+ {
+ 	if (unlikely(crng_init == 0)) {
+-		size_t ret = crng_pre_init_inject(buffer, count, false, true);
++		size_t ret = crng_pre_init_inject(buffer, count, true);
+ 		mix_pool_bytes(buffer, ret);
+ 		count -= ret;
+ 		buffer += ret;
+@@ -1290,8 +1270,14 @@ static void mix_interrupt_randomness(str
+ 	fast_pool->last = jiffies;
+ 	local_irq_enable();
  
-+/* There is one of these per entropy source */
-+struct timer_rand_state {
-+	unsigned long last_time;
-+	long last_delta, last_delta2;
-+};
+-	mix_pool_bytes(pool, sizeof(pool));
+-	credit_entropy_bits(1);
++	if (unlikely(crng_init == 0)) {
++		crng_pre_init_inject(pool, sizeof(pool), true);
++		mix_pool_bytes(pool, sizeof(pool));
++	} else {
++		mix_pool_bytes(pool, sizeof(pool));
++		credit_entropy_bits(1);
++	}
 +
- /*
-  * This function adds entropy to the entropy "pool" by using timing
-  * delays.  It uses the timer_rand_state structure to make an estimate
-@@ -1052,29 +1053,26 @@ EXPORT_SYMBOL(add_device_randomness);
-  * The number "num" is also added to the pool - it should somehow describe
-  * the type of event which just happened.  This is currently 0-255 for
-  * keyboard scan codes, and 256 upwards for interrupts.
-- *
-  */
- static void add_timer_randomness(struct timer_rand_state *state, unsigned int num)
- {
--	struct {
--		long jiffies;
--		unsigned int cycles;
--		unsigned int num;
--	} sample;
-+	cycles_t cycles = random_get_entropy();
-+	unsigned long flags, now = jiffies;
- 	long delta, delta2, delta3;
+ 	memzero_explicit(pool, sizeof(pool));
+ }
  
--	sample.jiffies = jiffies;
--	sample.cycles = random_get_entropy();
--	sample.num = num;
--	mix_pool_bytes(&sample, sizeof(sample));
-+	spin_lock_irqsave(&input_pool.lock, flags);
-+	_mix_pool_bytes(&cycles, sizeof(cycles));
-+	_mix_pool_bytes(&now, sizeof(now));
-+	_mix_pool_bytes(&num, sizeof(num));
-+	spin_unlock_irqrestore(&input_pool.lock, flags);
+@@ -1324,24 +1310,11 @@ void add_interrupt_randomness(int irq)
+ 	fast_mix(fast_pool->pool32);
+ 	new_count = ++fast_pool->count;
  
- 	/*
- 	 * Calculate number of bits of randomness we probably added.
- 	 * We take into account the first, second and third-order deltas
- 	 * in order to make our estimate.
- 	 */
--	delta = sample.jiffies - state->last_time;
--	state->last_time = sample.jiffies;
-+	delta = now - READ_ONCE(state->last_time);
-+	WRITE_ONCE(state->last_time, now);
- 
- 	delta2 = delta - state->last_delta;
- 	state->last_delta = delta;
-@@ -1300,10 +1298,10 @@ static void mix_interrupt_randomness(str
- void add_interrupt_randomness(int irq)
- {
- 	enum { MIX_INFLIGHT = 1U << 31 };
-+	cycles_t cycles = random_get_entropy();
-+	unsigned long now = jiffies;
- 	struct fast_pool *fast_pool = this_cpu_ptr(&irq_randomness);
- 	struct pt_regs *regs = get_irq_regs();
--	unsigned long now = jiffies;
--	cycles_t cycles = random_get_entropy();
- 	unsigned int new_count;
- 
- 	if (cycles == 0)
-@@ -1378,28 +1376,28 @@ static void entropy_timer(unsigned long
- static void try_to_generate_entropy(void)
- {
- 	struct {
--		unsigned long now;
-+		cycles_t cycles;
- 		struct timer_list timer;
- 	} stack;
- 
--	stack.now = random_get_entropy();
-+	stack.cycles = random_get_entropy();
- 
- 	/* Slow counter - or none. Don't even bother */
--	if (stack.now == random_get_entropy())
-+	if (stack.cycles == random_get_entropy())
+-	if (unlikely(crng_init == 0)) {
+-		if (new_count >= 64 &&
+-		    crng_pre_init_inject(fast_pool->pool32, sizeof(fast_pool->pool32),
+-					 true, true) > 0) {
+-			fast_pool->count = 0;
+-			fast_pool->last = now;
+-			if (spin_trylock(&input_pool.lock)) {
+-				_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
+-				spin_unlock(&input_pool.lock);
+-			}
+-		}
+-		return;
+-	}
+-
+ 	if (new_count & MIX_INFLIGHT)
  		return;
  
- 	__setup_timer_on_stack(&stack.timer, entropy_timer, 0, 0);
- 	while (!crng_ready()) {
- 		if (!timer_pending(&stack.timer))
- 			mod_timer(&stack.timer, jiffies + 1);
--		mix_pool_bytes(&stack.now, sizeof(stack.now));
-+		mix_pool_bytes(&stack.cycles, sizeof(stack.cycles));
- 		schedule();
--		stack.now = random_get_entropy();
-+		stack.cycles = random_get_entropy();
- 	}
+-	if (new_count < 64 && !time_after(now, fast_pool->last + HZ))
++	if (new_count < 64 && (!time_after(now, fast_pool->last + HZ) ||
++			       unlikely(crng_init == 0)))
+ 		return;
  
- 	del_timer_sync(&stack.timer);
- 	destroy_timer_on_stack(&stack.timer);
--	mix_pool_bytes(&stack.now, sizeof(stack.now));
-+	mix_pool_bytes(&stack.cycles, sizeof(stack.cycles));
- }
- 
- 
+ 	if (unlikely(!fast_pool->mix.func))
 
 
