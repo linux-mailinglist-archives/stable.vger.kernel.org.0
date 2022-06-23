@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 253FA55851B
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9FF75580B3
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235352AbiFWRyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:54:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41272 "EHLO
+        id S232314AbiFWQxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:53:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235366AbiFWRwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:52:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 510D46346;
-        Thu, 23 Jun 2022 10:12:53 -0700 (PDT)
+        with ESMTP id S233910AbiFWQvw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6302C2656B;
+        Thu, 23 Jun 2022 09:51:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B8FBB82480;
-        Thu, 23 Jun 2022 17:12:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5414C341C4;
-        Thu, 23 Jun 2022 17:12:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBCC961FC2;
+        Thu, 23 Jun 2022 16:51:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2A6AC3411B;
+        Thu, 23 Jun 2022 16:51:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004371;
-        bh=bwxSGq6grVVZrNdxLa9wT+rkSqRiuBDi9MFrTtazeEc=;
+        s=korg; t=1656003107;
+        bh=05Y6AWTeW8ezSzmEjPC+H7znKCnSHRPXCjLjCPqM9cQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQNv7u9JX41Vv/llpUtjTNNVakfJVBt3MfBkfR2KEFWL+rbmn1heiNAALmNWDhgp/
-         tRwlH/JbJJWXadhmXbfVCKuvPPMTm3Oyxf1h1Nws1jPljviE8zL2psIhntg8zu50c2
-         XjVOVLpDxMJj5Aa67ECt8KCsvN27Jmc5U91RMTDc=
+        b=dxFRNb3U5LK8ZNPLxkKYVKv8IgxBXUnOWrDRYMovkf3MfLvOnx11oUxsLKjoy+f4f
+         1slGCyI6nr44wLzVQpdoT6NtvDne8kIiboty3zj8GLSNdNtDcZ8NK1PVRNvC2v5vbI
+         4fCSyTt1yJopombvnmfsDH/2H/4Dlf++Qod9FyYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Ard Biesheuvel <ardb@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 017/234] lib/crypto: sha1: re-roll loops to reduce code size
+Subject: [PATCH 4.9 091/264] random: avoid superfluous call to RDRAND in CRNG extraction
 Date:   Thu, 23 Jun 2022 18:41:24 +0200
-Message-Id: <20220623164343.549167310@linuxfoundation.org>
+Message-Id: <20220623164346.646040605@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
-References: <20220623164343.042598055@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,156 +56,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 9a1536b093bb5bf60689021275fd24d513bb8db0 upstream.
+commit 2ee25b6968b1b3c66ffa408de23d023c1bce81cf upstream.
 
-With SHA-1 no longer being used for anything performance oriented, and
-also soon to be phased out entirely, we can make up for the space added
-by unrolled BLAKE2s by simply re-rolling SHA-1. Since SHA-1 is so much
-more complex, re-rolling it more or less takes care of the code size
-added by BLAKE2s. And eventually, hopefully we'll see SHA-1 removed
-entirely from most small kernel builds.
+RDRAND is not fast. RDRAND is actually quite slow. We've known this for
+a while, which is why functions like get_random_u{32,64} were converted
+to use batching of our ChaCha-based CRNG instead.
 
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Yet CRNG extraction still includes a call to RDRAND, in the hot path of
+every call to get_random_bytes(), /dev/urandom, and getrandom(2).
+
+This call to RDRAND here seems quite superfluous. CRNG is already
+extracting things based on a 256-bit key, based on good entropy, which
+is then reseeded periodically, updated, backtrack-mutated, and so
+forth. The CRNG extraction construction is something that we're already
+relying on to be secure and solid. If it's not, that's a serious
+problem, and it's unlikely that mixing in a measly 32 bits from RDRAND
+is going to alleviate things.
+
+And in the case where the CRNG doesn't have enough entropy yet, we're
+already initializing the ChaCha key row with RDRAND in
+crng_init_try_arch_early().
+
+Removing the call to RDRAND improves performance on an i7-11850H by
+370%. In other words, the vast majority of the work done by
+extract_crng() prior to this commit was devoted to fetching 32 bits of
+RDRAND.
+
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/sha1.c |   95 ++++++++-----------------------------------------------------
- 1 file changed, 14 insertions(+), 81 deletions(-)
+ drivers/char/random.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/lib/sha1.c
-+++ b/lib/sha1.c
-@@ -10,6 +10,7 @@
- #include <linux/export.h>
- #include <linux/bitops.h>
- #include <linux/cryptohash.h>
-+#include <linux/string.h>
- #include <asm/unaligned.h>
- 
- /*
-@@ -55,7 +56,8 @@
- #define SHA_ROUND(t, input, fn, constant, A, B, C, D, E) do { \
- 	__u32 TEMP = input(t); setW(t, TEMP); \
- 	E += TEMP + rol32(A,5) + (fn) + (constant); \
--	B = ror32(B, 2); } while (0)
-+	B = ror32(B, 2); \
-+	TEMP = E; E = D; D = C; C = B; B = A; A = TEMP; } while (0)
- 
- #define T_0_15(t, A, B, C, D, E)  SHA_ROUND(t, SHA_SRC, (((C^D)&B)^D) , 0x5a827999, A, B, C, D, E )
- #define T_16_19(t, A, B, C, D, E) SHA_ROUND(t, SHA_MIX, (((C^D)&B)^D) , 0x5a827999, A, B, C, D, E )
-@@ -82,6 +84,7 @@
- void sha_transform(__u32 *digest, const char *data, __u32 *array)
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1074,7 +1074,7 @@ static void crng_reseed(struct crng_stat
+ static void _extract_crng(struct crng_state *crng,
+ 			  __u32 out[CHACHA20_BLOCK_WORDS])
  {
- 	__u32 A, B, C, D, E;
-+	unsigned int i = 0;
+-	unsigned long v, flags, init_time;
++	unsigned long flags, init_time;
  
- 	A = digest[0];
- 	B = digest[1];
-@@ -90,94 +93,24 @@ void sha_transform(__u32 *digest, const
- 	E = digest[4];
- 
- 	/* Round 1 - iterations 0-16 take their input from 'data' */
--	T_0_15( 0, A, B, C, D, E);
--	T_0_15( 1, E, A, B, C, D);
--	T_0_15( 2, D, E, A, B, C);
--	T_0_15( 3, C, D, E, A, B);
--	T_0_15( 4, B, C, D, E, A);
--	T_0_15( 5, A, B, C, D, E);
--	T_0_15( 6, E, A, B, C, D);
--	T_0_15( 7, D, E, A, B, C);
--	T_0_15( 8, C, D, E, A, B);
--	T_0_15( 9, B, C, D, E, A);
--	T_0_15(10, A, B, C, D, E);
--	T_0_15(11, E, A, B, C, D);
--	T_0_15(12, D, E, A, B, C);
--	T_0_15(13, C, D, E, A, B);
--	T_0_15(14, B, C, D, E, A);
--	T_0_15(15, A, B, C, D, E);
-+	for (; i < 16; ++i)
-+		T_0_15(i, A, B, C, D, E);
- 
- 	/* Round 1 - tail. Input from 512-bit mixing array */
--	T_16_19(16, E, A, B, C, D);
--	T_16_19(17, D, E, A, B, C);
--	T_16_19(18, C, D, E, A, B);
--	T_16_19(19, B, C, D, E, A);
-+	for (; i < 20; ++i)
-+		T_16_19(i, A, B, C, D, E);
- 
- 	/* Round 2 */
--	T_20_39(20, A, B, C, D, E);
--	T_20_39(21, E, A, B, C, D);
--	T_20_39(22, D, E, A, B, C);
--	T_20_39(23, C, D, E, A, B);
--	T_20_39(24, B, C, D, E, A);
--	T_20_39(25, A, B, C, D, E);
--	T_20_39(26, E, A, B, C, D);
--	T_20_39(27, D, E, A, B, C);
--	T_20_39(28, C, D, E, A, B);
--	T_20_39(29, B, C, D, E, A);
--	T_20_39(30, A, B, C, D, E);
--	T_20_39(31, E, A, B, C, D);
--	T_20_39(32, D, E, A, B, C);
--	T_20_39(33, C, D, E, A, B);
--	T_20_39(34, B, C, D, E, A);
--	T_20_39(35, A, B, C, D, E);
--	T_20_39(36, E, A, B, C, D);
--	T_20_39(37, D, E, A, B, C);
--	T_20_39(38, C, D, E, A, B);
--	T_20_39(39, B, C, D, E, A);
-+	for (; i < 40; ++i)
-+		T_20_39(i, A, B, C, D, E);
- 
- 	/* Round 3 */
--	T_40_59(40, A, B, C, D, E);
--	T_40_59(41, E, A, B, C, D);
--	T_40_59(42, D, E, A, B, C);
--	T_40_59(43, C, D, E, A, B);
--	T_40_59(44, B, C, D, E, A);
--	T_40_59(45, A, B, C, D, E);
--	T_40_59(46, E, A, B, C, D);
--	T_40_59(47, D, E, A, B, C);
--	T_40_59(48, C, D, E, A, B);
--	T_40_59(49, B, C, D, E, A);
--	T_40_59(50, A, B, C, D, E);
--	T_40_59(51, E, A, B, C, D);
--	T_40_59(52, D, E, A, B, C);
--	T_40_59(53, C, D, E, A, B);
--	T_40_59(54, B, C, D, E, A);
--	T_40_59(55, A, B, C, D, E);
--	T_40_59(56, E, A, B, C, D);
--	T_40_59(57, D, E, A, B, C);
--	T_40_59(58, C, D, E, A, B);
--	T_40_59(59, B, C, D, E, A);
-+	for (; i < 60; ++i)
-+		T_40_59(i, A, B, C, D, E);
- 
- 	/* Round 4 */
--	T_60_79(60, A, B, C, D, E);
--	T_60_79(61, E, A, B, C, D);
--	T_60_79(62, D, E, A, B, C);
--	T_60_79(63, C, D, E, A, B);
--	T_60_79(64, B, C, D, E, A);
--	T_60_79(65, A, B, C, D, E);
--	T_60_79(66, E, A, B, C, D);
--	T_60_79(67, D, E, A, B, C);
--	T_60_79(68, C, D, E, A, B);
--	T_60_79(69, B, C, D, E, A);
--	T_60_79(70, A, B, C, D, E);
--	T_60_79(71, E, A, B, C, D);
--	T_60_79(72, D, E, A, B, C);
--	T_60_79(73, C, D, E, A, B);
--	T_60_79(74, B, C, D, E, A);
--	T_60_79(75, A, B, C, D, E);
--	T_60_79(76, E, A, B, C, D);
--	T_60_79(77, D, E, A, B, C);
--	T_60_79(78, C, D, E, A, B);
--	T_60_79(79, B, C, D, E, A);
-+	for (; i < 80; ++i)
-+		T_60_79(i, A, B, C, D, E);
- 
- 	digest[0] += A;
- 	digest[1] += B;
+ 	if (crng_ready()) {
+ 		init_time = READ_ONCE(crng->init_time);
+@@ -1084,8 +1084,6 @@ static void _extract_crng(struct crng_st
+ 				    &input_pool : NULL);
+ 	}
+ 	spin_lock_irqsave(&crng->lock, flags);
+-	if (arch_get_random_long(&v))
+-		crng->state[14] ^= v;
+ 	chacha20_block(&crng->state[0], out);
+ 	if (crng->state[12] == 0)
+ 		crng->state[13]++;
 
 
