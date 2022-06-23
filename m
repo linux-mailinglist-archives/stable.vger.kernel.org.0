@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C283558443
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1FE5558252
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231837AbiFWRks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:40:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39740 "EHLO
+        id S230299AbiFWRNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:13:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235255AbiFWRjY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:39:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1B35DF2F;
-        Thu, 23 Jun 2022 10:09:37 -0700 (PDT)
+        with ESMTP id S232925AbiFWRMe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:12:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36AF918351;
+        Thu, 23 Jun 2022 09:58:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25FA2B8249B;
-        Thu, 23 Jun 2022 17:09:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60FAEC3411B;
-        Thu, 23 Jun 2022 17:09:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0138C613F9;
+        Thu, 23 Jun 2022 16:58:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E31F8C3411B;
+        Thu, 23 Jun 2022 16:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004174;
-        bh=iPzfm+GDmQDrIFT2Fmda4KYFqJnH2Vu68Poe4txUNTM=;
+        s=korg; t=1656003482;
+        bh=3p0YjrfUjqKoTgC5K6srQAZQ1GXKJuj4faY5xGKBedc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HsimSGlmgUO/L5LTAnO9HUbnR2+WGJCk+VN/AL02//8BBg/5b/paQ5hZRyiLnP1zM
-         gToxjfbzcz2wyZy/xWDGqTGOKae3Zn8n1WwUXtuWoWFPOnQy6LFwbK+PKiUy5rZ8fY
-         R3vfY9KMHbOg7leUyAZEo/s06b8Hota1/Hr2H8Hc=
+        b=Qkm97KpPIOA+5PXvupWG5R8gN4vDjiSk5sij1w6Rm0TioF3gKxfcvT9g1Ch1+uHXZ
+         Z9AAGLG7YLksm1LrGOtBLBZlfrMGCxJpFhqtAD5T7SI4V3gtZK2ghgsaXxeHYXKR7W
+         ivx6tFayuh0O0v1xa0zu45wb67LIuW8KJIA/hd1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 211/237] tty: goldfish: Fix free_irq() on remove
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 4.9 252/264] s390/mm: use non-quiescing sske for KVM switch to keyed guest
 Date:   Thu, 23 Jun 2022 18:44:05 +0200
-Message-Id: <20220623164349.221648467@linuxfoundation.org>
+Message-Id: <20220623164351.197381495@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-[ Upstream commit 499e13aac6c762e1e828172b0f0f5275651d6512 ]
+commit 3ae11dbcfac906a8c3a480e98660a823130dc16a upstream.
 
-Pass the correct dev_id to free_irq() to fix this splat when the driver
-is unbound:
+The switch to a keyed guest does not require a classic sske as the other
+guest CPUs are not accessing the key before the switch is complete.
+By using the NQ SSKE things are faster especially with multiple guests.
 
- WARNING: CPU: 0 PID: 30 at kernel/irq/manage.c:1895 free_irq
- Trying to free already-free IRQ 65
- Call Trace:
-  warn_slowpath_fmt
-  free_irq
-  goldfish_tty_remove
-  platform_remove
-  device_remove
-  device_release_driver_internal
-  device_driver_detach
-  unbind_store
-  drv_attr_store
-  ...
-
-Fixes: 465893e18878e119 ("tty: goldfish: support platform_device with id -1")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/20220609141704.1080024-1-vincent.whitchurch@axis.com
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Suggested-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220530092706.11637-3-borntraeger@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/goldfish.c | 2 +-
+ arch/s390/mm/pgtable.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
-index 1b72321f2d0b..9f0b6b185be7 100644
---- a/drivers/tty/goldfish.c
-+++ b/drivers/tty/goldfish.c
-@@ -435,7 +435,7 @@ static int goldfish_tty_remove(struct platform_device *pdev)
- 	tty_unregister_device(goldfish_tty_driver, qtty->console.index);
- 	iounmap(qtty->base);
- 	qtty->base = NULL;
--	free_irq(qtty->irq, pdev);
-+	free_irq(qtty->irq, qtty);
- 	tty_port_destroy(&qtty->port);
- 	goldfish_tty_current_line_count--;
- 	if (goldfish_tty_current_line_count == 0)
--- 
-2.35.1
-
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -595,7 +595,7 @@ void ptep_zap_key(struct mm_struct *mm,
+ 			      PGSTE_GR_BIT | PGSTE_GC_BIT);
+ 	ptev = pte_val(*ptep);
+ 	if (!(ptev & _PAGE_INVALID) && (ptev & _PAGE_WRITE))
+-		page_set_storage_key(ptev & PAGE_MASK, PAGE_DEFAULT_KEY, 1);
++		page_set_storage_key(ptev & PAGE_MASK, PAGE_DEFAULT_KEY, 0);
+ 	pgste_set_unlock(ptep, pgste);
+ 	preempt_enable();
+ }
 
 
