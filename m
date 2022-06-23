@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 996F65580C0
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC7625582C8
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230133AbiFWQxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:53:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48900 "EHLO
+        id S233305AbiFWRTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:19:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233747AbiFWQve (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:34 -0400
+        with ESMTP id S233980AbiFWRSk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:18:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 294744BFFB;
-        Thu, 23 Jun 2022 09:49:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA0769B55A;
+        Thu, 23 Jun 2022 10:00:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9217B82491;
-        Thu, 23 Jun 2022 16:49:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22123C3411B;
-        Thu, 23 Jun 2022 16:49:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DDA3B8248A;
+        Thu, 23 Jun 2022 17:00:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97833C341C5;
+        Thu, 23 Jun 2022 17:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002975;
-        bh=wELGr6wfnEeJMKhlZ+9+4rWjcNU9BYgROo8OgipK76I=;
+        s=korg; t=1656003621;
+        bh=3rZ4keeAZVuslG8FpTjQQGI8XwrSaROFMtyKvOT3rdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JQFJzoPf+KR+nNv+/3s0FUdCAX8H3UM/D++jX7V3c+ZzrqsMSJXXy096KfYLQY3oh
-         A5IDh44C16hQGPVvRN4BFDaAbPRj4JgH5ZYjiNDL52k5vt+rHxSC1voyBhx26EzOA/
-         efQaoXihN1acdaW7VniWr7Id44Z62ou1GvowtTUA=
+        b=SWl4n8MJfNAK2Pgp6vU3rGcGO5JbllFoSKkNrYzpNLI+oAUJ8/K3qFA5S8YEesIwt
+         GpbZkGOYTcw5xaXMThEUPmovLIOa1NJo0wB4aWfhboTZVNnDWcrdQP/g6755aByrjA
+         kcNOYuG5v87vsDkLk8se4C+0WtIlj24spfFf/73w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        "Tobin C. Harding" <me@tobin.cc>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 047/264] char/random: Add a newline at the end of the file
+Subject: [PATCH 4.14 006/237] random: Fix whitespace pre random-bytes work
 Date:   Thu, 23 Jun 2022 18:40:40 +0200
-Message-Id: <20220623164345.402094704@linuxfoundation.org>
+Message-Id: <20220623164343.329048734@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@alien8.de>
+From: "Tobin C. Harding" <me@tobin.cc>
 
-commit 3fd57e7a9e66b9a8bcbf0560ff09e84d0b8de1bd upstream.
+commit 8ddd6efa56c3fe23df9fe4cf5e2b49cc55416ef4 upstream.
 
-On Tue, Oct 01, 2019 at 10:14:40AM -0700, Linus Torvalds wrote:
-> The previous state of the file didn't have that 0xa at the end, so you get that
->
->
->   -EXPORT_SYMBOL_GPL(add_bootloader_randomness);
->   \ No newline at end of file
->   +EXPORT_SYMBOL_GPL(add_bootloader_randomness);
->
-> which is "the '-' line doesn't have a newline, the '+' line does" marker.
+There are a couple of whitespace issues around the function
+get_random_bytes_arch().  In preparation for patching this function
+let's clean them up.
 
-Aaha, that makes total sense, thanks for explaining. Oh well, let's fix
-it then so that people don't scratch heads like me.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Acked-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Tobin C. Harding <me@tobin.cc>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/random.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -2504,4 +2504,4 @@ void add_bootloader_randomness(const voi
- 	else
- 		add_device_randomness(buf, size);
+@@ -1742,7 +1742,7 @@ void get_random_bytes_arch(void *buf, in
+ 
+ 		if (!arch_get_random_long(&v))
+ 			break;
+-		
++
+ 		memcpy(p, &v, chunk);
+ 		p += chunk;
+ 		nbytes -= chunk;
+@@ -1753,7 +1753,6 @@ void get_random_bytes_arch(void *buf, in
  }
--EXPORT_SYMBOL_GPL(add_bootloader_randomness);
-\ No newline at end of file
-+EXPORT_SYMBOL_GPL(add_bootloader_randomness);
+ EXPORT_SYMBOL(get_random_bytes_arch);
+ 
+-
+ /*
+  * init_std_data - initialize pool with system data
+  *
 
 
