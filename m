@@ -2,92 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8E1557ED0
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 17:44:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB021557ED2
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 17:46:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230035AbiFWPow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 11:44:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51760 "EHLO
+        id S231140AbiFWPqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 11:46:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229579AbiFWPow (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 11:44:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A9236B6A;
-        Thu, 23 Jun 2022 08:44:51 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDD49B82435;
-        Thu, 23 Jun 2022 15:44:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39956C3411B;
-        Thu, 23 Jun 2022 15:44:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655999088;
-        bh=E/PWTSDjWAEtShzaTXlO2ocUe9kuMzdsrUobTKa3QUY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=J0aZZhsAqPnPW8NoqNs5vPFs+OSvJMQ10fhAh6psx+vyxETEOge7pEWQcF+xDHZmB
-         G+tvZnyTLz2HutznxlAeM72u1enfJiWm45rmztBw8uHXKbS1cs4BA4cNPoInE7aqV7
-         gCIsfQ0tdDv6sikaY+jIaJyF7PNJ/aZ1PlOkr9aY=
-Date:   Thu, 23 Jun 2022 17:44:45 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     stable@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: please consider for stable: "s390/mm: use non-quiescing sske for
- KVM switch to keyed guest"
-Message-ID: <YrSKbXdkSJ0UfBul@kroah.com>
-References: <20220623151520.73354-1-borntraeger@linux.ibm.com>
+        with ESMTP id S229579AbiFWPqF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 11:46:05 -0400
+Received: from out3-smtp.messagingengine.com (out3-smtp.messagingengine.com [66.111.4.27])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5791336B6A
+        for <stable@vger.kernel.org>; Thu, 23 Jun 2022 08:46:04 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id BD8085C0135;
+        Thu, 23 Jun 2022 11:46:03 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Thu, 23 Jun 2022 11:46:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm2; t=1655999163; x=1656085563; bh=fcPvyP/Dn4
+        OiJdp2A6xYRC/c+cl4MTmz3QIPRt5hqCA=; b=HAO5ktOz12ICiJUWvjK/RLHqvX
+        QBq8CBtG06LkOZ/+KDaPm+c4gS48pEFIW+lBCvJ6Pp8wwV45wA6CW1jXU3puzNft
+        b98uYtUkX1+xZ+JTQCItjSd9/dW9nhYD1bqyksIb2K+/VI0LQzzkcY8z1Bc39NE+
+        YBz/K615XaGWcXnv+yxH6Sb6wfjAjpcO3C+lgYWK2nnP2ZCKgjAA98kH2XHFKBzw
+        w9w+0AqNwj99WnysyBmDtNKKfBC+FRfVDqqNlZr0iXYmNRKFFo27qUInUFoFYCOF
+        UuwG5lvU02bSd/j/C4FBzDpaYwmFUT8Ts3B/qppJIekyLGJ/PUAy7b2KPzGA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm2; t=1655999163; x=1656085563; bh=fcPvyP/Dn4OiJdp2A6xYRC/c+cl4
+        MTmz3QIPRt5hqCA=; b=a7nqzDJsc9CRB83KgBOGZ35tcfsuNm889dnyjJ9u/0TQ
+        jeKjdCq0aMTByQx6P5mWm8j7yEzgM3w95QFLeNRRy9aK9YwMvjORRZWGRJt7LzCA
+        YzeC5J6sru99F8GIdd5uMc/9itWjNas+nVHYneWoowInZmJe6SefhdxbtkteWbs1
+        HB0zhLp7KTy5YCoC91A+M1WFSR+c1PVBdSZXRI/rf1OKlkLA4w+QxSdC89oCrAJd
+        +W4V1YGNOORqs+lGFNokYC9IjN9sdwIVZffijPILBG/5lJW8SG1eSjG39GHqlbpt
+        JfjK90v3gPgSoKavfphqN6TZrBr/2hWRPeQ6jDV6lg==
+X-ME-Sender: <xms:u4q0Yn7wzOHHz_Ky6_fMcDGd7_Sw6iLtNbgRy5PBPXtyzfeodw09Mw>
+    <xme:u4q0Ys61cYSGATBfyP6WZ3rnM7dUOkCW7HclYYWA-Er75VUJSO5G6q7yn_WSY152K
+    4htEcodrOMWEg>
+X-ME-Received: <xmr:u4q0YufUCcOQp_UPgnWds63N_1m8aRrRyj924eB53M1f5yONojIYZL1Fm9vmUOnBnrBhXjnBFfFW7oY00aHUhKonbstz_s5_>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudefjedgleegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhephefffe
+    fggfdvvdekfffhgfeljeehfffhleehleejffffveeuueduhefgveeukeejnecuffhomhgr
+    ihhnpehlrghunhgthhhprggurdhnvghtnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:u4q0YoKcTrwCL0306T4N0OHjeWSd1PWc0CVzCrp2MPU_llWPCvjDcg>
+    <xmx:u4q0YrIzMQ7wFa-mKQd7fPKi2Q2VScwCd_8gZKZpLz2lHTrLelnEEQ>
+    <xmx:u4q0YhyLY8ScxN3E-Wye4jyM7GQORHsmAewDg6jrMdZMCdfmlEiQOw>
+    <xmx:u4q0YiVF-CZwS6EXPK5u69I7AiovuVQbiiNwz5-hF17tsrbdWZQcrw>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 23 Jun 2022 11:46:03 -0400 (EDT)
+Date:   Thu, 23 Jun 2022 17:46:01 +0200
+From:   Greg KH <greg@kroah.com>
+To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: Display corruption on resume
+Message-ID: <YrSKuU/G82yCVBnA@kroah.com>
+References: <MN0PR12MB6101E7031A343ABD977D723DE2B29@MN0PR12MB6101.namprd12.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220623151520.73354-1-borntraeger@linux.ibm.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <MN0PR12MB6101E7031A343ABD977D723DE2B29@MN0PR12MB6101.namprd12.prod.outlook.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 23, 2022 at 05:15:20PM +0200, Christian Borntraeger wrote:
-> stable team, please consider
-> commit 3ae11dbcfac906a8c3a480e98660a823130dc16a
-> It will noticeable reduce system overhead when this happens on multiple CPUs.
+On Wed, Jun 22, 2022 at 07:49:46PM +0000, Limonciello, Mario wrote:
+> [Public]
 > 
-> ----snip----
-> commit 3ae11dbcfac906a8c3a480e98660a823130dc16a
->     s390/mm: use non-quiescing sske for KVM switch to keyed guest
->     
->     The switch to a keyed guest does not require a classic sske as the other
->     guest CPUs are not accessing the key before the switch is complete.
->     By using the NQ SSKE things are faster especially with multiple guests.
+> Hi,
 > 
->     
-> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Suggested-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Link: https://lore.kernel.org/r/20220530092706.11637-3-borntraeger@linux.ibm.com
-> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> Can you please backport this commit to 5.15.y?
 > 
-> diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-> index 697df02362af..4909dcd762e8 100644
-> --- a/arch/s390/mm/pgtable.c
-> +++ b/arch/s390/mm/pgtable.c
-> @@ -748,7 +748,7 @@ void ptep_zap_key(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
->  	pgste_val(pgste) |= PGSTE_GR_BIT | PGSTE_GC_BIT;
->  	ptev = pte_val(*ptep);
->  	if (!(ptev & _PAGE_INVALID) && (ptev & _PAGE_WRITE))
-> -		page_set_storage_key(ptev & PAGE_MASK, PAGE_DEFAULT_KEY, 1);
-> +		page_set_storage_key(ptev & PAGE_MASK, PAGE_DEFAULT_KEY, 0);
->  	pgste_set_unlock(ptep, pgste);
->  	preempt_enable();
->  }
+> commit 79d6b9351f086e0f914a26915d96ab52286ec46c ("drm/amd/display: Don't reinitialize DMCUB on s0ix resume")
+> 
+> It fixes display corruption that was found during s0ix resume on Ryzen 6000.
+> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1978244
 
-Now queued up to all stable branches (as you didn't mention
-otherwise...)
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
