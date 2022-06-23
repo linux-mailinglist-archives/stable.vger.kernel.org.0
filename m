@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 286245582B2
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B9A5580FE
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230315AbiFWRSy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:18:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53382 "EHLO
+        id S233226AbiFWQy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:54:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233242AbiFWRRe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:17:34 -0400
+        with ESMTP id S233225AbiFWQuf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:50:35 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9581160C40;
-        Thu, 23 Jun 2022 09:59:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDCCE4EF66;
+        Thu, 23 Jun 2022 09:48:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 475CBCE25E0;
-        Thu, 23 Jun 2022 16:59:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9635C3411B;
-        Thu, 23 Jun 2022 16:59:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 58900CE25DE;
+        Thu, 23 Jun 2022 16:48:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD0FC3411B;
+        Thu, 23 Jun 2022 16:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003584;
-        bh=uUz847qAmDk1S1PuKmUF+VuRrzIK6TzYKBfTF12X20E=;
+        s=korg; t=1656002903;
+        bh=dwgis79Iq3XDBqEKp85Jnr1FviUanhT9HG3BccEBB6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=csmvgOVqWn/X+U+2Vll7+USho1iH9/Z9aE5hhf9BycdZSuFRPNhi+27Tn2wWQ2FuX
-         cGWhWWOEB8VBKzVytiRpagiWmyHj4afnPKSSyzcTX2SXQjQakZQGhf5y3mVViBtjEF
-         0ecG1ELLn472nRCu+Qc+XZRygeo8K0l60tbsncqI=
+        b=bdlAYi3qGwkS2cJgfoyswnwLJ1nYBPkAJXjxzu4YjYTAzDfsdX4K2nftvv/WSWVcr
+         SnYdlJWhX9WrzyFFeap1Je66hYGJeL+c84Bby7IwOOuQYQopD5ac02le5cIT7GwmkG
+         OqdDzqFQnUqBDb5EWrKPFoecycyQtIotsS/6kmQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Keerthy <j-keerthy@ti.com>, Stephen Boyd <swboyd@chromium.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
+        Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 022/237] random: Use wait_event_freezable() in add_hwgenerator_randomness()
-Date:   Thu, 23 Jun 2022 18:40:56 +0200
-Message-Id: <20220623164343.792795445@linuxfoundation.org>
+Subject: [PATCH 4.9 064/264] random: Add and use pr_fmt()
+Date:   Thu, 23 Jun 2022 18:40:57 +0200
+Message-Id: <20220623164345.883111393@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,83 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Yangtao Li <tiny.windzz@gmail.com>
 
-commit 59b569480dc8bb9dce57cdff133853a842dfd805 upstream.
+commit 12cd53aff5ea0359b1dac91fcd9ddc7b9e646588 upstream.
 
-Sebastian reports that after commit ff296293b353 ("random: Support freezable
-kthreads in add_hwgenerator_randomness()") we can call might_sleep() when the
-task state is TASK_INTERRUPTIBLE (state=1). This leads to the following warning.
+Prefix all printk/pr_<level> messages with "random: " to make the
+logging a bit more consistent.
 
- do not call blocking ops when !TASK_RUNNING; state=1 set at [<00000000349d1489>] prepare_to_wait_event+0x5a/0x180
- WARNING: CPU: 0 PID: 828 at kernel/sched/core.c:6741 __might_sleep+0x6f/0x80
- Modules linked in:
+Miscellanea:
 
- CPU: 0 PID: 828 Comm: hwrng Not tainted 5.3.0-rc7-next-20190903+ #46
- RIP: 0010:__might_sleep+0x6f/0x80
+o Convert a printks to pr_notice
+o Whitespace to align to open parentheses
+o Remove embedded "random: " from pr_* as pr_fmt adds it
 
- Call Trace:
-  kthread_freezable_should_stop+0x1b/0x60
-  add_hwgenerator_randomness+0xdd/0x130
-  hwrng_fillfn+0xbf/0x120
-  kthread+0x10c/0x140
-  ret_from_fork+0x27/0x50
-
-We shouldn't call kthread_freezable_should_stop() from deep within the
-wait_event code because the task state is still set as
-TASK_INTERRUPTIBLE instead of TASK_RUNNING and
-kthread_freezable_should_stop() will try to call into the freezer with
-the task in the wrong state. Use wait_event_freezable() instead so that
-it calls schedule() in the right place and tries to enter the freezer
-when the task state is TASK_RUNNING instead.
-
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Keerthy <j-keerthy@ti.com>
-Fixes: ff296293b353 ("random: Support freezable kthreads in add_hwgenerator_randomness()")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
+Link: https://lore.kernel.org/r/20190607182517.28266-3-tiny.windzz@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/char/random.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -327,6 +327,7 @@
- #include <linux/percpu.h>
- #include <linux/cryptohash.h>
- #include <linux/fips.h>
-+#include <linux/freezer.h>
- #include <linux/ptrace.h>
- #include <linux/workqueue.h>
- #include <linux/irq.h>
-@@ -2420,7 +2421,6 @@ void add_hwgenerator_randomness(const ch
- 				size_t entropy)
- {
- 	struct entropy_store *poolp = &input_pool;
--	bool frozen = false;
+@@ -307,6 +307,8 @@
+  * Eastlake, Steve Crocker, and Jeff Schiller.
+  */
  
- 	if (unlikely(crng_init == 0)) {
- 		crng_fast_load(buffer, count);
-@@ -2431,13 +2431,11 @@ void add_hwgenerator_randomness(const ch
- 	 * We'll be woken up again once below random_write_wakeup_thresh,
- 	 * or when the calling thread is about to terminate.
- 	 */
--	wait_event_interruptible(random_write_wait,
--			kthread_freezable_should_stop(&frozen) ||
-+	wait_event_freezable(random_write_wait,
-+			kthread_should_stop() ||
- 			ENTROPY_BITS(&input_pool) <= random_write_wakeup_bits);
--	if (!frozen) {
--		mix_pool_bytes(poolp, buffer, count);
--		credit_entropy_bits(poolp, entropy);
--	}
-+	mix_pool_bytes(poolp, buffer, count);
-+	credit_entropy_bits(poolp, entropy);
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
+ #include <linux/utsname.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+@@ -740,7 +742,7 @@ retry:
+ 	}
+ 
+ 	if (WARN_ON(entropy_count < 0)) {
+-		pr_warn("random: negative entropy/overflow: pool %s count %d\n",
++		pr_warn("negative entropy/overflow: pool %s count %d\n",
+ 			r->name, entropy_count);
+ 		entropy_count = 0;
+ 	} else if (entropy_count > pool_size)
+@@ -833,7 +835,7 @@ static void crng_initialize(struct crng_
+ 	}
+ 	if (trust_cpu && arch_init) {
+ 		crng_init = 2;
+-		pr_notice("random: crng done (trusting CPU's manufacturer)\n");
++		pr_notice("crng done (trusting CPU's manufacturer)\n");
+ 	}
+ 	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
  }
- EXPORT_SYMBOL_GPL(add_hwgenerator_randomness);
+@@ -857,14 +859,12 @@ static void crng_finalize_init(struct cr
+ 	kill_fasync(&fasync, SIGIO, POLL_IN);
+ 	pr_notice("crng init done\n");
+ 	if (unseeded_warning.missed) {
+-		pr_notice("random: %d get_random_xx warning(s) missed "
+-			  "due to ratelimiting\n",
++		pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
+ 			  unseeded_warning.missed);
+ 		unseeded_warning.missed = 0;
+ 	}
+ 	if (urandom_warning.missed) {
+-		pr_notice("random: %d urandom warning(s) missed "
+-			  "due to ratelimiting\n",
++		pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
+ 			  urandom_warning.missed);
+ 		urandom_warning.missed = 0;
+ 	}
+@@ -945,7 +945,7 @@ static int crng_fast_load(const char *cp
+ 	if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
+ 		invalidate_batched_entropy();
+ 		crng_init = 1;
+-		pr_notice("random: fast init done\n");
++		pr_notice("fast init done\n");
+ 	}
+ 	return 1;
+ }
+@@ -1432,7 +1432,7 @@ retry:
+ 		ibytes = 0;
  
+ 	if (WARN_ON(entropy_count < 0)) {
+-		pr_warn("random: negative entropy count: pool %s count %d\n",
++		pr_warn("negative entropy count: pool %s count %d\n",
+ 			r->name, entropy_count);
+ 		entropy_count = 0;
+ 	}
+@@ -1857,9 +1857,8 @@ urandom_read(struct file *file, char __u
+ 	if (!crng_ready() && maxwarn > 0) {
+ 		maxwarn--;
+ 		if (__ratelimit(&urandom_warning))
+-			printk(KERN_NOTICE "random: %s: uninitialized "
+-			       "urandom read (%zd bytes read)\n",
+-			       current->comm, nbytes);
++			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
++				  current->comm, nbytes);
+ 		spin_lock_irqsave(&primary_crng.lock, flags);
+ 		crng_init_cnt = 0;
+ 		spin_unlock_irqrestore(&primary_crng.lock, flags);
 
 
