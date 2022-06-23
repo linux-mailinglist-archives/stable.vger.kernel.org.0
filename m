@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50076558476
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A61455827B
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230318AbiFWRnK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:43:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53892 "EHLO
+        id S229534AbiFWROm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:14:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234852AbiFWRmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:42:38 -0400
+        with ESMTP id S233513AbiFWRMw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:12:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0895B55371;
-        Thu, 23 Jun 2022 10:10:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F206A4EF7A;
+        Thu, 23 Jun 2022 09:58:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E3B6B82499;
-        Thu, 23 Jun 2022 17:10:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDD25C341C5;
-        Thu, 23 Jun 2022 17:10:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F893B82497;
+        Thu, 23 Jun 2022 16:58:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D802EC341CB;
+        Thu, 23 Jun 2022 16:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004202;
-        bh=b5PJ7ihy/690AHpeEsqwO2CNN3oz8tPqPwW16jbeZds=;
+        s=korg; t=1656003528;
+        bh=mbhjCA8gaFtDwUJ3TL4ixjbT+sq7I8e4Ukm6sJYkP6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bbCmtaLYSk9ZODMFTlMQPtSrcnlwLWCt5xGX5STM0T7ZwWjkwqPyTtyRZMXRRQx5e
-         mzUSCqrbH3+OS6T+BUxSZbFmh0fXCyqJpt0ciE+s+18Rtv6jUAmPrfzLHKqWZYMxfh
-         Ex7vegaoEObDAbAssBWU+rAFQhggS4yiQGINZkUs=
+        b=s66YKltAHkq43seq1bCWg5KXeqLeg42QJW9HhFYyI57EFgdUuHlNe0vgkDSIC7TwN
+         LOm0fSVWxPMM16ppvxadClXeg3zt2PH5C3x6SStim3m0Wkb2DGRGn9sPAYgeI+/pgD
+         lDhPd1kQu9yW//4LSVpitQjlEak2OVSlqO8cxxF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Eckelmann <longnoserob@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 219/237] USB: serial: io_ti: add Agilent E5805A support
-Date:   Thu, 23 Jun 2022 18:44:13 +0200
-Message-Id: <20220623164349.451077666@linuxfoundation.org>
+        stable@vger.kernel.org, Moshe Kol <moshe.kol@mail.huji.ac.il>,
+        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
+        Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 261/264] tcp: add small random increments to the source port
+Date:   Thu, 23 Jun 2022 18:44:14 +0200
+Message-Id: <20220623164351.449023824@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Eckelmann <longnoserob@gmail.com>
+From: Willy Tarreau <w@1wt.eu>
 
-commit 908e698f2149c3d6a67d9ae15c75545a3f392559 upstream.
+commit ca7af0402550f9a0b3316d5f1c30904e42ed257d upstream.
 
-Add support for Agilent E5805A (rebranded ION Edgeport/4) to io_ti.
+Here we're randomly adding between 0 and 7 random increments to the
+selected source port in order to add some noise in the source port
+selection that will make the next port less predictable.
 
-Signed-off-by: Robert Eckelmann <longnoserob@gmail.com>
-Link: https://lore.kernel.org/r/20220521230808.30931eca@octoberrain
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+With the default port range of 32768-60999 this means a worst case
+reuse scenario of 14116/8=1764 connections between two consecutive
+uses of the same port, with an average of 14116/4.5=3137. This code
+was stressed at more than 800000 connections per second to a fixed
+target with all connections closed by the client using RSTs (worst
+condition) and only 2 connections failed among 13 billion, despite
+the hash being reseeded every 10 seconds, indicating a perfectly
+safe situation.
+
+Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
+Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
+Cc: Amit Klein <aksecurity@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/io_ti.c      |    2 ++
- drivers/usb/serial/io_usbvend.h |    1 +
- 2 files changed, 3 insertions(+)
+ net/ipv4/inet_hashtables.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/io_ti.c
-+++ b/drivers/usb/serial/io_ti.c
-@@ -172,6 +172,7 @@ static const struct usb_device_id edgepo
- 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_8S) },
- 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416) },
- 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416B) },
-+	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_E5805A) },
- 	{ }
- };
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -644,11 +644,12 @@ next_port:
+ 	return -EADDRNOTAVAIL;
  
-@@ -210,6 +211,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_8S) },
- 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416) },
- 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416B) },
-+	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_E5805A) },
- 	{ }
- };
+ ok:
+-	/* If our first attempt found a candidate, skip next candidate
+-	 * in 1/16 of cases to add some noise.
++	/* Here we want to add a little bit of randomness to the next source
++	 * port that will be chosen. We use a max() with a random here so that
++	 * on low contention the randomness is maximal and on high contention
++	 * it may be inexistent.
+ 	 */
+-	if (!i && !(prandom_u32() % 16))
+-		i = 2;
++	i = max_t(int, i, (prandom_u32() & 7) * 2);
+ 	WRITE_ONCE(table_perturb[index], READ_ONCE(table_perturb[index]) + i + 2);
  
---- a/drivers/usb/serial/io_usbvend.h
-+++ b/drivers/usb/serial/io_usbvend.h
-@@ -215,6 +215,7 @@
- //
- // Definitions for other product IDs
- #define ION_DEVICE_ID_MT4X56USB			0x1403	// OEM device
-+#define ION_DEVICE_ID_E5805A			0x1A01  // OEM device (rebranded Edgeport/4)
- 
- 
- #define	GENERATION_ID_FROM_USB_PRODUCT_ID(ProductId)				\
+ 	/* Head lock still held and bh's disabled */
 
 
