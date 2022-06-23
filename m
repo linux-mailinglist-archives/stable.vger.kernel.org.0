@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EB00558704
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:19:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A077A5586E2
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:18:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236923AbiFWSTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:19:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47300 "EHLO
+        id S236725AbiFWSSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:18:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237288AbiFWSSI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:18:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04C31B6232;
-        Thu, 23 Jun 2022 10:24:34 -0700 (PDT)
+        with ESMTP id S236839AbiFWSQr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:16:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1223C24097;
+        Thu, 23 Jun 2022 10:23:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8282E61EDF;
-        Thu, 23 Jun 2022 17:24:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EDD5C3411B;
-        Thu, 23 Jun 2022 17:24:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EB8D61E9D;
+        Thu, 23 Jun 2022 17:23:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FF35C3411B;
+        Thu, 23 Jun 2022 17:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656005072;
-        bh=Tt6bvSYV1elYwtR3mC25cMJKwSNpilbWgWHly4ISBR8=;
+        s=korg; t=1656004997;
+        bh=dah1VrpcId8Z+u4nGQ7YFJhY+zDgfrwXLh8LQLGIoDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDJZy5VzuRfA668e/szfaNVXB49+5NKnePdo47mMdRQBPfGkHpSeDH52Sf7TlqbQa
-         NLa7x23vWBbemJKDEVY6dHHgCikXmwJrwg+/OhA5ZR3anCyKz/JV96u+Ufyj9Dqa8/
-         7t3DLVxSiSnvzdV3noQAIkDirbAGAzg4TI5Qj9Qo=
+        b=uxoT2hAS7tOW9TrUBfV/3re/weiEVoSttpxFTBYXsCelkkPOWXZJ6QzNsOmtvA/+H
+         3j60FtxQE73JevYCio9szzJ9WfR1hVvRCGAk0pLdmW3ecTuH6mRSTjywrJ2s30CS8N
+         HVRNNLlOSUTSUmdCHTK89XcLmmmSYBI+l0jAB3p8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 210/234] irqchip/gic-v3: Fix refcount leak in gic_populate_ppi_partitions
-Date:   Thu, 23 Jun 2022 18:44:37 +0200
-Message-Id: <20220623164348.993055517@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.19 211/234] comedi: vmk80xx: fix expression for tx buffer size
+Date:   Thu, 23 Jun 2022 18:44:38 +0200
+Message-Id: <20220623164349.021560809@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -53,46 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-[ Upstream commit fa1ad9d4cc47ca2470cd904ad4519f05d7e43a2b ]
+commit 242439f7e279d86b3f73b5de724bc67b2f8aeb07 upstream.
 
-of_find_node_by_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+The expression for setting the size of the allocated bulk TX buffer
+(`devpriv->usb_tx_buf`) is calling `usb_endpoint_maxp(devpriv->ep_rx)`,
+which is using the wrong endpoint (should be `devpriv->ep_tx`).  Fix it.
 
-Fixes: e3825ba1af3a ("irqchip/gic-v3: Add support for partitioned PPIs")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220601080930.31005-6-linmq006@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a23461c47482 ("comedi: vmk80xx: fix transfer-buffer overflow")
+Cc: Johan Hovold <johan@kernel.org>
+Cc: stable@vger.kernel.org # 4.9+
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20220607171819.4121-1-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-gic-v3.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/vmk80xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
-index 05b9a4cdc8fd..8d8b8d192e2e 100644
---- a/drivers/irqchip/irq-gic-v3.c
-+++ b/drivers/irqchip/irq-gic-v3.c
-@@ -1205,12 +1205,15 @@ static void __init gic_populate_ppi_partitions(struct device_node *gic_node)
- 				continue;
+--- a/drivers/staging/comedi/drivers/vmk80xx.c
++++ b/drivers/staging/comedi/drivers/vmk80xx.c
+@@ -685,7 +685,7 @@ static int vmk80xx_alloc_usb_buffers(str
+ 	if (!devpriv->usb_rx_buf)
+ 		return -ENOMEM;
  
- 			cpu = of_cpu_node_to_id(cpu_node);
--			if (WARN_ON(cpu < 0))
-+			if (WARN_ON(cpu < 0)) {
-+				of_node_put(cpu_node);
- 				continue;
-+			}
- 
- 			pr_cont("%pOF[%d] ", cpu_node, cpu);
- 
- 			cpumask_set_cpu(cpu, &part->mask);
-+			of_node_put(cpu_node);
- 		}
- 
- 		pr_cont("}\n");
--- 
-2.35.1
-
+-	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
++	size = max(usb_endpoint_maxp(devpriv->ep_tx), MIN_BUF_SIZE);
+ 	devpriv->usb_tx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_tx_buf)
+ 		return -ENOMEM;
 
 
