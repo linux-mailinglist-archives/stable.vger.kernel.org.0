@@ -2,102 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62757558947
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 21:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D8E55896C
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 21:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230262AbiFWTkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 15:40:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37360 "EHLO
+        id S231572AbiFWTo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 15:44:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230339AbiFWTka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 15:40:30 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29EB87E00B;
-        Thu, 23 Jun 2022 12:30:17 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id o18so128467plg.2;
-        Thu, 23 Jun 2022 12:30:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=8BA2ydSLM+gEUBcVXdP2fqlOhTJGtm6qnmU9rgH3Z88=;
-        b=qBy8lMAA9ufkyVDostGeyLiH8YzqTOMW/icfM3xLt9I9VsE9nJzDLoJvmjxSHTgwnG
-         HKOYE82rVGPZBaGO5CBcPe3yx5/sYCDKHC80YRLB1x8IUiYBjqo1nVeq5NFKR4AfyhAo
-         ttCOGEQUSkA9TKJ92HOvqpLN6jWgKIc+nQvI4KpH902ZYsid50Wq89GeCgaHKZLpMULZ
-         f+iNJjUi/M0X2cLRs7N0RfWTJkMjWf1YjD7kx2yj1lO884XLMyCwXsBvARv7swd5fWmo
-         +Kj+vxVegCUeAwEIi8cBpYH9e7dOc6D7a8ksDtjIqedb4jXjGwBPzjGm2QdwRFdMEikv
-         TKfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=8BA2ydSLM+gEUBcVXdP2fqlOhTJGtm6qnmU9rgH3Z88=;
-        b=RmHD8Rl/E04Y7JEHI67hQv8/UERZ7yPTW/2gw0DIuq0Jkx99CcijHkC/fIkmv59tuk
-         6QF2qAKjzdPVn0Wfp1sVLpJZ+LMfmjOobY6i3ewKsY0eKUoLxRGy6LeJM+D/8gTKSNnt
-         kw2MyA/muPn8+5cQz0fwPrmCLRDKal3IdwUB46UKKClEhEzrvKhDnC+2AGtmMpUuv9QV
-         /q8gjBQwT6MIAl5T+HM+sc/IHD7Sg154v9RHEpiP97fyjLHSOMt4F5b1SJpJyeIFzugV
-         OaYzj/ibP+JQzOFOYDpaRQkKEp0ff+JioV15lGrx8Ft2Pw1/3IGC4izpZFWc17FB0FY8
-         kYJQ==
-X-Gm-Message-State: AJIora8b0D79xJMLI6wzqM3+7WVY9mijyil4PqvtAVUmyXsVRAHqloSu
-        2gErcarESx7aNEyw4nCPeJg=
-X-Google-Smtp-Source: AGRyM1vMXWAoD1S5qmkfhnlDvVuIk7fMK/NFwCat9tHO+3GbdtgdImdWzupc3HQQ9CxipDAeHOX4cA==
-X-Received: by 2002:a17:90b:4b0e:b0:1ed:196d:b691 with SMTP id lx14-20020a17090b4b0e00b001ed196db691mr2120333pjb.78.1656012616545;
-        Thu, 23 Jun 2022 12:30:16 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id w7-20020a63af07000000b0040caab35e5bsm9566886pge.89.2022.06.23.12.30.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 23 Jun 2022 12:30:15 -0700 (PDT)
-Message-ID: <41cc84ce-5f64-8b83-7d99-2a0564a6d99d@gmail.com>
-Date:   Thu, 23 Jun 2022 12:30:13 -0700
+        with ESMTP id S229824AbiFWToM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 15:44:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0094B60E37;
+        Thu, 23 Jun 2022 12:36:26 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45D91619E2;
+        Thu, 23 Jun 2022 19:36:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50BCDC341C0;
+        Thu, 23 Jun 2022 19:36:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1656012985;
+        bh=nDfbSGYCTY10pLb2wgmFt1IEf1MTe6t7GSlKVQ2JcT4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TNYj8V4Vk+eOmExRYynKVKPcBCfhQDJxUM4nvDKUQbCJDlLXhl1G35xwsJDd0vx72
+         AzX0zlP2qu8ObxTIQRvIFsUmCqVIHtybwiKaKtyHXianqPNd8Qd+P2ACY9YCXgq4I7
+         iPWf01DgDD94W5hX8S/IzHvvAva4fmB8xwnrYOikZBmb01btT9RcFQ7YOrSkLVMovg
+         xjbzZMfeekny02F1E1E1XGk1soGlEHoFCietgUSOe5v79RQhW1UCruedhljPnV50xf
+         gAtM4zl+cqSOgVz/tLnMObKzUZcPdUdf8e5PJcDGAQf9n9+29HChputg/bdbzWun+S
+         GiBiQcg4YrY1g==
+Date:   Thu, 23 Jun 2022 12:36:23 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v4] timekeeping: contribute wall clock to rng on time
+ change
+Message-ID: <YrTAt2g4gg/2e+5L@sol.localdomain>
+References: <CAHmME9qGQrgCEGgQpomq6W2EMUy_D5AxqgYHykmmgND+PPVjjw@mail.gmail.com>
+ <20220623191249.1357363-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH 4.9 000/264] 4.9.320-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220623164344.053938039@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220623191249.1357363-1-Jason@zx2c4.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/23/22 09:39, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.320 release.
-> There are 264 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, Jun 23, 2022 at 09:12:49PM +0200, Jason A. Donenfeld wrote:
+> The rng's random_init() function contributes the real time to the rng at
+> boot time, so that events can at least start in relation to something
+> particular in the real world. But this clock might not yet be set that
+> point in boot, so nothing is contributed. In addition, the relation
+> between minor clock changes from, say, NTP, and the cycle counter is
+> potentially useful entropic data.
 > 
-> Responses should be made by Sat, 25 Jun 2022 16:43:11 +0000.
-> Anything received after that time might be too late.
+> This commit addresses this by mixing in a time stamp on calls to
+> settimeofday and adjtimex. No entropy is credited in doing so, so it
+> doesn't make initialization faster, but it is still useful input to
+> have.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.320-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+>  kernel/time/timekeeping.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+- Eric
