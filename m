@@ -2,54 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B2F55874F
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6597558727
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234485AbiFWSX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:23:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57106 "EHLO
+        id S236926AbiFWSUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:20:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237734AbiFWSXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:23:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDD5BC2C69;
-        Thu, 23 Jun 2022 10:25:51 -0700 (PDT)
+        with ESMTP id S236829AbiFWSSw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:18:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339A4647B7;
+        Thu, 23 Jun 2022 10:25:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5418861F0A;
-        Thu, 23 Jun 2022 17:25:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB4A9C341C5;
-        Thu, 23 Jun 2022 17:25:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA73160B79;
+        Thu, 23 Jun 2022 17:25:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89D2CC3411B;
+        Thu, 23 Jun 2022 17:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656005150;
-        bh=SyFyZ2sRAWl65JKjtAQGLYjMGv0I2r4u6CPEgMxxpHE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=UndrPuqlREOVAdbphSJ54FLO4A6s+2z413Pfi+d+k2c6q3trM6Txqulo9U8vN1CY1
-         ZZmCuyKvYYYC3b2aUV4Ga39Iutl9ajMG3ACnhl7d1fwpJjExuBf7zNQ+kt4eBAtb3S
-         bKXp7mUxTcgZ0xzlBUrXP5ppQxNxu39SJ7B3hXPE=
+        s=korg; t=1656005099;
+        bh=hqzuFkqJZfZ2xw66ZjW5NeLcs8PlIC6Yzab2noj3OdM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=OQfntXg1188KUKr9JXf5EzFxhKy0EAR5xejfPR5Hxo09lr4QimdA5PqW0brDTOPTh
+         Wv3oL29nVIFuS4IwhVTX/ghEzmT7C4KDfEMn/GcSTsvuQrL2/YYPXcMBU/c7jKFtPD
+         lslBexq7buCBjHMCCKGGpKi+fxyfRuQmeC1Y4OLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.18 00/11] 5.18.7-rc1 review
+        stable@vger.kernel.org, Moshe Kol <moshe.kol@mail.huji.ac.il>,
+        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
+        Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.4 08/11] tcp: increase source port perturb table to 2^16
 Date:   Thu, 23 Jun 2022 18:45:12 +0200
-Message-Id: <20220623164322.315085512@linuxfoundation.org>
+Message-Id: <20220623164321.442250829@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-MIME-Version: 1.0
+In-Reply-To: <20220623164321.195163701@linuxfoundation.org>
+References: <20220623164321.195163701@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.7-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.18.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.18.7-rc1
-X-KernelTest-Deadline: 2022-06-25T16:43+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -62,83 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.18.7 release.
-There are 11 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Willy Tarreau <w@1wt.eu>
 
-Responses should be made by Sat, 25 Jun 2022 16:43:11 +0000.
-Anything received after that time might be too late.
+commit 4c2c8f03a5ab7cb04ec64724d7d176d00bcc91e5 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.7-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
-and the diffstat can be found below.
+Moshe Kol, Amit Klein, and Yossi Gilad reported being able to accurately
+identify a client by forcing it to emit only 40 times more connections
+than there are entries in the table_perturb[] table. The previous two
+improvements consisting in resalting the secret every 10s and adding
+randomness to each port selection only slightly improved the situation,
+and the current value of 2^8 was too small as it's not very difficult
+to make a client emit 10k connections in less than 10 seconds.
 
-thanks,
+Thus we're increasing the perturb table from 2^8 to 2^16 so that the
+same precision now requires 2.6M connections, which is more difficult in
+this time frame and harder to hide as a background activity. The impact
+is that the table now uses 256 kB instead of 1 kB, which could mostly
+affect devices making frequent outgoing connections. However such
+components usually target a small set of destinations (load balancers,
+database clients, perf assessment tools), and in practice only a few
+entries will be visited, like before.
 
-greg k-h
+A live test at 1 million connections per second showed no performance
+difference from the previous value.
 
--------------
-Pseudo-Shortlog of commits:
+Reported-by: Moshe Kol <moshe.kol@mail.huji.ac.il>
+Reported-by: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ net/ipv4/inet_hashtables.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.18.7-rc1
-
-Sean Anderson <sean.anderson@seco.com>
-    dt-bindings: nvmem: sfp: Add clock properties
-
-Toke Høiland-Jørgensen <toke@redhat.com>
-    selftests/bpf: Add selftest for calling global functions from freplace
-
-Toke Høiland-Jørgensen <toke@redhat.com>
-    bpf: Fix calling global functions from BPF_PROG_TYPE_EXT programs
-
-Amir Goldstein <amir73il@gmail.com>
-    fsnotify: consistent behavior for parent not watching children
-
-Amir Goldstein <amir73il@gmail.com>
-    fsnotify: introduce mark type iterator
-
-Kees Cook <keescook@chromium.org>
-    x86/boot: Wrap literal addresses in absolute_pointer()
-
-Jakub Kicinski <kuba@kernel.org>
-    net: wwan: iosm: remove pointless null check
-
-Martin Liška <mliska@suse.cz>
-    eth: sun: cassini: remove dead code
-
-Jakub Kicinski <kuba@kernel.org>
-    wifi: rtlwifi: remove always-true condition pointed out by GCC 12
-
-Damien Le Moal <damien.lemoal@opensource.wdc.com>
-    zonefs: fix zonefs_iomap_begin() for reads
-
-Christian Borntraeger <borntraeger@linux.ibm.com>
-    s390/mm: use non-quiescing sske for KVM switch to keyed guest
-
-
--------------
-
-Diffstat:
-
- .../bindings/nvmem/fsl,layerscape-sfp.yaml         | 14 ++++
- Makefile                                           |  4 +-
- arch/s390/mm/pgtable.c                             |  2 +-
- arch/x86/boot/boot.h                               | 36 ++++++---
- arch/x86/boot/main.c                               |  2 +-
- drivers/net/ethernet/sun/cassini.c                 |  4 +-
- .../net/wireless/realtek/rtlwifi/rtl8192de/phy.c   |  5 +-
- drivers/net/wwan/iosm/iosm_ipc_protocol_ops.c      | 10 ---
- fs/notify/fanotify/fanotify.c                      | 24 ++----
- fs/notify/fsnotify.c                               | 85 +++++++++----------
- fs/zonefs/super.c                                  | 94 +++++++++++++++-------
- include/linux/fsnotify_backend.h                   | 31 +++++--
- kernel/bpf/btf.c                                   |  4 +-
- .../selftests/bpf/prog_tests/fexit_bpf2bpf.c       | 14 ++++
- .../selftests/bpf/progs/freplace_global_func.c     | 18 +++++
- 15 files changed, 216 insertions(+), 131 deletions(-)
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -675,11 +675,12 @@ EXPORT_SYMBOL_GPL(inet_unhash);
+  * Note that we use 32bit integers (vs RFC 'short integers')
+  * because 2^16 is not a multiple of num_ephemeral and this
+  * property might be used by clever attacker.
+- * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
+- * we use 256 instead to really give more isolation and
+- * privacy, this only consumes 1 KB of kernel memory.
++ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
++ * attacks were since demonstrated, thus we use 65536 instead to really
++ * give more isolation and privacy, at the expense of 256kB of kernel
++ * memory.
+  */
+-#define INET_TABLE_PERTURB_SHIFT 8
++#define INET_TABLE_PERTURB_SHIFT 16
+ #define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
+ static u32 *table_perturb;
+ 
 
 
