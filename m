@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6E45580A2
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E7AB558300
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232195AbiFWQwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:52:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55362 "EHLO
+        id S233375AbiFWRXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:23:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233827AbiFWQvm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:42 -0400
+        with ESMTP id S234106AbiFWRXJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:23:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7898726E;
-        Thu, 23 Jun 2022 09:50:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA8E62BE9;
+        Thu, 23 Jun 2022 10:01:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 116AF61FBF;
-        Thu, 23 Jun 2022 16:50:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9ED5C3411B;
-        Thu, 23 Jun 2022 16:50:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4E786159A;
+        Thu, 23 Jun 2022 17:01:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B52DC3411B;
+        Thu, 23 Jun 2022 17:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003003;
-        bh=h1bjvM96JzGywRTAxnqE/UXeEAEJfaDbTKnjk3kRPJ0=;
+        s=korg; t=1656003691;
+        bh=2XrBjZ9r1JiQmbgW7MJXyVhxs+2lGIZGcEAZKhkzzC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yja2CzhTi1Ug9+TDKE9xu2d/hsQjSW/eeShNIvpQVFW6Nil6qROxh4aCNh3cxFsEP
-         zqGhIX6WJ+qx4R43HrB3yz6RBUdyqOvEgKT367z4NZKKCy3EPaR5Nwgjglv/c9V/fi
-         ZFJWqA2DSN87UUzMMYPgRHfiswLktRzaiaHCu4nk=
+        b=E/mJJXNvasuv+63r6y8QXcIiNl8JfSgwgU/5K52aMBDFyY08uH1MVrKMFgtzTLTq2
+         NQOqh8Ml4iKcXQpBlJzov6kxlcrJSLZkURFgK0CSrLP2qo0gWE0M/hnm8tktB37QQI
+         ad+u7Fpjfm9btKKBV4ZgEmq0mIb6wJuDs2WoKO2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 098/264] random: remove unused extract_entropy() reserved argument
+Subject: [PATCH 4.14 057/237] crypto: blake2s - include <linux/bug.h> instead of <asm/bug.h>
 Date:   Thu, 23 Jun 2022 18:41:31 +0200
-Message-Id: <20220623164346.844388258@linuxfoundation.org>
+Message-Id: <20220623164344.798449731@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 8b2d953b91e7f60200c24067ab17b77cc7bfd0d4 upstream.
+commit bbda6e0f1303953c855ee3669655a81b69fbe899 upstream.
 
-This argument is always set to zero, as a result of us not caring about
-keeping a certain amount reserved in the pool these days. So just remove
-it and cleanup the function signatures.
+Address the following checkpatch warning:
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+	WARNING: Use #include <linux/bug.h> instead of <asm/bug.h>
+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ include/crypto/blake2s.h |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -520,7 +520,7 @@ struct entropy_store {
- };
+--- a/include/crypto/blake2s.h
++++ b/include/crypto/blake2s.h
+@@ -6,12 +6,11 @@
+ #ifndef BLAKE2S_H
+ #define BLAKE2S_H
  
- static ssize_t extract_entropy(struct entropy_store *r, void *buf,
--			       size_t nbytes, int min, int rsvd);
-+			       size_t nbytes, int min);
- static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
- 				size_t nbytes);
++#include <linux/bug.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/string.h>
  
-@@ -1040,7 +1040,7 @@ static void crng_reseed(struct crng_stat
- 	} buf;
- 
- 	if (r) {
--		num = extract_entropy(r, &buf, 32, 16, 0);
-+		num = extract_entropy(r, &buf, 32, 16);
- 		if (num == 0)
- 			return;
- 	} else {
-@@ -1378,8 +1378,7 @@ EXPORT_SYMBOL_GPL(add_disk_randomness);
-  * This function decides how many bytes to actually take from the
-  * given pool, and also debits the entropy count accordingly.
-  */
--static size_t account(struct entropy_store *r, size_t nbytes, int min,
--		      int reserved)
-+static size_t account(struct entropy_store *r, size_t nbytes, int min)
- {
- 	int entropy_count, orig, have_bytes;
- 	size_t ibytes, nfrac;
-@@ -1393,7 +1392,7 @@ retry:
- 	/* never pull more than available */
- 	have_bytes = entropy_count >> (ENTROPY_SHIFT + 3);
- 
--	if ((have_bytes -= reserved) < 0)
-+	if (have_bytes < 0)
- 		have_bytes = 0;
- 	ibytes = min_t(size_t, ibytes, have_bytes);
- 	if (ibytes < min)
-@@ -1499,15 +1498,13 @@ static ssize_t _extract_entropy(struct e
-  * returns it in a buffer.
-  *
-  * The min parameter specifies the minimum amount we can pull before
-- * failing to avoid races that defeat catastrophic reseeding while the
-- * reserved parameter indicates how much entropy we must leave in the
-- * pool after each pull to avoid starving other readers.
-+ * failing to avoid races that defeat catastrophic reseeding.
-  */
- static ssize_t extract_entropy(struct entropy_store *r, void *buf,
--				 size_t nbytes, int min, int reserved)
-+				 size_t nbytes, int min)
- {
- 	trace_extract_entropy(r->name, nbytes, ENTROPY_BITS(r), _RET_IP_);
--	nbytes = account(r, nbytes, min, reserved);
-+	nbytes = account(r, nbytes, min);
- 	return _extract_entropy(r, buf, nbytes);
- }
- 
+-#include <asm/bug.h>
+-
+ enum blake2s_lengths {
+ 	BLAKE2S_BLOCK_SIZE = 64,
+ 	BLAKE2S_HASH_SIZE = 32,
 
 
