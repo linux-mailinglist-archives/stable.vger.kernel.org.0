@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AAD4558267
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:14:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A37A55848A
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231860AbiFWRN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:13:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39106 "EHLO
+        id S234886AbiFWRoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:44:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233672AbiFWRNL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:13:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695AC56C1C;
-        Thu, 23 Jun 2022 09:59:00 -0700 (PDT)
+        with ESMTP id S234464AbiFWRnZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:43:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 597F19DB4C;
+        Thu, 23 Jun 2022 10:10:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E58C3B82497;
-        Thu, 23 Jun 2022 16:58:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26EEFC341C4;
-        Thu, 23 Jun 2022 16:58:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 605B86159A;
+        Thu, 23 Jun 2022 17:10:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A0E2C341C5;
+        Thu, 23 Jun 2022 17:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003537;
-        bh=zfff5ktFp8q2F8hrwm3GB33/6mYISFpaDC+KkmOGjT0=;
+        s=korg; t=1656004230;
+        bh=g6RPFNnXsdV85kFmcYKtt5mXLQp2jNb1ecT/eusiiIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W7jx6+0GerpMrRo3JRuPeZPuZ1PrIXBIFbXQSmVs1i1TNHClAsA1pBqt3TFPuj8FK
-         1U2CfgxKOaEXNJhhyijzLfS0T56WUS1NFaQMILwRplElIHTzEseg4ss10eFpFbLRwD
-         9B8lu2jifxFGhTrtfLgxeOAN0QvGXcQcsDkc5apo=
+        b=N5H3+qF+Z0qKbw1c+ryPbINm9dcDf0LBuEowien2AUfxyeP0PcCM3wc4oSPrOoE4O
+         Uxw8e7+9rBNHok1n3OYpEHqnlYI81zZI56rfSSMMrwz3cuumsSLEfJRAFdeRo7EmX1
+         81ctNz2iLW/1cn/e2owf08o0PXfR51IhpMmDR8d0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 264/264] tcp: drop the hash_32() part from the index calculation
+        stable@vger.kernel.org, stable@kernel.org,
+        Hulk Robot <hulkci@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 223/237] ext4: fix bug_on ext4_mb_use_inode_pa
 Date:   Thu, 23 Jun 2022 18:44:17 +0200
-Message-Id: <20220623164351.531874591@linuxfoundation.org>
+Message-Id: <20220623164349.565425261@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +56,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit e8161345ddbb66e449abde10d2fdce93f867eba9 upstream.
+commit a08f789d2ab5242c07e716baf9a835725046be89 upstream.
 
-In commit 190cc82489f4 ("tcp: change source port randomizarion at
-connect() time"), the table_perturb[] array was introduced and an
-index was taken from the port_offset via hash_32(). But it turns
-out that hash_32() performs a multiplication while the input here
-comes from the output of SipHash in secure_seq, that is well
-distributed enough to avoid the need for yet another hash.
+Hulk Robot reported a BUG_ON:
+==================================================================
+kernel BUG at fs/ext4/mballoc.c:3211!
+[...]
+RIP: 0010:ext4_mb_mark_diskspace_used.cold+0x85/0x136f
+[...]
+Call Trace:
+ ext4_mb_new_blocks+0x9df/0x5d30
+ ext4_ext_map_blocks+0x1803/0x4d80
+ ext4_map_blocks+0x3a4/0x1a10
+ ext4_writepages+0x126d/0x2c30
+ do_writepages+0x7f/0x1b0
+ __filemap_fdatawrite_range+0x285/0x3b0
+ file_write_and_wait_range+0xb1/0x140
+ ext4_sync_file+0x1aa/0xca0
+ vfs_fsync_range+0xfb/0x260
+ do_fsync+0x48/0xa0
+[...]
+==================================================================
 
-Suggested-by: Amit Klein <aksecurity@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Above issue may happen as follows:
+-------------------------------------
+do_fsync
+ vfs_fsync_range
+  ext4_sync_file
+   file_write_and_wait_range
+    __filemap_fdatawrite_range
+     do_writepages
+      ext4_writepages
+       mpage_map_and_submit_extent
+        mpage_map_one_extent
+         ext4_map_blocks
+          ext4_mb_new_blocks
+           ext4_mb_normalize_request
+            >>> start + size <= ac->ac_o_ex.fe_logical
+           ext4_mb_regular_allocator
+            ext4_mb_simple_scan_group
+             ext4_mb_use_best_found
+              ext4_mb_new_preallocation
+               ext4_mb_new_inode_pa
+                ext4_mb_use_inode_pa
+                 >>> set ac->ac_b_ex.fe_len <= 0
+           ext4_mb_mark_diskspace_used
+            >>> BUG_ON(ac->ac_b_ex.fe_len <= 0);
+
+we can easily reproduce this problem with the following commands:
+	`fallocate -l100M disk`
+	`mkfs.ext4 -b 1024 -g 256 disk`
+	`mount disk /mnt`
+	`fsstress -d /mnt -l 0 -n 1000 -p 1`
+
+The size must be smaller than or equal to EXT4_BLOCKS_PER_GROUP.
+Therefore, "start + size <= ac->ac_o_ex.fe_logical" may occur
+when the size is truncated. So start should be the start position of
+the group where ac_o_ex.fe_logical is located after alignment.
+In addition, when the value of fe_logical or EXT4_BLOCKS_PER_GROUP
+is very large, the value calculated by start_off is more accurate.
+
+Cc: stable@kernel.org
+Fixes: cd648b8a8fd5 ("ext4: trim allocation requests to group size")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220528110017.354175-2-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/inet_hashtables.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/mballoc.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -590,7 +590,7 @@ int __inet_hash_connect(struct inet_time
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -3197,6 +3197,15 @@ ext4_mb_normalize_request(struct ext4_al
+ 	size = size >> bsbits;
+ 	start = start_off >> bsbits;
  
- 	net_get_random_once(table_perturb,
- 			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
--	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
-+	index = port_offset & (INET_TABLE_PERTURB_SIZE - 1);
- 
- 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
- 	offset %= remaining;
++	/*
++	 * For tiny groups (smaller than 8MB) the chosen allocation
++	 * alignment may be larger than group size. Make sure the
++	 * alignment does not move allocation to a different group which
++	 * makes mballoc fail assertions later.
++	 */
++	start = max(start, rounddown(ac->ac_o_ex.fe_logical,
++			(ext4_lblk_t)EXT4_BLOCKS_PER_GROUP(ac->ac_sb)));
++
+ 	/* don't cover already allocated blocks in selected range */
+ 	if (ar->pleft && start <= ar->lleft) {
+ 		size -= ar->lleft + 1 - start;
 
 
