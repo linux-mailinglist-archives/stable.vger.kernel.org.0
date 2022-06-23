@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D6AF5584B5
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C86F5584B8
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230362AbiFWRrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:47:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54030 "EHLO
+        id S232659AbiFWRrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:47:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232598AbiFWRpm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:45:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842009F0DF;
-        Thu, 23 Jun 2022 10:10:49 -0700 (PDT)
+        with ESMTP id S235095AbiFWRqJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:46:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A64489F0F6;
+        Thu, 23 Jun 2022 10:10:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE12761D53;
-        Thu, 23 Jun 2022 17:10:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 829FDC341C4;
-        Thu, 23 Jun 2022 17:10:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 333BFB82499;
+        Thu, 23 Jun 2022 17:10:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A365FC341C6;
+        Thu, 23 Jun 2022 17:10:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004243;
-        bh=5pcQ+N/VNU+McFAAEGqtasN6rpA6IhKZLV3wiEulpY0=;
+        s=korg; t=1656004246;
+        bh=Z/ixOgQjD+3S0YoKvf5MCCfWQouGCA3g3VriVffsyEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1yd0izJjiNXYT+uOHit1sPjm3TTZ/cfG5r6CbDeJoDytW5SIOCMPw4yRXFAfxliPw
-         BNIFoVy9XUeN96M64gQsyZnNLngXg7qsBqcI+ZY5/HnFPxYa3keJkOflkmHV3REOXa
-         cXpx5eIkgsE573maqpN7kZVYsf89boMaWGHj/xn8=
+        b=kMBPyROp0XX+FGlCkMo+rLHcPD+Psov3+GMrt4BRg8yXEAWe40ZbxFadHKd90n+90
+         Nl7pQ/I0zl+MmXohBsIlChSdDM2dQLcNOy24cwzqOnDibiNamXfWjOydwsauUubGWw
+         Yw+nys93cSMF07GC4Wk+KlVVH+0ECuY77cXtibAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
         Jakub Kicinski <kuba@kernel.org>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.14 235/237] tcp: dynamically allocate the perturb table used by source ports
-Date:   Thu, 23 Jun 2022 18:44:29 +0200
-Message-Id: <20220623164349.914909290@linuxfoundation.org>
+Subject: [PATCH 4.14 236/237] tcp: increase source port perturb table to 2^16
+Date:   Thu, 23 Jun 2022 18:44:30 +0200
+Message-Id: <20220623164349.944608328@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
 References: <20220623164343.132308638@linuxfoundation.org>
@@ -59,66 +59,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Willy Tarreau <w@1wt.eu>
 
-commit e9261476184be1abd486c9434164b2acbe0ed6c2 upstream.
+commit 4c2c8f03a5ab7cb04ec64724d7d176d00bcc91e5 upstream.
 
-We'll need to further increase the size of this table and it's likely
-that at some point its size will not be suitable anymore for a static
-table. Let's allocate it on boot from inet_hashinfo2_init(), which is
-called from tcp_init().
+Moshe Kol, Amit Klein, and Yossi Gilad reported being able to accurately
+identify a client by forcing it to emit only 40 times more connections
+than there are entries in the table_perturb[] table. The previous two
+improvements consisting in resalting the secret every 10s and adding
+randomness to each port selection only slightly improved the situation,
+and the current value of 2^8 was too small as it's not very difficult
+to make a client emit 10k connections in less than 10 seconds.
 
-Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
-Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
-Cc: Amit Klein <aksecurity@gmail.com>
+Thus we're increasing the perturb table from 2^8 to 2^16 so that the
+same precision now requires 2.6M connections, which is more difficult in
+this time frame and harder to hide as a background activity. The impact
+is that the table now uses 256 kB instead of 1 kB, which could mostly
+affect devices making frequent outgoing connections. However such
+components usually target a small set of destinations (load balancers,
+database clients, perf assessment tools), and in practice only a few
+entries will be visited, like before.
+
+A live test at 1 million connections per second showed no performance
+difference from the previous value.
+
+Reported-by: Moshe Kol <moshe.kol@mail.huji.ac.il>
+Reported-by: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
+Reported-by: Amit Klein <aksecurity@gmail.com>
 Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: Willy Tarreau <w@1wt.eu>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[bwh: Backported to 4.14:
- - There is no inet_hashinfo2_init(), so allocate the table in
-   inet_hashinfo_init() when called by TCP
- - Adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/inet_hashtables.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ net/ipv4/inet_hashtables.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
 --- a/net/ipv4/inet_hashtables.c
 +++ b/net/ipv4/inet_hashtables.c
-@@ -596,7 +596,8 @@ EXPORT_SYMBOL_GPL(inet_unhash);
-  * privacy, this only consumes 1 KB of kernel memory.
+@@ -591,11 +591,12 @@ EXPORT_SYMBOL_GPL(inet_unhash);
+  * Note that we use 32bit integers (vs RFC 'short integers')
+  * because 2^16 is not a multiple of num_ephemeral and this
+  * property might be used by clever attacker.
+- * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
+- * we use 256 instead to really give more isolation and
+- * privacy, this only consumes 1 KB of kernel memory.
++ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
++ * attacks were since demonstrated, thus we use 65536 instead to really
++ * give more isolation and privacy, at the expense of 256kB of kernel
++ * memory.
   */
- #define INET_TABLE_PERTURB_SHIFT 8
--static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
-+#define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
-+static u32 *table_perturb;
- 
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 		struct sock *sk, u64 port_offset,
-@@ -636,7 +637,8 @@ int __inet_hash_connect(struct inet_time
- 	if (likely(remaining > 1))
- 		remaining &= ~1U;
- 
--	net_get_random_once(table_perturb, sizeof(table_perturb));
-+	net_get_random_once(table_perturb,
-+			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
- 	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
- 
- 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
-@@ -741,6 +743,15 @@ void inet_hashinfo_init(struct inet_hash
- 		INIT_HLIST_NULLS_HEAD(&h->listening_hash[i].nulls_head,
- 				      i + LISTENING_NULLS_BASE);
- 	}
-+
-+	if (h != &tcp_hashinfo)
-+		return;
-+
-+	/* this one is used for source ports of outgoing connections */
-+	table_perturb = kmalloc_array(INET_TABLE_PERTURB_SIZE,
-+				      sizeof(*table_perturb), GFP_KERNEL);
-+	if (!table_perturb)
-+		panic("TCP: failed to alloc table_perturb");
- }
- EXPORT_SYMBOL_GPL(inet_hashinfo_init);
+-#define INET_TABLE_PERTURB_SHIFT 8
++#define INET_TABLE_PERTURB_SHIFT 16
+ #define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
+ static u32 *table_perturb;
  
 
 
