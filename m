@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D66BB5586F6
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:18:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E70A5586F7
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:18:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236843AbiFWSSx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:18:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47434 "EHLO
+        id S236845AbiFWSSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:18:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237064AbiFWSRn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:17:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83067647B4;
-        Thu, 23 Jun 2022 10:24:04 -0700 (PDT)
+        with ESMTP id S237089AbiFWSRs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:17:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6465490F94;
+        Thu, 23 Jun 2022 10:24:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4B4EB82497;
-        Thu, 23 Jun 2022 17:24:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50821C3411B;
-        Thu, 23 Jun 2022 17:24:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B606961ED3;
+        Thu, 23 Jun 2022 17:24:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A315C3411B;
+        Thu, 23 Jun 2022 17:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656005041;
-        bh=vmkhwuKTuuFh4wvOQ1WNX6rSG0WLPtaP5giT/pJ5GyQ=;
+        s=korg; t=1656005045;
+        bh=swF7sbNxpW28GN6oVd41lbO80ioP3K/tLDQUL7wUsfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUEBMJ5MaVQryb/abuSPhzXCe81n9ku8FKKdCC7yO+Lg0k103ZW1yU51/mfnXsYIw
-         CCkM5OJC+1iVfYH2pW0kpOtY3B23iNR/Qquv2hxw8wbvAmf5gdupgCr7OJ2srJfzKt
-         fq9w1cpqmrk6/SEqko4sOdygtnW2zw38O7bXD8sg=
+        b=yWNEsKLQS5R5uk6RL0I/jKhKPr+5zuCMyVDsWblpOXtT7ndGtbSafp578JhBbl5/N
+         ai/z4v/diqtN9j2dhP4xc5Hj0ipTJ0i6D2OilRBKq5j3UmAJt6hhrDJ4sVkNGZLe7C
+         /2th8kajB9h4UQVR81mlgmGsalAKxcN4QLIumdgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Kol <moshe.kol@mail.huji.ac.il>,
-        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
-        Amit Klein <aksecurity@gmail.com>,
+        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
         Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
         Jakub Kicinski <kuba@kernel.org>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.19 232/234] tcp: increase source port perturb table to 2^16
-Date:   Thu, 23 Jun 2022 18:44:59 +0200
-Message-Id: <20220623164349.615461075@linuxfoundation.org>
+Subject: [PATCH 4.19 233/234] tcp: drop the hash_32() part from the index calculation
+Date:   Thu, 23 Jun 2022 18:45:00 +0200
+Message-Id: <20220623164349.643899717@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -59,58 +57,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Willy Tarreau <w@1wt.eu>
 
-commit 4c2c8f03a5ab7cb04ec64724d7d176d00bcc91e5 upstream.
+commit e8161345ddbb66e449abde10d2fdce93f867eba9 upstream.
 
-Moshe Kol, Amit Klein, and Yossi Gilad reported being able to accurately
-identify a client by forcing it to emit only 40 times more connections
-than there are entries in the table_perturb[] table. The previous two
-improvements consisting in resalting the secret every 10s and adding
-randomness to each port selection only slightly improved the situation,
-and the current value of 2^8 was too small as it's not very difficult
-to make a client emit 10k connections in less than 10 seconds.
+In commit 190cc82489f4 ("tcp: change source port randomizarion at
+connect() time"), the table_perturb[] array was introduced and an
+index was taken from the port_offset via hash_32(). But it turns
+out that hash_32() performs a multiplication while the input here
+comes from the output of SipHash in secure_seq, that is well
+distributed enough to avoid the need for yet another hash.
 
-Thus we're increasing the perturb table from 2^8 to 2^16 so that the
-same precision now requires 2.6M connections, which is more difficult in
-this time frame and harder to hide as a background activity. The impact
-is that the table now uses 256 kB instead of 1 kB, which could mostly
-affect devices making frequent outgoing connections. However such
-components usually target a small set of destinations (load balancers,
-database clients, perf assessment tools), and in practice only a few
-entries will be visited, like before.
-
-A live test at 1 million connections per second showed no performance
-difference from the previous value.
-
-Reported-by: Moshe Kol <moshe.kol@mail.huji.ac.il>
-Reported-by: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
-Reported-by: Amit Klein <aksecurity@gmail.com>
+Suggested-by: Amit Klein <aksecurity@gmail.com>
 Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: Willy Tarreau <w@1wt.eu>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/inet_hashtables.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ net/ipv4/inet_hashtables.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/net/ipv4/inet_hashtables.c
 +++ b/net/ipv4/inet_hashtables.c
-@@ -718,11 +718,12 @@ EXPORT_SYMBOL_GPL(inet_unhash);
-  * Note that we use 32bit integers (vs RFC 'short integers')
-  * because 2^16 is not a multiple of num_ephemeral and this
-  * property might be used by clever attacker.
-- * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
-- * we use 256 instead to really give more isolation and
-- * privacy, this only consumes 1 KB of kernel memory.
-+ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
-+ * attacks were since demonstrated, thus we use 65536 instead to really
-+ * give more isolation and privacy, at the expense of 256kB of kernel
-+ * memory.
-  */
--#define INET_TABLE_PERTURB_SHIFT 8
-+#define INET_TABLE_PERTURB_SHIFT 16
- #define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
- static u32 *table_perturb;
+@@ -767,7 +767,7 @@ int __inet_hash_connect(struct inet_time
  
+ 	net_get_random_once(table_perturb,
+ 			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
+-	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
++	index = port_offset & (INET_TABLE_PERTURB_SIZE - 1);
+ 
+ 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
+ 	offset %= remaining;
 
 
