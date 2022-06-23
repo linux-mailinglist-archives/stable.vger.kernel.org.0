@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31A8C5580B9
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 503DB55836C
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232262AbiFWQxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:53:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52666 "EHLO
+        id S233886AbiFWR3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:29:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233809AbiFWQvl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59F7150B16;
-        Thu, 23 Jun 2022 09:49:45 -0700 (PDT)
+        with ESMTP id S233987AbiFWR1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:27:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF4D41C135;
+        Thu, 23 Jun 2022 10:03:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 508DA61FC6;
-        Thu, 23 Jun 2022 16:49:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23624C3411B;
-        Thu, 23 Jun 2022 16:49:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E99CF61573;
+        Thu, 23 Jun 2022 17:03:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C50AEC3411B;
+        Thu, 23 Jun 2022 17:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002984;
-        bh=Z4NgkESxWxdWTbCmzVLX7Yj+ImAw80bZlglCyZrpjkE=;
+        s=korg; t=1656003791;
+        bh=qphTwdliIn8w9lKPm/HwNo5p+1kw3P0H8jVb9mzhi/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1JOKxRa4nNKrCKw9awPRfaQ0Tg/inTROjsh2CJs1hos0tRKfQ5Skx+8OUxhLlK9GB
-         cPqui3csrZz7ZKMSgyzUhWKX25hlNW3KG+BbBgj7/pmR2JVhvSYCcMiN19pR8F+dix
-         YxsCjIkxJ2m72ZwQxkN5t8OhnQ8yCwZPxyqSG5Oo=
+        b=PIjV1ESZ1wcWsub0TvIO3SiL6skCUK94hguyFtkWR/fOOZbjTqV/DZ8qgad9re8RX
+         +hHKiryK9whJxQ0wa/YyuUq+R1yAD1NFggWkn5XMxr/r6FWRZkQDfYcoJ1H5wQOUf8
+         nMjANGPsJH4lXXSKR96ibSXTOxqJXgDSqwfEfYEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Richard Henderson <rth@twiddle.net>,
+        Mark Brown <broonie@kernel.org>, Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 092/264] random: dont reset crng_init_cnt on urandom_read()
+Subject: [PATCH 4.14 051/237] linux/random.h: Mark CONFIG_ARCH_RANDOM functions __must_check
 Date:   Thu, 23 Jun 2022 18:41:25 +0200
-Message-Id: <20220623164346.675535475@linuxfoundation.org>
+Message-Id: <20220623164344.621630813@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Richard Henderson <richard.henderson@linaro.org>
 
-commit 6c8e11e08a5b74bb8a5cdd5cbc1e5143df0fba72 upstream.
+commit 904caa6413c87aacbf7d0682da617c39ca18cf1a upstream.
 
-At the moment, urandom_read() (used for /dev/urandom) resets crng_init_cnt
-to zero when it is called at crng_init<2. This is inconsistent: We do it
-for /dev/urandom reads, but not for the equivalent
-getrandom(GRND_INSECURE).
+We must not use the pointer output without validating the
+success of the random read.
 
-(And worse, as Jason pointed out, we're only doing this as long as
-maxwarn>0.)
-
-crng_init_cnt is only read in crng_fast_load(); it is relevant at
-crng_init==0 for determining when to switch to crng_init==1 (and where in
-the RNG state array to write).
-
-As far as I understand:
-
- - crng_init==0 means "we have nothing, we might just be returning the same
-   exact numbers on every boot on every machine, we don't even have
-   non-cryptographic randomness; we should shove every bit of entropy we
-   can get into the RNG immediately"
- - crng_init==1 means "well we have something, it might not be
-   cryptographic, but at least we're not gonna return the same data every
-   time or whatever, it's probably good enough for TCP and ASLR and stuff;
-   we now have time to build up actual cryptographic entropy in the input
-   pool"
- - crng_init==2 means "this is supposed to be cryptographically secure now,
-   but we'll keep adding more entropy just to be sure".
-
-The current code means that if someone is pulling data from /dev/urandom
-fast enough at crng_init==0, we'll keep resetting crng_init_cnt, and we'll
-never make forward progress to crng_init==1. It seems to be intended to
-prevent an attacker from bruteforcing the contents of small individual RNG
-inputs on the way from crng_init==0 to crng_init==1, but that's misguided;
-crng_init==1 isn't supposed to provide proper cryptographic security
-anyway, RNG users who care about getting secure RNG output have to wait
-until crng_init==2.
-
-This code was inconsistent, and it probably made things worse - just get
-rid of it.
-
-Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Richard Henderson <rth@twiddle.net>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20200110145422.49141-7-broonie@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    4 ----
- 1 file changed, 4 deletions(-)
+ include/linux/random.h |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1821,7 +1821,6 @@ urandom_read_nowarn(struct file *file, c
- static ssize_t
- urandom_read(struct file *file, char __user *buf, size_t nbytes, loff_t *ppos)
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -118,19 +118,19 @@ unsigned long randomize_page(unsigned lo
+ #ifdef CONFIG_ARCH_RANDOM
+ # include <asm/archrandom.h>
+ #else
+-static inline bool arch_get_random_long(unsigned long *v)
++static inline bool __must_check arch_get_random_long(unsigned long *v)
  {
--	unsigned long flags;
- 	static int maxwarn = 10;
- 
- 	if (!crng_ready() && maxwarn > 0) {
-@@ -1829,9 +1828,6 @@ urandom_read(struct file *file, char __u
- 		if (__ratelimit(&urandom_warning))
- 			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
- 				  current->comm, nbytes);
--		spin_lock_irqsave(&primary_crng.lock, flags);
--		crng_init_cnt = 0;
--		spin_unlock_irqrestore(&primary_crng.lock, flags);
- 	}
- 
- 	return urandom_read_nowarn(file, buf, nbytes, ppos);
+ 	return false;
+ }
+-static inline bool arch_get_random_int(unsigned int *v)
++static inline bool __must_check arch_get_random_int(unsigned int *v)
+ {
+ 	return false;
+ }
+-static inline bool arch_get_random_seed_long(unsigned long *v)
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ {
+ 	return false;
+ }
+-static inline bool arch_get_random_seed_int(unsigned int *v)
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ {
+ 	return false;
+ }
 
 
