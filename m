@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 241FB558031
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EE3B55802F
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:46:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232422AbiFWQp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:45:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46738 "EHLO
+        id S232433AbiFWQqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:46:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232420AbiFWQp5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:45:57 -0400
+        with ESMTP id S232427AbiFWQp6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:45:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5560748E44;
-        Thu, 23 Jun 2022 09:45:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B0348899;
+        Thu, 23 Jun 2022 09:45:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E055C61F91;
-        Thu, 23 Jun 2022 16:45:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3D6BC3411B;
-        Thu, 23 Jun 2022 16:45:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D219761F90;
+        Thu, 23 Jun 2022 16:45:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADA81C3411B;
+        Thu, 23 Jun 2022 16:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002754;
-        bh=yQX9uP7Qi3xmNcgIDslJRU/lmTA01+Fbl3y0OPRwIJ0=;
+        s=korg; t=1656002757;
+        bh=rIewcPyjRIULRKFTtZUPDNO+kpZQNF51NvXoc5nbINs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fTF91/B6anuKOUi0t7lVdw1UYhjzCOOGNyxUiYt6yXsaqfcEaTlIO/1pmNyNXdYhl
-         rZlKpV+Xdv1MUggz3Qq3sJutIBteNpd0tEMSx8GU7rP/VC0YndxzhrPmdK1dnY8R+b
-         D3KXJgC4keGUh92XzYclmkeUvOKnyJpu4MMOCqoI=
+        b=LtmsMyg/sGGzPtcAG2jNViwJYZOQik8eLy6uFFbafjdVlcgwwEbhVtuT6snFEjJDy
+         dY93iTQfoIJwv6O7cNS4/KcfqK7+PxO3HmosT0PYMSav+/1pb5Lx8A56jRxz7WvUE0
+         mlQH3p1NPdrYHduNutwGA5HxKD4UeC52Zp+HyfG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 015/264] random: reorder READ_ONCE() in get_random_uXX
-Date:   Thu, 23 Jun 2022 18:40:08 +0200
-Message-Id: <20220623164344.496193971@linuxfoundation.org>
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Helge Deller <deller@gmx.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 016/264] random: fix warning message on ia64 and parisc
+Date:   Thu, 23 Jun 2022 18:40:09 +0200
+Message-Id: <20220623164344.523992651@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
 References: <20220623164344.053938039@linuxfoundation.org>
@@ -54,58 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Helge Deller <deller@gmx.de>
 
-commit 72e5c740f6335e27253b8ff64d23d00337091535 upstream.
+commit 51d96dc2e2dc2cf9b81cf976cc93c51ba3ac2f92 upstream.
 
-Avoid the READ_ONCE in commit 4a072c71f49b ("random: silence compiler
-warnings and fix race") if we can leave the function after
-arch_get_random_XXX().
+Fix the warning message on the parisc and IA64 architectures to show the
+correct function name of the caller by using %pS instead of %pF. The
+message is printed with the value of _RET_IP_ which calls
+__builtin_return_address(0) and as such returns the IP address caller
+instead of pointer to a function descriptor of the caller.
 
+The effect of this patch is visible on the parisc and ia64 architectures
+only since those are the ones which use function descriptors while on
+all others %pS and %pF will behave the same.
+
+Cc: Theodore Ts'o <tytso@mit.edu>
 Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: eecabf567422 ("random: suppress spammy warnings about unseeded randomness")
+Fixes: d06bfd1989fe ("random: warn when kernel uses unseeded randomness")
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -2161,7 +2161,7 @@ static DEFINE_PER_CPU(struct batched_ent
- u64 get_random_u64(void)
- {
- 	u64 ret;
--	bool use_lock = READ_ONCE(crng_init) < 2;
-+	bool use_lock;
- 	unsigned long flags = 0;
- 	struct batched_entropy *batch;
- 	static void *previous;
-@@ -2177,6 +2177,7 @@ u64 get_random_u64(void)
+@@ -1556,7 +1556,7 @@ static void _warn_unseeded_randomness(co
+ #ifndef CONFIG_WARN_ALL_UNSEEDED_RANDOM
+ 	print_once = true;
+ #endif
+-	pr_notice("random: %s called from %pF with crng_init=%d\n",
++	pr_notice("random: %s called from %pS with crng_init=%d\n",
+ 		  func_name, caller, crng_init);
+ }
  
- 	warn_unseeded_randomness(&previous);
- 
-+	use_lock = READ_ONCE(crng_init) < 2;
- 	batch = &get_cpu_var(batched_entropy_u64);
- 	if (use_lock)
- 		read_lock_irqsave(&batched_entropy_reset_lock, flags);
-@@ -2196,7 +2197,7 @@ static DEFINE_PER_CPU(struct batched_ent
- u32 get_random_u32(void)
- {
- 	u32 ret;
--	bool use_lock = READ_ONCE(crng_init) < 2;
-+	bool use_lock;
- 	unsigned long flags = 0;
- 	struct batched_entropy *batch;
- 	static void *previous;
-@@ -2206,6 +2207,7 @@ u32 get_random_u32(void)
- 
- 	warn_unseeded_randomness(&previous);
- 
-+	use_lock = READ_ONCE(crng_init) < 2;
- 	batch = &get_cpu_var(batched_entropy_u32);
- 	if (use_lock)
- 		read_lock_irqsave(&batched_entropy_reset_lock, flags);
 
 
