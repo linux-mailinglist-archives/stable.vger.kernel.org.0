@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 970B05583B3
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30385581EC
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234147AbiFWRdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:33:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34262 "EHLO
+        id S229710AbiFWRJB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:09:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234577AbiFWRdB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:33:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 999A45159D;
-        Thu, 23 Jun 2022 10:05:41 -0700 (PDT)
+        with ESMTP id S233086AbiFWRHd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:07:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43ADA5252E;
+        Thu, 23 Jun 2022 09:56:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90ECFB824B4;
-        Thu, 23 Jun 2022 17:05:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1363C3411B;
-        Thu, 23 Jun 2022 17:05:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32E4660B29;
+        Thu, 23 Jun 2022 16:56:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E25D6C3411B;
+        Thu, 23 Jun 2022 16:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003936;
-        bh=nwXc3XpthjYp9ixcMlB2623mIkpfvu/MjJP9HCed4NU=;
+        s=korg; t=1656003366;
+        bh=3fmVcg2oN1sgDpSGmSt4e9PQDlAJ5pEoTm7LP7ZkoCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDXbOmNcMOm3G25Cts3yvTwB3WKerhADZZait/L5z/TttEQ7+exTfjdjIaHS/63J2
-         S/rDyfaOPxQ6H2K8bgMMZvHIp+NXIE9/D26ZGYlWtMUbvDeHUJaYyomAVbNDtSB5sR
-         MxoxEegRPF9buyr7AWfEnOq8KgW18+uROhmtxW+8=
+        b=poutOkFwjWlG7/NxqdFgiVLhZPEAHvmu/GVA3JughICoFMe4oHmBxanLlQU8oO9Wl
+         90S5Gu681vpun0nKZMKPDcDyG/iIQ7SvJlbnltoX+9GC0Tp+ASvQqwG2546voc+0u9
+         BHEhSxdp4bEudumGPIwwGP8c8Z5PuYxLRf8EcVEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Theodore Tso <tytso@mit.edu>,
+        Thomas Gleixner <tglx@linutronix.de>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 133/237] random: make consistent usage of crng_ready()
+Subject: [PATCH 4.9 174/264] random: make random_get_entropy() return an unsigned long
 Date:   Thu, 23 Jun 2022 18:42:47 +0200
-Message-Id: <20220623164346.980965593@linuxfoundation.org>
+Message-Id: <20220623164348.989090112@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,89 +58,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit a96cfe2d427064325ecbf56df8816c6b871ec285 upstream.
+commit b0c3e796f24b588b862b61ce235d3c9417dc8983 upstream.
 
-Rather than sometimes checking `crng_init < 2`, we should always use the
-crng_ready() macro, so that should we change anything later, it's
-consistent. Additionally, that macro already has a likely() around it,
-which means we don't need to open code our own likely() and unlikely()
-annotations.
+Some implementations were returning type `unsigned long`, while others
+that fell back to get_cycles() were implicitly returning a `cycles_t` or
+an untyped constant int literal. That makes for weird and confusing
+code, and basically all code in the kernel already handled it like it
+was an `unsigned long`. I recently tried to handle it as the largest
+type it could be, a `cycles_t`, but doing so doesn't really help with
+much.
 
+Instead let's just make random_get_entropy() return an unsigned long all
+the time. This also matches the commonly used `arch_get_random_long()`
+function, so now RDRAND and RDTSC return the same sized integer, which
+means one can fallback to the other more gracefully.
+
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
 Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ drivers/char/random.c |   20 +++++++-------------
+ include/linux/timex.h |    2 +-
+ 2 files changed, 8 insertions(+), 14 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -125,18 +125,13 @@ static void try_to_generate_entropy(void
+@@ -1011,7 +1011,7 @@ int __init rand_initialize(void)
   */
- int wait_for_random_bytes(void)
+ void add_device_randomness(const void *buf, size_t size)
  {
--	if (likely(crng_ready()))
--		return 0;
+-	cycles_t cycles = random_get_entropy();
++	unsigned long cycles = random_get_entropy();
+ 	unsigned long flags, now = jiffies;
+ 
+ 	if (crng_init == 0 && size)
+@@ -1042,8 +1042,7 @@ struct timer_rand_state {
+  */
+ static void add_timer_randomness(struct timer_rand_state *state, unsigned int num)
+ {
+-	cycles_t cycles = random_get_entropy();
+-	unsigned long flags, now = jiffies;
++	unsigned long cycles = random_get_entropy(), now = jiffies, flags;
+ 	long delta, delta2, delta3;
+ 
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+@@ -1298,8 +1297,7 @@ static void mix_interrupt_randomness(str
+ void add_interrupt_randomness(int irq)
+ {
+ 	enum { MIX_INFLIGHT = 1U << 31 };
+-	cycles_t cycles = random_get_entropy();
+-	unsigned long now = jiffies;
++	unsigned long cycles = random_get_entropy(), now = jiffies;
+ 	struct fast_pool *fast_pool = this_cpu_ptr(&irq_randomness);
+ 	struct pt_regs *regs = get_irq_regs();
+ 	unsigned int new_count;
+@@ -1312,16 +1310,12 @@ void add_interrupt_randomness(int irq)
+ 	if (cycles == 0)
+ 		cycles = get_reg(fast_pool, regs);
+ 
+-	if (sizeof(cycles) == 8)
++	if (sizeof(unsigned long) == 8) {
+ 		irq_data.u64[0] = cycles ^ rol64(now, 32) ^ irq;
+-	else {
++		irq_data.u64[1] = regs ? instruction_pointer(regs) : _RET_IP_;
++	} else {
+ 		irq_data.u32[0] = cycles ^ irq;
+ 		irq_data.u32[1] = now;
+-	}
 -
--	do {
-+	while (!crng_ready()) {
- 		int ret;
- 		ret = wait_event_interruptible_timeout(crng_init_wait, crng_ready(), HZ);
- 		if (ret)
- 			return ret > 0 ? 0 : ret;
--
- 		try_to_generate_entropy();
--	} while (!crng_ready());
--
-+	}
- 	return 0;
- }
- EXPORT_SYMBOL(wait_for_random_bytes);
-@@ -291,7 +286,7 @@ static void crng_reseed(void)
- 		++next_gen;
- 	WRITE_ONCE(base_crng.generation, next_gen);
- 	WRITE_ONCE(base_crng.birth, jiffies);
--	if (crng_init < 2) {
-+	if (!crng_ready()) {
- 		crng_init = 2;
- 		finalize_init = true;
+-	if (sizeof(unsigned long) == 8)
+-		irq_data.u64[1] = regs ? instruction_pointer(regs) : _RET_IP_;
+-	else {
+ 		irq_data.u32[2] = regs ? instruction_pointer(regs) : _RET_IP_;
+ 		irq_data.u32[3] = get_reg(fast_pool, regs);
  	}
-@@ -359,7 +354,7 @@ static void crng_make_state(u32 chacha_s
- 	 * ready, we do fast key erasure with the base_crng directly, because
- 	 * this is what crng_pre_init_inject() mutates during early init.
- 	 */
--	if (unlikely(!crng_ready())) {
-+	if (!crng_ready()) {
- 		bool ready;
+@@ -1368,7 +1362,7 @@ static void entropy_timer(unsigned long
+ static void try_to_generate_entropy(void)
+ {
+ 	struct {
+-		cycles_t cycles;
++		unsigned long cycles;
+ 		struct timer_list timer;
+ 	} stack;
  
- 		spin_lock_irqsave(&base_crng.lock, flags);
-@@ -799,7 +794,7 @@ static void credit_entropy_bits(size_t n
- 		entropy_count = min_t(unsigned int, POOL_BITS, orig + add);
- 	} while (cmpxchg(&input_pool.entropy_count, orig, entropy_count) != orig);
+--- a/include/linux/timex.h
++++ b/include/linux/timex.h
+@@ -75,7 +75,7 @@
+  * By default we use get_cycles() for this purpose, but individual
+  * architectures may override this in their asm/timex.h header file.
+  */
+-#define random_get_entropy()	get_cycles()
++#define random_get_entropy()	((unsigned long)get_cycles())
+ #endif
  
--	if (crng_init < 2 && entropy_count >= POOL_MIN_BITS)
-+	if (!crng_ready() && entropy_count >= POOL_MIN_BITS)
- 		crng_reseed();
- }
- 
-@@ -956,7 +951,7 @@ int __init rand_initialize(void)
- 	extract_entropy(base_crng.key, sizeof(base_crng.key));
- 	++base_crng.generation;
- 
--	if (arch_init && trust_cpu && crng_init < 2) {
-+	if (arch_init && trust_cpu && !crng_ready()) {
- 		crng_init = 2;
- 		pr_notice("crng init done (trusting CPU's manufacturer)\n");
- 	}
-@@ -1545,7 +1540,7 @@ static long random_ioctl(struct file *f,
- 	case RNDRESEEDCRNG:
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
--		if (crng_init < 2)
-+		if (!crng_ready())
- 			return -ENODATA;
- 		crng_reseed();
- 		return 0;
+ /*
 
 
