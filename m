@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A14F55862C
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:09:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E2BC558632
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236049AbiFWSI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48358 "EHLO
+        id S236073AbiFWSJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235961AbiFWSGI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:06:08 -0400
+        with ESMTP id S235962AbiFWSGJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:06:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF8EA60C68;
-        Thu, 23 Jun 2022 10:18:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB2CB4F1EE;
+        Thu, 23 Jun 2022 10:18:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58EB161DE5;
-        Thu, 23 Jun 2022 17:18:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 330C6C3411B;
-        Thu, 23 Jun 2022 17:18:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C05461DB6;
+        Thu, 23 Jun 2022 17:18:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4905FC341C5;
+        Thu, 23 Jun 2022 17:18:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004695;
-        bh=31UmA5IU1ADNyXj5Y713Yxo8XbtmT3E8E3FXeUtuGgI=;
+        s=korg; t=1656004698;
+        bh=wgBZuM0YgqkDuk+jtG9Ad3gBC9bO4wKsXjCahE36Hog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zy7DxaRPb7Gs4Z4VCVISfoSvzxmIzb9K1u6JtsQ0LBNGydR+fp/PCJ5MS22si+7Im
-         HI5eR2Q6UX7SCkuKH8K5l6oxvrVXg5T0i/uhUG80b7avHKgWBkw9Qk1W/qjHzrDYiC
-         NIck0cxzaEwnTbvUfik8l3o4SBCcHA/FRYN0Glds=
+        b=MCBBMu5T2M3H59gOau0uXCukocsKfce1THSUUK+Z/v/Qq/P+fMoY3/qg/GIODVeZm
+         GDMOLklcDCx9zunK20WkpOSI05H3P3Gj1O4VWLcfEMBtAngXbnn0fAbyp5DHrXk9O1
+         x8XL0mkPXAy4PCN+d50JEQe4vH6bq0nL4R4sUP9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 118/234] random: replace custom notifier chain with standard one
-Date:   Thu, 23 Jun 2022 18:43:05 +0200
-Message-Id: <20220623164346.397150495@linuxfoundation.org>
+Subject: [PATCH 4.19 119/234] random: use SipHash as interrupt entropy accumulator
+Date:   Thu, 23 Jun 2022 18:43:06 +0200
+Message-Id: <20220623164346.425347210@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -56,297 +56,277 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 5acd35487dc911541672b3ffc322851769c32a56 upstream.
+commit f5eab0e2db4f881fb2b62b3fdad5b9be673dd7ae upstream.
 
-We previously rolled our own randomness readiness notifier, which only
-has two users in the whole kernel. Replace this with a more standard
-atomic notifier block that serves the same purpose with less code. Also
-unexport the symbols, because no modules use it, only unconditional
-builtins. The only drawback is that it's possible for a notification
-handler returning the "stop" code to prevent further processing, but
-given that there are only two users, and that we're unexporting this
-anyway, that doesn't seem like a significant drawback for the
-simplification we receive here.
+The current fast_mix() function is a piece of classic mailing list
+crypto, where it just sort of sprung up by an anonymous author without a
+lot of real analysis of what precisely it was accomplishing. As an ARX
+permutation alone, there are some easily searchable differential trails
+in it, and as a means of preventing malicious interrupts, it completely
+fails, since it xors new data into the entire state every time. It can't
+really be analyzed as a random permutation, because it clearly isn't,
+and it can't be analyzed as an interesting linear algebraic structure
+either, because it's also not that. There really is very little one can
+say about it in terms of entropy accumulation. It might diffuse bits,
+some of the time, maybe, we hope, I guess. But for the most part, it
+fails to accomplish anything concrete.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+As a reminder, the simple goal of add_interrupt_randomness() is to
+simply accumulate entropy until ~64 interrupts have elapsed, and then
+dump it into the main input pool, which uses a cryptographic hash.
+
+It would be nice to have something cryptographically strong in the
+interrupt handler itself, in case a malicious interrupt compromises a
+per-cpu fast pool within the 64 interrupts / 1 second window, and then
+inside of that same window somehow can control its return address and
+cycle counter, even if that's a bit far fetched. However, with a very
+CPU-limited budget, actually doing that remains an active research
+project (and perhaps there'll be something useful for Linux to come out
+of it). And while the abundance of caution would be nice, this isn't
+*currently* the security model, and we don't yet have a fast enough
+solution to make it our security model. Plus there's not exactly a
+pressing need to do that. (And for the avoidance of doubt, the actual
+cluster of 64 accumulated interrupts still gets dumped into our
+cryptographically secure input pool.)
+
+So, for now we are going to stick with the existing interrupt security
+model, which assumes that each cluster of 64 interrupt data samples is
+mostly non-malicious and not colluding with an infoleaker. With this as
+our goal, we have a few more choices, simply aiming to accumulate
+entropy, while discarding the least amount of it.
+
+We know from <https://eprint.iacr.org/2019/198> that random oracles,
+instantiated as computational hash functions, make good entropy
+accumulators and extractors, which is the justification for using
+BLAKE2s in the main input pool. As mentioned, we don't have that luxury
+here, but we also don't have the same security model requirements,
+because we're assuming that there aren't malicious inputs. A
+pseudorandom function instance can approximately behave like a random
+oracle, provided that the key is uniformly random. But since we're not
+concerned with malicious inputs, we can pick a fixed key, which is not
+secret, knowing that "nature" won't interact with a sufficiently chosen
+fixed key by accident. So we pick a PRF with a fixed initial key, and
+accumulate into it continuously, dumping the result every 64 interrupts
+into our cryptographically secure input pool.
+
+For this, we make use of SipHash-1-x on 64-bit and HalfSipHash-1-x on
+32-bit, which are already in use in the kernel's hsiphash family of
+functions and achieve the same performance as the function they replace.
+It would be nice to do two rounds, but we don't exactly have the CPU
+budget handy for that, and one round alone is already sufficient.
+
+As mentioned, we start with a fixed initial key (zeros is fine), and
+allow SipHash's symmetry breaking constants to turn that into a useful
+starting point. Also, since we're dumping the result (or half of it on
+64-bit so as to tax our hash function the same amount on all platforms)
+into the cryptographically secure input pool, there's no point in
+finalizing SipHash's output, since it'll wind up being finalized by
+something much stronger. This means that all we need to do is use the
+ordinary round function word-by-word, as normal SipHash does.
+Simplified, the flow is as follows:
+
+Initialize:
+
+    siphash_state_t state;
+    siphash_init(&state, key={0, 0, 0, 0});
+
+Update (accumulate) on interrupt:
+
+    siphash_update(&state, interrupt_data_and_timing);
+
+Dump into input pool after 64 interrupts:
+
+    blake2s_update(&input_pool, &state, sizeof(state) / 2);
+
+The result of all of this is that the security model is unchanged from
+before -- we assume non-malicious inputs -- yet we now implement that
+model with a stronger argument. I would like to emphasize, again, that
+the purpose of this commit is to improve the existing design, by making
+it analyzable, without changing any fundamental assumptions. There may
+well be value down the road in changing up the existing design, using
+something cryptographically strong, or simply using a ring buffer of
+samples rather than having a fast_mix() at all, or changing which and
+how much data we collect each interrupt so that we can use something
+linear, or a variety of other ideas. This commit does not invalidate the
+potential for those in the future.
+
+For example, in the future, if we're able to characterize the data we're
+collecting on each interrupt, we may be able to inch toward information
+theoretic accumulators. <https://eprint.iacr.org/2021/523> shows that `s
+= ror32(s, 7) ^ x` and `s = ror64(s, 19) ^ x` make very good
+accumulators for 2-monotone distributions, which would apply to
+timestamp counters, like random_get_entropy() or jiffies, but would not
+apply to our current combination of the two values, or to the various
+function addresses and register values we mix in. Alternatively,
+<https://eprint.iacr.org/2021/1002> shows that max-period linear
+functions with no non-trivial invariant subspace make good extractors,
+used in the form `s = f(s) ^ x`. However, this only works if the input
+data is both identical and independent, and obviously a collection of
+address values and counters fails; so it goes with theoretical papers.
+Future directions here may involve trying to characterize more precisely
+what we actually need to collect in the interrupt handler, and building
+something specific around that.
+
+However, as mentioned, the morass of data we're gathering at the
+interrupt handler presently defies characterization, and so we use
+SipHash for now, which works well and performs well.
+
 Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-[Jason: for stable, also backported to crypto/drbg.c, not unexporting.]
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/drbg.c          |   17 +++++-------
- drivers/char/random.c  |   69 ++++++++++++++-----------------------------------
- include/crypto/drbg.h  |    2 -
- include/linux/random.h |   10 ++-----
- lib/random32.c         |   13 +++++----
- lib/vsprintf.c         |   10 ++++---
- 6 files changed, 47 insertions(+), 74 deletions(-)
+ drivers/char/random.c |   94 +++++++++++++++++++++++++++++---------------------
+ 1 file changed, 55 insertions(+), 39 deletions(-)
 
---- a/crypto/drbg.c
-+++ b/crypto/drbg.c
-@@ -1388,12 +1388,13 @@ static int drbg_generate_long(struct drb
- 	return 0;
- }
- 
--static void drbg_schedule_async_seed(struct random_ready_callback *rdy)
-+static int drbg_schedule_async_seed(struct notifier_block *nb, unsigned long action, void *data)
- {
--	struct drbg_state *drbg = container_of(rdy, struct drbg_state,
-+	struct drbg_state *drbg = container_of(nb, struct drbg_state,
- 					       random_ready);
- 
- 	schedule_work(&drbg->seed_work);
-+	return 0;
- }
- 
- static int drbg_prepare_hrng(struct drbg_state *drbg)
-@@ -1406,10 +1407,8 @@ static int drbg_prepare_hrng(struct drbg
- 
- 	INIT_WORK(&drbg->seed_work, drbg_async_seed);
- 
--	drbg->random_ready.owner = THIS_MODULE;
--	drbg->random_ready.func = drbg_schedule_async_seed;
--
--	err = add_random_ready_callback(&drbg->random_ready);
-+	drbg->random_ready.notifier_call = drbg_schedule_async_seed;
-+	err = register_random_ready_notifier(&drbg->random_ready);
- 
- 	switch (err) {
- 	case 0:
-@@ -1420,7 +1419,7 @@ static int drbg_prepare_hrng(struct drbg
- 		/* fall through */
- 
- 	default:
--		drbg->random_ready.func = NULL;
-+		drbg->random_ready.notifier_call = NULL;
- 		return err;
- 	}
- 
-@@ -1526,8 +1525,8 @@ free_everything:
-  */
- static int drbg_uninstantiate(struct drbg_state *drbg)
- {
--	if (drbg->random_ready.func) {
--		del_random_ready_callback(&drbg->random_ready);
-+	if (drbg->random_ready.notifier_call) {
-+		unregister_random_ready_notifier(&drbg->random_ready);
- 		cancel_work_sync(&drbg->seed_work);
- 		crypto_free_rng(drbg->jent);
- 		drbg->jent = NULL;
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -83,8 +83,8 @@ static int crng_init = 0;
- /* Various types of waiters for crng_init->2 transition. */
- static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
- static struct fasync_struct *fasync;
--static DEFINE_SPINLOCK(random_ready_list_lock);
--static LIST_HEAD(random_ready_list);
-+static DEFINE_SPINLOCK(random_ready_chain_lock);
-+static RAW_NOTIFIER_HEAD(random_ready_chain);
+@@ -1142,48 +1142,51 @@ void add_bootloader_randomness(const voi
+ EXPORT_SYMBOL_GPL(add_bootloader_randomness);
  
- /* Control how we warn userspace. */
- static struct ratelimit_state unseeded_warning =
-@@ -147,72 +147,45 @@ EXPORT_SYMBOL(wait_for_random_bytes);
-  *
-  * returns: 0 if callback is successfully added
-  *	    -EALREADY if pool is already initialised (callback not called)
-- *	    -ENOENT if module for callback is not alive
-  */
--int add_random_ready_callback(struct random_ready_callback *rdy)
-+int register_random_ready_notifier(struct notifier_block *nb)
- {
--	struct module *owner;
- 	unsigned long flags;
--	int err = -EALREADY;
-+	int ret = -EALREADY;
- 
- 	if (crng_ready())
--		return err;
-+		return ret;
- 
--	owner = rdy->owner;
--	if (!try_module_get(owner))
--		return -ENOENT;
--
--	spin_lock_irqsave(&random_ready_list_lock, flags);
--	if (crng_ready())
--		goto out;
--
--	owner = NULL;
--
--	list_add(&rdy->list, &random_ready_list);
--	err = 0;
--
--out:
--	spin_unlock_irqrestore(&random_ready_list_lock, flags);
--
--	module_put(owner);
--
--	return err;
-+	spin_lock_irqsave(&random_ready_chain_lock, flags);
-+	if (!crng_ready())
-+		ret = raw_notifier_chain_register(&random_ready_chain, nb);
-+	spin_unlock_irqrestore(&random_ready_chain_lock, flags);
-+	return ret;
- }
--EXPORT_SYMBOL(add_random_ready_callback);
-+EXPORT_SYMBOL(register_random_ready_notifier);
- 
- /*
-  * Delete a previously registered readiness callback function.
-  */
--void del_random_ready_callback(struct random_ready_callback *rdy)
-+int unregister_random_ready_notifier(struct notifier_block *nb)
- {
- 	unsigned long flags;
--	struct module *owner = NULL;
--
--	spin_lock_irqsave(&random_ready_list_lock, flags);
--	if (!list_empty(&rdy->list)) {
--		list_del_init(&rdy->list);
--		owner = rdy->owner;
--	}
--	spin_unlock_irqrestore(&random_ready_list_lock, flags);
-+	int ret;
- 
--	module_put(owner);
-+	spin_lock_irqsave(&random_ready_chain_lock, flags);
-+	ret = raw_notifier_chain_unregister(&random_ready_chain, nb);
-+	spin_unlock_irqrestore(&random_ready_chain_lock, flags);
-+	return ret;
- }
--EXPORT_SYMBOL(del_random_ready_callback);
-+EXPORT_SYMBOL(unregister_random_ready_notifier);
- 
- static void process_random_ready_list(void)
- {
- 	unsigned long flags;
--	struct random_ready_callback *rdy, *tmp;
- 
--	spin_lock_irqsave(&random_ready_list_lock, flags);
--	list_for_each_entry_safe(rdy, tmp, &random_ready_list, list) {
--		struct module *owner = rdy->owner;
--
--		list_del_init(&rdy->list);
--		rdy->func(rdy);
--		module_put(owner);
--	}
--	spin_unlock_irqrestore(&random_ready_list_lock, flags);
-+	spin_lock_irqsave(&random_ready_chain_lock, flags);
-+	raw_notifier_call_chain(&random_ready_chain, 0, NULL);
-+	spin_unlock_irqrestore(&random_ready_chain_lock, flags);
- }
- 
- #define warn_unseeded_randomness(previous) \
---- a/include/crypto/drbg.h
-+++ b/include/crypto/drbg.h
-@@ -134,7 +134,7 @@ struct drbg_state {
- 	const struct drbg_state_ops *d_ops;
- 	const struct drbg_core *core;
- 	struct drbg_string test_data;
--	struct random_ready_callback random_ready;
-+	struct notifier_block random_ready;
+ struct fast_pool {
+-	union {
+-		u32 pool32[4];
+-		u64 pool64[2];
+-	};
+ 	struct work_struct mix;
++	unsigned long pool[4];
+ 	unsigned long last;
+ 	unsigned int count;
+ 	u16 reg_idx;
  };
  
- static inline __u8 drbg_statelen(struct drbg_state *drbg)
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -10,11 +10,7 @@
- 
- #include <uapi/linux/random.h>
- 
--struct random_ready_callback {
--	struct list_head list;
--	void (*func)(struct random_ready_callback *rdy);
--	struct module *owner;
--};
-+struct notifier_block;
- 
- extern void add_device_randomness(const void *, size_t);
- extern void add_bootloader_randomness(const void *, size_t);
-@@ -39,8 +35,8 @@ extern void get_random_bytes(void *buf,
- extern int wait_for_random_bytes(void);
- extern int __init rand_initialize(void);
- extern bool rng_is_initialized(void);
--extern int add_random_ready_callback(struct random_ready_callback *rdy);
--extern void del_random_ready_callback(struct random_ready_callback *rdy);
-+extern int register_random_ready_notifier(struct notifier_block *nb);
-+extern int unregister_random_ready_notifier(struct notifier_block *nb);
- extern size_t __must_check get_random_bytes_arch(void *buf, size_t nbytes);
- 
- #ifndef MODULE
---- a/lib/random32.c
-+++ b/lib/random32.c
-@@ -40,6 +40,7 @@
- #include <linux/sched.h>
- #include <linux/bitops.h>
- #include <linux/slab.h>
-+#include <linux/notifier.h>
- #include <asm/unaligned.h>
- 
- /**
-@@ -546,9 +547,11 @@ static void prandom_reseed(struct timer_
-  * To avoid worrying about whether it's safe to delay that interrupt
-  * long enough to seed all CPUs, just schedule an immediate timer event.
-  */
--static void prandom_timer_start(struct random_ready_callback *unused)
-+static int prandom_timer_start(struct notifier_block *nb,
-+			       unsigned long action, void *data)
- {
- 	mod_timer(&seed_timer, jiffies);
-+	return 0;
- }
- 
++static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
++#ifdef CONFIG_64BIT
++	/* SipHash constants */
++	.pool = { 0x736f6d6570736575UL, 0x646f72616e646f6dUL,
++		  0x6c7967656e657261UL, 0x7465646279746573UL }
++#else
++	/* HalfSipHash constants */
++	.pool = { 0, 0, 0x6c796765U, 0x74656462U }
++#endif
++};
++
  /*
-@@ -557,13 +560,13 @@ static void prandom_timer_start(struct r
+- * This is a fast mixing routine used by the interrupt randomness
+- * collector. It's hardcoded for an 128 bit pool and assumes that any
+- * locks that might be needed are taken by the caller.
++ * This is [Half]SipHash-1-x, starting from an empty key. Because
++ * the key is fixed, it assumes that its inputs are non-malicious,
++ * and therefore this has no security on its own. s represents the
++ * 128 or 256-bit SipHash state, while v represents a 128-bit input.
   */
- static int __init prandom_init_late(void)
+-static void fast_mix(u32 pool[4])
++static void fast_mix(unsigned long s[4], const unsigned long *v)
  {
--	static struct random_ready_callback random_ready = {
--		.func = prandom_timer_start
-+	static struct notifier_block random_ready = {
-+		.notifier_call = prandom_timer_start
- 	};
--	int ret = add_random_ready_callback(&random_ready);
-+	int ret = register_random_ready_notifier(&random_ready);
+-	u32 a = pool[0],	b = pool[1];
+-	u32 c = pool[2],	d = pool[3];
+-
+-	a += b;			c += d;
+-	b = rol32(b, 6);	d = rol32(d, 27);
+-	d ^= a;			b ^= c;
+-
+-	a += b;			c += d;
+-	b = rol32(b, 16);	d = rol32(d, 14);
+-	d ^= a;			b ^= c;
+-
+-	a += b;			c += d;
+-	b = rol32(b, 6);	d = rol32(d, 27);
+-	d ^= a;			b ^= c;
+-
+-	a += b;			c += d;
+-	b = rol32(b, 16);	d = rol32(d, 14);
+-	d ^= a;			b ^= c;
++	size_t i;
  
- 	if (ret == -EALREADY) {
--		prandom_timer_start(&random_ready);
-+		prandom_timer_start(&random_ready, 0, NULL);
- 		ret = 0;
- 	}
- 	return ret;
---- a/lib/vsprintf.c
-+++ b/lib/vsprintf.c
-@@ -1700,14 +1700,16 @@ static void enable_ptr_key_workfn(struct
- 
- static DECLARE_WORK(enable_ptr_key_work, enable_ptr_key_workfn);
- 
--static void fill_random_ptr_key(struct random_ready_callback *unused)
-+static int fill_random_ptr_key(struct notifier_block *nb,
-+			       unsigned long action, void *data)
- {
- 	/* This may be in an interrupt handler. */
- 	queue_work(system_unbound_wq, &enable_ptr_key_work);
-+	return 0;
+-	pool[0] = a;  pool[1] = b;
+-	pool[2] = c;  pool[3] = d;
++	for (i = 0; i < 16 / sizeof(long); ++i) {
++		s[3] ^= v[i];
++#ifdef CONFIG_64BIT
++		s[0] += s[1]; s[1] = rol64(s[1], 13); s[1] ^= s[0]; s[0] = rol64(s[0], 32);
++		s[2] += s[3]; s[3] = rol64(s[3], 16); s[3] ^= s[2];
++		s[0] += s[3]; s[3] = rol64(s[3], 21); s[3] ^= s[0];
++		s[2] += s[1]; s[1] = rol64(s[1], 17); s[1] ^= s[2]; s[2] = rol64(s[2], 32);
++#else
++		s[0] += s[1]; s[1] = rol32(s[1],  5); s[1] ^= s[0]; s[0] = rol32(s[0], 16);
++		s[2] += s[3]; s[3] = rol32(s[3],  8); s[3] ^= s[2];
++		s[0] += s[3]; s[3] = rol32(s[3],  7); s[3] ^= s[0];
++		s[2] += s[1]; s[1] = rol32(s[1], 13); s[1] ^= s[2]; s[2] = rol32(s[2], 16);
++#endif
++		s[0] ^= v[i];
++	}
  }
  
--static struct random_ready_callback random_ready = {
--	.func = fill_random_ptr_key
-+static struct notifier_block random_ready = {
-+	.notifier_call = fill_random_ptr_key
- };
+-static DEFINE_PER_CPU(struct fast_pool, irq_randomness);
+-
+ #ifdef CONFIG_SMP
+ /*
+  * This function is called when the CPU has just come online, with
+@@ -1225,7 +1228,15 @@ static unsigned long get_reg(struct fast
+ static void mix_interrupt_randomness(struct work_struct *work)
+ {
+ 	struct fast_pool *fast_pool = container_of(work, struct fast_pool, mix);
+-	u32 pool[4];
++	/*
++	 * The size of the copied stack pool is explicitly 16 bytes so that we
++	 * tax mix_pool_byte()'s compression function the same amount on all
++	 * platforms. This means on 64-bit we copy half the pool into this,
++	 * while on 32-bit we copy all of it. The entropy is supposed to be
++	 * sufficiently dispersed between bits that in the sponge-like
++	 * half case, on average we don't wind up "losing" some.
++	 */
++	u8 pool[16];
  
- static int __init initialize_ptr_random(void)
-@@ -1721,7 +1723,7 @@ static int __init initialize_ptr_random(
- 		return 0;
+ 	/* Check to see if we're running on the wrong CPU due to hotplug. */
+ 	local_irq_disable();
+@@ -1238,7 +1249,7 @@ static void mix_interrupt_randomness(str
+ 	 * Copy the pool to the stack so that the mixer always has a
+ 	 * consistent view, before we reenable irqs again.
+ 	 */
+-	memcpy(pool, fast_pool->pool32, sizeof(pool));
++	memcpy(pool, fast_pool->pool, sizeof(pool));
+ 	fast_pool->count = 0;
+ 	fast_pool->last = jiffies;
+ 	local_irq_enable();
+@@ -1262,25 +1273,30 @@ void add_interrupt_randomness(int irq)
+ 	struct fast_pool *fast_pool = this_cpu_ptr(&irq_randomness);
+ 	struct pt_regs *regs = get_irq_regs();
+ 	unsigned int new_count;
++	union {
++		u32 u32[4];
++		u64 u64[2];
++		unsigned long longs[16 / sizeof(long)];
++	} irq_data;
+ 
+ 	if (cycles == 0)
+ 		cycles = get_reg(fast_pool, regs);
+ 
+ 	if (sizeof(cycles) == 8)
+-		fast_pool->pool64[0] ^= cycles ^ rol64(now, 32) ^ irq;
++		irq_data.u64[0] = cycles ^ rol64(now, 32) ^ irq;
+ 	else {
+-		fast_pool->pool32[0] ^= cycles ^ irq;
+-		fast_pool->pool32[1] ^= now;
++		irq_data.u32[0] = cycles ^ irq;
++		irq_data.u32[1] = now;
  	}
  
--	ret = add_random_ready_callback(&random_ready);
-+	ret = register_random_ready_notifier(&random_ready);
- 	if (!ret) {
- 		return 0;
- 	} else if (ret == -EALREADY) {
+ 	if (sizeof(unsigned long) == 8)
+-		fast_pool->pool64[1] ^= regs ? instruction_pointer(regs) : _RET_IP_;
++		irq_data.u64[1] = regs ? instruction_pointer(regs) : _RET_IP_;
+ 	else {
+-		fast_pool->pool32[2] ^= regs ? instruction_pointer(regs) : _RET_IP_;
+-		fast_pool->pool32[3] ^= get_reg(fast_pool, regs);
++		irq_data.u32[2] = regs ? instruction_pointer(regs) : _RET_IP_;
++		irq_data.u32[3] = get_reg(fast_pool, regs);
+ 	}
+ 
+-	fast_mix(fast_pool->pool32);
++	fast_mix(fast_pool->pool, irq_data.longs);
+ 	new_count = ++fast_pool->count;
+ 
+ 	if (new_count & MIX_INFLIGHT)
 
 
