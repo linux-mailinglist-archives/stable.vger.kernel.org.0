@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9805586EE
+	by mail.lfdr.de (Postfix) with ESMTP id F21F75586EF
 	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:18:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236818AbiFWSSs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236820AbiFWSSs (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 Jun 2022 14:18:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38198 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236726AbiFWSR0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:17:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F269482687;
-        Thu, 23 Jun 2022 10:23:42 -0700 (PDT)
+        with ESMTP id S236796AbiFWSR2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:17:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 243B31BEA4;
+        Thu, 23 Jun 2022 10:23:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F808B824B8;
-        Thu, 23 Jun 2022 17:23:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E2BBC3411B;
-        Thu, 23 Jun 2022 17:23:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEE8A61EE5;
+        Thu, 23 Jun 2022 17:23:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87081C341C4;
+        Thu, 23 Jun 2022 17:23:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656005020;
-        bh=E0lgWaK+wTrtgx+NOHmYoyAHE5JLXtccaud7lMVI+84=;
+        s=korg; t=1656005022;
+        bh=eVK8vlGSvvQndlAiBX0xjJxVD2cAGmDzUQkJP/Po380=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RlS85rlfjdo1Cp6/fOtlwvn14MuxZSHC54rhGdPTMe56rRQCA8/tekbb02mc3ACJ1
-         rcgi6MfH1LwHF/rqD8uCgskLtpUsLQdCk1QLCsuVAzKcKo5veMRj2wuKBS5K03Urr3
-         oE4dwYEAzIy5a4o0xQRy0nDS8B+ojgEsu1oc0nIs=
+        b=hN8XDIUSIjDdKzFKuJkDAX2XKfTOFwZkHSK/wA5/80OjQFkb6VrjqfYM9kh6S1COy
+         Gy2cSZ5EpctqQfk4HGHg1mLp4rrEf/454GUFjgZqdZHYxzGXTHlGKIMuGB+XdbVhDZ
+         5732MpV/uFln4XXLPDoHOLcdmpWuQolLljF3wUjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marian Postevca <posteuca@mutex.one>
-Subject: [PATCH 4.19 226/234] usb: gadget: u_ether: fix regression in setting fixed MAC address
-Date:   Thu, 23 Jun 2022 18:44:53 +0200
-Message-Id: <20220623164349.444968307@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.19 227/234] xprtrdma: fix incorrect header size calculations
+Date:   Thu, 23 Jun 2022 18:44:54 +0200
+Message-Id: <20220623164349.473012104@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -52,79 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marian Postevca <posteuca@mutex.one>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit b337af3a4d6147000b7ca6b3438bf5c820849b37 upstream.
+commit 912288442cb2f431bf3c8cb097a5de83bc6dbac1 upstream.
 
-In systemd systems setting a fixed MAC address through
-the "dev_addr" module argument fails systematically.
-When checking the MAC address after the interface is created
-it always has the same but different MAC address to the one
-supplied as argument.
+Currently the header size calculations are using an assignment
+operator instead of a += operator when accumulating the header
+size leading to incorrect sizes.  Fix this by using the correct
+operator.
 
-This is partially caused by systemd which by default will
-set an internally generated permanent MAC address for interfaces
-that are marked as having a randomly generated address.
-
-Commit 890d5b40908bfd1a ("usb: gadget: u_ether: fix race in
-setting MAC address in setup phase") didn't take into account
-the fact that the interface must be marked as having a set
-MAC address when it's set as module argument.
-
-Fixed by marking the interface with NET_ADDR_SET when
-the "dev_addr" module argument is supplied.
-
-Fixes: 890d5b40908bfd1a ("usb: gadget: u_ether: fix race in setting MAC address in setup phase")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marian Postevca <posteuca@mutex.one>
-Link: https://lore.kernel.org/r/20220603153459.32722-1-posteuca@mutex.one
+Addresses-Coverity: ("Unused value")
+Fixes: 302d3deb2068 ("xprtrdma: Prevent inline overflow")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+[bwh: Backported to 4.19: adjust context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/u_ether.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ net/sunrpc/xprtrdma/rpc_rdma.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -772,9 +772,13 @@ struct eth_dev *gether_setup_name(struct
- 	dev->qmult = qmult;
- 	snprintf(net->name, sizeof(net->name), "%s%%d", netname);
+--- a/net/sunrpc/xprtrdma/rpc_rdma.c
++++ b/net/sunrpc/xprtrdma/rpc_rdma.c
+@@ -72,7 +72,7 @@ static unsigned int rpcrdma_max_call_hea
  
--	if (get_ether_addr(dev_addr, net->dev_addr))
-+	if (get_ether_addr(dev_addr, net->dev_addr)) {
-+		net->addr_assign_type = NET_ADDR_RANDOM;
- 		dev_warn(&g->dev,
- 			"using random %s ethernet address\n", "self");
-+	} else {
-+		net->addr_assign_type = NET_ADDR_SET;
-+	}
- 	if (get_ether_addr(host_addr, dev->host_mac))
- 		dev_warn(&g->dev,
- 			"using random %s ethernet address\n", "host");
-@@ -831,6 +835,9 @@ struct net_device *gether_setup_name_def
- 	INIT_LIST_HEAD(&dev->tx_reqs);
- 	INIT_LIST_HEAD(&dev->rx_reqs);
+ 	/* Maximum Read list size */
+ 	maxsegs += 2;	/* segment for head and tail buffers */
+-	size = maxsegs * rpcrdma_readchunk_maxsz * sizeof(__be32);
++	size += maxsegs * rpcrdma_readchunk_maxsz * sizeof(__be32);
  
-+	/* by default we always have a random MAC address */
-+	net->addr_assign_type = NET_ADDR_RANDOM;
-+
- 	skb_queue_head_init(&dev->rx_frames);
+ 	/* Minimal Read chunk size */
+ 	size += sizeof(__be32);	/* segment count */
+@@ -98,7 +98,7 @@ static unsigned int rpcrdma_max_reply_he
  
- 	/* network device setup */
-@@ -868,7 +875,6 @@ int gether_register_netdev(struct net_de
- 	g = dev->gadget;
+ 	/* Maximum Write list size */
+ 	maxsegs += 2;	/* segment for head and tail buffers */
+-	size = sizeof(__be32);		/* segment count */
++	size += sizeof(__be32);		/* segment count */
+ 	size += maxsegs * rpcrdma_segment_maxsz * sizeof(__be32);
+ 	size += sizeof(__be32);	/* list discriminator */
  
- 	memcpy(net->dev_addr, dev->dev_mac, ETH_ALEN);
--	net->addr_assign_type = NET_ADDR_RANDOM;
- 
- 	status = register_netdev(net);
- 	if (status < 0) {
-@@ -908,6 +914,7 @@ int gether_set_dev_addr(struct net_devic
- 	if (get_ether_addr(dev_addr, new_addr))
- 		return -EINVAL;
- 	memcpy(dev->dev_mac, new_addr, ETH_ALEN);
-+	net->addr_assign_type = NET_ADDR_SET;
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(gether_set_dev_addr);
 
 
