@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B4F55760B
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 10:57:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B377C55761F
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 10:59:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230511AbiFWI5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 04:57:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37318 "EHLO
+        id S229497AbiFWI7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 04:59:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230203AbiFWI5Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 04:57:24 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D74247AE6;
-        Thu, 23 Jun 2022 01:57:23 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id cv13so15522294pjb.4;
-        Thu, 23 Jun 2022 01:57:23 -0700 (PDT)
+        with ESMTP id S229555AbiFWI7V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 04:59:21 -0400
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44F13F65;
+        Thu, 23 Jun 2022 01:59:21 -0700 (PDT)
+Received: by mail-pg1-x52e.google.com with SMTP id h192so18556053pgc.4;
+        Thu, 23 Jun 2022 01:59:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=message-id:date:from:to:cc:subject:references:mime-version
          :content-disposition:in-reply-to;
-        bh=XuNmdMIPTwgFRn+KXfNoshLUyGzQ84uByLpqYdBwMbo=;
-        b=U/ubG/f6T+EUydId86UG4ca9OLcoHD5k4QQ+3eWunYtB5/55nD7030zV+fXBywy/N8
-         rnIgSdfB+mbLoTBsYX+LF0KMiQc/tCvdbiOPBmGHEWYljqJ7+Ytp6ICBpcUlIxLwFszu
-         Bd75dGeE3PfTsG7RxUMO+p9USOiA8uuUGemciMWT3XztxTLJfkA1W/KrDSzoBc3nKrUL
-         Cwcfd75z6z36xyZzdLGXmsmBmNz77+sTdpo257ezhnuJkv+JyQ+dg5OeZZwzveFMgHSf
-         WybOMRUVwz2uedWXTuGnCWlCv3haS3eK3HoXG8O+YXEigs7NNQE0yfgkxZHHJTzcQ1mN
-         h3hg==
+        bh=PZqL3nImpxdufaOwqet7SR9Z+NkTikarvBkFeRnT+2I=;
+        b=Y5KS4zXn7ur6b4E8fuA3TbU8g8dxuW/AgKiB7Wj8gs9cEyR+arGeu9skqOEq16L9OS
+         Bitan0gbgM1UuggXMCi2yTlk1ljFQOqucEoOj8Jty4kInZF8cW39DeCjsZ6RNhdK2iqV
+         1vy8tH9bTqKQorqbo26I7sTxYl56mPICRNWVkZHmoLUF8SwybYUWScE0npABVn/wc+vH
+         ugvpoCTHZWlcEXNucd4OHk3VEHeUpfFUp/H1mz5AAyhLJbbnRdvqstD8EmtbeS0cbySx
+         GCDM3okbT3ATnTIoVI5GF9Ahm3eNecFY6UG5OMGXBJ+seVIZy5WVQsxkBRjCdK75m9EK
+         Czsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:from:to:cc:subject:references
          :mime-version:content-disposition:in-reply-to;
-        bh=XuNmdMIPTwgFRn+KXfNoshLUyGzQ84uByLpqYdBwMbo=;
-        b=TCE0grziqw8xmymDOobXTR/IqHrVLzKSAb8veJZS+lIfrTVo/VUCf/ROqlH/GF4V8Q
-         O8QMhhKZPn+0CkGXm8NhhribBotk19MZsn/xADscv4leKLaoliPg89f47s8Nz9Y8DX9p
-         6H95iBlvv9mXaIf5YeSR09QQ9oLGGxRb6nY8qfHx5bZ2IKinLH4y6xc6eMDNuFkJK4lU
-         Z7VvWQKBeiNpFyG8Rz82OGio/I+pZp2DA8t+ubbNL+a5CQDMg/DedHnQWtg6ivPBPlxr
-         7u84h7nB9XvTqNo8uKJacdL/aWWH4bJ72iA6SmyZEsmHg+u13sw4MlLiKzkEBJv6q6hK
-         gv9w==
-X-Gm-Message-State: AJIora9JLAI5CHH1dqV6pE75qh+QeiuuHt1FwifOLT3myTVlAbfl9rlm
-        jotgvPgIv0l04ujkQl+tgCo=
-X-Google-Smtp-Source: AGRyM1tmqcpLbADtd2gc4SGwWOE/T7MnAN+wXT6gAvIivgKm0kg/9B7WObW+jCA563pNquyOh73RBw==
-X-Received: by 2002:a17:90b:3c0c:b0:1ec:c5b1:ce56 with SMTP id pb12-20020a17090b3c0c00b001ecc5b1ce56mr3017768pjb.102.1655974643009;
-        Thu, 23 Jun 2022 01:57:23 -0700 (PDT)
+        bh=PZqL3nImpxdufaOwqet7SR9Z+NkTikarvBkFeRnT+2I=;
+        b=ZT5lLyaGba0Pmeer3mLU1ccl1arqCwvTLwvPIOt22406p5LO+YB3Lwazwa0WJVY8cE
+         5z4pAdXKdgeAoc8/+CXblHg8TnXTuOnZfZ4AT846pEP9DvdAAVd0TqlmoyZfUjzxz7Zb
+         kLknyv4kU4O+VjSZUzbO8o01B/c7uJ2bEWN3sYJ/VTNf2ni8DUkrUlFLY6yffaFlUx/0
+         mzxZrZXt5+C27M2Wrr3B64Pq5zkWvQnfcNrGwyyRNY+Uhd+J8sl4uBWPGYt0joL8upW+
+         l66QEzpX0ikt2CN57BWqSXevVz6xWOauA1Nejud4IiFu8ckcZJoewY2ig+7/bQaTTM8i
+         +8xA==
+X-Gm-Message-State: AJIora9z2WZMcO0J4za53FbjyYwVtBs4d3lEZAvsUg558w66F4WX3pID
+        jExc/tdPvbEVXYsTdzVcero=
+X-Google-Smtp-Source: AGRyM1vKmXk/uLI5dSeZfcXv16Z9wUccj2R6DJyUdHx7ZMvSxDwPoZabxYlZN0NUpy61Zt7pnNEW8Q==
+X-Received: by 2002:a63:4c:0:b0:408:c003:a45c with SMTP id 73-20020a63004c000000b00408c003a45cmr6692392pga.252.1655974760833;
+        Thu, 23 Jun 2022 01:59:20 -0700 (PDT)
 Received: from localhost ([193.203.214.57])
-        by smtp.gmail.com with ESMTPSA id o12-20020a62f90c000000b0051be16492basm15178139pfh.195.2022.06.23.01.57.22
+        by smtp.gmail.com with ESMTPSA id d6-20020a170902654600b0016357fd0fd1sm14182078pln.69.2022.06.23.01.59.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jun 2022 01:57:22 -0700 (PDT)
-Message-ID: <62b42af2.1c69fb81.6e00c.63b1@mx.google.com>
-X-Google-Original-Message-ID: <20220623085721.GA976022@cgel.zte@gmail.com>
-Date:   Thu, 23 Jun 2022 08:57:21 +0000
+        Thu, 23 Jun 2022 01:59:20 -0700 (PDT)
+Message-ID: <62b42b68.1c69fb81.9dc0f.49bb@mx.google.com>
+X-Google-Original-Message-ID: <20220623085918.GB976022@cgel.zte@gmail.com>
+Date:   Thu, 23 Jun 2022 08:59:18 +0000
 From:   CGEL <cgel.zte@gmail.com>
 To:     Greg KH <gregkh@linuxfoundation.org>
 Cc:     anton@tuxera.com, linux-ntfs-dev@lists.sourceforge.net,
@@ -64,11 +64,11 @@ Cc:     anton@tuxera.com, linux-ntfs-dev@lists.sourceforge.net,
 Subject: Re: [PATCH] fs/ntfs: fix BUG_ON of ntfs_read_block()
 References: <20220623033635.973929-1-xu.xin16@zte.com.cn>
  <20220623035131.974098-1-xu.xin16@zte.com.cn>
- <YrQc4ZOBGhmpvfaP@kroah.com>
+ <YrQc8xq+QezRcLi7@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YrQc4ZOBGhmpvfaP@kroah.com>
+In-Reply-To: <YrQc8xq+QezRcLi7@kroah.com>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -79,7 +79,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 23, 2022 at 09:57:21AM +0200, Greg KH wrote:
+On Thu, Jun 23, 2022 at 09:57:39AM +0200, Greg KH wrote:
 > On Thu, Jun 23, 2022 at 03:51:31AM +0000, cgel.zte@gmail.com wrote:
 > > From: xu xin <xu.xin16@zte.com.cn>
 > > 
@@ -100,8 +100,6 @@ On Thu, Jun 23, 2022 at 09:57:21AM +0200, Greg KH wrote:
 > >  fs/ntfs/aops.c | 6 +++++-
 > >  1 file changed, 5 insertions(+), 1 deletion(-)
 > > 
-> > diff --git a/fs/ntfs/aops.c b/fs/ntfs/aops.c
-> > index 5f4fb6ca6f2e..b6fd7e711420 100644
 > > --- a/fs/ntfs/aops.c
 > > +++ b/fs/ntfs/aops.c
 > > @@ -183,7 +183,11 @@ static int ntfs_read_block(struct page *page)
@@ -111,14 +109,26 @@ On Thu, Jun 23, 2022 at 09:57:21AM +0200, Greg KH wrote:
 > > -	BUG_ON(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni));
 > > +	if (unlikely(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni))) {
 > > +		WARN(1, "NTFS: ni->runlist.rl, ni->mft_no, and NInoAttr(ni) is null!\n");
+> > +		unlock_page(page);
+> > +		return -EINVAL;
+> > +	}
+> >  
+> >  	blocksize = vol->sb->s_blocksize;
+> >  	blocksize_bits = vol->sb->s_blocksize_bits;
+> > -- 
+> > 2.25.1
+> > 
 > 
-> So for systems with panic-on-warn, you are still crashing?  Why is this
-> WARN() line still needed here?
+> <formletter>
+> 
+> This is not the correct way to submit patches for inclusion in the
+> stable kernel tree.  Please read:
+>     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> for how to do this properly.
 >
 
-Sorry, I forgot about panic-on-warn. Use pr_warn() may be better.
-I'll send a patch-v2 .
+Sorry. I'll rewrite a patch to fix it. 
 
-> thanks,
-> 
-> greg k-h
+Thanks.
+
+> </formletter>
