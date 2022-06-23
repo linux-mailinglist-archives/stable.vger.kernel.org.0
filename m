@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAD2D558430
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 441CC558200
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234539AbiFWRkX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:40:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38116 "EHLO
+        id S230113AbiFWRJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:09:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234815AbiFWRiT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7830137A05;
-        Thu, 23 Jun 2022 10:08:23 -0700 (PDT)
+        with ESMTP id S233845AbiFWRIS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:08:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC2C453A74;
+        Thu, 23 Jun 2022 09:56:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A03CB82499;
-        Thu, 23 Jun 2022 17:08:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D860C3411B;
-        Thu, 23 Jun 2022 17:08:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88F77603E0;
+        Thu, 23 Jun 2022 16:56:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75255C3411B;
+        Thu, 23 Jun 2022 16:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004100;
-        bh=isyO/DTQYlF73FEx2d7UejnaUEw+tJ7LlnZ7gQHbFIM=;
+        s=korg; t=1656003412;
+        bh=PW9Uc52kYeo+JHHe0JnPlr9wT9JEcdBrvx+CeZ24egk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FNi2IbYqFrW57MqVBADydZB4RpcRboxzRr36Pkz+LmGb4BgnOOuIx+4FZMPZ5dGim
-         stLLRAcKgwSqUhZnbmEIEWa+reWaMjxmo8PZHwtRE9xYWqoClGHc1UqKf1B2AtZNin
-         lD0IgrvhdsC9ZOI370VEOTDi2h9NXTGkMcs2+b1w=
+        b=j3n7wqYm98cdzLZzdsn5dLq+noSq+k/P4k+2njsYDWZg1WTMDsPwxn69B5tfET7ta
+         N8PsqtHVJ6R2FuVrE+KsiemeuN9tSSvR7tPtXR6GGzNsT3NbGDfBd6M92KCSTbz+2D
+         PIUUpf4dWV/GEzcxDbpCqlol2OTFsJnFY0KJWqxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2e635807decef724a1fa@syzkaller.appspotmail.com,
-        Stephan Mueller <smueller@chronox.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 189/237] crypto: drbg - always try to free Jitter RNG instance
-Date:   Thu, 23 Jun 2022 18:43:43 +0200
-Message-Id: <20220623164348.584744527@linuxfoundation.org>
+        stable@vger.kernel.org, Wentao Wang <wwentao@vmware.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 231/264] scsi: vmw_pvscsi: Expand vcpuHint to 16 bits
+Date:   Thu, 23 Jun 2022 18:43:44 +0200
+Message-Id: <20220623164350.614354027@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Stephan Müller" <smueller@chronox.de>
+From: Wentao Wang <wwentao@vmware.com>
 
-commit 819966c06b759022e9932f328284314d9272b9f3 upstream.
+[ Upstream commit cf71d59c2eceadfcde0fb52e237990a0909880d7 ]
 
-The Jitter RNG is unconditionally allocated as a seed source follwoing
-the patch 97f2650e5040. Thus, the instance must always be deallocated.
+vcpuHint has been expanded to 16 bit on host to enable routing to more
+CPUs. Guest side should align with the change. This change has been tested
+with hosts with 8-bit and 16-bit vcpuHint, on both platforms host side can
+get correct value.
 
-Reported-by: syzbot+2e635807decef724a1fa@syzkaller.appspotmail.com
-Fixes: 97f2650e5040 ("crypto: drbg - always seeded with SP800-90B ...")
-Signed-off-by: Stephan Mueller <smueller@chronox.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/EF35F4D5-5DCC-42C5-BCC4-29DF1729B24C@vmware.com
+Signed-off-by: Wentao Wang <wwentao@vmware.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/drbg.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/vmw_pvscsi.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/crypto/drbg.c
-+++ b/crypto/drbg.c
-@@ -1646,10 +1646,12 @@ static int drbg_uninstantiate(struct drb
- 	if (drbg->random_ready.notifier_call) {
- 		unregister_random_ready_notifier(&drbg->random_ready);
- 		cancel_work_sync(&drbg->seed_work);
--		crypto_free_rng(drbg->jent);
--		drbg->jent = NULL;
- 	}
+diff --git a/drivers/scsi/vmw_pvscsi.h b/drivers/scsi/vmw_pvscsi.h
+index d41292ef85f2..98ad17cb6643 100644
+--- a/drivers/scsi/vmw_pvscsi.h
++++ b/drivers/scsi/vmw_pvscsi.h
+@@ -333,8 +333,8 @@ struct PVSCSIRingReqDesc {
+ 	u8	tag;
+ 	u8	bus;
+ 	u8	target;
+-	u8	vcpuHint;
+-	u8	unused[59];
++	u16	vcpuHint;
++	u8	unused[58];
+ } __packed;
  
-+	if (!IS_ERR_OR_NULL(drbg->jent))
-+		crypto_free_rng(drbg->jent);
-+	drbg->jent = NULL;
-+
- 	if (drbg->d_ops)
- 		drbg->d_ops->crypto_fini(drbg);
- 	drbg_dealloc_state(drbg);
+ /*
+-- 
+2.35.1
+
 
 
