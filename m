@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9C83558302
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B22558305
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233513AbiFWRXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:23:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34760 "EHLO
+        id S233624AbiFWRXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:23:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234136AbiFWRXM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:23:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B083F62BF4;
-        Thu, 23 Jun 2022 10:01:43 -0700 (PDT)
+        with ESMTP id S234246AbiFWRXW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:23:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF5E64787;
+        Thu, 23 Jun 2022 10:01:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C74D261573;
-        Thu, 23 Jun 2022 17:01:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F262C3411B;
-        Thu, 23 Jun 2022 17:01:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56486B8248F;
+        Thu, 23 Jun 2022 17:01:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C89FC3411B;
+        Thu, 23 Jun 2022 17:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003695;
-        bh=IXRIJ1GHDIZo2SuBShIm4o6PtlLtHIr1VFnSfZwBj5Q=;
+        s=korg; t=1656003698;
+        bh=N5fiw4PejwCrYvciUGPEH44DfCxU/YsYTR0gRKooOCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EzN7Y18P++lC71x4222Qeg121G9VTf5KuD5wjUo/wjvn60L9vvT5hsQS4yNXW0Ap1
-         5M2mSjcE9YW8oiCmxerH7Dn8ibyf95AV+chN0qUhVbBXt6VS6QI6ArtJH+Xp42GVBg
-         KKRffKo03mIEVtpmGQayxi1evIH3cF/VObJ9xBVg=
+        b=YcClG9Vg/HnA7yJYwVA/PWCmu4Vmcau7bRyWM0axtQf2egBJG74fXVMu10EWIGUwL
+         xwGPcabnYA8t+g4tJ5dni8e6ZzMwlwHAKSBQfLm6QudJcU84za3SmBMT5pRymVE7Ji
+         mDFvi68QdJcigoTIcJRrGE/2IbNXbUmzy+PuWpSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 058/237] crypto: blake2s - adjust include guard naming
-Date:   Thu, 23 Jun 2022 18:41:32 +0200
-Message-Id: <20220623164344.827875681@linuxfoundation.org>
+Subject: [PATCH 4.14 059/237] random: document add_hwgenerator_randomness() with other input functions
+Date:   Thu, 23 Jun 2022 18:41:33 +0200
+Message-Id: <20220623164344.855963937@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
 References: <20220623164343.132308638@linuxfoundation.org>
@@ -55,59 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 8786841bc2020f7f2513a6c74e64912f07b9c0dc upstream.
+commit 2b6c6e3d9ce3aa0e547ac25d60e06fe035cd9f79 upstream.
 
-Use the full path in the include guards for the BLAKE2s headers to avoid
-ambiguity and to match the convention for most files in include/crypto/.
+The section at the top of random.c which documents the input functions
+available does not document add_hwgenerator_randomness() which might lead
+a reader to overlook it. Add a brief note about it.
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[Jason: reorganize position of function in doc comment and also document
+ add_bootloader_randomness() while we're at it.]
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/crypto/blake2s.h          |    6 +++---
- include/crypto/internal/blake2s.h |    6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/char/random.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/include/crypto/blake2s.h
-+++ b/include/crypto/blake2s.h
-@@ -3,8 +3,8 @@
-  * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-  */
- 
--#ifndef BLAKE2S_H
--#define BLAKE2S_H
-+#ifndef _CRYPTO_BLAKE2S_H
-+#define _CRYPTO_BLAKE2S_H
- 
- #include <linux/bug.h>
- #include <linux/types.h>
-@@ -99,4 +99,4 @@ static inline void blake2s(u8 *out, cons
- 	blake2s_final(&state, out);
- }
- 
--#endif /* BLAKE2S_H */
-+#endif /* _CRYPTO_BLAKE2S_H */
---- a/include/crypto/internal/blake2s.h
-+++ b/include/crypto/internal/blake2s.h
-@@ -1,7 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 OR MIT */
- 
--#ifndef BLAKE2S_INTERNAL_H
--#define BLAKE2S_INTERNAL_H
-+#ifndef _CRYPTO_INTERNAL_BLAKE2S_H
-+#define _CRYPTO_INTERNAL_BLAKE2S_H
- 
- #include <crypto/blake2s.h>
- 
-@@ -16,4 +16,4 @@ static inline void blake2s_set_lastblock
- 	state->f[0] = -1;
- }
- 
--#endif /* BLAKE2S_INTERNAL_H */
-+#endif /* _CRYPTO_INTERNAL_BLAKE2S_H */
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -202,6 +202,9 @@
+  *                                unsigned int value);
+  *	void add_interrupt_randomness(int irq, int irq_flags);
+  * 	void add_disk_randomness(struct gendisk *disk);
++ *	void add_hwgenerator_randomness(const char *buffer, size_t count,
++ *					size_t entropy);
++ *	void add_bootloader_randomness(const void *buf, unsigned int size);
+  *
+  * add_device_randomness() is for adding data to the random pool that
+  * is likely to differ between two devices (or possibly even per boot).
+@@ -228,6 +231,14 @@
+  * particular randomness source.  They do this by keeping track of the
+  * first and second order deltas of the event timings.
+  *
++ * add_hwgenerator_randomness() is for true hardware RNGs, and will credit
++ * entropy as specified by the caller. If the entropy pool is full it will
++ * block until more entropy is needed.
++ *
++ * add_bootloader_randomness() is the same as add_hwgenerator_randomness() or
++ * add_device_randomness(), depending on whether or not the configuration
++ * option CONFIG_RANDOM_TRUST_BOOTLOADER is set.
++ *
+  * Ensuring unpredictability at system startup
+  * ============================================
+  *
 
 
