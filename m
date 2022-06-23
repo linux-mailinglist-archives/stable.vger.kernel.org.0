@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A7A65581ED
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC8D25581EB
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229652AbiFWRI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:08:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33644 "EHLO
+        id S229689AbiFWRJA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:09:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232052AbiFWRHV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:07:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E0825250F;
-        Thu, 23 Jun 2022 09:56:08 -0700 (PDT)
+        with ESMTP id S233035AbiFWRH3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:07:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A974522DD;
+        Thu, 23 Jun 2022 09:56:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D199603E0;
-        Thu, 23 Jun 2022 16:56:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B77FC3411B;
-        Thu, 23 Jun 2022 16:55:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 861BBB8248C;
+        Thu, 23 Jun 2022 16:56:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01EE8C3411B;
+        Thu, 23 Jun 2022 16:56:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003360;
-        bh=sqG32h4dd04TUrvBf8ZFamf0IxGJmSnCHUD/y7178dg=;
+        s=korg; t=1656003363;
+        bh=bRpfpTLbjOWFCMFLl0M5dzFYUWbGwOag7/SYxuGRWz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2B/hKp7siQk6K5NAII0tgaTXSpsRUdYlJz/SnA7/2SxC+ETlEztN9xE1/3cX3+bp8
-         vnNClfeI5VTPkdqGUh1REFx2EOrSXL3eff7vbjePf5RcMCAossf/KnufnOh3HrF7/S
-         mDmm4mEqrQTUF0n/96yZH/gKG3L2LvPm5DwD6Fd8=
+        b=VnwHxOKjKNXa1VC376oKYuS/mFjXpaqom+EIvLsEJCLDxsm6xDxwfHr3P0XXAx1H8
+         jlBB7NvEkpsfghaubGX3kJbIW7T/758qhA9C9HVwIFNoUOgnsSkw8UA/VmMyYj7Mfw
+         g2tb9pg1nbMY9/5BGRgVnlqm6T7piHO324QrjaKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Al Viro <viro@zeniv.linux.org.uk>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 211/264] random: convert to using fops->write_iter()
-Date:   Thu, 23 Jun 2022 18:43:24 +0200
-Message-Id: <20220623164350.042457733@linuxfoundation.org>
+Subject: [PATCH 4.9 212/264] random: wire up fops->splice_{read,write}_iter()
+Date:   Thu, 23 Jun 2022 18:43:25 +0200
+Message-Id: <20220623164350.071845525@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
 References: <20220623164344.053938039@linuxfoundation.org>
@@ -56,146 +56,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit 22b0a222af4df8ee9bb8e07013ab44da9511b047 upstream.
+commit 79025e727a846be6fd215ae9cdb654368ac3f9a6 upstream.
 
-Now that the read side has been converted to fix a regression with
-splice, convert the write side as well to have some symmetry in the
-interface used (and help deprecate ->write()).
+Now that random/urandom is using {read,write}_iter, we can wire it up to
+using the generic splice handlers.
 
+Fixes: 36e2c7421f02 ("fs: don't allow splice read/write without explicit ops")
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[Jason: cleaned up random_ioctl a bit, require full writes in
- RNDADDENTROPY since it's crediting entropy, simplify control flow of
- write_pool(), and incorporate suggestions from Al.]
+[Jason: added the splice_write path. Note that sendfile() and such still
+ does not work for read, though it does for write, because of a file
+ type restriction in splice_direct_to_actor(), which I'll address
+ separately.]
 Cc: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   67 ++++++++++++++++++++++++++------------------------
- 1 file changed, 35 insertions(+), 32 deletions(-)
+ drivers/char/random.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1252,39 +1252,31 @@ static unsigned int random_poll(struct f
- 	return crng_ready() ? POLLIN | POLLRDNORM : POLLOUT | POLLWRNORM;
- }
- 
--static int write_pool(const char __user *ubuf, size_t len)
-+static ssize_t write_pool(struct iov_iter *iter)
- {
--	size_t block_len;
--	int ret = 0;
- 	u8 block[BLAKE2S_BLOCK_SIZE];
-+	ssize_t ret = 0;
-+	size_t copied;
- 
--	while (len) {
--		block_len = min(len, sizeof(block));
--		if (copy_from_user(block, ubuf, block_len)) {
--			ret = -EFAULT;
--			goto out;
--		}
--		len -= block_len;
--		ubuf += block_len;
--		mix_pool_bytes(block, block_len);
-+	if (unlikely(!iov_iter_count(iter)))
-+		return 0;
-+
-+	for (;;) {
-+		copied = copy_from_iter(block, sizeof(block), iter);
-+		ret += copied;
-+		mix_pool_bytes(block, copied);
-+		if (!iov_iter_count(iter) || copied != sizeof(block))
-+			break;
- 		cond_resched();
- 	}
- 
--out:
- 	memzero_explicit(block, sizeof(block));
--	return ret;
-+	return ret ? ret : -EFAULT;
- }
- 
--static ssize_t random_write(struct file *file, const char __user *ubuf,
--			    size_t len, loff_t *ppos)
-+static ssize_t random_write_iter(struct kiocb *kiocb, struct iov_iter *iter)
- {
--	int ret;
--
--	ret = write_pool(ubuf, len);
--	if (ret)
--		return ret;
--
--	return (ssize_t)len;
-+	return write_pool(iter);
- }
- 
- static ssize_t urandom_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
-@@ -1316,9 +1308,8 @@ static ssize_t random_read_iter(struct k
- 
- static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
- {
--	int size, ent_count;
- 	int __user *p = (int __user *)arg;
--	int retval;
-+	int ent_count;
- 
- 	switch (cmd) {
- 	case RNDGETENTCNT:
-@@ -1335,20 +1326,32 @@ static long random_ioctl(struct file *f,
- 			return -EINVAL;
- 		credit_init_bits(ent_count);
- 		return 0;
--	case RNDADDENTROPY:
-+	case RNDADDENTROPY: {
-+		struct iov_iter iter;
-+		struct iovec iov;
-+		ssize_t ret;
-+		int len;
-+
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
- 		if (get_user(ent_count, p++))
- 			return -EFAULT;
- 		if (ent_count < 0)
- 			return -EINVAL;
--		if (get_user(size, p++))
-+		if (get_user(len, p++))
-+			return -EFAULT;
-+		ret = import_single_range(WRITE, p, len, &iov, &iter);
-+		if (unlikely(ret))
-+			return ret;
-+		ret = write_pool(&iter);
-+		if (unlikely(ret < 0))
-+			return ret;
-+		/* Since we're crediting, enforce that it was all written into the pool. */
-+		if (unlikely(ret != len))
- 			return -EFAULT;
--		retval = write_pool((const char __user *)p, size);
--		if (retval < 0)
--			return retval;
- 		credit_init_bits(ent_count);
- 		return 0;
-+	}
- 	case RNDZAPENTCNT:
- 	case RNDCLEARPOOL:
- 		/* No longer has any effect. */
-@@ -1374,7 +1377,7 @@ static int random_fasync(int fd, struct
- 
- const struct file_operations random_fops = {
- 	.read_iter = random_read_iter,
--	.write = random_write,
-+	.write_iter = random_write_iter,
- 	.poll = random_poll,
- 	.unlocked_ioctl = random_ioctl,
- 	.fasync = random_fasync,
-@@ -1383,7 +1386,7 @@ const struct file_operations random_fops
- 
- const struct file_operations urandom_fops = {
- 	.read_iter = urandom_read_iter,
--	.write = random_write,
-+	.write_iter = random_write_iter,
+@@ -1382,6 +1382,8 @@ const struct file_operations random_fops
  	.unlocked_ioctl = random_ioctl,
  	.fasync = random_fasync,
  	.llseek = noop_llseek,
++	.splice_read = generic_file_splice_read,
++	.splice_write = iter_file_splice_write,
+ };
+ 
+ const struct file_operations urandom_fops = {
+@@ -1390,6 +1392,8 @@ const struct file_operations urandom_fop
+ 	.unlocked_ioctl = random_ioctl,
+ 	.fasync = random_fasync,
+ 	.llseek = noop_llseek,
++	.splice_read = generic_file_splice_read,
++	.splice_write = iter_file_splice_write,
+ };
+ 
+ 
 
 
