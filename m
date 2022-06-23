@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8001F55807A
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F9115580C9
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232519AbiFWQrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:47:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48158 "EHLO
+        id S232371AbiFWQxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:53:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232704AbiFWQrG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:47:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 150E845ACF;
-        Thu, 23 Jun 2022 09:47:06 -0700 (PDT)
+        with ESMTP id S233776AbiFWQvh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA9150B03;
+        Thu, 23 Jun 2022 09:49:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A043A61F90;
-        Thu, 23 Jun 2022 16:47:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A4C2C341C7;
-        Thu, 23 Jun 2022 16:47:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D10DAB82490;
+        Thu, 23 Jun 2022 16:49:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25D83C3411B;
+        Thu, 23 Jun 2022 16:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002824;
-        bh=kearN7w/MwoeBu6uvpGtIJ06rClrK2mOUgNbB0LLO1E=;
+        s=korg; t=1656002978;
+        bh=oybuJme2cmBln+oj51ula7SjNcFLHu41dB7ZU0zJptQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a5hEjP9IREkjnOupAKWqeo1SxG9eX5a85kfGHe04JGLELmp//sXYTcejXP5BC/Vu2
-         GA+SqVbK22aNAXnuJHEbL9dYCEz/SztIQ6fXDwDXNAO1UQc4V7mY/f7wvGkiS18gfk
-         /M33kRc9p7VlXB7Zd6eM13fEsHzLG+dwgJvTY660=
+        b=QGlblKj0CokZrI1/v5izy6KMe3x8Gw4rs3oCgOZZtKt/l/9JfuekPGOrNYDLhITHl
+         hg6BBvEBrdGoatpIkyqXb5dCr5NBH5GgQHFgqZqCIp2Q/I2b8/5S++8MbqlKbUred1
+         EQsluSSM5KIKVLF5GQqpHZO1deEYuZnPnuOoiUOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 037/264] drivers/char/random.c: remove unused stuct poolinfo::poolbits
-Date:   Thu, 23 Jun 2022 18:40:30 +0200
-Message-Id: <20220623164345.118733784@linuxfoundation.org>
+Subject: [PATCH 4.9 038/264] drivers/char/random.c: make primary_crng static
+Date:   Thu, 23 Jun 2022 18:40:31 +0200
+Message-Id: <20220623164345.147190185@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
 References: <20220623164344.053938039@linuxfoundation.org>
@@ -57,39 +57,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit 3bd0b5bf7dc3ea02070fcbcd682ecf628269e8ef upstream.
+commit 764ed189c82090c1d85f0e30636156736d8f09a8 upstream.
 
-This field is never used, might as well remove it.
+Since the definition of struct crng_state is private to random.c, and
+primary_crng is neither declared or used elsewhere, there's no reason
+for that symbol to have external linkage.
 
 Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -296,7 +296,7 @@
-  * To allow fractional bits to be tracked, the entropy_count field is
-  * denominated in units of 1/8th bits.
-  *
-- * 2*(ENTROPY_SHIFT + log2(poolbits)) must <= 31, or the multiply in
-+ * 2*(ENTROPY_SHIFT + poolbitshift) must <= 31, or the multiply in
-  * credit_entropy_bits() needs to be 64 bits wide.
-  */
- #define ENTROPY_SHIFT 3
-@@ -361,8 +361,8 @@ static int random_write_wakeup_bits = 28
-  * irreducible, which we have made here.
-  */
- static const struct poolinfo {
--	int poolbitshift, poolwords, poolbytes, poolbits, poolfracbits;
--#define S(x) ilog2(x)+5, (x), (x)*4, (x)*32, (x) << (ENTROPY_SHIFT+5)
-+	int poolbitshift, poolwords, poolbytes, poolfracbits;
-+#define S(x) ilog2(x)+5, (x), (x)*4, (x) << (ENTROPY_SHIFT+5)
- 	int tap1, tap2, tap3, tap4, tap5;
- } poolinfo_table[] = {
- 	/* was: x^128 + x^103 + x^76 + x^51 +x^25 + x + 1 */
+@@ -416,7 +416,7 @@ struct crng_state {
+ 	spinlock_t	lock;
+ };
+ 
+-struct crng_state primary_crng = {
++static struct crng_state primary_crng = {
+ 	.lock = __SPIN_LOCK_UNLOCKED(primary_crng.lock),
+ };
+ 
 
 
