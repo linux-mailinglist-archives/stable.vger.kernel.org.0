@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2D4E558548
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDB06558354
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:29:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231909AbiFWRzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:55:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51248 "EHLO
+        id S231945AbiFWR3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:29:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235338AbiFWRyD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:54:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 406A9AD1A2;
-        Thu, 23 Jun 2022 10:15:07 -0700 (PDT)
+        with ESMTP id S234432AbiFWR2l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:28:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D335C7946C;
+        Thu, 23 Jun 2022 10:04:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE50DB82498;
-        Thu, 23 Jun 2022 17:15:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37DEBC3411B;
-        Thu, 23 Jun 2022 17:15:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D230B8249A;
+        Thu, 23 Jun 2022 17:04:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63BDFC341CD;
+        Thu, 23 Jun 2022 17:04:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004504;
-        bh=VpQApCs5/lvsmf8+1uF4l3TjOpcku2gXN53TYSaWCMc=;
+        s=korg; t=1656003856;
+        bh=/GLLhCzHljy652gAHK54sxBhnpC8r0V+X/RUS6vip5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2uHMyv2Fih1mBKxUEJPFB+Exihu/MfTmNEJglp90wv734qfd5CooxRmw1tVSpuf2a
-         nD6ZuVJJRVgGGRJVTzKlSvGHaZ9qcLu9BfSnqhPqk5lrn8qpqdkArFYu5Yy3TefS8k
-         Z9zn8OKKIH0TouaKNwcuHDBDv+k3ktiwcdE3HPBA=
+        b=hLxBDWzVryqq4IQGKToDCo11AdG+IxbUbCY7ZrNzzxZe08TAnwvtV6YdeZqmv7S/I
+         cM8xrSk9BcQjx2D0B9Oqc8AmX2qbz2Juz1UYBL8yoWLnACl35+NPZGWLtue8qAe+QO
+         yzDf5oLfLtTyP8CHYfBy61FhXTidjJV9jevkkzCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        stable@vger.kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 059/234] random: dont reset crng_init_cnt on urandom_read()
+Subject: [PATCH 4.14 092/237] random: make credit_entropy_bits() always safe
 Date:   Thu, 23 Jun 2022 18:42:06 +0200
-Message-Id: <20220623164344.734731857@linuxfoundation.org>
+Message-Id: <20220623164345.797104546@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
-References: <20220623164343.042598055@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 6c8e11e08a5b74bb8a5cdd5cbc1e5143df0fba72 upstream.
+commit a49c010e61e1938be851f5e49ac219d49b704103 upstream.
 
-At the moment, urandom_read() (used for /dev/urandom) resets crng_init_cnt
-to zero when it is called at crng_init<2. This is inconsistent: We do it
-for /dev/urandom reads, but not for the equivalent
-getrandom(GRND_INSECURE).
+This is called from various hwgenerator drivers, so rather than having
+one "safe" version for userspace and one "unsafe" version for the
+kernel, just make everything safe; the checks are cheap and sensible to
+have anyway.
 
-(And worse, as Jason pointed out, we're only doing this as long as
-maxwarn>0.)
-
-crng_init_cnt is only read in crng_fast_load(); it is relevant at
-crng_init==0 for determining when to switch to crng_init==1 (and where in
-the RNG state array to write).
-
-As far as I understand:
-
- - crng_init==0 means "we have nothing, we might just be returning the same
-   exact numbers on every boot on every machine, we don't even have
-   non-cryptographic randomness; we should shove every bit of entropy we
-   can get into the RNG immediately"
- - crng_init==1 means "well we have something, it might not be
-   cryptographic, but at least we're not gonna return the same data every
-   time or whatever, it's probably good enough for TCP and ASLR and stuff;
-   we now have time to build up actual cryptographic entropy in the input
-   pool"
- - crng_init==2 means "this is supposed to be cryptographically secure now,
-   but we'll keep adding more entropy just to be sure".
-
-The current code means that if someone is pulling data from /dev/urandom
-fast enough at crng_init==0, we'll keep resetting crng_init_cnt, and we'll
-never make forward progress to crng_init==1. It seems to be intended to
-prevent an attacker from bruteforcing the contents of small individual RNG
-inputs on the way from crng_init==0 to crng_init==1, but that's misguided;
-crng_init==1 isn't supposed to provide proper cryptographic security
-anyway, RNG users who care about getting secure RNG output have to wait
-until crng_init==2.
-
-This code was inconsistent, and it probably made things worse - just get
-rid of it.
-
-Signed-off-by: Jann Horn <jannh@google.com>
+Reported-by: Sultan Alsawaf <sultan@kerneltoast.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/char/random.c |   29 +++++++++--------------------
+ 1 file changed, 9 insertions(+), 20 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1831,7 +1831,6 @@ urandom_read_nowarn(struct file *file, c
- static ssize_t
- urandom_read(struct file *file, char __user *buf, size_t nbytes, loff_t *ppos)
+@@ -447,18 +447,15 @@ static void process_random_ready_list(vo
+ 	spin_unlock_irqrestore(&random_ready_list_lock, flags);
+ }
+ 
+-/*
+- * Credit (or debit) the entropy store with n bits of entropy.
+- * Use credit_entropy_bits_safe() if the value comes from userspace
+- * or otherwise should be checked for extreme values.
+- */
+ static void credit_entropy_bits(int nbits)
  {
--	unsigned long flags;
- 	static int maxwarn = 10;
+ 	int entropy_count, orig;
  
- 	if (!crng_ready() && maxwarn > 0) {
-@@ -1839,9 +1838,6 @@ urandom_read(struct file *file, char __u
- 		if (__ratelimit(&urandom_warning))
- 			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
- 				  current->comm, nbytes);
--		spin_lock_irqsave(&primary_crng.lock, flags);
--		crng_init_cnt = 0;
--		spin_unlock_irqrestore(&primary_crng.lock, flags);
- 	}
+-	if (!nbits)
++	if (nbits <= 0)
+ 		return;
  
- 	return urandom_read_nowarn(file, buf, nbytes, ppos);
++	nbits = min(nbits, POOL_BITS);
++
+ 	do {
+ 		orig = READ_ONCE(input_pool.entropy_count);
+ 		entropy_count = min(POOL_BITS, orig + nbits);
+@@ -470,18 +467,6 @@ static void credit_entropy_bits(int nbit
+ 		crng_reseed(&primary_crng, true);
+ }
+ 
+-static int credit_entropy_bits_safe(int nbits)
+-{
+-	if (nbits < 0)
+-		return -EINVAL;
+-
+-	/* Cap the value to avoid overflows */
+-	nbits = min(nbits, POOL_BITS);
+-
+-	credit_entropy_bits(nbits);
+-	return 0;
+-}
+-
+ /*********************************************************************
+  *
+  * CRNG using CHACHA20
+@@ -1525,7 +1510,10 @@ static long random_ioctl(struct file *f,
+ 			return -EPERM;
+ 		if (get_user(ent_count, p))
+ 			return -EFAULT;
+-		return credit_entropy_bits_safe(ent_count);
++		if (ent_count < 0)
++			return -EINVAL;
++		credit_entropy_bits(ent_count);
++		return 0;
+ 	case RNDADDENTROPY:
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+@@ -1538,7 +1526,8 @@ static long random_ioctl(struct file *f,
+ 		retval = write_pool((const char __user *)p, size);
+ 		if (retval < 0)
+ 			return retval;
+-		return credit_entropy_bits_safe(ent_count);
++		credit_entropy_bits(ent_count);
++		return 0;
+ 	case RNDZAPENTCNT:
+ 	case RNDCLEARPOOL:
+ 		/*
 
 
