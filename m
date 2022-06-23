@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6057558361
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:29:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0641558502
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:53:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233679AbiFWR3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:29:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50680 "EHLO
+        id S229477AbiFWRx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:53:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234088AbiFWR1r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:27:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB3BB6E79E;
-        Thu, 23 Jun 2022 10:03:40 -0700 (PDT)
+        with ESMTP id S235272AbiFWRwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:52:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43EB7F38;
+        Thu, 23 Jun 2022 10:12:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE2CB615AC;
-        Thu, 23 Jun 2022 17:03:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23A61C341C4;
-        Thu, 23 Jun 2022 17:03:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EB7C61CD9;
+        Thu, 23 Jun 2022 17:12:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64C89C3411B;
+        Thu, 23 Jun 2022 17:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003819;
-        bh=gV8i2S2TH5NHd/qef6FmH+zYC+RBXviRsoFVmgj3lTU=;
+        s=korg; t=1656004361;
+        bh=sivh1AXAIVf1MuR0+UdKNkj6eNlCUAhnZJOWSaHp8Y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hTrwyyeRpm6i+0eEtbhuA48Q1GuMFMiOlUZCGgd+lhRl4N+tsSVNzErT16Ob6MuEZ
-         ASjUO259Ew7zjO79CGwI33UQpV0CBdpOg/1gI7xD3P5WlDjg2j1LrKMp1e6SIwtNGi
-         zZi5kPqC441P4+iuNz3oLgnaVdhZGP8Unw2uH0es=
+        b=LHtX5w5IKHtKT50BfphS+IyZ/Y5XVsLby/BpYasqcUGbyDzuPPWQq3Qi364WYDwGG
+         VuwBBuE10hPPloKnnFHIBsfWeH0W0nEP3B3h4BN+fGSAuwqGmwioqgl90NmeN3odXy
+         gsbvLBBxaIA7al8tMXBucHtHa95fXVdILGESE+co=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
-        Mark Brown <broonie@kernel.org>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 047/237] powerpc: Remove arch_has_random, arch_has_random_seed
+Subject: [PATCH 4.19 014/234] Revert "hwrng: core - Freeze khwrng thread during suspend"
 Date:   Thu, 23 Jun 2022 18:41:21 +0200
-Message-Id: <20220623164344.507584170@linuxfoundation.org>
+Message-Id: <20220623164343.463759777@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
+References: <20220623164343.042598055@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Henderson <richard.henderson@linaro.org>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit cbac004995a0ce8453bdc555fab579e2bdb842a6 upstream.
+commit 08e97aec700aeff54c4847f170e566cbd7e14e81 upstream.
 
-These symbols are currently part of the generic archrandom.h
-interface, but are currently unused and can be removed.
+This reverts commit 03a3bb7ae631 ("hwrng: core - Freeze khwrng
+thread during suspend"), ff296293b353 ("random: Support freezable
+kthreads in add_hwgenerator_randomness()") and 59b569480dc8 ("random:
+Use wait_event_freezable() in add_hwgenerator_randomness()").
 
-Signed-off-by: Richard Henderson <rth@twiddle.net>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20200110145422.49141-3-broonie@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+These patches introduced regressions and we need more time to
+get them ready for mainline.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/archrandom.h |   10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/char/random.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/arch/powerpc/include/asm/archrandom.h
-+++ b/arch/powerpc/include/asm/archrandom.h
-@@ -34,16 +34,6 @@ static inline int arch_get_random_seed_i
- 
- 	return rc;
- }
--
--static inline int arch_has_random(void)
--{
--	return 0;
--}
--
--static inline int arch_has_random_seed(void)
--{
--	return !!ppc_md.get_random_seed;
--}
- #endif /* CONFIG_ARCH_RANDOM */
- 
- #ifdef CONFIG_PPC_POWERNV
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -327,7 +327,6 @@
+ #include <linux/percpu.h>
+ #include <linux/cryptohash.h>
+ #include <linux/fips.h>
+-#include <linux/freezer.h>
+ #include <linux/ptrace.h>
+ #include <linux/workqueue.h>
+ #include <linux/irq.h>
+@@ -2494,8 +2493,7 @@ void add_hwgenerator_randomness(const ch
+ 	 * We'll be woken up again once below random_write_wakeup_thresh,
+ 	 * or when the calling thread is about to terminate.
+ 	 */
+-	wait_event_freezable(random_write_wait,
+-			kthread_should_stop() ||
++	wait_event_interruptible(random_write_wait, kthread_should_stop() ||
+ 			ENTROPY_BITS(&input_pool) <= random_write_wakeup_bits);
+ 	mix_pool_bytes(poolp, buffer, count);
+ 	credit_entropy_bits(poolp, entropy);
 
 
