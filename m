@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C60EE558217
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:10:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52B64558437
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229549AbiFWRKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:10:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39070 "EHLO
+        id S234574AbiFWRke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:40:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229528AbiFWRJE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:09:04 -0400
+        with ESMTP id S234847AbiFWRiW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 848594B1C4;
-        Thu, 23 Jun 2022 09:57:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E6324B1E4;
+        Thu, 23 Jun 2022 10:08:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6C2861403;
-        Thu, 23 Jun 2022 16:57:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84326C3411B;
-        Thu, 23 Jun 2022 16:57:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9917C61D19;
+        Thu, 23 Jun 2022 17:08:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DFC8C3411B;
+        Thu, 23 Jun 2022 17:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003442;
-        bh=SHTi1zF3pa0p1FdO0UqpPoroeo9nkhzpDP2J2+uPBwo=;
+        s=korg; t=1656004134;
+        bh=OhAGgrsd2hb8cxfZVSqxF5k5FDAbFKwyrNdGMaFnscM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B+pQeuN2hagj9G1iBH2BpyA8RqES5IW/BycNioLok+4mAJT8nTkHMqEh7gC/bK+6P
-         f+7+iMAcLUmpvpwZAa4rCJ/3aGTC/TpT+wH+jGBO9Ioy3V24oJEdeCDazQotBhjmF2
-         W52WDpb9GvHuUpMGH7QwwtKYU+AQaFJ6ptmoNfEQ=
+        b=KaJBL+wN5UfzvDaB6QOU+lFAkLzEmj6Srzj6yeqKkZIrai4H/2uboh1o7iP5Ifvhf
+         VAi8HCYflsAUXhetl/fQzMzuUmV0m+XqKIYmOnKuKIaKKPzVjlOGNt5E19mjtDVUaC
+         Ccx3iBC/NTCpK8zX4ck97xRrf3JelRiZs4VA2/QA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 240/264] irqchip/gic/realview: Fix refcount leak in realview_gic_of_init
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 199/237] ASoC: wm8962: Fix suspend while playing music
 Date:   Thu, 23 Jun 2022 18:43:53 +0200
-Message-Id: <20220623164350.865622077@linuxfoundation.org>
+Message-Id: <20220623164348.871341179@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit f4b98e314888cc51486421bcf6d52852452ea48b ]
+[ Upstream commit d1f5272c0f7d2e53c6f2480f46725442776f5f78 ]
 
-of_find_matching_node_and_match() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+If the audio CODEC is playing sound when the system is suspended,
+it can be left in a state which throws the following error:
 
-Fixes: 82b0a434b436 ("irqchip/gic/realview: Support more RealView DCC variants")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220601080930.31005-2-linmq006@gmail.com
+wm8962 3-001a: ASoC: error at soc_component_read_no_lock on wm8962.3-001a: -16
+
+Once this error has occurred, the audio will not work again until rebooted.
+
+Fix this by configuring SET_SYSTEM_SLEEP_PM_OPS.
+
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220526182129.538472-1-aford173@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-realview.c | 1 +
+ sound/soc/codecs/wm8962.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/irqchip/irq-gic-realview.c b/drivers/irqchip/irq-gic-realview.c
-index 54c296401525..61024882c685 100644
---- a/drivers/irqchip/irq-gic-realview.c
-+++ b/drivers/irqchip/irq-gic-realview.c
-@@ -56,6 +56,7 @@ realview_gic_of_init(struct device_node *node, struct device_node *parent)
+diff --git a/sound/soc/codecs/wm8962.c b/sound/soc/codecs/wm8962.c
+index 0e8008d38161..d46881f96c16 100644
+--- a/sound/soc/codecs/wm8962.c
++++ b/sound/soc/codecs/wm8962.c
+@@ -3861,6 +3861,7 @@ static int wm8962_runtime_suspend(struct device *dev)
+ #endif
  
- 	/* The PB11MPCore GIC needs to be configured in the syscon */
- 	map = syscon_node_to_regmap(np);
-+	of_node_put(np);
- 	if (!IS_ERR(map)) {
- 		/* new irq mode with no DCC */
- 		regmap_write(map, REALVIEW_SYS_LOCK_OFFSET,
+ static const struct dev_pm_ops wm8962_pm = {
++	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
+ 	SET_RUNTIME_PM_OPS(wm8962_runtime_suspend, wm8962_runtime_resume, NULL)
+ };
+ 
 -- 
 2.35.1
 
