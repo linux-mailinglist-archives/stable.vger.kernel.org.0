@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74267558073
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AAFD55805D
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:52:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231714AbiFWQrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:47:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47840 "EHLO
+        id S232307AbiFWQrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:47:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232471AbiFWQqp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:46:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F42749B48;
-        Thu, 23 Jun 2022 09:46:39 -0700 (PDT)
+        with ESMTP id S232512AbiFWQqr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:46:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AC5B49B53;
+        Thu, 23 Jun 2022 09:46:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 195F061F8B;
-        Thu, 23 Jun 2022 16:46:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED9A7C3411B;
-        Thu, 23 Jun 2022 16:46:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2235861F9A;
+        Thu, 23 Jun 2022 16:46:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECA99C3411B;
+        Thu, 23 Jun 2022 16:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002798;
-        bh=W8dq3uMApTVef6GoyPpbGGEqhGowcse71vUYaDeYi34=;
+        s=korg; t=1656002804;
+        bh=DbleYfr6Dg73DiUR6DYT51RtPvn2e5V+kxmj2Zdr3s8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JvA0GxQAAn+oCTuduJlfb76Bz9FKvWPsUPi1aDscGGB7Z5TJ4Rzdz9r3tl/E0M/Uq
-         WycE3mcvNsLqok5kIZjjOGzPZdRk2DBqxCuwgEyNP1Sk2Z1hRHk0vrkO3ruhC8/wCN
-         G7YAjdO99ArWa0AjH1B4IfGTBaFIFVlTsAFjl5JA=
+        b=QNV8JBKkJFuYbuzjxvdITxdRItHauAaPUT/BD6Ptes0SeMa/P2LMVkez2NW7oKSPS
+         5EJJc4cPxYrjPcpGGB+Ju5w5WNzVhO/W+JFnDLWQohLZyMsV+3aZc1UYAsLh+vU26K
+         E7PMm+az23B0kMz+gLaXRPv1nTlLQE8/vgLGw87c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        "Tobin C. Harding" <me@tobin.cc>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 029/264] drivers/char/random.c: remove unused dont_count_entropy
-Date:   Thu, 23 Jun 2022 18:40:22 +0200
-Message-Id: <20220623164344.893849680@linuxfoundation.org>
+Subject: [PATCH 4.9 030/264] random: Fix whitespace pre random-bytes work
+Date:   Thu, 23 Jun 2022 18:40:23 +0200
+Message-Id: <20220623164344.921159014@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
 References: <20220623164344.053938039@linuxfoundation.org>
@@ -55,96 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: "Tobin C. Harding" <me@tobin.cc>
 
-commit 5e747dd9be54be190dd6ebeebf4a4a01ba765625 upstream.
+commit 8ddd6efa56c3fe23df9fe4cf5e2b49cc55416ef4 upstream.
 
-Ever since "random: kill dead extract_state struct" [1], the
-dont_count_entropy member of struct timer_rand_state has been
-effectively unused. Since it hasn't found a new use in 12 years, it's
-probably safe to finally kill it.
+There are a couple of whitespace issues around the function
+get_random_bytes_arch().  In preparation for patching this function
+let's clean them up.
 
-[1] Pre-git, https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/commit/?id=c1c48e61c251f57e7a3f1bf11b3c462b2de9dcb5
-
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Acked-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Tobin C. Harding <me@tobin.cc>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   55 +++++++++++++++++++++++---------------------------
- 1 file changed, 26 insertions(+), 29 deletions(-)
+ drivers/char/random.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1130,7 +1130,6 @@ static ssize_t extract_crng_user(void __
- struct timer_rand_state {
- 	cycles_t last_time;
- 	long last_delta, last_delta2;
--	unsigned dont_count_entropy:1;
- };
+@@ -1795,7 +1795,7 @@ void get_random_bytes_arch(void *buf, in
  
- #define INIT_TIMER_RAND_STATE { INITIAL_JIFFIES, };
-@@ -1194,35 +1193,33 @@ static void add_timer_randomness(struct
- 	 * We take into account the first, second and third-order deltas
- 	 * in order to make our estimate.
- 	 */
-+	delta = sample.jiffies - state->last_time;
-+	state->last_time = sample.jiffies;
+ 		if (!arch_get_random_long(&v))
+ 			break;
+-		
 +
-+	delta2 = delta - state->last_delta;
-+	state->last_delta = delta;
-+
-+	delta3 = delta2 - state->last_delta2;
-+	state->last_delta2 = delta2;
-+
-+	if (delta < 0)
-+		delta = -delta;
-+	if (delta2 < 0)
-+		delta2 = -delta2;
-+	if (delta3 < 0)
-+		delta3 = -delta3;
-+	if (delta > delta2)
-+		delta = delta2;
-+	if (delta > delta3)
-+		delta = delta3;
-+
-+	/*
-+	 * delta is now minimum absolute delta.
-+	 * Round down by 1 bit on general principles,
-+	 * and limit entropy entimate to 12 bits.
-+	 */
-+	credit_entropy_bits(r, min_t(int, fls(delta>>1), 11));
- 
--	if (!state->dont_count_entropy) {
--		delta = sample.jiffies - state->last_time;
--		state->last_time = sample.jiffies;
--
--		delta2 = delta - state->last_delta;
--		state->last_delta = delta;
--
--		delta3 = delta2 - state->last_delta2;
--		state->last_delta2 = delta2;
--
--		if (delta < 0)
--			delta = -delta;
--		if (delta2 < 0)
--			delta2 = -delta2;
--		if (delta3 < 0)
--			delta3 = -delta3;
--		if (delta > delta2)
--			delta = delta2;
--		if (delta > delta3)
--			delta = delta3;
--
--		/*
--		 * delta is now minimum absolute delta.
--		 * Round down by 1 bit on general principles,
--		 * and limit entropy entimate to 12 bits.
--		 */
--		credit_entropy_bits(r, min_t(int, fls(delta>>1), 11));
--	}
- 	preempt_enable();
+ 		memcpy(p, &v, chunk);
+ 		p += chunk;
+ 		nbytes -= chunk;
+@@ -1806,7 +1806,6 @@ void get_random_bytes_arch(void *buf, in
  }
+ EXPORT_SYMBOL(get_random_bytes_arch);
  
+-
+ /*
+  * init_std_data - initialize pool with system data
+  *
 
 
