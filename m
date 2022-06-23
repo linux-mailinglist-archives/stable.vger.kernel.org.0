@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 358285586E9
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:18:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E71EB55867B
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236757AbiFWSSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:18:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40792 "EHLO
+        id S236110AbiFWSNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:13:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236837AbiFWSQr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:16:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E2C323BF7;
-        Thu, 23 Jun 2022 10:23:17 -0700 (PDT)
+        with ESMTP id S236749AbiFWSMp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:12:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CB21BFA34;
+        Thu, 23 Jun 2022 10:21:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20A94B824B9;
-        Thu, 23 Jun 2022 17:23:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7313DC3411B;
-        Thu, 23 Jun 2022 17:23:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C87661DC6;
+        Thu, 23 Jun 2022 17:21:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F099C341C5;
+        Thu, 23 Jun 2022 17:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004994;
-        bh=IiaXwayGBRyMv0GG9TEvfsSN5y2GCz9DzDv5Fnqk7zw=;
+        s=korg; t=1656004859;
+        bh=UKZlKSY6yH4khM0E2JPAy09cJo1dlz5qE6cY1KhQV6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2MII8xRmMMQ4u3fGDHDvt0SJlxxjR6Yqx3AOfSfXxW9cOVvAiOQ8kcUaOnB3xUBaG
-         PtFb6AcPFfaW2csGj4H8v6oTRNalhnx9MsR7V7PTGHunnTiaG1c7LLYwYwJMM+eE4V
-         xXnktt4Hh6wEUB/C9HlvebyCJzrILX4NxjlqE50M=
+        b=rSOjxyzmqbO/0nzNt9hkD3GLgclPTcOgWRi6eUCMk+MJ5gVO3f+crQtk2qM7wQSPl
+         CIVnasfq6+akrh2z/9On9RAIOuHagBGS8mTivlrirakCpdBYn6l7QYy8NcAGp5gJCs
+         EET58ZRLe8YZ3O9RhuNucd85RXE9EiKD1Mf8qLd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 165/234] random: move initialization functions out of hot pages
-Date:   Thu, 23 Jun 2022 18:43:52 +0200
-Message-Id: <20220623164347.723375308@linuxfoundation.org>
+Subject: [PATCH 4.19 166/234] random: move randomize_page() into mm where it belongs
+Date:   Thu, 23 Jun 2022 18:43:53 +0200
+Message-Id: <20220623164347.751371426@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -56,174 +55,456 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 560181c27b582557d633ecb608110075433383af upstream.
+commit 5ad7dd882e45d7fe432c32e896e2aaa0b21746ea upstream.
 
-Much of random.c is devoted to initializing the rng and accounting for
-when a sufficient amount of entropy has been added. In a perfect world,
-this would all happen during init, and so we could mark these functions
-as __init. But in reality, this isn't the case: sometimes the rng only
-finishes initializing some seconds after system init is finished.
+randomize_page is an mm function. It is documented like one. It contains
+the history of one. It has the naming convention of one. It looks
+just like another very similar function in mm, randomize_stack_top().
+And it has always been maintained and updated by mm people. There is no
+need for it to be in random.c. In the "which shape does not look like
+the other ones" test, pointing to randomize_page() is correct.
 
-For this reason, at the moment, a whole host of functions that are only
-used relatively close to system init and then never again are intermixed
-with functions that are used in hot code all the time. This creates more
-cache misses than necessary.
+So move randomize_page() into mm/util.c, right next to the similar
+randomize_stack_top() function.
 
-In order to pack the hot code closer together, this commit moves the
-initialization functions that can't be marked as __init into
-.text.unlikely by way of the __cold attribute.
+This commit contains no actual code changes.
 
-Of particular note is moving credit_init_bits() into a macro wrapper
-that inlines the crng_ready() static branch check. This avoids a
-function call to a nop+ret, and most notably prevents extra entropy
-arithmetic from being computed in mix_interrupt_randomness().
-
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-[ Jason: for stable, made sure the printk_deferred was a pr_notice,
-  because those caused problems on ≤ 4.19 according to commit logs. ]
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   40 ++++++++++++++++++----------------------
- 1 file changed, 18 insertions(+), 22 deletions(-)
+ drivers/char/random.c  |  238 ++++++++++++++++---------------------------------
+ include/linux/mm.h     |    2 
+ include/linux/random.h |    2 
+ mm/util.c              |   33 ++++++
+ 4 files changed, 117 insertions(+), 158 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -109,7 +109,7 @@ bool rng_is_initialized(void)
+@@ -52,6 +52,7 @@
+ #include <linux/uuid.h>
+ #include <linux/uaccess.h>
+ #include <linux/siphash.h>
++#include <linux/uio.h>
+ #include <crypto/chacha20.h>
+ #include <crypto/blake2s.h>
+ #include <asm/processor.h>
+@@ -446,13 +447,13 @@ void get_random_bytes(void *buf, size_t
  }
- EXPORT_SYMBOL(rng_is_initialized);
+ EXPORT_SYMBOL(get_random_bytes);
  
--static void crng_set_ready(struct work_struct *work)
-+static void __cold crng_set_ready(struct work_struct *work)
+-static ssize_t get_random_bytes_user(void __user *ubuf, size_t len)
++static ssize_t get_random_bytes_user(struct iov_iter *iter)
  {
- 	static_branch_enable(&crng_is_ready);
- }
-@@ -148,7 +148,7 @@ EXPORT_SYMBOL(wait_for_random_bytes);
-  * returns: 0 if callback is successfully added
-  *	    -EALREADY if pool is already initialised (callback not called)
-  */
--int register_random_ready_notifier(struct notifier_block *nb)
-+int __cold register_random_ready_notifier(struct notifier_block *nb)
- {
- 	unsigned long flags;
- 	int ret = -EALREADY;
-@@ -167,7 +167,7 @@ EXPORT_SYMBOL(register_random_ready_noti
- /*
-  * Delete a previously registered readiness callback function.
-  */
--int unregister_random_ready_notifier(struct notifier_block *nb)
-+int __cold unregister_random_ready_notifier(struct notifier_block *nb)
- {
- 	unsigned long flags;
- 	int ret;
-@@ -179,7 +179,7 @@ int unregister_random_ready_notifier(str
- }
- EXPORT_SYMBOL(unregister_random_ready_notifier);
+-	size_t block_len, left, ret = 0;
+ 	u32 chacha_state[CHACHA20_BLOCK_SIZE / sizeof(u32)];
+-	u8 output[CHACHA20_BLOCK_SIZE];
++	u8 block[CHACHA20_BLOCK_SIZE];
++	size_t ret = 0, copied;
  
--static void process_random_ready_list(void)
-+static void __cold process_random_ready_list(void)
- {
- 	unsigned long flags;
+-	if (!len)
++	if (unlikely(!iov_iter_count(iter)))
+ 		return 0;
  
-@@ -189,15 +189,9 @@ static void process_random_ready_list(vo
- }
+ 	/*
+@@ -466,30 +467,22 @@ static ssize_t get_random_bytes_user(voi
+ 	 * use chacha_state after, so we can simply return those bytes to
+ 	 * the user directly.
+ 	 */
+-	if (len <= CHACHA20_KEY_SIZE) {
+-		ret = len - copy_to_user(ubuf, &chacha_state[4], len);
++	if (iov_iter_count(iter) <= CHACHA20_KEY_SIZE) {
++		ret = copy_to_iter(&chacha_state[4], CHACHA20_KEY_SIZE, iter);
+ 		goto out_zero_chacha;
+ 	}
  
- #define warn_unseeded_randomness() \
--	_warn_unseeded_randomness(__func__, (void *)_RET_IP_)
+ 	for (;;) {
+-		chacha20_block(chacha_state, output);
++		chacha20_block(chacha_state, block);
+ 		if (unlikely(chacha_state[12] == 0))
+ 			++chacha_state[13];
+ 
+-		block_len = min_t(size_t, len, CHACHA20_BLOCK_SIZE);
+-		left = copy_to_user(ubuf, output, block_len);
+-		if (left) {
+-			ret += block_len - left;
++		copied = copy_to_iter(block, sizeof(block), iter);
++		ret += copied;
++		if (!iov_iter_count(iter) || copied != sizeof(block))
+ 			break;
+-		}
+ 
+-		ubuf += block_len;
+-		ret += block_len;
+-		len -= block_len;
+-		if (!len)
+-			break;
 -
--static void _warn_unseeded_randomness(const char *func_name, void *caller)
+-		BUILD_BUG_ON(PAGE_SIZE % CHACHA20_BLOCK_SIZE != 0);
++		BUILD_BUG_ON(PAGE_SIZE % sizeof(block) != 0);
+ 		if (ret % PAGE_SIZE == 0) {
+ 			if (signal_pending(current))
+ 				break;
+@@ -497,7 +490,7 @@ static ssize_t get_random_bytes_user(voi
+ 		}
+ 	}
+ 
+-	memzero_explicit(output, sizeof(output));
++	memzero_explicit(block, sizeof(block));
+ out_zero_chacha:
+ 	memzero_explicit(chacha_state, sizeof(chacha_state));
+ 	return ret ? ret : -EFAULT;
+@@ -509,96 +502,60 @@ out_zero_chacha:
+  * provided by this function is okay, the function wait_for_random_bytes()
+  * should be called and return 0 at least once at any point prior.
+  */
+-struct batched_entropy {
+-	union {
+-		/*
+-		 * We make this 1.5x a ChaCha block, so that we get the
+-		 * remaining 32 bytes from fast key erasure, plus one full
+-		 * block from the detached ChaCha state. We can increase
+-		 * the size of this later if needed so long as we keep the
+-		 * formula of (integer_blocks + 0.5) * CHACHA20_BLOCK_SIZE.
+-		 */
+-		u64 entropy_u64[CHACHA20_BLOCK_SIZE * 3 / (2 * sizeof(u64))];
+-		u32 entropy_u32[CHACHA20_BLOCK_SIZE * 3 / (2 * sizeof(u32))];
+-	};
+-	unsigned long generation;
+-	unsigned int position;
+-};
+-
+-
+-static DEFINE_PER_CPU(struct batched_entropy, batched_entropy_u64) = {
+-	.position = UINT_MAX
+-};
+-
+-u64 get_random_u64(void)
 -{
--	if (!IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM) || crng_ready())
--		return;
--	printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n",
--			func_name, caller, crng_init);
+-	u64 ret;
+-	unsigned long flags;
+-	struct batched_entropy *batch;
+-	unsigned long next_gen;
+-
+-	warn_unseeded_randomness();
+-
+-	if  (!crng_ready()) {
+-		_get_random_bytes(&ret, sizeof(ret));
+-		return ret;
+-	}
+-
+-	local_irq_save(flags);
+-	batch = raw_cpu_ptr(&batched_entropy_u64);
+-
+-	next_gen = READ_ONCE(base_crng.generation);
+-	if (batch->position >= ARRAY_SIZE(batch->entropy_u64) ||
+-	    next_gen != batch->generation) {
+-		_get_random_bytes(batch->entropy_u64, sizeof(batch->entropy_u64));
+-		batch->position = 0;
+-		batch->generation = next_gen;
+-	}
+-
+-	ret = batch->entropy_u64[batch->position];
+-	batch->entropy_u64[batch->position] = 0;
+-	++batch->position;
+-	local_irq_restore(flags);
+-	return ret;
 -}
-+	if (IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM) && !crng_ready()) \
-+		pr_notice("%s called from %pS with crng_init=%d\n", \
-+			  __func__, (void *)_RET_IP_, crng_init)
+-EXPORT_SYMBOL(get_random_u64);
+-
+-static DEFINE_PER_CPU(struct batched_entropy, batched_entropy_u32) = {
+-	.position = UINT_MAX
+-};
+-
+-u32 get_random_u32(void)
+-{
+-	u32 ret;
+-	unsigned long flags;
+-	struct batched_entropy *batch;
+-	unsigned long next_gen;
  
+-	warn_unseeded_randomness();
++#define DEFINE_BATCHED_ENTROPY(type)						\
++struct batch_ ##type {								\
++	/*									\
++	 * We make this 1.5x a ChaCha block, so that we get the			\
++	 * remaining 32 bytes from fast key erasure, plus one full		\
++	 * block from the detached ChaCha state. We can increase		\
++	 * the size of this later if needed so long as we keep the		\
++	 * formula of (integer_blocks + 0.5) * CHACHA20_BLOCK_SIZE.		\
++	 */									\
++	type entropy[CHACHA20_BLOCK_SIZE * 3 / (2 * sizeof(type))];		\
++	unsigned long generation;						\
++	unsigned int position;							\
++};										\
++										\
++static DEFINE_PER_CPU(struct batch_ ##type, batched_entropy_ ##type) = {	\
++	.position = UINT_MAX							\
++};										\
++										\
++type get_random_ ##type(void)							\
++{										\
++	type ret;								\
++	unsigned long flags;							\
++	struct batch_ ##type *batch;						\
++	unsigned long next_gen;							\
++										\
++	warn_unseeded_randomness();						\
++										\
++	if  (!crng_ready()) {							\
++		_get_random_bytes(&ret, sizeof(ret));				\
++		return ret;							\
++	}									\
++										\
++	local_irq_save(flags);		\
++	batch = raw_cpu_ptr(&batched_entropy_##type);				\
++										\
++	next_gen = READ_ONCE(base_crng.generation);				\
++	if (batch->position >= ARRAY_SIZE(batch->entropy) ||			\
++	    next_gen != batch->generation) {					\
++		_get_random_bytes(batch->entropy, sizeof(batch->entropy));	\
++		batch->position = 0;						\
++		batch->generation = next_gen;					\
++	}									\
++										\
++	ret = batch->entropy[batch->position];					\
++	batch->entropy[batch->position] = 0;					\
++	++batch->position;							\
++	local_irq_restore(flags);		\
++	return ret;								\
++}										\
++EXPORT_SYMBOL(get_random_ ##type);
  
- /*********************************************************************
-@@ -611,7 +605,7 @@ EXPORT_SYMBOL(get_random_u32);
-  * This function is called when the CPU is coming up, with entry
-  * CPUHP_RANDOM_PREPARE, which comes before CPUHP_WORKQUEUE_PREP.
-  */
--int random_prepare_cpu(unsigned int cpu)
-+int __cold random_prepare_cpu(unsigned int cpu)
- {
- 	/*
- 	 * When the cpu comes back online, immediately invalidate both
-@@ -786,13 +780,15 @@ static void extract_entropy(void *buf, s
- 	memzero_explicit(&block, sizeof(block));
+-	if  (!crng_ready()) {
+-		_get_random_bytes(&ret, sizeof(ret));
+-		return ret;
+-	}
+-
+-	local_irq_save(flags);
+-	batch = raw_cpu_ptr(&batched_entropy_u32);
+-
+-	next_gen = READ_ONCE(base_crng.generation);
+-	if (batch->position >= ARRAY_SIZE(batch->entropy_u32) ||
+-	    next_gen != batch->generation) {
+-		_get_random_bytes(batch->entropy_u32, sizeof(batch->entropy_u32));
+-		batch->position = 0;
+-		batch->generation = next_gen;
+-	}
+-
+-	ret = batch->entropy_u32[batch->position];
+-	batch->entropy_u32[batch->position] = 0;
+-	++batch->position;
+-	local_irq_restore(flags);
+-	return ret;
+-}
+-EXPORT_SYMBOL(get_random_u32);
++DEFINE_BATCHED_ENTROPY(u64)
++DEFINE_BATCHED_ENTROPY(u32)
+ 
+ #ifdef CONFIG_SMP
+ /*
+@@ -619,38 +576,6 @@ int __cold random_prepare_cpu(unsigned i
  }
+ #endif
  
--static void credit_init_bits(size_t bits)
-+#define credit_init_bits(bits) if (!crng_ready()) _credit_init_bits(bits)
+-/**
+- * randomize_page - Generate a random, page aligned address
+- * @start:	The smallest acceptable address the caller will take.
+- * @range:	The size of the area, starting at @start, within which the
+- *		random address must fall.
+- *
+- * If @start + @range would overflow, @range is capped.
+- *
+- * NOTE: Historical use of randomize_range, which this replaces, presumed that
+- * @start was already page aligned.  We now align it regardless.
+- *
+- * Return: A page aligned address within [start, start + range).  On error,
+- * @start is returned.
+- */
+-unsigned long randomize_page(unsigned long start, unsigned long range)
+-{
+-	if (!PAGE_ALIGNED(start)) {
+-		range -= PAGE_ALIGN(start) - start;
+-		start = PAGE_ALIGN(start);
+-	}
+-
+-	if (start > ULONG_MAX - range)
+-		range = ULONG_MAX - start;
+-
+-	range >>= PAGE_SHIFT;
+-
+-	if (range == 0)
+-		return start;
+-
+-	return start + (get_random_long() % range << PAGE_SHIFT);
+-}
+-
+ /*
+  * This function will use the architecture-specific hardware random
+  * number generator if it is available. It is not recommended for
+@@ -1292,6 +1217,10 @@ static void __cold try_to_generate_entro
+ 
+ SYSCALL_DEFINE3(getrandom, char __user *, ubuf, size_t, len, unsigned int, flags)
+ {
++	struct iov_iter iter;
++	struct iovec iov;
++	int ret;
 +
-+static void __cold _credit_init_bits(size_t bits)
- {
- 	static struct execute_work set_ready;
- 	unsigned int new, orig, add;
- 	unsigned long flags;
+ 	if (flags & ~(GRND_NONBLOCK | GRND_RANDOM | GRND_INSECURE))
+ 		return -EINVAL;
  
--	if (crng_ready() || !bits)
-+	if (!bits)
- 		return;
+@@ -1302,19 +1231,18 @@ SYSCALL_DEFINE3(getrandom, char __user *
+ 	if ((flags & (GRND_INSECURE | GRND_RANDOM)) == (GRND_INSECURE | GRND_RANDOM))
+ 		return -EINVAL;
  
- 	add = min_t(size_t, bits, POOL_BITS);
-@@ -971,7 +967,7 @@ EXPORT_SYMBOL_GPL(add_hwgenerator_random
-  * Handle random seed passed by bootloader, and credit it if
-  * CONFIG_RANDOM_TRUST_BOOTLOADER is set.
-  */
--void add_bootloader_randomness(const void *buf, size_t len)
-+void __cold add_bootloader_randomness(const void *buf, size_t len)
- {
- 	mix_pool_bytes(buf, len);
- 	if (trust_bootloader)
-@@ -1017,7 +1013,7 @@ static void fast_mix(unsigned long s[4],
-  * This function is called when the CPU has just come online, with
-  * entry CPUHP_AP_RANDOM_ONLINE, just after CPUHP_AP_WORKQUEUE_ONLINE.
-  */
--int random_online_cpu(unsigned int cpu)
-+int __cold random_online_cpu(unsigned int cpu)
- {
- 	/*
- 	 * During CPU shutdown and before CPU onlining, add_interrupt_
-@@ -1172,7 +1168,7 @@ static void add_timer_randomness(struct
- 	if (in_irq())
- 		this_cpu_ptr(&irq_randomness)->count += max(1u, bits * 64) - 1;
- 	else
--		credit_init_bits(bits);
-+		_credit_init_bits(bits);
+-	if (len > INT_MAX)
+-		len = INT_MAX;
+-
+ 	if (!crng_ready() && !(flags & GRND_INSECURE)) {
+-		int ret;
+-
+ 		if (flags & GRND_NONBLOCK)
+ 			return -EAGAIN;
+ 		ret = wait_for_random_bytes();
+ 		if (unlikely(ret))
+ 			return ret;
+ 	}
+-	return get_random_bytes_user(ubuf, len);
++
++	ret = import_single_range(READ, ubuf, len, &iov, &iter);
++	if (unlikely(ret))
++		return ret;
++	return get_random_bytes_user(&iter);
  }
  
- void add_input_randomness(unsigned int type, unsigned int code, unsigned int value)
-@@ -1200,7 +1196,7 @@ void add_disk_randomness(struct gendisk
+ static __poll_t random_poll(struct file *file, poll_table *wait)
+@@ -1358,8 +1286,7 @@ static ssize_t random_write(struct file
+ 	return (ssize_t)len;
  }
- EXPORT_SYMBOL_GPL(add_disk_randomness);
  
--void rand_initialize_disk(struct gendisk *disk)
-+void __cold rand_initialize_disk(struct gendisk *disk)
+-static ssize_t urandom_read(struct file *file, char __user *ubuf,
+-			    size_t len, loff_t *ppos)
++static ssize_t urandom_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
  {
- 	struct timer_rand_state *state;
+ 	static int maxwarn = 10;
  
-@@ -1229,7 +1225,7 @@ void rand_initialize_disk(struct gendisk
-  *
-  * So the re-arming always happens in the entropy loop itself.
-  */
--static void entropy_timer(struct timer_list *t)
-+static void __cold entropy_timer(struct timer_list *t)
- {
- 	credit_init_bits(1);
+@@ -1368,23 +1295,22 @@ static ssize_t urandom_read(struct file
+ 			++urandom_warning.missed;
+ 		else if (ratelimit_disable || __ratelimit(&urandom_warning)) {
+ 			--maxwarn;
+-			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
+-				  current->comm, len);
++			pr_notice("%s: uninitialized urandom read (%zu bytes read)\n",
++				  current->comm, iov_iter_count(iter));
+ 		}
+ 	}
+ 
+-	return get_random_bytes_user(ubuf, len);
++	return get_random_bytes_user(iter);
  }
-@@ -1238,7 +1234,7 @@ static void entropy_timer(struct timer_l
-  * If we have an actual cycle counter, see if we can
-  * generate enough entropy with timing noise
-  */
--static void try_to_generate_entropy(void)
-+static void __cold try_to_generate_entropy(void)
+ 
+-static ssize_t random_read(struct file *file, char __user *ubuf,
+-			   size_t len, loff_t *ppos)
++static ssize_t random_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
  {
- 	struct {
- 		unsigned long entropy;
+ 	int ret;
+ 
+ 	ret = wait_for_random_bytes();
+ 	if (ret != 0)
+ 		return ret;
+-	return get_random_bytes_user(ubuf, len);
++	return get_random_bytes_user(iter);
+ }
+ 
+ static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+@@ -1446,7 +1372,7 @@ static int random_fasync(int fd, struct
+ }
+ 
+ const struct file_operations random_fops = {
+-	.read = random_read,
++	.read_iter = random_read_iter,
+ 	.write = random_write,
+ 	.poll = random_poll,
+ 	.unlocked_ioctl = random_ioctl,
+@@ -1455,7 +1381,7 @@ const struct file_operations random_fops
+ };
+ 
+ const struct file_operations urandom_fops = {
+-	.read = urandom_read,
++	.read_iter = urandom_read_iter,
+ 	.write = random_write,
+ 	.unlocked_ioctl = random_ioctl,
+ 	.fasync = random_fasync,
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2308,6 +2308,8 @@ extern int install_special_mapping(struc
+ 				   unsigned long addr, unsigned long len,
+ 				   unsigned long flags, struct page **pages);
+ 
++unsigned long randomize_page(unsigned long start, unsigned long range);
++
+ extern unsigned long get_unmapped_area(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
+ 
+ extern unsigned long mmap_region(struct file *file, unsigned long addr,
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -64,8 +64,6 @@ static inline unsigned long get_random_c
+ 	return get_random_long() & CANARY_MASK;
+ }
+ 
+-unsigned long randomize_page(unsigned long start, unsigned long range);
+-
+ int __init random_init(const char *command_line);
+ bool rng_is_initialized(void);
+ int wait_for_random_bytes(void);
+--- a/mm/util.c
++++ b/mm/util.c
+@@ -14,6 +14,7 @@
+ #include <linux/hugetlb.h>
+ #include <linux/vmalloc.h>
+ #include <linux/userfaultfd_k.h>
++#include <linux/random.h>
+ 
+ #include <asm/sections.h>
+ #include <linux/uaccess.h>
+@@ -286,6 +287,38 @@ int vma_is_stack_for_current(struct vm_a
+ 	return (vma->vm_start <= KSTK_ESP(t) && vma->vm_end >= KSTK_ESP(t));
+ }
+ 
++/**
++ * randomize_page - Generate a random, page aligned address
++ * @start:	The smallest acceptable address the caller will take.
++ * @range:	The size of the area, starting at @start, within which the
++ *		random address must fall.
++ *
++ * If @start + @range would overflow, @range is capped.
++ *
++ * NOTE: Historical use of randomize_range, which this replaces, presumed that
++ * @start was already page aligned.  We now align it regardless.
++ *
++ * Return: A page aligned address within [start, start + range).  On error,
++ * @start is returned.
++ */
++unsigned long randomize_page(unsigned long start, unsigned long range)
++{
++	if (!PAGE_ALIGNED(start)) {
++		range -= PAGE_ALIGN(start) - start;
++		start = PAGE_ALIGN(start);
++	}
++
++	if (start > ULONG_MAX - range)
++		range = ULONG_MAX - start;
++
++	range >>= PAGE_SHIFT;
++
++	if (range == 0)
++		return start;
++
++	return start + (get_random_long() % range << PAGE_SHIFT);
++}
++
+ #if defined(CONFIG_MMU) && !defined(HAVE_ARCH_PICK_MMAP_LAYOUT)
+ void arch_pick_mmap_layout(struct mm_struct *mm, struct rlimit *rlim_stack)
+ {
 
 
