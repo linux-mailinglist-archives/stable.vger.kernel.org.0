@@ -2,153 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4736F55746D
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 09:48:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3FD255748B
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 09:53:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229897AbiFWHsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 03:48:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34968 "EHLO
+        id S230472AbiFWHxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 03:53:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231213AbiFWHso (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 03:48:44 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5940A2BB3D;
-        Thu, 23 Jun 2022 00:48:42 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 171DD1FD39;
-        Thu, 23 Jun 2022 07:48:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1655970521; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=GtdTaFjqWCSCe1yaSCiZGssqCXgG5Q79Oqlpz7qVDg4=;
-        b=z3sftmOXa8+4Wp6CcqcekDvq/mXI/k1vhvU697LNBTVyCxrPjC5X1Fo/CAzCcJXCaal8WW
-        EPx2hzPlbwi6EP0vm1mu9bDOXqk+ShpRTXyBzhgbYF3dvW0BdAXe8OoWCYHgLLOQvuA1XK
-        VjkJLVXC3Fcuza7AMfsgF7j5C1drxg4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1655970521;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=GtdTaFjqWCSCe1yaSCiZGssqCXgG5Q79Oqlpz7qVDg4=;
-        b=UgRVohwe42EARuwopRiapyQJVfTf/D0LVxYurSvMiDews+z4b+oxS4ySV/HJgr+50TT0B4
-        HSSP+zODo1YTU3Bw==
-Received: from quack3.suse.cz (unknown [10.100.224.230])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 68EA22C14F;
-        Thu, 23 Jun 2022 07:48:35 +0000 (UTC)
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id B0DE9A0638; Thu, 23 Jun 2022 09:48:40 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     <linux-block@vger.kernel.org>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Niklas Cassel <Niklas.Cassel@wdc.com>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/9] block: fix default IO priority handling again
-Date:   Thu, 23 Jun 2022 09:48:26 +0200
-Message-Id: <20220623074840.5960-1-jack@suse.cz>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220623074450.30550-1-jack@suse.cz>
-References: <20220623074450.30550-1-jack@suse.cz>
+        with ESMTP id S230449AbiFWHxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 03:53:04 -0400
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2048.outbound.protection.outlook.com [40.107.92.48])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6BA11DA62;
+        Thu, 23 Jun 2022 00:53:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=QTAKZxYaIHtTxX7cec5pvHChAdkUIAx4M2tbnCdeCvKuzdyaLbTFie5uZ8dJNIDRDn5jv9LU5y9nkQoNWzcgH/SRwzgy/0MWl7eB2Z9clwhG0kMsXdYt9p6vGjcKHeFiGxGVqKnDn5AIycDqa9aEs8xThPVUtIVIwmIuLbef5eu+9c7tO1+IFguVph4x39JhfJTWX903UpCVv6aZu6SReTqdNYTdANCmuaSWPuNFAW0Q54mV+70H07Q2DiuVCNBlQ/Km5kgX0n/Ur159Vmj4IgMKaQEplyliOv+cF2RzK0PTMVRcs/BoH/kAv1ZBtHtFRIXzM1n0jEj+XkAsOLuKSg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=6iBadxwr7rqv96X1keHEVExLjaeD9gyZ9BuNYlfQaeg=;
+ b=a+HHq4PliISuYsACNu605Rwa++PcfKJkxV05G4CumX40h5vc+wmSl5ZP8+nnt54Uoc2oET23EUe3gKWZ6cQ0+aaiRQ4VxvAgBa33CahPfhBWcpVNjDrZ/eZjkpqusohedU3IEX0PaxRf+Am5q87QFD+WxrV2o79wk2cbQ/op+7WgQ1902OfDbXmcFW6hijZAWk7z53UwBdMtK+LPtlc8eXCaA+micwRrb7ujfZ74uAxTY4FAbZYa1j2UmmeAiTcLnSgMeF/oXridO6t69/3TTCpWQ4VX+Nz1YX7tpXiyO7Q5Zn6g1cHvqBcWNwNyXB2IqZxkb9FPfIMpMp3CUPVtCA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6iBadxwr7rqv96X1keHEVExLjaeD9gyZ9BuNYlfQaeg=;
+ b=GOxws2Y/T47tCUIQrQff1w1ygpjofHUkUSeDkXAKJINtnKcrsUeZFWzzEQ8ibPTYK12YvcGpy/aPuyKqPwty78LZ3s3V4eS8HLTfabF7kZPZtRsEEEXjjMr7oAxelx+vMFHdztxOz4oed4eozJAR4H1Lqs1JAqDrass226/jvj8=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from MW2PR12MB2506.namprd12.prod.outlook.com (2603:10b6:907:7::12)
+ by CH2PR12MB4245.namprd12.prod.outlook.com (2603:10b6:610:af::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5353.16; Thu, 23 Jun
+ 2022 07:52:59 +0000
+Received: from MW2PR12MB2506.namprd12.prod.outlook.com
+ ([fe80::7567:d120:4673:e57d]) by MW2PR12MB2506.namprd12.prod.outlook.com
+ ([fe80::7567:d120:4673:e57d%5]) with mapi id 15.20.5353.022; Thu, 23 Jun 2022
+ 07:52:59 +0000
+Date:   Thu, 23 Jun 2022 15:52:38 +0800
+From:   Huang Rui <ray.huang@amd.com>
+To:     "Su, Jinzhou (Joe)" <Jinzhou.Su@amd.com>
+Cc:     "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
+        "Du, Xiaojian" <Xiaojian.Du@amd.com>,
+        "Yuan, Perry" <Perry.Yuan@amd.com>,
+        "Meng, Li (Jassmine)" <Li.Meng@amd.com>,
+        "Liang, Richard qi" <Richardqi.Liang@amd.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] cpufreq: amd-pstate: Add resume and suspend callback for
+ amd-pstate
+Message-ID: <YrQbxvyl6ZT2T3wh@amd.com>
+References: <20220623031509.555269-1-Jinzhou.Su@amd.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220623031509.555269-1-Jinzhou.Su@amd.com>
+X-ClientProxiedBy: SG2PR02CA0088.apcprd02.prod.outlook.com
+ (2603:1096:4:90::28) To MW2PR12MB2506.namprd12.prod.outlook.com
+ (2603:10b6:907:7::12)
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3417; h=from:subject; bh=r9iLhnVzNhOEfGHjVQ85hsfk7zhW/kHTRg4ZxFaWAvY=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBitBrK+weyWxyVqCcz47tvDyJwY53WZgb4OadrTp/U nYQmP1aJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYrQaygAKCRCcnaoHP2RA2ZZ/B/ 9Q0tU999QCIlBcqvLmWCGHSZt/sryoccdj9h9ZPNCtK9su6kNTpHpUrB4/2iIZhiM4U4G0ZvvCw5n/ LhROVhnm4RGm2gaausInYd5XM6AmKfTnGIX2Z8w4lRsYbV3HTUx+EDQzzArjw39m09G2H3ql3kF+/S Y6o4wwsesLtrR/2hFvTugrO54ikmUgqEboc2dKJN5XxCfyPz3O7ka8R4HZ7Hs5mQH84tBQLnQTYDlY uwPs4sLDMRb3ug4Qctu32or9+2ZZ/9VsTEzfJ8npQjHByCm3rd5vD7krSix9MOeHK1MBWRN5IKeq10 5q2Pc+dKvr5VV74ZdVYMa6XUVZ9QwD
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 54147c20-f31a-4bf4-d2b3-08da54ed643a
+X-MS-TrafficTypeDiagnostic: CH2PR12MB4245:EE_
+X-Microsoft-Antispam-PRVS: <CH2PR12MB4245C53F93A172A611D78730ECB59@CH2PR12MB4245.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Fh5JubwY0s0cjF3B7AkjWijp/7md1q2FTyU5E6xD/YsU+HwFd2EixXrhv+bhN8mLiis4k9y4XHdeucdOcCd9JQLAbT0HcATO0WaK/3e6C5iiDSRpbpDuSgIc37Ep5U7Lc5NgdR0XyCty/ZZWdw3mD9EDdr1ao80sOuVY7Bi/DMWuRV8004LN7a5kRRAU8BBBO/2CrpWWpVgLI7My6GW/Ewwr+DqhHcozJ83ek9QcFUqcZvv3CR1s/06q1TAjKrMzO1ixt2zEFXrjiBHWNltkgJeZhiYGwQphTfkd/AfJibg+gnshDWBC+BKoLzi6c2TBs+wig6Rk8sowMY5zxzwURofmpzxsxA/sR9ThYxBBmKV9lRBvHvzMw1ejJNL4j1FNl5LENC89TQiuJL2IuMblNxwL0GUtFaTuj6v+dHGDuRoZK4O7p9auBMF+VceYPOa5DC9yJfauda9qcWdXINK+ykB+o99TYSeuAAZ3gKWf74IcEZRAwe2gXK9kZDTneBbovDGpuOhYzs3Rc+zCjQv2Nhlt4Q+6tp4vjmER8ICcBGWguvD6H8JUOPV5NNPilpLbzbaz+m+vFODk3BqUteFVdREFMqrNKGQDNfuc3ETm7Me8Qg7kj7ZnxWqYcl57crpsWFSSVScOPPqo/Q7S6PMemAr+or70XtmcXjnQGBiSU5iu94pYc/vXe+hBxKBdqzQLJLC02YRYtonn1kwHT6/uGQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW2PR12MB2506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(376002)(346002)(366004)(39860400002)(136003)(396003)(2616005)(4326008)(66946007)(41300700001)(186003)(83380400001)(8676002)(6486002)(86362001)(316002)(66476007)(66556008)(37006003)(6666004)(36756003)(15650500001)(6636002)(38100700002)(2906002)(5660300002)(478600001)(8936002)(6506007)(54906003)(6512007)(26005)(6862004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?eAldg5vQ0DRIitOI+Isw94yNIZvefpj+CulfceJBl4uRvTkCeXTZHzrL+960?=
+ =?us-ascii?Q?N089JSsDbE8hOj85KH2eU8fFdfMNph38WWmmRgITGk29azp56ldM8klmK3fQ?=
+ =?us-ascii?Q?2YDDGeUA+o4kV9O6FRFFm9ER4jGqRTXjlomRp6ElMyOdiKyHKun8+8RBkeBD?=
+ =?us-ascii?Q?lnZxYSXIXoDycd1BGUnecJzW54AM7xIbuxrrbenGl0JJLb34mf1Cxm1Ok5Ad?=
+ =?us-ascii?Q?j/30MHUFZV/xy4uW3v/k539NuucncPvA9u8ml/cg4AE+D2Ja6okKfOoZUGlo?=
+ =?us-ascii?Q?1wRkgtWs9fa4BkwPQ9DdSeZs7ZSnPo6kDPJfKpPKYq1Wbv4kRXNb8xdZhBBC?=
+ =?us-ascii?Q?sZftN1MBdxTmDMXPMVAYgtPXDvWxIGkaOhvymZOo+XSojPwHQ/75WWzK7MGd?=
+ =?us-ascii?Q?NZaBoFR/Qa1mgFA/Y4adz6G1PJkYSiVxTBVQxxXCv8gMpu9zALIrIIdB96fG?=
+ =?us-ascii?Q?qphMlFEKyVoMcqQ1dTLC9oq83cgbIhBmYYmmhzxX4VzqY2PliQNe9ajyFSZ9?=
+ =?us-ascii?Q?vPLy/AvrxJWu85gp+qvbncfWKmKvXKCM2vOYihcQzCs7DOb8IbS6vI0/iFhG?=
+ =?us-ascii?Q?rQ4LsWQC2yanE0mQ49Bdv+tamco4k2CYZlzAtU6GdQ3GpyqJnh5PaN1MVF/7?=
+ =?us-ascii?Q?PxbU0nnjh7RC2J7MRgSaGk2dw7vtXONPdtI+n1wNSYlD8UopA9By0eBgLXg4?=
+ =?us-ascii?Q?CRIlg2+dl51EE3uy+3/ybOpDfpoX7tM/EsGmXxeHF1OKgtBnVS2/7/bLo7wJ?=
+ =?us-ascii?Q?sTZzF9AadZK+NsyVeTCt1gvNMYWqs1KJTGXe3aWtLdRV6jPPGdBPQf+aEAdq?=
+ =?us-ascii?Q?uSYKcfxQ0LjLL/ld4A68kykjSmDYg6j1gsPG31J1eGcqDIPbkD9S6biTZLDq?=
+ =?us-ascii?Q?Uw5YvwP2gYeqRdrgPQTndhri3ZSmA/W+rMFPuXeJedkh8FYTTIrYzPANPurc?=
+ =?us-ascii?Q?nVUoCufRBuNHCUQATh+AbfcGiGkY4eb/zUg+uKczGA5+fjTlxFq9OvW5NH7l?=
+ =?us-ascii?Q?FudREh1tGLt71TVu1ErpoMHM/bEOTUW4mo+fhJhz2pfyJt3Lgblme0nql1Pg?=
+ =?us-ascii?Q?53zK8kzelPxnw45Re9Rj8UaUwsz2i1r8HFqSowrTlmw4wGQ0JkronJACcRza?=
+ =?us-ascii?Q?dGJ5m+cNb4Tf2JxJ4lE7MwLTLaHp7RhPYRTD5HG78NH7CfKVB2TPE08esidY?=
+ =?us-ascii?Q?KY0wea9UvMTms05PBu8Fmhb6WPzN0tSOZOFxRzlzTtaBcu4xq9ibwKSCMj0z?=
+ =?us-ascii?Q?1Zkci4e/Fq+wn2zcUXXhMXJVIZJHUYR9Z18ri+U0IIIZNj1iyFXSmcd1PkPj?=
+ =?us-ascii?Q?MSMhKTto2XTKr0wgHPgmiXKj9jApR4VIafLYidru7FDl1jS4RIVschpIwFUJ?=
+ =?us-ascii?Q?LcJzhQk+PLn2UWsXp3P2m24I9FIa0HUPEmGeKMhy6WYLePtxjldgCKBMr8SC?=
+ =?us-ascii?Q?XIqixeOYRoRHMdlwbGB+oH4cg8ppyrU7+C9uKE608BEbzOweojNZH4PmZayc?=
+ =?us-ascii?Q?oNFL0Pf5fwTeb91ZCHqYKjaYfky0MUUwmeVm6jkrp+czc5xrYiazNeYkmP4g?=
+ =?us-ascii?Q?ydrlvTT5bTAJgbVL3U0vqf/9LzxQvDJKcoiQseGMZONZvPhsiDMAxBwMevSN?=
+ =?us-ascii?Q?hJ8Wg3g9xG8YAFqDRCiGweKc2nDHXSgu2qIEj6tYuWRrjegzH4issetZAAwE?=
+ =?us-ascii?Q?lhukcR+e9IeMcvEs5fKcly6ps68mCjRSGcusQNvQZfokasJYTO6zv5e6GZ8e?=
+ =?us-ascii?Q?yv8ruc6uJA=3D=3D?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 54147c20-f31a-4bf4-d2b3-08da54ed643a
+X-MS-Exchange-CrossTenant-AuthSource: MW2PR12MB2506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jun 2022 07:52:59.3936
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 9qqsSnIdKsxLz2lGLePa/CGpmFFBP9ol6AbZDEHkWdj112eWAe6AQzGxpZ5kiXMah5R/jVXGcrwf8twtmhqGnA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4245
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit e70344c05995 ("block: fix default IO priority handling")
-introduced an inconsistency in get_current_ioprio() that tasks without
-IO context return IOPRIO_DEFAULT priority while tasks with freshly
-allocated IO context will return 0 (IOPRIO_CLASS_NONE/0) IO priority.
-Tasks without IO context used to be rare before 5a9d041ba2f6 ("block:
-move io_context creation into where it's needed") but after this commit
-they became common because now only BFQ IO scheduler setups task's IO
-context. Similar inconsistency is there for get_task_ioprio() so this
-inconsistency is now exposed to userspace and userspace will see
-different IO priority for tasks operating on devices with BFQ compared
-to devices without BFQ. Furthemore the changes done by commit
-e70344c05995 change the behavior when no IO priority is set for BFQ IO
-scheduler which is also documented in ioprio_set(2) manpage:
+On Thu, Jun 23, 2022 at 11:15:09AM +0800, Su, Jinzhou (Joe) wrote:
+> When system resumes from S3, the CPPC enable register will be
+> cleared and reset to 0. So sets this bit to enable CPPC
+> interface by writing 1 to this register.
+> 
+> Signed-off-by: Jinzhou Su <Jinzhou.Su@amd.com>
 
-"If no I/O scheduler has been set for a thread, then by default the I/O
-priority will follow the CPU nice value (setpriority(2)).  In Linux
-kernels before version 2.6.24, once an I/O priority had been set using
-ioprio_set(), there was no way to reset the I/O scheduling behavior to
-the default. Since Linux 2.6.24, specifying ioprio as 0 can be used to
-reset to the default I/O scheduling behavior."
+Signed-off-by: Jinzhou Su <Jinzhou.Su@amd.com>
+Cc: stable@vger.kernel.org
 
-So make sure we default to IOPRIO_CLASS_NONE as used to be the case
-before commit e70344c05995. Also cleanup alloc_io_context() to
-explicitely set this IO priority for the allocated IO context to avoid
-future surprises. Note that we tweak ioprio_best() to maintain
-ioprio_get(2) behavior and make this commit easily backportable.
+You can add one line below your commit description to Cc stable mailing
+list. And next time in V2, it's better to use subject-prefix optional to
+mark it as v2 like below:
 
-CC: stable@vger.kernel.org
-Fixes: e70344c05995 ("block: fix default IO priority handling")
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Tested-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- block/blk-ioc.c        | 2 ++
- block/ioprio.c         | 4 ++--
- include/linux/ioprio.h | 2 +-
- 3 files changed, 5 insertions(+), 3 deletions(-)
+git format-patch --subject-prefix="PATCH v2" HEAD~
 
-diff --git a/block/blk-ioc.c b/block/blk-ioc.c
-index df9cfe4ca532..63fc02042408 100644
---- a/block/blk-ioc.c
-+++ b/block/blk-ioc.c
-@@ -247,6 +247,8 @@ static struct io_context *alloc_io_context(gfp_t gfp_flags, int node)
- 	INIT_HLIST_HEAD(&ioc->icq_list);
- 	INIT_WORK(&ioc->release_work, ioc_release_fn);
- #endif
-+	ioc->ioprio = IOPRIO_DEFAULT;
-+
- 	return ioc;
- }
- 
-diff --git a/block/ioprio.c b/block/ioprio.c
-index 2fe068fcaad5..2a34cbca18ae 100644
---- a/block/ioprio.c
-+++ b/block/ioprio.c
-@@ -157,9 +157,9 @@ static int get_task_ioprio(struct task_struct *p)
- int ioprio_best(unsigned short aprio, unsigned short bprio)
- {
- 	if (!ioprio_valid(aprio))
--		aprio = IOPRIO_DEFAULT;
-+		aprio = IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, IOPRIO_BE_NORM);
- 	if (!ioprio_valid(bprio))
--		bprio = IOPRIO_DEFAULT;
-+		bprio = IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, IOPRIO_BE_NORM);
- 
- 	return min(aprio, bprio);
- }
-diff --git a/include/linux/ioprio.h b/include/linux/ioprio.h
-index 3f53bc27a19b..3d088a88f832 100644
---- a/include/linux/ioprio.h
-+++ b/include/linux/ioprio.h
-@@ -11,7 +11,7 @@
- /*
-  * Default IO priority.
-  */
--#define IOPRIO_DEFAULT	IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, IOPRIO_BE_NORM)
-+#define IOPRIO_DEFAULT	IOPRIO_PRIO_VALUE(IOPRIO_CLASS_NONE, 0)
- 
- /*
-  * Check that a priority value has a valid class.
--- 
-2.35.3
+Other looks good for me, patch is
 
+Acked-by: Huang Rui <ray.huang@amd.com>
+
+> ---
+>  drivers/cpufreq/amd-pstate.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+> 
+> diff --git a/drivers/cpufreq/amd-pstate.c b/drivers/cpufreq/amd-pstate.c
+> index 7be38bc6a673..9ac75c1cde9c 100644
+> --- a/drivers/cpufreq/amd-pstate.c
+> +++ b/drivers/cpufreq/amd-pstate.c
+> @@ -566,6 +566,28 @@ static int amd_pstate_cpu_exit(struct cpufreq_policy *policy)
+>  	return 0;
+>  }
+>  
+> +static int amd_pstate_cpu_resume(struct cpufreq_policy *policy)
+> +{
+> +	int ret;
+> +
+> +	ret = amd_pstate_enable(true);
+> +	if (ret)
+> +		pr_err("failed to enable amd-pstate during resume, return %d\n", ret);
+> +
+> +	return ret;
+> +}
+> +
+> +static int amd_pstate_cpu_suspend(struct cpufreq_policy *policy)
+> +{
+> +	int ret;
+> +
+> +	ret = amd_pstate_enable(false);
+> +	if (ret)
+> +		pr_err("failed to disable amd-pstate during suspend, return %d\n", ret);
+> +
+> +	return ret;
+> +}
+> +
+>  /* Sysfs attributes */
+>  
+>  /*
+> @@ -636,6 +658,8 @@ static struct cpufreq_driver amd_pstate_driver = {
+>  	.target		= amd_pstate_target,
+>  	.init		= amd_pstate_cpu_init,
+>  	.exit		= amd_pstate_cpu_exit,
+> +	.suspend	= amd_pstate_cpu_suspend,
+> +	.resume		= amd_pstate_cpu_resume,
+>  	.set_boost	= amd_pstate_set_boost,
+>  	.name		= "amd-pstate",
+>  	.attr           = amd_pstate_attr,
+> -- 
+> 2.32.0
+> 
