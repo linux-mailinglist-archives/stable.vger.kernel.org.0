@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 121BC5580FA
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:54:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A566F5582BB
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231521AbiFWQyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:54:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49154 "EHLO
+        id S232106AbiFWRS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:18:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233267AbiFWQuj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:50:39 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3555F4F1C5;
-        Thu, 23 Jun 2022 09:48:30 -0700 (PDT)
+        with ESMTP id S233404AbiFWRRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:17:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D9060C73;
+        Thu, 23 Jun 2022 09:59:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4CE28CE25E0;
-        Thu, 23 Jun 2022 16:48:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23450C3411B;
-        Thu, 23 Jun 2022 16:48:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DB4061573;
+        Thu, 23 Jun 2022 16:59:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB75CC3411B;
+        Thu, 23 Jun 2022 16:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002906;
-        bh=pkIF7X1kFve6mQbQzod1uQoP9QOKYh7e6hcfalT64tQ=;
+        s=korg; t=1656003593;
+        bh=hwdRMpcr3c0hyNdYLNwBv3vwIovC0ChxL5ZZ2uhRUfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HKAB7Z7MoW/bcG9AY3x07F/cZC4tiQCcv0u9HV9g5GaAYk+qlLdsVLvysHUmqUwKr
-         eH8CwH7iFJsbBjpCyH5LAKz0v0ecbw20db6/9a5y1eJASUY5SM5nmkDgg1pCOyaNxl
-         12nC49am98DaZYJsd99o2lLLn3/JgllehUqSM2LQ=
+        b=uRzT/5eoS+bqk/EYv05K9JV+OVYlTzyQ7FFJ9raL2uyGtt0w98IcVooBRo+n+Pr3F
+         3MuxIgKyQUxYYS4rGisA3ZHwrD3khOnC2A797l5wmEywgSvULR+Db15kVboH7H9uuw
+         fQo8N5n03MLyXtj3N5dsoSTLe/8qoJSl1JO3CagM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
-        Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 065/264] random: fix typo in add_timer_randomness()
+Subject: [PATCH 4.14 024/237] Revert "hwrng: core - Freeze khwrng thread during suspend"
 Date:   Thu, 23 Jun 2022 18:40:58 +0200
-Message-Id: <20220623164345.911249208@linuxfoundation.org>
+Message-Id: <20220623164343.850447279@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,31 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 727d499a6f4f29b6abdb635032f5e53e5905aedb upstream.
+commit 08e97aec700aeff54c4847f170e566cbd7e14e81 upstream.
 
-s/entimate/estimate
+This reverts commit 03a3bb7ae631 ("hwrng: core - Freeze khwrng
+thread during suspend"), ff296293b353 ("random: Support freezable
+kthreads in add_hwgenerator_randomness()") and 59b569480dc8 ("random:
+Use wait_event_freezable() in add_hwgenerator_randomness()").
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Link: https://lore.kernel.org/r/20190607182517.28266-4-tiny.windzz@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+These patches introduced regressions and we need more time to
+get them ready for mainline.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/random.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1263,7 +1263,7 @@ static void add_timer_randomness(struct
- 	/*
- 	 * delta is now minimum absolute delta.
- 	 * Round down by 1 bit on general principles,
--	 * and limit entropy entimate to 12 bits.
-+	 * and limit entropy estimate to 12 bits.
+@@ -327,7 +327,6 @@
+ #include <linux/percpu.h>
+ #include <linux/cryptohash.h>
+ #include <linux/fips.h>
+-#include <linux/freezer.h>
+ #include <linux/ptrace.h>
+ #include <linux/workqueue.h>
+ #include <linux/irq.h>
+@@ -2431,8 +2430,7 @@ void add_hwgenerator_randomness(const ch
+ 	 * We'll be woken up again once below random_write_wakeup_thresh,
+ 	 * or when the calling thread is about to terminate.
  	 */
- 	credit_entropy_bits(r, min_t(int, fls(delta>>1), 11));
- }
+-	wait_event_freezable(random_write_wait,
+-			kthread_should_stop() ||
++	wait_event_interruptible(random_write_wait, kthread_should_stop() ||
+ 			ENTROPY_BITS(&input_pool) <= random_write_wakeup_bits);
+ 	mix_pool_bytes(poolp, buffer, count);
+ 	credit_entropy_bits(poolp, entropy);
 
 
