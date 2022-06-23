@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEAD35584E5
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:51:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 707D55584EC
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:51:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235239AbiFWRvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:51:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42134 "EHLO
+        id S234833AbiFWRvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:51:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235245AbiFWRuD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:50:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28B9DA4E25;
-        Thu, 23 Jun 2022 10:12:04 -0700 (PDT)
+        with ESMTP id S235058AbiFWRu1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:50:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B660A6939;
+        Thu, 23 Jun 2022 10:12:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E37C8B82490;
-        Thu, 23 Jun 2022 17:12:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52C48C3411B;
-        Thu, 23 Jun 2022 17:11:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE3DCB824B6;
+        Thu, 23 Jun 2022 17:12:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48D11C341C4;
+        Thu, 23 Jun 2022 17:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004319;
-        bh=ZPveG1qtBko62rmc1Q9DuVC9fq5IAG68KyUJL+S6yus=;
+        s=korg; t=1656004322;
+        bh=6fH8AWnE43TUWzbd1LNxTcaH+c3QHupvuuJ7goaZ2nY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pq7BfSUo17LyZUkdMd0KglTea7bNn4sNrcdDne0N1A8y1vme/fzJhXIp9isdlpish
-         eIUZsvwZxt6ucf1AFF/OwaBffs/C9ISlKnVqodULkSsodNHDQnj2ws5ZlAeBdiXWpY
-         XRVci1UbFWNuKG4s0ZIWlk0eldN6khp9fOFcfeuA=
+        b=hXhjWIKzpNGWVU5gWnYDQ0aKTZ6tQya8M2n7RdDTbJilIR6rqSswHs+jPR3ca1H09
+         wZETItCbLoCjhmsrZoruDY9f33UStxe082B58m6dpVq8flH00aYBtXeLmjsxdWKWmO
+         MO7XnaCwKlOFtMPLu0Be/KOYBREu9T9teZYkFdQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Mikita Lipski <Mikita.Lipski@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.15 2/9] drm/amd/display: Dont reinitialize DMCUB on s0ix resume
-Date:   Thu, 23 Jun 2022 18:44:45 +0200
-Message-Id: <20220623164322.363030419@linuxfoundation.org>
+        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 3/9] net: mana: Add handling of CQE_RX_TRUNCATED
+Date:   Thu, 23 Jun 2022 18:44:46 +0200
+Message-Id: <20220623164322.390907722@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164322.288837280@linuxfoundation.org>
 References: <20220623164322.288837280@linuxfoundation.org>
@@ -57,86 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
 
-commit 79d6b9351f086e0f914a26915d96ab52286ec46c upstream.
+commit e4b7621982d29f26ff4d39af389e5e675a4ffed4 upstream.
 
-[Why]
-PSP will suspend and resume DMCUB. Driver should just wait for DMCUB to
-finish the auto load before continuining instead of placing it into
-reset, wiping its firmware state and reinitializing.
+The proper way to drop this kind of CQE is advancing rxq tail
+without indicating the packet to the upper network layer.
 
-If we don't let DMCUB fully finish initializing for S0ix then some state
-will be lost and screen corruption can occur due to incorrect address
-translation.
-
-[How]
-Use dmub_srv callbacks to determine in DMCUB is running and wait for
-auto-load to complete before continuining.
-
-In S0ix DMCUB will be running and DAL fw so initialize will skip.
-
-In S3 DMCUB will not be running and we will do a full hardware init.
-
-In S3 DMCUB will be running but will not be DAL fw so we will also do
-a full hardware init.
-
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Reviewed-by: Mikita Lipski <Mikita.Lipski@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   30 +++++++++++++++++++---
- 1 file changed, 27 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/microsoft/mana/mana_en.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -989,6 +989,32 @@ static int dm_dmub_hw_init(struct amdgpu
- 	return 0;
- }
+--- a/drivers/net/ethernet/microsoft/mana/mana_en.c
++++ b/drivers/net/ethernet/microsoft/mana/mana_en.c
+@@ -980,8 +980,10 @@ static void mana_process_rx_cqe(struct m
+ 		break;
  
-+static void dm_dmub_hw_resume(struct amdgpu_device *adev)
-+{
-+	struct dmub_srv *dmub_srv = adev->dm.dmub_srv;
-+	enum dmub_status status;
-+	bool init;
-+
-+	if (!dmub_srv) {
-+		/* DMUB isn't supported on the ASIC. */
-+		return;
-+	}
-+
-+	status = dmub_srv_is_hw_init(dmub_srv, &init);
-+	if (status != DMUB_STATUS_OK)
-+		DRM_WARN("DMUB hardware init check failed: %d\n", status);
-+
-+	if (status == DMUB_STATUS_OK && init) {
-+		/* Wait for firmware load to finish. */
-+		status = dmub_srv_wait_for_auto_load(dmub_srv, 100000);
-+		if (status != DMUB_STATUS_OK)
-+			DRM_WARN("Wait for DMUB auto-load failed: %d\n", status);
-+	} else {
-+		/* Perform the full hardware initialization. */
-+		dm_dmub_hw_init(adev);
-+	}
-+}
-+
- #if defined(CONFIG_DRM_AMD_DC_DCN)
- static void mmhub_read_system_context(struct amdgpu_device *adev, struct dc_phy_addr_space_config *pa_config)
- {
-@@ -2268,9 +2294,7 @@ static int dm_resume(void *handle)
- 		amdgpu_dm_outbox_init(adev);
+ 	case CQE_RX_TRUNCATED:
+-		netdev_err(ndev, "Dropped a truncated packet\n");
+-		return;
++		++ndev->stats.rx_dropped;
++		rxbuf_oob = &rxq->rx_oobs[rxq->buf_index];
++		netdev_warn_once(ndev, "Dropped a truncated packet\n");
++		goto drop;
  
- 	/* Before powering on DC we need to re-initialize DMUB. */
--	r = dm_dmub_hw_init(adev);
--	if (r)
--		DRM_ERROR("DMUB interface failed to initialize: status=%d\n", r);
-+	dm_dmub_hw_resume(adev);
+ 	case CQE_RX_COALESCED_4:
+ 		netdev_err(ndev, "RX coalescing is unsupported\n");
+@@ -1043,6 +1045,7 @@ static void mana_process_rx_cqe(struct m
  
- 	/* power on hardware */
- 	dc_set_power_state(dm->dc, DC_ACPI_CM_POWER_STATE_D0);
+ 	mana_rx_skb(old_buf, oob, rxq);
+ 
++drop:
+ 	mana_move_wq_tail(rxq->gdma_rq, rxbuf_oob->wqe_inf.wqe_size_in_bu);
+ 
+ 	mana_post_pkt_rxq(rxq);
 
 
