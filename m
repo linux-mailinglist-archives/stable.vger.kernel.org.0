@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE05A5581A6
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:03:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FE495583A8
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229834AbiFWRDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:03:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40936 "EHLO
+        id S232339AbiFWRdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:33:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232971AbiFWRAh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:00:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E70FF4F1C3;
-        Thu, 23 Jun 2022 09:54:09 -0700 (PDT)
+        with ESMTP id S234467AbiFWRcq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:32:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A11F85796;
+        Thu, 23 Jun 2022 10:05:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4CE361F8D;
-        Thu, 23 Jun 2022 16:54:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD217C341CC;
-        Thu, 23 Jun 2022 16:54:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BFF761B76;
+        Thu, 23 Jun 2022 17:05:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E92A4C3411B;
+        Thu, 23 Jun 2022 17:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003248;
-        bh=zKzsyeV+YUgO1OfzDfPItn2viW+5rIZVKooAhYmAh70=;
+        s=korg; t=1656003921;
+        bh=LxfPCWUpPkoJx7CMdmDWuUIIaCKudlIu6rNxc9EV36E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KNn8ic4rR/0EC0IrRAUx1DKDsToLJnIVcVJqhfclvnmpg8TmjXij3h0b3AlBE3P4R
-         Q8tfpUNtijbCJWrVlcVcbFQxRGKpS3XqGz6D7ckh1Kj013jxzYzSuUQlsCYHyECxHI
-         KSM68q9wMI+ADxkHFk93aRFGt6ZQA6QBKalnCLPU=
+        b=Miow90e2hNzOjxUkBCQi1nUpXy5i9keGz3vneyrQUS/xihRFdHmqjN3aslakqgMlF
+         n6P+WDFsdBS8izcpNtUXmqEMU5NgCHz/7e1sDtsyaJynpO/PBqRAMk/LM8+FlSk6js
+         Xr0494lannAlDvcSHjYR/WrzwNPRSTVc1tGwZObc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Varho <jan.varho@gmail.com>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 170/264] random: do not split fast init input in add_hwgenerator_randomness()
+Subject: [PATCH 4.14 129/237] random: give sysctl_random_min_urandom_seed a more sensible value
 Date:   Thu, 23 Jun 2022 18:42:43 +0200
-Message-Id: <20220623164348.874095017@linuxfoundation.org>
+Message-Id: <20220623164346.865639562@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Varho <jan.varho@gmail.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 527a9867af29ff89f278d037db704e0ed50fb666 upstream.
+commit d0efdf35a6a71d307a250199af6fce122a7c7e11 upstream.
 
-add_hwgenerator_randomness() tries to only use the required amount of input
-for fast init, but credits all the entropy, rather than a fraction of
-it. Since it's hard to determine how much entropy is left over out of a
-non-unformly random sample, either give it all to fast init or credit
-it, but don't attempt to do both. In the process, we can clean up the
-injection code to no longer need to return a value.
+This isn't used by anything or anywhere, but we can't delete it due to
+compatibility. So at least give it the correct value of what it's
+supposed to be instead of a garbage one.
 
-Signed-off-by: Jan Varho <jan.varho@gmail.com>
-[Jason: expanded commit message]
-Fixes: 73c7733f122e ("random: do not throw away excess input to crng_fast_load")
-Cc: stable@vger.kernel.org # 5.17+, requires af704c856e88
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ drivers/char/random.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -438,11 +438,8 @@ static void crng_make_state(u32 chacha_s
-  * This shouldn't be set by functions like add_device_randomness(),
-  * where we can't trust the buffer passed to it is guaranteed to be
-  * unpredictable (so it might not have any entropy at all).
-- *
-- * Returns the number of bytes processed from input, which is bounded
-- * by CRNG_INIT_CNT_THRESH if account is true.
-  */
--static size_t crng_pre_init_inject(const void *input, size_t len, bool account)
-+static void crng_pre_init_inject(const void *input, size_t len, bool account)
- {
- 	static int crng_init_cnt = 0;
- 	struct blake2s_state hash;
-@@ -453,18 +450,15 @@ static size_t crng_pre_init_inject(const
- 	spin_lock_irqsave(&base_crng.lock, flags);
- 	if (crng_init != 0) {
- 		spin_unlock_irqrestore(&base_crng.lock, flags);
--		return 0;
-+		return;
- 	}
+@@ -1612,7 +1612,7 @@ const struct file_operations urandom_fop
+  *   to avoid breaking old userspaces, but writing to it does not
+  *   change any behavior of the RNG.
+  *
+- * - urandom_min_reseed_secs - fixed to the meaningless value "60".
++ * - urandom_min_reseed_secs - fixed to the value CRNG_RESEED_INTERVAL.
+  *   It is writable to avoid breaking old userspaces, but writing
+  *   to it does not change any behavior of the RNG.
+  *
+@@ -1622,7 +1622,7 @@ const struct file_operations urandom_fop
  
--	if (account)
--		len = min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
--
- 	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
- 	blake2s_update(&hash, input, len);
- 	blake2s_final(&hash, base_crng.key);
+ #include <linux/sysctl.h>
  
- 	if (account) {
--		crng_init_cnt += len;
-+		crng_init_cnt += min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
- 		if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
- 			++base_crng.generation;
- 			crng_init = 1;
-@@ -475,8 +469,6 @@ static size_t crng_pre_init_inject(const
- 
- 	if (crng_init == 1)
- 		pr_notice("fast init done\n");
--
--	return len;
- }
- 
- static void _get_random_bytes(void *buf, size_t nbytes)
-@@ -1134,12 +1126,9 @@ void add_hwgenerator_randomness(const vo
- 				size_t entropy)
- {
- 	if (unlikely(crng_init == 0 && entropy < POOL_MIN_BITS)) {
--		size_t ret = crng_pre_init_inject(buffer, count, true);
--		mix_pool_bytes(buffer, ret);
--		count -= ret;
--		buffer += ret;
--		if (!count || crng_init == 0)
--			return;
-+		crng_pre_init_inject(buffer, count, true);
-+		mix_pool_bytes(buffer, count);
-+		return;
- 	}
- 
- 	/*
+-static int sysctl_random_min_urandom_seed = 60;
++static int sysctl_random_min_urandom_seed = CRNG_RESEED_INTERVAL / HZ;
+ static int sysctl_random_write_wakeup_bits = POOL_MIN_BITS;
+ static int sysctl_poolsize = POOL_BITS;
+ static u8 sysctl_bootid[UUID_SIZE];
 
 
