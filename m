@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F87B5580F4
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A3755582B8
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:19:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233327AbiFWQym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:54:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48742 "EHLO
+        id S232784AbiFWRS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:18:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233322AbiFWQup (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:50:45 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2471FE9;
-        Thu, 23 Jun 2022 09:48:36 -0700 (PDT)
+        with ESMTP id S233648AbiFWRR5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:17:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CF9A94F3F;
+        Thu, 23 Jun 2022 10:00:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 75374CE25DF;
-        Thu, 23 Jun 2022 16:48:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD38C3411B;
-        Thu, 23 Jun 2022 16:48:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ABDB61408;
+        Thu, 23 Jun 2022 17:00:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 610ABC341C4;
+        Thu, 23 Jun 2022 17:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002912;
-        bh=xdb2ZErIUK9uPmVFDjmvj2mIuOcmWwnjk9fgaiX9dhU=;
+        s=korg; t=1656003602;
+        bh=GveS77NFMpQY+xaymSevlHEOIq7CUjT0HjuXcn/+YKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jlH3XknSDs8pEU/wO6evIPo+v1otT9XlXJhZeJ+EqXR6HQ3XqMmFT2V7CbkyRH5s0
-         CvTfN3M9OPIxwqoXLQXgACMJbcZYZta7UG2GiT0oKMa3OW+1SnmcRtsRmQOgHujUBO
-         KVSub17o04cFLG7uwWLYOVBqlYjs7MLpt38il0hU=
+        b=H9YWw75Ec+6gFoo1hg25XTsGkRkw9kZZUaBSfubmjxq0MFd4Pq5B1Z6JgsYfjHwwi
+         MXetIhhE2S00TVSYOV2uzLAhv9K2I7KdXEvj7KY7k7duRxw8TOZXPVXdSxMmFycvVU
+         rQT4i/Rchgp8D4T4wf1j0XRtko/wC9qJcxA8yIeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Mark Brown <broonie@kernel.org>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 067/264] random: split primary/secondary crng init paths
-Date:   Thu, 23 Jun 2022 18:41:00 +0200
-Message-Id: <20220623164345.967382230@linuxfoundation.org>
+Subject: [PATCH 4.14 027/237] lib/crypto: blake2s: move hmac construction into wireguard
+Date:   Thu, 23 Jun 2022 18:41:01 +0200
+Message-Id: <20220623164343.936677623@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,101 +55,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 5cbe0f13b51ac2fb2fd55902cff8d0077fc084c0 upstream.
+commit d8d83d8ab0a453e17e68b3a3bed1f940c34b8646 upstream.
 
-Currently crng_initialize() is used for both the primary CRNG and
-secondary CRNGs. While we wish to share common logic, we need to do a
-number of additional things for the primary CRNG, and this would be
-easier to deal with were these handled in separate functions.
+Basically nobody should use blake2s in an HMAC construction; it already
+has a keyed variant. But unfortunately for historical reasons, Noise,
+used by WireGuard, uses HKDF quite strictly, which means we have to use
+this. Because this really shouldn't be used by others, this commit moves
+it into wireguard's noise.c locally, so that kernels that aren't using
+WireGuard don't get this superfluous code baked in. On m68k systems,
+this shaves off ~314 bytes.
 
-This patch splits crng_initialize() into crng_initialize_primary() and
-crng_initialize_secondary(), with common logic factored out into a
-crng_init_try_arch() helper.
-
-There should be no functional change as a result of this patch.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20200210130015.17664-2-mark.rutland@arm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+[Jason: for stable, skip the wireguard changes, since this kernel
+ doesn't have wireguard.]
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   36 ++++++++++++++++++++++++------------
- 1 file changed, 24 insertions(+), 12 deletions(-)
+ include/crypto/blake2s.h      |    3 ---
+ lib/crypto/blake2s-selftest.c |   31 -------------------------------
+ lib/crypto/blake2s.c          |   37 -------------------------------------
+ 3 files changed, 71 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -783,27 +783,39 @@ static int __init parse_trust_cpu(char *
+--- a/include/crypto/blake2s.h
++++ b/include/crypto/blake2s.h
+@@ -100,7 +100,4 @@ static inline void blake2s(u8 *out, cons
+ 	blake2s_final(&state, out);
  }
- early_param("random.trust_cpu", parse_trust_cpu);
  
--static void crng_initialize(struct crng_state *crng)
-+static bool crng_init_try_arch(struct crng_state *crng)
+-void blake2s256_hmac(u8 *out, const u8 *in, const u8 *key, const size_t inlen,
+-		     const size_t keylen);
+-
+ #endif /* BLAKE2S_H */
+--- a/lib/crypto/blake2s-selftest.c
++++ b/lib/crypto/blake2s-selftest.c
+@@ -15,7 +15,6 @@
+  * #include <stdio.h>
+  *
+  * #include <openssl/evp.h>
+- * #include <openssl/hmac.h>
+  *
+  * #define BLAKE2S_TESTVEC_COUNT	256
+  *
+@@ -58,16 +57,6 @@
+  *	}
+  *	printf("};\n\n");
+  *
+- *	printf("static const u8 blake2s_hmac_testvecs[][BLAKE2S_HASH_SIZE] __initconst = {\n");
+- *
+- *	HMAC(EVP_blake2s256(), key, sizeof(key), buf, sizeof(buf), hash, NULL);
+- *	print_vec(hash, BLAKE2S_OUTBYTES);
+- *
+- *	HMAC(EVP_blake2s256(), buf, sizeof(buf), key, sizeof(key), hash, NULL);
+- *	print_vec(hash, BLAKE2S_OUTBYTES);
+- *
+- *	printf("};\n");
+- *
+  *	return 0;
+  *}
+  */
+@@ -554,15 +543,6 @@ static const u8 blake2s_testvecs[][BLAKE
+     0xd6, 0x98, 0x6b, 0x07, 0x10, 0x65, 0x52, 0x65, },
+ };
+ 
+-static const u8 blake2s_hmac_testvecs[][BLAKE2S_HASH_SIZE] __initconst = {
+-  { 0xce, 0xe1, 0x57, 0x69, 0x82, 0xdc, 0xbf, 0x43, 0xad, 0x56, 0x4c, 0x70,
+-    0xed, 0x68, 0x16, 0x96, 0xcf, 0xa4, 0x73, 0xe8, 0xe8, 0xfc, 0x32, 0x79,
+-    0x08, 0x0a, 0x75, 0x82, 0xda, 0x3f, 0x05, 0x11, },
+-  { 0x77, 0x2f, 0x0c, 0x71, 0x41, 0xf4, 0x4b, 0x2b, 0xb3, 0xc6, 0xb6, 0xf9,
+-    0x60, 0xde, 0xe4, 0x52, 0x38, 0x66, 0xe8, 0xbf, 0x9b, 0x96, 0xc4, 0x9f,
+-    0x60, 0xd9, 0x24, 0x37, 0x99, 0xd6, 0xec, 0x31, },
+-};
+-
+ bool __init blake2s_selftest(void)
  {
- 	int		i;
--	int		arch_init = 1;
-+	bool		arch_init = true;
- 	unsigned long	rv;
- 
--	memcpy(&crng->state[0], "expand 32-byte k", 16);
--	if (crng == &primary_crng)
--		_extract_entropy(&input_pool, &crng->state[4],
--				 sizeof(__u32) * 12, 0);
--	else
--		_get_random_bytes(&crng->state[4], sizeof(__u32) * 12);
- 	for (i = 4; i < 16; i++) {
- 		if (!arch_get_random_seed_long(&rv) &&
- 		    !arch_get_random_long(&rv)) {
- 			rv = random_get_entropy();
--			arch_init = 0;
-+			arch_init = false;
+ 	u8 key[BLAKE2S_KEY_SIZE];
+@@ -607,16 +587,5 @@ bool __init blake2s_selftest(void)
  		}
- 		crng->state[i] ^= rv;
  	}
--	if (trust_cpu && arch_init) {
-+
-+	return arch_init;
-+}
-+
-+static void crng_initialize_secondary(struct crng_state *crng)
-+{
-+	memcpy(&crng->state[0], "expand 32-byte k", 16);
-+	_get_random_bytes(&crng->state[4], sizeof(__u32) * 12);
-+	crng_init_try_arch(crng);
-+	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
-+}
-+
-+static void __init crng_initialize_primary(struct crng_state *crng)
-+{
-+	memcpy(&crng->state[0], "expand 32-byte k", 16);
-+	_extract_entropy(&input_pool, &crng->state[4], sizeof(__u32) * 12, 0);
-+	if (crng_init_try_arch(crng) && trust_cpu) {
-+		invalidate_batched_entropy();
-+		numa_crng_init();
- 		crng_init = 2;
- 		pr_notice("crng done (trusting CPU's manufacturer)\n");
- 	}
-@@ -852,7 +864,7 @@ static void do_numa_crng_init(struct wor
- 		crng = kmalloc_node(sizeof(struct crng_state),
- 				    GFP_KERNEL | __GFP_NOFAIL, i);
- 		spin_lock_init(&crng->lock);
--		crng_initialize(crng);
-+		crng_initialize_secondary(crng);
- 		pool[i] = crng;
- 	}
- 	/* pairs with READ_ONCE() in select_crng() */
-@@ -1780,7 +1792,7 @@ int __init rand_initialize(void)
- 	init_std_data(&input_pool);
- 	if (crng_need_final_init)
- 		crng_finalize_init(&primary_crng);
--	crng_initialize(&primary_crng);
-+	crng_initialize_primary(&primary_crng);
- 	crng_global_init_time = jiffies;
- 	if (ratelimit_disable) {
- 		urandom_warning.interval = 0;
+ 
+-	if (success) {
+-		blake2s256_hmac(hash, buf, key, sizeof(buf), sizeof(key));
+-		success &= !memcmp(hash, blake2s_hmac_testvecs[0], BLAKE2S_HASH_SIZE);
+-
+-		blake2s256_hmac(hash, key, buf, sizeof(key), sizeof(buf));
+-		success &= !memcmp(hash, blake2s_hmac_testvecs[1], BLAKE2S_HASH_SIZE);
+-
+-		if (!success)
+-			pr_err("blake2s256_hmac self-test: FAIL\n");
+-	}
+-
+ 	return success;
+ }
+--- a/lib/crypto/blake2s.c
++++ b/lib/crypto/blake2s.c
+@@ -59,43 +59,6 @@ void blake2s_final(struct blake2s_state
+ }
+ EXPORT_SYMBOL(blake2s_final);
+ 
+-void blake2s256_hmac(u8 *out, const u8 *in, const u8 *key, const size_t inlen,
+-		     const size_t keylen)
+-{
+-	struct blake2s_state state;
+-	u8 x_key[BLAKE2S_BLOCK_SIZE] __aligned(__alignof__(u32)) = { 0 };
+-	u8 i_hash[BLAKE2S_HASH_SIZE] __aligned(__alignof__(u32));
+-	int i;
+-
+-	if (keylen > BLAKE2S_BLOCK_SIZE) {
+-		blake2s_init(&state, BLAKE2S_HASH_SIZE);
+-		blake2s_update(&state, key, keylen);
+-		blake2s_final(&state, x_key);
+-	} else
+-		memcpy(x_key, key, keylen);
+-
+-	for (i = 0; i < BLAKE2S_BLOCK_SIZE; ++i)
+-		x_key[i] ^= 0x36;
+-
+-	blake2s_init(&state, BLAKE2S_HASH_SIZE);
+-	blake2s_update(&state, x_key, BLAKE2S_BLOCK_SIZE);
+-	blake2s_update(&state, in, inlen);
+-	blake2s_final(&state, i_hash);
+-
+-	for (i = 0; i < BLAKE2S_BLOCK_SIZE; ++i)
+-		x_key[i] ^= 0x5c ^ 0x36;
+-
+-	blake2s_init(&state, BLAKE2S_HASH_SIZE);
+-	blake2s_update(&state, x_key, BLAKE2S_BLOCK_SIZE);
+-	blake2s_update(&state, i_hash, BLAKE2S_HASH_SIZE);
+-	blake2s_final(&state, i_hash);
+-
+-	memcpy(out, i_hash, BLAKE2S_HASH_SIZE);
+-	memzero_explicit(x_key, BLAKE2S_BLOCK_SIZE);
+-	memzero_explicit(i_hash, BLAKE2S_HASH_SIZE);
+-}
+-EXPORT_SYMBOL(blake2s256_hmac);
+-
+ static int __init mod_init(void)
+ {
+ 	if (!IS_ENABLED(CONFIG_CRYPTO_MANAGER_DISABLE_TESTS) &&
 
 
