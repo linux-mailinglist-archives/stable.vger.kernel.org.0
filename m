@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 281B855833E
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9B39558245
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233004AbiFWR1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:27:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45410 "EHLO
+        id S229837AbiFWRN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:13:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233777AbiFWR0j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:26:39 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BE1E6E78A;
-        Thu, 23 Jun 2022 10:02:47 -0700 (PDT)
+        with ESMTP id S229449AbiFWRLk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:11:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33AFE18364;
+        Thu, 23 Jun 2022 09:51:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5D1BCCE25E2;
-        Thu, 23 Jun 2022 17:02:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2601AC3411B;
-        Thu, 23 Jun 2022 17:02:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C06AA61F62;
+        Thu, 23 Jun 2022 16:51:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABE2FC3411B;
+        Thu, 23 Jun 2022 16:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003763;
-        bh=DfzEkuI0Gq3ReCr/P9QUglMMGu4a4F1Mz9nZujbEBaQ=;
+        s=korg; t=1656003070;
+        bh=B+p7EtKRj9a5tVfJTGyiXDhd9taRre9xiGKcJXTVWl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ycfp7i97gd3IZkEprXgpIadE8iZoQnSjKsn1ktscVPRx/i9kkgnQ2V+8YspJEY08D
-         kCOtjc1TDfZCOiSDnK0mw8EJWjCWuLOSQPvN9xRW0hZ+FOj+5vy3CRz41AxO4yWuQf
-         cOc7dujnnfKuAfH9jBbWeam0bfRJcG8K+mNq5B9E=
+        b=faVrZObDdenQTWRpEl9shrcppjtgsEAiZsq5CZp3Npl5bTCIn9Z50djTEQQpiqwdX
+         f3hGIYAiFiObvl7A7Bpar+Ptk8CYQBAAWUGMSw8zc0tLkVcB8xaoQlCJpDEqkLcws2
+         ylNyprP6kqyixzbCgyWmKhmApnvwL4y/4kJRWn6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 078/237] random: rather than entropy_store abstraction, use global
+Subject: [PATCH 4.9 119/264] random: inline leaves of rand_initialize()
 Date:   Thu, 23 Jun 2022 18:41:52 +0200
-Message-Id: <20220623164345.397476487@linuxfoundation.org>
+Message-Id: <20220623164347.434462658@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,772 +57,142 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 90ed1e67e896cc8040a523f8428fc02f9b164394 upstream.
+commit 8566417221fcec51346ec164e920dacb979c6b5f upstream.
 
-Originally, the RNG used several pools, so having things abstracted out
-over a generic entropy_store object made sense. These days, there's only
-one input pool, and then an uneven mix of usage via the abstraction and
-usage via &input_pool. Rather than this uneasy mixture, just get rid of
-the abstraction entirely and have things always use the global. This
-simplifies the code and makes reading it a bit easier.
+This is a preparatory commit for the following one. We simply inline the
+various functions that rand_initialize() calls that have no other
+callers. The compiler was doing this anyway before. Doing this will
+allow us to reorganize this after. We can then move the trust_cpu and
+parse_trust_cpu definitions a bit closer to where they're actually used,
+which makes the code easier to read.
 
+Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c         |  219 ++++++++++++++++++------------------------
- include/trace/events/random.h |   56 ++++------
- 2 files changed, 117 insertions(+), 158 deletions(-)
+ drivers/char/random.c |   90 ++++++++++++++++++--------------------------------
+ 1 file changed, 33 insertions(+), 57 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -375,7 +375,7 @@
-  * credit_entropy_bits() needs to be 64 bits wide.
-  */
- #define ENTROPY_SHIFT 3
--#define ENTROPY_BITS(r) ((r)->entropy_count >> ENTROPY_SHIFT)
-+#define ENTROPY_BITS() (input_pool.entropy_count >> ENTROPY_SHIFT)
+@@ -477,42 +477,6 @@ static DECLARE_WAIT_QUEUE_HEAD(crng_init
  
- /*
-  * If the entropy count falls under this number of bits, then we
-@@ -505,33 +505,27 @@ MODULE_PARM_DESC(ratelimit_disable, "Dis
-  *
-  **********************************************************************/
+ static void invalidate_batched_entropy(void);
  
--struct entropy_store;
--struct entropy_store {
-+static u32 input_pool_data[INPUT_POOL_WORDS] __latent_entropy;
-+
-+static struct {
- 	/* read-only data: */
- 	u32 *pool;
--	const char *name;
- 
- 	/* read-write data: */
- 	spinlock_t lock;
- 	u16 add_ptr;
- 	u16 input_rotate;
- 	int entropy_count;
--};
+-static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
+-static int __init parse_trust_cpu(char *arg)
+-{
+-	return kstrtobool(arg, &trust_cpu);
+-}
+-early_param("random.trust_cpu", parse_trust_cpu);
 -
--static ssize_t extract_entropy(struct entropy_store *r, void *buf,
--			       size_t nbytes, int min);
--static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
--				size_t nbytes);
+-static bool __init crng_init_try_arch_early(void)
+-{
+-	int i;
+-	bool arch_init = true;
+-	unsigned long rv;
 -
--static void crng_reseed(struct crng_state *crng, struct entropy_store *r);
--static u32 input_pool_data[INPUT_POOL_WORDS] __latent_entropy;
--
--static struct entropy_store input_pool = {
--	.name = "input",
-+} input_pool = {
- 	.lock = __SPIN_LOCK_UNLOCKED(input_pool.lock),
- 	.pool = input_pool_data
- };
- 
-+static ssize_t extract_entropy(void *buf, size_t nbytes, int min);
-+static ssize_t _extract_entropy(void *buf, size_t nbytes);
-+
-+static void crng_reseed(struct crng_state *crng, bool use_input_pool);
-+
- static u32 const twist_table[8] = {
- 	0x00000000, 0x3b6e20c8, 0x76dc4190, 0x4db26158,
- 	0xedb88320, 0xd6d6a3e8, 0x9b64c2b0, 0xa00ae278 };
-@@ -546,16 +540,15 @@ static u32 const twist_table[8] = {
-  * it's cheap to do so and helps slightly in the expected case where
-  * the entropy is concentrated in the low-order bits.
-  */
--static void _mix_pool_bytes(struct entropy_store *r, const void *in,
--			    int nbytes)
-+static void _mix_pool_bytes(const void *in, int nbytes)
- {
- 	unsigned long i;
- 	int input_rotate;
- 	const u8 *bytes = in;
- 	u32 w;
- 
--	input_rotate = r->input_rotate;
--	i = r->add_ptr;
-+	input_rotate = input_pool.input_rotate;
-+	i = input_pool.add_ptr;
- 
- 	/* mix one byte at a time to simplify size handling and churn faster */
- 	while (nbytes--) {
-@@ -563,15 +556,15 @@ static void _mix_pool_bytes(struct entro
- 		i = (i - 1) & POOL_WORDMASK;
- 
- 		/* XOR in the various taps */
--		w ^= r->pool[i];
--		w ^= r->pool[(i + POOL_TAP1) & POOL_WORDMASK];
--		w ^= r->pool[(i + POOL_TAP2) & POOL_WORDMASK];
--		w ^= r->pool[(i + POOL_TAP3) & POOL_WORDMASK];
--		w ^= r->pool[(i + POOL_TAP4) & POOL_WORDMASK];
--		w ^= r->pool[(i + POOL_TAP5) & POOL_WORDMASK];
-+		w ^= input_pool.pool[i];
-+		w ^= input_pool.pool[(i + POOL_TAP1) & POOL_WORDMASK];
-+		w ^= input_pool.pool[(i + POOL_TAP2) & POOL_WORDMASK];
-+		w ^= input_pool.pool[(i + POOL_TAP3) & POOL_WORDMASK];
-+		w ^= input_pool.pool[(i + POOL_TAP4) & POOL_WORDMASK];
-+		w ^= input_pool.pool[(i + POOL_TAP5) & POOL_WORDMASK];
- 
- 		/* Mix the result back in with a twist */
--		r->pool[i] = (w >> 3) ^ twist_table[w & 7];
-+		input_pool.pool[i] = (w >> 3) ^ twist_table[w & 7];
- 
- 		/*
- 		 * Normally, we add 7 bits of rotation to the pool.
-@@ -582,26 +575,24 @@ static void _mix_pool_bytes(struct entro
- 		input_rotate = (input_rotate + (i ? 7 : 14)) & 31;
- 	}
- 
--	r->input_rotate = input_rotate;
--	r->add_ptr = i;
-+	input_pool.input_rotate = input_rotate;
-+	input_pool.add_ptr = i;
- }
- 
--static void __mix_pool_bytes(struct entropy_store *r, const void *in,
--			     int nbytes)
-+static void __mix_pool_bytes(const void *in, int nbytes)
- {
--	trace_mix_pool_bytes_nolock(r->name, nbytes, _RET_IP_);
--	_mix_pool_bytes(r, in, nbytes);
-+	trace_mix_pool_bytes_nolock(nbytes, _RET_IP_);
-+	_mix_pool_bytes(in, nbytes);
- }
- 
--static void mix_pool_bytes(struct entropy_store *r, const void *in,
--			   int nbytes)
-+static void mix_pool_bytes(const void *in, int nbytes)
- {
- 	unsigned long flags;
- 
--	trace_mix_pool_bytes(r->name, nbytes, _RET_IP_);
--	spin_lock_irqsave(&r->lock, flags);
--	_mix_pool_bytes(r, in, nbytes);
--	spin_unlock_irqrestore(&r->lock, flags);
-+	trace_mix_pool_bytes(nbytes, _RET_IP_);
-+	spin_lock_irqsave(&input_pool.lock, flags);
-+	_mix_pool_bytes(in, nbytes);
-+	spin_unlock_irqrestore(&input_pool.lock, flags);
- }
- 
- struct fast_pool {
-@@ -663,16 +654,16 @@ static void process_random_ready_list(vo
-  * Use credit_entropy_bits_safe() if the value comes from userspace
-  * or otherwise should be checked for extreme values.
-  */
--static void credit_entropy_bits(struct entropy_store *r, int nbits)
-+static void credit_entropy_bits(int nbits)
- {
--	int entropy_count, orig;
-+	int entropy_count, entropy_bits, orig;
- 	int nfrac = nbits << ENTROPY_SHIFT;
- 
- 	if (!nbits)
- 		return;
- 
- retry:
--	entropy_count = orig = ACCESS_ONCE(r->entropy_count);
-+	entropy_count = orig = READ_ONCE(input_pool.entropy_count);
- 	if (nfrac < 0) {
- 		/* Debit */
- 		entropy_count += nfrac;
-@@ -713,26 +704,21 @@ retry:
- 	}
- 
- 	if (WARN_ON(entropy_count < 0)) {
--		pr_warn("negative entropy/overflow: pool %s count %d\n",
--			r->name, entropy_count);
-+		pr_warn("negative entropy/overflow: count %d\n", entropy_count);
- 		entropy_count = 0;
- 	} else if (entropy_count > POOL_FRACBITS)
- 		entropy_count = POOL_FRACBITS;
--	if (cmpxchg(&r->entropy_count, orig, entropy_count) != orig)
-+	if (cmpxchg(&input_pool.entropy_count, orig, entropy_count) != orig)
- 		goto retry;
- 
--	trace_credit_entropy_bits(r->name, nbits,
--				  entropy_count >> ENTROPY_SHIFT, _RET_IP_);
-+	trace_credit_entropy_bits(nbits, entropy_count >> ENTROPY_SHIFT, _RET_IP_);
- 
--	if (r == &input_pool) {
--		int entropy_bits = entropy_count >> ENTROPY_SHIFT;
--
--		if (crng_init < 2 && entropy_bits >= 128)
--			crng_reseed(&primary_crng, r);
+-	for (i = 4; i < 16; i++) {
+-		if (!arch_get_random_seed_long_early(&rv) &&
+-		    !arch_get_random_long_early(&rv)) {
+-			rv = random_get_entropy();
+-			arch_init = false;
+-		}
+-		primary_crng.state[i] ^= rv;
 -	}
-+	entropy_bits = entropy_count >> ENTROPY_SHIFT;
-+	if (crng_init < 2 && entropy_bits >= 128)
-+		crng_reseed(&primary_crng, true);
- }
- 
--static int credit_entropy_bits_safe(struct entropy_store *r, int nbits)
-+static int credit_entropy_bits_safe(int nbits)
- {
- 	if (nbits < 0)
- 		return -EINVAL;
-@@ -740,7 +726,7 @@ static int credit_entropy_bits_safe(stru
- 	/* Cap the value to avoid overflows */
- 	nbits = min(nbits,  POOL_BITS);
- 
--	credit_entropy_bits(r, nbits);
-+	credit_entropy_bits(nbits);
- 	return 0;
- }
- 
-@@ -817,7 +803,7 @@ static void crng_initialize_secondary(st
- 
- static void __init crng_initialize_primary(struct crng_state *crng)
- {
--	_extract_entropy(&input_pool, &crng->state[4], sizeof(u32) * 12);
-+	_extract_entropy(&crng->state[4], sizeof(u32) * 12);
- 	if (crng_init_try_arch_early(crng) && trust_cpu && crng_init < 2) {
- 		invalidate_batched_entropy();
- 		numa_crng_init();
-@@ -978,7 +964,7 @@ static int crng_slow_load(const u8 *cp,
- 	return 1;
- }
- 
--static void crng_reseed(struct crng_state *crng, struct entropy_store *r)
-+static void crng_reseed(struct crng_state *crng, bool use_input_pool)
- {
- 	unsigned long	flags;
- 	int		i, num;
-@@ -987,8 +973,8 @@ static void crng_reseed(struct crng_stat
- 		u32	key[8];
- 	} buf;
- 
--	if (r) {
--		num = extract_entropy(r, &buf, 32, 16);
-+	if (use_input_pool) {
-+		num = extract_entropy(&buf, 32, 16);
- 		if (num == 0)
- 			return;
- 	} else {
-@@ -1019,8 +1005,7 @@ static void _extract_crng(struct crng_st
- 		init_time = READ_ONCE(crng->init_time);
- 		if (time_after(READ_ONCE(crng_global_init_time), init_time) ||
- 		    time_after(jiffies, init_time + CRNG_RESEED_INTERVAL))
--			crng_reseed(crng, crng == &primary_crng ?
--				    &input_pool : NULL);
-+			crng_reseed(crng, crng == &primary_crng);
- 	}
- 	spin_lock_irqsave(&crng->lock, flags);
- 	chacha20_block(&crng->state[0], out);
-@@ -1131,8 +1116,8 @@ void add_device_randomness(const void *b
- 
- 	trace_add_device_randomness(size, _RET_IP_);
- 	spin_lock_irqsave(&input_pool.lock, flags);
--	_mix_pool_bytes(&input_pool, buf, size);
--	_mix_pool_bytes(&input_pool, &time, sizeof(time));
-+	_mix_pool_bytes(buf, size);
-+	_mix_pool_bytes(&time, sizeof(time));
- 	spin_unlock_irqrestore(&input_pool.lock, flags);
- }
- EXPORT_SYMBOL(add_device_randomness);
-@@ -1151,7 +1136,6 @@ static struct timer_rand_state input_tim
-  */
- static void add_timer_randomness(struct timer_rand_state *state, unsigned num)
- {
--	struct entropy_store	*r;
- 	struct {
- 		long jiffies;
- 		unsigned int cycles;
-@@ -1162,8 +1146,7 @@ static void add_timer_randomness(struct
- 	sample.jiffies = jiffies;
- 	sample.cycles = random_get_entropy();
- 	sample.num = num;
--	r = &input_pool;
--	mix_pool_bytes(r, &sample, sizeof(sample));
-+	mix_pool_bytes(&sample, sizeof(sample));
- 
- 	/*
- 	 * Calculate number of bits of randomness we probably added.
-@@ -1195,7 +1178,7 @@ static void add_timer_randomness(struct
- 	 * Round down by 1 bit on general principles,
- 	 * and limit entropy estimate to 12 bits.
- 	 */
--	credit_entropy_bits(r, min_t(int, fls(delta>>1), 11));
-+	credit_entropy_bits(min_t(int, fls(delta>>1), 11));
- }
- 
- void add_input_randomness(unsigned int type, unsigned int code,
-@@ -1210,7 +1193,7 @@ void add_input_randomness(unsigned int t
- 	last_value = value;
- 	add_timer_randomness(&input_timer_state,
- 			     (type << 4) ^ code ^ (code >> 4) ^ value);
--	trace_add_input_randomness(ENTROPY_BITS(&input_pool));
-+	trace_add_input_randomness(ENTROPY_BITS());
- }
- EXPORT_SYMBOL_GPL(add_input_randomness);
- 
-@@ -1254,7 +1237,6 @@ static u32 get_reg(struct fast_pool *f,
- 
- void add_interrupt_randomness(int irq)
- {
--	struct entropy_store	*r;
- 	struct fast_pool	*fast_pool = this_cpu_ptr(&irq_randomness);
- 	struct pt_regs		*regs = get_irq_regs();
- 	unsigned long		now = jiffies;
-@@ -1289,18 +1271,17 @@ void add_interrupt_randomness(int irq)
- 	    !time_after(now, fast_pool->last + HZ))
- 		return;
- 
--	r = &input_pool;
--	if (!spin_trylock(&r->lock))
-+	if (!spin_trylock(&input_pool.lock))
- 		return;
- 
- 	fast_pool->last = now;
--	__mix_pool_bytes(r, &fast_pool->pool, sizeof(fast_pool->pool));
--	spin_unlock(&r->lock);
-+	__mix_pool_bytes(&fast_pool->pool, sizeof(fast_pool->pool));
-+	spin_unlock(&input_pool.lock);
- 
- 	fast_pool->count = 0;
- 
- 	/* award one bit for the contents of the fast pool */
--	credit_entropy_bits(r, 1);
-+	credit_entropy_bits(1);
- }
- EXPORT_SYMBOL_GPL(add_interrupt_randomness);
- 
-@@ -1311,7 +1292,7 @@ void add_disk_randomness(struct gendisk
- 		return;
- 	/* first major is 1, so we get >= 0x200 here */
- 	add_timer_randomness(disk->random, 0x100 + disk_devt(disk));
--	trace_add_disk_randomness(disk_devt(disk), ENTROPY_BITS(&input_pool));
-+	trace_add_disk_randomness(disk_devt(disk), ENTROPY_BITS());
- }
- EXPORT_SYMBOL_GPL(add_disk_randomness);
- #endif
-@@ -1326,16 +1307,16 @@ EXPORT_SYMBOL_GPL(add_disk_randomness);
-  * This function decides how many bytes to actually take from the
-  * given pool, and also debits the entropy count accordingly.
-  */
--static size_t account(struct entropy_store *r, size_t nbytes, int min)
-+static size_t account(size_t nbytes, int min)
- {
- 	int entropy_count, orig, have_bytes;
- 	size_t ibytes, nfrac;
- 
--	BUG_ON(r->entropy_count > POOL_FRACBITS);
-+	BUG_ON(input_pool.entropy_count > POOL_FRACBITS);
- 
- 	/* Can we pull enough? */
- retry:
--	entropy_count = orig = ACCESS_ONCE(r->entropy_count);
-+	entropy_count = orig = READ_ONCE(input_pool.entropy_count);
- 	ibytes = nbytes;
- 	/* never pull more than available */
- 	have_bytes = entropy_count >> (ENTROPY_SHIFT + 3);
-@@ -1347,8 +1328,7 @@ retry:
- 		ibytes = 0;
- 
- 	if (WARN_ON(entropy_count < 0)) {
--		pr_warn("negative entropy count: pool %s count %d\n",
--			r->name, entropy_count);
-+		pr_warn("negative entropy count: count %d\n", entropy_count);
- 		entropy_count = 0;
- 	}
- 	nfrac = ibytes << (ENTROPY_SHIFT + 3);
-@@ -1357,11 +1337,11 @@ retry:
- 	else
- 		entropy_count = 0;
- 
--	if (cmpxchg(&r->entropy_count, orig, entropy_count) != orig)
-+	if (cmpxchg(&input_pool.entropy_count, orig, entropy_count) != orig)
- 		goto retry;
- 
--	trace_debit_entropy(r->name, 8 * ibytes);
--	if (ibytes && ENTROPY_BITS(r) < random_write_wakeup_bits) {
-+	trace_debit_entropy(8 * ibytes);
-+	if (ibytes && ENTROPY_BITS() < random_write_wakeup_bits) {
- 		wake_up_interruptible(&random_write_wait);
- 		kill_fasync(&fasync, SIGIO, POLL_OUT);
- 	}
-@@ -1374,7 +1354,7 @@ retry:
-  *
-  * Note: we assume that .poolwords is a multiple of 16 words.
-  */
--static void extract_buf(struct entropy_store *r, u8 *out)
-+static void extract_buf(u8 *out)
- {
- 	struct blake2s_state state __aligned(__alignof__(unsigned long));
- 	u8 hash[BLAKE2S_HASH_SIZE];
-@@ -1396,8 +1376,8 @@ static void extract_buf(struct entropy_s
- 	}
- 
- 	/* Generate a hash across the pool */
--	spin_lock_irqsave(&r->lock, flags);
--	blake2s_update(&state, (const u8 *)r->pool, POOL_BYTES);
-+	spin_lock_irqsave(&input_pool.lock, flags);
-+	blake2s_update(&state, (const u8 *)input_pool.pool, POOL_BYTES);
- 	blake2s_final(&state, hash); /* final zeros out state */
- 
- 	/*
-@@ -1409,8 +1389,8 @@ static void extract_buf(struct entropy_s
- 	 * brute-forcing the feedback as hard as brute-forcing the
- 	 * hash.
- 	 */
--	__mix_pool_bytes(r, hash, sizeof(hash));
--	spin_unlock_irqrestore(&r->lock, flags);
-+	__mix_pool_bytes(hash, sizeof(hash));
-+	spin_unlock_irqrestore(&input_pool.lock, flags);
- 
- 	/* Note that EXTRACT_SIZE is half of hash size here, because above
- 	 * we've dumped the full length back into mixer. By reducing the
-@@ -1420,14 +1400,13 @@ static void extract_buf(struct entropy_s
- 	memzero_explicit(hash, sizeof(hash));
- }
- 
--static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
--				size_t nbytes)
-+static ssize_t _extract_entropy(void *buf, size_t nbytes)
- {
- 	ssize_t ret = 0, i;
- 	u8 tmp[EXTRACT_SIZE];
- 
- 	while (nbytes) {
--		extract_buf(r, tmp);
-+		extract_buf(tmp);
- 		i = min_t(int, nbytes, EXTRACT_SIZE);
- 		memcpy(buf, tmp, i);
- 		nbytes -= i;
-@@ -1448,12 +1427,11 @@ static ssize_t _extract_entropy(struct e
-  * The min parameter specifies the minimum amount we can pull before
-  * failing to avoid races that defeat catastrophic reseeding.
-  */
--static ssize_t extract_entropy(struct entropy_store *r, void *buf,
--				 size_t nbytes, int min)
-+static ssize_t extract_entropy(void *buf, size_t nbytes, int min)
- {
--	trace_extract_entropy(r->name, nbytes, ENTROPY_BITS(r), _RET_IP_);
--	nbytes = account(r, nbytes, min);
--	return _extract_entropy(r, buf, nbytes);
-+	trace_extract_entropy(nbytes, ENTROPY_BITS(), _RET_IP_);
-+	nbytes = account(nbytes, min);
-+	return _extract_entropy(buf, nbytes);
- }
- 
- #define warn_unseeded_randomness(previous) \
-@@ -1538,7 +1516,7 @@ EXPORT_SYMBOL(get_random_bytes);
-  */
- static void entropy_timer(unsigned long data)
- {
--	credit_entropy_bits(&input_pool, 1);
-+	credit_entropy_bits(1);
- }
- 
+-
+-	return arch_init;
+-}
+-
+-static void __init crng_initialize(void)
+-{
+-	extract_entropy(&primary_crng.state[4], sizeof(u32) * 12);
+-	if (crng_init_try_arch_early() && trust_cpu && crng_init < 2) {
+-		invalidate_batched_entropy();
+-		crng_init = 2;
+-		pr_notice("crng init done (trusting CPU's manufacturer)\n");
+-	}
+-	primary_crng.init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
+-}
+-
  /*
-@@ -1562,14 +1540,14 @@ static void try_to_generate_entropy(void
- 	while (!crng_ready()) {
- 		if (!timer_pending(&stack.timer))
- 			mod_timer(&stack.timer, jiffies+1);
--		mix_pool_bytes(&input_pool, &stack.now, sizeof(stack.now));
-+		mix_pool_bytes(&stack.now, sizeof(stack.now));
- 		schedule();
- 		stack.now = random_get_entropy();
- 	}
- 
- 	del_timer_sync(&stack.timer);
- 	destroy_timer_on_stack(&stack.timer);
--	mix_pool_bytes(&input_pool, &stack.now, sizeof(stack.now));
-+	mix_pool_bytes(&stack.now, sizeof(stack.now));
+  * crng_fast_load() can be called by code in the interrupt service
+  * path.  So we can't afford to dilly-dally. Returns the number of
+@@ -1272,17 +1236,28 @@ int __must_check get_random_bytes_arch(v
  }
+ EXPORT_SYMBOL(get_random_bytes_arch);
  
++static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
++static int __init parse_trust_cpu(char *arg)
++{
++	return kstrtobool(arg, &trust_cpu);
++}
++early_param("random.trust_cpu", parse_trust_cpu);
++
  /*
-@@ -1710,26 +1688,24 @@ EXPORT_SYMBOL(get_random_bytes_arch);
- /*
-  * init_std_data - initialize pool with system data
-  *
-- * @r: pool to initialize
+- * init_std_data - initialize pool with system data
 - *
-  * This function clears the pool's entropy count and mixes some system
-  * data into the pool to prepare it for use. The pool is not cleared
-  * as that can only decrease the entropy in the pool.
+- * This function clears the pool's entropy count and mixes some system
+- * data into the pool to prepare it for use. The pool is not cleared
+- * as that can only decrease the entropy in the pool.
++ * Note that setup_arch() may call add_device_randomness()
++ * long before we get here. This allows seeding of the pools
++ * with some platform dependent data very early in the boot
++ * process. But it limits our options here. We must use
++ * statically allocated structures that already have all
++ * initializations complete at compile time. We should also
++ * take care not to overwrite the precious per platform data
++ * we were given.
   */
--static void __init init_std_data(struct entropy_store *r)
-+static void __init init_std_data(void)
+-static void __init init_std_data(void)
++int __init rand_initialize(void)
  {
  	int i;
  	ktime_t now = ktime_get_real();
++	bool arch_init = true;
  	unsigned long rv;
  
--	mix_pool_bytes(r, &now, sizeof(now));
-+	mix_pool_bytes(&now, sizeof(now));
- 	for (i = POOL_BYTES; i > 0; i -= sizeof(rv)) {
- 		if (!arch_get_random_seed_long(&rv) &&
- 		    !arch_get_random_long(&rv))
- 			rv = random_get_entropy();
--		mix_pool_bytes(r, &rv, sizeof(rv));
-+		mix_pool_bytes(&rv, sizeof(rv));
+ 	mix_pool_bytes(&now, sizeof(now));
+@@ -1293,22 +1268,23 @@ static void __init init_std_data(void)
+ 		mix_pool_bytes(&rv, sizeof(rv));
  	}
--	mix_pool_bytes(r, utsname(), sizeof(*(utsname())));
-+	mix_pool_bytes(utsname(), sizeof(*(utsname())));
- }
+ 	mix_pool_bytes(utsname(), sizeof(*(utsname())));
+-}
  
- /*
-@@ -1744,7 +1720,7 @@ static void __init init_std_data(struct
-  */
- int __init rand_initialize(void)
- {
--	init_std_data(&input_pool);
-+	init_std_data();
- 	if (crng_need_final_init)
- 		crng_finalize_init(&primary_crng);
- 	crng_initialize_primary(&primary_crng);
-@@ -1781,7 +1757,7 @@ urandom_read_nowarn(struct file *file, c
- 
- 	nbytes = min_t(size_t, nbytes, INT_MAX >> (ENTROPY_SHIFT + 3));
- 	ret = extract_crng_user(buf, nbytes);
--	trace_urandom_read(8 * nbytes, 0, ENTROPY_BITS(&input_pool));
-+	trace_urandom_read(8 * nbytes, 0, ENTROPY_BITS());
- 	return ret;
- }
- 
-@@ -1821,13 +1797,13 @@ random_poll(struct file *file, poll_tabl
- 	mask = 0;
- 	if (crng_ready())
- 		mask |= POLLIN | POLLRDNORM;
--	if (ENTROPY_BITS(&input_pool) < random_write_wakeup_bits)
-+	if (ENTROPY_BITS() < random_write_wakeup_bits)
- 		mask |= POLLOUT | POLLWRNORM;
- 	return mask;
- }
- 
- static int
--write_pool(struct entropy_store *r, const char __user *buffer, size_t count)
-+write_pool(const char __user *buffer, size_t count)
- {
- 	size_t bytes;
- 	u32 t, buf[16];
-@@ -1849,7 +1825,7 @@ write_pool(struct entropy_store *r, cons
- 		count -= bytes;
- 		p += bytes;
- 
--		mix_pool_bytes(r, buf, bytes);
-+		mix_pool_bytes(buf, bytes);
- 		cond_resched();
- 	}
- 
-@@ -1861,7 +1837,7 @@ static ssize_t random_write(struct file
- {
- 	size_t ret;
- 
--	ret = write_pool(&input_pool, buffer, count);
-+	ret = write_pool(buffer, count);
- 	if (ret)
- 		return ret;
- 
-@@ -1877,7 +1853,7 @@ static long random_ioctl(struct file *f,
- 	switch (cmd) {
- 	case RNDGETENTCNT:
- 		/* inherently racy, no point locking */
--		ent_count = ENTROPY_BITS(&input_pool);
-+		ent_count = ENTROPY_BITS();
- 		if (put_user(ent_count, p))
- 			return -EFAULT;
- 		return 0;
-@@ -1886,7 +1862,7 @@ static long random_ioctl(struct file *f,
- 			return -EPERM;
- 		if (get_user(ent_count, p))
- 			return -EFAULT;
--		return credit_entropy_bits_safe(&input_pool, ent_count);
-+		return credit_entropy_bits_safe(ent_count);
- 	case RNDADDENTROPY:
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
-@@ -1896,11 +1872,10 @@ static long random_ioctl(struct file *f,
- 			return -EINVAL;
- 		if (get_user(size, p++))
- 			return -EFAULT;
--		retval = write_pool(&input_pool, (const char __user *)p,
--				    size);
-+		retval = write_pool((const char __user *)p, size);
- 		if (retval < 0)
- 			return retval;
--		return credit_entropy_bits_safe(&input_pool, ent_count);
-+		return credit_entropy_bits_safe(ent_count);
- 	case RNDZAPENTCNT:
- 	case RNDCLEARPOOL:
- 		/*
-@@ -1916,7 +1891,7 @@ static long random_ioctl(struct file *f,
- 			return -EPERM;
- 		if (crng_init < 2)
- 			return -ENODATA;
--		crng_reseed(&primary_crng, &input_pool);
-+		crng_reseed(&primary_crng, true);
- 		WRITE_ONCE(crng_global_init_time, jiffies - 1);
- 		return 0;
- 	default:
-@@ -2238,11 +2213,9 @@ randomize_page(unsigned long start, unsi
- void add_hwgenerator_randomness(const char *buffer, size_t count,
- 				size_t entropy)
- {
--	struct entropy_store *poolp = &input_pool;
--
- 	if (unlikely(crng_init == 0)) {
- 		size_t ret = crng_fast_load(buffer, count);
--		mix_pool_bytes(poolp, buffer, ret);
-+		mix_pool_bytes(buffer, ret);
- 		count -= ret;
- 		buffer += ret;
- 		if (!count || crng_init == 0)
-@@ -2255,9 +2228,9 @@ void add_hwgenerator_randomness(const ch
- 	 */
- 	wait_event_interruptible(random_write_wait,
- 			!system_wq || kthread_should_stop() ||
--			ENTROPY_BITS(&input_pool) <= random_write_wakeup_bits);
--	mix_pool_bytes(poolp, buffer, count);
--	credit_entropy_bits(poolp, entropy);
-+			ENTROPY_BITS() <= random_write_wakeup_bits);
-+	mix_pool_bytes(buffer, count);
-+	credit_entropy_bits(entropy);
- }
- EXPORT_SYMBOL_GPL(add_hwgenerator_randomness);
- 
---- a/include/trace/events/random.h
-+++ b/include/trace/events/random.h
-@@ -28,80 +28,71 @@ TRACE_EVENT(add_device_randomness,
- );
- 
- DECLARE_EVENT_CLASS(random__mix_pool_bytes,
--	TP_PROTO(const char *pool_name, int bytes, unsigned long IP),
-+	TP_PROTO(int bytes, unsigned long IP),
- 
--	TP_ARGS(pool_name, bytes, IP),
-+	TP_ARGS(bytes, IP),
- 
- 	TP_STRUCT__entry(
--		__field( const char *,	pool_name		)
- 		__field(	  int,	bytes			)
- 		__field(unsigned long,	IP			)
- 	),
- 
- 	TP_fast_assign(
--		__entry->pool_name	= pool_name;
- 		__entry->bytes		= bytes;
- 		__entry->IP		= IP;
- 	),
- 
--	TP_printk("%s pool: bytes %d caller %pS",
--		  __entry->pool_name, __entry->bytes, (void *)__entry->IP)
-+	TP_printk("input pool: bytes %d caller %pS",
-+		  __entry->bytes, (void *)__entry->IP)
- );
- 
- DEFINE_EVENT(random__mix_pool_bytes, mix_pool_bytes,
--	TP_PROTO(const char *pool_name, int bytes, unsigned long IP),
-+	TP_PROTO(int bytes, unsigned long IP),
- 
--	TP_ARGS(pool_name, bytes, IP)
-+	TP_ARGS(bytes, IP)
- );
- 
- DEFINE_EVENT(random__mix_pool_bytes, mix_pool_bytes_nolock,
--	TP_PROTO(const char *pool_name, int bytes, unsigned long IP),
-+	TP_PROTO(int bytes, unsigned long IP),
- 
--	TP_ARGS(pool_name, bytes, IP)
-+	TP_ARGS(bytes, IP)
- );
- 
- TRACE_EVENT(credit_entropy_bits,
--	TP_PROTO(const char *pool_name, int bits, int entropy_count,
--		 unsigned long IP),
-+	TP_PROTO(int bits, int entropy_count, unsigned long IP),
- 
--	TP_ARGS(pool_name, bits, entropy_count, IP),
-+	TP_ARGS(bits, entropy_count, IP),
- 
- 	TP_STRUCT__entry(
--		__field( const char *,	pool_name		)
- 		__field(	  int,	bits			)
- 		__field(	  int,	entropy_count		)
- 		__field(unsigned long,	IP			)
- 	),
- 
- 	TP_fast_assign(
--		__entry->pool_name	= pool_name;
- 		__entry->bits		= bits;
- 		__entry->entropy_count	= entropy_count;
- 		__entry->IP		= IP;
- 	),
- 
--	TP_printk("%s pool: bits %d entropy_count %d caller %pS",
--		  __entry->pool_name, __entry->bits,
--		  __entry->entropy_count, (void *)__entry->IP)
-+	TP_printk("input pool: bits %d entropy_count %d caller %pS",
-+		  __entry->bits, __entry->entropy_count, (void *)__entry->IP)
- );
- 
- TRACE_EVENT(debit_entropy,
--	TP_PROTO(const char *pool_name, int debit_bits),
-+	TP_PROTO(int debit_bits),
- 
--	TP_ARGS(pool_name, debit_bits),
-+	TP_ARGS( debit_bits),
- 
- 	TP_STRUCT__entry(
--		__field( const char *,	pool_name		)
- 		__field(	  int,	debit_bits		)
- 	),
- 
- 	TP_fast_assign(
--		__entry->pool_name	= pool_name;
- 		__entry->debit_bits	= debit_bits;
- 	),
- 
--	TP_printk("%s: debit_bits %d", __entry->pool_name,
--		  __entry->debit_bits)
-+	TP_printk("input pool: debit_bits %d", __entry->debit_bits)
- );
- 
- TRACE_EVENT(add_input_randomness,
-@@ -170,36 +161,31 @@ DEFINE_EVENT(random__get_random_bytes, g
- );
- 
- DECLARE_EVENT_CLASS(random__extract_entropy,
--	TP_PROTO(const char *pool_name, int nbytes, int entropy_count,
--		 unsigned long IP),
-+	TP_PROTO(int nbytes, int entropy_count, unsigned long IP),
- 
--	TP_ARGS(pool_name, nbytes, entropy_count, IP),
-+	TP_ARGS(nbytes, entropy_count, IP),
- 
- 	TP_STRUCT__entry(
--		__field( const char *,	pool_name		)
- 		__field(	  int,	nbytes			)
- 		__field(	  int,	entropy_count		)
- 		__field(unsigned long,	IP			)
- 	),
- 
- 	TP_fast_assign(
--		__entry->pool_name	= pool_name;
- 		__entry->nbytes		= nbytes;
- 		__entry->entropy_count	= entropy_count;
- 		__entry->IP		= IP;
- 	),
- 
--	TP_printk("%s pool: nbytes %d entropy_count %d caller %pS",
--		  __entry->pool_name, __entry->nbytes, __entry->entropy_count,
--		  (void *)__entry->IP)
-+	TP_printk("input pool: nbytes %d entropy_count %d caller %pS",
-+		  __entry->nbytes, __entry->entropy_count, (void *)__entry->IP)
- );
- 
- 
- DEFINE_EVENT(random__extract_entropy, extract_entropy,
--	TP_PROTO(const char *pool_name, int nbytes, int entropy_count,
--		 unsigned long IP),
-+	TP_PROTO(int nbytes, int entropy_count, unsigned long IP),
- 
--	TP_ARGS(pool_name, nbytes, entropy_count, IP)
-+	TP_ARGS(nbytes, entropy_count, IP)
- );
- 
- TRACE_EVENT(urandom_read,
+-/*
+- * Note that setup_arch() may call add_device_randomness()
+- * long before we get here. This allows seeding of the pools
+- * with some platform dependent data very early in the boot
+- * process. But it limits our options here. We must use
+- * statically allocated structures that already have all
+- * initializations complete at compile time. We should also
+- * take care not to overwrite the precious per platform data
+- * we were given.
+- */
+-int __init rand_initialize(void)
+-{
+-	init_std_data();
+-	crng_initialize();
++	extract_entropy(&primary_crng.state[4], sizeof(u32) * 12);
++	for (i = 4; i < 16; i++) {
++		if (!arch_get_random_seed_long_early(&rv) &&
++		    !arch_get_random_long_early(&rv)) {
++			rv = random_get_entropy();
++			arch_init = false;
++		}
++		primary_crng.state[i] ^= rv;
++	}
++	if (arch_init && trust_cpu && crng_init < 2) {
++		invalidate_batched_entropy();
++		crng_init = 2;
++		pr_notice("crng init done (trusting CPU's manufacturer)\n");
++	}
++	primary_crng.init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
++
+ 	if (ratelimit_disable) {
+ 		urandom_warning.interval = 0;
+ 		unseeded_warning.interval = 0;
 
 
