@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06A41558403
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:39:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A7A65581ED
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234342AbiFWRjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:39:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39740 "EHLO
+        id S229652AbiFWRI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:08:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234682AbiFWRiF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:05 -0400
+        with ESMTP id S232052AbiFWRHV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:07:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEA3B92B68;
-        Thu, 23 Jun 2022 10:07:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E0825250F;
+        Thu, 23 Jun 2022 09:56:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76F276159A;
-        Thu, 23 Jun 2022 17:07:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA15C3411B;
-        Thu, 23 Jun 2022 17:07:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D199603E0;
+        Thu, 23 Jun 2022 16:56:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B77FC3411B;
+        Thu, 23 Jun 2022 16:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004047;
-        bh=S6Z2YbLFfMIg2ntUa7Kq61N1Hh/pySifdolHTwUZwt4=;
+        s=korg; t=1656003360;
+        bh=sqG32h4dd04TUrvBf8ZFamf0IxGJmSnCHUD/y7178dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0JyKvpLiXCrgdQyYCucVle+oYSERRBWM1XeypZRLecPEDeu5QE6UFMfUFAni9Z/wf
-         4U5glnWHk9XtfGUq0CxS/bkjT1gGbq7WvBJi0UBfMWVZC/aID/2D0/mZ5rwA4aLzoU
-         nLk1LlH0f396TXYKwnym5IfJfC0g+3r6IYMIFpAo=
+        b=2B/hKp7siQk6K5NAII0tgaTXSpsRUdYlJz/SnA7/2SxC+ETlEztN9xE1/3cX3+bp8
+         vnNClfeI5VTPkdqGUh1REFx2EOrSXL3eff7vbjePf5RcMCAossf/KnufnOh3HrF7/S
+         mDmm4mEqrQTUF0n/96yZH/gKG3L2LvPm5DwD6Fd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 170/237] random: avoid initializing twice in credit race
+Subject: [PATCH 4.9 211/264] random: convert to using fops->write_iter()
 Date:   Thu, 23 Jun 2022 18:43:24 +0200
-Message-Id: <20220623164348.044150513@linuxfoundation.org>
+Message-Id: <20220623164350.042457733@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,109 +54,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit fed7ef061686cc813b1f3d8d0edc6c35b4d3537b upstream.
+commit 22b0a222af4df8ee9bb8e07013ab44da9511b047 upstream.
 
-Since all changes of crng_init now go through credit_init_bits(), we can
-fix a long standing race in which two concurrent callers of
-credit_init_bits() have the new bit count >= some threshold, but are
-doing so with crng_init as a lower threshold, checked outside of a lock,
-resulting in crng_reseed() or similar being called twice.
+Now that the read side has been converted to fix a regression with
+splice, convert the write side as well to have some symmetry in the
+interface used (and help deprecate ->write()).
 
-In order to fix this, we can use the original cmpxchg value of the bit
-count, and only change crng_init when the bit count transitions from
-below a threshold to meeting the threshold.
-
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[Jason: cleaned up random_ioctl a bit, require full writes in
+ RNDADDENTROPY since it's crediting entropy, simplify control flow of
+ write_pool(), and incorporate suggestions from Al.]
+Cc: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   48 ++++++++++++++++++++++--------------------------
- 1 file changed, 22 insertions(+), 26 deletions(-)
+ drivers/char/random.c |   67 ++++++++++++++++++++++++++------------------------
+ 1 file changed, 35 insertions(+), 32 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -264,7 +264,6 @@ static void crng_reseed(void)
- 	unsigned long flags;
- 	unsigned long next_gen;
- 	u8 key[CHACHA20_KEY_SIZE];
--	bool finalize_init = false;
- 
- 	extract_entropy(key, sizeof(key));
- 
-@@ -281,28 +280,10 @@ static void crng_reseed(void)
- 		++next_gen;
- 	WRITE_ONCE(base_crng.generation, next_gen);
- 	WRITE_ONCE(base_crng.birth, jiffies);
--	if (!crng_ready()) {
-+	if (!crng_ready())
- 		crng_init = CRNG_READY;
--		finalize_init = true;
--	}
- 	spin_unlock_irqrestore(&base_crng.lock, flags);
- 	memzero_explicit(key, sizeof(key));
--	if (finalize_init) {
--		process_random_ready_list();
--		wake_up_interruptible(&crng_init_wait);
--		kill_fasync(&fasync, SIGIO, POLL_IN);
--		pr_notice("crng init done\n");
--		if (unseeded_warning.missed) {
--			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
--				  unseeded_warning.missed);
--			unseeded_warning.missed = 0;
--		}
--		if (urandom_warning.missed) {
--			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
--				  urandom_warning.missed);
--			urandom_warning.missed = 0;
--		}
--	}
+@@ -1252,39 +1252,31 @@ static unsigned int random_poll(struct f
+ 	return crng_ready() ? POLLIN | POLLRDNORM : POLLOUT | POLLWRNORM;
  }
  
- /*
-@@ -818,7 +799,7 @@ static void extract_entropy(void *buf, s
- 
- static void credit_init_bits(size_t nbits)
+-static int write_pool(const char __user *ubuf, size_t len)
++static ssize_t write_pool(struct iov_iter *iter)
  {
--	unsigned int init_bits, orig, add;
-+	unsigned int new, orig, add;
- 	unsigned long flags;
+-	size_t block_len;
+-	int ret = 0;
+ 	u8 block[BLAKE2S_BLOCK_SIZE];
++	ssize_t ret = 0;
++	size_t copied;
  
- 	if (crng_ready() || !nbits)
-@@ -828,13 +809,28 @@ static void credit_init_bits(size_t nbit
+-	while (len) {
+-		block_len = min(len, sizeof(block));
+-		if (copy_from_user(block, ubuf, block_len)) {
+-			ret = -EFAULT;
+-			goto out;
+-		}
+-		len -= block_len;
+-		ubuf += block_len;
+-		mix_pool_bytes(block, block_len);
++	if (unlikely(!iov_iter_count(iter)))
++		return 0;
++
++	for (;;) {
++		copied = copy_from_iter(block, sizeof(block), iter);
++		ret += copied;
++		mix_pool_bytes(block, copied);
++		if (!iov_iter_count(iter) || copied != sizeof(block))
++			break;
+ 		cond_resched();
+ 	}
  
- 	do {
- 		orig = READ_ONCE(input_pool.init_bits);
--		init_bits = min_t(unsigned int, POOL_BITS, orig + add);
--	} while (cmpxchg(&input_pool.init_bits, orig, init_bits) != orig);
-+		new = min_t(unsigned int, POOL_BITS, orig + add);
-+	} while (cmpxchg(&input_pool.init_bits, orig, new) != orig);
+-out:
+ 	memzero_explicit(block, sizeof(block));
+-	return ret;
++	return ret ? ret : -EFAULT;
+ }
  
--	if (!crng_ready() && init_bits >= POOL_READY_BITS)
--		crng_reseed();
--	else if (unlikely(crng_init == CRNG_EMPTY && init_bits >= POOL_EARLY_BITS)) {
-+	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS) {
-+		crng_reseed(); /* Sets crng_init to CRNG_READY under base_crng.lock. */
-+		process_random_ready_list();
-+		wake_up_interruptible(&crng_init_wait);
-+		kill_fasync(&fasync, SIGIO, POLL_IN);
-+		pr_notice("crng init done\n");
-+		if (unseeded_warning.missed) {
-+			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
-+				  unseeded_warning.missed);
-+			unseeded_warning.missed = 0;
-+		}
-+		if (urandom_warning.missed) {
-+			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
-+				  urandom_warning.missed);
-+			urandom_warning.missed = 0;
-+		}
-+	} else if (orig < POOL_EARLY_BITS && new >= POOL_EARLY_BITS) {
- 		spin_lock_irqsave(&base_crng.lock, flags);
-+		/* Check if crng_init is CRNG_EMPTY, to avoid race with crng_reseed(). */
- 		if (crng_init == CRNG_EMPTY) {
- 			extract_entropy(base_crng.key, sizeof(base_crng.key));
- 			crng_init = CRNG_EARLY;
+-static ssize_t random_write(struct file *file, const char __user *ubuf,
+-			    size_t len, loff_t *ppos)
++static ssize_t random_write_iter(struct kiocb *kiocb, struct iov_iter *iter)
+ {
+-	int ret;
+-
+-	ret = write_pool(ubuf, len);
+-	if (ret)
+-		return ret;
+-
+-	return (ssize_t)len;
++	return write_pool(iter);
+ }
+ 
+ static ssize_t urandom_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
+@@ -1316,9 +1308,8 @@ static ssize_t random_read_iter(struct k
+ 
+ static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+ {
+-	int size, ent_count;
+ 	int __user *p = (int __user *)arg;
+-	int retval;
++	int ent_count;
+ 
+ 	switch (cmd) {
+ 	case RNDGETENTCNT:
+@@ -1335,20 +1326,32 @@ static long random_ioctl(struct file *f,
+ 			return -EINVAL;
+ 		credit_init_bits(ent_count);
+ 		return 0;
+-	case RNDADDENTROPY:
++	case RNDADDENTROPY: {
++		struct iov_iter iter;
++		struct iovec iov;
++		ssize_t ret;
++		int len;
++
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		if (get_user(ent_count, p++))
+ 			return -EFAULT;
+ 		if (ent_count < 0)
+ 			return -EINVAL;
+-		if (get_user(size, p++))
++		if (get_user(len, p++))
++			return -EFAULT;
++		ret = import_single_range(WRITE, p, len, &iov, &iter);
++		if (unlikely(ret))
++			return ret;
++		ret = write_pool(&iter);
++		if (unlikely(ret < 0))
++			return ret;
++		/* Since we're crediting, enforce that it was all written into the pool. */
++		if (unlikely(ret != len))
+ 			return -EFAULT;
+-		retval = write_pool((const char __user *)p, size);
+-		if (retval < 0)
+-			return retval;
+ 		credit_init_bits(ent_count);
+ 		return 0;
++	}
+ 	case RNDZAPENTCNT:
+ 	case RNDCLEARPOOL:
+ 		/* No longer has any effect. */
+@@ -1374,7 +1377,7 @@ static int random_fasync(int fd, struct
+ 
+ const struct file_operations random_fops = {
+ 	.read_iter = random_read_iter,
+-	.write = random_write,
++	.write_iter = random_write_iter,
+ 	.poll = random_poll,
+ 	.unlocked_ioctl = random_ioctl,
+ 	.fasync = random_fasync,
+@@ -1383,7 +1386,7 @@ const struct file_operations random_fops
+ 
+ const struct file_operations urandom_fops = {
+ 	.read_iter = urandom_read_iter,
+-	.write = random_write,
++	.write_iter = random_write_iter,
+ 	.unlocked_ioctl = random_ioctl,
+ 	.fasync = random_fasync,
+ 	.llseek = noop_llseek,
 
 
