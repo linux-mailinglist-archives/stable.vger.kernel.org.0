@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5E07558221
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:11:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B26255820D
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231942AbiFWRLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:11:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39216 "EHLO
+        id S231174AbiFWRJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:09:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229639AbiFWRJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:09:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA06755367;
-        Thu, 23 Jun 2022 09:57:33 -0700 (PDT)
+        with ESMTP id S234092AbiFWRIp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:08:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D56045534E;
+        Thu, 23 Jun 2022 09:57:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10CE9B8248C;
-        Thu, 23 Jun 2022 16:57:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E0B8C341C6;
-        Thu, 23 Jun 2022 16:57:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1010603E0;
+        Thu, 23 Jun 2022 16:57:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8964EC3411B;
+        Thu, 23 Jun 2022 16:57:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003427;
-        bh=hpr7dPZ5XWl9ycqC+kESLO4L50zCczShqrP2GtHInnc=;
+        s=korg; t=1656003431;
+        bh=F+z1XVXySyBFOhWD8x3uI2k0UYHqf3zXerHeZTJgwNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHJLPzzB2GCJvPp9bJcjBqjNEbf4vTphrPod6i7XSLInhdhI8JV9qV9EDxlp7bvKF
-         jy4fEzoFpoUZPX5RWuSph29Km4WsexvuOzicafq/eJ4j//kOIQYVjJXc1HMlooLSfz
-         uvKeeT8qAMbBw88TvhdT0mTtyp49Vyc39pyJw0jA=
+        b=IlrlGV86LqOYa5awo+MLQRGGuQCMOXVmYBJuP0Q0oeo5e10LcOTLVramgkfyHOPp/
+         cZ30XVA0qRSnf4EulU3eA4zoIfNg46z8EY2XNuMHcgM5cKKyLP07acBJjfpee9AAHk
+         RF5SSxM+MWKYBAByXQYlCn1yDc5m/BLYwUjqkwwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
+        stable@vger.kernel.org, Chen Lin <chen45464546@163.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 235/264] ipv6: Fix signed integer overflow in l2tp_ip6_sendmsg
-Date:   Thu, 23 Jun 2022 18:43:48 +0200
-Message-Id: <20220623164350.725799345@linuxfoundation.org>
+Subject: [PATCH 4.9 236/264] net: ethernet: mtk_eth_soc: fix misuse of mem alloc interface netdev[napi]_alloc_frag
+Date:   Thu, 23 Jun 2022 18:43:49 +0200
+Message-Id: <20220623164350.753761494@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
 References: <20220623164344.053938039@linuxfoundation.org>
@@ -54,44 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Chen Lin <chen45464546@163.com>
 
-[ Upstream commit f638a84afef3dfe10554c51820c16e39a278c915 ]
+[ Upstream commit 2f2c0d2919a14002760f89f4e02960c735a316d2 ]
 
-When len >= INT_MAX - transhdrlen, ulen = len + transhdrlen will be
-overflow. To fix, we can follow what udpv6 does and subtract the
-transhdrlen from the max.
+When rx_flag == MTK_RX_FLAGS_HWLRO,
+rx_data_len = MTK_MAX_LRO_RX_LENGTH(4096 * 3) > PAGE_SIZE.
+netdev_alloc_frag is for alloction of page fragment only.
+Reference to other drivers and Documentation/vm/page_frags.rst
 
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/20220607120028.845916-2-wangyufen@huawei.com
+Branch to use __get_free_pages when ring->frag_size > PAGE_SIZE.
+
+Signed-off-by: Chen Lin <chen45464546@163.com>
+Link: https://lore.kernel.org/r/1654692413-2598-1-git-send-email-chen45464546@163.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/l2tp/l2tp_ip6.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/net/l2tp/l2tp_ip6.c b/net/l2tp/l2tp_ip6.c
-index 76ef758db112..e412020029df 100644
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -518,14 +518,15 @@ static int l2tp_ip6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 	struct ipcm6_cookie ipc6;
- 	int addr_len = msg->msg_namelen;
- 	int transhdrlen = 4; /* zero session-id */
--	int ulen = len + transhdrlen;
-+	int ulen;
- 	int err;
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index 84d667957221..61a9b60ab022 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -527,6 +527,17 @@ static inline void mtk_rx_get_desc(struct mtk_rx_dma *rxd,
+ 	rxd->rxd4 = READ_ONCE(dma_rxd->rxd4);
+ }
  
- 	/* Rough check on arithmetic overflow,
- 	   better check is made in ip6_append_data().
- 	 */
--	if (len > INT_MAX)
-+	if (len > INT_MAX - transhdrlen)
- 		return -EMSGSIZE;
-+	ulen = len + transhdrlen;
++static void *mtk_max_lro_buf_alloc(gfp_t gfp_mask)
++{
++	unsigned int size = mtk_max_frag_size(MTK_MAX_LRO_RX_LENGTH);
++	unsigned long data;
++
++	data = __get_free_pages(gfp_mask | __GFP_COMP | __GFP_NOWARN,
++				get_order(size));
++
++	return (void *)data;
++}
++
+ /* the qdma core needs scratch memory to be setup */
+ static int mtk_init_fq_dma(struct mtk_eth *eth)
+ {
+@@ -928,7 +939,10 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
+ 			goto release_desc;
  
- 	/* Mirror BSD error message compatibility */
- 	if (msg->msg_flags & MSG_OOB)
+ 		/* alloc new buffer */
+-		new_data = napi_alloc_frag(ring->frag_size);
++		if (ring->frag_size <= PAGE_SIZE)
++			new_data = napi_alloc_frag(ring->frag_size);
++		else
++			new_data = mtk_max_lro_buf_alloc(GFP_ATOMIC);
+ 		if (unlikely(!new_data)) {
+ 			netdev->stats.rx_dropped++;
+ 			goto release_desc;
+@@ -1231,7 +1245,10 @@ static int mtk_rx_alloc(struct mtk_eth *eth, int ring_no, int rx_flag)
+ 		return -ENOMEM;
+ 
+ 	for (i = 0; i < rx_dma_size; i++) {
+-		ring->data[i] = netdev_alloc_frag(ring->frag_size);
++		if (ring->frag_size <= PAGE_SIZE)
++			ring->data[i] = netdev_alloc_frag(ring->frag_size);
++		else
++			ring->data[i] = mtk_max_lro_buf_alloc(GFP_KERNEL);
+ 		if (!ring->data[i])
+ 			return -ENOMEM;
+ 	}
 -- 
 2.35.1
 
