@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 693B95586FB
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:18:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 033DF5586FD
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:19:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236859AbiFWSS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236884AbiFWSS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 Jun 2022 14:18:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40940 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237194AbiFWSR7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:17:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E011B2CE3;
-        Thu, 23 Jun 2022 10:24:23 -0700 (PDT)
+        with ESMTP id S237210AbiFWSSA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:18:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0942AB6209;
+        Thu, 23 Jun 2022 10:24:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC35DB82497;
-        Thu, 23 Jun 2022 17:24:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA480C385A5;
-        Thu, 23 Jun 2022 17:24:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FAC5B82497;
+        Thu, 23 Jun 2022 17:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8D1BC3411B;
+        Thu, 23 Jun 2022 17:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656005060;
-        bh=wXfswAKxoB6qEeTTPf176jRBdlVA4NxvQhEMTOE3Kqk=;
+        s=korg; t=1656005063;
+        bh=+ev7b5Tng0pjzXvF7E4/mKjC4b0fZ2hLUBdwI0VmWD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZvYQuHhplZRe3kOXG3ecjBboBgTGO11QvIP1x71gSMhQO0pIoaW5xCqGw8k8A1ms
-         bcomcn4Lln8KF1kxXM/BFWmgLNAnit+WGTtMf92zdLRW6T4OZsVh3xrqH3dXhOx8F4
-         hKoQOoz5aYf57PILuKoUtxP5STUSXKlsFLdgG/do=
+        b=sS8RKDgveBKWQuOOrKPzQwGM4CcAi56u78qpKlUuUDrDEy+O25Xk9950BGCeWFCxD
+         mtKAvrI+0I/DTSZCY2Oo8trTpEXP3Gr5lxXXBtur1Fe4OHfO1BxLCdZOzSyNzS+rQc
+         qx/Xi/Hoq0PJr+6goVNtvkrmFwjnQDScw2qMxo14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@penugtronix.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 4.19 216/234] serial: 8250: Store to lsr_save_flags after lsr read
-Date:   Thu, 23 Jun 2022 18:44:43 +0200
-Message-Id: <20220623164349.162997301@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Hulk Robot <hulkci@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 217/234] ext4: fix bug_on ext4_mb_use_inode_pa
+Date:   Thu, 23 Jun 2022 18:44:44 +0200
+Message-Id: <20220623164349.192007557@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -57,43 +56,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit be03b0651ffd8bab69dfd574c6818b446c0753ce upstream.
+commit a08f789d2ab5242c07e716baf9a835725046be89 upstream.
 
-Not all LSR register flags are preserved across reads. Therefore, LSR
-readers must store the non-preserved bits into lsr_save_flags.
+Hulk Robot reported a BUG_ON:
+==================================================================
+kernel BUG at fs/ext4/mballoc.c:3211!
+[...]
+RIP: 0010:ext4_mb_mark_diskspace_used.cold+0x85/0x136f
+[...]
+Call Trace:
+ ext4_mb_new_blocks+0x9df/0x5d30
+ ext4_ext_map_blocks+0x1803/0x4d80
+ ext4_map_blocks+0x3a4/0x1a10
+ ext4_writepages+0x126d/0x2c30
+ do_writepages+0x7f/0x1b0
+ __filemap_fdatawrite_range+0x285/0x3b0
+ file_write_and_wait_range+0xb1/0x140
+ ext4_sync_file+0x1aa/0xca0
+ vfs_fsync_range+0xfb/0x260
+ do_fsync+0x48/0xa0
+[...]
+==================================================================
 
-This fix was initially mixed into feature commit f6f586102add ("serial:
-8250: Handle UART without interrupt on TEMT using em485"). However,
-that feature change had a flaw and it was reverted to make room for
-simpler approach providing the same feature. The embedded fix got
-reverted with the feature change.
+Above issue may happen as follows:
+-------------------------------------
+do_fsync
+ vfs_fsync_range
+  ext4_sync_file
+   file_write_and_wait_range
+    __filemap_fdatawrite_range
+     do_writepages
+      ext4_writepages
+       mpage_map_and_submit_extent
+        mpage_map_one_extent
+         ext4_map_blocks
+          ext4_mb_new_blocks
+           ext4_mb_normalize_request
+            >>> start + size <= ac->ac_o_ex.fe_logical
+           ext4_mb_regular_allocator
+            ext4_mb_simple_scan_group
+             ext4_mb_use_best_found
+              ext4_mb_new_preallocation
+               ext4_mb_new_inode_pa
+                ext4_mb_use_inode_pa
+                 >>> set ac->ac_b_ex.fe_len <= 0
+           ext4_mb_mark_diskspace_used
+            >>> BUG_ON(ac->ac_b_ex.fe_len <= 0);
 
-Re-add the lsr_save_flags fix and properly mark it's a fix.
+we can easily reproduce this problem with the following commands:
+	`fallocate -l100M disk`
+	`mkfs.ext4 -b 1024 -g 256 disk`
+	`mount disk /mnt`
+	`fsstress -d /mnt -l 0 -n 1000 -p 1`
 
-Link: https://lore.kernel.org/all/1d6c31d-d194-9e6a-ddf9-5f29af829f3@linux.intel.com/T/#m1737eef986bd20cf19593e344cebd7b0244945fc
-Fixes: e490c9144cfa ("tty: Add software emulated RS485 support for 8250")
-Cc: stable <stable@kernel.org>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@penugtronix.de>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/f4d774be-1437-a550-8334-19d8722ab98c@linux.intel.com
+The size must be smaller than or equal to EXT4_BLOCKS_PER_GROUP.
+Therefore, "start + size <= ac->ac_o_ex.fe_logical" may occur
+when the size is truncated. So start should be the start position of
+the group where ac_o_ex.fe_logical is located after alignment.
+In addition, when the value of fe_logical or EXT4_BLOCKS_PER_GROUP
+is very large, the value calculated by start_off is more accurate.
+
+Cc: stable@kernel.org
+Fixes: cd648b8a8fd5 ("ext4: trim allocation requests to group size")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220528110017.354175-2-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/ext4/mballoc.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1522,6 +1522,8 @@ static inline void __stop_tx(struct uart
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -3170,6 +3170,15 @@ ext4_mb_normalize_request(struct ext4_al
+ 	size = size >> bsbits;
+ 	start = start_off >> bsbits;
  
- 	if (em485) {
- 		unsigned char lsr = serial_in(p, UART_LSR);
-+		p->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
++	/*
++	 * For tiny groups (smaller than 8MB) the chosen allocation
++	 * alignment may be larger than group size. Make sure the
++	 * alignment does not move allocation to a different group which
++	 * makes mballoc fail assertions later.
++	 */
++	start = max(start, rounddown(ac->ac_o_ex.fe_logical,
++			(ext4_lblk_t)EXT4_BLOCKS_PER_GROUP(ac->ac_sb)));
 +
- 		/*
- 		 * To provide required timeing and allow FIFO transfer,
- 		 * __stop_tx_rs485() must be called only when both FIFO and
+ 	/* don't cover already allocated blocks in selected range */
+ 	if (ar->pleft && start <= ar->lleft) {
+ 		size -= ar->lleft + 1 - start;
 
 
