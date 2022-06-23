@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0F9F558423
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02F2F5581F7
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234489AbiFWRkH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:40:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37552 "EHLO
+        id S229946AbiFWRJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:09:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234794AbiFWRiR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B09A23BE1;
-        Thu, 23 Jun 2022 10:08:13 -0700 (PDT)
+        with ESMTP id S233426AbiFWRHq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:07:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 607EA41FBB;
+        Thu, 23 Jun 2022 09:56:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A627861408;
-        Thu, 23 Jun 2022 17:08:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ED31C3411B;
-        Thu, 23 Jun 2022 17:08:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8486BB8248A;
+        Thu, 23 Jun 2022 16:56:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB5EDC3411B;
+        Thu, 23 Jun 2022 16:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004091;
-        bh=598Hl7kIDIGJ5LdbwkPEKiM7nzzTHD9/w2CWnbQ9xv0=;
+        s=korg; t=1656003372;
+        bh=8ZXgE9bnZkfVFxQmZk8wWnfouHc1dni/ai7RcwfkNDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DchenOgrm56xFnIDCYt9e0SorCD4tVi261Lh/3sWP0YlHsXLcD+Luc1KxRfA4gdhB
-         mLKvQ62h73eyeNiWDNYFRD1Vk+EyF7be6XpbhpZICVH6rvN6HeaViVLCDJGG/OfIhl
-         PZwenfLXw8UmQoUGLyNT0vHTBHrseIJsUYeK6gFU=
+        b=Hvrusg7gnCkfLH2clW4vZsZ08iWzmlT5UGw9mYjrIJzss+YBKuoRuOiFPA7sAqxvI
+         ZUSZlC/Xlh7JvrHhNpGLrAKPlVv2g1riLUg2Oc0ToIjMPofid06wTLer7CFksPK/JT
+         CLsemQMHsjHX+8PuCGBlFIGhspxRbpet0pBt/5+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@google.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 134/237] random: reseed more often immediately after booting
-Date:   Thu, 23 Jun 2022 18:42:48 +0200
-Message-Id: <20220623164347.009917719@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.9 176/264] random: fix sysctl documentation nits
+Date:   Thu, 23 Jun 2022 18:42:49 +0200
+Message-Id: <20220623164349.046157906@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,85 +54,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 7a7ff644aeaf071d433caffb3b8ea57354b55bd3 upstream.
+commit 069c4ea6871c18bd368f27756e0f91ffb524a788 upstream.
 
-In order to chip away at the "premature first" problem, we augment our
-existing entropy accounting with more frequent reseedings at boot.
+A semicolon was missing, and the almost-alphabetical-but-not ordering
+was confusing, so regroup these by category instead.
 
-The idea is that at boot, we're getting entropy from various places, and
-we're not very sure which of early boot entropy is good and which isn't.
-Even when we're crediting the entropy, we're still not totally certain
-that it's any good. Since boot is the one time (aside from a compromise)
-that we have zero entropy, it's important that we shepherd entropy into
-the crng fairly often.
-
-At the same time, we don't want a "premature next" problem, whereby an
-attacker can brute force individual bits of added entropy. In lieu of
-going full-on Fortuna (for now), we can pick a simpler strategy of just
-reseeding more often during the first 5 minutes after boot. This is
-still bounded by the 256-bit entropy credit requirement, so we'll skip a
-reseeding if we haven't reached that, but in case entropy /is/ coming
-in, this ensures that it makes its way into the crng rather rapidly
-during these early stages.
-
-Ordinarily we reseed if the previous reseeding is 300 seconds old. This
-commit changes things so that for the first 600 seconds of boot time, we
-reseed if the previous reseeding is uptime / 2 seconds old. That means
-that we'll reseed at the very least double the uptime of the previous
-reseeding.
-
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   28 +++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+ Documentation/sysctl/kernel.txt |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -336,6 +336,28 @@ static void crng_fast_key_erasure(u8 key
- }
+--- a/Documentation/sysctl/kernel.txt
++++ b/Documentation/sysctl/kernel.txt
+@@ -791,6 +791,9 @@ This is a directory, with the following
+ * ``boot_id``: a UUID generated the first time this is retrieved, and
+   unvarying after that;
  
- /*
-+ * Return whether the crng seed is considered to be sufficiently
-+ * old that a reseeding might be attempted. This happens if the last
-+ * reseeding was CRNG_RESEED_INTERVAL ago, or during early boot, at
-+ * an interval proportional to the uptime.
-+ */
-+static bool crng_has_old_seed(void)
-+{
-+	static bool early_boot = true;
-+	unsigned long interval = CRNG_RESEED_INTERVAL;
++* ``uuid``: a UUID generated every time this is retrieved (this can
++  thus be used to generate UUIDs at will);
 +
-+	if (unlikely(READ_ONCE(early_boot))) {
-+		time64_t uptime = ktime_get_seconds();
-+		if (uptime >= CRNG_RESEED_INTERVAL / HZ * 2)
-+			WRITE_ONCE(early_boot, false);
-+		else
-+			interval = max_t(unsigned int, 5 * HZ,
-+					 (unsigned int)uptime / 2 * HZ);
-+	}
-+	return time_after(jiffies, READ_ONCE(base_crng.birth) + interval);
-+}
-+
-+/*
-  * This function returns a ChaCha state that you may use for generating
-  * random data. It also returns up to 32 bytes on its own of random data
-  * that may be used; random_data_len may not be greater than 32.
-@@ -368,10 +390,10 @@ static void crng_make_state(u32 chacha_s
- 	}
+ * ``entropy_avail``: the pool's entropy count, in bits;
  
- 	/*
--	 * If the base_crng is more than 5 minutes old, we reseed, which
--	 * in turn bumps the generation counter that we check below.
-+	 * If the base_crng is old enough, we try to reseed, which in turn
-+	 * bumps the generation counter that we check below.
- 	 */
--	if (unlikely(time_after(jiffies, READ_ONCE(base_crng.birth) + CRNG_RESEED_INTERVAL)))
-+	if (unlikely(crng_has_old_seed()))
- 		crng_reseed();
+ * ``poolsize``: the entropy pool size, in bits;
+@@ -798,10 +801,7 @@ This is a directory, with the following
+ * ``urandom_min_reseed_secs``: obsolete (used to determine the minimum
+   number of seconds between urandom pool reseeding). This file is
+   writable for compatibility purposes, but writing to it has no effect
+-  on any RNG behavior.
+-
+-* ``uuid``: a UUID generated every time this is retrieved (this can
+-  thus be used to generate UUIDs at will);
++  on any RNG behavior;
  
- 	local_irq_save(flags);
+ * ``write_wakeup_threshold``: when the entropy count drops below this
+   (as a number of bits), processes waiting to write to ``/dev/random``
 
 
