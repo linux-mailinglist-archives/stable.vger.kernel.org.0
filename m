@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B97E558542
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:55:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1115558340
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:27:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235333AbiFWRy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:54:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52540 "EHLO
+        id S230214AbiFWR1T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:27:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235902AbiFWRxg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:53:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 532FDAA33E;
-        Thu, 23 Jun 2022 10:14:22 -0700 (PDT)
+        with ESMTP id S233683AbiFWR0l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:26:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D725000B;
+        Thu, 23 Jun 2022 10:02:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D44B861DDC;
-        Thu, 23 Jun 2022 17:14:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94227C341C4;
-        Thu, 23 Jun 2022 17:14:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C4A4B82493;
+        Thu, 23 Jun 2022 17:02:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ECC8C3411B;
+        Thu, 23 Jun 2022 17:02:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004461;
-        bh=2XrBjZ9r1JiQmbgW7MJXyVhxs+2lGIZGcEAZKhkzzC8=;
+        s=korg; t=1656003766;
+        bh=J5xJYi+i64ykzs9x/0F9qkD+abvNKXxxEEBjmLewFAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MneT1sQS3bCPlE6c6lIlbNDjVnKlpmsNlcbw912Oq5XOSoYuRSotWDoLn2Ooclvr8
-         kLK3dRkU0AgLQZqWkuN98fd4fHRec1+NzbW2t598AarWYX53iVmvAbE1lgsSGg1421
-         bNJed6dp5vTx75U5SxP/YlnCdWqJifhmFgzkea1o=
+        b=2S6HibHA8/dmw8B12WSLj0xB9XDci7y2t1Th1kmf7kGVFe8eOHi2DQbNw7LzCFLpE
+         3o9g9bbLF/qdyLgYdoSP7bRg02Io6v2LtazgxWSsfOAMQF6rdKc1XAmOpgUoWUFLh8
+         Er3kzsj0COWoYrKHnjmP/gLBUItN9gQDgr7Wj8mU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 046/234] crypto: blake2s - include <linux/bug.h> instead of <asm/bug.h>
+Subject: [PATCH 4.14 079/237] random: remove unused OUTPUT_POOL constants
 Date:   Thu, 23 Jun 2022 18:41:53 +0200
-Message-Id: <20220623164344.370161937@linuxfoundation.org>
+Message-Id: <20220623164345.426100657@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
-References: <20220623164343.042598055@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit bbda6e0f1303953c855ee3669655a81b69fbe899 upstream.
+commit 0f63702718c91d89c922081ac1e6baeddc2d8b1a upstream.
 
-Address the following checkpatch warning:
+We no longer have an output pool. Rather, we have just a wakeup bits
+threshold for /dev/random reads, presumably so that processes don't
+hang. This value, random_write_wakeup_bits, is configurable anyway. So
+all the no longer usefully named OUTPUT_POOL constants were doing was
+setting a reasonable default for random_write_wakeup_bits. This commit
+gets rid of the constants and just puts it all in the default value of
+random_write_wakeup_bits.
 
-	WARNING: Use #include <linux/bug.h> instead of <asm/bug.h>
-
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/crypto/blake2s.h |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/char/random.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/include/crypto/blake2s.h
-+++ b/include/crypto/blake2s.h
-@@ -6,12 +6,11 @@
- #ifndef BLAKE2S_H
- #define BLAKE2S_H
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -363,8 +363,6 @@
+  */
+ #define INPUT_POOL_SHIFT	12
+ #define INPUT_POOL_WORDS	(1 << (INPUT_POOL_SHIFT-5))
+-#define OUTPUT_POOL_SHIFT	10
+-#define OUTPUT_POOL_WORDS	(1 << (OUTPUT_POOL_SHIFT-5))
+ #define EXTRACT_SIZE		(BLAKE2S_HASH_SIZE / 2)
  
-+#include <linux/bug.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/string.h>
+ /*
+@@ -382,7 +380,7 @@
+  * should wake up processes which are selecting or polling on write
+  * access to /dev/random.
+  */
+-static int random_write_wakeup_bits = 28 * OUTPUT_POOL_WORDS;
++static int random_write_wakeup_bits = 28 * (1 << 5);
  
--#include <asm/bug.h>
--
- enum blake2s_lengths {
- 	BLAKE2S_BLOCK_SIZE = 64,
- 	BLAKE2S_HASH_SIZE = 32,
+ /*
+  * Originally, we used a primitive polynomial of degree .poolwords
 
 
