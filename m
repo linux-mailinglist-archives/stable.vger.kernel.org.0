@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A39CB558235
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F08558238
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:12:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232464AbiFWRLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:11:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41052 "EHLO
+        id S231819AbiFWRML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:12:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230199AbiFWRKz (ORCPT
+        with ESMTP id S231846AbiFWRKz (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:10:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17924B841;
-        Thu, 23 Jun 2022 09:57:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2B2756381;
+        Thu, 23 Jun 2022 09:57:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9908260FFA;
-        Thu, 23 Jun 2022 16:57:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EA8BC3411B;
-        Thu, 23 Jun 2022 16:57:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9576603E0;
+        Thu, 23 Jun 2022 16:57:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 779D9C3411B;
+        Thu, 23 Jun 2022 16:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003454;
-        bh=bLc/uzwhwumxTQr/g8oSJE2ipqPDTrjDSdcBHWUxshE=;
+        s=korg; t=1656003458;
+        bh=b5PJ7ihy/690AHpeEsqwO2CNN3oz8tPqPwW16jbeZds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ukwqiv+3mqtxPhWE53wCHjZKMrYTSCVmij41KJeyWCnH9AYVtX9aR8auWEwdsZ0BV
-         HtWYYCgDwUZRtyWMAj6awR2Nw7Mz2LyZmiPKJXKkPTTTlfU/HjKXxjPt7q0Jx1GWjv
-         sx+JwPSVYrDVfQxMfwkbL2nhGxPKiqDLUcc2STOg=
+        b=pVxEokclQvXEzlbfH7fo0fVv6s08RIqkO5SwHPQNNv29r2O1MyqX0pZjHSGBHsi/y
+         HuafXYJvUVThPOeTGQGpQYl/Pv4KuMUhEEhxeyL3slvcKmFkA7AJWpzYOo4gSZLh7f
+         ojF/8mqVBfl3XVaPrJTDMeAI+u7aDYx+Xrs2M6aA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        stable@vger.kernel.org, Robert Eckelmann <longnoserob@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 243/264] USB: serial: option: add support for Cinterion MV31 with new baseline
-Date:   Thu, 23 Jun 2022 18:43:56 +0200
-Message-Id: <20220623164350.948874350@linuxfoundation.org>
+Subject: [PATCH 4.9 244/264] USB: serial: io_ti: add Agilent E5805A support
+Date:   Thu, 23 Jun 2022 18:43:57 +0200
+Message-Id: <20220623164350.976511933@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
 References: <20220623164344.053938039@linuxfoundation.org>
@@ -53,75 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Robert Eckelmann <longnoserob@gmail.com>
 
-commit 158f7585bfcea4aae0ad4128d032a80fec550df1 upstream.
+commit 908e698f2149c3d6a67d9ae15c75545a3f392559 upstream.
 
-Adding support for Cinterion device MV31 with Qualcomm
-new baseline. Use different PIDs to separate it from
-previous base line products.
-All interfaces settings keep same as previous.
+Add support for Agilent E5805A (rebranded ION Edgeport/4) to io_ti.
 
-Below is test evidence:
-T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  6 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00b8 Rev=04.14
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00B8 USB Mobile Broadband
-S:  SerialNumber=90418e79
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  7 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00b9 Rev=04.14
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00B9 USB Mobile Broadband
-S:  SerialNumber=90418e79
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-For PID 00b8, interface 3 is GNSS port which don't use serial driver.
-
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20220601034740.5438-1-slark_xiao@163.com
-[ johan: rename defines using a "2" infix ]
+Signed-off-by: Robert Eckelmann <longnoserob@gmail.com>
+Link: https://lore.kernel.org/r/20220521230808.30931eca@octoberrain
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/serial/io_ti.c      |    2 ++
+ drivers/usb/serial/io_usbvend.h |    1 +
+ 2 files changed, 3 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -430,6 +430,8 @@ static void option_instat_callback(struc
- #define CINTERION_PRODUCT_CLS8			0x00b0
- #define CINTERION_PRODUCT_MV31_MBIM		0x00b3
- #define CINTERION_PRODUCT_MV31_RMNET		0x00b7
-+#define CINTERION_PRODUCT_MV31_2_MBIM		0x00b8
-+#define CINTERION_PRODUCT_MV31_2_RMNET		0x00b9
- #define CINTERION_PRODUCT_MV32_WA		0x00f1
- #define CINTERION_PRODUCT_MV32_WB		0x00f2
+--- a/drivers/usb/serial/io_ti.c
++++ b/drivers/usb/serial/io_ti.c
+@@ -172,6 +172,7 @@ static const struct usb_device_id edgepo
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_8S) },
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416) },
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416B) },
++	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_E5805A) },
+ 	{ }
+ };
  
-@@ -1953,6 +1955,10 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(3)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
- 	  .driver_info = RSVD(0)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_MBIM, 0xff),
-+	  .driver_info = RSVD(3)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_RMNET, 0xff),
-+	  .driver_info = RSVD(0)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
- 	  .driver_info = RSVD(3)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
+@@ -210,6 +211,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_8S) },
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416) },
+ 	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_TI_EDGEPORT_416B) },
++	{ USB_DEVICE(USB_VENDOR_ID_ION, ION_DEVICE_ID_E5805A) },
+ 	{ }
+ };
+ 
+--- a/drivers/usb/serial/io_usbvend.h
++++ b/drivers/usb/serial/io_usbvend.h
+@@ -215,6 +215,7 @@
+ //
+ // Definitions for other product IDs
+ #define ION_DEVICE_ID_MT4X56USB			0x1403	// OEM device
++#define ION_DEVICE_ID_E5805A			0x1A01  // OEM device (rebranded Edgeport/4)
+ 
+ 
+ #define	GENERATION_ID_FROM_USB_PRODUCT_ID(ProductId)				\
 
 
