@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B9375584FC
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:52:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 886AA55809A
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235268AbiFWRwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:52:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39814 "EHLO
+        id S232120AbiFWQwm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:52:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229820AbiFWRvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:51:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 479D69917F;
-        Thu, 23 Jun 2022 10:12:33 -0700 (PDT)
+        with ESMTP id S233856AbiFWQvp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A2E29589;
+        Thu, 23 Jun 2022 09:50:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EC45B82489;
-        Thu, 23 Jun 2022 17:12:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8973AC341C4;
-        Thu, 23 Jun 2022 17:12:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1514361F99;
+        Thu, 23 Jun 2022 16:50:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C44F5C3411B;
+        Thu, 23 Jun 2022 16:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004349;
-        bh=8NpyPW8fRdZfAbob49QXgobOOSiEkus4+nQosMXVvEg=;
+        s=korg; t=1656003015;
+        bh=ezQ5cfLdnEC6PYO373KbfXHKFeC+bD7ZwpWRgYNkwqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WAGYCZSk3Z5nVC8kHB5HkranYSQ/2eHWBZ31DyeLd0D2vHeC6ZCChaQClPkKAtVne
-         SjymvLvhc0hXQgbhztLzee44m80hCf68yXqUzA/Ec4XHFlLKMQYdg5wS5J4fqMVpQp
-         4AR+CZmrB/4r2gzIktMJPzhWxTrpOliKj/GR/7Ek=
+        b=BBp8o6R/2uvUlf2rzSx0vS+y9Qmf7zCth4xHTlFWhxJ8HMj5jSu8KR4VZb2aJPS1z
+         B7nySd349DtEb8RPiayzF08uymaamA6WbCnN+EjMMQpbrx8hjtcprUcmggfHKfBi1b
+         QAkWuyrZiCzILDylhgh+D1CUFEv2rZybTsF72xK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 010/234] random: Support freezable kthreads in add_hwgenerator_randomness()
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.9 084/264] random: do not sign extend bytes for rotation when mixing
 Date:   Thu, 23 Jun 2022 18:41:17 +0200
-Message-Id: <20220623164343.347771738@linuxfoundation.org>
+Message-Id: <20220623164346.446593474@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
-References: <20220623164343.042598055@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit ff296293b3538d19278a7f7cd1f3aa600ad9164c upstream.
+commit 0d9488ffbf2faddebc6bac055bfa6c93b94056a3 upstream.
 
-The kthread calling this function is freezable after commit 03a3bb7ae631
-("hwrng: core - Freeze khwrng thread during suspend") is applied.
-Unfortunately, this function uses wait_event_interruptible() but doesn't
-check for the kthread being woken up by the fake freezer signal. When a
-user suspends the system, this kthread will wake up and if it fails the
-entropy size check it will immediately go back to sleep and not go into
-the freezer. Eventually, suspend will fail because the task never froze
-and a warning message like this may appear:
+By using `char` instead of `unsigned char`, certain platforms will sign
+extend the byte when `w = rol32(*bytes++, input_rotate)` is called,
+meaning that bit 7 is overrepresented when mixing. This isn't a real
+problem (unless the mixer itself is already broken) since it's still
+invertible, but it's not quite correct either. Fix this by using an
+explicit unsigned type.
 
- PM: suspend entry (deep)
- Filesystems sync: 0.000 seconds
- Freezing user space processes ... (elapsed 0.001 seconds) done.
- OOM killer disabled.
- Freezing remaining freezable tasks ...
- Freezing of tasks failed after 20.003 seconds (1 tasks refusing to freeze, wq_busy=0):
- hwrng           R  running task        0   289      2 0x00000020
- [<c08c64c4>] (__schedule) from [<c08c6a10>] (schedule+0x3c/0xc0)
- [<c08c6a10>] (schedule) from [<c05dbd8c>] (add_hwgenerator_randomness+0xb0/0x100)
- [<c05dbd8c>] (add_hwgenerator_randomness) from [<bf1803c8>] (hwrng_fillfn+0xc0/0x14c [rng_core])
- [<bf1803c8>] (hwrng_fillfn [rng_core]) from [<c015abec>] (kthread+0x134/0x148)
- [<c015abec>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
-
-Check for a freezer signal here and skip adding any randomness if the
-task wakes up because it was frozen. This should make the kthread freeze
-properly and suspend work again.
-
-Fixes: 03a3bb7ae631 ("hwrng: core - Freeze khwrng thread during suspend")
-Reported-by: Keerthy <j-keerthy@ti.com>
-Tested-by: Keerthy <j-keerthy@ti.com>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -2483,6 +2483,7 @@ void add_hwgenerator_randomness(const ch
- 				size_t entropy)
- {
- 	struct entropy_store *poolp = &input_pool;
-+	bool frozen = false;
+@@ -550,7 +550,7 @@ static void _mix_pool_bytes(struct entro
+ 	unsigned long i, tap1, tap2, tap3, tap4, tap5;
+ 	int input_rotate;
+ 	int wordmask = r->poolinfo->poolwords - 1;
+-	const char *bytes = in;
++	const unsigned char *bytes = in;
+ 	__u32 w;
  
- 	if (unlikely(crng_init == 0)) {
- 		crng_fast_load(buffer, count);
-@@ -2493,9 +2494,12 @@ void add_hwgenerator_randomness(const ch
- 	 * We'll be woken up again once below random_write_wakeup_thresh,
- 	 * or when the calling thread is about to terminate.
- 	 */
--	wait_event_interruptible(random_write_wait, kthread_should_stop() ||
-+	wait_event_interruptible(random_write_wait,
-+			kthread_freezable_should_stop(&frozen) ||
- 			ENTROPY_BITS(&input_pool) <= random_write_wakeup_bits);
--	mix_pool_bytes(poolp, buffer, count);
--	credit_entropy_bits(poolp, entropy);
-+	if (!frozen) {
-+		mix_pool_bytes(poolp, buffer, count);
-+		credit_entropy_bits(poolp, entropy);
-+	}
- }
- EXPORT_SYMBOL_GPL(add_hwgenerator_randomness);
+ 	tap1 = r->poolinfo->tap1;
 
 
