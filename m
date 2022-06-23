@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D91F558048
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AFFD558061
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:52:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232445AbiFWQrT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:47:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47900 "EHLO
+        id S232459AbiFWQrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:47:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232556AbiFWQqx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:46:53 -0400
+        with ESMTP id S232629AbiFWQq5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:46:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 458A949C9F;
-        Thu, 23 Jun 2022 09:46:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6794049F92;
+        Thu, 23 Jun 2022 09:46:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6190B82491;
-        Thu, 23 Jun 2022 16:46:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 220A1C3411B;
-        Thu, 23 Jun 2022 16:46:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A38C0B82486;
+        Thu, 23 Jun 2022 16:46:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E4AC3411B;
+        Thu, 23 Jun 2022 16:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002807;
-        bh=QCWuFJbSl4FhgUQAJaPiaZVjAiaAZAjuslsFkYmNtDs=;
+        s=korg; t=1656002810;
+        bh=lvn/PPf44nfUMChZGL8ksDAmVaLVyZF9u/g6Comv+j8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkuSR+Htn5yiLMVbbPanII0xoHL3iLXqgQjtp0+or4uodhTKzml6kYX53VLd2Mz/k
-         dYONmMnVvhcD4Jsat3UPcXMdOfdqn14tC5cQWNme4Cdhr1JE1X+4qHXdWzhuDxBiIG
-         bjPzzskK1LgzymUUiwXeP7V5VHCKrfTY/XaQg46s=
+        b=caNQrGhpK7NZwjkjeXnudJN4pDTiHYi0BVgbuD++WdYqGEdCIFrxWailXHJg2b6oi
+         woTjN/uhwccAIDl9P2i2gFM0Vr+mH0HT+gqyh+gE5+fH1+CqzSCVYIOaUekDS4NDxi
+         gJNke2T19C1yJg6wbv6VMDo0ZJuncfbgGx/oA600=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        "Tobin C. Harding" <me@tobin.cc>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 031/264] random: Return nbytes filled from hw RNG
-Date:   Thu, 23 Jun 2022 18:40:24 +0200
-Message-Id: <20220623164344.949637835@linuxfoundation.org>
+Subject: [PATCH 4.9 032/264] random: add a config option to trust the CPUs hwrng
+Date:   Thu, 23 Jun 2022 18:40:25 +0200
+Message-Id: <20220623164344.977732101@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
 References: <20220623164344.053938039@linuxfoundation.org>
@@ -55,79 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Tobin C. Harding" <me@tobin.cc>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 753d433b586d1d43c487e3d660f5778c7c8d58ea upstream.
+commit 39a8883a2b989d1d21bd8dd99f5557f0c5e89694 upstream.
 
-Currently the function get_random_bytes_arch() has return value 'void'.
-If the hw RNG fails we currently fall back to using get_random_bytes().
-This defeats the purpose of requesting random material from the hw RNG
-in the first place.
+This gives the user building their own kernel (or a Linux
+distribution) the option of deciding whether or not to trust the CPU's
+hardware random number generator (e.g., RDRAND for x86 CPU's) as being
+correctly implemented and not having a back door introduced (perhaps
+courtesy of a Nation State's law enforcement or intelligence
+agencies).
 
-There are currently no intree users of get_random_bytes_arch().
+This will prevent getrandom(2) from blocking, if there is a
+willingness to trust the CPU manufacturer.
 
-Only get random bytes from the hw RNG, make function return the number
-of bytes retrieved from the hw RNG.
-
-Acked-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Tobin C. Harding <me@tobin.cc>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c  |   16 +++++++++-------
- include/linux/random.h |    2 +-
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/char/Kconfig  |   14 ++++++++++++++
+ drivers/char/random.c |   11 ++++++++++-
+ 2 files changed, 24 insertions(+), 1 deletion(-)
 
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -595,3 +595,17 @@ source "drivers/char/xillybus/Kconfig"
+ 
+ endmenu
+ 
++config RANDOM_TRUST_CPU
++	bool "Trust the CPU manufacturer to initialize Linux's CRNG"
++	depends on X86 || S390 || PPC
++	default n
++	help
++	Assume that CPU manufacturer (e.g., Intel or AMD for RDSEED or
++	RDRAND, IBM for the S390 and Power PC architectures) is trustworthy
++	for the purposes of initializing Linux's CRNG.  Since this is not
++	something that can be independently audited, this amounts to trusting
++	that CPU manufacturer (perhaps with the insistence or mandate
++	of a Nation State's intelligence or law enforcement agencies)
++	has not installed a hidden back door to compromise the CPU's
++	random number generation facilities.
++
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1783,26 +1783,28 @@ EXPORT_SYMBOL(del_random_ready_callback)
-  * key known by the NSA).  So it's useful if we need the speed, but
-  * only if we're willing to trust the hardware manufacturer not to
-  * have put in a back door.
-+ *
-+ * Return number of bytes filled in.
-  */
--void get_random_bytes_arch(void *buf, int nbytes)
-+int __must_check get_random_bytes_arch(void *buf, int nbytes)
+@@ -783,6 +783,7 @@ static void invalidate_batched_entropy(v
+ static void crng_initialize(struct crng_state *crng)
  {
-+	int left = nbytes;
- 	char *p = buf;
+ 	int		i;
++	int		arch_init = 1;
+ 	unsigned long	rv;
  
--	trace_get_random_bytes_arch(nbytes, _RET_IP_);
--	while (nbytes) {
-+	trace_get_random_bytes_arch(left, _RET_IP_);
-+	while (left) {
- 		unsigned long v;
--		int chunk = min(nbytes, (int)sizeof(unsigned long));
-+		int chunk = min_t(int, left, sizeof(unsigned long));
- 
- 		if (!arch_get_random_long(&v))
- 			break;
- 
- 		memcpy(p, &v, chunk);
- 		p += chunk;
--		nbytes -= chunk;
-+		left -= chunk;
+ 	memcpy(&crng->state[0], "expand 32-byte k", 16);
+@@ -793,10 +794,18 @@ static void crng_initialize(struct crng_
+ 		_get_random_bytes(&crng->state[4], sizeof(__u32) * 12);
+ 	for (i = 4; i < 16; i++) {
+ 		if (!arch_get_random_seed_long(&rv) &&
+-		    !arch_get_random_long(&rv))
++		    !arch_get_random_long(&rv)) {
+ 			rv = random_get_entropy();
++			arch_init = 0;
++		}
+ 		crng->state[i] ^= rv;
  	}
- 
--	if (nbytes)
--		get_random_bytes(p, nbytes);
-+	return nbytes - left;
++#ifdef CONFIG_RANDOM_TRUST_CPU
++	if (arch_init) {
++		crng_init = 2;
++		pr_notice("random: crng done (trusting CPU's manufacturer)\n");
++	}
++#endif
+ 	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
  }
- EXPORT_SYMBOL(get_random_bytes_arch);
  
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -37,7 +37,7 @@ extern void get_random_bytes(void *buf,
- extern int wait_for_random_bytes(void);
- extern int add_random_ready_callback(struct random_ready_callback *rdy);
- extern void del_random_ready_callback(struct random_ready_callback *rdy);
--extern void get_random_bytes_arch(void *buf, int nbytes);
-+extern int __must_check get_random_bytes_arch(void *buf, int nbytes);
- 
- #ifndef MODULE
- extern const struct file_operations random_fops, urandom_fops;
 
 
