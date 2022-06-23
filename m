@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5368B5584BC
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:49:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1E32558266
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:14:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232088AbiFWRtC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:49:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34586 "EHLO
+        id S231779AbiFWRN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:13:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235343AbiFWRry (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:47:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C6A4A17F3;
-        Thu, 23 Jun 2022 10:11:17 -0700 (PDT)
+        with ESMTP id S233624AbiFWRNE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:13:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C84C56C08;
+        Thu, 23 Jun 2022 09:58:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B7AB61D02;
-        Thu, 23 Jun 2022 17:11:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4430C341C5;
-        Thu, 23 Jun 2022 17:11:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C1DDB8248E;
+        Thu, 23 Jun 2022 16:58:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFD6CC3411B;
+        Thu, 23 Jun 2022 16:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004276;
-        bh=QD0OPxsFQe0FpkE6nhAGjjP0t6YGreVfe/kZz0lqsXE=;
+        s=korg; t=1656003534;
+        bh=EWppoqrobli/wnWs+cs+6YShz2p82cWmm45XS2tvHAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xX2tz1lVF37KBUYYYEHza2buJPArdXGj4VKjfERlTgljhxqoZtqpSJjZf5jTcbOiy
-         gTibivJ32cLTLnQz6eQYAsjvTuQtLx0yF3pEoCW8Zo1MX0SAND98WVE1GfDDnhRIiL
-         uqbzW3CeprApI5awwzfNYv9a+3B5Ewg0dLWVXYFk=
+        b=dvLCHPfI45Gz5SLDn89bNsEHgxU4JseMte+YxogC3Amc8fsKC3G+4LVKx663XrZbh
+         mmVONun0vELwHux7tyG7s9YewoVOn6cEoUd+oQC+cWDkikMXc+yiUsh5v5+EWTjupo
+         4giw+AXzH5zZ7BLFL+daEbukL3r49AEKvLyaYWhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@penugtronix.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 4.14 222/237] serial: 8250: Store to lsr_save_flags after lsr read
+        stable@vger.kernel.org, Moshe Kol <moshe.kol@mail.huji.ac.il>,
+        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
+        Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 263/264] tcp: increase source port perturb table to 2^16
 Date:   Thu, 23 Jun 2022 18:44:16 +0200
-Message-Id: <20220623164349.536818770@linuxfoundation.org>
+Message-Id: <20220623164351.504831193@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Willy Tarreau <w@1wt.eu>
 
-commit be03b0651ffd8bab69dfd574c6818b446c0753ce upstream.
+commit 4c2c8f03a5ab7cb04ec64724d7d176d00bcc91e5 upstream.
 
-Not all LSR register flags are preserved across reads. Therefore, LSR
-readers must store the non-preserved bits into lsr_save_flags.
+Moshe Kol, Amit Klein, and Yossi Gilad reported being able to accurately
+identify a client by forcing it to emit only 40 times more connections
+than there are entries in the table_perturb[] table. The previous two
+improvements consisting in resalting the secret every 10s and adding
+randomness to each port selection only slightly improved the situation,
+and the current value of 2^8 was too small as it's not very difficult
+to make a client emit 10k connections in less than 10 seconds.
 
-This fix was initially mixed into feature commit f6f586102add ("serial:
-8250: Handle UART without interrupt on TEMT using em485"). However,
-that feature change had a flaw and it was reverted to make room for
-simpler approach providing the same feature. The embedded fix got
-reverted with the feature change.
+Thus we're increasing the perturb table from 2^8 to 2^16 so that the
+same precision now requires 2.6M connections, which is more difficult in
+this time frame and harder to hide as a background activity. The impact
+is that the table now uses 256 kB instead of 1 kB, which could mostly
+affect devices making frequent outgoing connections. However such
+components usually target a small set of destinations (load balancers,
+database clients, perf assessment tools), and in practice only a few
+entries will be visited, like before.
 
-Re-add the lsr_save_flags fix and properly mark it's a fix.
+A live test at 1 million connections per second showed no performance
+difference from the previous value.
 
-Link: https://lore.kernel.org/all/1d6c31d-d194-9e6a-ddf9-5f29af829f3@linux.intel.com/T/#m1737eef986bd20cf19593e344cebd7b0244945fc
-Fixes: e490c9144cfa ("tty: Add software emulated RS485 support for 8250")
-Cc: stable <stable@kernel.org>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@penugtronix.de>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/f4d774be-1437-a550-8334-19d8722ab98c@linux.intel.com
+Reported-by: Moshe Kol <moshe.kol@mail.huji.ac.il>
+Reported-by: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/inet_hashtables.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1524,6 +1524,8 @@ static inline void __stop_tx(struct uart
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -541,11 +541,12 @@ EXPORT_SYMBOL_GPL(inet_unhash);
+  * Note that we use 32bit integers (vs RFC 'short integers')
+  * because 2^16 is not a multiple of num_ephemeral and this
+  * property might be used by clever attacker.
+- * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
+- * we use 256 instead to really give more isolation and
+- * privacy, this only consumes 1 KB of kernel memory.
++ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
++ * attacks were since demonstrated, thus we use 65536 instead to really
++ * give more isolation and privacy, at the expense of 256kB of kernel
++ * memory.
+  */
+-#define INET_TABLE_PERTURB_SHIFT 8
++#define INET_TABLE_PERTURB_SHIFT 16
+ #define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
+ static u32 *table_perturb;
  
- 	if (em485) {
- 		unsigned char lsr = serial_in(p, UART_LSR);
-+		p->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
-+
- 		/*
- 		 * To provide required timeing and allow FIFO transfer,
- 		 * __stop_tx_rs485() must be called only when both FIFO and
 
 
