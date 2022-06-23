@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67CFB558488
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:44:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C4D2558259
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234344AbiFWRoK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:44:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56564 "EHLO
+        id S231204AbiFWRNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:13:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234143AbiFWRnZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:43:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C0519D33F;
-        Thu, 23 Jun 2022 10:10:30 -0700 (PDT)
+        with ESMTP id S233279AbiFWRMo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:12:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D432241FBE;
+        Thu, 23 Jun 2022 09:58:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2822B8249B;
-        Thu, 23 Jun 2022 17:10:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 551C6C3411B;
-        Thu, 23 Jun 2022 17:10:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86C5AB8248F;
+        Thu, 23 Jun 2022 16:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5434C3411B;
+        Thu, 23 Jun 2022 16:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004227;
-        bh=74nHEB/SvvOY1D+necQOByXj3zd+MR6+TdfHJdc0j70=;
+        s=korg; t=1656003506;
+        bh=isyO/DTQYlF73FEx2d7UejnaUEw+tJ7LlnZ7gQHbFIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V1eenT/fo3KtWV+diOe4Kw11hm6Bu8P1NIYWhtTDZsNSKYRpUhQdwgvrvhGzuYdmf
-         H0Dx5ltvtD1NdN1OWiIIdsTJ/lsxskZb7h4fNFWwjxFp+oDt21x42Le3yPHL5NTTlV
-         7m5Oq8YsqzHLxQRjf2s4sXvVaz4W0LM8A9uW8UsQ=
+        b=SBmJ0Wy60MBljBQiMkwaeiIH9yZQ2XcxKx4DKE38raQ68kyoH68ljiR0x+k+W4j7C
+         Z9NZI7dZ780nobH1/NE80Vrv2TExBx+1q+RIXn8zDlZDpuVCqF03TUd58XPelIThJM
+         9d0Xlao159iwb0yiEdTF/A3RrodPehIBylNIB8n0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        syzbot+2e635807decef724a1fa@syzkaller.appspotmail.com,
+        Stephan Mueller <smueller@chronox.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 178/237] random: move initialization functions out of hot pages
-Date:   Thu, 23 Jun 2022 18:43:32 +0200
-Message-Id: <20220623164348.271379476@linuxfoundation.org>
+Subject: [PATCH 4.9 220/264] crypto: drbg - always try to free Jitter RNG instance
+Date:   Thu, 23 Jun 2022 18:43:33 +0200
+Message-Id: <20220623164350.302121396@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,176 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: "Stephan Müller" <smueller@chronox.de>
 
-commit 560181c27b582557d633ecb608110075433383af upstream.
+commit 819966c06b759022e9932f328284314d9272b9f3 upstream.
 
-Much of random.c is devoted to initializing the rng and accounting for
-when a sufficient amount of entropy has been added. In a perfect world,
-this would all happen during init, and so we could mark these functions
-as __init. But in reality, this isn't the case: sometimes the rng only
-finishes initializing some seconds after system init is finished.
+The Jitter RNG is unconditionally allocated as a seed source follwoing
+the patch 97f2650e5040. Thus, the instance must always be deallocated.
 
-For this reason, at the moment, a whole host of functions that are only
-used relatively close to system init and then never again are intermixed
-with functions that are used in hot code all the time. This creates more
-cache misses than necessary.
-
-In order to pack the hot code closer together, this commit moves the
-initialization functions that can't be marked as __init into
-.text.unlikely by way of the __cold attribute.
-
-Of particular note is moving credit_init_bits() into a macro wrapper
-that inlines the crng_ready() static branch check. This avoids a
-function call to a nop+ret, and most notably prevents extra entropy
-arithmetic from being computed in mix_interrupt_randomness().
-
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-[ Jason: for stable, made sure the printk_deferred was a pr_notice,
-  because those caused problems on â‰¤ 4.19 according to commit logs. ]
+Reported-by: syzbot+2e635807decef724a1fa@syzkaller.appspotmail.com
+Fixes: 97f2650e5040 ("crypto: drbg - always seeded with SP800-90B ...")
+Signed-off-by: Stephan Mueller <smueller@chronox.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   40 ++++++++++++++++++----------------------
- 1 file changed, 18 insertions(+), 22 deletions(-)
+ crypto/drbg.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -109,7 +109,7 @@ bool rng_is_initialized(void)
- }
- EXPORT_SYMBOL(rng_is_initialized);
+--- a/crypto/drbg.c
++++ b/crypto/drbg.c
+@@ -1646,10 +1646,12 @@ static int drbg_uninstantiate(struct drb
+ 	if (drbg->random_ready.notifier_call) {
+ 		unregister_random_ready_notifier(&drbg->random_ready);
+ 		cancel_work_sync(&drbg->seed_work);
+-		crypto_free_rng(drbg->jent);
+-		drbg->jent = NULL;
+ 	}
  
--static void crng_set_ready(struct work_struct *work)
-+static void __cold crng_set_ready(struct work_struct *work)
- {
- 	static_branch_enable(&crng_is_ready);
- }
-@@ -148,7 +148,7 @@ EXPORT_SYMBOL(wait_for_random_bytes);
-  * returns: 0 if callback is successfully added
-  *	    -EALREADY if pool is already initialised (callback not called)
-  */
--int register_random_ready_notifier(struct notifier_block *nb)
-+int __cold register_random_ready_notifier(struct notifier_block *nb)
- {
- 	unsigned long flags;
- 	int ret = -EALREADY;
-@@ -167,7 +167,7 @@ EXPORT_SYMBOL(register_random_ready_noti
- /*
-  * Delete a previously registered readiness callback function.
-  */
--int unregister_random_ready_notifier(struct notifier_block *nb)
-+int __cold unregister_random_ready_notifier(struct notifier_block *nb)
- {
- 	unsigned long flags;
- 	int ret;
-@@ -179,7 +179,7 @@ int unregister_random_ready_notifier(str
- }
- EXPORT_SYMBOL(unregister_random_ready_notifier);
- 
--static void process_random_ready_list(void)
-+static void __cold process_random_ready_list(void)
- {
- 	unsigned long flags;
- 
-@@ -189,15 +189,9 @@ static void process_random_ready_list(vo
- }
- 
- #define warn_unseeded_randomness() \
--	_warn_unseeded_randomness(__func__, (void *)_RET_IP_)
--
--static void _warn_unseeded_randomness(const char *func_name, void *caller)
--{
--	if (!IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM) || crng_ready())
--		return;
--	printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n",
--			func_name, caller, crng_init);
--}
-+	if (IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM) && !crng_ready()) \
-+		pr_notice("%s called from %pS with crng_init=%d\n", \
-+			  __func__, (void *)_RET_IP_, crng_init)
- 
- 
- /*********************************************************************
-@@ -611,7 +605,7 @@ EXPORT_SYMBOL(get_random_u32);
-  * This function is called when the CPU is coming up, with entry
-  * CPUHP_RANDOM_PREPARE, which comes before CPUHP_WORKQUEUE_PREP.
-  */
--int random_prepare_cpu(unsigned int cpu)
-+int __cold random_prepare_cpu(unsigned int cpu)
- {
- 	/*
- 	 * When the cpu comes back online, immediately invalidate both
-@@ -786,13 +780,15 @@ static void extract_entropy(void *buf, s
- 	memzero_explicit(&block, sizeof(block));
- }
- 
--static void credit_init_bits(size_t bits)
-+#define credit_init_bits(bits) if (!crng_ready()) _credit_init_bits(bits)
++	if (!IS_ERR_OR_NULL(drbg->jent))
++		crypto_free_rng(drbg->jent);
++	drbg->jent = NULL;
 +
-+static void __cold _credit_init_bits(size_t bits)
- {
- 	static struct execute_work set_ready;
- 	unsigned int new, orig, add;
- 	unsigned long flags;
- 
--	if (crng_ready() || !bits)
-+	if (!bits)
- 		return;
- 
- 	add = min_t(size_t, bits, POOL_BITS);
-@@ -971,7 +967,7 @@ EXPORT_SYMBOL_GPL(add_hwgenerator_random
-  * Handle random seed passed by bootloader, and credit it if
-  * CONFIG_RANDOM_TRUST_BOOTLOADER is set.
-  */
--void add_bootloader_randomness(const void *buf, size_t len)
-+void __cold add_bootloader_randomness(const void *buf, size_t len)
- {
- 	mix_pool_bytes(buf, len);
- 	if (trust_bootloader)
-@@ -1017,7 +1013,7 @@ static void fast_mix(unsigned long s[4],
-  * This function is called when the CPU has just come online, with
-  * entry CPUHP_AP_RANDOM_ONLINE, just after CPUHP_AP_WORKQUEUE_ONLINE.
-  */
--int random_online_cpu(unsigned int cpu)
-+int __cold random_online_cpu(unsigned int cpu)
- {
- 	/*
- 	 * During CPU shutdown and before CPU onlining, add_interrupt_
-@@ -1172,7 +1168,7 @@ static void add_timer_randomness(struct
- 	if (in_irq())
- 		this_cpu_ptr(&irq_randomness)->count += max(1u, bits * 64) - 1;
- 	else
--		credit_init_bits(bits);
-+		_credit_init_bits(bits);
- }
- 
- void add_input_randomness(unsigned int type, unsigned int code, unsigned int value)
-@@ -1200,7 +1196,7 @@ void add_disk_randomness(struct gendisk
- }
- EXPORT_SYMBOL_GPL(add_disk_randomness);
- 
--void rand_initialize_disk(struct gendisk *disk)
-+void __cold rand_initialize_disk(struct gendisk *disk)
- {
- 	struct timer_rand_state *state;
- 
-@@ -1229,7 +1225,7 @@ void rand_initialize_disk(struct gendisk
-  *
-  * So the re-arming always happens in the entropy loop itself.
-  */
--static void entropy_timer(unsigned long data)
-+static void __cold entropy_timer(unsigned long data)
- {
- 	credit_init_bits(1);
- }
-@@ -1238,7 +1234,7 @@ static void entropy_timer(unsigned long
-  * If we have an actual cycle counter, see if we can
-  * generate enough entropy with timing noise
-  */
--static void try_to_generate_entropy(void)
-+static void __cold try_to_generate_entropy(void)
- {
- 	struct {
- 		unsigned long entropy;
+ 	if (drbg->d_ops)
+ 		drbg->d_ops->crypto_fini(drbg);
+ 	drbg_dealloc_state(drbg);
 
 
