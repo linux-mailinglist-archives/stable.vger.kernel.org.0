@@ -2,55 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53E5B55842E
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1285555850F
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234535AbiFWRkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:40:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43174 "EHLO
+        id S235255AbiFWRyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:54:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234814AbiFWRiT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35A4E27B3A;
-        Thu, 23 Jun 2022 10:08:21 -0700 (PDT)
+        with ESMTP id S235421AbiFWRwc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:52:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CEF5506ED;
+        Thu, 23 Jun 2022 10:13:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0012B82498;
-        Thu, 23 Jun 2022 17:08:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26E6AC3411B;
-        Thu, 23 Jun 2022 17:08:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A795E61D17;
+        Thu, 23 Jun 2022 17:13:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC6CC341C5;
+        Thu, 23 Jun 2022 17:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656004098;
-        bh=de72aEPmiWhk8gVfT3liqSSGHCaeRekm8u+9NQohaUw=;
+        s=k20201202; t=1656004393;
+        bh=KOnK+vJizyo7Zx4GKRrnV6DYGpqQvLH0I1Zva2gYZN8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fC2Hq0DsqYZk/Y/la3E9ChzRyhRvqK+C14cG9rRPKOo9XW3VxNyRyY+XJxtAI2J6V
-         zjV4944fzCDsPaH9u7MapC0CIl0k8ALlcDcCZwUWPPH6yy/rXPiS/Faknap7CnvLdw
-         /nwfIAaUZwX/KMRb4ITCw6xaHcHmliPDGYH4+85FZON/Uq5VpzpOWMfo31/lqA6dy4
-         WYZ6nUJkWmHIvwqwYI5CkwPi7p1tW5oYyQoNrKfGSkZL0QE7CPl1Iu1RRVkg/iSVpZ
-         QI5mm3aq6RqcpPogcGc9neDOQyjHy81EM6Z52gdIzvtBtZvjPmt4is2FwXCbotvwcl
-         8nlpcKIw2sJfQ==
-Date:   Thu, 23 Jun 2022 10:08:16 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     cgel.zte@gmail.com
-Cc:     anton@tuxera.com, linux-ntfs-dev@lists.sourceforge.net,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        xu.xin16@zte.com.cn, linux-fsdevel@vger.kernel.org,
-        Zeal Robot <zealci@zte.com.cn>,
-        syzbot+6a5a7672f663cce8b156@syzkaller.appspotmail.com,
-        Songyi Zhang <zhang.songyi@zte.com.cn>,
-        Yang Yang <yang.yang29@zte.com.cn>,
-        Jiang Xuexin <jiang.xuexin@zte.com.cn>,
-        Zhang wenya <zhang.wenya1@zte.com.cn>
-Subject: Re: [PATCH v2] fs/ntfs: fix BUG_ON of ntfs_read_block()
-Message-ID: <YrSeAGmk4GZndtdn@sol.localdomain>
-References: <20220623033635.973929-1-xu.xin16@zte.com.cn>
- <20220623094956.977053-1-xu.xin16@zte.com.cn>
+        b=ELM+W9fbWFNqyvDff3JptaraGIpkpQfdjAillhDKvA7QxnAAy2p7QzsvkmijUPJux
+         JEp+aOQljIHuC8hJObRIIay7LWtJVl1jZZVZPdXRPczaX+Avoi4VVt8K08GUbsYNTG
+         KD1cPo8fsb+alKzyAos8HViR0f9DPsJQ7BwolBard5oOXAxuuIqyUJE6vtpy/Xp8DB
+         xd/Nq6RJ6wnsp8xIwqfNhcbieYVaJmX8/s+KwapHQ0d1dQvUmWNvk3OY2cXQKusBEF
+         uVWMICNVgmDj3VqTp6unU5bnZLGp9G9ef6FR2sL+aHZI33hYP/sBAuTyT7rS/Mnlz7
+         tTMWH3u4McBsw==
+Date:   Thu, 23 Jun 2022 12:13:07 -0500
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] powerpc/book3e: Fix PUD allocation size in
+ map_kernel_page()
+Message-ID: <YrSfIyDy3rM16NqC@kernel.org>
+References: <95ddfd6176d53e6c85e13bd1c358359daa56775f.1655974558.git.christophe.leroy@csgroup.eu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220623094956.977053-1-xu.xin16@zte.com.cn>
+In-Reply-To: <95ddfd6176d53e6c85e13bd1c358359daa56775f.1655974558.git.christophe.leroy@csgroup.eu>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -61,53 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 23, 2022 at 09:49:56AM +0000, cgel.zte@gmail.com wrote:
-> From: xu xin <xu.xin16@zte.com.cn>
+On Thu, Jun 23, 2022 at 10:56:17AM +0200, Christophe Leroy wrote:
+> Commit 2fb4706057bc ("powerpc: add support for folded p4d page tables")
+> erroneously changed PUD setup to a mix of PMD and PUD. Fix it.
 > 
-> As the bug description at
-> https://lore.kernel.org/lkml/20220623033635.973929-1-xu.xin16@zte.com.cn/
-> attckers can use this bug to crash the system.
+> While at it, use PTE_TABLE_SIZE instead of PAGE_SIZE for PTE tables
+> in order to avoid any confusion.
 > 
-> So to avoid panic, remove the BUG_ON, and use ntfs_warning to output a
-> warning to the syslog and return instead until someone really solve
-> the problem.
-> 
+> Fixes: 2fb4706057bc ("powerpc: add support for folded p4d page tables")
 > Cc: stable@vger.kernel.org
-> Reported-by: Zeal Robot <zealci@zte.com.cn>
-> Reported-by: syzbot+6a5a7672f663cce8b156@syzkaller.appspotmail.com
-> Reviewed-by: Songyi Zhang <zhang.songyi@zte.com.cn>
-> Reviewed-by: Yang Yang <yang.yang29@zte.com.cn>
-> Reviewed-by: Jiang Xuexin<jiang.xuexin@zte.com.cn>
-> Reviewed-by: Zhang wenya<zhang.wenya1@zte.com.cn>
-> Signed-off-by: xu xin <xu.xin16@zte.com.cn>
-> ---
-> 
-> Change for v2:
->  - Use ntfs_warning instead of WARN().
->  - Add the tag Cc: stable@vger.kernel.org.
-> ---
->  fs/ntfs/aops.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/fs/ntfs/aops.c b/fs/ntfs/aops.c
-> index 5f4fb6ca6f2e..84d68efb4ace 100644
-> --- a/fs/ntfs/aops.c
-> +++ b/fs/ntfs/aops.c
-> @@ -183,7 +183,12 @@ static int ntfs_read_block(struct page *page)
->  	vol = ni->vol;
->  
->  	/* $MFT/$DATA must have its complete runlist in memory at all times. */
-> -	BUG_ON(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni));
-> +	if (unlikely(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni))) {
-> +		ntfs_warning(vi->i_sb, "Error because ni->runlist.rl, ni->mft_no, "
-> +				"and NInoAttr(ni) is null.");
-> +		unlock_page(page);
-> +		return -EINVAL;
-> +	}
+> Cc: Mike Rapoport <rppt@kernel.org>
+> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-A better warning message that doesn't rely on implementation details (struct
-field and macro names) would be "Runlist of $MFT/$DATA is not cached".  Also,
-why does this situation happen in the first place?  Is there a way to prevent
-this situation in the first place?
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
 
-- Eric
+> ---
+>  arch/powerpc/mm/nohash/book3e_pgtable.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/powerpc/mm/nohash/book3e_pgtable.c b/arch/powerpc/mm/nohash/book3e_pgtable.c
+> index 7d4368d055a6..b80fc4a91a53 100644
+> --- a/arch/powerpc/mm/nohash/book3e_pgtable.c
+> +++ b/arch/powerpc/mm/nohash/book3e_pgtable.c
+> @@ -96,8 +96,8 @@ int __ref map_kernel_page(unsigned long ea, unsigned long pa, pgprot_t prot)
+>  		pgdp = pgd_offset_k(ea);
+>  		p4dp = p4d_offset(pgdp, ea);
+>  		if (p4d_none(*p4dp)) {
+> -			pmdp = early_alloc_pgtable(PMD_TABLE_SIZE);
+> -			p4d_populate(&init_mm, p4dp, pmdp);
+> +			pudp = early_alloc_pgtable(PUD_TABLE_SIZE);
+> +			p4d_populate(&init_mm, p4dp, pudp);
+>  		}
+>  		pudp = pud_offset(p4dp, ea);
+>  		if (pud_none(*pudp)) {
+> @@ -106,7 +106,7 @@ int __ref map_kernel_page(unsigned long ea, unsigned long pa, pgprot_t prot)
+>  		}
+>  		pmdp = pmd_offset(pudp, ea);
+>  		if (!pmd_present(*pmdp)) {
+> -			ptep = early_alloc_pgtable(PAGE_SIZE);
+> +			ptep = early_alloc_pgtable(PTE_TABLE_SIZE);
+>  			pmd_populate_kernel(&init_mm, pmdp, ptep);
+>  		}
+>  		ptep = pte_offset_kernel(pmdp, ea);
+> -- 
+> 2.36.1
+> 
+
+-- 
+Sincerely yours,
+Mike.
