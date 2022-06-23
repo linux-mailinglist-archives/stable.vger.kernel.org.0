@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 866005583D9
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:36:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26DCC5581A4
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:03:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234250AbiFWRgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:36:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33908 "EHLO
+        id S229611AbiFWRDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:03:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234359AbiFWRfv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:35:51 -0400
+        with ESMTP id S233740AbiFWRDJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:03:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC2238C215;
-        Thu, 23 Jun 2022 10:06:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 530DE50E10;
+        Thu, 23 Jun 2022 09:54:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB911B82495;
-        Thu, 23 Jun 2022 17:06:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 530D0C3411B;
-        Thu, 23 Jun 2022 17:06:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0265B82497;
+        Thu, 23 Jun 2022 16:54:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17B02C341C4;
+        Thu, 23 Jun 2022 16:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003975;
-        bh=NEJRdzIBCon7lIGhM4SzG1yXI0kNFTJSk5arjusZ2Bc=;
+        s=korg; t=1656003288;
+        bh=IMX1Kh65MuRBFFFhZ2Inzm9+isVXgAxMASPToXUf20Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YwQmdAVaKHWE8/nWsXflMZyO56bYTllJco8J14kpAdwdXLvXc9iWaAvEfxb4SoIXz
-         YjZVxTkoPDFqQPB2ju8oZiVPg4PE+5h61o6u0oZVgFElikWrigwNX2AUdoESgeqsjr
-         l2iL4V275GVigNnvTBWnVSEl0Wp9V4oeb8b1wFP8=
+        b=nZkGAHdmghLCNKF2RdERZ9xD21eWwlfb0/gyop6Xr3/AczSbMh1YZ3nuXh7ebWhDj
+         FMD56Lq8WMJ/oJ4i4ieUe6widAaBTjmIelf6lgfQevobZXlVyUjv70lAVRbSoAjbEq
+         +vQKelJcCfBnfd5p2B71SrWHvYgEyMK289WScfBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
         Arnd Bergmann <arnd@arndb.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 149/237] s390: define get_cycles macro for arch-override
+Subject: [PATCH 4.9 190/264] sparc: use fallback for random_get_entropy() instead of zero
 Date:   Thu, 23 Jun 2022 18:43:03 +0200
-Message-Id: <20220623164347.442437595@linuxfoundation.org>
+Message-Id: <20220623164349.444282025@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,37 +57,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 2e3df523256cb9836de8441e9c791a796759bb3c upstream.
+commit ac9756c79797bb98972736b13cfb239fd2cffb79 upstream.
 
-S390x defines a get_cycles() function, but it does not do the usual
-`#define get_cycles get_cycles` dance, making it impossible for generic
-code to see if an arch-specific function was defined. While the
-get_cycles() ifdef is not currently used, the following timekeeping
-patch in this series will depend on the macro existing (or not existing)
-when defining random_get_entropy().
+In the event that random_get_entropy() can't access a cycle counter or
+similar, falling back to returning 0 is really not the best we can do.
+Instead, at least calling random_get_entropy_fallback() would be
+preferable, because that always needs to return _something_, even
+falling back to jiffies eventually. It's not as though
+random_get_entropy_fallback() is super high precision or guaranteed to
+be entropic, but basically anything that's not zero all the time is
+better than returning zero all the time.
+
+This is accomplished by just including the asm-generic code like on
+other architectures, which means we can get rid of the empty stub
+function here.
 
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Cc: David S. Miller <davem@davemloft.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/timex.h |    1 +
- 1 file changed, 1 insertion(+)
+ arch/sparc/include/asm/timex_32.h |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/arch/s390/include/asm/timex.h
-+++ b/arch/s390/include/asm/timex.h
-@@ -177,6 +177,7 @@ static inline cycles_t get_cycles(void)
- {
- 	return (cycles_t) get_tod_clock() >> 2;
- }
-+#define get_cycles get_cycles
+--- a/arch/sparc/include/asm/timex_32.h
++++ b/arch/sparc/include/asm/timex_32.h
+@@ -8,8 +8,6 @@
  
- int get_phys_clock(unsigned long *clock);
- void init_cpu_timer(void);
+ #define CLOCK_TICK_RATE	1193180 /* Underlying HZ */
+ 
+-/* XXX Maybe do something better at some point... -DaveM */
+-typedef unsigned long cycles_t;
+-#define get_cycles()	(0)
++#include <asm-generic/timex.h>
+ 
+ #endif
 
 
