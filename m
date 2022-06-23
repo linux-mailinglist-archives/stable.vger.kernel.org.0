@@ -2,52 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 651165574A7
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 09:57:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83B035574A8
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 09:58:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230154AbiFWH5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 03:57:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42648 "EHLO
+        id S231142AbiFWH6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 03:58:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230520AbiFWH5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 03:57:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1B5247389;
-        Thu, 23 Jun 2022 00:57:44 -0700 (PDT)
+        with ESMTP id S231149AbiFWH55 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 03:57:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB2FFB65;
+        Thu, 23 Jun 2022 00:57:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6544B82200;
-        Thu, 23 Jun 2022 07:57:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBF56C3411B;
-        Thu, 23 Jun 2022 07:57:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5818261B89;
+        Thu, 23 Jun 2022 07:57:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50537C3411B;
+        Thu, 23 Jun 2022 07:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655971062;
-        bh=ANhwfxxjIa4IJy2tXFg8crRrfMzdxUvybqtIlxYXVwM=;
+        s=korg; t=1655971072;
+        bh=BlYOfMCq2JsqV69qlOn0Brwdjr5CZEK7g18REB4tZ78=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=r5AREGxzJQcgEIjMRRPm7K6wf+HwUCOn5ip1jxvDeXOZcamO9qg02tG+BjFZ7A2SL
-         pMcZ0S0GdZXhtXiKtUSqhKHhy1jKlQtHLjA2bjqfWfKPL+ZMcGYeakJm2SBqhG8UDf
-         xnLvtFw7b0GXVSB/MJuwgcIhDsVdb+m7PzpDVfq0=
-Date:   Thu, 23 Jun 2022 09:57:39 +0200
+        b=HvZSrzOaMjyZDkaKdl+Yc2aCSDzpBxZwh9l13VmXLUjYzGr8LOq+s//BrBfacTfO+
+         E9adw6U4drivCqV9abdby5yszvqf0ncujSREJR7X1SjizLZ+2WS5nrV86ZtzL4LYS+
+         n9DtUrIgjyzv1Wu7uDcQrSCOmFi048kWG87icZ7M=
+Date:   Thu, 23 Jun 2022 09:57:49 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     cgel.zte@gmail.com
-Cc:     anton@tuxera.com, linux-ntfs-dev@lists.sourceforge.net,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        xu.xin16@zte.com.cn, linux-fsdevel@vger.kernel.org,
-        Zeal Robot <zealci@zte.com.cn>,
-        syzbot+6a5a7672f663cce8b156@syzkaller.appspotmail.com,
-        Songyi Zhang <zhang.songyi@zte.com.cn>,
-        Yang Yang <yang.yang29@zte.com.cn>,
-        Jiang Xuexin <jiang.xuexin@zte.com.cn>,
-        Zhang wenya <zhang.wenya1@zte.com.cn>
-Subject: Re: [PATCH] fs/ntfs: fix BUG_ON of ntfs_read_block()
-Message-ID: <YrQc8xq+QezRcLi7@kroah.com>
-References: <20220623033635.973929-1-xu.xin16@zte.com.cn>
- <20220623035131.974098-1-xu.xin16@zte.com.cn>
+To:     Jinzhou Su <Jinzhou.Su@amd.com>
+Cc:     rjw@rjwysocki.net, linux-pm@vger.kernel.org, ray.huang@amd.com,
+        alexander.deucher@amd.com, xiaojian.du@amd.com, perry.yuan@amd.com,
+        li.meng@amd.com, richardqi.liang@amd.com, stable@vger.kernel.org
+Subject: Re: [PATCH] cpufreq: amd-pstate: Add resume and suspend callback for
+ amd-pstate
+Message-ID: <YrQc/T+mARRVbIHl@kroah.com>
+References: <20220623031509.555269-1-Jinzhou.Su@amd.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220623035131.974098-1-xu.xin16@zte.com.cn>
+In-Reply-To: <20220623031509.555269-1-Jinzhou.Su@amd.com>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -58,45 +52,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 23, 2022 at 03:51:31AM +0000, cgel.zte@gmail.com wrote:
-> From: xu xin <xu.xin16@zte.com.cn>
+On Thu, Jun 23, 2022 at 11:15:09AM +0800, Jinzhou Su wrote:
+> When system resumes from S3, the CPPC enable register will be
+> cleared and reset to 0. So sets this bit to enable CPPC
+> interface by writing 1 to this register.
 > 
-> As the bug description, attckers can use this bug to crash the system
-> When CONFIG_NTFS_FS is set.
-> 
-> So remove the BUG_ON, and use WARN and return instead until someone
-> really solve the bug.
-> 
-> Reported-by: Zeal Robot <zealci@zte.com.cn>
-> Reported-by: syzbot+6a5a7672f663cce8b156@syzkaller.appspotmail.com
-> Reviewed-by: Songyi Zhang <zhang.songyi@zte.com.cn>
-> Reviewed-by: Yang Yang <yang.yang29@zte.com.cn>
-> Reviewed-by: Jiang Xuexin<jiang.xuexin@zte.com.cn>
-> Reviewed-by: Zhang wenya<zhang.wenya1@zte.com.cn>
-> Signed-off-by: xu xin <xu.xin16@zte.com.cn>
+> Signed-off-by: Jinzhou Su <Jinzhou.Su@amd.com>
 > ---
->  fs/ntfs/aops.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
+>  drivers/cpufreq/amd-pstate.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
 > 
-> diff --git a/fs/ntfs/aops.c b/fs/ntfs/aops.c
-> index 5f4fb6ca6f2e..b6fd7e711420 100644
-> --- a/fs/ntfs/aops.c
-> +++ b/fs/ntfs/aops.c
-> @@ -183,7 +183,11 @@ static int ntfs_read_block(struct page *page)
->  	vol = ni->vol;
+> diff --git a/drivers/cpufreq/amd-pstate.c b/drivers/cpufreq/amd-pstate.c
+> index 7be38bc6a673..9ac75c1cde9c 100644
+> --- a/drivers/cpufreq/amd-pstate.c
+> +++ b/drivers/cpufreq/amd-pstate.c
+> @@ -566,6 +566,28 @@ static int amd_pstate_cpu_exit(struct cpufreq_policy *policy)
+>  	return 0;
+>  }
 >  
->  	/* $MFT/$DATA must have its complete runlist in memory at all times. */
-> -	BUG_ON(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni));
-> +	if (unlikely(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni))) {
-> +		WARN(1, "NTFS: ni->runlist.rl, ni->mft_no, and NInoAttr(ni) is null!\n");
-> +		unlock_page(page);
-> +		return -EINVAL;
-> +	}
+> +static int amd_pstate_cpu_resume(struct cpufreq_policy *policy)
+> +{
+> +	int ret;
+> +
+> +	ret = amd_pstate_enable(true);
+> +	if (ret)
+> +		pr_err("failed to enable amd-pstate during resume, return %d\n", ret);
+> +
+> +	return ret;
+> +}
+> +
+> +static int amd_pstate_cpu_suspend(struct cpufreq_policy *policy)
+> +{
+> +	int ret;
+> +
+> +	ret = amd_pstate_enable(false);
+> +	if (ret)
+> +		pr_err("failed to disable amd-pstate during suspend, return %d\n", ret);
+> +
+> +	return ret;
+> +}
+> +
+>  /* Sysfs attributes */
 >  
->  	blocksize = vol->sb->s_blocksize;
->  	blocksize_bits = vol->sb->s_blocksize_bits;
+>  /*
+> @@ -636,6 +658,8 @@ static struct cpufreq_driver amd_pstate_driver = {
+>  	.target		= amd_pstate_target,
+>  	.init		= amd_pstate_cpu_init,
+>  	.exit		= amd_pstate_cpu_exit,
+> +	.suspend	= amd_pstate_cpu_suspend,
+> +	.resume		= amd_pstate_cpu_resume,
+>  	.set_boost	= amd_pstate_set_boost,
+>  	.name		= "amd-pstate",
+>  	.attr           = amd_pstate_attr,
 > -- 
-> 2.25.1
+> 2.32.0
 > 
 
 <formletter>
