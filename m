@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AF3A558058
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAD6F558045
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:52:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232731AbiFWQrN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:47:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47768 "EHLO
+        id S231839AbiFWQrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:47:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232009AbiFWQql (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:46:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A35645ACF;
-        Thu, 23 Jun 2022 09:46:33 -0700 (PDT)
+        with ESMTP id S232456AbiFWQqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:46:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C168A49B75;
+        Thu, 23 Jun 2022 09:46:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69AB061F91;
-        Thu, 23 Jun 2022 16:46:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ACD9C3411B;
-        Thu, 23 Jun 2022 16:46:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22ED561F85;
+        Thu, 23 Jun 2022 16:46:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A30AC3411B;
+        Thu, 23 Jun 2022 16:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002792;
-        bh=qQIYNooHt6J28prKBGj0I1dPeKTwMJb17N07RA0jJ78=;
+        s=korg; t=1656002795;
+        bh=Yv8CjKqydAz/Fpz5QLw4VQmmWsQMsONZHOvoeqnMo4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FGcbEPSbHiGxzx5Cu6JWMC4H3d9s2S9UR4xGnsPsxOowmtOOtYALJq2J/hkLuUUPE
-         yOWh0QgZaMeJJhyQza2Pl0c3c9FGQhtsXeUTAyaxQ8IoaRJPhs8Fr5aL9f1tDzv3i9
-         1NyECekcPynrXhhuQizDQP6Xu/L7CCJU4F5EdmQY=
+        b=K5l73IYFCRb09bdatV14rHGYNzG6TB4mAMpCsUuAin5U+GcrbT0zIIWRVQ+shuc4W
+         QQXrwwp4K7LBWP3VNFKlmunuqw8aVa5vtCPZSkgpj8xItIXHFILoIci1uPX8fu0gyD
+         y0CMt2Tp66NVSlT3mXpXtySXg5+9V59N6jBc7RXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 027/264] random: always fill buffer in get_random_bytes_wait
-Date:   Thu, 23 Jun 2022 18:40:20 +0200
-Message-Id: <20220623164344.837725308@linuxfoundation.org>
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Theodore Tso <tytso@mit.edu>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.9 028/264] random: optimize add_interrupt_randomness
+Date:   Thu, 23 Jun 2022 18:40:21 +0200
+Message-Id: <20220623164344.866224048@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
 References: <20220623164344.053938039@linuxfoundation.org>
@@ -53,39 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Andi Kleen <ak@linux.intel.com>
 
-commit 25e3fca492035a2e1d4ac6e3b1edd9c1acd48897 upstream.
+commit e8e8a2e47db6bb85bb0cb21e77b5c6aaedf864b4 upstream.
 
-In the unfortunate event that a developer fails to check the return
-value of get_random_bytes_wait, or simply wants to make a "best effort"
-attempt, for whatever that's worth, it's much better to still fill the
-buffer with _something_ rather than catastrophically failing in the case
-of an interruption. This is both a defense in depth measure against
-inevitable programming bugs, as well as a means of making the API a bit
-more useful.
+add_interrupt_randomess always wakes up
+code blocking on /dev/random. This wake up is done
+unconditionally. Unfortunately this means all interrupts
+take the wait queue spinlock, which can be rather expensive
+on large systems processing lots of interrupts.
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+We saw 1% cpu time spinning on this on a large macro workload
+running on a large system.
+
+I believe it's a recent regression (?)
+
+Always check if there is a waiter on the wait queue
+before waking up. This check can be done without
+taking a spinlock.
+
+1.06%         10460  [kernel.vmlinux] [k] native_queued_spin_lock_slowpath
+         |
+         ---native_queued_spin_lock_slowpath
+            |
+             --0.57%--_raw_spin_lock_irqsave
+                       |
+                        --0.56%--__wake_up_common_lock
+                                  credit_entropy_bits
+                                  add_interrupt_randomness
+                                  handle_irq_event_percpu
+                                  handle_irq_event
+                                  handle_edge_irq
+                                  handle_irq
+                                  do_IRQ
+                                  common_interrupt
+
+Signed-off-by: Andi Kleen <ak@linux.intel.com>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/random.h |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/char/random.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -63,10 +63,8 @@ static inline unsigned long get_random_l
- static inline int get_random_bytes_wait(void *buf, int nbytes)
- {
- 	int ret = wait_for_random_bytes();
--	if (unlikely(ret))
--		return ret;
- 	get_random_bytes(buf, nbytes);
--	return 0;
-+	return ret;
- }
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -722,7 +722,8 @@ retry:
+ 		}
  
- #define declare_get_random_var_wait(var) \
+ 		/* should we wake readers? */
+-		if (entropy_bits >= random_read_wakeup_bits) {
++		if (entropy_bits >= random_read_wakeup_bits &&
++		    wq_has_sleeper(&random_read_wait)) {
+ 			wake_up_interruptible(&random_read_wait);
+ 			kill_fasync(&fasync, SIGIO, POLL_IN);
+ 		}
 
 
