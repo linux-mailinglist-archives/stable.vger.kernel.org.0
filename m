@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B766C5582F9
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:23:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68F9355811C
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:56:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232505AbiFWRXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:23:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38912 "EHLO
+        id S232587AbiFWQ4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:56:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233769AbiFWRWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:22:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFAFB826A9;
-        Thu, 23 Jun 2022 10:01:14 -0700 (PDT)
+        with ESMTP id S232647AbiFWQtY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:49:24 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E351A4D631;
+        Thu, 23 Jun 2022 09:47:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3243261408;
-        Thu, 23 Jun 2022 17:01:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09FC2C3411B;
-        Thu, 23 Jun 2022 17:01:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4AD8CCE25CD;
+        Thu, 23 Jun 2022 16:47:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E1B5C3411B;
+        Thu, 23 Jun 2022 16:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003673;
-        bh=IuH4ic1YsBToeSvLd3jNZS1lfWQ/zJnN8Ztg8qqvwV0=;
+        s=korg; t=1656002861;
+        bh=GveS77NFMpQY+xaymSevlHEOIq7CUjT0HjuXcn/+YKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgpC6F6qDet1kdPkIZzth5BiIltb+CWco9wLcOu5LsMEBK3sPpYG5uooT/bJkqn8T
-         b2q4VPOL9Hmk0UaiRnLWDFi2hLhy9dhmanhJYBjwxU8Z51z0jZImz/KuLDewiSFdFD
-         CUGl9PEwUd0m9zCoxUb1SIVzhnn/mSDfQcN2kUKw=
+        b=K9LvRaz5UGeslEsUUZE2M6an7RhpzTWqws5WZoODr8+I4E3N8Rddra0y4EiUxXlDC
+         teZONmvqZd3HXYf9PUfcAG6g93YZxkfXDIAlywEbYpXpR4rr/rOG0TJgMyCs8pRfZE
+         qpRiXH9k5Z+rvpghcrRO6OkvkcSYOsj2lfdt+N6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Theodore Tso" <tytso@mit.edu>,
-        Ingo Molnar <mingo@elte.hu>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 009/237] random: remove preempt disabled region
-Date:   Thu, 23 Jun 2022 18:40:43 +0200
-Message-Id: <20220623164343.416061929@linuxfoundation.org>
+Subject: [PATCH 4.9 051/264] lib/crypto: blake2s: move hmac construction into wireguard
+Date:   Thu, 23 Jun 2022 18:40:44 +0200
+Message-Id: <20220623164345.515548745@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,55 +55,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit b34fbaa9289328c7aec67d2b8b8b7d02bc61c67d upstream.
+commit d8d83d8ab0a453e17e68b3a3bed1f940c34b8646 upstream.
 
-No need to keep preemption disabled across the whole function.
+Basically nobody should use blake2s in an HMAC construction; it already
+has a keyed variant. But unfortunately for historical reasons, Noise,
+used by WireGuard, uses HKDF quite strictly, which means we have to use
+this. Because this really shouldn't be used by others, this commit moves
+it into wireguard's noise.c locally, so that kernels that aren't using
+WireGuard don't get this superfluous code baked in. On m68k systems,
+this shaves off ~314 bytes.
 
-mix_pool_bytes() uses a spin_lock() to protect the pool and there are
-other places like write_pool() whhich invoke mix_pool_bytes() without
-disabling preemption.
-credit_entropy_bits() is invoked from other places like
-add_hwgenerator_randomness() without disabling preemption.
-
-Before commit 95b709b6be49 ("random: drop trickle mode") the function
-used __this_cpu_inc_return() which would require disabled preemption.
-The preempt_disable() section was added in commit 43d5d3018c37 ("[PATCH]
-random driver preempt robustness", history tree).  It was claimed that
-the code relied on "vt_ioctl() being called under BKL".
-
-Cc: "Theodore Ts'o" <tytso@mit.edu>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-[bigeasy: enhance the commit message]
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+[Jason: for stable, skip the wireguard changes, since this kernel
+ doesn't have wireguard.]
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    4 ----
- 1 file changed, 4 deletions(-)
+ include/crypto/blake2s.h      |    3 ---
+ lib/crypto/blake2s-selftest.c |   31 -------------------------------
+ lib/crypto/blake2s.c          |   37 -------------------------------------
+ 3 files changed, 71 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1136,8 +1136,6 @@ static void add_timer_randomness(struct
- 	} sample;
- 	long delta, delta2, delta3;
- 
--	preempt_disable();
--
- 	sample.jiffies = jiffies;
- 	sample.cycles = random_get_entropy();
- 	sample.num = num;
-@@ -1175,8 +1173,6 @@ static void add_timer_randomness(struct
- 	 * and limit entropy entimate to 12 bits.
- 	 */
- 	credit_entropy_bits(r, min_t(int, fls(delta>>1), 11));
--
--	preempt_enable();
+--- a/include/crypto/blake2s.h
++++ b/include/crypto/blake2s.h
+@@ -100,7 +100,4 @@ static inline void blake2s(u8 *out, cons
+ 	blake2s_final(&state, out);
  }
  
- void add_input_randomness(unsigned int type, unsigned int code,
+-void blake2s256_hmac(u8 *out, const u8 *in, const u8 *key, const size_t inlen,
+-		     const size_t keylen);
+-
+ #endif /* BLAKE2S_H */
+--- a/lib/crypto/blake2s-selftest.c
++++ b/lib/crypto/blake2s-selftest.c
+@@ -15,7 +15,6 @@
+  * #include <stdio.h>
+  *
+  * #include <openssl/evp.h>
+- * #include <openssl/hmac.h>
+  *
+  * #define BLAKE2S_TESTVEC_COUNT	256
+  *
+@@ -58,16 +57,6 @@
+  *	}
+  *	printf("};\n\n");
+  *
+- *	printf("static const u8 blake2s_hmac_testvecs[][BLAKE2S_HASH_SIZE] __initconst = {\n");
+- *
+- *	HMAC(EVP_blake2s256(), key, sizeof(key), buf, sizeof(buf), hash, NULL);
+- *	print_vec(hash, BLAKE2S_OUTBYTES);
+- *
+- *	HMAC(EVP_blake2s256(), buf, sizeof(buf), key, sizeof(key), hash, NULL);
+- *	print_vec(hash, BLAKE2S_OUTBYTES);
+- *
+- *	printf("};\n");
+- *
+  *	return 0;
+  *}
+  */
+@@ -554,15 +543,6 @@ static const u8 blake2s_testvecs[][BLAKE
+     0xd6, 0x98, 0x6b, 0x07, 0x10, 0x65, 0x52, 0x65, },
+ };
+ 
+-static const u8 blake2s_hmac_testvecs[][BLAKE2S_HASH_SIZE] __initconst = {
+-  { 0xce, 0xe1, 0x57, 0x69, 0x82, 0xdc, 0xbf, 0x43, 0xad, 0x56, 0x4c, 0x70,
+-    0xed, 0x68, 0x16, 0x96, 0xcf, 0xa4, 0x73, 0xe8, 0xe8, 0xfc, 0x32, 0x79,
+-    0x08, 0x0a, 0x75, 0x82, 0xda, 0x3f, 0x05, 0x11, },
+-  { 0x77, 0x2f, 0x0c, 0x71, 0x41, 0xf4, 0x4b, 0x2b, 0xb3, 0xc6, 0xb6, 0xf9,
+-    0x60, 0xde, 0xe4, 0x52, 0x38, 0x66, 0xe8, 0xbf, 0x9b, 0x96, 0xc4, 0x9f,
+-    0x60, 0xd9, 0x24, 0x37, 0x99, 0xd6, 0xec, 0x31, },
+-};
+-
+ bool __init blake2s_selftest(void)
+ {
+ 	u8 key[BLAKE2S_KEY_SIZE];
+@@ -607,16 +587,5 @@ bool __init blake2s_selftest(void)
+ 		}
+ 	}
+ 
+-	if (success) {
+-		blake2s256_hmac(hash, buf, key, sizeof(buf), sizeof(key));
+-		success &= !memcmp(hash, blake2s_hmac_testvecs[0], BLAKE2S_HASH_SIZE);
+-
+-		blake2s256_hmac(hash, key, buf, sizeof(key), sizeof(buf));
+-		success &= !memcmp(hash, blake2s_hmac_testvecs[1], BLAKE2S_HASH_SIZE);
+-
+-		if (!success)
+-			pr_err("blake2s256_hmac self-test: FAIL\n");
+-	}
+-
+ 	return success;
+ }
+--- a/lib/crypto/blake2s.c
++++ b/lib/crypto/blake2s.c
+@@ -59,43 +59,6 @@ void blake2s_final(struct blake2s_state
+ }
+ EXPORT_SYMBOL(blake2s_final);
+ 
+-void blake2s256_hmac(u8 *out, const u8 *in, const u8 *key, const size_t inlen,
+-		     const size_t keylen)
+-{
+-	struct blake2s_state state;
+-	u8 x_key[BLAKE2S_BLOCK_SIZE] __aligned(__alignof__(u32)) = { 0 };
+-	u8 i_hash[BLAKE2S_HASH_SIZE] __aligned(__alignof__(u32));
+-	int i;
+-
+-	if (keylen > BLAKE2S_BLOCK_SIZE) {
+-		blake2s_init(&state, BLAKE2S_HASH_SIZE);
+-		blake2s_update(&state, key, keylen);
+-		blake2s_final(&state, x_key);
+-	} else
+-		memcpy(x_key, key, keylen);
+-
+-	for (i = 0; i < BLAKE2S_BLOCK_SIZE; ++i)
+-		x_key[i] ^= 0x36;
+-
+-	blake2s_init(&state, BLAKE2S_HASH_SIZE);
+-	blake2s_update(&state, x_key, BLAKE2S_BLOCK_SIZE);
+-	blake2s_update(&state, in, inlen);
+-	blake2s_final(&state, i_hash);
+-
+-	for (i = 0; i < BLAKE2S_BLOCK_SIZE; ++i)
+-		x_key[i] ^= 0x5c ^ 0x36;
+-
+-	blake2s_init(&state, BLAKE2S_HASH_SIZE);
+-	blake2s_update(&state, x_key, BLAKE2S_BLOCK_SIZE);
+-	blake2s_update(&state, i_hash, BLAKE2S_HASH_SIZE);
+-	blake2s_final(&state, i_hash);
+-
+-	memcpy(out, i_hash, BLAKE2S_HASH_SIZE);
+-	memzero_explicit(x_key, BLAKE2S_BLOCK_SIZE);
+-	memzero_explicit(i_hash, BLAKE2S_HASH_SIZE);
+-}
+-EXPORT_SYMBOL(blake2s256_hmac);
+-
+ static int __init mod_init(void)
+ {
+ 	if (!IS_ENABLED(CONFIG_CRYPTO_MANAGER_DISABLE_TESTS) &&
 
 
