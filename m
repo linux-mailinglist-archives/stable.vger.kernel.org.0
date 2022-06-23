@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3880455836F
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:29:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C89C558535
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233940AbiFWR34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:29:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43136 "EHLO
+        id S235247AbiFWRyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:54:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234053AbiFWR1l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:27:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DBCC50E33;
-        Thu, 23 Jun 2022 10:03:32 -0700 (PDT)
+        with ESMTP id S235407AbiFWRwb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:52:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 429525001F;
+        Thu, 23 Jun 2022 10:13:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6F9AB82490;
-        Thu, 23 Jun 2022 17:03:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F15C3411B;
-        Thu, 23 Jun 2022 17:03:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D21A61D18;
+        Thu, 23 Jun 2022 17:13:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50B95C3411B;
+        Thu, 23 Jun 2022 17:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003809;
-        bh=qJdPth1RNSliaVcSdczyEdTfLg3I4/v2P+/87vBkOMA=;
+        s=korg; t=1656004389;
+        bh=7LoDRDsOjAOBXC925WysFwrZ1mHlsKEmoJU7RPNDbEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1MWm/NWv0ubjs9AtosHJ0FDUB4p79CEZjFBz/JMzOGgOcsz9JizGApw+KxQ6pZF6O
-         ICnRy5KAIAyzy9FneR+VDpjnY5gOQyXcnkyVpwgxYeSY8q3lgqnnRvukRh1qkDrFyp
-         3oeOL9qTGJgnKqiDqCX+sOiHO11Eu4kuGHXtAD18=
+        b=OclBGaaHtYpIq/bL2PV/qY591NGubxNvYaDTvYmcw0eS53xsvs6IWwiPPLH+fqbU7
+         ZQ4ngpCIk6NcmrUoaKb7UX2uezke7Lwu3K7Hx+ojZmPff+k+WyFmBuzdAeJrN8gfLT
+         SJHf99wdznS1nRHEyX0a3jGPTCy0ovGQGxsoEnKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Marc Zyngier <maz@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.14 054/237] random: avoid arch_get_random_seed_long() when collecting IRQ randomness
-Date:   Thu, 23 Jun 2022 18:41:28 +0200
-Message-Id: <20220623164344.707891226@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Theodore Tso <tytso@mit.edu>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.19 022/234] random: make /dev/random be almost like /dev/urandom
+Date:   Thu, 23 Jun 2022 18:41:29 +0200
+Message-Id: <20220623164343.691152260@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
+References: <20220623164343.042598055@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,88 +54,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit 390596c9959c2a4f5b456df339f0604df3d55fe0 upstream.
+commit 30c08efec8884fb106b8e57094baa51bb4c44e32 upstream.
 
-When reseeding the CRNG periodically, arch_get_random_seed_long() is
-called to obtain entropy from an architecture specific source if one
-is implemented. In most cases, these are special instructions, but in
-some cases, such as on ARM, we may want to back this using firmware
-calls, which are considerably more expensive.
+This patch changes the read semantics of /dev/random to be the same
+as /dev/urandom except that reads will block until the CRNG is
+ready.
 
-Another call to arch_get_random_seed_long() exists in the CRNG driver,
-in add_interrupt_randomness(), which collects entropy by capturing
-inter-interrupt timing and relying on interrupt jitter to provide
-random bits. This is done by keeping a per-CPU state, and mixing in
-the IRQ number, the cycle counter and the return address every time an
-interrupt is taken, and mixing this per-CPU state into the entropy pool
-every 64 invocations, or at least once per second. The entropy that is
-gathered this way is credited as 1 bit of entropy. Every time this
-happens, arch_get_random_seed_long() is invoked, and the result is
-mixed in as well, and also credited with 1 bit of entropy.
+None of the cleanups that this enables have been done yet.  As a
+result, this gives a warning about an unused function.
 
-This means that arch_get_random_seed_long() is called at least once
-per second on every CPU, which seems excessive, and doesn't really
-scale, especially in a virtualization scenario where CPUs may be
-oversubscribed: in cases where arch_get_random_seed_long() is backed
-by an instruction that actually goes back to a shared hardware entropy
-source (such as RNDRRS on ARM), we will end up hitting it hundreds of
-times per second.
-
-So let's drop the call to arch_get_random_seed_long() from
-add_interrupt_randomness(), and instead, rely on crng_reseed() to call
-the arch hook to get random seed material from the platform.
-
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Tested-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Link: https://lore.kernel.org/r/20201105152944.16953-1-ardb@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Link: https://lore.kernel.org/r/5e6ac8831c6cf2e56a7a4b39616d1732b2bdd06c.1577088521.git.luto@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   15 +--------------
- 1 file changed, 1 insertion(+), 14 deletions(-)
+ drivers/char/random.c |   54 ++++++++++++--------------------------------------
+ 1 file changed, 13 insertions(+), 41 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1279,8 +1279,6 @@ void add_interrupt_randomness(int irq, i
- 	cycles_t		cycles = random_get_entropy();
- 	__u32			c_high, j_high;
- 	__u64			ip;
--	unsigned long		seed;
--	int			credit = 0;
+@@ -354,7 +354,6 @@
+ #define INPUT_POOL_WORDS	(1 << (INPUT_POOL_SHIFT-5))
+ #define OUTPUT_POOL_SHIFT	10
+ #define OUTPUT_POOL_WORDS	(1 << (OUTPUT_POOL_SHIFT-5))
+-#define SEC_XFER_SIZE		512
+ #define EXTRACT_SIZE		10
  
- 	if (cycles == 0)
- 		cycles = get_reg(fast_pool, regs);
-@@ -1316,23 +1314,12 @@ void add_interrupt_randomness(int irq, i
  
- 	fast_pool->last = now;
- 	__mix_pool_bytes(r, &fast_pool->pool, sizeof(fast_pool->pool));
+@@ -804,7 +803,6 @@ retry:
+ 		if (entropy_bits >= random_read_wakeup_bits &&
+ 		    wq_has_sleeper(&random_read_wait)) {
+ 			wake_up_interruptible(&random_read_wait);
+-			kill_fasync(&fasync, SIGIO, POLL_IN);
+ 		}
+ 		/* If the input pool is getting full, and the blocking
+ 		 * pool has room, send some entropy to the blocking
+@@ -1988,43 +1986,6 @@ void rand_initialize_disk(struct gendisk
+ #endif
+ 
+ static ssize_t
+-_random_read(int nonblock, char __user *buf, size_t nbytes)
+-{
+-	ssize_t n;
 -
--	/*
--	 * If we have architectural seed generator, produce a seed and
--	 * add it to the pool.  For the sake of paranoia don't let the
--	 * architectural seed generator dominate the input from the
--	 * interrupt noise.
--	 */
--	if (arch_get_random_seed_long(&seed)) {
--		__mix_pool_bytes(r, &seed, sizeof(seed));
--		credit = 1;
+-	if (nbytes == 0)
+-		return 0;
+-
+-	nbytes = min_t(size_t, nbytes, SEC_XFER_SIZE);
+-	while (1) {
+-		n = extract_entropy_user(&blocking_pool, buf, nbytes);
+-		if (n < 0)
+-			return n;
+-		trace_random_read(n*8, (nbytes-n)*8,
+-				  ENTROPY_BITS(&blocking_pool),
+-				  ENTROPY_BITS(&input_pool));
+-		if (n > 0)
+-			return n;
+-
+-		/* Pool is (near) empty.  Maybe wait and retry. */
+-		if (nonblock)
+-			return -EAGAIN;
+-
+-		wait_event_interruptible(random_read_wait,
+-		    blocking_pool.initialized &&
+-		    (ENTROPY_BITS(&input_pool) >= random_read_wakeup_bits));
+-		if (signal_pending(current))
+-			return -ERESTARTSYS;
 -	}
- 	spin_unlock(&r->lock);
- 
- 	fast_pool->count = 0;
- 
- 	/* award one bit for the contents of the fast pool */
--	credit_entropy_bits(r, credit + 1);
-+	credit_entropy_bits(r, 1);
+-}
+-
+-static ssize_t
+-random_read(struct file *file, char __user *buf, size_t nbytes, loff_t *ppos)
+-{
+-	return _random_read(file->f_flags & O_NONBLOCK, buf, nbytes);
+-}
+-
+-static ssize_t
+ urandom_read_nowarn(struct file *file, char __user *buf, size_t nbytes,
+ 		    loff_t *ppos)
+ {
+@@ -2056,15 +2017,26 @@ urandom_read(struct file *file, char __u
+ 	return urandom_read_nowarn(file, buf, nbytes, ppos);
  }
- EXPORT_SYMBOL_GPL(add_interrupt_randomness);
  
++static ssize_t
++random_read(struct file *file, char __user *buf, size_t nbytes, loff_t *ppos)
++{
++	int ret;
++
++	ret = wait_for_random_bytes();
++	if (ret != 0)
++		return ret;
++	return urandom_read_nowarn(file, buf, nbytes, ppos);
++}
++
+ static __poll_t
+ random_poll(struct file *file, poll_table * wait)
+ {
+ 	__poll_t mask;
+ 
+-	poll_wait(file, &random_read_wait, wait);
++	poll_wait(file, &crng_init_wait, wait);
+ 	poll_wait(file, &random_write_wait, wait);
+ 	mask = 0;
+-	if (ENTROPY_BITS(&input_pool) >= random_read_wakeup_bits)
++	if (crng_ready())
+ 		mask |= EPOLLIN | EPOLLRDNORM;
+ 	if (ENTROPY_BITS(&input_pool) < random_write_wakeup_bits)
+ 		mask |= EPOLLOUT | EPOLLWRNORM;
 
 
