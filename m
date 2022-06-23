@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F1F45585FA
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:06:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74B1655867A
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236091AbiFWSGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:06:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48738 "EHLO
+        id S236087AbiFWSNb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:13:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235877AbiFWSGK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:06:10 -0400
+        with ESMTP id S236659AbiFWSMf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:12:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F006960C74;
-        Thu, 23 Jun 2022 10:18:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 165559B74F;
+        Thu, 23 Jun 2022 10:20:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8577461E07;
-        Thu, 23 Jun 2022 17:18:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ED8DC3411B;
-        Thu, 23 Jun 2022 17:18:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EA4D61E0D;
+        Thu, 23 Jun 2022 17:20:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52840C3411B;
+        Thu, 23 Jun 2022 17:20:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004704;
-        bh=598Hl7kIDIGJ5LdbwkPEKiM7nzzTHD9/w2CWnbQ9xv0=;
+        s=korg; t=1656004854;
+        bh=B1KcBXihG84hUbxR5ankUmNavS3EMHs70nPIAU0OEnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jm4R11S6ieZEOfuBtbwQnRdTwgA6al5zlkkh4bect3V03oLeq3PNhiPq8BpsltGWS
-         clWIcApFAx4DOG27mZnrXIUiKo2AMYD4nZUlM2+XuhMFQ0bf9Z7U+qwURkbTRnJT4q
-         8jyD8GBVDJJJtNwahcGwSKNbHJXyA0JyGWzGQPxo=
+        b=QTKEkQ5OhT17pasUF5HcyA44D68EUaDNd0zj1Z7RRpnpWuc7e4GzYGttQtAhjw27W
+         XLApEHVP5nzop/fWagPFyM9BBHUKTCXbt51tbHUvlSXrJYe/icflhQO2+FS4yPsjVI
+         KQM+UeaWcmKFeAmVb0NS/9O0fhuDrPnW2ENXIhkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@google.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 121/234] random: reseed more often immediately after booting
-Date:   Thu, 23 Jun 2022 18:43:08 +0200
-Message-Id: <20220623164346.481418713@linuxfoundation.org>
+Subject: [PATCH 4.19 122/234] random: check for signal and try earlier when generating entropy
+Date:   Thu, 23 Jun 2022 18:43:09 +0200
+Message-Id: <20220623164346.509575988@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -56,85 +56,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 7a7ff644aeaf071d433caffb3b8ea57354b55bd3 upstream.
+commit 3e504d2026eb6c8762cd6040ae57db166516824a upstream.
 
-In order to chip away at the "premature first" problem, we augment our
-existing entropy accounting with more frequent reseedings at boot.
-
-The idea is that at boot, we're getting entropy from various places, and
-we're not very sure which of early boot entropy is good and which isn't.
-Even when we're crediting the entropy, we're still not totally certain
-that it's any good. Since boot is the one time (aside from a compromise)
-that we have zero entropy, it's important that we shepherd entropy into
-the crng fairly often.
-
-At the same time, we don't want a "premature next" problem, whereby an
-attacker can brute force individual bits of added entropy. In lieu of
-going full-on Fortuna (for now), we can pick a simpler strategy of just
-reseeding more often during the first 5 minutes after boot. This is
-still bounded by the 256-bit entropy credit requirement, so we'll skip a
-reseeding if we haven't reached that, but in case entropy /is/ coming
-in, this ensures that it makes its way into the crng rather rapidly
-during these early stages.
-
-Ordinarily we reseed if the previous reseeding is 300 seconds old. This
-commit changes things so that for the first 600 seconds of boot time, we
-reseed if the previous reseeding is uptime / 2 seconds old. That means
-that we'll reseed at the very least double the uptime of the previous
-reseeding.
+Rather than waiting a full second in an interruptable waiter before
+trying to generate entropy, try to generate entropy first and wait
+second. While waiting one second might give an extra second for getting
+entropy from elsewhere, we're already pretty late in the init process
+here, and whatever else is generating entropy will still continue to
+contribute. This has implications on signal handling: we call
+try_to_generate_entropy() from wait_for_random_bytes(), and
+wait_for_random_bytes() always uses wait_event_interruptible_timeout()
+when waiting, since it's called by userspace code in restartable
+contexts, where signals can pend. Since try_to_generate_entropy() now
+runs first, if a signal is pending, it's necessary for
+try_to_generate_entropy() to check for signals, since it won't hit the
+wait until after try_to_generate_entropy() has returned. And even before
+this change, when entering a busy loop in try_to_generate_entropy(), we
+should have been checking to see if any signals are pending, so that a
+process doesn't get stuck in that loop longer than expected.
 
 Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   28 +++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+ drivers/char/random.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -336,6 +336,28 @@ static void crng_fast_key_erasure(u8 key
- }
- 
- /*
-+ * Return whether the crng seed is considered to be sufficiently
-+ * old that a reseeding might be attempted. This happens if the last
-+ * reseeding was CRNG_RESEED_INTERVAL ago, or during early boot, at
-+ * an interval proportional to the uptime.
-+ */
-+static bool crng_has_old_seed(void)
-+{
-+	static bool early_boot = true;
-+	unsigned long interval = CRNG_RESEED_INTERVAL;
+@@ -127,10 +127,11 @@ int wait_for_random_bytes(void)
+ {
+ 	while (!crng_ready()) {
+ 		int ret;
 +
-+	if (unlikely(READ_ONCE(early_boot))) {
-+		time64_t uptime = ktime_get_seconds();
-+		if (uptime >= CRNG_RESEED_INTERVAL / HZ * 2)
-+			WRITE_ONCE(early_boot, false);
-+		else
-+			interval = max_t(unsigned int, 5 * HZ,
-+					 (unsigned int)uptime / 2 * HZ);
-+	}
-+	return time_after(jiffies, READ_ONCE(base_crng.birth) + interval);
-+}
-+
-+/*
-  * This function returns a ChaCha state that you may use for generating
-  * random data. It also returns up to 32 bytes on its own of random data
-  * that may be used; random_data_len may not be greater than 32.
-@@ -368,10 +390,10 @@ static void crng_make_state(u32 chacha_s
++		try_to_generate_entropy();
+ 		ret = wait_event_interruptible_timeout(crng_init_wait, crng_ready(), HZ);
+ 		if (ret)
+ 			return ret > 0 ? 0 : ret;
+-		try_to_generate_entropy();
  	}
+ 	return 0;
+ }
+@@ -1366,7 +1367,7 @@ static void try_to_generate_entropy(void
+ 		return;
  
- 	/*
--	 * If the base_crng is more than 5 minutes old, we reseed, which
--	 * in turn bumps the generation counter that we check below.
-+	 * If the base_crng is old enough, we try to reseed, which in turn
-+	 * bumps the generation counter that we check below.
- 	 */
--	if (unlikely(time_after(jiffies, READ_ONCE(base_crng.birth) + CRNG_RESEED_INTERVAL)))
-+	if (unlikely(crng_has_old_seed()))
- 		crng_reseed();
- 
- 	local_irq_save(flags);
+ 	timer_setup_on_stack(&stack.timer, entropy_timer, 0);
+-	while (!crng_ready()) {
++	while (!crng_ready() && !signal_pending(current)) {
+ 		if (!timer_pending(&stack.timer))
+ 			mod_timer(&stack.timer, jiffies + 1);
+ 		mix_pool_bytes(&stack.cycles, sizeof(stack.cycles));
 
 
