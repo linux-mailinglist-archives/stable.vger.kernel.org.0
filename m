@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E113F5580E1
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 004C455852C
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233522AbiFWQyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:54:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48948 "EHLO
+        id S235443AbiFWRyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:54:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233521AbiFWQvH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:07 -0400
+        with ESMTP id S235393AbiFWRw3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:52:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8082A4F9E3;
-        Thu, 23 Jun 2022 09:49:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8DB443EE0;
+        Thu, 23 Jun 2022 10:13:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06585B82490;
-        Thu, 23 Jun 2022 16:49:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 667A2C3411B;
-        Thu, 23 Jun 2022 16:49:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91E4EB82480;
+        Thu, 23 Jun 2022 17:13:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C84FEC3411B;
+        Thu, 23 Jun 2022 17:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002942;
-        bh=Zbui7v7FMbWc//788gGyBC2NlADN4nVrUFzvTcnNgOY=;
+        s=korg; t=1656004380;
+        bh=NQhNWJ1NHThvUxIKw4Ef2+2rvwT+8Bk+F6NZyTtL0Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YfG2SPbHkeaYF/yeibqUoeOJ7ekQ8//OB5SqostMrmidFF7PPFSCGhu7Ml0hLpgo1
-         2lSTFSfuDK6PyJGaYp0C4582DUmFn0Rv5+sVVFMCwic9byr3tqnVIL2nX2ZtEfMhA8
-         ZJu64/Q5Ft3FvA4/KbAFiSfxangp3mNehC0TRsyg=
+        b=odo/SLQ/+D4PHP+PgIjBsX8jIq9e9ceBOerYNkNMCv+sDvF1i1dVZqeaNe4p/d5rw
+         6SPM6P4wdT5oKQlw+9B8SoWq7D+vGM6I3afQURjADapO33fKumT4l4R9BaPESVTBP1
+         lxEJzHOgdKxfu2AVjOKZztEFTWQRZGkGv5Rh4rGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Marc Zyngier <maz@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.9 076/264] random: avoid arch_get_random_seed_long() when collecting IRQ randomness
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Theodore Tso <tytso@mit.edu>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.19 002/234] drivers/char/random.c: constify poolinfo_table
 Date:   Thu, 23 Jun 2022 18:41:09 +0200
-Message-Id: <20220623164346.220853098@linuxfoundation.org>
+Message-Id: <20220623164343.118062372@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
+References: <20220623164343.042598055@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,88 +55,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit 390596c9959c2a4f5b456df339f0604df3d55fe0 upstream.
+commit 26e0854ab3310bbeef1ed404a2c87132fc91f8e1 upstream.
 
-When reseeding the CRNG periodically, arch_get_random_seed_long() is
-called to obtain entropy from an architecture specific source if one
-is implemented. In most cases, these are special instructions, but in
-some cases, such as on ARM, we may want to back this using firmware
-calls, which are considerably more expensive.
+Never modified, might as well be put in .rodata.
 
-Another call to arch_get_random_seed_long() exists in the CRNG driver,
-in add_interrupt_randomness(), which collects entropy by capturing
-inter-interrupt timing and relying on interrupt jitter to provide
-random bits. This is done by keeping a per-CPU state, and mixing in
-the IRQ number, the cycle counter and the return address every time an
-interrupt is taken, and mixing this per-CPU state into the entropy pool
-every 64 invocations, or at least once per second. The entropy that is
-gathered this way is credited as 1 bit of entropy. Every time this
-happens, arch_get_random_seed_long() is invoked, and the result is
-mixed in as well, and also credited with 1 bit of entropy.
-
-This means that arch_get_random_seed_long() is called at least once
-per second on every CPU, which seems excessive, and doesn't really
-scale, especially in a virtualization scenario where CPUs may be
-oversubscribed: in cases where arch_get_random_seed_long() is backed
-by an instruction that actually goes back to a shared hardware entropy
-source (such as RNDRRS on ARM), we will end up hitting it hundreds of
-times per second.
-
-So let's drop the call to arch_get_random_seed_long() from
-add_interrupt_randomness(), and instead, rely on crng_reseed() to call
-the arch hook to get random seed material from the platform.
-
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Tested-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Link: https://lore.kernel.org/r/20201105152944.16953-1-ardb@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   15 +--------------
- 1 file changed, 1 insertion(+), 14 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1331,8 +1331,6 @@ void add_interrupt_randomness(int irq, i
- 	cycles_t		cycles = random_get_entropy();
- 	__u32			c_high, j_high;
- 	__u64			ip;
--	unsigned long		seed;
--	int			credit = 0;
- 
- 	if (cycles == 0)
- 		cycles = get_reg(fast_pool, regs);
-@@ -1368,23 +1366,12 @@ void add_interrupt_randomness(int irq, i
- 
- 	fast_pool->last = now;
- 	__mix_pool_bytes(r, &fast_pool->pool, sizeof(fast_pool->pool));
--
--	/*
--	 * If we have architectural seed generator, produce a seed and
--	 * add it to the pool.  For the sake of paranoia don't let the
--	 * architectural seed generator dominate the input from the
--	 * interrupt noise.
--	 */
--	if (arch_get_random_seed_long(&seed)) {
--		__mix_pool_bytes(r, &seed, sizeof(seed));
--		credit = 1;
--	}
- 	spin_unlock(&r->lock);
- 
- 	fast_pool->count = 0;
- 
- 	/* award one bit for the contents of the fast pool */
--	credit_entropy_bits(r, credit + 1);
-+	credit_entropy_bits(r, 1);
- }
- EXPORT_SYMBOL_GPL(add_interrupt_randomness);
- 
+@@ -359,7 +359,7 @@ static int random_write_wakeup_bits = 28
+  * polynomial which improves the resulting TGFSR polynomial to be
+  * irreducible, which we have made here.
+  */
+-static struct poolinfo {
++static const struct poolinfo {
+ 	int poolbitshift, poolwords, poolbytes, poolbits, poolfracbits;
+ #define S(x) ilog2(x)+5, (x), (x)*4, (x)*32, (x) << (ENTROPY_SHIFT+5)
+ 	int tap1, tap2, tap3, tap4, tap5;
 
 
