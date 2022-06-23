@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10565558231
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:11:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD9F558435
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229696AbiFWRLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:11:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39108 "EHLO
+        id S234557AbiFWRkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:40:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230456AbiFWRKf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:10:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC694B876;
-        Thu, 23 Jun 2022 09:57:38 -0700 (PDT)
+        with ESMTP id S234836AbiFWRiV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45CCF4993F;
+        Thu, 23 Jun 2022 10:08:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5819614E6;
-        Thu, 23 Jun 2022 16:57:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3ABFC3411B;
-        Thu, 23 Jun 2022 16:57:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F16C6B824B4;
+        Thu, 23 Jun 2022 17:08:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 430F4C3411B;
+        Thu, 23 Jun 2022 17:08:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003434;
-        bh=QBouKxMDyaV8Mttk6r2ESrYduoZR6gfXIf1X23CW09E=;
+        s=korg; t=1656004122;
+        bh=qIYgr84JW2wfwskmNEvNzTtO/Z+QttXhLdhRIbSR53E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pOdZ5XRnNNnu0n/G+C8KblCc0Bb6WKstzyZCvjKECIo+XGm6oVcn5rKi0n9TlRO5e
-         RbpwxLwRALOga0Ww7vkIZlrOJFE2SAgEBFvNVuyiAB20bPEPikxqM8QhzNlt3pU504
-         B9VeJw5GvEsd+eSkxJFosKyTbh1QVbSMetSwiX2E=
+        b=hv74h+8vNCqUUC87zA+zmbC3F+xbZr4+nUa6hxe9Nm+E+c9TO+xwEW0gCz8i6A28z
+         U/MkR9DId18LB8v98oxMEbOtZFTfuN+Zx5IY5f5r3VI/SwaU+8vXES1LtpGqxbjjeg
+         bif0Xn3d70MPhNMURoNQAlLdmGVgQ6pqaXDUoEZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 237/264] random: credit cpu and bootloader seeds by default
+Subject: [PATCH 4.14 196/237] ASoC: cs42l52: Correct TLV for Bypass Volume
 Date:   Thu, 23 Jun 2022 18:43:50 +0200
-Message-Id: <20220623164350.781700882@linuxfoundation.org>
+Message-Id: <20220623164348.785802223@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,201 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 846bb97e131d7938847963cca00657c995b1fce1 ]
+[ Upstream commit 91e90c712fade0b69cdff7cc6512f6099bd18ae5 ]
 
-This commit changes the default Kconfig values of RANDOM_TRUST_CPU and
-RANDOM_TRUST_BOOTLOADER to be Y by default. It does not change any
-existing configs or change any kernel behavior. The reason for this is
-several fold.
+The Bypass Volume is accidentally using a -6dB minimum TLV rather than
+the correct -60dB minimum. Add a new TLV to correct this.
 
-As background, I recently had an email thread with the kernel
-maintainers of Fedora/RHEL, Debian, Ubuntu, Gentoo, Arch, NixOS, Alpine,
-SUSE, and Void as recipients. I noted that some distros trust RDRAND,
-some trust EFI, and some trust both, and I asked why or why not. There
-wasn't really much of a "debate" but rather an interesting discussion of
-what the historical reasons have been for this, and it came up that some
-distros just missed the introduction of the bootloader Kconfig knob,
-while another didn't want to enable it until there was a boot time
-switch to turn it off for more concerned users (which has since been
-added). The result of the rather uneventful discussion is that every
-major Linux distro enables these two options by default.
-
-While I didn't have really too strong of an opinion going into this
-thread -- and I mostly wanted to learn what the distros' thinking was
-one way or another -- ultimately I think their choice was a decent
-enough one for a default option (which can be disabled at boot time).
-I'll try to summarize the pros and cons:
-
-Pros:
-
-- The RNG machinery gets initialized super quickly, and there's no
-  messing around with subsequent blocking behavior.
-
-- The bootloader mechanism is used by kexec in order for the prior
-  kernel to initialize the RNG of the next kernel, which increases
-  the entropy available to early boot daemons of the next kernel.
-
-- Previous objections related to backdoors centered around
-  Dual_EC_DRBG-like kleptographic systems, in which observing some
-  amount of the output stream enables an adversary holding the right key
-  to determine the entire output stream.
-
-  This used to be a partially justified concern, because RDRAND output
-  was mixed into the output stream in varying ways, some of which may
-  have lacked pre-image resistance (e.g. XOR or an LFSR).
-
-  But this is no longer the case. Now, all usage of RDRAND and
-  bootloader seeds go through a cryptographic hash function. This means
-  that the CPU would have to compute a hash pre-image, which is not
-  considered to be feasible (otherwise the hash function would be
-  terribly broken).
-
-- More generally, if the CPU is backdoored, the RNG is probably not the
-  realistic vector of choice for an attacker.
-
-- These CPU or bootloader seeds are far from being the only source of
-  entropy. Rather, there is generally a pretty huge amount of entropy,
-  not all of which is credited, especially on CPUs that support
-  instructions like RDRAND. In other words, assuming RDRAND outputs all
-  zeros, an attacker would *still* have to accurately model every single
-  other entropy source also in use.
-
-- The RNG now reseeds itself quite rapidly during boot, starting at 2
-  seconds, then 4, then 8, then 16, and so forth, so that other sources
-  of entropy get used without much delay.
-
-- Paranoid users can set random.trust_{cpu,bootloader}=no in the kernel
-  command line, and paranoid system builders can set the Kconfig options
-  to N, so there's no reduction or restriction of optionality.
-
-- It's a practical default.
-
-- All the distros have it set this way. Microsoft and Apple trust it
-  too. Bandwagon.
-
-Cons:
-
-- RDRAND *could* still be backdoored with something like a fixed key or
-  limited space serial number seed or another indexable scheme like
-  that. (However, it's hard to imagine threat models where the CPU is
-  backdoored like this, yet people are still okay making *any*
-  computations with it or connecting it to networks, etc.)
-
-- RDRAND *could* be defective, rather than backdoored, and produce
-  garbage that is in one way or another insufficient for crypto.
-
-- Suggesting a *reduction* in paranoia, as this commit effectively does,
-  may cause some to question my personal integrity as a "security
-  person".
-
-- Bootloader seeds and RDRAND are generally very difficult if not all
-  together impossible to audit.
-
-Keep in mind that this doesn't actually change any behavior. This
-is just a change in the default Kconfig value. The distros already are
-shipping kernels that set things this way.
-
-Ard made an additional argument in [1]:
-
-    We're at the mercy of firmware and micro-architecture anyway, given
-    that we are also relying on it to ensure that every instruction in
-    the kernel's executable image has been faithfully copied to memory,
-    and that the CPU implements those instructions as documented. So I
-    don't think firmware or ISA bugs related to RNGs deserve special
-    treatment - if they are broken, we should quirk around them like we
-    usually do. So enabling these by default is a step in the right
-    direction IMHO.
-
-In [2], Phil pointed out that having this disabled masked a bug that CI
-otherwise would have caught:
-
-    A clean 5.15.45 boots cleanly, whereas a downstream kernel shows the
-    static key warning (but it does go on to boot). The significant
-    difference is that our defconfigs set CONFIG_RANDOM_TRUST_BOOTLOADER=y
-    defining that on top of multi_v7_defconfig demonstrates the issue on
-    a clean 5.15.45. Conversely, not setting that option in a
-    downstream kernel build avoids the warning
-
-[1] https://lore.kernel.org/lkml/CAMj1kXGi+ieviFjXv9zQBSaGyyzeGW_VpMpTLJK8PJb2QHEQ-w@mail.gmail.com/
-[2] https://lore.kernel.org/lkml/c47c42e3-1d56-5859-a6ad-976a1a3381c6@raspberrypi.com/
-
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220602162119.3393857-5-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/Kconfig | 54 +++++++++++++++++++++++++++-----------------
- 1 file changed, 33 insertions(+), 21 deletions(-)
+ sound/soc/codecs/cs42l52.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index 1de665ae0255..1d3813d4f5c8 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -593,29 +593,41 @@ config TILE_SROM
+diff --git a/sound/soc/codecs/cs42l52.c b/sound/soc/codecs/cs42l52.c
+index f733f6b42b53..47f2439fd7b0 100644
+--- a/sound/soc/codecs/cs42l52.c
++++ b/sound/soc/codecs/cs42l52.c
+@@ -141,6 +141,8 @@ static DECLARE_TLV_DB_SCALE(mic_tlv, 1600, 100, 0);
  
- source "drivers/char/xillybus/Kconfig"
+ static DECLARE_TLV_DB_SCALE(pga_tlv, -600, 50, 0);
  
--endmenu
--
- config RANDOM_TRUST_CPU
--	bool "Trust the CPU manufacturer to initialize Linux's CRNG"
--	depends on X86 || S390 || PPC
--	default n
-+	bool "Initialize RNG using CPU RNG instructions"
-+	default y
-+	depends on ARCH_RANDOM
- 	help
--	Assume that CPU manufacturer (e.g., Intel or AMD for RDSEED or
--	RDRAND, IBM for the S390 and Power PC architectures) is trustworthy
--	for the purposes of initializing Linux's CRNG.  Since this is not
--	something that can be independently audited, this amounts to trusting
--	that CPU manufacturer (perhaps with the insistence or mandate
--	of a Nation State's intelligence or law enforcement agencies)
--	has not installed a hidden back door to compromise the CPU's
--	random number generation facilities. This can also be configured
--	at boot with "random.trust_cpu=on/off".
-+	  Initialize the RNG using random numbers supplied by the CPU's
-+	  RNG instructions (e.g. RDRAND), if supported and available. These
-+	  random numbers are never used directly, but are rather hashed into
-+	  the main input pool, and this happens regardless of whether or not
-+	  this option is enabled. Instead, this option controls whether the
-+	  they are credited and hence can initialize the RNG. Additionally,
-+	  other sources of randomness are always used, regardless of this
-+	  setting.  Enabling this implies trusting that the CPU can supply high
-+	  quality and non-backdoored random numbers.
++static DECLARE_TLV_DB_SCALE(pass_tlv, -6000, 50, 0);
 +
-+	  Say Y here unless you have reason to mistrust your CPU or believe
-+	  its RNG facilities may be faulty. This may also be configured at
-+	  boot time with "random.trust_cpu=on/off".
+ static DECLARE_TLV_DB_SCALE(mix_tlv, -5150, 50, 0);
  
- config RANDOM_TRUST_BOOTLOADER
--	bool "Trust the bootloader to initialize Linux's CRNG"
-+	bool "Initialize RNG using bootloader-supplied seed"
-+	default y
- 	help
--	Some bootloaders can provide entropy to increase the kernel's initial
--	device randomness. Say Y here to assume the entropy provided by the
--	booloader is trustworthy so it will be added to the kernel's entropy
--	pool. Otherwise, say N here so it will be regarded as device input that
--	only mixes the entropy pool. This can also be configured at boot with
--	"random.trust_bootloader=on/off".
-+	  Initialize the RNG using a seed supplied by the bootloader or boot
-+	  environment (e.g. EFI or a bootloader-generated device tree). This
-+	  seed is not used directly, but is rather hashed into the main input
-+	  pool, and this happens regardless of whether or not this option is
-+	  enabled. Instead, this option controls whether the seed is credited
-+	  and hence can initialize the RNG. Additionally, other sources of
-+	  randomness are always used, regardless of this setting. Enabling
-+	  this implies trusting that the bootloader can supply high quality and
-+	  non-backdoored seeds.
-+
-+	  Say Y here unless you have reason to mistrust your bootloader or
-+	  believe its RNG facilities may be faulty. This may also be configured
-+	  at boot time with "random.trust_bootloader=on/off".
-+
-+endmenu
+ static DECLARE_TLV_DB_SCALE(beep_tlv, -56, 200, 0);
+@@ -355,7 +357,7 @@ static const struct snd_kcontrol_new cs42l52_snd_controls[] = {
+ 			      CS42L52_SPKB_VOL, 0, 0x40, 0xC0, hl_tlv),
+ 
+ 	SOC_DOUBLE_R_SX_TLV("Bypass Volume", CS42L52_PASSTHRUA_VOL,
+-			      CS42L52_PASSTHRUB_VOL, 0, 0x88, 0x90, pga_tlv),
++			      CS42L52_PASSTHRUB_VOL, 0, 0x88, 0x90, pass_tlv),
+ 
+ 	SOC_DOUBLE("Bypass Mute", CS42L52_MISC_CTL, 4, 5, 1, 0),
+ 
 -- 
 2.35.1
 
