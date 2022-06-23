@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAE9A55824C
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF17A55843D
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230078AbiFWRNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:13:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39664 "EHLO
+        id S233821AbiFWRkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:40:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229787AbiFWRMP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:12:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B8BFD05;
-        Thu, 23 Jun 2022 09:57:49 -0700 (PDT)
+        with ESMTP id S234963AbiFWRib (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 816C2532EB;
+        Thu, 23 Jun 2022 10:09:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9111DB8248E;
-        Thu, 23 Jun 2022 16:57:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD755C3411B;
-        Thu, 23 Jun 2022 16:57:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18A8C61D1A;
+        Thu, 23 Jun 2022 17:09:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA6BAC341CA;
+        Thu, 23 Jun 2022 17:09:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003464;
-        bh=rW2A7M2wuxdFnMhX+Kj00UA5HOVX4KyhnVeeGNXZJmw=;
+        s=korg; t=1656004153;
+        bh=CBsmEoevrbvehp+FCviar910TmrSH9S8enOtDceM5Xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQOz61ZYJXu+sRJ0tn7TxrB8C3DkxCQkadvRqWDC5lHunZ3VCfpIaQEqzeYBGNtDd
-         W+tVkxZv9KX/tmpPC05pMBl5CKEjgylFxqOTFb9b3vRz/4fGPG81yMQwO/VoDZUTR+
-         f5mPJs2qFJpoRtJpWGLSVuCRnzuUKEk0XGfDD2mE=
+        b=FG0eLiSAcVx2xpGY+lTEc3umT5k37irMC4cBsjQ5bqw7dVpyl690oAI4t3QjH5KnX
+         L79vxwaxPkIzGrMlzTi10mitlL3OA3tiAdqHzHFZp5sQVe6nxUGl8TP/v1YlVeE/Kp
+         mRaYsEoa+iqifz5GcGtqSliTBr17Cs2YI8/O0HC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@penugtronix.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 4.9 246/264] serial: 8250: Store to lsr_save_flags after lsr read
+        stable@vger.kernel.org, Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 205/237] nfc: nfcmrvl: Fix memory leak in nfcmrvl_play_deferred
 Date:   Thu, 23 Jun 2022 18:43:59 +0200
-Message-Id: <20220623164351.031233124@linuxfoundation.org>
+Message-Id: <20220623164349.046108226@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
 
-commit be03b0651ffd8bab69dfd574c6818b446c0753ce upstream.
+[ Upstream commit 8a4d480702b71184fabcf379b80bf7539716752e ]
 
-Not all LSR register flags are preserved across reads. Therefore, LSR
-readers must store the non-preserved bits into lsr_save_flags.
+Similar to the handling of play_deferred in commit 19cfe912c37b
+("Bluetooth: btusb: Fix memory leak in play_deferred"), we thought
+a patch might be needed here as well.
 
-This fix was initially mixed into feature commit f6f586102add ("serial:
-8250: Handle UART without interrupt on TEMT using em485"). However,
-that feature change had a flaw and it was reverted to make room for
-simpler approach providing the same feature. The embedded fix got
-reverted with the feature change.
+Currently usb_submit_urb is called directly to submit deferred tx
+urbs after unanchor them.
 
-Re-add the lsr_save_flags fix and properly mark it's a fix.
+So the usb_giveback_urb_bh would failed to unref it in usb_unanchor_urb
+and cause memory leak.
 
-Link: https://lore.kernel.org/all/1d6c31d-d194-9e6a-ddf9-5f29af829f3@linux.intel.com/T/#m1737eef986bd20cf19593e344cebd7b0244945fc
-Fixes: e490c9144cfa ("tty: Add software emulated RS485 support for 8250")
-Cc: stable <stable@kernel.org>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@penugtronix.de>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/f4d774be-1437-a550-8334-19d8722ab98c@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Put those urbs in tx_anchor to avoid the leak, and also fix the error
+handling.
+
+Signed-off-by: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220607083230.6182-1-xiaohuizhang@ruc.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nfc/nfcmrvl/usb.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1473,6 +1473,8 @@ static inline void __stop_tx(struct uart
+diff --git a/drivers/nfc/nfcmrvl/usb.c b/drivers/nfc/nfcmrvl/usb.c
+index deb953290f8f..e88147c47c17 100644
+--- a/drivers/nfc/nfcmrvl/usb.c
++++ b/drivers/nfc/nfcmrvl/usb.c
+@@ -400,13 +400,25 @@ static void nfcmrvl_play_deferred(struct nfcmrvl_usb_drv_data *drv_data)
+ 	int err;
  
- 	if (em485) {
- 		unsigned char lsr = serial_in(p, UART_LSR);
-+		p->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
+ 	while ((urb = usb_get_from_anchor(&drv_data->deferred))) {
++		usb_anchor_urb(urb, &drv_data->tx_anchor);
 +
- 		/*
- 		 * To provide required timeing and allow FIFO transfer,
- 		 * __stop_tx_rs485() must be called only when both FIFO and
+ 		err = usb_submit_urb(urb, GFP_ATOMIC);
+-		if (err)
++		if (err) {
++			kfree(urb->setup_packet);
++			usb_unanchor_urb(urb);
++			usb_free_urb(urb);
+ 			break;
++		}
+ 
+ 		drv_data->tx_in_flight++;
++		usb_free_urb(urb);
++	}
++
++	/* Cleanup the rest deferred urbs. */
++	while ((urb = usb_get_from_anchor(&drv_data->deferred))) {
++		kfree(urb->setup_packet);
++		usb_free_urb(urb);
+ 	}
+-	usb_scuttle_anchored_urbs(&drv_data->deferred);
+ }
+ 
+ static int nfcmrvl_resume(struct usb_interface *intf)
+-- 
+2.35.1
+
 
 
