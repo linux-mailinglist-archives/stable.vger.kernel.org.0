@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BD88558486
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:44:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4E905581FE
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234875AbiFWRoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:44:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48096 "EHLO
+        id S230083AbiFWRJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:09:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235178AbiFWRnH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:43:07 -0400
+        with ESMTP id S233765AbiFWRIL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:08:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C39069D32D;
-        Thu, 23 Jun 2022 10:10:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F9653A55;
+        Thu, 23 Jun 2022 09:56:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0BA50B82499;
-        Thu, 23 Jun 2022 17:10:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73D11C3411B;
-        Thu, 23 Jun 2022 17:10:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1CFD9B8248C;
+        Thu, 23 Jun 2022 16:56:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66E30C3411B;
+        Thu, 23 Jun 2022 16:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004224;
-        bh=2goHVwbk9mKBRuXvhvhtF7Suji4GpOaNtXY66FgdJ/U=;
+        s=korg; t=1656003403;
+        bh=E7cEh5bK6lTWhyfkc4/D18C7BicyDM/aUr421bJZuwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jG7lqFJkWUcShdb9Mddq6qmol4/bYpnCiHDra/o7pmzO/52GWo9Opj3hkMGGyMndD
-         Ra60px79Wlzjg6p9ld6ItLB88DGUzSDBCGFQLTFky7Hytt1eA/svA1M/wpLwaopTjG
-         fXh8yUFTjmxeTx739Vr1s3nBmPXydk4l4ekGEzKs=
+        b=pqeiofqbZAEqh1bYgyh/rs5sp1rvIe61FpzJ+5hcvlTwNK4U7WUBxnLw/33/ZWgPz
+         ErOIRCDxN954pDCzOaMhPHOzml8gbhnKH6xRupIUFWe3aV+hdVU5qRpvEPsqX4i91w
+         UWmHUQFkD09wqDyOcYaEHVmgmRm/+VQJXGFtn/5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
-        =?UTF-8?q?Stephan=20M=C3=BCller?= <smueller@chronox.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 187/237] crypto: drbg - track whether DRBG was seeded with !rng_is_initialized()
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 228/264] ASoC: cs42l56: Correct typo in minimum level for SX volume controls
 Date:   Thu, 23 Jun 2022 18:43:41 +0200
-Message-Id: <20220623164348.527351769@linuxfoundation.org>
+Message-Id: <20220623164350.529581882@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,132 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolai Stange <nstange@suse.de>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-commit 2bcd25443868aa8863779a6ebc6c9319633025d2 upstream.
+[ Upstream commit a8928ada9b96944cadd8b65d191e33199fd38782 ]
 
-Currently, the DRBG implementation schedules asynchronous works from
-random_ready_callbacks for reseeding the DRBG instances with output from
-get_random_bytes() once the latter has sufficient entropy available.
+A couple of the SX volume controls specify 0x84 as the lowest volume
+value, however the correct value from the datasheet is 0x44. The
+datasheet don't include spaces in the value it displays as binary so
+this was almost certainly just a typo reading 1000100.
 
-However, as the get_random_bytes() initialization state can get queried by
-means of rng_is_initialized() now, there is no real need for this
-asynchronous reseeding logic anymore and it's better to keep things simple
-by doing it synchronously when needed instead, i.e. from drbg_generate()
-once rng_is_initialized() has flipped to true.
-
-Of course, for this to work, drbg_generate() would need some means by which
-it can tell whether or not rng_is_initialized() has flipped to true since
-the last seeding from get_random_bytes(). Or equivalently, whether or not
-the last seed from get_random_bytes() has happened when
-rng_is_initialized() was still evaluating to false.
-
-As it currently stands, enum drbg_seed_state allows for the representation
-of two different DRBG seeding states: DRBG_SEED_STATE_UNSEEDED and
-DRBG_SEED_STATE_FULL. The former makes drbg_generate() to invoke a full
-reseeding operation involving both, the rather expensive jitterentropy as
-well as the get_random_bytes() randomness sources. The DRBG_SEED_STATE_FULL
-state on the other hand implies that no reseeding at all is required for a
-!->pr DRBG variant.
-
-Introduce the new DRBG_SEED_STATE_PARTIAL state to enum drbg_seed_state for
-representing the condition that a DRBG was being seeded when
-rng_is_initialized() had still been false. In particular, this new state
-implies that
-- the given DRBG instance has been fully seeded from the jitterentropy
-  source (if enabled)
-- and drbg_generate() is supposed to reseed from get_random_bytes()
-  *only* once rng_is_initialized() turns to true.
-
-Up to now, the __drbg_seed() helper used to set the given DRBG instance's
-->seeded state to constant DRBG_SEED_STATE_FULL. Introduce a new argument
-allowing for the specification of the to be written ->seeded value instead.
-Make the first of its two callers, drbg_seed(), determine the appropriate
-value based on rng_is_initialized(). The remaining caller,
-drbg_async_seed(), is known to get invoked only once rng_is_initialized()
-is true, hence let it pass constant DRBG_SEED_STATE_FULL for the new
-argument to __drbg_seed().
-
-There is no change in behaviour, except for that the pr_devel() in
-drbg_generate() would now report "unseeded" for ->pr DRBG instances which
-had last been seeded when rng_is_initialized() was still evaluating to
-false.
-
-Signed-off-by: Nicolai Stange <nstange@suse.de>
-Reviewed-by: Stephan Müller <smueller@chronox.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220602162119.3393857-6-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/drbg.c         |   12 ++++++++----
- include/crypto/drbg.h |    1 +
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ sound/soc/codecs/cs42l56.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/crypto/drbg.c
-+++ b/crypto/drbg.c
-@@ -1037,14 +1037,14 @@ static const struct drbg_state_ops drbg_
-  ******************************************************************/
+diff --git a/sound/soc/codecs/cs42l56.c b/sound/soc/codecs/cs42l56.c
+index a2535a7eb4bb..f9f8a9112ff8 100644
+--- a/sound/soc/codecs/cs42l56.c
++++ b/sound/soc/codecs/cs42l56.c
+@@ -405,9 +405,9 @@ static const struct snd_kcontrol_new cs42l56_snd_controls[] = {
+ 	SOC_DOUBLE("ADC Boost Switch", CS42L56_GAIN_BIAS_CTL, 3, 2, 1, 1),
  
- static inline int __drbg_seed(struct drbg_state *drbg, struct list_head *seed,
--			      int reseed)
-+			      int reseed, enum drbg_seed_state new_seed_state)
- {
- 	int ret = drbg->d_ops->update(drbg, seed, reseed);
+ 	SOC_DOUBLE_R_SX_TLV("Headphone Volume", CS42L56_HPA_VOLUME,
+-			      CS42L56_HPB_VOLUME, 0, 0x84, 0x48, hl_tlv),
++			      CS42L56_HPB_VOLUME, 0, 0x44, 0x48, hl_tlv),
+ 	SOC_DOUBLE_R_SX_TLV("LineOut Volume", CS42L56_LOA_VOLUME,
+-			      CS42L56_LOB_VOLUME, 0, 0x84, 0x48, hl_tlv),
++			      CS42L56_LOB_VOLUME, 0, 0x44, 0x48, hl_tlv),
  
- 	if (ret)
- 		return ret;
- 
--	drbg->seeded = DRBG_SEED_STATE_FULL;
-+	drbg->seeded = new_seed_state;
- 	/* 10.1.1.2 / 10.1.1.3 step 5 */
- 	drbg->reseed_ctr = 1;
- 
-@@ -1094,7 +1094,7 @@ static void drbg_async_seed(struct work_
- 	 */
- 	drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
- 
--	__drbg_seed(drbg, &seedlist, true);
-+	__drbg_seed(drbg, &seedlist, true, DRBG_SEED_STATE_FULL);
- 
- 	if (drbg->seeded == DRBG_SEED_STATE_FULL)
- 		drbg->reseed_threshold = drbg_max_requests(drbg);
-@@ -1124,6 +1124,7 @@ static int drbg_seed(struct drbg_state *
- 	unsigned int entropylen = drbg_sec_strength(drbg->core->flags);
- 	struct drbg_string data1;
- 	LIST_HEAD(seedlist);
-+	enum drbg_seed_state new_seed_state = DRBG_SEED_STATE_FULL;
- 
- 	/* 9.1 / 9.2 / 9.3.1 step 3 */
- 	if (pers && pers->len > (drbg_max_addtl(drbg))) {
-@@ -1151,6 +1152,9 @@ static int drbg_seed(struct drbg_state *
- 		BUG_ON((entropylen * 2) > sizeof(entropy));
- 
- 		/* Get seed from in-kernel /dev/urandom */
-+		if (!rng_is_initialized())
-+			new_seed_state = DRBG_SEED_STATE_PARTIAL;
-+
- 		ret = drbg_get_random_bytes(drbg, entropy, entropylen);
- 		if (ret)
- 			goto out;
-@@ -1207,7 +1211,7 @@ static int drbg_seed(struct drbg_state *
- 		memset(drbg->C, 0, drbg_statelen(drbg));
- 	}
- 
--	ret = __drbg_seed(drbg, &seedlist, reseed);
-+	ret = __drbg_seed(drbg, &seedlist, reseed, new_seed_state);
- 
- out:
- 	memzero_explicit(entropy, entropylen * 2);
---- a/include/crypto/drbg.h
-+++ b/include/crypto/drbg.h
-@@ -107,6 +107,7 @@ struct drbg_test_data {
- 
- enum drbg_seed_state {
- 	DRBG_SEED_STATE_UNSEEDED,
-+	DRBG_SEED_STATE_PARTIAL, /* Seeded with !rng_is_initialized() */
- 	DRBG_SEED_STATE_FULL,
- };
- 
+ 	SOC_SINGLE_TLV("Bass Shelving Volume", CS42L56_TONE_CTL,
+ 			0, 0x00, 1, tone_tlv),
+-- 
+2.35.1
+
 
 
