@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B23558263
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B4B5558475
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:43:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231674AbiFWRNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:13:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39212 "EHLO
+        id S232025AbiFWRnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:43:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233335AbiFWRMp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:12:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D53050013;
-        Thu, 23 Jun 2022 09:58:43 -0700 (PDT)
+        with ESMTP id S234813AbiFWRme (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:42:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFCA498C59;
+        Thu, 23 Jun 2022 10:10:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9891615F4;
-        Thu, 23 Jun 2022 16:58:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF8E4C3411B;
-        Thu, 23 Jun 2022 16:58:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 057E061D20;
+        Thu, 23 Jun 2022 17:10:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D43F2C3411B;
+        Thu, 23 Jun 2022 17:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003522;
-        bh=GLC9E95aK2WnDeYRY9JZ5cRMLmuy/5ynGlZZ4TSsH4k=;
+        s=korg; t=1656004199;
+        bh=UprHjqG9Go5olXUPbwEUEg3jlxgVKjKlwzExBON35xM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Em9SKihjysFvJ3JK28sZRUZV10Fcgcak/CqvegTogbAPSL9gKsNUEMy1TVvCXEgGZ
-         bA/bH7d9pdN1tAjajHl6ihrXheRjUcVDBffg6x/UXJKPuZDsdomg3y/DUlbRjm4Sp5
-         opvg8fJUACOJpM2tN3iXBrdBH6SJYHML3luPdnvY=
+        b=w24A5Ik0XY44EkXRQysGNIHUQecVH1V42/MW7Q0QKzVmll+9R9L4bMKn+1dmCaRs4
+         IcP5UXqlVd7SHosl2RwPJx4URMf6aRZgV6LaVTJdCW9z3BMSqQIweg4zzB+3v92QQ5
+         mU6XnP3uLE5/vC7M7NJJpAqw80k58I7gn8C8PXgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Moshe Kol <moshe.kol@mail.huji.ac.il>,
-        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
-        Amit Klein <aksecurity@gmail.com>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 259/264] secure_seq: use the 64 bits of the siphash for port offset calculation
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 218/237] USB: serial: option: add support for Cinterion MV31 with new baseline
 Date:   Thu, 23 Jun 2022 18:44:12 +0200
-Message-Id: <20220623164351.393458192@linuxfoundation.org>
+Message-Id: <20220623164349.423192398@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,138 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Slark Xiao <slark_xiao@163.com>
 
-commit b2d057560b8107c633b39aabe517ff9d93f285e3 upstream.
+commit 158f7585bfcea4aae0ad4128d032a80fec550df1 upstream.
 
-SipHash replaced MD5 in secure_ipv{4,6}_port_ephemeral() via commit
-7cd23e5300c1 ("secure_seq: use SipHash in place of MD5"), but the output
-remained truncated to 32-bit only. In order to exploit more bits from the
-hash, let's make the functions return the full 64-bit of siphash_3u32().
-We also make sure the port offset calculation in __inet_hash_connect()
-remains done on 32-bit to avoid the need for div_u64_rem() and an extra
-cost on 32-bit systems.
+Adding support for Cinterion device MV31 with Qualcomm
+new baseline. Use different PIDs to separate it from
+previous base line products.
+All interfaces settings keep same as previous.
 
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
-Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
-Cc: Amit Klein <aksecurity@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Below is test evidence:
+T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  6 Spd=480 MxCh= 0
+D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00b8 Rev=04.14
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00B8 USB Mobile Broadband
+S:  SerialNumber=90418e79
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+
+T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  7 Spd=480 MxCh= 0
+D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00b9 Rev=04.14
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00B9 USB Mobile Broadband
+S:  SerialNumber=90418e79
+C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+
+For PID 00b8, interface 3 is GNSS port which don't use serial driver.
+
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Link: https://lore.kernel.org/r/20220601034740.5438-1-slark_xiao@163.com
+[ johan: rename defines using a "2" infix ]
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/inet_hashtables.h |    2 +-
- include/net/secure_seq.h      |    4 ++--
- net/core/secure_seq.c         |    4 ++--
- net/ipv4/inet_hashtables.c    |   10 ++++++----
- net/ipv6/inet6_hashtables.c   |    4 ++--
- 5 files changed, 13 insertions(+), 11 deletions(-)
+ drivers/usb/serial/option.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/net/inet_hashtables.h
-+++ b/include/net/inet_hashtables.h
-@@ -382,7 +382,7 @@ static inline void sk_rcv_saddr_set(stru
- }
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -435,6 +435,8 @@ static void option_instat_callback(struc
+ #define CINTERION_PRODUCT_CLS8			0x00b0
+ #define CINTERION_PRODUCT_MV31_MBIM		0x00b3
+ #define CINTERION_PRODUCT_MV31_RMNET		0x00b7
++#define CINTERION_PRODUCT_MV31_2_MBIM		0x00b8
++#define CINTERION_PRODUCT_MV31_2_RMNET		0x00b9
+ #define CINTERION_PRODUCT_MV32_WA		0x00f1
+ #define CINTERION_PRODUCT_MV32_WB		0x00f2
  
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
--			struct sock *sk, u32 port_offset,
-+			struct sock *sk, u64 port_offset,
- 			int (*check_established)(struct inet_timewait_death_row *,
- 						 struct sock *, __u16,
- 						 struct inet_timewait_sock **));
---- a/include/net/secure_seq.h
-+++ b/include/net/secure_seq.h
-@@ -3,8 +3,8 @@
- 
- #include <linux/types.h>
- 
--u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
--u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
-+u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
-+u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
- 			       __be16 dport);
- __u32 secure_tcp_sequence_number(__be32 saddr, __be32 daddr,
- 				 __be16 sport, __be16 dport);
---- a/net/core/secure_seq.c
-+++ b/net/core/secure_seq.c
-@@ -62,7 +62,7 @@ __u32 secure_tcpv6_sequence_number(const
- }
- EXPORT_SYMBOL(secure_tcpv6_sequence_number);
- 
--u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
-+u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
- 			       __be16 dport)
- {
- 	u32 secret[MD5_MESSAGE_BYTES / 4];
-@@ -102,7 +102,7 @@ __u32 secure_tcp_sequence_number(__be32
- 	return seq_scale(hash[0]);
- }
- 
--u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
-+u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
- {
- 	u32 hash[MD5_DIGEST_WORDS];
- 
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -382,7 +382,7 @@ not_unique:
- 	return -EADDRNOTAVAIL;
- }
- 
--static u32 inet_sk_port_offset(const struct sock *sk)
-+static u64 inet_sk_port_offset(const struct sock *sk)
- {
- 	const struct inet_sock *inet = inet_sk(sk);
- 
-@@ -549,7 +549,7 @@ EXPORT_SYMBOL_GPL(inet_unhash);
- static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
- 
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
--		struct sock *sk, u32 port_offset,
-+		struct sock *sk, u64 port_offset,
- 		int (*check_established)(struct inet_timewait_death_row *,
- 			struct sock *, __u16, struct inet_timewait_sock **))
- {
-@@ -589,7 +589,9 @@ int __inet_hash_connect(struct inet_time
- 	net_get_random_once(table_perturb, sizeof(table_perturb));
- 	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
- 
--	offset = (READ_ONCE(table_perturb[index]) + port_offset) % remaining;
-+	offset = READ_ONCE(table_perturb[index]) + port_offset;
-+	offset %= remaining;
-+
- 	/* In first pass we try ports of @low parity.
- 	 * inet_csk_get_port() does the opposite choice.
- 	 */
-@@ -670,7 +672,7 @@ ok:
- int inet_hash_connect(struct inet_timewait_death_row *death_row,
- 		      struct sock *sk)
- {
--	u32 port_offset = 0;
-+	u64 port_offset = 0;
- 
- 	if (!inet_sk(sk)->inet_num)
- 		port_offset = inet_sk_port_offset(sk);
---- a/net/ipv6/inet6_hashtables.c
-+++ b/net/ipv6/inet6_hashtables.c
-@@ -242,7 +242,7 @@ not_unique:
- 	return -EADDRNOTAVAIL;
- }
- 
--static u32 inet6_sk_port_offset(const struct sock *sk)
-+static u64 inet6_sk_port_offset(const struct sock *sk)
- {
- 	const struct inet_sock *inet = inet_sk(sk);
- 
-@@ -254,7 +254,7 @@ static u32 inet6_sk_port_offset(const st
- int inet6_hash_connect(struct inet_timewait_death_row *death_row,
- 		       struct sock *sk)
- {
--	u32 port_offset = 0;
-+	u64 port_offset = 0;
- 
- 	if (!inet_sk(sk)->inet_num)
- 		port_offset = inet6_sk_port_offset(sk);
+@@ -1982,6 +1984,10 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(3)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
+ 	  .driver_info = RSVD(0)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_MBIM, 0xff),
++	  .driver_info = RSVD(3)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_RMNET, 0xff),
++	  .driver_info = RSVD(0)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
+ 	  .driver_info = RSVD(3)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
 
 
