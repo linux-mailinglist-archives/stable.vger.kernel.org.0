@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39579558034
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:46:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ED7C55802C
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232383AbiFWQpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:45:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46600 "EHLO
+        id S232362AbiFWQpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:45:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232362AbiFWQpq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:45:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BFCD424B3;
-        Thu, 23 Jun 2022 09:45:45 -0700 (PDT)
+        with ESMTP id S232245AbiFWQpt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:45:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BF6D48899;
+        Thu, 23 Jun 2022 09:45:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2EAC6B8248E;
-        Thu, 23 Jun 2022 16:45:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 836E7C3411B;
-        Thu, 23 Jun 2022 16:45:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA1CDB82490;
+        Thu, 23 Jun 2022 16:45:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4846CC3411B;
+        Thu, 23 Jun 2022 16:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002742;
-        bh=O57UOFnMIVWB7g3bS+d08y1t2IiJAE8DrycDUQreQco=;
+        s=korg; t=1656002745;
+        bh=Sy6BBcIa5Pm2fc1tJBXYB8BDdCKNVJs0Kx10kTypQ/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVH0CsOO/aKchTGO25ti8/B1EXuX9498db6iB5Y0HJWMdMhXTbiItJSb8SCqGtH+H
-         GeOLjBvYdSYfJf3Hu/4PDvBD7WSoh8IAFCpEvwHnXi6QSptuGM1zO/juzPURh5wiPv
-         wJKi2cqu6+6HgDAFBqxBLQZkx3yb6zBkE7+5V50Q=
+        b=xI7vijETeO0PixvpNBLlceLUWJD+iria+/ovLyWLNEwzhng6HseglObj9xt89Jcdd
+         K7Lj92uUjF8hw0QXnEhiDDMJkZp3+KYsa1agaczpRdQDHg7EPSJcEEOmgvhMwakpfb
+         hXqdic2kfkBLPLeqsp/1u6ca/h1cEOk/b8yqmvlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 011/264] random: add get_random_{bytes,u32,u64,int,long,once}_wait family
-Date:   Thu, 23 Jun 2022 18:40:04 +0200
-Message-Id: <20220623164344.382397565@linuxfoundation.org>
+Subject: [PATCH 4.9 012/264] random: warn when kernel uses unseeded randomness
+Date:   Thu, 23 Jun 2022 18:40:05 +0200
+Message-Id: <20220623164344.410859627@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
 References: <20220623164344.053938039@linuxfoundation.org>
@@ -55,76 +55,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit da9ba564bd683374b8d319756f312821b8265b06 upstream.
+commit d06bfd1989fe97623b32d6df4ffa6e4338c99dc8 upstream.
 
-These functions are simple convenience wrappers that call
-wait_for_random_bytes before calling the respective get_random_*
-function.
+This enables an important dmesg notification about when drivers have
+used the crng without it being seeded first. Prior, these errors would
+occur silently, and so there hasn't been a great way of diagnosing these
+types of bugs for obscure setups. By adding this as a config option, we
+can leave it on by default, so that we learn where these issues happen,
+in the field, will still allowing some people to turn it off, if they
+really know what they're doing and do not want the log entries.
+
+However, we don't leave it _completely_ by default. An earlier version
+of this patch simply had `default y`. I'd really love that, but it turns
+out, this problem with unseeded randomness being used is really quite
+present and is going to take a long time to fix. Thus, as a compromise
+between log-messages-for-all and nobody-knows, this is `default y`,
+except it is also `depends on DEBUG_KERNEL`. This will ensure that the
+curious see the messages while others don't have to.
 
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/net.h    |    2 ++
- include/linux/once.h   |    2 ++
- include/linux/random.h |   25 +++++++++++++++++++++++++
- 3 files changed, 29 insertions(+)
+ drivers/char/random.c |   15 +++++++++++++--
+ lib/Kconfig.debug     |   16 ++++++++++++++++
+ 2 files changed, 29 insertions(+), 2 deletions(-)
 
---- a/include/linux/net.h
-+++ b/include/linux/net.h
-@@ -274,6 +274,8 @@ do {									\
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -289,7 +289,6 @@
+ #define SEC_XFER_SIZE		512
+ #define EXTRACT_SIZE		10
  
- #define net_get_random_once(buf, nbytes)			\
- 	get_random_once((buf), (nbytes))
-+#define net_get_random_once_wait(buf, nbytes)			\
-+	get_random_once_wait((buf), (nbytes))
+-#define DEBUG_RANDOM_BOOT 0
  
- int kernel_sendmsg(struct socket *sock, struct msghdr *msg, struct kvec *vec,
- 		   size_t num, size_t len);
---- a/include/linux/once.h
-+++ b/include/linux/once.h
-@@ -53,5 +53,7 @@ void __do_once_done(bool *done, struct s
+ #define LONGS(x) (((x) + sizeof(unsigned long) - 1)/sizeof(unsigned long))
  
- #define get_random_once(buf, nbytes)					     \
- 	DO_ONCE(get_random_bytes, (buf), (nbytes))
-+#define get_random_once_wait(buf, nbytes)                                    \
-+	DO_ONCE(get_random_bytes_wait, (buf), (nbytes))                      \
+@@ -1545,7 +1544,7 @@ void get_random_bytes(void *buf, int nby
+ {
+ 	__u8 tmp[CHACHA20_BLOCK_SIZE];
  
- #endif /* _LINUX_ONCE_H */
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -58,6 +58,31 @@ static inline unsigned long get_random_l
+-#if DEBUG_RANDOM_BOOT > 0
++#ifdef CONFIG_WARN_UNSEEDED_RANDOM
+ 	if (!crng_ready())
+ 		printk(KERN_NOTICE "random: %pF get_random_bytes called "
+ 		       "with crng_init = %d\n", (void *) _RET_IP_, crng_init);
+@@ -2142,6 +2141,12 @@ u64 get_random_u64(void)
+ 	    return ret;
  #endif
- }
  
-+/* Calls wait_for_random_bytes() and then calls get_random_bytes(buf, nbytes).
-+ * Returns the result of the call to wait_for_random_bytes. */
-+static inline int get_random_bytes_wait(void *buf, int nbytes)
-+{
-+	int ret = wait_for_random_bytes();
-+	if (unlikely(ret))
-+		return ret;
-+	get_random_bytes(buf, nbytes);
-+	return 0;
-+}
++#ifdef CONFIG_WARN_UNSEEDED_RANDOM
++	if (!crng_ready())
++		printk(KERN_NOTICE "random: %pF get_random_u64 called "
++		       "with crng_init = %d\n", (void *) _RET_IP_, crng_init);
++#endif
 +
-+#define declare_get_random_var_wait(var) \
-+	static inline int get_random_ ## var ## _wait(var *out) { \
-+		int ret = wait_for_random_bytes(); \
-+		if (unlikely(ret)) \
-+			return ret; \
-+		*out = get_random_ ## var(); \
-+		return 0; \
-+	}
-+declare_get_random_var_wait(u32)
-+declare_get_random_var_wait(u64)
-+declare_get_random_var_wait(int)
-+declare_get_random_var_wait(long)
-+#undef declare_get_random_var
-+
- unsigned long randomize_page(unsigned long start, unsigned long range);
+ 	batch = &get_cpu_var(batched_entropy_u64);
+ 	if (use_lock)
+ 		read_lock_irqsave(&batched_entropy_reset_lock, flags);
+@@ -2168,6 +2173,12 @@ u32 get_random_u32(void)
+ 	if (arch_get_random_int(&ret))
+ 		return ret;
  
- /*
++#ifdef CONFIG_WARN_UNSEEDED_RANDOM
++	if (!crng_ready())
++		printk(KERN_NOTICE "random: %pF get_random_u32 called "
++		       "with crng_init = %d\n", (void *) _RET_IP_, crng_init);
++#endif
++
+ 	batch = &get_cpu_var(batched_entropy_u32);
+ 	if (use_lock)
+ 		read_lock_irqsave(&batched_entropy_reset_lock, flags);
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -1177,6 +1177,22 @@ config STACKTRACE
+ 	  It is also used by various kernel debugging features that require
+ 	  stack trace generation.
+ 
++config WARN_UNSEEDED_RANDOM
++	bool "Warn when kernel uses unseeded randomness"
++	default y
++	depends on DEBUG_KERNEL
++	help
++	  Some parts of the kernel contain bugs relating to their use of
++	  cryptographically secure random numbers before it's actually possible
++	  to generate those numbers securely. This setting ensures that these
++	  flaws don't go unnoticed, by enabling a message, should this ever
++	  occur. This will allow people with obscure setups to know when things
++	  are going wrong, so that they might contact developers about fixing
++	  it.
++
++	  Say Y here, unless you simply do not care about using unseeded
++	  randomness and do not want a potential warning message in your logs.
++
+ config DEBUG_KOBJECT
+ 	bool "kobject debugging"
+ 	depends on DEBUG_KERNEL
 
 
