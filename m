@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EFFD558202
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F36255842B
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230129AbiFWRJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:09:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39180 "EHLO
+        id S234502AbiFWRkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:40:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233844AbiFWRIS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:08:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D143653A77;
-        Thu, 23 Jun 2022 09:56:57 -0700 (PDT)
+        with ESMTP id S234823AbiFWRiT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B335369E6;
+        Thu, 23 Jun 2022 10:08:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F08060AE6;
-        Thu, 23 Jun 2022 16:56:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62360C3411B;
-        Thu, 23 Jun 2022 16:56:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 313CD60AE6;
+        Thu, 23 Jun 2022 17:08:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0EFCC3411B;
+        Thu, 23 Jun 2022 17:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003415;
-        bh=yoO8pOvSuOKKaQGSmbkH7dUaUIqXiF2xgtYk0n1/exQ=;
+        s=korg; t=1656004110;
+        bh=0FJWfLoW8P5fpPUhXZhjrPk7ihopk+wbSWD3MHtf1pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hRosiJ+0y8HlRTq6IJZztd+7WTKYNzZbR2GCnU+pftcnuvEyrphpwuT8bwe5JY2c
-         l2PYNuwugbuQUDYnlK8SUpQ2D5EwTN6TwCT3Gn91uWplaW1vZm1HWKhXsLTqB3vvCQ
-         029mRROEKwZD/3jjVRnS5XjkWbaLyV14hiLLcOAs=
+        b=VMWrsr5xgYQxdCxx6kqY42F8ptfZINC3hgkIZCUoaOYRrJzlfr6mMEp417llats4C
+         gsj3sCoyczQ4Iho0m7fklbVr0KBoflk8ICh2+2tGoviPUBuRNYIdzkKstuEFNsC1TE
+         +7f6JihrsG+Pc4Qqtl23EFXSmmUhYqru6YvMwBhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 232/264] scsi: lpfc: Fix port stuck in bypassed state after LIP in PT2PT topology
-Date:   Thu, 23 Jun 2022 18:43:45 +0200
-Message-Id: <20220623164350.642507603@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.14 192/237] random: mark bootloader randomness code as __init
+Date:   Thu, 23 Jun 2022 18:43:46 +0200
+Message-Id: <20220623164348.671234652@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 336d63615466b4c06b9401c987813fd19bdde39b ]
+commit 39e0f991a62ed5efabd20711a7b6e7da92603170 upstream.
 
-After issuing a LIP, a specific target vendor does not ACC the FLOGI that
-lpfc sends.  However, it does send its own FLOGI that lpfc ACCs.  The
-target then establishes the port IDs by sending a PLOGI.  lpfc PLOGI_ACCs
-and starts the RPI registration for DID 0x000001.  The target then sends a
-LOGO to the fabric DID.  lpfc is currently treating the LOGO from the
-fabric DID as a link down and cleans up all the ndlps.  The ndlp for DID
-0x000001 is put back into NPR and discovery stops, leaving the port in
-stuck in bypassed mode.
+add_bootloader_randomness() and the variables it touches are only used
+during __init and not after, so mark these as __init. At the same time,
+unexport this, since it's only called by other __init code that's
+built-in.
 
-Change lpfc behavior such that if a LOGO is received for the fabric DID in
-PT2PT topology skip the lpfc_linkdown_port() routine and just move the
-fabric DID back to NPR.
-
-Link: https://lore.kernel.org/r/20220603174329.63777-7-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 428826f5358c ("fdt: add support for rng-seed")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_nportdisc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/char/random.c  |    7 +++----
+ include/linux/random.h |    2 +-
+ 2 files changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
-index 30b5f65b29d1..7f230d0b2fd6 100644
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -633,7 +633,8 @@ lpfc_rcv_logo(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
- 	else
- 		lpfc_els_rsp_acc(vport, ELS_CMD_ACC, cmdiocb, ndlp, NULL);
- 	if (ndlp->nlp_DID == Fabric_DID) {
--		if (vport->port_state <= LPFC_FDISC)
-+		if (vport->port_state <= LPFC_FDISC ||
-+		    vport->fc_flag & FC_PT2PT)
- 			goto out;
- 		lpfc_linkdown_port(vport);
- 		spin_lock_irq(shost->host_lock);
--- 
-2.35.1
-
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -785,8 +785,8 @@ static void __cold _credit_init_bits(siz
+  *
+  **********************************************************************/
+ 
+-static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
+-static bool trust_bootloader __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
++static bool trust_cpu __initdata = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
++static bool trust_bootloader __initdata = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
+ static int __init parse_trust_cpu(char *arg)
+ {
+ 	return kstrtobool(arg, &trust_cpu);
+@@ -882,13 +882,12 @@ EXPORT_SYMBOL_GPL(add_hwgenerator_random
+  * Handle random seed passed by bootloader, and credit it if
+  * CONFIG_RANDOM_TRUST_BOOTLOADER is set.
+  */
+-void __cold add_bootloader_randomness(const void *buf, size_t len)
++void __init add_bootloader_randomness(const void *buf, size_t len)
+ {
+ 	mix_pool_bytes(buf, len);
+ 	if (trust_bootloader)
+ 		credit_init_bits(len * 8);
+ }
+-EXPORT_SYMBOL_GPL(add_bootloader_randomness);
+ 
+ struct fast_pool {
+ 	struct work_struct mix;
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -13,7 +13,7 @@
+ struct notifier_block;
+ 
+ void add_device_randomness(const void *buf, size_t len);
+-void add_bootloader_randomness(const void *buf, size_t len);
++void __init add_bootloader_randomness(const void *buf, size_t len);
+ void add_input_randomness(unsigned int type, unsigned int code,
+ 			  unsigned int value) __latent_entropy;
+ void add_interrupt_randomness(int irq) __latent_entropy;
 
 
