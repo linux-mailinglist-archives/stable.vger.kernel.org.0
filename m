@@ -2,73 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81A6B557895
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 13:19:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAD2F55788D
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 13:18:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230056AbiFWLS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 07:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40640 "EHLO
+        id S230503AbiFWLSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 07:18:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229765AbiFWLS5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 07:18:57 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F276D4BBA0;
-        Thu, 23 Jun 2022 04:18:56 -0700 (PDT)
+        with ESMTP id S231196AbiFWLSX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 07:18:23 -0400
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6104D1EC74;
+        Thu, 23 Jun 2022 04:18:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1655983137; x=1687519137;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=ZDmviisAQFt/A72ntxTrOHQF561xAWJ5eMxmpFohiy4=;
-  b=Knkz5DmEYNKy7rBucfltf1wCQeZbmZDlm5A1yZf2G1qwGJvcSwr5dTjU
-   3XgrSCdTKAmfljqiWg2i9L1mCLlHFl4tV7Z3Mjt6mDBXjaRzDHHYqgYJ5
-   y//d80sRddUagmpAsiu2RLCEJqbYMDqX4OPRAvpPSYG/vd3swOAcMA9y7
-   ey5pV9rxCSVAlm5mtmc2Od2o5KulmgpdAsGuDYd7UJ/A+VcgU2M/BG6gz
-   wMpOr2dEzTNEC+zy0cHV395IsvTylmMPx9muvjFbvu9lkfsX9/6iyEUG4
-   eJ7hAY2xS4UJo5W7sTs4lniyyK1P9FzJbUmQzaKnQVJIrmMC0SiJ1GcZd
+  t=1655983102; x=1687519102;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=QAMii/IxVR0mF0RTD44R9kOzJdX5VEmTYYc9BpfKwwY=;
+  b=bzoBxjvxY/FImwHuN56+Oywn4gb47EaMOysT4ZfRbsqnlJGwtfYL0Dj1
+   9+K7ZT72umxLT2v9RxJCrnzDubHoV88nu4Y2WTSwzO3I8VgOYP9OcBk4F
+   i3ZQOy4zZL8sw5E4yZUiiy7+fC6757h1HZmeLPCDx1iEOT7HS5oWU5XOO
+   n2jAC+GdvM89u39OHnOJUbP55XRghgy5GknXS86dU5toI45LhuzxDkrEw
+   M00hquWo33mRYa2k51wPL9/ysydGDdJChKT1FHmD5A6YyWqry71rnNNg+
+   2NeLTtc88Ky8BV+dfoXxFC5WgIQXfq7kjKKhNgr9WnDARq8n8Q/xWk/a0
    Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10386"; a="344682191"
+X-IronPort-AV: E=McAfee;i="6400,9594,10386"; a="367010649"
 X-IronPort-AV: E=Sophos;i="5.92,215,1650956400"; 
-   d="scan'208";a="344682191"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2022 04:18:56 -0700
+   d="scan'208";a="367010649"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2022 04:18:22 -0700
+X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.92,215,1650956400"; 
-   d="scan'208";a="644691087"
-Received: from hazegrou-mobl.ger.corp.intel.com (HELO intel.com) ([10.251.216.121])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2022 04:18:50 -0700
-Date:   Thu, 23 Jun 2022 13:18:47 +0200
-From:   Andi Shyti <andi.shyti@linux.intel.com>
-To:     Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     Chris Wilson <chris.p.wilson@intel.com>,
-        Fei Yang <fei.yang@intel.com>,
-        =?utf-8?Q?Micha=C5=82?= Winiarski <michal.winiarski@intel.com>,
-        Thomas Hellstrom <thomas.hellstrom@intel.com>,
-        Thomas =?iso-8859-15?Q?Hellstr=F6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        David Airlie <airlied@linux.ie>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, mauro.chehab@linux.intel.com,
+   d="scan'208";a="915148730"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.199])
+  by fmsmga005.fm.intel.com with ESMTP; 23 Jun 2022 04:18:20 -0700
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <linux-usb@vger.kernel.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH 6/6] drm/i915/gt: Serialize TLB invalidates with GT resets
-Message-ID: <YrRMF9fY46KJcMG/@intel.intel>
-References: <cover.1655306128.git.mchehab@kernel.org>
- <cd5696e3800fd29114ddf0cebc950b57a17bc1b8.1655306128.git.mchehab@kernel.org>
+Subject: [PATCH 2/4] xhci: turn off port power in shutdown
+Date:   Thu, 23 Jun 2022 14:19:43 +0300
+Message-Id: <20220623111945.1557702-3-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220623111945.1557702-1-mathias.nyman@linux.intel.com>
+References: <20220623111945.1557702-1-mathias.nyman@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <cd5696e3800fd29114ddf0cebc950b57a17bc1b8.1655306128.git.mchehab@kernel.org>
 X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -79,32 +60,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Mauro,
+If ports are not turned off in shutdown then runtime suspended
+self-powered USB devices may survive in U3 link state over S5.
 
-On Wed, Jun 15, 2022 at 04:27:40PM +0100, Mauro Carvalho Chehab wrote:
-> From: Chris Wilson <chris.p.wilson@intel.com>
-> 
-> Avoid trying to invalidate the TLB in the middle of performing an
-> engine reset, as this may result in the reset timing out. Currently,
-> the TLB invalidate is only serialised by its own mutex, forgoing the
-> uncore lock, but we can take the uncore->lock as well to serialise
-> the mmio access, thereby serialising with the GDRST.
-> 
-> Tested on a NUC5i7RYB, BIOS RYBDWi35.86A.0380.2019.0517.1530 with
-> i915 selftest/hangcheck.
-> 
-> Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
-> 
-> Reported-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-> Tested-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-> Reviewed-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-> Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-> Cc: stable@vger.kernel.org
-> Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+During subsequent boot, if firmware sends an IPC command to program
+the port in DISCONNECT state, it will time out, causing significant
+delay in the boot time.
 
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+Turning off roothub port power is also recommended in xhci
+specification 4.19.4 "Port Power" in the additional note.
 
-Thanks,
-Andi
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/host/xhci-hub.c |  2 +-
+ drivers/usb/host/xhci.c     | 15 +++++++++++++--
+ drivers/usb/host/xhci.h     |  2 ++
+ 3 files changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index c54f2bc23d3f..0fdc014c9401 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -652,7 +652,7 @@ struct xhci_hub *xhci_get_rhub(struct usb_hcd *hcd)
+  * It will release and re-aquire the lock while calling ACPI
+  * method.
+  */
+-static void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd,
++void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd,
+ 				u16 index, bool on, unsigned long *flags)
+ 	__must_hold(&xhci->lock)
+ {
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index cb99bed5f755..65858f607437 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -791,6 +791,8 @@ static void xhci_stop(struct usb_hcd *hcd)
+ void xhci_shutdown(struct usb_hcd *hcd)
+ {
+ 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
++	unsigned long flags;
++	int i;
+ 
+ 	if (xhci->quirks & XHCI_SPURIOUS_REBOOT)
+ 		usb_disable_xhci_ports(to_pci_dev(hcd->self.sysdev));
+@@ -806,12 +808,21 @@ void xhci_shutdown(struct usb_hcd *hcd)
+ 		del_timer_sync(&xhci->shared_hcd->rh_timer);
+ 	}
+ 
+-	spin_lock_irq(&xhci->lock);
++	spin_lock_irqsave(&xhci->lock, flags);
+ 	xhci_halt(xhci);
++
++	/* Power off USB2 ports*/
++	for (i = 0; i < xhci->usb2_rhub.num_ports; i++)
++		xhci_set_port_power(xhci, xhci->main_hcd, i, false, &flags);
++
++	/* Power off USB3 ports*/
++	for (i = 0; i < xhci->usb3_rhub.num_ports; i++)
++		xhci_set_port_power(xhci, xhci->shared_hcd, i, false, &flags);
++
+ 	/* Workaround for spurious wakeups at shutdown with HSW */
+ 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+ 		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+-	spin_unlock_irq(&xhci->lock);
++	spin_unlock_irqrestore(&xhci->lock, flags);
+ 
+ 	xhci_cleanup_msix(xhci);
+ 
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 0bd76c94a4b1..28aaf031f9a8 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -2196,6 +2196,8 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue, u16 wIndex,
+ int xhci_hub_status_data(struct usb_hcd *hcd, char *buf);
+ int xhci_find_raw_port_number(struct usb_hcd *hcd, int port1);
+ struct xhci_hub *xhci_get_rhub(struct usb_hcd *hcd);
++void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd, u16 index,
++			 bool on, unsigned long *flags);
+ 
+ void xhci_hc_died(struct xhci_hcd *xhci);
+ 
+-- 
+2.25.1
+
