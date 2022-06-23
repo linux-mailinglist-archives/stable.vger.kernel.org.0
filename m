@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F929558700
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8172E5586E6
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:18:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236905AbiFWSS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47270 "EHLO
+        id S236774AbiFWSSn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:18:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237267AbiFWSSF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:18:05 -0400
+        with ESMTP id S236847AbiFWSQt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:16:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F9C2B6227;
-        Thu, 23 Jun 2022 10:24:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CA5C3336B;
+        Thu, 23 Jun 2022 10:23:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5558B824BD;
-        Thu, 23 Jun 2022 17:24:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BC3CC341C7;
-        Thu, 23 Jun 2022 17:24:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B885B82497;
+        Thu, 23 Jun 2022 17:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8631DC3411B;
+        Thu, 23 Jun 2022 17:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656005069;
-        bh=lmx12xyyH4sS1e3SCxv2MacjkNSxnGdVrtzoBmi1DsY=;
+        s=korg; t=1656005001;
+        bh=0kjdka5G0H4l0mJy+OBKbQFNtN0SuDcvFw/a47atAoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0y4XJ8qCjiwAANYh9QAhkcihRU2Gg2FuZs2LRcocmclNfDfYtpoMT/p0fTc+iUCfF
-         0+XGyTj1EgLxPtm8qoj83dE37V+m9H54zoZ8AVrEyjklNtA1ewFN0MHTRpvtzseNLU
-         gE7qGDAu/KQzrPtGMnD6dahiSEyflZbv3oBdbtUE=
+        b=1bJf3tBJtifrpuXOEo8TTMV7CeyP4TQQ/6cu/NWSxeNqZ9e3ddNqgTOWs5uyavmDg
+         xK1LW3OdDBqYoCSbjoz4TyTFZQ6L4UVTT8tO0WzPApPni8dwuZotfLLWO223JtM1sY
+         /xxNIk6ut03wOwmSTBPX9VNJvxCObcrN+5z9T6hM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Zhang Yi <yi.zhang@huawei.com>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 219/234] ext4: add reserved GDT blocks check
-Date:   Thu, 23 Jun 2022 18:44:46 +0200
-Message-Id: <20220623164349.248135192@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Murilo Opsfelder Araujo <muriloo@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Christophe de Dinechin <dinechin@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 220/234] virtio-pci: Remove wrong address verification in vp_del_vqs()
+Date:   Thu, 23 Jun 2022 18:44:47 +0200
+Message-Id: <20220623164349.276023241@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -55,74 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
 
-commit b55c3cd102a6f48b90e61c44f7f3dda8c290c694 upstream.
+commit 7e415282b41bf0d15c6e0fe268f822d9b083f2f7 upstream.
 
-We capture a NULL pointer issue when resizing a corrupt ext4 image which
-is freshly clear resize_inode feature (not run e2fsck). It could be
-simply reproduced by following steps. The problem is because of the
-resize_inode feature was cleared, and it will convert the filesystem to
-meta_bg mode in ext4_resize_fs(), but the es->s_reserved_gdt_blocks was
-not reduced to zero, so could we mistakenly call reserve_backup_gdb()
-and passing an uninitialized resize_inode to it when adding new group
-descriptors.
+GCC 12 enhanced -Waddress when comparing array address to null [0],
+which warns:
 
- mkfs.ext4 /dev/sda 3G
- tune2fs -O ^resize_inode /dev/sda #forget to run requested e2fsck
- mount /dev/sda /mnt
- resize2fs /dev/sda 8G
+    drivers/virtio/virtio_pci_common.c: In function ‘vp_del_vqs’:
+    drivers/virtio/virtio_pci_common.c:257:29: warning: the comparison will always evaluate as ‘true’ for the pointer operand in ‘vp_dev->msix_affinity_masks + (sizetype)((long unsigned int)i * 256)’ must not be NULL [-Waddress]
+      257 |                         if (vp_dev->msix_affinity_masks[i])
+          |                             ^~~~~~
 
- ========
- BUG: kernel NULL pointer dereference, address: 0000000000000028
- CPU: 19 PID: 3243 Comm: resize2fs Not tainted 5.18.0-rc7-00001-gfde086c5ebfd #748
- ...
- RIP: 0010:ext4_flex_group_add+0xe08/0x2570
- ...
- Call Trace:
-  <TASK>
-  ext4_resize_fs+0xbec/0x1660
-  __ext4_ioctl+0x1749/0x24e0
-  ext4_ioctl+0x12/0x20
-  __x64_sys_ioctl+0xa6/0x110
-  do_syscall_64+0x3b/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f2dd739617b
- ========
+In fact, the verification is comparing the result of a pointer
+arithmetic, the address "msix_affinity_masks + i", which will always
+evaluate to true.
 
-The fix is simple, add a check in ext4_resize_begin() to make sure that
-the es->s_reserved_gdt_blocks is zero when the resize_inode feature is
-disabled.
+Under the hood, free_cpumask_var() calls kfree(), which is safe to pass
+NULL, not requiring non-null verification.  So remove the verification
+to make compiler happy (happy compiler, happy life).
 
-Cc: stable@kernel.org
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220601092717.763694-1-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+[0] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102103
+
+Signed-off-by: Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
+Message-Id: <20220415023002.49805-1-muriloo@linux.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Christophe de Dinechin <dinechin@redhat.com>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/resize.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/virtio/virtio_pci_common.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -53,6 +53,16 @@ int ext4_resize_begin(struct super_block
- 		return -EPERM;
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -257,8 +257,7 @@ void vp_del_vqs(struct virtio_device *vd
  
- 	/*
-+	 * If the reserved GDT blocks is non-zero, the resize_inode feature
-+	 * should always be set.
-+	 */
-+	if (EXT4_SB(sb)->s_es->s_reserved_gdt_blocks &&
-+	    !ext4_has_feature_resize_inode(sb)) {
-+		ext4_error(sb, "resize_inode disabled but reserved GDT blocks non-zero");
-+		return -EFSCORRUPTED;
-+	}
-+
-+	/*
- 	 * If we are not using the primary superblock/GDT copy don't resize,
-          * because the user tools have no way of handling this.  Probably a
-          * bad time to do it anyways.
+ 	if (vp_dev->msix_affinity_masks) {
+ 		for (i = 0; i < vp_dev->msix_vectors; i++)
+-			if (vp_dev->msix_affinity_masks[i])
+-				free_cpumask_var(vp_dev->msix_affinity_masks[i]);
++			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
+ 	}
+ 
+ 	if (vp_dev->msix_enabled) {
 
 
