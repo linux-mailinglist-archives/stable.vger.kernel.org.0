@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE5145586FC
+	by mail.lfdr.de (Postfix) with ESMTP id 693B95586FB
 	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:18:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236741AbiFWSS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:18:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47360 "EHLO
+        id S236859AbiFWSS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:18:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237167AbiFWSRz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:17:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEC35AA336;
-        Thu, 23 Jun 2022 10:24:18 -0700 (PDT)
+        with ESMTP id S237194AbiFWSR7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:17:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E011B2CE3;
+        Thu, 23 Jun 2022 10:24:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 233AA61EE8;
-        Thu, 23 Jun 2022 17:24:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1E14C3411B;
-        Thu, 23 Jun 2022 17:24:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC35DB82497;
+        Thu, 23 Jun 2022 17:24:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA480C385A5;
+        Thu, 23 Jun 2022 17:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656005057;
-        bh=RtnkC+Zd5PLvuMjSoS69I7jTZRYHnzlwdpihdzsu7YQ=;
+        s=korg; t=1656005060;
+        bh=wXfswAKxoB6qEeTTPf176jRBdlVA4NxvQhEMTOE3Kqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=djb/0a7ValtAw17+w5+Lk4/mExeHZrsbC3/59AACfeHvyFI1mzpNoSHg9trdqWbDx
-         vCerc/oooMayEo9f2Eybto/o+61tYFyx/2p4i7uMy3GTjwTks9gWGAjFmq7aUnTSnL
-         Tul3oaoN+yOwc8sVez4WPpAp0vvuiVNyOM9n5h1Y=
+        b=QZvYQuHhplZRe3kOXG3ecjBboBgTGO11QvIP1x71gSMhQO0pIoaW5xCqGw8k8A1ms
+         bcomcn4Lln8KF1kxXM/BFWmgLNAnit+WGTtMf92zdLRW6T4OZsVh3xrqH3dXhOx8F4
+         hKoQOoz5aYf57PILuKoUtxP5STUSXKlsFLdgG/do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable <stable@kernel.org>,
-        Miaoqian Lin <linmq006@gmail.com>
-Subject: [PATCH 4.19 215/234] usb: gadget: lpc32xx_udc: Fix refcount leak in lpc32xx_udc_probe
-Date:   Thu, 23 Jun 2022 18:44:42 +0200
-Message-Id: <20220623164349.135042043@linuxfoundation.org>
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@penugtronix.de>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 4.19 216/234] serial: 8250: Store to lsr_save_flags after lsr read
+Date:   Thu, 23 Jun 2022 18:44:43 +0200
+Message-Id: <20220623164349.162997301@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -53,33 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 4757c9ade34178b351580133771f510b5ffcf9c8 upstream.
+commit be03b0651ffd8bab69dfd574c6818b446c0753ce upstream.
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
-of_node_put() will check NULL pointer.
+Not all LSR register flags are preserved across reads. Therefore, LSR
+readers must store the non-preserved bits into lsr_save_flags.
 
-Fixes: 24a28e428351 ("USB: gadget driver for LPC32xx")
+This fix was initially mixed into feature commit f6f586102add ("serial:
+8250: Handle UART without interrupt on TEMT using em485"). However,
+that feature change had a flaw and it was reverted to make room for
+simpler approach providing the same feature. The embedded fix got
+reverted with the feature change.
+
+Re-add the lsr_save_flags fix and properly mark it's a fix.
+
+Link: https://lore.kernel.org/all/1d6c31d-d194-9e6a-ddf9-5f29af829f3@linux.intel.com/T/#m1737eef986bd20cf19593e344cebd7b0244945fc
+Fixes: e490c9144cfa ("tty: Add software emulated RS485 support for 8250")
 Cc: stable <stable@kernel.org>
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220603140246.64529-1-linmq006@gmail.com
+Acked-by: Uwe Kleine-König <u.kleine-koenig@penugtronix.de>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/f4d774be-1437-a550-8334-19d8722ab98c@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/lpc32xx_udc.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/8250/8250_port.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/gadget/udc/lpc32xx_udc.c
-+++ b/drivers/usb/gadget/udc/lpc32xx_udc.c
-@@ -3021,6 +3021,7 @@ static int lpc32xx_udc_probe(struct plat
- 	}
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1522,6 +1522,8 @@ static inline void __stop_tx(struct uart
  
- 	udc->isp1301_i2c_client = isp1301_get_client(isp1301_node);
-+	of_node_put(isp1301_node);
- 	if (!udc->isp1301_i2c_client) {
- 		retval = -EPROBE_DEFER;
- 		goto phy_fail;
+ 	if (em485) {
+ 		unsigned char lsr = serial_in(p, UART_LSR);
++		p->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
++
+ 		/*
+ 		 * To provide required timeing and allow FIFO transfer,
+ 		 * __stop_tx_rs485() must be called only when both FIFO and
 
 
