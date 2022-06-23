@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 499075580D2
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C1DF558370
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:29:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233656AbiFWQxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:53:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57198 "EHLO
+        id S233909AbiFWR3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:29:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232813AbiFWQxY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:53:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B724517E3D;
-        Thu, 23 Jun 2022 09:52:43 -0700 (PDT)
+        with ESMTP id S234395AbiFWR2g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:28:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90F5577FE0;
+        Thu, 23 Jun 2022 10:04:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8F6361FD0;
-        Thu, 23 Jun 2022 16:52:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F94CC341C5;
-        Thu, 23 Jun 2022 16:52:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AB06B8248F;
+        Thu, 23 Jun 2022 17:04:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4284FC3411B;
+        Thu, 23 Jun 2022 17:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003162;
-        bh=VKfMwkHrv82AyMtOxpd93K9+egkcIRRe1Z42u3TfWZI=;
+        s=korg; t=1656003853;
+        bh=NWvMlAI05IB/mQN1UuiQajR7DeI2LADwiDVtC9A8hu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WSD1k1NonNrgXelY2H3z6qdi5QyUlZ9ckDs91DArk3JLBdTJUfCv9iX1mu82y3kRp
-         vWJST1dxjyw6dr/4H0f7SqReNpl19EUbk/A0fndSZuI//fNueBq9KqNVuPB6Cy4r7g
-         nI0COjzBH1ednbBnKJZfhGKo4nTv65RKpbGisBAY=
+        b=A0zOD519sMMjxoFMCka4PtShNuUOKAO4am+fnp/Iih7uaJMgEBHEvgZO6lxyb1nGg
+         0oYJo4stPeafIHW06GWThMKgpX8Wyr66UgbZrXNo7nJ3zRib96rM0Ei3ESAd2li773
+         PPzFlcHcYCVt92UkahO0Hv4nO7ThpyxpN2uf88gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harald Freudenberger <freude@linux.vnet.ibm.com>,
-        PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 150/264] hwrng: use rng source with best quality
+Subject: [PATCH 4.14 109/237] random: introduce drain_entropy() helper to declutter crng_reseed()
 Date:   Thu, 23 Jun 2022 18:42:23 +0200
-Message-Id: <20220623164348.309034313@linuxfoundation.org>
+Message-Id: <20220623164346.286911336@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,90 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.vnet.ibm.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 2bbb6983887fefc8026beab01198d30f47b7bd22 upstream.
+commit 246c03dd899164d0186b6d685d6387f228c28d93 upstream.
 
-This patch rewoks the hwrng to always use the
-rng source with best entropy quality.
+In preparation for separating responsibilities, break out the entropy
+count management part of crng_reseed() into its own function.
 
-On registation and unregistration the hwrng now
-tries to choose the best (= highest quality value)
-rng source. The handling of the internal list
-of registered rng sources is now always sorted
-by quality and the top most rng chosen.
+No functional changes.
 
-Signed-off-by: Harald Freudenberger <freude@linux.vnet.ibm.com>
-Reviewed-by: PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/hw_random/core.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ drivers/char/random.c |   36 +++++++++++++++++++++++-------------
+ 1 file changed, 23 insertions(+), 13 deletions(-)
 
---- a/drivers/char/hw_random/core.c
-+++ b/drivers/char/hw_random/core.c
-@@ -28,6 +28,7 @@
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -260,6 +260,7 @@ static struct {
+ };
  
- static struct hwrng *current_rng;
- static struct task_struct *hwrng_fill;
-+/* list of registered rngs, sorted decending by quality */
- static LIST_HEAD(rng_list);
- /* Protects rng_list and current_rng */
- static DEFINE_MUTEX(rng_mutex);
-@@ -416,6 +417,7 @@ int hwrng_register(struct hwrng *rng)
+ static void extract_entropy(void *buf, size_t nbytes);
++static bool drain_entropy(void *buf, size_t nbytes);
+ 
+ static void crng_reseed(void);
+ 
+@@ -454,23 +455,13 @@ static void crng_slow_load(const void *c
+ static void crng_reseed(void)
  {
- 	int err = -EINVAL;
- 	struct hwrng *old_rng, *tmp;
-+	struct list_head *rng_list_ptr;
+ 	unsigned long flags;
+-	int entropy_count;
+ 	unsigned long next_gen;
+ 	u8 key[CHACHA20_KEY_SIZE];
+ 	bool finalize_init = false;
  
- 	if (!rng->name || (!rng->data_read && !rng->read))
- 		goto out;
-@@ -431,14 +433,25 @@ int hwrng_register(struct hwrng *rng)
- 	init_completion(&rng->cleanup_done);
- 	complete(&rng->cleanup_done);
+-	/*
+-	 * First we make sure we have POOL_MIN_BITS of entropy in the pool,
+-	 * and then we drain all of it. Only then can we extract a new key.
+-	 */
+-	do {
+-		entropy_count = READ_ONCE(input_pool.entropy_count);
+-		if (entropy_count < POOL_MIN_BITS)
+-			return;
+-	} while (cmpxchg(&input_pool.entropy_count, entropy_count, 0) != entropy_count);
+-	extract_entropy(key, sizeof(key));
+-	wake_up_interruptible(&random_write_wait);
+-	kill_fasync(&fasync, SIGIO, POLL_OUT);
++	/* Only reseed if we can, to prevent brute forcing a small amount of new bits. */
++	if (!drain_entropy(key, sizeof(key)))
++		return;
  
-+	/* rng_list is sorted by decreasing quality */
-+	list_for_each(rng_list_ptr, &rng_list) {
-+		tmp = list_entry(rng_list_ptr, struct hwrng, list);
-+		if (tmp->quality < rng->quality)
-+			break;
-+	}
-+	list_add_tail(&rng->list, rng_list_ptr);
+ 	/*
+ 	 * We copy the new key into the base_crng, overwriting the old one,
+@@ -898,6 +889,25 @@ static void extract_entropy(void *buf, s
+ 	memzero_explicit(&block, sizeof(block));
+ }
+ 
++/*
++ * First we make sure we have POOL_MIN_BITS of entropy in the pool, and then we
++ * set the entropy count to zero (but don't actually touch any data). Only then
++ * can we extract a new key with extract_entropy().
++ */
++static bool drain_entropy(void *buf, size_t nbytes)
++{
++	unsigned int entropy_count;
++	do {
++		entropy_count = READ_ONCE(input_pool.entropy_count);
++		if (entropy_count < POOL_MIN_BITS)
++			return false;
++	} while (cmpxchg(&input_pool.entropy_count, entropy_count, 0) != entropy_count);
++	extract_entropy(buf, nbytes);
++	wake_up_interruptible(&random_write_wait);
++	kill_fasync(&fasync, SIGIO, POLL_OUT);
++	return true;
++}
 +
- 	old_rng = current_rng;
- 	err = 0;
--	if (!old_rng) {
-+	if (!old_rng || (rng->quality > old_rng->quality)) {
-+		/*
-+		 * Set new rng as current as the new rng source
-+		 * provides better entropy quality.
-+		 */
- 		err = set_current_rng(rng);
- 		if (err)
- 			goto out_unlock;
- 	}
--	list_add_tail(&rng->list, &rng_list);
- 
- 	if (old_rng && !rng->init) {
- 		/*
-@@ -465,12 +478,12 @@ void hwrng_unregister(struct hwrng *rng)
- 	list_del(&rng->list);
- 	if (current_rng == rng) {
- 		drop_current_rng();
-+		/* rng_list is sorted by quality, use the best (=first) one */
- 		if (!list_empty(&rng_list)) {
--			struct hwrng *tail;
--
--			tail = list_entry(rng_list.prev, struct hwrng, list);
-+			struct hwrng *new_rng;
- 
--			set_current_rng(tail);
-+			new_rng = list_entry(rng_list.next, struct hwrng, list);
-+			set_current_rng(new_rng);
- 		}
- 	}
+ #define warn_unseeded_randomness(previous) \
+ 	_warn_unseeded_randomness(__func__, (void *)_RET_IP_, (previous))
  
 
 
