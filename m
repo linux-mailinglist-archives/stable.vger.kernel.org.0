@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BF74558726
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:21:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34F61558732
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234372AbiFWSVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:21:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41912 "EHLO
+        id S237135AbiFWSVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:21:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234131AbiFWSTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:19:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 174226801D;
-        Thu, 23 Jun 2022 10:25:04 -0700 (PDT)
+        with ESMTP id S237054AbiFWSUg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:20:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E5CC680A3;
+        Thu, 23 Jun 2022 10:25:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CCC561F08;
-        Thu, 23 Jun 2022 17:25:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B5C2C341C5;
-        Thu, 23 Jun 2022 17:25:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A793560B79;
+        Thu, 23 Jun 2022 17:25:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809B9C3411B;
+        Thu, 23 Jun 2022 17:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656005102;
-        bh=pKgidH1iBtYdAQlTT+9cdhSza1ynLiI3QaAdMB6TxqQ=;
+        s=korg; t=1656005108;
+        bh=SRMKkR6B/s1amXppPbKxKENrJIwF9K0pCjkqpT0XZf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJtkmTiaCg0Mj3ZvVFeqGniUWRYC/FYIgzuF1UWMKmtkS5tNXCsjHmMDHz+e2SJkr
-         j1lBxCRqCQLUrwY6yP87CLHDdXoSUVDMPkfObvCVJez2mT432zht17o1SupTmfdKqL
-         N0g55OTOLAD1c5H7RGI6VR8ZkYRA8NUTzY7X7tWE=
+        b=HkuAvrA54Gg29IxW9p3Pxl0sIJM6XvZRExn53K8v9CbsIEIs00k5dk+YAZafVDUcz
+         AUyyN5Mi+M88XdXyjuAQ2X1tNEVthHg3Oe1hjWJPPZRUV7b8zpxNyxVAGq6XOu1SW2
+         hIJpWkMfQ+klnXuzs3Bi46bkkK8+KPDEJult+49M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.4 09/11] tcp: drop the hash_32() part from the index calculation
-Date:   Thu, 23 Jun 2022 18:45:13 +0200
-Message-Id: <20220623164321.470700805@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.4 10/11] arm64: mm: Dont invalidate FROM_DEVICE buffers at start of DMA transfer
+Date:   Thu, 23 Jun 2022 18:45:14 +0200
+Message-Id: <20220623164321.498480839@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164321.195163701@linuxfoundation.org>
 References: <20220623164321.195163701@linuxfoundation.org>
@@ -55,37 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Will Deacon <will@kernel.org>
 
-commit e8161345ddbb66e449abde10d2fdce93f867eba9 upstream.
+commit c50f11c6196f45c92ca48b16a5071615d4ae0572 upstream.
 
-In commit 190cc82489f4 ("tcp: change source port randomizarion at
-connect() time"), the table_perturb[] array was introduced and an
-index was taken from the port_offset via hash_32(). But it turns
-out that hash_32() performs a multiplication while the input here
-comes from the output of SipHash in secure_seq, that is well
-distributed enough to avoid the need for yet another hash.
+Invalidating the buffer memory in arch_sync_dma_for_device() for
+FROM_DEVICE transfers
 
-Suggested-by: Amit Klein <aksecurity@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Cc: Ben Hutchings <ben@decadent.org.uk>
+When using the streaming DMA API to map a buffer prior to inbound
+non-coherent DMA (i.e. DMA_FROM_DEVICE), we invalidate any dirty CPU
+cachelines so that they will not be written back during the transfer and
+corrupt the buffer contents written by the DMA. This, however, poses two
+potential problems:
+
+  (1) If the DMA transfer does not write to every byte in the buffer,
+      then the unwritten bytes will contain stale data once the transfer
+      has completed.
+
+  (2) If the buffer has a virtual alias in userspace, then stale data
+      may be visible via this alias during the period between performing
+      the cache invalidation and the DMA writes landing in memory.
+
+Address both of these issues by cleaning (aka writing-back) the dirty
+lines in arch_sync_dma_for_device(DMA_FROM_DEVICE) instead of discarding
+them using invalidation.
+
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220606152150.GA31568@willie-the-truck
+Signed-off-by: Will Deacon <will@kernel.org>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20220610151228.4562-2-will@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/inet_hashtables.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/mm/cache.S |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -727,7 +727,7 @@ int __inet_hash_connect(struct inet_time
+--- a/arch/arm64/mm/cache.S
++++ b/arch/arm64/mm/cache.S
+@@ -228,8 +228,6 @@ ENDPIPROC(__dma_flush_area)
+  *	- dir	- DMA direction
+  */
+ ENTRY(__dma_map_area)
+-	cmp	w2, #DMA_FROM_DEVICE
+-	b.eq	__dma_inv_area
+ 	b	__dma_clean_area
+ ENDPIPROC(__dma_map_area)
  
- 	net_get_random_once(table_perturb,
- 			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
--	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
-+	index = port_offset & (INET_TABLE_PERTURB_SIZE - 1);
- 
- 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
- 	offset %= remaining;
 
 
