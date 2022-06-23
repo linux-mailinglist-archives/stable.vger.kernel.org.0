@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F5E45581A3
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:03:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE66558425
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229541AbiFWRDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:03:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41992 "EHLO
+        id S234471AbiFWRkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:40:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233126AbiFWRBJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:01:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F12C4FC4E;
-        Thu, 23 Jun 2022 09:54:16 -0700 (PDT)
+        with ESMTP id S234753AbiFWRiN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA9D9B1FB;
+        Thu, 23 Jun 2022 10:07:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CED961FFB;
-        Thu, 23 Jun 2022 16:54:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0503C3411B;
-        Thu, 23 Jun 2022 16:54:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C4F1B82490;
+        Thu, 23 Jun 2022 17:07:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEDAFC3411B;
+        Thu, 23 Jun 2022 17:07:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003254;
-        bh=U71YCgBwZPMBM6krXE/wQf4g0JZCHmQ3AB3XjJA9Zk0=;
+        s=korg; t=1656004076;
+        bh=DPnFIHqCLWmJHrvmgIpzuKyLqE8UiAa+IVFBNmuOZEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ulr3SRdJJNZoera0rAkY06ZGPqcPHtIyQmkd1XCC++ynDEwd6yK0y3exfViC70WDR
-         mPgP3FhUFOJSiFQFUvuQPAu3F7uj0gxjJ2JX2w9+cEbRpgNMWS5sPdBGMS+4EBxk4j
-         OXgG05Cu66cfbi3e+neZSGB7kWKELyzOLtrog0Rk=
+        b=KSgckr1ZIYlnTqdZ4ijaCmBKfeCf5IVEbGQ+pSZav4TIrTd1NDlNPxNI9Z8JHwF2S
+         ZdrvQJD/WDYVV/Tc/CkEEPbzWelwCCvz+xGU/AYfeFMtAa+VaA0sHe3PQ2zYd2PjVC
+         IvI1irXtuoqGEIC4Spe8sz5d8nEBxLaalOlhDu2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>, Helge Deller <deller@gmx.de>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 180/264] parisc: define get_cycles macro for arch-override
+Subject: [PATCH 4.14 139/237] random: mix build-time latent entropy into pool at init
 Date:   Thu, 23 Jun 2022 18:42:53 +0200
-Message-Id: <20220623164349.159583501@linuxfoundation.org>
+Message-Id: <20220623164347.152971040@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +57,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 8865bbe6ba1120e67f72201b7003a16202cd42be upstream.
+commit 1754abb3e7583c570666fa1e1ee5b317e88c89a0 upstream.
 
-PA-RISC defines a get_cycles() function, but it does not do the usual
-`#define get_cycles get_cycles` dance, making it impossible for generic
-code to see if an arch-specific function was defined. While the
-get_cycles() ifdef is not currently used, the following timekeeping
-patch in this series will depend on the macro existing (or not existing)
-when defining random_get_entropy().
+Prior, the "input_pool_data" array needed no real initialization, and so
+it was easy to mark it with __latent_entropy to populate it during
+compile-time. In switching to using a hash function, this required us to
+specifically initialize it to some specific state, which means we
+dropped the __latent_entropy attribute. An unfortunate side effect was
+this meant the pool was no longer seeded using compile-time random data.
+In order to bring this back, we declare an array in rand_initialize()
+with __latent_entropy and call mix_pool_bytes() on that at init, which
+accomplishes the same thing as before. We make this __initconst, so that
+it doesn't take up space at runtime after init.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Helge Deller <deller@gmx.de>
+Fixes: 6e8ec2552c7d ("random: use computational hash for entropy extraction")
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/include/asm/timex.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/char/random.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/parisc/include/asm/timex.h
-+++ b/arch/parisc/include/asm/timex.h
-@@ -11,9 +11,10 @@
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -967,6 +967,11 @@ int __init rand_initialize(void)
+ 	bool arch_init = true;
+ 	unsigned long rv;
  
- typedef unsigned long cycles_t;
- 
--static inline cycles_t get_cycles (void)
-+static inline cycles_t get_cycles(void)
- {
- 	return mfctl(16);
- }
-+#define get_cycles get_cycles
- 
- #endif
++#if defined(LATENT_ENTROPY_PLUGIN)
++	static const u8 compiletime_seed[BLAKE2S_BLOCK_SIZE] __initconst __latent_entropy;
++	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
++#endif
++
+ 	for (i = 0; i < BLAKE2S_BLOCK_SIZE; i += sizeof(rv)) {
+ 		if (!arch_get_random_seed_long_early(&rv) &&
+ 		    !arch_get_random_long_early(&rv)) {
 
 
