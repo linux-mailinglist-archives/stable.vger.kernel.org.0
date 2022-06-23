@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 487CA558439
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A39CB558235
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:11:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234581AbiFWRkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:40:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46164 "EHLO
+        id S232464AbiFWRLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:11:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234912AbiFWRi0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9CFE52E6B;
-        Thu, 23 Jun 2022 10:09:06 -0700 (PDT)
+        with ESMTP id S230199AbiFWRKz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:10:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17924B841;
+        Thu, 23 Jun 2022 09:57:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C5E7B82498;
-        Thu, 23 Jun 2022 17:09:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A604BC341C5;
-        Thu, 23 Jun 2022 17:09:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9908260FFA;
+        Thu, 23 Jun 2022 16:57:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EA8BC3411B;
+        Thu, 23 Jun 2022 16:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004144;
-        bh=6rhygkd6Oy5L/KrV0UrhH/iU7JA+Qqh+u3r+bK1jBU0=;
+        s=korg; t=1656003454;
+        bh=bLc/uzwhwumxTQr/g8oSJE2ipqPDTrjDSdcBHWUxshE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0RaDExzAbNQ7+FOg7pfbKLu+xE1G1lCYQyT9cK3vDNEN+pLAO8R8/RRjwU32egve2
-         5l4lzuX2nK6EhDVXokt3qOulQyj0t/FuCT64Qw8ZSzAH/VquMvM8aV7Zh+NVacxFM4
-         YlNv/adl//4MNMxxc7OcMgiFEsuX4IhmoiLuRPAs=
+        b=ukwqiv+3mqtxPhWE53wCHjZKMrYTSCVmij41KJeyWCnH9AYVtX9aR8auWEwdsZ0BV
+         HtWYYCgDwUZRtyWMAj6awR2Nw7Mz2LyZmiPKJXKkPTTTlfU/HjKXxjPt7q0Jx1GWjv
+         sx+JwPSVYrDVfQxMfwkbL2nhGxPKiqDLUcc2STOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Brian King <brking@linux.vnet.ibm.com>,
-        Chengguang Xu <cgxu519@mykernel.net>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 202/237] scsi: ipr: Fix missing/incorrect resource cleanup in error case
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 243/264] USB: serial: option: add support for Cinterion MV31 with new baseline
 Date:   Thu, 23 Jun 2022 18:43:56 +0200
-Message-Id: <20220623164348.959136207@linuxfoundation.org>
+Message-Id: <20220623164350.948874350@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Slark Xiao <slark_xiao@163.com>
 
-[ Upstream commit d64c491911322af1dcada98e5b9ee0d87e8c8fee ]
+commit 158f7585bfcea4aae0ad4128d032a80fec550df1 upstream.
 
-Fix missing resource cleanup (when '(--i) == 0') for error case in
-ipr_alloc_mem() and skip incorrect resource cleanup (when '(--i) == 0') for
-error case in ipr_request_other_msi_irqs() because variable i started from
-1.
+Adding support for Cinterion device MV31 with Qualcomm
+new baseline. Use different PIDs to separate it from
+previous base line products.
+All interfaces settings keep same as previous.
 
-Link: https://lore.kernel.org/r/20220529153456.4183738-4-cgxu519@mykernel.net
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Brian King <brking@linux.vnet.ibm.com>
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Below is test evidence:
+T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  6 Spd=480 MxCh= 0
+D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00b8 Rev=04.14
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00B8 USB Mobile Broadband
+S:  SerialNumber=90418e79
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+
+T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  7 Spd=480 MxCh= 0
+D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00b9 Rev=04.14
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00B9 USB Mobile Broadband
+S:  SerialNumber=90418e79
+C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+
+For PID 00b8, interface 3 is GNSS port which don't use serial driver.
+
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Link: https://lore.kernel.org/r/20220601034740.5438-1-slark_xiao@163.com
+[ johan: rename defines using a "2" infix ]
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ipr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
-index b172f0a02083..99b37e19feca 100644
---- a/drivers/scsi/ipr.c
-+++ b/drivers/scsi/ipr.c
-@@ -9788,7 +9788,7 @@ static int ipr_alloc_mem(struct ipr_ioa_cfg *ioa_cfg)
- 					GFP_KERNEL);
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -430,6 +430,8 @@ static void option_instat_callback(struc
+ #define CINTERION_PRODUCT_CLS8			0x00b0
+ #define CINTERION_PRODUCT_MV31_MBIM		0x00b3
+ #define CINTERION_PRODUCT_MV31_RMNET		0x00b7
++#define CINTERION_PRODUCT_MV31_2_MBIM		0x00b8
++#define CINTERION_PRODUCT_MV31_2_RMNET		0x00b9
+ #define CINTERION_PRODUCT_MV32_WA		0x00f1
+ #define CINTERION_PRODUCT_MV32_WB		0x00f2
  
- 		if (!ioa_cfg->hrrq[i].host_rrq)  {
--			while (--i > 0)
-+			while (--i >= 0)
- 				dma_free_coherent(&pdev->dev,
- 					sizeof(u32) * ioa_cfg->hrrq[i].size,
- 					ioa_cfg->hrrq[i].host_rrq,
-@@ -10060,7 +10060,7 @@ static int ipr_request_other_msi_irqs(struct ipr_ioa_cfg *ioa_cfg,
- 			ioa_cfg->vectors_info[i].desc,
- 			&ioa_cfg->hrrq[i]);
- 		if (rc) {
--			while (--i >= 0)
-+			while (--i > 0)
- 				free_irq(pci_irq_vector(pdev, i),
- 					&ioa_cfg->hrrq[i]);
- 			return rc;
--- 
-2.35.1
-
+@@ -1953,6 +1955,10 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(3)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
+ 	  .driver_info = RSVD(0)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_MBIM, 0xff),
++	  .driver_info = RSVD(3)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_RMNET, 0xff),
++	  .driver_info = RSVD(0)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
+ 	  .driver_info = RSVD(3)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
 
 
