@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D8D05581FD
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB07C558480
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:43:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229917AbiFWRJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:09:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55912 "EHLO
+        id S234799AbiFWRnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:43:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233669AbiFWRH6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:07:58 -0400
+        with ESMTP id S235122AbiFWRnC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:43:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C7EA532F1;
-        Thu, 23 Jun 2022 09:56:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3D99D306;
+        Thu, 23 Jun 2022 10:10:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A06AC60AE7;
-        Thu, 23 Jun 2022 16:56:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E48CC341C4;
-        Thu, 23 Jun 2022 16:56:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9629A61D18;
+        Thu, 23 Jun 2022 17:10:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67F1AC3411B;
+        Thu, 23 Jun 2022 17:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003400;
-        bh=qIYgr84JW2wfwskmNEvNzTtO/Z+QttXhLdhRIbSR53E=;
+        s=korg; t=1656004221;
+        bh=URmXZGWfp4mYOPqbgeXf3TKeUzk0jpETKvNZ90kaMgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kALaBK8dKTe5xIArMyJd3GI+VM2+H4WUuUicmuppyT43tCU8h5yAsBo9RzKi762M9
-         ueZAZJPmthsD1zC5VdyigSlLLoyzRKYD5qyYrzDU/ZroGMI2YiwsvQTXoS+S9lZKxt
-         OyyD8UX6jOZLpfQniVWhQThBfu2/QTM77sP1//OM=
+        b=aRTFQ16Uw6NfJ+rxP7ReN69witLUTtrpbnhR/A3L3GVIU/YkMcaUzsYRIvGxHLg2E
+         F8XxoULTtA+M3YUJguH9x3UYU57gBfAqnQWMnMoaJtiF3TLpRPqS6X6xSy6QR7heYh
+         gNrrqVwf43bSbEIpmZw2gw98XHjL/8C2o8/y8s6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 227/264] ASoC: cs42l52: Correct TLV for Bypass Volume
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        =?UTF-8?q?Stephan=20M=C3=BCller?= <smueller@chronox.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.14 186/237] crypto: drbg - prepare for more fine-grained tracking of seeding state
 Date:   Thu, 23 Jun 2022 18:43:40 +0200
-Message-Id: <20220623164350.502353844@linuxfoundation.org>
+Message-Id: <20220623164348.498980785@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Nicolai Stange <nstange@suse.de>
 
-[ Upstream commit 91e90c712fade0b69cdff7cc6512f6099bd18ae5 ]
+commit ce8ce31b2c5c8b18667784b8c515650c65d57b4e upstream.
 
-The Bypass Volume is accidentally using a -6dB minimum TLV rather than
-the correct -60dB minimum. Add a new TLV to correct this.
+There are two different randomness sources the DRBGs are getting seeded
+from, namely the jitterentropy source (if enabled) and get_random_bytes().
+At initial DRBG seeding time during boot, the latter might not have
+collected sufficient entropy for seeding itself yet and thus, the DRBG
+implementation schedules a reseed work from a random_ready_callback once
+that has happened. This is particularly important for the !->pr DRBG
+instances, for which (almost) no further reseeds are getting triggered
+during their lifetime.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220602162119.3393857-5-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Because collecting data from the jitterentropy source is a rather expensive
+operation, the aforementioned asynchronously scheduled reseed work
+restricts itself to get_random_bytes() only. That is, it in some sense
+amends the initial DRBG seed derived from jitterentropy output at full
+(estimated) entropy with fresh randomness obtained from get_random_bytes()
+once that has been seeded with sufficient entropy itself.
+
+With the advent of rng_is_initialized(), there is no real need for doing
+the reseed operation from an asynchronously scheduled work anymore and a
+subsequent patch will make it synchronous by moving it next to related
+logic already present in drbg_generate().
+
+However, for tracking whether a full reseed including the jitterentropy
+source is required or a "partial" reseed involving only get_random_bytes()
+would be sufficient already, the boolean struct drbg_state's ->seeded
+member must become a tristate value.
+
+Prepare for this by introducing the new enum drbg_seed_state and change
+struct drbg_state's ->seeded member's type from bool to that type.
+
+For facilitating review, enum drbg_seed_state is made to only contain
+two members corresponding to the former ->seeded values of false and true
+resp. at this point: DRBG_SEED_STATE_UNSEEDED and DRBG_SEED_STATE_FULL. A
+third one for tracking the intermediate state of "seeded from jitterentropy
+only" will be introduced with a subsequent patch.
+
+There is no change in behaviour at this point.
+
+Signed-off-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Stephan Müller <smueller@chronox.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/cs42l52.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ crypto/drbg.c         |   19 ++++++++++---------
+ include/crypto/drbg.h |    7 ++++++-
+ 2 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l52.c b/sound/soc/codecs/cs42l52.c
-index f733f6b42b53..47f2439fd7b0 100644
---- a/sound/soc/codecs/cs42l52.c
-+++ b/sound/soc/codecs/cs42l52.c
-@@ -141,6 +141,8 @@ static DECLARE_TLV_DB_SCALE(mic_tlv, 1600, 100, 0);
+--- a/crypto/drbg.c
++++ b/crypto/drbg.c
+@@ -1044,7 +1044,7 @@ static inline int __drbg_seed(struct drb
+ 	if (ret)
+ 		return ret;
  
- static DECLARE_TLV_DB_SCALE(pga_tlv, -600, 50, 0);
+-	drbg->seeded = true;
++	drbg->seeded = DRBG_SEED_STATE_FULL;
+ 	/* 10.1.1.2 / 10.1.1.3 step 5 */
+ 	drbg->reseed_ctr = 1;
  
-+static DECLARE_TLV_DB_SCALE(pass_tlv, -6000, 50, 0);
+@@ -1089,14 +1089,14 @@ static void drbg_async_seed(struct work_
+ 	if (ret)
+ 		goto unlock;
+ 
+-	/* Set seeded to false so that if __drbg_seed fails the
+-	 * next generate call will trigger a reseed.
++	/* Reset ->seeded so that if __drbg_seed fails the next
++	 * generate call will trigger a reseed.
+ 	 */
+-	drbg->seeded = false;
++	drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+ 
+ 	__drbg_seed(drbg, &seedlist, true);
+ 
+-	if (drbg->seeded)
++	if (drbg->seeded == DRBG_SEED_STATE_FULL)
+ 		drbg->reseed_threshold = drbg_max_requests(drbg);
+ 
+ unlock:
+@@ -1385,13 +1385,14 @@ static int drbg_generate(struct drbg_sta
+ 	 * here. The spec is a bit convoluted here, we make it simpler.
+ 	 */
+ 	if (drbg->reseed_threshold < drbg->reseed_ctr)
+-		drbg->seeded = false;
++		drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+ 
+-	if (drbg->pr || !drbg->seeded) {
++	if (drbg->pr || drbg->seeded == DRBG_SEED_STATE_UNSEEDED) {
+ 		pr_devel("DRBG: reseeding before generation (prediction "
+ 			 "resistance: %s, state %s)\n",
+ 			 drbg->pr ? "true" : "false",
+-			 drbg->seeded ? "seeded" : "unseeded");
++			 (drbg->seeded ==  DRBG_SEED_STATE_FULL ?
++			  "seeded" : "unseeded"));
+ 		/* 9.3.1 steps 7.1 through 7.3 */
+ 		len = drbg_seed(drbg, addtl, true);
+ 		if (len)
+@@ -1576,7 +1577,7 @@ static int drbg_instantiate(struct drbg_
+ 	if (!drbg->core) {
+ 		drbg->core = &drbg_cores[coreref];
+ 		drbg->pr = pr;
+-		drbg->seeded = false;
++		drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+ 		drbg->reseed_threshold = drbg_max_requests(drbg);
+ 
+ 		ret = drbg_alloc_state(drbg);
+--- a/include/crypto/drbg.h
++++ b/include/crypto/drbg.h
+@@ -105,6 +105,11 @@ struct drbg_test_data {
+ 	struct drbg_string *testentropy; /* TEST PARAMETER: test entropy */
+ };
+ 
++enum drbg_seed_state {
++	DRBG_SEED_STATE_UNSEEDED,
++	DRBG_SEED_STATE_FULL,
++};
 +
- static DECLARE_TLV_DB_SCALE(mix_tlv, -5150, 50, 0);
+ struct drbg_state {
+ 	struct mutex drbg_mutex;	/* lock around DRBG */
+ 	unsigned char *V;	/* internal state 10.1.1.1 1a) */
+@@ -129,7 +134,7 @@ struct drbg_state {
+ 	struct completion ctr_completion;	/* CTR mode async handler */
+ 	int ctr_async_err;			/* CTR mode async error */
  
- static DECLARE_TLV_DB_SCALE(beep_tlv, -56, 200, 0);
-@@ -355,7 +357,7 @@ static const struct snd_kcontrol_new cs42l52_snd_controls[] = {
- 			      CS42L52_SPKB_VOL, 0, 0x40, 0xC0, hl_tlv),
- 
- 	SOC_DOUBLE_R_SX_TLV("Bypass Volume", CS42L52_PASSTHRUA_VOL,
--			      CS42L52_PASSTHRUB_VOL, 0, 0x88, 0x90, pga_tlv),
-+			      CS42L52_PASSTHRUB_VOL, 0, 0x88, 0x90, pass_tlv),
- 
- 	SOC_DOUBLE("Bypass Mute", CS42L52_MISC_CTL, 4, 5, 1, 0),
- 
--- 
-2.35.1
-
+-	bool seeded;		/* DRBG fully seeded? */
++	enum drbg_seed_state seeded;		/* DRBG fully seeded? */
+ 	bool pr;		/* Prediction resistance enabled? */
+ 	bool fips_primed;	/* Continuous test primed? */
+ 	unsigned char *prev;	/* FIPS 140-2 continuous test value */
 
 
