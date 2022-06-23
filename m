@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C13575582C0
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:19:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 121BC5580FA
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232859AbiFWRTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:19:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57352 "EHLO
+        id S231521AbiFWQyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:54:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233291AbiFWRRf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:17:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D676B60C60;
-        Thu, 23 Jun 2022 09:59:51 -0700 (PDT)
+        with ESMTP id S233267AbiFWQuj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:50:39 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3555F4F1C5;
+        Thu, 23 Jun 2022 09:48:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 176B861408;
-        Thu, 23 Jun 2022 16:59:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC61BC3411B;
-        Thu, 23 Jun 2022 16:59:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4CE28CE25E0;
+        Thu, 23 Jun 2022 16:48:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23450C3411B;
+        Thu, 23 Jun 2022 16:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003590;
-        bh=/cipB65XXSwV6v6f6npwY4IX8FITeDxg38s9Lz6i3jg=;
+        s=korg; t=1656002906;
+        bh=pkIF7X1kFve6mQbQzod1uQoP9QOKYh7e6hcfalT64tQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zJaMq4RvWRwvvYhcsfhvSCMyRRBexSnFoLMVYTs93UesknljOAdzagF5Hmo1M9DGh
-         9BeDHXNgwQ1NaEEjZtFiN96ywJKL1OdUE/LohmRl09ZAK/Mw6coTRLbUfoBNESlW38
-         D7qXK3Py0X/S7a4bAcn+Q3dNTWCQMkHEM+vQQ5W4=
+        b=HKAB7Z7MoW/bcG9AY3x07F/cZC4tiQCcv0u9HV9g5GaAYk+qlLdsVLvysHUmqUwKr
+         eH8CwH7iFJsbBjpCyH5LAKz0v0ecbw20db6/9a5y1eJASUY5SM5nmkDgg1pCOyaNxl
+         12nC49am98DaZYJsd99o2lLLn3/JgllehUqSM2LQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
+        Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 023/237] char/random: Add a newline at the end of the file
-Date:   Thu, 23 Jun 2022 18:40:57 +0200
-Message-Id: <20220623164343.821440415@linuxfoundation.org>
+Subject: [PATCH 4.9 065/264] random: fix typo in add_timer_randomness()
+Date:   Thu, 23 Jun 2022 18:40:58 +0200
+Message-Id: <20220623164345.911249208@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,24 +54,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@alien8.de>
+From: Yangtao Li <tiny.windzz@gmail.com>
 
-commit 3fd57e7a9e66b9a8bcbf0560ff09e84d0b8de1bd upstream.
+commit 727d499a6f4f29b6abdb635032f5e53e5905aedb upstream.
 
-On Tue, Oct 01, 2019 at 10:14:40AM -0700, Linus Torvalds wrote:
-> The previous state of the file didn't have that 0xa at the end, so you get that
->
->
->   -EXPORT_SYMBOL_GPL(add_bootloader_randomness);
->   \ No newline at end of file
->   +EXPORT_SYMBOL_GPL(add_bootloader_randomness);
->
-> which is "the '-' line doesn't have a newline, the '+' line does" marker.
+s/entimate/estimate
 
-Aaha, that makes total sense, thanks for explaining. Oh well, let's fix
-it then so that people don't scratch heads like me.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
+Link: https://lore.kernel.org/r/20190607182517.28266-4-tiny.windzz@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
@@ -80,12 +71,14 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -2451,4 +2451,4 @@ void add_bootloader_randomness(const voi
- 	else
- 		add_device_randomness(buf, size);
+@@ -1263,7 +1263,7 @@ static void add_timer_randomness(struct
+ 	/*
+ 	 * delta is now minimum absolute delta.
+ 	 * Round down by 1 bit on general principles,
+-	 * and limit entropy entimate to 12 bits.
++	 * and limit entropy estimate to 12 bits.
+ 	 */
+ 	credit_entropy_bits(r, min_t(int, fls(delta>>1), 11));
  }
--EXPORT_SYMBOL_GPL(add_bootloader_randomness);
-\ No newline at end of file
-+EXPORT_SYMBOL_GPL(add_bootloader_randomness);
 
 
