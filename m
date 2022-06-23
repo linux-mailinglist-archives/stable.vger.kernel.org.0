@@ -2,157 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 821C8557608
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 10:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50B4F55760B
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 10:57:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230465AbiFWI5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 04:57:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37124 "EHLO
+        id S230511AbiFWI5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 04:57:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230111AbiFWI5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 04:57:09 -0400
-Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E398D434AB;
-        Thu, 23 Jun 2022 01:57:03 -0700 (PDT)
-X-UUID: 78a243e9927644ddb38a7d82696e5c91-20220623
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.6,REQID:63ecc147-0c3a-448b-b790-b5a153d9f2cd,OB:0,LO
-        B:10,IP:0,URL:0,TC:0,Content:-5,EDM:0,RT:0,SF:95,FILE:0,RULE:Release_Ham,A
-        CTION:release,TS:90
-X-CID-INFO: VERSION:1.1.6,REQID:63ecc147-0c3a-448b-b790-b5a153d9f2cd,OB:0,LOB:
-        10,IP:0,URL:0,TC:0,Content:-5,EDM:0,RT:0,SF:95,FILE:0,RULE:Spam_GS981B3D,A
-        CTION:quarantine,TS:90
-X-CID-META: VersionHash:b14ad71,CLOUDID:c646d92d-1756-4fa3-be7f-474a6e4be921,C
-        OID:ddb56fb3ca85,Recheck:0,SF:28|17|19|48,TC:nil,Content:0,EDM:-3,IP:nil,U
-        RL:0,File:nil,QS:nil,BEC:nil,COL:0
-X-UUID: 78a243e9927644ddb38a7d82696e5c91-20220623
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw02.mediatek.com
-        (envelope-from <macpaul.lin@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1413566506; Thu, 23 Jun 2022 16:56:55 +0800
-Received: from mtkmbs11n2.mediatek.inc (172.21.101.187) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
- Thu, 23 Jun 2022 16:56:54 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
- mtkmbs11n2.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.2.792.3 via Frontend Transport; Thu, 23 Jun 2022 16:56:54 +0800
-From:   Macpaul Lin <macpaul.lin@mediatek.com>
-To:     Johan Hovold <johan@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>
-CC:     Miles Chen <miles.chen@mediatek.com>,
-        Bear Wang <bear.wang@mediatek.com>,
-        Pablo Sun <pablo.sun@mediatek.com>,
-        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        "Macpaul Lin" <macpaul@gmail.com>, <stable@vger.kernel.org>,
-        Ballon Shi <ballon.shi@quectel.com>
-Subject: [PATCH v2] USB: serial: option: add Quectel RM500K module support
-Date:   Thu, 23 Jun 2022 16:56:44 +0800
-Message-ID: <20220623085644.13105-1-macpaul.lin@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20220623035214.20124-1-macpaul.lin@mediatek.com>
-References: <20220623035214.20124-1-macpaul.lin@mediatek.com>
+        with ESMTP id S230203AbiFWI5Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 04:57:24 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D74247AE6;
+        Thu, 23 Jun 2022 01:57:23 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id cv13so15522294pjb.4;
+        Thu, 23 Jun 2022 01:57:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:to:cc:subject:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=XuNmdMIPTwgFRn+KXfNoshLUyGzQ84uByLpqYdBwMbo=;
+        b=U/ubG/f6T+EUydId86UG4ca9OLcoHD5k4QQ+3eWunYtB5/55nD7030zV+fXBywy/N8
+         rnIgSdfB+mbLoTBsYX+LF0KMiQc/tCvdbiOPBmGHEWYljqJ7+Ytp6ICBpcUlIxLwFszu
+         Bd75dGeE3PfTsG7RxUMO+p9USOiA8uuUGemciMWT3XztxTLJfkA1W/KrDSzoBc3nKrUL
+         Cwcfd75z6z36xyZzdLGXmsmBmNz77+sTdpo257ezhnuJkv+JyQ+dg5OeZZwzveFMgHSf
+         WybOMRUVwz2uedWXTuGnCWlCv3haS3eK3HoXG8O+YXEigs7NNQE0yfgkxZHHJTzcQ1mN
+         h3hg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:from:to:cc:subject:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=XuNmdMIPTwgFRn+KXfNoshLUyGzQ84uByLpqYdBwMbo=;
+        b=TCE0grziqw8xmymDOobXTR/IqHrVLzKSAb8veJZS+lIfrTVo/VUCf/ROqlH/GF4V8Q
+         O8QMhhKZPn+0CkGXm8NhhribBotk19MZsn/xADscv4leKLaoliPg89f47s8Nz9Y8DX9p
+         6H95iBlvv9mXaIf5YeSR09QQ9oLGGxRb6nY8qfHx5bZ2IKinLH4y6xc6eMDNuFkJK4lU
+         Z7VvWQKBeiNpFyG8Rz82OGio/I+pZp2DA8t+ubbNL+a5CQDMg/DedHnQWtg6ivPBPlxr
+         7u84h7nB9XvTqNo8uKJacdL/aWWH4bJ72iA6SmyZEsmHg+u13sw4MlLiKzkEBJv6q6hK
+         gv9w==
+X-Gm-Message-State: AJIora9JLAI5CHH1dqV6pE75qh+QeiuuHt1FwifOLT3myTVlAbfl9rlm
+        jotgvPgIv0l04ujkQl+tgCo=
+X-Google-Smtp-Source: AGRyM1tmqcpLbADtd2gc4SGwWOE/T7MnAN+wXT6gAvIivgKm0kg/9B7WObW+jCA563pNquyOh73RBw==
+X-Received: by 2002:a17:90b:3c0c:b0:1ec:c5b1:ce56 with SMTP id pb12-20020a17090b3c0c00b001ecc5b1ce56mr3017768pjb.102.1655974643009;
+        Thu, 23 Jun 2022 01:57:23 -0700 (PDT)
+Received: from localhost ([193.203.214.57])
+        by smtp.gmail.com with ESMTPSA id o12-20020a62f90c000000b0051be16492basm15178139pfh.195.2022.06.23.01.57.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Jun 2022 01:57:22 -0700 (PDT)
+Message-ID: <62b42af2.1c69fb81.6e00c.63b1@mx.google.com>
+X-Google-Original-Message-ID: <20220623085721.GA976022@cgel.zte@gmail.com>
+Date:   Thu, 23 Jun 2022 08:57:21 +0000
+From:   CGEL <cgel.zte@gmail.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     anton@tuxera.com, linux-ntfs-dev@lists.sourceforge.net,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        xu.xin16@zte.com.cn, linux-fsdevel@vger.kernel.org,
+        Zeal Robot <zealci@zte.com.cn>,
+        syzbot+6a5a7672f663cce8b156@syzkaller.appspotmail.com,
+        Songyi Zhang <zhang.songyi@zte.com.cn>,
+        Yang Yang <yang.yang29@zte.com.cn>,
+        Jiang Xuexin <jiang.xuexin@zte.com.cn>,
+        Zhang wenya <zhang.wenya1@zte.com.cn>
+Subject: Re: [PATCH] fs/ntfs: fix BUG_ON of ntfs_read_block()
+References: <20220623033635.973929-1-xu.xin16@zte.com.cn>
+ <20220623035131.974098-1-xu.xin16@zte.com.cn>
+ <YrQc4ZOBGhmpvfaP@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-MTK:  N
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,RDNS_NONE,
-        SPF_HELO_PASS,T_SCC_BODY_TEXT_LINE,T_SPF_TEMPERROR,UNPARSEABLE_RELAY
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YrQc4ZOBGhmpvfaP@kroah.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add usb product id of the Quectel RM500K module.
+On Thu, Jun 23, 2022 at 09:57:21AM +0200, Greg KH wrote:
+> On Thu, Jun 23, 2022 at 03:51:31AM +0000, cgel.zte@gmail.com wrote:
+> > From: xu xin <xu.xin16@zte.com.cn>
+> > 
+> > As the bug description, attckers can use this bug to crash the system
+> > When CONFIG_NTFS_FS is set.
+> > 
+> > So remove the BUG_ON, and use WARN and return instead until someone
+> > really solve the bug.
+> > 
+> > Reported-by: Zeal Robot <zealci@zte.com.cn>
+> > Reported-by: syzbot+6a5a7672f663cce8b156@syzkaller.appspotmail.com
+> > Reviewed-by: Songyi Zhang <zhang.songyi@zte.com.cn>
+> > Reviewed-by: Yang Yang <yang.yang29@zte.com.cn>
+> > Reviewed-by: Jiang Xuexin<jiang.xuexin@zte.com.cn>
+> > Reviewed-by: Zhang wenya<zhang.wenya1@zte.com.cn>
+> > Signed-off-by: xu xin <xu.xin16@zte.com.cn>
+> > ---
+> >  fs/ntfs/aops.c | 6 +++++-
+> >  1 file changed, 5 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/fs/ntfs/aops.c b/fs/ntfs/aops.c
+> > index 5f4fb6ca6f2e..b6fd7e711420 100644
+> > --- a/fs/ntfs/aops.c
+> > +++ b/fs/ntfs/aops.c
+> > @@ -183,7 +183,11 @@ static int ntfs_read_block(struct page *page)
+> >  	vol = ni->vol;
+> >  
+> >  	/* $MFT/$DATA must have its complete runlist in memory at all times. */
+> > -	BUG_ON(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni));
+> > +	if (unlikely(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni))) {
+> > +		WARN(1, "NTFS: ni->runlist.rl, ni->mft_no, and NInoAttr(ni) is null!\n");
+> 
+> So for systems with panic-on-warn, you are still crashing?  Why is this
+> WARN() line still needed here?
+>
 
-RM500K provides 2 mandatory interfaces to Linux host after enumeration.
- - /dev/ttyUSB5: this is a serial interface for control path. User needs
-   to write AT commands to this device node to query status, set APN,
-   set PIN code, and enable/disable the data connection to 5G network.
- - ethX: this is the data path provided as a RNDIS devices. After the
-   data connection has been established, Linux host can access 5G data
-   network via this interface.
+Sorry, I forgot about panic-on-warn. Use pr_warn() may be better.
+I'll send a patch-v2 .
 
-"RNDIS": RNDIS + ADB + AT (/dev/ttyUSB5) + MODEM COMs
-
-usb-devices output for 0x7001:
-T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=7001 Rev=00.01
-S:  Manufacturer=MediaTek Inc.
-S:  Product=USB DATA CARD
-S:  SerialNumber=869206050009672
-C:  #Ifs=10 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=02 Prot=ff Driver=rndis_host
-E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=125us
-I:  If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 7 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 9 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=09(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=8a(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Co-developed-by: Ballon Shi <ballon.shi@quectel.com>
-Signed-off-by: Ballon Shi <ballon.shi@quectel.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Cc: stable@vger.kernel.org
----
-Change for v2:
- - Update USB interfaces descriptions in the commit message.
- - Fix typo, format and contributers in the commit message.
- - Update PID definition in numeric order.
-
- drivers/usb/serial/option.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
-index ed1e50d83cca..5b94519c790b 100644
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -256,6 +256,7 @@ static void option_instat_callback(struct urb *urb);
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_EC200S_CN		0x6002
- #define QUECTEL_PRODUCT_EC200T			0x6026
-+#define QUECTEL_PRODUCT_RM500K			0x7001
- 
- #define CMOTECH_VENDOR_ID			0x16d8
- #define CMOTECH_PRODUCT_6001			0x6001
-@@ -1147,6 +1148,7 @@ static const struct usb_device_id option_ids[] = {
- 	  .driver_info = ZLP },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500K, 0xff, 0x00, 0x00) },
- 
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_CMU_300) },
--- 
-2.18.0
-
+> thanks,
+> 
+> greg k-h
