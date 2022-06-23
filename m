@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 174D75586B1
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:16:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D803E5586BD
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:16:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236759AbiFWSQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:16:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
+        id S236755AbiFWSQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:16:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234111AbiFWSPp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:15:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D085DF0D;
-        Thu, 23 Jun 2022 10:22:10 -0700 (PDT)
+        with ESMTP id S230254AbiFWSQf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:16:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9A175DF33;
+        Thu, 23 Jun 2022 10:22:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8017B82497;
-        Thu, 23 Jun 2022 17:22:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E64BC341C5;
-        Thu, 23 Jun 2022 17:22:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50E7661DE5;
+        Thu, 23 Jun 2022 17:22:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23629C3411B;
+        Thu, 23 Jun 2022 17:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004927;
-        bh=VUdUdSClpPx72kdmXclp+/hBcSqoa28HxWnfFrjn8/0=;
+        s=korg; t=1656004961;
+        bh=OxBmzqVqX1mREF4WkljC/7yQplxzyWhFgFPRZ33k3wY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MS1ajmkL56pfcf9LP9mB6w+q15Ww5IZ8yKqeA9O4YGRgy0lnekpm9ao83PSIR/W/i
-         fBFd1UwmLDgo1O7QfhCpNTwzrT3JqyMDJB3wXRMSFFSjE2NiMnVnXGQYI5aTk49xG7
-         uO3KhDMA3+d77JNsfw9wVOvL5bv+dzvXA2uBTkZs=
+        b=hTAIqgUTGd/kFDCzL8TAyzx/0HhqRTj6KuIkAoIIAGLp+SD0p4gUxL6+HvEd2gnoC
+         iqRcXSgLaSa4XCDOigcvxPGZGQgoutYcGCA9K+Sdj/kq0285PVZEbXhJar8fqH+4Q1
+         Z31D8kk7g3wqkIEj3pmMgczXIpPMq6sX9wDOj8HA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 168/234] random: wire up fops->splice_{read,write}_iter()
-Date:   Thu, 23 Jun 2022 18:43:55 +0200
-Message-Id: <20220623164347.807363101@linuxfoundation.org>
+Subject: [PATCH 4.19 169/234] random: check for signals after page of pool writes
+Date:   Thu, 23 Jun 2022 18:43:56 +0200
+Message-Id: <20220623164347.835067432@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -54,45 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 79025e727a846be6fd215ae9cdb654368ac3f9a6 upstream.
+commit 1ce6c8d68f8ac587f54d0a271ac594d3d51f3efb upstream.
 
-Now that random/urandom is using {read,write}_iter, we can wire it up to
-using the generic splice handlers.
+get_random_bytes_user() checks for signals after producing a PAGE_SIZE
+worth of output, just like /dev/zero does. write_pool() is doing
+basically the same work (actually, slightly more expensive), and so
+should stop to check for signals in the same way. Let's also name it
+write_pool_user() to match get_random_bytes_user(), so this won't be
+misused in the future.
 
-Fixes: 36e2c7421f02 ("fs: don't allow splice read/write without explicit ops")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[Jason: added the splice_write path. Note that sendfile() and such still
- does not work for read, though it does for write, because of a file
- type restriction in splice_direct_to_actor(), which I'll address
- separately.]
-Cc: Al Viro <viro@zeniv.linux.org.uk>
+Before this patch, massive writes to /dev/urandom would tie up the
+process for an extremely long time and make it unterminatable. After, it
+can be successfully interrupted. The following test program can be used
+to see this works as intended:
+
+  #include <unistd.h>
+  #include <fcntl.h>
+  #include <signal.h>
+  #include <stdio.h>
+
+  static unsigned char x[~0U];
+
+  static void handle(int) { }
+
+  int main(int argc, char *argv[])
+  {
+    pid_t pid = getpid(), child;
+    int fd;
+    signal(SIGUSR1, handle);
+    if (!(child = fork())) {
+      for (;;)
+        kill(pid, SIGUSR1);
+    }
+    fd = open("/dev/urandom", O_WRONLY);
+    pause();
+    printf("interrupted after writing %zd bytes\n", write(fd, x, sizeof(x)));
+    close(fd);
+    kill(child, SIGTERM);
+    return 0;
+  }
+
+Result before: "interrupted after writing 2147479552 bytes"
+Result after: "interrupted after writing 4096 bytes"
+
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/char/random.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1381,6 +1381,8 @@ const struct file_operations random_fops
- 	.unlocked_ioctl = random_ioctl,
- 	.fasync = random_fasync,
- 	.llseek = noop_llseek,
-+	.splice_read = generic_file_splice_read,
-+	.splice_write = iter_file_splice_write,
- };
+@@ -1251,7 +1251,7 @@ static __poll_t random_poll(struct file
+ 	return crng_ready() ? EPOLLIN | EPOLLRDNORM : EPOLLOUT | EPOLLWRNORM;
+ }
  
- const struct file_operations urandom_fops = {
-@@ -1389,6 +1391,8 @@ const struct file_operations urandom_fop
- 	.unlocked_ioctl = random_ioctl,
- 	.fasync = random_fasync,
- 	.llseek = noop_llseek,
-+	.splice_read = generic_file_splice_read,
-+	.splice_write = iter_file_splice_write,
- };
+-static ssize_t write_pool(struct iov_iter *iter)
++static ssize_t write_pool_user(struct iov_iter *iter)
+ {
+ 	u8 block[BLAKE2S_BLOCK_SIZE];
+ 	ssize_t ret = 0;
+@@ -1266,7 +1266,13 @@ static ssize_t write_pool(struct iov_ite
+ 		mix_pool_bytes(block, copied);
+ 		if (!iov_iter_count(iter) || copied != sizeof(block))
+ 			break;
+-		cond_resched();
++
++		BUILD_BUG_ON(PAGE_SIZE % sizeof(block) != 0);
++		if (ret % PAGE_SIZE == 0) {
++			if (signal_pending(current))
++				break;
++			cond_resched();
++		}
+ 	}
  
+ 	memzero_explicit(block, sizeof(block));
+@@ -1275,7 +1281,7 @@ static ssize_t write_pool(struct iov_ite
  
+ static ssize_t random_write_iter(struct kiocb *kiocb, struct iov_iter *iter)
+ {
+-	return write_pool(iter);
++	return write_pool_user(iter);
+ }
+ 
+ static ssize_t urandom_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
+@@ -1342,7 +1348,7 @@ static long random_ioctl(struct file *f,
+ 		ret = import_single_range(WRITE, p, len, &iov, &iter);
+ 		if (unlikely(ret))
+ 			return ret;
+-		ret = write_pool(&iter);
++		ret = write_pool_user(&iter);
+ 		if (unlikely(ret < 0))
+ 			return ret;
+ 		/* Since we're crediting, enforce that it was all written into the pool. */
 
 
