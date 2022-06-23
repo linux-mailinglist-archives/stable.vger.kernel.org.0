@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F80355808F
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F3C555832E
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232001AbiFWQwg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:52:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49152 "EHLO
+        id S233705AbiFWR00 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:26:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233883AbiFWQvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C654F13F3D;
-        Thu, 23 Jun 2022 09:50:38 -0700 (PDT)
+        with ESMTP id S231434AbiFWRZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:25:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129074FC4B;
+        Thu, 23 Jun 2022 10:02:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B1E161FBF;
-        Thu, 23 Jun 2022 16:50:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40491C3411B;
-        Thu, 23 Jun 2022 16:50:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFB25B8248E;
+        Thu, 23 Jun 2022 17:02:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26F79C3411B;
+        Thu, 23 Jun 2022 17:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003037;
-        bh=gPjIJx2UsgYG+ZjDGkqJcx9hLZiYTeR+h9JF0JxYGTw=;
+        s=korg; t=1656003729;
+        bh=MvmChtpZekwc1pro2CqpRXnB9s5InHzLliiTzjEDIzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=14nNOGIA/XwPUGhdtopauLB/aop7XWaXLJcHqC2oQTwTrb2e7BxEq4rRtsuwXz4s1
-         1wICYUUvEpGMqoj29JzDoxdG0+1urF7Gqaf+3LlWU6i5ssSAKbpzaaz9J2G//S7fyV
-         PEBYLb9MFqH3ClWahQ0v75brqXu9mWV9nczjBFz0=
+        b=rUkDFVXYctOzBtOnOfwSw87q2v4s7E12MOpXh0VX6gsVSE4PQLcQOpCX//q9i0YN2
+         1mb3F/M70dKC+x0Dny8ReX1G3yaergFQjczKVO/TCxegpnGXuoaTFovDe50Sb94Wwy
+         aV9/pUTEeVW7oGmDou6xtyB//C+lnvYw1Ky5wrEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-crypto@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 109/264] random: only call crng_finalize_init() for primary_crng
+Subject: [PATCH 4.14 068/237] random: early initialization of ChaCha constants
 Date:   Thu, 23 Jun 2022 18:41:42 +0200
-Message-Id: <20220623164347.152724953@linuxfoundation.org>
+Message-Id: <20220623164345.111471358@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +58,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dominik Brodowski <linux@dominikbrodowski.net>
 
-commit 9d5505f1eebeca778074a0260ed077fd85f8792c upstream.
+commit 96562f286884e2db89c74215b199a1084b5fb7f7 upstream.
 
-crng_finalize_init() returns instantly if it is called for another pool
-than primary_crng. The test whether crng_finalize_init() is still required
-can be moved to the relevant caller in crng_reseed(), and
-crng_need_final_init can be reset to false if crng_finalize_init() is
-called with workqueues ready. Then, no previous callsite will call
-crng_finalize_init() unless it is needed, and we can get rid of the
-superfluous function parameter.
+Previously, the ChaCha constants for the primary pool were only
+initialized in crng_initialize_primary(), called by rand_initialize().
+However, some randomness is actually extracted from the primary pool
+beforehand, e.g. by kmem_cache_create(). Therefore, statically
+initialize the ChaCha constants for the primary pool.
 
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: <linux-crypto@vger.kernel.org>
 Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/char/random.c     |    5 ++++-
+ include/crypto/chacha20.h |   15 +++++++++++----
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -800,10 +800,8 @@ static void __init crng_initialize_prima
- 	primary_crng.init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
+@@ -458,6 +458,10 @@ struct crng_state {
+ 
+ static struct crng_state primary_crng = {
+ 	.lock = __SPIN_LOCK_UNLOCKED(primary_crng.lock),
++	.state[0] = CHACHA_CONSTANT_EXPA,
++	.state[1] = CHACHA_CONSTANT_ND_3,
++	.state[2] = CHACHA_CONSTANT_2_BY,
++	.state[3] = CHACHA_CONSTANT_TE_K,
+ };
+ 
+ /*
+@@ -824,7 +828,6 @@ static void crng_initialize_secondary(st
+ 
+ static void __init crng_initialize_primary(struct crng_state *crng)
+ {
+-	chacha_init_consts(crng->state);
+ 	_extract_entropy(&input_pool, &crng->state[4], sizeof(__u32) * 12, 0);
+ 	if (crng_init_try_arch_early(crng) && trust_cpu && crng_init < 2) {
+ 		invalidate_batched_entropy();
+--- a/include/crypto/chacha20.h
++++ b/include/crypto/chacha20.h
+@@ -25,12 +25,19 @@ int crypto_chacha20_setkey(struct crypto
+ 			   unsigned int keysize);
+ int crypto_chacha20_crypt(struct skcipher_request *req);
+ 
++enum chacha_constants { /* expand 32-byte k */
++	CHACHA_CONSTANT_EXPA = 0x61707865U,
++	CHACHA_CONSTANT_ND_3 = 0x3320646eU,
++	CHACHA_CONSTANT_2_BY = 0x79622d32U,
++	CHACHA_CONSTANT_TE_K = 0x6b206574U
++};
++
+ static inline void chacha_init_consts(u32 *state)
+ {
+-	state[0]  = 0x61707865; /* "expa" */
+-	state[1]  = 0x3320646e; /* "nd 3" */
+-	state[2]  = 0x79622d32; /* "2-by" */
+-	state[3]  = 0x6b206574; /* "te k" */
++	state[0]  = CHACHA_CONSTANT_EXPA;
++	state[1]  = CHACHA_CONSTANT_ND_3;
++	state[2]  = CHACHA_CONSTANT_2_BY;
++	state[3]  = CHACHA_CONSTANT_TE_K;
  }
  
--static void crng_finalize_init(struct crng_state *crng)
-+static void crng_finalize_init(void)
- {
--	if (crng != &primary_crng || crng_init >= 2)
--		return;
- 	if (!system_wq) {
- 		/* We can't call numa_crng_init until we have workqueues,
- 		 * so mark this for processing later. */
-@@ -814,6 +812,7 @@ static void crng_finalize_init(struct cr
- 	invalidate_batched_entropy();
- 	numa_crng_init();
- 	crng_init = 2;
-+	crng_need_final_init = false;
- 	process_random_ready_list();
- 	wake_up_interruptible(&crng_init_wait);
- 	kill_fasync(&fasync, SIGIO, POLL_IN);
-@@ -1031,7 +1030,8 @@ static void crng_reseed(struct crng_stat
- 	memzero_explicit(&buf, sizeof(buf));
- 	WRITE_ONCE(crng->init_time, jiffies);
- 	spin_unlock_irqrestore(&crng->lock, flags);
--	crng_finalize_init(crng);
-+	if (crng == &primary_crng && crng_init < 2)
-+		crng_finalize_init();
- }
- 
- static void _extract_crng(struct crng_state *crng, u8 out[CHACHA20_BLOCK_SIZE])
-@@ -1748,7 +1748,7 @@ int __init rand_initialize(void)
- {
- 	init_std_data();
- 	if (crng_need_final_init)
--		crng_finalize_init(&primary_crng);
-+		crng_finalize_init();
- 	crng_initialize_primary();
- 	crng_global_init_time = jiffies;
- 	if (ratelimit_disable) {
+ #endif
 
 
