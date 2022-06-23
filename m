@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 926485580AF
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA45955834A
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:29:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232292AbiFWQxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:53:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48858 "EHLO
+        id S230212AbiFWR3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:29:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233904AbiFWQvv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 798EB1B7BB;
-        Thu, 23 Jun 2022 09:51:32 -0700 (PDT)
+        with ESMTP id S232158AbiFWR1T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:27:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E7CF1181C;
+        Thu, 23 Jun 2022 10:03:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1211F61F90;
-        Thu, 23 Jun 2022 16:51:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA4E5C3411B;
-        Thu, 23 Jun 2022 16:51:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E558961573;
+        Thu, 23 Jun 2022 17:03:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA795C3411B;
+        Thu, 23 Jun 2022 17:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003091;
-        bh=hPzSIx7i+2amGZtsHQVbGBtJHY3W6XHd0htKHGw2fRw=;
+        s=korg; t=1656003785;
+        bh=x2yjWI5qgPfSV6fN1Rnz/ZYbh0RmUSK9SY+U7fV3Qww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=slpWbAHE2xp43GTMsggESA97bUqLWNDk/S5jxcQ94LbiJk6YRf+MGdBFk9Oj8tPWr
-         p/Rqgj9SWaPHXpGk4+q3GTHO9FrADoUACSKHYBioXuHfFzr7MWMWAbzHu1pbBlJuVy
-         AnCwktpVf9r8S4zOvDAJAjjIvWkKnsPqAIStZXsI=
+        b=p+VgiyeB2rmrvNd9Bg5wFpxVkhiqaA5vCAHdOazUvFyy5p80TkdRb/mQvZG881tlD
+         /ObAJWgP2sw2zy3zI+4RwTwnRvxpFBOq3OU8rOL3rgvZW/qpln3HSU75HCzvlpriKU
+         f7UKav1YY9N2ABMGcIIIUfgfCDYJETNf66SL69SM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Jann Horn <jannh@google.com>,
-        Eric Biggers <ebiggers@google.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 125/264] random: zero buffer after reading entropy from userspace
-Date:   Thu, 23 Jun 2022 18:41:58 +0200
-Message-Id: <20220623164347.603719337@linuxfoundation.org>
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: [PATCH 4.14 085/237] random: continually use hwgenerator randomness
+Date:   Thu, 23 Jun 2022 18:41:59 +0200
+Message-Id: <20220623164345.596313402@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,77 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
 
-commit 7b5164fb1279bf0251371848e40bae646b59b3a8 upstream.
+commit c321e907aa4803d562d6e70ebed9444ad082f953 upstream.
 
-This buffer may contain entropic data that shouldn't stick around longer
-than needed, so zero out the temporary buffer at the end of write_pool().
+The rngd kernel thread may sleep indefinitely if the entropy count is
+kept above random_write_wakeup_bits by other entropy sources. To make
+best use of multiple sources of randomness, mix entropy from hardware
+RNGs into the pool at least once within CRNG_RESEED_INTERVAL.
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Jann Horn <jannh@google.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/char/random.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -552,6 +552,7 @@ static void crng_reseed(void)
- 	int entropy_count;
- 	unsigned long next_gen;
- 	u8 key[CHACHA20_KEY_SIZE];
-+	bool finalize_init = false;
- 
- 	/*
- 	 * First we make sure we have POOL_MIN_BITS of entropy in the pool,
-@@ -579,12 +580,14 @@ static void crng_reseed(void)
- 		++next_gen;
- 	WRITE_ONCE(base_crng.generation, next_gen);
- 	WRITE_ONCE(base_crng.birth, jiffies);
--	spin_unlock_irqrestore(&base_crng.lock, flags);
--	memzero_explicit(key, sizeof(key));
--
- 	if (crng_init < 2) {
- 		invalidate_batched_entropy();
- 		crng_init = 2;
-+		finalize_init = true;
-+	}
-+	spin_unlock_irqrestore(&base_crng.lock, flags);
-+	memzero_explicit(key, sizeof(key));
-+	if (finalize_init) {
- 		process_random_ready_list();
- 		wake_up_interruptible(&crng_init_wait);
- 		kill_fasync(&fasync, SIGIO, POLL_IN);
-@@ -1386,19 +1389,24 @@ static unsigned int random_poll(struct f
- static int write_pool(const char __user *ubuf, size_t count)
- {
- 	size_t len;
-+	int ret = 0;
- 	u8 block[BLAKE2S_BLOCK_SIZE];
- 
- 	while (count) {
- 		len = min(count, sizeof(block));
--		if (copy_from_user(block, ubuf, len))
--			return -EFAULT;
-+		if (copy_from_user(block, ubuf, len)) {
-+			ret = -EFAULT;
-+			goto out;
-+		}
- 		count -= len;
- 		ubuf += len;
- 		mix_pool_bytes(block, len);
- 		cond_resched();
+@@ -2192,13 +2192,15 @@ void add_hwgenerator_randomness(const ch
+ 			return;
  	}
  
--	return 0;
-+out:
-+	memzero_explicit(block, sizeof(block));
-+	return ret;
+-	/* Suspend writing if we're above the trickle threshold.
++	/* Throttle writing if we're above the trickle threshold.
+ 	 * We'll be woken up again once below random_write_wakeup_thresh,
+-	 * or when the calling thread is about to terminate.
++	 * when the calling thread is about to terminate, or once
++	 * CRNG_RESEED_INTERVAL has lapsed.
+ 	 */
+-	wait_event_interruptible(random_write_wait,
++	wait_event_interruptible_timeout(random_write_wait,
+ 			!system_wq || kthread_should_stop() ||
+-			POOL_ENTROPY_BITS() <= random_write_wakeup_bits);
++			POOL_ENTROPY_BITS() <= random_write_wakeup_bits,
++			CRNG_RESEED_INTERVAL);
+ 	mix_pool_bytes(buffer, count);
+ 	credit_entropy_bits(entropy);
  }
- 
- static ssize_t random_write(struct file *file, const char __user *buffer,
 
 
