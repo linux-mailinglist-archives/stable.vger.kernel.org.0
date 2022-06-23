@@ -2,46 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 439B85584DC
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4324F5584FE
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235246AbiFWRuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:50:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60930 "EHLO
+        id S231493AbiFWRwO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:52:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234871AbiFWRtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:49:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F83C9E349;
-        Thu, 23 Jun 2022 10:11:54 -0700 (PDT)
+        with ESMTP id S235304AbiFWRvv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:51:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C5CB99150;
+        Thu, 23 Jun 2022 10:12:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AFF261D55;
-        Thu, 23 Jun 2022 17:11:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCCEDC3411B;
-        Thu, 23 Jun 2022 17:11:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05D19B82490;
+        Thu, 23 Jun 2022 17:12:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 423CDC3411B;
+        Thu, 23 Jun 2022 17:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004313;
-        bh=A7Qyuav7/4QCk8yiYqOpEFwrTTt+uEPJ1DpRCfOL1tM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=donfl92MtU0OoucV3e07ZBFn8CQ1airBuHUg9jns8us7K2No/S8UG5Wy1qcCW39T3
-         9thTtkGXpCfdgqJAgO2gIgSLgrDjAN91mfWhrGeTwzuMZdPB1mKs1Y9nkiXXp+u2c6
-         LI5i9hXVoHZjLLFPDyI6LOgICuhNa5qoTPLTvNLY=
+        s=korg; t=1656004343;
+        bh=DaYViUv7sKos6j+bBO3Sx5fQpf8p8DwpSG+lKpxJBdY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=t+26JMdlnQ3JzbSn25mNX9izWfw6HJqJPJytpU/0xN2A6AQSfejMOjNcUklW/Mp3x
+         j4nsjmVe/dtiTRlqV8o5oBd9L3IY+UZbJtmNU701vlZBYE9mY3C9+wKU31pUUZqulA
+         k6IPrvx3kPCOU+hCBZxHwsTTJetktVUXy3p5v1KM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Su Bao Cheng <baocheng.su@siemens.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 5.10 10/11] serial: core: Initialize rs485 RTS polarity already on probe
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.15 0/9] 5.15.50-rc1 review
 Date:   Thu, 23 Jun 2022 18:44:43 +0200
-Message-Id: <20220623164322.599123949@linuxfoundation.org>
+Message-Id: <20220623164322.288837280@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164322.296526800@linuxfoundation.org>
-References: <20220623164322.296526800@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.50-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.15.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.15.50-rc1
+X-KernelTest-Deadline: 2022-06-25T16:43+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -54,120 +62,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+This is the start of the stable review cycle for the 5.15.50 release.
+There are 9 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 2dd8a74fddd21b95dcc60a2d3c9eaec993419d69 upstream.
+Responses should be made by Sat, 25 Jun 2022 16:43:11 +0000.
+Anything received after that time might be too late.
 
-RTS polarity of rs485-enabled ports is currently initialized on uart
-open via:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.50-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+and the diffstat can be found below.
 
-tty_port_open()
-  tty_port_block_til_ready()
-    tty_port_raise_dtr_rts()  # if (C_BAUD(tty))
-      uart_dtr_rts()
-        uart_port_dtr_rts()
+thanks,
 
-There's at least three problems here:
+greg k-h
 
-First, if no baud rate is set, RTS polarity is not initialized.
-That's the right thing to do for rs232, but not for rs485, which
-requires that RTS is deasserted unconditionally.
+-------------
+Pseudo-Shortlog of commits:
 
-Second, if the DeviceTree property "linux,rs485-enabled-at-boot-time" is
-present, RTS should be deasserted as early as possible, i.e. on probe.
-Otherwise it may remain asserted until first open.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.15.50-rc1
 
-Third, even though RTS is deasserted on open and close, it may
-subsequently be asserted by uart_throttle(), uart_unthrottle() or
-uart_set_termios() because those functions aren't rs485-aware.
-(Only uart_tiocmset() is.)
+Will Deacon <will@kernel.org>
+    arm64: mm: Don't invalidate FROM_DEVICE buffers at start of DMA transfer
 
-To address these issues, move RTS initialization from uart_port_dtr_rts()
-to uart_configure_port().  Prevent subsequent modification of RTS
-polarity by moving the existing rs485 check from uart_tiocmget() to
-uart_update_mctrl().
+Lukas Wunner <lukas@wunner.de>
+    serial: core: Initialize rs485 RTS polarity already on probe
 
-That way, RTS is initialized on probe and then remains unmodified unless
-the uart transmits data.  If rs485 is enabled at runtime (instead of at
-boot) through a TIOCSRS485 ioctl(), RTS is initialized by the uart
-driver's ->rs485_config() callback and then likewise remains unmodified.
+Toke Høiland-Jørgensen <toke@redhat.com>
+    selftests/bpf: Add selftest for calling global functions from freplace
 
-The PL011 driver initializes RTS on uart open and prevents subsequent
-modification in its ->set_mctrl() callback.  That code is obsoleted by
-the present commit, so drop it.
+Toke Høiland-Jørgensen <toke@redhat.com>
+    bpf: Fix calling global functions from BPF_PROG_TYPE_EXT programs
 
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Su Bao Cheng <baocheng.su@siemens.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/2d2acaf3a69e89b7bf687c912022b11fd29dfa1e.1642909284.git.lukas@wunner.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/serial_core.c |   34 ++++++++++++----------------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
+Marian Postevca <posteuca@mutex.one>
+    usb: gadget: u_ether: fix regression in setting fixed MAC address
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -144,6 +144,11 @@ uart_update_mctrl(struct uart_port *port
- 	unsigned long flags;
- 	unsigned int old;
- 
-+	if (port->rs485.flags & SER_RS485_ENABLED) {
-+		set &= ~TIOCM_RTS;
-+		clear &= ~TIOCM_RTS;
-+	}
-+
- 	spin_lock_irqsave(&port->lock, flags);
- 	old = port->mctrl;
- 	port->mctrl = (old & ~clear) | set;
-@@ -157,23 +162,10 @@ uart_update_mctrl(struct uart_port *port
- 
- static void uart_port_dtr_rts(struct uart_port *uport, int raise)
- {
--	int rs485_on = uport->rs485_config &&
--		(uport->rs485.flags & SER_RS485_ENABLED);
--	int RTS_after_send = !!(uport->rs485.flags & SER_RS485_RTS_AFTER_SEND);
--
--	if (raise) {
--		if (rs485_on && RTS_after_send) {
--			uart_set_mctrl(uport, TIOCM_DTR);
--			uart_clear_mctrl(uport, TIOCM_RTS);
--		} else {
--			uart_set_mctrl(uport, TIOCM_DTR | TIOCM_RTS);
--		}
--	} else {
--		unsigned int clear = TIOCM_DTR;
--
--		clear |= (!rs485_on || RTS_after_send) ? TIOCM_RTS : 0;
--		uart_clear_mctrl(uport, clear);
--	}
-+	if (raise)
-+		uart_set_mctrl(uport, TIOCM_DTR | TIOCM_RTS);
-+	else
-+		uart_clear_mctrl(uport, TIOCM_DTR | TIOCM_RTS);
- }
- 
- /*
-@@ -1116,11 +1108,6 @@ uart_tiocmset(struct tty_struct *tty, un
- 		goto out;
- 
- 	if (!tty_io_error(tty)) {
--		if (uport->rs485.flags & SER_RS485_ENABLED) {
--			set &= ~TIOCM_RTS;
--			clear &= ~TIOCM_RTS;
--		}
--
- 		uart_update_mctrl(uport, set, clear);
- 		ret = 0;
- 	}
-@@ -2429,6 +2416,9 @@ uart_configure_port(struct uart_driver *
- 		 */
- 		spin_lock_irqsave(&port->lock, flags);
- 		port->mctrl &= TIOCM_DTR;
-+		if (port->rs485.flags & SER_RS485_ENABLED &&
-+		    !(port->rs485.flags & SER_RS485_RTS_AFTER_SEND))
-+			port->mctrl |= TIOCM_RTS;
- 		port->ops->set_mctrl(port, port->mctrl);
- 		spin_unlock_irqrestore(&port->lock, flags);
- 
+Damien Le Moal <damien.lemoal@opensource.wdc.com>
+    zonefs: fix zonefs_iomap_begin() for reads
+
+Haiyang Zhang <haiyangz@microsoft.com>
+    net: mana: Add handling of CQE_RX_TRUNCATED
+
+Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+    drm/amd/display: Don't reinitialize DMCUB on s0ix resume
+
+Christian Borntraeger <borntraeger@linux.ibm.com>
+    s390/mm: use non-quiescing sske for KVM switch to keyed guest
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/arm64/mm/cache.S                              |  2 -
+ arch/s390/mm/pgtable.c                             |  2 +-
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c  | 30 ++++++-
+ drivers/net/ethernet/microsoft/mana/mana_en.c      |  7 +-
+ drivers/tty/serial/amba-pl011.c                    | 15 +---
+ drivers/tty/serial/serial_core.c                   | 34 +++-----
+ drivers/usb/gadget/function/u_ether.c              | 11 ++-
+ fs/zonefs/super.c                                  | 94 +++++++++++++++-------
+ kernel/bpf/btf.c                                   |  5 +-
+ .../selftests/bpf/prog_tests/fexit_bpf2bpf.c       | 14 ++++
+ .../selftests/bpf/progs/freplace_global_func.c     | 18 +++++
+ 12 files changed, 156 insertions(+), 80 deletions(-)
 
 
