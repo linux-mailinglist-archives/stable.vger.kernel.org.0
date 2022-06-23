@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D018655824F
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28EFE55843E
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230170AbiFWRNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:13:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42830 "EHLO
+        id S234588AbiFWRko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:40:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230250AbiFWRMQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:12:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E0BFBF7;
-        Thu, 23 Jun 2022 09:57:51 -0700 (PDT)
+        with ESMTP id S235035AbiFWRii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065A153A5A;
+        Thu, 23 Jun 2022 10:09:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE499B8248A;
-        Thu, 23 Jun 2022 16:57:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 028FBC3411B;
-        Thu, 23 Jun 2022 16:57:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97D8FB824B6;
+        Thu, 23 Jun 2022 17:09:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E19E3C3411B;
+        Thu, 23 Jun 2022 17:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003467;
-        bh=zR2cJ99H7APBoDzNTgdRJSIw//pr9/kk25T78oYd8Qg=;
+        s=korg; t=1656004156;
+        bh=Y9Q+sZ1S2ROpRtb37xjqV9pJ3RXtolmlwum1ox9Goc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tMaaaYFwCl8dtV1la/6SO3xxXuuWnsvCpmrPoIxDgFz84H979b4OOv669Y11ICdT5
-         cP9OrOWOC/znbqP1Y0Ktth8qOkL/L7b07I6xopwpHNF7VNf64P/HTBDXSF4Fs8k5hf
-         j2iBA8ngI7YEelx7+SC7e3TrgtQLamadoXPqkmyw=
+        b=dKu0Ro+AHs4/8+CYE3uvhIxFXvtIUWZ0IODO1TvPjoUE61r7vCyol7Me2slWJKpZi
+         Tof7mKh6aesA9eyel4wfqECzbGd/6tOmdp1XopBYoqd+Xq/nh1xiATID3DAXy6y/Kw
+         VDfZXSwrmh0h6bsE/AnGq2mOFq652eL4c1irmPEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Hulk Robot <hulkci@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 247/264] ext4: fix bug_on ext4_mb_use_inode_pa
+        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 206/237] ipv6: Fix signed integer overflow in l2tp_ip6_sendmsg
 Date:   Thu, 23 Jun 2022 18:44:00 +0200
-Message-Id: <20220623164351.059678607@linuxfoundation.org>
+Message-Id: <20220623164349.075167832@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,97 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-commit a08f789d2ab5242c07e716baf9a835725046be89 upstream.
+[ Upstream commit f638a84afef3dfe10554c51820c16e39a278c915 ]
 
-Hulk Robot reported a BUG_ON:
-==================================================================
-kernel BUG at fs/ext4/mballoc.c:3211!
-[...]
-RIP: 0010:ext4_mb_mark_diskspace_used.cold+0x85/0x136f
-[...]
-Call Trace:
- ext4_mb_new_blocks+0x9df/0x5d30
- ext4_ext_map_blocks+0x1803/0x4d80
- ext4_map_blocks+0x3a4/0x1a10
- ext4_writepages+0x126d/0x2c30
- do_writepages+0x7f/0x1b0
- __filemap_fdatawrite_range+0x285/0x3b0
- file_write_and_wait_range+0xb1/0x140
- ext4_sync_file+0x1aa/0xca0
- vfs_fsync_range+0xfb/0x260
- do_fsync+0x48/0xa0
-[...]
-==================================================================
+When len >= INT_MAX - transhdrlen, ulen = len + transhdrlen will be
+overflow. To fix, we can follow what udpv6 does and subtract the
+transhdrlen from the max.
 
-Above issue may happen as follows:
--------------------------------------
-do_fsync
- vfs_fsync_range
-  ext4_sync_file
-   file_write_and_wait_range
-    __filemap_fdatawrite_range
-     do_writepages
-      ext4_writepages
-       mpage_map_and_submit_extent
-        mpage_map_one_extent
-         ext4_map_blocks
-          ext4_mb_new_blocks
-           ext4_mb_normalize_request
-            >>> start + size <= ac->ac_o_ex.fe_logical
-           ext4_mb_regular_allocator
-            ext4_mb_simple_scan_group
-             ext4_mb_use_best_found
-              ext4_mb_new_preallocation
-               ext4_mb_new_inode_pa
-                ext4_mb_use_inode_pa
-                 >>> set ac->ac_b_ex.fe_len <= 0
-           ext4_mb_mark_diskspace_used
-            >>> BUG_ON(ac->ac_b_ex.fe_len <= 0);
-
-we can easily reproduce this problem with the following commands:
-	`fallocate -l100M disk`
-	`mkfs.ext4 -b 1024 -g 256 disk`
-	`mount disk /mnt`
-	`fsstress -d /mnt -l 0 -n 1000 -p 1`
-
-The size must be smaller than or equal to EXT4_BLOCKS_PER_GROUP.
-Therefore, "start + size <= ac->ac_o_ex.fe_logical" may occur
-when the size is truncated. So start should be the start position of
-the group where ac_o_ex.fe_logical is located after alignment.
-In addition, when the value of fe_logical or EXT4_BLOCKS_PER_GROUP
-is very large, the value calculated by start_off is more accurate.
-
-Cc: stable@kernel.org
-Fixes: cd648b8a8fd5 ("ext4: trim allocation requests to group size")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220528110017.354175-2-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Link: https://lore.kernel.org/r/20220607120028.845916-2-wangyufen@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/mballoc.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/l2tp/l2tp_ip6.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -3142,6 +3142,15 @@ ext4_mb_normalize_request(struct ext4_al
- 	size = size >> bsbits;
- 	start = start_off >> bsbits;
+diff --git a/net/l2tp/l2tp_ip6.c b/net/l2tp/l2tp_ip6.c
+index 9c4670fb29d7..7b0963712c22 100644
+--- a/net/l2tp/l2tp_ip6.c
++++ b/net/l2tp/l2tp_ip6.c
+@@ -526,14 +526,15 @@ static int l2tp_ip6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 	struct ipcm6_cookie ipc6;
+ 	int addr_len = msg->msg_namelen;
+ 	int transhdrlen = 4; /* zero session-id */
+-	int ulen = len + transhdrlen;
++	int ulen;
+ 	int err;
  
-+	/*
-+	 * For tiny groups (smaller than 8MB) the chosen allocation
-+	 * alignment may be larger than group size. Make sure the
-+	 * alignment does not move allocation to a different group which
-+	 * makes mballoc fail assertions later.
-+	 */
-+	start = max(start, rounddown(ac->ac_o_ex.fe_logical,
-+			(ext4_lblk_t)EXT4_BLOCKS_PER_GROUP(ac->ac_sb)));
-+
- 	/* don't cover already allocated blocks in selected range */
- 	if (ar->pleft && start <= ar->lleft) {
- 		size -= ar->lleft + 1 - start;
+ 	/* Rough check on arithmetic overflow,
+ 	   better check is made in ip6_append_data().
+ 	 */
+-	if (len > INT_MAX)
++	if (len > INT_MAX - transhdrlen)
+ 		return -EMSGSIZE;
++	ulen = len + transhdrlen;
+ 
+ 	/* Mirror BSD error message compatibility */
+ 	if (msg->msg_flags & MSG_OOB)
+-- 
+2.35.1
+
 
 
