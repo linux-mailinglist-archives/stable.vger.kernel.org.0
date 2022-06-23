@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C380E558162
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:59:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71DFE55854A
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:55:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231161AbiFWQ7O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:59:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43226 "EHLO
+        id S232698AbiFWRzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:55:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233803AbiFWQ6d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:58:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0B404EDEA;
-        Thu, 23 Jun 2022 09:53:49 -0700 (PDT)
+        with ESMTP id S235320AbiFWRyC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:54:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1539DAD198;
+        Thu, 23 Jun 2022 10:15:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AFE9D61F80;
-        Thu, 23 Jun 2022 16:53:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 748AEC36AE3;
-        Thu, 23 Jun 2022 16:53:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8535B82489;
+        Thu, 23 Jun 2022 17:14:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15170C3411B;
+        Thu, 23 Jun 2022 17:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003226;
-        bh=dcTr+3Cc/f8ArMXb7czVoUP7tPV4aeG9yNZI3oE3oZM=;
+        s=korg; t=1656004498;
+        bh=qETcps9ZvaT8CSiWFNsiWoxkwzL6aFx/16/h2UstPGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+ZQ7wwiwrz1p4QSM7tROFQ8qhXoWSzSYuU0HaPUa8YH+RQGVcM8CkbmqsSKaqNBk
-         +1L3ylUJ3I1A3IFv0GWHBGOo1ScXvWW6DRLc5+QQX48GvK3dK3OvsXGgVm+jM7bgTn
-         /zXp1SjWaq6hL7btK6ZcDv6JbtMn0XHBAptgDjYI=
+        b=HeQxEJ3JEuRf/R+J36VvIJWtwrLxjHUo92+CgY05FOK4I5TSvdzCloFQ/4ZSWrSvo
+         8q0mBJw9qn0ZVGO3qFVubd6wBxtVz4EUwfEkKbJIan8vlxb/psaqyzGB9skiyrtuKA
+         PFDfbh3NWzhPAJ2SLVUQXmsNWuT0j7YjDt6apM8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-crypto@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
-        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 131/264] random: introduce drain_entropy() helper to declutter crng_reseed()
+Subject: [PATCH 4.19 057/234] random: early initialization of ChaCha constants
 Date:   Thu, 23 Jun 2022 18:42:04 +0200
-Message-Id: <20220623164347.772843859@linuxfoundation.org>
+Message-Id: <20220623164344.678501217@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
+References: <20220623164343.042598055@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,86 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
 
-commit 246c03dd899164d0186b6d685d6387f228c28d93 upstream.
+commit 96562f286884e2db89c74215b199a1084b5fb7f7 upstream.
 
-In preparation for separating responsibilities, break out the entropy
-count management part of crng_reseed() into its own function.
+Previously, the ChaCha constants for the primary pool were only
+initialized in crng_initialize_primary(), called by rand_initialize().
+However, some randomness is actually extracted from the primary pool
+beforehand, e.g. by kmem_cache_create(). Therefore, statically
+initialize the ChaCha constants for the primary pool.
 
-No functional changes.
-
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: <linux-crypto@vger.kernel.org>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   36 +++++++++++++++++++++++-------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ drivers/char/random.c     |    5 ++++-
+ include/crypto/chacha20.h |   15 +++++++++++----
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -261,6 +261,7 @@ static struct {
+@@ -458,6 +458,10 @@ struct crng_state {
+ 
+ static struct crng_state primary_crng = {
+ 	.lock = __SPIN_LOCK_UNLOCKED(primary_crng.lock),
++	.state[0] = CHACHA_CONSTANT_EXPA,
++	.state[1] = CHACHA_CONSTANT_ND_3,
++	.state[2] = CHACHA_CONSTANT_2_BY,
++	.state[3] = CHACHA_CONSTANT_TE_K,
  };
  
- static void extract_entropy(void *buf, size_t nbytes);
-+static bool drain_entropy(void *buf, size_t nbytes);
+ /*
+@@ -825,7 +829,6 @@ static void crng_initialize_secondary(st
  
- static void crng_reseed(void);
- 
-@@ -506,23 +507,13 @@ static void crng_slow_load(const void *c
- static void crng_reseed(void)
+ static void __init crng_initialize_primary(struct crng_state *crng)
  {
- 	unsigned long flags;
--	int entropy_count;
- 	unsigned long next_gen;
- 	u8 key[CHACHA20_KEY_SIZE];
- 	bool finalize_init = false;
+-	chacha_init_consts(crng->state);
+ 	_extract_entropy(&input_pool, &crng->state[4], sizeof(__u32) * 12, 0);
+ 	if (crng_init_try_arch_early(crng) && trust_cpu && crng_init < 2) {
+ 		invalidate_batched_entropy();
+--- a/include/crypto/chacha20.h
++++ b/include/crypto/chacha20.h
+@@ -24,12 +24,19 @@ int crypto_chacha20_setkey(struct crypto
+ 			   unsigned int keysize);
+ int crypto_chacha20_crypt(struct skcipher_request *req);
  
--	/*
--	 * First we make sure we have POOL_MIN_BITS of entropy in the pool,
--	 * and then we drain all of it. Only then can we extract a new key.
--	 */
--	do {
--		entropy_count = READ_ONCE(input_pool.entropy_count);
--		if (entropy_count < POOL_MIN_BITS)
--			return;
--	} while (cmpxchg(&input_pool.entropy_count, entropy_count, 0) != entropy_count);
--	extract_entropy(key, sizeof(key));
--	wake_up_interruptible(&random_write_wait);
--	kill_fasync(&fasync, SIGIO, POLL_OUT);
-+	/* Only reseed if we can, to prevent brute forcing a small amount of new bits. */
-+	if (!drain_entropy(key, sizeof(key)))
-+		return;
- 
- 	/*
- 	 * We copy the new key into the base_crng, overwriting the old one,
-@@ -950,6 +941,25 @@ static void extract_entropy(void *buf, s
- 	memzero_explicit(&block, sizeof(block));
++enum chacha_constants { /* expand 32-byte k */
++	CHACHA_CONSTANT_EXPA = 0x61707865U,
++	CHACHA_CONSTANT_ND_3 = 0x3320646eU,
++	CHACHA_CONSTANT_2_BY = 0x79622d32U,
++	CHACHA_CONSTANT_TE_K = 0x6b206574U
++};
++
+ static inline void chacha_init_consts(u32 *state)
+ {
+-	state[0]  = 0x61707865; /* "expa" */
+-	state[1]  = 0x3320646e; /* "nd 3" */
+-	state[2]  = 0x79622d32; /* "2-by" */
+-	state[3]  = 0x6b206574; /* "te k" */
++	state[0]  = CHACHA_CONSTANT_EXPA;
++	state[1]  = CHACHA_CONSTANT_ND_3;
++	state[2]  = CHACHA_CONSTANT_2_BY;
++	state[3]  = CHACHA_CONSTANT_TE_K;
  }
  
-+/*
-+ * First we make sure we have POOL_MIN_BITS of entropy in the pool, and then we
-+ * set the entropy count to zero (but don't actually touch any data). Only then
-+ * can we extract a new key with extract_entropy().
-+ */
-+static bool drain_entropy(void *buf, size_t nbytes)
-+{
-+	unsigned int entropy_count;
-+	do {
-+		entropy_count = READ_ONCE(input_pool.entropy_count);
-+		if (entropy_count < POOL_MIN_BITS)
-+			return false;
-+	} while (cmpxchg(&input_pool.entropy_count, entropy_count, 0) != entropy_count);
-+	extract_entropy(buf, nbytes);
-+	wake_up_interruptible(&random_write_wait);
-+	kill_fasync(&fasync, SIGIO, POLL_OUT);
-+	return true;
-+}
-+
- #define warn_unseeded_randomness(previous) \
- 	_warn_unseeded_randomness(__func__, (void *)_RET_IP_, (previous))
- 
+ #endif
 
 
