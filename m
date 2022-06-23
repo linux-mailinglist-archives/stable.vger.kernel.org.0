@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBF5A5580B6
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A227955850B
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231783AbiFWQxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:53:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49014 "EHLO
+        id S235199AbiFWRyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:54:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233879AbiFWQvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDC22FD11;
-        Thu, 23 Jun 2022 09:50:31 -0700 (PDT)
+        with ESMTP id S235646AbiFWRw7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:52:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55F07A8B6E;
+        Thu, 23 Jun 2022 10:13:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89A33B82493;
-        Thu, 23 Jun 2022 16:50:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E33A5C341C5;
-        Thu, 23 Jun 2022 16:50:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E4E961D17;
+        Thu, 23 Jun 2022 17:13:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A550C3411B;
+        Thu, 23 Jun 2022 17:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003029;
-        bh=x9iWFYc6ywzpL8ONHopaPPY7f/VQ7Xo4jKXCi7xFPqw=;
+        s=korg; t=1656004426;
+        bh=MuUF0Ibb2Dea1LHOE/d3WkUCemoyfGQMOCwEgo8brko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y4m2HKleWBRVCEkj5MAJWOepIpjO1xVera/PWHeFMrNwJfmsZFyc+zj9qXXLW5n9L
-         yN4wslkWc7NxZ22H5wg4vzXYLNo1pGUaYrih5nncrjO9v0pDmK3iUbPW5vPqbVOy3+
-         4iX1XI2D/EPgBirDfyUMtn8cY6Fq/B5b2H0mRCgk=
+        b=x8IRn3tvZuGhJPDEw97SJGKzbwcmeltD2h6y2cjCMUYTzjyY+mResQK+b0i54sMTz
+         TFHGX96ICRmePvo090f5i9yTT4mwbKGtKR7aXYVPnJKTg+Vaas5gdrIMsYOE266LNm
+         oBmYBPplg8i8Y0FUQVui80j3TyWpk2omiApTYrv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Mark Brown <broonie@kernel.org>, Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 106/264] random: simplify arithmetic function flow in account()
-Date:   Thu, 23 Jun 2022 18:41:39 +0200
-Message-Id: <20220623164347.069392524@linuxfoundation.org>
+Subject: [PATCH 4.19 033/234] random: split primary/secondary crng init paths
+Date:   Thu, 23 Jun 2022 18:41:40 +0200
+Message-Id: <20220623164344.003169695@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
+References: <20220623164343.042598055@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit a254a0e4093fce8c832414a83940736067eed515 upstream.
+commit 5cbe0f13b51ac2fb2fd55902cff8d0077fc084c0 upstream.
 
-Now that have_bytes is never modified, we can simplify this function.
-First, we move the check for negative entropy_count to be first. That
-ensures that subsequent reads of this will be non-negative. Then,
-have_bytes and ibytes can be folded into their one use site in the
-min_t() function.
+Currently crng_initialize() is used for both the primary CRNG and
+secondary CRNGs. While we wish to share common logic, we need to do a
+number of additional things for the primary CRNG, and this would be
+easier to deal with were these handled in separate functions.
 
-Suggested-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+This patch splits crng_initialize() into crng_initialize_primary() and
+crng_initialize_secondary(), with common logic factored out into a
+crng_init_try_arch() helper.
+
+There should be no functional change as a result of this patch.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20200210130015.17664-2-mark.rutland@arm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ drivers/char/random.c |   34 ++++++++++++++++++++++------------
+ 1 file changed, 22 insertions(+), 12 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1344,7 +1344,7 @@ EXPORT_SYMBOL_GPL(add_disk_randomness);
-  */
- static size_t account(size_t nbytes, int min)
- {
--	int entropy_count, orig, have_bytes;
-+	int entropy_count, orig;
- 	size_t ibytes, nfrac;
+@@ -783,27 +783,37 @@ static int __init parse_trust_cpu(char *
+ }
+ early_param("random.trust_cpu", parse_trust_cpu);
  
- 	BUG_ON(input_pool.entropy_count > POOL_FRACBITS);
-@@ -1352,20 +1352,15 @@ static size_t account(size_t nbytes, int
- 	/* Can we pull enough? */
- retry:
- 	entropy_count = orig = READ_ONCE(input_pool.entropy_count);
--	ibytes = nbytes;
--	/* never pull more than available */
--	have_bytes = entropy_count >> (POOL_ENTROPY_SHIFT + 3);
--
--	if (have_bytes < 0)
--		have_bytes = 0;
--	ibytes = min_t(size_t, ibytes, have_bytes);
--	if (ibytes < min)
--		ibytes = 0;
--
- 	if (WARN_ON(entropy_count < 0)) {
- 		pr_warn("negative entropy count: count %d\n", entropy_count);
- 		entropy_count = 0;
+-static void crng_initialize(struct crng_state *crng)
++static bool crng_init_try_arch(struct crng_state *crng)
+ {
+ 	int		i;
+-	int		arch_init = 1;
++	bool		arch_init = true;
+ 	unsigned long	rv;
+ 
+-	memcpy(&crng->state[0], "expand 32-byte k", 16);
+-	if (crng == &primary_crng)
+-		_extract_entropy(&input_pool, &crng->state[4],
+-				 sizeof(__u32) * 12, 0);
+-	else
+-		_get_random_bytes(&crng->state[4], sizeof(__u32) * 12);
+ 	for (i = 4; i < 16; i++) {
+ 		if (!arch_get_random_seed_long(&rv) &&
+ 		    !arch_get_random_long(&rv)) {
+ 			rv = random_get_entropy();
+-			arch_init = 0;
++			arch_init = false;
+ 		}
+ 		crng->state[i] ^= rv;
  	}
+-	if (trust_cpu && arch_init && crng == &primary_crng) {
 +
-+	/* never pull more than available */
-+	ibytes = min_t(size_t, nbytes, entropy_count >> (POOL_ENTROPY_SHIFT + 3));
-+	if (ibytes < min)
-+		ibytes = 0;
- 	nfrac = ibytes << (POOL_ENTROPY_SHIFT + 3);
- 	if ((size_t)entropy_count > nfrac)
- 		entropy_count -= nfrac;
++	return arch_init;
++}
++
++static void crng_initialize_secondary(struct crng_state *crng)
++{
++	memcpy(&crng->state[0], "expand 32-byte k", 16);
++	_get_random_bytes(&crng->state[4], sizeof(__u32) * 12);
++	crng_init_try_arch(crng);
++	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
++}
++
++static void __init crng_initialize_primary(struct crng_state *crng)
++{
++	memcpy(&crng->state[0], "expand 32-byte k", 16);
++	_extract_entropy(&input_pool, &crng->state[4], sizeof(__u32) * 12, 0);
++	if (crng_init_try_arch(crng) && trust_cpu) {
+ 		invalidate_batched_entropy();
+ 		numa_crng_init();
+ 		crng_init = 2;
+@@ -854,7 +864,7 @@ static void do_numa_crng_init(struct wor
+ 		crng = kmalloc_node(sizeof(struct crng_state),
+ 				    GFP_KERNEL | __GFP_NOFAIL, i);
+ 		spin_lock_init(&crng->lock);
+-		crng_initialize(crng);
++		crng_initialize_secondary(crng);
+ 		pool[i] = crng;
+ 	}
+ 	/* pairs with READ_ONCE() in select_crng() */
+@@ -1792,7 +1802,7 @@ int __init rand_initialize(void)
+ 	init_std_data(&input_pool);
+ 	if (crng_need_final_init)
+ 		crng_finalize_init(&primary_crng);
+-	crng_initialize(&primary_crng);
++	crng_initialize_primary(&primary_crng);
+ 	crng_global_init_time = jiffies;
+ 	if (ratelimit_disable) {
+ 		urandom_warning.interval = 0;
 
 
