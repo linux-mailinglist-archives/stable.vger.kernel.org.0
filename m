@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DDEA5586EB
+	by mail.lfdr.de (Postfix) with ESMTP id AE2C95586EC
 	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:18:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236810AbiFWSSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236816AbiFWSSr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 Jun 2022 14:18:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41834 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236878AbiFWSQ5 (ORCPT
+        with ESMTP id S236879AbiFWSQ5 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:16:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BECE462C08;
-        Thu, 23 Jun 2022 10:23:29 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C87B62BC0;
+        Thu, 23 Jun 2022 10:23:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 759BEB824B9;
-        Thu, 23 Jun 2022 17:23:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6EA6C3411B;
-        Thu, 23 Jun 2022 17:23:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21B1E61EA7;
+        Thu, 23 Jun 2022 17:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8DE3C3411B;
+        Thu, 23 Jun 2022 17:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656005007;
-        bh=MI0us4Sq8Vv1X84apacd1lN1GFMH+hp6Cs8UnZiFiUU=;
+        s=korg; t=1656005010;
+        bh=/T/e1N9YLiwK9V5+3P5zlJujZu1xfXX+AeCN9RlNAmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1YraXPoMMrR3ItnDemkdcAlDmrf07cQNEemvuoBJnyTsdML3eQCGGyTnlt7J/RfrI
-         UBZ6juHafcJp2x6XlD4yt2MHSsX7b4YJC9G+0C20x6Keg1cKhDy50bzXvaLvzuNLtv
-         Offz6xgY9vvJ0wTKrSo8k0x4exnQUBmp0GkATm4k=
+        b=srG1d5Bhc5TObdNhfbdMCpv+SEjQNlVA1bYShN721jog4vFLV0/vAPjZlDiyGfL4X
+         Nk1oX8pFVqqFRLeNxf9zgTjAhSds977Z9CRDVFHRXPsWUiy+vHcxHuIRqY7h4ZDnMR
+         cNaodQOE6A+wkbym6Qddv7TOZguiFKFxYyUEz16I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        Ilya Maximets <i.maximets@ovn.org>,
-        Aaron Conole <aconole@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 222/234] net: openvswitch: fix leak of nested actions
-Date:   Thu, 23 Jun 2022 18:44:49 +0200
-Message-Id: <20220623164349.332105516@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Schwab <schwab@linux-m68k.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 223/234] RISC-V: fix barrier() use in <vdso/processor.h>
+Date:   Thu, 23 Jun 2022 18:44:50 +0200
+Message-Id: <20220623164349.360556198@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -56,147 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Maximets <i.maximets@ovn.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 1f30fb9166d4f15a1aa19449b9da871fe0ed4796 upstream.
+commit 30aca1bacb398dec6c1ed5eeca33f355bd7b6203 upstream.
 
-While parsing user-provided actions, openvswitch module may dynamically
-allocate memory and store pointers in the internal copy of the actions.
-So this memory has to be freed while destroying the actions.
+riscv's <vdso/processor.h> uses barrier() so it should include
+<asm/barrier.h>
 
-Currently there are only two such actions: ct() and set().  However,
-there are many actions that can hold nested lists of actions and
-ovs_nla_free_flow_actions() just jumps over them leaking the memory.
+Fixes this build error:
+  CC [M]  drivers/net/ethernet/emulex/benet/be_main.o
+In file included from ./include/vdso/processor.h:10,
+                 from ./arch/riscv/include/asm/processor.h:11,
+                 from ./include/linux/prefetch.h:15,
+                 from drivers/net/ethernet/emulex/benet/be_main.c:14:
+./arch/riscv/include/asm/vdso/processor.h: In function 'cpu_relax':
+./arch/riscv/include/asm/vdso/processor.h:14:2: error: implicit declaration of function 'barrier' [-Werror=implicit-function-declaration]
+   14 |  barrier();
 
-For example, removal of the flow with the following actions will lead
-to a leak of the memory allocated by nf_ct_tmpl_alloc():
+This happens with a total of 5 networking drivers -- they all use
+<linux/prefetch.h>.
 
-  actions:clone(ct(commit),0)
+rv64 allmodconfig now builds cleanly after this patch.
 
-Non-freed set() action may also leak the 'dst' structure for the
-tunnel info including device references.
+Fixes fallout from:
+815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
 
-Under certain conditions with a high rate of flow rotation that may
-cause significant memory leak problem (2MB per second in reporter's
-case).  The problem is also hard to mitigate, because the user doesn't
-have direct control over the datapath flows generated by OVS.
-
-Fix that by iterating over all the nested actions and freeing
-everything that needs to be freed recursively.
-
-New build time assertion should protect us from this problem if new
-actions will be added in the future.
-
-Unfortunately, openvswitch module doesn't use NLA_F_NESTED, so all
-attributes has to be explicitly checked.  sample() and clone() actions
-are mixing extra attributes into the user-provided action list.  That
-prevents some code generalization too.
-
-Fixes: 34ae932a4036 ("openvswitch: Make tunnel set action attach a metadata dst")
-Link: https://mail.openvswitch.org/pipermail/ovs-dev/2022-March/392922.html
-Reported-by: Stéphane Graber <stgraber@ubuntu.com>
-Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
-Acked-by: Aaron Conole <aconole@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[Backport for 4.19: Removed handling of OVS_ACTION_ATTR_DEC_TTL
- and OVS_ACTION_ATTR_CHECK_PKT_LEN as these actions do not exist
- in this version.  BUILD_BUG_ON condition adjusted accordingly.]
+Fixes: ad5d1122b82f ("riscv: use vDSO common flow to reduce the latency of the time-related functions")
+Reported-by: Andreas Schwab <schwab@linux-m68k.org>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Acked-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+[sudip: change in old path]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/openvswitch/flow_netlink.c |   61 +++++++++++++++++++++++++++++++++++++----
- 1 file changed, 56 insertions(+), 5 deletions(-)
+ arch/riscv/include/asm/processor.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/openvswitch/flow_netlink.c
-+++ b/net/openvswitch/flow_netlink.c
-@@ -2253,6 +2253,36 @@ static struct sw_flow_actions *nla_alloc
- 	return sfa;
- }
+--- a/arch/riscv/include/asm/processor.h
++++ b/arch/riscv/include/asm/processor.h
+@@ -30,6 +30,8 @@
  
-+static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len);
-+
-+static void ovs_nla_free_clone_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a = nla_data(action);
-+	int rem = nla_len(action);
-+
-+	switch (nla_type(a)) {
-+	case OVS_CLONE_ATTR_EXEC:
-+		/* The real list of actions follows this attribute. */
-+		a = nla_next(a, &rem);
-+		ovs_nla_free_nested_actions(a, rem);
-+		break;
-+	}
-+}
-+
-+static void ovs_nla_free_sample_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a = nla_data(action);
-+	int rem = nla_len(action);
-+
-+	switch (nla_type(a)) {
-+	case OVS_SAMPLE_ATTR_ARG:
-+		/* The real list of actions follows this attribute. */
-+		a = nla_next(a, &rem);
-+		ovs_nla_free_nested_actions(a, rem);
-+		break;
-+	}
-+}
-+
- static void ovs_nla_free_set_action(const struct nlattr *a)
- {
- 	const struct nlattr *ovs_key = nla_data(a);
-@@ -2266,25 +2296,46 @@ static void ovs_nla_free_set_action(cons
- 	}
- }
+ #ifndef __ASSEMBLY__
  
--void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
-+static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len)
- {
- 	const struct nlattr *a;
- 	int rem;
- 
--	if (!sf_acts)
-+	/* Whenever new actions are added, the need to update this
-+	 * function should be considered.
-+	 */
-+	BUILD_BUG_ON(OVS_ACTION_ATTR_MAX != 20);
++#include <asm/barrier.h>
 +
-+	if (!actions)
- 		return;
- 
--	nla_for_each_attr(a, sf_acts->actions, sf_acts->actions_len, rem) {
-+	nla_for_each_attr(a, actions, len, rem) {
- 		switch (nla_type(a)) {
--		case OVS_ACTION_ATTR_SET:
--			ovs_nla_free_set_action(a);
-+		case OVS_ACTION_ATTR_CLONE:
-+			ovs_nla_free_clone_action(a);
- 			break;
-+
- 		case OVS_ACTION_ATTR_CT:
- 			ovs_ct_free_action(a);
- 			break;
-+
-+		case OVS_ACTION_ATTR_SAMPLE:
-+			ovs_nla_free_sample_action(a);
-+			break;
-+
-+		case OVS_ACTION_ATTR_SET:
-+			ovs_nla_free_set_action(a);
-+			break;
- 		}
- 	}
-+}
-+
-+void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
-+{
-+	if (!sf_acts)
-+		return;
- 
-+	ovs_nla_free_nested_actions(sf_acts->actions, sf_acts->actions_len);
- 	kfree(sf_acts);
- }
+ struct task_struct;
+ struct pt_regs;
  
 
 
