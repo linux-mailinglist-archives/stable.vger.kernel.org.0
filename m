@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0361E55843B
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCC3055824E
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbiFWRki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:40:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46166 "EHLO
+        id S230157AbiFWRNf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:13:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234919AbiFWRi1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8703842A2C;
-        Thu, 23 Jun 2022 10:09:08 -0700 (PDT)
+        with ESMTP id S229723AbiFWRMP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:12:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 959E82DCC;
+        Thu, 23 Jun 2022 09:57:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1672061573;
-        Thu, 23 Jun 2022 17:09:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7603C3411B;
-        Thu, 23 Jun 2022 17:09:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 007F060B2C;
+        Thu, 23 Jun 2022 16:57:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC61EC3411B;
+        Thu, 23 Jun 2022 16:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004147;
-        bh=WXzatfo1Gdzn71E2kMuzfXun5GozS4HNJ2f2i7o2MU8=;
+        s=korg; t=1656003461;
+        bh=YFSLUmsgfLwiMcvlShyqk9K23fj8lUXfyVTV4G0bNOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5jGO0KLhS400vk9NpS+t4vnk1j5HvE4UHHXP6zIUcmzqmK6+NtzNJDwTLV1t6naY
-         5LR6lhnLJsgXjc/sJXzEl991WDFWJARNB5jqIWe616hm4GJU/ASUIOcaN0/q6Ogm9j
-         R4WKrABDHjflIMNOGHJ7AUIc/oIQAjWUsp076zvg=
+        b=aYKQINNrKG5+/eaf5Yd+g6un6okTUIEH623GaFWnjvmWDWXrsKKJtl8z7++3mjT87
+         Kk+KffML947xCenfOGkUw8nPhxAy83++EFm0MPqJAZfzdtBmNXtutuIOr24t2pJEWz
+         JTz+wFv1K9HhroxsFH4JxgYKUWrt0dNO77nQ1ooA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Chengguang Xu <cgxu519@mykernel.net>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 203/237] scsi: pmcraid: Fix missing resource cleanup in error case
-Date:   Thu, 23 Jun 2022 18:43:57 +0200
-Message-Id: <20220623164348.988536638@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Miaoqian Lin <linmq006@gmail.com>
+Subject: [PATCH 4.9 245/264] usb: gadget: lpc32xx_udc: Fix refcount leak in lpc32xx_udc_probe
+Date:   Thu, 23 Jun 2022 18:43:58 +0200
+Message-Id: <20220623164351.003771829@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit ec1e8adcbdf661c57c395bca342945f4f815add7 ]
+commit 4757c9ade34178b351580133771f510b5ffcf9c8 upstream.
 
-Fix missing resource cleanup (when '(--i) == 0') for error case in
-pmcraid_register_interrupt_handler().
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
+of_node_put() will check NULL pointer.
 
-Link: https://lore.kernel.org/r/20220529153456.4183738-6-cgxu519@mykernel.net
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 24a28e428351 ("USB: gadget driver for LPC32xx")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220603140246.64529-1-linmq006@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/pmcraid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/lpc32xx_udc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/pmcraid.c b/drivers/scsi/pmcraid.c
-index b4d6cd8cd1ad..d27ae937ff68 100644
---- a/drivers/scsi/pmcraid.c
-+++ b/drivers/scsi/pmcraid.c
-@@ -4601,7 +4601,7 @@ pmcraid_register_interrupt_handler(struct pmcraid_instance *pinstance)
- 	return 0;
+--- a/drivers/usb/gadget/udc/lpc32xx_udc.c
++++ b/drivers/usb/gadget/udc/lpc32xx_udc.c
+@@ -3034,6 +3034,7 @@ static int lpc32xx_udc_probe(struct plat
+ 	}
  
- out_unwind:
--	while (--i > 0)
-+	while (--i >= 0)
- 		free_irq(pci_irq_vector(pdev, i), &pinstance->hrrq_vector[i]);
- 	pci_free_irq_vectors(pdev);
- 	return rc;
--- 
-2.35.1
-
+ 	udc->isp1301_i2c_client = isp1301_get_client(isp1301_node);
++	of_node_put(isp1301_node);
+ 	if (!udc->isp1301_i2c_client) {
+ 		retval = -EPROBE_DEFER;
+ 		goto phy_fail;
 
 
