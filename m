@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89D7D55835D
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2968558530
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232732AbiFWR3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:29:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44292 "EHLO
+        id S235207AbiFWRye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:54:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229852AbiFWR0y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:26:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B51C63;
-        Thu, 23 Jun 2022 10:02:57 -0700 (PDT)
+        with ESMTP id S235989AbiFWRxm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:53:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AE8456F9A;
+        Thu, 23 Jun 2022 10:14:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9693F60AD7;
-        Thu, 23 Jun 2022 17:02:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D197C3411B;
-        Thu, 23 Jun 2022 17:02:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD18AB824BA;
+        Thu, 23 Jun 2022 17:14:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D39B8C3411B;
+        Thu, 23 Jun 2022 17:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003775;
-        bh=1gYXjOiQ/z90nRzb8U321OxJ4EeK2vYVDyO9CPVnJcY=;
+        s=korg; t=1656004470;
+        bh=ae2D2tKswpPnQf+75FHprNitIsIz5BouRfkpCcPwMOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=McXGMqJrZb02GoXnVYQXzULIKIRziPG1RyAmBmQSPy00c/uPxIj6XhLqfmHR2WmSY
-         xQsXobWJBh4JxOV9JRvpPgn+T85yIuAzPTzrNT900rAITPJMKt7txGBAcgiwvjs/yo
-         7RxvP5cjOuq8ziC737ZU32RG6a5aBwtNgw/TE/pI=
+        b=ATnfUNnUR8zeg79i8Kap46kXmoItLIqn6sAalDOji+AMtjRbD0rCiMSLF0mCm73zD
+         ZZGe3tPfpiZoVECO8mRGF66rJzvSi0wpsqVjwQqqk7nf707q6oLZsf8xFD/hhiUYZK
+         aRLXwe2kNIARBIueerNOcsHOFIHQehDCIKy1fH3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Wei Liu <wei.liu@kernel.org>, linux-hyperv@vger.kernel.org,
+        x86@kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 082/237] random: cleanup fractional entropy shift constants
+Subject: [PATCH 4.19 049/234] random: remove unused irq_flags argument from add_interrupt_randomness()
 Date:   Thu, 23 Jun 2022 18:41:56 +0200
-Message-Id: <20220623164345.511013966@linuxfoundation.org>
+Message-Id: <20220623164344.454446083@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
+References: <20220623164343.042598055@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +63,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit 18263c4e8e62f7329f38f5eadc568751242ca89c upstream.
+commit 703f7066f40599c290babdb79dd61319264987e9 upstream.
 
-The entropy estimator is calculated in terms of 1/8 bits, which means
-there are various constants where things are shifted by 3. Move these
-into our pool info enum with the other relevant constants. While we're
-at it, move an English assertion about sizes into a proper BUILD_BUG_ON
-so that the compiler can ensure this invariant.
+Since commit
+   ee3e00e9e7101 ("random: use registers from interrupted code for CPU's w/o a cycle counter")
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+the irq_flags argument is no longer used.
+
+Remove unused irq_flags.
+
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: K. Y. Srinivasan <kys@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: linux-hyperv@vger.kernel.org
+Cc: x86@kernel.org
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Acked-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ drivers/char/random.c  |    4 ++--
+ drivers/hv/hv.c        |    2 +-
+ drivers/hv/vmbus_drv.c |    2 +-
+ include/linux/random.h |    2 +-
+ kernel/irq/handle.c    |    2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -359,16 +359,6 @@
- /* #define ADD_INTERRUPT_BENCH */
+@@ -200,7 +200,7 @@
+  *	void add_device_randomness(const void *buf, unsigned int size);
+  * 	void add_input_randomness(unsigned int type, unsigned int code,
+  *                                unsigned int value);
+- *	void add_interrupt_randomness(int irq, int irq_flags);
++ *	void add_interrupt_randomness(int irq);
+  * 	void add_disk_randomness(struct gendisk *disk);
+  *	void add_hwgenerator_randomness(const char *buffer, size_t count,
+  *					size_t entropy);
+@@ -1272,7 +1272,7 @@ static __u32 get_reg(struct fast_pool *f
+ 	return *ptr;
+ }
  
- /*
-- * To allow fractional bits to be tracked, the entropy_count field is
-- * denominated in units of 1/8th bits.
-- *
-- * 2*(POOL_ENTROPY_SHIFT + poolbitshift) must <= 31, or the multiply in
-- * credit_entropy_bits() needs to be 64 bits wide.
-- */
--#define POOL_ENTROPY_SHIFT 3
--#define POOL_ENTROPY_BITS() (input_pool.entropy_count >> POOL_ENTROPY_SHIFT)
--
--/*
-  * If the entropy count falls under this number of bits, then we
-  * should wake up processes which are selecting or polling on write
-  * access to /dev/random.
-@@ -425,8 +415,13 @@ enum poolinfo {
- 	POOL_WORDMASK = POOL_WORDS - 1,
- 	POOL_BYTES = POOL_WORDS * sizeof(u32),
- 	POOL_BITS = POOL_BYTES * 8,
--	POOL_BITSHIFT = ilog2(POOL_WORDS) + 5,
--	POOL_FRACBITS = POOL_WORDS << (POOL_ENTROPY_SHIFT + 5),
-+	POOL_BITSHIFT = ilog2(POOL_BITS),
-+
-+	/* To allow fractional bits to be tracked, the entropy_count field is
-+	 * denominated in units of 1/8th bits. */
-+	POOL_ENTROPY_SHIFT = 3,
-+#define POOL_ENTROPY_BITS() (input_pool.entropy_count >> POOL_ENTROPY_SHIFT)
-+	POOL_FRACBITS = POOL_BITS << POOL_ENTROPY_SHIFT,
+-void add_interrupt_randomness(int irq, int irq_flags)
++void add_interrupt_randomness(int irq)
+ {
+ 	struct entropy_store	*r;
+ 	struct fast_pool	*fast_pool = this_cpu_ptr(&irq_randomness);
+--- a/drivers/hv/hv.c
++++ b/drivers/hv/hv.c
+@@ -115,7 +115,7 @@ static void hv_stimer0_isr(void)
  
- 	/* x^128 + x^104 + x^76 + x^51 +x^25 + x + 1 */
- 	POOL_TAP1 = 104,
-@@ -652,6 +647,9 @@ static void credit_entropy_bits(int nbit
- 	int entropy_count, entropy_bits, orig;
- 	int nfrac = nbits << POOL_ENTROPY_SHIFT;
+ 	hv_cpu = this_cpu_ptr(hv_context.cpu_context);
+ 	hv_cpu->clk_evt->event_handler(hv_cpu->clk_evt);
+-	add_interrupt_randomness(stimer0_vector, 0);
++	add_interrupt_randomness(stimer0_vector);
+ }
  
-+	/* Ensure that the multiplication can avoid being 64 bits wide. */
-+	BUILD_BUG_ON(2 * (POOL_ENTROPY_SHIFT + POOL_BITSHIFT) > 31);
-+
- 	if (!nbits)
- 		return;
- 
-@@ -687,13 +685,13 @@ retry:
- 		/* The +2 corresponds to the /4 in the denominator */
- 
- 		do {
--			unsigned int anfrac = min(pnfrac, POOL_FRACBITS/2);
-+			unsigned int anfrac = min(pnfrac, POOL_FRACBITS / 2);
- 			unsigned int add =
--				((POOL_FRACBITS - entropy_count)*anfrac*3) >> s;
-+				((POOL_FRACBITS - entropy_count) * anfrac * 3) >> s;
- 
- 			entropy_count += add;
- 			pnfrac -= anfrac;
--		} while (unlikely(entropy_count < POOL_FRACBITS-2 && pnfrac));
-+		} while (unlikely(entropy_count < POOL_FRACBITS - 2 && pnfrac));
+ static int hv_ce_set_next_event(unsigned long delta,
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -1146,7 +1146,7 @@ static void vmbus_isr(void)
+ 			tasklet_schedule(&hv_cpu->msg_dpc);
  	}
  
- 	if (WARN_ON(entropy_count < 0)) {
+-	add_interrupt_randomness(HYPERVISOR_CALLBACK_VECTOR, 0);
++	add_interrupt_randomness(HYPERVISOR_CALLBACK_VECTOR);
+ }
+ 
+ /*
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -35,7 +35,7 @@ static inline void add_latent_entropy(vo
+ 
+ extern void add_input_randomness(unsigned int type, unsigned int code,
+ 				 unsigned int value) __latent_entropy;
+-extern void add_interrupt_randomness(int irq, int irq_flags) __latent_entropy;
++extern void add_interrupt_randomness(int irq) __latent_entropy;
+ 
+ extern void get_random_bytes(void *buf, int nbytes);
+ extern int wait_for_random_bytes(void);
+--- a/kernel/irq/handle.c
++++ b/kernel/irq/handle.c
+@@ -188,7 +188,7 @@ irqreturn_t handle_irq_event_percpu(stru
+ 
+ 	retval = __handle_irq_event_percpu(desc, &flags);
+ 
+-	add_interrupt_randomness(desc->irq_data.irq, flags);
++	add_interrupt_randomness(desc->irq_data.irq);
+ 
+ 	if (!noirqdebug)
+ 		note_interrupt(desc, retval);
 
 
