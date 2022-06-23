@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F719558519
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFB005582E5
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235349AbiFWRyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:54:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42008 "EHLO
+        id S233367AbiFWRVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:21:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235735AbiFWRxH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:53:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E87156C32;
-        Thu, 23 Jun 2022 10:13:57 -0700 (PDT)
+        with ESMTP id S230296AbiFWRVW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:21:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEAA182899;
+        Thu, 23 Jun 2022 10:00:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA09961D18;
-        Thu, 23 Jun 2022 17:13:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98838C3411B;
-        Thu, 23 Jun 2022 17:13:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6BB29B82495;
+        Thu, 23 Jun 2022 17:00:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7ECAC341C7;
+        Thu, 23 Jun 2022 17:00:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004436;
-        bh=3tkh22Re/afsFv7a8hSMRkq5aRZJpKzulIY4E5amcmI=;
+        s=korg; t=1656003642;
+        bh=N440oNHoyTzc3htiMaveD7/JzYvDwHZV2hlKM/2fHYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2HxzD7LXCkoqrKxvEkKooa1KG7pkX3qXxBEBro+Wvr08WjGC5smSEyAm/OUV4e7P5
-         wXCLnhmHNTvn2SR3gbNPNwNurQ+2UOJot9yroN3T1qd2Ph06/D4+RvQ9dw9SsZ/+tR
-         PKVlmtg5zrONdkILc0ggWtHJUPj75IpvE1WQisFw=
+        b=S2FVsAeggwXsKHegzuBSaKLct+DcjetVguMBcCCqIEbg73f8faEvAArXAiiCbzEIE
+         thaP4w5i7f1x2MOGTAfh5jYJ6UNUX3u1qiqILaM/xY+Q00cAwuKcpelsiyocBXSs46
+         7W6DTYI1ff/b9D6+dX2NOmZWRmZ9t3JtaNOWBtak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
         Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 006/234] random: move rand_initialize() earlier
+Subject: [PATCH 4.14 039/237] random: remove unnecessary unlikely()
 Date:   Thu, 23 Jun 2022 18:41:13 +0200
-Message-Id: <20220623164343.233243132@linuxfoundation.org>
+Message-Id: <20220623164344.280462672@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
-References: <20220623164343.042598055@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,109 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Yangtao Li <tiny.windzz@gmail.com>
 
-commit d55535232c3dbde9a523a9d10d68670f5fe5dec3 upstream.
+commit 870e05b1b18814911cb2703a977f447cb974f0f9 upstream.
 
-Right now rand_initialize() is run as an early_initcall(), but it only
-depends on timekeeping_init() (for mixing ktime_get_real() into the
-pools). However, the call to boot_init_stack_canary() for stack canary
-initialization runs earlier, which triggers a warning at boot:
+WARN_ON() already contains an unlikely(), so it's not necessary to use
+unlikely.
 
-random: get_random_bytes called from start_kernel+0x357/0x548 with crng_init=0
-
-Instead, this moves rand_initialize() to after timekeeping_init(), and moves
-canary initialization here as well.
-
-Note that this warning may still remain for machines that do not have
-UEFI RNG support (which initializes the RNG pools during setup_arch()),
-or for x86 machines without RDRAND (or booting without "random.trust=on"
-or CONFIG_RANDOM_TRUST_CPU=y).
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
+Link: https://lore.kernel.org/r/20190607182517.28266-1-tiny.windzz@gmail.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c  |    5 ++---
- include/linux/random.h |    1 +
- init/main.c            |   21 ++++++++++++++-------
- 3 files changed, 17 insertions(+), 10 deletions(-)
+ drivers/char/random.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1852,7 +1852,7 @@ EXPORT_SYMBOL(get_random_bytes_arch);
-  * data into the pool to prepare it for use. The pool is not cleared
-  * as that can only decrease the entropy in the pool.
-  */
--static void init_std_data(struct entropy_store *r)
-+static void __init init_std_data(struct entropy_store *r)
- {
- 	int i;
- 	ktime_t now = ktime_get_real();
-@@ -1879,7 +1879,7 @@ static void init_std_data(struct entropy
-  * take care not to overwrite the precious per platform data
-  * we were given.
-  */
--static int rand_initialize(void)
-+int __init rand_initialize(void)
- {
- 	init_std_data(&input_pool);
- 	init_std_data(&blocking_pool);
-@@ -1891,7 +1891,6 @@ static int rand_initialize(void)
+@@ -738,10 +738,9 @@ retry:
+ 		} while (unlikely(entropy_count < pool_size-2 && pnfrac));
  	}
- 	return 0;
- }
--early_initcall(rand_initialize);
  
- #ifdef CONFIG_BLOCK
- void rand_initialize_disk(struct gendisk *disk)
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -36,6 +36,7 @@ extern void add_interrupt_randomness(int
+-	if (unlikely(entropy_count < 0)) {
++	if (WARN_ON(entropy_count < 0)) {
+ 		pr_warn("random: negative entropy/overflow: pool %s count %d\n",
+ 			r->name, entropy_count);
+-		WARN_ON(1);
+ 		entropy_count = 0;
+ 	} else if (entropy_count > pool_size)
+ 		entropy_count = pool_size;
+@@ -1380,10 +1379,9 @@ retry:
+ 	if (ibytes < min)
+ 		ibytes = 0;
  
- extern void get_random_bytes(void *buf, int nbytes);
- extern int wait_for_random_bytes(void);
-+extern int __init rand_initialize(void);
- extern bool rng_is_initialized(void);
- extern int add_random_ready_callback(struct random_ready_callback *rdy);
- extern void del_random_ready_callback(struct random_ready_callback *rdy);
---- a/init/main.c
-+++ b/init/main.c
-@@ -549,13 +549,6 @@ asmlinkage __visible void __init start_k
- 	page_address_init();
- 	pr_notice("%s", linux_banner);
- 	setup_arch(&command_line);
--	/*
--	 * Set up the the initial canary and entropy after arch
--	 * and after adding latent and command line entropy.
--	 */
--	add_latent_entropy();
--	add_device_randomness(command_line, strlen(command_line));
--	boot_init_stack_canary();
- 	mm_init_cpumask(&init_mm);
- 	setup_command_line(command_line);
- 	setup_nr_cpu_ids();
-@@ -640,6 +633,20 @@ asmlinkage __visible void __init start_k
- 	hrtimers_init();
- 	softirq_init();
- 	timekeeping_init();
-+
-+	/*
-+	 * For best initial stack canary entropy, prepare it after:
-+	 * - setup_arch() for any UEFI RNG entropy and boot cmdline access
-+	 * - timekeeping_init() for ktime entropy used in rand_initialize()
-+	 * - rand_initialize() to get any arch-specific entropy like RDRAND
-+	 * - add_latent_entropy() to get any latent entropy
-+	 * - adding command line entropy
-+	 */
-+	rand_initialize();
-+	add_latent_entropy();
-+	add_device_randomness(command_line, strlen(command_line));
-+	boot_init_stack_canary();
-+
- 	time_init();
- 	perf_event_init();
- 	profile_init();
+-	if (unlikely(entropy_count < 0)) {
++	if (WARN_ON(entropy_count < 0)) {
+ 		pr_warn("random: negative entropy count: pool %s count %d\n",
+ 			r->name, entropy_count);
+-		WARN_ON(1);
+ 		entropy_count = 0;
+ 	}
+ 	nfrac = ibytes << (ENTROPY_SHIFT + 3);
 
 
