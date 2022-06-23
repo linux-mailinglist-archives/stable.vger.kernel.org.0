@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 173595574A1
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 09:57:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 651165574A7
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 09:57:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230461AbiFWH52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 03:57:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42272 "EHLO
+        id S230154AbiFWH5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 03:57:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230447AbiFWH51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 03:57:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CFD34707C;
-        Thu, 23 Jun 2022 00:57:27 -0700 (PDT)
+        with ESMTP id S230520AbiFWH5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 03:57:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1B5247389;
+        Thu, 23 Jun 2022 00:57:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2E42B82209;
-        Thu, 23 Jun 2022 07:57:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5316C341C0;
-        Thu, 23 Jun 2022 07:57:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6544B82200;
+        Thu, 23 Jun 2022 07:57:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBF56C3411B;
+        Thu, 23 Jun 2022 07:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655971044;
-        bh=cTModWjDLAKg4/iCk6qquG8mUQo6JLZag9BE+ysJ4Gw=;
+        s=korg; t=1655971062;
+        bh=ANhwfxxjIa4IJy2tXFg8crRrfMzdxUvybqtIlxYXVwM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QQoCx+8xJq4HLwQOyJN5vCzkmmDPCeoeuQgAehEYQCzTKDqlCEBxIyLN5L1OUFBS0
-         O3BGV6JYSgqBG0N1DppQgzJtvJBPPJzIgAa35Dx2ClRSb28sOP1xqzmCElr6fAMKH/
-         TL+btZ+FxkJ56r47Ewqcm77S9Nxg7Jhg9BXpdaY8=
-Date:   Thu, 23 Jun 2022 09:57:21 +0200
+        b=r5AREGxzJQcgEIjMRRPm7K6wf+HwUCOn5ip1jxvDeXOZcamO9qg02tG+BjFZ7A2SL
+         pMcZ0S0GdZXhtXiKtUSqhKHhy1jKlQtHLjA2bjqfWfKPL+ZMcGYeakJm2SBqhG8UDf
+         xnLvtFw7b0GXVSB/MJuwgcIhDsVdb+m7PzpDVfq0=
+Date:   Thu, 23 Jun 2022 09:57:39 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     cgel.zte@gmail.com
 Cc:     anton@tuxera.com, linux-ntfs-dev@lists.sourceforge.net,
@@ -41,7 +41,7 @@ Cc:     anton@tuxera.com, linux-ntfs-dev@lists.sourceforge.net,
         Jiang Xuexin <jiang.xuexin@zte.com.cn>,
         Zhang wenya <zhang.wenya1@zte.com.cn>
 Subject: Re: [PATCH] fs/ntfs: fix BUG_ON of ntfs_read_block()
-Message-ID: <YrQc4ZOBGhmpvfaP@kroah.com>
+Message-ID: <YrQc8xq+QezRcLi7@kroah.com>
 References: <20220623033635.973929-1-xu.xin16@zte.com.cn>
  <20220623035131.974098-1-xu.xin16@zte.com.cn>
 MIME-Version: 1.0
@@ -89,10 +89,21 @@ On Thu, Jun 23, 2022 at 03:51:31AM +0000, cgel.zte@gmail.com wrote:
 > -	BUG_ON(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni));
 > +	if (unlikely(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni))) {
 > +		WARN(1, "NTFS: ni->runlist.rl, ni->mft_no, and NInoAttr(ni) is null!\n");
+> +		unlock_page(page);
+> +		return -EINVAL;
+> +	}
+>  
+>  	blocksize = vol->sb->s_blocksize;
+>  	blocksize_bits = vol->sb->s_blocksize_bits;
+> -- 
+> 2.25.1
+> 
 
-So for systems with panic-on-warn, you are still crashing?  Why is this
-WARN() line still needed here?
+<formletter>
 
-thanks,
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-greg k-h
+</formletter>
