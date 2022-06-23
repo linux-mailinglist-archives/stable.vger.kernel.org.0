@@ -2,109 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B7105580ED
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:54:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B53955815A
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233380AbiFWQy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:54:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48900 "EHLO
+        id S229451AbiFWQ7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:59:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233381AbiFWQuv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:50:51 -0400
-Received: from maynard.decadent.org.uk (maynard.decadent.org.uk [95.217.213.242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 370964F1F2
-        for <stable@vger.kernel.org>; Thu, 23 Jun 2022 09:48:46 -0700 (PDT)
-Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
-        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1o4Q0Z-0000TX-In; Thu, 23 Jun 2022 18:48:43 +0200
-Received: from ben by deadeye with local (Exim 4.95)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1o4Q0Y-001xvp-UF;
-        Thu, 23 Jun 2022 18:48:42 +0200
-Message-ID: <a460d418d905a3fa2a92095def3cae029ec42289.camel@decadent.org.uk>
-Subject: Re: [stable] Improved TCP source port randomisation
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable <stable@vger.kernel.org>,
-        Willy Tarreau <w@1wt.eu>, Eric Dumazet <edumazet@google.com>,
-        Amit Klein <aksecurity@gmail.com>
-Date:   Thu, 23 Jun 2022 18:48:42 +0200
-In-Reply-To: <YrSO4AO8usZQda1z@kroah.com>
-References: <c07281c6d7faa8042cff0a3da7a273eb617cfa13.camel@decadent.org.uk>
-         <YrSNqZazgv05N07+@kroah.com> <YrSO4AO8usZQda1z@kroah.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-zlrMeSxdm+YJdtGFgwY8"
-User-Agent: Evolution 3.44.1-2 
+        with ESMTP id S232867AbiFWQ44 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:56:56 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0D4A4B403;
+        Thu, 23 Jun 2022 09:52:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 68FC0CE25E4;
+        Thu, 23 Jun 2022 16:52:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3026DC341C5;
+        Thu, 23 Jun 2022 16:52:54 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="i9UlvD98"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1656003172;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=lc4+yA8sbbcfkz4YSh6TP9qWPcsqLq7aPfv9CPguNkY=;
+        b=i9UlvD989T4ixKP4ugaWpbhIrTIFH6MqY2PD1AMkoUXtE0WItjhezIw8yr85xPoWjE47RP
+        19lNtmVxEQAkFs9s/hz/Ed6aX3ynCl0nROaVUb2qXlL6TUvHnAjgHB381407R+zeOBozH2
+        E9l1ocNoTBZR/eSQ3yXCo8pib+SoZ78=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 75d9cfc3 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Thu, 23 Jun 2022 16:52:51 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     LKML <linux-kernel@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-crypto@vger.kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org
+Subject: [PATCH] timekeeping: contribute wall clock to rng on time change
+Date:   Thu, 23 Jun 2022 18:52:26 +0200
+Message-Id: <20220623165226.1335679-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 91.181.7.168
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The rng's random_init() function contributes the real time to the rng at
+boot time, so that events can at least start in relation to something
+particular in the real world. But this clock might not yet be set that
+point in boot, so nothing is contributed. In addition, the relation
+between minor clock changes from, say, NTP, and the cycle counter is
+potentially useful entropic data.
 
---=-zlrMeSxdm+YJdtGFgwY8
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+This commit addresses this by mixing in a time stamp on calls to
+settimeofday and adjtimex. No entropy is credited in doing so, so it
+doesn't make initialization faster, but it is still useful input to
+have.
 
-On Thu, 2022-06-23 at 18:03 +0200, Greg Kroah-Hartman wrote:
-> On Thu, Jun 23, 2022 at 05:58:33PM +0200, Greg Kroah-Hartman wrote:
-> > On Wed, Jun 22, 2022 at 12:24:19AM +0200, Ben Hutchings wrote:
-> > > Please pick the following commits for 5.4 and 5.10 stable branches:
-> > >=20
-> > > 90564f36f1c3071d1e0c617cde342f9706e250be tcp: add some entropy in __i=
-net_hash_connect()
-> > > 506884b616e95714af173c47b89e7d1f5157c190 tcp: use different parts of =
-the port_offset for index and offset
-> > > dabeb1baad260b2308477991f3006f4a1ac80d6d tcp: add small random increm=
-ents to the source port
-> > > 735ad25586cd381a3fdc8283e2d1cd4d65f0e9e7 tcp: dynamically allocate th=
-e perturb table used by source ports
-> > > ada9e93075c7d54a7fd28bae5429ed30ddd89bfa tcp: increase source port pe=
-rturb table to 2^16
-> > > 82f233b30b728249d1c374b77d722b2e4f55a631 tcp: drop the hash_32() part=
- from the index calculation
-> >=20
-> > All of these commit ids are not in Linus's tree, are you sure you got
-> > them correct?
->=20
-> Ah, I can pick them from the mboxes you sent me in the other email...
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ kernel/time/timekeeping.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Oops, sorry about that.
+diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+index 8e4b3c32fcf9..ad55da792f13 100644
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -1346,6 +1346,9 @@ int do_settimeofday64(const struct timespec64 *ts)
+ 	if (!ret)
+ 		audit_tk_injoffset(ts_delta);
+ 
++	ktime_get_real_ts64(&xt);
++	add_device_randomness(&xt, sizeof(xt));
++
+ 	return ret;
+ }
+ EXPORT_SYMBOL(do_settimeofday64);
+@@ -2475,6 +2478,9 @@ int do_adjtimex(struct __kernel_timex *txc)
+ 
+ 	ntp_notify_cmos_timer();
+ 
++	ktime_get_real_ts64(&ts);
++	add_device_randomness(&ts, sizeof(ts));
++
+ 	return ret;
+ }
+ 
+-- 
+2.35.1
 
-Ben.
-
---=20
-Ben Hutchings
-It's easier to fight for one's principles than to live up to them.
-
---=-zlrMeSxdm+YJdtGFgwY8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmK0mWoACgkQ57/I7JWG
-EQlZkxAAgE+0/wNJ/QoslHbPNXPmJ9k74WiTxRMT9S+JZ/AuZ4QRlI7ERS1bJ+so
-jeNiKCyV6FBNcjx1pQPlCr/haax5BxqNPG4ptDvLaXonn61vg3RVOLu+GiEfOkLh
-l/USCzMS4ZVHeFu4LUkxBGcQSUhn18zsa7t00AlPhKYztUyPgfts8PxHJwceoQfO
-Oz3urdXbxMDfMJkxCCZw1r/VIA/PC/Y0Otey6D465e7rUXY9N3pStNJHLgXPl0AR
-Fj8P2Sr3/9wf1dyoNktOt+bmZmMCKXY68//DfDYrPim/7rT6Z2A0VACRgpV7TwE4
-mpA3AOi89MB1e9IUuNw+/fvuPuMMkoUpC4+rduPpAW1jDWubose4ds/iT8L7y/bW
-EzdMJwwPRy2bPAHfqg09SmzrRJxtj7hjSv/prbCuOklfWUqICvTFyur5LCSEHFsB
-9JJmJ6phxXZOggJXw+idYoB6pwk6zQQn27SHL0zhOx6h6wrIE9iCMXZVZmd5+9PA
-buuU0hp1CsuftOrLM92k6vp86QLonedum/XCa3KYE9Fp/2gHexgDhr+2toDbqx6p
-jdh7m4faZGqgnEp690Y2QQIgOYMhb5aWEw7z5mhUbZbNdkFogO0KMyqhVVAwkxfg
-MQot08HWqdu1dM1gva33uHCEvY0rEWBcEwlMWieDKA84+m34x7E=
-=23p+
------END PGP SIGNATURE-----
-
---=-zlrMeSxdm+YJdtGFgwY8--
