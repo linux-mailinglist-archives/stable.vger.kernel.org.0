@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0B29558242
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D9BE55858F
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229802AbiFWRN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:13:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42860 "EHLO
+        id S233751AbiFWR7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:59:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231767AbiFWRLl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:11:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 401F1FE9;
-        Thu, 23 Jun 2022 09:50:56 -0700 (PDT)
+        with ESMTP id S236172AbiFWR6y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:58:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E99E993FA;
+        Thu, 23 Jun 2022 10:16:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC58B61FC2;
-        Thu, 23 Jun 2022 16:50:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5916C3411B;
-        Thu, 23 Jun 2022 16:50:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 511D561E17;
+        Thu, 23 Jun 2022 17:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E402BC341C4;
+        Thu, 23 Jun 2022 17:16:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003055;
-        bh=26K/+lq/Nl/U9R1SiSZW77RUyAOQ9pPzlVvMh+JeS9s=;
+        s=korg; t=1656004574;
+        bh=qphTwdliIn8w9lKPm/HwNo5p+1kw3P0H8jVb9mzhi/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iY7e3K0BE4oQamEoomyq5MDrjt4MSVNIAiYAq0xSK6BZbnBFG+r1j4nKwAE5p9BGP
-         N32u2sTusXmk6Wo/9A9PnTHN/SrWz4ckhl4LBg8gIXbuG04tpKb/2hKsnob7ihTKjY
-         OGmYbJgGoktWlj74KU3RV9gzO8MZKmhc0604rJPw=
+        b=lsDaluWxs64ci/XQuok2A+ZnyQaaZqoG6Z/gM3ceFMvSQnkUcjETeaNZBDPHCXjfY
+         S1rmLcH1H2tn8EFWx76FtRQESpBjaMIJ1OgkG2ZpUw5+8fHzCcC0PNHcKxSekci5xg
+         x8NG/Nng/5aBCSbPsnA4eYF+Y8M9xgm/c0puh828=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Richard Henderson <rth@twiddle.net>,
+        Mark Brown <broonie@kernel.org>, Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 114/264] random: make credit_entropy_bits() always safe
+Subject: [PATCH 4.19 040/234] linux/random.h: Mark CONFIG_ARCH_RANDOM functions __must_check
 Date:   Thu, 23 Jun 2022 18:41:47 +0200
-Message-Id: <20220623164347.294617279@linuxfoundation.org>
+Message-Id: <20220623164344.199359859@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
+References: <20220623164343.042598055@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Richard Henderson <richard.henderson@linaro.org>
 
-commit a49c010e61e1938be851f5e49ac219d49b704103 upstream.
+commit 904caa6413c87aacbf7d0682da617c39ca18cf1a upstream.
 
-This is called from various hwgenerator drivers, so rather than having
-one "safe" version for userspace and one "unsafe" version for the
-kernel, just make everything safe; the checks are cheap and sensible to
-have anyway.
+We must not use the pointer output without validating the
+success of the random read.
 
-Reported-by: Sultan Alsawaf <sultan@kerneltoast.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Richard Henderson <rth@twiddle.net>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20200110145422.49141-7-broonie@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   29 +++++++++--------------------
- 1 file changed, 9 insertions(+), 20 deletions(-)
+ include/linux/random.h |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -448,18 +448,15 @@ static void process_random_ready_list(vo
- 	spin_unlock_irqrestore(&random_ready_list_lock, flags);
- }
- 
--/*
-- * Credit (or debit) the entropy store with n bits of entropy.
-- * Use credit_entropy_bits_safe() if the value comes from userspace
-- * or otherwise should be checked for extreme values.
-- */
- static void credit_entropy_bits(int nbits)
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -118,19 +118,19 @@ unsigned long randomize_page(unsigned lo
+ #ifdef CONFIG_ARCH_RANDOM
+ # include <asm/archrandom.h>
+ #else
+-static inline bool arch_get_random_long(unsigned long *v)
++static inline bool __must_check arch_get_random_long(unsigned long *v)
  {
- 	int entropy_count, orig;
- 
--	if (!nbits)
-+	if (nbits <= 0)
- 		return;
- 
-+	nbits = min(nbits, POOL_BITS);
-+
- 	do {
- 		orig = READ_ONCE(input_pool.entropy_count);
- 		entropy_count = min(POOL_BITS, orig + nbits);
-@@ -471,18 +468,6 @@ static void credit_entropy_bits(int nbit
- 		crng_reseed(&primary_crng, true);
+ 	return false;
  }
- 
--static int credit_entropy_bits_safe(int nbits)
--{
--	if (nbits < 0)
--		return -EINVAL;
--
--	/* Cap the value to avoid overflows */
--	nbits = min(nbits, POOL_BITS);
--
--	credit_entropy_bits(nbits);
--	return 0;
--}
--
- /*********************************************************************
-  *
-  * CRNG using CHACHA20
-@@ -1577,7 +1562,10 @@ static long random_ioctl(struct file *f,
- 			return -EPERM;
- 		if (get_user(ent_count, p))
- 			return -EFAULT;
--		return credit_entropy_bits_safe(ent_count);
-+		if (ent_count < 0)
-+			return -EINVAL;
-+		credit_entropy_bits(ent_count);
-+		return 0;
- 	case RNDADDENTROPY:
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
-@@ -1590,7 +1578,8 @@ static long random_ioctl(struct file *f,
- 		retval = write_pool((const char __user *)p, size);
- 		if (retval < 0)
- 			return retval;
--		return credit_entropy_bits_safe(ent_count);
-+		credit_entropy_bits(ent_count);
-+		return 0;
- 	case RNDZAPENTCNT:
- 	case RNDCLEARPOOL:
- 		/*
+-static inline bool arch_get_random_int(unsigned int *v)
++static inline bool __must_check arch_get_random_int(unsigned int *v)
+ {
+ 	return false;
+ }
+-static inline bool arch_get_random_seed_long(unsigned long *v)
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ {
+ 	return false;
+ }
+-static inline bool arch_get_random_seed_int(unsigned int *v)
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ {
+ 	return false;
+ }
 
 
