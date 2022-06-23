@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F60255842F
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AD34558203
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233575AbiFWRk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:40:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46178 "EHLO
+        id S230165AbiFWRJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:09:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234810AbiFWRiT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F5C26572;
-        Thu, 23 Jun 2022 10:08:19 -0700 (PDT)
+        with ESMTP id S233841AbiFWRIS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:08:18 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA60E49B5E;
+        Thu, 23 Jun 2022 09:56:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A2DF461408;
-        Thu, 23 Jun 2022 17:08:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B8B3C341C7;
-        Thu, 23 Jun 2022 17:08:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B3A73CE24F9;
+        Thu, 23 Jun 2022 16:56:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2DA6C341C5;
+        Thu, 23 Jun 2022 16:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004097;
-        bh=9P2pvINs/sgb/fVH7QEjMuFU0EZR1PdrE2W4adZFrjo=;
+        s=korg; t=1656003410;
+        bh=OhAGgrsd2hb8cxfZVSqxF5k5FDAbFKwyrNdGMaFnscM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AI5/Ka3vRZS9WPnxmOAMawjkR8x6EsOZ0Dw1ob9bosB7SQ8DQ9+juKpknK+9RYmoP
-         P8IEZUBkrkt4NcjA1CA9XeDRMwNFNViuagMI3fpeZyoPrGZeaJFrWMCWxQiHAtgMlg
-         csxQG6SdJU+GIOMYy/xV/49YYt7C8nBTqo0Omcuw=
+        b=NmkqmTDmGk14NWsAONTZXBbG7usZGdGRC7AiK82yZBZQFTvQXKxajbi7Dm4aiC5nY
+         lw4FZRObBftbAhyKPvkNtjxMW5D2WD6NtHlT9Adt5tDdlCOXEJVXx3tlC5Kbt8fOll
+         Ge3N+s4PhejBxPWm+Zv0M8vT4U483be2EUTlaImU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
-        =?UTF-8?q?Stephan=20M=C3=BCller?= <smueller@chronox.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 188/237] crypto: drbg - move dynamic ->reseed_threshold adjustments to __drbg_seed()
-Date:   Thu, 23 Jun 2022 18:43:42 +0200
-Message-Id: <20220623164348.556012308@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 230/264] ASoC: wm8962: Fix suspend while playing music
+Date:   Thu, 23 Jun 2022 18:43:43 +0200
+Message-Id: <20220623164350.585693097@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,107 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolai Stange <nstange@suse.de>
+From: Adam Ford <aford173@gmail.com>
 
-commit 262d83a4290c331cd4f617a457408bdb82fbb738 upstream.
+[ Upstream commit d1f5272c0f7d2e53c6f2480f46725442776f5f78 ]
 
-Since commit 42ea507fae1a ("crypto: drbg - reseed often if seedsource is
-degraded"), the maximum seed lifetime represented by ->reseed_threshold
-gets temporarily lowered if the get_random_bytes() source cannot provide
-sufficient entropy yet, as is common during boot, and restored back to
-the original value again once that has changed.
+If the audio CODEC is playing sound when the system is suspended,
+it can be left in a state which throws the following error:
 
-More specifically, if the add_random_ready_callback() invoked from
-drbg_prepare_hrng() in the course of DRBG instantiation does not return
--EALREADY, that is, if get_random_bytes() has not been fully initialized
-at this point yet, drbg_prepare_hrng() will lower ->reseed_threshold
-to a value of 50. The drbg_async_seed() scheduled from said
-random_ready_callback will eventually restore the original value.
+wm8962 3-001a: ASoC: error at soc_component_read_no_lock on wm8962.3-001a: -16
 
-A future patch will replace the random_ready_callback based notification
-mechanism and thus, there will be no add_random_ready_callback() return
-value anymore which could get compared to -EALREADY.
+Once this error has occurred, the audio will not work again until rebooted.
 
-However, there's __drbg_seed() which gets invoked in the course of both,
-the DRBG instantiation as well as the eventual reseeding from
-get_random_bytes() in aforementioned drbg_async_seed(), if any. Moreover,
-it knows about the get_random_bytes() initialization state by the time the
-seed data had been obtained from it: the new_seed_state argument introduced
-with the previous patch would get set to DRBG_SEED_STATE_PARTIAL in case
-get_random_bytes() had not been fully initialized yet and to
-DRBG_SEED_STATE_FULL otherwise. Thus, __drbg_seed() provides a convenient
-alternative for managing that ->reseed_threshold lowering and restoring at
-a central place.
+Fix this by configuring SET_SYSTEM_SLEEP_PM_OPS.
 
-Move all ->reseed_threshold adjustment code from drbg_prepare_hrng() and
-drbg_async_seed() respectively to __drbg_seed(). Make __drbg_seed()
-lower the ->reseed_threshold to 50 in case its new_seed_state argument
-equals DRBG_SEED_STATE_PARTIAL and let it restore the original value
-otherwise.
-
-There is no change in behaviour.
-
-Signed-off-by: Nicolai Stange <nstange@suse.de>
-Reviewed-by: Stephan Müller <smueller@chronox.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220526182129.538472-1-aford173@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/drbg.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ sound/soc/codecs/wm8962.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/crypto/drbg.c
-+++ b/crypto/drbg.c
-@@ -1048,6 +1048,26 @@ static inline int __drbg_seed(struct drb
- 	/* 10.1.1.2 / 10.1.1.3 step 5 */
- 	drbg->reseed_ctr = 1;
+diff --git a/sound/soc/codecs/wm8962.c b/sound/soc/codecs/wm8962.c
+index 0e8008d38161..d46881f96c16 100644
+--- a/sound/soc/codecs/wm8962.c
++++ b/sound/soc/codecs/wm8962.c
+@@ -3861,6 +3861,7 @@ static int wm8962_runtime_suspend(struct device *dev)
+ #endif
  
-+	switch (drbg->seeded) {
-+	case DRBG_SEED_STATE_UNSEEDED:
-+		/* Impossible, but handle it to silence compiler warnings. */
-+	case DRBG_SEED_STATE_PARTIAL:
-+		/*
-+		 * Require frequent reseeds until the seed source is
-+		 * fully initialized.
-+		 */
-+		drbg->reseed_threshold = 50;
-+		break;
-+
-+	case DRBG_SEED_STATE_FULL:
-+		/*
-+		 * Seed source has become fully initialized, frequent
-+		 * reseeds no longer required.
-+		 */
-+		drbg->reseed_threshold = drbg_max_requests(drbg);
-+		break;
-+	}
-+
- 	return ret;
- }
+ static const struct dev_pm_ops wm8962_pm = {
++	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
+ 	SET_RUNTIME_PM_OPS(wm8962_runtime_suspend, wm8962_runtime_resume, NULL)
+ };
  
-@@ -1096,9 +1116,6 @@ static void drbg_async_seed(struct work_
- 
- 	__drbg_seed(drbg, &seedlist, true, DRBG_SEED_STATE_FULL);
- 
--	if (drbg->seeded == DRBG_SEED_STATE_FULL)
--		drbg->reseed_threshold = drbg_max_requests(drbg);
--
- unlock:
- 	mutex_unlock(&drbg->drbg_mutex);
- 
-@@ -1532,12 +1549,6 @@ static int drbg_prepare_hrng(struct drbg
- 		return err;
- 	}
- 
--	/*
--	 * Require frequent reseeds until the seed source is fully
--	 * initialized.
--	 */
--	drbg->reseed_threshold = 50;
--
- 	return err;
- }
- 
+-- 
+2.35.1
+
 
 
