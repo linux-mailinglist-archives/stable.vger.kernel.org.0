@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E16A558114
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:56:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CF2F558289
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:16:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232781AbiFWQzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:55:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50702 "EHLO
+        id S232740AbiFWRQC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:16:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232773AbiFWQt6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:49:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E17CA2BE3;
-        Thu, 23 Jun 2022 09:47:53 -0700 (PDT)
+        with ESMTP id S231852AbiFWRN7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:13:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26F4C995C7;
+        Thu, 23 Jun 2022 09:59:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2F0E6CE25D9;
-        Thu, 23 Jun 2022 16:47:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35B1FC341C4;
-        Thu, 23 Jun 2022 16:47:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B0F360FFA;
+        Thu, 23 Jun 2022 16:59:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C23A0C36AE2;
+        Thu, 23 Jun 2022 16:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002870;
-        bh=lyf7a//WFOH0mnpMYj+NUszJabjWPn0lwSpZWcIxuH4=;
+        s=korg; t=1656003556;
+        bh=/Unki+FpIaDGECWe1V9jGlUeejcMaSxiAptWRvMMIjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBgGnlckW07wcySnzhzMAN6AQ7tFEUkCSKzw3tLexKze1FgfZn3JS7QxGbTByZJDG
-         aCLl3zlt2M2mxAnCLVzII96mCKyjfSNtKFLLKtVz5pXA57N2Xk55FknDC3fze4MxAZ
-         q3YLJmfm231Y4M93qXgAOiYsMjL0BpTlmzQElgVo=
+        b=G47/9PlYYARlcxYzmXz5vOy7R0iSd9VeI7bg8qrga8eYGQ4n/LZSMA5YE/xTJoHtr
+         wFuFBTHFS7rxVc878tG6wuQDo+QcBU77DL5FqCYS8wjLT4mS5Hk5gtOaOwiE9r3g2X
+         6S7wv5S/bkLvoq9xMuYWbcTadxM2CCxTR9QF+S60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 054/264] random: Add a urandom_read_nowait() for random APIs that dont warn
+Subject: [PATCH 4.14 013/237] drivers/char/random.c: remove unused stuct poolinfo::poolbits
 Date:   Thu, 23 Jun 2022 18:40:47 +0200
-Message-Id: <20220623164345.601401823@linuxfoundation.org>
+Message-Id: <20220623164343.533309583@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit c6f1deb158789abba02a7eba600747843eeb3a57 upstream.
+commit 3bd0b5bf7dc3ea02070fcbcd682ecf628269e8ef upstream.
 
-/dev/random and getrandom() never warn.  Split the meat of
-urandom_read() into urandom_read_nowarn() and leave the warning code
-in urandom_read().
+This field is never used, might as well remove it.
 
-This has no effect on kernel behavior, but it makes subsequent
-patches more straightforward.  It also makes the fact that
-getrandom() never warns more obvious.
-
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Link: https://lore.kernel.org/r/c87ab200588de746431d9f916501ef11e5242b13.1577088521.git.luto@kernel.org
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/char/random.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -2015,11 +2015,22 @@ random_read(struct file *file, char __us
- }
- 
- static ssize_t
-+urandom_read_nowarn(struct file *file, char __user *buf, size_t nbytes,
-+		    loff_t *ppos)
-+{
-+	int ret;
-+
-+	nbytes = min_t(size_t, nbytes, INT_MAX >> (ENTROPY_SHIFT + 3));
-+	ret = extract_crng_user(buf, nbytes);
-+	trace_urandom_read(8 * nbytes, 0, ENTROPY_BITS(&input_pool));
-+	return ret;
-+}
-+
-+static ssize_t
- urandom_read(struct file *file, char __user *buf, size_t nbytes, loff_t *ppos)
- {
- 	unsigned long flags;
- 	static int maxwarn = 10;
--	int ret;
- 
- 	if (!crng_ready() && maxwarn > 0) {
- 		maxwarn--;
-@@ -2031,10 +2042,8 @@ urandom_read(struct file *file, char __u
- 		crng_init_cnt = 0;
- 		spin_unlock_irqrestore(&primary_crng.lock, flags);
- 	}
--	nbytes = min_t(size_t, nbytes, INT_MAX >> (ENTROPY_SHIFT + 3));
--	ret = extract_crng_user(buf, nbytes);
--	trace_urandom_read(8 * nbytes, 0, ENTROPY_BITS(&input_pool));
--	return ret;
-+
-+	return urandom_read_nowarn(file, buf, nbytes, ppos);
- }
- 
- static unsigned int
-@@ -2194,7 +2203,7 @@ SYSCALL_DEFINE3(getrandom, char __user *
- 		if (unlikely(ret))
- 			return ret;
- 	}
--	return urandom_read(NULL, buf, count, NULL);
-+	return urandom_read_nowarn(NULL, buf, count, NULL);
- }
- 
- /********************************************************************
+@@ -295,7 +295,7 @@
+  * To allow fractional bits to be tracked, the entropy_count field is
+  * denominated in units of 1/8th bits.
+  *
+- * 2*(ENTROPY_SHIFT + log2(poolbits)) must <= 31, or the multiply in
++ * 2*(ENTROPY_SHIFT + poolbitshift) must <= 31, or the multiply in
+  * credit_entropy_bits() needs to be 64 bits wide.
+  */
+ #define ENTROPY_SHIFT 3
+@@ -360,8 +360,8 @@ static int random_write_wakeup_bits = 28
+  * irreducible, which we have made here.
+  */
+ static const struct poolinfo {
+-	int poolbitshift, poolwords, poolbytes, poolbits, poolfracbits;
+-#define S(x) ilog2(x)+5, (x), (x)*4, (x)*32, (x) << (ENTROPY_SHIFT+5)
++	int poolbitshift, poolwords, poolbytes, poolfracbits;
++#define S(x) ilog2(x)+5, (x), (x)*4, (x) << (ENTROPY_SHIFT+5)
+ 	int tap1, tap2, tap3, tap4, tap5;
+ } poolinfo_table[] = {
+ 	/* was: x^128 + x^103 + x^76 + x^51 +x^25 + x + 1 */
 
 
