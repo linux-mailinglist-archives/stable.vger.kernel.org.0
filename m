@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A1D755839B
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:32:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E704558149
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:59:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234233AbiFWRcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:32:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53780 "EHLO
+        id S232729AbiFWQ6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:58:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234006AbiFWRaW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:30:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 926FC81246;
-        Thu, 23 Jun 2022 10:04:55 -0700 (PDT)
+        with ESMTP id S233381AbiFWQ5q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:57:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 847D34E396;
+        Thu, 23 Jun 2022 09:53:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0259261CDC;
-        Thu, 23 Jun 2022 17:04:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFDB9C3411B;
-        Thu, 23 Jun 2022 17:04:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41DD4B82490;
+        Thu, 23 Jun 2022 16:53:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9CB0C3411B;
+        Thu, 23 Jun 2022 16:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003894;
-        bh=dLvSZy6A7IPOKxdoZEFBBudOAiA7vgYayXov2WD+wBI=;
+        s=korg; t=1656003202;
+        bh=PJODa9PuXf3p4JWDqXDmjjkFZY4Hd6jAcWe5wsaX/Kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZAKk3XX1apaLg/KaYIGBFRxS1Mm2gDIzNmlMkR7DYSklNI90cpsXlGI7Tpr/VgLU
-         zchMFFoKRMtABVHmdeAChNVMwFjoaxCaBg1L2fBaJLchrUSP9gj2MJ2Lkrw0M3agjG
-         4Pw2oCqO/6DnhTJiLEiQn2w85cQRVYVsVTYc24eo=
+        b=kKFhXQlBknxLfQKWApprONFkSyk7xDmzyVnA0/wLVhva7R7Q7Aua27KPD4CxQl6FB
+         x7phHZLXDQ4MBo+Ewz9nfAM+mUULAdQJJz1ajVrULbHrti1iLzshlaEyPZtofH0Gje
+         uX7+qiRKYH0Z9P6exdVFNwlF+b33b+TsoM7Z9ay4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Eric Biggers <ebiggers@google.com>,
+        Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 120/237] random: unify early init crng load accounting
-Date:   Thu, 23 Jun 2022 18:42:34 +0200
-Message-Id: <20220623164346.607259192@linuxfoundation.org>
+Subject: [PATCH 4.9 162/264] random: use SipHash as interrupt entropy accumulator
+Date:   Thu, 23 Jun 2022 18:42:35 +0200
+Message-Id: <20220623164348.647372437@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,194 +56,277 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit da792c6d5f59a76c10a310c5d4c93428fd18f996 upstream.
+commit f5eab0e2db4f881fb2b62b3fdad5b9be673dd7ae upstream.
 
-crng_fast_load() and crng_slow_load() have different semantics:
+The current fast_mix() function is a piece of classic mailing list
+crypto, where it just sort of sprung up by an anonymous author without a
+lot of real analysis of what precisely it was accomplishing. As an ARX
+permutation alone, there are some easily searchable differential trails
+in it, and as a means of preventing malicious interrupts, it completely
+fails, since it xors new data into the entire state every time. It can't
+really be analyzed as a random permutation, because it clearly isn't,
+and it can't be analyzed as an interesting linear algebraic structure
+either, because it's also not that. There really is very little one can
+say about it in terms of entropy accumulation. It might diffuse bits,
+some of the time, maybe, we hope, I guess. But for the most part, it
+fails to accomplish anything concrete.
 
-- crng_fast_load() xors and accounts with crng_init_cnt.
-- crng_slow_load() hashes and doesn't account.
+As a reminder, the simple goal of add_interrupt_randomness() is to
+simply accumulate entropy until ~64 interrupts have elapsed, and then
+dump it into the main input pool, which uses a cryptographic hash.
 
-However add_hwgenerator_randomness() can afford to hash (it's called
-from a kthread), and it should account. Additionally, ones that can
-afford to hash don't need to take a trylock but can take a normal lock.
-So, we combine these into one function, crng_pre_init_inject(), which
-allows us to control these in a uniform way. This will make it simpler
-later to simplify this all down when the time comes for that.
+It would be nice to have something cryptographically strong in the
+interrupt handler itself, in case a malicious interrupt compromises a
+per-cpu fast pool within the 64 interrupts / 1 second window, and then
+inside of that same window somehow can control its return address and
+cycle counter, even if that's a bit far fetched. However, with a very
+CPU-limited budget, actually doing that remains an active research
+project (and perhaps there'll be something useful for Linux to come out
+of it). And while the abundance of caution would be nice, this isn't
+*currently* the security model, and we don't yet have a fast enough
+solution to make it our security model. Plus there's not exactly a
+pressing need to do that. (And for the avoidance of doubt, the actual
+cluster of 64 accumulated interrupts still gets dumped into our
+cryptographically secure input pool.)
+
+So, for now we are going to stick with the existing interrupt security
+model, which assumes that each cluster of 64 interrupt data samples is
+mostly non-malicious and not colluding with an infoleaker. With this as
+our goal, we have a few more choices, simply aiming to accumulate
+entropy, while discarding the least amount of it.
+
+We know from <https://eprint.iacr.org/2019/198> that random oracles,
+instantiated as computational hash functions, make good entropy
+accumulators and extractors, which is the justification for using
+BLAKE2s in the main input pool. As mentioned, we don't have that luxury
+here, but we also don't have the same security model requirements,
+because we're assuming that there aren't malicious inputs. A
+pseudorandom function instance can approximately behave like a random
+oracle, provided that the key is uniformly random. But since we're not
+concerned with malicious inputs, we can pick a fixed key, which is not
+secret, knowing that "nature" won't interact with a sufficiently chosen
+fixed key by accident. So we pick a PRF with a fixed initial key, and
+accumulate into it continuously, dumping the result every 64 interrupts
+into our cryptographically secure input pool.
+
+For this, we make use of SipHash-1-x on 64-bit and HalfSipHash-1-x on
+32-bit, which are already in use in the kernel's hsiphash family of
+functions and achieve the same performance as the function they replace.
+It would be nice to do two rounds, but we don't exactly have the CPU
+budget handy for that, and one round alone is already sufficient.
+
+As mentioned, we start with a fixed initial key (zeros is fine), and
+allow SipHash's symmetry breaking constants to turn that into a useful
+starting point. Also, since we're dumping the result (or half of it on
+64-bit so as to tax our hash function the same amount on all platforms)
+into the cryptographically secure input pool, there's no point in
+finalizing SipHash's output, since it'll wind up being finalized by
+something much stronger. This means that all we need to do is use the
+ordinary round function word-by-word, as normal SipHash does.
+Simplified, the flow is as follows:
+
+Initialize:
+
+    siphash_state_t state;
+    siphash_init(&state, key={0, 0, 0, 0});
+
+Update (accumulate) on interrupt:
+
+    siphash_update(&state, interrupt_data_and_timing);
+
+Dump into input pool after 64 interrupts:
+
+    blake2s_update(&input_pool, &state, sizeof(state) / 2);
+
+The result of all of this is that the security model is unchanged from
+before -- we assume non-malicious inputs -- yet we now implement that
+model with a stronger argument. I would like to emphasize, again, that
+the purpose of this commit is to improve the existing design, by making
+it analyzable, without changing any fundamental assumptions. There may
+well be value down the road in changing up the existing design, using
+something cryptographically strong, or simply using a ring buffer of
+samples rather than having a fast_mix() at all, or changing which and
+how much data we collect each interrupt so that we can use something
+linear, or a variety of other ideas. This commit does not invalidate the
+potential for those in the future.
+
+For example, in the future, if we're able to characterize the data we're
+collecting on each interrupt, we may be able to inch toward information
+theoretic accumulators. <https://eprint.iacr.org/2021/523> shows that `s
+= ror32(s, 7) ^ x` and `s = ror64(s, 19) ^ x` make very good
+accumulators for 2-monotone distributions, which would apply to
+timestamp counters, like random_get_entropy() or jiffies, but would not
+apply to our current combination of the two values, or to the various
+function addresses and register values we mix in. Alternatively,
+<https://eprint.iacr.org/2021/1002> shows that max-period linear
+functions with no non-trivial invariant subspace make good extractors,
+used in the form `s = f(s) ^ x`. However, this only works if the input
+data is both identical and independent, and obviously a collection of
+address values and counters fails; so it goes with theoretical papers.
+Future directions here may involve trying to characterize more precisely
+what we actually need to collect in the interrupt handler, and building
+something specific around that.
+
+However, as mentioned, the morass of data we're gathering at the
+interrupt handler presently defies characterization, and so we use
+SipHash for now, which works well and performs well.
 
 Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |  114 +++++++++++++++++++++++++-------------------------
- 1 file changed, 59 insertions(+), 55 deletions(-)
+ drivers/char/random.c |   94 +++++++++++++++++++++++++++++---------------------
+ 1 file changed, 55 insertions(+), 39 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -384,7 +384,7 @@ static void crng_make_state(u32 chacha_s
- 	 * For the fast path, we check whether we're ready, unlocked first, and
- 	 * then re-check once locked later. In the case where we're really not
- 	 * ready, we do fast key erasure with the base_crng directly, because
--	 * this is what crng_{fast,slow}_load mutate during early init.
-+	 * this is what crng_pre_init_inject() mutates during early init.
- 	 */
- 	if (unlikely(!crng_ready())) {
- 		bool ready;
-@@ -435,72 +435,75 @@ static void crng_make_state(u32 chacha_s
- }
+@@ -1143,48 +1143,51 @@ void add_bootloader_randomness(const voi
+ EXPORT_SYMBOL_GPL(add_bootloader_randomness);
  
+ struct fast_pool {
+-	union {
+-		u32 pool32[4];
+-		u64 pool64[2];
+-	};
+ 	struct work_struct mix;
++	unsigned long pool[4];
+ 	unsigned long last;
+ 	unsigned int count;
+ 	u16 reg_idx;
+ };
+ 
++static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
++#ifdef CONFIG_64BIT
++	/* SipHash constants */
++	.pool = { 0x736f6d6570736575UL, 0x646f72616e646f6dUL,
++		  0x6c7967656e657261UL, 0x7465646279746573UL }
++#else
++	/* HalfSipHash constants */
++	.pool = { 0, 0, 0x6c796765U, 0x74656462U }
++#endif
++};
++
  /*
-- * This function is for crng_init == 0 only.
-+ * This function is for crng_init == 0 only. It loads entropy directly
-+ * into the crng's key, without going through the input pool. It is,
-+ * generally speaking, not very safe, but we use this only at early
-+ * boot time when it's better to have something there rather than
-+ * nothing.
-+ *
-+ * There are two paths, a slow one and a fast one. The slow one
-+ * hashes the input along with the current key. The fast one simply
-+ * xors it in, and should only be used from interrupt context.
-+ *
-+ * If account is set, then the crng_init_cnt counter is incremented.
-+ * This shouldn't be set by functions like add_device_randomness(),
-+ * where we can't trust the buffer passed to it is guaranteed to be
-+ * unpredictable (so it might not have any entropy at all).
-  *
-- * crng_fast_load() can be called by code in the interrupt service
-- * path.  So we can't afford to dilly-dally. Returns the number of
-- * bytes processed from cp.
-+ * Returns the number of bytes processed from input, which is bounded
-+ * by CRNG_INIT_CNT_THRESH if account is true.
+- * This is a fast mixing routine used by the interrupt randomness
+- * collector. It's hardcoded for an 128 bit pool and assumes that any
+- * locks that might be needed are taken by the caller.
++ * This is [Half]SipHash-1-x, starting from an empty key. Because
++ * the key is fixed, it assumes that its inputs are non-malicious,
++ * and therefore this has no security on its own. s represents the
++ * 128 or 256-bit SipHash state, while v represents a 128-bit input.
   */
--static size_t crng_fast_load(const void *cp, size_t len)
-+static size_t crng_pre_init_inject(const void *input, size_t len,
-+				   bool fast, bool account)
+-static void fast_mix(u32 pool[4])
++static void fast_mix(unsigned long s[4], const unsigned long *v)
  {
- 	static int crng_init_cnt = 0;
- 	unsigned long flags;
--	const u8 *src = (const u8 *)cp;
--	size_t ret = 0;
- 
--	if (!spin_trylock_irqsave(&base_crng.lock, flags))
--		return 0;
-+	if (fast) {
-+		if (!spin_trylock_irqsave(&base_crng.lock, flags))
-+			return 0;
-+	} else {
-+		spin_lock_irqsave(&base_crng.lock, flags);
-+	}
-+
- 	if (crng_init != 0) {
- 		spin_unlock_irqrestore(&base_crng.lock, flags);
- 		return 0;
- 	}
--	while (len > 0 && crng_init_cnt < CRNG_INIT_CNT_THRESH) {
--		base_crng.key[crng_init_cnt % sizeof(base_crng.key)] ^= *src;
--		src++; crng_init_cnt++; len--; ret++;
--	}
--	if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
--		++base_crng.generation;
--		crng_init = 1;
--	}
--	spin_unlock_irqrestore(&base_crng.lock, flags);
--	if (crng_init == 1)
--		pr_notice("fast init done\n");
--	return ret;
--}
- 
--/*
-- * This function is for crng_init == 0 only.
-- *
-- * crng_slow_load() is called by add_device_randomness, which has two
-- * attributes.  (1) We can't trust the buffer passed to it is
-- * guaranteed to be unpredictable (so it might not have any entropy at
-- * all), and (2) it doesn't have the performance constraints of
-- * crng_fast_load().
-- *
-- * So, we simply hash the contents in with the current key. Finally,
-- * we do *not* advance crng_init_cnt since buffer we may get may be
-- * something like a fixed DMI table (for example), which might very
-- * well be unique to the machine, but is otherwise unvarying.
-- */
--static void crng_slow_load(const void *cp, size_t len)
--{
--	unsigned long flags;
--	struct blake2s_state hash;
-+	if (account)
-+		len = min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
- 
--	blake2s_init(&hash, sizeof(base_crng.key));
+-	u32 a = pool[0],	b = pool[1];
+-	u32 c = pool[2],	d = pool[3];
 -
--	if (!spin_trylock_irqsave(&base_crng.lock, flags))
--		return;
--	if (crng_init != 0) {
--		spin_unlock_irqrestore(&base_crng.lock, flags);
--		return;
-+	if (fast) {
-+		const u8 *src = input;
-+		size_t i;
-+
-+		for (i = 0; i < len; ++i)
-+			base_crng.key[(crng_init_cnt + i) %
-+				      sizeof(base_crng.key)] ^= src[i];
-+	} else {
-+		struct blake2s_state hash;
-+
-+		blake2s_init(&hash, sizeof(base_crng.key));
-+		blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
-+		blake2s_update(&hash, input, len);
-+		blake2s_final(&hash, base_crng.key);
-+	}
-+
-+	if (account) {
-+		crng_init_cnt += len;
-+		if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
-+			++base_crng.generation;
-+			crng_init = 1;
-+		}
- 	}
- 
--	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
--	blake2s_update(&hash, cp, len);
--	blake2s_final(&hash, base_crng.key);
+-	a += b;			c += d;
+-	b = rol32(b, 6);	d = rol32(d, 27);
+-	d ^= a;			b ^= c;
 -
- 	spin_unlock_irqrestore(&base_crng.lock, flags);
-+
-+	if (crng_init == 1)
-+		pr_notice("fast init done\n");
-+
-+	return len;
+-	a += b;			c += d;
+-	b = rol32(b, 16);	d = rol32(d, 14);
+-	d ^= a;			b ^= c;
+-
+-	a += b;			c += d;
+-	b = rol32(b, 6);	d = rol32(d, 27);
+-	d ^= a;			b ^= c;
+-
+-	a += b;			c += d;
+-	b = rol32(b, 16);	d = rol32(d, 14);
+-	d ^= a;			b ^= c;
++	size_t i;
+ 
+-	pool[0] = a;  pool[1] = b;
+-	pool[2] = c;  pool[3] = d;
++	for (i = 0; i < 16 / sizeof(long); ++i) {
++		s[3] ^= v[i];
++#ifdef CONFIG_64BIT
++		s[0] += s[1]; s[1] = rol64(s[1], 13); s[1] ^= s[0]; s[0] = rol64(s[0], 32);
++		s[2] += s[3]; s[3] = rol64(s[3], 16); s[3] ^= s[2];
++		s[0] += s[3]; s[3] = rol64(s[3], 21); s[3] ^= s[0];
++		s[2] += s[1]; s[1] = rol64(s[1], 17); s[1] ^= s[2]; s[2] = rol64(s[2], 32);
++#else
++		s[0] += s[1]; s[1] = rol32(s[1],  5); s[1] ^= s[0]; s[0] = rol32(s[0], 16);
++		s[2] += s[3]; s[3] = rol32(s[3],  8); s[3] ^= s[2];
++		s[0] += s[3]; s[3] = rol32(s[3],  7); s[3] ^= s[0];
++		s[2] += s[1]; s[1] = rol32(s[1], 13); s[1] ^= s[2]; s[2] = rol32(s[2], 16);
++#endif
++		s[0] ^= v[i];
++	}
  }
  
- static void _get_random_bytes(void *buf, size_t nbytes)
-@@ -1013,7 +1016,7 @@ void add_device_randomness(const void *b
- 	unsigned long flags;
- 
- 	if (!crng_ready() && size)
--		crng_slow_load(buf, size);
-+		crng_pre_init_inject(buf, size, false, false);
- 
- 	spin_lock_irqsave(&input_pool.lock, flags);
- 	_mix_pool_bytes(buf, size);
-@@ -1130,7 +1133,7 @@ void add_hwgenerator_randomness(const vo
- 				size_t entropy)
+-static DEFINE_PER_CPU(struct fast_pool, irq_randomness);
+-
+ #ifdef CONFIG_SMP
+ /*
+  * This function is called when the CPU has just come online, with
+@@ -1226,7 +1229,15 @@ static unsigned long get_reg(struct fast
+ static void mix_interrupt_randomness(struct work_struct *work)
  {
- 	if (unlikely(crng_init == 0)) {
--		size_t ret = crng_fast_load(buffer, count);
-+		size_t ret = crng_pre_init_inject(buffer, count, false, true);
- 		mix_pool_bytes(buffer, ret);
- 		count -= ret;
- 		buffer += ret;
-@@ -1293,7 +1296,8 @@ void add_interrupt_randomness(int irq)
+ 	struct fast_pool *fast_pool = container_of(work, struct fast_pool, mix);
+-	u32 pool[4];
++	/*
++	 * The size of the copied stack pool is explicitly 16 bytes so that we
++	 * tax mix_pool_byte()'s compression function the same amount on all
++	 * platforms. This means on 64-bit we copy half the pool into this,
++	 * while on 32-bit we copy all of it. The entropy is supposed to be
++	 * sufficiently dispersed between bits that in the sponge-like
++	 * half case, on average we don't wind up "losing" some.
++	 */
++	u8 pool[16];
  
- 	if (unlikely(crng_init == 0)) {
- 		if (new_count >= 64 &&
--		    crng_fast_load(fast_pool->pool32, sizeof(fast_pool->pool32)) > 0) {
-+		    crng_pre_init_inject(fast_pool->pool32, sizeof(fast_pool->pool32),
-+					 true, true) > 0) {
- 			atomic_set(&fast_pool->count, 0);
- 			fast_pool->last = now;
- 			if (spin_trylock(&input_pool.lock)) {
+ 	/* Check to see if we're running on the wrong CPU due to hotplug. */
+ 	local_irq_disable();
+@@ -1239,7 +1250,7 @@ static void mix_interrupt_randomness(str
+ 	 * Copy the pool to the stack so that the mixer always has a
+ 	 * consistent view, before we reenable irqs again.
+ 	 */
+-	memcpy(pool, fast_pool->pool32, sizeof(pool));
++	memcpy(pool, fast_pool->pool, sizeof(pool));
+ 	fast_pool->count = 0;
+ 	fast_pool->last = jiffies;
+ 	local_irq_enable();
+@@ -1263,25 +1274,30 @@ void add_interrupt_randomness(int irq)
+ 	struct fast_pool *fast_pool = this_cpu_ptr(&irq_randomness);
+ 	struct pt_regs *regs = get_irq_regs();
+ 	unsigned int new_count;
++	union {
++		u32 u32[4];
++		u64 u64[2];
++		unsigned long longs[16 / sizeof(long)];
++	} irq_data;
+ 
+ 	if (cycles == 0)
+ 		cycles = get_reg(fast_pool, regs);
+ 
+ 	if (sizeof(cycles) == 8)
+-		fast_pool->pool64[0] ^= cycles ^ rol64(now, 32) ^ irq;
++		irq_data.u64[0] = cycles ^ rol64(now, 32) ^ irq;
+ 	else {
+-		fast_pool->pool32[0] ^= cycles ^ irq;
+-		fast_pool->pool32[1] ^= now;
++		irq_data.u32[0] = cycles ^ irq;
++		irq_data.u32[1] = now;
+ 	}
+ 
+ 	if (sizeof(unsigned long) == 8)
+-		fast_pool->pool64[1] ^= regs ? instruction_pointer(regs) : _RET_IP_;
++		irq_data.u64[1] = regs ? instruction_pointer(regs) : _RET_IP_;
+ 	else {
+-		fast_pool->pool32[2] ^= regs ? instruction_pointer(regs) : _RET_IP_;
+-		fast_pool->pool32[3] ^= get_reg(fast_pool, regs);
++		irq_data.u32[2] = regs ? instruction_pointer(regs) : _RET_IP_;
++		irq_data.u32[3] = get_reg(fast_pool, regs);
+ 	}
+ 
+-	fast_mix(fast_pool->pool32);
++	fast_mix(fast_pool->pool, irq_data.longs);
+ 	new_count = ++fast_pool->count;
+ 
+ 	if (new_count & MIX_INFLIGHT)
 
 
