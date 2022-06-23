@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC10D5582DA
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:21:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0CD25580E4
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:54:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232705AbiFWRVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:21:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39582 "EHLO
+        id S233529AbiFWQyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:54:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233459AbiFWRUf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:20:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89AA5CD90E;
-        Thu, 23 Jun 2022 10:00:40 -0700 (PDT)
+        with ESMTP id S233530AbiFWQvI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D824F9F8;
+        Thu, 23 Jun 2022 09:49:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC73860FF9;
-        Thu, 23 Jun 2022 17:00:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9A08C3411B;
-        Thu, 23 Jun 2022 17:00:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9829261F99;
+        Thu, 23 Jun 2022 16:49:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 846FBC3411B;
+        Thu, 23 Jun 2022 16:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003633;
-        bh=QHSItelwNtCeE5ALkVkOSWFoQBnrWX4Bf8kqSUvoDkI=;
+        s=korg; t=1656002945;
+        bh=b3HcxFY2Z107yriS02GzNOck2hhG/Ixx/VwzsOXG4J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7+JIUQyrQemkak8wJV9qbpDvjUpe5RnYBw8HwsTCWe8mFQNMzFMhs0tT+7YyieR4
-         diWsgZ0WhQlC3jUlvOr1rhOjpy8pAI2A112aoW/igRFmbd5TW0odSl0Jpl7YcQxI/0
-         HqXc9OaTdQeKvHnf0dAPPsx4SG/CrzGT1MsiZ1mA=
+        b=vBmFmGYnxwOjz8dJ4e+CKNaDQpq9txoSl4f2idD9j2OUneuQZ18JBAoMSKPoCrhGV
+         hD1i33RUDbMmqBvtkCg8zgGeRpBoW4UTxFpC/HCFtU682KguthPAdFfYvIiucPRO9n
+         RIDALzg2u6PfGuo4ozrQst0r0z7tjRDiuwtXUyqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, linux-crypto@vger.kernel.org,
+        Andy Lutomirski <luto@kernel.org>,
+        Jann Horn <jannh@google.com>, Theodore Tso <tytso@mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 036/237] random: remove the blocking pool
+Subject: [PATCH 4.9 077/264] random: remove dead code left over from blocking pool
 Date:   Thu, 23 Jun 2022 18:41:10 +0200
-Message-Id: <20220623164344.194561255@linuxfoundation.org>
+Message-Id: <20220623164346.249501108@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,215 +58,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 90ea1c6436d26e62496616fb5891e00819ff4849 upstream.
+commit 118a4417e14348b2e46f5e467da8444ec4757a45 upstream.
 
-There is no longer any interface to read data from the blocking
-pool, so remove it.
+Remove some dead code that was left over following commit 90ea1c6436d2
+("random: remove the blocking pool").
 
-This enables quite a bit of code deletion, much of which will be
-done in subsequent patches.
-
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Link: https://lore.kernel.org/r/511225a224bf0a291149d3c0b8b45393cd03ab96.1577088521.git.luto@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: linux-crypto@vger.kernel.org
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Andy Lutomirski <luto@kernel.org>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |  106 --------------------------------------------------
- 1 file changed, 106 deletions(-)
+ drivers/char/random.c         |   17 +-------
+ include/trace/events/random.h |   83 ------------------------------------------
+ 2 files changed, 3 insertions(+), 97 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -470,7 +470,6 @@ static const struct poolinfo {
- /*
-  * Static global variables
-  */
--static DECLARE_WAIT_QUEUE_HEAD(random_read_wait);
- static DECLARE_WAIT_QUEUE_HEAD(random_write_wait);
- static struct fasync_struct *fasync;
- 
-@@ -532,7 +531,6 @@ struct entropy_store {
- 	__u32 *pool;
- 	const char *name;
- 	struct entropy_store *pull;
--	struct work_struct push_work;
- 
- 	/* read-write data: */
- 	unsigned long last_pulled;
-@@ -551,9 +549,7 @@ static ssize_t _extract_entropy(struct e
- 				size_t nbytes, int fips);
- 
- static void crng_reseed(struct crng_state *crng, struct entropy_store *r);
--static void push_to_pool(struct work_struct *work);
- static __u32 input_pool_data[INPUT_POOL_WORDS] __latent_entropy;
--static __u32 blocking_pool_data[OUTPUT_POOL_WORDS] __latent_entropy;
- 
- static struct entropy_store input_pool = {
- 	.poolinfo = &poolinfo_table[0],
-@@ -562,16 +558,6 @@ static struct entropy_store input_pool =
- 	.pool = input_pool_data
+@@ -503,7 +503,6 @@ struct entropy_store {
+ 	unsigned short add_ptr;
+ 	unsigned short input_rotate;
+ 	int entropy_count;
+-	unsigned int initialized:1;
+ 	unsigned int last_data_init:1;
+ 	__u8 last_data[EXTRACT_SIZE];
  };
+@@ -663,7 +662,7 @@ static void process_random_ready_list(vo
+  */
+ static void credit_entropy_bits(struct entropy_store *r, int nbits)
+ {
+-	int entropy_count, orig, has_initialized = 0;
++	int entropy_count, orig;
+ 	const int pool_size = r->poolinfo->poolfracbits;
+ 	int nfrac = nbits << ENTROPY_SHIFT;
  
--static struct entropy_store blocking_pool = {
--	.poolinfo = &poolinfo_table[1],
--	.name = "blocking",
--	.pull = &input_pool,
--	.lock = __SPIN_LOCK_UNLOCKED(blocking_pool.lock),
--	.pool = blocking_pool_data,
--	.push_work = __WORK_INITIALIZER(blocking_pool.push_work,
--					push_to_pool),
--};
--
- static __u32 const twist_table[8] = {
- 	0x00000000, 0x3b6e20c8, 0x76dc4190, 0x4db26158,
- 	0xedb88320, 0xd6d6a3e8, 0x9b64c2b0, 0xa00ae278 };
-@@ -767,15 +753,11 @@ retry:
- 		entropy_count = 0;
- 	} else if (entropy_count > pool_size)
- 		entropy_count = pool_size;
--	if ((r == &blocking_pool) && !r->initialized &&
--	    (entropy_count >> ENTROPY_SHIFT) > 128)
--		has_initialized = 1;
+@@ -720,23 +719,14 @@ retry:
  	if (cmpxchg(&r->entropy_count, orig, entropy_count) != orig)
  		goto retry;
  
- 	if (has_initialized) {
- 		r->initialized = 1;
--		wake_up_interruptible(&random_read_wait);
- 		kill_fasync(&fasync, SIGIO, POLL_IN);
- 	}
- 
-@@ -784,7 +766,6 @@ retry:
+-	if (has_initialized) {
+-		r->initialized = 1;
+-		kill_fasync(&fasync, SIGIO, POLL_IN);
+-	}
+-
+ 	trace_credit_entropy_bits(r->name, nbits,
+ 				  entropy_count >> ENTROPY_SHIFT, _RET_IP_);
  
  	if (r == &input_pool) {
  		int entropy_bits = entropy_count >> ENTROPY_SHIFT;
--		struct entropy_store *other = &blocking_pool;
  
- 		if (crng_init < 2) {
- 			if (entropy_bits < 128)
-@@ -792,27 +773,6 @@ retry:
+-		if (crng_init < 2) {
+-			if (entropy_bits < 128)
+-				return;
++		if (crng_init < 2 && entropy_bits >= 128)
  			crng_reseed(&primary_crng, r);
- 			entropy_bits = r->entropy_count >> ENTROPY_SHIFT;
- 		}
--
--		/* initialize the blocking pool if necessary */
--		if (entropy_bits >= random_read_wakeup_bits &&
--		    !other->initialized) {
--			schedule_work(&other->push_work);
--			return;
+-			entropy_bits = ENTROPY_BITS(r);
 -		}
--
--		/* should we wake readers? */
--		if (entropy_bits >= random_read_wakeup_bits &&
--		    wq_has_sleeper(&random_read_wait)) {
--			wake_up_interruptible(&random_read_wait);
--		}
--		/* If the input pool is getting full, and the blocking
--		 * pool has room, send some entropy to the blocking
--		 * pool.
--		 */
--		if (!work_pending(&other->push_work) &&
--		    (ENTROPY_BITS(r) > 6 * r->poolinfo->poolbytes) &&
--		    (ENTROPY_BITS(other) <= 6 * other->poolinfo->poolbytes))
--			schedule_work(&other->push_work);
  	}
  }
  
-@@ -1439,22 +1399,6 @@ static void _xfer_secondary_pool(struct
+@@ -1442,8 +1432,7 @@ retry:
  }
  
  /*
-- * Used as a workqueue function so that when the input pool is getting
-- * full, we can "spill over" some entropy to the output pools.  That
-- * way the output pools can store some of the excess entropy instead
-- * of letting it go to waste.
-- */
--static void push_to_pool(struct work_struct *work)
--{
--	struct entropy_store *r = container_of(work, struct entropy_store,
--					      push_work);
--	BUG_ON(!r);
--	_xfer_secondary_pool(r, random_read_wakeup_bits/8);
--	trace_push_to_pool(r->name, r->entropy_count >> ENTROPY_SHIFT,
--			   r->pull->entropy_count >> ENTROPY_SHIFT);
--}
--
--/*
-  * This function decides how many bytes to actually take from the
-  * given pool, and also debits the entropy count accordingly.
+- * This function does the actual extraction for extract_entropy and
+- * extract_entropy_user.
++ * This function does the actual extraction for extract_entropy.
+  *
+  * Note: we assume that .poolwords is a multiple of 16 words.
   */
-@@ -1632,54 +1576,6 @@ static ssize_t extract_entropy(struct en
- 	return _extract_entropy(r, buf, nbytes, fips_enabled);
- }
+--- a/include/trace/events/random.h
++++ b/include/trace/events/random.h
+@@ -84,28 +84,6 @@ TRACE_EVENT(credit_entropy_bits,
+ 		  __entry->entropy_count, (void *)__entry->IP)
+ );
  
--/*
-- * This function extracts randomness from the "entropy pool", and
-- * returns it in a userspace buffer.
-- */
--static ssize_t extract_entropy_user(struct entropy_store *r, void __user *buf,
--				    size_t nbytes)
--{
--	ssize_t ret = 0, i;
--	__u8 tmp[EXTRACT_SIZE];
--	int large_request = (nbytes > 256);
+-TRACE_EVENT(push_to_pool,
+-	TP_PROTO(const char *pool_name, int pool_bits, int input_bits),
 -
--	trace_extract_entropy_user(r->name, nbytes, ENTROPY_BITS(r), _RET_IP_);
--	if (!r->initialized && r->pull) {
--		xfer_secondary_pool(r, ENTROPY_BITS(r->pull)/8);
--		if (!r->initialized)
--			return 0;
--	}
--	xfer_secondary_pool(r, nbytes);
--	nbytes = account(r, nbytes, 0, 0);
+-	TP_ARGS(pool_name, pool_bits, input_bits),
 -
--	while (nbytes) {
--		if (large_request && need_resched()) {
--			if (signal_pending(current)) {
--				if (ret == 0)
--					ret = -ERESTARTSYS;
--				break;
--			}
--			schedule();
--		}
+-	TP_STRUCT__entry(
+-		__field( const char *,	pool_name		)
+-		__field(	  int,	pool_bits		)
+-		__field(	  int,	input_bits		)
+-	),
 -
--		extract_buf(r, tmp);
--		i = min_t(int, nbytes, EXTRACT_SIZE);
--		if (copy_to_user(buf, tmp, i)) {
--			ret = -EFAULT;
--			break;
--		}
+-	TP_fast_assign(
+-		__entry->pool_name	= pool_name;
+-		__entry->pool_bits	= pool_bits;
+-		__entry->input_bits	= input_bits;
+-	),
 -
--		nbytes -= i;
--		buf += i;
--		ret += i;
--	}
+-	TP_printk("%s: pool_bits %d input_pool_bits %d",
+-		  __entry->pool_name, __entry->pool_bits,
+-		  __entry->input_bits)
+-);
 -
--	/* Wipe data just returned from memory */
--	memzero_explicit(tmp, sizeof(tmp));
--
--	return ret;
--}
--
- #define warn_unseeded_randomness(previous) \
- 	_warn_unseeded_randomness(__func__, (void *) _RET_IP_, (previous))
+ TRACE_EVENT(debit_entropy,
+ 	TP_PROTO(const char *pool_name, int debit_bits),
  
-@@ -1910,7 +1806,6 @@ static void __init init_std_data(struct
- int __init rand_initialize(void)
- {
- 	init_std_data(&input_pool);
--	init_std_data(&blocking_pool);
- 	if (crng_need_final_init)
- 		crng_finalize_init(&primary_crng);
- 	crng_initialize(&primary_crng);
-@@ -2081,7 +1976,6 @@ static long random_ioctl(struct file *f,
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
- 		input_pool.entropy_count = 0;
--		blocking_pool.entropy_count = 0;
- 		return 0;
- 	case RNDRESEEDCRNG:
- 		if (!capable(CAP_SYS_ADMIN))
+@@ -160,35 +138,6 @@ TRACE_EVENT(add_disk_randomness,
+ 		  MINOR(__entry->dev), __entry->input_bits)
+ );
+ 
+-TRACE_EVENT(xfer_secondary_pool,
+-	TP_PROTO(const char *pool_name, int xfer_bits, int request_bits,
+-		 int pool_entropy, int input_entropy),
+-
+-	TP_ARGS(pool_name, xfer_bits, request_bits, pool_entropy,
+-		input_entropy),
+-
+-	TP_STRUCT__entry(
+-		__field( const char *,	pool_name		)
+-		__field(	  int,	xfer_bits		)
+-		__field(	  int,	request_bits		)
+-		__field(	  int,	pool_entropy		)
+-		__field(	  int,	input_entropy		)
+-	),
+-
+-	TP_fast_assign(
+-		__entry->pool_name	= pool_name;
+-		__entry->xfer_bits	= xfer_bits;
+-		__entry->request_bits	= request_bits;
+-		__entry->pool_entropy	= pool_entropy;
+-		__entry->input_entropy	= input_entropy;
+-	),
+-
+-	TP_printk("pool %s xfer_bits %d request_bits %d pool_entropy %d "
+-		  "input_entropy %d", __entry->pool_name, __entry->xfer_bits,
+-		  __entry->request_bits, __entry->pool_entropy,
+-		  __entry->input_entropy)
+-);
+-
+ DECLARE_EVENT_CLASS(random__get_random_bytes,
+ 	TP_PROTO(int nbytes, unsigned long IP),
+ 
+@@ -252,38 +201,6 @@ DEFINE_EVENT(random__extract_entropy, ex
+ 	TP_ARGS(pool_name, nbytes, entropy_count, IP)
+ );
+ 
+-DEFINE_EVENT(random__extract_entropy, extract_entropy_user,
+-	TP_PROTO(const char *pool_name, int nbytes, int entropy_count,
+-		 unsigned long IP),
+-
+-	TP_ARGS(pool_name, nbytes, entropy_count, IP)
+-);
+-
+-TRACE_EVENT(random_read,
+-	TP_PROTO(int got_bits, int need_bits, int pool_left, int input_left),
+-
+-	TP_ARGS(got_bits, need_bits, pool_left, input_left),
+-
+-	TP_STRUCT__entry(
+-		__field(	  int,	got_bits		)
+-		__field(	  int,	need_bits		)
+-		__field(	  int,	pool_left		)
+-		__field(	  int,	input_left		)
+-	),
+-
+-	TP_fast_assign(
+-		__entry->got_bits	= got_bits;
+-		__entry->need_bits	= need_bits;
+-		__entry->pool_left	= pool_left;
+-		__entry->input_left	= input_left;
+-	),
+-
+-	TP_printk("got_bits %d still_needed_bits %d "
+-		  "blocking_pool_entropy_left %d input_entropy_left %d",
+-		  __entry->got_bits, __entry->got_bits, __entry->pool_left,
+-		  __entry->input_left)
+-);
+-
+ TRACE_EVENT(urandom_read,
+ 	TP_PROTO(int got_bits, int pool_left, int input_left),
+ 
 
 
