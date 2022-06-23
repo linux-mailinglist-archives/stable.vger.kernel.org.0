@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 993855582FB
+	by mail.lfdr.de (Postfix) with ESMTP id E513C5582FC
 	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:23:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232958AbiFWRXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233173AbiFWRXl (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 Jun 2022 13:23:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40394 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233838AbiFWRWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:22:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C364FB6204;
-        Thu, 23 Jun 2022 10:01:19 -0700 (PDT)
+        with ESMTP id S233862AbiFWRWm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:22:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D33AB620F;
+        Thu, 23 Jun 2022 10:01:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB059B82490;
-        Thu, 23 Jun 2022 17:01:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CD59C3411B;
-        Thu, 23 Jun 2022 17:01:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4712C61573;
+        Thu, 23 Jun 2022 17:01:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A4DCC3411B;
+        Thu, 23 Jun 2022 17:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003676;
-        bh=NVduRPoc9LXw1ID7ASguvYUJ3GvEQijehoDrH1Fl0hI=;
+        s=korg; t=1656003679;
+        bh=MqY2zppr9N1x5Ik2eekxRzvKnzXsm5vnnjmfSLbrANk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQ/J4Km4Qgtm2J9thpWGF0SGOg5ZSOsBnBbayKnKmoalH5dKjlKQU4AGjbulif6iM
-         qVJSOTqxUihWhbVXhaLFrYIRxU95JOD3PmC1DFezccQfOHtdojqbcHa3+FrG/sIKho
-         kLuknzsMuF784m4OGWmebyiNRnorRfhkaYR59rYM=
+        b=t4Sn4OgnfwlhAdkasKTV+otYocdg+FeE/arr9DXwsXr2K18Ikye4wy65IhzTYSLDL
+         YCfLATlw936veopqJhOY9DQA6vREVYFhqeX9/pBhcxTKxtOQXVHJJR89jNyjozC/T+
+         s8ZFyTqaSplZG21q33tPmb5RJdoq9gaENe61yqy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 010/237] random: Make crng state queryable
-Date:   Thu, 23 Jun 2022 18:40:44 +0200
-Message-Id: <20220623164343.446209230@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Theodore Tso <tytso@mit.edu>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.14 011/237] random: make CPU trust a boot parameter
+Date:   Thu, 23 Jun 2022 18:40:45 +0200
+Message-Id: <20220623164343.475260325@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
 References: <20220623164343.132308638@linuxfoundation.org>
@@ -53,69 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 9a47249d444d344051c7c0e909fad0e88515a5c2 upstream.
+commit 9b25436662d5fb4c66eb527ead53cab15f596ee0 upstream.
 
-It is very useful to be able to know whether or not get_random_bytes_wait
-/ wait_for_random_bytes is going to block or not, or whether plain
-get_random_bytes is going to return good randomness or bad randomness.
+Instead of forcing a distro or other system builder to choose
+at build time whether the CPU is trusted for CRNG seeding via
+CONFIG_RANDOM_TRUST_CPU, provide a boot-time parameter for end users to
+control the choice. The CONFIG will set the default state instead.
 
-The particular use case is for mitigating certain attacks in WireGuard.
-A handshake packet arrives and is queued up. Elsewhere a worker thread
-takes items from the queue and processes them. In replying to these
-items, it needs to use some random data, and it has to be good random
-data. If we simply block until we can have good randomness, then it's
-possible for an attacker to fill the queue up with packets waiting to be
-processed. Upon realizing the queue is full, WireGuard will detect that
-it's under a denial of service attack, and behave accordingly. A better
-approach is just to drop incoming handshake packets if the crng is not
-yet initialized.
-
-This patch, therefore, makes that information directly accessible.
-
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c  |   15 +++++++++++++++
- include/linux/random.h |    1 +
- 2 files changed, 16 insertions(+)
+ Documentation/admin-guide/kernel-parameters.txt |    6 ++++++
+ drivers/char/Kconfig                            |    4 ++--
+ drivers/char/random.c                           |   11 ++++++++---
+ 3 files changed, 16 insertions(+), 5 deletions(-)
 
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -3526,6 +3526,12 @@
+ 	ramdisk_size=	[RAM] Sizes of RAM disks in kilobytes
+ 			See Documentation/blockdev/ramdisk.txt.
+ 
++	random.trust_cpu={on,off}
++			[KNL] Enable or disable trusting the use of the
++			CPU's random number generator (if available) to
++			fully seed the kernel's CRNG. Default is controlled
++			by CONFIG_RANDOM_TRUST_CPU.
++
+ 	ras=option[,option,...]	[KNL] RAS-specific options
+ 
+ 		cec_disable	[X86]
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -602,5 +602,5 @@ config RANDOM_TRUST_CPU
+ 	that CPU manufacturer (perhaps with the insistence or mandate
+ 	of a Nation State's intelligence or law enforcement agencies)
+ 	has not installed a hidden back door to compromise the CPU's
+-	random number generation facilities.
+-
++	random number generation facilities. This can also be configured
++	at boot with "random.trust_cpu=on/off".
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1669,6 +1669,21 @@ int wait_for_random_bytes(void)
- EXPORT_SYMBOL(wait_for_random_bytes);
+@@ -779,6 +779,13 @@ static struct crng_state **crng_node_poo
  
- /*
-+ * Returns whether or not the urandom pool has been seeded and thus guaranteed
-+ * to supply cryptographically secure random numbers. This applies to: the
-+ * /dev/urandom device, the get_random_bytes function, and the get_random_{u32,
-+ * ,u64,int,long} family of functions.
-+ *
-+ * Returns: true if the urandom pool has been seeded.
-+ *          false if the urandom pool has not been seeded.
-+ */
-+bool rng_is_initialized(void)
+ static void invalidate_batched_entropy(void);
+ 
++static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
++static int __init parse_trust_cpu(char *arg)
 +{
-+	return crng_ready();
++	return kstrtobool(arg, &trust_cpu);
 +}
-+EXPORT_SYMBOL(rng_is_initialized);
++early_param("random.trust_cpu", parse_trust_cpu);
 +
-+/*
-  * Add a callback function that will be invoked when the nonblocking
-  * pool is initialised.
-  *
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -36,6 +36,7 @@ extern void add_interrupt_randomness(int
+ static void crng_initialize(struct crng_state *crng)
+ {
+ 	int		i;
+@@ -799,12 +806,10 @@ static void crng_initialize(struct crng_
+ 		}
+ 		crng->state[i] ^= rv;
+ 	}
+-#ifdef CONFIG_RANDOM_TRUST_CPU
+-	if (arch_init) {
++	if (trust_cpu && arch_init) {
+ 		crng_init = 2;
+ 		pr_notice("random: crng done (trusting CPU's manufacturer)\n");
+ 	}
+-#endif
+ 	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
+ }
  
- extern void get_random_bytes(void *buf, int nbytes);
- extern int wait_for_random_bytes(void);
-+extern bool rng_is_initialized(void);
- extern int add_random_ready_callback(struct random_ready_callback *rdy);
- extern void del_random_ready_callback(struct random_ready_callback *rdy);
- extern int __must_check get_random_bytes_arch(void *buf, int nbytes);
 
 
