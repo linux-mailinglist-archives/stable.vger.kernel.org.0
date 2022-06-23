@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD5D5582EB
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:22:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0292D558043
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:52:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233289AbiFWRWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:22:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35102 "EHLO
+        id S232628AbiFWQtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:49:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233484AbiFWRVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:21:42 -0400
+        with ESMTP id S232758AbiFWQsZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:48:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F125E5DF0B;
-        Thu, 23 Jun 2022 10:00:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFD5C4BFE4;
+        Thu, 23 Jun 2022 09:47:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12A4160AE7;
-        Thu, 23 Jun 2022 17:00:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFFCBC3411B;
-        Thu, 23 Jun 2022 17:00:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8D9961FA4;
+        Thu, 23 Jun 2022 16:47:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD2BAC3411B;
+        Thu, 23 Jun 2022 16:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003654;
-        bh=kPlZZ9a9Wz57sT9wKbJqOmP7eI5gmkiDEIk0/eNfpTA=;
+        s=korg; t=1656002852;
+        bh=GgW9rHCAKlZa1bYGLTKcS4p/eIUuL+qSoAlKD2rXBzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xarK8kkIHHWfDhQU+PaHIdJzwREPM430mhDrP0Shl3Dm5A+NjGglxNkhb+DpJ6A3t
-         xDqCN3KRgS4SmlzELlVAxjyocKd1VkYkkAD7Zj0Yr95SqYw4JFZdzmu4O8nyzgalst
-         5B1jKXdVzA8Ndckt7VS6zsbudjINKRKv7lVPuzXg=
+        b=gDSQe5xh11HX0SwQa9xW2kce7T+BMdb6QzTc2C2UfS4DzGke8OJpe0moLB5DDVmMt
+         35j/4Qd0B3M3YBjCVAaQoLfTlTwNe2sVFdYThyrl5Qj1KOPvGhP5zZZcP/ev1rxYYv
+         dKiMKxDk+Dhyuwc4FQbL52+xAkbARdLgrZGsE5DI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        "Tobin C. Harding" <me@tobin.cc>,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 007/237] random: Return nbytes filled from hw RNG
+Subject: [PATCH 4.9 048/264] Revert "hwrng: core - Freeze khwrng thread during suspend"
 Date:   Thu, 23 Jun 2022 18:40:41 +0200
-Message-Id: <20220623164343.358191767@linuxfoundation.org>
+Message-Id: <20220623164345.430102071@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Tobin C. Harding" <me@tobin.cc>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 753d433b586d1d43c487e3d660f5778c7c8d58ea upstream.
+commit 08e97aec700aeff54c4847f170e566cbd7e14e81 upstream.
 
-Currently the function get_random_bytes_arch() has return value 'void'.
-If the hw RNG fails we currently fall back to using get_random_bytes().
-This defeats the purpose of requesting random material from the hw RNG
-in the first place.
+This reverts commit 03a3bb7ae631 ("hwrng: core - Freeze khwrng
+thread during suspend"), ff296293b353 ("random: Support freezable
+kthreads in add_hwgenerator_randomness()") and 59b569480dc8 ("random:
+Use wait_event_freezable() in add_hwgenerator_randomness()").
 
-There are currently no intree users of get_random_bytes_arch().
+These patches introduced regressions and we need more time to
+get them ready for mainline.
 
-Only get random bytes from the hw RNG, make function return the number
-of bytes retrieved from the hw RNG.
-
-Acked-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Tobin C. Harding <me@tobin.cc>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c  |   16 +++++++++-------
- include/linux/random.h |    2 +-
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/char/random.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1730,26 +1730,28 @@ EXPORT_SYMBOL(del_random_ready_callback)
-  * key known by the NSA).  So it's useful if we need the speed, but
-  * only if we're willing to trust the hardware manufacturer not to
-  * have put in a back door.
-+ *
-+ * Return number of bytes filled in.
-  */
--void get_random_bytes_arch(void *buf, int nbytes)
-+int __must_check get_random_bytes_arch(void *buf, int nbytes)
- {
-+	int left = nbytes;
- 	char *p = buf;
- 
--	trace_get_random_bytes_arch(nbytes, _RET_IP_);
--	while (nbytes) {
-+	trace_get_random_bytes_arch(left, _RET_IP_);
-+	while (left) {
- 		unsigned long v;
--		int chunk = min(nbytes, (int)sizeof(unsigned long));
-+		int chunk = min_t(int, left, sizeof(unsigned long));
- 
- 		if (!arch_get_random_long(&v))
- 			break;
- 
- 		memcpy(p, &v, chunk);
- 		p += chunk;
--		nbytes -= chunk;
-+		left -= chunk;
- 	}
- 
--	if (nbytes)
--		get_random_bytes(p, nbytes);
-+	return nbytes - left;
- }
- EXPORT_SYMBOL(get_random_bytes_arch);
- 
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -38,7 +38,7 @@ extern void get_random_bytes(void *buf,
- extern int wait_for_random_bytes(void);
- extern int add_random_ready_callback(struct random_ready_callback *rdy);
- extern void del_random_ready_callback(struct random_ready_callback *rdy);
--extern void get_random_bytes_arch(void *buf, int nbytes);
-+extern int __must_check get_random_bytes_arch(void *buf, int nbytes);
- 
- #ifndef MODULE
- extern const struct file_operations random_fops, urandom_fops;
+@@ -327,7 +327,6 @@
+ #include <linux/percpu.h>
+ #include <linux/cryptohash.h>
+ #include <linux/fips.h>
+-#include <linux/freezer.h>
+ #include <linux/ptrace.h>
+ #include <linux/kmemcheck.h>
+ #include <linux/workqueue.h>
+@@ -2484,8 +2483,7 @@ void add_hwgenerator_randomness(const ch
+ 	 * We'll be woken up again once below random_write_wakeup_thresh,
+ 	 * or when the calling thread is about to terminate.
+ 	 */
+-	wait_event_freezable(random_write_wait,
+-			kthread_should_stop() ||
++	wait_event_interruptible(random_write_wait, kthread_should_stop() ||
+ 			ENTROPY_BITS(&input_pool) <= random_write_wakeup_bits);
+ 	mix_pool_bytes(poolp, buffer, count);
+ 	credit_entropy_bits(poolp, entropy);
 
 
