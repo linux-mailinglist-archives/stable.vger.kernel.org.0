@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B4B5558475
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 224E3558264
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232025AbiFWRnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:43:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53812 "EHLO
+        id S231681AbiFWRNx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:13:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234813AbiFWRme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:42:34 -0400
+        with ESMTP id S233394AbiFWRMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:12:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFCA498C59;
-        Thu, 23 Jun 2022 10:10:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 470724EDF0;
+        Thu, 23 Jun 2022 09:58:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 057E061D20;
-        Thu, 23 Jun 2022 17:10:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D43F2C3411B;
-        Thu, 23 Jun 2022 17:09:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 256686159B;
+        Thu, 23 Jun 2022 16:58:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E26A9C36AE2;
+        Thu, 23 Jun 2022 16:58:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004199;
-        bh=UprHjqG9Go5olXUPbwEUEg3jlxgVKjKlwzExBON35xM=;
+        s=korg; t=1656003525;
+        bh=LvSXorcf4yO/v5ARjHDikb+sJXhPDzAvBgn1B7wUuG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w24A5Ik0XY44EkXRQysGNIHUQecVH1V42/MW7Q0QKzVmll+9R9L4bMKn+1dmCaRs4
-         IcP5UXqlVd7SHosl2RwPJx4URMf6aRZgV6LaVTJdCW9z3BMSqQIweg4zzB+3v92QQ5
-         mU6XnP3uLE5/vC7M7NJJpAqw80k58I7gn8C8PXgg=
+        b=g2HcYMLdeEwKeRAMHxodVawj+M3wunsEUguw1Esrv2g0CZV/WsZ7hJ6ZXOsZQERZD
+         dqEtXGANssSxZwstucNC3u/SelWkm+rGrGN3/RJ7VrkfM00OT7mNgAkVdWg4ON/iMd
+         em2xw/Q8ZU5+8RSQfTMWJuUY02ab4ZIMvgSG6HeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 218/237] USB: serial: option: add support for Cinterion MV31 with new baseline
-Date:   Thu, 23 Jun 2022 18:44:12 +0200
-Message-Id: <20220623164349.423192398@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Moshe Kol <moshe.kol@mail.huji.ac.il>,
+        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
+        Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 260/264] tcp: use different parts of the port_offset for index and offset
+Date:   Thu, 23 Jun 2022 18:44:13 +0200
+Message-Id: <20220623164351.421561769@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +58,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Willy Tarreau <w@1wt.eu>
 
-commit 158f7585bfcea4aae0ad4128d032a80fec550df1 upstream.
+commit 9e9b70ae923baf2b5e8a0ea4fd0c8451801ac526 upstream.
 
-Adding support for Cinterion device MV31 with Qualcomm
-new baseline. Use different PIDs to separate it from
-previous base line products.
-All interfaces settings keep same as previous.
+Amit Klein suggests that we use different parts of port_offset for the
+table's index and the port offset so that there is no direct relation
+between them.
 
-Below is test evidence:
-T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  6 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00b8 Rev=04.14
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00B8 USB Mobile Broadband
-S:  SerialNumber=90418e79
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  7 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00b9 Rev=04.14
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00B9 USB Mobile Broadband
-S:  SerialNumber=90418e79
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-For PID 00b8, interface 3 is GNSS port which don't use serial driver.
-
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20220601034740.5438-1-slark_xiao@163.com
-[ johan: rename defines using a "2" infix ]
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
+Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
+Cc: Amit Klein <aksecurity@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/ipv4/inet_hashtables.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -435,6 +435,8 @@ static void option_instat_callback(struc
- #define CINTERION_PRODUCT_CLS8			0x00b0
- #define CINTERION_PRODUCT_MV31_MBIM		0x00b3
- #define CINTERION_PRODUCT_MV31_RMNET		0x00b7
-+#define CINTERION_PRODUCT_MV31_2_MBIM		0x00b8
-+#define CINTERION_PRODUCT_MV31_2_RMNET		0x00b9
- #define CINTERION_PRODUCT_MV32_WA		0x00f1
- #define CINTERION_PRODUCT_MV32_WB		0x00f2
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -589,7 +589,7 @@ int __inet_hash_connect(struct inet_time
+ 	net_get_random_once(table_perturb, sizeof(table_perturb));
+ 	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
  
-@@ -1982,6 +1984,10 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(3)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
- 	  .driver_info = RSVD(0)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_MBIM, 0xff),
-+	  .driver_info = RSVD(3)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_2_RMNET, 0xff),
-+	  .driver_info = RSVD(0)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
- 	  .driver_info = RSVD(3)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
+-	offset = READ_ONCE(table_perturb[index]) + port_offset;
++	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
+ 	offset %= remaining;
+ 
+ 	/* In first pass we try ports of @low parity.
 
 
