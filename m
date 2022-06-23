@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1DD8557F8D
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:15:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69048557F99
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:17:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230212AbiFWQPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 12:15:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50292 "EHLO
+        id S231948AbiFWQRx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:17:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229579AbiFWQPq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:15:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B77232F66D
-        for <stable@vger.kernel.org>; Thu, 23 Jun 2022 09:15:45 -0700 (PDT)
+        with ESMTP id S232069AbiFWQRt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:17:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35AEE457B5
+        for <stable@vger.kernel.org>; Thu, 23 Jun 2022 09:17:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 501DA61F29
-        for <stable@vger.kernel.org>; Thu, 23 Jun 2022 16:15:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29C97C3411B;
-        Thu, 23 Jun 2022 16:15:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CBC1DB82474
+        for <stable@vger.kernel.org>; Thu, 23 Jun 2022 16:17:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D890C3411B;
+        Thu, 23 Jun 2022 16:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656000944;
-        bh=mjcnbOPQGSY9AkomTcqP0iCZk6tyDvcrc2w+ZvE2Ay0=;
+        s=korg; t=1656001065;
+        bh=w9vssxCnAThHd+BSfh0MhxhvWTeLf0gzQ97pqxEjOn0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jUVpUQDcA3auU1o0xK9/W7iHCQPcwghBY/613fOReL7vkAGfvuOTNuW1sd2t2jXJP
-         c6a5YIB2Vj4aR82l2gryiDMud6y0xSPPfVGSkttCu+7R/iLvhQpjO8mOHLKf3Z1VNA
-         5dK1vO99bRzNhB+VXro0rBO9SfOytk8l0r4fr1w8=
-Date:   Thu, 23 Jun 2022 18:15:41 +0200
+        b=BlJiREW2V3hHeWtzrlNMeDp/oWNKohPJ+M83xsi5FtaoK3glAnJ53kv4DhFhCF7v1
+         DGaT2LqVWn+VOQCv9I06UcdV09IhwDmqfu+95UVMxXevk7Mne/xFXpgTNL1NjjRpVj
+         p3HS7CZesPauJ6HzZWzUkZ9wZBLk4yfBbgbAMb18=
+Date:   Thu, 23 Jun 2022 18:17:40 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Dominique Martinet <dominique.martinet@atmark-techno.com>
-Cc:     stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Su Bao Cheng <baocheng.su@siemens.com>,
-        Daisuke Mizobuchi <mizo@atmark-techno.com>
-Subject: Re: [PATCH v5.10] serial: core: Initialize rs485 RTS polarity
- already on probe
-Message-ID: <YrSRrfHP45YGb2/r@kroah.com>
-References: <20220623005858.1907788-1-dominique.martinet@atmark-techno.com>
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     stable@vger.kernel.org, Will Deacon <will@kernel.org>
+Subject: Re: [PATCH stable-5.15] arm64: mm: Don't invalidate FROM_DEVICE
+ buffers at start of DMA transfer
+Message-ID: <YrSSJMKL/GL45GA3@kroah.com>
+References: <20220623154412.1117070-1-catalin.marinas@arm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220623005858.1907788-1-dominique.martinet@atmark-techno.com>
+In-Reply-To: <20220623154412.1117070-1-catalin.marinas@arm.com>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -53,82 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 23, 2022 at 09:58:58AM +0900, Dominique Martinet wrote:
-> From: Lukas Wunner <lukas@wunner.de>
+On Thu, Jun 23, 2022 at 04:44:12PM +0100, Catalin Marinas wrote:
+> From: Will Deacon <will@kernel.org>
 > 
-> Core part of commit 2dd8a74fddd21b95dcc60a2d3c9eaec993419d69 upstream:
-> the PL011 driver does not support RS485 in the 5.10 tree yet so drop
-> that bit.
+> commit c50f11c6196f45c92ca48b16a5071615d4ae0572 upstream.
 > 
-> RTS polarity of rs485-enabled ports is currently initialized on uart
-> open via:
+> Invalidating the buffer memory in arch_sync_dma_for_device() for
+> FROM_DEVICE transfers
 > 
-> tty_port_open()
->   tty_port_block_til_ready()
->     tty_port_raise_dtr_rts()  # if (C_BAUD(tty))
->       uart_dtr_rts()
->         uart_port_dtr_rts()
+> When using the streaming DMA API to map a buffer prior to inbound
+> non-coherent DMA (i.e. DMA_FROM_DEVICE), we invalidate any dirty CPU
+> cachelines so that they will not be written back during the transfer and
+> corrupt the buffer contents written by the DMA. This, however, poses two
+> potential problems:
 > 
-> There's at least three problems here:
+>   (1) If the DMA transfer does not write to every byte in the buffer,
+>       then the unwritten bytes will contain stale data once the transfer
+>       has completed.
 > 
-> First, if no baud rate is set, RTS polarity is not initialized.
-> That's the right thing to do for rs232, but not for rs485, which
-> requires that RTS is deasserted unconditionally.
+>   (2) If the buffer has a virtual alias in userspace, then stale data
+>       may be visible via this alias during the period between performing
+>       the cache invalidation and the DMA writes landing in memory.
 > 
-> Second, if the DeviceTree property "linux,rs485-enabled-at-boot-time" is
-> present, RTS should be deasserted as early as possible, i.e. on probe.
-> Otherwise it may remain asserted until first open.
+> Address both of these issues by cleaning (aka writing-back) the dirty
+> lines in arch_sync_dma_for_device(DMA_FROM_DEVICE) instead of discarding
+> them using invalidation.
 > 
-> Third, even though RTS is deasserted on open and close, it may
-> subsequently be asserted by uart_throttle(), uart_unthrottle() or
-> uart_set_termios() because those functions aren't rs485-aware.
-> (Only uart_tiocmset() is.)
-> 
-> To address these issues, move RTS initialization from uart_port_dtr_rts()
-> to uart_configure_port().  Prevent subsequent modification of RTS
-> polarity by moving the existing rs485 check from uart_tiocmget() to
-> uart_update_mctrl().
-> 
-> That way, RTS is initialized on probe and then remains unmodified unless
-> the uart transmits data.  If rs485 is enabled at runtime (instead of at
-> boot) through a TIOCSRS485 ioctl(), RTS is initialized by the uart
-> driver's ->rs485_config() callback and then likewise remains unmodified.
-> 
-> The PL011 driver initializes RTS on uart open and prevents subsequent
-> modification in its ->set_mctrl() callback.  That code is obsoleted by
-> the present commit, so drop it.
-> 
-> Cc: Jan Kiszka <jan.kiszka@siemens.com>
-> Cc: Su Bao Cheng <baocheng.su@siemens.com>
-> Signed-off-by: Lukas Wunner <lukas@wunner.de>
-> Link: https://lore.kernel.org/r/2d2acaf3a69e89b7bf687c912022b11fd29dfa1e.1642909284.git.lukas@wunner.de
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: stable@vger.kernel.org # 5.10
-> Reported-by: Daisuke Mizobuchi <mizo@atmark-techno.com>
-> Tested-by: Daisuke Mizobuchi <mizo@atmark-techno.com>
-> Signed-off-by: Dominique Martinet <dominique.martinet@atmark-techno.com>
+> Cc: Ard Biesheuvel <ardb@kernel.org>
+> Cc: Christoph Hellwig <hch@lst.de>
+> Cc: Robin Murphy <robin.murphy@arm.com>
+> Cc: Russell King <linux@armlinux.org.uk>
+> Cc: <stable@vger.kernel.org>
+> Link: https://lore.kernel.org/r/20220606152150.GA31568@willie-the-truck
+> Signed-off-by: Will Deacon <will@kernel.org>
+> Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+> Link: https://lore.kernel.org/r/20220610151228.4562-2-will@kernel.org
+> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 > ---
-> Notes:
->  - as said in commit message, I've dropped the PL011 part of the
-> original patch as it is orthogonal to this change. We need this
-> serial core fix for the imx serial tty driver.
-> 
-> - I wasn't really sure what to do with tags in the commit message,
-> everything below the 'Cc: stable' tag apply to the backport:
-> Mizobuchi-san tested the backport on the 5.10 branch with the imx
-> driver.
-> 
-> - I'm not quite sure how far back it is relevant, for imx I assume
-> rs485 is broken since 58362d5be352 ("serial: imx: implement handshaking
-> using gpios with the mctrl_gpio helper") (4.5), and we did have that
-> problem all the way back in our older 4.9 product tree... but core
-> support back then wasn't as extensive for RS485 so we have a different
-> imx specific workaround there.
-> 
->  - I do not use 5.15 but either version of this patch apply cleanly
-> there; I'd assume it'd be more appropriate to get the original
-> 2dd8a74fddd21b cherry-picked in this case for 5.15.
+>  arch/arm64/mm/cache.S | 2 --
+>  1 file changed, 2 deletions(-)
 
-Now queued up, thanks.
+All now queued up, thanks.
 
 greg k-h
