@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B73525586EA
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:18:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B513558702
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236800AbiFWSSp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:18:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37892 "EHLO
+        id S236916AbiFWSTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:19:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236885AbiFWSQ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:16:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1EEC62C1C;
-        Thu, 23 Jun 2022 10:23:35 -0700 (PDT)
+        with ESMTP id S236897AbiFWSQ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:16:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8FFB62C29;
+        Thu, 23 Jun 2022 10:23:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2EFFB824B9;
-        Thu, 23 Jun 2022 17:23:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E977BC3411B;
-        Thu, 23 Jun 2022 17:23:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D2C761DC6;
+        Thu, 23 Jun 2022 17:23:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 351F6C3411B;
+        Thu, 23 Jun 2022 17:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656005013;
-        bh=Pplf4yDHXUbuRV90A27MZmzIBQ4huT/4sBw/QKEODoA=;
+        s=korg; t=1656005016;
+        bh=GJjPzaE1Xp4leBAxjdOS0+AqdSMbVLMu+pd/8Sgp3ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HHbaHaGWra/dfs9catmtQwBQj8oUUVnGOSjdp0lqgTBJFAxPn86H+ITqfVQr80sih
-         g7h2DH/JzCMNFmejUHvqNc/qw6n6/SSBrILePxm+vLL5kG9Dpn3fdf98VTf8kQTj9w
-         PZy9egRavgu/8Qz48wPoeeslgLieoyXZmh9+n2a8=
+        b=TwcNGpidp4w4VcROdnABMofXAr7rtFBMWYXBJUBBdAykYwgTnw7maWjkEAA6jqWln
+         +YdonRTDnx89UVct0AvEdqjXIaaoIwlzZZoZDpZpSWuhZvZMQvtbPMOxCTdZJtLV1S
+         V9dhGnGrBwdUZodp0ztsnQsN3j0Ih2oQwIWTi35M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 224/234] powerpc/mm: Switch obsolete dssall to .long
-Date:   Thu, 23 Jun 2022 18:44:51 +0200
-Message-Id: <20220623164349.388634935@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 4.19 225/234] s390/mm: use non-quiescing sske for KVM switch to keyed guest
+Date:   Thu, 23 Jun 2022 18:44:52 +0200
+Message-Id: <20220623164349.416773391@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -54,142 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-commit d51f86cfd8e378d4907958db77da3074f6dce3ba upstream.
+commit 3ae11dbcfac906a8c3a480e98660a823130dc16a upstream.
 
-The dssall ("Data Stream Stop All") instruction is obsolete altogether
-with other Data Cache Instructions since ISA 2.03 (year 2006).
+The switch to a keyed guest does not require a classic sske as the other
+guest CPUs are not accessing the key before the switch is complete.
+By using the NQ SSKE things are faster especially with multiple guests.
 
-LLVM IAS does not support it but PPC970 seems to be using it.
-This switches dssall to .long as there is no much point in fixing LLVM.
-
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211221055904.555763-6-aik@ozlabs.ru
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Suggested-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220530092706.11637-3-borntraeger@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/ppc-opcode.h   |    2 ++
- arch/powerpc/kernel/idle_6xx.S          |    2 +-
- arch/powerpc/kernel/l2cr_6xx.S          |    6 +++---
- arch/powerpc/kernel/swsusp_32.S         |    2 +-
- arch/powerpc/kernel/swsusp_asm64.S      |    2 +-
- arch/powerpc/mm/mmu_context.c           |    2 +-
- arch/powerpc/platforms/powermac/cache.S |    4 ++--
- 7 files changed, 11 insertions(+), 9 deletions(-)
+ arch/s390/mm/pgtable.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/include/asm/ppc-opcode.h
-+++ b/arch/powerpc/include/asm/ppc-opcode.h
-@@ -207,6 +207,7 @@
- #define PPC_INST_ICBT			0x7c00002c
- #define PPC_INST_ICSWX			0x7c00032d
- #define PPC_INST_ICSWEPX		0x7c00076d
-+#define PPC_INST_DSSALL			0x7e00066c
- #define PPC_INST_ISEL			0x7c00001e
- #define PPC_INST_ISEL_MASK		0xfc00003e
- #define PPC_INST_LDARX			0x7c0000a8
-@@ -424,6 +425,7 @@
- 					__PPC_RA(a) | __PPC_RB(b))
- #define	PPC_DCBZL(a, b)		stringify_in_c(.long PPC_INST_DCBZL | \
- 					__PPC_RA(a) | __PPC_RB(b))
-+#define PPC_DSSALL		stringify_in_c(.long PPC_INST_DSSALL)
- #define PPC_LQARX(t, a, b, eh)	stringify_in_c(.long PPC_INST_LQARX | \
- 					___PPC_RT(t) | ___PPC_RA(a) | \
- 					___PPC_RB(b) | __PPC_EH(eh))
---- a/arch/powerpc/kernel/idle_6xx.S
-+++ b/arch/powerpc/kernel/idle_6xx.S
-@@ -133,7 +133,7 @@ BEGIN_FTR_SECTION
- END_FTR_SECTION_IFCLR(CPU_FTR_NO_DPM)
- 	mtspr	SPRN_HID0,r4
- BEGIN_FTR_SECTION
--	DSSALL
-+	PPC_DSSALL
- 	sync
- END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
- 	CURRENT_THREAD_INFO(r9, r1)
---- a/arch/powerpc/kernel/l2cr_6xx.S
-+++ b/arch/powerpc/kernel/l2cr_6xx.S
-@@ -108,7 +108,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_L2CR)
- 
- 	/* Stop DST streams */
- BEGIN_FTR_SECTION
--	DSSALL
-+	PPC_DSSALL
- 	sync
- END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
- 
-@@ -305,7 +305,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_L3CR)
- 	isync
- 
- 	/* Stop DST streams */
--	DSSALL
-+	PPC_DSSALL
- 	sync
- 
- 	/* Get the current enable bit of the L3CR into r4 */
-@@ -414,7 +414,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_L3CR)
- _GLOBAL(__flush_disable_L1)
- 	/* Stop pending alitvec streams and memory accesses */
- BEGIN_FTR_SECTION
--	DSSALL
-+	PPC_DSSALL
- END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
-  	sync
- 
---- a/arch/powerpc/kernel/swsusp_32.S
-+++ b/arch/powerpc/kernel/swsusp_32.S
-@@ -181,7 +181,7 @@ _GLOBAL(swsusp_arch_resume)
- #ifdef CONFIG_ALTIVEC
- 	/* Stop pending alitvec streams and memory accesses */
- BEGIN_FTR_SECTION
--	DSSALL
-+	PPC_DSSALL
- END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
- #endif
-  	sync
---- a/arch/powerpc/kernel/swsusp_asm64.S
-+++ b/arch/powerpc/kernel/swsusp_asm64.S
-@@ -143,7 +143,7 @@ END_FW_FTR_SECTION_IFCLR(FW_FEATURE_LPAR
- _GLOBAL(swsusp_arch_resume)
- 	/* Stop pending alitvec streams and memory accesses */
- BEGIN_FTR_SECTION
--	DSSALL
-+	PPC_DSSALL
- END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
- 	sync
- 
---- a/arch/powerpc/mm/mmu_context.c
-+++ b/arch/powerpc/mm/mmu_context.c
-@@ -83,7 +83,7 @@ void switch_mm_irqs_off(struct mm_struct
- 	 * context
- 	 */
- 	if (cpu_has_feature(CPU_FTR_ALTIVEC))
--		asm volatile ("dssall");
-+		asm volatile (PPC_DSSALL);
- 
- 	if (new_on_cpu)
- 		radix_kvm_prefetch_workaround(next);
---- a/arch/powerpc/platforms/powermac/cache.S
-+++ b/arch/powerpc/platforms/powermac/cache.S
-@@ -53,7 +53,7 @@ flush_disable_75x:
- 
- 	/* Stop DST streams */
- BEGIN_FTR_SECTION
--	DSSALL
-+	PPC_DSSALL
- 	sync
- END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
- 
-@@ -201,7 +201,7 @@ flush_disable_745x:
- 	isync
- 
- 	/* Stop prefetch streams */
--	DSSALL
-+	PPC_DSSALL
- 	sync
- 
- 	/* Disable L2 prefetching */
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -716,7 +716,7 @@ void ptep_zap_key(struct mm_struct *mm,
+ 	pgste_val(pgste) |= PGSTE_GR_BIT | PGSTE_GC_BIT;
+ 	ptev = pte_val(*ptep);
+ 	if (!(ptev & _PAGE_INVALID) && (ptev & _PAGE_WRITE))
+-		page_set_storage_key(ptev & PAGE_MASK, PAGE_DEFAULT_KEY, 1);
++		page_set_storage_key(ptev & PAGE_MASK, PAGE_DEFAULT_KEY, 0);
+ 	pgste_set_unlock(ptep, pgste);
+ 	preempt_enable();
+ }
 
 
