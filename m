@@ -2,58 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32E955571E9
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 06:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46AD75571EC
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 06:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232002AbiFWEno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 00:43:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37734 "EHLO
+        id S231258AbiFWEns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 00:43:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238356AbiFWD1S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 23:27:18 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3A862F677;
-        Wed, 22 Jun 2022 20:27:16 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id f16so16253273pjj.1;
-        Wed, 22 Jun 2022 20:27:16 -0700 (PDT)
+        with ESMTP id S232042AbiFWD2i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jun 2022 23:28:38 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5396A3584F;
+        Wed, 22 Jun 2022 20:28:34 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id a14so8289433pgh.11;
+        Wed, 22 Jun 2022 20:28:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
         bh=BGxgiv11hvdw7wDli9ikUOZaW5PWrlx+R9Qfffj5nmA=;
-        b=e5TfjJjcVuJRt54CUHfLA3h6xetjYOMgr8K1O8qgnCmOhid3YJaBTgmNRlzll7kilw
-         j0m20G9sBsG0jm1/wPBfLSGn1tTwHv6rtpLn/z+v5kxn5imiBS4HL0UrsfoQkVamWglI
-         VE9Lq3dy+SUypO//dIDJoXboczVYqdD2evNWTSu/on9uiuIiVuGgD0JgEG+5wcu8FipD
-         ls2mocEgAk1ZPSKpd28rT9nw9kc4t8R6Qy5gTNJDeW/0K7IxVfqsmsqFEonpi1L4x9OG
-         BIInYqjVQZb2hQWWg58cyrSrD4lxH1Pgvicu8b28IVH4emrjk8xiLMyUaYCQiY1iIXyY
-         kr+Q==
+        b=e8XLIf6iBa727BjzTsJcOGDPyJ1dLCAA2oH9V48pK5XN9i7AcyafXmX5ILT4dTnObp
+         reSC+4+uLmvNRoydCzD04rcX5cdyMzKxrpGcTGsxtfX2yBECGP0+ufkhFOp77xO765pM
+         kg/IJYHtocB0Eneh8OFOudt1WlCX19tI93vwqKeolKbw0jrWfORehuXQE1GpPCNFE2AO
+         ZSDJeC11ST4OkdogNnXDQI0KzfuL+aTSadauuSN80dXT1rJ0nmtBbzRJVtMbnrb16OuX
+         3iIG4LfYQXxNNfcUOdan0hIDAp6v7QbuXEivWRZ41uxNzC9GZOuW6z5SiH35uTfwSzl5
+         T/GQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
         bh=BGxgiv11hvdw7wDli9ikUOZaW5PWrlx+R9Qfffj5nmA=;
-        b=HIttvqFh8lJoOvK1NQXvWvlJcmqTcqvSLoW1Mr8AbgbIPv/YgBAVk8CHzOQVcoCxOy
-         OxD0JyDToJKghri5AC+AQHiQDzJaRkXAnAC3zDK36sBCkeemo3p8qa8bqU8LkC8AweLL
-         iBtKbPGSBwngnlCj/cmL07h9lY1TETKKQXrRocp36DS2xrKvU1bnk5Spi3rZP5Zovxtz
-         NFccrFXl9aNNCkJW89ZUCtBmSLgtd1CiU4bsprsyyy3YxAwS8COZ9hJPA8nvOAVmfkhB
-         NRBVQO/1XrYgBcY45jOV/oMMyPjA+T7WGf2Kz9g5IiXGq1NUsYnGOVGfHZ+PE688kkVd
-         MC/g==
-X-Gm-Message-State: AJIora9bgZi+6oY5yYDXmiOKePvDcogUNgxSWbD8PfQ7CYRQqL3YAUQO
-        s0gbpECVKF/b84nZabsb18VJmnJPyK4=
-X-Google-Smtp-Source: AGRyM1uWx+Cc0+kaxj2kJxoKLTWgDi+3PVCrFNsTUJdsuyUa4wi6zHZxW6ePZngHNiCMvjaETPBGoQ==
-X-Received: by 2002:a17:902:ec84:b0:16a:50f5:61c1 with SMTP id x4-20020a170902ec8400b0016a50f561c1mr4114570plg.12.1655954836184;
-        Wed, 22 Jun 2022 20:27:16 -0700 (PDT)
+        b=mJB5546kZHT5YRM2KQIwDdzA2NuGjQyJp03qe0dEqlV4zAIFRdDeEDeNO2dh7Ei6V9
+         TuvtJbRESJMfN3n2vuUT9oq1jlDo+HnUMOp+oE4eTqqv9N/mpodj6lcoE8d76zNP7but
+         SrVWzJFIEW3x91ltmDbZMOL/I2EPQ+JvUe9fu+5F2l7NfQY2XnrhHp4DSFs4HyFdljeN
+         xAzPfAMW/Gtke2/6gk+ToRc9FaFrxZ0qr/QnWtYhWN2U8SZhMa1FLTd89i3GbrSeE0eL
+         At2MMnX6EZDIHmIlxDBigZa6SmdrCNryB37f+L7i8o3aPS5qGZWlV6L6f10XvfaC9E71
+         74Tw==
+X-Gm-Message-State: AJIora/kqgQBMYw0ILw5Tw/UieQGDY+vbyK1wpLaen5YUH8s5D54bQgg
+        YjrhAzOZNskmnbbMGc7Hn+voxZdEkDc=
+X-Google-Smtp-Source: AGRyM1vJlddVOTJX0mIWD804npdIFJme69cNDb4ye4mZY41UPKflFNnU9vY3pzIZGIOAfXSEVyB3bg==
+X-Received: by 2002:a63:784a:0:b0:408:c36e:db35 with SMTP id t71-20020a63784a000000b00408c36edb35mr5634198pgc.484.1655954913686;
+        Wed, 22 Jun 2022 20:28:33 -0700 (PDT)
 Received: from localhost.localdomain ([193.203.214.57])
-        by smtp.gmail.com with ESMTPSA id iw2-20020a170903044200b00163f2f9f07csm9516193plb.48.2022.06.22.20.27.14
+        by smtp.gmail.com with ESMTPSA id b193-20020a6334ca000000b0040c95aeae26sm8739173pga.12.2022.06.22.20.28.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jun 2022 20:27:15 -0700 (PDT)
+        Wed, 22 Jun 2022 20:28:33 -0700 (PDT)
 From:   xu xin <cgel.zte@gmail.com>
 X-Google-Original-From: xu xin <xu.xin16@zte.com.cn>
 To:     anton@tuxera.com, linux-ntfs-dev@lists.sourceforge.net,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     xu.xin16@zte.com.cn
 Subject: Bug report: ntfs_read_block may crash system
-Date:   Thu, 23 Jun 2022 03:27:13 +0000
-Message-Id: <20220623032713.973803-1-xu.xin16@zte.com.cn>
+Date:   Thu, 23 Jun 2022 03:28:30 +0000
+Message-Id: <20220623032830.973860-1-xu.xin16@zte.com.cn>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
