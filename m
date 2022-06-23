@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE5565581CE
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:06:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDEEA5583F2
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230201AbiFWRGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:06:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55916 "EHLO
+        id S232781AbiFWRjn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:39:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232932AbiFWRFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:05:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08E83517DB;
-        Thu, 23 Jun 2022 09:55:31 -0700 (PDT)
+        with ESMTP id S234473AbiFWRhO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:37:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2627D84895;
+        Thu, 23 Jun 2022 10:07:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87308B82495;
-        Thu, 23 Jun 2022 16:55:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EFD2C341C5;
-        Thu, 23 Jun 2022 16:55:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4390C6159A;
+        Thu, 23 Jun 2022 17:07:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10EFBC3411B;
+        Thu, 23 Jun 2022 17:06:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003330;
-        bh=ZCgAwV/ThchyDtCvfOckgYgn0sND1fetb068jgCfqVA=;
+        s=korg; t=1656004019;
+        bh=na9blj76/COS7M39ZGtGbadFRBupCaLSkxeDOhaLB0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rIdkQ2QtQkAUI5xt0rvSBsTZmKU9lBxrtO3CS+cI5opZyXUKBvK99eKGeQadA6l/C
-         FaVpfiU1MQz9A7FsyYkEfg9GModG22odhgMpnKWhwq6n5qIpXzMn7o9ziU/BkgWQ3y
-         IziAqLhtqtEiQzc123JiW5Fz0wR/VNUXwncD02wc=
+        b=IxRRAAm/NlWcVzod/dxZZOXop4/Sl1WlByUcVs7Lvfsovnn2bX98x65hE77qgEj2l
+         Dt/3nMOpav61bWbRhVRCGTbwg3xLPpWRzHzAsjZauzobeByml4rio4heoZp+12Q0cu
+         SKq76Wh3cZcRAFpG/MmX5M/3HCa1x+7X+RzYc1J8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 202/264] random: remove ratelimiting for in-kernel unseeded randomness
-Date:   Thu, 23 Jun 2022 18:43:15 +0200
-Message-Id: <20220623164349.786210671@linuxfoundation.org>
+Subject: [PATCH 4.14 162/237] random: insist on random_get_entropy() existing in order to simplify
+Date:   Thu, 23 Jun 2022 18:43:16 +0200
+Message-Id: <20220623164347.815392859@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,200 +55,220 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit cc1e127bfa95b5fb2f9307e7168bf8b2b45b4c5e upstream.
+commit 4b758eda851eb9336ca86a0041a4d3da55f66511 upstream.
 
-The CONFIG_WARN_ALL_UNSEEDED_RANDOM debug option controls whether the
-kernel warns about all unseeded randomness or just the first instance.
-There's some complicated rate limiting and comparison to the previous
-caller, such that even with CONFIG_WARN_ALL_UNSEEDED_RANDOM enabled,
-developers still don't see all the messages or even an accurate count of
-how many were missed. This is the result of basically parallel
-mechanisms aimed at accomplishing more or less the same thing, added at
-different points in random.c history, which sort of compete with the
-first-instance-only limiting we have now.
+All platforms are now guaranteed to provide some value for
+random_get_entropy(). In case some bug leads to this not being so, we
+print a warning, because that indicates that something is really very
+wrong (and likely other things are impacted too). This should never be
+hit, but it's a good and cheap way of finding out if something ever is
+problematic.
 
-It turns out, however, that nobody cares about the first unseeded
-randomness instance of in-kernel users. The same first user has been
-there for ages now, and nobody is doing anything about it. It isn't even
-clear that anybody _can_ do anything about it. Most places that can do
-something about it have switched over to using get_random_bytes_wait()
-or wait_for_random_bytes(), which is the right thing to do, but there is
-still much code that needs randomness sometimes during init, and as a
-geeneral rule, if you're not using one of the _wait functions or the
-readiness notifier callback, you're bound to be doing it wrong just
-based on that fact alone.
+Since we now have viable fallback code for random_get_entropy() on all
+platforms, which is, in the worst case, not worse than jiffies, we can
+count on getting the best possible value out of it. That means there's
+no longer a use for using jiffies as entropy input. It also means we no
+longer have a reason for doing the round-robin register flow in the IRQ
+handler, which was always of fairly dubious value.
 
-So warning about this same first user that can't easily change is simply
-not an effective mechanism for anything at all. Users can't do anything
-about it, as the Kconfig text points out -- the problem isn't in
-userspace code -- and kernel developers don't or more often can't react
-to it.
-
-Instead, show the warning for all instances when CONFIG_WARN_ALL_UNSEEDED_RANDOM
-is set, so that developers can debug things need be, or if it isn't set,
-don't show a warning at all.
-
-At the same time, CONFIG_WARN_ALL_UNSEEDED_RANDOM now implies setting
-random.ratelimit_disable=1 on by default, since if you care about one
-you probably care about the other too. And we can clean up usage around
-the related urandom_warning ratelimiter as well (whose behavior isn't
-changing), so that it properly counts missed messages after the 10
-message threshold is reached.
+Instead we can greatly simplify the IRQ handler inputs and also unify
+the construction between 64-bits and 32-bits. We now collect the cycle
+counter and the return address, since those are the two things that
+matter. Because the return address and the irq number are likely
+related, to the extent we mix in the irq number, we can just xor it into
+the top unchanging bytes of the return address, rather than the bottom
+changing bytes of the cycle counter as before. Then, we can do a fixed 2
+rounds of SipHash/HSipHash. Finally, we use the same construction of
+hashing only half of the [H]SipHash state on 32-bit and 64-bit. We're
+not actually discarding any entropy, since that entropy is carried
+through until the next time. And more importantly, it lets us do the
+same sponge-like construction everywhere.
 
 Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   61 ++++++++++++++------------------------------------
- lib/Kconfig.debug     |    5 +---
- 2 files changed, 20 insertions(+), 46 deletions(-)
+ drivers/char/random.c |   86 +++++++++++++++-----------------------------------
+ 1 file changed, 26 insertions(+), 60 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -87,11 +87,10 @@ static DEFINE_SPINLOCK(random_ready_chai
- static RAW_NOTIFIER_HEAD(random_ready_chain);
- 
- /* Control how we warn userspace. */
--static struct ratelimit_state unseeded_warning =
--	RATELIMIT_STATE_INIT("warn_unseeded_randomness", HZ, 3);
- static struct ratelimit_state urandom_warning =
- 	RATELIMIT_STATE_INIT("warn_urandom_randomness", HZ, 3);
--static int ratelimit_disable __read_mostly;
-+static int ratelimit_disable __read_mostly =
-+	IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM);
- module_param_named(ratelimit_disable, ratelimit_disable, int, 0644);
- MODULE_PARM_DESC(ratelimit_disable, "Disable random ratelimit suppression");
- 
-@@ -184,27 +183,15 @@ static void process_random_ready_list(vo
- 	spin_unlock_irqrestore(&random_ready_chain_lock, flags);
- }
- 
--#define warn_unseeded_randomness(previous) \
--	_warn_unseeded_randomness(__func__, (void *)_RET_IP_, (previous))
-+#define warn_unseeded_randomness() \
-+	_warn_unseeded_randomness(__func__, (void *)_RET_IP_)
- 
--static void _warn_unseeded_randomness(const char *func_name, void *caller, void **previous)
-+static void _warn_unseeded_randomness(const char *func_name, void *caller)
- {
--#ifdef CONFIG_WARN_ALL_UNSEEDED_RANDOM
--	const bool print_once = false;
--#else
--	static bool print_once __read_mostly;
--#endif
--
--	if (print_once || crng_ready() ||
--	    (previous && (caller == READ_ONCE(*previous))))
-+	if (!IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM) || crng_ready())
- 		return;
--	WRITE_ONCE(*previous, caller);
--#ifndef CONFIG_WARN_ALL_UNSEEDED_RANDOM
--	print_once = true;
--#endif
--	if (__ratelimit(&unseeded_warning))
--		printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n",
--				func_name, caller, crng_init);
-+	printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n",
-+			func_name, caller, crng_init);
- }
- 
- 
-@@ -455,9 +442,7 @@ static void _get_random_bytes(void *buf,
+@@ -1017,15 +1017,14 @@ int __init rand_initialize(void)
   */
- void get_random_bytes(void *buf, size_t nbytes)
+ void add_device_randomness(const void *buf, size_t size)
  {
--	static void *previous;
+-	unsigned long cycles = random_get_entropy();
+-	unsigned long flags, now = jiffies;
++	unsigned long entropy = random_get_entropy();
++	unsigned long flags;
+ 
+ 	if (crng_init == 0 && size)
+ 		crng_pre_init_inject(buf, size, false);
+ 
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+-	_mix_pool_bytes(&cycles, sizeof(cycles));
+-	_mix_pool_bytes(&now, sizeof(now));
++	_mix_pool_bytes(&entropy, sizeof(entropy));
+ 	_mix_pool_bytes(buf, size);
+ 	spin_unlock_irqrestore(&input_pool.lock, flags);
+ }
+@@ -1048,12 +1047,11 @@ struct timer_rand_state {
+  */
+ static void add_timer_randomness(struct timer_rand_state *state, unsigned int num)
+ {
+-	unsigned long cycles = random_get_entropy(), now = jiffies, flags;
++	unsigned long entropy = random_get_entropy(), now = jiffies, flags;
+ 	long delta, delta2, delta3;
+ 
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+-	_mix_pool_bytes(&cycles, sizeof(cycles));
+-	_mix_pool_bytes(&now, sizeof(now));
++	_mix_pool_bytes(&entropy, sizeof(entropy));
+ 	_mix_pool_bytes(&num, sizeof(num));
+ 	spin_unlock_irqrestore(&input_pool.lock, flags);
+ 
+@@ -1181,7 +1179,6 @@ struct fast_pool {
+ 	unsigned long pool[4];
+ 	unsigned long last;
+ 	unsigned int count;
+-	u16 reg_idx;
+ };
+ 
+ static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
+@@ -1199,13 +1196,13 @@ static DEFINE_PER_CPU(struct fast_pool,
+  * This is [Half]SipHash-1-x, starting from an empty key. Because
+  * the key is fixed, it assumes that its inputs are non-malicious,
+  * and therefore this has no security on its own. s represents the
+- * 128 or 256-bit SipHash state, while v represents a 128-bit input.
++ * four-word SipHash state, while v represents a two-word input.
+  */
+-static void fast_mix(unsigned long s[4], const unsigned long *v)
++static void fast_mix(unsigned long s[4], const unsigned long v[2])
+ {
+ 	size_t i;
+ 
+-	for (i = 0; i < 16 / sizeof(long); ++i) {
++	for (i = 0; i < 2; ++i) {
+ 		s[3] ^= v[i];
+ #ifdef CONFIG_64BIT
+ 		s[0] += s[1]; s[1] = rol64(s[1], 13); s[1] ^= s[0]; s[0] = rol64(s[0], 32);
+@@ -1245,33 +1242,17 @@ int random_online_cpu(unsigned int cpu)
+ }
+ #endif
+ 
+-static unsigned long get_reg(struct fast_pool *f, struct pt_regs *regs)
+-{
+-	unsigned long *ptr = (unsigned long *)regs;
+-	unsigned int idx;
 -
--	warn_unseeded_randomness(&previous);
-+	warn_unseeded_randomness();
- 	_get_random_bytes(buf, nbytes);
- }
- EXPORT_SYMBOL(get_random_bytes);
-@@ -551,10 +536,9 @@ u64 get_random_u64(void)
- 	u64 ret;
- 	unsigned long flags;
- 	struct batched_entropy *batch;
--	static void *previous;
- 	unsigned long next_gen;
- 
--	warn_unseeded_randomness(&previous);
-+	warn_unseeded_randomness();
- 
- 	if  (!crng_ready()) {
- 		_get_random_bytes(&ret, sizeof(ret));
-@@ -589,10 +573,9 @@ u32 get_random_u32(void)
- 	u32 ret;
- 	unsigned long flags;
- 	struct batched_entropy *batch;
--	static void *previous;
- 	unsigned long next_gen;
- 
--	warn_unseeded_randomness(&previous);
-+	warn_unseeded_randomness();
- 
- 	if  (!crng_ready()) {
- 		_get_random_bytes(&ret, sizeof(ret));
-@@ -819,16 +802,9 @@ static void credit_init_bits(size_t nbit
- 		wake_up_interruptible(&crng_init_wait);
- 		kill_fasync(&fasync, SIGIO, POLL_IN);
- 		pr_notice("crng init done\n");
--		if (unseeded_warning.missed) {
--			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
--				  unseeded_warning.missed);
--			unseeded_warning.missed = 0;
--		}
--		if (urandom_warning.missed) {
-+		if (urandom_warning.missed)
- 			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
- 				  urandom_warning.missed);
--			urandom_warning.missed = 0;
--		}
- 	} else if (orig < POOL_EARLY_BITS && new >= POOL_EARLY_BITS) {
- 		spin_lock_irqsave(&base_crng.lock, flags);
- 		/* Check if crng_init is CRNG_EMPTY, to avoid race with crng_reseed(). */
-@@ -941,10 +917,6 @@ int __init rand_initialize(void)
- 	else if (arch_init && trust_cpu)
- 		credit_init_bits(BLAKE2S_BLOCK_SIZE * 8);
- 
--	if (ratelimit_disable) {
--		urandom_warning.interval = 0;
--		unseeded_warning.interval = 0;
--	}
- 	return 0;
- }
- 
-@@ -1390,11 +1362,14 @@ static ssize_t urandom_read(struct file
+-	if (regs == NULL)
+-		return 0;
+-	idx = READ_ONCE(f->reg_idx);
+-	if (idx >= sizeof(struct pt_regs) / sizeof(unsigned long))
+-		idx = 0;
+-	ptr += idx++;
+-	WRITE_ONCE(f->reg_idx, idx);
+-	return *ptr;
+-}
+-
+ static void mix_interrupt_randomness(struct work_struct *work)
  {
- 	static int maxwarn = 10;
+ 	struct fast_pool *fast_pool = container_of(work, struct fast_pool, mix);
+ 	/*
+-	 * The size of the copied stack pool is explicitly 16 bytes so that we
+-	 * tax mix_pool_byte()'s compression function the same amount on all
+-	 * platforms. This means on 64-bit we copy half the pool into this,
+-	 * while on 32-bit we copy all of it. The entropy is supposed to be
+-	 * sufficiently dispersed between bits that in the sponge-like
+-	 * half case, on average we don't wind up "losing" some.
++	 * The size of the copied stack pool is explicitly 2 longs so that we
++	 * only ever ingest half of the siphash output each time, retaining
++	 * the other half as the next "key" that carries over. The entropy is
++	 * supposed to be sufficiently dispersed between bits so on average
++	 * we don't wind up "losing" some.
+ 	 */
+-	u8 pool[16];
++	unsigned long pool[2];
  
--	if (!crng_ready() && maxwarn > 0) {
--		maxwarn--;
--		if (__ratelimit(&urandom_warning))
-+	if (!crng_ready()) {
-+		if (!ratelimit_disable && maxwarn <= 0)
-+			++urandom_warning.missed;
-+		else if (ratelimit_disable || __ratelimit(&urandom_warning)) {
-+			--maxwarn;
- 			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
- 				  current->comm, nbytes);
-+		}
+ 	/* Check to see if we're running on the wrong CPU due to hotplug. */
+ 	local_irq_disable();
+@@ -1303,36 +1284,21 @@ static void mix_interrupt_randomness(str
+ void add_interrupt_randomness(int irq)
+ {
+ 	enum { MIX_INFLIGHT = 1U << 31 };
+-	unsigned long cycles = random_get_entropy(), now = jiffies;
++	unsigned long entropy = random_get_entropy();
+ 	struct fast_pool *fast_pool = this_cpu_ptr(&irq_randomness);
+ 	struct pt_regs *regs = get_irq_regs();
+ 	unsigned int new_count;
+-	union {
+-		u32 u32[4];
+-		u64 u64[2];
+-		unsigned long longs[16 / sizeof(long)];
+-	} irq_data;
+-
+-	if (cycles == 0)
+-		cycles = get_reg(fast_pool, regs);
+-
+-	if (sizeof(unsigned long) == 8) {
+-		irq_data.u64[0] = cycles ^ rol64(now, 32) ^ irq;
+-		irq_data.u64[1] = regs ? instruction_pointer(regs) : _RET_IP_;
+-	} else {
+-		irq_data.u32[0] = cycles ^ irq;
+-		irq_data.u32[1] = now;
+-		irq_data.u32[2] = regs ? instruction_pointer(regs) : _RET_IP_;
+-		irq_data.u32[3] = get_reg(fast_pool, regs);
+-	}
+ 
+-	fast_mix(fast_pool->pool, irq_data.longs);
++	fast_mix(fast_pool->pool, (unsigned long[2]){
++		entropy,
++		(regs ? instruction_pointer(regs) : _RET_IP_) ^ swab(irq)
++	});
+ 	new_count = ++fast_pool->count;
+ 
+ 	if (new_count & MIX_INFLIGHT)
+ 		return;
+ 
+-	if (new_count < 64 && (!time_after(now, fast_pool->last + HZ) ||
++	if (new_count < 64 && (!time_is_before_jiffies(fast_pool->last + HZ) ||
+ 			       unlikely(crng_init == 0)))
+ 		return;
+ 
+@@ -1368,28 +1334,28 @@ static void entropy_timer(unsigned long
+ static void try_to_generate_entropy(void)
+ {
+ 	struct {
+-		unsigned long cycles;
++		unsigned long entropy;
+ 		struct timer_list timer;
+ 	} stack;
+ 
+-	stack.cycles = random_get_entropy();
++	stack.entropy = random_get_entropy();
+ 
+ 	/* Slow counter - or none. Don't even bother */
+-	if (stack.cycles == random_get_entropy())
++	if (stack.entropy == random_get_entropy())
+ 		return;
+ 
+ 	__setup_timer_on_stack(&stack.timer, entropy_timer, 0, 0);
+ 	while (!crng_ready() && !signal_pending(current)) {
+ 		if (!timer_pending(&stack.timer))
+ 			mod_timer(&stack.timer, jiffies + 1);
+-		mix_pool_bytes(&stack.cycles, sizeof(stack.cycles));
++		mix_pool_bytes(&stack.entropy, sizeof(stack.entropy));
+ 		schedule();
+-		stack.cycles = random_get_entropy();
++		stack.entropy = random_get_entropy();
  	}
  
- 	return get_random_bytes_user(buf, nbytes);
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1195,9 +1195,8 @@ config WARN_ALL_UNSEEDED_RANDOM
- 	  time.  This is really bad from a security perspective, and
- 	  so architecture maintainers really need to do what they can
- 	  to get the CRNG seeded sooner after the system is booted.
--	  However, since users can not do anything actionble to
--	  address this, by default the kernel will issue only a single
--	  warning for the first use of unseeded randomness.
-+	  However, since users cannot do anything actionable to
-+	  address this, by default this option is disabled.
+ 	del_timer_sync(&stack.timer);
+ 	destroy_timer_on_stack(&stack.timer);
+-	mix_pool_bytes(&stack.cycles, sizeof(stack.cycles));
++	mix_pool_bytes(&stack.entropy, sizeof(stack.entropy));
+ }
  
- 	  Say Y here if you want to receive warnings for all uses of
- 	  unseeded randomness.  This will be of use primarily for
+ 
 
 
