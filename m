@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE1F455860A
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:07:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A101155860D
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 20:07:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235923AbiFWSHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 14:07:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45438 "EHLO
+        id S235918AbiFWSHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 14:07:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233808AbiFWSGi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:06:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F71C88B13;
-        Thu, 23 Jun 2022 10:18:54 -0700 (PDT)
+        with ESMTP id S235929AbiFWSGj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 14:06:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40FB888B2D;
+        Thu, 23 Jun 2022 10:18:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9053CB824BD;
-        Thu, 23 Jun 2022 17:18:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDBE2C3411B;
-        Thu, 23 Jun 2022 17:18:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9C74B824B8;
+        Thu, 23 Jun 2022 17:18:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23F75C341CC;
+        Thu, 23 Jun 2022 17:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004732;
-        bh=ne3zJj4/oGxDIpAhzpVpYF6Q7m+UZIvZ77ReZE5QXNM=;
+        s=korg; t=1656004735;
+        bh=yrB08dOo2r9eU21gJ0zuxMRdsCTQI5T0Kpy/n87Izaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nvjq3MfeHkq3OVdtNV2nEfuHPMn6/0CgLRWQFR28BaXKoTYpuU8Avs2+3/dlMP71C
-         pYiISJr6Dr7n1BB/C3l6VUoXTRegOdUcFeF1UiKIyG+8gLYZ+GOgkCZOji+pY+Lz2N
-         tkI5DMSFJcfKfRIfMkNZVbbq+G1dc+93wXg1GDaA=
+        b=fVWqy77cej4k6gzyEjYiNle/yPKc7vf5I/Lg31hKPZWj549qIfvv6Z6IC+srhCzA9
+         lCxn6oCCefCxKHr7bRKejF5CD5Degb1Pt+Np4FLVzarrlQynI7Lnv+Mo2kS4HOdFJ/
+         x0wDs51ACUhrcjsXFDoLMX8WY6G4u/NHWtaEeSDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 133/234] random: fix sysctl documentation nits
-Date:   Thu, 23 Jun 2022 18:43:20 +0200
-Message-Id: <20220623164346.822218304@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Stafford Horne <shorne@gmail.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.19 134/234] init: call time_init() before rand_initialize()
+Date:   Thu, 23 Jun 2022 18:43:21 +0200
+Message-Id: <20220623164346.849705766@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
 References: <20220623164343.042598055@linuxfoundation.org>
@@ -54,40 +56,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 069c4ea6871c18bd368f27756e0f91ffb524a788 upstream.
+commit fe222a6ca2d53c38433cba5d3be62a39099e708e upstream.
 
-A semicolon was missing, and the almost-alphabetical-but-not ordering
-was confusing, so regroup these by category instead.
+Currently time_init() is called after rand_initialize(), but
+rand_initialize() makes use of the timer on various platforms, and
+sometimes this timer needs to be initialized by time_init() first. In
+order for random_get_entropy() to not return zero during early boot when
+it's potentially used as an entropy source, reverse the order of these
+two calls. The block doing random initialization was right before
+time_init() before, so changing the order shouldn't have any complicated
+effects.
 
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/sysctl/kernel.txt |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ init/main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/Documentation/sysctl/kernel.txt
-+++ b/Documentation/sysctl/kernel.txt
-@@ -835,6 +835,9 @@ This is a directory, with the following
- * ``boot_id``: a UUID generated the first time this is retrieved, and
-   unvarying after that;
+--- a/init/main.c
++++ b/init/main.c
+@@ -633,11 +633,13 @@ asmlinkage __visible void __init start_k
+ 	hrtimers_init();
+ 	softirq_init();
+ 	timekeeping_init();
++	time_init();
  
-+* ``uuid``: a UUID generated every time this is retrieved (this can
-+  thus be used to generate UUIDs at will);
-+
- * ``entropy_avail``: the pool's entropy count, in bits;
+ 	/*
+ 	 * For best initial stack canary entropy, prepare it after:
+ 	 * - setup_arch() for any UEFI RNG entropy and boot cmdline access
+ 	 * - timekeeping_init() for ktime entropy used in rand_initialize()
++	 * - time_init() for making random_get_entropy() work on some platforms
+ 	 * - rand_initialize() to get any arch-specific entropy like RDRAND
+ 	 * - add_latent_entropy() to get any latent entropy
+ 	 * - adding command line entropy
+@@ -647,7 +649,6 @@ asmlinkage __visible void __init start_k
+ 	add_device_randomness(command_line, strlen(command_line));
+ 	boot_init_stack_canary();
  
- * ``poolsize``: the entropy pool size, in bits;
-@@ -842,10 +845,7 @@ This is a directory, with the following
- * ``urandom_min_reseed_secs``: obsolete (used to determine the minimum
-   number of seconds between urandom pool reseeding). This file is
-   writable for compatibility purposes, but writing to it has no effect
--  on any RNG behavior.
--
--* ``uuid``: a UUID generated every time this is retrieved (this can
--  thus be used to generate UUIDs at will);
-+  on any RNG behavior;
- 
- * ``write_wakeup_threshold``: when the entropy count drops below this
-   (as a number of bits), processes waiting to write to ``/dev/random``
+-	time_init();
+ 	perf_event_init();
+ 	profile_init();
+ 	call_function_init();
 
 
