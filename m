@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEF535583E4
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:37:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF99D5581F0
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234141AbiFWRhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:37:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39198 "EHLO
+        id S229506AbiFWRJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:09:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234418AbiFWRhC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:37:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC2058EFB8;
-        Thu, 23 Jun 2022 10:06:45 -0700 (PDT)
+        with ESMTP id S233165AbiFWRHf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:07:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B900E527C4;
+        Thu, 23 Jun 2022 09:56:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB39BB82499;
-        Thu, 23 Jun 2022 17:06:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AB60C341C5;
-        Thu, 23 Jun 2022 17:06:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 961E5B82497;
+        Thu, 23 Jun 2022 16:56:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCA15C36AE3;
+        Thu, 23 Jun 2022 16:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003991;
-        bh=kLu6oEFnz7kWzqySjKoPppP6306WDVKu2D0M9xJxpzc=;
+        s=korg; t=1656003375;
+        bh=jOZhpB0Os0lX3o3jWLeIaLRT9vIxLW8PX+aQUJdpIjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ACxnwXBnOwT8E46iPm7AWDNSvSEH+up2lyUonwiXR1AxzPek/hYu6gsGW12esKBii
-         O6KNHGXN0xgs24IkvGritMqCstZ+FNSTp4y0OSZn6l8VyieGYJV6jgnFy8sSalH9n+
-         DHgLoAtBqiBZyLpF25eaM4MLpnEiKiQAkHZsI6So=
+        b=UD89Tzfai5ad7fj01mmOhn5tp83gVv6YWXD09gUqTNudYqDcX35EnBByzxaTCPHDq
+         lXSsNI9fwowFT0/9rKp/Hk4vEjr1JNkNgsxDXCMmBA2+Es9VFVN7k6kHlJuT88Hw/U
+         oFjvxo/JcijUv7XsRDGzint8lSDpLpWl/xXa1RDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Stafford Horne <shorne@gmail.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 136/237] random: skip fast_init if hwrng provides large chunk of entropy
+Subject: [PATCH 4.9 177/264] init: call time_init() before rand_initialize()
 Date:   Thu, 23 Jun 2022 18:42:50 +0200
-Message-Id: <20220623164347.066835144@linuxfoundation.org>
+Message-Id: <20220623164349.074537039@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +56,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit af704c856e888fb044b058d731d61b46eeec499d upstream.
+commit fe222a6ca2d53c38433cba5d3be62a39099e708e upstream.
 
-At boot time, EFI calls add_bootloader_randomness(), which in turn calls
-add_hwgenerator_randomness(). Currently add_hwgenerator_randomness()
-feeds the first 64 bytes of randomness to the "fast init"
-non-crypto-grade phase. But if add_hwgenerator_randomness() gets called
-with more than POOL_MIN_BITS of entropy, there's no point in passing it
-off to the "fast init" stage, since that's enough entropy to bootstrap
-the real RNG. The "fast init" stage is just there to provide _something_
-in the case where we don't have enough entropy to properly bootstrap the
-RNG. But if we do have enough entropy to bootstrap the RNG, the current
-logic doesn't serve a purpose. So, in the case where we're passed
-greater than or equal to POOL_MIN_BITS of entropy, this commit makes us
-skip the "fast init" phase.
+Currently time_init() is called after rand_initialize(), but
+rand_initialize() makes use of the timer on various platforms, and
+sometimes this timer needs to be initialized by time_init() first. In
+order for random_get_entropy() to not return zero during early boot when
+it's potentially used as an entropy source, reverse the order of these
+two calls. The block doing random initialization was right before
+time_init() before, so changing the order shouldn't have any complicated
+effects.
 
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ init/main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1120,7 +1120,7 @@ void rand_initialize_disk(struct gendisk
- void add_hwgenerator_randomness(const void *buffer, size_t count,
- 				size_t entropy)
- {
--	if (unlikely(crng_init == 0)) {
-+	if (unlikely(crng_init == 0 && entropy < POOL_MIN_BITS)) {
- 		size_t ret = crng_pre_init_inject(buffer, count, true);
- 		mix_pool_bytes(buffer, ret);
- 		count -= ret;
+--- a/init/main.c
++++ b/init/main.c
+@@ -578,11 +578,13 @@ asmlinkage __visible void __init start_k
+ 	hrtimers_init();
+ 	softirq_init();
+ 	timekeeping_init();
++	time_init();
+ 
+ 	/*
+ 	 * For best initial stack canary entropy, prepare it after:
+ 	 * - setup_arch() for any UEFI RNG entropy and boot cmdline access
+ 	 * - timekeeping_init() for ktime entropy used in rand_initialize()
++	 * - time_init() for making random_get_entropy() work on some platforms
+ 	 * - rand_initialize() to get any arch-specific entropy like RDRAND
+ 	 * - add_latent_entropy() to get any latent entropy
+ 	 * - adding command line entropy
+@@ -592,7 +594,6 @@ asmlinkage __visible void __init start_k
+ 	add_device_randomness(command_line, strlen(command_line));
+ 	boot_init_stack_canary();
+ 
+-	time_init();
+ 	sched_clock_postinit();
+ 	printk_nmi_init();
+ 	perf_event_init();
 
 
