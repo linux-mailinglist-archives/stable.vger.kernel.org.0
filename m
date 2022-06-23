@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD998558276
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EF37558581
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:59:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229939AbiFWRO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:14:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42964 "EHLO
+        id S232124AbiFWR70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:59:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229691AbiFWRLn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:11:43 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B54BF127;
-        Thu, 23 Jun 2022 09:52:05 -0700 (PDT)
+        with ESMTP id S235485AbiFWR4H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:56:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2611AAE98D;
+        Thu, 23 Jun 2022 10:15:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1557ACE25D9;
-        Thu, 23 Jun 2022 16:52:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00001C3411B;
-        Thu, 23 Jun 2022 16:52:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABCDEB8249B;
+        Thu, 23 Jun 2022 17:15:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BBA5C3411B;
+        Thu, 23 Jun 2022 17:15:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003122;
-        bh=iexH45n1UCBUZSFUUqXfMQNbLQir1yKbNFUEDOxdp80=;
+        s=korg; t=1656004526;
+        bh=aOprigIcG/hpSAFQqHtR2NrqFIOQ6+qE+2D3VkQdaoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gtRnhQcxj8FtRw8ppCRfo7PLYVHmAjwS+hArEipd40AMad0L8Q0y3ab6xfbP7rUWO
-         WFYZDqZHqejJTN1fk3qsCooNcCCsUWG2OyAB8UdLF7wRlkDXjmOgT2DHZHpVfQn52w
-         3ZE3ShjciwC6X0+KIWXqJAQUz+m85PrcyD6k3zvs=
+        b=DfwJ0Uxz1RbPhhyJ5tpRjrsrjNRdXxEB2TeVNtwEbaimTT7Bc7PveA2Tbet1aNaLg
+         AJXQR+2T3QLYZUDIcAn4tz9T2iNy+ZFCg0bbEJNkUVmzBfn7qe/DUk2ogLb0FGYF9W
+         BBV8d+LvfNA/oQ1K0b5NfRNpJDLPVn2gwCtUaxpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 138/264] random: group sysctl functions
+Subject: [PATCH 4.19 064/234] random: remove unused extract_entropy() reserved argument
 Date:   Thu, 23 Jun 2022 18:42:11 +0200
-Message-Id: <20220623164347.970329553@linuxfoundation.org>
+Message-Id: <20220623164344.873552454@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
+References: <20220623164343.042598055@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,86 +56,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 0deff3c43206c24e746b1410f11125707ad3040e upstream.
+commit 8b2d953b91e7f60200c24067ab17b77cc7bfd0d4 upstream.
 
-This pulls all of the sysctl-focused functions into the sixth labeled
-section.
+This argument is always set to zero, as a result of us not caring about
+keeping a certain amount reserved in the pool these days. So just remove
+it and cleanup the function signatures.
 
-No functional changes.
-
-Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   35 ++++++++++++++++++++++++++++++-----
- 1 file changed, 30 insertions(+), 5 deletions(-)
+ drivers/char/random.c |   17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1687,9 +1687,34 @@ const struct file_operations urandom_fop
- 	.llseek = noop_llseek,
+@@ -519,7 +519,7 @@ struct entropy_store {
  };
  
-+
- /********************************************************************
+ static ssize_t extract_entropy(struct entropy_store *r, void *buf,
+-			       size_t nbytes, int min, int rsvd);
++			       size_t nbytes, int min);
+ static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
+ 				size_t nbytes);
+ 
+@@ -989,7 +989,7 @@ static void crng_reseed(struct crng_stat
+ 	} buf;
+ 
+ 	if (r) {
+-		num = extract_entropy(r, &buf, 32, 16, 0);
++		num = extract_entropy(r, &buf, 32, 16);
+ 		if (num == 0)
+ 			return;
+ 	} else {
+@@ -1327,8 +1327,7 @@ EXPORT_SYMBOL_GPL(add_disk_randomness);
+  * This function decides how many bytes to actually take from the
+  * given pool, and also debits the entropy count accordingly.
+  */
+-static size_t account(struct entropy_store *r, size_t nbytes, int min,
+-		      int reserved)
++static size_t account(struct entropy_store *r, size_t nbytes, int min)
+ {
+ 	int entropy_count, orig, have_bytes;
+ 	size_t ibytes, nfrac;
+@@ -1342,7 +1341,7 @@ retry:
+ 	/* never pull more than available */
+ 	have_bytes = entropy_count >> (ENTROPY_SHIFT + 3);
+ 
+-	if ((have_bytes -= reserved) < 0)
++	if (have_bytes < 0)
+ 		have_bytes = 0;
+ 	ibytes = min_t(size_t, ibytes, have_bytes);
+ 	if (ibytes < min)
+@@ -1448,15 +1447,13 @@ static ssize_t _extract_entropy(struct e
+  * returns it in a buffer.
   *
-- * Sysctl interface
-+ * Sysctl interface.
-+ *
-+ * These are partly unused legacy knobs with dummy values to not break
-+ * userspace and partly still useful things. They are usually accessible
-+ * in /proc/sys/kernel/random/ and are as follows:
-+ *
-+ * - boot_id - a UUID representing the current boot.
-+ *
-+ * - uuid - a random UUID, different each time the file is read.
-+ *
-+ * - poolsize - the number of bits of entropy that the input pool can
-+ *   hold, tied to the POOL_BITS constant.
-+ *
-+ * - entropy_avail - the number of bits of entropy currently in the
-+ *   input pool. Always <= poolsize.
-+ *
-+ * - write_wakeup_threshold - the amount of entropy in the input pool
-+ *   below which write polls to /dev/random will unblock, requesting
-+ *   more entropy, tied to the POOL_MIN_BITS constant. It is writable
-+ *   to avoid breaking old userspaces, but writing to it does not
-+ *   change any behavior of the RNG.
-+ *
-+ * - urandom_min_reseed_secs - fixed to the meaningless value "60".
-+ *   It is writable to avoid breaking old userspaces, but writing
-+ *   to it does not change any behavior of the RNG.
-  *
-  ********************************************************************/
+  * The min parameter specifies the minimum amount we can pull before
+- * failing to avoid races that defeat catastrophic reseeding while the
+- * reserved parameter indicates how much entropy we must leave in the
+- * pool after each pull to avoid starving other readers.
++ * failing to avoid races that defeat catastrophic reseeding.
+  */
+ static ssize_t extract_entropy(struct entropy_store *r, void *buf,
+-				 size_t nbytes, int min, int reserved)
++				 size_t nbytes, int min)
+ {
+ 	trace_extract_entropy(r->name, nbytes, ENTROPY_BITS(r), _RET_IP_);
+-	nbytes = account(r, nbytes, min, reserved);
++	nbytes = account(r, nbytes, min);
+ 	return _extract_entropy(r, buf, nbytes);
+ }
  
-@@ -1697,8 +1722,8 @@ const struct file_operations urandom_fop
- 
- #include <linux/sysctl.h>
- 
--static int random_min_urandom_seed = 60;
--static int random_write_wakeup_bits = POOL_MIN_BITS;
-+static int sysctl_random_min_urandom_seed = 60;
-+static int sysctl_random_write_wakeup_bits = POOL_MIN_BITS;
- static int sysctl_poolsize = POOL_BITS;
- static char sysctl_bootid[16];
- 
-@@ -1756,14 +1781,14 @@ struct ctl_table random_table[] = {
- 	},
- 	{
- 		.procname	= "write_wakeup_threshold",
--		.data		= &random_write_wakeup_bits,
-+		.data		= &sysctl_random_write_wakeup_bits,
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
- 		.proc_handler	= proc_dointvec,
- 	},
- 	{
- 		.procname	= "urandom_min_reseed_secs",
--		.data		= &random_min_urandom_seed,
-+		.data		= &sysctl_random_min_urandom_seed,
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
- 		.proc_handler	= proc_dointvec,
 
 
