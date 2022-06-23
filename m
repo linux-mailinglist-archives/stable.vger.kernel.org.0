@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 927C3558275
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D4E4558440
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232185AbiFWRO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:14:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39108 "EHLO
+        id S234597AbiFWRkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:40:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231959AbiFWRMV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:12:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCC3C13D5A;
-        Thu, 23 Jun 2022 09:57:56 -0700 (PDT)
+        with ESMTP id S235119AbiFWRjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:39:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5B94A3F7;
+        Thu, 23 Jun 2022 10:09:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7C1DB82495;
-        Thu, 23 Jun 2022 16:57:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2F64C341C4;
-        Thu, 23 Jun 2022 16:57:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 845F261D02;
+        Thu, 23 Jun 2022 17:09:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EAD6C3411B;
+        Thu, 23 Jun 2022 17:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003473;
-        bh=UHfzWZ17enTshJAv77LTshGmYK29RVb2TySaQdEy0yI=;
+        s=korg; t=1656004165;
+        bh=4CuqBUWKiEYuICpVdD9l4/wJgVLSSPSSIAKHs2EHlgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QArhG6GicHy8sTiH9PkoA6es+s1GmT3auT2qEuxDBZJ/5z5DN24vq5dKIiOOr0IGH
-         soksgMEXHHdtsSBYCfhkIEcENf6SRbmIt08PDUEhuBW9pjA7zguRFgKPvrWeLpc4BO
-         UJrLTHWVkN4BPY5wgNnAUE7vlDq7GdpnmRXEB3Dc=
+        b=E1tIoFScfAVDzyxO1cSkAvGEj5IQuMVnMa0BNOVvGlm94A32YBj1xg40eTdKilxN7
+         Qv+QzoM2tZRwkbr32d4X+w8GpPjIqmc4CUrsA2ozpfiQwdwJpuqDpQ2UBZvP/pzKXK
+         wk5GNu6cyM5K+4dHqeovANEQzjIs8+aj8CgmPjP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Zhang Yi <yi.zhang@huawei.com>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 249/264] ext4: add reserved GDT blocks check
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 208/237] random: credit cpu and bootloader seeds by default
 Date:   Thu, 23 Jun 2022 18:44:02 +0200
-Message-Id: <20220623164351.114851003@linuxfoundation.org>
+Message-Id: <20220623164349.133205684@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +55,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit b55c3cd102a6f48b90e61c44f7f3dda8c290c694 upstream.
+[ Upstream commit 846bb97e131d7938847963cca00657c995b1fce1 ]
 
-We capture a NULL pointer issue when resizing a corrupt ext4 image which
-is freshly clear resize_inode feature (not run e2fsck). It could be
-simply reproduced by following steps. The problem is because of the
-resize_inode feature was cleared, and it will convert the filesystem to
-meta_bg mode in ext4_resize_fs(), but the es->s_reserved_gdt_blocks was
-not reduced to zero, so could we mistakenly call reserve_backup_gdb()
-and passing an uninitialized resize_inode to it when adding new group
-descriptors.
+This commit changes the default Kconfig values of RANDOM_TRUST_CPU and
+RANDOM_TRUST_BOOTLOADER to be Y by default. It does not change any
+existing configs or change any kernel behavior. The reason for this is
+several fold.
 
- mkfs.ext4 /dev/sda 3G
- tune2fs -O ^resize_inode /dev/sda #forget to run requested e2fsck
- mount /dev/sda /mnt
- resize2fs /dev/sda 8G
+As background, I recently had an email thread with the kernel
+maintainers of Fedora/RHEL, Debian, Ubuntu, Gentoo, Arch, NixOS, Alpine,
+SUSE, and Void as recipients. I noted that some distros trust RDRAND,
+some trust EFI, and some trust both, and I asked why or why not. There
+wasn't really much of a "debate" but rather an interesting discussion of
+what the historical reasons have been for this, and it came up that some
+distros just missed the introduction of the bootloader Kconfig knob,
+while another didn't want to enable it until there was a boot time
+switch to turn it off for more concerned users (which has since been
+added). The result of the rather uneventful discussion is that every
+major Linux distro enables these two options by default.
 
- ========
- BUG: kernel NULL pointer dereference, address: 0000000000000028
- CPU: 19 PID: 3243 Comm: resize2fs Not tainted 5.18.0-rc7-00001-gfde086c5ebfd #748
- ...
- RIP: 0010:ext4_flex_group_add+0xe08/0x2570
- ...
- Call Trace:
-  <TASK>
-  ext4_resize_fs+0xbec/0x1660
-  __ext4_ioctl+0x1749/0x24e0
-  ext4_ioctl+0x12/0x20
-  __x64_sys_ioctl+0xa6/0x110
-  do_syscall_64+0x3b/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f2dd739617b
- ========
+While I didn't have really too strong of an opinion going into this
+thread -- and I mostly wanted to learn what the distros' thinking was
+one way or another -- ultimately I think their choice was a decent
+enough one for a default option (which can be disabled at boot time).
+I'll try to summarize the pros and cons:
 
-The fix is simple, add a check in ext4_resize_begin() to make sure that
-the es->s_reserved_gdt_blocks is zero when the resize_inode feature is
-disabled.
+Pros:
 
-Cc: stable@kernel.org
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220601092717.763694-1-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+- The RNG machinery gets initialized super quickly, and there's no
+  messing around with subsequent blocking behavior.
+
+- The bootloader mechanism is used by kexec in order for the prior
+  kernel to initialize the RNG of the next kernel, which increases
+  the entropy available to early boot daemons of the next kernel.
+
+- Previous objections related to backdoors centered around
+  Dual_EC_DRBG-like kleptographic systems, in which observing some
+  amount of the output stream enables an adversary holding the right key
+  to determine the entire output stream.
+
+  This used to be a partially justified concern, because RDRAND output
+  was mixed into the output stream in varying ways, some of which may
+  have lacked pre-image resistance (e.g. XOR or an LFSR).
+
+  But this is no longer the case. Now, all usage of RDRAND and
+  bootloader seeds go through a cryptographic hash function. This means
+  that the CPU would have to compute a hash pre-image, which is not
+  considered to be feasible (otherwise the hash function would be
+  terribly broken).
+
+- More generally, if the CPU is backdoored, the RNG is probably not the
+  realistic vector of choice for an attacker.
+
+- These CPU or bootloader seeds are far from being the only source of
+  entropy. Rather, there is generally a pretty huge amount of entropy,
+  not all of which is credited, especially on CPUs that support
+  instructions like RDRAND. In other words, assuming RDRAND outputs all
+  zeros, an attacker would *still* have to accurately model every single
+  other entropy source also in use.
+
+- The RNG now reseeds itself quite rapidly during boot, starting at 2
+  seconds, then 4, then 8, then 16, and so forth, so that other sources
+  of entropy get used without much delay.
+
+- Paranoid users can set random.trust_{cpu,bootloader}=no in the kernel
+  command line, and paranoid system builders can set the Kconfig options
+  to N, so there's no reduction or restriction of optionality.
+
+- It's a practical default.
+
+- All the distros have it set this way. Microsoft and Apple trust it
+  too. Bandwagon.
+
+Cons:
+
+- RDRAND *could* still be backdoored with something like a fixed key or
+  limited space serial number seed or another indexable scheme like
+  that. (However, it's hard to imagine threat models where the CPU is
+  backdoored like this, yet people are still okay making *any*
+  computations with it or connecting it to networks, etc.)
+
+- RDRAND *could* be defective, rather than backdoored, and produce
+  garbage that is in one way or another insufficient for crypto.
+
+- Suggesting a *reduction* in paranoia, as this commit effectively does,
+  may cause some to question my personal integrity as a "security
+  person".
+
+- Bootloader seeds and RDRAND are generally very difficult if not all
+  together impossible to audit.
+
+Keep in mind that this doesn't actually change any behavior. This
+is just a change in the default Kconfig value. The distros already are
+shipping kernels that set things this way.
+
+Ard made an additional argument in [1]:
+
+    We're at the mercy of firmware and micro-architecture anyway, given
+    that we are also relying on it to ensure that every instruction in
+    the kernel's executable image has been faithfully copied to memory,
+    and that the CPU implements those instructions as documented. So I
+    don't think firmware or ISA bugs related to RNGs deserve special
+    treatment - if they are broken, we should quirk around them like we
+    usually do. So enabling these by default is a step in the right
+    direction IMHO.
+
+In [2], Phil pointed out that having this disabled masked a bug that CI
+otherwise would have caught:
+
+    A clean 5.15.45 boots cleanly, whereas a downstream kernel shows the
+    static key warning (but it does go on to boot). The significant
+    difference is that our defconfigs set CONFIG_RANDOM_TRUST_BOOTLOADER=y
+    defining that on top of multi_v7_defconfig demonstrates the issue on
+    a clean 5.15.45. Conversely, not setting that option in a
+    downstream kernel build avoids the warning
+
+[1] https://lore.kernel.org/lkml/CAMj1kXGi+ieviFjXv9zQBSaGyyzeGW_VpMpTLJK8PJb2QHEQ-w@mail.gmail.com/
+[2] https://lore.kernel.org/lkml/c47c42e3-1d56-5859-a6ad-976a1a3381c6@raspberrypi.com/
+
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/resize.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/char/Kconfig | 54 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 21 deletions(-)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -52,6 +52,16 @@ int ext4_resize_begin(struct super_block
- 		return -EPERM;
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index 3efb8a74dc01..e329d1cc019a 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -588,29 +588,41 @@ config TILE_SROM
  
- 	/*
-+	 * If the reserved GDT blocks is non-zero, the resize_inode feature
-+	 * should always be set.
-+	 */
-+	if (EXT4_SB(sb)->s_es->s_reserved_gdt_blocks &&
-+	    !ext4_has_feature_resize_inode(sb)) {
-+		ext4_error(sb, "resize_inode disabled but reserved GDT blocks non-zero");
-+		return -EFSCORRUPTED;
-+	}
+ source "drivers/char/xillybus/Kconfig"
+ 
+-endmenu
+-
+ config RANDOM_TRUST_CPU
+-	bool "Trust the CPU manufacturer to initialize Linux's CRNG"
+-	depends on X86 || S390 || PPC
+-	default n
++	bool "Initialize RNG using CPU RNG instructions"
++	default y
++	depends on ARCH_RANDOM
+ 	help
+-	Assume that CPU manufacturer (e.g., Intel or AMD for RDSEED or
+-	RDRAND, IBM for the S390 and Power PC architectures) is trustworthy
+-	for the purposes of initializing Linux's CRNG.  Since this is not
+-	something that can be independently audited, this amounts to trusting
+-	that CPU manufacturer (perhaps with the insistence or mandate
+-	of a Nation State's intelligence or law enforcement agencies)
+-	has not installed a hidden back door to compromise the CPU's
+-	random number generation facilities. This can also be configured
+-	at boot with "random.trust_cpu=on/off".
++	  Initialize the RNG using random numbers supplied by the CPU's
++	  RNG instructions (e.g. RDRAND), if supported and available. These
++	  random numbers are never used directly, but are rather hashed into
++	  the main input pool, and this happens regardless of whether or not
++	  this option is enabled. Instead, this option controls whether the
++	  they are credited and hence can initialize the RNG. Additionally,
++	  other sources of randomness are always used, regardless of this
++	  setting.  Enabling this implies trusting that the CPU can supply high
++	  quality and non-backdoored random numbers.
 +
-+	/*
- 	 * If we are not using the primary superblock/GDT copy don't resize,
-          * because the user tools have no way of handling this.  Probably a
-          * bad time to do it anyways.
++	  Say Y here unless you have reason to mistrust your CPU or believe
++	  its RNG facilities may be faulty. This may also be configured at
++	  boot time with "random.trust_cpu=on/off".
+ 
+ config RANDOM_TRUST_BOOTLOADER
+-	bool "Trust the bootloader to initialize Linux's CRNG"
++	bool "Initialize RNG using bootloader-supplied seed"
++	default y
+ 	help
+-	Some bootloaders can provide entropy to increase the kernel's initial
+-	device randomness. Say Y here to assume the entropy provided by the
+-	booloader is trustworthy so it will be added to the kernel's entropy
+-	pool. Otherwise, say N here so it will be regarded as device input that
+-	only mixes the entropy pool. This can also be configured at boot with
+-	"random.trust_bootloader=on/off".
++	  Initialize the RNG using a seed supplied by the bootloader or boot
++	  environment (e.g. EFI or a bootloader-generated device tree). This
++	  seed is not used directly, but is rather hashed into the main input
++	  pool, and this happens regardless of whether or not this option is
++	  enabled. Instead, this option controls whether the seed is credited
++	  and hence can initialize the RNG. Additionally, other sources of
++	  randomness are always used, regardless of this setting. Enabling
++	  this implies trusting that the bootloader can supply high quality and
++	  non-backdoored seeds.
++
++	  Say Y here unless you have reason to mistrust your bootloader or
++	  believe its RNG facilities may be faulty. This may also be configured
++	  at boot time with "random.trust_bootloader=on/off".
++
++endmenu
+-- 
+2.35.1
+
 
 
