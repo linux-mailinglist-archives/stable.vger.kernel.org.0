@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17B085581FB
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F05D55847D
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230053AbiFWRJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:09:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58072 "EHLO
+        id S234584AbiFWRn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:43:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233595AbiFWRHy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:07:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97C06532D6;
-        Thu, 23 Jun 2022 09:56:38 -0700 (PDT)
+        with ESMTP id S235086AbiFWRm6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:42:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86EF49D301;
+        Thu, 23 Jun 2022 10:10:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77E32B8248F;
-        Thu, 23 Jun 2022 16:56:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C426AC3411B;
-        Thu, 23 Jun 2022 16:56:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C01AD6159A;
+        Thu, 23 Jun 2022 17:10:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B728AC3411B;
+        Thu, 23 Jun 2022 17:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003394;
-        bh=WQMR5DGa47oOkx5CuOK54+4aPVYFBjBoAkNKHqKp0QU=;
+        s=korg; t=1656004216;
+        bh=G1HhTB/ni4xta0LtrEap2YX3FQEIHfqQnjNSgsOz9D0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hkveYBhtOh+jQmYzT/QqOHJCEZzmkRB88kTwXYPcwIWq8ZvKNnJ0M6S3wX8IxdYiT
-         +uIcwrKQdvOFm5+zm4aPVwvBipVtuw8fGHudns9lt3A59pbfX+wBbVxo4EG+Z+afrR
-         Bz4liiiNVu5xqhtXk2FcAAjnzEXPSjfnuX66OhYw=
+        b=K6jmn4V3MlCD98rAnga5jlZ1YswMeajZXkU2BcFSXRXQB5AmrqEPkI7KKEQM9X1pL
+         Uz5wSTffF9bXjTj0bRbQX82jBiYnLNHKpO548LCauLzEU6lDUahzIslYzaEaSqdDzO
+         6n3Sv3CIb+UNaKa24n8IZBZxr3MGVhmKrXSbNDjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 225/264] ASoC: cs42l52: Fix TLV scales for mixer controls
+        stable@vger.kernel.org, Stephan Mueller <smueller@chronox.de>,
+        Yann Droneaud <ydroneaud@opteya.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.14 184/237] crypto: drbg - add FIPS 140-2 CTRNG for noise source
 Date:   Thu, 23 Jun 2022 18:43:38 +0200
-Message-Id: <20220623164350.445113763@linuxfoundation.org>
+Message-Id: <20220623164348.441865453@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,216 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Stephan Mueller <smueller@chronox.de>
 
-[ Upstream commit 8bf5aabf524eec61013e506f764a0b2652dc5665 ]
+commit db07cd26ac6a418dc2823187958edcfdb415fa83 upstream.
 
-The datasheet specifies the range of the mixer volumes as between
--51.5dB and 12dB with a 0.5dB step. Update the TLVs for this.
+FIPS 140-2 section 4.9.2 requires a continuous self test of the noise
+source. Up to kernel 4.8 drivers/char/random.c provided this continuous
+self test. Afterwards it was moved to a location that is inconsistent
+with the FIPS 140-2 requirements. The relevant patch was
+e192be9d9a30555aae2ca1dc3aad37cba484cd4a .
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220602162119.3393857-2-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Thus, the FIPS 140-2 CTRNG is added to the DRBG when it obtains the
+seed. This patch resurrects the function drbg_fips_continous_test that
+existed some time ago and applies it to the noise sources. The patch
+that removed the drbg_fips_continous_test was
+b3614763059b82c26bdd02ffcb1c016c1132aad0 .
+
+The Jitter RNG implements its own FIPS 140-2 self test and thus does not
+need to be subjected to the test in the DRBG.
+
+The patch contains a tiny fix to ensure proper zeroization in case of an
+error during the Jitter RNG data gathering.
+
+Signed-off-by: Stephan Mueller <smueller@chronox.de>
+Reviewed-by: Yann Droneaud <ydroneaud@opteya.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/cs42l52.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ crypto/drbg.c         |   94 ++++++++++++++++++++++++++++++++++++++++++++++++--
+ include/crypto/drbg.h |    2 +
+ 2 files changed, 93 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l52.c b/sound/soc/codecs/cs42l52.c
-index 0d9c4a57301b..f733f6b42b53 100644
---- a/sound/soc/codecs/cs42l52.c
-+++ b/sound/soc/codecs/cs42l52.c
-@@ -141,7 +141,7 @@ static DECLARE_TLV_DB_SCALE(mic_tlv, 1600, 100, 0);
+--- a/crypto/drbg.c
++++ b/crypto/drbg.c
+@@ -220,6 +220,57 @@ static inline unsigned short drbg_sec_st
+ }
  
- static DECLARE_TLV_DB_SCALE(pga_tlv, -600, 50, 0);
+ /*
++ * FIPS 140-2 continuous self test for the noise source
++ * The test is performed on the noise source input data. Thus, the function
++ * implicitly knows the size of the buffer to be equal to the security
++ * strength.
++ *
++ * Note, this function disregards the nonce trailing the entropy data during
++ * initial seeding.
++ *
++ * drbg->drbg_mutex must have been taken.
++ *
++ * @drbg DRBG handle
++ * @entropy buffer of seed data to be checked
++ *
++ * return:
++ *	0 on success
++ *	-EAGAIN on when the CTRNG is not yet primed
++ *	< 0 on error
++ */
++static int drbg_fips_continuous_test(struct drbg_state *drbg,
++				     const unsigned char *entropy)
++{
++	unsigned short entropylen = drbg_sec_strength(drbg->core->flags);
++	int ret = 0;
++
++	if (!IS_ENABLED(CONFIG_CRYPTO_FIPS))
++		return 0;
++
++	/* skip test if we test the overall system */
++	if (list_empty(&drbg->test_data.list))
++		return 0;
++	/* only perform test in FIPS mode */
++	if (!fips_enabled)
++		return 0;
++
++	if (!drbg->fips_primed) {
++		/* Priming of FIPS test */
++		memcpy(drbg->prev, entropy, entropylen);
++		drbg->fips_primed = true;
++		/* priming: another round is needed */
++		return -EAGAIN;
++	}
++	ret = memcmp(drbg->prev, entropy, entropylen);
++	if (!ret)
++		panic("DRBG continuous self test failed\n");
++	memcpy(drbg->prev, entropy, entropylen);
++
++	/* the test shall pass when the two values are not equal */
++	return 0;
++}
++
++/*
+  * Convert an integer into a byte representation of this integer.
+  * The byte representation is big-endian
+  *
+@@ -1000,6 +1051,22 @@ static inline int __drbg_seed(struct drb
+ 	return ret;
+ }
  
--static DECLARE_TLV_DB_SCALE(mix_tlv, -50, 50, 0);
-+static DECLARE_TLV_DB_SCALE(mix_tlv, -5150, 50, 0);
++static inline int drbg_get_random_bytes(struct drbg_state *drbg,
++					unsigned char *entropy,
++					unsigned int entropylen)
++{
++	int ret;
++
++	do {
++		get_random_bytes(entropy, entropylen);
++		ret = drbg_fips_continuous_test(drbg, entropy);
++		if (ret && ret != -EAGAIN)
++			return ret;
++	} while (ret);
++
++	return 0;
++}
++
+ static void drbg_async_seed(struct work_struct *work)
+ {
+ 	struct drbg_string data;
+@@ -1008,16 +1075,20 @@ static void drbg_async_seed(struct work_
+ 					       seed_work);
+ 	unsigned int entropylen = drbg_sec_strength(drbg->core->flags);
+ 	unsigned char entropy[32];
++	int ret;
  
- static DECLARE_TLV_DB_SCALE(beep_tlv, -56, 200, 0);
+ 	BUG_ON(!entropylen);
+ 	BUG_ON(entropylen > sizeof(entropy));
+-	get_random_bytes(entropy, entropylen);
  
-@@ -368,7 +368,7 @@ static const struct snd_kcontrol_new cs42l52_snd_controls[] = {
- 			      CS42L52_ADCB_VOL, 0, 0xA0, 0x78, ipd_tlv),
- 	SOC_DOUBLE_R_SX_TLV("ADC Mixer Volume",
- 			     CS42L52_ADCA_MIXER_VOL, CS42L52_ADCB_MIXER_VOL,
--				0, 0x19, 0x7F, ipd_tlv),
-+				0, 0x19, 0x7F, mix_tlv),
+ 	drbg_string_fill(&data, entropy, entropylen);
+ 	list_add_tail(&data.list, &seedlist);
  
- 	SOC_DOUBLE("ADC Switch", CS42L52_ADC_MISC_CTL, 0, 1, 1, 0),
+ 	mutex_lock(&drbg->drbg_mutex);
  
--- 
-2.35.1
-
++	ret = drbg_get_random_bytes(drbg, entropy, entropylen);
++	if (ret)
++		goto unlock;
++
+ 	/* If nonblocking pool is initialized, deactivate Jitter RNG */
+ 	crypto_free_rng(drbg->jent);
+ 	drbg->jent = NULL;
+@@ -1032,6 +1103,7 @@ static void drbg_async_seed(struct work_
+ 	if (drbg->seeded)
+ 		drbg->reseed_threshold = drbg_max_requests(drbg);
+ 
++unlock:
+ 	mutex_unlock(&drbg->drbg_mutex);
+ 
+ 	memzero_explicit(entropy, entropylen);
+@@ -1083,7 +1155,9 @@ static int drbg_seed(struct drbg_state *
+ 		BUG_ON((entropylen * 2) > sizeof(entropy));
+ 
+ 		/* Get seed from in-kernel /dev/urandom */
+-		get_random_bytes(entropy, entropylen);
++		ret = drbg_get_random_bytes(drbg, entropy, entropylen);
++		if (ret)
++			goto out;
+ 
+ 		if (!drbg->jent) {
+ 			drbg_string_fill(&data1, entropy, entropylen);
+@@ -1096,7 +1170,7 @@ static int drbg_seed(struct drbg_state *
+ 						   entropylen);
+ 			if (ret) {
+ 				pr_devel("DRBG: jent failed with %d\n", ret);
+-				return ret;
++				goto out;
+ 			}
+ 
+ 			drbg_string_fill(&data1, entropy, entropylen * 2);
+@@ -1123,6 +1197,7 @@ static int drbg_seed(struct drbg_state *
+ 
+ 	ret = __drbg_seed(drbg, &seedlist, reseed);
+ 
++out:
+ 	memzero_explicit(entropy, entropylen * 2);
+ 
+ 	return ret;
+@@ -1144,6 +1219,11 @@ static inline void drbg_dealloc_state(st
+ 	drbg->reseed_ctr = 0;
+ 	drbg->d_ops = NULL;
+ 	drbg->core = NULL;
++	if (IS_ENABLED(CONFIG_CRYPTO_FIPS)) {
++		kzfree(drbg->prev);
++		drbg->prev = NULL;
++		drbg->fips_primed = false;
++	}
+ }
+ 
+ /*
+@@ -1213,6 +1293,14 @@ static inline int drbg_alloc_state(struc
+ 		drbg->scratchpad = PTR_ALIGN(drbg->scratchpadbuf, ret + 1);
+ 	}
+ 
++	if (IS_ENABLED(CONFIG_CRYPTO_FIPS)) {
++		drbg->prev = kzalloc(drbg_sec_strength(drbg->core->flags),
++				     GFP_KERNEL);
++		if (!drbg->prev)
++			goto fini;
++		drbg->fips_primed = false;
++	}
++
+ 	return 0;
+ 
+ fini:
+--- a/include/crypto/drbg.h
++++ b/include/crypto/drbg.h
+@@ -131,6 +131,8 @@ struct drbg_state {
+ 
+ 	bool seeded;		/* DRBG fully seeded? */
+ 	bool pr;		/* Prediction resistance enabled? */
++	bool fips_primed;	/* Continuous test primed? */
++	unsigned char *prev;	/* FIPS 140-2 continuous test value */
+ 	struct work_struct seed_work;	/* asynchronous seeding support */
+ 	struct crypto_rng *jent;
+ 	const struct drbg_state_ops *d_ops;
 
 
