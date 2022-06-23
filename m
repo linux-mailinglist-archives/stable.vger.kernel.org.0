@@ -2,40 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ED7C55802C
+	by mail.lfdr.de (Postfix) with ESMTP id BAE3455802D
 	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232362AbiFWQpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232382AbiFWQpv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 Jun 2022 12:45:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46570 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232245AbiFWQpt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:45:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BF6D48899;
-        Thu, 23 Jun 2022 09:45:48 -0700 (PDT)
+        with ESMTP id S232363AbiFWQpu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:45:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CD2F424B3;
+        Thu, 23 Jun 2022 09:45:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA1CDB82490;
-        Thu, 23 Jun 2022 16:45:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4846CC3411B;
-        Thu, 23 Jun 2022 16:45:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C12261F91;
+        Thu, 23 Jun 2022 16:45:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC799C341C4;
+        Thu, 23 Jun 2022 16:45:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656002745;
-        bh=Sy6BBcIa5Pm2fc1tJBXYB8BDdCKNVJs0Kx10kTypQ/A=;
+        s=korg; t=1656002748;
+        bh=lOg5RsQRlFNDlfJynXZhgALPTcEtJxZ87TOIvF3Awnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xI7vijETeO0PixvpNBLlceLUWJD+iria+/ovLyWLNEwzhng6HseglObj9xt89Jcdd
-         K7Lj92uUjF8hw0QXnEhiDDMJkZp3+KYsa1agaczpRdQDHg7EPSJcEEOmgvhMwakpfb
-         hXqdic2kfkBLPLeqsp/1u6ca/h1cEOk/b8yqmvlQ=
+        b=C04F6VQDhSC3uqnz21vtLQJa297/jPWJDdjlGS5Arqc5rOPicHtMoZO8WFdfFqu95
+         vSq6GYRTS3fPm3goGPRFa1NxlnpqF67d9pp3QmLBzHtgDDg7Zp1+piS79F6DSDTLfz
+         DGfVPiz7IxUPc9qTzMc5XLwDHqsblHuIch3Jvazw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 012/264] random: warn when kernel uses unseeded randomness
-Date:   Thu, 23 Jun 2022 18:40:05 +0200
-Message-Id: <20220623164344.410859627@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Theodore Tso" <tytso@mit.edu>, Arnd Bergmann <arnd@arndb.de>,
+        Ingo Molnar <mingo@kernel.org>, Jessica Yu <jeyu@redhat.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Tejun Heo <tj@kernel.org>, Prarit Bhargava <prarit@redhat.com>,
+        Lokesh Vutla <lokeshvutla@ti.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        AKASHI Takahiro <takahiro.akashi@linaro.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.9 013/264] random: do not ignore early device randomness
+Date:   Thu, 23 Jun 2022 18:40:06 +0200
+Message-Id: <20220623164344.439233358@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
 References: <20220623164344.053938039@linuxfoundation.org>
@@ -53,104 +63,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit d06bfd1989fe97623b32d6df4ffa6e4338c99dc8 upstream.
+commit ee7998c50c2697737c6530431709f77c852bf0d6 upstream.
 
-This enables an important dmesg notification about when drivers have
-used the crng without it being seeded first. Prior, these errors would
-occur silently, and so there hasn't been a great way of diagnosing these
-types of bugs for obscure setups. By adding this as a config option, we
-can leave it on by default, so that we learn where these issues happen,
-in the field, will still allowing some people to turn it off, if they
-really know what they're doing and do not want the log entries.
+The add_device_randomness() function would ignore incoming bytes if the
+crng wasn't ready.  This additionally makes sure to make an early enough
+call to add_latent_entropy() to influence the initial stack canary,
+which is especially important on non-x86 systems where it stays the same
+through the life of the boot.
 
-However, we don't leave it _completely_ by default. An earlier version
-of this patch simply had `default y`. I'd really love that, but it turns
-out, this problem with unseeded randomness being used is really quite
-present and is going to take a long time to fix. Thus, as a compromise
-between log-messages-for-all and nobody-knows, this is `default y`,
-except it is also `depends on DEBUG_KERNEL`. This will ensure that the
-curious see the messages while others don't have to.
-
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: http://lkml.kernel.org/r/20170626233038.GA48751@beast
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Cc: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jessica Yu <jeyu@redhat.com>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Prarit Bhargava <prarit@redhat.com>
+Cc: Lokesh Vutla <lokeshvutla@ti.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   15 +++++++++++++--
- lib/Kconfig.debug     |   16 ++++++++++++++++
- 2 files changed, 29 insertions(+), 2 deletions(-)
+ drivers/char/random.c |    5 +++++
+ init/main.c           |    1 +
+ 2 files changed, 6 insertions(+)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -289,7 +289,6 @@
- #define SEC_XFER_SIZE		512
- #define EXTRACT_SIZE		10
+@@ -1045,6 +1045,11 @@ void add_device_randomness(const void *b
+ 	unsigned long time = random_get_entropy() ^ jiffies;
+ 	unsigned long flags;
  
--#define DEBUG_RANDOM_BOOT 0
- 
- #define LONGS(x) (((x) + sizeof(unsigned long) - 1)/sizeof(unsigned long))
- 
-@@ -1545,7 +1544,7 @@ void get_random_bytes(void *buf, int nby
- {
- 	__u8 tmp[CHACHA20_BLOCK_SIZE];
- 
--#if DEBUG_RANDOM_BOOT > 0
-+#ifdef CONFIG_WARN_UNSEEDED_RANDOM
- 	if (!crng_ready())
- 		printk(KERN_NOTICE "random: %pF get_random_bytes called "
- 		       "with crng_init = %d\n", (void *) _RET_IP_, crng_init);
-@@ -2142,6 +2141,12 @@ u64 get_random_u64(void)
- 	    return ret;
- #endif
- 
-+#ifdef CONFIG_WARN_UNSEEDED_RANDOM
-+	if (!crng_ready())
-+		printk(KERN_NOTICE "random: %pF get_random_u64 called "
-+		       "with crng_init = %d\n", (void *) _RET_IP_, crng_init);
-+#endif
++	if (!crng_ready()) {
++		crng_fast_load(buf, size);
++		return;
++	}
 +
- 	batch = &get_cpu_var(batched_entropy_u64);
- 	if (use_lock)
- 		read_lock_irqsave(&batched_entropy_reset_lock, flags);
-@@ -2168,6 +2173,12 @@ u32 get_random_u32(void)
- 	if (arch_get_random_int(&ret))
- 		return ret;
+ 	trace_add_device_randomness(size, _RET_IP_);
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+ 	_mix_pool_bytes(&input_pool, buf, size);
+--- a/init/main.c
++++ b/init/main.c
+@@ -490,6 +490,7 @@ asmlinkage __visible void __init start_k
+ 	/*
+ 	 * Set up the the initial canary ASAP:
+ 	 */
++	add_latent_entropy();
+ 	boot_init_stack_canary();
  
-+#ifdef CONFIG_WARN_UNSEEDED_RANDOM
-+	if (!crng_ready())
-+		printk(KERN_NOTICE "random: %pF get_random_u32 called "
-+		       "with crng_init = %d\n", (void *) _RET_IP_, crng_init);
-+#endif
-+
- 	batch = &get_cpu_var(batched_entropy_u32);
- 	if (use_lock)
- 		read_lock_irqsave(&batched_entropy_reset_lock, flags);
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1177,6 +1177,22 @@ config STACKTRACE
- 	  It is also used by various kernel debugging features that require
- 	  stack trace generation.
- 
-+config WARN_UNSEEDED_RANDOM
-+	bool "Warn when kernel uses unseeded randomness"
-+	default y
-+	depends on DEBUG_KERNEL
-+	help
-+	  Some parts of the kernel contain bugs relating to their use of
-+	  cryptographically secure random numbers before it's actually possible
-+	  to generate those numbers securely. This setting ensures that these
-+	  flaws don't go unnoticed, by enabling a message, should this ever
-+	  occur. This will allow people with obscure setups to know when things
-+	  are going wrong, so that they might contact developers about fixing
-+	  it.
-+
-+	  Say Y here, unless you simply do not care about using unseeded
-+	  randomness and do not want a potential warning message in your logs.
-+
- config DEBUG_KOBJECT
- 	bool "kobject debugging"
- 	depends on DEBUG_KERNEL
+ 	cgroup_init_early();
 
 
