@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F2B558347
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:29:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B78D558532
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229448AbiFWR3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:29:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51510 "EHLO
+        id S234466AbiFWRyf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:54:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233758AbiFWR1S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:27:18 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1213E1147E;
-        Thu, 23 Jun 2022 10:03:05 -0700 (PDT)
+        with ESMTP id S236014AbiFWRxo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:53:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B3F9AC8C6;
+        Thu, 23 Jun 2022 10:14:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CD7ABCE25E4;
-        Thu, 23 Jun 2022 17:03:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8816C3411B;
-        Thu, 23 Jun 2022 17:03:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ED4061D17;
+        Thu, 23 Jun 2022 17:14:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43271C341C4;
+        Thu, 23 Jun 2022 17:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003782;
-        bh=iw8XL4kmGsMJGlVvwWeoOYZ8Sdw7lT0muT39+3qaLn8=;
+        s=korg; t=1656004476;
+        bh=2e6ozog50rVhgaO01r/Nkzs/rPS+Giyrtcuxu+y0u9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qsPOES3se50joxWpwIITSRt57Rn/pjlRK6c+sAyaR6UVS621wCJrx+x8uj+7dkrMu
-         jSfAF7mRyfNI+8/2u2foSejAqGlLFtlrciQJ6VuPV/FreRDQlzpn59p9Gt3pAImMRa
-         VkvSiuSPMHK83FOnCYZfX6jGE5All140AL2HnMEI=
+        b=M9aTa5Tm93vQoQPzgyp0zzsiQ3vqHFr0MuWVwt9p4MvlDHv6c1xRObPPJQ2A0KJ4O
+         0g7lJaI3rdNCdOASxHqpJRswfPG2ZHO0XeJTeGh4F9Fgj3C4aRi5mL4wZpox31C4xu
+         Yozi27SVeEdja7dr7CqfODAn/15kLVuad4iZD3Vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 084/237] random: simplify arithmetic function flow in account()
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.19 051/234] random: do not sign extend bytes for rotation when mixing
 Date:   Thu, 23 Jun 2022 18:41:58 +0200
-Message-Id: <20220623164345.567540475@linuxfoundation.org>
+Message-Id: <20220623164344.511214378@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
+References: <20220623164343.042598055@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +54,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit a254a0e4093fce8c832414a83940736067eed515 upstream.
+commit 0d9488ffbf2faddebc6bac055bfa6c93b94056a3 upstream.
 
-Now that have_bytes is never modified, we can simplify this function.
-First, we move the check for negative entropy_count to be first. That
-ensures that subsequent reads of this will be non-negative. Then,
-have_bytes and ibytes can be folded into their one use site in the
-min_t() function.
+By using `char` instead of `unsigned char`, certain platforms will sign
+extend the byte when `w = rol32(*bytes++, input_rotate)` is called,
+meaning that bit 7 is overrepresented when mixing. This isn't a real
+problem (unless the mixer itself is already broken) since it's still
+invertible, but it's not quite correct either. Fix this by using an
+explicit unsigned type.
 
-Suggested-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1292,7 +1292,7 @@ EXPORT_SYMBOL_GPL(add_disk_randomness);
-  */
- static size_t account(size_t nbytes, int min)
- {
--	int entropy_count, orig, have_bytes;
-+	int entropy_count, orig;
- 	size_t ibytes, nfrac;
+@@ -549,7 +549,7 @@ static void _mix_pool_bytes(struct entro
+ 	unsigned long i, tap1, tap2, tap3, tap4, tap5;
+ 	int input_rotate;
+ 	int wordmask = r->poolinfo->poolwords - 1;
+-	const char *bytes = in;
++	const unsigned char *bytes = in;
+ 	__u32 w;
  
- 	BUG_ON(input_pool.entropy_count > POOL_FRACBITS);
-@@ -1300,20 +1300,15 @@ static size_t account(size_t nbytes, int
- 	/* Can we pull enough? */
- retry:
- 	entropy_count = orig = READ_ONCE(input_pool.entropy_count);
--	ibytes = nbytes;
--	/* never pull more than available */
--	have_bytes = entropy_count >> (POOL_ENTROPY_SHIFT + 3);
--
--	if (have_bytes < 0)
--		have_bytes = 0;
--	ibytes = min_t(size_t, ibytes, have_bytes);
--	if (ibytes < min)
--		ibytes = 0;
--
- 	if (WARN_ON(entropy_count < 0)) {
- 		pr_warn("negative entropy count: count %d\n", entropy_count);
- 		entropy_count = 0;
- 	}
-+
-+	/* never pull more than available */
-+	ibytes = min_t(size_t, nbytes, entropy_count >> (POOL_ENTROPY_SHIFT + 3));
-+	if (ibytes < min)
-+		ibytes = 0;
- 	nfrac = ibytes << (POOL_ENTROPY_SHIFT + 3);
- 	if ((size_t)entropy_count > nfrac)
- 		entropy_count -= nfrac;
+ 	tap1 = r->poolinfo->tap1;
 
 
