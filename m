@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF37558581
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:59:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 783195583C3
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232124AbiFWR70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:59:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51192 "EHLO
+        id S234347AbiFWReb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:34:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235485AbiFWR4H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:56:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2611AAE98D;
-        Thu, 23 Jun 2022 10:15:29 -0700 (PDT)
+        with ESMTP id S234637AbiFWRdI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:33:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A1F650E2E;
+        Thu, 23 Jun 2022 10:05:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABCDEB8249B;
-        Thu, 23 Jun 2022 17:15:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BBA5C3411B;
-        Thu, 23 Jun 2022 17:15:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA261B82498;
+        Thu, 23 Jun 2022 17:05:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 498CEC3411B;
+        Thu, 23 Jun 2022 17:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004526;
-        bh=aOprigIcG/hpSAFQqHtR2NrqFIOQ6+qE+2D3VkQdaoU=;
+        s=korg; t=1656003948;
+        bh=XxK0OtvwNhgUMCOyhriJ/+qNy/K+HjGgOW3wfyCgR3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DfwJ0Uxz1RbPhhyJ5tpRjrsrjNRdXxEB2TeVNtwEbaimTT7Bc7PveA2Tbet1aNaLg
-         AJXQR+2T3QLYZUDIcAn4tz9T2iNy+ZFCg0bbEJNkUVmzBfn7qe/DUk2ogLb0FGYF9W
-         BBV8d+LvfNA/oQ1K0b5NfRNpJDLPVn2gwCtUaxpY=
+        b=J1gMo+MBPV9uHm6XOB6ePdmfDUrhrRTkZQoUTbkmsFjLfgoaIvtpTQijnI5WbiUnF
+         GbpjkTipBlF8hRU+e0BZAIBDtn1HiwgYJvvuktgKd/Gsq2x70CMWPJ4zP50woPZUCU
+         ztQeGEr+EihhV9KR7W5IvjgnCrutLq30z71/EuMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 064/234] random: remove unused extract_entropy() reserved argument
-Date:   Thu, 23 Jun 2022 18:42:11 +0200
-Message-Id: <20220623164344.873552454@linuxfoundation.org>
+Subject: [PATCH 4.14 098/237] random: ensure early RDSEED goes through mixer on init
+Date:   Thu, 23 Jun 2022 18:42:12 +0200
+Message-Id: <20220623164345.969898762@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
-References: <20220623164343.042598055@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,76 +57,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 8b2d953b91e7f60200c24067ab17b77cc7bfd0d4 upstream.
+commit a02cf3d0dd77244fd5333ac48d78871de459ae6d upstream.
 
-This argument is always set to zero, as a result of us not caring about
-keeping a certain amount reserved in the pool these days. So just remove
-it and cleanup the function signatures.
+Continuing the reasoning of "random: use RDSEED instead of RDRAND in
+entropy extraction" from this series, at init time we also don't want to
+be xoring RDSEED directly into the crng. Instead it's safer to put it
+into our entropy collector and then re-extract it, so that it goes
+through a hash function with preimage resistance. As a matter of hygiene,
+we also order these now so that the RDSEED byte are hashed in first,
+followed by the bytes that are likely more predictable (e.g. utsname()).
 
+Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/char/random.c |   16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -519,7 +519,7 @@ struct entropy_store {
- };
+@@ -1208,24 +1208,18 @@ int __init rand_initialize(void)
+ 	bool arch_init = true;
+ 	unsigned long rv;
  
- static ssize_t extract_entropy(struct entropy_store *r, void *buf,
--			       size_t nbytes, int min, int rsvd);
-+			       size_t nbytes, int min);
- static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
- 				size_t nbytes);
- 
-@@ -989,7 +989,7 @@ static void crng_reseed(struct crng_stat
- 	} buf;
- 
- 	if (r) {
--		num = extract_entropy(r, &buf, 32, 16, 0);
-+		num = extract_entropy(r, &buf, 32, 16);
- 		if (num == 0)
- 			return;
- 	} else {
-@@ -1327,8 +1327,7 @@ EXPORT_SYMBOL_GPL(add_disk_randomness);
-  * This function decides how many bytes to actually take from the
-  * given pool, and also debits the entropy count accordingly.
-  */
--static size_t account(struct entropy_store *r, size_t nbytes, int min,
--		      int reserved)
-+static size_t account(struct entropy_store *r, size_t nbytes, int min)
- {
- 	int entropy_count, orig, have_bytes;
- 	size_t ibytes, nfrac;
-@@ -1342,7 +1341,7 @@ retry:
- 	/* never pull more than available */
- 	have_bytes = entropy_count >> (ENTROPY_SHIFT + 3);
- 
--	if ((have_bytes -= reserved) < 0)
-+	if (have_bytes < 0)
- 		have_bytes = 0;
- 	ibytes = min_t(size_t, ibytes, have_bytes);
- 	if (ibytes < min)
-@@ -1448,15 +1447,13 @@ static ssize_t _extract_entropy(struct e
-  * returns it in a buffer.
-  *
-  * The min parameter specifies the minimum amount we can pull before
-- * failing to avoid races that defeat catastrophic reseeding while the
-- * reserved parameter indicates how much entropy we must leave in the
-- * pool after each pull to avoid starving other readers.
-+ * failing to avoid races that defeat catastrophic reseeding.
-  */
- static ssize_t extract_entropy(struct entropy_store *r, void *buf,
--				 size_t nbytes, int min, int reserved)
-+				 size_t nbytes, int min)
- {
- 	trace_extract_entropy(r->name, nbytes, ENTROPY_BITS(r), _RET_IP_);
--	nbytes = account(r, nbytes, min, reserved);
-+	nbytes = account(r, nbytes, min);
- 	return _extract_entropy(r, buf, nbytes);
- }
- 
+-	mix_pool_bytes(&now, sizeof(now));
+ 	for (i = BLAKE2S_BLOCK_SIZE; i > 0; i -= sizeof(rv)) {
+-		if (!arch_get_random_seed_long(&rv) &&
+-		    !arch_get_random_long(&rv))
+-			rv = random_get_entropy();
+-		mix_pool_bytes(&rv, sizeof(rv));
+-	}
+-	mix_pool_bytes(utsname(), sizeof(*(utsname())));
+-
+-	extract_entropy(&primary_crng.state[4], sizeof(u32) * 12);
+-	for (i = 4; i < 16; i++) {
+ 		if (!arch_get_random_seed_long_early(&rv) &&
+ 		    !arch_get_random_long_early(&rv)) {
+ 			rv = random_get_entropy();
+ 			arch_init = false;
+ 		}
+-		primary_crng.state[i] ^= rv;
++		mix_pool_bytes(&rv, sizeof(rv));
+ 	}
++	mix_pool_bytes(&now, sizeof(now));
++	mix_pool_bytes(utsname(), sizeof(*(utsname())));
++
++	extract_entropy(&primary_crng.state[4], sizeof(u32) * 12);
+ 	if (arch_init && trust_cpu && crng_init < 2) {
+ 		invalidate_batched_entropy();
+ 		crng_init = 2;
 
 
