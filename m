@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37E13558363
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:29:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E180F558090
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233765AbiFWR3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:29:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53434 "EHLO
+        id S232096AbiFWQwi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:52:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234064AbiFWR1m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:27:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A83EA54BCC;
-        Thu, 23 Jun 2022 10:03:38 -0700 (PDT)
+        with ESMTP id S233826AbiFWQvm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55DDD183;
+        Thu, 23 Jun 2022 09:50:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B54CEB824A0;
-        Thu, 23 Jun 2022 17:03:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F48AC341C5;
-        Thu, 23 Jun 2022 17:03:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 121ECB8248A;
+        Thu, 23 Jun 2022 16:50:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76B08C3411B;
+        Thu, 23 Jun 2022 16:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003815;
-        bh=jKjruXX1sjySvlt6+Dk/ueMHXXvDNfCqn/TvVfnFmc4=;
+        s=korg; t=1656002999;
+        bh=Y9mVDio3WEFZZp4RGG01fMDPYBjNy9mVBmjuXp065Q4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LeYjlCBpIJ0AsjhUe1Tq87zvz5L/Y30JqDG47n5q+klGHl46f9DEasbeePItJwiB7
-         0GjRlr8hvLe4LqPd8E6Cmx/vXHSBqBflVWY6kAMfA9qsj/kvFoFJcSNYWmqmVI/rjg
-         QhP6cJ7mO82/186oAZ2hKZq0bYzmIktIu8xIBt34=
+        b=j+k4n5xcw8UnFvt9MKwMo8L+iJsp1DogziU7FfE+vPTTBndSfXFLjIva/SrpN1cVR
+         6EQafH6WNgTyA4xdQjzG49T0xRlmE3aPWMn4uy0PbkJlnq+NulF+Kf3EPqQXkcRqNH
+         RgPYIRhQPAgLUXA0ebV0wQ1tvwaVJeaUYvA01O28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 056/237] MAINTAINERS: co-maintain random.c
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.9 097/264] random: remove incomplete last_data logic
 Date:   Thu, 23 Jun 2022 18:41:30 +0200
-Message-Id: <20220623164344.769988559@linuxfoundation.org>
+Message-Id: <20220623164346.815943386@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,31 +56,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 58e1100fdc5990b0cc0d4beaf2562a92e621ac7d upstream.
+commit a4bfa9b31802c14ff5847123c12b98d5e36b3985 upstream.
 
-random.c is a bit understaffed, and folks want more prompt reviews. I've
-got the crypto background and the interest to do these reviews, and have
-authored parts of the file already.
+There were a few things added under the "if (fips_enabled)" banner,
+which never really got completed, and the FIPS people anyway are
+choosing a different direction. Rather than keep around this halfbaked
+code, get rid of it so that we can focus on a single design of the RNG
+rather than two designs.
 
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- MAINTAINERS |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/random.c |   40 ++++------------------------------------
+ 1 file changed, 4 insertions(+), 36 deletions(-)
 
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11307,6 +11307,7 @@ F:	drivers/block/brd.c
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -337,8 +337,6 @@
+ #include <linux/spinlock.h>
+ #include <linux/kthread.h>
+ #include <linux/percpu.h>
+-#include <linux/cryptohash.h>
+-#include <linux/fips.h>
+ #include <linux/ptrace.h>
+ #include <linux/kmemcheck.h>
+ #include <linux/workqueue.h>
+@@ -519,14 +517,12 @@ struct entropy_store {
+ 	u16 add_ptr;
+ 	u16 input_rotate;
+ 	int entropy_count;
+-	unsigned int last_data_init:1;
+-	u8 last_data[EXTRACT_SIZE];
+ };
  
- RANDOM NUMBER DRIVER
- M:	"Theodore Ts'o" <tytso@mit.edu>
-+M:	Jason A. Donenfeld <Jason@zx2c4.com>
- S:	Maintained
- F:	drivers/char/random.c
+ static ssize_t extract_entropy(struct entropy_store *r, void *buf,
+ 			       size_t nbytes, int min, int rsvd);
+ static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
+-				size_t nbytes, int fips);
++				size_t nbytes);
  
+ static void crng_reseed(struct crng_state *crng, struct entropy_store *r);
+ static u32 input_pool_data[INPUT_POOL_WORDS] __latent_entropy;
+@@ -822,7 +818,7 @@ static void crng_initialize_secondary(st
+ 
+ static void __init crng_initialize_primary(struct crng_state *crng)
+ {
+-	_extract_entropy(&input_pool, &crng->state[4], sizeof(u32) * 12, 0);
++	_extract_entropy(&input_pool, &crng->state[4], sizeof(u32) * 12);
+ 	if (crng_init_try_arch_early(crng) && trust_cpu && crng_init < 2) {
+ 		invalidate_batched_entropy();
+ 		numa_crng_init();
+@@ -1478,22 +1474,13 @@ static void extract_buf(struct entropy_s
+ }
+ 
+ static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
+-				size_t nbytes, int fips)
++				size_t nbytes)
+ {
+ 	ssize_t ret = 0, i;
+ 	u8 tmp[EXTRACT_SIZE];
+-	unsigned long flags;
+ 
+ 	while (nbytes) {
+ 		extract_buf(r, tmp);
+-
+-		if (fips) {
+-			spin_lock_irqsave(&r->lock, flags);
+-			if (!memcmp(tmp, r->last_data, EXTRACT_SIZE))
+-				panic("Hardware RNG duplicated output!\n");
+-			memcpy(r->last_data, tmp, EXTRACT_SIZE);
+-			spin_unlock_irqrestore(&r->lock, flags);
+-		}
+ 		i = min_t(int, nbytes, EXTRACT_SIZE);
+ 		memcpy(buf, tmp, i);
+ 		nbytes -= i;
+@@ -1519,28 +1506,9 @@ static ssize_t _extract_entropy(struct e
+ static ssize_t extract_entropy(struct entropy_store *r, void *buf,
+ 				 size_t nbytes, int min, int reserved)
+ {
+-	u8 tmp[EXTRACT_SIZE];
+-	unsigned long flags;
+-
+-	/* if last_data isn't primed, we need EXTRACT_SIZE extra bytes */
+-	if (fips_enabled) {
+-		spin_lock_irqsave(&r->lock, flags);
+-		if (!r->last_data_init) {
+-			r->last_data_init = 1;
+-			spin_unlock_irqrestore(&r->lock, flags);
+-			trace_extract_entropy(r->name, EXTRACT_SIZE,
+-					      ENTROPY_BITS(r), _RET_IP_);
+-			extract_buf(r, tmp);
+-			spin_lock_irqsave(&r->lock, flags);
+-			memcpy(r->last_data, tmp, EXTRACT_SIZE);
+-		}
+-		spin_unlock_irqrestore(&r->lock, flags);
+-	}
+-
+ 	trace_extract_entropy(r->name, nbytes, ENTROPY_BITS(r), _RET_IP_);
+ 	nbytes = account(r, nbytes, min, reserved);
+-
+-	return _extract_entropy(r, buf, nbytes, fips_enabled);
++	return _extract_entropy(r, buf, nbytes);
+ }
+ 
+ #define warn_unseeded_randomness(previous) \
 
 
