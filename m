@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65F1B558241
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FA2B55831F
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:25:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229709AbiFWRNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:13:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39008 "EHLO
+        id S233747AbiFWRY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:24:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229551AbiFWRLl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:11:41 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66B0BFD26;
-        Thu, 23 Jun 2022 09:50:35 -0700 (PDT)
+        with ESMTP id S233737AbiFWRX4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:23:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5566E6273D;
+        Thu, 23 Jun 2022 10:02:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C347DCE25DE;
-        Thu, 23 Jun 2022 16:50:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93925C3411B;
-        Thu, 23 Jun 2022 16:50:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1EE761408;
+        Thu, 23 Jun 2022 17:02:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD2CCC3411B;
+        Thu, 23 Jun 2022 17:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003031;
-        bh=cMW0RWQwvnmaeI4SjGqV7oxsiHkLWotEGjxucDFTelw=;
+        s=korg; t=1656003720;
+        bh=VchjUhC9NKS8IfpNyxQa5so5qzT4BKNxqH0bLpnz1b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hj7aG7+0e9EuI+EkcSac2XUX7bPg2+eCXFPGb6k+O+EUHdSjVf1fvdPDVNnFOgB8K
-         jnnICNnxxX77QomLbvMVpL4WZnrMCgCYnjFFhPaTfoFMYGiatapZWq09YVQT/80QAB
-         u/yHF8N3mdTGry9/CwIS5LXSMBDZLGjxpSToNbV4=
+        b=Ee/TlWZd9ExgC4gkZzxTQIfLZVyipR467c3psz/UZxHfy7KGZMksT5x39Ny2yqeUH
+         wEva1Pb4iygiw+q2LRywFS6C8JoXtitcNkDW47z5C1nZz8LvvCYIy6oWGHwc485LEg
+         WoMYMP6BM80tIOFJ6wVipQzdZ8betAcZsW6JhNrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: [PATCH 4.9 107/264] random: continually use hwgenerator randomness
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.14 066/237] random: use IS_ENABLED(CONFIG_NUMA) instead of ifdefs
 Date:   Thu, 23 Jun 2022 18:41:40 +0200
-Message-Id: <20220623164347.096943607@linuxfoundation.org>
+Message-Id: <20220623164345.055051908@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Brodowski <linux@dominikbrodowski.net>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit c321e907aa4803d562d6e70ebed9444ad082f953 upstream.
+commit 7b87324112df2e1f9b395217361626362dcfb9fb upstream.
 
-The rngd kernel thread may sleep indefinitely if the entropy count is
-kept above random_write_wakeup_bits by other entropy sources. To make
-best use of multiple sources of randomness, mix entropy from hardware
-RNGs into the pool at least once within CRNG_RESEED_INTERVAL.
+Rather than an awkward combination of ifdefs and __maybe_unused, we can
+ensure more source gets parsed, regardless of the configuration, by
+using IS_ENABLED for the CONFIG_NUMA conditional code. This makes things
+cleaner and easier to follow.
 
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+I've confirmed that on !CONFIG_NUMA, we don't wind up with excess code
+by accident; the generated object file is the same.
+
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/char/random.c |   32 ++++++++++++--------------------
+ 1 file changed, 12 insertions(+), 20 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -2244,13 +2244,15 @@ void add_hwgenerator_randomness(const ch
- 			return;
- 	}
+@@ -761,7 +761,6 @@ static int credit_entropy_bits_safe(stru
  
--	/* Suspend writing if we're above the trickle threshold.
-+	/* Throttle writing if we're above the trickle threshold.
- 	 * We'll be woken up again once below random_write_wakeup_thresh,
--	 * or when the calling thread is about to terminate.
-+	 * when the calling thread is about to terminate, or once
-+	 * CRNG_RESEED_INTERVAL has lapsed.
- 	 */
--	wait_event_interruptible(random_write_wait,
-+	wait_event_interruptible_timeout(random_write_wait,
- 			!system_wq || kthread_should_stop() ||
--			POOL_ENTROPY_BITS() <= random_write_wakeup_bits);
-+			POOL_ENTROPY_BITS() <= random_write_wakeup_bits,
-+			CRNG_RESEED_INTERVAL);
- 	mix_pool_bytes(buffer, count);
- 	credit_entropy_bits(entropy);
+ static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
+ 
+-#ifdef CONFIG_NUMA
+ /*
+  * Hack to deal with crazy userspace progams when they are all trying
+  * to access /dev/urandom in parallel.  The programs are almost
+@@ -769,7 +768,6 @@ static DECLARE_WAIT_QUEUE_HEAD(crng_init
+  * their brain damage.
+  */
+ static struct crng_state **crng_node_pool __read_mostly;
+-#endif
+ 
+ static void invalidate_batched_entropy(void);
+ 
+@@ -816,7 +814,7 @@ static bool __init crng_init_try_arch_ea
+ 	return arch_init;
  }
+ 
+-static void __maybe_unused crng_initialize_secondary(struct crng_state *crng)
++static void crng_initialize_secondary(struct crng_state *crng)
+ {
+ 	memcpy(&crng->state[0], "expand 32-byte k", 16);
+ 	_get_random_bytes(&crng->state[4], sizeof(__u32) * 12);
+@@ -867,7 +865,6 @@ static void crng_finalize_init(struct cr
+ 	}
+ }
+ 
+-#ifdef CONFIG_NUMA
+ static void do_numa_crng_init(struct work_struct *work)
+ {
+ 	int i;
+@@ -894,29 +891,24 @@ static DECLARE_WORK(numa_crng_init_work,
+ 
+ static void numa_crng_init(void)
+ {
+-	schedule_work(&numa_crng_init_work);
++	if (IS_ENABLED(CONFIG_NUMA))
++		schedule_work(&numa_crng_init_work);
+ }
+ 
+ static struct crng_state *select_crng(void)
+ {
+-	struct crng_state **pool;
+-	int nid = numa_node_id();
+-
+-	/* pairs with cmpxchg_release() in do_numa_crng_init() */
+-	pool = READ_ONCE(crng_node_pool);
+-	if (pool && pool[nid])
+-		return pool[nid];
+-
+-	return &primary_crng;
+-}
+-#else
+-static void numa_crng_init(void) {}
++	if (IS_ENABLED(CONFIG_NUMA)) {
++		struct crng_state **pool;
++		int nid = numa_node_id();
++
++		/* pairs with cmpxchg_release() in do_numa_crng_init() */
++		pool = READ_ONCE(crng_node_pool);
++		if (pool && pool[nid])
++			return pool[nid];
++	}
+ 
+-static struct crng_state *select_crng(void)
+-{
+ 	return &primary_crng;
+ }
+-#endif
+ 
+ /*
+  * crng_fast_load() can be called by code in the interrupt service
 
 
