@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7594855820B
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:09:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C8655844D
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:41:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231134AbiFWRJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:09:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39176 "EHLO
+        id S234601AbiFWRky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:40:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234090AbiFWRIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:08:45 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB2855534F;
-        Thu, 23 Jun 2022 09:57:23 -0700 (PDT)
+        with ESMTP id S234827AbiFWRiU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06BC24707D;
+        Thu, 23 Jun 2022 10:08:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5DC05CE25DE;
-        Thu, 23 Jun 2022 16:57:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D513C3411B;
-        Thu, 23 Jun 2022 16:57:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7183B82499;
+        Thu, 23 Jun 2022 17:08:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB72BC3411B;
+        Thu, 23 Jun 2022 17:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003421;
-        bh=o/jyu2ROdm31y2b8cgGf9XEmM2oEVHame+hPgu7jdd4=;
+        s=korg; t=1656004113;
+        bh=YEOkS9rYWaYZ21ChQDwOws+yUKUG4JodqoNMAASmEAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s/659mShPveaWlfWI3+G09saMyth9PAPDPD7yU7GvSytw1szXvKc2pcgSupeCL6b0
-         yHOeV9ogzTxfhf3IzZoxynqOfVgonH0LtslZycNfCuvTjBa9eyUm0EwIFxBQmjokst
-         vXKC7cjDeGpauUzl2nwz5HAh2FMHvvZzTGfgzr4g=
+        b=BHL1YtkI1/2O8ns+ilzsKBmZBc89GHRLuLujd7+53TiHWUu+M/Wa4R1eGHkKibU91
+         njrC5y692G9XHLa4AbOwfjNPDpW1J00drKiLJ76DDIZRfTmn5Xx3qEnKUP7A3zkoJ4
+         /ShcslJds75psx0vN/P4JUp2F21FLXCBR9AFZKQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, chengkaitao <pilgrimtao@gmail.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 233/264] virtio-mmio: fix missing put_device() when vm_cmdline_parent registration failed
-Date:   Thu, 23 Jun 2022 18:43:46 +0200
-Message-Id: <20220623164350.670172215@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.14 193/237] random: account for arch randomness in bits
+Date:   Thu, 23 Jun 2022 18:43:47 +0200
+Message-Id: <20220623164348.699759354@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chengkaitao <pilgrimtao@gmail.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit a58a7f97ba11391d2d0d408e0b24f38d86ae748e ]
+commit 77fc95f8c0dc9e1f8e620ec14d2fb65028fb7adc upstream.
 
-The reference must be released when device_register(&vm_cmdline_parent)
-failed. Add the corresponding 'put_device()' in the error handling path.
+Rather than accounting in bytes and multiplying (shifting), we can just
+account in bits and avoid the shift. The main motivation for this is
+there are other patches in flux that expand this code a bit, and
+avoiding the duplication of "* 8" everywhere makes things a bit clearer.
 
-Signed-off-by: chengkaitao <pilgrimtao@gmail.com>
-Message-Id: <20220602005542.16489-1-chengkaitao@didiglobal.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 12e45a2a6308 ("random: credit architectural init the exact amount")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virtio/virtio_mmio.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/random.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 50840984fbfa..f62da3b7c27b 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -630,6 +630,7 @@ static int vm_cmdline_set(const char *device,
- 	if (!vm_cmdline_parent_registered) {
- 		err = device_register(&vm_cmdline_parent);
- 		if (err) {
-+			put_device(&vm_cmdline_parent);
- 			pr_err("Failed to register parent device!\n");
- 			return err;
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -809,7 +809,7 @@ early_param("random.trust_bootloader", p
+ int __init random_init(const char *command_line)
+ {
+ 	ktime_t now = ktime_get_real();
+-	unsigned int i, arch_bytes;
++	unsigned int i, arch_bits;
+ 	unsigned long entropy;
+ 
+ #if defined(LATENT_ENTROPY_PLUGIN)
+@@ -817,12 +817,12 @@ int __init random_init(const char *comma
+ 	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
+ #endif
+ 
+-	for (i = 0, arch_bytes = BLAKE2S_BLOCK_SIZE;
++	for (i = 0, arch_bits = BLAKE2S_BLOCK_SIZE * 8;
+ 	     i < BLAKE2S_BLOCK_SIZE; i += sizeof(entropy)) {
+ 		if (!arch_get_random_seed_long_early(&entropy) &&
+ 		    !arch_get_random_long_early(&entropy)) {
+ 			entropy = random_get_entropy();
+-			arch_bytes -= sizeof(entropy);
++			arch_bits -= sizeof(entropy) * 8;
  		}
--- 
-2.35.1
-
+ 		_mix_pool_bytes(&entropy, sizeof(entropy));
+ 	}
+@@ -834,7 +834,7 @@ int __init random_init(const char *comma
+ 	if (crng_ready())
+ 		crng_reseed();
+ 	else if (trust_cpu)
+-		_credit_init_bits(arch_bytes * 8);
++		_credit_init_bits(arch_bits);
+ 
+ 	return 0;
+ }
 
 
