@@ -2,135 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9901155891D
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 21:37:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62757558947
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 21:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229522AbiFWThm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 15:37:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33634 "EHLO
+        id S230262AbiFWTkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 15:40:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231349AbiFWThP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 15:37:15 -0400
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA1D32D1CE;
-        Thu, 23 Jun 2022 12:24:55 -0700 (PDT)
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-317710edb9dso4732607b3.0;
-        Thu, 23 Jun 2022 12:24:55 -0700 (PDT)
+        with ESMTP id S230339AbiFWTka (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 15:40:30 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29EB87E00B;
+        Thu, 23 Jun 2022 12:30:17 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id o18so128467plg.2;
+        Thu, 23 Jun 2022 12:30:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=8BA2ydSLM+gEUBcVXdP2fqlOhTJGtm6qnmU9rgH3Z88=;
+        b=qBy8lMAA9ufkyVDostGeyLiH8YzqTOMW/icfM3xLt9I9VsE9nJzDLoJvmjxSHTgwnG
+         HKOYE82rVGPZBaGO5CBcPe3yx5/sYCDKHC80YRLB1x8IUiYBjqo1nVeq5NFKR4AfyhAo
+         ttCOGEQUSkA9TKJ92HOvqpLN6jWgKIc+nQvI4KpH902ZYsid50Wq89GeCgaHKZLpMULZ
+         f+iNJjUi/M0X2cLRs7N0RfWTJkMjWf1YjD7kx2yj1lO884XLMyCwXsBvARv7swd5fWmo
+         +Kj+vxVegCUeAwEIi8cBpYH9e7dOc6D7a8ksDtjIqedb4jXjGwBPzjGm2QdwRFdMEikv
+         TKfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=QhlK/YJnZQeAv5E4yCNpLUiuZLQywWAhQUI+Q4Vp0+o=;
-        b=6Ush0fIA8DvnuZfE1fM3b9QNQ13eJ5RxlocOlhHxV5VO46c67SOTfIaUIK/2XhfIHs
-         fg4ReyYaz+FYPYFmzAcp8JfYGgKUKstNKxqqrbAtt405699rrmDRNoaWe8CRmrOjxs35
-         Qb6b5MMrvYKe+rmO5EZpBPHphFcS3G5UDcgOyi69/NYnVa4m8xE6VAMQNn8Xr/4/cfE1
-         Xc0WY1CWFgR5rhJr5VSvkGSrq5v6cBzKzSbwzjbFUbJz/ojdS+Z3lFTyfUNonlrRWm0Z
-         zDFoZ/zOrRt1GsI+2oZND+i/hKVuSaAWI+Qc/smrWZrRWV5yURdJKXNuda02pUD3tEM5
-         JQig==
-X-Gm-Message-State: AJIora9HAXbz9kozwm4QGZHwf1kddgnGdcIrTDUD/lv2LR2G1PsVc4+m
-        bLYJrOBW2De/0vd/wMmasXrIS3JwwcFBNJEcElpGEBey
-X-Google-Smtp-Source: AGRyM1s/CzlAf52iBA8Dw4sOVjz6mvyhybudD2ImBh7j8RyoQGrGueJuJ+HMZyddeqaWsf/Ougr75V+Q6Mr+9BaurD0=
-X-Received: by 2002:a81:a049:0:b0:318:8da9:4f with SMTP id x70-20020a81a049000000b003188da9004fmr533276ywg.515.1656012294900;
- Thu, 23 Jun 2022 12:24:54 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=8BA2ydSLM+gEUBcVXdP2fqlOhTJGtm6qnmU9rgH3Z88=;
+        b=RmHD8Rl/E04Y7JEHI67hQv8/UERZ7yPTW/2gw0DIuq0Jkx99CcijHkC/fIkmv59tuk
+         6QF2qAKjzdPVn0Wfp1sVLpJZ+LMfmjOobY6i3ewKsY0eKUoLxRGy6LeJM+D/8gTKSNnt
+         kw2MyA/muPn8+5cQz0fwPrmCLRDKal3IdwUB46UKKClEhEzrvKhDnC+2AGtmMpUuv9QV
+         /q8gjBQwT6MIAl5T+HM+sc/IHD7Sg154v9RHEpiP97fyjLHSOMt4F5b1SJpJyeIFzugV
+         OaYzj/ibP+JQzOFOYDpaRQkKEp0ff+JioV15lGrx8Ft2Pw1/3IGC4izpZFWc17FB0FY8
+         kYJQ==
+X-Gm-Message-State: AJIora8b0D79xJMLI6wzqM3+7WVY9mijyil4PqvtAVUmyXsVRAHqloSu
+        2gErcarESx7aNEyw4nCPeJg=
+X-Google-Smtp-Source: AGRyM1vMXWAoD1S5qmkfhnlDvVuIk7fMK/NFwCat9tHO+3GbdtgdImdWzupc3HQQ9CxipDAeHOX4cA==
+X-Received: by 2002:a17:90b:4b0e:b0:1ed:196d:b691 with SMTP id lx14-20020a17090b4b0e00b001ed196db691mr2120333pjb.78.1656012616545;
+        Thu, 23 Jun 2022 12:30:16 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id w7-20020a63af07000000b0040caab35e5bsm9566886pge.89.2022.06.23.12.30.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Jun 2022 12:30:15 -0700 (PDT)
+Message-ID: <41cc84ce-5f64-8b83-7d99-2a0564a6d99d@gmail.com>
+Date:   Thu, 23 Jun 2022 12:30:13 -0700
 MIME-Version: 1.0
-References: <20220623031509.555269-1-Jinzhou.Su@amd.com> <YrQbxvyl6ZT2T3wh@amd.com>
-In-Reply-To: <YrQbxvyl6ZT2T3wh@amd.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Thu, 23 Jun 2022 21:24:43 +0200
-Message-ID: <CAJZ5v0jnur-2vejKT-b9NMXp1qhh0CSL4-yLRK786TfL0nb8AQ@mail.gmail.com>
-Subject: Re: [PATCH] cpufreq: amd-pstate: Add resume and suspend callback for amd-pstate
-To:     Huang Rui <ray.huang@amd.com>,
-        "Su, Jinzhou (Joe)" <Jinzhou.Su@amd.com>
-Cc:     "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
-        "Du, Xiaojian" <Xiaojian.Du@amd.com>,
-        "Yuan, Perry" <Perry.Yuan@amd.com>,
-        "Meng, Li (Jassmine)" <Li.Meng@amd.com>,
-        "Liang, Richard qi" <Richardqi.Liang@amd.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 4.9 000/264] 4.9.320-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220623164344.053938039@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 23, 2022 at 9:53 AM Huang Rui <ray.huang@amd.com> wrote:
->
-> On Thu, Jun 23, 2022 at 11:15:09AM +0800, Su, Jinzhou (Joe) wrote:
-> > When system resumes from S3, the CPPC enable register will be
-> > cleared and reset to 0. So sets this bit to enable CPPC
-> > interface by writing 1 to this register.
-> >
-> > Signed-off-by: Jinzhou Su <Jinzhou.Su@amd.com>
->
-> Signed-off-by: Jinzhou Su <Jinzhou.Su@amd.com>
-> Cc: stable@vger.kernel.org
->
-> You can add one line below your commit description to Cc stable mailing
-> list. And next time in V2, it's better to use subject-prefix optional to
-> mark it as v2 like below:
->
-> git format-patch --subject-prefix="PATCH v2" HEAD~
->
-> Other looks good for me, patch is
->
-> Acked-by: Huang Rui <ray.huang@amd.com>
->
-> > ---
-> >  drivers/cpufreq/amd-pstate.c | 24 ++++++++++++++++++++++++
-> >  1 file changed, 24 insertions(+)
-> >
-> > diff --git a/drivers/cpufreq/amd-pstate.c b/drivers/cpufreq/amd-pstate.c
-> > index 7be38bc6a673..9ac75c1cde9c 100644
-> > --- a/drivers/cpufreq/amd-pstate.c
-> > +++ b/drivers/cpufreq/amd-pstate.c
-> > @@ -566,6 +566,28 @@ static int amd_pstate_cpu_exit(struct cpufreq_policy *policy)
-> >       return 0;
-> >  }
-> >
-> > +static int amd_pstate_cpu_resume(struct cpufreq_policy *policy)
-> > +{
-> > +     int ret;
-> > +
-> > +     ret = amd_pstate_enable(true);
-> > +     if (ret)
-> > +             pr_err("failed to enable amd-pstate during resume, return %d\n", ret);
-> > +
-> > +     return ret;
-> > +}
-> > +
-> > +static int amd_pstate_cpu_suspend(struct cpufreq_policy *policy)
-> > +{
-> > +     int ret;
-> > +
-> > +     ret = amd_pstate_enable(false);
-> > +     if (ret)
-> > +             pr_err("failed to disable amd-pstate during suspend, return %d\n", ret);
-> > +
-> > +     return ret;
-> > +}
-> > +
-> >  /* Sysfs attributes */
-> >
-> >  /*
-> > @@ -636,6 +658,8 @@ static struct cpufreq_driver amd_pstate_driver = {
-> >       .target         = amd_pstate_target,
-> >       .init           = amd_pstate_cpu_init,
-> >       .exit           = amd_pstate_cpu_exit,
-> > +     .suspend        = amd_pstate_cpu_suspend,
-> > +     .resume         = amd_pstate_cpu_resume,
-> >       .set_boost      = amd_pstate_set_boost,
-> >       .name           = "amd-pstate",
-> >       .attr           = amd_pstate_attr,
-> > --
+On 6/23/22 09:39, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.320 release.
+> There are 264 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 25 Jun 2022 16:43:11 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.320-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Applied with some edits in the subject and changelog, and a CC:stable
-tag added, as 5.19-rc material.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-Thanks!
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
