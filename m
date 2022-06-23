@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE66558425
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2B0055841C
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234471AbiFWRkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:40:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42688 "EHLO
+        id S234485AbiFWRkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:40:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234753AbiFWRiN (ORCPT
+        with ESMTP id S234756AbiFWRiN (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA9D9B1FB;
-        Thu, 23 Jun 2022 10:07:58 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7A9CE39;
+        Thu, 23 Jun 2022 10:08:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C4F1B82490;
-        Thu, 23 Jun 2022 17:07:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEDAFC3411B;
-        Thu, 23 Jun 2022 17:07:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2386C61408;
+        Thu, 23 Jun 2022 17:08:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F0FFC3411B;
+        Thu, 23 Jun 2022 17:07:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004076;
-        bh=DPnFIHqCLWmJHrvmgIpzuKyLqE8UiAa+IVFBNmuOZEo=;
+        s=korg; t=1656004079;
+        bh=mAck5Vr2VmbZr42evQmg6KzpMK6Ef6EB3bFmUc9P+Uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSgckr1ZIYlnTqdZ4ijaCmBKfeCf5IVEbGQ+pSZav4TIrTd1NDlNPxNI9Z8JHwF2S
-         ZdrvQJD/WDYVV/Tc/CkEEPbzWelwCCvz+xGU/AYfeFMtAa+VaA0sHe3PQ2zYd2PjVC
-         IvI1irXtuoqGEIC4Spe8sz5d8nEBxLaalOlhDu2w=
+        b=Jv+kRw+XvdGvf3qtGn7/nY/WPmjAnVF+fMhIWQLBefa0K5Db79UJfsVIZ7GaXyJHR
+         wp+7oVLvL6a0Ce8rm6Jt6WjUeDoVbAbrHSg60gqJE3rI/dGsLuRGSIxkGbEt8EdjmS
+         5tUpsqoXv0EMnYihNdX63usOnGeEzQ0W4wdQ1yfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Jan Varho <jan.varho@gmail.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.14 139/237] random: mix build-time latent entropy into pool at init
-Date:   Thu, 23 Jun 2022 18:42:53 +0200
-Message-Id: <20220623164347.152971040@linuxfoundation.org>
+Subject: [PATCH 4.14 140/237] random: do not split fast init input in add_hwgenerator_randomness()
+Date:   Thu, 23 Jun 2022 18:42:54 +0200
+Message-Id: <20220623164347.181858728@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
 References: <20220623164343.132308638@linuxfoundation.org>
@@ -55,43 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Jan Varho <jan.varho@gmail.com>
 
-commit 1754abb3e7583c570666fa1e1ee5b317e88c89a0 upstream.
+commit 527a9867af29ff89f278d037db704e0ed50fb666 upstream.
 
-Prior, the "input_pool_data" array needed no real initialization, and so
-it was easy to mark it with __latent_entropy to populate it during
-compile-time. In switching to using a hash function, this required us to
-specifically initialize it to some specific state, which means we
-dropped the __latent_entropy attribute. An unfortunate side effect was
-this meant the pool was no longer seeded using compile-time random data.
-In order to bring this back, we declare an array in rand_initialize()
-with __latent_entropy and call mix_pool_bytes() on that at init, which
-accomplishes the same thing as before. We make this __initconst, so that
-it doesn't take up space at runtime after init.
+add_hwgenerator_randomness() tries to only use the required amount of input
+for fast init, but credits all the entropy, rather than a fraction of
+it. Since it's hard to determine how much entropy is left over out of a
+non-unformly random sample, either give it all to fast init or credit
+it, but don't attempt to do both. In the process, we can clean up the
+injection code to no longer need to return a value.
 
-Fixes: 6e8ec2552c7d ("random: use computational hash for entropy extraction")
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Jan Varho <jan.varho@gmail.com>
+[Jason: expanded commit message]
+Fixes: 73c7733f122e ("random: do not throw away excess input to crng_fast_load")
+Cc: stable@vger.kernel.org # 5.17+, requires af704c856e88
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/char/random.c |   23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -967,6 +967,11 @@ int __init rand_initialize(void)
- 	bool arch_init = true;
- 	unsigned long rv;
+@@ -437,11 +437,8 @@ static void crng_make_state(u32 chacha_s
+  * This shouldn't be set by functions like add_device_randomness(),
+  * where we can't trust the buffer passed to it is guaranteed to be
+  * unpredictable (so it might not have any entropy at all).
+- *
+- * Returns the number of bytes processed from input, which is bounded
+- * by CRNG_INIT_CNT_THRESH if account is true.
+  */
+-static size_t crng_pre_init_inject(const void *input, size_t len, bool account)
++static void crng_pre_init_inject(const void *input, size_t len, bool account)
+ {
+ 	static int crng_init_cnt = 0;
+ 	struct blake2s_state hash;
+@@ -452,18 +449,15 @@ static size_t crng_pre_init_inject(const
+ 	spin_lock_irqsave(&base_crng.lock, flags);
+ 	if (crng_init != 0) {
+ 		spin_unlock_irqrestore(&base_crng.lock, flags);
+-		return 0;
++		return;
+ 	}
  
-+#if defined(LATENT_ENTROPY_PLUGIN)
-+	static const u8 compiletime_seed[BLAKE2S_BLOCK_SIZE] __initconst __latent_entropy;
-+	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
-+#endif
-+
- 	for (i = 0; i < BLAKE2S_BLOCK_SIZE; i += sizeof(rv)) {
- 		if (!arch_get_random_seed_long_early(&rv) &&
- 		    !arch_get_random_long_early(&rv)) {
+-	if (account)
+-		len = min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
+-
+ 	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
+ 	blake2s_update(&hash, input, len);
+ 	blake2s_final(&hash, base_crng.key);
+ 
+ 	if (account) {
+-		crng_init_cnt += len;
++		crng_init_cnt += min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
+ 		if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
+ 			++base_crng.generation;
+ 			crng_init = 1;
+@@ -474,8 +468,6 @@ static size_t crng_pre_init_inject(const
+ 
+ 	if (crng_init == 1)
+ 		pr_notice("fast init done\n");
+-
+-	return len;
+ }
+ 
+ static void _get_random_bytes(void *buf, size_t nbytes)
+@@ -1133,12 +1125,9 @@ void add_hwgenerator_randomness(const vo
+ 				size_t entropy)
+ {
+ 	if (unlikely(crng_init == 0 && entropy < POOL_MIN_BITS)) {
+-		size_t ret = crng_pre_init_inject(buffer, count, true);
+-		mix_pool_bytes(buffer, ret);
+-		count -= ret;
+-		buffer += ret;
+-		if (!count || crng_init == 0)
+-			return;
++		crng_pre_init_inject(buffer, count, true);
++		mix_pool_bytes(buffer, count);
++		return;
+ 	}
+ 
+ 	/*
 
 
