@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6905E558255
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4EA8558445
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230378AbiFWRNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:13:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42874 "EHLO
+        id S233318AbiFWRkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:40:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233183AbiFWRMi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:12:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28AC226139;
-        Thu, 23 Jun 2022 09:58:11 -0700 (PDT)
+        with ESMTP id S235269AbiFWRjY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:39:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B350647BB;
+        Thu, 23 Jun 2022 10:09:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD3C9B8248A;
-        Thu, 23 Jun 2022 16:58:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E578DC3411B;
-        Thu, 23 Jun 2022 16:58:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD0BA61D02;
+        Thu, 23 Jun 2022 17:09:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82F7CC3411B;
+        Thu, 23 Jun 2022 17:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656003488;
-        bh=+XWr3PnDyJZMzZIi8Bb+yDWvvAjGFGsoYV1mRzJaXVs=;
+        s=korg; t=1656004177;
+        bh=VG9aNFZYJ478pGSL1Jxp0aHvd6Ym/bnNuXeQmfupP00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b0VyvENjKK+gxXEQXphSXzftD/jEK8Xm4o6/cWST/Ok4lQhp1Cc/KQnuGhw3MLgWA
-         lXLBcnd/IPg846kVnuyZjdal8w4J5k6mF1w+pKNaw7tCcXpLgGotMtqRsAF6LsaIyC
-         HoOt+XMjCYi1+MQTwmBwXbbislRY0uxPG0g+ZQ88=
+        b=p+/w598Ue0qXik2azjhsvq/htIRYkYlf5McjJWSh1gwtNu3enKLdvJPnkWrmDNeIx
+         oBlQDcBx6qCWlvS1m41bJzHltEWwSYLvn85NyKDYKWiPOHL4GRnNVCExBA9k4YUPMM
+         XuDN/tOtQ4r3gpX1XVUwqzqQCCNyc7hxc2ZK34aU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 253/264] xprtrdma: fix incorrect header size calculations
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Miaoqian Lin <linmq006@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 212/237] misc: atmel-ssc: Fix IRQ check in ssc_probe
 Date:   Thu, 23 Jun 2022 18:44:06 +0200
-Message-Id: <20220623164351.224935058@linuxfoundation.org>
+Message-Id: <20220623164349.249875112@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
-References: <20220623164344.053938039@linuxfoundation.org>
+In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
+References: <20220623164343.132308638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 912288442cb2f431bf3c8cb097a5de83bc6dbac1 upstream.
+[ Upstream commit 1c245358ce0b13669f6d1625f7a4e05c41f28980 ]
 
-Currently the header size calculations are using an assignment
-operator instead of a += operator when accumulating the header
-size leading to incorrect sizes.  Fix this by using the correct
-operator.
+platform_get_irq() returns negative error number instead 0 on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-Addresses-Coverity: ("Unused value")
-Fixes: 302d3deb2068 ("xprtrdma: Prevent inline overflow")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-[bwh: Backported to 4.9: adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
+
+Fix the check of return value to catch errors correctly.
+
+Fixes: eb1f2930609b ("Driver for the Atmel on-chip SSC on AT32AP and AT91")
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220601123026.7119-1-linmq006@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/rpc_rdma.c |    4 ++--
+ drivers/misc/atmel-ssc.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/sunrpc/xprtrdma/rpc_rdma.c
-+++ b/net/sunrpc/xprtrdma/rpc_rdma.c
-@@ -75,7 +75,7 @@ static unsigned int rpcrdma_max_call_hea
+diff --git a/drivers/misc/atmel-ssc.c b/drivers/misc/atmel-ssc.c
+index f9caf233e2cc..48521861beb5 100644
+--- a/drivers/misc/atmel-ssc.c
++++ b/drivers/misc/atmel-ssc.c
+@@ -235,9 +235,9 @@ static int ssc_probe(struct platform_device *pdev)
+ 	clk_disable_unprepare(ssc->clk);
  
- 	/* Maximum Read list size */
- 	maxsegs += 2;	/* segment for head and tail buffers */
--	size = maxsegs * sizeof(struct rpcrdma_read_chunk);
-+	size += maxsegs * sizeof(struct rpcrdma_read_chunk);
+ 	ssc->irq = platform_get_irq(pdev, 0);
+-	if (!ssc->irq) {
++	if (ssc->irq < 0) {
+ 		dev_dbg(&pdev->dev, "could not get irq\n");
+-		return -ENXIO;
++		return ssc->irq;
+ 	}
  
- 	/* Minimal Read chunk size */
- 	size += sizeof(__be32);	/* segment count */
-@@ -101,7 +101,7 @@ static unsigned int rpcrdma_max_reply_he
- 
- 	/* Maximum Write list size */
- 	maxsegs += 2;	/* segment for head and tail buffers */
--	size = sizeof(__be32);		/* segment count */
-+	size += sizeof(__be32);		/* segment count */
- 	size += maxsegs * sizeof(struct rpcrdma_segment);
- 	size += sizeof(__be32);	/* list discriminator */
- 
+ 	mutex_lock(&user_lock);
+-- 
+2.35.1
+
 
 
