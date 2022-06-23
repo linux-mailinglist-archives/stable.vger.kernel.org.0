@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28EFE55843E
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:40:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 276F0558250
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:13:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234588AbiFWRko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:40:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39740 "EHLO
+        id S230226AbiFWRNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 13:13:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235035AbiFWRii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:38:38 -0400
+        with ESMTP id S232735AbiFWRM0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:12:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065A153A5A;
-        Thu, 23 Jun 2022 10:09:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C18DF2DF3;
+        Thu, 23 Jun 2022 09:57:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97D8FB824B6;
-        Thu, 23 Jun 2022 17:09:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E19E3C3411B;
-        Thu, 23 Jun 2022 17:09:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A643FB8248C;
+        Thu, 23 Jun 2022 16:57:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15030C3411B;
+        Thu, 23 Jun 2022 16:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004156;
-        bh=Y9Q+sZ1S2ROpRtb37xjqV9pJ3RXtolmlwum1ox9Goc8=;
+        s=korg; t=1656003470;
+        bh=DXBUbvkk4CdCgdHzMDE41vC7EXTzA7k4HO01SBDNL7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKu0Ro+AHs4/8+CYE3uvhIxFXvtIUWZ0IODO1TvPjoUE61r7vCyol7Me2slWJKpZi
-         Tof7mKh6aesA9eyel4wfqECzbGd/6tOmdp1XopBYoqd+Xq/nh1xiATID3DAXy6y/Kw
-         VDfZXSwrmh0h6bsE/AnGq2mOFq652eL4c1irmPEc=
+        b=NGGrGXOgHybZ4XHz3X8eUAB5qZcq0lmtYKof/OeuYr0QQVaeaY3q3o3Ff9XrSALrV
+         ESCMCdPxgZKoFeWt4tVsb1/BFyCMUYQKgx6Xlt3VhfT99qIKc5gaiAIwUNPTcDfG9H
+         M9eCA0oBCf5e22+bbwS0og1OL5LtLdqOtd01xHsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 206/237] ipv6: Fix signed integer overflow in l2tp_ip6_sendmsg
-Date:   Thu, 23 Jun 2022 18:44:00 +0200
-Message-Id: <20220623164349.075167832@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Ding Xiang <dingxiang@cmss.chinamobile.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.9 248/264] ext4: make variable "count" signed
+Date:   Thu, 23 Jun 2022 18:44:01 +0200
+Message-Id: <20220623164351.087369319@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.132308638@linuxfoundation.org>
-References: <20220623164343.132308638@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Ding Xiang <dingxiang@cmss.chinamobile.com>
 
-[ Upstream commit f638a84afef3dfe10554c51820c16e39a278c915 ]
+commit bc75a6eb856cb1507fa907bf6c1eda91b3fef52f upstream.
 
-When len >= INT_MAX - transhdrlen, ulen = len + transhdrlen will be
-overflow. To fix, we can follow what udpv6 does and subtract the
-transhdrlen from the max.
+Since dx_make_map() may return -EFSCORRUPTED now, so change "count" to
+be a signed integer so we can correctly check for an error code returned
+by dx_make_map().
 
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/20220607120028.845916-2-wangyufen@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 46c116b920eb ("ext4: verify dir block before splitting it")
+Cc: stable@kernel.org
+Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
+Link: https://lore.kernel.org/r/20220530100047.537598-1-dingxiang@cmss.chinamobile.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/l2tp/l2tp_ip6.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/ext4/namei.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/l2tp/l2tp_ip6.c b/net/l2tp/l2tp_ip6.c
-index 9c4670fb29d7..7b0963712c22 100644
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -526,14 +526,15 @@ static int l2tp_ip6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 	struct ipcm6_cookie ipc6;
- 	int addr_len = msg->msg_namelen;
- 	int transhdrlen = 4; /* zero session-id */
--	int ulen = len + transhdrlen;
-+	int ulen;
- 	int err;
- 
- 	/* Rough check on arithmetic overflow,
- 	   better check is made in ip6_append_data().
- 	 */
--	if (len > INT_MAX)
-+	if (len > INT_MAX - transhdrlen)
- 		return -EMSGSIZE;
-+	ulen = len + transhdrlen;
- 
- 	/* Mirror BSD error message compatibility */
- 	if (msg->msg_flags & MSG_OOB)
--- 
-2.35.1
-
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -1726,7 +1726,8 @@ static struct ext4_dir_entry_2 *do_split
+ 			struct dx_hash_info *hinfo)
+ {
+ 	unsigned blocksize = dir->i_sb->s_blocksize;
+-	unsigned count, continued;
++	unsigned continued;
++	int count;
+ 	struct buffer_head *bh2;
+ 	ext4_lblk_t newblock;
+ 	u32 hash2;
 
 
