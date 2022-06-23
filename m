@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7ABE558521
-	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 19:54:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D6E45580A2
+	for <lists+stable@lfdr.de>; Thu, 23 Jun 2022 18:53:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235402AbiFWRyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 13:54:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45418 "EHLO
+        id S232195AbiFWQwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jun 2022 12:52:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235436AbiFWRwe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 13:52:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB2AC5130B;
-        Thu, 23 Jun 2022 10:13:18 -0700 (PDT)
+        with ESMTP id S233827AbiFWQvm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 12:51:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7898726E;
+        Thu, 23 Jun 2022 09:50:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86D7AB82489;
-        Thu, 23 Jun 2022 17:13:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0BE1C3411B;
-        Thu, 23 Jun 2022 17:13:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 116AF61FBF;
+        Thu, 23 Jun 2022 16:50:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9ED5C3411B;
+        Thu, 23 Jun 2022 16:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656004396;
-        bh=uJNjvu56mngsJlztc6pVOzxn/BRpjZgNUfk0aaz1okY=;
+        s=korg; t=1656003003;
+        bh=h1bjvM96JzGywRTAxnqE/UXeEAEJfaDbTKnjk3kRPJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErI/5tzVLPL7aCeNB4dvVW66PNgdREmOJbsCN/aVzTubfM8uk6V+zgd36qyfL2Lyx
-         FfBkFMLDJ5a0HI22K63iKhic4Dh9VFUosLPaEMP3FoXePam5eecTJ9+WUSErCiojL+
-         rqdEqruFnNQPtFmW3/kqFTJ5ChojjZcz/9Kn5AYU=
+        b=yja2CzhTi1Ug9+TDKE9xu2d/hsQjSW/eeShNIvpQVFW6Nil6qROxh4aCNh3cxFsEP
+         zqGhIX6WJ+qx4R43HrB3yz6RBUdyqOvEgKT367z4NZKKCy3EPaR5Nwgjglv/c9V/fi
+         ZFJWqA2DSN87UUzMMYPgRHfiswLktRzaiaHCu4nk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ivan T. Ivanov" <iivanov@suse.de>,
+        stable@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 024/234] random: fix crash on multiple early calls to add_bootloader_randomness()
+Subject: [PATCH 4.9 098/264] random: remove unused extract_entropy() reserved argument
 Date:   Thu, 23 Jun 2022 18:41:31 +0200
-Message-Id: <20220623164343.748602926@linuxfoundation.org>
+Message-Id: <20220623164346.844388258@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220623164343.042598055@linuxfoundation.org>
-References: <20220623164343.042598055@linuxfoundation.org>
+In-Reply-To: <20220623164344.053938039@linuxfoundation.org>
+References: <20220623164344.053938039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,140 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Brodowski <linux@dominikbrodowski.net>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit f7e67b8e803185d0aabe7f29d25a35c8be724a78 upstream.
+commit 8b2d953b91e7f60200c24067ab17b77cc7bfd0d4 upstream.
 
-Currently, if CONFIG_RANDOM_TRUST_BOOTLOADER is enabled, multiple calls
-to add_bootloader_randomness() are broken and can cause a NULL pointer
-dereference, as noted by Ivan T. Ivanov. This is not only a hypothetical
-problem, as qemu on arm64 may provide bootloader entropy via EFI and via
-devicetree.
+This argument is always set to zero, as a result of us not caring about
+keeping a certain amount reserved in the pool these days. So just remove
+it and cleanup the function signatures.
 
-On the first call to add_hwgenerator_randomness(), crng_fast_load() is
-executed, and if the seed is long enough, crng_init will be set to 1.
-On subsequent calls to add_bootloader_randomness() and then to
-add_hwgenerator_randomness(), crng_fast_load() will be skipped. Instead,
-wait_event_interruptible() and then credit_entropy_bits() will be called.
-If the entropy count for that second seed is large enough, that proceeds
-to crng_reseed().
-
-However, both wait_event_interruptible() and crng_reseed() depends
-(at least in numa_crng_init()) on workqueues. Therefore, test whether
-system_wq is already initialized, which is a sufficient indicator that
-workqueue_init_early() has progressed far enough.
-
-If we wind up hitting the !system_wq case, we later want to do what
-would have been done there when wqs are up, so set a flag, and do that
-work later from the rand_initialize() call.
-
-Reported-by: Ivan T. Ivanov <iivanov@suse.de>
-Fixes: 18b915ac6b0a ("efi/random: Treat EFI_RNG_PROTOCOL output as bootloader randomness")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
-[Jason: added crng_need_done state and related logic.]
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   59 ++++++++++++++++++++++++++++++++------------------
- 1 file changed, 38 insertions(+), 21 deletions(-)
+ drivers/char/random.c |   17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -496,6 +496,7 @@ static struct crng_state primary_crng =
-  * its value (from 0->1->2).
+@@ -520,7 +520,7 @@ struct entropy_store {
+ };
+ 
+ static ssize_t extract_entropy(struct entropy_store *r, void *buf,
+-			       size_t nbytes, int min, int rsvd);
++			       size_t nbytes, int min);
+ static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
+ 				size_t nbytes);
+ 
+@@ -1040,7 +1040,7 @@ static void crng_reseed(struct crng_stat
+ 	} buf;
+ 
+ 	if (r) {
+-		num = extract_entropy(r, &buf, 32, 16, 0);
++		num = extract_entropy(r, &buf, 32, 16);
+ 		if (num == 0)
+ 			return;
+ 	} else {
+@@ -1378,8 +1378,7 @@ EXPORT_SYMBOL_GPL(add_disk_randomness);
+  * This function decides how many bytes to actually take from the
+  * given pool, and also debits the entropy count accordingly.
   */
- static int crng_init = 0;
-+static bool crng_need_final_init = false;
- #define crng_ready() (likely(crng_init > 1))
- static int crng_init_cnt = 0;
- static unsigned long crng_global_init_time = 0;
-@@ -888,6 +889,38 @@ static void crng_initialize(struct crng_
- 	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
+-static size_t account(struct entropy_store *r, size_t nbytes, int min,
+-		      int reserved)
++static size_t account(struct entropy_store *r, size_t nbytes, int min)
+ {
+ 	int entropy_count, orig, have_bytes;
+ 	size_t ibytes, nfrac;
+@@ -1393,7 +1392,7 @@ retry:
+ 	/* never pull more than available */
+ 	have_bytes = entropy_count >> (ENTROPY_SHIFT + 3);
+ 
+-	if ((have_bytes -= reserved) < 0)
++	if (have_bytes < 0)
+ 		have_bytes = 0;
+ 	ibytes = min_t(size_t, ibytes, have_bytes);
+ 	if (ibytes < min)
+@@ -1499,15 +1498,13 @@ static ssize_t _extract_entropy(struct e
+  * returns it in a buffer.
+  *
+  * The min parameter specifies the minimum amount we can pull before
+- * failing to avoid races that defeat catastrophic reseeding while the
+- * reserved parameter indicates how much entropy we must leave in the
+- * pool after each pull to avoid starving other readers.
++ * failing to avoid races that defeat catastrophic reseeding.
+  */
+ static ssize_t extract_entropy(struct entropy_store *r, void *buf,
+-				 size_t nbytes, int min, int reserved)
++				 size_t nbytes, int min)
+ {
+ 	trace_extract_entropy(r->name, nbytes, ENTROPY_BITS(r), _RET_IP_);
+-	nbytes = account(r, nbytes, min, reserved);
++	nbytes = account(r, nbytes, min);
+ 	return _extract_entropy(r, buf, nbytes);
  }
  
-+static void crng_finalize_init(struct crng_state *crng)
-+{
-+	if (crng != &primary_crng || crng_init >= 2)
-+		return;
-+	if (!system_wq) {
-+		/* We can't call numa_crng_init until we have workqueues,
-+		 * so mark this for processing later. */
-+		crng_need_final_init = true;
-+		return;
-+	}
-+
-+	invalidate_batched_entropy();
-+	numa_crng_init();
-+	crng_init = 2;
-+	process_random_ready_list();
-+	wake_up_interruptible(&crng_init_wait);
-+	kill_fasync(&fasync, SIGIO, POLL_IN);
-+	pr_notice("crng init done\n");
-+	if (unseeded_warning.missed) {
-+		pr_notice("random: %d get_random_xx warning(s) missed "
-+			  "due to ratelimiting\n",
-+			  unseeded_warning.missed);
-+		unseeded_warning.missed = 0;
-+	}
-+	if (urandom_warning.missed) {
-+		pr_notice("random: %d urandom warning(s) missed "
-+			  "due to ratelimiting\n",
-+			  urandom_warning.missed);
-+		urandom_warning.missed = 0;
-+	}
-+}
-+
- #ifdef CONFIG_NUMA
- static void do_numa_crng_init(struct work_struct *work)
- {
-@@ -1042,26 +1075,7 @@ static void crng_reseed(struct crng_stat
- 	memzero_explicit(&buf, sizeof(buf));
- 	WRITE_ONCE(crng->init_time, jiffies);
- 	spin_unlock_irqrestore(&crng->lock, flags);
--	if (crng == &primary_crng && crng_init < 2) {
--		invalidate_batched_entropy();
--		numa_crng_init();
--		crng_init = 2;
--		process_random_ready_list();
--		wake_up_interruptible(&crng_init_wait);
--		pr_notice("random: crng init done\n");
--		if (unseeded_warning.missed) {
--			pr_notice("random: %d get_random_xx warning(s) missed "
--				  "due to ratelimiting\n",
--				  unseeded_warning.missed);
--			unseeded_warning.missed = 0;
--		}
--		if (urandom_warning.missed) {
--			pr_notice("random: %d urandom warning(s) missed "
--				  "due to ratelimiting\n",
--				  urandom_warning.missed);
--			urandom_warning.missed = 0;
--		}
--	}
-+	crng_finalize_init(crng);
- }
- 
- static void _extract_crng(struct crng_state *crng,
-@@ -1960,6 +1974,8 @@ int __init rand_initialize(void)
- {
- 	init_std_data(&input_pool);
- 	init_std_data(&blocking_pool);
-+	if (crng_need_final_init)
-+		crng_finalize_init(&primary_crng);
- 	crng_initialize(&primary_crng);
- 	crng_global_init_time = jiffies;
- 	if (ratelimit_disable) {
-@@ -2478,7 +2494,8 @@ void add_hwgenerator_randomness(const ch
- 	 * We'll be woken up again once below random_write_wakeup_thresh,
- 	 * or when the calling thread is about to terminate.
- 	 */
--	wait_event_interruptible(random_write_wait, kthread_should_stop() ||
-+	wait_event_interruptible(random_write_wait,
-+			!system_wq || kthread_should_stop() ||
- 			ENTROPY_BITS(&input_pool) <= random_write_wakeup_bits);
- 	mix_pool_bytes(poolp, buffer, count);
- 	credit_entropy_bits(poolp, entropy);
 
 
