@@ -2,169 +2,301 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B8F558F59
-	for <lists+stable@lfdr.de>; Fri, 24 Jun 2022 05:56:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5FF559259
+	for <lists+stable@lfdr.de>; Fri, 24 Jun 2022 07:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231151AbiFXDz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jun 2022 23:55:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40264 "EHLO
+        id S231408AbiFXFZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jun 2022 01:25:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229728AbiFXDz4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jun 2022 23:55:56 -0400
-Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31F315159E;
-        Thu, 23 Jun 2022 20:55:56 -0700 (PDT)
-Received: by mail-pg1-x536.google.com with SMTP id d129so1253596pgc.9;
-        Thu, 23 Jun 2022 20:55:56 -0700 (PDT)
+        with ESMTP id S231395AbiFXFZq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jun 2022 01:25:46 -0400
+Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFBF4699A4;
+        Thu, 23 Jun 2022 22:25:37 -0700 (PDT)
+Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-317a66d62dfso14322227b3.7;
+        Thu, 23 Jun 2022 22:25:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=message-id:date:from:to:cc:subject:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=aLjJG3wTDdhEgtq1ZKtCCF6LdFjXWGOjNdpJprykOdA=;
-        b=ZM1bUECxFa2yoUSkcaJn1sj2GOOIwzyJ9lQP4IWIXeIoHFS2b1SqfE9M0yGKlL0S29
-         FZWBnuXVNmCAgHYU7zhV7rd3panA+a5OVzPpNAwhg6qmRFnPYljgtZ/KcEEHyc3mQmwr
-         bApTxzi2uUxj0+6etZ+FqXsmJso/hZhfYKJMaJ5Opp2ZiiPUAcmbbp8uGKgyNF+et1xS
-         9bhDpUvdglGyneVlAraINvOaasl9nYYnEfaRiaME2q6iwm+/pRek09a+BjO5vEh6UcIx
-         4KJCjaArPcGNAKrJ4eKCz17Eh2bsTSsgzdhfX4b66F/I9kPsCf1tQoy00DckBGTth7PY
-         o5zg==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=X1yTU2uzLT0uzkceC1nX+e8LlEHb+m5UCZBnQI0lwLg=;
+        b=am0a/iALpvDx4fZT5mLy7yLMLp1s6PWwgUaQuxYpmoRbgfDTNE0NoEhZH40PMvqJJ3
+         P+1ApRnBRcTtNP584m4wnCIkczctyGTB94ChK/SFDCi2Ivl9lQucTUKp7g8IvBE/l6oy
+         L0w0fP0t+0M6zDsO0FLRfF11uHb3zl4ZF89rOJz5E38rzkpa1Ca01sea5H8GMRj4dV97
+         oFyfF5Ee+jDOaLcMnc9W8pw0Ro8ZOCrF080mRShFIZbq2KbD0bVQMxmP1g4pfH21D18G
+         8nDGaYyuh2FfN/HqqM5mpTp2y8QA1Th7NqLq+LN6umjJXG6zS9a5gOdRFyfPO3fiFLaV
+         1vSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:to:cc:subject:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=aLjJG3wTDdhEgtq1ZKtCCF6LdFjXWGOjNdpJprykOdA=;
-        b=7AXzKOuzedt9gfXggQYeYbWE3ZPlj7wOzj+YU8+cKk0rvFrWkf93CRzxXxEdgJIOHi
-         q81fXTXpXK+6pnuuWssSkFsjHDlHf449E/xGEb8ZGfW3F6jgAdgTIo2yYl/Z2HfuBLvB
-         bnVoVKhcG1zCPTqF9eSsg0udEv2BlteK6tSTrGTO6GYcA+EaWoJrWbKXdTimHzE6/rEs
-         lwm/3N528Vt47TfIQS0dvetQs3c42Y5ejDD6aSCvwa97/dRxuoCinCwiXUv0JMOmpR+o
-         rSh3vgLH91kqxqYGWWh0RtnSAo3J+/qDaQn+3BfR5PBwXa6FkWwpTKl6Pvpyxgy9nguC
-         yuPg==
-X-Gm-Message-State: AJIora9hEsMz72f1GueG6yHWtX4iGOSrD2KIIdp7IACNisX28s7Kn0H8
-        xs1L0HAk8YvMFcaAptTGxQTlegoldbg=
-X-Google-Smtp-Source: AGRyM1tlRVFPuMu7yVFH++RQkdtWXolPU+PEGhyLqYRxXv0PonINvxdj8vPhSlV7RbbqORyIgKCG2w==
-X-Received: by 2002:a63:3c12:0:b0:40d:66f:8241 with SMTP id j18-20020a633c12000000b0040d066f8241mr10181476pga.612.1656042955417;
-        Thu, 23 Jun 2022 20:55:55 -0700 (PDT)
-Received: from localhost ([193.203.214.57])
-        by smtp.gmail.com with ESMTPSA id a4-20020a170902710400b0016a1c61c603sm588280pll.154.2022.06.23.20.55.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jun 2022 20:55:54 -0700 (PDT)
-Message-ID: <62b535ca.1c69fb81.b0647.1529@mx.google.com>
-X-Google-Original-Message-ID: <20220624035553.GA980944@cgel.zte@gmail.com>
-Date:   Fri, 24 Jun 2022 03:55:53 +0000
-From:   CGEL <cgel.zte@gmail.com>
-To:     Namjae Jeon <linkinjeon@kernel.org>
-Cc:     Eric Biggers <ebiggers@kernel.org>, xu.xin16@zte.com.cn,
-        anton@tuxera.com, linux-ntfs-dev@lists.sourceforge.net,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        syzbot+6a5a7672f663cce8b156@syzkaller.appspotmail.com,
-        Songyi Zhang <zhang.songyi@zte.com.cn>,
-        Yang Yang <yang.yang29@zte.com.cn>,
-        Jiang Xuexin <jiang.xuexin@zte.com.cn>,
-        Zhang wenya <zhang.wenya1@zte.com.cn>
-Subject: Re: [PATCH v2] fs/ntfs: fix BUG_ON of ntfs_read_block()
-References: <20220623033635.973929-1-xu.xin16@zte.com.cn>
- <20220623094956.977053-1-xu.xin16@zte.com.cn>
- <YrSeAGmk4GZndtdn@sol.localdomain>
- <CAKYAXd8qoLKbWGX7omYUfarSugRnose8X8o3Zhb1XctiUtamQg@mail.gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=X1yTU2uzLT0uzkceC1nX+e8LlEHb+m5UCZBnQI0lwLg=;
+        b=mMAOWQC03RCmg8xupSU9UzY8wp3LT+gPK4rCDYyMSNT4O8Rl08iGxbtbwJjhdQP/tD
+         X+mpyUdSxUUH8pE4ES6J0eua9LJVa0qzwc4zYv4kc6A+OuFFuSSgKZwdHlhG61SeiEYR
+         09EXela+iN/k6I7fIRC5oAUBh8PIt1KMB8JKoEdKiP0A+cRbfHvIp6CmQAsTdu9CXwvp
+         UbCjcWe3pBmXTwB4f/T6CIjjoijrCrCFl23Pexwq/txz/E7kcyvp2Ra7BiEE3xrU36e2
+         a4/cwtf2v8rkUUFgq79TEcvQoeNJCvOpzUjL7uAzFktRisE3gluRuLeCYBer85JLpjBh
+         ZzhA==
+X-Gm-Message-State: AJIora9fThDmhtZ5U/7WEDmWcxnSelejYYaQyxMBnd6RWxVF6EUy4066
+        F/PKT9H+z4qp/qUFfNi8Ad6C6OIpdOczqwE1XjE=
+X-Google-Smtp-Source: AGRyM1tTdtTG+5RebyogUZjKaqaV84A8NZtukJ1JjX/tigZCAgOIH1pyShy0RBTYNfROuPTuTkCetFIz5xUEOotC+Pc=
+X-Received: by 2002:a81:110:0:b0:317:a640:ad04 with SMTP id
+ 16-20020a810110000000b00317a640ad04mr15219110ywb.427.1656048336902; Thu, 23
+ Jun 2022 22:25:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKYAXd8qoLKbWGX7omYUfarSugRnose8X8o3Zhb1XctiUtamQg@mail.gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <YrUKUt5nvX8qf1Je@zx2c4.com> <20220624011449.1473399-1-Jason@zx2c4.com>
+In-Reply-To: <20220624011449.1473399-1-Jason@zx2c4.com>
+From:   Gregory Erwin <gregerwin256@gmail.com>
+Date:   Thu, 23 Jun 2022 22:25:26 -0700
+Message-ID: <CAO+Okf5k+C+SE6pMVfPf-d8MfVPVq4PO7EY8Hys_DVXtent3HA@mail.gmail.com>
+Subject: Re: [PATCH] ath9k: rng: escape sleep loop when unregistering
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@redhat.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        Rui Salvaterra <rsalvaterra@gmail.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 24, 2022 at 11:33:28AM +0900, Namjae Jeon wrote:
-> 2022-06-24 2:08 GMT+09:00, Eric Biggers <ebiggers@kernel.org>:
-> > On Thu, Jun 23, 2022 at 09:49:56AM +0000, cgel.zte@gmail.com wrote:
-> >> From: xu xin <xu.xin16@zte.com.cn>
-> >>
-> >> As the bug description at
-> >> https://lore.kernel.org/lkml/20220623033635.973929-1-xu.xin16@zte.com.cn/
-> >> attckers can use this bug to crash the system.
-> >>
-> >> So to avoid panic, remove the BUG_ON, and use ntfs_warning to output a
-> >> warning to the syslog and return instead until someone really solve
-> >> the problem.
-> >>
-> >> Cc: stable@vger.kernel.org
-> >> Reported-by: Zeal Robot <zealci@zte.com.cn>
-> >> Reported-by: syzbot+6a5a7672f663cce8b156@syzkaller.appspotmail.com
-> >> Reviewed-by: Songyi Zhang <zhang.songyi@zte.com.cn>
-> >> Reviewed-by: Yang Yang <yang.yang29@zte.com.cn>
-> >> Reviewed-by: Jiang Xuexin<jiang.xuexin@zte.com.cn>
-> >> Reviewed-by: Zhang wenya<zhang.wenya1@zte.com.cn>
-> >> Signed-off-by: xu xin <xu.xin16@zte.com.cn>
-> >> ---
-> >>
-> >> Change for v2:
-> >>  - Use ntfs_warning instead of WARN().
-> >>  - Add the tag Cc: stable@vger.kernel.org.
-> >> ---
-> >>  fs/ntfs/aops.c | 7 ++++++-
-> >>  1 file changed, 6 insertions(+), 1 deletion(-)
-> >>
-> >> diff --git a/fs/ntfs/aops.c b/fs/ntfs/aops.c
-> >> index 5f4fb6ca6f2e..84d68efb4ace 100644
-> >> --- a/fs/ntfs/aops.c
-> >> +++ b/fs/ntfs/aops.c
-> >> @@ -183,7 +183,12 @@ static int ntfs_read_block(struct page *page)
-> >>  	vol = ni->vol;
-> >>
-> >>  	/* $MFT/$DATA must have its complete runlist in memory at all times. */
-> >> -	BUG_ON(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni));
-> >> +	if (unlikely(!ni->runlist.rl && !ni->mft_no && !NInoAttr(ni))) {
-> >> +		ntfs_warning(vi->i_sb, "Error because ni->runlist.rl, ni->mft_no, "
-> >> +				"and NInoAttr(ni) is null.");
-> >> +		unlock_page(page);
-> >> +		return -EINVAL;
-> >> +	}
-> >
-> > A better warning message that doesn't rely on implementation details
-> > (struct
-> > field and macro names) would be "Runlist of $MFT/$DATA is not cached".
-> > Also,
-> > why does this situation happen in the first place?  Is there a way to
-> > prevent
-> > this situation in the first place?
-> 
-> ntfs_mapping_pairs_decompress() should return error pointer instead of NULL.
-> Callers is checking error value using IS_ERR(). and the mapping pairs
-> array of @MFT entry is empty, I think it's corrupted, it should cause
-> mount failure.
-> 
-> I haven't checked if this patch fix the problem. Xu, Can you check it ?
-> 
+Hi Jason,
 
-I have test it and it fixes the problem.
+I think you are on the right track, but even with this patch
+'ip link set wlan0 down' blocks until the hwrng reader gives up.
+The reader can either be userspace (dd, cat, etc) or it can also
+be the rng_core module. I can replicate the hang in the two different
+situations, so I gathered two stack traces for 'ip' depending on the
+reader of hwrng:
 
-Thanks.
+-userspace-
+$ ip link set wlan0 up
+$ dd if=3D/dev/hwrng count=3D1 & # blocks until interrupted or receives -EI=
+O
+$ ip link set wlan0 down & # blocks until dd exits
+$ cat /proc/$(pidof ip)/stack
+[<0>] devres_release+0x2b/0x60
+[<0>] ath9k_rng_stop+0x27/0x40 [ath9k]
+[<0>] ath9k_stop+0x40/0x230 [ath9k]
+[<0>] drv_stop+0x34/0x100 [mac80211]
+[<0>] ieee80211_do_stop+0x685/0x880 [mac80211]
+[<0>] ieee80211_stop+0x41/0x170 [mac80211]
+[<0>] __dev_close_many+0x9e/0x110
+[<0>] __dev_change_flags+0x1a7/0x250
+[<0>] dev_change_flags+0x26/0x60
+[<0>] do_setlink+0x32d/0x1220
+[<0>] __rtnl_newlink+0x5a2/0x9f0
+[<0>] rtnl_newlink+0x47/0x70
+[<0>] rtnetlink_rcv_msg+0x143/0x370
+[<0>] netlink_rcv_skb+0x55/0x100
+[<0>] netlink_unicast+0x243/0x390
+[<0>] netlink_sendmsg+0x254/0x4b0
+[<0>] sock_sendmsg+0x60/0x70
+[<0>] ____sys_sendmsg+0x264/0x2a0
+[<0>] ___sys_sendmsg+0x96/0xd0
+[<0>] __sys_sendmsg+0x7a/0xd0
+[<0>] do_syscall_64+0x5f/0x90
+[<0>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-> diff --git a/fs/ntfs/runlist.c b/fs/ntfs/runlist.c
-> index 97932fb5179c..31263fe0772f 100644
-> --- a/fs/ntfs/runlist.c
-> +++ b/fs/ntfs/runlist.c
-> @@ -766,8 +766,11 @@ runlist_element
-> *ntfs_mapping_pairs_decompress(const ntfs_volume *vol,
->                 return ERR_PTR(-EIO);
+-rng_core-
+$ ip link set wlan0 up
+$ # wait a while, maybe a minute or two
+$ ip link set wlan0 down & # blocks until 10s after 'hwrng: no data availab=
+le'
+$ cat /proc/$(pidof ip)/stack
+[<0>] kthread_stop+0x65/0x170
+[<0>] hwrng_unregister+0xbe/0xe0 [rng_core]
+[<0>] devres_release+0x2b/0x60
+[<0>] ath9k_rng_stop+0x27/0x40 [ath9k]
+[<0>] ath9k_stop+0x40/0x230 [ath9k]
+[<0>] drv_stop+0x34/0x100 [mac80211]
+[<0>] ieee80211_do_stop+0x685/0x880 [mac80211]
+[<0>] ieee80211_stop+0x41/0x170 [mac80211]
+[<0>] __dev_close_many+0x9e/0x110
+[<0>] __dev_change_flags+0x1a7/0x250
+[<0>] dev_change_flags+0x26/0x60
+[<0>] do_setlink+0x32d/0x1220
+[<0>] __rtnl_newlink+0x5a2/0x9f0
+[<0>] rtnl_newlink+0x47/0x70
+[<0>] rtnetlink_rcv_msg+0x143/0x370
+[<0>] netlink_rcv_skb+0x55/0x100
+[<0>] netlink_unicast+0x243/0x390
+[<0>] netlink_sendmsg+0x254/0x4b0
+[<0>] sock_sendmsg+0x60/0x70
+[<0>] ____sys_sendmsg+0x264/0x2a0
+[<0>] ___sys_sendmsg+0x96/0xd0
+[<0>] __sys_sendmsg+0x7a/0xd0
+[<0>] do_syscall_64+0x5f/0x90
+[<0>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Regards,
+ - Greg.
+
+
+
+On Thu, Jun 23, 2022 at 6:15 PM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+>
+> There's currently an almost deadlock when ath9k shuts down if no random
+> bytes are available:
+>
+> Thread A                                Thread B
+> -------------------------------------------------------------------------
+> rng_dev_read
+>  get_current_rng
+>   kref_get(&current_rng->ref)
+>  rng_get_data
+>   ath9k_rng_read
+>    msleep_interruptible(...)
+>                                        ath9k_rng_stop
+>                                         devm_hwrng_unregister
+>                                          devm_hwrng_release
+>                                           hwrng_unregister
+>                                            drop_current_rng
+>                                              kref_put(&current_rng->ref, =
+cleanup_rng)
+>                                               // Does NOT call cleanup_rn=
+g here,
+>                                               // because of thread A's kr=
+ef_get.
+>                                            wait_for_completion(&rng->clea=
+nup_done);
+>                                             // Waits for a really long ti=
+me...
+>    // Eventually sleep is over...
+>  put_rng
+>   kref_put(&rng->ref, cleanup_rng);
+>    cleanup_rng
+>     complete(&rng->cleanup_done);
+>                                            return
+>
+> When thread B doesn't return right away, sleep and other functions that
+> are waiting for ath9k_rng_stop to complete time out, and problems ensue.
+>
+> This commit fixes the problem by using another completion inside of
+> ath9k_rng_read so that hwrng_unregister can interrupt it as needed.
+>
+> Reported-by: Gregory Erwin <gregerwin256@gmail.com>
+> Cc: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
+> Cc: Kalle Valo <kvalo@kernel.org>
+> Cc: Rui Salvaterra <rsalvaterra@gmail.com>
+> Cc: stable@vger.kernel.org
+> Fixes: fcd09c90c3c5 ("ath9k: use hw_random API instead of directly dumpin=
+g into random.c")
+> Link: https://lore.kernel.org/all/CAO+Okf6ZJC5-nTE_EJUGQtd8JiCkiEHytGgDsF=
+GTEjs0c00giw@mail.gmail.com/
+> Link: https://bugs.archlinux.org/task/75138
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+> I do not have an ath9k and therefore I can't test this myself. The
+> analysis above was done completely statically, with no dynamic tracing
+> and just a bug report of symptoms from Gregory. So it might be totally
+> wrong. Thus, this patch very much requires Gregory's testing. Please
+> don't apply it until we have his `Tested-by` line.
+>
+>  drivers/net/wireless/ath/ath9k/ath9k.h |  1 +
+>  drivers/net/wireless/ath/ath9k/rng.c   | 26 ++++++++++++++++----------
+>  2 files changed, 17 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/net/wireless/ath/ath9k/ath9k.h b/drivers/net/wireles=
+s/ath/ath9k/ath9k.h
+> index 3ccf8cfc6b63..731db7f70e5d 100644
+> --- a/drivers/net/wireless/ath/ath9k/ath9k.h
+> +++ b/drivers/net/wireless/ath/ath9k/ath9k.h
+> @@ -1072,6 +1072,7 @@ struct ath_softc {
+>
+>  #ifdef CONFIG_ATH9K_HWRNG
+>         struct hwrng rng_ops;
+> +       struct completion rng_shutdown;
+>         u32 rng_last;
+>         char rng_name[sizeof("ath9k_65535")];
+>  #endif
+> diff --git a/drivers/net/wireless/ath/ath9k/rng.c b/drivers/net/wireless/=
+ath/ath9k/rng.c
+> index cb5414265a9b..67c6b03a22ac 100644
+> --- a/drivers/net/wireless/ath/ath9k/rng.c
+> +++ b/drivers/net/wireless/ath/ath9k/rng.c
+> @@ -1,5 +1,6 @@
+>  /*
+>   * Copyright (c) 2015 Qualcomm Atheros, Inc.
+> + * Copyright (C) 2022 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights R=
+eserved.
+>   *
+>   * Permission to use, copy, modify, and/or distribute this software for =
+any
+>   * purpose with or without fee is hereby granted, provided that the abov=
+e
+> @@ -52,18 +53,13 @@ static int ath9k_rng_data_read(struct ath_softc *sc, =
+u32 *buf, u32 buf_size)
+>         return j << 2;
+>  }
+>
+> -static u32 ath9k_rng_delay_get(u32 fail_stats)
+> +static unsigned long ath9k_rng_delay_get(u32 fail_stats)
+>  {
+> -       u32 delay;
+> -
+>         if (fail_stats < 100)
+> -               delay =3D 10;
+> +               return msecs_to_jiffies(10);
+>         else if (fail_stats < 105)
+> -               delay =3D 1000;
+> -       else
+> -               delay =3D 10000;
+> -
+> -       return delay;
+> +               return msecs_to_jiffies(1000);
+> +       return msecs_to_jiffies(10000);
+>  }
+>
+>  static int ath9k_rng_read(struct hwrng *rng, void *buf, size_t max, bool=
+ wait)
+> @@ -83,7 +79,10 @@ static int ath9k_rng_read(struct hwrng *rng, void *buf=
+, size_t max, bool wait)
+>                 if (!wait || !max || likely(bytes_read) || fail_stats > 1=
+10)
+>                         break;
+>
+> -               msleep_interruptible(ath9k_rng_delay_get(++fail_stats));
+> +               if (wait_for_completion_interruptible_timeout(
+> +                           &sc->rng_shutdown,
+> +                           ath9k_rng_delay_get(++fail_stats)))
+> +                       break;
 >         }
->         /* If the mapping pairs array is valid but empty, nothing to do. */
-> -       if (!vcn && !*buf)
-> +       if (!vcn && !*buf) {
-> +               if (!old_rl)
-> +                       return ERR_PTR(-EIO);
->                 return old_rl;
-> +       }
->         /* Current position in runlist array. */
->         rlpos = 0;
->         /* Allocate first page and set current runlist size to one page. */
-> 
-> >
-> > - Eric
-> >
+>
+>         if (wait && !bytes_read && max)
+> @@ -91,6 +90,11 @@ static int ath9k_rng_read(struct hwrng *rng, void *buf=
+, size_t max, bool wait)
+>         return bytes_read;
+>  }
+>
+> +static void ath9k_rng_cleanup(struct hwrng *rng)
+> +{
+> +       complete(&container_of(rng, struct ath_softc, rng_ops)->rng_shutd=
+own);
+> +}
+> +
+>  void ath9k_rng_start(struct ath_softc *sc)
+>  {
+>         static atomic_t serial =3D ATOMIC_INIT(0);
+> @@ -104,8 +108,10 @@ void ath9k_rng_start(struct ath_softc *sc)
+>
+>         snprintf(sc->rng_name, sizeof(sc->rng_name), "ath9k_%u",
+>                  (atomic_inc_return(&serial) - 1) & U16_MAX);
+> +       init_completion(&sc->rng_shutdown);
+>         sc->rng_ops.name =3D sc->rng_name;
+>         sc->rng_ops.read =3D ath9k_rng_read;
+> +       sc->rng_ops.cleanup =3D ath9k_rng_cleanup;
+>         sc->rng_ops.quality =3D 320;
+>
+>         if (devm_hwrng_register(sc->dev, &sc->rng_ops))
+> --
+> 2.35.1
+>
