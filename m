@@ -2,70 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35EEE559545
-	for <lists+stable@lfdr.de>; Fri, 24 Jun 2022 10:23:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2401559581
+	for <lists+stable@lfdr.de>; Fri, 24 Jun 2022 10:35:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230239AbiFXIWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jun 2022 04:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42534 "EHLO
+        id S229615AbiFXIe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jun 2022 04:34:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229595AbiFXIWH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jun 2022 04:22:07 -0400
-Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 219946F7A8
-        for <stable@vger.kernel.org>; Fri, 24 Jun 2022 01:22:05 -0700 (PDT)
-Received: by mail-lj1-x232.google.com with SMTP id s14so1955589ljs.3
-        for <stable@vger.kernel.org>; Fri, 24 Jun 2022 01:22:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=aGzvn0q0q9YA/Na0FGp2nMGFn59dA2Gv9fwVzm4epHQ=;
-        b=iBHxMVGKe3Nq5JC342jgVn2zEkul8NjDVspSHicXRx9fn0p+7TE65BDWuhtuUOm3qM
-         RPTG2sJodNL6fjaJ4toLLcc5Me8GDqgWYgzJeteim23grziRWIRkF3G49U5sPPhL5kUD
-         ujoIZSri68ZmAc06HpLWymtnM4IzOy9zLI5dd+WjSBc3xiZHA+ML2DVF920C+Rz6219l
-         cCfjtLJDTWEA2k8CCmNNW4tLmDIiiJ+sRkYwZXtTjZSEBc3zy09fkkr0czSLNYcyEnJJ
-         moRQ1ikaGpBKbbLiF+jzDeRlzO+RPqYWsaP1wnOVrVF3xPVSDd9PLPCl8IqgcsZxBl2n
-         BPvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=aGzvn0q0q9YA/Na0FGp2nMGFn59dA2Gv9fwVzm4epHQ=;
-        b=hFLzlLxTrjrZQCLySqMFV+puOPn29BHUGV6RkWQBzB7WUaV1shHX8/fuTmEe/WM8mN
-         hO3XkXrzsKqPVfXdiIeSQmlVSHX5dR6WglibcqaNjw/xqEQGoIi+GKwAqLSWHemk9NGr
-         QiMu3qM/pH4UUyrHZe2upyKrClj+xV81PsOAc8QqS9okWBnyxCjusGpLhUWVauXakSVY
-         F4R1QvZ/9rjw0hBfB6l2rtkIeDoJPKlCSINKJ7rFwUwFZvXzzLNFmeioluDmLnBOEsSy
-         bSC7nTxYnNRvJZZYqh/Hqsucm3xgrfaerPvM5folfaEdO5xpX2cGh/WEvIIIOZhaDQ4X
-         SECw==
-X-Gm-Message-State: AJIora+SspYOsR9VAgkCqUnbZkUMQ3aW0ITfBQ30k3sHGPLVKMJdNTJ5
-        5CJjKm1uTU0cVVIfyHtDRAYloYVuod6Dl6vW5bbFX9UcIKgHZA==
-X-Google-Smtp-Source: AGRyM1vvII4elIsolZ4aOgyerwxcDo1TOtRWQxieH61lin9F9J1np0umwh6gDYcAWQj3C5DpixNQKbVc2Qf15hAxsxM=
-X-Received: by 2002:a2e:9998:0:b0:25a:6d56:3c17 with SMTP id
- w24-20020a2e9998000000b0025a6d563c17mr6958149lji.372.1656058922986; Fri, 24
- Jun 2022 01:22:02 -0700 (PDT)
+        with ESMTP id S229598AbiFXIe1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jun 2022 04:34:27 -0400
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A2414A3D6;
+        Fri, 24 Jun 2022 01:34:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656059667; x=1687595667;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=GL7gNHkZqM1sWdOok001Mz0b5ZGecYzNGjnRUb23NBQ=;
+  b=A8gxWgVNKoGYCXxxommMEyl9F2eyFoyZfJK3OUxc6YBCOSv8BsYgIo5Z
+   FLSVRp0cBQaKJ9lNZtPDTCkRQ0c9/2nlELekYKb/ex+PDbhIan+ywwoUm
+   vJ+PNfIbqEriUtRjnFUSIn1lObYOwMvHvhQV1NNCxRWnhWt4snVqxE7ge
+   fhXXe0Sh0/3TdZCSrllSJiORNG7VBdjbNLkkLaEMfzmokg7zXb/uS+2S8
+   ww9xT0MYlP3p8A/MA+gYxxcURlU6plD80EmkdZ+C0JFyRQfiEf9pWvUFF
+   Dcon13CnfCxineRuG5PyiRyEFIjAHj9BOIGgAIqAOKgUIvsOY5KvXFQHI
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10387"; a="282038036"
+X-IronPort-AV: E=Sophos;i="5.92,218,1650956400"; 
+   d="scan'208";a="282038036"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jun 2022 01:34:26 -0700
+X-IronPort-AV: E=Sophos;i="5.92,218,1650956400"; 
+   d="scan'208";a="915596863"
+Received: from acamigob-mobl.amr.corp.intel.com (HELO [10.212.103.132]) ([10.212.103.132])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jun 2022 01:34:22 -0700
+Message-ID: <160e613f-a0a8-18ff-5d4b-249d4280caa8@linux.intel.com>
+Date:   Fri, 24 Jun 2022 09:34:21 +0100
 MIME-Version: 1.0
-References: <20220623164322.315085512@linuxfoundation.org>
-In-Reply-To: <20220623164322.315085512@linuxfoundation.org>
-From:   Fenil Jain <fkjainco@gmail.com>
-Date:   Fri, 24 Jun 2022 13:51:51 +0530
-Message-ID: <CAHokDB=mS+aJDN+nFO0QsDPS88SR36CxT8dSh5G8kG=dNA4GWA@mail.gmail.com>
-Subject: Re: [PATCH 5.18 00/11] 5.18.7-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Shuah Khan <skhan@linuxfoundation.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH 5/6] drm/i915/gt: Serialize GRDOM access between multiple
+ engine resets
+Content-Language: en-US
+To:     Andi Shyti <andi.shyti@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     Chris Wilson <chris.p.wilson@intel.com>,
+        Fei Yang <fei.yang@intel.com>,
+        Thomas Hellstrom <thomas.hellstrom@intel.com>,
+        Bruce Chang <yu.bruce.chang@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        John Harrison <John.C.Harrison@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>,
+        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, mauro.chehab@linux.intel.com,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        stable@vger.kernel.org,
+        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
+        <thomas.hellstrom@linux.intel.com>
+References: <cover.1655306128.git.mchehab@kernel.org>
+ <5ee647f243a774927ec328bfca8212abc4957909.1655306128.git.mchehab@kernel.org>
+ <YrRLyg1IJoZpVGfg@intel.intel>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+In-Reply-To: <YrRLyg1IJoZpVGfg@intel.intel>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,
+        NICE_REPLY_A,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hey Greg,
 
-Ran tests and boot tested on my system, no regression found
+On 23/06/2022 12:17, Andi Shyti wrote:
+> Hi Mauro,
+> 
+> On Wed, Jun 15, 2022 at 04:27:39PM +0100, Mauro Carvalho Chehab wrote:
+>> From: Chris Wilson <chris.p.wilson@intel.com>
+>>
+>> Don't allow two engines to be reset in parallel, as they would both
+>> try to select a reset bit (and send requests to common registers)
+>> and wait on that register, at the same time. Serialize control of
+>> the reset requests/acks using the uncore->lock, which will also ensure
+>> that no other GT state changes at the same time as the actual reset.
+>>
+>> Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
+>>
+>> Reported-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+>> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+>> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+>> Cc: Andi Shyti <andi.shyti@intel.com>
+>> Cc: stable@vger.kernel.org
+>> Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+>> Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+> 
+> Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
 
-Tested-by: Fenil Jain <fkjainco@gmail.com>
+Notice I had a bunch of questions and asks in this series so please do 
+not merge until those are addressed.
+
+In this particular patch (and some others) for instance Fixes: tag, at 
+least against that sha, shouldn't be there.
+
+Regards,
+
+Tvrtko
