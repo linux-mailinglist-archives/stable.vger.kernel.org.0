@@ -2,301 +2,302 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D5FF559259
-	for <lists+stable@lfdr.de>; Fri, 24 Jun 2022 07:38:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4AC5592B6
+	for <lists+stable@lfdr.de>; Fri, 24 Jun 2022 08:02:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231408AbiFXFZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jun 2022 01:25:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50206 "EHLO
+        id S230018AbiFXGCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jun 2022 02:02:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231395AbiFXFZq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jun 2022 01:25:46 -0400
-Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFBF4699A4;
-        Thu, 23 Jun 2022 22:25:37 -0700 (PDT)
-Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-317a66d62dfso14322227b3.7;
-        Thu, 23 Jun 2022 22:25:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=X1yTU2uzLT0uzkceC1nX+e8LlEHb+m5UCZBnQI0lwLg=;
-        b=am0a/iALpvDx4fZT5mLy7yLMLp1s6PWwgUaQuxYpmoRbgfDTNE0NoEhZH40PMvqJJ3
-         P+1ApRnBRcTtNP584m4wnCIkczctyGTB94ChK/SFDCi2Ivl9lQucTUKp7g8IvBE/l6oy
-         L0w0fP0t+0M6zDsO0FLRfF11uHb3zl4ZF89rOJz5E38rzkpa1Ca01sea5H8GMRj4dV97
-         oFyfF5Ee+jDOaLcMnc9W8pw0Ro8ZOCrF080mRShFIZbq2KbD0bVQMxmP1g4pfH21D18G
-         8nDGaYyuh2FfN/HqqM5mpTp2y8QA1Th7NqLq+LN6umjJXG6zS9a5gOdRFyfPO3fiFLaV
-         1vSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=X1yTU2uzLT0uzkceC1nX+e8LlEHb+m5UCZBnQI0lwLg=;
-        b=mMAOWQC03RCmg8xupSU9UzY8wp3LT+gPK4rCDYyMSNT4O8Rl08iGxbtbwJjhdQP/tD
-         X+mpyUdSxUUH8pE4ES6J0eua9LJVa0qzwc4zYv4kc6A+OuFFuSSgKZwdHlhG61SeiEYR
-         09EXela+iN/k6I7fIRC5oAUBh8PIt1KMB8JKoEdKiP0A+cRbfHvIp6CmQAsTdu9CXwvp
-         UbCjcWe3pBmXTwB4f/T6CIjjoijrCrCFl23Pexwq/txz/E7kcyvp2Ra7BiEE3xrU36e2
-         a4/cwtf2v8rkUUFgq79TEcvQoeNJCvOpzUjL7uAzFktRisE3gluRuLeCYBer85JLpjBh
-         ZzhA==
-X-Gm-Message-State: AJIora9fThDmhtZ5U/7WEDmWcxnSelejYYaQyxMBnd6RWxVF6EUy4066
-        F/PKT9H+z4qp/qUFfNi8Ad6C6OIpdOczqwE1XjE=
-X-Google-Smtp-Source: AGRyM1tTdtTG+5RebyogUZjKaqaV84A8NZtukJ1JjX/tigZCAgOIH1pyShy0RBTYNfROuPTuTkCetFIz5xUEOotC+Pc=
-X-Received: by 2002:a81:110:0:b0:317:a640:ad04 with SMTP id
- 16-20020a810110000000b00317a640ad04mr15219110ywb.427.1656048336902; Thu, 23
- Jun 2022 22:25:36 -0700 (PDT)
+        with ESMTP id S230013AbiFXGCk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jun 2022 02:02:40 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA1D069246;
+        Thu, 23 Jun 2022 23:02:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656050559; x=1687586559;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=M28AR2+gE5PYG7d0gC02iP64d6sCJq6k2gkhyc/RX8s=;
+  b=C3Ml6LcGHp1DAq/psiX9EmS6/ttFaZ8SovvPE84Qu2BSJhn3lU1u/3fr
+   JOyiMDAC4tfWzi04KYMCTMiDPceG3RfskWWGo6N5l8matCdXU81GZby10
+   c4snVrCIIDk5N8ubezk+FE8024qjRcsP1ggUEhlS4liK0KpVlYVBjHmHo
+   AKQ+u/SWInrborIXi3Po+WthamNlywxgNaZwQWq7wOE4tImq5SvKUFZjU
+   hNJzeYDE0Za8nDmeA2e3Wka14pCVmpXS3qoWuQOv9VnpRNFxzi6LMI4iJ
+   cujauhPBzyxGRe2rIqeurV0PGMddHIu5KA89Iz5nrFCjIkVCLZx2VE3M3
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10387"; a="279697025"
+X-IronPort-AV: E=Sophos;i="5.92,218,1650956400"; 
+   d="scan'208";a="279697025"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2022 23:02:39 -0700
+X-IronPort-AV: E=Sophos;i="5.92,218,1650956400"; 
+   d="scan'208";a="593076850"
+Received: from zhaohaif-mobl1.ccr.corp.intel.com (HELO [10.254.209.161]) ([10.254.209.161])
+  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2022 23:02:36 -0700
+Message-ID: <eb2257b1-1213-1001-74bd-085af5d50dad@linux.intel.com>
+Date:   Fri, 24 Jun 2022 14:02:34 +0800
 MIME-Version: 1.0
-References: <YrUKUt5nvX8qf1Je@zx2c4.com> <20220624011449.1473399-1-Jason@zx2c4.com>
-In-Reply-To: <20220624011449.1473399-1-Jason@zx2c4.com>
-From:   Gregory Erwin <gregerwin256@gmail.com>
-Date:   Thu, 23 Jun 2022 22:25:26 -0700
-Message-ID: <CAO+Okf5k+C+SE6pMVfPf-d8MfVPVq4PO7EY8Hys_DVXtent3HA@mail.gmail.com>
-Subject: Re: [PATCH] ath9k: rng: escape sleep loop when unregistering
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org,
-        =?UTF-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@redhat.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        Rui Salvaterra <rsalvaterra@gmail.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v3 1/1] iommu/vt-d: Fix RID2PASID setup/teardown failure
+To:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>
+Cc:     Chenyi Qiang <chenyi.qiang@intel.com>,
+        Liu Yi L <yi.l.liu@intel.com>,
+        Jacob jun Pan <jacob.jun.pan@intel.com>,
+        iommu@lists.linux-foundation.org, iommu@lists.linux.dev,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20220623065720.727849-1-baolu.lu@linux.intel.com>
+From:   Ethan Zhao <haifeng.zhao@linux.intel.com>
+In-Reply-To: <20220623065720.727849-1-baolu.lu@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jason,
+Hi，
 
-I think you are on the right track, but even with this patch
-'ip link set wlan0 down' blocks until the hwrng reader gives up.
-The reader can either be userspace (dd, cat, etc) or it can also
-be the rng_core module. I can replicate the hang in the two different
-situations, so I gathered two stack traces for 'ip' depending on the
-reader of hwrng:
-
--userspace-
-$ ip link set wlan0 up
-$ dd if=3D/dev/hwrng count=3D1 & # blocks until interrupted or receives -EI=
-O
-$ ip link set wlan0 down & # blocks until dd exits
-$ cat /proc/$(pidof ip)/stack
-[<0>] devres_release+0x2b/0x60
-[<0>] ath9k_rng_stop+0x27/0x40 [ath9k]
-[<0>] ath9k_stop+0x40/0x230 [ath9k]
-[<0>] drv_stop+0x34/0x100 [mac80211]
-[<0>] ieee80211_do_stop+0x685/0x880 [mac80211]
-[<0>] ieee80211_stop+0x41/0x170 [mac80211]
-[<0>] __dev_close_many+0x9e/0x110
-[<0>] __dev_change_flags+0x1a7/0x250
-[<0>] dev_change_flags+0x26/0x60
-[<0>] do_setlink+0x32d/0x1220
-[<0>] __rtnl_newlink+0x5a2/0x9f0
-[<0>] rtnl_newlink+0x47/0x70
-[<0>] rtnetlink_rcv_msg+0x143/0x370
-[<0>] netlink_rcv_skb+0x55/0x100
-[<0>] netlink_unicast+0x243/0x390
-[<0>] netlink_sendmsg+0x254/0x4b0
-[<0>] sock_sendmsg+0x60/0x70
-[<0>] ____sys_sendmsg+0x264/0x2a0
-[<0>] ___sys_sendmsg+0x96/0xd0
-[<0>] __sys_sendmsg+0x7a/0xd0
-[<0>] do_syscall_64+0x5f/0x90
-[<0>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
--rng_core-
-$ ip link set wlan0 up
-$ # wait a while, maybe a minute or two
-$ ip link set wlan0 down & # blocks until 10s after 'hwrng: no data availab=
-le'
-$ cat /proc/$(pidof ip)/stack
-[<0>] kthread_stop+0x65/0x170
-[<0>] hwrng_unregister+0xbe/0xe0 [rng_core]
-[<0>] devres_release+0x2b/0x60
-[<0>] ath9k_rng_stop+0x27/0x40 [ath9k]
-[<0>] ath9k_stop+0x40/0x230 [ath9k]
-[<0>] drv_stop+0x34/0x100 [mac80211]
-[<0>] ieee80211_do_stop+0x685/0x880 [mac80211]
-[<0>] ieee80211_stop+0x41/0x170 [mac80211]
-[<0>] __dev_close_many+0x9e/0x110
-[<0>] __dev_change_flags+0x1a7/0x250
-[<0>] dev_change_flags+0x26/0x60
-[<0>] do_setlink+0x32d/0x1220
-[<0>] __rtnl_newlink+0x5a2/0x9f0
-[<0>] rtnl_newlink+0x47/0x70
-[<0>] rtnetlink_rcv_msg+0x143/0x370
-[<0>] netlink_rcv_skb+0x55/0x100
-[<0>] netlink_unicast+0x243/0x390
-[<0>] netlink_sendmsg+0x254/0x4b0
-[<0>] sock_sendmsg+0x60/0x70
-[<0>] ____sys_sendmsg+0x264/0x2a0
-[<0>] ___sys_sendmsg+0x96/0xd0
-[<0>] __sys_sendmsg+0x7a/0xd0
-[<0>] do_syscall_64+0x5f/0x90
-[<0>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Regards,
- - Greg.
-
-
-
-On Thu, Jun 23, 2022 at 6:15 PM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+在 2022/6/23 14:57, Lu Baolu 写道:
+> The IOMMU driver shares the pasid table for PCI alias devices. When the
+> RID2PASID entry of the shared pasid table has been filled by the first
+> device, the subsequent device will encounter the "DMAR: Setup RID2PASID
+> failed" failure as the pasid entry has already been marked as present.
+> As the result, the IOMMU probing process will be aborted.
 >
-> There's currently an almost deadlock when ath9k shuts down if no random
-> bytes are available:
+> On the contrary, when any alias device is hot-removed from the system,
+> for example, by writing to /sys/bus/pci/devices/.../remove, the shared
+> RID2PASID will be cleared without any notifications to other devices.
+> As the result, any DMAs from those rest devices are blocked.
 >
-> Thread A                                Thread B
-> -------------------------------------------------------------------------
-> rng_dev_read
->  get_current_rng
->   kref_get(&current_rng->ref)
->  rng_get_data
->   ath9k_rng_read
->    msleep_interruptible(...)
->                                        ath9k_rng_stop
->                                         devm_hwrng_unregister
->                                          devm_hwrng_release
->                                           hwrng_unregister
->                                            drop_current_rng
->                                              kref_put(&current_rng->ref, =
-cleanup_rng)
->                                               // Does NOT call cleanup_rn=
-g here,
->                                               // because of thread A's kr=
-ef_get.
->                                            wait_for_completion(&rng->clea=
-nup_done);
->                                             // Waits for a really long ti=
-me...
->    // Eventually sleep is over...
->  put_rng
->   kref_put(&rng->ref, cleanup_rng);
->    cleanup_rng
->     complete(&rng->cleanup_done);
->                                            return
->
-> When thread B doesn't return right away, sleep and other functions that
-> are waiting for ath9k_rng_stop to complete time out, and problems ensue.
->
-> This commit fixes the problem by using another completion inside of
-> ath9k_rng_read so that hwrng_unregister can interrupt it as needed.
->
-> Reported-by: Gregory Erwin <gregerwin256@gmail.com>
-> Cc: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
-> Cc: Kalle Valo <kvalo@kernel.org>
-> Cc: Rui Salvaterra <rsalvaterra@gmail.com>
+> Sharing pasid table among PCI alias devices could save two memory pages
+> for devices underneath the PCIe-to-PCI bridges. Anyway, considering that
+> those devices are rare on modern platforms that support VT-d in scalable
+> mode and the saved memory is negligible, it's reasonable to remove this
+> part of immature code to make the driver feasible and stable.
+In my understanding, thus cleanning will make the pasid table become
+per-dev datastructure whatever the dev is pci-alias or not, and the
+pasid_pte_is_present(pte)will only check against every pci-alias' own
+private pasid table,the setup stagewouldn't break, so does the
+detach/release path, and little value to code otherreference counter
+like complex implenmataion, looks good to me !
+
+
+Thanks,
+
+Ethan
+
+> Fixes: ef848b7e5a6a0 ("iommu/vt-d: Setup pasid entry for RID2PASID support")
+> Reported-by: Chenyi Qiang <chenyi.qiang@intel.com>
+> Reported-by: Ethan Zhao <haifeng.zhao@linux.intel.com>
 > Cc: stable@vger.kernel.org
-> Fixes: fcd09c90c3c5 ("ath9k: use hw_random API instead of directly dumpin=
-g into random.c")
-> Link: https://lore.kernel.org/all/CAO+Okf6ZJC5-nTE_EJUGQtd8JiCkiEHytGgDsF=
-GTEjs0c00giw@mail.gmail.com/
-> Link: https://bugs.archlinux.org/task/75138
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
 > ---
-> I do not have an ath9k and therefore I can't test this myself. The
-> analysis above was done completely statically, with no dynamic tracing
-> and just a bug report of symptoms from Gregory. So it might be totally
-> wrong. Thus, this patch very much requires Gregory's testing. Please
-> don't apply it until we have his `Tested-by` line.
+>   include/linux/intel-iommu.h |  3 --
+>   drivers/iommu/intel/pasid.h |  1 -
+>   drivers/iommu/intel/iommu.c | 24 -------------
+>   drivers/iommu/intel/pasid.c | 69 ++-----------------------------------
+>   4 files changed, 3 insertions(+), 94 deletions(-)
 >
->  drivers/net/wireless/ath/ath9k/ath9k.h |  1 +
->  drivers/net/wireless/ath/ath9k/rng.c   | 26 ++++++++++++++++----------
->  2 files changed, 17 insertions(+), 10 deletions(-)
+> Change log:
+> v3:
+>   - Ethan pointed out that there's also problem in the device release
+>     path. Let's remove this part of immature code for now.
 >
-> diff --git a/drivers/net/wireless/ath/ath9k/ath9k.h b/drivers/net/wireles=
-s/ath/ath9k/ath9k.h
-> index 3ccf8cfc6b63..731db7f70e5d 100644
-> --- a/drivers/net/wireless/ath/ath9k/ath9k.h
-> +++ b/drivers/net/wireless/ath/ath9k/ath9k.h
-> @@ -1072,6 +1072,7 @@ struct ath_softc {
+> v2:
+>   - Add domain validity check in RID2PASID entry setup.
 >
->  #ifdef CONFIG_ATH9K_HWRNG
->         struct hwrng rng_ops;
-> +       struct completion rng_shutdown;
->         u32 rng_last;
->         char rng_name[sizeof("ath9k_65535")];
->  #endif
-> diff --git a/drivers/net/wireless/ath/ath9k/rng.c b/drivers/net/wireless/=
-ath/ath9k/rng.c
-> index cb5414265a9b..67c6b03a22ac 100644
-> --- a/drivers/net/wireless/ath/ath9k/rng.c
-> +++ b/drivers/net/wireless/ath/ath9k/rng.c
-> @@ -1,5 +1,6 @@
->  /*
->   * Copyright (c) 2015 Qualcomm Atheros, Inc.
-> + * Copyright (C) 2022 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights R=
-eserved.
->   *
->   * Permission to use, copy, modify, and/or distribute this software for =
-any
->   * purpose with or without fee is hereby granted, provided that the abov=
-e
-> @@ -52,18 +53,13 @@ static int ath9k_rng_data_read(struct ath_softc *sc, =
-u32 *buf, u32 buf_size)
->         return j << 2;
->  }
->
-> -static u32 ath9k_rng_delay_get(u32 fail_stats)
-> +static unsigned long ath9k_rng_delay_get(u32 fail_stats)
->  {
-> -       u32 delay;
+> diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+> index 4f29139bbfc3..5fcf89faa31a 100644
+> --- a/include/linux/intel-iommu.h
+> +++ b/include/linux/intel-iommu.h
+> @@ -612,7 +612,6 @@ struct intel_iommu {
+>   struct device_domain_info {
+>   	struct list_head link;	/* link to domain siblings */
+>   	struct list_head global; /* link to global list */
+> -	struct list_head table;	/* link to pasid table */
+>   	u32 segment;		/* PCI segment number */
+>   	u8 bus;			/* PCI bus number */
+>   	u8 devfn;		/* PCI devfn number */
+> @@ -729,8 +728,6 @@ extern int dmar_ir_support(void);
+>   void *alloc_pgtable_page(int node);
+>   void free_pgtable_page(void *vaddr);
+>   struct intel_iommu *domain_get_iommu(struct dmar_domain *domain);
+> -int for_each_device_domain(int (*fn)(struct device_domain_info *info,
+> -				     void *data), void *data);
+>   void iommu_flush_write_buffer(struct intel_iommu *iommu);
+>   int intel_iommu_enable_pasid(struct intel_iommu *iommu, struct device *dev);
+>   struct intel_iommu *device_to_iommu(struct device *dev, u8 *bus, u8 *devfn);
+> diff --git a/drivers/iommu/intel/pasid.h b/drivers/iommu/intel/pasid.h
+> index 583ea67fc783..bf5b937848b4 100644
+> --- a/drivers/iommu/intel/pasid.h
+> +++ b/drivers/iommu/intel/pasid.h
+> @@ -74,7 +74,6 @@ struct pasid_table {
+>   	void			*table;		/* pasid table pointer */
+>   	int			order;		/* page order of pasid table */
+>   	u32			max_pasid;	/* max pasid */
+> -	struct list_head	dev;		/* device list */
+>   };
+>   
+>   /* Get PRESENT bit of a PASID directory entry. */
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index 44016594831d..5c0dce78586a 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -320,30 +320,6 @@ EXPORT_SYMBOL_GPL(intel_iommu_gfx_mapped);
+>   DEFINE_SPINLOCK(device_domain_lock);
+>   static LIST_HEAD(device_domain_list);
+>   
+> -/*
+> - * Iterate over elements in device_domain_list and call the specified
+> - * callback @fn against each element.
+> - */
+> -int for_each_device_domain(int (*fn)(struct device_domain_info *info,
+> -				     void *data), void *data)
+> -{
+> -	int ret = 0;
+> -	unsigned long flags;
+> -	struct device_domain_info *info;
 > -
->         if (fail_stats < 100)
-> -               delay =3D 10;
-> +               return msecs_to_jiffies(10);
->         else if (fail_stats < 105)
-> -               delay =3D 1000;
-> -       else
-> -               delay =3D 10000;
+> -	spin_lock_irqsave(&device_domain_lock, flags);
+> -	list_for_each_entry(info, &device_domain_list, global) {
+> -		ret = fn(info, data);
+> -		if (ret) {
+> -			spin_unlock_irqrestore(&device_domain_lock, flags);
+> -			return ret;
+> -		}
+> -	}
+> -	spin_unlock_irqrestore(&device_domain_lock, flags);
 > -
-> -       return delay;
-> +               return msecs_to_jiffies(1000);
-> +       return msecs_to_jiffies(10000);
->  }
->
->  static int ath9k_rng_read(struct hwrng *rng, void *buf, size_t max, bool=
- wait)
-> @@ -83,7 +79,10 @@ static int ath9k_rng_read(struct hwrng *rng, void *buf=
-, size_t max, bool wait)
->                 if (!wait || !max || likely(bytes_read) || fail_stats > 1=
-10)
->                         break;
->
-> -               msleep_interruptible(ath9k_rng_delay_get(++fail_stats));
-> +               if (wait_for_completion_interruptible_timeout(
-> +                           &sc->rng_shutdown,
-> +                           ath9k_rng_delay_get(++fail_stats)))
-> +                       break;
->         }
->
->         if (wait && !bytes_read && max)
-> @@ -91,6 +90,11 @@ static int ath9k_rng_read(struct hwrng *rng, void *buf=
-, size_t max, bool wait)
->         return bytes_read;
->  }
->
-> +static void ath9k_rng_cleanup(struct hwrng *rng)
-> +{
-> +       complete(&container_of(rng, struct ath_softc, rng_ops)->rng_shutd=
-own);
-> +}
-> +
->  void ath9k_rng_start(struct ath_softc *sc)
->  {
->         static atomic_t serial =3D ATOMIC_INIT(0);
-> @@ -104,8 +108,10 @@ void ath9k_rng_start(struct ath_softc *sc)
->
->         snprintf(sc->rng_name, sizeof(sc->rng_name), "ath9k_%u",
->                  (atomic_inc_return(&serial) - 1) & U16_MAX);
-> +       init_completion(&sc->rng_shutdown);
->         sc->rng_ops.name =3D sc->rng_name;
->         sc->rng_ops.read =3D ath9k_rng_read;
-> +       sc->rng_ops.cleanup =3D ath9k_rng_cleanup;
->         sc->rng_ops.quality =3D 320;
->
->         if (devm_hwrng_register(sc->dev, &sc->rng_ops))
-> --
-> 2.35.1
->
+> -	return 0;
+> -}
+> -
+>   const struct iommu_ops intel_iommu_ops;
+>   
+>   static bool translation_pre_enabled(struct intel_iommu *iommu)
+> diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
+> index cb4c1d0cf25c..17cad7c1f62d 100644
+> --- a/drivers/iommu/intel/pasid.c
+> +++ b/drivers/iommu/intel/pasid.c
+> @@ -86,54 +86,6 @@ void vcmd_free_pasid(struct intel_iommu *iommu, u32 pasid)
+>   /*
+>    * Per device pasid table management:
+>    */
+> -static inline void
+> -device_attach_pasid_table(struct device_domain_info *info,
+> -			  struct pasid_table *pasid_table)
+> -{
+> -	info->pasid_table = pasid_table;
+> -	list_add(&info->table, &pasid_table->dev);
+> -}
+> -
+> -static inline void
+> -device_detach_pasid_table(struct device_domain_info *info,
+> -			  struct pasid_table *pasid_table)
+> -{
+> -	info->pasid_table = NULL;
+> -	list_del(&info->table);
+> -}
+> -
+> -struct pasid_table_opaque {
+> -	struct pasid_table	**pasid_table;
+> -	int			segment;
+> -	int			bus;
+> -	int			devfn;
+> -};
+> -
+> -static int search_pasid_table(struct device_domain_info *info, void *opaque)
+> -{
+> -	struct pasid_table_opaque *data = opaque;
+> -
+> -	if (info->iommu->segment == data->segment &&
+> -	    info->bus == data->bus &&
+> -	    info->devfn == data->devfn &&
+> -	    info->pasid_table) {
+> -		*data->pasid_table = info->pasid_table;
+> -		return 1;
+> -	}
+> -
+> -	return 0;
+> -}
+> -
+> -static int get_alias_pasid_table(struct pci_dev *pdev, u16 alias, void *opaque)
+> -{
+> -	struct pasid_table_opaque *data = opaque;
+> -
+> -	data->segment = pci_domain_nr(pdev->bus);
+> -	data->bus = PCI_BUS_NUM(alias);
+> -	data->devfn = alias & 0xff;
+> -
+> -	return for_each_device_domain(&search_pasid_table, data);
+> -}
+>   
+>   /*
+>    * Allocate a pasid table for @dev. It should be called in a
+> @@ -143,28 +95,18 @@ int intel_pasid_alloc_table(struct device *dev)
+>   {
+>   	struct device_domain_info *info;
+>   	struct pasid_table *pasid_table;
+> -	struct pasid_table_opaque data;
+>   	struct page *pages;
+>   	u32 max_pasid = 0;
+> -	int ret, order;
+> -	int size;
+> +	int order, size;
+>   
+>   	might_sleep();
+>   	info = dev_iommu_priv_get(dev);
+>   	if (WARN_ON(!info || !dev_is_pci(dev) || info->pasid_table))
+>   		return -EINVAL;
+>   
+> -	/* DMA alias device already has a pasid table, use it: */
+> -	data.pasid_table = &pasid_table;
+> -	ret = pci_for_each_dma_alias(to_pci_dev(dev),
+> -				     &get_alias_pasid_table, &data);
+> -	if (ret)
+> -		goto attach_out;
+> -
+>   	pasid_table = kzalloc(sizeof(*pasid_table), GFP_KERNEL);
+>   	if (!pasid_table)
+>   		return -ENOMEM;
+> -	INIT_LIST_HEAD(&pasid_table->dev);
+>   
+>   	if (info->pasid_supported)
+>   		max_pasid = min_t(u32, pci_max_pasids(to_pci_dev(dev)),
+> @@ -182,9 +124,7 @@ int intel_pasid_alloc_table(struct device *dev)
+>   	pasid_table->table = page_address(pages);
+>   	pasid_table->order = order;
+>   	pasid_table->max_pasid = 1 << (order + PAGE_SHIFT + 3);
+> -
+> -attach_out:
+> -	device_attach_pasid_table(info, pasid_table);
+> +	info->pasid_table = pasid_table;
+>   
+>   	return 0;
+>   }
+> @@ -202,10 +142,7 @@ void intel_pasid_free_table(struct device *dev)
+>   		return;
+>   
+>   	pasid_table = info->pasid_table;
+> -	device_detach_pasid_table(info, pasid_table);
+> -
+> -	if (!list_empty(&pasid_table->dev))
+> -		return;
+> +	info->pasid_table = NULL;
+>   
+>   	/* Free scalable mode PASID directory tables: */
+>   	dir = pasid_table->table;
+
+-- 
+"firm, enduring, strong, and long-lived"
+
