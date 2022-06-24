@@ -2,90 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9966C55943D
-	for <lists+stable@lfdr.de>; Fri, 24 Jun 2022 09:32:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4FD55946F
+	for <lists+stable@lfdr.de>; Fri, 24 Jun 2022 09:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229545AbiFXHaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jun 2022 03:30:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56430 "EHLO
+        id S229737AbiFXH4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jun 2022 03:56:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229522AbiFXHaI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jun 2022 03:30:08 -0400
-Received: from gproxy2-pub.mail.unifiedlayer.com (gproxy2-pub.mail.unifiedlayer.com [69.89.18.3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D149235DD7
-        for <stable@vger.kernel.org>; Fri, 24 Jun 2022 00:30:07 -0700 (PDT)
-Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
-        by progateway4.mail.pro1.eigbox.com (Postfix) with ESMTP id 5D10710047FA2
-        for <stable@vger.kernel.org>; Fri, 24 Jun 2022 07:30:07 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id 4dlWoMn3MxkuL4dlXo2Ypq; Fri, 24 Jun 2022 07:30:07 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=euAacqlX c=1 sm=1 tr=0 ts=62b567ff
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=JPEYwPQDsx4A:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=BDCG8O_D2SPVAq3EX74A:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=1pbidx4Zj62Ae0b8zWpxSsqtoFCZZsq8doWM/bDLAEQ=; b=X6OfZQCsp/pYDd7hzMH1y4G6g8
-        BLLjZNpG1hFMr59+3tu1EgkGzHoijj39HGTXqQACFzey3s2+NkLlrc0G5UwyrVcvb6mapQTVBmNo6
-        BQG5i6OY1A7Fd8NMBVJ17TJY9DkrCr4N1pk3g01cqTPlOK2ElIGmtlx7BiFvzAo6jUwJwq8kicG8/
-        PHLtiGhNNe7NJla3hQ+5l7H6p1/KLJUbAh4W6ChzwFyyc2u/rcdwFbz61jNzLamIFo4WxZE3vvhLH
-        ZcacDIMN+Ezj3MdkWJ1d9YKR/TX2GPa+F2iSxiZbLi0qG2NGOCSLfcZUF7a78MpIZo/FUkKmDPUwv
-        MKpDp0Vg==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:45490 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1o4dlV-003560-TM;
-        Fri, 24 Jun 2022 01:30:05 -0600
-Subject: Re: [PATCH 5.18 00/11] 5.18.7-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220623164322.315085512@linuxfoundation.org>
-In-Reply-To: <20220623164322.315085512@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <6434df07-bb16-759b-edaf-d1d0e18dc4dd@w6rz.net>
-Date:   Fri, 24 Jun 2022 00:30:03 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S230111AbiFXH4h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jun 2022 03:56:37 -0400
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84FBB6B8D0;
+        Fri, 24 Jun 2022 00:56:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656057386; x=1687593386;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=vztMzndG2ocVKYEbsSlsSSVXFya6CxLdUL/XzbaI5lY=;
+  b=gCq+bAqgiE+nSGrsVidULHa8XJygywCwJHiIDB/1nM0/TeE2KElUmzmN
+   XMF5drGZejiuYgsM1FXMm0wpxwznYppB7zGuT5W31JhYWVsJuJ7f2J5CW
+   UJ+L6CGmYTug6f0q889U2fxAWK/fGpWMWapzVHwtqIJ/jlOG4WAv4e/JI
+   407lOMkPJfTyiijibrt9wrt5J6R55j0PuQLMp/p/JK80DQZdQnNwk5Cpg
+   J4NSc/HkbSf8hHhMf1dwFxe2GnvRBoee/4aDyiOlcU0G8T4Dk/GVXBYii
+   EMk/1TdwPqpkbA+XgyL5xhLC2XzS7UEtESJkL0MTmjQ6e00Sie+fIldSK
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10387"; a="282031651"
+X-IronPort-AV: E=Sophos;i="5.92,218,1650956400"; 
+   d="scan'208";a="282031651"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jun 2022 00:56:25 -0700
+X-IronPort-AV: E=Sophos;i="5.92,218,1650956400"; 
+   d="scan'208";a="593114566"
+Received: from zhaohaif-mobl1.ccr.corp.intel.com (HELO [10.254.209.161]) ([10.254.209.161])
+  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jun 2022 00:56:22 -0700
+Message-ID: <6ef6c341-924c-57a6-154e-b804d8b0f2c7@linux.intel.com>
+Date:   Fri, 24 Jun 2022 15:56:20 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1o4dlV-003560-TM
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:45490
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-0.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_BL_SPAMCOP_NET,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v3 1/1] iommu/vt-d: Fix RID2PASID setup/teardown failure
+To:     Baolu Lu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>
+Cc:     Chenyi Qiang <chenyi.qiang@intel.com>,
+        Liu Yi L <yi.l.liu@intel.com>,
+        Jacob jun Pan <jacob.jun.pan@intel.com>,
+        iommu@lists.linux-foundation.org, iommu@lists.linux.dev,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20220623065720.727849-1-baolu.lu@linux.intel.com>
+ <eb2257b1-1213-1001-74bd-085af5d50dad@linux.intel.com>
+ <b8a7ab77-935d-459c-7f65-628fcf828fad@linux.intel.com>
+From:   Ethan Zhao <haifeng.zhao@linux.intel.com>
+In-Reply-To: <b8a7ab77-935d-459c-7f65-628fcf828fad@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -93,26 +68,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/23/22 9:45 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.18.7 release.
-> There are 11 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 25 Jun 2022 16:43:11 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.7-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+在 2022/6/24 14:54, Baolu Lu 写道:
+> On 2022/6/24 14:02, Ethan Zhao wrote:
+>> 在 2022/6/23 14:57, Lu Baolu 写道:
+>>> The IOMMU driver shares the pasid table for PCI alias devices. When the
+>>> RID2PASID entry of the shared pasid table has been filled by the first
+>>> device, the subsequent device will encounter the "DMAR: Setup RID2PASID
+>>> failed" failure as the pasid entry has already been marked as present.
+>>> As the result, the IOMMU probing process will be aborted.
+>>>
+>>> On the contrary, when any alias device is hot-removed from the system,
+>>> for example, by writing to /sys/bus/pci/devices/.../remove, the shared
+>>> RID2PASID will be cleared without any notifications to other devices.
+>>> As the result, any DMAs from those rest devices are blocked.
+>>>
+>>> Sharing pasid table among PCI alias devices could save two memory pages
+>>> for devices underneath the PCIe-to-PCI bridges. Anyway, considering 
+>>> that
+>>> those devices are rare on modern platforms that support VT-d in 
+>>> scalable
+>>> mode and the saved memory is negligible, it's reasonable to remove this
+>>> part of immature code to make the driver feasible and stable.
+>> In my understanding, thus cleanning will make the pasid table become
+>> per-dev datastructure whatever the dev is pci-alias or not, and the
+>> pasid_pte_is_present(pte)will only check against every pci-alias' own
+>> private pasid table,the setup stagewouldn't break, so does the
+>> detach/release path, and little value to code otherreference counter
+>> like complex implenmataion, looks good to me !
+>
+> Thanks! Can I add a Reviewd-by from you?
+Sure !
+>
+> Best regards,
+> baolu
 
-Tested-by: Ron Economos <re@w6rz.net>
+-- 
+"firm, enduring, strong, and long-lived"
 
