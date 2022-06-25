@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85DCC55AB12
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:47:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25A6655AB14
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232641AbiFYOqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 10:46:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58668 "EHLO
+        id S233019AbiFYOqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 10:46:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233019AbiFYOqZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:46:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AB7212773
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:46:24 -0700 (PDT)
+        with ESMTP id S233020AbiFYOqf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:46:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB7512773
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:46:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8DF461477
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:46:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B930AC3411C;
-        Sat, 25 Jun 2022 14:46:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 19A7DCE0958
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:46:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00440C3411C;
+        Sat, 25 Jun 2022 14:46:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656168383;
-        bh=rTCrhhpx1EeB8lVtUCHM0ub6fKHfrVpN8shdSi5f1Fo=;
+        s=korg; t=1656168391;
+        bh=NYVQs9GGXOGze7rpL+eqi2o6zwAj+Z+HmQix9o38e84=;
         h=Subject:To:Cc:From:Date:From;
-        b=J/SCoFlFJkFW4dsJOOlQvCI5WWeNYw8wVC38gbAAf8PHs578kamQfVJ1tfFIDIg5R
-         XRcHYRTdnzG23a0PiR1WjBDqpJw378B0hLZE23BhEe1QPaxH8lopnWWzuMsWMEt8nx
-         j8Cs8LBU0UwYSvjUc8ijNqxeWbhqlEDBKJYJ7zrA=
-Subject: FAILED: patch "[PATCH] amd/display/dc: Fix COLOR_ENCODING and COLOR_RANGE doing" failed to apply to 5.15-stable tree
+        b=NdB5XyGdsYvXCVURBQPCsv0rbMnhVAOuHIQmV+f4E6NdU4V49M6dj+C8ldVQM0dzz
+         PRqth8Y4HMF3ssW/ZnAxqzugT6ZVJPy4d0DGQihwpBkeB3b5M6EgNI3NKtrrfO3+7g
+         RBTwmwHfKdFVvxs6LuE8wFRXkk7F22XfnVvnZFjQ=
+Subject: FAILED: patch "[PATCH] amd/display/dc: Fix COLOR_ENCODING and COLOR_RANGE doing" failed to apply to 5.10-stable tree
 To:     joshua@froggi.es, alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 25 Jun 2022 16:46:20 +0200
-Message-ID: <1656168380246159@kroah.com>
+Message-ID: <1656168380246201@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
