@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 788C655AB05
+	by mail.lfdr.de (Postfix) with ESMTP id C078455AB06
 	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232821AbiFYObR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 10:31:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50244 "EHLO
+        id S232970AbiFYObV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 10:31:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232699AbiFYObQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:31:16 -0400
+        with ESMTP id S232699AbiFYObT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:31:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CA1517E05
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:31:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB7AB17AB8
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:31:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1242461454
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:31:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E89B8C341C6;
-        Sat, 25 Jun 2022 14:31:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B75C61460
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:31:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0641CC3411C;
+        Sat, 25 Jun 2022 14:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656167474;
-        bh=1YRBnJFUNw72e4/97efEWinllII/n2Ryv673KeB4g+U=;
+        s=korg; t=1656167477;
+        bh=hWGzdS0B/HpY6vnS9zpHkaLwdww0HLiO97wsV7ZcYLY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ihc8RDH/LhfNWDa+H28s/6u3gJ5aXB9dR4NRwyAMWkFtZDIdmQo2O6HqwLzQbWYR1
-         DNLI0oGOQRQiO/NuTBe6OCtZCJ/UGmjUOFm7gHuc5lSkb+zNJR3NwYQ1F3rgBDhZtN
-         s5ZNi/+qFfx8TZH/xsKQF255EystT7cFrlkDfH2A=
-Subject: FAILED: patch "[PATCH] xen/gntdev: Avoid blocking in unmap_grant_pages()" failed to apply to 5.10-stable tree
+        b=tyqepFZZ8oxjyh6uz6RXs1QkKFewKZ4pNJyhG6CpKMJvU7pDitVBqXpUo5ChOgEJr
+         hsX5KVG+wZYsil7ekygZWxs2iSL32Vam51Y9TNOsD+PBiiw0CybHH8D1jA1j5zCMqW
+         wVP0LDVE847XWroDIZlKxut3ir85IAQkks3+2jOU=
+Subject: FAILED: patch "[PATCH] xen/gntdev: Avoid blocking in unmap_grant_pages()" failed to apply to 5.4-stable tree
 To:     demi@invisiblethingslab.com, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 25 Jun 2022 16:30:59 +0200
-Message-ID: <1656167459159238@kroah.com>
+Message-ID: <1656167459159116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
