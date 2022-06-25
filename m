@@ -2,68 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B229B55AAF2
+	by mail.lfdr.de (Postfix) with ESMTP id 2167055AAF0
 	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:26:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232660AbiFYO0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 10:26:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47174 "EHLO
+        id S232920AbiFYO0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 10:26:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbiFYO0Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:26:16 -0400
+        with ESMTP id S232806AbiFYO0R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:26:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9606E0D3;
-        Sat, 25 Jun 2022 07:26:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 669FEE0E2
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:26:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71CFD6145A;
-        Sat, 25 Jun 2022 14:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8B65C385A2;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1F5960EC9
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:26:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B53CCC341CB;
         Sat, 25 Jun 2022 14:26:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656167174;
-        bh=tOpuGrEL1hEn3QTsGd80/es3Vo2EiMi7mR6TB/0qgFE=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Pp4LxEo1Anr1dofvmjGAlJpsl8EMc4GKoaBvBUsRZwjdIepQPUBGt9eDP3SG1cq2Z
-         AfsKDiRi5fQT7xCyv+JgrnWy0LuVcJ5hM74tE+JUSpq8zv4E6vIni2Q92S2aPYQiS7
-         UC1qL9zAfwqkt4Ug73Kr+dUEfI5ATV959WyZFXPpDSFcS+pj/T7eZq6tphpdYz6g4m
-         wLqI1l8uADNG21rjDEvn6xoX+SmkSH0OoYF+YjhPrIg8FxJHVE+nXMKz8g72qYs8n3
-         UvPeR/ljF7LNxulE8QfigzseQYxdKP4ngHObd9xjh2RNKnrabtsS5Yeh1uXTq2OYf8
-         TXsAjttAD41xg==
-Received: by mail-ua1-f50.google.com with SMTP id y15so1121406ual.0;
-        Sat, 25 Jun 2022 07:26:14 -0700 (PDT)
-X-Gm-Message-State: AJIora/ziTw5NQ0vtMJd0+N6mUjmd8y2osg1XmkwsTDFaPUs01zuZPYM
-        1XgQ44BY/0T3p0AHQocL4PSj6dPzCaT8RGe5nn8=
-X-Google-Smtp-Source: AGRyM1sM5HJccnef1kEqPUZDpSSimXYgArjtdp6JjQYXzpgOTvijkYFCjwbm3DZVNrxKEIvHvpt5Bl7yNn9kuTXHxz4=
-X-Received: by 2002:ab0:3407:0:b0:379:65f3:a39b with SMTP id
- z7-20020ab03407000000b0037965f3a39bmr1616783uap.63.1656167173675; Sat, 25 Jun
- 2022 07:26:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1656167175;
+        bh=HGOPCBxDHfGdRhhnPZJBOiH2wxr1oshOyu5FofxW44g=;
+        h=Subject:To:Cc:From:Date:From;
+        b=QGchERGYNh4Ngowa0aay5dBojy0Z15n810r94wbhkoydySTNmHQpoMuE/iB0RmqlE
+         w+nkNrw7hBnz1cS0GqcbvzH/cmOJ4lj/WtIK8W1onuZ4aLcCPujPHfcbJGQZD7x7Pq
+         R8YeU5KVnNGY0NjYW8SggFkxMJbMhM57Pr8NiZzw=
+Subject: FAILED: patch "[PATCH] net: dsa: qca8k: reset cpu port on MTU change" failed to apply to 5.18-stable tree
+To:     ansuelsmth@gmail.com, kuba@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 25 Jun 2022 16:26:12 +0200
+Message-ID: <16561671722334@kroah.com>
 MIME-Version: 1.0
-References: <20220625080423.2797-1-chenfeiyang@loongson.cn>
- <CAMZfGtWT7oPq6bD_fRn2gVNX8Lj3=ev21EAoaCCPeq-P_NYF0g@mail.gmail.com>
- <CAAhV-H5K9LG5P6WYJ+64-fi+s=TZbbJQG9E0vHJwOf9Pai5z4w@mail.gmail.com>
- <CAMZfGtVq0VwMETGdzAXLkjes8W0gVBw=r0Xk5rpPnhe7x6tRiw@mail.gmail.com>
- <CAAhV-H4T3ixOWB67XOij3P1xvM+_BUu+THLGtx-VvrCYUgjZyw@mail.gmail.com>
- <YrcWosmEcADSWax+@kroah.com> <CAAhV-H44Cs0jf=RUboGSLvmWtCwjBQa-QLy7tPq7XoOZ9jomUA@mail.gmail.com>
- <YrcagBzn4agIFwHO@kroah.com>
-In-Reply-To: <YrcagBzn4agIFwHO@kroah.com>
-From:   Huacai Chen <chenhuacai@kernel.org>
-Date:   Sat, 25 Jun 2022 22:26:01 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H6-GjvxTDNx+TwHEKhprnDHNsHktvOnxfndfCwc77feQw@mail.gmail.com>
-Message-ID: <CAAhV-H6-GjvxTDNx+TwHEKhprnDHNsHktvOnxfndfCwc77feQw@mail.gmail.com>
-Subject: Re: [External] Re: [PATCH] page-flags.h: Fix a missing header include
- of static_keys.h
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Muchun Song <songmuchun@bytedance.com>,
-        Feiyang Chen <chris.chenfeiyang@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Feiyang Chen <chenfeiyang@loongson.cn>,
-        loongarch@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -74,74 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ok, thanks.
 
-On Sat, Jun 25, 2022 at 10:24 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Sat, Jun 25, 2022 at 10:17:36PM +0800, Huacai Chen wrote:
-> > Hi, Greg,
-> >
-> > On Sat, Jun 25, 2022 at 10:07 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Sat, Jun 25, 2022 at 10:00:43PM +0800, Huacai Chen wrote:
-> > > > Hi, Muchun,
-> > > >
-> > > > On Sat, Jun 25, 2022 at 7:17 PM Muchun Song <songmuchun@bytedance.com> wrote:
-> > > > >
-> > > > > On Sat, Jun 25, 2022 at 5:04 PM Huacai Chen <chenhuacai@kernel.org> wrote:
-> > > > > >
-> > > > > > Hi, Muchun,
-> > > > > >
-> > > > > > On Sat, Jun 25, 2022 at 4:50 PM Muchun Song <songmuchun@bytedance.com> wrote:
-> > > > > > >
-> > > > > > > On Sat, Jun 25, 2022 at 4:04 PM Feiyang Chen
-> > > > > > > <chris.chenfeiyang@gmail.com> wrote:
-> > > > > > > >
-> > > > > > > > The page-flags.h header relies on static keys since commit
-> > > > > > > > a6b40850c442bf ("mm: hugetlb: replace hugetlb_free_vmemmap_enabled
-> > > > > > > > with a static_key"), so make sure to include the header to avoid
-> > > > > > > > compilation errors.
-> > > > > > > >
-> > > > > > > > Fixes: a6b40850c442bf ("mm: hugetlb: replace hugetlb_free_vmemmap_enabled with a static_key")
-> > > > > > > > Cc: stable@vger.kernel.org
-> > > > > > > > Signed-off-by: Feiyang Chen <chenfeiyang@loongson.cn>
-> > > > > > > > ---
-> > > > > > > >  include/linux/page-flags.h | 1 +
-> > > > > > > >  1 file changed, 1 insertion(+)
-> > > > > > > >
-> > > > > > > > diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-> > > > > > > > index e66f7aa3191d..147b336c7a35 100644
-> > > > > > > > --- a/include/linux/page-flags.h
-> > > > > > > > +++ b/include/linux/page-flags.h
-> > > > > > > > @@ -11,6 +11,7 @@
-> > > > > > > >  #include <linux/mmdebug.h>
-> > > > > > > >  #ifndef __GENERATING_BOUNDS_H
-> > > > > > > >  #include <linux/mm_types.h>
-> > > > > > > > +#include <linux/static_key.h>
-> > > > > > >
-> > > > > > > I did not include this. The change makes sense to me. But I am
-> > > > > > > curious what configs cause the compiling error. Would you mind
-> > > > > > > sharing the config with us?
-> > > > > > We found this problem when we add
-> > > > > > ARCH_WANT_HUGETLB_PAGE_OPTIMIZE_VMEMMAP to LoongArch. Since this isn't
-> > > > >
-> > > > > Good news to me. I would love to hear more archs support for HVO (HugeTLB
-> > > > > Vmemmap Optimization).
-> > > > >
-> > > > > > upstream yet, we cannot give such a config now (the default config of
-> > > > > > X86 and ARM64 is just OK).
-> > > > >
-> > > > > All right. In this case, the "Cc: stable@vger.kernel.org" is unnecessary.
-> > > > Maybe make randconfig will have problems on X86/ARM64, so backporting
-> > > > to 5.18 seems reasonable.
-> > >
-> > > Unless it is proven to be needed, there is no need to backport it.
-> > OK, we will try "make randconfig". And if it isn't needed, should we
-> > send V2 to remove Cc stable?
->
-> If it isn't needed now, no need to send it at all.  Only submit it when
-> there is a patch that requires it.
->
-> thanks,
->
-> greg k-h
+The patch below does not apply to the 5.18-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 386228c694bf1e7a7688e44412cb33500b0ac585 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Tue, 21 Jun 2022 17:11:22 +0200
+Subject: [PATCH] net: dsa: qca8k: reset cpu port on MTU change
+
+It was discovered that the Documentation lacks of a fundamental detail
+on how to correctly change the MAX_FRAME_SIZE of the switch.
+
+In fact if the MAX_FRAME_SIZE is changed while the cpu port is on, the
+switch panics and cease to send any packet. This cause the mgmt ethernet
+system to not receive any packet (the slow fallback still works) and
+makes the device not reachable. To recover from this a switch reset is
+required.
+
+To correctly handle this, turn off the cpu ports before changing the
+MAX_FRAME_SIZE and turn on again after the value is applied.
+
+Fixes: f58d2598cf70 ("net: dsa: qca8k: implement the port MTU callbacks")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Link: https://lore.kernel.org/r/20220621151122.10220-1-ansuelsmth@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/drivers/net/dsa/qca8k.c b/drivers/net/dsa/qca8k.c
+index 2727d3169c25..1cbb05b0323f 100644
+--- a/drivers/net/dsa/qca8k.c
++++ b/drivers/net/dsa/qca8k.c
+@@ -2334,6 +2334,7 @@ static int
+ qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+ {
+ 	struct qca8k_priv *priv = ds->priv;
++	int ret;
+ 
+ 	/* We have only have a general MTU setting.
+ 	 * DSA always set the CPU port's MTU to the largest MTU of the slave
+@@ -2344,8 +2345,27 @@ qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+ 	if (!dsa_is_cpu_port(ds, port))
+ 		return 0;
+ 
++	/* To change the MAX_FRAME_SIZE the cpu ports must be off or
++	 * the switch panics.
++	 * Turn off both cpu ports before applying the new value to prevent
++	 * this.
++	 */
++	if (priv->port_enabled_map & BIT(0))
++		qca8k_port_set_status(priv, 0, 0);
++
++	if (priv->port_enabled_map & BIT(6))
++		qca8k_port_set_status(priv, 6, 0);
++
+ 	/* Include L2 header / FCS length */
+-	return qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, new_mtu + ETH_HLEN + ETH_FCS_LEN);
++	ret = qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, new_mtu + ETH_HLEN + ETH_FCS_LEN);
++
++	if (priv->port_enabled_map & BIT(0))
++		qca8k_port_set_status(priv, 0, 1);
++
++	if (priv->port_enabled_map & BIT(6))
++		qca8k_port_set_status(priv, 6, 1);
++
++	return ret;
+ }
+ 
+ static int
+
