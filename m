@@ -2,82 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5DA155A7BF
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 09:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E17855A7F6
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 10:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229931AbiFYHdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 03:33:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48256 "EHLO
+        id S229787AbiFYIEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 04:04:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232125AbiFYHdN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 03:33:13 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F295D2BB36
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 00:33:12 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id x1-20020a17090abc8100b001ec7f8a51f5so7731056pjr.0
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 00:33:12 -0700 (PDT)
+        with ESMTP id S229630AbiFYIEi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 04:04:38 -0400
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A41F3FD12;
+        Sat, 25 Jun 2022 01:04:36 -0700 (PDT)
+Received: by mail-pg1-x52e.google.com with SMTP id r66so4453824pgr.2;
+        Sat, 25 Jun 2022 01:04:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=jE0JLsfEdPpE7rbsOBNLVDtif/ZpFdFdV55NgbKwOcE=;
-        b=E9WdAEB1qcgN3JiCKBRd3anbFcpA80y2P2RFw0bTE8HFv/KrOz8PHAZwAygZqkTS3P
-         WjGKLF3m5bDKK/N1oocZVlDTIu8UTIFBya5ifEqAS2CsqL5iusRSIed6SyEDw70YW2A+
-         fssiW/1SEko2lOFXvOdukr9pWZFV8wSLBrjr9/ggqUTiy6p4CjMbkYJeOW6D2cch59EI
-         hb6RhABYk7QydLOIhCZruc+rxpg0jAJvy7UiXeMpMyP8QTHT4f88ylW+6ntI7kuUKXA8
-         auI0LioKuw6aFVfExdurxzrOx8AdKhyasOkqe0cBngkgEV4h04uzeBJLs/Np+zPhsvYf
-         X6bA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=BfzrLrWFlU3AsBKqqcHgoNoL2/cAeQlLWsne6vZJpyA=;
+        b=gSnHhutlBGP0Zc+ke5/gSYv2nW8AY/IpA/SwV+4+7wiGESDHAf8BgjxZZ3EFN+DdEH
+         f+/9k4M2yvJV9hw9JWBknq1f3ZsTTg/f4CDLrJ2r2vGBjh/ZFtxYSXEG6C475B5rWxN1
+         5gbKYQovNRteKDG0Ga5xz93ysmM+5W5c26mza0Fa0afXMoKGjCa1NwE98/77WJ6QVqUG
+         4pY0+HiRTkRUuZaA38bFeOr4AyrAB40vHsat5xjbHADCw7QBVYi2Ci/eQpcuFMLTzzMg
+         nn/fa+LiUBnTFAV0Ptcnx6VrYISzLutBG98U6zRPzeUasA1ULuM7/O6vbVf1OX4eBL7m
+         en4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=jE0JLsfEdPpE7rbsOBNLVDtif/ZpFdFdV55NgbKwOcE=;
-        b=3APS5jxeX50X9vEVJRHt/lm+vcf2BfDALQ/XNtFO9V0+1HNWMcZkfGRKZ9vl1Y+pzW
-         K33DmCobowlbBWv6OGbTN/EEuGyzhs264XlyORF4fhhGXh9qJbBsPX4vm/UVLl2Roxr2
-         pX3PDWb2ygGnjRmeCjL5ELjYijJ8X1aeoAQCzdHPNhkvv3Qrwi2IPKHyvIVRQs8NLyen
-         rRXaOZtjxO0pKhPfWKCcxVGShHutS9FuI0ZHpcxYiQmzgugSYivQlQEOgHGbDBZdpZHs
-         wP1rhdc/jFm3li5nFXUJ5ALEitiYkow4KPqSBm0KkVUl42n/kek+qf6kRWg3nd6UG8N3
-         kELA==
-X-Gm-Message-State: AJIora+851WiSlRkXOrU1eaeToiObKGmWXkzXiooRf+nFIajEc1DopqI
-        RWOzAZmdAm90Gu+QiAU9cZuWSkR7uHwJ54CEKvQ=
-X-Google-Smtp-Source: AGRyM1sxvDCjhuXaQczaBbtMy8koGn9fXKEYfCBbqgEHhz8OXnvVz6rfPaIUetGHYWKifEXFR/rMt0TPE0orRF7VVvQ=
-X-Received: by 2002:a17:902:cf0c:b0:15b:63a4:9f47 with SMTP id
- i12-20020a170902cf0c00b0015b63a49f47mr3167029plg.1.1656142392306; Sat, 25 Jun
- 2022 00:33:12 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=BfzrLrWFlU3AsBKqqcHgoNoL2/cAeQlLWsne6vZJpyA=;
+        b=IDtuabp/uKgHteJoB3XcFvSnrQJoY8bHVVVX4R57rQS/rpC55998M0BqCWTYHklKgv
+         PsB/nbbAFbVhGxbd9SuDZP/QQX7WIFZmznI4gp6hqRXfdQq3NsSo7oGmHr/TYN1IMGpl
+         Kj2KkOr1uKVCnvKsme56vxYpcmemONcXaGx5xWTihiC7l32Iny7XSIFob+oxkvrIB9vV
+         +uXpOprOMEkAeKNGfZTneovOQDtGam5ISgzOiT1R2/xi2iE/JJO5Ijr6+hdK7YZufkIK
+         Vhv5uVQ4RZGk9vKMmdutbkGJMi/P+0PRcssQDq9Qt8qINLEcHcfwxDChUQaeFsbvqTpL
+         Oijg==
+X-Gm-Message-State: AJIora/yldWtGRejfNObvFxR70Rbji+0y95LgFdQKf4OGFeNnGUsMfcj
+        OmA5lLm6R1zqF+XZAU8y12c=
+X-Google-Smtp-Source: AGRyM1sxtS9VevqvfBbYWfIogi3zIDyhDpdZQ4zG+5Ws8pWwVgzyfWnuLDMmesowsg6pj5ia02Qpuw==
+X-Received: by 2002:a05:6a00:2292:b0:525:6c57:8dd5 with SMTP id f18-20020a056a00229200b005256c578dd5mr3131042pfe.17.1656144276147;
+        Sat, 25 Jun 2022 01:04:36 -0700 (PDT)
+Received: from localhost.localdomain ([112.20.112.134])
+        by smtp.gmail.com with ESMTPSA id s9-20020a170902a50900b001690ca017fasm3056609plq.38.2022.06.25.01.04.31
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sat, 25 Jun 2022 01:04:35 -0700 (PDT)
+From:   Feiyang Chen <chris.chenfeiyang@gmail.com>
+X-Google-Original-From: Feiyang Chen <chenfeiyang@loongson.cn>
+To:     akpm@linux-foundation.org, willy@infradead.org, vbabka@suse.cz,
+        songmuchun@bytedance.com
+Cc:     Feiyang Chen <chenfeiyang@loongson.cn>, chenhuacai@kernel.org,
+        chris.chenfeiyang@gmail.com, loongarch@lists.linux.dev,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] page-flags.h: Fix a missing header include of static_keys.h
+Date:   Sat, 25 Jun 2022 16:04:23 +0800
+Message-Id: <20220625080423.2797-1-chenfeiyang@loongson.cn>
+X-Mailer: git-send-email 2.36.0
 MIME-Version: 1.0
-Sender: goodmircle30@gmail.com
-Received: by 2002:a05:7300:6ca6:b0:69:587e:30fd with HTTP; Sat, 25 Jun 2022
- 00:33:11 -0700 (PDT)
-From:   "Mrs Yu. Ging Yunnan" <yunnanmrsyuging@gmail.com>
-Date:   Sat, 25 Jun 2022 07:33:11 +0000
-X-Google-Sender-Auth: AzMtHxTTs7f2c3uLYcutvB4gRuQ
-Message-ID: <CAPsWReTQAF-YVd5i9Ty4Dov6ZEfUDshVNjdNWiHa4Fnqp8esNw@mail.gmail.com>
-Subject: hello dear
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=3.1 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,HK_SCAM,LOTS_OF_MONEY,MILLION_USD,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_MONEY autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ***
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hello dear
-I am Mrs Yu. Ging Yunnan, and i have Covid-19 and the doctor said I
-will not survive it because all vaccines has been given to me but to
-no avian, am a China woman but I base here in France because am
-married here and I have no child for my late husband and now am a
-widow. My reason of communicating you is that i have $9.2million USD
-which was deposited in BNP Paribas Bank here in France by my late
-husband which  am the next of  kin to and I want you to stand as the
-beneficiary for the claim now that am about to end my race according
-to my doctor.I will want you to use the fund to build an orphanage
-home in my name there in   country, please kindly reply to this
-message urgently if willing to handle this project. God bless you and
-i wait your swift response asap.
-Yours fairly friend,
-Mrs Yu. Ging Yunnan.
+The page-flags.h header relies on static keys since commit
+a6b40850c442bf ("mm: hugetlb: replace hugetlb_free_vmemmap_enabled
+with a static_key"), so make sure to include the header to avoid
+compilation errors.
+
+Fixes: a6b40850c442bf ("mm: hugetlb: replace hugetlb_free_vmemmap_enabled with a static_key")
+Cc: stable@vger.kernel.org
+Signed-off-by: Feiyang Chen <chenfeiyang@loongson.cn>
+---
+ include/linux/page-flags.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+index e66f7aa3191d..147b336c7a35 100644
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -11,6 +11,7 @@
+ #include <linux/mmdebug.h>
+ #ifndef __GENERATING_BOUNDS_H
+ #include <linux/mm_types.h>
++#include <linux/static_key.h>
+ #include <generated/bounds.h>
+ #endif /* !__GENERATING_BOUNDS_H */
+ 
+-- 
+2.27.0
+
