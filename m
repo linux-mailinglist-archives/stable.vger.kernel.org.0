@@ -2,41 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69B1555AAF1
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:26:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09CA55AB02
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:30:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232927AbiFYO0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 10:26:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47286 "EHLO
+        id S232931AbiFYO06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 10:26:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbiFYO03 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:26:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6BD2E0D3
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:26:28 -0700 (PDT)
+        with ESMTP id S229524AbiFYO05 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:26:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6F0DE0E2;
+        Sat, 25 Jun 2022 07:26:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D62060EC9
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:26:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38693C3411C;
-        Sat, 25 Jun 2022 14:26:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97D1DB80B6F;
+        Sat, 25 Jun 2022 14:26:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94445C3411C;
+        Sat, 25 Jun 2022 14:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656167187;
-        bh=pzLCJfUFnIeDUvvrE6VwwNFDhmB+mW/bmY++nz93K/k=;
-        h=Subject:To:Cc:From:Date:From;
-        b=Z0OTYD+6zEc10gdl4T6SOZnbEoCabB1EmvMDO9D3Li1DjVxIgejDl1t8jsr7xuKWo
-         m8xIVncp+qlIcMHtLe/iQP3pvmvkThhQKKW+wPtxOY4gemD3NGwm6Gpi2Xo99P8rAs
-         sn5iFYkKHLF+fAdbbBsMlPYvr1lsuSRFnwMjlQaY=
-Subject: FAILED: patch "[PATCH] net: dsa: qca8k: reset cpu port on MTU change" failed to apply to 5.10-stable tree
-To:     ansuelsmth@gmail.com, kuba@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 25 Jun 2022 16:26:13 +0200
-Message-ID: <1656167173177106@kroah.com>
+        s=korg; t=1656167214;
+        bh=56xO8nsdt8HDZ8eKJcZsZturnOZobYXhKpYstAWes3s=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=pG8GyiDGNAmyfE5bJp19nE/3gAbZiimS5JkXS4qiRMz6YA2p5dHVU1ea3dRfq5T3N
+         9hI3kysESnWOCH0VvOMouKG6J1L2azUZVnNXxwE5cdoehY8QvQQp3WbhvKA1kQW4Mi
+         Ek9zPtDEIRRdWk5l/j/L2hIPvxgnSwkmD89osI5U=
+Date:   Sat, 25 Jun 2022 16:26:51 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Maciej =?utf-8?Q?=C5=BBenczykowski?= <maze@google.com>
+Cc:     patchwork-bot+netdevbpf@kernel.org, stable@vger.kernel.org,
+        Riccardo Paolo Bestetti <pbl@bestov.io>,
+        Carlos Llamas <cmllamas@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        David Ahern <dsahern@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, kernel-team@android.com,
+        Kernel hackers <linux-kernel@vger.kernel.org>,
+        Linux NetDev <netdev@vger.kernel.org>,
+        Miaohe Lin <linmiaohe@huawei.com>
+Subject: Re: [PATCH v2] ipv4: ping: fix bind address validity check
+Message-ID: <YrcbKzTuUssl+x0G@kroah.com>
+References: <20220617085435.193319-1-pbl@bestov.io>
+ <165546541315.12170.9716012665055247467.git-patchwork-notify@kernel.org>
+ <CANP3RGcMqXH2+g1=40zwpzbpDORjDpyo4cVYZWS_tfVR8A_6CQ@mail.gmail.com>
+ <YrBH1MXZq2/3Z94T@kroah.com>
+ <CANP3RGc8tjqk+c=+rAHNON8u=21Uu+kWveuMWZxGCNMjvqRHYg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CANP3RGc8tjqk+c=+rAHNON8u=21Uu+kWveuMWZxGCNMjvqRHYg@mail.gmail.com>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -47,80 +65,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Jun 23, 2022 at 11:18:21AM -0700, Maciej Żenczykowski wrote:
+> On Mon, Jun 20, 2022 at 3:11 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> > On Fri, Jun 17, 2022 at 04:45:52PM -0700, Maciej Żenczykowski wrote:
+> > > On Fri, Jun 17, 2022 at 4:30 AM <patchwork-bot+netdevbpf@kernel.org> wrote:
+> > > >
+> > > > Hello:
+> > > >
+> > > > This patch was applied to netdev/net.git (master)
+> > > > by David S. Miller <davem@davemloft.net>:
+> > > >
+> > > > On Fri, 17 Jun 2022 10:54:35 +0200 you wrote:
+> > > > > Commit 8ff978b8b222 ("ipv4/raw: support binding to nonlocal addresses")
+> > > > > introduced a helper function to fold duplicated validity checks of bind
+> > > > > addresses into inet_addr_valid_or_nonlocal(). However, this caused an
+> > > > > unintended regression in ping_check_bind_addr(), which previously would
+> > > > > reject binding to multicast and broadcast addresses, but now these are
+> > > > > both incorrectly allowed as reported in [1].
+> > > > >
+> > > > > [...]
+> > > >
+> > > > Here is the summary with links:
+> > > >   - [v2] ipv4: ping: fix bind address validity check
+> > > >     https://git.kernel.org/netdev/net/c/b4a028c4d031
+> > > >
+> > > > You are awesome, thank you!
+> > > > --
+> > > > Deet-doot-dot, I am a bot.
+> > > > https://korg.docs.kernel.org/patchwork/pwbot.html
+> > >
+> > > I believe this [
+> > > https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=b4a028c4d031
+> > > ] needs to end up in 5.17+ LTS (though I guess 5.17 is eol, so
+> > > probably just 5.18)
+> >
+> > 5.17 is end-of-life, sorry.
+> >
+> > And this needs to hit Linus's tree first.
+> 
+> It now has:
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/log/net/ipv4/ping.c
+> 
+> ipv4: ping: fix bind address validity check
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/net/ipv4/ping.c?id=b4a028c4d031c27704ad73b1195ca69a1206941e
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Great, now queued up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 386228c694bf1e7a7688e44412cb33500b0ac585 Mon Sep 17 00:00:00 2001
-From: Christian Marangi <ansuelsmth@gmail.com>
-Date: Tue, 21 Jun 2022 17:11:22 +0200
-Subject: [PATCH] net: dsa: qca8k: reset cpu port on MTU change
-
-It was discovered that the Documentation lacks of a fundamental detail
-on how to correctly change the MAX_FRAME_SIZE of the switch.
-
-In fact if the MAX_FRAME_SIZE is changed while the cpu port is on, the
-switch panics and cease to send any packet. This cause the mgmt ethernet
-system to not receive any packet (the slow fallback still works) and
-makes the device not reachable. To recover from this a switch reset is
-required.
-
-To correctly handle this, turn off the cpu ports before changing the
-MAX_FRAME_SIZE and turn on again after the value is applied.
-
-Fixes: f58d2598cf70 ("net: dsa: qca8k: implement the port MTU callbacks")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Link: https://lore.kernel.org/r/20220621151122.10220-1-ansuelsmth@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/drivers/net/dsa/qca8k.c b/drivers/net/dsa/qca8k.c
-index 2727d3169c25..1cbb05b0323f 100644
---- a/drivers/net/dsa/qca8k.c
-+++ b/drivers/net/dsa/qca8k.c
-@@ -2334,6 +2334,7 @@ static int
- qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
- {
- 	struct qca8k_priv *priv = ds->priv;
-+	int ret;
- 
- 	/* We have only have a general MTU setting.
- 	 * DSA always set the CPU port's MTU to the largest MTU of the slave
-@@ -2344,8 +2345,27 @@ qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
- 	if (!dsa_is_cpu_port(ds, port))
- 		return 0;
- 
-+	/* To change the MAX_FRAME_SIZE the cpu ports must be off or
-+	 * the switch panics.
-+	 * Turn off both cpu ports before applying the new value to prevent
-+	 * this.
-+	 */
-+	if (priv->port_enabled_map & BIT(0))
-+		qca8k_port_set_status(priv, 0, 0);
-+
-+	if (priv->port_enabled_map & BIT(6))
-+		qca8k_port_set_status(priv, 6, 0);
-+
- 	/* Include L2 header / FCS length */
--	return qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, new_mtu + ETH_HLEN + ETH_FCS_LEN);
-+	ret = qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, new_mtu + ETH_HLEN + ETH_FCS_LEN);
-+
-+	if (priv->port_enabled_map & BIT(0))
-+		qca8k_port_set_status(priv, 0, 1);
-+
-+	if (priv->port_enabled_map & BIT(6))
-+		qca8k_port_set_status(priv, 6, 1);
-+
-+	return ret;
- }
- 
- static int
-
