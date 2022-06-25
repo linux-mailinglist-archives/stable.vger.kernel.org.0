@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 067EE55AAF3
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69B1555AAF1
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:26:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232860AbiFYO00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 10:26:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47250 "EHLO
+        id S232927AbiFYO0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 10:26:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbiFYO0Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:26:25 -0400
+        with ESMTP id S229524AbiFYO03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:26:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B161E0ED
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:26:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6BD2E0D3
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:26:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B606C61451
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:26:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D909C3411C;
-        Sat, 25 Jun 2022 14:26:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D62060EC9
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38693C3411C;
+        Sat, 25 Jun 2022 14:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656167184;
-        bh=hHC3f/VXNIyg1ci0JjSM9jPFtXBrh4mwyGC6W+6eH1w=;
+        s=korg; t=1656167187;
+        bh=pzLCJfUFnIeDUvvrE6VwwNFDhmB+mW/bmY++nz93K/k=;
         h=Subject:To:Cc:From:Date:From;
-        b=rUAnN7n0VKhltwPyXdel7pwsDcL1cwcFkq2f1Y6bj8mHh64haTWUfoUFHM+G3Y+Y9
-         Qq2y0dK+vdC4cERh336wkmgD2lqs/ecW2otIwC70G+oGdpctAWIWJOrEVECaY3783D
-         yejud3wlRQQm7XLayC0r+vhRoIUKdQZDeHTmHGTU=
-Subject: FAILED: patch "[PATCH] net: dsa: qca8k: reset cpu port on MTU change" failed to apply to 5.15-stable tree
+        b=Z0OTYD+6zEc10gdl4T6SOZnbEoCabB1EmvMDO9D3Li1DjVxIgejDl1t8jsr7xuKWo
+         m8xIVncp+qlIcMHtLe/iQP3pvmvkThhQKKW+wPtxOY4gemD3NGwm6Gpi2Xo99P8rAs
+         sn5iFYkKHLF+fAdbbBsMlPYvr1lsuSRFnwMjlQaY=
+Subject: FAILED: patch "[PATCH] net: dsa: qca8k: reset cpu port on MTU change" failed to apply to 5.10-stable tree
 To:     ansuelsmth@gmail.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 25 Jun 2022 16:26:12 +0200
-Message-ID: <1656167172101151@kroah.com>
+Date:   Sat, 25 Jun 2022 16:26:13 +0200
+Message-ID: <1656167173177106@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
