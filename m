@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0E7855AAA6
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 15:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27CF855AAAE
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 15:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232552AbiFYNyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 09:54:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57980 "EHLO
+        id S233074AbiFYNyG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 09:54:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232157AbiFYNyC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 09:54:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D98101DC
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 06:54:02 -0700 (PDT)
+        with ESMTP id S232971AbiFYNyG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 09:54:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 320F512AF7
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 06:54:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E59B4B80B4C
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 13:54:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D3DFC3411C;
-        Sat, 25 Jun 2022 13:53:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDB95B80B4C
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 13:54:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B667C3411C;
+        Sat, 25 Jun 2022 13:54:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656165239;
-        bh=0IItozqSMP1lHVQ7Iyy14TWpN+b8xfN0zzRmP1mZbJk=;
+        s=korg; t=1656165242;
+        bh=NFUslPu4PQp09EDyLLB3+OOsInryl8koXy34UO5Cw1E=;
         h=Subject:To:Cc:From:Date:From;
-        b=10Cu5jbBd2D7jXQHu6jjA4G1TCVwpBbePkgegVeFmeRidovrVTsa/pmDgBTT0bqMz
-         mMH4jxdJ234mUHGY5oixKRJvHd8RZ/t4rGZ6dz8Uf4UOYi6cqrSjPXiXI074bWcair
-         zKvXUpNoxGjyW940CwuCMBitkIsfLn7Cj8mxiN2w=
-Subject: FAILED: patch "[PATCH] random: quiet urandom warning ratelimit suppression message" failed to apply to 5.4-stable tree
+        b=rXJvoszbaHSgm/aD7DZm63X5LbVWk6h2QPD8Wqs1W/DKp+XGAo8fYCKoefzH6pXwa
+         nSW6kS1lS7IbXzhQvoCD5PYC5n/XjtXOnsEuqAgPgB7WLUljslpSQxquVkPYDbukvD
+         KHspQTYqBqt+9FNlsvOmdRheDpH0PW80AfzOLsjI=
+Subject: FAILED: patch "[PATCH] random: quiet urandom warning ratelimit suppression message" failed to apply to 4.19-stable tree
 To:     Jason@zx2c4.com, jonathanh@nvidia.com, re@w6rz.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 25 Jun 2022 15:53:46 +0200
-Message-ID: <1656165226250179@kroah.com>
+Message-ID: <1656165226153151@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
