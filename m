@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D33155A9EF
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 14:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E510E55A9EE
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 14:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232855AbiFYMQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 08:16:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52970 "EHLO
+        id S232775AbiFYMPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 08:15:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232499AbiFYMQS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 08:16:18 -0400
+        with ESMTP id S232499AbiFYMPP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 08:15:15 -0400
+X-Greylist: delayed 273 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 25 Jun 2022 05:15:13 PDT
 Received: from mail2.sp2max.com.br (mail2.sp2max.com.br [138.185.4.9])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D0F7D140EC;
-        Sat, 25 Jun 2022 05:16:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A86B92CC9B;
+        Sat, 25 Jun 2022 05:15:13 -0700 (PDT)
 Received: from fedora.. (unknown [190.245.244.131])
         (Authenticated sender: pablo@fliagreco.com.ar)
-        by mail2.sp2max.com.br (Postfix) with ESMTPSA id 40ADF7B092A;
-        Sat, 25 Jun 2022 09:10:35 -0300 (-03)
+        by mail2.sp2max.com.br (Postfix) with ESMTPSA id D23157B092A;
+        Sat, 25 Jun 2022 09:15:08 -0300 (-03)
 From:   Pablo Greco <pgreco@centosproject.org>
 Cc:     Pablo Greco <pgreco@centosproject.org>, stable@vger.kernel.org,
         Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@fb.com>,
         Christoph Hellwig <hch@lst.de>,
         Sagi Grimberg <sagi@grimberg.me>,
         linux-nvme@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] nvme-pci: add NVME_QUIRK_BOGUS_NID for ADATA XPG SX6000LNP (AKA XPECTRIX S40G)
-Date:   Sat, 25 Jun 2022 09:10:11 -0300
-Message-Id: <20220625121011.8103-1-pgreco@centosproject.org>
+Subject: [PATCH v2] nvme-pci: add NVME_QUIRK_BOGUS_NID for ADATA XPG SX6000LNP (AKA SPECTRIX S40G)
+Date:   Sat, 25 Jun 2022 09:15:02 -0300
+Message-Id: <20220625121502.9092-1-pgreco@centosproject.org>
 X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SP2Max-MailScanner-Information: Please contact the ISP for more information
-X-SP2Max-MailScanner-ID: 40ADF7B092A.A2A42
+X-SP2Max-MailScanner-ID: D23157B092A.A1B74
 X-SP2Max-MailScanner: Sem Virus encontrado
-X-SP2Max-MailScanner-SpamCheck: nao spam, SpamAssassin (not cached,
-        escore=-2.91, requerido 6, autolearn=not spam, ALL_TRUSTED -1.00,
-        BAYES_00 -1.90, T_SCC_BODY_TEXT_LINE -0.01)
+X-SP2Max-MailScanner-SpamCheck: nao spam, SpamAssassin (cached, escore=-2.91,
+        requerido 6, autolearn=not spam, ALL_TRUSTED -1.00, BAYES_00 -1.90,
+        T_SCC_BODY_TEXT_LINE -0.01)
 X-SP2Max-MailScanner-From: pgreco@centosproject.org
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
         SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
