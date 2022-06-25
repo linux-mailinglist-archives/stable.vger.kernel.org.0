@@ -2,63 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ED1055AAB4
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:03:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEA0B55AAC7
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233024AbiFYOA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 10:00:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33688 "EHLO
+        id S232700AbiFYOHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 10:07:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232972AbiFYOA6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:00:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76DAB140D4;
-        Sat, 25 Jun 2022 07:00:57 -0700 (PDT)
+        with ESMTP id S232429AbiFYOHf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:07:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36F9910565;
+        Sat, 25 Jun 2022 07:07:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A17EB80B6B;
-        Sat, 25 Jun 2022 14:00:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF5AC341CE;
-        Sat, 25 Jun 2022 14:00:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656165655;
-        bh=t0wqaEAT95jEcBs2WtJA4yI32Lyw6AFlDCsfOkURjBQ=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=X7B5q0c0Uu45axRdIIdqONUp8xe31CsWk8rAdtzewJSzXiG3U+ZycUR656QG66wwO
-         R8F0sMbPq802x0A2Offa8z/kuG4SE3a2CtLarots+FdC/ioTAqpllmhiF0Tm6Fl3v7
-         GOzVsCrzr4V4htbYUwm78LoWPmJFlfJ0RAksTwJ8aDrjx2oOlTvRImv6UwWaHuiD4i
-         vcE++RPrNFNMOrrQDXjV7GW5TWkiuWTLK+VTsfaJcCiagewkcDgJq5Ea1qJdkbH7E+
-         Qbdk+lyDm2FsidRYW5T88il7xpU6hw7T5lEpDBd/+AdoNH4/ZpO0Pbplem+3k5kZHj
-         gF4X97q/LyPcQ==
-Received: by mail-vs1-f46.google.com with SMTP id o190so4855830vsc.5;
-        Sat, 25 Jun 2022 07:00:55 -0700 (PDT)
-X-Gm-Message-State: AJIora808WSI7zjLqPZM1npz0IX6PEaebhsYqaEjyaqC/Nat+J6KextC
-        JnrXj/oU1xVan7nEEsprumSpYd0APWXQR4gSYEo=
-X-Google-Smtp-Source: AGRyM1tifc9J0S1N4mqgBfibJ6KQ39UMSRNc3CynbAEj61eOx7fHO87FxOw8W9F9Sk2ELboBFgtduKSv66mU1Ha0xxs=
-X-Received: by 2002:a67:7347:0:b0:354:3f46:21ec with SMTP id
- o68-20020a677347000000b003543f4621ecmr1331348vsc.70.1656165653567; Sat, 25
- Jun 2022 07:00:53 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220625080423.2797-1-chenfeiyang@loongson.cn>
- <CAMZfGtWT7oPq6bD_fRn2gVNX8Lj3=ev21EAoaCCPeq-P_NYF0g@mail.gmail.com>
- <CAAhV-H5K9LG5P6WYJ+64-fi+s=TZbbJQG9E0vHJwOf9Pai5z4w@mail.gmail.com> <CAMZfGtVq0VwMETGdzAXLkjes8W0gVBw=r0Xk5rpPnhe7x6tRiw@mail.gmail.com>
-In-Reply-To: <CAMZfGtVq0VwMETGdzAXLkjes8W0gVBw=r0Xk5rpPnhe7x6tRiw@mail.gmail.com>
-From:   Huacai Chen <chenhuacai@kernel.org>
-Date:   Sat, 25 Jun 2022 22:00:43 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H4T3ixOWB67XOij3P1xvM+_BUu+THLGtx-VvrCYUgjZyw@mail.gmail.com>
-Message-ID: <CAAhV-H4T3ixOWB67XOij3P1xvM+_BUu+THLGtx-VvrCYUgjZyw@mail.gmail.com>
-Subject: Re: [External] Re: [PATCH] page-flags.h: Fix a missing header include
- of static_keys.h
-To:     Muchun Song <songmuchun@bytedance.com>
-Cc:     Feiyang Chen <chris.chenfeiyang@gmail.com>,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C21F66133D;
+        Sat, 25 Jun 2022 14:07:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B02C0C3411C;
+        Sat, 25 Jun 2022 14:07:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1656166053;
+        bh=ja0u1OIeu4O2af+Vh1JG5/d1M617COx7gkeZFBwpNik=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=zZIYrZCuWeVFMtOIAtoIJYj+7J/VzA3petQE2K02iLnSZC8u5zPFhm4x96sCwI1Af
+         eB+tm54QsvuK/ltku0ahaDwwqId/yIoLkCf+zXTNMyrP6DyQwrkjf1MAHgbliuRyZD
+         08FX5ODxBPmRNI+qu0Bqf7ou9xNYFx38T30bgGI4=
+Date:   Sat, 25 Jun 2022 16:07:30 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Huacai Chen <chenhuacai@kernel.org>
+Cc:     Muchun Song <songmuchun@bytedance.com>,
+        Feiyang Chen <chris.chenfeiyang@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>,
         Vlastimil Babka <vbabka@suse.cz>,
         Feiyang Chen <chenfeiyang@loongson.cn>,
         loongarch@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
         linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [External] Re: [PATCH] page-flags.h: Fix a missing header
+ include of static_keys.h
+Message-ID: <YrcWosmEcADSWax+@kroah.com>
+References: <20220625080423.2797-1-chenfeiyang@loongson.cn>
+ <CAMZfGtWT7oPq6bD_fRn2gVNX8Lj3=ev21EAoaCCPeq-P_NYF0g@mail.gmail.com>
+ <CAAhV-H5K9LG5P6WYJ+64-fi+s=TZbbJQG9E0vHJwOf9Pai5z4w@mail.gmail.com>
+ <CAMZfGtVq0VwMETGdzAXLkjes8W0gVBw=r0Xk5rpPnhe7x6tRiw@mail.gmail.com>
+ <CAAhV-H4T3ixOWB67XOij3P1xvM+_BUu+THLGtx-VvrCYUgjZyw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAAhV-H4T3ixOWB67XOij3P1xvM+_BUu+THLGtx-VvrCYUgjZyw@mail.gmail.com>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -69,69 +61,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Muchun,
+On Sat, Jun 25, 2022 at 10:00:43PM +0800, Huacai Chen wrote:
+> Hi, Muchun,
+> 
+> On Sat, Jun 25, 2022 at 7:17 PM Muchun Song <songmuchun@bytedance.com> wrote:
+> >
+> > On Sat, Jun 25, 2022 at 5:04 PM Huacai Chen <chenhuacai@kernel.org> wrote:
+> > >
+> > > Hi, Muchun,
+> > >
+> > > On Sat, Jun 25, 2022 at 4:50 PM Muchun Song <songmuchun@bytedance.com> wrote:
+> > > >
+> > > > On Sat, Jun 25, 2022 at 4:04 PM Feiyang Chen
+> > > > <chris.chenfeiyang@gmail.com> wrote:
+> > > > >
+> > > > > The page-flags.h header relies on static keys since commit
+> > > > > a6b40850c442bf ("mm: hugetlb: replace hugetlb_free_vmemmap_enabled
+> > > > > with a static_key"), so make sure to include the header to avoid
+> > > > > compilation errors.
+> > > > >
+> > > > > Fixes: a6b40850c442bf ("mm: hugetlb: replace hugetlb_free_vmemmap_enabled with a static_key")
+> > > > > Cc: stable@vger.kernel.org
+> > > > > Signed-off-by: Feiyang Chen <chenfeiyang@loongson.cn>
+> > > > > ---
+> > > > >  include/linux/page-flags.h | 1 +
+> > > > >  1 file changed, 1 insertion(+)
+> > > > >
+> > > > > diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+> > > > > index e66f7aa3191d..147b336c7a35 100644
+> > > > > --- a/include/linux/page-flags.h
+> > > > > +++ b/include/linux/page-flags.h
+> > > > > @@ -11,6 +11,7 @@
+> > > > >  #include <linux/mmdebug.h>
+> > > > >  #ifndef __GENERATING_BOUNDS_H
+> > > > >  #include <linux/mm_types.h>
+> > > > > +#include <linux/static_key.h>
+> > > >
+> > > > I did not include this. The change makes sense to me. But I am
+> > > > curious what configs cause the compiling error. Would you mind
+> > > > sharing the config with us?
+> > > We found this problem when we add
+> > > ARCH_WANT_HUGETLB_PAGE_OPTIMIZE_VMEMMAP to LoongArch. Since this isn't
+> >
+> > Good news to me. I would love to hear more archs support for HVO (HugeTLB
+> > Vmemmap Optimization).
+> >
+> > > upstream yet, we cannot give such a config now (the default config of
+> > > X86 and ARM64 is just OK).
+> >
+> > All right. In this case, the "Cc: stable@vger.kernel.org" is unnecessary.
+> Maybe make randconfig will have problems on X86/ARM64, so backporting
+> to 5.18 seems reasonable.
 
-On Sat, Jun 25, 2022 at 7:17 PM Muchun Song <songmuchun@bytedance.com> wrote:
->
-> On Sat, Jun 25, 2022 at 5:04 PM Huacai Chen <chenhuacai@kernel.org> wrote:
-> >
-> > Hi, Muchun,
-> >
-> > On Sat, Jun 25, 2022 at 4:50 PM Muchun Song <songmuchun@bytedance.com> wrote:
-> > >
-> > > On Sat, Jun 25, 2022 at 4:04 PM Feiyang Chen
-> > > <chris.chenfeiyang@gmail.com> wrote:
-> > > >
-> > > > The page-flags.h header relies on static keys since commit
-> > > > a6b40850c442bf ("mm: hugetlb: replace hugetlb_free_vmemmap_enabled
-> > > > with a static_key"), so make sure to include the header to avoid
-> > > > compilation errors.
-> > > >
-> > > > Fixes: a6b40850c442bf ("mm: hugetlb: replace hugetlb_free_vmemmap_enabled with a static_key")
-> > > > Cc: stable@vger.kernel.org
-> > > > Signed-off-by: Feiyang Chen <chenfeiyang@loongson.cn>
-> > > > ---
-> > > >  include/linux/page-flags.h | 1 +
-> > > >  1 file changed, 1 insertion(+)
-> > > >
-> > > > diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-> > > > index e66f7aa3191d..147b336c7a35 100644
-> > > > --- a/include/linux/page-flags.h
-> > > > +++ b/include/linux/page-flags.h
-> > > > @@ -11,6 +11,7 @@
-> > > >  #include <linux/mmdebug.h>
-> > > >  #ifndef __GENERATING_BOUNDS_H
-> > > >  #include <linux/mm_types.h>
-> > > > +#include <linux/static_key.h>
-> > >
-> > > I did not include this. The change makes sense to me. But I am
-> > > curious what configs cause the compiling error. Would you mind
-> > > sharing the config with us?
-> > We found this problem when we add
-> > ARCH_WANT_HUGETLB_PAGE_OPTIMIZE_VMEMMAP to LoongArch. Since this isn't
->
-> Good news to me. I would love to hear more archs support for HVO (HugeTLB
-> Vmemmap Optimization).
->
-> > upstream yet, we cannot give such a config now (the default config of
-> > X86 and ARM64 is just OK).
->
-> All right. In this case, the "Cc: stable@vger.kernel.org" is unnecessary.
-Maybe make randconfig will have problems on X86/ARM64, so backporting
-to 5.18 seems reasonable.
+Unless it is proven to be needed, there is no need to backport it.
 
-Huacai
->
-> Thanks.
-> >
-> > Huacai
-> > >
-> > > Thanks.
-> > >
-> > > >  #include <generated/bounds.h>
-> > > >  #endif /* !__GENERATING_BOUNDS_H */
-> > > >
-> > > > --
-> > > > 2.27.0
-> > > >
-> > >
+thanks,
+
+greg k-h
