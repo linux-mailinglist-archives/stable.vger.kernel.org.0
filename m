@@ -2,130 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AD5E55A94B
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 13:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D33155A9EF
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 14:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232601AbiFYLR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 07:17:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44974 "EHLO
+        id S232855AbiFYMQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 08:16:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232438AbiFYLRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 07:17:25 -0400
-Received: from mail-yw1-x1135.google.com (mail-yw1-x1135.google.com [IPv6:2607:f8b0:4864:20::1135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C679C31DDA
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 04:17:23 -0700 (PDT)
-Received: by mail-yw1-x1135.google.com with SMTP id 00721157ae682-3176b6ed923so46026547b3.11
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 04:17:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=uiCn1wFahqAtSkOl35HmuzXqqUxjUEsg3PyPjnfHW9E=;
-        b=3iCOnxC63zzWpEYXppJeaYfZNRtna889N688tU51Fz05zWDXd5qsW086aNb9+MwdJv
-         O9EyqixJTnJa8+XS33NPHFlTPra87Yh3ffe2oDLnQiJLBi2R3Vd38kWvw9iGVRTv92+3
-         LCEa3bFWRvLtfE/G8Hwknjj9IHh3hswmvsfFnbDG296N5regN/oIcPmqNRjlFXUARSIe
-         kj9Q7PaPTaG5bVoYZbf8DHg0J/oRGOwIXWfNGVQmoFx98yuwo48VgRe3N2GRGx4KedLq
-         ZcsbEmXYQaQF4cRtK7tpUvGlk1uXjKwda6GoKRmyLyoHRGI0fHKUsy2xipFdKbzqWmfa
-         /QrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=uiCn1wFahqAtSkOl35HmuzXqqUxjUEsg3PyPjnfHW9E=;
-        b=KVqh7f/KzPegBAxqvOPTHFiKUJItRadH7Ua8CCDzb05PxE5mxBakWNBWGaeujjdVgZ
-         3RSsB9GiGxswCcRplQ+MFOIl51bI+oP+E0NTttROUAI0NmgSbWXO2wIE3uVPXRp9jUfb
-         maceGIcCoKazQ3kXusL2ht0UVNklW3fLWHoxwwT7MHEKxt7/3iewfxAeDNyJN9c2yWke
-         9CluswdB6up3cn3f3S3kHQSpLix4PpKMSNok6ZzveDl733KDTh4ClQlAiEsagFteQXHE
-         MHQaERtsy6OngrtCYnQo5zNP/ftkXcpEfII7QTdgDBiQqe5njppNw6ukzTEhJ+ZamgfO
-         nOCg==
-X-Gm-Message-State: AJIora//B1XkiLw2o2kldncvAbBV671Q8OzaCTZbl+x0VFqiqajS1Mdn
-        Qjpji7KlizxZHva3S7OKp0f7Xxt5HyR5NgnkULx7lQ==
-X-Google-Smtp-Source: AGRyM1uoUJNV+pWkUKZPyqoYjVU92W2AXcs0+oJA8ZTI80Wfq+v4vJ2sRUr54xc0spYE3wbFPeNslZTmLW60JMAY1vM=
-X-Received: by 2002:a81:830b:0:b0:317:b41e:9e49 with SMTP id
- t11-20020a81830b000000b00317b41e9e49mr3977250ywf.458.1656155843079; Sat, 25
- Jun 2022 04:17:23 -0700 (PDT)
+        with ESMTP id S232499AbiFYMQS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 08:16:18 -0400
+Received: from mail2.sp2max.com.br (mail2.sp2max.com.br [138.185.4.9])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D0F7D140EC;
+        Sat, 25 Jun 2022 05:16:17 -0700 (PDT)
+Received: from fedora.. (unknown [190.245.244.131])
+        (Authenticated sender: pablo@fliagreco.com.ar)
+        by mail2.sp2max.com.br (Postfix) with ESMTPSA id 40ADF7B092A;
+        Sat, 25 Jun 2022 09:10:35 -0300 (-03)
+From:   Pablo Greco <pgreco@centosproject.org>
+Cc:     Pablo Greco <pgreco@centosproject.org>, stable@vger.kernel.org,
+        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@fb.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        linux-nvme@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] nvme-pci: add NVME_QUIRK_BOGUS_NID for ADATA XPG SX6000LNP (AKA XPECTRIX S40G)
+Date:   Sat, 25 Jun 2022 09:10:11 -0300
+Message-Id: <20220625121011.8103-1-pgreco@centosproject.org>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-References: <20220625080423.2797-1-chenfeiyang@loongson.cn>
- <CAMZfGtWT7oPq6bD_fRn2gVNX8Lj3=ev21EAoaCCPeq-P_NYF0g@mail.gmail.com> <CAAhV-H5K9LG5P6WYJ+64-fi+s=TZbbJQG9E0vHJwOf9Pai5z4w@mail.gmail.com>
-In-Reply-To: <CAAhV-H5K9LG5P6WYJ+64-fi+s=TZbbJQG9E0vHJwOf9Pai5z4w@mail.gmail.com>
-From:   Muchun Song <songmuchun@bytedance.com>
-Date:   Sat, 25 Jun 2022 19:16:46 +0800
-Message-ID: <CAMZfGtVq0VwMETGdzAXLkjes8W0gVBw=r0Xk5rpPnhe7x6tRiw@mail.gmail.com>
-Subject: Re: [External] Re: [PATCH] page-flags.h: Fix a missing header include
- of static_keys.h
-To:     Huacai Chen <chenhuacai@kernel.org>
-Cc:     Feiyang Chen <chris.chenfeiyang@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Feiyang Chen <chenfeiyang@loongson.cn>,
-        loongarch@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-SP2Max-MailScanner-Information: Please contact the ISP for more information
+X-SP2Max-MailScanner-ID: 40ADF7B092A.A2A42
+X-SP2Max-MailScanner: Sem Virus encontrado
+X-SP2Max-MailScanner-SpamCheck: nao spam, SpamAssassin (not cached,
+        escore=-2.91, requerido 6, autolearn=not spam, ALL_TRUSTED -1.00,
+        BAYES_00 -1.90, T_SCC_BODY_TEXT_LINE -0.01)
+X-SP2Max-MailScanner-From: pgreco@centosproject.org
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jun 25, 2022 at 5:04 PM Huacai Chen <chenhuacai@kernel.org> wrote:
->
-> Hi, Muchun,
->
-> On Sat, Jun 25, 2022 at 4:50 PM Muchun Song <songmuchun@bytedance.com> wrote:
-> >
-> > On Sat, Jun 25, 2022 at 4:04 PM Feiyang Chen
-> > <chris.chenfeiyang@gmail.com> wrote:
-> > >
-> > > The page-flags.h header relies on static keys since commit
-> > > a6b40850c442bf ("mm: hugetlb: replace hugetlb_free_vmemmap_enabled
-> > > with a static_key"), so make sure to include the header to avoid
-> > > compilation errors.
-> > >
-> > > Fixes: a6b40850c442bf ("mm: hugetlb: replace hugetlb_free_vmemmap_enabled with a static_key")
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Feiyang Chen <chenfeiyang@loongson.cn>
-> > > ---
-> > >  include/linux/page-flags.h | 1 +
-> > >  1 file changed, 1 insertion(+)
-> > >
-> > > diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-> > > index e66f7aa3191d..147b336c7a35 100644
-> > > --- a/include/linux/page-flags.h
-> > > +++ b/include/linux/page-flags.h
-> > > @@ -11,6 +11,7 @@
-> > >  #include <linux/mmdebug.h>
-> > >  #ifndef __GENERATING_BOUNDS_H
-> > >  #include <linux/mm_types.h>
-> > > +#include <linux/static_key.h>
-> >
-> > I did not include this. The change makes sense to me. But I am
-> > curious what configs cause the compiling error. Would you mind
-> > sharing the config with us?
-> We found this problem when we add
-> ARCH_WANT_HUGETLB_PAGE_OPTIMIZE_VMEMMAP to LoongArch. Since this isn't
+ADATA XPG SPECTRIX S40G drives report bogus eui64 values that appear to
+be the same across drives in one system. Quirk them out so they are
+not marked as "non globally unique" duplicates.
 
-Good news to me. I would love to hear more archs support for HVO (HugeTLB
-Vmemmap Optimization).
+Before:
+[    2.258919] nvme nvme1: pci function 0000:06:00.0
+[    2.264898] nvme nvme2: pci function 0000:05:00.0
+[    2.323235] nvme nvme1: failed to set APST feature (2)
+[    2.326153] nvme nvme2: failed to set APST feature (2)
+[    2.333935] nvme nvme1: allocated 64 MiB host memory buffer.
+[    2.336492] nvme nvme2: allocated 64 MiB host memory buffer.
+[    2.339611] nvme nvme1: 7/0/0 default/read/poll queues
+[    2.341805] nvme nvme2: 7/0/0 default/read/poll queues
+[    2.346114]  nvme1n1: p1
+[    2.347197] nvme nvme2: globally duplicate IDs for nsid 1
+After:
+[    2.427715] nvme nvme1: pci function 0000:06:00.0
+[    2.427771] nvme nvme2: pci function 0000:05:00.0
+[    2.488154] nvme nvme2: failed to set APST feature (2)
+[    2.489895] nvme nvme1: failed to set APST feature (2)
+[    2.498773] nvme nvme2: allocated 64 MiB host memory buffer.
+[    2.500587] nvme nvme1: allocated 64 MiB host memory buffer.
+[    2.504113] nvme nvme2: 7/0/0 default/read/poll queues
+[    2.507026] nvme nvme1: 7/0/0 default/read/poll queues
+[    2.509467] nvme nvme2: Ignoring bogus Namespace Identifiers
+[    2.512804] nvme nvme1: Ignoring bogus Namespace Identifiers
+[    2.513698]  nvme1n1: p1
 
-> upstream yet, we cannot give such a config now (the default config of
-> X86 and ARM64 is just OK).
+Signed-off-by: Pablo Greco <pgreco@centosproject.org>
+Cc: <stable@vger.kernel.org>
+---
+ drivers/nvme/host/pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-All right. In this case, the "Cc: stable@vger.kernel.org" is unnecessary.
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index d7b24ee17285..c9ebe6072498 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3470,7 +3470,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_NO_NS_DESC_LIST |
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_DEVICE(0x10ec, 0x5762),   /* ADATA SX6000LNP */
+-		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
++		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN |
++				NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1cc1, 0x8201),   /* ADATA SX8200PNP 512GB */
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS |
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+-- 
+2.36.1
 
-Thanks.
->
-> Huacai
-> >
-> > Thanks.
-> >
-> > >  #include <generated/bounds.h>
-> > >  #endif /* !__GENERATING_BOUNDS_H */
-> > >
-> > > --
-> > > 2.27.0
-> > >
-> >
