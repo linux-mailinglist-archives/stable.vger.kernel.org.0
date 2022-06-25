@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CAB255AAA1
+	by mail.lfdr.de (Postfix) with ESMTP id B3B7255AAA3
 	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 15:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232996AbiFYNxu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 09:53:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57732 "EHLO
+        id S232865AbiFYNx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 09:53:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233188AbiFYNxt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 09:53:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BDC7101F6
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 06:53:49 -0700 (PDT)
+        with ESMTP id S232552AbiFYNx6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 09:53:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C473101DC
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 06:53:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA33E61405
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 13:53:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77667C3411C;
-        Sat, 25 Jun 2022 13:53:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B9AA61414
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 13:53:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F186FC3411C;
+        Sat, 25 Jun 2022 13:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656165227;
-        bh=9aon+R5G/yCENaQNuk8O4+3mbRXwp59bCqWk3XHYfoI=;
+        s=korg; t=1656165236;
+        bh=SZnCQ+7ulbrorWApYHWDg0VP4f8hPU0bHTVLBGld51U=;
         h=Subject:To:Cc:From:Date:From;
-        b=Tnfgcam2HwmFOw+olcBmQnU7l/WWl9HuO1mQ6DUoGzv3c/JByNRda9XPZKG2GjqFw
-         UiF6HocveRcKVGxWzkumUpq4pXoz//GtJB28m8SMoYhJeTc8AP54w4ECM+QWD+L9eC
-         ijxpW/oj6LRprQLLzc1WI9NWf94sspvYofd0T7j4=
-Subject: FAILED: patch "[PATCH] random: quiet urandom warning ratelimit suppression message" failed to apply to 4.9-stable tree
+        b=GzubF5KcpxV4yxYodapIYBAsrQl4SrmXuFqve87Nk7l93ERekb00dsxt6pp4qfeVW
+         MCNXihEIc3VdeteL4KqLHMx4fVgugwHjCB7TXhIzpNUyOCVQ6eH035FO3VBO2DoQCM
+         0MKuB9rKsU6RXn59fY3cKLdw0+/e1CmEX54RJ2Js=
+Subject: FAILED: patch "[PATCH] random: quiet urandom warning ratelimit suppression message" failed to apply to 4.14-stable tree
 To:     Jason@zx2c4.com, jonathanh@nvidia.com, re@w6rz.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 25 Jun 2022 15:53:45 +0200
-Message-ID: <165616522521107@kroah.com>
+Message-ID: <1656165225203105@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
