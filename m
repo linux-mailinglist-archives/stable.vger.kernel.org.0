@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 191D255AAFF
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 304EB55AB04
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232956AbiFYOaA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 10:30:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49858 "EHLO
+        id S232729AbiFYObE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 10:31:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232729AbiFYOaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:30:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A730917AB8
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:29:59 -0700 (PDT)
+        with ESMTP id S232699AbiFYObD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:31:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DE4517AB8
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:31:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E5FE61388
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:29:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13879C3411C;
-        Sat, 25 Jun 2022 14:29:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04B80B80835
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:31:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4783AC341C0;
+        Sat, 25 Jun 2022 14:30:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656167398;
-        bh=qLFnb2sjJcx3b2UHr7jeOG0u2p6pIxOg8RlK+Odj6tM=;
+        s=korg; t=1656167459;
+        bh=Rap7xQ/p3XwsghKu7K9q37tWeirdeV7vYCk/QvvrKjI=;
         h=Subject:To:Cc:From:Date:From;
-        b=Prh0f0lVvrYaTBJlp2/HQBrW2+whOzt4MpxKyelD1EQR7TtS1JWHhR1QuebN9lCJH
-         0YSisxINCKw5XMIyiPSJIXLeJYGx5uSIIrJrTQpSVzPUYLIucDgCMsLAIORS6j4Hez
-         3jubhqBwM0Wlh2pDc6IZMHXxQ45JrVxB2hGe4pdE=
-Subject: FAILED: patch "[PATCH] btrfs: add error messages to all unrecognized mount options" failed to apply to 4.9-stable tree
-To:     dsterba@suse.com, anand.jain@oracle.com, nborisov@suse.com,
-        wqu@suse.com
+        b=KRP80QIELPCwWl/m3MveccYWIzdGiqfOMWMK+1BlY+LgBjkgYmxSTpgKYhPr/19wq
+         fixSQqKaT0IuTZNkr3kZ4ssayAfAWkYL4KUTuTDYDQ4WT/5zfVhiCa4Cu1CINJgYx/
+         XCwBHgfxEzAOOLs2Nc6KLWkclRlavfDnfyp37aIA=
+Subject: FAILED: patch "[PATCH] xen/gntdev: Avoid blocking in unmap_grant_pages()" failed to apply to 4.9-stable tree
+To:     demi@invisiblethingslab.com, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 25 Jun 2022 16:29:42 +0200
-Message-ID: <1656167382194129@kroah.com>
+Date:   Sat, 25 Jun 2022 16:30:56 +0200
+Message-ID: <165616745615553@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,148 +59,361 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e3a4167c880cf889f66887a152799df4d609dd21 Mon Sep 17 00:00:00 2001
-From: David Sterba <dsterba@suse.com>
-Date: Thu, 2 Jun 2022 23:57:17 +0200
-Subject: [PATCH] btrfs: add error messages to all unrecognized mount options
+From dbe97cff7dd9f0f75c524afdd55ad46be3d15295 Mon Sep 17 00:00:00 2001
+From: Demi Marie Obenour <demi@invisiblethingslab.com>
+Date: Tue, 21 Jun 2022 22:27:26 -0400
+Subject: [PATCH] xen/gntdev: Avoid blocking in unmap_grant_pages()
 
-Almost none of the errors stemming from a valid mount option but wrong
-value prints a descriptive message which would help to identify why
-mount failed. Like in the linked report:
+unmap_grant_pages() currently waits for the pages to no longer be used.
+In https://github.com/QubesOS/qubes-issues/issues/7481, this lead to a
+deadlock against i915: i915 was waiting for gntdev's MMU notifier to
+finish, while gntdev was waiting for i915 to free its pages.  I also
+believe this is responsible for various deadlocks I have experienced in
+the past.
 
-  $ uname -r
-  v4.19
-  $ mount -o compress=zstd /dev/sdb /mnt
-  mount: /mnt: wrong fs type, bad option, bad superblock on
-  /dev/sdb, missing codepage or helper program, or other error.
-  $ dmesg
-  ...
-  BTRFS error (device sdb): open_ctree failed
+Avoid these problems by making unmap_grant_pages async.  This requires
+making it return void, as any errors will not be available when the
+function returns.  Fortunately, the only use of the return value is a
+WARN_ON(), which can be replaced by a WARN_ON when the error is
+detected.  Additionally, a failed call will not prevent further calls
+from being made, but this is harmless.
 
-Errors caused by memory allocation failures are left out as it's not a
-user error so reporting that would be confusing.
+Because unmap_grant_pages is now async, the grant handle will be sent to
+INVALID_GRANT_HANDLE too late to prevent multiple unmaps of the same
+handle.  Instead, a separate bool array is allocated for this purpose.
+This wastes memory, but stuffing this information in padding bytes is
+too fragile.  Furthermore, it is necessary to grab a reference to the
+map before making the asynchronous call, and release the reference when
+the call returns.
 
-Link: https://lore.kernel.org/linux-btrfs/9c3fec36-fc61-3a33-4977-a7e207c3fa4e@gmx.de/
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+It is also necessary to guard against reentrancy in gntdev_map_put(),
+and to handle the case where userspace tries to map a mapping whose
+contents have not all been freed yet.
 
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index 1387fbe935c1..6627dd7875ee 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -763,6 +763,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
- 				compress_force = false;
- 				no_compress++;
- 			} else {
-+				btrfs_err(info, "unrecognized compression value %s",
-+					  args[0].from);
- 				ret = -EINVAL;
- 				goto out;
- 			}
-@@ -821,8 +823,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
- 		case Opt_thread_pool:
- 			ret = match_int(&args[0], &intarg);
- 			if (ret) {
-+				btrfs_err(info, "unrecognized thread_pool value %s",
-+					  args[0].from);
- 				goto out;
- 			} else if (intarg == 0) {
-+				btrfs_err(info, "invalid value 0 for thread_pool");
- 				ret = -EINVAL;
- 				goto out;
- 			}
-@@ -883,8 +888,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
- 			break;
- 		case Opt_ratio:
- 			ret = match_int(&args[0], &intarg);
--			if (ret)
-+			if (ret) {
-+				btrfs_err(info, "unrecognized metadata_ratio value %s",
-+					  args[0].from);
- 				goto out;
-+			}
- 			info->metadata_ratio = intarg;
- 			btrfs_info(info, "metadata ratio %u",
- 				   info->metadata_ratio);
-@@ -901,6 +909,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
- 				btrfs_set_and_info(info, DISCARD_ASYNC,
- 						   "turning on async discard");
- 			} else {
-+				btrfs_err(info, "unrecognized discard mode value %s",
-+					  args[0].from);
- 				ret = -EINVAL;
- 				goto out;
- 			}
-@@ -933,6 +943,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
- 				btrfs_set_and_info(info, FREE_SPACE_TREE,
- 						   "enabling free space tree");
- 			} else {
-+				btrfs_err(info, "unrecognized space_cache value %s",
-+					  args[0].from);
- 				ret = -EINVAL;
- 				goto out;
- 			}
-@@ -1014,8 +1026,12 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
- 			break;
- 		case Opt_check_integrity_print_mask:
- 			ret = match_int(&args[0], &intarg);
--			if (ret)
-+			if (ret) {
-+				btrfs_err(info,
-+				"unrecognized check_integrity_print_mask value %s",
-+					args[0].from);
- 				goto out;
-+			}
- 			info->check_integrity_print_mask = intarg;
- 			btrfs_info(info, "check_integrity_print_mask 0x%x",
- 				   info->check_integrity_print_mask);
-@@ -1030,13 +1046,15 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
- 			goto out;
+Fixes: 745282256c75 ("xen/gntdev: safely unmap grants in case they are still in use")
+Cc: stable@vger.kernel.org
+Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20220622022726.2538-1-demi@invisiblethingslab.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+
+diff --git a/drivers/xen/gntdev-common.h b/drivers/xen/gntdev-common.h
+index 20d7d059dadb..40ef379c28ab 100644
+--- a/drivers/xen/gntdev-common.h
++++ b/drivers/xen/gntdev-common.h
+@@ -16,6 +16,7 @@
+ #include <linux/mmu_notifier.h>
+ #include <linux/types.h>
+ #include <xen/interface/event_channel.h>
++#include <xen/grant_table.h>
+ 
+ struct gntdev_dmabuf_priv;
+ 
+@@ -56,6 +57,7 @@ struct gntdev_grant_map {
+ 	struct gnttab_unmap_grant_ref *unmap_ops;
+ 	struct gnttab_map_grant_ref   *kmap_ops;
+ 	struct gnttab_unmap_grant_ref *kunmap_ops;
++	bool *being_removed;
+ 	struct page **pages;
+ 	unsigned long pages_vm_start;
+ 
+@@ -73,6 +75,11 @@ struct gntdev_grant_map {
+ 	/* Needed to avoid allocation in gnttab_dma_free_pages(). */
+ 	xen_pfn_t *frames;
  #endif
- 		case Opt_fatal_errors:
--			if (strcmp(args[0].from, "panic") == 0)
-+			if (strcmp(args[0].from, "panic") == 0) {
- 				btrfs_set_opt(info->mount_opt,
- 					      PANIC_ON_FATAL_ERROR);
--			else if (strcmp(args[0].from, "bug") == 0)
-+			} else if (strcmp(args[0].from, "bug") == 0) {
- 				btrfs_clear_opt(info->mount_opt,
- 					      PANIC_ON_FATAL_ERROR);
--			else {
-+			} else {
-+				btrfs_err(info, "unrecognized fatal_errors value %s",
-+					  args[0].from);
- 				ret = -EINVAL;
- 				goto out;
- 			}
-@@ -1044,8 +1062,12 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
- 		case Opt_commit_interval:
- 			intarg = 0;
- 			ret = match_int(&args[0], &intarg);
--			if (ret)
-+			if (ret) {
-+				btrfs_err(info, "unrecognized commit_interval value %s",
-+					  args[0].from);
-+				ret = -EINVAL;
- 				goto out;
-+			}
- 			if (intarg == 0) {
- 				btrfs_info(info,
- 					   "using default commit interval %us",
-@@ -1059,8 +1081,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
- 			break;
- 		case Opt_rescue:
- 			ret = parse_rescue_options(info, args[0].from);
--			if (ret < 0)
-+			if (ret < 0) {
-+				btrfs_err(info, "unrecognized rescue value %s",
-+					  args[0].from);
- 				goto out;
-+			}
- 			break;
- #ifdef CONFIG_BTRFS_DEBUG
- 		case Opt_fragment_all:
++
++	/* Number of live grants */
++	atomic_t live_grants;
++	/* Needed to avoid allocation in __unmap_grant_pages */
++	struct gntab_unmap_queue_data unmap_data;
+ };
+ 
+ struct gntdev_grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count,
+diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
+index 59ffea800079..4b56c39f766d 100644
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -35,6 +35,7 @@
+ #include <linux/slab.h>
+ #include <linux/highmem.h>
+ #include <linux/refcount.h>
++#include <linux/workqueue.h>
+ 
+ #include <xen/xen.h>
+ #include <xen/grant_table.h>
+@@ -60,10 +61,11 @@ module_param(limit, uint, 0644);
+ MODULE_PARM_DESC(limit,
+ 	"Maximum number of grants that may be mapped by one mapping request");
+ 
++/* True in PV mode, false otherwise */
+ static int use_ptemod;
+ 
+-static int unmap_grant_pages(struct gntdev_grant_map *map,
+-			     int offset, int pages);
++static void unmap_grant_pages(struct gntdev_grant_map *map,
++			      int offset, int pages);
+ 
+ static struct miscdevice gntdev_miscdev;
+ 
+@@ -120,6 +122,7 @@ static void gntdev_free_map(struct gntdev_grant_map *map)
+ 	kvfree(map->unmap_ops);
+ 	kvfree(map->kmap_ops);
+ 	kvfree(map->kunmap_ops);
++	kvfree(map->being_removed);
+ 	kfree(map);
+ }
+ 
+@@ -140,10 +143,13 @@ struct gntdev_grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count,
+ 	add->unmap_ops = kvmalloc_array(count, sizeof(add->unmap_ops[0]),
+ 					GFP_KERNEL);
+ 	add->pages     = kvcalloc(count, sizeof(add->pages[0]), GFP_KERNEL);
++	add->being_removed =
++		kvcalloc(count, sizeof(add->being_removed[0]), GFP_KERNEL);
+ 	if (NULL == add->grants    ||
+ 	    NULL == add->map_ops   ||
+ 	    NULL == add->unmap_ops ||
+-	    NULL == add->pages)
++	    NULL == add->pages     ||
++	    NULL == add->being_removed)
+ 		goto err;
+ 	if (use_ptemod) {
+ 		add->kmap_ops   = kvmalloc_array(count, sizeof(add->kmap_ops[0]),
+@@ -250,9 +256,36 @@ void gntdev_put_map(struct gntdev_priv *priv, struct gntdev_grant_map *map)
+ 	if (!refcount_dec_and_test(&map->users))
+ 		return;
+ 
+-	if (map->pages && !use_ptemod)
++	if (map->pages && !use_ptemod) {
++		/*
++		 * Increment the reference count.  This ensures that the
++		 * subsequent call to unmap_grant_pages() will not wind up
++		 * re-entering itself.  It *can* wind up calling
++		 * gntdev_put_map() recursively, but such calls will be with a
++		 * reference count greater than 1, so they will return before
++		 * this code is reached.  The recursion depth is thus limited to
++		 * 1.  Do NOT use refcount_inc() here, as it will detect that
++		 * the reference count is zero and WARN().
++		 */
++		refcount_set(&map->users, 1);
++
++		/*
++		 * Unmap the grants.  This may or may not be asynchronous, so it
++		 * is possible that the reference count is 1 on return, but it
++		 * could also be greater than 1.
++		 */
+ 		unmap_grant_pages(map, 0, map->count);
+ 
++		/* Check if the memory now needs to be freed */
++		if (!refcount_dec_and_test(&map->users))
++			return;
++
++		/*
++		 * All pages have been returned to the hypervisor, so free the
++		 * map.
++		 */
++	}
++
+ 	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
+ 		notify_remote_via_evtchn(map->notify.event);
+ 		evtchn_put(map->notify.event);
+@@ -283,6 +316,7 @@ static int find_grant_ptes(pte_t *pte, unsigned long addr, void *data)
+ 
+ int gntdev_map_grant_pages(struct gntdev_grant_map *map)
+ {
++	size_t alloced = 0;
+ 	int i, err = 0;
+ 
+ 	if (!use_ptemod) {
+@@ -331,97 +365,116 @@ int gntdev_map_grant_pages(struct gntdev_grant_map *map)
+ 			map->count);
+ 
+ 	for (i = 0; i < map->count; i++) {
+-		if (map->map_ops[i].status == GNTST_okay)
++		if (map->map_ops[i].status == GNTST_okay) {
+ 			map->unmap_ops[i].handle = map->map_ops[i].handle;
+-		else if (!err)
++			if (!use_ptemod)
++				alloced++;
++		} else if (!err)
+ 			err = -EINVAL;
+ 
+ 		if (map->flags & GNTMAP_device_map)
+ 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
+ 
+ 		if (use_ptemod) {
+-			if (map->kmap_ops[i].status == GNTST_okay)
++			if (map->kmap_ops[i].status == GNTST_okay) {
++				if (map->map_ops[i].status == GNTST_okay)
++					alloced++;
+ 				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+-			else if (!err)
++			} else if (!err)
+ 				err = -EINVAL;
+ 		}
+ 	}
++	atomic_add(alloced, &map->live_grants);
+ 	return err;
+ }
+ 
+-static int __unmap_grant_pages(struct gntdev_grant_map *map, int offset,
+-			       int pages)
++static void __unmap_grant_pages_done(int result,
++		struct gntab_unmap_queue_data *data)
+ {
+-	int i, err = 0;
+-	struct gntab_unmap_queue_data unmap_data;
+-
+-	if (map->notify.flags & UNMAP_NOTIFY_CLEAR_BYTE) {
+-		int pgno = (map->notify.addr >> PAGE_SHIFT);
+-		if (pgno >= offset && pgno < offset + pages) {
+-			/* No need for kmap, pages are in lowmem */
+-			uint8_t *tmp = pfn_to_kaddr(page_to_pfn(map->pages[pgno]));
+-			tmp[map->notify.addr & (PAGE_SIZE-1)] = 0;
+-			map->notify.flags &= ~UNMAP_NOTIFY_CLEAR_BYTE;
+-		}
+-	}
+-
+-	unmap_data.unmap_ops = map->unmap_ops + offset;
+-	unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
+-	unmap_data.pages = map->pages + offset;
+-	unmap_data.count = pages;
+-
+-	err = gnttab_unmap_refs_sync(&unmap_data);
+-	if (err)
+-		return err;
++	unsigned int i;
++	struct gntdev_grant_map *map = data->data;
++	unsigned int offset = data->unmap_ops - map->unmap_ops;
+ 
+-	for (i = 0; i < pages; i++) {
+-		if (map->unmap_ops[offset+i].status)
+-			err = -EINVAL;
++	for (i = 0; i < data->count; i++) {
++		WARN_ON(map->unmap_ops[offset+i].status);
+ 		pr_debug("unmap handle=%d st=%d\n",
+ 			map->unmap_ops[offset+i].handle,
+ 			map->unmap_ops[offset+i].status);
+ 		map->unmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
+ 		if (use_ptemod) {
+-			if (map->kunmap_ops[offset+i].status)
+-				err = -EINVAL;
++			WARN_ON(map->kunmap_ops[offset+i].status);
+ 			pr_debug("kunmap handle=%u st=%d\n",
+ 				 map->kunmap_ops[offset+i].handle,
+ 				 map->kunmap_ops[offset+i].status);
+ 			map->kunmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
+ 		}
+ 	}
+-	return err;
++	/*
++	 * Decrease the live-grant counter.  This must happen after the loop to
++	 * prevent premature reuse of the grants by gnttab_mmap().
++	 */
++	atomic_sub(data->count, &map->live_grants);
++
++	/* Release reference taken by __unmap_grant_pages */
++	gntdev_put_map(NULL, map);
++}
++
++static void __unmap_grant_pages(struct gntdev_grant_map *map, int offset,
++			       int pages)
++{
++	if (map->notify.flags & UNMAP_NOTIFY_CLEAR_BYTE) {
++		int pgno = (map->notify.addr >> PAGE_SHIFT);
++
++		if (pgno >= offset && pgno < offset + pages) {
++			/* No need for kmap, pages are in lowmem */
++			uint8_t *tmp = pfn_to_kaddr(page_to_pfn(map->pages[pgno]));
++
++			tmp[map->notify.addr & (PAGE_SIZE-1)] = 0;
++			map->notify.flags &= ~UNMAP_NOTIFY_CLEAR_BYTE;
++		}
++	}
++
++	map->unmap_data.unmap_ops = map->unmap_ops + offset;
++	map->unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
++	map->unmap_data.pages = map->pages + offset;
++	map->unmap_data.count = pages;
++	map->unmap_data.done = __unmap_grant_pages_done;
++	map->unmap_data.data = map;
++	refcount_inc(&map->users); /* to keep map alive during async call below */
++
++	gnttab_unmap_refs_async(&map->unmap_data);
+ }
+ 
+-static int unmap_grant_pages(struct gntdev_grant_map *map, int offset,
+-			     int pages)
++static void unmap_grant_pages(struct gntdev_grant_map *map, int offset,
++			      int pages)
+ {
+-	int range, err = 0;
++	int range;
++
++	if (atomic_read(&map->live_grants) == 0)
++		return; /* Nothing to do */
+ 
+ 	pr_debug("unmap %d+%d [%d+%d]\n", map->index, map->count, offset, pages);
+ 
+ 	/* It is possible the requested range will have a "hole" where we
+ 	 * already unmapped some of the grants. Only unmap valid ranges.
+ 	 */
+-	while (pages && !err) {
+-		while (pages &&
+-		       map->unmap_ops[offset].handle == INVALID_GRANT_HANDLE) {
++	while (pages) {
++		while (pages && map->being_removed[offset]) {
+ 			offset++;
+ 			pages--;
+ 		}
+ 		range = 0;
+ 		while (range < pages) {
+-			if (map->unmap_ops[offset + range].handle ==
+-			    INVALID_GRANT_HANDLE)
++			if (map->being_removed[offset + range])
+ 				break;
++			map->being_removed[offset + range] = true;
+ 			range++;
+ 		}
+-		err = __unmap_grant_pages(map, offset, range);
++		if (range)
++			__unmap_grant_pages(map, offset, range);
+ 		offset += range;
+ 		pages -= range;
+ 	}
+-
+-	return err;
+ }
+ 
+ /* ------------------------------------------------------------------ */
+@@ -473,7 +526,6 @@ static bool gntdev_invalidate(struct mmu_interval_notifier *mn,
+ 	struct gntdev_grant_map *map =
+ 		container_of(mn, struct gntdev_grant_map, notifier);
+ 	unsigned long mstart, mend;
+-	int err;
+ 
+ 	if (!mmu_notifier_range_blockable(range))
+ 		return false;
+@@ -494,10 +546,9 @@ static bool gntdev_invalidate(struct mmu_interval_notifier *mn,
+ 			map->index, map->count,
+ 			map->vma->vm_start, map->vma->vm_end,
+ 			range->start, range->end, mstart, mend);
+-	err = unmap_grant_pages(map,
++	unmap_grant_pages(map,
+ 				(mstart - map->vma->vm_start) >> PAGE_SHIFT,
+ 				(mend - mstart) >> PAGE_SHIFT);
+-	WARN_ON(err);
+ 
+ 	return true;
+ }
+@@ -985,6 +1036,10 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
+ 		goto unlock_out;
+ 	if (use_ptemod && map->vma)
+ 		goto unlock_out;
++	if (atomic_read(&map->live_grants)) {
++		err = -EAGAIN;
++		goto unlock_out;
++	}
+ 	refcount_inc(&map->users);
+ 
+ 	vma->vm_ops = &gntdev_vmops;
 
