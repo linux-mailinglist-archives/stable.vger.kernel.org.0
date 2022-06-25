@@ -2,59 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F09CA55AB02
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D8A355AAFD
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232931AbiFYO06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 10:26:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47552 "EHLO
+        id S232916AbiFYO3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 10:29:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbiFYO05 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:26:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6F0DE0E2;
-        Sat, 25 Jun 2022 07:26:56 -0700 (PDT)
+        with ESMTP id S229524AbiFYO3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:29:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C518217AB8
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:29:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97D1DB80B6F;
-        Sat, 25 Jun 2022 14:26:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94445C3411C;
-        Sat, 25 Jun 2022 14:26:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6055C61454
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:29:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 540B8C3411C;
+        Sat, 25 Jun 2022 14:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656167214;
-        bh=56xO8nsdt8HDZ8eKJcZsZturnOZobYXhKpYstAWes3s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pG8GyiDGNAmyfE5bJp19nE/3gAbZiimS5JkXS4qiRMz6YA2p5dHVU1ea3dRfq5T3N
-         9hI3kysESnWOCH0VvOMouKG6J1L2azUZVnNXxwE5cdoehY8QvQQp3WbhvKA1kQW4Mi
-         Ek9zPtDEIRRdWk5l/j/L2hIPvxgnSwkmD89osI5U=
-Date:   Sat, 25 Jun 2022 16:26:51 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Maciej =?utf-8?Q?=C5=BBenczykowski?= <maze@google.com>
-Cc:     patchwork-bot+netdevbpf@kernel.org, stable@vger.kernel.org,
-        Riccardo Paolo Bestetti <pbl@bestov.io>,
-        Carlos Llamas <cmllamas@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-        David Ahern <dsahern@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, kernel-team@android.com,
-        Kernel hackers <linux-kernel@vger.kernel.org>,
-        Linux NetDev <netdev@vger.kernel.org>,
-        Miaohe Lin <linmiaohe@huawei.com>
-Subject: Re: [PATCH v2] ipv4: ping: fix bind address validity check
-Message-ID: <YrcbKzTuUssl+x0G@kroah.com>
-References: <20220617085435.193319-1-pbl@bestov.io>
- <165546541315.12170.9716012665055247467.git-patchwork-notify@kernel.org>
- <CANP3RGcMqXH2+g1=40zwpzbpDORjDpyo4cVYZWS_tfVR8A_6CQ@mail.gmail.com>
- <YrBH1MXZq2/3Z94T@kroah.com>
- <CANP3RGc8tjqk+c=+rAHNON8u=21Uu+kWveuMWZxGCNMjvqRHYg@mail.gmail.com>
+        s=korg; t=1656167383;
+        bh=sC3QyiPmP1yroThFBESiPeQ+65hOYsgoCN1xrK1ImOI=;
+        h=Subject:To:Cc:From:Date:From;
+        b=AWkp6wzoFV1lw9xi7K36UuO2UMaXyiJIgdYFHHgMA5zPq9szPKnlNPoo5Wvpyj4B4
+         yWwsDUVYnrPMeFK0b+7QP3AIwUOVqtzq6Yqq6NCwJBLTce6r0WiMIbVHt39yyqLRy/
+         XSekLZ2BjKb7n6Idlw0xWvB6cIAWO5qNIh0dykBE=
+Subject: FAILED: patch "[PATCH] btrfs: add error messages to all unrecognized mount options" failed to apply to 5.4-stable tree
+To:     dsterba@suse.com, anand.jain@oracle.com, nborisov@suse.com,
+        wqu@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 25 Jun 2022 16:29:40 +0200
+Message-ID: <1656167380195193@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANP3RGc8tjqk+c=+rAHNON8u=21Uu+kWveuMWZxGCNMjvqRHYg@mail.gmail.com>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -65,50 +48,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 23, 2022 at 11:18:21AM -0700, Maciej Żenczykowski wrote:
-> On Mon, Jun 20, 2022 at 3:11 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > On Fri, Jun 17, 2022 at 04:45:52PM -0700, Maciej Żenczykowski wrote:
-> > > On Fri, Jun 17, 2022 at 4:30 AM <patchwork-bot+netdevbpf@kernel.org> wrote:
-> > > >
-> > > > Hello:
-> > > >
-> > > > This patch was applied to netdev/net.git (master)
-> > > > by David S. Miller <davem@davemloft.net>:
-> > > >
-> > > > On Fri, 17 Jun 2022 10:54:35 +0200 you wrote:
-> > > > > Commit 8ff978b8b222 ("ipv4/raw: support binding to nonlocal addresses")
-> > > > > introduced a helper function to fold duplicated validity checks of bind
-> > > > > addresses into inet_addr_valid_or_nonlocal(). However, this caused an
-> > > > > unintended regression in ping_check_bind_addr(), which previously would
-> > > > > reject binding to multicast and broadcast addresses, but now these are
-> > > > > both incorrectly allowed as reported in [1].
-> > > > >
-> > > > > [...]
-> > > >
-> > > > Here is the summary with links:
-> > > >   - [v2] ipv4: ping: fix bind address validity check
-> > > >     https://git.kernel.org/netdev/net/c/b4a028c4d031
-> > > >
-> > > > You are awesome, thank you!
-> > > > --
-> > > > Deet-doot-dot, I am a bot.
-> > > > https://korg.docs.kernel.org/patchwork/pwbot.html
-> > >
-> > > I believe this [
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=b4a028c4d031
-> > > ] needs to end up in 5.17+ LTS (though I guess 5.17 is eol, so
-> > > probably just 5.18)
-> >
-> > 5.17 is end-of-life, sorry.
-> >
-> > And this needs to hit Linus's tree first.
-> 
-> It now has:
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/log/net/ipv4/ping.c
-> 
-> ipv4: ping: fix bind address validity check
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/net/ipv4/ping.c?id=b4a028c4d031c27704ad73b1195ca69a1206941e
 
-Great, now queued up, thanks.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From e3a4167c880cf889f66887a152799df4d609dd21 Mon Sep 17 00:00:00 2001
+From: David Sterba <dsterba@suse.com>
+Date: Thu, 2 Jun 2022 23:57:17 +0200
+Subject: [PATCH] btrfs: add error messages to all unrecognized mount options
+
+Almost none of the errors stemming from a valid mount option but wrong
+value prints a descriptive message which would help to identify why
+mount failed. Like in the linked report:
+
+  $ uname -r
+  v4.19
+  $ mount -o compress=zstd /dev/sdb /mnt
+  mount: /mnt: wrong fs type, bad option, bad superblock on
+  /dev/sdb, missing codepage or helper program, or other error.
+  $ dmesg
+  ...
+  BTRFS error (device sdb): open_ctree failed
+
+Errors caused by memory allocation failures are left out as it's not a
+user error so reporting that would be confusing.
+
+Link: https://lore.kernel.org/linux-btrfs/9c3fec36-fc61-3a33-4977-a7e207c3fa4e@gmx.de/
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+index 1387fbe935c1..6627dd7875ee 100644
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -763,6 +763,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+ 				compress_force = false;
+ 				no_compress++;
+ 			} else {
++				btrfs_err(info, "unrecognized compression value %s",
++					  args[0].from);
+ 				ret = -EINVAL;
+ 				goto out;
+ 			}
+@@ -821,8 +823,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+ 		case Opt_thread_pool:
+ 			ret = match_int(&args[0], &intarg);
+ 			if (ret) {
++				btrfs_err(info, "unrecognized thread_pool value %s",
++					  args[0].from);
+ 				goto out;
+ 			} else if (intarg == 0) {
++				btrfs_err(info, "invalid value 0 for thread_pool");
+ 				ret = -EINVAL;
+ 				goto out;
+ 			}
+@@ -883,8 +888,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+ 			break;
+ 		case Opt_ratio:
+ 			ret = match_int(&args[0], &intarg);
+-			if (ret)
++			if (ret) {
++				btrfs_err(info, "unrecognized metadata_ratio value %s",
++					  args[0].from);
+ 				goto out;
++			}
+ 			info->metadata_ratio = intarg;
+ 			btrfs_info(info, "metadata ratio %u",
+ 				   info->metadata_ratio);
+@@ -901,6 +909,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+ 				btrfs_set_and_info(info, DISCARD_ASYNC,
+ 						   "turning on async discard");
+ 			} else {
++				btrfs_err(info, "unrecognized discard mode value %s",
++					  args[0].from);
+ 				ret = -EINVAL;
+ 				goto out;
+ 			}
+@@ -933,6 +943,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+ 				btrfs_set_and_info(info, FREE_SPACE_TREE,
+ 						   "enabling free space tree");
+ 			} else {
++				btrfs_err(info, "unrecognized space_cache value %s",
++					  args[0].from);
+ 				ret = -EINVAL;
+ 				goto out;
+ 			}
+@@ -1014,8 +1026,12 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+ 			break;
+ 		case Opt_check_integrity_print_mask:
+ 			ret = match_int(&args[0], &intarg);
+-			if (ret)
++			if (ret) {
++				btrfs_err(info,
++				"unrecognized check_integrity_print_mask value %s",
++					args[0].from);
+ 				goto out;
++			}
+ 			info->check_integrity_print_mask = intarg;
+ 			btrfs_info(info, "check_integrity_print_mask 0x%x",
+ 				   info->check_integrity_print_mask);
+@@ -1030,13 +1046,15 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+ 			goto out;
+ #endif
+ 		case Opt_fatal_errors:
+-			if (strcmp(args[0].from, "panic") == 0)
++			if (strcmp(args[0].from, "panic") == 0) {
+ 				btrfs_set_opt(info->mount_opt,
+ 					      PANIC_ON_FATAL_ERROR);
+-			else if (strcmp(args[0].from, "bug") == 0)
++			} else if (strcmp(args[0].from, "bug") == 0) {
+ 				btrfs_clear_opt(info->mount_opt,
+ 					      PANIC_ON_FATAL_ERROR);
+-			else {
++			} else {
++				btrfs_err(info, "unrecognized fatal_errors value %s",
++					  args[0].from);
+ 				ret = -EINVAL;
+ 				goto out;
+ 			}
+@@ -1044,8 +1062,12 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+ 		case Opt_commit_interval:
+ 			intarg = 0;
+ 			ret = match_int(&args[0], &intarg);
+-			if (ret)
++			if (ret) {
++				btrfs_err(info, "unrecognized commit_interval value %s",
++					  args[0].from);
++				ret = -EINVAL;
+ 				goto out;
++			}
+ 			if (intarg == 0) {
+ 				btrfs_info(info,
+ 					   "using default commit interval %us",
+@@ -1059,8 +1081,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+ 			break;
+ 		case Opt_rescue:
+ 			ret = parse_rescue_options(info, args[0].from);
+-			if (ret < 0)
++			if (ret < 0) {
++				btrfs_err(info, "unrecognized rescue value %s",
++					  args[0].from);
+ 				goto out;
++			}
+ 			break;
+ #ifdef CONFIG_BTRFS_DEBUG
+ 		case Opt_fragment_all:
+
