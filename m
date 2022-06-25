@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C078455AB06
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 150FE55AB07
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232970AbiFYObV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 10:31:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50288 "EHLO
+        id S232969AbiFYObm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 10:31:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232699AbiFYObT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:31:19 -0400
+        with ESMTP id S232699AbiFYObm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:31:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB7AB17AB8
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:31:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 368EE17E01
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:31:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B75C61460
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:31:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0641CC3411C;
-        Sat, 25 Jun 2022 14:31:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C480D61454
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:31:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA6F6C3411C;
+        Sat, 25 Jun 2022 14:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656167477;
-        bh=hWGzdS0B/HpY6vnS9zpHkaLwdww0HLiO97wsV7ZcYLY=;
+        s=korg; t=1656167499;
+        bh=yCZ19EvjyWXzS45XMoTB0bN2ecI7gxGYneSY7Tm3+AQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=tyqepFZZ8oxjyh6uz6RXs1QkKFewKZ4pNJyhG6CpKMJvU7pDitVBqXpUo5ChOgEJr
-         hsX5KVG+wZYsil7ekygZWxs2iSL32Vam51Y9TNOsD+PBiiw0CybHH8D1jA1j5zCMqW
-         wVP0LDVE847XWroDIZlKxut3ir85IAQkks3+2jOU=
-Subject: FAILED: patch "[PATCH] xen/gntdev: Avoid blocking in unmap_grant_pages()" failed to apply to 5.4-stable tree
-To:     demi@invisiblethingslab.com, jgross@suse.com
+        b=JCl/ifayz53pEA5MJKnVfmG34wPX1azBcG6toy6fV7TGrIIMHX587iol+594le3M+
+         YSeoHu1G/70thNav1dDGaD+gLvSbkOLSL1GVyujRihso+z6z4KOkjXKXJQQ1qSGP6G
+         4mWqhvwTw8Wol9RQMuvGgKKxGzBeaQ4Vtl7Vt2ho=
+Subject: FAILED: patch "[PATCH] mtd: rawnand: gpmi: Fix setting busy timeout setting" failed to apply to 4.19-stable tree
+To:     s.hauer@pengutronix.de, miquel.raynal@bootlin.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 25 Jun 2022 16:30:59 +0200
-Message-ID: <1656167459159116@kroah.com>
+Date:   Sat, 25 Jun 2022 16:31:36 +0200
+Message-ID: <16561674962311@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,361 +59,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From dbe97cff7dd9f0f75c524afdd55ad46be3d15295 Mon Sep 17 00:00:00 2001
-From: Demi Marie Obenour <demi@invisiblethingslab.com>
-Date: Tue, 21 Jun 2022 22:27:26 -0400
-Subject: [PATCH] xen/gntdev: Avoid blocking in unmap_grant_pages()
+From 06781a5026350cde699d2d10c9914a25c1524f45 Mon Sep 17 00:00:00 2001
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Date: Tue, 14 Jun 2022 10:31:38 +0200
+Subject: [PATCH] mtd: rawnand: gpmi: Fix setting busy timeout setting
 
-unmap_grant_pages() currently waits for the pages to no longer be used.
-In https://github.com/QubesOS/qubes-issues/issues/7481, this lead to a
-deadlock against i915: i915 was waiting for gntdev's MMU notifier to
-finish, while gntdev was waiting for i915 to free its pages.  I also
-believe this is responsible for various deadlocks I have experienced in
-the past.
+The DEVICE_BUSY_TIMEOUT value is described in the Reference Manual as:
 
-Avoid these problems by making unmap_grant_pages async.  This requires
-making it return void, as any errors will not be available when the
-function returns.  Fortunately, the only use of the return value is a
-WARN_ON(), which can be replaced by a WARN_ON when the error is
-detected.  Additionally, a failed call will not prevent further calls
-from being made, but this is harmless.
+| Timeout waiting for NAND Ready/Busy or ATA IRQ. Used in WAIT_FOR_READY
+| mode. This value is the number of GPMI_CLK cycles multiplied by 4096.
 
-Because unmap_grant_pages is now async, the grant handle will be sent to
-INVALID_GRANT_HANDLE too late to prevent multiple unmaps of the same
-handle.  Instead, a separate bool array is allocated for this purpose.
-This wastes memory, but stuffing this information in padding bytes is
-too fragile.  Furthermore, it is necessary to grab a reference to the
-map before making the asynchronous call, and release the reference when
-the call returns.
+So instead of multiplying the value in cycles with 4096, we have to
+divide it by that value. Use DIV_ROUND_UP to make sure we are on the
+safe side, especially when the calculated value in cycles is smaller
+than 4096 as typically the case.
 
-It is also necessary to guard against reentrancy in gntdev_map_put(),
-and to handle the case where userspace tries to map a mapping whose
-contents have not all been freed yet.
+This bug likely never triggered because any timeout != 0 usually will
+do. In my case the busy timeout in cycles was originally calculated as
+2408, which multiplied with 4096 is 0x968000. The lower 16 bits were
+taken for the 16 bit wide register field, so the register value was
+0x8000. With 2970bf5a32f0 ("mtd: rawnand: gpmi: fix controller timings
+setting") however the value in cycles became 2384, which multiplied
+with 4096 is 0x950000. The lower 16 bit are 0x0 now resulting in an
+intermediate timeout when reading from NAND.
 
-Fixes: 745282256c75 ("xen/gntdev: safely unmap grants in case they are still in use")
+Fixes: b1206122069aa ("mtd: rawnand: gpmi: use core timings instead of an empirical derivation")
 Cc: stable@vger.kernel.org
-Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20220622022726.2538-1-demi@invisiblethingslab.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220614083138.3455683-1-s.hauer@pengutronix.de
 
-diff --git a/drivers/xen/gntdev-common.h b/drivers/xen/gntdev-common.h
-index 20d7d059dadb..40ef379c28ab 100644
---- a/drivers/xen/gntdev-common.h
-+++ b/drivers/xen/gntdev-common.h
-@@ -16,6 +16,7 @@
- #include <linux/mmu_notifier.h>
- #include <linux/types.h>
- #include <xen/interface/event_channel.h>
-+#include <xen/grant_table.h>
+diff --git a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+index 0b68d05846e1..889e40329956 100644
+--- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
++++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+@@ -890,7 +890,7 @@ static int gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
+ 	hw->timing0 = BF_GPMI_TIMING0_ADDRESS_SETUP(addr_setup_cycles) |
+ 		      BF_GPMI_TIMING0_DATA_HOLD(data_hold_cycles) |
+ 		      BF_GPMI_TIMING0_DATA_SETUP(data_setup_cycles);
+-	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(busy_timeout_cycles * 4096);
++	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(DIV_ROUND_UP(busy_timeout_cycles, 4096));
  
- struct gntdev_dmabuf_priv;
- 
-@@ -56,6 +57,7 @@ struct gntdev_grant_map {
- 	struct gnttab_unmap_grant_ref *unmap_ops;
- 	struct gnttab_map_grant_ref   *kmap_ops;
- 	struct gnttab_unmap_grant_ref *kunmap_ops;
-+	bool *being_removed;
- 	struct page **pages;
- 	unsigned long pages_vm_start;
- 
-@@ -73,6 +75,11 @@ struct gntdev_grant_map {
- 	/* Needed to avoid allocation in gnttab_dma_free_pages(). */
- 	xen_pfn_t *frames;
- #endif
-+
-+	/* Number of live grants */
-+	atomic_t live_grants;
-+	/* Needed to avoid allocation in __unmap_grant_pages */
-+	struct gntab_unmap_queue_data unmap_data;
- };
- 
- struct gntdev_grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count,
-diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index 59ffea800079..4b56c39f766d 100644
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -35,6 +35,7 @@
- #include <linux/slab.h>
- #include <linux/highmem.h>
- #include <linux/refcount.h>
-+#include <linux/workqueue.h>
- 
- #include <xen/xen.h>
- #include <xen/grant_table.h>
-@@ -60,10 +61,11 @@ module_param(limit, uint, 0644);
- MODULE_PARM_DESC(limit,
- 	"Maximum number of grants that may be mapped by one mapping request");
- 
-+/* True in PV mode, false otherwise */
- static int use_ptemod;
- 
--static int unmap_grant_pages(struct gntdev_grant_map *map,
--			     int offset, int pages);
-+static void unmap_grant_pages(struct gntdev_grant_map *map,
-+			      int offset, int pages);
- 
- static struct miscdevice gntdev_miscdev;
- 
-@@ -120,6 +122,7 @@ static void gntdev_free_map(struct gntdev_grant_map *map)
- 	kvfree(map->unmap_ops);
- 	kvfree(map->kmap_ops);
- 	kvfree(map->kunmap_ops);
-+	kvfree(map->being_removed);
- 	kfree(map);
- }
- 
-@@ -140,10 +143,13 @@ struct gntdev_grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count,
- 	add->unmap_ops = kvmalloc_array(count, sizeof(add->unmap_ops[0]),
- 					GFP_KERNEL);
- 	add->pages     = kvcalloc(count, sizeof(add->pages[0]), GFP_KERNEL);
-+	add->being_removed =
-+		kvcalloc(count, sizeof(add->being_removed[0]), GFP_KERNEL);
- 	if (NULL == add->grants    ||
- 	    NULL == add->map_ops   ||
- 	    NULL == add->unmap_ops ||
--	    NULL == add->pages)
-+	    NULL == add->pages     ||
-+	    NULL == add->being_removed)
- 		goto err;
- 	if (use_ptemod) {
- 		add->kmap_ops   = kvmalloc_array(count, sizeof(add->kmap_ops[0]),
-@@ -250,9 +256,36 @@ void gntdev_put_map(struct gntdev_priv *priv, struct gntdev_grant_map *map)
- 	if (!refcount_dec_and_test(&map->users))
- 		return;
- 
--	if (map->pages && !use_ptemod)
-+	if (map->pages && !use_ptemod) {
-+		/*
-+		 * Increment the reference count.  This ensures that the
-+		 * subsequent call to unmap_grant_pages() will not wind up
-+		 * re-entering itself.  It *can* wind up calling
-+		 * gntdev_put_map() recursively, but such calls will be with a
-+		 * reference count greater than 1, so they will return before
-+		 * this code is reached.  The recursion depth is thus limited to
-+		 * 1.  Do NOT use refcount_inc() here, as it will detect that
-+		 * the reference count is zero and WARN().
-+		 */
-+		refcount_set(&map->users, 1);
-+
-+		/*
-+		 * Unmap the grants.  This may or may not be asynchronous, so it
-+		 * is possible that the reference count is 1 on return, but it
-+		 * could also be greater than 1.
-+		 */
- 		unmap_grant_pages(map, 0, map->count);
- 
-+		/* Check if the memory now needs to be freed */
-+		if (!refcount_dec_and_test(&map->users))
-+			return;
-+
-+		/*
-+		 * All pages have been returned to the hypervisor, so free the
-+		 * map.
-+		 */
-+	}
-+
- 	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
- 		notify_remote_via_evtchn(map->notify.event);
- 		evtchn_put(map->notify.event);
-@@ -283,6 +316,7 @@ static int find_grant_ptes(pte_t *pte, unsigned long addr, void *data)
- 
- int gntdev_map_grant_pages(struct gntdev_grant_map *map)
- {
-+	size_t alloced = 0;
- 	int i, err = 0;
- 
- 	if (!use_ptemod) {
-@@ -331,97 +365,116 @@ int gntdev_map_grant_pages(struct gntdev_grant_map *map)
- 			map->count);
- 
- 	for (i = 0; i < map->count; i++) {
--		if (map->map_ops[i].status == GNTST_okay)
-+		if (map->map_ops[i].status == GNTST_okay) {
- 			map->unmap_ops[i].handle = map->map_ops[i].handle;
--		else if (!err)
-+			if (!use_ptemod)
-+				alloced++;
-+		} else if (!err)
- 			err = -EINVAL;
- 
- 		if (map->flags & GNTMAP_device_map)
- 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
- 
- 		if (use_ptemod) {
--			if (map->kmap_ops[i].status == GNTST_okay)
-+			if (map->kmap_ops[i].status == GNTST_okay) {
-+				if (map->map_ops[i].status == GNTST_okay)
-+					alloced++;
- 				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
--			else if (!err)
-+			} else if (!err)
- 				err = -EINVAL;
- 		}
- 	}
-+	atomic_add(alloced, &map->live_grants);
- 	return err;
- }
- 
--static int __unmap_grant_pages(struct gntdev_grant_map *map, int offset,
--			       int pages)
-+static void __unmap_grant_pages_done(int result,
-+		struct gntab_unmap_queue_data *data)
- {
--	int i, err = 0;
--	struct gntab_unmap_queue_data unmap_data;
--
--	if (map->notify.flags & UNMAP_NOTIFY_CLEAR_BYTE) {
--		int pgno = (map->notify.addr >> PAGE_SHIFT);
--		if (pgno >= offset && pgno < offset + pages) {
--			/* No need for kmap, pages are in lowmem */
--			uint8_t *tmp = pfn_to_kaddr(page_to_pfn(map->pages[pgno]));
--			tmp[map->notify.addr & (PAGE_SIZE-1)] = 0;
--			map->notify.flags &= ~UNMAP_NOTIFY_CLEAR_BYTE;
--		}
--	}
--
--	unmap_data.unmap_ops = map->unmap_ops + offset;
--	unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
--	unmap_data.pages = map->pages + offset;
--	unmap_data.count = pages;
--
--	err = gnttab_unmap_refs_sync(&unmap_data);
--	if (err)
--		return err;
-+	unsigned int i;
-+	struct gntdev_grant_map *map = data->data;
-+	unsigned int offset = data->unmap_ops - map->unmap_ops;
- 
--	for (i = 0; i < pages; i++) {
--		if (map->unmap_ops[offset+i].status)
--			err = -EINVAL;
-+	for (i = 0; i < data->count; i++) {
-+		WARN_ON(map->unmap_ops[offset+i].status);
- 		pr_debug("unmap handle=%d st=%d\n",
- 			map->unmap_ops[offset+i].handle,
- 			map->unmap_ops[offset+i].status);
- 		map->unmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
- 		if (use_ptemod) {
--			if (map->kunmap_ops[offset+i].status)
--				err = -EINVAL;
-+			WARN_ON(map->kunmap_ops[offset+i].status);
- 			pr_debug("kunmap handle=%u st=%d\n",
- 				 map->kunmap_ops[offset+i].handle,
- 				 map->kunmap_ops[offset+i].status);
- 			map->kunmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
- 		}
- 	}
--	return err;
-+	/*
-+	 * Decrease the live-grant counter.  This must happen after the loop to
-+	 * prevent premature reuse of the grants by gnttab_mmap().
-+	 */
-+	atomic_sub(data->count, &map->live_grants);
-+
-+	/* Release reference taken by __unmap_grant_pages */
-+	gntdev_put_map(NULL, map);
-+}
-+
-+static void __unmap_grant_pages(struct gntdev_grant_map *map, int offset,
-+			       int pages)
-+{
-+	if (map->notify.flags & UNMAP_NOTIFY_CLEAR_BYTE) {
-+		int pgno = (map->notify.addr >> PAGE_SHIFT);
-+
-+		if (pgno >= offset && pgno < offset + pages) {
-+			/* No need for kmap, pages are in lowmem */
-+			uint8_t *tmp = pfn_to_kaddr(page_to_pfn(map->pages[pgno]));
-+
-+			tmp[map->notify.addr & (PAGE_SIZE-1)] = 0;
-+			map->notify.flags &= ~UNMAP_NOTIFY_CLEAR_BYTE;
-+		}
-+	}
-+
-+	map->unmap_data.unmap_ops = map->unmap_ops + offset;
-+	map->unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
-+	map->unmap_data.pages = map->pages + offset;
-+	map->unmap_data.count = pages;
-+	map->unmap_data.done = __unmap_grant_pages_done;
-+	map->unmap_data.data = map;
-+	refcount_inc(&map->users); /* to keep map alive during async call below */
-+
-+	gnttab_unmap_refs_async(&map->unmap_data);
- }
- 
--static int unmap_grant_pages(struct gntdev_grant_map *map, int offset,
--			     int pages)
-+static void unmap_grant_pages(struct gntdev_grant_map *map, int offset,
-+			      int pages)
- {
--	int range, err = 0;
-+	int range;
-+
-+	if (atomic_read(&map->live_grants) == 0)
-+		return; /* Nothing to do */
- 
- 	pr_debug("unmap %d+%d [%d+%d]\n", map->index, map->count, offset, pages);
- 
- 	/* It is possible the requested range will have a "hole" where we
- 	 * already unmapped some of the grants. Only unmap valid ranges.
- 	 */
--	while (pages && !err) {
--		while (pages &&
--		       map->unmap_ops[offset].handle == INVALID_GRANT_HANDLE) {
-+	while (pages) {
-+		while (pages && map->being_removed[offset]) {
- 			offset++;
- 			pages--;
- 		}
- 		range = 0;
- 		while (range < pages) {
--			if (map->unmap_ops[offset + range].handle ==
--			    INVALID_GRANT_HANDLE)
-+			if (map->being_removed[offset + range])
- 				break;
-+			map->being_removed[offset + range] = true;
- 			range++;
- 		}
--		err = __unmap_grant_pages(map, offset, range);
-+		if (range)
-+			__unmap_grant_pages(map, offset, range);
- 		offset += range;
- 		pages -= range;
- 	}
--
--	return err;
- }
- 
- /* ------------------------------------------------------------------ */
-@@ -473,7 +526,6 @@ static bool gntdev_invalidate(struct mmu_interval_notifier *mn,
- 	struct gntdev_grant_map *map =
- 		container_of(mn, struct gntdev_grant_map, notifier);
- 	unsigned long mstart, mend;
--	int err;
- 
- 	if (!mmu_notifier_range_blockable(range))
- 		return false;
-@@ -494,10 +546,9 @@ static bool gntdev_invalidate(struct mmu_interval_notifier *mn,
- 			map->index, map->count,
- 			map->vma->vm_start, map->vma->vm_end,
- 			range->start, range->end, mstart, mend);
--	err = unmap_grant_pages(map,
-+	unmap_grant_pages(map,
- 				(mstart - map->vma->vm_start) >> PAGE_SHIFT,
- 				(mend - mstart) >> PAGE_SHIFT);
--	WARN_ON(err);
- 
- 	return true;
- }
-@@ -985,6 +1036,10 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
- 		goto unlock_out;
- 	if (use_ptemod && map->vma)
- 		goto unlock_out;
-+	if (atomic_read(&map->live_grants)) {
-+		err = -EAGAIN;
-+		goto unlock_out;
-+	}
- 	refcount_inc(&map->users);
- 
- 	vma->vm_ops = &gntdev_vmops;
+ 	/*
+ 	 * Derive NFC ideal delay from {3}:
 
