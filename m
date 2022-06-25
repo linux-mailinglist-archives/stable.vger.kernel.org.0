@@ -2,207 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1838255AB94
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 18:30:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E05F855ABA0
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 18:44:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229516AbiFYQ3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 12:29:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53846 "EHLO
+        id S232172AbiFYQob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 12:44:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbiFYQ3w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 12:29:52 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63ECC11A11
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 09:29:51 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id 68so5153745pgb.10
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 09:29:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=7qNU28fbpJyBe3vSODEXRNwOkF3BbWME+JFsHoEkctk=;
-        b=AJCIf5qJ6BTCQqmAuEjXpY9AEh3z/Im8z8ckqQCJyosw7kRekjGLurPm84Pi0dYHgk
-         oS1bIB/NKBehI2vZf6VT9p8a6kP52b/eLfXiW1Crwe11UXb/giLpUnmU5bZAeh/EuxZK
-         2yrjPY9ozOB++PmHNYGCzrcEo5CAisgMjthnyECH4VQi4E8xpJFhJA3K/lDeAZi6UJgm
-         86DGWnMd7pBOp+SZEsjBY5MqUigqIdrk/MdyyLv4uTyjF7aVJEFucUnNtr3JH0VC5oW3
-         ZvZrxDGV9ktjxLqkOqeXKG1wc2RX+20bDZBfguWz6tCQ2B396+upAGc9nw0PuqRZhCey
-         rMwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=7qNU28fbpJyBe3vSODEXRNwOkF3BbWME+JFsHoEkctk=;
-        b=OtVMybfOx/M9o5yD3SbuoO0EiH1KfRsXWVjU2KDbmkacQVSStWkLvNSZRw9itYxFD3
-         IwLVXt9iU6DZ5lAc7wYJaMMZVvqx8gF9sbCcZaMQ9KPJ1y5ujrALCtBGMGNjvsO8/vIn
-         sABY6Ta9wRG20orckQcZ4fCFGDXJF3icFjt4vR5VLQ8Q5Vvu8m8O9BqjSds2VXfGorEZ
-         MHD9yZNeoa+g5pS+i8Se0W2J9czyTGhvfhtLvimzSNK75hlTLVVvCuDbHK3qc3R4Nj7X
-         6bqv3bhYEo6a1UobLEtG68ja+70CMvurXE5lEAsFERW/pmBhGkUu04a+9MBXhnTLlOgu
-         9L0g==
-X-Gm-Message-State: AJIora9OwjsXpz73xMXrYtO2/clQUtQ5NykSaJdA9Y2iHkFWkOQFdDVa
-        zDOCEI1Rr4o1d+oLVGkmzEJG+qdQ18YKoz5P
-X-Google-Smtp-Source: AGRyM1sbSoSAZqNwrAMipSKoPfvlbiBu9oWPmWCQy0DI0+WPoK/gmVCrTINC+KkX8CIUTuYpyo8MKg==
-X-Received: by 2002:a63:6b41:0:b0:3fe:22d6:e6aa with SMTP id g62-20020a636b41000000b003fe22d6e6aamr4123147pgc.249.1656174590705;
-        Sat, 25 Jun 2022 09:29:50 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v11-20020a1709028d8b00b001641a68f1c7sm3904879plo.273.2022.06.25.09.29.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Jun 2022 09:29:50 -0700 (PDT)
-Message-ID: <62b737fe.1c69fb81.53e3d.5693@mx.google.com>
-Date:   Sat, 25 Jun 2022 09:29:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229487AbiFYQob (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 12:44:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888FF14008
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 09:44:29 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20D1D60AAF
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 16:44:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09853C3411C;
+        Sat, 25 Jun 2022 16:44:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1656175468;
+        bh=Geg+5XlzYixUTV3CmVE0KP0pCVZ2wxiFREf+OoFrCsE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lswxXwhy7AKXZPCl3Cez5IfeYFtSo3HVu40F91mlYwDV8O1fLFvMcTACIzkwknM9v
+         ZzKf6d9zBC1DAsA2PA45a3HizjWm1uRVvYsVJn3RdHPYmQT3RJxaIMI4sbaHwKxzsP
+         4wxcPcA4RjO1Pj16yMXAX1z2+vHRi92F88qUaEuk=
+Date:   Sat, 25 Jun 2022 18:44:23 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Alex Natalsson <harmoniesworlds@gmail.com>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
+Subject: Re: echo mem > /sys/power/state write error "Device or resource
+ busy" on Amlogic A311D device
+Message-ID: <Yrc7Z6R4iG26FkmD@kroah.com>
+References: <CADs9LoMEF86Fp2-0ji7d9CNA5F=8ArwPWnj09h_Cwo6poNsWVA@mail.gmail.com>
+ <YqMdS+3qpYHfWN9f@kroah.com>
+ <CADs9LoMAgCNU6Rx2y0t7kRMmLw-Qd06Ayq19qM2-PkOJUgdxig@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.5-154-g1fbbb68b1ca9
-X-Kernelci-Branch: linux-5.18.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.18.y baseline: 150 runs,
- 3 regressions (v5.18.5-154-g1fbbb68b1ca9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CADs9LoMAgCNU6Rx2y0t7kRMmLw-Qd06Ayq19qM2-PkOJUgdxig@mail.gmail.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.18.y baseline: 150 runs, 3 regressions (v5.18.5-154-g1fbb=
-b68b1ca9)
+A: http://en.wikipedia.org/wiki/Top_post
+Q: Were do I find info about this thing called top-posting?
+A: Because it messes up the order in which people normally read text.
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
 
-Regressions Summary
--------------------
+A: No.
+Q: Should I include quotations after my reply?
 
-platform            | arch  | lab           | compiler | defconfig         =
- | regressions
---------------------+-------+---------------+----------+-------------------=
--+------------
-jetson-tk1          | arm   | lab-baylibre  | gcc-10   | tegra_defconfig   =
- | 1          =
+http://daringfireball.net/2007/07/on_top
 
-r8a77950-salvator-x | arm64 | lab-baylibre  | gcc-10   | defconfig         =
- | 1          =
+On Sat, Jun 25, 2022 at 06:01:22PM +0300, Alex Natalsson wrote:
+> New kernels freezing after resume only when scaling governor is
+> "conservative". Yes, I using this because my solar battery produce a
+> few of electricity. When scaling governor is performance system not
+> freezing after resume.
+> However, sometimes I received "Device or resource busy" error after
+> echo mem > /sys/power/state.
+> Later I found out what this was related with another bug:
+> pipewire-media-session is <defunct>, nosound and many processes which
+> using audio as mplayer, ffplay, alsamixer and etc was not responding
+> and not terminating even throught kill -9.
+> The log after alsamixer launch:
+> [  103.786358] Internal error: Oops: 96000004 [#1] SMP
+> [  103.786509] Modules linked in: snd_seq_dummy snd_hrtimer snd_seq
+> snd_seq_device bnep nls_utf8 mt7601u mac80211 hci_uart libarc4 joydev
+> brcmfmac btbcm panfrost bluetooth meson_vdec(C) brcmutil gpu_sched
+> cfg80211 dwmac_generic videobuf2_dma_contig v4l2_mem2mem
+> videobuf2_memops videobuf2_v4l2 videobuf2_common drm_shmem_helper
+> ecdh_generic dwmac_meson8b stmmac_platform dw_hdmi_i2s_audio stmmac
+> ecc ir_nec_decoder videodev pcs_xpcs rc_khadas phylink ptp
+> meson_saradc meson_ir rc_core snd_soc_meson_axg_frddr
+> snd_soc_meson_axg_toddr snd_soc_meson_axg_sound_card
+> snd_soc_meson_card_utils snd_soc_meson_axg_fifo ao_cec_g12a
+> snd_soc_meson_axg_tdmin snd_soc_meson_axg_tdm_interface
+> snd_soc_meson_axg_tdmout snd_soc_meson_axg_tdm_formatter rfkill
+> meson_gxbb_wdt fuse crypto_user uas usb_storage adc_keys
+> gpio_keys_polled industrialio
+> [  103.857778] CPU: 3 PID: 530 Comm: pipewire-media- Tainted: G
+>  C        5.16.0-ARCH+ #8
 
-tegra124-nyan-big   | arm   | lab-collabora | gcc-10   | multi_v7_defconfig=
- | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.18.y/ker=
-nel/v5.18.5-154-g1fbbb68b1ca9/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.18.y
-  Describe: v5.18.5-154-g1fbbb68b1ca9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1fbbb68b1ca97c9e8393fe69df86b23e79f81d05 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch  | lab           | compiler | defconfig         =
- | regressions
---------------------+-------+---------------+----------+-------------------=
--+------------
-jetson-tk1          | arm   | lab-baylibre  | gcc-10   | tegra_defconfig   =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62b700fb4c92cadc53a39c4f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.5=
--154-g1fbbb68b1ca9/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.5=
--154-g1fbbb68b1ca9/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/armel/rootfs.cpio.gz =
+But this is 5.16.0, the commit you pointed to is in 5.17.
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/62b700fb4c92cadc53a39=
-c50
-        failing since 11 days (last pass: v5.18.2-880-g09bf95a7c28a7, first=
- fail: v5.18.2-1220-gd5ac9cd9153f6) =
+> [  103.857791] Hardware name: Khadas VIM3 (DT)
+> [  103.857795] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+> [  103.857801] pc : dpcm_be_connect+0xd0/0x2d0
+> [  103.881758] lr : dpcm_add_paths.isra.0+0xcc/0x1e0
+> [  103.881763] sp : ffff800009f4b870
+> [  103.881765] x29: ffff800009f4b870 x28: ffff000003b944c0 x27: 0000000000000001
+> [  103.881772] x26: 0000000000000001 x25: 0000000000000340 x24: 00000000000002a0
+> [  103.881777] x23: 0000000000000001 x22: 0000000000000000 x21: ffff000005b18080
+> [  103.881782] x20: ffff000005b183c0 x19: ffff000005b1c080 x18: 0000000000000000
+> [  103.881787] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+> [  103.881792] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+> [  103.881797] x11: 0000000000000000 x10: 0000000000000000 x9 : 0000000000000000
+> [  103.881801] x8 : ffff000012020400 x7 : 0000000000000000 x6 : 000000000000003f
+> [  103.881806] x5 : 0000000000000040 x4 : 0000000000000000 x3 : ffff000002822000
+> [  103.881811] x2 : ffff000002861b50 x1 : ffff00000282f800 x0 : ffff000002861800
+> [  103.881817] Call trace:
+> [  103.881819]  dpcm_be_connect+0xd0/0x2d0
+> [  103.881823]  dpcm_add_paths.isra.0+0xcc/0x1e0
+> [  103.881826]  dpcm_fe_dai_open+0x80/0x194
+> [  103.881831]  snd_pcm_open_substream+0xa4/0x174
+> [  103.881838]  snd_pcm_open.part.0+0xd8/0x1dc
+> [  103.881843]  snd_pcm_capture_open+0x64/0x94
+> [  103.992730]  snd_open+0xac/0x1d0
+> [  103.992739]  chrdev_open+0xe0/0x2d0
+> [  103.999389]  do_dentry_open+0x12c/0x3a0
+> [  103.999397]  vfs_open+0x30/0x3c
+> [  103.999401]  do_open+0x204/0x414
+> [  103.999405]  path_openat+0x10c/0x27c
+> [  103.999408]  do_filp_open+0x80/0x130
+> [  103.999412]  do_sys_openat2+0xb4/0x170
+> [  103.999414]  __arm64_sys_openat+0x64/0xb0
+> [  103.999416]  invoke_syscall+0x48/0x114
+> [  103.999426]  el0_svc_common.constprop.0+0xd4/0xfc
+> [  103.999429]  do_el0_svc+0x28/0x90
+> [  103.999432]  el0_svc+0x28/0x80
+> [  103.999440]  el0t_64_sync_handler+0xa4/0x130
+> [  103.999442]  el0t_64_sync+0x1a0/0x1a4
+> [  103.999451] Code: 8b000020 f9406841 f9406816 f9400020 (f94002c1)
+> [  103.999457] ---[ end trace e01b673b8147057d ]---
+> 
+> 
+> After I removed pipewire software "Device or resource busy" error was
+> disappear. But the sound and media still doesn't working and alsamixer
+> cannot change sound card to my usb audio device after commit
+> bbf7d3b1c4f40eb02dd1dffb500ba00b0bff0303.
 
- =
+Can you send the info to the sound mailing list and cc the developers of
+that commit with your information?  That commit looks odd to be causing
+problems.
 
+thanks,
 
-
-platform            | arch  | lab           | compiler | defconfig         =
- | regressions
---------------------+-------+---------------+----------+-------------------=
--+------------
-r8a77950-salvator-x | arm64 | lab-baylibre  | gcc-10   | defconfig         =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62b702253398aa06a5a39bf4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.5=
--154-g1fbbb68b1ca9/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
-lvator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.5=
--154-g1fbbb68b1ca9/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
-lvator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62b702253398aa06a5a39=
-bf5
-        new failure (last pass: v5.18.5-142-g1cf3647a86ad5) =
-
- =
-
-
-
-platform            | arch  | lab           | compiler | defconfig         =
- | regressions
---------------------+-------+---------------+----------+-------------------=
--+------------
-tegra124-nyan-big   | arm   | lab-collabora | gcc-10   | multi_v7_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62b72d8b2a263cd1faa39bcf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.5=
--154-g1fbbb68b1ca9/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-teg=
-ra124-nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.5=
--154-g1fbbb68b1ca9/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-teg=
-ra124-nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220610.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62b72d8b2a263cd1faa39=
-bd0
-        failing since 12 days (last pass: v5.18.2-880-g09bf95a7c28a7, first=
- fail: v5.18.2-1220-gd5ac9cd9153f6) =
-
- =20
+greg k-h
