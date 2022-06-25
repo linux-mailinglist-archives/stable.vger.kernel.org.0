@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D02AC55AB13
-	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:47:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E59455AB1C
+	for <lists+stable@lfdr.de>; Sat, 25 Jun 2022 16:47:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233020AbiFYOqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jun 2022 10:46:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58870 "EHLO
+        id S233023AbiFYOqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jun 2022 10:46:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233026AbiFYOql (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:46:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9978715A2E
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:46:40 -0700 (PDT)
+        with ESMTP id S233026AbiFYOqx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jun 2022 10:46:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B69ED12773
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 07:46:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37799B80B79
-        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:46:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AA2AC3411C;
-        Sat, 25 Jun 2022 14:46:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EDB86147D
+        for <stable@vger.kernel.org>; Sat, 25 Jun 2022 14:46:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DF26C3411C;
+        Sat, 25 Jun 2022 14:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656168398;
-        bh=85ItXkklRwkJwiCtM9n5hO+h+7cKdEhM+qo7Inf7JaA=;
+        s=korg; t=1656168411;
+        bh=eovyaCws+sXA+ucbSgwJ1QjIq9B3us2/BrChStMYjRU=;
         h=Subject:To:Cc:From:Date:From;
-        b=jsSJ8P2E0l+clwHFZs7laehW80jSTli9mZAnf0Dyk2nCzarSSdFo++QSG0p+ajUrr
-         4y2co6fWkwUKmOap7EqlBlg7dzJ+lP2Zpn5GQBXa6/UY1cYhx/XXARn1Xq/6lpTEbQ
-         KD/AoJFneaJG04b4XRwASrvmkqZ4Q0BsWSx1wq1I=
-Subject: FAILED: patch "[PATCH] amd/display/dc: Fix COLOR_ENCODING and COLOR_RANGE doing" failed to apply to 4.19-stable tree
-To:     joshua@froggi.es, alexander.deucher@amd.com
+        b=x/QWIqhRPfvsvL9yuttlXd0VbyotVzEiMS/x0JhuBzTXA5Bkls20MgsE9y7ZXhgfX
+         EHgnhATY74eriMGM7cJKMcn2hpcKGn9pDYM9qLAOl3niQcEgFymkgcAHRZKORRu92V
+         8aBYAvk/Fel7L++e6zvLNOSmeucQx21wdTixpAjc=
+Subject: FAILED: patch "[PATCH] drm/amd/display: Fix DC warning at driver load" failed to apply to 5.18-stable tree
+To:     qingqing.zhuo@amd.com, Dmytro.Laktyushkin@amd.com,
+        Rodrigo.Siqueira@amd.com, alexander.deucher@amd.com,
+        daniel.wheeler@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 25 Jun 2022 16:46:21 +0200
-Message-ID: <1656168381168192@kroah.com>
+Date:   Sat, 25 Jun 2022 16:46:48 +0200
+Message-ID: <1656168408210153@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,66 +61,35 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e84131a88a8cdcd6fe9f234ed98e3f8ca049142b Mon Sep 17 00:00:00 2001
-From: Joshua Ashton <joshua@froggi.es>
-Date: Thu, 16 Jun 2022 01:21:27 +0000
-Subject: [PATCH] amd/display/dc: Fix COLOR_ENCODING and COLOR_RANGE doing
- nothing for DCN20+
+From 235870f659687b48b12c28f9427e6ca39dcaa81e Mon Sep 17 00:00:00 2001
+From: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Date: Fri, 10 Jun 2022 10:43:53 -0400
+Subject: [PATCH] drm/amd/display: Fix DC warning at driver load
 
-For DCN20 and above, the code that actually hooks up the provided
-input_color_space got lost at some point.
+[Why]
+Wrong index was checked for dcfclk_mhz, causing false warning.
 
-Fixes COLOR_ENCODING and COLOR_RANGE doing nothing on DCN20+.
-Tested using Steam Remote Play Together + gamescope.
+[How]
+Fix the assertion index.
 
-Update other DCNs the same wasy DCN1.x was updates in
-commit a1e07ba89d49 ("drm/amd/display: Use plane->color_space for dpp if specified")
-
-Fixes: a1e07ba89d49 ("drm/amd/display: Use plane->color_space for dpp if specified")
-Signed-off-by: Joshua Ashton <joshua@froggi.es>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org # 5.18.x
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_dpp.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_dpp.c
-index 970b65efeac1..eaa7032f0f1a 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_dpp.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_dpp.c
-@@ -212,6 +212,9 @@ static void dpp2_cnv_setup (
- 		break;
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c
+index fb4ae800e919..f4381725b210 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c
+@@ -550,7 +550,7 @@ static void dcn315_clk_mgr_helper_populate_bw_params(
+ 		if (!bw_params->clk_table.entries[i].dtbclk_mhz)
+ 			bw_params->clk_table.entries[i].dtbclk_mhz = def_max.dtbclk_mhz;
  	}
- 
-+	/* Set default color space based on format if none is given. */
-+	color_space = input_color_space ? input_color_space : color_space;
-+
- 	if (is_2bit == 1 && alpha_2bit_lut != NULL) {
- 		REG_UPDATE(ALPHA_2BIT_LUT, ALPHA_2BIT_LUT0, alpha_2bit_lut->lut0);
- 		REG_UPDATE(ALPHA_2BIT_LUT, ALPHA_2BIT_LUT1, alpha_2bit_lut->lut1);
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn201/dcn201_dpp.c b/drivers/gpu/drm/amd/display/dc/dcn201/dcn201_dpp.c
-index 8b6505b7dca8..f50ab961bc17 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn201/dcn201_dpp.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn201/dcn201_dpp.c
-@@ -153,6 +153,9 @@ static void dpp201_cnv_setup(
- 		break;
- 	}
- 
-+	/* Set default color space based on format if none is given. */
-+	color_space = input_color_space ? input_color_space : color_space;
-+
- 	if (is_2bit == 1 && alpha_2bit_lut != NULL) {
- 		REG_UPDATE(ALPHA_2BIT_LUT, ALPHA_2BIT_LUT0, alpha_2bit_lut->lut0);
- 		REG_UPDATE(ALPHA_2BIT_LUT, ALPHA_2BIT_LUT1, alpha_2bit_lut->lut1);
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dpp.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dpp.c
-index ab3918c0a15b..0dcc07531643 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dpp.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dpp.c
-@@ -294,6 +294,9 @@ static void dpp3_cnv_setup (
- 		break;
- 	}
- 
-+	/* Set default color space based on format if none is given. */
-+	color_space = input_color_space ? input_color_space : color_space;
-+
- 	if (is_2bit == 1 && alpha_2bit_lut != NULL) {
- 		REG_UPDATE(ALPHA_2BIT_LUT, ALPHA_2BIT_LUT0, alpha_2bit_lut->lut0);
- 		REG_UPDATE(ALPHA_2BIT_LUT, ALPHA_2BIT_LUT1, alpha_2bit_lut->lut1);
+-	ASSERT(bw_params->clk_table.entries[i].dcfclk_mhz);
++	ASSERT(bw_params->clk_table.entries[i-1].dcfclk_mhz);
+ 	bw_params->vram_type = bios_info->memory_type;
+ 	bw_params->num_channels = bios_info->ma_channel_number;
+ 	if (!bw_params->num_channels)
 
