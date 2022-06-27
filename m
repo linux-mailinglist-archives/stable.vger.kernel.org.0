@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3552355DBA2
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:24:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 932A555D3DD
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:13:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235680AbiF0LeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:34:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55510 "EHLO
+        id S237288AbiF0Lnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236237AbiF0Lda (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03B86D10B;
-        Mon, 27 Jun 2022 04:30:41 -0700 (PDT)
+        with ESMTP id S237422AbiF0Lmu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3272F4B;
+        Mon, 27 Jun 2022 04:37:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63852B8111A;
-        Mon, 27 Jun 2022 11:30:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31D20C3411D;
-        Mon, 27 Jun 2022 11:30:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A70EDB8111C;
+        Mon, 27 Jun 2022 11:37:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1983FC3411D;
+        Mon, 27 Jun 2022 11:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329439;
-        bh=10mVpdiw6f+f02y4ZjqUbiBDWe4mSbM1JwVKYUuAddI=;
+        s=korg; t=1656329856;
+        bh=j9qNbIV5qykTmfb74nTj6QNsbGZq+ysCLwQ6Ymh4+Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjNPh7ywehEnX163ijqbjjDciUGMRPfSQ4o284Ide2ic+RiY+gTOE/3uwckujuwmF
-         SMof7KCsXPn7W0jxlUlKjkEqDTaOIYkMhwO1P/YjGBk+rnSik7nOJpk/CRyfuejsGe
-         6XrFCoLVn5Gy9I83aMuItFP6VG2ZIfjKdneWd+2Q=
+        b=IcUok6mkvJ1MTTg94mEggdYBsG1OyaSiYiTlAYYHHWHZqIWIfjkNHlfEH7GBa2Xiv
+         sWYapSnJOpJhx79Is9Nyq7PwCZE6I36fpNe6hwRWGVcakIP+VLAa8iNwTgg7dfR1XI
+         BNKCe+eHhudLx5SEh9ODWddhidwG/z7DzLz4jmY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 60/60] powerpc/pseries: wire up rng during setup_arch()
-Date:   Mon, 27 Jun 2022 13:22:11 +0200
-Message-Id: <20220627111929.455633485@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.15 125/135] soc: bcm: brcmstb: pm: pm-arm: Fix refcount leak in brcmstb_pm_probe
+Date:   Mon, 27 Jun 2022 13:22:12 +0200
+Message-Id: <20220627111941.780589701@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,82 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit e561e472a3d441753bd012333b057f48fef1045b upstream.
+commit 37d838de369b07b596c19ff3662bf0293fdb09ee upstream.
 
-The platform's RNG must be available before random_init() in order to be
-useful for initial seeding, which in turn means that it needs to be
-called from setup_arch(), rather than from an init call. Fortunately,
-each platform already has a setup_arch function pointer, which means
-it's easy to wire this up. This commit also removes some noisy log
-messages that don't add much.
+of_find_matching_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: a489043f4626 ("powerpc/pseries: Implement arch_get_random_long() based on H_RANDOM")
-Cc: stable@vger.kernel.org # v3.13+
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220611151015.548325-4-Jason@zx2c4.com
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+In brcmstb_init_sram, it pass dn to of_address_to_resource(),
+of_address_to_resource() will call of_find_device_by_node() to take
+reference, so we should release the reference returned by
+of_find_matching_node().
+
+Fixes: 0b741b8234c8 ("soc: bcm: brcmstb: Add support for S2/S3/S5 suspend states (ARM)")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/pseries/pseries.h |    2 ++
- arch/powerpc/platforms/pseries/rng.c     |   11 +++--------
- arch/powerpc/platforms/pseries/setup.c   |    2 ++
- 3 files changed, 7 insertions(+), 8 deletions(-)
+ drivers/soc/bcm/brcmstb/pm/pm-arm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/powerpc/platforms/pseries/pseries.h
-+++ b/arch/powerpc/platforms/pseries/pseries.h
-@@ -114,4 +114,6 @@ int dlpar_workqueue_init(void);
- void pseries_setup_rfi_flush(void);
- void pseries_lpar_read_hblkrm_characteristics(void);
+--- a/drivers/soc/bcm/brcmstb/pm/pm-arm.c
++++ b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
+@@ -783,6 +783,7 @@ static int brcmstb_pm_probe(struct platf
+ 	}
  
-+void pseries_rng_init(void);
-+
- #endif /* _PSERIES_PSERIES_H */
---- a/arch/powerpc/platforms/pseries/rng.c
-+++ b/arch/powerpc/platforms/pseries/rng.c
-@@ -10,6 +10,7 @@
- #include <asm/archrandom.h>
- #include <asm/machdep.h>
- #include <asm/plpar_wrappers.h>
-+#include "pseries.h"
- 
- 
- static int pseries_get_random_long(unsigned long *v)
-@@ -24,19 +25,13 @@ static int pseries_get_random_long(unsig
- 	return 0;
- }
- 
--static __init int rng_init(void)
-+void __init pseries_rng_init(void)
- {
- 	struct device_node *dn;
- 
- 	dn = of_find_compatible_node(NULL, NULL, "ibm,random");
- 	if (!dn)
--		return -ENODEV;
--
--	pr_info("Registering arch random hook.\n");
--
-+		return;
- 	ppc_md.get_random_seed = pseries_get_random_long;
--
- 	of_node_put(dn);
--	return 0;
- }
--machine_subsys_initcall(pseries, rng_init);
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -792,6 +792,8 @@ static void __init pSeries_setup_arch(vo
- 
- 	if (swiotlb_force == SWIOTLB_FORCE)
- 		ppc_swiotlb_enable = 1;
-+
-+	pseries_rng_init();
- }
- 
- static void pseries_panic(char *str)
+ 	ret = brcmstb_init_sram(dn);
++	of_node_put(dn);
+ 	if (ret) {
+ 		pr_err("error setting up SRAM for PM\n");
+ 		return ret;
 
 
