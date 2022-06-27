@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE6E355DBBD
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70BB955C89D
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:55:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238688AbiF0Lxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55884 "EHLO
+        id S238725AbiF0Lxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:53:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238845AbiF0Lwm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 036D6DEC4;
-        Mon, 27 Jun 2022 04:45:58 -0700 (PDT)
+        with ESMTP id S238853AbiF0Lwn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:43 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80AA6BC0F;
+        Mon, 27 Jun 2022 04:46:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD7F1B80D37;
-        Mon, 27 Jun 2022 11:45:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32023C3411D;
-        Mon, 27 Jun 2022 11:45:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EDD29CE171B;
+        Mon, 27 Jun 2022 11:45:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1192DC36AED;
+        Mon, 27 Jun 2022 11:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330355;
-        bh=ysNOEvu3zGd1TifXXdMtyPRCM21reTJXO7MAoKCElac=;
+        s=korg; t=1656330358;
+        bh=nNhet8or/hoY+pxRtadru407botWQgZVpH0oUBA5Dhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JAK5zrDqqUzrjLaKuko8hVnHMa3b+rFzGlX/aa1wyqJW5zWcEZvYxOzVSWHfRZVJw
-         ZNr1QFqGL4ov65Ba7oBzYKaj2Ues/xyzuG/F7TJPxcIihopW5f2rACbH4rECc6Aljm
-         jTwMNLpayReq1CEIweD7EZzBF+YXG631o0iKvOz0=
+        b=R0rbIIPoelFS5iEJ66OCs/BvGd3nRDxFke8xgRTRC/lIji0hLKDkEBkfLd5W/GOTy
+         0WyGM+xUyQYFGmG0qm59DhWNqbP/yPeMzs5etESg+DuAPJtcC4ZJv1Na+fbYwjqCwS
+         K8kJmywigJ8oPleP0zzCbcXhjzXZQCd/1Ly5/zKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.18 169/181] ARM: Fix refcount leak in axxia_boot_secondary
-Date:   Mon, 27 Jun 2022 13:22:22 +0200
-Message-Id: <20220627111949.586585494@linuxfoundation.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 5.18 170/181] memory: mtk-smi: add missing put_device() call in mtk_smi_device_link_common
+Date:   Mon, 27 Jun 2022 13:22:23 +0200
+Message-Id: <20220627111949.615555228@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -55,30 +55,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 7c7ff68daa93d8c4cdea482da4f2429c0398fcde upstream.
+commit 038ae37c510fd57cbc543ac82db1e7b23b28557a upstream.
 
-of_find_compatible_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+The reference taken by 'of_find_device_by_node()' must be released when
+not needed anymore.
+Add the corresponding 'put_device()' in the error handling paths.
 
-Fixes: 1d22924e1c4e ("ARM: Add platform support for LSI AXM55xx SoC")
+Fixes: 47404757702e ("memory: mtk-smi: Add device link for smi-sub-common")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220601090548.47616-1-linmq006@gmail.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20220601120118.60225-1-linmq006@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-axxia/platsmp.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/memory/mtk-smi.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/arm/mach-axxia/platsmp.c
-+++ b/arch/arm/mach-axxia/platsmp.c
-@@ -39,6 +39,7 @@ static int axxia_boot_secondary(unsigned
- 		return -ENOENT;
- 
- 	syscon = of_iomap(syscon_np, 0);
-+	of_node_put(syscon_np);
- 	if (!syscon)
- 		return -ENOMEM;
- 
+diff --git a/drivers/memory/mtk-smi.c b/drivers/memory/mtk-smi.c
+index 86a3d34f418e..4c5154e0bf00 100644
+--- a/drivers/memory/mtk-smi.c
++++ b/drivers/memory/mtk-smi.c
+@@ -404,13 +404,16 @@ static int mtk_smi_device_link_common(struct device *dev, struct device **com_de
+ 	of_node_put(smi_com_node);
+ 	if (smi_com_pdev) {
+ 		/* smi common is the supplier, Make sure it is ready before */
+-		if (!platform_get_drvdata(smi_com_pdev))
++		if (!platform_get_drvdata(smi_com_pdev)) {
++			put_device(&smi_com_pdev->dev);
+ 			return -EPROBE_DEFER;
++		}
+ 		smi_com_dev = &smi_com_pdev->dev;
+ 		link = device_link_add(dev, smi_com_dev,
+ 				       DL_FLAG_PM_RUNTIME | DL_FLAG_STATELESS);
+ 		if (!link) {
+ 			dev_err(dev, "Unable to link smi-common dev\n");
++			put_device(&smi_com_pdev->dev);
+ 			return -ENODEV;
+ 		}
+ 		*com_dev = smi_com_dev;
+-- 
+2.36.1
+
 
 
