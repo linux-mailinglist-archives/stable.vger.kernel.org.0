@@ -2,159 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6735655C205
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:46:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29DEA55E335
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:36:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233984AbiF0KmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 06:42:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43234 "EHLO
+        id S233741AbiF0Kmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 06:42:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233941AbiF0KmW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 06:42:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 303F5642A
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 03:42:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE0A4B81094
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 10:42:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EBB8C385A2;
-        Mon, 27 Jun 2022 10:42:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656326538;
-        bh=MRA92db+F0yb0BxAFl4bAZKNVauLxRfi1pZtw0acr4g=;
-        h=Subject:To:Cc:From:Date:From;
-        b=1n3bsplIhzdkp0wCV+k/nTOm/+RHdJHKilRAhPNfqk2tHpdd/lmADZpE8J+AWQf6Q
-         VagPgceoJvO3Pdl1dodO0cLc2KNG0y7jhOif79WDlHbhSMirdhlrWedY4Ya77nqevZ
-         U0yrUvW4MEhm0xCi8mAmxVWEZCfJdjhzV2ca0apk=
-Subject: FAILED: patch "[PATCH] perf build-id: Fix caching files with a wrong build ID" failed to apply to 4.9-stable tree
-To:     adrian.hunter@intel.com, acme@redhat.com, jolsa@kernel.org,
-        namhyung@kernel.org, tzanussi@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Jun 2022 12:42:00 +0200
-Message-ID: <165632652013565@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S234215AbiF0Kmm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 06:42:42 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8325B6424
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 03:42:41 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id m2so7826140plx.3
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 03:42:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=FJ4seo7JsAaSqDrnyqyzUxujJZrDa+RLRWSP2QM7emM=;
+        b=Qzniw3KKYBvlVyL6fxvVTOYuVZtqFAjMyfGQbu4EzQuNxMNRpwOI36KGhCl8HYXezc
+         apJxIedTVkIO/AF6NSPrMnxmH5pado3I1eSCt6bxWWzbnH35c+iPvN+FI7DiYminvy36
+         E7SSDDqmypWlrf8OdM4KAxs6khLodEtG947VDG6so/lYCVdnwNIpv+KtxV86XQcug37Z
+         fnVUHXxhgxUgZfQCE3wCG7LJZqdNe1hxrB9GAK7UpMLKyJBhiinTwLw6XuVhoJjlXgZR
+         Dac8l0Jc95rwyzxkmwqzaPrMoKt3DT2TweW06VJ3pnIoiqND6eZFp2k+PqypnnofSphv
+         ZsNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=FJ4seo7JsAaSqDrnyqyzUxujJZrDa+RLRWSP2QM7emM=;
+        b=Vj+U1SVo4bWnl5eWmkjvUzvzDTDF1TArZfK+LT4g9hJUvJfI489L/eWkdjEN8iy0zF
+         YcYOau78Jn7mLvxQwGooFT8fJ0u4KvXfNuiYBgoTQXs0EDV8wfyH1zF6l0fvUbThm/rV
+         7KXFrefnvGX+eFAhUC0PsL7SGUqpX2f2N7jKCf/7CYVCHnRGK/QY8mBl7M1Icg5Ej9it
+         TAL/NCyZJ1UU3xHn3AXKKKOUt5M+pqrZbALFKs5004Os193ifJsIlz3IDriXmA1yrCuz
+         ZpgcOWzMWyQbwm/AdzuhxYUVh2DUjob3HrPcFMqf3QGPjRQAfb295IgU5GMo9ow335Dp
+         6ylQ==
+X-Gm-Message-State: AJIora+SsRfayIeA+LoAJYofktSWYUrLAG3q+g+8I+cJnTt2qFddPRtB
+        i5V66tZYblEzzLJ+9Xpyf17pWZ/acmngWxPJbls=
+X-Google-Smtp-Source: AGRyM1tG4na7IgjjTp31mXKR7XiGWb4ty0r7k7jQhdrvEfzFOL0uErNQ3DZG/jcVSfFvvMVr0fXrBA==
+X-Received: by 2002:a17:90b:3d91:b0:1ec:d594:31f5 with SMTP id pq17-20020a17090b3d9100b001ecd59431f5mr15013376pjb.114.1656326561107;
+        Mon, 27 Jun 2022 03:42:41 -0700 (PDT)
+Received: from desktop-hypoxic.kamiya.io ([42.120.103.58])
+        by smtp.gmail.com with ESMTPSA id h9-20020a170902f70900b001663cf001besm6852590plo.174.2022.06.27.03.42.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Jun 2022 03:42:40 -0700 (PDT)
+From:   Yangxi Xiang <xyangxi5@gmail.com>
+To:     arnd@arndb.de
+Cc:     stable@vger.kernel.org, xyangxi5@gmail.com
+Subject: Re: [PATCH] asm-generic: fix buffer overflow read in __strncpy_from_user
+Date:   Mon, 27 Jun 2022 18:42:37 +0800
+Message-Id: <20220627104237.2042-1-xyangxi5@gmail.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <CAK8P3a0D7sy=jjjUQK0F-RugCNecYBg+JjM=vH=fy0suLDAOCA@mail.gmail.com>
+References: <CAK8P3a0D7sy=jjjUQK0F-RugCNecYBg+JjM=vH=fy0suLDAOCA@mail.gmail.com>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+> You should also indicate that the code was
+> removed in mainline kernels and what the fix was there, as well as
+> which of the older kernels need the fix.
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I have no idea on how to decide the range. The suggested version 
+range might be >= 5.1. And, should I send the patch again according to
+our discussion?
 
-thanks,
+Thank you!
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From ab66fdace8581ef3b4e7cf5381a168ed4058d779 Mon Sep 17 00:00:00 2001
-From: Adrian Hunter <adrian.hunter@intel.com>
-Date: Tue, 21 Jun 2022 15:51:44 +0300
-Subject: [PATCH] perf build-id: Fix caching files with a wrong build ID
-
-Build ID events associate a file name with a build ID.  However, when
-using perf inject, there is no guarantee that the file on the current
-machine at the current time has that build ID. Fix by comparing the
-build IDs and skip adding to the cache if they are different.
-
-Example:
-
-  $ echo "int main() {return 0;}" > prog.c
-  $ gcc -o prog prog.c
-  $ perf record --buildid-all ./prog
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.019 MB perf.data ]
-  $ file-buildid() { file $1 | awk -F= '{print $2}' | awk -F, '{print $1}' ; }
-  $ file-buildid prog
-  444ad9be165d8058a48ce2ffb4e9f55854a3293e
-  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
-  444ad9be165d8058a48ce2ffb4e9f55854a3293e
-  $ echo "int main() {return 1;}" > prog.c
-  $ gcc -o prog prog.c
-  $ file-buildid prog
-  885524d5aaa24008a3e2b06caa3ea95d013c0fc5
-
-Before:
-
-  $ perf buildid-cache --purge $(pwd)/prog
-  $ perf inject -i perf.data -o junk
-  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
-  885524d5aaa24008a3e2b06caa3ea95d013c0fc5
-  $
-
-After:
-
-  $ perf buildid-cache --purge $(pwd)/prog
-  $ perf inject -i perf.data -o junk
-  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
-
-  $
-
-Fixes: 454c407ec17a0c63 ("perf: add perf-inject builtin")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Tom Zanussi <tzanussi@gmail.com>
-Link: https://lore.kernel.org/r/20220621125144.5623-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-
-diff --git a/tools/perf/util/build-id.c b/tools/perf/util/build-id.c
-index 82f3d46bea70..328668f38c69 100644
---- a/tools/perf/util/build-id.c
-+++ b/tools/perf/util/build-id.c
-@@ -872,6 +872,30 @@ int build_id_cache__remove_s(const char *sbuild_id)
- 	return err;
- }
- 
-+static int filename__read_build_id_ns(const char *filename,
-+				      struct build_id *bid,
-+				      struct nsinfo *nsi)
-+{
-+	struct nscookie nsc;
-+	int ret;
-+
-+	nsinfo__mountns_enter(nsi, &nsc);
-+	ret = filename__read_build_id(filename, bid);
-+	nsinfo__mountns_exit(&nsc);
-+
-+	return ret;
-+}
-+
-+static bool dso__build_id_mismatch(struct dso *dso, const char *name)
-+{
-+	struct build_id bid;
-+
-+	if (filename__read_build_id_ns(name, &bid, dso->nsinfo) < 0)
-+		return false;
-+
-+	return !dso__build_id_equal(dso, &bid);
-+}
-+
- static int dso__cache_build_id(struct dso *dso, struct machine *machine,
- 			       void *priv __maybe_unused)
- {
-@@ -886,6 +910,10 @@ static int dso__cache_build_id(struct dso *dso, struct machine *machine,
- 		is_kallsyms = true;
- 		name = machine->mmap_name;
- 	}
-+
-+	if (!is_kallsyms && dso__build_id_mismatch(dso, name))
-+		return 0;
-+
- 	return build_id_cache__add_b(&dso->bid, name, dso->nsinfo,
- 				     is_kallsyms, is_vdso);
- }
+Yangxi Xiang
 
