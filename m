@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4E7855C2CF
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EF6E55C519
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:50:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237956AbiF0LuG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:50:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45234 "EHLO
+        id S234693AbiF0LYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:24:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238124AbiF0Lru (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:47:50 -0400
+        with ESMTP id S234681AbiF0LYD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:24:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E52E0EF;
-        Mon, 27 Jun 2022 04:39:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50E0656C;
+        Mon, 27 Jun 2022 04:24:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE66CB81134;
-        Mon, 27 Jun 2022 11:39:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29848C3411D;
-        Mon, 27 Jun 2022 11:39:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 690BFB8111E;
+        Mon, 27 Jun 2022 11:24:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A23D8C385A5;
+        Mon, 27 Jun 2022 11:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329977;
-        bh=6AxkFONhHzmOfd4oMiIArsoJYhYr/Fsf+dMwrYnOOFM=;
+        s=korg; t=1656329040;
+        bh=Dofcmi+hdhw1/cNl7/QLeE8tyR3IXblze26vcC06QdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SHvwk/p6QsorEPZQ31zm23BXKU9t7T/A/tCWI568y6/myqXdgNt94syNNttHkMIpj
-         Xlhh2Tr4919F0BCexrLWC2FmrfZbuX/g1cjlyZlEoKLH7EoaY7pe/A7L8q5DSM1vJg
-         MCH0ORue7YsTftbMi1lMyc8k5vaJ1FAMVvxQ2riA=
+        b=DG0/cst5MNEs9qnFwbhriLzxJL3TdSJKKF0OmVAlcW6HgFJ2cWtpek5XNyo4IAb/6
+         7LLAKri/0/SMiuKYNzrcHJ0ycMBkKSJdsmmg0qterrkLhHSdq5sP4FWVjOyFNGMcT4
+         9w32LLZyfujgTMu5yTDGs7Zh4viAYY2e/8z6EP6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ballon Shi <ballon.shi@quectel.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.18 041/181] USB: serial: option: add Quectel RM500K module support
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Ron Economos <re@w6rz.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 003/102] random: quiet urandom warning ratelimit suppression message
 Date:   Mon, 27 Jun 2022 13:20:14 +0200
-Message-Id: <20220627111945.753004373@linuxfoundation.org>
+Message-Id: <20220627111933.561143737@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Macpaul Lin <macpaul.lin@mediatek.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 15b694e96c31807d8515aacfa687a1e8a4fbbadc upstream.
+commit c01d4d0a82b71857be7449380338bc53dde2da92 upstream.
 
-Add usb product id of the Quectel RM500K module.
+random.c ratelimits how much it warns about uninitialized urandom reads
+using __ratelimit(). When the RNG is finally initialized, it prints the
+number of missed messages due to ratelimiting.
 
-RM500K provides 2 mandatory interfaces to Linux host after enumeration.
- - /dev/ttyUSB5: this is a serial interface for control path. User needs
-   to write AT commands to this device node to query status, set APN,
-   set PIN code, and enable/disable the data connection to 5G network.
- - ethX: this is the data path provided as a RNDIS devices. After the
-   data connection has been established, Linux host can access 5G data
-   network via this interface.
+It has been this way since that functionality was introduced back in
+2018. Recently, cc1e127bfa95 ("random: remove ratelimiting for in-kernel
+unseeded randomness") put a bit more stress on the urandom ratelimiting,
+which teased out a bug in the implementation.
 
-"RNDIS": RNDIS + ADB + AT (/dev/ttyUSB5) + MODEM COMs
+Specifically, when under pressure, __ratelimit() will print its own
+message and reset the count back to 0, making the final message at the
+end less useful. Secondly, it does so as a pr_warn(), which apparently
+is undesirable for people's CI.
 
-usb-devices output for 0x7001:
-T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=7001 Rev=00.01
-S:  Manufacturer=MediaTek Inc.
-S:  Product=USB DATA CARD
-S:  SerialNumber=869206050009672
-C:  #Ifs=10 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=02 Prot=ff Driver=rndis_host
-E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=125us
-I:  If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 7 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 9 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=09(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=8a(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+Fortunately, __ratelimit() has the RATELIMIT_MSG_ON_RELEASE flag exactly
+for this purpose, so we set the flag.
 
-Co-developed-by: Ballon Shi <ballon.shi@quectel.com>
-Signed-off-by: Ballon Shi <ballon.shi@quectel.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Fixes: 4e00b339e264 ("random: rate limit unseeded randomness warnings")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reported-by: Jon Hunter <jonathanh@nvidia.com>
+Reported-by: Ron Economos <re@w6rz.net>
+Tested-by: Ron Economos <re@w6rz.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/char/random.c           |    2 +-
+ include/linux/ratelimit_types.h |   12 ++++++++----
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -257,6 +257,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_EC200S_CN		0x6002
- #define QUECTEL_PRODUCT_EC200T			0x6026
-+#define QUECTEL_PRODUCT_RM500K			0x7001
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -88,7 +88,7 @@ static RAW_NOTIFIER_HEAD(random_ready_ch
  
- #define CMOTECH_VENDOR_ID			0x16d8
- #define CMOTECH_PRODUCT_6001			0x6001
-@@ -1150,6 +1151,7 @@ static const struct usb_device_id option
- 	  .driver_info = ZLP },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500K, 0xff, 0x00, 0x00) },
+ /* Control how we warn userspace. */
+ static struct ratelimit_state urandom_warning =
+-	RATELIMIT_STATE_INIT("warn_urandom_randomness", HZ, 3);
++	RATELIMIT_STATE_INIT_FLAGS("urandom_warning", HZ, 3, RATELIMIT_MSG_ON_RELEASE);
+ static int ratelimit_disable __read_mostly =
+ 	IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM);
+ module_param_named(ratelimit_disable, ratelimit_disable, int, 0644);
+--- a/include/linux/ratelimit_types.h
++++ b/include/linux/ratelimit_types.h
+@@ -23,12 +23,16 @@ struct ratelimit_state {
+ 	unsigned long	flags;
+ };
  
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_CMU_300) },
+-#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) {		\
+-		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),	\
+-		.interval	= interval_init,			\
+-		.burst		= burst_init,				\
++#define RATELIMIT_STATE_INIT_FLAGS(name, interval_init, burst_init, flags_init) { \
++		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),		  \
++		.interval	= interval_init,				  \
++		.burst		= burst_init,					  \
++		.flags		= flags_init,					  \
+ 	}
+ 
++#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) \
++	RATELIMIT_STATE_INIT_FLAGS(name, interval_init, burst_init, 0)
++
+ #define RATELIMIT_STATE_INIT_DISABLED					\
+ 	RATELIMIT_STATE_INIT(ratelimit_state, 0, DEFAULT_RATELIMIT_BURST)
+ 
 
 
