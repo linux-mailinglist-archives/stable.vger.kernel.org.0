@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CBA255D64F
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:16:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D73CC55CB38
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236441AbiF0Lib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:38:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59928 "EHLO
+        id S234858AbiF0L0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:26:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236516AbiF0Lhh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:37 -0400
+        with ESMTP id S234958AbiF0LZi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:25:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61700B04;
-        Mon, 27 Jun 2022 04:33:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E52696594;
+        Mon, 27 Jun 2022 04:25:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24467B81122;
-        Mon, 27 Jun 2022 11:33:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49DF4C341C8;
-        Mon, 27 Jun 2022 11:33:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A26C5B8111E;
+        Mon, 27 Jun 2022 11:25:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4233C3411D;
+        Mon, 27 Jun 2022 11:25:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329633;
-        bh=E49iyCRj4QbP3/EbZLXLwZp+fDTLfjOcMQvlo3rHagI=;
+        s=korg; t=1656329124;
+        bh=TAG2BEam/Z1ewlKrE9whkzHMeSL0882MfpnL0G9SYFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZ01N1CSEp5yk1qcQRSJBr7UN8P59XU4xn9Tu7nTuKepOTCh3vonnUPBSFIzUCg8w
-         gij9RA2ccPKOmHiNp6pcyPhcB1RQYqNNs5/f8ZbdFyO8zV+00lD8xaHuQdu8aZ0y1j
-         VnubhRWojSSV7FKD3AOWjoNRCq/VtJHVKZpMugeA=
+        b=MbaHn/rAv93w6G/n4C2CtkWIzGWPC9kTd1VQXip+TX9FTNlJye1XFGg04vhkPIEmc
+         Y1zYflujdtMfbbL7nTyltl8JA0cvAgmJY0ZDmTaHMWx8ICn6dp02pycgGWclY8UFaX
+         xUlUdtvsFA3yTpiEaK9vDRXSnYrqJZnUobI91EYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zdi-disclosures@trendmicro.com,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 063/135] udmabuf: add back sanity check
+        stable@vger.kernel.org, Enzo Matsumiya <ematsumiya@suse.de>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 059/102] nvme-pci: add NO APST quirk for Kioxia device
 Date:   Mon, 27 Jun 2022 13:21:10 +0200
-Message-Id: <20220627111939.986095750@linuxfoundation.org>
+Message-Id: <20220627111935.222319108@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Enzo Matsumiya <ematsumiya@suse.de>
 
-[ Upstream commit 05b252cccb2e5c3f56119d25de684b4f810ba40a ]
+[ Upstream commit 5a6254d55e2a9f7919ead8580d7aa0c7a382b26a ]
 
-Check vm_fault->pgoff before using it.  When we removed the warning, we
-also removed the check.
+This particular Kioxia device times out and aborts I/O during any load,
+but it's more easily observable with discards (fstrim).
 
-Fixes: 7b26e4e2119d ("udmabuf: drop WARN_ON() check.")
-Reported-by: zdi-disclosures@trendmicro.com
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The device gets to a state that is also not possible to use
+"nvme set-feature" to disable APST.
+Booting with nvme_core.default_ps_max_latency=0 solves the issue.
+
+We had a dozen or so of these devices behaving this same way in
+customer environments.
+
+Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/udmabuf.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/dma-buf/udmabuf.c b/drivers/dma-buf/udmabuf.c
-index e7330684d3b8..9631f2fd2faf 100644
---- a/drivers/dma-buf/udmabuf.c
-+++ b/drivers/dma-buf/udmabuf.c
-@@ -32,8 +32,11 @@ static vm_fault_t udmabuf_vm_fault(struct vm_fault *vmf)
- {
- 	struct vm_area_struct *vma = vmf->vma;
- 	struct udmabuf *ubuf = vma->vm_private_data;
-+	pgoff_t pgoff = vmf->pgoff;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index c42ad0b8247b..9ec3ac367a76 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2699,6 +2699,20 @@ static const struct nvme_core_quirk_entry core_quirks[] = {
+ 		.vid = 0x14a4,
+ 		.fr = "22301111",
+ 		.quirks = NVME_QUIRK_SIMPLE_SUSPEND,
++	},
++	{
++		/*
++		 * This Kioxia CD6-V Series / HPE PE8030 device times out and
++		 * aborts I/O during any load, but more easily reproducible
++		 * with discards (fstrim).
++		 *
++		 * The device is left in a state where it is also not possible
++		 * to use "nvme set-feature" to disable APST, but booting with
++		 * nvme_core.default_ps_max_latency=0 works.
++		 */
++		.vid = 0x1e0f,
++		.mn = "KCD6XVUL6T40",
++		.quirks = NVME_QUIRK_NO_APST,
+ 	}
+ };
  
--	vmf->page = ubuf->pages[vmf->pgoff];
-+	if (pgoff >= ubuf->pagecount)
-+		return VM_FAULT_SIGBUS;
-+	vmf->page = ubuf->pages[pgoff];
- 	get_page(vmf->page);
- 	return 0;
- }
 -- 
 2.35.1
 
