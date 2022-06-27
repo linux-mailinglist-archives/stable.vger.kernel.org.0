@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CBEF55D38A
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:12:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 373B455C702
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:53:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236989AbiF0LlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:41:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34600 "EHLO
+        id S236565AbiF0LlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:41:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236849AbiF0Lj5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:39:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E35DBE05;
-        Mon, 27 Jun 2022 04:35:20 -0700 (PDT)
+        with ESMTP id S236865AbiF0LkG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:40:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E159BE3A;
+        Mon, 27 Jun 2022 04:35:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E908C60DB5;
-        Mon, 27 Jun 2022 11:35:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2BABC3411D;
-        Mon, 27 Jun 2022 11:35:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF6BC60920;
+        Mon, 27 Jun 2022 11:35:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF007C3411D;
+        Mon, 27 Jun 2022 11:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329719;
-        bh=E9OVjCRFyV4VdwxiJQ10BHfsuMgdr3aG9OmgwR+lTLU=;
+        s=korg; t=1656329722;
+        bh=r2eKPMwQaYVLkT+Jl24I3BIOnxml9Vlho6Ue9DjIrZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yAPjOcThiQiuN1O2O68c/qkSX7ClcgJQKo8sFmla4guIl9FcLULaNHbjrlYA3i6uZ
-         NqzXxYoep6RoFmBYPW9b+xYVZ7lA8xqVHutXbTR9oapcFEL3DwwLcZzV76TM11jAGl
-         fWoPNT3loMUcHpZsQT08L4eeVZ4TwlKFPCAcaWZk=
+        b=Tyn2PczQ1zM3nW2Uwt3HVaND1Jfq5TGym9PEciW8l9GywUhSc8Te4oy6+uyJvrTnr
+         HbADGYWSiu3a+HnIpMOWaeOGP15hPE0DGLoy5NfTOHdei0w0Vmu26r84gFH5FJB+qu
+         hv4z4f/jg3Rdoheon79Bo3NDf5ce8i9E8Qp/XB9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 093/135] btrfs: fix deadlock with fsync+fiemap+transaction commit
-Date:   Mon, 27 Jun 2022 13:21:40 +0200
-Message-Id: <20220627111940.857424772@linuxfoundation.org>
+        stable@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.15 094/135] f2fs: attach inline_data after setting compression
+Date:   Mon, 27 Jun 2022 13:21:41 +0200
+Message-Id: <20220627111940.886356366@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
 References: <20220627111938.151743692@linuxfoundation.org>
@@ -54,133 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit bf7ba8ee759b7b7a34787ddd8dc3f190a3d7fa24 upstream.
+commit 4cde00d50707c2ef6647b9b96b2cb40b6eb24397 upstream.
 
-We are hitting the following deadlock in production occasionally
+This fixes the below corruption.
 
-Task 1		Task 2		Task 3		Task 4		Task 5
-		fsync(A)
-		 start trans
-						start commit
-				falloc(A)
-				 lock 5m-10m
-				 start trans
-				  wait for commit
-fiemap(A)
- lock 0-10m
-  wait for 5m-10m
-   (have 0-5m locked)
+[345393.335389] F2FS-fs (vdb): sanity_check_inode: inode (ino=6d0, mode=33206) should not have inline_data, run fsck to fix
 
-		 have btrfs_need_log_full_commit
-		  !full_sync
-		  wait_ordered_extents
-								finish_ordered_io(A)
-								lock 0-5m
-								DEADLOCK
-
-We have an existing dependency of file extent lock -> transaction.
-However in fsync if we tried to do the fast logging, but then had to
-fall back to committing the transaction, we will be forced to call
-btrfs_wait_ordered_range() to make sure all of our extents are updated.
-
-This creates a dependency of transaction -> file extent lock, because
-btrfs_finish_ordered_io() will need to take the file extent lock in
-order to run the ordered extents.
-
-Fix this by stopping the transaction if we have to do the full commit
-and we attempted to do the fast logging.  Then attach to the transaction
-and commit it if we need to.
-
-CC: stable@vger.kernel.org # 5.15+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 677a82b44ebf ("f2fs: fix to do sanity check for inline inode")
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/file.c |   67 +++++++++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 52 insertions(+), 15 deletions(-)
+ fs/f2fs/namei.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -2337,25 +2337,62 @@ int btrfs_sync_file(struct file *file, l
- 	 */
- 	btrfs_inode_unlock(inode, BTRFS_ILOCK_MMAP);
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -91,8 +91,6 @@ static struct inode *f2fs_new_inode(stru
+ 	if (test_opt(sbi, INLINE_XATTR))
+ 		set_inode_flag(inode, FI_INLINE_XATTR);
  
--	if (ret != BTRFS_NO_LOG_SYNC) {
-+	if (ret == BTRFS_NO_LOG_SYNC) {
-+		ret = btrfs_end_transaction(trans);
-+		goto out;
-+	}
-+
-+	/* We successfully logged the inode, attempt to sync the log. */
-+	if (!ret) {
-+		ret = btrfs_sync_log(trans, root, &ctx);
- 		if (!ret) {
--			ret = btrfs_sync_log(trans, root, &ctx);
--			if (!ret) {
--				ret = btrfs_end_transaction(trans);
--				goto out;
--			}
-+			ret = btrfs_end_transaction(trans);
-+			goto out;
- 		}
--		if (!full_sync) {
--			ret = btrfs_wait_ordered_range(inode, start, len);
--			if (ret) {
--				btrfs_end_transaction(trans);
--				goto out;
--			}
--		}
--		ret = btrfs_commit_transaction(trans);
--	} else {
-+	}
-+
-+	/*
-+	 * At this point we need to commit the transaction because we had
-+	 * btrfs_need_log_full_commit() or some other error.
-+	 *
-+	 * If we didn't do a full sync we have to stop the trans handle, wait on
-+	 * the ordered extents, start it again and commit the transaction.  If
-+	 * we attempt to wait on the ordered extents here we could deadlock with
-+	 * something like fallocate() that is holding the extent lock trying to
-+	 * start a transaction while some other thread is trying to commit the
-+	 * transaction while we (fsync) are currently holding the transaction
-+	 * open.
-+	 */
-+	if (!full_sync) {
- 		ret = btrfs_end_transaction(trans);
-+		if (ret)
-+			goto out;
-+		ret = btrfs_wait_ordered_range(inode, start, len);
-+		if (ret)
-+			goto out;
-+
-+		/*
-+		 * This is safe to use here because we're only interested in
-+		 * making sure the transaction that had the ordered extents is
-+		 * committed.  We aren't waiting on anything past this point,
-+		 * we're purely getting the transaction and committing it.
-+		 */
-+		trans = btrfs_attach_transaction_barrier(root);
-+		if (IS_ERR(trans)) {
-+			ret = PTR_ERR(trans);
-+
-+			/*
-+			 * We committed the transaction and there's no currently
-+			 * running transaction, this means everything we care
-+			 * about made it to disk and we are done.
-+			 */
-+			if (ret == -ENOENT)
-+				ret = 0;
-+			goto out;
-+		}
+-	if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
+-		set_inode_flag(inode, FI_INLINE_DATA);
+ 	if (f2fs_may_inline_dentry(inode))
+ 		set_inode_flag(inode, FI_INLINE_DENTRY);
+ 
+@@ -109,10 +107,6 @@ static struct inode *f2fs_new_inode(stru
+ 
+ 	f2fs_init_extent_tree(inode, NULL);
+ 
+-	stat_inc_inline_xattr(inode);
+-	stat_inc_inline_inode(inode);
+-	stat_inc_inline_dir(inode);
+-
+ 	F2FS_I(inode)->i_flags =
+ 		f2fs_mask_flags(mode, F2FS_I(dir)->i_flags & F2FS_FL_INHERITED);
+ 
+@@ -129,6 +123,14 @@ static struct inode *f2fs_new_inode(stru
+ 			set_compress_context(inode);
  	}
+ 
++	/* Should enable inline_data after compression set */
++	if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
++		set_inode_flag(inode, FI_INLINE_DATA);
 +
-+	ret = btrfs_commit_transaction(trans);
- out:
- 	ASSERT(list_empty(&ctx.list));
- 	err = file_check_and_advance_wb_err(file);
++	stat_inc_inline_xattr(inode);
++	stat_inc_inline_inode(inode);
++	stat_inc_inline_dir(inode);
++
+ 	f2fs_set_inode_flags(inode);
+ 
+ 	trace_f2fs_new_inode(inode, 0);
+@@ -327,6 +329,9 @@ static void set_compress_inode(struct f2
+ 		if (!is_extension_exist(name, ext[i], false))
+ 			continue;
+ 
++		/* Do not use inline_data with compression */
++		stat_dec_inline_inode(inode);
++		clear_inode_flag(inode, FI_INLINE_DATA);
+ 		set_compress_context(inode);
+ 		return;
+ 	}
 
 
