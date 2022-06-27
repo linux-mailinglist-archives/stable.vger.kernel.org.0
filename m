@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 274DB55D4E0
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:14:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC49D55C2DA
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:47:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237460AbiF0LtB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:49:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49972 "EHLO
+        id S234583AbiF0LXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:23:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238309AbiF0LsP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:15 -0400
+        with ESMTP id S234631AbiF0LXg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:23:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5233F59A;
-        Mon, 27 Jun 2022 04:40:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 481026577;
+        Mon, 27 Jun 2022 04:23:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54E0AB81123;
-        Mon, 27 Jun 2022 11:40:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8ABDC341C7;
-        Mon, 27 Jun 2022 11:40:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1F14B8111B;
+        Mon, 27 Jun 2022 11:23:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38FE3C3411D;
+        Mon, 27 Jun 2022 11:23:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330025;
-        bh=ANm7NZ3p20kcA1xNI5TBb7Uyk/XbUVFrE8pqixiN7l8=;
+        s=korg; t=1656329012;
+        bh=qzetOW1Jp66JS63g4ewuXcBAqW1P3SoXZXzoRSZ5kJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IRNoEGdJwdHCDD2WfZfO+UNBIqaUyDOn/WIBUrnW5iUVXXVz1G6ZSms6LB+lWJMjN
-         M3jde3IdzV9TYGLDzyxIwzzlv29tTXaggRpIuI50mqHMXhA6/gaRrWlwABUALAhbBp
-         Wurvbb8c1RjOcCBqbbU0xVFkhSjIb7CqJpB4qlaM=
+        b=gCuhoNIycXjHkW2U99oQbxgKD15p9qM/aaEezXWNXQobVFEhTjN12X9HpDaShdVVs
+         l8dNy0guc1WCBonccpYaGFWaDBknKFupWe/ExCzYh/0b2SbNWvwFFIvwmp/aOWd+jE
+         638kMcKbs2D4kNZI9sOyfyT5M1l6w++n63Ube1ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+47af19f3307fc9c5c82e@syzkaller.appspotmail.com,
-        Jon Maloy <jmaloy@redhat.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Rob Clark <robdclark@gmail.com>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 059/181] tipc: fix use-after-free Read in tipc_named_reinit
+Subject: [PATCH 5.10 021/102] drm/msm: Fix double pm_runtime_disable() call
 Date:   Mon, 27 Jun 2022 13:20:32 +0200
-Message-Id: <20220627111946.278079040@linuxfoundation.org>
+Message-Id: <20220627111934.093577662@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,78 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit 911600bf5a5e84bfda4d33ee32acc75ecf6159f0 ]
+[ Upstream commit ce0db505bc0c51ef5e9ba446c660de7e26f78f29 ]
 
-syzbot found the following issue on:
-==================================================================
-BUG: KASAN: use-after-free in tipc_named_reinit+0x94f/0x9b0
-net/tipc/name_distr.c:413
-Read of size 8 at addr ffff88805299a000 by task kworker/1:9/23764
+Following commit 17e822f7591f ("drm/msm: fix unbalanced
+pm_runtime_enable in adreno_gpu_{init, cleanup}"), any call to
+adreno_unbind() will disable runtime PM twice, as indicated by the call
+trees below:
 
-CPU: 1 PID: 23764 Comm: kworker/1:9 Not tainted
-5.18.0-rc4-syzkaller-00878-g17d49e6e8012 #0
-Hardware name: Google Compute Engine/Google Compute Engine,
-BIOS Google 01/01/2011
-Workqueue: events tipc_net_finalize_work
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0xeb/0x495
-mm/kasan/report.c:313
- print_report mm/kasan/report.c:429 [inline]
- kasan_report.cold+0xf4/0x1c6 mm/kasan/report.c:491
- tipc_named_reinit+0x94f/0x9b0 net/tipc/name_distr.c:413
- tipc_net_finalize+0x234/0x3d0 net/tipc/net.c:138
- process_one_work+0x996/0x1610 kernel/workqueue.c:2289
- worker_thread+0x665/0x1080 kernel/workqueue.c:2436
- kthread+0x2e9/0x3a0 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:298
- </TASK>
-[...]
-==================================================================
+  adreno_unbind()
+   -> pm_runtime_force_suspend()
+   -> pm_runtime_disable()
 
-In the commit
-d966ddcc3821 ("tipc: fix a deadlock when flushing scheduled work"),
-the cancel_work_sync() function just to make sure ONLY the work
-tipc_net_finalize_work() is executing/pending on any CPU completed before
-tipc namespace is destroyed through tipc_exit_net(). But this function
-is not guaranteed the work is the last queued. So, the destroyed instance
-may be accessed in the work which will try to enqueue later.
+  adreno_unbind()
+   -> gpu->funcs->destroy() [= aNxx_destroy()]
+   -> adreno_gpu_cleanup()
+   -> pm_runtime_disable()
 
-In order to completely fix, we re-order the calling of cancel_work_sync()
-to make sure the work tipc_net_finalize_work() was last queued and it
-must be completed by calling cancel_work_sync().
+Note that pm_runtime_force_suspend() is called right before
+gpu->funcs->destroy() and both functions are called unconditionally.
 
-Reported-by: syzbot+47af19f3307fc9c5c82e@syzkaller.appspotmail.com
-Fixes: d966ddcc3821 ("tipc: fix a deadlock when flushing scheduled work")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Ying Xue <ying.xue@windriver.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+With recent addition of the eDP AUX bus code, this problem manifests
+itself when the eDP panel cannot be found yet and probing is deferred.
+On the first probe attempt, we disable runtime PM twice as described
+above. This then causes any later probe attempt to fail with
+
+  [drm:adreno_load_gpu [msm]] *ERROR* Couldn't power up the GPU: -13
+
+preventing the driver from loading.
+
+As there seem to be scenarios where the aNxx_destroy() functions are not
+called from adreno_unbind(), simply removing pm_runtime_disable() from
+inside adreno_unbind() does not seem to be the proper fix. This is what
+commit 17e822f7591f ("drm/msm: fix unbalanced pm_runtime_enable in
+adreno_gpu_{init, cleanup}") intended to fix. Therefore, instead check
+whether runtime PM is still enabled, and only disable it in that case.
+
+Fixes: 17e822f7591f ("drm/msm: fix unbalanced pm_runtime_enable in adreno_gpu_{init, cleanup}")
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Rob Clark <robdclark@gmail.com>
+Link: https://lore.kernel.org/r/20220606211305.189585-1-luzmaximilian@gmail.com
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/core.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/msm/adreno/adreno_gpu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/tipc/core.c b/net/tipc/core.c
-index 3f4542e0f065..434e70eabe08 100644
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -109,10 +109,9 @@ static void __net_exit tipc_exit_net(struct net *net)
- 	struct tipc_net *tn = tipc_net(net);
+diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+index 458b5b26d3c2..de8cc25506d6 100644
+--- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+@@ -960,7 +960,8 @@ void adreno_gpu_cleanup(struct adreno_gpu *adreno_gpu)
+ 	for (i = 0; i < ARRAY_SIZE(adreno_gpu->info->fw); i++)
+ 		release_firmware(adreno_gpu->fw[i]);
  
- 	tipc_detach_loopback(net);
-+	tipc_net_stop(net);
- 	/* Make sure the tipc_net_finalize_work() finished */
- 	cancel_work_sync(&tn->work);
--	tipc_net_stop(net);
--
- 	tipc_bcast_stop(net);
- 	tipc_nametbl_stop(net);
- 	tipc_sk_rht_destroy(net);
+-	pm_runtime_disable(&priv->gpu_pdev->dev);
++	if (pm_runtime_enabled(&priv->gpu_pdev->dev))
++		pm_runtime_disable(&priv->gpu_pdev->dev);
+ 
+ 	msm_gpu_cleanup(&adreno_gpu->base);
+ 
 -- 
 2.35.1
 
