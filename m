@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBF5255DC87
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:26:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39DE155D41E
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:13:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238097AbiF0LuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:50:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45228 "EHLO
+        id S235291AbiF0L1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:27:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238489AbiF0Lsb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:31 -0400
+        with ESMTP id S235168AbiF0L1F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:27:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDDCABF70;
-        Mon, 27 Jun 2022 04:41:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6098A9FC9;
+        Mon, 27 Jun 2022 04:26:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74CCD61150;
-        Mon, 27 Jun 2022 11:41:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80AE2C3411D;
-        Mon, 27 Jun 2022 11:41:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2C4161460;
+        Mon, 27 Jun 2022 11:26:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BFE1C341CB;
+        Mon, 27 Jun 2022 11:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330112;
-        bh=n9FZEQIgD8MigI+6BcU6gJN+cGDBxUZmCA6J21ivfb8=;
+        s=korg; t=1656329214;
+        bh=bGl2TNNWVIQtfI6S6KPuTnnxACIF1gHxJti+5lW9KW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qbacEoRUNtIrWQrekkHBDbZdxuaKx1pGSspR5UxjjSF8/swTKdT2nzdGotihJlX0b
-         XcJhzMjHvDhtJYbI8cBRPpmlTcAJVCCFkgDSqtjeVxmUo/Q1tQzS4tp7wCoy8UCe2L
-         /39GMnHyM2wEDdw9O2iCRQ19ue2NtaMUXlzf0g/8=
+        b=1B1ZvubF9cfg6YDSqzBByPxe67HEM3Cq87C4WlTjyQxc4GdDRkqSuEwUI8y//662h
+         QvF9Ebhi7ful9WpRyM2iFKN/pcUbVAp6tr0DnygVPhGsiZFOOlRyJ/qOktuD/0U/aM
+         FINBBL5TV3YgldMuwNWgprj0d3W3lRBaikBd2FUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sridhar Samudrala <sridhar.samudrala@intel.com>,
-        Wojciech Drewek <wojciech.drewek@intel.com>,
-        Sandeep Penigalapati <sandeep.penigalapati@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        linux-afs@lists.infradead.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 086/181] ice: Fix switchdev rules book keeping
+Subject: [PATCH 5.10 048/102] afs: Fix dynamic root getattr
 Date:   Mon, 27 Jun 2022 13:20:59 +0200
-Message-Id: <20220627111947.053547619@linuxfoundation.org>
+Message-Id: <20220627111934.896763562@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,38 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wojciech Drewek <wojciech.drewek@intel.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 3578dc90013b1fa20da996cdadd8515802716132 ]
+[ Upstream commit cb78d1b5efffe4cf97e16766329dd7358aed3deb ]
 
-Adding two filters with same matching criteria ends up with
-one rule in hardware with act = ICE_FWD_TO_VSI_LIST.
-In order to remove them properly we have to keep the
-information about vsi handle which is used in VSI bitmap
-(ice_adv_fltr_mgmt_list_entry::vsi_list_info::vsi_map).
+The recent patch to make afs_getattr consult the server didn't account
+for the pseudo-inodes employed by the dynamic root-type afs superblock
+not having a volume or a server to access, and thus an oops occurs if
+such a directory is stat'd.
 
-Fixes: 0d08a441fb1a ("ice: ndo_setup_tc implementation for PF")
-Reported-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
-Signed-off-by: Wojciech Drewek <wojciech.drewek@intel.com>
-Tested-by: Sandeep Penigalapati <sandeep.penigalapati@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fix this by checking to see if the vnode->volume pointer actually points
+anywhere before following it in afs_getattr().
+
+This can be tested by stat'ing a directory in /afs.  It may be
+sufficient just to do "ls /afs" and the oops looks something like:
+
+        BUG: kernel NULL pointer dereference, address: 0000000000000020
+        ...
+        RIP: 0010:afs_getattr+0x8b/0x14b
+        ...
+        Call Trace:
+         <TASK>
+         vfs_statx+0x79/0xf5
+         vfs_fstatat+0x49/0x62
+
+Fixes: 2aeb8c86d499 ("afs: Fix afs_getattr() to refetch file status if callback break occurred")
+Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Tested-by: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/r/165408450783.1031787.7941404776393751186.stgit@warthog.procyon.org.uk/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_tc_lib.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/afs/inode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_tc_lib.c b/drivers/net/ethernet/intel/ice/ice_tc_lib.c
-index 734bfa121e24..2ce2694fcbd7 100644
---- a/drivers/net/ethernet/intel/ice/ice_tc_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_tc_lib.c
-@@ -524,6 +524,7 @@ ice_eswitch_add_tc_fltr(struct ice_vsi *vsi, struct ice_tc_flower_fltr *fltr)
- 	 */
- 	fltr->rid = rule_added.rid;
- 	fltr->rule_id = rule_added.rule_id;
-+	fltr->dest_id = rule_added.vsi_handle;
+diff --git a/fs/afs/inode.c b/fs/afs/inode.c
+index 7e7a9454bcb9..826fae22a8cc 100644
+--- a/fs/afs/inode.c
++++ b/fs/afs/inode.c
+@@ -734,7 +734,8 @@ int afs_getattr(const struct path *path, struct kstat *stat,
  
- exit:
- 	kfree(list);
+ 	_enter("{ ino=%lu v=%u }", inode->i_ino, inode->i_generation);
+ 
+-	if (!(query_flags & AT_STATX_DONT_SYNC) &&
++	if (vnode->volume &&
++	    !(query_flags & AT_STATX_DONT_SYNC) &&
+ 	    !test_bit(AFS_VNODE_CB_PROMISED, &vnode->flags)) {
+ 		key = afs_request_key(vnode->volume->cell);
+ 		if (IS_ERR(key))
 -- 
 2.35.1
 
