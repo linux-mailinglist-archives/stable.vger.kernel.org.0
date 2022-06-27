@@ -2,111 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7BE455C902
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:56:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8FB355CA17
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:57:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234591AbiF0Q1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 12:27:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56986 "EHLO
+        id S239171AbiF0Q1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 12:27:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233196AbiF0Q1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 12:27:13 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2209514011;
-        Mon, 27 Jun 2022 09:27:13 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id m14-20020a17090a668e00b001ee6ece8368so3719819pjj.3;
-        Mon, 27 Jun 2022 09:27:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=M/jiK65MJNBTTvDfqpZjs1o0n8V0o+GQzgJREDZBMZk=;
-        b=TJWjv4imHr191sTGgJnPW/DZn9c1Mhf2zZ0pyHEZh7RZevqLdWKLzsKnqNtdAIl3Ze
-         eVEJsq6jhPTImGZoVxp+wCIyAj+XiFy0jo0t7XbdJfJIGL4pTr5btxuWBWSWMVyldZ9f
-         4NvDnCsjs2s1ec4FMIv0QWqWWnKvuf68hXVxDuBgig9aCpLYIrtz+N840XWBG/XLRUgu
-         2QWWSngIGt7j6rugF1/h/Q8UJSW5OZMeHXJZeucwpmElVQdN1DtkASMHIs39vMWR7i4x
-         UbOn/7qTqzU2qMMs1wVj/6ztdB1A454r82Dw7rluEVul9EA/xf5+X1GBDHojRCfUCMp0
-         0Nwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=M/jiK65MJNBTTvDfqpZjs1o0n8V0o+GQzgJREDZBMZk=;
-        b=y1dCIpUhnVH1/dcZHJ/o+OBICdXS0/+TMnAgT68WFARaVsN7I0YWt4rO3PNUPGDJNw
-         Cuzh2+jyrPYuXc8QPTax1pEJY8E8OBHB+MamYLizacDfRMkhg1882TIIFwS30IIKCGht
-         xjDsSIdW/zsuGUzDJ0OrdAyAoV060+KOVkv5QEmlLJxOBvVkijHax7M8R9aFa85OIPuk
-         lpGVNM6acf92VpaSB4IAk1L+KKaassq9s91JVfGLtC+lWHYB+2K2v5lGxJxNnky99XOA
-         RYmV2dCjOT3yhHv8eedaX60r0N7Nl+t6lrrF9hN8cz+1JHZ89sHtci6TrYPInrj7VmQ9
-         bYkg==
-X-Gm-Message-State: AJIora/cdAb5wrM5VMcQW80VGwKgFVQ/frtxZfBYbaHjyvzbr/emwLMo
-        IVa51Jgn36Y/S5MS3mIQ4Lg=
-X-Google-Smtp-Source: AGRyM1t3cm326tzurFtbCBA7e5oEJJFxK+30rHNSYRFaGU0C+f6oFQGVy1AOHOMrBMx9iJLi95GxyQ==
-X-Received: by 2002:a17:90a:9384:b0:1ec:a506:df30 with SMTP id q4-20020a17090a938400b001eca506df30mr17132866pjo.110.1656347232582;
-        Mon, 27 Jun 2022 09:27:12 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id v11-20020a1709028d8b00b0016a4f3ca2b5sm7435155plo.277.2022.06.27.09.27.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Jun 2022 09:27:12 -0700 (PDT)
-Message-ID: <f6aab617-d75a-72c5-acfb-318e83e77ddd@gmail.com>
-Date:   Mon, 27 Jun 2022 09:27:10 -0700
+        with ESMTP id S239159AbiF0Q1d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 12:27:33 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3485811A2D;
+        Mon, 27 Jun 2022 09:27:33 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25RGK3wG027561;
+        Mon, 27 Jun 2022 16:27:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=1PkyyAKM5xUD6KWziWY3U/IdUhFROpTUkQhQxL4TtC8=;
+ b=Mz+MBPtH8wCBXvMGO0LjPYwhTw4a5jU7cCUbih1rmandDTP/qaJgxab6fm410QxehgEv
+ +foH7Xszbu2B4t+B8zmQdKZH1GHRANGTdVYG5DJuYZtb118ZsrPt2rm4GHWrfCkgDrQ2
+ 0OY3djgA/CIbl7RUHA5A4sbuWcUqjcfuUwejmi+n77R8rtYxrmIQ9ymIeR4pRcPVEEqT
+ xODCVu4xsbqw02XHoN5hVwC0bIY9lwYDn8rfQ3N3ZF5fQ9tLwSOO9nasJsGXSQwingfz
+ tT7mCV5kT7L4l97utV7GxF422laVZpTyzypbwje7+59LS5Xppm9u4dcZO14yhGJD/rkl aQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyfygr5md-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 16:27:20 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25RGKxB4029995;
+        Mon, 27 Jun 2022 16:27:19 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyfygr5k2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 16:27:19 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25RGKZ6h010006;
+        Mon, 27 Jun 2022 16:27:17 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3gwsmhtfpk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 16:27:17 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25RGREJo21758240
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 27 Jun 2022 16:27:14 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 513DCAE04D;
+        Mon, 27 Jun 2022 16:27:14 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E1B02AE045;
+        Mon, 27 Jun 2022 16:27:13 +0000 (GMT)
+Received: from osiris (unknown [9.145.37.145])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 27 Jun 2022 16:27:13 +0000 (GMT)
+Date:   Mon, 27 Jun 2022 18:27:12 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Baoquan He <bhe@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH 5.18 112/181] vmcore: convert copy_oldmem_page() to take
+ an iov_iter
+Message-ID: <YrnaYJA675eGIy03@osiris>
+References: <20220627111944.553492442@linuxfoundation.org>
+ <20220627111947.945731832@linuxfoundation.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220627111947.945731832@linuxfoundation.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: jbHePuDC4TMKZpbthmx1x7fcFZdV-tAU
+X-Proofpoint-ORIG-GUID: m4mSt00a8yX6nZiBMZZ5kaceg-UiLudF
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH 5.4 00/60] 5.4.202-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220627111927.641837068@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-06-27_06,2022-06-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
+ priorityscore=1501 malwarescore=0 adultscore=0 clxscore=1011
+ suspectscore=0 bulkscore=0 lowpriorityscore=0 mlxlogscore=999 phishscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206270068
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/27/22 04:21, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.202 release.
-> There are 60 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Mon, Jun 27, 2022 at 01:21:25PM +0200, Greg Kroah-Hartman wrote:
+> From: Matthew Wilcox (Oracle) <willy@infradead.org>
 > 
-> Responses should be made by Wed, 29 Jun 2022 11:19:09 +0000.
-> Anything received after that time might be too late.
+> [ Upstream commit 5d8de293c224896a4da99763fce4f9794308caf4 ]
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.202-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+> Patch series "Convert vmcore to use an iov_iter", v5.
 > 
-> thanks,
+> For some reason several people have been sending bad patches to fix
+> compiler warnings in vmcore recently.  Here's how it should be done.
+> Compile-tested only on x86.  As noted in the first patch, s390 should take
+> this conversion a bit further, but I'm not inclined to do that work
+> myself.
 > 
-> greg k-h
+> This patch (of 3):
+> 
+> Instead of passing in a 'buf' and 'userbuf' argument, pass in an iov_iter.
+> s390 needs more work to pass the iov_iter down further, or refactor, but
+> I'd be more comfortable if someone who can test on s390 did that work.
+> 
+> It's more convenient to convert the whole of read_from_oldmem() to take an
+> iov_iter at the same time, so rename it to read_from_oldmem_iter() and add
+> a temporary read_from_oldmem() wrapper that creates an iov_iter.
+> 
+> Link: https://lkml.kernel.org/r/20220408090636.560886-1-bhe@redhat.com
+> Link: https://lkml.kernel.org/r/20220408090636.560886-2-bhe@redhat.com
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+> Signed-off-by: Baoquan He <bhe@redhat.com>
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  arch/arm/kernel/crash_dump.c     | 27 +++-------------
+>  arch/arm64/kernel/crash_dump.c   | 29 +++--------------
+>  arch/ia64/kernel/crash_dump.c    | 32 +++----------------
+>  arch/mips/kernel/crash_dump.c    | 27 +++-------------
+>  arch/powerpc/kernel/crash_dump.c | 35 +++------------------
+>  arch/riscv/kernel/crash_dump.c   | 26 +++------------
+>  arch/s390/kernel/crash_dump.c    | 13 +++++---
+>  arch/sh/kernel/crash_dump.c      | 29 +++--------------
+>  arch/x86/kernel/crash_dump_32.c  | 29 +++--------------
+>  arch/x86/kernel/crash_dump_64.c  | 41 +++++++-----------------
+>  fs/proc/vmcore.c                 | 54 ++++++++++++++++++++------------
+>  include/linux/crash_dump.h       |  9 +++---
+>  12 files changed, 91 insertions(+), 260 deletions(-)
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+This one breaks s390. You would also need to apply the following two commits:
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-
-There is however a section warning generated:
-
-WARNING: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Section 
-mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit 
-to the function .init.text:drm_fb_helper_modinit()
-The symbol drm_fb_helper_modinit is exported and annotated __init
-Fix this by removing the __init annotation of drm_fb_helper_modinit or 
-drop the export.
--- 
-Florian
+cc02e6e21aa5 ("s390/crash: add missing iterator advance in copy_oldmem_page()")
+af2debd58bd7 ("s390/crash: make copy_oldmem_page() return number of bytes copied")
