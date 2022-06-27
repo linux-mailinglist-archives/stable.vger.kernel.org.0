@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F93455D137
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:09:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5E055C78B
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:54:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237268AbiF0Lof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:44:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42018 "EHLO
+        id S237424AbiF0LpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:45:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237714AbiF0LnU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:43:20 -0400
+        with ESMTP id S237061AbiF0Ln1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:43:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24AFE95A5;
-        Mon, 27 Jun 2022 04:38:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ADBFB1DD;
+        Mon, 27 Jun 2022 04:38:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 52533609D0;
-        Mon, 27 Jun 2022 11:38:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48485C341CD;
-        Mon, 27 Jun 2022 11:38:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63F406114E;
+        Mon, 27 Jun 2022 11:38:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C2B0C3411D;
+        Mon, 27 Jun 2022 11:38:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329928;
-        bh=BfpurgaZ/Z0KVFV1xrRWkgERjkC9ZkH1/Lsw8t2U3/o=;
+        s=korg; t=1656329931;
+        bh=cyWN9GSpE86TC4Bmzj5vuAOc7rdJAmxOqjl8jaBSi5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FnPuLETD/KzvFVGveZvGZG/kFebEfNKxUtRiVavBy3LOIlfSxrdsRl3h4hyr/zSxp
-         AywI8nzCv7NgEClt00t7fhifMsYtImsW3ropknXazrHm2JhbCDRp42oGm6t42cY3Zu
-         J4PGSqGIB3ntkoDr54btBJE6Hn9pcGO6iBp5h8l0=
+        b=k3OKmUKJ8ifHIzZvTW6VD1ayT+xpD7ZhNNEZ4Ztn87c1KSvwTVrfFM2hRcl6LA+A5
+         xNsyHQ4+pHrirlxaWeW26Yi8FYAt2iyim1hURgh8FvVwYeqV2576Mv50anAJd6CWl/
+         u2ZkaL8mQEafuxfBOqfcEjxB1UssfGt+xm/maPQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.18 026/181] MAINTAINERS: Add new IOMMU development mailing list
-Date:   Mon, 27 Jun 2022 13:19:59 +0200
-Message-Id: <20220627111945.322528920@linuxfoundation.org>
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.18 027/181] mtd: rawnand: gpmi: Fix setting busy timeout setting
+Date:   Mon, 27 Jun 2022 13:20:00 +0200
+Message-Id: <20220627111945.351432536@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -52,113 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-commit c242507c1b895646b4a25060df13b6214805759f upstream.
+commit 06781a5026350cde699d2d10c9914a25c1524f45 upstream.
 
-The IOMMU mailing list will move from lists.linux-foundation.org to
-lists.linux.dev. The hard switch of the archive will happen on July
-5th, but add the new list now already so that people start using the
-list when sending patches. After July 5th the old list will disappear.
+The DEVICE_BUSY_TIMEOUT value is described in the Reference Manual as:
 
+| Timeout waiting for NAND Ready/Busy or ATA IRQ. Used in WAIT_FOR_READY
+| mode. This value is the number of GPMI_CLK cycles multiplied by 4096.
+
+So instead of multiplying the value in cycles with 4096, we have to
+divide it by that value. Use DIV_ROUND_UP to make sure we are on the
+safe side, especially when the calculated value in cycles is smaller
+than 4096 as typically the case.
+
+This bug likely never triggered because any timeout != 0 usually will
+do. In my case the busy timeout in cycles was originally calculated as
+2408, which multiplied with 4096 is 0x968000. The lower 16 bits were
+taken for the 16 bit wide register field, so the register value was
+0x8000. With 2970bf5a32f0 ("mtd: rawnand: gpmi: fix controller timings
+setting") however the value in cycles became 2384, which multiplied
+with 4096 is 0x950000. The lower 16 bit are 0x0 now resulting in an
+intermediate timeout when reading from NAND.
+
+Fixes: b1206122069aa ("mtd: rawnand: gpmi: use core timings instead of an empirical derivation")
 Cc: stable@vger.kernel.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20220624125139.412-1-joro@8bytes.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220614083138.3455683-1-s.hauer@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- MAINTAINERS |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -427,6 +427,7 @@ ACPI VIOT DRIVER
- M:	Jean-Philippe Brucker <jean-philippe@linaro.org>
- L:	linux-acpi@vger.kernel.org
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Maintained
- F:	drivers/acpi/viot.c
- F:	include/linux/acpi_viot.h
-@@ -960,6 +961,7 @@ AMD IOMMU (AMD-VI)
- M:	Joerg Roedel <joro@8bytes.org>
- R:	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Maintained
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
- F:	drivers/iommu/amd/
-@@ -5898,6 +5900,7 @@ M:	Christoph Hellwig <hch@lst.de>
- M:	Marek Szyprowski <m.szyprowski@samsung.com>
- R:	Robin Murphy <robin.murphy@arm.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Supported
- W:	http://git.infradead.org/users/hch/dma-mapping.git
- T:	git git://git.infradead.org/users/hch/dma-mapping.git
-@@ -5910,6 +5913,7 @@ F:	kernel/dma/
- DMA MAPPING BENCHMARK
- M:	Xiang Chen <chenxiang66@hisilicon.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- F:	kernel/dma/map_benchmark.c
- F:	tools/testing/selftests/dma/
+--- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
++++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+@@ -695,7 +695,7 @@ static int gpmi_nfc_compute_timings(stru
+ 	hw->timing0 = BF_GPMI_TIMING0_ADDRESS_SETUP(addr_setup_cycles) |
+ 		      BF_GPMI_TIMING0_DATA_HOLD(data_hold_cycles) |
+ 		      BF_GPMI_TIMING0_DATA_SETUP(data_setup_cycles);
+-	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(busy_timeout_cycles * 4096);
++	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(DIV_ROUND_UP(busy_timeout_cycles, 4096));
  
-@@ -7476,6 +7480,7 @@ F:	drivers/gpu/drm/exynos/exynos_dp*
- EXYNOS SYSMMU (IOMMU) driver
- M:	Marek Szyprowski <m.szyprowski@samsung.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Maintained
- F:	drivers/iommu/exynos-iommu.c
- 
-@@ -9875,6 +9880,7 @@ INTEL IOMMU (VT-d)
- M:	David Woodhouse <dwmw2@infradead.org>
- M:	Lu Baolu <baolu.lu@linux.intel.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Supported
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
- F:	drivers/iommu/intel/
-@@ -10253,6 +10259,7 @@ IOMMU DRIVERS
- M:	Joerg Roedel <joro@8bytes.org>
- M:	Will Deacon <will@kernel.org>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Maintained
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
- F:	Documentation/devicetree/bindings/iommu/
-@@ -12369,6 +12376,7 @@ F:	drivers/i2c/busses/i2c-mt65xx.c
- MEDIATEK IOMMU DRIVER
- M:	Yong Wu <yong.wu@mediatek.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
- S:	Supported
- F:	Documentation/devicetree/bindings/iommu/mediatek*
-@@ -16354,6 +16362,7 @@ F:	drivers/i2c/busses/i2c-qcom-cci.c
- QUALCOMM IOMMU
- M:	Rob Clark <robdclark@gmail.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- L:	linux-arm-msm@vger.kernel.org
- S:	Maintained
- F:	drivers/iommu/arm/arm-smmu/qcom_iommu.c
-@@ -18939,6 +18948,7 @@ F:	arch/x86/boot/video*
- SWIOTLB SUBSYSTEM
- M:	Christoph Hellwig <hch@infradead.org>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Supported
- W:	http://git.infradead.org/users/hch/dma-mapping.git
- T:	git git://git.infradead.org/users/hch/dma-mapping.git
-@@ -21609,6 +21619,7 @@ M:	Juergen Gross <jgross@suse.com>
- M:	Stefano Stabellini <sstabellini@kernel.org>
- L:	xen-devel@lists.xenproject.org (moderated for non-subscribers)
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Supported
- F:	arch/x86/xen/*swiotlb*
- F:	drivers/xen/*swiotlb*
+ 	/*
+ 	 * Derive NFC ideal delay from {3}:
 
 
