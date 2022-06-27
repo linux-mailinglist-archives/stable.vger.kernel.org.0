@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 838E955D055
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:07:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7862155C771
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:54:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235122AbiF0L0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:26:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45482 "EHLO
+        id S235539AbiF0Ld4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:33:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235027AbiF0L0K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:26:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9651F7674;
-        Mon, 27 Jun 2022 04:25:49 -0700 (PDT)
+        with ESMTP id S236014AbiF0LdD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06C09BCBE;
+        Mon, 27 Jun 2022 04:30:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 346F56145B;
-        Mon, 27 Jun 2022 11:25:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39F72C3411D;
-        Mon, 27 Jun 2022 11:25:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83FAEB81122;
+        Mon, 27 Jun 2022 11:30:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B6BC3411D;
+        Mon, 27 Jun 2022 11:30:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329148;
-        bh=yGaILlkr6t2JBLMbPnHUcYbytbewGGpb8N6xz5lMpUI=;
+        s=korg; t=1656329403;
+        bh=SYnv/FhFH1ekUtV6eC1WyevHUII+0SmBoVZiwtyZeUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNzHNNWwXQD3uPHK1WHLh6B6m2VpvM80YyKMJTrkFZVFfAow9im4gtfgqOly1A+lS
-         WDrZhsobM/sHpUzerjib5Vx7KU4VWGyleAtQ4Cr7DTFPNbHoNL25rBNSkvWz0IzsJy
-         sEXeQhyKgorguF4tpWsTCM0ghkG2VDpe0U3Jk5aQ=
+        b=QKN5LpM20M6Ry22VMZJ1OYycawkQ8rWCm5zSqrZ7hBJhCAf0cBGx50/3dORJTA+yp
+         WgAZ08QrgfFYSs2/aCxpI8/WGSZRwfw+kV9Tvjb7q5ehe29EtQ1b0w0TPGRIvs8Oby
+         vnYTGJ7t1J8NPg1VSPVQGTu+WsRwQm8wn3JexPWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 066/102] xhci: turn off port power in shutdown
-Date:   Mon, 27 Jun 2022 13:21:17 +0200
-Message-Id: <20220627111935.429869653@linuxfoundation.org>
+        stable@vger.kernel.org, Rosemarie ORiorden <roriorden@redhat.com>,
+        Eelco Chaudron <echaudro@redhat.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.4 07/60] net: openvswitch: fix parsing of nw_proto for IPv6 fragments
+Date:   Mon, 27 Jun 2022 13:21:18 +0200
+Message-Id: <20220627111927.866949565@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,86 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Rosemarie O'Riorden <roriorden@redhat.com>
 
-commit 83810f84ecf11dfc5a9414a8b762c3501b328185 upstream.
+commit 12378a5a75e33f34f8586706eb61cca9e6d4690c upstream.
 
-If ports are not turned off in shutdown then runtime suspended
-self-powered USB devices may survive in U3 link state over S5.
+When a packet enters the OVS datapath and does not match any existing
+flows installed in the kernel flow cache, the packet will be sent to
+userspace to be parsed, and a new flow will be created. The kernel and
+OVS rely on each other to parse packet fields in the same way so that
+packets will be handled properly.
 
-During subsequent boot, if firmware sends an IPC command to program
-the port in DISCONNECT state, it will time out, causing significant
-delay in the boot time.
+As per the design document linked below, OVS expects all later IPv6
+fragments to have nw_proto=44 in the flow key, so they can be correctly
+matched on OpenFlow rules. OpenFlow controllers create pipelines based
+on this design.
 
-Turning off roothub port power is also recommended in xhci
-specification 4.19.4 "Port Power" in the additional note.
+This behavior was changed by the commit in the Fixes tag so that
+nw_proto equals the next_header field of the last extension header.
+However, there is no counterpart for this change in OVS userspace,
+meaning that this field is parsed differently between OVS and the
+kernel. This is a problem because OVS creates actions based on what is
+parsed in userspace, but the kernel-provided flow key is used as a match
+criteria, as described in Documentation/networking/openvswitch.rst. This
+leads to issues such as packets incorrectly matching on a flow and thus
+the wrong list of actions being applied to the packet. Such changes in
+packet parsing cannot be implemented without breaking the userspace.
+
+The offending commit is partially reverted to restore the expected
+behavior.
+
+The change technically made sense and there is a good reason that it was
+implemented, but it does not comply with the original design of OVS.
+If in the future someone wants to implement such a change, then it must
+be user-configurable and disabled by default to preserve backwards
+compatibility with existing OVS versions.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220623111945.1557702-3-mathias.nyman@linux.intel.com
+Fixes: fa642f08839b ("openvswitch: Derive IP protocol number for IPv6 later frags")
+Link: https://docs.openvswitch.org/en/latest/topics/design/#fragments
+Signed-off-by: Rosemarie O'Riorden <roriorden@redhat.com>
+Acked-by: Eelco Chaudron <echaudro@redhat.com>
+Link: https://lore.kernel.org/r/20220621204845.9721-1-roriorden@redhat.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-hub.c |    2 +-
- drivers/usb/host/xhci.c     |   15 +++++++++++++--
- drivers/usb/host/xhci.h     |    2 ++
- 3 files changed, 16 insertions(+), 3 deletions(-)
+ net/openvswitch/flow.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -566,7 +566,7 @@ struct xhci_hub *xhci_get_rhub(struct us
-  * It will release and re-aquire the lock while calling ACPI
-  * method.
-  */
--static void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd,
-+void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd,
- 				u16 index, bool on, unsigned long *flags)
- 	__must_hold(&xhci->lock)
- {
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -775,6 +775,8 @@ static void xhci_stop(struct usb_hcd *hc
- void xhci_shutdown(struct usb_hcd *hcd)
- {
- 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
-+	unsigned long flags;
-+	int i;
- 
- 	if (xhci->quirks & XHCI_SPURIOUS_REBOOT)
- 		usb_disable_xhci_ports(to_pci_dev(hcd->self.sysdev));
-@@ -790,12 +792,21 @@ void xhci_shutdown(struct usb_hcd *hcd)
- 		del_timer_sync(&xhci->shared_hcd->rh_timer);
- 	}
- 
--	spin_lock_irq(&xhci->lock);
-+	spin_lock_irqsave(&xhci->lock, flags);
- 	xhci_halt(xhci);
-+
-+	/* Power off USB2 ports*/
-+	for (i = 0; i < xhci->usb2_rhub.num_ports; i++)
-+		xhci_set_port_power(xhci, xhci->main_hcd, i, false, &flags);
-+
-+	/* Power off USB3 ports*/
-+	for (i = 0; i < xhci->usb3_rhub.num_ports; i++)
-+		xhci_set_port_power(xhci, xhci->shared_hcd, i, false, &flags);
-+
- 	/* Workaround for spurious wakeups at shutdown with HSW */
- 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
- 		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
--	spin_unlock_irq(&xhci->lock);
-+	spin_unlock_irqrestore(&xhci->lock, flags);
- 
- 	xhci_cleanup_msix(xhci);
- 
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -2162,6 +2162,8 @@ int xhci_hub_control(struct usb_hcd *hcd
- int xhci_hub_status_data(struct usb_hcd *hcd, char *buf);
- int xhci_find_raw_port_number(struct usb_hcd *hcd, int port1);
- struct xhci_hub *xhci_get_rhub(struct usb_hcd *hcd);
-+void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd, u16 index,
-+			 bool on, unsigned long *flags);
- 
- void xhci_hc_died(struct xhci_hcd *xhci);
- 
+--- a/net/openvswitch/flow.c
++++ b/net/openvswitch/flow.c
+@@ -265,7 +265,7 @@ static int parse_ipv6hdr(struct sk_buff
+ 	if (flags & IP6_FH_F_FRAG) {
+ 		if (frag_off) {
+ 			key->ip.frag = OVS_FRAG_TYPE_LATER;
+-			key->ip.proto = nexthdr;
++			key->ip.proto = NEXTHDR_FRAGMENT;
+ 			return 0;
+ 		}
+ 		key->ip.frag = OVS_FRAG_TYPE_FIRST;
 
 
