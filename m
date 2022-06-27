@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA68D55C25E
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:46:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8654E55D536
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:15:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236470AbiF0Lie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:38:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34292 "EHLO
+        id S234986AbiF0LZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:25:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236495AbiF0Lhf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:35 -0400
+        with ESMTP id S234886AbiF0LZP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:25:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7F7C28F;
-        Mon, 27 Jun 2022 04:33:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A68D3659B;
+        Mon, 27 Jun 2022 04:25:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44F85609D0;
-        Mon, 27 Jun 2022 11:33:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB24FC341C7;
-        Mon, 27 Jun 2022 11:33:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9237761359;
+        Mon, 27 Jun 2022 11:25:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92065C341C7;
+        Mon, 27 Jun 2022 11:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329612;
-        bh=d83IYfUoSCwlimeO40t3MmhOsYVKQ9De0jR/4Cmakr4=;
+        s=korg; t=1656329104;
+        bh=IUTMOUZQBaEKK+FbjIuRCLQ5gadokMU3chQGYhcUoXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZdIKYUlyYu5IkcXzGRNnfMYZ1lO8rNJ5KJPp7V8PMzHuQ5XTmdbYpxnkJYmB4pRlP
-         FAoAcUN4rjoHCib5C557nSir1hlgemUswW2BCArR2xWFTjysASoNPQjS7NoSE+BkDp
-         76Jaba1jEBvhuOsMaX4xJqCnvNu0vsOIwRSNyqFk=
+        b=L4AM+4XpQH5cByrVzQ+rTzHML/Ei2KhD2rABS+u5lUR45MrSjajns4fb7WWNb5nfn
+         GlGu7Vg8+uVNM7fX4ufS8HCt9Cni8bwwBj+FtI9A6AvQonIzopTM7GfLYqW2Ln7eka
+         sBgEDniUxGnnGQ7Mf+kPlIQAg1gCZKoog4v9kzfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Rob Clark <robdclark@chromium.org>,
+        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 056/135] drm/msm/dp: Drop now unused hpd_high member
+Subject: [PATCH 5.10 052/102] virtio_net: fix xdp_rxq_info bug after suspend/resume
 Date:   Mon, 27 Jun 2022 13:21:03 +0200
-Message-Id: <20220627111939.784309520@linuxfoundation.org>
+Message-Id: <20220627111935.016599779@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,92 +57,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 
-[ Upstream commit fabae667b1263216be53e0230cd3966a9a1963a4 ]
+[ Upstream commit 8af52fe9fd3bf5e7478da99193c0632276e1dfce ]
 
-Since '8ede2ecc3e5e ("drm/msm/dp: Add DP compliance tests on Snapdragon
-Chipsets")' the hpd_high member of struct dp_usbpd has been write-only.
+The following sequence currently causes a driver bug warning
+when using virtio_net:
 
-Let's clean up the code a little bit by removing the writes as well.
+  # ip link set eth0 up
+  # echo mem > /sys/power/state (or e.g. # rtcwake -s 10 -m mem)
+  <resume>
+  # ip link set eth0 down
 
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20211106172246.2597431-1-bjorn.andersson@linaro.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+  Missing register, driver bug
+  WARNING: CPU: 0 PID: 375 at net/core/xdp.c:138 xdp_rxq_info_unreg+0x58/0x60
+  Call trace:
+   xdp_rxq_info_unreg+0x58/0x60
+   virtnet_close+0x58/0xac
+   __dev_close_many+0xac/0x140
+   __dev_change_flags+0xd8/0x210
+   dev_change_flags+0x24/0x64
+   do_setlink+0x230/0xdd0
+   ...
+
+This happens because virtnet_freeze() frees the receive_queue
+completely (including struct xdp_rxq_info) but does not call
+xdp_rxq_info_unreg(). Similarly, virtnet_restore() sets up the
+receive_queue again but does not call xdp_rxq_info_reg().
+
+Actually, parts of virtnet_freeze_down() and virtnet_restore_up()
+are almost identical to virtnet_close() and virtnet_open(): only
+the calls to xdp_rxq_info_(un)reg() are missing. This means that
+we can fix this easily and avoid such problems in the future by
+just calling virtnet_close()/open() from the freeze/restore handlers.
+
+Aside from adding the missing xdp_rxq_info calls the only difference
+is that the refill work is only cancelled if netif_running(). However,
+this should not make any functional difference since the refill work
+should only be active if the network interface is actually up.
+
+Fixes: 754b8a21a96d ("virtio_net: setup xdp_rxq_info")
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Link: https://lore.kernel.org/r/20220621114845.3650258-1-stephan.gerhold@kernkonzept.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 6 ------
- drivers/gpu/drm/msm/dp/dp_hpd.c     | 2 --
- drivers/gpu/drm/msm/dp/dp_hpd.h     | 2 --
- 3 files changed, 10 deletions(-)
+ drivers/net/virtio_net.c | 25 ++++++-------------------
+ 1 file changed, 6 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 8b51a5cc3eb8..a66ee63253a3 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -547,11 +547,8 @@ static int dp_hpd_plug_handle(struct dp_display_private *dp, u32 data)
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index cbe47eed7cc3..ad9064df3deb 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2366,7 +2366,6 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+ static void virtnet_freeze_down(struct virtio_device *vdev)
+ {
+ 	struct virtnet_info *vi = vdev->priv;
+-	int i;
  
- 	dp->hpd_state = ST_CONNECT_PENDING;
- 
--	hpd->hpd_high = 1;
+ 	/* Make sure no work handler is accessing the device */
+ 	flush_work(&vi->config_work);
+@@ -2374,14 +2373,8 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+ 	netif_tx_lock_bh(vi->dev);
+ 	netif_device_detach(vi->dev);
+ 	netif_tx_unlock_bh(vi->dev);
+-	cancel_delayed_work_sync(&vi->refill);
 -
- 	ret = dp_display_usbpd_configure_cb(&dp->pdev->dev);
- 	if (ret) {	/* link train failed */
--		hpd->hpd_high = 0;
- 		dp->hpd_state = ST_DISCONNECTED;
+-	if (netif_running(vi->dev)) {
+-		for (i = 0; i < vi->max_queue_pairs; i++) {
+-			napi_disable(&vi->rq[i].napi);
+-			virtnet_napi_tx_disable(&vi->sq[i].napi);
+-		}
+-	}
++	if (netif_running(vi->dev))
++		virtnet_close(vi->dev);
+ }
  
- 		if (ret == -ECONNRESET) { /* cable unplugged */
-@@ -628,7 +625,6 @@ static int dp_hpd_unplug_handle(struct dp_display_private *dp, u32 data)
- 		/* triggered by irq_hdp with sink_count = 0 */
- 		if (dp->link->sink_count == 0) {
- 			dp_ctrl_off_phy(dp->ctrl);
--			hpd->hpd_high = 0;
- 			dp->core_initialized = false;
- 		}
- 		mutex_unlock(&dp->event_mutex);
-@@ -652,8 +648,6 @@ static int dp_hpd_unplug_handle(struct dp_display_private *dp, u32 data)
- 	/* disable HPD plug interrupts */
- 	dp_catalog_hpd_config_intr(dp->catalog, DP_DP_HPD_PLUG_INT_MASK, false);
+ static int init_vqs(struct virtnet_info *vi);
+@@ -2389,7 +2382,7 @@ static int init_vqs(struct virtnet_info *vi);
+ static int virtnet_restore_up(struct virtio_device *vdev)
+ {
+ 	struct virtnet_info *vi = vdev->priv;
+-	int err, i;
++	int err;
  
--	hpd->hpd_high = 0;
+ 	err = init_vqs(vi);
+ 	if (err)
+@@ -2398,15 +2391,9 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+ 	virtio_device_ready(vdev);
+ 
+ 	if (netif_running(vi->dev)) {
+-		for (i = 0; i < vi->curr_queue_pairs; i++)
+-			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+-				schedule_delayed_work(&vi->refill, 0);
 -
- 	/*
- 	 * We don't need separate work for disconnect as
- 	 * connect/attention interrupts are disabled
-diff --git a/drivers/gpu/drm/msm/dp/dp_hpd.c b/drivers/gpu/drm/msm/dp/dp_hpd.c
-index e1c90fa47411..db98a1d431eb 100644
---- a/drivers/gpu/drm/msm/dp/dp_hpd.c
-+++ b/drivers/gpu/drm/msm/dp/dp_hpd.c
-@@ -32,8 +32,6 @@ int dp_hpd_connect(struct dp_usbpd *dp_usbpd, bool hpd)
- 	hpd_priv = container_of(dp_usbpd, struct dp_hpd_private,
- 					dp_usbpd);
+-		for (i = 0; i < vi->max_queue_pairs; i++) {
+-			virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
+-			virtnet_napi_tx_enable(vi, vi->sq[i].vq,
+-					       &vi->sq[i].napi);
+-		}
++		err = virtnet_open(vi->dev);
++		if (err)
++			return err;
+ 	}
  
--	dp_usbpd->hpd_high = hpd;
--
- 	if (!hpd_priv->dp_cb || !hpd_priv->dp_cb->configure
- 				|| !hpd_priv->dp_cb->disconnect) {
- 		pr_err("hpd dp_cb not initialized\n");
-diff --git a/drivers/gpu/drm/msm/dp/dp_hpd.h b/drivers/gpu/drm/msm/dp/dp_hpd.h
-index 5bc5bb64680f..8feec5aa5027 100644
---- a/drivers/gpu/drm/msm/dp/dp_hpd.h
-+++ b/drivers/gpu/drm/msm/dp/dp_hpd.h
-@@ -26,7 +26,6 @@ enum plug_orientation {
-  * @multi_func: multi-function preferred
-  * @usb_config_req: request to switch to usb
-  * @exit_dp_mode: request exit from displayport mode
-- * @hpd_high: Hot Plug Detect signal is high.
-  * @hpd_irq: Change in the status since last message
-  * @alt_mode_cfg_done: bool to specify alt mode status
-  * @debug_en: bool to specify debug mode
-@@ -39,7 +38,6 @@ struct dp_usbpd {
- 	bool multi_func;
- 	bool usb_config_req;
- 	bool exit_dp_mode;
--	bool hpd_high;
- 	bool hpd_irq;
- 	bool alt_mode_cfg_done;
- 	bool debug_en;
+ 	netif_tx_lock_bh(vi->dev);
 -- 
 2.35.1
 
