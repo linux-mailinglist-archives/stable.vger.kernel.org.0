@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 582D455D2B0
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ED7E55E22D
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237639AbiF0Lqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:46:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42478 "EHLO
+        id S238046AbiF0Ltv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:49:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236843AbiF0LpI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:45:08 -0400
+        with ESMTP id S237491AbiF0Lp3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:45:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79830DF3A;
-        Mon, 27 Jun 2022 04:39:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B398DDF62;
+        Mon, 27 Jun 2022 04:39:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4912B81123;
-        Mon, 27 Jun 2022 11:39:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22FA6C341C7;
-        Mon, 27 Jun 2022 11:38:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E62FFB81122;
+        Mon, 27 Jun 2022 11:39:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BE80C36AF7;
+        Mon, 27 Jun 2022 11:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329940;
-        bh=LZEf909pHSiLWpkGshipQ2LNgivgihDRui4xRJSPfOc=;
+        s=korg; t=1656329943;
+        bh=A2migJAf3lhueRVP05DdDRYtA3dnSY0+3MDuPOjx5+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ho0ez39Md34FM1SbFzcYyaYFEpeawdlAWh2NeIo5wlQjr7KV3csfDA4rGHUVdgtTj
-         SdkC0wb47rBMZGnHPx0HiVy8qpBG6J7e+QKKaRPY1WHiw9bQGrisQG10waYHAdpyPF
-         47OlfLbUn+eaMDh1S9hPxMfTcdBCsjy5/hkyC5yo=
+        b=Ji1nwCKiN4Ef3MGZcM+hV71XKOedVTwx5uAS7zwgwOaLrkOe39ldcYaYX43GkiLJA
+         1ycMresMsYgXwa2V7tZZnV3rfp8WoXnqNBppipyz2LUOQm9tFhacijoIfvd/SbxAtJ
+         ktWbJ7BxsqxjXX5CpBky/g8UPQN3Mg4JKzDWxF4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.18 030/181] dm: do not return early from dm_io_complete if BLK_STS_AGAIN without polling
-Date:   Mon, 27 Jun 2022 13:20:03 +0200
-Message-Id: <20220627111945.438082323@linuxfoundation.org>
+        stable@vger.kernel.org, Benjamin Marzinski <bmarzins@redhat.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.18 031/181] dm mirror log: clear log bits up to BITS_PER_LONG boundary
+Date:   Mon, 27 Jun 2022 13:20:04 +0200
+Message-Id: <20220627111945.466416872@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -52,41 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@kernel.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 78ccef91234ba331c04d71f3ecb1377451d21056 upstream.
+commit 90736eb3232d208ee048493f371075e4272e0944 upstream.
 
-Commit 5291984004edf ("dm: fix bio polling to handle possibile
-BLK_STS_AGAIN") inadvertently introduced an early return from
-dm_io_complete() without first queueing the bio to DM if BLK_STS_AGAIN
-occurs and bio-polling is _not_ being used.
+Commit 85e123c27d5c ("dm mirror log: round up region bitmap size to
+BITS_PER_LONG") introduced a regression on 64-bit architectures in the
+lvm testsuite tests: lvcreate-mirror, mirror-names and vgsplit-operation.
 
-Fix this by only returning early from dm_io_complete() if the bio has
-first been properly queued to DM. Otherwise, the bio will never finish
-via bio_endio.
+If the device is shrunk, we need to clear log bits beyond the end of the
+device. The code clears bits up to a 32-bit boundary and then calculates
+lc->sync_count by summing set bits up to a 64-bit boundary (the commit
+changed that; previously, this boundary was 32-bit too). So, it was using
+some non-zeroed bits in the calculation and this caused misbehavior.
 
-Fixes: 5291984004edf ("dm: fix bio polling to handle possibile BLK_STS_AGAIN")
+Fix this regression by clearing bits up to BITS_PER_LONG boundary.
+
+Fixes: 85e123c27d5c ("dm mirror log: round up region bitmap size to BITS_PER_LONG")
 Cc: stable@vger.kernel.org
+Reported-by: Benjamin Marzinski <bmarzins@redhat.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/md/dm-log.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -899,9 +899,11 @@ static void dm_io_complete(struct dm_io
- 			if (io_error == BLK_STS_AGAIN) {
- 				/* io_uring doesn't handle BLK_STS_AGAIN (yet) */
- 				queue_io(md, bio);
-+				return;
- 			}
- 		}
--		return;
-+		if (io_error == BLK_STS_DM_REQUEUE)
-+			return;
- 	}
+--- a/drivers/md/dm-log.c
++++ b/drivers/md/dm-log.c
+@@ -615,7 +615,7 @@ static int disk_resume(struct dm_dirty_l
+ 			log_clear_bit(lc, lc->clean_bits, i);
  
- 	if (bio_is_flush_with_data(bio)) {
+ 	/* clear any old bits -- device has shrunk */
+-	for (i = lc->region_count; i % (sizeof(*lc->clean_bits) << BYTE_SHIFT); i++)
++	for (i = lc->region_count; i % BITS_PER_LONG; i++)
+ 		log_clear_bit(lc, lc->clean_bits, i);
+ 
+ 	/* copy clean across to sync */
 
 
