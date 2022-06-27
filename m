@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88FF055DC18
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7615755D667
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:16:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234497AbiF0Le0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:34:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58502 "EHLO
+        id S236412AbiF0Lie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236107AbiF0LdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17DB2E8;
-        Mon, 27 Jun 2022 04:30:18 -0700 (PDT)
+        with ESMTP id S236569AbiF0Lhl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A73E65AE;
+        Mon, 27 Jun 2022 04:34:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F3736141D;
-        Mon, 27 Jun 2022 11:30:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E169C3411D;
-        Mon, 27 Jun 2022 11:30:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2ACC1608D4;
+        Mon, 27 Jun 2022 11:34:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EF24C3411D;
+        Mon, 27 Jun 2022 11:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329417;
-        bh=h1N85u9a3APp1yw2woC9p/8mzkK2TLZrhyjIps8M9WU=;
+        s=korg; t=1656329645;
+        bh=U+Rg92FEYewgN3rsnB9jAB+CU0+j+dvaLs9T3nZDteI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jnPJ56+lRcbQMruB9fIppf44L3pUT9XKE2xITQRDtAyB6lmZUTXGB5gbIoHKzInpK
-         +3BEsPryJR3Pe8l+SHJlboiALY94r8QE6IFOJ63vP4uKg+WMDCkjnakJPth9COqYSg
-         vFBJuSVNqXP7pFEGiFv4HBImae3DofY8dlULgPZs=
+        b=kpTrSelTdcUlvBsGWBtp6qLra53hxk0diGxpCeCY7beZmUoZfvCZeZcKJQLQ4uBiA
+         eu9np83NlAAhHEyqcuIiiCeZqPed5GhL4BqahYXjnUHzg+6BU2xB6Kxj544FizVYmh
+         47HkEK9o17aa8eCYC6puLjrXC11ButYDjl1RhjsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.4 02/60] random: schedule mix_interrupt_randomness() less often
+        stable@vger.kernel.org, Julien Grall <jgrall@amazon.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 066/135] x86/xen: Remove undefined behavior in setup_features()
 Date:   Mon, 27 Jun 2022 13:21:13 +0200
-Message-Id: <20220627111927.719224755@linuxfoundation.org>
+Message-Id: <20220627111940.074135015@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Julien Grall <jgrall@amazon.com>
 
-commit 534d2eaf1970274150596fdd2bf552721e65d6b2 upstream.
+[ Upstream commit ecb6237fa397b7b810d798ad19322eca466dbab1 ]
 
-It used to be that mix_interrupt_randomness() would credit 1 bit each
-time it ran, and so add_interrupt_randomness() would schedule mix() to
-run every 64 interrupts, a fairly arbitrary number, but nonetheless
-considered to be a decent enough conservative estimate.
+1 << 31 is undefined. So switch to 1U << 31.
 
-Since e3e33fc2ea7f ("random: do not use input pool from hard IRQs"),
-mix() is now able to credit multiple bits, depending on the number of
-calls to add(). This was done for reasons separate from this commit, but
-it has the nice side effect of enabling this patch to schedule mix()
-less often.
-
-Currently the rules are:
-a) Credit 1 bit for every 64 calls to add().
-b) Schedule mix() once a second that add() is called.
-c) Schedule mix() once every 64 calls to add().
-
-Rules (a) and (c) no longer need to be coupled. It's still important to
-have _some_ value in (c), so that we don't "over-saturate" the fast
-pool, but the once per second we get from rule (b) is a plenty enough
-baseline. So, by increasing the 64 in rule (c) to something larger, we
-avoid calling queue_work_on() as frequently during irq storms.
-
-This commit changes that 64 in rule (c) to be 1024, which means we
-schedule mix() 16 times less often. And it does *not* need to change the
-64 in rule (a).
-
-Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
-Cc: stable@vger.kernel.org
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5ead97c84fa7 ("xen: Core Xen implementation")
+Signed-off-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20220617103037.57828-1-julien@xen.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |    2 +-
+ drivers/xen/features.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -996,7 +996,7 @@ void add_interrupt_randomness(int irq)
- 	if (new_count & MIX_INFLIGHT)
- 		return;
+diff --git a/drivers/xen/features.c b/drivers/xen/features.c
+index 7b591443833c..87f1828d40d5 100644
+--- a/drivers/xen/features.c
++++ b/drivers/xen/features.c
+@@ -42,7 +42,7 @@ void xen_setup_features(void)
+ 		if (HYPERVISOR_xen_version(XENVER_get_features, &fi) < 0)
+ 			break;
+ 		for (j = 0; j < 32; j++)
+-			xen_features[i * 32 + j] = !!(fi.submap & 1<<j);
++			xen_features[i * 32 + j] = !!(fi.submap & 1U << j);
+ 	}
  
--	if (new_count < 64 && !time_is_before_jiffies(fast_pool->last + HZ))
-+	if (new_count < 1024 && !time_is_before_jiffies(fast_pool->last + HZ))
- 		return;
- 
- 	if (unlikely(!fast_pool->mix.func))
+ 	if (xen_pv_domain()) {
+-- 
+2.35.1
+
 
 
