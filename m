@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83C3E55C14F
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:44:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC5155C385
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238409AbiF0LvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:51:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51830 "EHLO
+        id S238355AbiF0Lu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:50:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237500AbiF0Lsu (ORCPT
+        with ESMTP id S238600AbiF0Lsu (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C76C9D4E;
-        Mon, 27 Jun 2022 04:42:53 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B2AD51;
+        Mon, 27 Jun 2022 04:42:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B0D4B80DFB;
-        Mon, 27 Jun 2022 11:42:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1909C3411D;
-        Mon, 27 Jun 2022 11:42:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5724FB80D32;
+        Mon, 27 Jun 2022 11:42:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7447C3411D;
+        Mon, 27 Jun 2022 11:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330171;
-        bh=4w7b4pWpD7UXDkoehSBUHN1bW7Sn6vafUsjWmz8QO+8=;
+        s=korg; t=1656330174;
+        bh=J7cTMdkCM5oMYi/ifmTPBuUGMJ5bnPmv/FfH5KlXHTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BRx5mUQye6VweSPC/NUlCCr77aIPmhof8mK8MWvpYrc2vh5W9GFPwpbJ4CieNABMt
-         XQw8alR5y2MTHl8YtyI6A6FgrkwdIHiNsz82Hyf/2VkkBCEYeI8Szx9jhpb2T0+JmR
-         m/xy5v5o93CaG6WKmhHzO/vSeQ+twGJ9jGAy94dw=
+        b=DrJDHgKa8uORRr9fWZNDg2a10Ij8go8gmpVErn6xpsqUoHlIqG+khBeVUn9JKO/yY
+         taIaw3qU0whgZ+vhDiS0Pe65K/epDrMxwhFwlZqLZQoIfFfVvMNcul96PGRPfhUDrL
+         lJXEvH67c5UM3YYthi/52Odh95+XnFh/lCe3eQNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 108/181] io_uring: make apoll_events a __poll_t
-Date:   Mon, 27 Jun 2022 13:21:21 +0200
-Message-Id: <20220627111947.829741373@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Hao Xu <howeyxu@tencent.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 109/181] io_uring: fix req->apoll_events
+Date:   Mon, 27 Jun 2022 13:21:22 +0200
+Message-Id: <20220627111947.860146768@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -53,53 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 58f5c8d39e0ea07fdaaea6a85c49000da83dc0cc ]
+[ Upstream commit aacf2f9f382c91df73f33317e28a4c34c8038986 ]
 
-apoll_events is fed to vfs_poll and the poll tables, so it should be
-a __poll_t.
+apoll_events should be set once in the beginning of poll arming just as
+poll->events and not change after. However, currently io_uring resets it
+on each __io_poll_execute() for no clear reason. There is also a place
+in __io_arm_poll_handler() where we add EPOLLONESHOT to downgrade a
+multishot, but forget to do the same thing with ->apoll_events, which is
+buggy.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220518084005.3255380-5-hch@lst.de
+Fixes: 81459350d581e ("io_uring: cache req->apoll->events in req->cflags")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Reviewed-by: Hao Xu <howeyxu@tencent.com>
+Link: https://lore.kernel.org/r/0aef40399ba75b1a4d2c2e85e6e8fd93c02fc6e4.1655814213.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/io_uring.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ca9ed3d899e6..1070d22a1c2b 100644
+index 1070d22a1c2b..38ecea726254 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -926,7 +926,7 @@ struct io_kiocb {
- 		/* used by request caches, completion batching and iopoll */
- 		struct io_wq_work_node	comp_list;
- 		/* cache ->apoll->events */
--		int apoll_events;
-+		__poll_t apoll_events;
- 	};
- 	atomic_t			refs;
- 	atomic_t			poll_refs;
-@@ -5984,7 +5984,7 @@ static void io_apoll_task_func(struct io_kiocb *req, bool *locked)
+@@ -5984,7 +5984,8 @@ static void io_apoll_task_func(struct io_kiocb *req, bool *locked)
  		io_req_complete_failed(req, ret);
  }
  
--static void __io_poll_execute(struct io_kiocb *req, int mask, int events)
-+static void __io_poll_execute(struct io_kiocb *req, int mask, __poll_t events)
+-static void __io_poll_execute(struct io_kiocb *req, int mask, __poll_t events)
++static void __io_poll_execute(struct io_kiocb *req, int mask,
++			      __poll_t __maybe_unused events)
  {
  	req->result = mask;
  	/*
-@@ -6003,7 +6003,8 @@ static void __io_poll_execute(struct io_kiocb *req, int mask, int events)
- 	io_req_task_work_add(req, false);
+@@ -5993,7 +5994,6 @@ static void __io_poll_execute(struct io_kiocb *req, int mask, __poll_t events)
+ 	 * CPU. We want to avoid pulling in req->apoll->events for that
+ 	 * case.
+ 	 */
+-	req->apoll_events = events;
+ 	if (req->opcode == IORING_OP_POLL_ADD)
+ 		req->io_task_work.func = io_poll_task_func;
+ 	else
+@@ -6143,6 +6143,8 @@ static int __io_arm_poll_handler(struct io_kiocb *req,
+ 	io_init_poll_iocb(poll, mask, io_poll_wake);
+ 	poll->file = req->file;
+ 
++	req->apoll_events = poll->events;
++
+ 	ipt->pt._key = mask;
+ 	ipt->req = req;
+ 	ipt->error = 0;
+@@ -6173,8 +6175,10 @@ static int __io_arm_poll_handler(struct io_kiocb *req,
+ 
+ 	if (mask) {
+ 		/* can't multishot if failed, just queue the event we've got */
+-		if (unlikely(ipt->error || !ipt->nr_entries))
++		if (unlikely(ipt->error || !ipt->nr_entries)) {
+ 			poll->events |= EPOLLONESHOT;
++			req->apoll_events |= EPOLLONESHOT;
++		}
+ 		__io_poll_execute(req, mask, poll->events);
+ 		return 0;
+ 	}
+@@ -6387,7 +6391,7 @@ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
+ 		return -EINVAL;
+ 
+ 	io_req_set_refcount(req);
+-	req->apoll_events = poll->events = io_poll_parse_events(sqe, flags);
++	poll->events = io_poll_parse_events(sqe, flags);
+ 	return 0;
  }
  
--static inline void io_poll_execute(struct io_kiocb *req, int res, int events)
-+static inline void io_poll_execute(struct io_kiocb *req, int res,
-+		__poll_t events)
- {
- 	if (io_poll_get_ownership(req))
- 		__io_poll_execute(req, res, events);
 -- 
 2.35.1
 
