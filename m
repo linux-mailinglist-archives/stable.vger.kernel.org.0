@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A463B55DB1C
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:24:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E94C255DDE2
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235719AbiF0Leb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:34:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55488 "EHLO
+        id S234494AbiF0L3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:29:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235351AbiF0LcQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:32:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C8E76579;
-        Mon, 27 Jun 2022 04:29:24 -0700 (PDT)
+        with ESMTP id S235133AbiF0L3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:29:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA6CA6;
+        Mon, 27 Jun 2022 04:28:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2845B81122;
-        Mon, 27 Jun 2022 11:29:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40D49C3411D;
-        Mon, 27 Jun 2022 11:29:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26683B81116;
+        Mon, 27 Jun 2022 11:28:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99CCBC3411D;
+        Mon, 27 Jun 2022 11:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329361;
-        bh=hqBg51TtQ2Y5YQFT14WWcZJPCnt/QxcNOyTLRLJ9cAg=;
+        s=korg; t=1656329279;
+        bh=/U2yq+Js1bVAShlLkoTADj5bBuk/MmaXULBdYrraMHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YKdcr4jJbDiZPXru7cCAI6weRvxVw+GwnVsX4ATQuKr0/C9Cz5QEOZmQbuxBP+EmA
-         di/SyP2hxHYlrkXybmNjNWDuwexDUOCDzPDtdxGmnG3wj7RyDvy/JcrCbPixMXcEF9
-         77qLlCLFuDj/dv1wAKhWa1d5mZgadlELlbWAJNJ4=
+        b=qiTDWTZggTb5/LBUBHK2ymZB0lRgjI/qCJm37LBTDa87a5ac9pBzzEuWY93ky0foB
+         dmfwTm9iroq7TPEPEgBl0eYF6sL/R5fVSI/E+JFo/gEFSRTgOsVSZ1lAopZmWXXg7T
+         nCKRo5o80cGsv30J+3+Avy55HiZJXnKqpNTftjaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/60] Revert "net/tls: fix tls_sk_proto_close executed repeatedly"
+        stable@vger.kernel.org, Jun Li <jun.li@nxp.com>,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.10 092/102] ARM: dts: imx7: Move hsic_phy power domain to HSIC PHY node
 Date:   Mon, 27 Jun 2022 13:21:43 +0200
-Message-Id: <20220627111928.633100609@linuxfoundation.org>
+Message-Id: <20220627111936.196205159@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 1b205d948fbb06a7613d87dcea0ff5fd8a08ed91 ]
+commit 552ca27929ab28b341ae9b2629f0de3a84c98ee8 upstream.
 
-This reverts commit 69135c572d1f84261a6de2a1268513a7e71753e2.
+Move the power domain to its actual user. This keeps the power domain
+enabled even when the USB host is runtime suspended. This is necessary
+to detect any downstream events, like device attach.
 
-This commit was just papering over the issue, ULP should not
-get ->update() called with its own sk_prot. Each ULP would
-need to add this check.
-
-Fixes: 69135c572d1f ("net/tls: fix tls_sk_proto_close executed repeatedly")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/20220620191353.1184629-1-kuba@kernel.org
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 02f8eb40ef7b ("ARM: dts: imx7s: Add power domain for imx7d HSIC")
+Suggested-by: Jun Li <jun.li@nxp.com>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_main.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/arm/boot/dts/imx7s.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
-index df9177d96f7f..7aba4ee77aba 100644
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -803,9 +803,6 @@ static void tls_update(struct sock *sk, struct proto *p,
- {
- 	struct tls_context *ctx;
+--- a/arch/arm/boot/dts/imx7s.dtsi
++++ b/arch/arm/boot/dts/imx7s.dtsi
+@@ -102,6 +102,7 @@
+ 		compatible = "usb-nop-xceiv";
+ 		clocks = <&clks IMX7D_USB_HSIC_ROOT_CLK>;
+ 		clock-names = "main_clk";
++		power-domains = <&pgc_hsic_phy>;
+ 		#phy-cells = <0>;
+ 	};
  
--	if (sk->sk_prot == p)
--		return;
--
- 	ctx = tls_get_ctx(sk);
- 	if (likely(ctx)) {
- 		ctx->sk_write_space = write_space;
--- 
-2.35.1
-
+@@ -1104,7 +1105,6 @@
+ 				compatible = "fsl,imx7d-usb", "fsl,imx27-usb";
+ 				reg = <0x30b30000 0x200>;
+ 				interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
+-				power-domains = <&pgc_hsic_phy>;
+ 				clocks = <&clks IMX7D_USB_CTRL_CLK>;
+ 				fsl,usbphy = <&usbphynop3>;
+ 				fsl,usbmisc = <&usbmisc3 0>;
 
 
