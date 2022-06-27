@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF4C355C923
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B41055D52B
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:15:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236349AbiF0LhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:37:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33696 "EHLO
+        id S238027AbiF0Lto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:49:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235281AbiF0LgD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:36:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D2BDF3C;
-        Mon, 27 Jun 2022 04:31:52 -0700 (PDT)
+        with ESMTP id S238294AbiF0LsN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFB41BE11;
+        Mon, 27 Jun 2022 04:40:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D509EB8111D;
-        Mon, 27 Jun 2022 11:31:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28F20C3411D;
-        Mon, 27 Jun 2022 11:31:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 722DB6116D;
+        Mon, 27 Jun 2022 11:40:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 840AAC3411D;
+        Mon, 27 Jun 2022 11:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329509;
-        bh=3xRvhHc+SQdIQ0qMQx8QnXwLjDZ+YX9Db8crGiMEpTs=;
+        s=korg; t=1656330015;
+        bh=Xor3HCIQgPPTgGQZTK87IPF4nyQEx5tohD35dHjWbPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VcNb2UsO5RJiCfaXc6q92d0Dku/d840EypxU1snsynjAseEr2UHZzohK4BFj+YSgi
-         P17NzdDVtNxcL3XaPv94/ijnzOtjI0ZCKLWwgoQeTUZ15Q2ECoA+52hVII6y2D4Yt2
-         L9hGPsss/zI/4hL6MxIFEKv+j5pX1FS2CswzxYm0=
+        b=LtQDA3Nc9kqFVRGH+DNyKIMgyoTN91re+cGw5TFxlCP5ds5HcXYv4nVeVvtzsKtf9
+         J8yiaRt4VWaOrD1n2+IiigDC5RRm8KwAnN5gRNCUU5wZG4K6SvDUIurT2ZKeqdOkGK
+         7hPkCYaiSmlnsXC7DSWLPCEOAYpwDsUiB+iJv/rY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.15 022/135] MAINTAINERS: Add new IOMMU development mailing list
+        stable@vger.kernel.org, Mike Rapoport <rppt@kernel.org>,
+        Quentin Perret <qperret@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 056/181] KVM: arm64: Prevent kmemleak from accessing pKVM memory
 Date:   Mon, 27 Jun 2022 13:20:29 +0200
-Message-Id: <20220627111938.805159019@linuxfoundation.org>
+Message-Id: <20220627111946.191359304@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,113 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Quentin Perret <qperret@google.com>
 
-commit c242507c1b895646b4a25060df13b6214805759f upstream.
+[ Upstream commit 56961c6331463cce2d84d0f973177a517fb33a82 ]
 
-The IOMMU mailing list will move from lists.linux-foundation.org to
-lists.linux.dev. The hard switch of the archive will happen on July
-5th, but add the new list now already so that people start using the
-list when sending patches. After July 5th the old list will disappear.
+Commit a7259df76702 ("memblock: make memblock_find_in_range method
+private") changed the API using which memory is reserved for the pKVM
+hypervisor. However, memblock_phys_alloc() differs from the original API in
+terms of kmemleak semantics -- the old one didn't report the reserved
+regions to kmemleak while the new one does. Unfortunately, when protected
+KVM is enabled, all kernel accesses to pKVM-private memory result in a
+fatal exception, which can now happen because of kmemleak scans:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20220624125139.412-1-joro@8bytes.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+$ echo scan > /sys/kernel/debug/kmemleak
+[   34.991354] kvm [304]: nVHE hyp BUG at: [<ffff800008fa3750>] __kvm_nvhe_handle_host_mem_abort+0x270/0x290!
+[   34.991580] kvm [304]: Hyp Offset: 0xfffe8be807e00000
+[   34.991813] Kernel panic - not syncing: HYP panic:
+[   34.991813] PS:600003c9 PC:0000f418011a3750 ESR:00000000f2000800
+[   34.991813] FAR:ffff000439200000 HPFAR:0000000004792000 PAR:0000000000000000
+[   34.991813] VCPU:0000000000000000
+[   34.993660] CPU: 0 PID: 304 Comm: bash Not tainted 5.19.0-rc2 #102
+[   34.994059] Hardware name: linux,dummy-virt (DT)
+[   34.994452] Call trace:
+[   34.994641]  dump_backtrace.part.0+0xcc/0xe0
+[   34.994932]  show_stack+0x18/0x6c
+[   34.995094]  dump_stack_lvl+0x68/0x84
+[   34.995276]  dump_stack+0x18/0x34
+[   34.995484]  panic+0x16c/0x354
+[   34.995673]  __hyp_pgtable_total_pages+0x0/0x60
+[   34.995933]  scan_block+0x74/0x12c
+[   34.996129]  scan_gray_list+0xd8/0x19c
+[   34.996332]  kmemleak_scan+0x2c8/0x580
+[   34.996535]  kmemleak_write+0x340/0x4a0
+[   34.996744]  full_proxy_write+0x60/0xbc
+[   34.996967]  vfs_write+0xc4/0x2b0
+[   34.997136]  ksys_write+0x68/0xf4
+[   34.997311]  __arm64_sys_write+0x20/0x2c
+[   34.997532]  invoke_syscall+0x48/0x114
+[   34.997779]  el0_svc_common.constprop.0+0x44/0xec
+[   34.998029]  do_el0_svc+0x2c/0xc0
+[   34.998205]  el0_svc+0x2c/0x84
+[   34.998421]  el0t_64_sync_handler+0xf4/0x100
+[   34.998653]  el0t_64_sync+0x18c/0x190
+[   34.999252] SMP: stopping secondary CPUs
+[   35.000034] Kernel Offset: disabled
+[   35.000261] CPU features: 0x800,00007831,00001086
+[   35.000642] Memory Limit: none
+[   35.001329] ---[ end Kernel panic - not syncing: HYP panic:
+[   35.001329] PS:600003c9 PC:0000f418011a3750 ESR:00000000f2000800
+[   35.001329] FAR:ffff000439200000 HPFAR:0000000004792000 PAR:0000000000000000
+[   35.001329] VCPU:0000000000000000 ]---
+
+Fix this by explicitly excluding the hypervisor's memory pool from
+kmemleak like we already do for the hyp BSS.
+
+Cc: Mike Rapoport <rppt@kernel.org>
+Fixes: a7259df76702 ("memblock: make memblock_find_in_range method private")
+Signed-off-by: Quentin Perret <qperret@google.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220616161135.3997786-1-qperret@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- MAINTAINERS |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/arm64/kvm/arm.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -434,6 +434,7 @@ ACPI VIOT DRIVER
- M:	Jean-Philippe Brucker <jean-philippe@linaro.org>
- L:	linux-acpi@vger.kernel.org
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Maintained
- F:	drivers/acpi/viot.c
- F:	include/linux/acpi_viot.h
-@@ -941,6 +942,7 @@ AMD IOMMU (AMD-VI)
- M:	Joerg Roedel <joro@8bytes.org>
- R:	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Maintained
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
- F:	drivers/iommu/amd/
-@@ -5602,6 +5604,7 @@ M:	Christoph Hellwig <hch@lst.de>
- M:	Marek Szyprowski <m.szyprowski@samsung.com>
- R:	Robin Murphy <robin.murphy@arm.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Supported
- W:	http://git.infradead.org/users/hch/dma-mapping.git
- T:	git git://git.infradead.org/users/hch/dma-mapping.git
-@@ -5614,6 +5617,7 @@ F:	kernel/dma/
- DMA MAPPING BENCHMARK
- M:	Barry Song <song.bao.hua@hisilicon.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- F:	kernel/dma/map_benchmark.c
- F:	tools/testing/selftests/dma/
+diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+index a66d83540c15..f88919a793ad 100644
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -2011,11 +2011,11 @@ static int finalize_hyp_mode(void)
+ 		return 0;
  
-@@ -7115,6 +7119,7 @@ F:	drivers/gpu/drm/exynos/exynos_dp*
- EXYNOS SYSMMU (IOMMU) driver
- M:	Marek Szyprowski <m.szyprowski@samsung.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Maintained
- F:	drivers/iommu/exynos-iommu.c
+ 	/*
+-	 * Exclude HYP BSS from kmemleak so that it doesn't get peeked
+-	 * at, which would end badly once the section is inaccessible.
+-	 * None of other sections should ever be introspected.
++	 * Exclude HYP sections from kmemleak so that they don't get peeked
++	 * at, which would end badly once inaccessible.
+ 	 */
+ 	kmemleak_free_part(__hyp_bss_start, __hyp_bss_end - __hyp_bss_start);
++	kmemleak_free_part(__va(hyp_mem_base), hyp_mem_size);
+ 	return pkvm_drop_host_privileges();
+ }
  
-@@ -9457,6 +9462,7 @@ INTEL IOMMU (VT-d)
- M:	David Woodhouse <dwmw2@infradead.org>
- M:	Lu Baolu <baolu.lu@linux.intel.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Supported
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
- F:	drivers/iommu/intel/
-@@ -9793,6 +9799,7 @@ IOMMU DRIVERS
- M:	Joerg Roedel <joro@8bytes.org>
- M:	Will Deacon <will@kernel.org>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Maintained
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
- F:	Documentation/devicetree/bindings/iommu/
-@@ -11795,6 +11802,7 @@ F:	drivers/i2c/busses/i2c-mt65xx.c
- MEDIATEK IOMMU DRIVER
- M:	Yong Wu <yong.wu@mediatek.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
- S:	Supported
- F:	Documentation/devicetree/bindings/iommu/mediatek*
-@@ -15554,6 +15562,7 @@ F:	drivers/i2c/busses/i2c-qcom-cci.c
- QUALCOMM IOMMU
- M:	Rob Clark <robdclark@gmail.com>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- L:	linux-arm-msm@vger.kernel.org
- S:	Maintained
- F:	drivers/iommu/arm/arm-smmu/qcom_iommu.c
-@@ -17982,6 +17991,7 @@ F:	arch/x86/boot/video*
- SWIOTLB SUBSYSTEM
- M:	Christoph Hellwig <hch@infradead.org>
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Supported
- W:	http://git.infradead.org/users/hch/dma-mapping.git
- T:	git git://git.infradead.org/users/hch/dma-mapping.git
-@@ -20562,6 +20572,7 @@ M:	Juergen Gross <jgross@suse.com>
- M:	Stefano Stabellini <sstabellini@kernel.org>
- L:	xen-devel@lists.xenproject.org (moderated for non-subscribers)
- L:	iommu@lists.linux-foundation.org
-+L:	iommu@lists.linux.dev
- S:	Supported
- F:	arch/x86/xen/*swiotlb*
- F:	drivers/xen/*swiotlb*
+-- 
+2.35.1
+
 
 
