@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DB4055D484
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:14:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AC2055D2A0
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234593AbiF0LXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:23:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43650 "EHLO
+        id S236210AbiF0LhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:37:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234594AbiF0LXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:23:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0660656E;
-        Mon, 27 Jun 2022 04:23:24 -0700 (PDT)
+        with ESMTP id S235660AbiF0LgR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:36:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25406DBA;
+        Mon, 27 Jun 2022 04:31:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DC9A6144F;
-        Mon, 27 Jun 2022 11:23:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81B5FC341C7;
-        Mon, 27 Jun 2022 11:23:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB96DB81117;
+        Mon, 27 Jun 2022 11:31:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 217B5C3411D;
+        Mon, 27 Jun 2022 11:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329003;
-        bh=trcPkf+EXPWSnihqZu36c4JcAydRwY2vhM6nuMOJUUY=;
+        s=korg; t=1656329512;
+        bh=5LT9NzQLXskQ1eg7w5V3vF410bOW7qUUmfJnkQhv2Oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gi6XCkFkBMPeDrKU8wf5y0aoawODE5OZ1egaJnWqNxa0TST4cg/QnNB2ZtHGem5ZQ
-         RhAjvQ+RCPgsc7aCDKbjtQ25HE9SDbKB4CulaQHe3y1i5CMlWIhct5p6YrCveEC/6a
-         JaRmJIgW878CvhcQ5quX+PoNqkrgi6DYlr2L6bkg=
+        b=do3DNLnDDMIXVqwHsmbbrg45CUSneq9yg/zWrmy1W2R3ILLnogLsv8ahuca7kB1ne
+         hmmDIHnfyrGI2j8WFPjXyw6y4HQrS+vqFOb0TK/ITl8TxZBt7K+ISy/1KqwLMSC10I
+         NWNaBi16c/gRmAKQN36H9U5yUNItSHSmg+d6MQqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonglin Tan <yonglin.tan@outlook.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 019/102] USB: serial: option: add Quectel EM05-G modem
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.15 023/135] mtd: rawnand: gpmi: Fix setting busy timeout setting
 Date:   Mon, 27 Jun 2022 13:20:30 +0200
-Message-Id: <20220627111934.035642223@linuxfoundation.org>
+Message-Id: <20220627111938.833190500@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,104 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglin Tan <yonglin.tan@outlook.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-commit 33b29dbb39bcbd0a96e440646396bbf670b914fa upstream.
+commit 06781a5026350cde699d2d10c9914a25c1524f45 upstream.
 
-The EM05-G modem has 2 USB configurations that are configurable via the AT
-command AT+QCFG="usbnet",[ 0 | 2 ] which make the modem enumerate with
-the following interfaces, respectively:
+The DEVICE_BUSY_TIMEOUT value is described in the Reference Manual as:
 
-"RMNET"	: AT + DIAG + NMEA + Modem + QMI
-"MBIM"	: MBIM + AT + DIAG + NMEA + Modem
+| Timeout waiting for NAND Ready/Busy or ATA IRQ. Used in WAIT_FOR_READY
+| mode. This value is the number of GPMI_CLK cycles multiplied by 4096.
 
-The detailed description of the USB configuration for each mode as follows:
+So instead of multiplying the value in cycles with 4096, we have to
+divide it by that value. Use DIV_ROUND_UP to make sure we are on the
+safe side, especially when the calculated value in cycles is smaller
+than 4096 as typically the case.
 
-RMNET Mode
---------------
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 21 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=030a Rev= 3.18
-S:  Manufacturer=Quectel
-S:  Product=Quectel EM05-G
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+This bug likely never triggered because any timeout != 0 usually will
+do. In my case the busy timeout in cycles was originally calculated as
+2408, which multiplied with 4096 is 0x968000. The lower 16 bits were
+taken for the 16 bit wide register field, so the register value was
+0x8000. With 2970bf5a32f0 ("mtd: rawnand: gpmi: fix controller timings
+setting") however the value in cycles became 2384, which multiplied
+with 4096 is 0x950000. The lower 16 bit are 0x0 now resulting in an
+intermediate timeout when reading from NAND.
 
-MBIM Mode
---------------
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 16 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=030a Rev= 3.18
-S:  Manufacturer=Quectel
-S:  Product=Quectel EM05-G
-C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
-E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
-I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: Yonglin Tan <yonglin.tan@outlook.com>
+Fixes: b1206122069aa ("mtd: rawnand: gpmi: use core timings instead of an empirical derivation")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220614083138.3455683-1-s.hauer@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -252,6 +252,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_EG95			0x0195
- #define QUECTEL_PRODUCT_BG96			0x0296
- #define QUECTEL_PRODUCT_EP06			0x0306
-+#define QUECTEL_PRODUCT_EM05G			0x030a
- #define QUECTEL_PRODUCT_EM12			0x0512
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_EC200S_CN		0x6002
-@@ -1134,6 +1135,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
-+	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
-+	  .driver_info = RSVD(6) | ZLP },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
+--- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
++++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+@@ -685,7 +685,7 @@ static void gpmi_nfc_compute_timings(str
+ 	hw->timing0 = BF_GPMI_TIMING0_ADDRESS_SETUP(addr_setup_cycles) |
+ 		      BF_GPMI_TIMING0_DATA_HOLD(data_hold_cycles) |
+ 		      BF_GPMI_TIMING0_DATA_SETUP(data_setup_cycles);
+-	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(busy_timeout_cycles * 4096);
++	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(DIV_ROUND_UP(busy_timeout_cycles, 4096));
+ 
+ 	/*
+ 	 * Derive NFC ideal delay from {3}:
 
 
