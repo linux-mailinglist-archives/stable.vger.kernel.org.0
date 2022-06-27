@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FD3755D849
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:19:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5652E55D990
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237966AbiF0LvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:51:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49708 "EHLO
+        id S235001AbiF0LZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:25:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237964AbiF0Lt3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:49:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EA04F2C;
-        Mon, 27 Jun 2022 04:43:24 -0700 (PDT)
+        with ESMTP id S234832AbiF0LZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:25:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21EBC65C1;
+        Mon, 27 Jun 2022 04:25:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF7AE61274;
-        Mon, 27 Jun 2022 11:43:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04FD8C341D0;
-        Mon, 27 Jun 2022 11:43:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9068661497;
+        Mon, 27 Jun 2022 11:25:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB76C341D3;
+        Mon, 27 Jun 2022 11:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330203;
-        bh=/23RHVTrOfPcGrYygrtoRfvlXfe9Z/ivIRH7rlkwIlk=;
+        s=korg; t=1656329107;
+        bh=8MbN9/l8r4l07VQsymiCOiUg9CkoZNTexzO2dpr8eNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ZZ/lNyaUqm58YivTWLrLq7TAMQqNvYUnSbwx0bC2ls/ATUWpV4K5zso6aDO8QJmQ
-         gRIEIwWSVEKJ8TSsLPV3EMWQTX1lsWN86ZPGV+g2l4G/0FIle+KVjYp2v1fD6qs10/
-         RpC9I0v3GjktvIF8mlZ7T9GT4iDnL5XMIxEn479o=
+        b=tQH9WABqyGJLNUMveD1Ci4WkzrMNVkTbb/6IxFG85mPTdR/7UqshXJTHFI5dSKJyH
+         yojuV+UpHvL4qWFCSCvt8aDIpTMTKJpFE3qg4soQxWdK7+iirevYViSsGer0xG9LyG
+         HhZ/AVa7vXgVuXF9egupMww4pCfO+9mITNE0Wz/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aidan MacDonald <aidanmacdonald.0x0@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 091/181] regmap-irq: Fix offset/index mismatch in read_sub_irq_data()
+Subject: [PATCH 5.10 053/102] Revert "net/tls: fix tls_sk_proto_close executed repeatedly"
 Date:   Mon, 27 Jun 2022 13:21:04 +0200
-Message-Id: <20220627111947.198281044@linuxfoundation.org>
+Message-Id: <20220627111935.046120109@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 3f05010f243be06478a9b11cfce0ce994f5a0890 ]
+[ Upstream commit 1b205d948fbb06a7613d87dcea0ff5fd8a08ed91 ]
 
-We need to divide the sub-irq status register offset by register
-stride to get an index for the status buffer to avoid an out of
-bounds write when the register stride is greater than 1.
+This reverts commit 69135c572d1f84261a6de2a1268513a7e71753e2.
 
-Fixes: a2d21848d921 ("regmap: regmap-irq: Add main status register support")
-Signed-off-by: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
-Link: https://lore.kernel.org/r/20220620200644.1961936-3-aidanmacdonald.0x0@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This commit was just papering over the issue, ULP should not
+get ->update() called with its own sk_prot. Each ULP would
+need to add this check.
+
+Fixes: 69135c572d1f ("net/tls: fix tls_sk_proto_close executed repeatedly")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/r/20220620191353.1184629-1-kuba@kernel.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/regmap-irq.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/tls/tls_main.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
-index 4f785bc7981c..a6db605707b0 100644
---- a/drivers/base/regmap/regmap-irq.c
-+++ b/drivers/base/regmap/regmap-irq.c
-@@ -387,6 +387,7 @@ static inline int read_sub_irq_data(struct regmap_irq_chip_data *data,
- 		subreg = &chip->sub_reg_offsets[b];
- 		for (i = 0; i < subreg->num_regs; i++) {
- 			unsigned int offset = subreg->offset[i];
-+			unsigned int index = offset / map->reg_stride;
+diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
+index 9492528f5852..58d22d6b86ae 100644
+--- a/net/tls/tls_main.c
++++ b/net/tls/tls_main.c
+@@ -787,9 +787,6 @@ static void tls_update(struct sock *sk, struct proto *p,
+ {
+ 	struct tls_context *ctx;
  
- 			if (chip->not_fixed_stride)
- 				ret = regmap_read(map,
-@@ -395,7 +396,7 @@ static inline int read_sub_irq_data(struct regmap_irq_chip_data *data,
- 			else
- 				ret = regmap_read(map,
- 						chip->status_base + offset,
--						&data->status_buf[offset]);
-+						&data->status_buf[index]);
- 
- 			if (ret)
- 				break;
+-	if (sk->sk_prot == p)
+-		return;
+-
+ 	ctx = tls_get_ctx(sk);
+ 	if (likely(ctx)) {
+ 		ctx->sk_write_space = write_space;
 -- 
 2.35.1
 
