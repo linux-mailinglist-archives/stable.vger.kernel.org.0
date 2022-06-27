@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 682C655C3E4
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:49:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1839455CD94
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:03:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236265AbiF0LgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:36:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55434 "EHLO
+        id S238112AbiF0LuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:50:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236076AbiF0LfY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:35:24 -0400
+        with ESMTP id S238534AbiF0Lsn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFD23DF1C;
-        Mon, 27 Jun 2022 04:31:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C35101E6;
+        Mon, 27 Jun 2022 04:42:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FD50B81122;
-        Mon, 27 Jun 2022 11:31:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B473C3411D;
-        Mon, 27 Jun 2022 11:31:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66224B8112E;
+        Mon, 27 Jun 2022 11:42:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82ACC3411D;
+        Mon, 27 Jun 2022 11:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329497;
-        bh=uCms7sCXhbllyuq1NDeao1p5ydnZQ1Te9CfA6z5pYAE=;
+        s=korg; t=1656330127;
+        bh=14Cc3lgi1m160+6Jz2NgFBsl2TTrDobQb+bvHimA6DQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ATUa5CTFSnfSrzzIk/8FZxKNPeBSd15YiflameRjWHFNfHeoSxSFioWICa5Q0zzqg
-         ZKUE+6jiMti2ZQxc9PWQcFHYMPbh7sptVlprK80FYz2q1ZmkwuoXriIj7w/XF6Uv7P
-         /rB3StaMpxGUsptLTsX4M2S4ti2wVAKRlSkmGQp0=
+        b=GxFbibsEec1Pv0+OvC5u0YItlh7oNHQChsTJE+cTPwuHDzVtPD+WM3WPV2ZxrpuHn
+         Lf5JFoR5nhroEcHrCZIPAH1WyIWpPGhJHg71SSFJD5XJxLisXOSWqnArM4NMHvHf6y
+         KoezjJdadCn8/4ut8IZDbyLEnAUs0COnKQLkSsww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chevron Li <chevron.li@bayhubtech.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 019/135] mmc: sdhci-pci-o2micro: Fix card detect by dealing with debouncing
+        stable@vger.kernel.org, Yu Liao <liaoyu15@huawei.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 053/181] selftests dma: fix compile error for dma_map_benchmark
 Date:   Mon, 27 Jun 2022 13:20:26 +0200
-Message-Id: <20220627111938.719601904@linuxfoundation.org>
+Message-Id: <20220627111946.104494390@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chevron Li <chevron.li@bayhubtech.com>
+From: Yu Liao <liaoyu15@huawei.com>
 
-commit e591fcf6b4e39335c9b128b17738fcd2fdd278ae upstream.
+[ Upstream commit 12a29115be72dfc72372af9ded4bc4ae7113a729 ]
 
-The result from ->get_cd() may be incorrect as the card detect debouncing
-isn't managed correctly. Let's fix it.
+When building selftests/dma:
+$ make -C tools/testing/selftests TARGETS=dma
+I hit the following compilation error:
 
-Signed-off-by: Chevron Li<chevron.li@bayhubtech.com>
-Fixes: 7d44061704dd ("mmc: sdhci-pci-o2micro: Fix O2 Host data read/write DLL Lock phase shift issue")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220602132543.596-1-chevron.li@bayhubtech.com
-[Ulf: Updated the commit message]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+dma_map_benchmark.c:13:10: fatal error: linux/map_benchmark.h: No such file or directory
+ #include <linux/map_benchmark.h>
+          ^~~~~~~~~~~~~~~~~~~~~~~
+
+dma/Makefile does not include the map_benchmark.h path, so add
+more including path, and fix include order in dma_map_benchmark.c
+
+Fixes: 8ddde07a3d28 ("dma-mapping: benchmark: extract a common header file for map_benchmark definition")
+Signed-off-by: Yu Liao <liaoyu15@huawei.com>
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-pci-o2micro.c |    2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/dma/Makefile            | 1 +
+ tools/testing/selftests/dma/dma_map_benchmark.c | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-pci-o2micro.c
-+++ b/drivers/mmc/host/sdhci-pci-o2micro.c
-@@ -147,6 +147,8 @@ static int sdhci_o2_get_cd(struct mmc_ho
+diff --git a/tools/testing/selftests/dma/Makefile b/tools/testing/selftests/dma/Makefile
+index aa8e8b5b3864..cd8c5ece1cba 100644
+--- a/tools/testing/selftests/dma/Makefile
++++ b/tools/testing/selftests/dma/Makefile
+@@ -1,5 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ CFLAGS += -I../../../../usr/include/
++CFLAGS += -I../../../../include/
  
- 	if (!(sdhci_readw(host, O2_PLL_DLL_WDT_CONTROL1) & O2_PLL_LOCK_STATUS))
- 		sdhci_o2_enable_internal_clock(host);
-+	else
-+		sdhci_o2_wait_card_detect_stable(host);
+ TEST_GEN_PROGS := dma_map_benchmark
  
- 	return !!(sdhci_readl(host, SDHCI_PRESENT_STATE) & SDHCI_CARD_PRESENT);
- }
+diff --git a/tools/testing/selftests/dma/dma_map_benchmark.c b/tools/testing/selftests/dma/dma_map_benchmark.c
+index c3b3c09e995e..5c997f17fcbd 100644
+--- a/tools/testing/selftests/dma/dma_map_benchmark.c
++++ b/tools/testing/selftests/dma/dma_map_benchmark.c
+@@ -10,8 +10,8 @@
+ #include <unistd.h>
+ #include <sys/ioctl.h>
+ #include <sys/mman.h>
+-#include <linux/map_benchmark.h>
+ #include <linux/types.h>
++#include <linux/map_benchmark.h>
+ 
+ #define NSEC_PER_MSEC	1000000L
+ 
+-- 
+2.35.1
+
 
 
