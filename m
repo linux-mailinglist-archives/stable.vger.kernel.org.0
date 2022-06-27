@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B51C355D5A5
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:15:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A49755DBDE
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:25:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235085AbiF0Lau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:30:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49930 "EHLO
+        id S236888AbiF0LnX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235477AbiF0L3m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:29:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6003FB07;
-        Mon, 27 Jun 2022 04:28:27 -0700 (PDT)
+        with ESMTP id S237055AbiF0Llx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:41:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03580D12F;
+        Mon, 27 Jun 2022 04:36:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5873614ED;
-        Mon, 27 Jun 2022 11:28:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A02C3411D;
-        Mon, 27 Jun 2022 11:28:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2C4EB81122;
+        Mon, 27 Jun 2022 11:36:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05AFC3411D;
+        Mon, 27 Jun 2022 11:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329306;
-        bh=6AxkFONhHzmOfd4oMiIArsoJYhYr/Fsf+dMwrYnOOFM=;
+        s=korg; t=1656329763;
+        bh=Qn4E7U58e6by5qc0Mt0UQ4m6Ji0r7WUBtJf/l9mKkUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rzxdxvo0Q6mvJjqz84sX5FG51AxkruLQfwuBZBc349r+SFhgdk0OUXpwMOtaOmZwJ
-         wCXUOXnobPNpaJj319Rvd6lWGul+4pL7HxT+I9opB2WSq7yiE5d8q9ktYIXz53gd7k
-         0+S943NsBSSpONBkT2lvQM76vGK8QMhHFEx/jP28=
+        b=RXfcwmDDHDE+tX4AiWumxtIziHHrydGOBPqIhdwimwowMOEGNh+TXIJ8Ns7G3OBQI
+         KybEV9K2J7QgSchPty6qBsNjRT2s8zWj0c+i6yF0lqaQxDc9aAX9O4rkYgqP8BW1w5
+         8W67N474yWoc7kU2z6aBILEXKGLMFE+EnGfTY4/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ballon Shi <ballon.shi@quectel.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 16/60] USB: serial: option: add Quectel RM500K module support
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 080/135] iio: mma8452: fix probe fail when device tree compatible is used.
 Date:   Mon, 27 Jun 2022 13:21:27 +0200
-Message-Id: <20220627111928.138227692@linuxfoundation.org>
+Message-Id: <20220627111940.481938303@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Macpaul Lin <macpaul.lin@mediatek.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-commit 15b694e96c31807d8515aacfa687a1e8a4fbbadc upstream.
+[ Upstream commit fe18894930a025617114aa8ca0adbf94d5bffe89 ]
 
-Add usb product id of the Quectel RM500K module.
+Correct the logic for the probe. First check of_match_table, if
+not meet, then check i2c_driver.id_table. If both not meet, then
+return fail.
 
-RM500K provides 2 mandatory interfaces to Linux host after enumeration.
- - /dev/ttyUSB5: this is a serial interface for control path. User needs
-   to write AT commands to this device node to query status, set APN,
-   set PIN code, and enable/disable the data connection to 5G network.
- - ethX: this is the data path provided as a RNDIS devices. After the
-   data connection has been established, Linux host can access 5G data
-   network via this interface.
-
-"RNDIS": RNDIS + ADB + AT (/dev/ttyUSB5) + MODEM COMs
-
-usb-devices output for 0x7001:
-T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=7001 Rev=00.01
-S:  Manufacturer=MediaTek Inc.
-S:  Product=USB DATA CARD
-S:  SerialNumber=869206050009672
-C:  #Ifs=10 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=02 Prot=ff Driver=rndis_host
-E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=125us
-I:  If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 7 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 9 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=09(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=8a(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Co-developed-by: Ballon Shi <ballon.shi@quectel.com>
-Signed-off-by: Ballon Shi <ballon.shi@quectel.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a47ac019e7e8 ("iio: mma8452: Fix probe failing when an i2c_device_id is used")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Link: https://lore.kernel.org/r/1650876060-17577-1-git-send-email-haibo.chen@nxp.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/accel/mma8452.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -257,6 +257,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_EC200S_CN		0x6002
- #define QUECTEL_PRODUCT_EC200T			0x6026
-+#define QUECTEL_PRODUCT_RM500K			0x7001
+diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
+index 21a99467f364..40faf09f5d87 100644
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1539,11 +1539,13 @@ static int mma8452_probe(struct i2c_client *client,
+ 	mutex_init(&data->lock);
  
- #define CMOTECH_VENDOR_ID			0x16d8
- #define CMOTECH_PRODUCT_6001			0x6001
-@@ -1150,6 +1151,7 @@ static const struct usb_device_id option
- 	  .driver_info = ZLP },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500K, 0xff, 0x00, 0x00) },
+ 	data->chip_info = device_get_match_data(&client->dev);
+-	if (!data->chip_info && id) {
+-		data->chip_info = &mma_chip_info_table[id->driver_data];
+-	} else {
+-		dev_err(&client->dev, "unknown device model\n");
+-		return -ENODEV;
++	if (!data->chip_info) {
++		if (id) {
++			data->chip_info = &mma_chip_info_table[id->driver_data];
++		} else {
++			dev_err(&client->dev, "unknown device model\n");
++			return -ENODEV;
++		}
+ 	}
  
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_CMU_300) },
+ 	data->vdd_reg = devm_regulator_get(&client->dev, "vdd");
+-- 
+2.35.1
+
 
 
