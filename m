@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64F1055DD4E
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:27:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90FF855CA3F
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:58:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234946AbiF0L1d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:27:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45528 "EHLO
+        id S235202AbiF0LtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:49:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235133AbiF0L0v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:26:51 -0400
+        with ESMTP id S238469AbiF0Lsa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51E327657;
-        Mon, 27 Jun 2022 04:26:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF7ECBF56;
+        Mon, 27 Jun 2022 04:41:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2572B81125;
-        Mon, 27 Jun 2022 11:26:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54182C3411D;
-        Mon, 27 Jun 2022 11:26:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD2F8B81126;
+        Mon, 27 Jun 2022 11:41:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8C0C3411D;
+        Mon, 27 Jun 2022 11:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329205;
-        bh=klJ26jnLWH9oFW4gAZy/aelKxwmR4wrpLRbrkGf00zU=;
+        s=korg; t=1656330101;
+        bh=KelcNy4BlQfdFL5bf3Gj9vnTq3rW4jyrrMITbB3CXBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+tFMjaF+UtV8xJKEQHXSlpXFdKpqQWxMqkyRoCZTkRAT/tscIYEFXavCspxxsceJ
-         tRHPGtjvFBbTVFa8beUom577d8etlBDJy/dH0NaU7gYPY+UKgSZevtxVM+mScFNywz
-         ip5CNquFXhy87EJE8MtI5AwJ+hm7eeSZ/HiRnIdc=
+        b=Hhgm7gO4Yv/ma4uKsFcI++43+1M8UVfyMkp152l4ARv33fviNFRWWofkvFxs7E3yv
+         UAs1x/E+N0szgfk55lDGnnd+PAmFPLU/q66x1kt0F8T/yn1RosteqNhBglBcgLpQAq
+         Onn0hpJY0bBSpB2I6NDuENDtdsYVM5hRVxqNSFjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Jie2x Zhou <jie2x.zhou@intel.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        linux-afs@lists.infradead.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/102] selftests: netfilter: correct PKTGEN_SCRIPT_PATHS in nft_concat_range.sh
+Subject: [PATCH 5.18 083/181] afs: Fix dynamic root getattr
 Date:   Mon, 27 Jun 2022 13:20:56 +0200
-Message-Id: <20220627111934.809301512@linuxfoundation.org>
+Message-Id: <20220627111946.966978772@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie2x Zhou <jie2x.zhou@intel.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 5d79d8af8dec58bf709b3124d09d9572edd9c617 ]
+[ Upstream commit cb78d1b5efffe4cf97e16766329dd7358aed3deb ]
 
-Before change:
-make -C netfilter
- TEST: performance
-   net,port                                                      [SKIP]
-   perf not supported
-   port,net                                                      [SKIP]
-   perf not supported
-   net6,port                                                     [SKIP]
-   perf not supported
-   port,proto                                                    [SKIP]
-   perf not supported
-   net6,port,mac                                                 [SKIP]
-   perf not supported
-   net6,port,mac,proto                                           [SKIP]
-   perf not supported
-   net,mac                                                       [SKIP]
-   perf not supported
+The recent patch to make afs_getattr consult the server didn't account
+for the pseudo-inodes employed by the dynamic root-type afs superblock
+not having a volume or a server to access, and thus an oops occurs if
+such a directory is stat'd.
 
-After change:
-   net,mac                                                       [ OK ]
-     baseline (drop from netdev hook):               2061098pps
-     baseline hash (non-ranged entries):             1606741pps
-     baseline rbtree (match on first field only):    1191607pps
-     set with  1000 full, ranged entries:            1639119pps
-ok 8 selftests: netfilter: nft_concat_range.sh
+Fix this by checking to see if the vnode->volume pointer actually points
+anywhere before following it in afs_getattr().
 
-Fixes: 611973c1e06f ("selftests: netfilter: Introduce tests for sets with range concatenation")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jie2x Zhou <jie2x.zhou@intel.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+This can be tested by stat'ing a directory in /afs.  It may be
+sufficient just to do "ls /afs" and the oops looks something like:
+
+        BUG: kernel NULL pointer dereference, address: 0000000000000020
+        ...
+        RIP: 0010:afs_getattr+0x8b/0x14b
+        ...
+        Call Trace:
+         <TASK>
+         vfs_statx+0x79/0xf5
+         vfs_fstatat+0x49/0x62
+
+Fixes: 2aeb8c86d499 ("afs: Fix afs_getattr() to refetch file status if callback break occurred")
+Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Tested-by: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/r/165408450783.1031787.7941404776393751186.stgit@warthog.procyon.org.uk/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/netfilter/nft_concat_range.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/afs/inode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/netfilter/nft_concat_range.sh b/tools/testing/selftests/netfilter/nft_concat_range.sh
-index b5eef5ffb58e..af3461cb5c40 100755
---- a/tools/testing/selftests/netfilter/nft_concat_range.sh
-+++ b/tools/testing/selftests/netfilter/nft_concat_range.sh
-@@ -31,7 +31,7 @@ BUGS="flush_remove_add reload"
+diff --git a/fs/afs/inode.c b/fs/afs/inode.c
+index 22811e9eacf5..c4c9f6dff0a2 100644
+--- a/fs/afs/inode.c
++++ b/fs/afs/inode.c
+@@ -745,7 +745,8 @@ int afs_getattr(struct user_namespace *mnt_userns, const struct path *path,
  
- # List of possible paths to pktgen script from kernel tree for performance tests
- PKTGEN_SCRIPT_PATHS="
--	../../../samples/pktgen/pktgen_bench_xmit_mode_netif_receive.sh
-+	../../../../samples/pktgen/pktgen_bench_xmit_mode_netif_receive.sh
- 	pktgen/pktgen_bench_xmit_mode_netif_receive.sh"
+ 	_enter("{ ino=%lu v=%u }", inode->i_ino, inode->i_generation);
  
- # Definition of set types:
+-	if (!(query_flags & AT_STATX_DONT_SYNC) &&
++	if (vnode->volume &&
++	    !(query_flags & AT_STATX_DONT_SYNC) &&
+ 	    !test_bit(AFS_VNODE_CB_PROMISED, &vnode->flags)) {
+ 		key = afs_request_key(vnode->volume->cell);
+ 		if (IS_ERR(key))
 -- 
 2.35.1
 
