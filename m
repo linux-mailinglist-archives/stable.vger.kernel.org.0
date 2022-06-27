@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2506155C9A0
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14A0A55CE1B
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:04:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234660AbiF0LX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:23:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44036 "EHLO
+        id S237998AbiF0Lte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:49:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234656AbiF0LXy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:23:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D658C64F8;
-        Mon, 27 Jun 2022 04:23:53 -0700 (PDT)
+        with ESMTP id S238336AbiF0LsT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38229F5A1;
+        Mon, 27 Jun 2022 04:40:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90417B8111D;
-        Mon, 27 Jun 2022 11:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4F9FC3411D;
-        Mon, 27 Jun 2022 11:23:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C980861180;
+        Mon, 27 Jun 2022 11:40:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0B85C341C7;
+        Mon, 27 Jun 2022 11:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329031;
-        bh=IrWX5x23lCPHq6kvHtaesLbH5EKiRZ71l/G9odtKReg=;
+        s=korg; t=1656330046;
+        bh=D1S1Yty5XrdXUr+pNNeKQBUfDvsurleJROtK6ST4Bew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8jKD0x2hocRjc1+/XwoQ3ag0twajfKrKVyUX+e1t2EYg7ybq9DLIPkWpyjmj4ltX
-         cdvLMqDSvqdpF7F7OdGEEw7ptQ9zRNvQw5y1XCAvgAnqBEdTLjA3NDCI72S17tG5Rb
-         Rh38JwORg6vsQfpH7sqDXDDkKnrVVh/PRuRd3DO8=
+        b=ecEGG1iWkk4fuUep0A3C/CEzjft5BagNZqNaD9zj3+Hk1dBzj33TlnI2tf0f9G14f
+         P/Gj3zvJ1j2FVjyXJ5VJyO1n8Yg504j1ZjvifVwx7TJZMpMaCrpJWo/RIlKntUUcNG
+         5mHv9/Ajw7m67wr2uutCVaaktctMWZW7EDkT1a1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
-        Jon Maxwell <jmaxwell37@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Curtis Taylor <cutaylor-pub@yahoo.com>,
-        Martin KaFai Lau <kafai@fb.com>,
+        stable@vger.kernel.org,
+        Yuming Chen <chenyuming.junnan@bytedance.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 027/102] bpf: Fix request_sock leak in sk lookup helpers
+Subject: [PATCH 5.18 065/181] net/sched: sch_netem: Fix arithmetic in netem_dump() for 32-bit platforms
 Date:   Mon, 27 Jun 2022 13:20:38 +0200
-Message-Id: <20220627111934.271642587@linuxfoundation.org>
+Message-Id: <20220627111946.450908786@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,96 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Maxwell <jmaxwell37@gmail.com>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-[ Upstream commit 3046a827316c0e55fc563b4fb78c93b9ca5c7c37 ]
+[ Upstream commit a2b1a5d40bd12b44322c2ccd40bb0ec1699708b6 ]
 
-A customer reported a request_socket leak in a Calico cloud environment. We
-found that a BPF program was doing a socket lookup with takes a refcnt on
-the socket and that it was finding the request_socket but returning the parent
-LISTEN socket via sk_to_full_sk() without decrementing the child request socket
-1st, resulting in request_sock slab object leak. This patch retains the
-existing behaviour of returning full socks to the caller but it also decrements
-the child request_socket if one is present before doing so to prevent the leak.
+As reported by Yuming, currently tc always show a latency of UINT_MAX
+for netem Qdisc's on 32-bit platforms:
 
-Thanks to Curtis Taylor for all the help in diagnosing and testing this. And
-thanks to Antoine Tenart for the reproducer and patch input.
+    $ tc qdisc add dev dummy0 root netem latency 100ms
+    $ tc qdisc show dev dummy0
+    qdisc netem 8001: root refcnt 2 limit 1000 delay 275s  275s
+                                               ^^^^^^^^^^^^^^^^
 
-v2 of this patch contains, refactor as per Daniel Borkmann's suggestions to
-validate RCU flags on the listen socket so that it balances with bpf_sk_release()
-and update comments as per Martin KaFai Lau's suggestion. One small change to
-Daniels suggestion, put "sk = sk2" under "if (sk2 != sk)" to avoid an extra
-instruction.
+Let us take a closer look at netem_dump():
 
-Fixes: f7355a6c0497 ("bpf: Check sk_fullsock() before returning from bpf_sk_lookup()")
-Fixes: edbf8c01de5a ("bpf: add skc_lookup_tcp helper")
-Co-developed-by: Antoine Tenart <atenart@kernel.org>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Curtis Taylor <cutaylor-pub@yahoo.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/56d6f898-bde0-bb25-3427-12a330b29fb8@iogearbox.net
-Link: https://lore.kernel.org/bpf/20220615011540.813025-1-jmaxwell37@gmail.com
+        qopt.latency = min_t(psched_tdiff_t, PSCHED_NS2TICKS(q->latency,
+                             UINT_MAX);
+
+qopt.latency is __u32, psched_tdiff_t is signed long,
+(psched_tdiff_t)(UINT_MAX) is negative for 32-bit platforms, so
+qopt.latency is always UINT_MAX.
+
+Fix it by using psched_time_t (u64) instead.
+
+Note: confusingly, users have two ways to specify 'latency':
+
+  1. normally, via '__u32 latency' in struct tc_netem_qopt;
+  2. via the TCA_NETEM_LATENCY64 attribute, which is s64.
+
+For the second case, theoretically 'latency' could be negative.  This
+patch ignores that corner case, since it is broken (i.e. assigning a
+negative s64 to __u32) anyways, and should be handled separately.
+
+Thanks Ted Lin for the analysis [1] .
+
+[1] https://github.com/raspberrypi/linux/issues/3512
+
+Reported-by: Yuming Chen <chenyuming.junnan@bytedance.com>
+Fixes: 112f9cb65643 ("netem: convert to qdisc_watchdog_schedule_ns")
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Acked-by: Stephen Hemminger <stephen@networkplumber.org>
+Link: https://lore.kernel.org/r/20220616234336.2443-1-yepeilin.cs@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 34 ++++++++++++++++++++++++++++------
- 1 file changed, 28 insertions(+), 6 deletions(-)
+ net/sched/sch_netem.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index d348f1d3fb8f..246947fbc958 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -5982,10 +5982,21 @@ __bpf_sk_lookup(struct sk_buff *skb, struct bpf_sock_tuple *tuple, u32 len,
- 					   ifindex, proto, netns_id, flags);
+diff --git a/net/sched/sch_netem.c b/net/sched/sch_netem.c
+index ed4ccef5d6a8..5449ed114e40 100644
+--- a/net/sched/sch_netem.c
++++ b/net/sched/sch_netem.c
+@@ -1146,9 +1146,9 @@ static int netem_dump(struct Qdisc *sch, struct sk_buff *skb)
+ 	struct tc_netem_rate rate;
+ 	struct tc_netem_slot slot;
  
- 	if (sk) {
--		sk = sk_to_full_sk(sk);
--		if (!sk_fullsock(sk)) {
-+		struct sock *sk2 = sk_to_full_sk(sk);
-+
-+		/* sk_to_full_sk() may return (sk)->rsk_listener, so make sure the original sk
-+		 * sock refcnt is decremented to prevent a request_sock leak.
-+		 */
-+		if (!sk_fullsock(sk2))
-+			sk2 = NULL;
-+		if (sk2 != sk) {
- 			sock_gen_put(sk);
--			return NULL;
-+			/* Ensure there is no need to bump sk2 refcnt */
-+			if (unlikely(sk2 && !sock_flag(sk2, SOCK_RCU_FREE))) {
-+				WARN_ONCE(1, "Found non-RCU, unreferenced socket!");
-+				return NULL;
-+			}
-+			sk = sk2;
- 		}
- 	}
- 
-@@ -6019,10 +6030,21 @@ bpf_sk_lookup(struct sk_buff *skb, struct bpf_sock_tuple *tuple, u32 len,
- 					 flags);
- 
- 	if (sk) {
--		sk = sk_to_full_sk(sk);
--		if (!sk_fullsock(sk)) {
-+		struct sock *sk2 = sk_to_full_sk(sk);
-+
-+		/* sk_to_full_sk() may return (sk)->rsk_listener, so make sure the original sk
-+		 * sock refcnt is decremented to prevent a request_sock leak.
-+		 */
-+		if (!sk_fullsock(sk2))
-+			sk2 = NULL;
-+		if (sk2 != sk) {
- 			sock_gen_put(sk);
--			return NULL;
-+			/* Ensure there is no need to bump sk2 refcnt */
-+			if (unlikely(sk2 && !sock_flag(sk2, SOCK_RCU_FREE))) {
-+				WARN_ONCE(1, "Found non-RCU, unreferenced socket!");
-+				return NULL;
-+			}
-+			sk = sk2;
- 		}
- 	}
- 
+-	qopt.latency = min_t(psched_tdiff_t, PSCHED_NS2TICKS(q->latency),
++	qopt.latency = min_t(psched_time_t, PSCHED_NS2TICKS(q->latency),
+ 			     UINT_MAX);
+-	qopt.jitter = min_t(psched_tdiff_t, PSCHED_NS2TICKS(q->jitter),
++	qopt.jitter = min_t(psched_time_t, PSCHED_NS2TICKS(q->jitter),
+ 			    UINT_MAX);
+ 	qopt.limit = q->limit;
+ 	qopt.loss = q->loss;
 -- 
 2.35.1
 
