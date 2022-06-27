@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF3F55CF59
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0424555E169
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235273AbiF0L3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:29:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51176 "EHLO
+        id S236153AbiF0LnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235268AbiF0L2w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:28:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5747C65B7;
-        Mon, 27 Jun 2022 04:27:37 -0700 (PDT)
+        with ESMTP id S236874AbiF0Lle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:41:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC03BD110;
+        Mon, 27 Jun 2022 04:36:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 183F5B81120;
-        Mon, 27 Jun 2022 11:27:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61B66C341CB;
-        Mon, 27 Jun 2022 11:27:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DAE2B81123;
+        Mon, 27 Jun 2022 11:36:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEDEAC3411D;
+        Mon, 27 Jun 2022 11:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329254;
-        bh=E01gtDYA+DLamTvwTd/8qIBpMQTy5fBElgZmB4vlylI=;
+        s=korg; t=1656329760;
+        bh=vz1h5OMLWpWAZLkaKT/60WGVx/L9y5HB7yfD7b9RAzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3r4DwOAHfyz/MXe+IYDvbQaI+k+kOhkaNSIRYvTFa7fC04KCBM8PazGHF1OPbN+G
-         hbWJ7wxxhbL/ba3qAeQzFf6K4cvkEL2a9VdB2ZKgotnMOznAS0vKC0vVO2RGnCzJdz
-         fHUt1SUSSs481pbbTB8eF50nnvLPS0GjT3D2kK9Q=
+        b=2dZqbT2DdngQz/fK/ZytrUbsuEDwjY0ht+Bcde3TJauvnZzHSR1bxvTyiFqom6v2+
+         8zhDSqZ3fMolW4uXxPMpbq+8vurrsS+zxqzpDCBGR7nPc7TbSlcsyw7guBf8ywR/8F
+         2bQ8tUdBmNPDlm5rnEdhOSRRDhFMLq0C44wMkVAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 102/102] powerpc/pseries: wire up rng during setup_arch()
+        stable@vger.kernel.org,
+        Yannick Brosseau <yannick.brosseau@gmail.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.15 106/135] iio: adc: stm32: Fix ADCs iteration in irq handler
 Date:   Mon, 27 Jun 2022 13:21:53 +0200
-Message-Id: <20220627111936.491194994@linuxfoundation.org>
+Message-Id: <20220627111941.230955576@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,82 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Yannick Brosseau <yannick.brosseau@gmail.com>
 
-commit e561e472a3d441753bd012333b057f48fef1045b upstream.
+commit d2214cca4d3eadc74eac9e30301ec7cad5355f00 upstream.
 
-The platform's RNG must be available before random_init() in order to be
-useful for initial seeding, which in turn means that it needs to be
-called from setup_arch(), rather than from an init call. Fortunately,
-each platform already has a setup_arch function pointer, which means
-it's easy to wire this up. This commit also removes some noisy log
-messages that don't add much.
+The irq handler was only checking the mask for the first ADCs in the case of the
+F4 and H7 generation, since it was iterating up to the num_irq value. This patch add
+the maximum number of ADC in the common register, which map to the number of entries of
+eoc_msk and ovr_msk in stm32_adc_common_regs. This allow the handler to check all ADCs in
+that module.
 
-Fixes: a489043f4626 ("powerpc/pseries: Implement arch_get_random_long() based on H_RANDOM")
-Cc: stable@vger.kernel.org # v3.13+
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220611151015.548325-4-Jason@zx2c4.com
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Tested on a STM32F429NIH6.
+
+Fixes: 695e2f5c289b ("iio: adc: stm32-adc: fix a regression when using dma and irq")
+Signed-off-by: Yannick Brosseau <yannick.brosseau@gmail.com>
+Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20220516203939.3498673-2-yannick.brosseau@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/pseries/pseries.h |    2 ++
- arch/powerpc/platforms/pseries/rng.c     |   11 +++--------
- arch/powerpc/platforms/pseries/setup.c   |    2 ++
- 3 files changed, 7 insertions(+), 8 deletions(-)
+ drivers/iio/adc/stm32-adc-core.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/platforms/pseries/pseries.h
-+++ b/arch/powerpc/platforms/pseries/pseries.h
-@@ -114,4 +114,6 @@ int dlpar_workqueue_init(void);
- void pseries_setup_security_mitigations(void);
- void pseries_lpar_read_hblkrm_characteristics(void);
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -64,6 +64,7 @@ struct stm32_adc_priv;
+  * @max_clk_rate_hz: maximum analog clock rate (Hz, from datasheet)
+  * @has_syscfg: SYSCFG capability flags
+  * @num_irqs:	number of interrupt lines
++ * @num_adcs:   maximum number of ADC instances in the common registers
+  */
+ struct stm32_adc_priv_cfg {
+ 	const struct stm32_adc_common_regs *regs;
+@@ -71,6 +72,7 @@ struct stm32_adc_priv_cfg {
+ 	u32 max_clk_rate_hz;
+ 	unsigned int has_syscfg;
+ 	unsigned int num_irqs;
++	unsigned int num_adcs;
+ };
  
-+void pseries_rng_init(void);
-+
- #endif /* _PSERIES_PSERIES_H */
---- a/arch/powerpc/platforms/pseries/rng.c
-+++ b/arch/powerpc/platforms/pseries/rng.c
-@@ -10,6 +10,7 @@
- #include <asm/archrandom.h>
- #include <asm/machdep.h>
- #include <asm/plpar_wrappers.h>
-+#include "pseries.h"
+ /**
+@@ -352,7 +354,7 @@ static void stm32_adc_irq_handler(struct
+ 	 * before invoking the interrupt handler (e.g. call ISR only for
+ 	 * IRQ-enabled ADCs).
+ 	 */
+-	for (i = 0; i < priv->cfg->num_irqs; i++) {
++	for (i = 0; i < priv->cfg->num_adcs; i++) {
+ 		if ((status & priv->cfg->regs->eoc_msk[i] &&
+ 		     stm32_adc_eoc_enabled(priv, i)) ||
+ 		     (status & priv->cfg->regs->ovr_msk[i]))
+@@ -796,6 +798,7 @@ static const struct stm32_adc_priv_cfg s
+ 	.clk_sel = stm32f4_adc_clk_sel,
+ 	.max_clk_rate_hz = 36000000,
+ 	.num_irqs = 1,
++	.num_adcs = 3,
+ };
  
+ static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
+@@ -804,6 +807,7 @@ static const struct stm32_adc_priv_cfg s
+ 	.max_clk_rate_hz = 36000000,
+ 	.has_syscfg = HAS_VBOOSTER,
+ 	.num_irqs = 1,
++	.num_adcs = 2,
+ };
  
- static int pseries_get_random_long(unsigned long *v)
-@@ -24,19 +25,13 @@ static int pseries_get_random_long(unsig
- 	return 0;
- }
+ static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
+@@ -812,6 +816,7 @@ static const struct stm32_adc_priv_cfg s
+ 	.max_clk_rate_hz = 36000000,
+ 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
+ 	.num_irqs = 2,
++	.num_adcs = 2,
+ };
  
--static __init int rng_init(void)
-+void __init pseries_rng_init(void)
- {
- 	struct device_node *dn;
- 
- 	dn = of_find_compatible_node(NULL, NULL, "ibm,random");
- 	if (!dn)
--		return -ENODEV;
--
--	pr_info("Registering arch random hook.\n");
--
-+		return;
- 	ppc_md.get_random_seed = pseries_get_random_long;
--
- 	of_node_put(dn);
--	return 0;
- }
--machine_subsys_initcall(pseries, rng_init);
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -824,6 +824,8 @@ static void __init pSeries_setup_arch(vo
- 
- 	if (swiotlb_force == SWIOTLB_FORCE)
- 		ppc_swiotlb_enable = 1;
-+
-+	pseries_rng_init();
- }
- 
- static void pseries_panic(char *str)
+ static const struct of_device_id stm32_adc_of_match[] = {
 
 
