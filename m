@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5494C55D834
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94E8655D42C
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:13:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238020AbiF0LvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:51:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49714 "EHLO
+        id S237071AbiF0Ln3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237965AbiF0Lt3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:49:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FE3E02;
-        Mon, 27 Jun 2022 04:43:22 -0700 (PDT)
+        with ESMTP id S237305AbiF0Lmk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1704CDF2D;
+        Mon, 27 Jun 2022 04:36:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C56CB80D37;
-        Mon, 27 Jun 2022 11:43:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D04F7C341C8;
-        Mon, 27 Jun 2022 11:43:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7ED860C9B;
+        Mon, 27 Jun 2022 11:36:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAF97C3411D;
+        Mon, 27 Jun 2022 11:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330200;
-        bh=/yUr5kOLGptxvdwwPg9SpLafIzbLfy8B2/nwoGPtK9E=;
+        s=korg; t=1656329811;
+        bh=HntDoXniYj/5of/4GddtV0AzCXgaQh2XJZbRGx/gDMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEr6qAO7pBdzVPwab7jLWAn7cMsKK9nToJYf/cRrpTjmvUPta6+ti+hCth+IML6XB
-         CpRUEUI2c90I3gSoqcESwfZvHdfnBfsseI0hIH45J1f3P+3iwZhHVllZLc2AyLxb6O
-         vRK+eGG8XfL3nqLLgVINYCoJCNMo5Y0WsVwDSaDU=
+        b=gqPdxjyG+KMjKNcqIgBV3vKksI0ue+7yomBgSJCnOjJgwtFlu8EwnEWvSybFC39vZ
+         SFW9bmmRZKTVmeg6cnGLk+KjvDFkZf9IrUB2wnjgBAMP/39L25ldW+KI/tzlg1xl+t
+         ZAkOGg6bt1iSqAvyxL8buWy0ft9nldbWAxDjYiSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Utkarsh Patel <utkarsh.h.patel@intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.18 117/181] xhci-pci: Allow host runtime PM as default for Intel Meteor Lake xHCI
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 083/135] usb: typec: wcove: Drop wrong dependency to INTEL_SOC_PMIC
 Date:   Mon, 27 Jun 2022 13:21:30 +0200
-Message-Id: <20220627111948.089219717@linuxfoundation.org>
+Message-Id: <20220627111940.570147067@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Utkarsh Patel <utkarsh.h.patel@intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 8ffdc53a60049f3930afe161dc51c67959c8d83d upstream.
+[ Upstream commit 9ef165406308515dcf2e3f6e97b39a1c56d86db5 ]
 
-Meteor Lake TCSS(Type-C Subsystem) xHCI needs to be runtime suspended
-whenever possible to allow the TCSS hardware block to enter D3cold and
-thus save energy.
+Intel SoC PMIC is a generic name for all PMICs that are used
+on Intel platforms. In particular, INTEL_SOC_PMIC kernel configuration
+option refers to Crystal Cove PMIC, which has never been a part
+of any Intel Broxton hardware. Drop wrong dependency from Kconfig.
 
-Cc: stable@kernel.org
-Signed-off-by: Utkarsh Patel <utkarsh.h.patel@intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220623111945.1557702-5-mathias.nyman@linux.intel.com
+Note, the correct dependency is satisfied via ACPI PMIC OpRegion driver,
+which the Type-C depends on.
+
+Fixes: d2061f9cc32d ("usb: typec: add driver for Intel Whiskey Cove PMIC USB Type-C PHY")
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220620104316.57592-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/typec/tcpm/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -62,6 +62,7 @@
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI		0x464e
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI	0x51ed
- #define PCI_DEVICE_ID_INTEL_RAPTOR_LAKE_XHCI		0xa71e
-+#define PCI_DEVICE_ID_INTEL_METEOR_LAKE_XHCI		0x7ec0
- 
- #define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
-@@ -272,7 +273,8 @@ static void xhci_pci_quirks(struct devic
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_INTEL_RAPTOR_LAKE_XHCI))
-+	     pdev->device == PCI_DEVICE_ID_INTEL_RAPTOR_LAKE_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_INTEL_METEOR_LAKE_XHCI))
- 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
- 
- 	if (pdev->vendor == PCI_VENDOR_ID_ETRON &&
+diff --git a/drivers/usb/typec/tcpm/Kconfig b/drivers/usb/typec/tcpm/Kconfig
+index 557f392fe24d..073fd2ea5e0b 100644
+--- a/drivers/usb/typec/tcpm/Kconfig
++++ b/drivers/usb/typec/tcpm/Kconfig
+@@ -56,7 +56,6 @@ config TYPEC_WCOVE
+ 	tristate "Intel WhiskeyCove PMIC USB Type-C PHY driver"
+ 	depends on ACPI
+ 	depends on MFD_INTEL_PMC_BXT
+-	depends on INTEL_SOC_PMIC
+ 	depends on BXT_WC_PMIC_OPREGION
+ 	help
+ 	  This driver adds support for USB Type-C on Intel Broxton platforms
+-- 
+2.35.1
+
 
 
