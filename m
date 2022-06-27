@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E47855DAC7
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BFE055DA51
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:23:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235295AbiF0Lvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:51:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50028 "EHLO
+        id S235315AbiF0L3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:29:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238321AbiF0Lut (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:50:49 -0400
+        with ESMTP id S235174AbiF0L3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:29:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A23262E;
-        Mon, 27 Jun 2022 04:43:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09F7A65C1;
+        Mon, 27 Jun 2022 04:27:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 943DC61241;
-        Mon, 27 Jun 2022 11:43:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A56E4C3411D;
-        Mon, 27 Jun 2022 11:43:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A189612D8;
+        Mon, 27 Jun 2022 11:27:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA88DC341C7;
+        Mon, 27 Jun 2022 11:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330230;
-        bh=JB+Z5xuTScFqpEvhMHpnvXmU9O+TyBtHgf69hitFHAc=;
+        s=korg; t=1656329270;
+        bh=BNIPZ8C8PSW/ggTgnvB3lSNdhO/8RHhYOUOMKuVbyhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=omQH4orOzWF1S5C8l5g9sQhfBggSex1Tgz8aQByYhZMW0ddZcQGQHAKUet0xqe+6U
-         GEHINMqmYGmCx8cXYnHXC5xLv43vEbZcccEl6eS1uQHylUCu5xVjnsmaMTUnVoCzH1
-         VBVp3GDBCWw0i4G95wjhp+sO+lQ+PymuldhOCOq0=
+        b=NJ3JpXMmiR3ZUXh+FOGj81jXZ+oiTH7kgD1DJspO+G+taYnF3JAC/Ez9a41U0WsDZ
+         ipbbT+2VoZNqrM0KX721kfU7bSROU1M+1ZeXn9YOkR+Sfxv3AUOH8Lr9YlG/vkHMmp
+         mmfcamnUKWjop8jZ4rocboFhfPFeu4fzyxoIWrMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.18 126/181] btrfs: fix deadlock with fsync+fiemap+transaction commit
-Date:   Mon, 27 Jun 2022 13:21:39 +0200
-Message-Id: <20220627111948.346375856@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Sumit Dubey2 <Sumit.Dubey2@ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 089/102] powerpc: Enable execve syscall exit tracepoint
+Date:   Mon, 27 Jun 2022 13:21:40 +0200
+Message-Id: <20220627111936.106030381@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,133 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit bf7ba8ee759b7b7a34787ddd8dc3f190a3d7fa24 upstream.
+commit ec6d0dde71d760aa60316f8d1c9a1b0d99213529 upstream.
 
-We are hitting the following deadlock in production occasionally
+On execve[at], we are zero'ing out most of the thread register state
+including gpr[0], which contains the syscall number. Due to this, we
+fail to trigger the syscall exit tracepoint properly. Fix this by
+retaining gpr[0] in the thread register state.
 
-Task 1		Task 2		Task 3		Task 4		Task 5
-		fsync(A)
-		 start trans
-						start commit
-				falloc(A)
-				 lock 5m-10m
-				 start trans
-				  wait for commit
-fiemap(A)
- lock 0-10m
-  wait for 5m-10m
-   (have 0-5m locked)
+Before this patch:
+  # tail /sys/kernel/debug/tracing/trace
+	       cat-123     [000] .....    61.449351: sys_execve(filename:
+  7fffa6b23448, argv: 7fffa6b233e0, envp: 7fffa6b233f8)
+	       cat-124     [000] .....    62.428481: sys_execve(filename:
+  7fffa6b23448, argv: 7fffa6b233e0, envp: 7fffa6b233f8)
+	      echo-125     [000] .....    65.813702: sys_execve(filename:
+  7fffa6b23378, argv: 7fffa6b233a0, envp: 7fffa6b233b0)
+	      echo-125     [000] .....    65.822214: sys_execveat(fd: 0,
+  filename: 1009ac48, argv: 7ffff65d0c98, envp: 7ffff65d0ca8, flags: 0)
 
-		 have btrfs_need_log_full_commit
-		  !full_sync
-		  wait_ordered_extents
-								finish_ordered_io(A)
-								lock 0-5m
-								DEADLOCK
+After this patch:
+  # tail /sys/kernel/debug/tracing/trace
+	       cat-127     [000] .....   100.416262: sys_execve(filename:
+  7fffa41b3448, argv: 7fffa41b33e0, envp: 7fffa41b33f8)
+	       cat-127     [000] .....   100.418203: sys_execve -> 0x0
+	      echo-128     [000] .....   103.873968: sys_execve(filename:
+  7fffa41b3378, argv: 7fffa41b33a0, envp: 7fffa41b33b0)
+	      echo-128     [000] .....   103.875102: sys_execve -> 0x0
+	      echo-128     [000] .....   103.882097: sys_execveat(fd: 0,
+  filename: 1009ac48, argv: 7fffd10d2148, envp: 7fffd10d2158, flags: 0)
+	      echo-128     [000] .....   103.883225: sys_execveat -> 0x0
 
-We have an existing dependency of file extent lock -> transaction.
-However in fsync if we tried to do the fast logging, but then had to
-fall back to committing the transaction, we will be forced to call
-btrfs_wait_ordered_range() to make sure all of our extents are updated.
-
-This creates a dependency of transaction -> file extent lock, because
-btrfs_finish_ordered_io() will need to take the file extent lock in
-order to run the ordered extents.
-
-Fix this by stopping the transaction if we have to do the full commit
-and we attempted to do the fast logging.  Then attach to the transaction
-and commit it if we need to.
-
-CC: stable@vger.kernel.org # 5.15+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Tested-by: Sumit Dubey2 <Sumit.Dubey2@ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220609103328.41306-1-naveen.n.rao@linux.vnet.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/file.c |   67 +++++++++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 52 insertions(+), 15 deletions(-)
+ arch/powerpc/kernel/process.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -2359,25 +2359,62 @@ int btrfs_sync_file(struct file *file, l
- 	 */
- 	btrfs_inode_unlock(inode, BTRFS_ILOCK_MMAP);
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -1800,7 +1800,7 @@ void start_thread(struct pt_regs *regs,
+ 		tm_reclaim_current(0);
+ #endif
  
--	if (ret != BTRFS_NO_LOG_SYNC) {
-+	if (ret == BTRFS_NO_LOG_SYNC) {
-+		ret = btrfs_end_transaction(trans);
-+		goto out;
-+	}
-+
-+	/* We successfully logged the inode, attempt to sync the log. */
-+	if (!ret) {
-+		ret = btrfs_sync_log(trans, root, &ctx);
- 		if (!ret) {
--			ret = btrfs_sync_log(trans, root, &ctx);
--			if (!ret) {
--				ret = btrfs_end_transaction(trans);
--				goto out;
--			}
-+			ret = btrfs_end_transaction(trans);
-+			goto out;
- 		}
--		if (!full_sync) {
--			ret = btrfs_wait_ordered_range(inode, start, len);
--			if (ret) {
--				btrfs_end_transaction(trans);
--				goto out;
--			}
--		}
--		ret = btrfs_commit_transaction(trans);
--	} else {
-+	}
-+
-+	/*
-+	 * At this point we need to commit the transaction because we had
-+	 * btrfs_need_log_full_commit() or some other error.
-+	 *
-+	 * If we didn't do a full sync we have to stop the trans handle, wait on
-+	 * the ordered extents, start it again and commit the transaction.  If
-+	 * we attempt to wait on the ordered extents here we could deadlock with
-+	 * something like fallocate() that is holding the extent lock trying to
-+	 * start a transaction while some other thread is trying to commit the
-+	 * transaction while we (fsync) are currently holding the transaction
-+	 * open.
-+	 */
-+	if (!full_sync) {
- 		ret = btrfs_end_transaction(trans);
-+		if (ret)
-+			goto out;
-+		ret = btrfs_wait_ordered_range(inode, start, len);
-+		if (ret)
-+			goto out;
-+
-+		/*
-+		 * This is safe to use here because we're only interested in
-+		 * making sure the transaction that had the ordered extents is
-+		 * committed.  We aren't waiting on anything past this point,
-+		 * we're purely getting the transaction and committing it.
-+		 */
-+		trans = btrfs_attach_transaction_barrier(root);
-+		if (IS_ERR(trans)) {
-+			ret = PTR_ERR(trans);
-+
-+			/*
-+			 * We committed the transaction and there's no currently
-+			 * running transaction, this means everything we care
-+			 * about made it to disk and we are done.
-+			 */
-+			if (ret == -ENOENT)
-+				ret = 0;
-+			goto out;
-+		}
- 	}
-+
-+	ret = btrfs_commit_transaction(trans);
- out:
- 	ASSERT(list_empty(&ctx.list));
- 	err = file_check_and_advance_wb_err(file);
+-	memset(regs->gpr, 0, sizeof(regs->gpr));
++	memset(&regs->gpr[1], 0, sizeof(regs->gpr) - sizeof(regs->gpr[0]));
+ 	regs->ctr = 0;
+ 	regs->link = 0;
+ 	regs->xer = 0;
 
 
