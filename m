@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E7A355C31B
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:47:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A75B55C62C
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:52:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238431AbiF0LyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:54:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49926 "EHLO
+        id S235709AbiF0Leb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:34:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238690AbiF0Lw3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8805BB49B;
-        Mon, 27 Jun 2022 04:45:10 -0700 (PDT)
+        with ESMTP id S236179AbiF0LdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BE8FCE15;
+        Mon, 27 Jun 2022 04:30:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E610E6125A;
-        Mon, 27 Jun 2022 11:45:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0670DC3411D;
-        Mon, 27 Jun 2022 11:45:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05F1D612D8;
+        Mon, 27 Jun 2022 11:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 070A0C3411D;
+        Mon, 27 Jun 2022 11:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330309;
-        bh=0/smJ2Sa+Gz1IrVE/v9XQNQbsuEP/ZS/Wm98OhSZgv8=;
+        s=korg; t=1656329429;
+        bh=ShsZi12gGKcQZTw4TBWnl6cqCYb50NfFZL+L+POtwTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4+6vM/E/Ua/8K47JLWLHWDCjPPLTyotz+stZCWdhPgyPX8Ztik06M+LDMOgJc+mP
-         Ambnb6iznq8TzCoF8SnRKfTP3E8Mlmn7MbkLYCqiUqj3gLMUIrZvxmpDqsQ5bNcVkk
-         meysV+VcIyCRjHhF0Jf9UtoOGadF+zrKzEGyYTV8=
+        b=tkq82g0Gfl32HnwCKpJ8oX2gkJDdeEUMiEm2oEZSRUKLssW/4/b+8sl1bfhxeZNT9
+         YAdZZm+xosWpzPl8okpA3kprP/Dz5qPpa5sKZthSAhHi8MaEukK97Py8s0vBgDv5VP
+         XYLxB60cOj4N2jthdkb9KsZe6NoeD8gdTRHkpUvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.18 154/181] parisc: Fix flush_anon_page on PA8800/PA8900
-Date:   Mon, 27 Jun 2022 13:22:07 +0200
-Message-Id: <20220627111949.148453471@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 5.4 57/60] modpost: fix section mismatch check for exported init/exit sections
+Date:   Mon, 27 Jun 2022 13:22:08 +0200
+Message-Id: <20220627111929.368555413@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit e9ed22e6e5010997a2f922eef61ca797d0a2a246 upstream.
+commit 28438794aba47a27e922857d27b31b74e8559143 upstream.
 
-Anonymous pages are allocated with the shared mappings colouring,
-SHM_COLOUR. Since the alias boundary on machines with PA8800 and
-PA8900 processors is unknown, flush_user_cache_page() might not
-flush all mappings of a shared anonymous page. Flushing the whole
-data cache flushes all mappings.
+Since commit f02e8a6596b7 ("module: Sort exported symbols"),
+EXPORT_SYMBOL* is placed in the individual section ___ksymtab(_gpl)+<sym>
+(3 leading underscores instead of 2).
 
-This won't fix all coherency issues with shared mappings but it
-seems to work well in practice.  I haven't seen any random memory
-faults in almost a month on a rp3440 running as a debian buildd
-machine.
+Since then, modpost cannot detect the bad combination of EXPORT_SYMBOL
+and __init/__exit.
 
-There is a small preformance hit.
+Fix the .fromsec field.
 
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org   # v5.18+
+Fixes: f02e8a6596b7 ("module: Sort exported symbols")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/cache.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ scripts/mod/modpost.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/parisc/kernel/cache.c
-+++ b/arch/parisc/kernel/cache.c
-@@ -722,7 +722,10 @@ void flush_anon_page(struct vm_area_stru
- 		return;
- 
- 	if (parisc_requires_coherency()) {
--		flush_user_cache_page(vma, vmaddr);
-+		if (vma->vm_flags & VM_SHARED)
-+			flush_data_cache();
-+		else
-+			flush_user_cache_page(vma, vmaddr);
- 		return;
- 	}
- 
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -1131,7 +1131,7 @@ static const struct sectioncheck section
+ },
+ /* Do not export init/exit functions or data */
+ {
+-	.fromsec = { "__ksymtab*", NULL },
++	.fromsec = { "___ksymtab*", NULL },
+ 	.bad_tosec = { INIT_SECTIONS, EXIT_SECTIONS, NULL },
+ 	.mismatch = EXPORT_TO_INIT_EXIT,
+ 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
 
 
