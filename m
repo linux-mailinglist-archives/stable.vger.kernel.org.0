@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4783255CEBE
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:05:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E81A255C1B8
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237395AbiF0Lnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:43:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43350 "EHLO
+        id S234959AbiF0Lo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:44:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237446AbiF0Lmw (ORCPT
+        with ESMTP id S237443AbiF0Lmw (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C262C1;
-        Mon, 27 Jun 2022 04:38:04 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A5AB57;
+        Mon, 27 Jun 2022 04:38:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63F2B6114D;
-        Mon, 27 Jun 2022 11:38:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 602F8C3411D;
-        Mon, 27 Jun 2022 11:38:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 253A6B8111B;
+        Mon, 27 Jun 2022 11:38:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 751CDC3411D;
+        Mon, 27 Jun 2022 11:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329883;
-        bh=qSAA9PdsvDKXEAhCFQANshkcOt8HnmBAbTqpYX8rmfM=;
+        s=korg; t=1656329886;
+        bh=9aZEGUQibBiqqRr/XjEunyBYaZq138HKoLBe9gy5Q0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SmsC5DUKDol/qbSqoztQeN17jEY9zNkmzutz1tARvKn4Fupy2EayX14BlPbykyNbj
-         ulWE/J7pOeTUCKJ+AaP+E589UkybRmYyv79y4NAP7O0/pyncs9YRqG6l1IWQM7c7Yv
-         Q/uEcx6q1NurwDbHcFEwOlCpwNbaDnHPovyP5/80=
+        b=0uu7Su1fWjNLQuQkE4ShKQu+JYVR9xuxM3p8r5pHjZh1Y3zalNhXsPxtaXf1oYjYZ
+         KQt1/x6wQ+qSc3wYeNIswR0+O8wksiiQEjK0TPZ8G97yAbF18UA+XTwWKPYK1sPyXj
+         k2aQms5eoABi60Qq28kkKV/xpW1S+ltS5DJ4OSdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rosemarie ORiorden <roriorden@redhat.com>,
-        Eelco Chaudron <echaudro@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.18 012/181] net: openvswitch: fix parsing of nw_proto for IPv6 fragments
-Date:   Mon, 27 Jun 2022 13:19:45 +0200
-Message-Id: <20220627111944.918816310@linuxfoundation.org>
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Carlos Llamas <cmllamas@google.com>,
+        Riccardo Paolo Bestetti <pbl@bestov.io>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.18 013/181] ipv4: ping: fix bind address validity check
+Date:   Mon, 27 Jun 2022 13:19:46 +0200
+Message-Id: <20220627111944.947533207@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -54,63 +56,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rosemarie O'Riorden <roriorden@redhat.com>
+From: Riccardo Paolo Bestetti <pbl@bestov.io>
 
-commit 12378a5a75e33f34f8586706eb61cca9e6d4690c upstream.
+commit b4a028c4d031c27704ad73b1195ca69a1206941e upstream.
 
-When a packet enters the OVS datapath and does not match any existing
-flows installed in the kernel flow cache, the packet will be sent to
-userspace to be parsed, and a new flow will be created. The kernel and
-OVS rely on each other to parse packet fields in the same way so that
-packets will be handled properly.
+Commit 8ff978b8b222 ("ipv4/raw: support binding to nonlocal addresses")
+introduced a helper function to fold duplicated validity checks of bind
+addresses into inet_addr_valid_or_nonlocal(). However, this caused an
+unintended regression in ping_check_bind_addr(), which previously would
+reject binding to multicast and broadcast addresses, but now these are
+both incorrectly allowed as reported in [1].
 
-As per the design document linked below, OVS expects all later IPv6
-fragments to have nw_proto=44 in the flow key, so they can be correctly
-matched on OpenFlow rules. OpenFlow controllers create pipelines based
-on this design.
+This patch restores the original check. A simple reordering is done to
+improve readability and make it evident that multicast and broadcast
+addresses should not be allowed. Also, add an early exit for INADDR_ANY
+which replaces lost behavior added by commit 0ce779a9f501 ("net: Avoid
+unnecessary inet_addr_type() call when addr is INADDR_ANY").
 
-This behavior was changed by the commit in the Fixes tag so that
-nw_proto equals the next_header field of the last extension header.
-However, there is no counterpart for this change in OVS userspace,
-meaning that this field is parsed differently between OVS and the
-kernel. This is a problem because OVS creates actions based on what is
-parsed in userspace, but the kernel-provided flow key is used as a match
-criteria, as described in Documentation/networking/openvswitch.rst. This
-leads to issues such as packets incorrectly matching on a flow and thus
-the wrong list of actions being applied to the packet. Such changes in
-packet parsing cannot be implemented without breaking the userspace.
+Furthermore, this patch introduces regression selftests to catch these
+specific cases.
 
-The offending commit is partially reverted to restore the expected
-behavior.
+[1] https://lore.kernel.org/netdev/CANP3RGdkAcDyAZoT1h8Gtuu0saq+eOrrTiWbxnOs+5zn+cpyKg@mail.gmail.com/
 
-The change technically made sense and there is a good reason that it was
-implemented, but it does not comply with the original design of OVS.
-If in the future someone wants to implement such a change, then it must
-be user-configurable and disabled by default to preserve backwards
-compatibility with existing OVS versions.
-
-Cc: stable@vger.kernel.org
-Fixes: fa642f08839b ("openvswitch: Derive IP protocol number for IPv6 later frags")
-Link: https://docs.openvswitch.org/en/latest/topics/design/#fragments
-Signed-off-by: Rosemarie O'Riorden <roriorden@redhat.com>
-Acked-by: Eelco Chaudron <echaudro@redhat.com>
-Link: https://lore.kernel.org/r/20220621204845.9721-1-roriorden@redhat.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 8ff978b8b222 ("ipv4/raw: support binding to nonlocal addresses")
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Reported-by: Maciej Żenczykowski <maze@google.com>
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
+Signed-off-by: Riccardo Paolo Bestetti <pbl@bestov.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/flow.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/ping.c                           |   10 ++++++---
+ tools/testing/selftests/net/fcnal-test.sh |   33 ++++++++++++++++++++++++++++++
+ 2 files changed, 40 insertions(+), 3 deletions(-)
 
---- a/net/openvswitch/flow.c
-+++ b/net/openvswitch/flow.c
-@@ -407,7 +407,7 @@ static int parse_ipv6hdr(struct sk_buff
- 	if (flags & IP6_FH_F_FRAG) {
- 		if (frag_off) {
- 			key->ip.frag = OVS_FRAG_TYPE_LATER;
--			key->ip.proto = nexthdr;
-+			key->ip.proto = NEXTHDR_FRAGMENT;
- 			return 0;
- 		}
- 		key->ip.frag = OVS_FRAG_TYPE_FIRST;
+--- a/net/ipv4/ping.c
++++ b/net/ipv4/ping.c
+@@ -319,12 +319,16 @@ static int ping_check_bind_addr(struct s
+ 		pr_debug("ping_check_bind_addr(sk=%p,addr=%pI4,port=%d)\n",
+ 			 sk, &addr->sin_addr.s_addr, ntohs(addr->sin_port));
+ 
++		if (addr->sin_addr.s_addr == htonl(INADDR_ANY))
++			return 0;
++
+ 		tb_id = l3mdev_fib_table_by_index(net, sk->sk_bound_dev_if) ? : tb_id;
+ 		chk_addr_ret = inet_addr_type_table(net, addr->sin_addr.s_addr, tb_id);
+ 
+-		if (!inet_addr_valid_or_nonlocal(net, inet_sk(sk),
+-					         addr->sin_addr.s_addr,
+-	                                         chk_addr_ret))
++		if (chk_addr_ret == RTN_MULTICAST ||
++		    chk_addr_ret == RTN_BROADCAST ||
++		    (chk_addr_ret != RTN_LOCAL &&
++		     !inet_can_nonlocal_bind(net, isk)))
+ 			return -EADDRNOTAVAIL;
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+--- a/tools/testing/selftests/net/fcnal-test.sh
++++ b/tools/testing/selftests/net/fcnal-test.sh
+@@ -70,6 +70,10 @@ NSB_LO_IP6=2001:db8:2::2
+ NL_IP=172.17.1.1
+ NL_IP6=2001:db8:4::1
+ 
++# multicast and broadcast addresses
++MCAST_IP=224.0.0.1
++BCAST_IP=255.255.255.255
++
+ MD5_PW=abc123
+ MD5_WRONG_PW=abc1234
+ 
+@@ -308,6 +312,9 @@ addr2str()
+ 	127.0.0.1) echo "loopback";;
+ 	::1) echo "IPv6 loopback";;
+ 
++	${BCAST_IP}) echo "broadcast";;
++	${MCAST_IP}) echo "multicast";;
++
+ 	${NSA_IP})	echo "ns-A IP";;
+ 	${NSA_IP6})	echo "ns-A IPv6";;
+ 	${NSA_LO_IP})	echo "ns-A loopback IP";;
+@@ -1801,6 +1808,19 @@ ipv4_addr_bind_novrf()
+ 	log_test_addr ${a} $? 0 "Raw socket bind to nonlocal address after device bind"
+ 
+ 	#
++	# check that ICMP sockets cannot bind to broadcast and multicast addresses
++	#
++	a=${BCAST_IP}
++	log_start
++	run_cmd nettest -s -R -P icmp -l ${a} -b
++	log_test_addr ${a} $? 1 "ICMP socket bind to broadcast address"
++
++	a=${MCAST_IP}
++	log_start
++	run_cmd nettest -s -R -P icmp -f -l ${a} -b
++	log_test_addr ${a} $? 1 "ICMP socket bind to multicast address"
++
++	#
+ 	# tcp sockets
+ 	#
+ 	a=${NSA_IP}
+@@ -1858,6 +1878,19 @@ ipv4_addr_bind_vrf()
+ 	log_test_addr ${a} $? 0 "Raw socket bind to nonlocal address after VRF bind"
+ 
+ 	#
++	# check that ICMP sockets cannot bind to broadcast and multicast addresses
++	#
++	a=${BCAST_IP}
++	log_start
++	run_cmd nettest -s -R -P icmp -l ${a} -I ${VRF} -b
++	log_test_addr ${a} $? 1 "ICMP socket bind to broadcast address after VRF bind"
++
++	a=${MCAST_IP}
++	log_start
++	run_cmd nettest -s -R -P icmp -f -l ${a} -I ${VRF} -b
++	log_test_addr ${a} $? 1 "ICMP socket bind to multicast address after VRF bind"
++
++	#
+ 	# tcp sockets
+ 	#
+ 	for a in ${NSA_IP} ${VRF_IP}
 
 
