@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DAFE55C1FC
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2CFA55CD99
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:03:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234950AbiF0L21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:28:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46464 "EHLO
+        id S238471AbiF0LvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:51:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235018AbiF0L0q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:26:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8A0A65AC;
-        Mon, 27 Jun 2022 04:26:43 -0700 (PDT)
+        with ESMTP id S238165AbiF0Lu2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:50:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A83461123;
+        Mon, 27 Jun 2022 04:43:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65251614AE;
-        Mon, 27 Jun 2022 11:26:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 741EEC3411D;
-        Mon, 27 Jun 2022 11:26:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A600B80D37;
+        Mon, 27 Jun 2022 11:43:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D61C0C36AE7;
+        Mon, 27 Jun 2022 11:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329202;
-        bh=6MGD7FQmuZqCGtpyq5/mysob2juBKQYP6BIpYM70IIY=;
+        s=korg; t=1656330212;
+        bh=wkT9UHQRmlllcIk11aMHmLKWq0J84Omjdf8rIqTp0J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0in/TjXJkga8IB3edrrKBu/llSYVBq6LwFQYp2WttquAo9nEcwJxOx5LYwPjkxMC/
-         xJkhFblRMUFpgxRRegeCYkmKtacqUe1vMLyQW4tfd5tIi+3PGbJn6CrsrL/8xWsRx8
-         7aUVVEtMWvCYmkzuAScJRS7DaP/QTKTeZ8osakps=
+        b=ra/av95SxdDyZC7KvLMkEtAoPGxG1dLJOC6KA0z83F19it547RmvOC5a/icBxcrBi
+         MWm2EIB2hDDISGp7St4bjaP12FvXABKF6jX1r8JYDAsnsCavpYczLZfbfX/4D/Gp1z
+         m1yRzVyJoFFEjQbIITg1ANNzVuGxLf7HPrez9Occ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yannick Brosseau <yannick.brosseau@gmail.com>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 082/102] iio: adc: stm32: Fix IRQs on STM32F4 by removing custom spurious IRQs message
+        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 5.18 120/181] USB: gadget: Fix double-free bug in raw_gadget driver
 Date:   Mon, 27 Jun 2022 13:21:33 +0200
-Message-Id: <20220627111935.900652709@linuxfoundation.org>
+Message-Id: <20220627111948.174593343@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,60 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yannick Brosseau <yannick.brosseau@gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 99bded02dae5e1e2312813506c41dc8db2fb656c upstream.
+commit 90bc2af24638659da56397ff835f3c95a948f991 upstream.
 
-The check for spurious IRQs introduced in 695e2f5c289bb assumed that the bits
-in the control and status registers are aligned. This is true for the H7 and MP1
-version, but not the F4. The interrupt was then never handled on the F4.
+Re-reading a recently merged fix to the raw_gadget driver showed that
+it inadvertently introduced a double-free bug in a failure pathway.
+If raw_ioctl_init() encounters an error after the driver ID number has
+been allocated, it deallocates the ID number before returning.  But
+when dev_free() runs later on, it will then try to deallocate the ID
+number a second time.
 
-Instead of increasing the complexity of the comparison and check each bit specifically,
-we remove this check completely and rely on the generic handler for spurious IRQs.
+Closely related to this issue is another error in the recent fix: The
+ID number is stored in the raw_dev structure before the code checks to
+see whether the structure has already been initialized, in which case
+the new ID number would overwrite the earlier value.
 
-Fixes: 695e2f5c289b ("iio: adc: stm32-adc: fix a regression when using dma and irq")
-Signed-off-by: Yannick Brosseau <yannick.brosseau@gmail.com>
-Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20220516203939.3498673-3-yannick.brosseau@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+The solution to both bugs is to keep the new ID number in a local
+variable, and store it in the raw_dev structure only after the check
+for prior initialization.  No errors can occur after that point, so
+the double-free will never happen.
+
+Fixes: f2d8c2606825 ("usb: gadget: Fix non-unique driver names in raw-gadget driver")
+CC: Andrey Konovalov <andreyknvl@gmail.com>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/YrMrRw5AyIZghN0v@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/stm32-adc.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/usb/gadget/legacy/raw_gadget.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -1265,7 +1265,6 @@ static irqreturn_t stm32_adc_threaded_is
- 	struct stm32_adc *adc = iio_priv(indio_dev);
- 	const struct stm32_adc_regspec *regs = adc->cfg->regs;
- 	u32 status = stm32_adc_readl(adc, regs->isr_eoc.reg);
--	u32 mask = stm32_adc_readl(adc, regs->ier_eoc.reg);
- 
- 	/* Check ovr status right now, as ovr mask should be already disabled */
- 	if (status & regs->isr_ovr.mask) {
-@@ -1280,11 +1279,6 @@ static irqreturn_t stm32_adc_threaded_is
- 		return IRQ_HANDLED;
+--- a/drivers/usb/gadget/legacy/raw_gadget.c
++++ b/drivers/usb/gadget/legacy/raw_gadget.c
+@@ -430,6 +430,7 @@ out_put:
+ static int raw_ioctl_init(struct raw_dev *dev, unsigned long value)
+ {
+ 	int ret = 0;
++	int driver_id_number;
+ 	struct usb_raw_init arg;
+ 	char *udc_driver_name;
+ 	char *udc_device_name;
+@@ -452,10 +453,9 @@ static int raw_ioctl_init(struct raw_dev
+ 		return -EINVAL;
  	}
  
--	if (!(status & mask))
--		dev_err_ratelimited(&indio_dev->dev,
--				    "Unexpected IRQ: IER=0x%08x, ISR=0x%08x\n",
--				    mask, status);
--
- 	return IRQ_NONE;
+-	ret = ida_alloc(&driver_id_numbers, GFP_KERNEL);
+-	if (ret < 0)
+-		return ret;
+-	dev->driver_id_number = ret;
++	driver_id_number = ida_alloc(&driver_id_numbers, GFP_KERNEL);
++	if (driver_id_number < 0)
++		return driver_id_number;
+ 
+ 	driver_driver_name = kmalloc(DRIVER_DRIVER_NAME_LENGTH_MAX, GFP_KERNEL);
+ 	if (!driver_driver_name) {
+@@ -463,7 +463,7 @@ static int raw_ioctl_init(struct raw_dev
+ 		goto out_free_driver_id_number;
+ 	}
+ 	snprintf(driver_driver_name, DRIVER_DRIVER_NAME_LENGTH_MAX,
+-				DRIVER_NAME ".%d", dev->driver_id_number);
++				DRIVER_NAME ".%d", driver_id_number);
+ 
+ 	udc_driver_name = kmalloc(UDC_NAME_LENGTH_MAX, GFP_KERNEL);
+ 	if (!udc_driver_name) {
+@@ -507,6 +507,7 @@ static int raw_ioctl_init(struct raw_dev
+ 	dev->driver.driver.name = driver_driver_name;
+ 	dev->driver.udc_name = udc_device_name;
+ 	dev->driver.match_existing_only = 1;
++	dev->driver_id_number = driver_id_number;
+ 
+ 	dev->state = STATE_DEV_INITIALIZED;
+ 	spin_unlock_irqrestore(&dev->lock, flags);
+@@ -521,7 +522,7 @@ out_free_udc_driver_name:
+ out_free_driver_driver_name:
+ 	kfree(driver_driver_name);
+ out_free_driver_id_number:
+-	ida_free(&driver_id_numbers, dev->driver_id_number);
++	ida_free(&driver_id_numbers, driver_id_number);
+ 	return ret;
  }
  
-@@ -1294,10 +1288,6 @@ static irqreturn_t stm32_adc_isr(int irq
- 	struct stm32_adc *adc = iio_priv(indio_dev);
- 	const struct stm32_adc_regspec *regs = adc->cfg->regs;
- 	u32 status = stm32_adc_readl(adc, regs->isr_eoc.reg);
--	u32 mask = stm32_adc_readl(adc, regs->ier_eoc.reg);
--
--	if (!(status & mask))
--		return IRQ_WAKE_THREAD;
- 
- 	if (status & regs->isr_ovr.mask) {
- 		/*
 
 
