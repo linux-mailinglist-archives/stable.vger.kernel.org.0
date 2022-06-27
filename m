@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F1C55C6AF
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:53:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6790C55D15D
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234862AbiF0L0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:26:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45606 "EHLO
+        id S235047AbiF0L0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:26:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234949AbiF0LZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:25:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7545659D;
-        Mon, 27 Jun 2022 04:25:19 -0700 (PDT)
+        with ESMTP id S234954AbiF0LZi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:25:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F186598;
+        Mon, 27 Jun 2022 04:25:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 257EC61459;
-        Mon, 27 Jun 2022 11:25:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 284EDC341C7;
-        Mon, 27 Jun 2022 11:25:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87260B81123;
+        Mon, 27 Jun 2022 11:25:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F055DC341CB;
+        Mon, 27 Jun 2022 11:25:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329118;
-        bh=Xs774V0mF+K9kaKGqJ0IKq9qDk6UomBqM7x0sPzgZWQ=;
+        s=korg; t=1656329121;
+        bh=e4ymCOZXHGywOTnDX4ndbtuQkWK5+6M0Va1Vujg3/3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JlKsdM20MQzMKjXLsgjmSvmpp9mZcwmfrFc2HhqNq5kWzbl6F1hCKF/Ip1f5BZQqt
-         GHSSaacJEmu2qqHXx1LXrSOnwG86jA7uESNGGclzzg3nQZlgwiofOfMo1CQyX+iTwe
-         hGS2IWJD8bp9LtYlEPe0roZPOgwP1irKtq730SXM=
+        b=ZSohV4ZTleU5PHws0J5/wH6I35fF7NcLPrn/bXQdSxNNwWUhkH1U/5yg0anGJZLjn
+         NvI0p8Gfz+O4OHgH6ufw+cd3Z/aOoKa5hcnn509FvB48QwLpi2kwp3vkBTkIg4FiEn
+         zGw8aPIdtQrUxb1hFhWYr1/mH37gBYTA9aGe7968=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sagi Grimberg <sagi@grimberg.me>,
         Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 057/102] nvme: dont check nvme_req flags for new req
-Date:   Mon, 27 Jun 2022 13:21:08 +0200
-Message-Id: <20220627111935.162378464@linuxfoundation.org>
+Subject: [PATCH 5.10 058/102] nvme-pci: allocate nvme_command within driver pdu
+Date:   Mon, 27 Jun 2022 13:21:09 +0200
+Message-Id: <20220627111935.192365232@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
 References: <20220627111933.455024953@linuxfoundation.org>
@@ -54,79 +56,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit c03fd85de293a4f65fcb94a795bf4c12a432bb6c ]
+[ Upstream commit af7fae857ea22e9c2aef812e1321d9c5c206edde ]
 
-nvme_clear_request() has a check for flag REQ_DONTPREP and it is called
-from nvme_init_request() and nvme_setuo_cmd().
+Except for pci, all the nvme transport drivers allocate a command within
+the driver's pdu. Align pci with everyone else by allocating the nvme
+command within pci's pdu and replace the .queue_rq() stack variable with
+this.
 
-The function nvme_init_request() is called from nvme_alloc_request()
-and nvme_alloc_request_qid(). From these two callers new request is
-allocated everytime. For newly allocated request RQF_DONTPREP is never
-set. Since after getting a tag, block layer sets the req->rq_flags == 0
-and never sets the REQ_DONTPREP when returning the request :-
-
-nvme_alloc_request()
-	blk_mq_alloc_request()
-		blk_mq_rq_ctx_init()
-			rq->rq_flags = 0 <----
-
-nvme_alloc_request_qid()
-	blk_mq_alloc_request_hctx()
-		blk_mq_rq_ctx_init()
-			rq->rq_flags = 0 <----
-
-The block layer does set req->rq_flags but REQ_DONTPREP is not one of
-them and that is set by the driver.
-
-That means we can unconditinally set the REQ_DONTPREP value to the
-rq->rq_flags when nvme_init_request()->nvme_clear_request() is called
-from above two callers.
-
-Move the check for REQ_DONTPREP from nvme_clear_nvme_request() into
-nvme_setup_cmd().
-
-This is needed since nvme_alloc_request() now gets called from fast
-path when NVMeOF target is configured with passthru backend to avoid
-unnecessary checks in the fast path.
-
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/nvme/host/pci.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index d81b0cff15e0..c42ad0b8247b 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -531,11 +531,9 @@ EXPORT_SYMBOL_NS_GPL(nvme_put_ns, NVME_TARGET_PASSTHRU);
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 07a4d5d387cd..31c6938e5045 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -224,6 +224,7 @@ struct nvme_queue {
+  */
+ struct nvme_iod {
+ 	struct nvme_request req;
++	struct nvme_command cmd;
+ 	struct nvme_queue *nvmeq;
+ 	bool use_sgl;
+ 	int aborted;
+@@ -917,7 +918,7 @@ static blk_status_t nvme_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	struct nvme_dev *dev = nvmeq->dev;
+ 	struct request *req = bd->rq;
+ 	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
+-	struct nvme_command cmnd;
++	struct nvme_command *cmnd = &iod->cmd;
+ 	blk_status_t ret;
  
- static inline void nvme_clear_nvme_request(struct request *req)
- {
--	if (!(req->rq_flags & RQF_DONTPREP)) {
--		nvme_req(req)->retries = 0;
--		nvme_req(req)->flags = 0;
--		req->rq_flags |= RQF_DONTPREP;
--	}
-+	nvme_req(req)->retries = 0;
-+	nvme_req(req)->flags = 0;
-+	req->rq_flags |= RQF_DONTPREP;
- }
+ 	iod->aborted = 0;
+@@ -931,24 +932,24 @@ static blk_status_t nvme_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	if (unlikely(!test_bit(NVMEQ_ENABLED, &nvmeq->flags)))
+ 		return BLK_STS_IOERR;
  
- static inline unsigned int nvme_req_op(struct nvme_command *cmd)
-@@ -854,7 +852,8 @@ blk_status_t nvme_setup_cmd(struct nvme_ns *ns, struct request *req,
- 	struct nvme_ctrl *ctrl = nvme_req(req)->ctrl;
- 	blk_status_t ret = BLK_STS_OK;
+-	ret = nvme_setup_cmd(ns, req, &cmnd);
++	ret = nvme_setup_cmd(ns, req, cmnd);
+ 	if (ret)
+ 		return ret;
  
--	nvme_clear_nvme_request(req);
-+	if (!(req->rq_flags & RQF_DONTPREP))
-+		nvme_clear_nvme_request(req);
+ 	if (blk_rq_nr_phys_segments(req)) {
+-		ret = nvme_map_data(dev, req, &cmnd);
++		ret = nvme_map_data(dev, req, cmnd);
+ 		if (ret)
+ 			goto out_free_cmd;
+ 	}
  
- 	memset(cmd, 0, sizeof(*cmd));
- 	switch (req_op(req)) {
+ 	if (blk_integrity_rq(req)) {
+-		ret = nvme_map_metadata(dev, req, &cmnd);
++		ret = nvme_map_metadata(dev, req, cmnd);
+ 		if (ret)
+ 			goto out_unmap_data;
+ 	}
+ 
+ 	blk_mq_start_request(req);
+-	nvme_submit_cmd(nvmeq, &cmnd, bd->last);
++	nvme_submit_cmd(nvmeq, cmnd, bd->last);
+ 	return BLK_STS_OK;
+ out_unmap_data:
+ 	nvme_unmap_data(dev, req);
 -- 
 2.35.1
 
