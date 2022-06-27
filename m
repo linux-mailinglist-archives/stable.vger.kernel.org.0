@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD10B55D2B8
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F298F55D0C5
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:08:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234586AbiF0LXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:23:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43342 "EHLO
+        id S236161AbiF0Lgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:36:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234580AbiF0LXT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:23:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4442DE8;
-        Mon, 27 Jun 2022 04:23:16 -0700 (PDT)
+        with ESMTP id S236162AbiF0Lfu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:35:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EC4FDF2C;
+        Mon, 27 Jun 2022 04:31:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 960DFB81116;
-        Mon, 27 Jun 2022 11:23:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08591C3411D;
-        Mon, 27 Jun 2022 11:23:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C7B6608D4;
+        Mon, 27 Jun 2022 11:31:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E977C3411D;
+        Mon, 27 Jun 2022 11:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656328994;
-        bh=AJWxeXAUJ3DsLHyvcz2cfrvPxmBjAzdfm0WYVN/6l6o=;
+        s=korg; t=1656329503;
+        bh=8clhaSAfuZTxz/QqpTKUQouDi75NGvcuMYXwgJ064h0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lhsirJPmCPZ6to68vChJ1bb3WEDv/EsDakPgrAwxd5GVG4K6LopZysFvTAoXecwdV
-         a9G00YrFhCBWBRKmuLe1jd7gUAm9LOq9xwsSTQrofWWuYSxLaU9BmkyG84KbAGUWvY
-         brfN15zvNxLLDCmLLv3D04+NpmIQayRH0NHSNNCE=
+        b=pxAPOBNFNrS18HuXU2OcriDlWETjqKBHHJ3Ba9sVtyZxHs7jhyMcY+9rT/1waIGOa
+         JjqNHwb6/Xz+rcwRe7lhhbT44hfOX2vOKpnph5Z6TPoIT9hth8AsYy9Jc+TcTbS451
+         baghCGVU1hbKx87JlmvyWPCinDyzT92u7DRL2Llk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.10 016/102] dm era: commit metadata in postsuspend after worker stops
+        stable@vger.kernel.org, Mengqi Zhang <mengqi.zhang@mediatek.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 020/135] mmc: mediatek: wait dma stop bit reset to 0
 Date:   Mon, 27 Jun 2022 13:20:27 +0200
-Message-Id: <20220627111933.946926694@linuxfoundation.org>
+Message-Id: <20220627111938.748422500@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
+From: Mengqi Zhang <mengqi.zhang@mediatek.com>
 
-commit 9ae6e8b1c9bbf6874163d1243e393137313762b7 upstream.
+commit 89bcd9a64b849380ef57e3032b307574e48db524 upstream.
 
-During postsuspend dm-era does the following:
+MediaTek IP requires that after dma stop, it need to wait this dma stop
+bit auto-reset to 0. When bus is in high loading state, it will take a
+while for the dma stop complete. If there is no waiting operation here,
+when program runs to clear fifo and reset, bus will hang.
 
-1. Archives the current era
-2. Commits the metadata, as part of the RPC call for archiving the
-   current era
-3. Stops the worker
+In addition, there should be no return in msdc_data_xfer_next() if
+there is data need be transferred, because no matter what error occurs
+here, it should continue to excute to the following mmc_request_done.
+Otherwise the core layer may wait complete forever.
 
-Until the worker stops, it might write to the metadata again. Moreover,
-these writes are not flushed to disk immediately, but are cached by the
-dm-bufio client, which writes them back asynchronously.
-
-As a result, the committed metadata of a suspended dm-era device might
-not be consistent with the in-core metadata.
-
-In some cases, this can result in the corruption of the on-disk
-metadata. Suppose the following sequence of events:
-
-1. Load a new table, e.g. a snapshot-origin table, to a device with a
-   dm-era table
-2. Suspend the device
-3. dm-era commits its metadata, but the worker does a few more metadata
-   writes until it stops, as part of digesting an archived writeset
-4. These writes are cached by the dm-bufio client
-5. Load the dm-era table to another device.
-6. The new instance of the dm-era target loads the committed, on-disk
-   metadata, which don't include the extra writes done by the worker
-   after the metadata commit.
-7. Resume the new device
-8. The new dm-era target instance starts using the metadata
-9. Resume the original device
-10. The destructor of the old dm-era target instance is called and
-    destroys the dm-bufio client, which results in flushing the cached
-    writes to disk
-11. These writes might overwrite the writes done by the new dm-era
-    instance, hence corrupting its metadata.
-
-Fix this by committing the metadata after the worker stops running.
-
-stop_worker uses flush_workqueue to flush the current work. However, the
-work item may re-queue itself and flush_workqueue doesn't wait for
-re-queued works to finish.
-
-This could result in the worker changing the metadata after they have
-been committed, or writing to the metadata concurrently with the commit
-in the postsuspend thread.
-
-Use drain_workqueue instead, which waits until the work and all
-re-queued works finish.
-
-Fixes: eec40579d8487 ("dm: add era target")
-Cc: stable@vger.kernel.org # v3.15+
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Mengqi Zhang <mengqi.zhang@mediatek.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220609112239.18911-1-mengqi.zhang@mediatek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-era-target.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/mmc/host/mtk-sd.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/drivers/md/dm-era-target.c
-+++ b/drivers/md/dm-era-target.c
-@@ -1396,7 +1396,7 @@ static void start_worker(struct era *era
- static void stop_worker(struct era *era)
+--- a/drivers/mmc/host/mtk-sd.c
++++ b/drivers/mmc/host/mtk-sd.c
+@@ -1355,7 +1355,7 @@ static void msdc_data_xfer_next(struct m
+ 		msdc_request_done(host, mrq);
+ }
+ 
+-static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
++static void msdc_data_xfer_done(struct msdc_host *host, u32 events,
+ 				struct mmc_request *mrq, struct mmc_data *data)
  {
- 	atomic_set(&era->suspended, 1);
--	flush_workqueue(era->wq);
-+	drain_workqueue(era->wq);
- }
+ 	struct mmc_command *stop;
+@@ -1375,7 +1375,7 @@ static bool msdc_data_xfer_done(struct m
+ 	spin_unlock_irqrestore(&host->lock, flags);
  
- /*----------------------------------------------------------------
-@@ -1566,6 +1566,12 @@ static void era_postsuspend(struct dm_ta
- 	}
+ 	if (done)
+-		return true;
++		return;
+ 	stop = data->stop;
  
- 	stop_worker(era);
+ 	if (check_data || (stop && stop->error)) {
+@@ -1384,12 +1384,15 @@ static bool msdc_data_xfer_done(struct m
+ 		sdr_set_field(host->base + MSDC_DMA_CTRL, MSDC_DMA_CTRL_STOP,
+ 				1);
+ 
++		ret = readl_poll_timeout_atomic(host->base + MSDC_DMA_CTRL, val,
++						!(val & MSDC_DMA_CTRL_STOP), 1, 20000);
++		if (ret)
++			dev_dbg(host->dev, "DMA stop timed out\n");
 +
-+	r = metadata_commit(era->md);
-+	if (r) {
-+		DMERR("%s: metadata_commit failed", __func__);
-+		/* FIXME: fail mode */
-+	}
+ 		ret = readl_poll_timeout_atomic(host->base + MSDC_DMA_CFG, val,
+ 						!(val & MSDC_DMA_CFG_STS), 1, 20000);
+-		if (ret) {
+-			dev_dbg(host->dev, "DMA stop timed out\n");
+-			return false;
+-		}
++		if (ret)
++			dev_dbg(host->dev, "DMA inactive timed out\n");
+ 
+ 		sdr_clr_bits(host->base + MSDC_INTEN, data_ints_mask);
+ 		dev_dbg(host->dev, "DMA stop\n");
+@@ -1414,9 +1417,7 @@ static bool msdc_data_xfer_done(struct m
+ 		}
+ 
+ 		msdc_data_xfer_next(host, mrq);
+-		done = true;
+ 	}
+-	return done;
  }
  
- static int era_preresume(struct dm_target *ti)
+ static void msdc_set_buswidth(struct msdc_host *host, u32 width)
+@@ -2347,6 +2348,9 @@ static void msdc_cqe_disable(struct mmc_
+ 	if (recovery) {
+ 		sdr_set_field(host->base + MSDC_DMA_CTRL,
+ 			      MSDC_DMA_CTRL_STOP, 1);
++		if (WARN_ON(readl_poll_timeout(host->base + MSDC_DMA_CTRL, val,
++			!(val & MSDC_DMA_CTRL_STOP), 1, 3000)))
++			return;
+ 		if (WARN_ON(readl_poll_timeout(host->base + MSDC_DMA_CFG, val,
+ 			!(val & MSDC_DMA_CFG_STS), 1, 3000)))
+ 			return;
 
 
