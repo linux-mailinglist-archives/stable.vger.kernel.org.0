@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA41C55CCC9
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:02:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7731955D42F
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235017AbiF0L0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:26:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46076 "EHLO
+        id S236434AbiF0Lia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234911AbiF0LZR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:25:17 -0400
+        with ESMTP id S236500AbiF0Lhg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82A9F65BE;
-        Mon, 27 Jun 2022 04:25:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DDA52A8;
+        Mon, 27 Jun 2022 04:33:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C153B81123;
-        Mon, 27 Jun 2022 11:25:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D88DC3411D;
-        Mon, 27 Jun 2022 11:25:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9FBBB81117;
+        Mon, 27 Jun 2022 11:33:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36D05C341C7;
+        Mon, 27 Jun 2022 11:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329109;
-        bh=FyoFVqtZUvwcbGZZh1GV52hKkfQQUNKMb6E4lVcaMVk=;
+        s=korg; t=1656329618;
+        bh=KxrZ/ggmY1P8dw6EksNkGBSczEF1xATz3fcSjYLLMZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMriZVm2Nm6Mbgf5q/q+JlyQAbDrwih2COKSSlLUPRlAGJgZIOf0+DrvMiwtJcVhQ
-         RtcXcMgDsrn547G27zbmbKqAMhyJnGpt1sdEaJe7XaiCRQNaoIKOFM4kMOF2irZXoX
-         wbay9F1zvvfJJ9lZKDz+mcukZsuZfBkHrOiPDmHY=
+        b=PPvNEwLPwO+e51yPt8tMSYdKVd4A43WPabwd/B2bqh9AOJn/WVP3GnQswTmOw9Jxu
+         4Oe0PICyftUZrrC7/Bd1MNDFmJimsCFdpBhFs3vo98oTgsT12cYSCS8VpKKk8cmPNv
+         3pTOYuTL+ilPoP93LfX0ipniXhDZFet75Xjv7avE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 054/102] nvme: centralize setting the timeout in nvme_alloc_request
+        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 058/135] drm/msm/dp: do not initialize phy until plugin interrupt received
 Date:   Mon, 27 Jun 2022 13:21:05 +0200
-Message-Id: <20220627111935.074765866@linuxfoundation.org>
+Message-Id: <20220627111939.841455345@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,97 +55,495 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit 0d2e7c840b178bf9a47bd0de89d8f9182fa71d86 ]
+[ Upstream commit 989ebe7bc4463002c210db0010c8475797a9098f ]
 
-The function nvme_alloc_request() is called from different context
-(I/O and Admin queue) where callers do not consider the I/O timeout when
-called from I/O queue context.
+Current DP drivers have regulators, clocks, irq and phy are grouped
+together within a function and executed not in a symmetric manner.
+This increase difficulty of code maintenance and limited code scalability.
+This patch divides the driver life cycle of operation into four states,
+resume (including booting up), dongle plugin, dongle unplugged and suspend.
+Regulators, core clocks and irq are grouped together and enabled at resume
+(or booting up) so that the DP controller is armed and ready to receive HPD
+plugin interrupts. HPD plugin interrupt is generated when a dongle plugs
+into DUT (device under test). Once HPD plugin interrupt is received, DP
+controller will initialize phy so that dpcd read/write will function and
+following link training can be proceeded successfully. DP phy will be
+disabled after main link is teared down at end of unplugged HPD interrupt
+handle triggered by dongle unplugged out of DUT. Finally regulators, code
+clocks and irq are disabled at corresponding suspension.
 
-Update nvme_alloc_request() to set the default I/O and Admin timeout
-value based on whether the queuedata is set or not.
+Changes in V2:
+-- removed unnecessary dp_ctrl NULL check
+-- removed unnecessary phy init_count and power_count DRM_DEBUG_DP logs
+-- remove flip parameter out of dp_ctrl_irq_enable()
+-- add fixes tag
 
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Changes in V3:
+-- call dp_display_host_phy_init() instead of dp_ctrl_phy_init() at
+        dp_display_host_init() for eDP
+
+Changes in V4:
+-- rewording commit text to match this commit changes
+
+Changes in V5:
+-- rebase on top of msm-next branch
+
+Changes in V6:
+-- delete flip variable
+
+Changes in V7:
+-- dp_ctrl_irq_enable/disabe() merged into dp_ctrl_reset_irq_ctrl()
+
+Changes in V8:
+-- add more detail comment regrading dp phy at dp_display_host_init()
+
+Changes in V9:
+-- remove set phy_initialized to false when -ECONNRESET detected
+
+Changes in v10:
+--  group into one series
+
+Changes in v11:
+-- drop drm/msm/dp: dp_link_parse_sink_count() return immediately
+	if aux read
+
+Changes in v12:
+-- move dp_display_host_phy_exit() after dp_display_host_deinit()
+
+Changes in v13:
+-- do not execute phy_init until plugged_in interrupt for edp, same as DP.
+
+Changes in v14:
+-- remove redundant dp->core_initialized = false form dp_pm_suspend.
+
+Changes in v15:
+-- remove core_initialized flag check at both host_init and host_deinit
+
+Changes in v16:
+-- remove dp_display_host_phy_exit core_initialized=false at dp_pm_suspend
+
+Changes in v17:
+-- remove core_initialized checking before execute attention_cb()
+
+Changes in v18:
+-- remove core_initialized checking at dp_pm_suspend
+
+Fixes: 8ede2ecc3e5e ("drm/msm/dp: Add DP compliance tests on Snapdragon Chipsets")
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1642531648-8448-2-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c     | 11 +++++++++--
- drivers/nvme/host/lightnvm.c |  3 ++-
- drivers/nvme/host/pci.c      |  2 --
- 3 files changed, 11 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_ctrl.c    |  80 ++++++++------------
+ drivers/gpu/drm/msm/dp/dp_ctrl.h    |   8 +-
+ drivers/gpu/drm/msm/dp/dp_display.c | 111 ++++++++++++++--------------
+ 3 files changed, 92 insertions(+), 107 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 0aa68da51ed7..4a7154cbca50 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -553,6 +553,11 @@ struct request *nvme_alloc_request(struct request_queue *q,
- 	if (IS_ERR(req))
- 		return req;
+diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+index 1992347537e6..0776b1960f21 100644
+--- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
++++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+@@ -1348,60 +1348,44 @@ static int dp_ctrl_enable_stream_clocks(struct dp_ctrl_private *ctrl)
+ 	return ret;
+ }
  
-+	if (req->q->queuedata)
-+		req->timeout = NVME_IO_TIMEOUT;
-+	else /* no queuedata implies admin queue */
-+		req->timeout = ADMIN_TIMEOUT;
+-int dp_ctrl_host_init(struct dp_ctrl *dp_ctrl, bool flip, bool reset)
++void dp_ctrl_reset_irq_ctrl(struct dp_ctrl *dp_ctrl, bool enable)
++{
++	struct dp_ctrl_private *ctrl;
 +
- 	req->cmd_flags |= REQ_FAILFAST_DRIVER;
- 	nvme_clear_nvme_request(req);
- 	nvme_req(req)->cmd = cmd;
-@@ -927,7 +932,8 @@ int __nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
- 	if (IS_ERR(req))
- 		return PTR_ERR(req);
++	ctrl = container_of(dp_ctrl, struct dp_ctrl_private, dp_ctrl);
++
++	dp_catalog_ctrl_reset(ctrl->catalog);
++
++	if (enable)
++		dp_catalog_ctrl_enable_irq(ctrl->catalog, enable);
++}
++
++void dp_ctrl_phy_init(struct dp_ctrl *dp_ctrl)
+ {
+ 	struct dp_ctrl_private *ctrl;
+ 	struct dp_io *dp_io;
+ 	struct phy *phy;
  
--	req->timeout = timeout ? timeout : ADMIN_TIMEOUT;
-+	if (timeout)
-+		req->timeout = timeout;
+-	if (!dp_ctrl) {
+-		DRM_ERROR("Invalid input data\n");
+-		return -EINVAL;
+-	}
+-
+ 	ctrl = container_of(dp_ctrl, struct dp_ctrl_private, dp_ctrl);
+ 	dp_io = &ctrl->parser->io;
+ 	phy = dp_io->phy;
  
- 	if (buffer && bufflen) {
- 		ret = blk_rq_map_kern(q, req, buffer, bufflen, GFP_KERNEL);
-@@ -1097,7 +1103,8 @@ static int nvme_submit_user_cmd(struct request_queue *q,
- 	if (IS_ERR(req))
- 		return PTR_ERR(req);
+-	ctrl->dp_ctrl.orientation = flip;
+-
+-	if (reset)
+-		dp_catalog_ctrl_reset(ctrl->catalog);
+-
+-	DRM_DEBUG_DP("flip=%d\n", flip);
+ 	dp_catalog_ctrl_phy_reset(ctrl->catalog);
+ 	phy_init(phy);
+-	dp_catalog_ctrl_enable_irq(ctrl->catalog, true);
+-
+-	return 0;
+ }
  
--	req->timeout = timeout ? timeout : ADMIN_TIMEOUT;
-+	if (timeout)
-+		req->timeout = timeout;
- 	nvme_req(req)->flags |= NVME_REQ_USERCMD;
+-/**
+- * dp_ctrl_host_deinit() - Uninitialize DP controller
+- * @dp_ctrl: Display Port Driver data
+- *
+- * Perform required steps to uninitialize DP controller
+- * and its resources.
+- */
+-void dp_ctrl_host_deinit(struct dp_ctrl *dp_ctrl)
++void dp_ctrl_phy_exit(struct dp_ctrl *dp_ctrl)
+ {
+ 	struct dp_ctrl_private *ctrl;
+ 	struct dp_io *dp_io;
+ 	struct phy *phy;
  
- 	if (ubuffer && bufflen) {
-diff --git a/drivers/nvme/host/lightnvm.c b/drivers/nvme/host/lightnvm.c
-index 8e562d0f2c30..88a7c8eac455 100644
---- a/drivers/nvme/host/lightnvm.c
-+++ b/drivers/nvme/host/lightnvm.c
-@@ -774,7 +774,8 @@ static int nvme_nvm_submit_user_cmd(struct request_queue *q,
- 		goto err_cmd;
+-	if (!dp_ctrl) {
+-		DRM_ERROR("Invalid input data\n");
+-		return;
+-	}
+-
+ 	ctrl = container_of(dp_ctrl, struct dp_ctrl_private, dp_ctrl);
+ 	dp_io = &ctrl->parser->io;
+ 	phy = dp_io->phy;
+ 
+-	dp_catalog_ctrl_enable_irq(ctrl->catalog, false);
++	dp_catalog_ctrl_phy_reset(ctrl->catalog);
+ 	phy_exit(phy);
+-
+-	DRM_DEBUG_DP("Host deinitialized successfully\n");
+ }
+ 
+ static bool dp_ctrl_use_fixed_nvid(struct dp_ctrl_private *ctrl)
+@@ -1471,7 +1455,10 @@ static int dp_ctrl_deinitialize_mainlink(struct dp_ctrl_private *ctrl)
  	}
  
--	rq->timeout = timeout ? timeout : ADMIN_TIMEOUT;
-+	if (timeout)
-+		rq->timeout = timeout;
+ 	phy_power_off(phy);
++
++	/* aux channel down, reinit phy */
+ 	phy_exit(phy);
++	phy_init(phy);
  
- 	if (ppa_buf && ppa_len) {
- 		ppa_list = dma_pool_alloc(dev->dma_pool, GFP_KERNEL, &ppa_dma);
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 7de24a10dd92..f2d0148d4050 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1356,7 +1356,6 @@ static enum blk_eh_timer_return nvme_timeout(struct request *req, bool reserved)
- 		return BLK_EH_RESET_TIMER;
+ 	return 0;
+ }
+@@ -1877,8 +1864,14 @@ int dp_ctrl_off_link_stream(struct dp_ctrl *dp_ctrl)
+ 		return ret;
  	}
  
--	abort_req->timeout = ADMIN_TIMEOUT;
- 	abort_req->end_io_data = NULL;
- 	blk_execute_rq_nowait(abort_req->q, NULL, abort_req, 0, abort_endio);
++	DRM_DEBUG_DP("Before, phy=%x init_count=%d power_on=%d\n",
++		(u32)(uintptr_t)phy, phy->init_count, phy->power_count);
++
+ 	phy_power_off(phy);
  
-@@ -2283,7 +2282,6 @@ static int nvme_delete_queue(struct nvme_queue *nvmeq, u8 opcode)
- 	if (IS_ERR(req))
- 		return PTR_ERR(req);
++	DRM_DEBUG_DP("After, phy=%x init_count=%d power_on=%d\n",
++		(u32)(uintptr_t)phy, phy->init_count, phy->power_count);
++
+ 	/* aux channel down, reinit phy */
+ 	phy_exit(phy);
+ 	phy_init(phy);
+@@ -1887,23 +1880,6 @@ int dp_ctrl_off_link_stream(struct dp_ctrl *dp_ctrl)
+ 	return ret;
+ }
  
--	req->timeout = ADMIN_TIMEOUT;
- 	req->end_io_data = nvmeq;
+-void dp_ctrl_off_phy(struct dp_ctrl *dp_ctrl)
+-{
+-	struct dp_ctrl_private *ctrl;
+-	struct dp_io *dp_io;
+-	struct phy *phy;
+-
+-	ctrl = container_of(dp_ctrl, struct dp_ctrl_private, dp_ctrl);
+-	dp_io = &ctrl->parser->io;
+-	phy = dp_io->phy;
+-
+-	dp_catalog_ctrl_reset(ctrl->catalog);
+-
+-	phy_exit(phy);
+-
+-	DRM_DEBUG_DP("DP off phy done\n");
+-}
+-
+ int dp_ctrl_off(struct dp_ctrl *dp_ctrl)
+ {
+ 	struct dp_ctrl_private *ctrl;
+@@ -1931,10 +1907,14 @@ int dp_ctrl_off(struct dp_ctrl *dp_ctrl)
+ 		DRM_ERROR("Failed to disable link clocks. ret=%d\n", ret);
+ 	}
  
- 	init_completion(&nvmeq->delete_done);
++	DRM_DEBUG_DP("Before, phy=%x init_count=%d power_on=%d\n",
++		(u32)(uintptr_t)phy, phy->init_count, phy->power_count);
++
+ 	phy_power_off(phy);
+-	phy_exit(phy);
+ 
+-	DRM_DEBUG_DP("DP off done\n");
++	DRM_DEBUG_DP("After, phy=%x init_count=%d power_on=%d\n",
++		(u32)(uintptr_t)phy, phy->init_count, phy->power_count);
++
+ 	return ret;
+ }
+ 
+diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.h b/drivers/gpu/drm/msm/dp/dp_ctrl.h
+index 2363a2df9597..2433edbc70a6 100644
+--- a/drivers/gpu/drm/msm/dp/dp_ctrl.h
++++ b/drivers/gpu/drm/msm/dp/dp_ctrl.h
+@@ -19,12 +19,9 @@ struct dp_ctrl {
+ 	u32 pixel_rate;
+ };
+ 
+-int dp_ctrl_host_init(struct dp_ctrl *dp_ctrl, bool flip, bool reset);
+-void dp_ctrl_host_deinit(struct dp_ctrl *dp_ctrl);
+ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl);
+ int dp_ctrl_on_stream(struct dp_ctrl *dp_ctrl);
+ int dp_ctrl_off_link_stream(struct dp_ctrl *dp_ctrl);
+-void dp_ctrl_off_phy(struct dp_ctrl *dp_ctrl);
+ int dp_ctrl_off(struct dp_ctrl *dp_ctrl);
+ void dp_ctrl_push_idle(struct dp_ctrl *dp_ctrl);
+ void dp_ctrl_isr(struct dp_ctrl *dp_ctrl);
+@@ -34,4 +31,9 @@ struct dp_ctrl *dp_ctrl_get(struct device *dev, struct dp_link *link,
+ 			struct dp_power *power, struct dp_catalog *catalog,
+ 			struct dp_parser *parser);
+ 
++void dp_ctrl_reset_irq_ctrl(struct dp_ctrl *dp_ctrl, bool enable);
++void dp_ctrl_phy_init(struct dp_ctrl *dp_ctrl);
++void dp_ctrl_phy_exit(struct dp_ctrl *dp_ctrl);
++void dp_ctrl_irq_phy_exit(struct dp_ctrl *dp_ctrl);
++
+ #endif /* _DP_CTRL_H_ */
+diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
+index 32b8dbb917bf..bbd0bf820192 100644
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -81,6 +81,7 @@ struct dp_display_private {
+ 
+ 	/* state variables */
+ 	bool core_initialized;
++	bool phy_initialized;
+ 	bool hpd_irq_on;
+ 	bool audio_supported;
+ 
+@@ -362,36 +363,45 @@ static int dp_display_process_hpd_high(struct dp_display_private *dp)
+ 	return rc;
+ }
+ 
+-static void dp_display_host_init(struct dp_display_private *dp, int reset)
++static void dp_display_host_phy_init(struct dp_display_private *dp)
+ {
+-	bool flip = false;
++	DRM_DEBUG_DP("core_init=%d phy_init=%d\n",
++			dp->core_initialized, dp->phy_initialized);
+ 
+-	DRM_DEBUG_DP("core_initialized=%d\n", dp->core_initialized);
+-	if (dp->core_initialized) {
+-		DRM_DEBUG_DP("DP core already initialized\n");
+-		return;
++	if (!dp->phy_initialized) {
++		dp_ctrl_phy_init(dp->ctrl);
++		dp->phy_initialized = true;
+ 	}
++}
++
++static void dp_display_host_phy_exit(struct dp_display_private *dp)
++{
++	DRM_DEBUG_DP("core_init=%d phy_init=%d\n",
++			dp->core_initialized, dp->phy_initialized);
+ 
+-	if (dp->usbpd->orientation == ORIENTATION_CC2)
+-		flip = true;
++	if (dp->phy_initialized) {
++		dp_ctrl_phy_exit(dp->ctrl);
++		dp->phy_initialized = false;
++	}
++}
++
++static void dp_display_host_init(struct dp_display_private *dp)
++{
++	DRM_DEBUG_DP("core_initialized=%d\n", dp->core_initialized);
+ 
+-	dp_power_init(dp->power, flip);
+-	dp_ctrl_host_init(dp->ctrl, flip, reset);
++	dp_power_init(dp->power, false);
++	dp_ctrl_reset_irq_ctrl(dp->ctrl, true);
+ 	dp_aux_init(dp->aux);
+ 	dp->core_initialized = true;
+ }
+ 
+ static void dp_display_host_deinit(struct dp_display_private *dp)
+ {
+-	if (!dp->core_initialized) {
+-		DRM_DEBUG_DP("DP core not initialized\n");
+-		return;
+-	}
++	DRM_DEBUG_DP("core_initialized=%d\n", dp->core_initialized);
+ 
+-	dp_ctrl_host_deinit(dp->ctrl);
++	dp_ctrl_reset_irq_ctrl(dp->ctrl, false);
+ 	dp_aux_deinit(dp->aux);
+ 	dp_power_deinit(dp->power);
+-
+ 	dp->core_initialized = false;
+ }
+ 
+@@ -409,7 +419,7 @@ static int dp_display_usbpd_configure_cb(struct device *dev)
+ 	dp = container_of(g_dp_display,
+ 			struct dp_display_private, dp_display);
+ 
+-	dp_display_host_init(dp, false);
++	dp_display_host_phy_init(dp);
+ 
+ 	rc = dp_display_process_hpd_high(dp);
+ end:
+@@ -550,11 +560,6 @@ static int dp_hpd_plug_handle(struct dp_display_private *dp, u32 data)
+ 	ret = dp_display_usbpd_configure_cb(&dp->pdev->dev);
+ 	if (ret) {	/* link train failed */
+ 		dp->hpd_state = ST_DISCONNECTED;
+-
+-		if (ret == -ECONNRESET) { /* cable unplugged */
+-			dp->core_initialized = false;
+-		}
+-
+ 	} else {
+ 		/* start sentinel checking in case of missing uevent */
+ 		dp_add_event(dp, EV_CONNECT_PENDING_TIMEOUT, 0, tout);
+@@ -624,8 +629,7 @@ static int dp_hpd_unplug_handle(struct dp_display_private *dp, u32 data)
+ 	if (state == ST_DISCONNECTED) {
+ 		/* triggered by irq_hdp with sink_count = 0 */
+ 		if (dp->link->sink_count == 0) {
+-			dp_ctrl_off_phy(dp->ctrl);
+-			dp->core_initialized = false;
++			dp_display_host_phy_exit(dp);
+ 		}
+ 		mutex_unlock(&dp->event_mutex);
+ 		return 0;
+@@ -687,7 +691,6 @@ static int dp_disconnect_pending_timeout(struct dp_display_private *dp, u32 data
+ static int dp_irq_hpd_handle(struct dp_display_private *dp, u32 data)
+ {
+ 	u32 state;
+-	int ret;
+ 
+ 	mutex_lock(&dp->event_mutex);
+ 
+@@ -712,16 +715,8 @@ static int dp_irq_hpd_handle(struct dp_display_private *dp, u32 data)
+ 		return 0;
+ 	}
+ 
+-	/*
+-	 * dp core (ahb/aux clks) must be initialized before
+-	 * irq_hpd be handled
+-	 */
+-	if (dp->core_initialized) {
+-		ret = dp_display_usbpd_attention_cb(&dp->pdev->dev);
+-		if (ret == -ECONNRESET) { /* cable unplugged */
+-			dp->core_initialized = false;
+-		}
+-	}
++	dp_display_usbpd_attention_cb(&dp->pdev->dev);
++
+ 	DRM_DEBUG_DP("hpd_state=%d\n", state);
+ 
+ 	mutex_unlock(&dp->event_mutex);
+@@ -916,12 +911,19 @@ static int dp_display_disable(struct dp_display_private *dp, u32 data)
+ 
+ 	dp_display->audio_enabled = false;
+ 
+-	/* triggered by irq_hpd with sink_count = 0 */
+ 	if (dp->link->sink_count == 0) {
++		/*
++		 * irq_hpd with sink_count = 0
++		 * hdmi unplugged out of dongle
++		 */
+ 		dp_ctrl_off_link_stream(dp->ctrl);
+ 	} else {
++		/*
++		 * unplugged interrupt
++		 * dongle unplugged out of DUT
++		 */
+ 		dp_ctrl_off(dp->ctrl);
+-		dp->core_initialized = false;
++		dp_display_host_phy_exit(dp);
+ 	}
+ 
+ 	dp_display->power_on = false;
+@@ -1051,7 +1053,7 @@ void msm_dp_snapshot(struct msm_disp_state *disp_state, struct msm_dp *dp)
+ static void dp_display_config_hpd(struct dp_display_private *dp)
+ {
+ 
+-	dp_display_host_init(dp, true);
++	dp_display_host_init(dp);
+ 	dp_catalog_ctrl_hpd_config(dp->catalog);
+ 
+ 	/* Enable interrupt first time
+@@ -1318,20 +1320,23 @@ static int dp_pm_resume(struct device *dev)
+ 	dp->hpd_state = ST_DISCONNECTED;
+ 
+ 	/* turn on dp ctrl/phy */
+-	dp_display_host_init(dp, true);
++	dp_display_host_init(dp);
+ 
+ 	dp_catalog_ctrl_hpd_config(dp->catalog);
+ 
+-	/*
+-	 * set sink to normal operation mode -- D0
+-	 * before dpcd read
+-	 */
+-	dp_link_psm_config(dp->link, &dp->panel->link_info, false);
+ 
+ 	if (dp_catalog_link_is_connected(dp->catalog)) {
++		/*
++		 * set sink to normal operation mode -- D0
++		 * before dpcd read
++		 */
++		dp_display_host_phy_init(dp);
++		dp_link_psm_config(dp->link, &dp->panel->link_info, false);
+ 		sink_count = drm_dp_read_sink_count(dp->aux);
+ 		if (sink_count < 0)
+ 			sink_count = 0;
++
++		dp_display_host_phy_exit(dp);
+ 	}
+ 
+ 	dp->link->sink_count = sink_count;
+@@ -1370,18 +1375,16 @@ static int dp_pm_suspend(struct device *dev)
+ 	DRM_DEBUG_DP("Before, core_inited=%d power_on=%d\n",
+ 			dp->core_initialized, dp_display->power_on);
+ 
+-	if (dp->core_initialized == true) {
+-		/* mainlink enabled */
+-		if (dp_power_clk_status(dp->power, DP_CTRL_PM))
+-			dp_ctrl_off_link_stream(dp->ctrl);
++	/* mainlink enabled */
++	if (dp_power_clk_status(dp->power, DP_CTRL_PM))
++		dp_ctrl_off_link_stream(dp->ctrl);
+ 
+-		dp_display_host_deinit(dp);
+-	}
+-
+-	dp->hpd_state = ST_SUSPENDED;
++	dp_display_host_phy_exit(dp);
+ 
+ 	/* host_init will be called at pm_resume */
+-	dp->core_initialized = false;
++	dp_display_host_deinit(dp);
++
++	dp->hpd_state = ST_SUSPENDED;
+ 
+ 	DRM_DEBUG_DP("After, core_inited=%d power_on=%d\n",
+ 			dp->core_initialized, dp_display->power_on);
+@@ -1538,7 +1541,7 @@ int msm_dp_display_enable(struct msm_dp *dp, struct drm_encoder *encoder)
+ 	state =  dp_display->hpd_state;
+ 
+ 	if (state == ST_DISPLAY_OFF)
+-		dp_display_host_init(dp_display, true);
++		dp_display_host_phy_init(dp_display);
+ 
+ 	dp_display_enable(dp_display, 0);
+ 
 -- 
 2.35.1
 
