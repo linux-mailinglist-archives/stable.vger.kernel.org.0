@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B95B755C76F
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:54:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC8BE55D201
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:10:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237802AbiF0VD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 17:03:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48580 "EHLO
+        id S239082AbiF0VLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 17:11:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239552AbiF0VD2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 17:03:28 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DAC895A4
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 14:03:26 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id 73-20020a17090a0fcf00b001eaee69f600so10608915pjz.1
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 14:03:26 -0700 (PDT)
+        with ESMTP id S238965AbiF0VLE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 17:11:04 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 315CADED7
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 14:11:02 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id b12-20020a17090a6acc00b001ec2b181c98so13734552pjm.4
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 14:11:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=RCClBMqNtSjfqRa4F4tKPBtaqyL5gqOX8a9JJCtJmoU=;
-        b=FhYLq2tcukZz+iJAlg1XeaoBSfvtK9H1CXEUy6J0MaKxTVVXYpSo+hQWX2RlQM/HS7
-         NcQ/aABVmEGNUuaAvYxBCTDTINBwXo30Q6ojBiOzXHy552ZWwwYZO9LZvDo3PN67njSs
-         2gJvOYJTEXKOpMojlRPgzu/a9BRPyTNvXPWAHB65JllMIkvrW9wLD8dKDimpRzrL2p+C
-         8aa/Ldf1Nbw/EYXaHf2zt2nocsNcJPb7nPrTDXdTXZgiMU0amXe/hTB9akiyLENgM+xD
-         7b4V2HLOlrPDPTYejb5uuCAS9nMVDpCvY18wdNEzY10Pf5j4ECUBdvZ9DLpiTpMo8fWU
-         h1Fw==
+        bh=2EqHf9r6InQJoxNSL3DjvEmoBDuBsTI+j86oWtzDtlU=;
+        b=fG588mSNUqMxsQG7010fjIAoK2JfshhBxXH+qaWEIMeVQso7AJwMVLi+1QD1eGex1r
+         auqoLUrPh6fM41DoVSnOZkeC9YOUBY9bHNZu7TzDAP8Cqmgy9v14Kf/nNaexvZ0ojLqS
+         8S6CFdsBoPcR8lAFkMBJV3cXjMO6hS8oniiQz4sKqsNjbYnbRMUTcuOx0LPvufa8Jjhb
+         CDoUGEPZGyu4yOXh+c81PtjWAuU0Mz+M0b+Cy5f1uN/K2OFtT0ROfhJk2TOXY5oehgFU
+         gtT+SKLlbwSb9vKQ0hagGNA8au3u8t0DoqKpGBu/Ogh0Fu1u6NjQRM1ycqrqYB6vF4Vt
+         oAKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=RCClBMqNtSjfqRa4F4tKPBtaqyL5gqOX8a9JJCtJmoU=;
-        b=VJU8TNNGBW2esLMBcsWuQRERpVj8MBHN8YUocRiYxf7gAQebmfZ0nleuYYd3OiaVwS
-         lQ8Xv1yVt1gBC+FQkLL7uYTBt09KHgehHBmm9o1ccMcUjVTc8IrLGY3d9GPsksMJMZpn
-         QsovK9KjN7psvIiEKXvTzYD4nIjiA8HDFTWXM11SrlgaxM8YzLOtDP2E+9F2jvaKSHod
-         I/o1x3flnVba/FY1b0HapEgdkqrDWHmdfQCpmWZP0WKPO8OjFr4Kd8Z61DDSb94As40p
-         3/dD5h4635e4manhScb9G+oZb9Bt8FQ0Sr9TbV8yJ2sIcaYS/luPfzlUrfqgxiyxV5xw
-         GGeg==
-X-Gm-Message-State: AJIora/aQWJelylkW+vIH4S1xp7AVFCeA6CQnhwjkxSN06tNNZg4+kyS
-        hvmAAc8/zicG4vf/h5cyXOnxqdkh7GKgquWB
-X-Google-Smtp-Source: AGRyM1s2N33gOiX31+qWwndW42MzgQax9/KWjxl6QG3OrT1j3iMQGZW3LveFL6g/rGyH0ZnDnL45zg==
-X-Received: by 2002:a17:902:e746:b0:16a:4515:b2d9 with SMTP id p6-20020a170902e74600b0016a4515b2d9mr1371365plf.116.1656363804824;
-        Mon, 27 Jun 2022 14:03:24 -0700 (PDT)
+        bh=2EqHf9r6InQJoxNSL3DjvEmoBDuBsTI+j86oWtzDtlU=;
+        b=reyhHbhmtS/Xf5CrhNDdXMHZRCiTK/YjoQAZlswHkclx3U2/O6h+wS/IbtgeoDluS3
+         UsrO37fm+Rxh0a32PUFT7aOLuUwMCEayobS+pmsx8ZNqPIrC4IVlWDacdXN1zwibnwKx
+         jFkY1wUZQ/Gfdfhb7ZhP9QkmDpuDp3o5b0+A8g9EJmbjh9CF7UQ9o2VhKl3MkbEjw4uZ
+         02uDIYZAnfu66lnkl8Nt1olKgDPt+eiB/vVcF3J3Gu9zNimjfZGOisUQrUYYwuv+mX1I
+         0YY50nLs4dDeYs8r8lQxc7kf/tSW7Hzr8eFXx+RvkRwk1IyFlQqJvrt4OOGfYHoSW2QE
+         9Oiw==
+X-Gm-Message-State: AJIora/St1SD42fGF27q2mijLGeWS62DkTtOzea5DNTE0z3zIsz7/ykl
+        VZGv7CQL3StYnpzXjSkOWCa63aNn607J7e56
+X-Google-Smtp-Source: AGRyM1tsbucW+W+rvDK7lADZSvFyZrCH5Gn0eMx+9YPsydnrf2tjXjA06g6XoNSGt9op0NnOTTMkqA==
+X-Received: by 2002:a17:902:d405:b0:16a:131f:c54a with SMTP id b5-20020a170902d40500b0016a131fc54amr1478856ple.38.1656364261074;
+        Mon, 27 Jun 2022 14:11:01 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x9-20020a170902820900b0016a11e839fcsm7660285pln.208.2022.06.27.14.03.24
+        by smtp.gmail.com with ESMTPSA id b2-20020a17090a12c200b001e2ebcce5d5sm7717529pjg.37.2022.06.27.14.10.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jun 2022 14:03:24 -0700 (PDT)
-Message-ID: <62ba1b1c.1c69fb81.11720.aa4d@mx.google.com>
-Date:   Mon, 27 Jun 2022 14:03:24 -0700 (PDT)
+        Mon, 27 Jun 2022 14:11:00 -0700 (PDT)
+Message-ID: <62ba1ce4.1c69fb81.3df53.a8d1@mx.google.com>
+Date:   Mon, 27 Jun 2022 14:11:00 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.14.285-31-g64191b0a4229
-X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v5.10.125-104-g54e72231ad62
+X-Kernelci-Branch: queue/5.10
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y build: 196 builds: 3 failed, 193 passed,
- 2 errors, 32 warnings (v4.14.285-31-g64191b0a4229)
+Subject: stable-rc/queue/5.10 build: 155 builds: 2 failed, 153 passed,
+ 8 warnings (v5.10.125-104-g54e72231ad62)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,90 +70,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y build: 196 builds: 3 failed, 193 passed, 2 errors, 3=
-2 warnings (v4.14.285-31-g64191b0a4229)
+stable-rc/queue/5.10 build: 155 builds: 2 failed, 153 passed, 8 warnings (v=
+5.10.125-104-g54e72231ad62)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.285-31-g64191b0a4229/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+0/kernel/v5.10.125-104-g54e72231ad62/
 
 Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.285-31-g64191b0a4229
-Git Commit: 64191b0a42297b14208f28ab6ad7946c471e670d
+Branch: queue/5.10
+Git Describe: v5.10.125-104-g54e72231ad62
+Git Commit: 54e72231ad62e8720c3e8f61bbf2a83ccfe19546
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 6 unique architectures
+Built: 7 unique architectures
 
 Build Failures Detected:
-
-arm:
-    rpc_defconfig: (gcc-10) FAIL
 
 mips:
     ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
 
-Errors and Warnings Detected:
+Warnings Detected:
 
 arc:
 
 arm64:
 
 arm:
-    mini2440_defconfig (gcc-10): 1 warning
-    omap1_defconfig (gcc-10): 1 warning
-    rpc_defconfig (gcc-10): 2 errors
-    s3c2410_defconfig (gcc-10): 1 warning
 
 i386:
-    allnoconfig (gcc-10): 3 warnings
-    i386_defconfig (gcc-10): 3 warnings
-    tinyconfig (gcc-10): 3 warnings
 
 mips:
-    malta_qemu_32r6_defconfig (gcc-10): 1 warning
-    mtx1_defconfig (gcc-10): 3 warnings
+    decstation_64_defconfig (gcc-10): 1 warning
+    decstation_defconfig (gcc-10): 1 warning
+    lemote2f_defconfig (gcc-10): 1 warning
+    rm200_defconfig (gcc-10): 1 warning
+
+riscv:
+    rv32_defconfig (gcc-10): 4 warnings
 
 x86_64:
-    allnoconfig (gcc-10): 4 warnings
-    tinyconfig (gcc-10): 4 warnings
-    x86_64_defconfig (gcc-10): 4 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 4 warnings
 
-Errors summary:
-
-    1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
-    1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
-h=3D=E2=80=99
 
 Warnings summary:
 
-    7    ld: warning: creating DT_TEXTREL in a PIE
-    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
-d-only section `.head.text'
-    4    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic s=
-uffix given and no register operands; using default for `sysret'
-    4    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
-' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
-d-only section `.head.text'
-    3    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
-    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    drivers/tty/serial/samsung.c:1791:34: warning: array =E2=80=98s3c2=
-4xx_uart_dt_match=E2=80=99 assumed to have one element
-    1    {standard input}:30: Warning: macro instruction expanded into mult=
-iple instructions
-    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpi=
-o_match=E2=80=99 assumed to have one element
+    2    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_g=
+p_kthread=E2=80=99 defined but not used [-Wunused-function]
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+    1    net/mac80211/mlme.c:4349:1: warning: the frame size of 1040 bytes =
+is larger than 1024 bytes [-Wframe-larger-than=3D]
+    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
 
 Section mismatches summary:
 
-    29   WARNING: modpost: Found 1 section mismatch(es).
-    3    WARNING: modpost: Found 2 section mismatch(es).
+    26   WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0):=
+ Section mismatch in reference from the variable __ksymtab_drm_fb_helper_mo=
+dinit to the function .init.text:drm_fb_helper_modinit()
+    5    WARNING: modpost: drivers/gpu/drm/drm_kms_helper.o(___ksymtab+drm_=
+fb_helper_modinit+0x0): Section mismatch in reference from the variable __k=
+symtab_drm_fb_helper_modinit to the function .init.text:drm_fb_helper_modin=
+it()
+    1    WARNING: modpost: vmlinux.o(___ksymtab_gpl+tick_nohz_full_setup+0x=
+0): Section mismatch in reference from the variable __ksymtab_tick_nohz_ful=
+l_setup to the function .init.text:tick_nohz_full_setup()
+    1    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_timer_setup+0x0)=
+: Section mismatch in reference from the variable __ksymtab_ixp4xx_timer_se=
+tup to the function .init.text:ixp4xx_timer_setup()
+    1    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): S=
+ection mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to=
+ the function .init.text:ixp4xx_irq_init()
+    1    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0):=
+ Section mismatch in reference from the variable __ksymtab_prom_init_numa_m=
+emory to the function .init.text:prom_init_numa_memory()
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -164,59 +155,13 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
-mismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
-n mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
 allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
 -----
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -244,16 +189,13 @@ at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
 ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -272,7 +214,9 @@ axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: drivers/gpu/drm/drm_kms_helper.o(___ksymtab+drm_fb_he=
+lper_modinit+0x0): Section mismatch in reference from the variable __ksymta=
+b_drm_fb_helper_modinit to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -285,7 +229,9 @@ bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -319,28 +265,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
 ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -369,11 +295,13 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -382,8 +310,31 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
+ 0 section mismatches
+
+Warnings:
+    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -391,8 +342,9 @@ defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 Section mismatches:
-    WARNING: modpost: Found 2 section mismatch(es).
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: drivers/gpu/drm/drm_kms_helper.o(___ksymtab+drm_fb_he=
+lper_modinit+0x0): Section mismatch in reference from the variable __ksymta=
+b_drm_fb_helper_modinit to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -400,8 +352,9 @@ defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
 ings, 0 section mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 2 section mismatch(es).
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: drivers/gpu/drm/drm_kms_helper.o(___ksymtab+drm_fb_he=
+lper_modinit+0x0): Section mismatch in reference from the variable __ksymta=
+b_drm_fb_helper_modinit to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -425,21 +378,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
 ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -447,7 +387,9 @@ exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -463,6 +405,16 @@ section mismatches
 -----
 fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -511,23 +463,13 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
-Warnings:
-    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -540,7 +482,9 @@ imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -548,21 +492,13 @@ integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
 iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -582,13 +518,16 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
 ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Sectio=
+n mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to the =
+function .init.text:ixp4xx_irq_init()
+    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_timer_setup+0x0): Sec=
+tion mismatch in reference from the variable __ksymtab_ixp4xx_timer_setup t=
+o the function .init.text:ixp4xx_timer_setup()
 
 ---------------------------------------------------------------------------=
 -----
@@ -602,18 +541,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
 keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -622,13 +551,12 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
 
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+Warnings:
+    net/mac80211/mlme.c:4349:1: warning: the frame size of 1040 bytes is la=
+rger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -646,7 +574,12 @@ loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_prom_init_numa_memory=
+ to the function .init.text:prom_init_numa_memory()
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -658,10 +591,10 @@ tion mismatches
 lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -680,11 +613,6 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
 malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
@@ -695,21 +623,7 @@ gs, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
-g, 0 section mismatches
-
-Warnings:
-    {standard input}:30: Warning: macro instruction expanded into multiple =
-instructions
-
----------------------------------------------------------------------------=
------
 maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 ---------------------------------------------------------------------------=
@@ -729,27 +643,13 @@ maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
-markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/tty/serial/samsung.c:1791:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -768,21 +668,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
-Warnings:
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
 
 ---------------------------------------------------------------------------=
 -----
@@ -795,7 +682,9 @@ multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 2 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -803,7 +692,9 @@ multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -820,31 +711,15 @@ ction mismatches
 mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
 netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -858,13 +733,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -872,44 +742,19 @@ nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpio_mat=
-ch=E2=80=99 assumed to have one element
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
 omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
+
+Section mismatches:
+    WARNING: modpost: drivers/gpu/drm/drm_kms_helper.o(___ksymtab+drm_fb_he=
+lper_modinit+0x0): Section mismatch in reference from the variable __ksymta=
+b_drm_fb_helper_modinit to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -920,6 +765,11 @@ ction mismatches
 -----
 orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -948,11 +798,6 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
 prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -963,17 +808,7 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
 pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -982,22 +817,29 @@ pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: drivers/gpu/drm/drm_kms_helper.o(___ksymtab+drm_fb_he=
+lper_modinit+0x0): Section mismatch in reference from the variable __ksymta=
+b_drm_fb_helper_modinit to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
 qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
+
 ---------------------------------------------------------------------------=
 -----
 qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1014,20 +856,26 @@ ection mismatches
 realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab_gpl+tick_nohz_full_setup+0x0): S=
+ection mismatch in reference from the variable __ksymtab_tick_nohz_full_set=
+up to the function .init.text:tick_nohz_full_setup()
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
-rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
- mismatches
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
 
-Errors:
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
-    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
-=E2=80=99
+Warnings:
+    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1036,20 +884,26 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sect=
 ion mismatches
 
 Warnings:
-    drivers/tty/serial/samsung.c:1791:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
 s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1057,7 +911,9 @@ s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1065,7 +921,9 @@ sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1099,19 +957,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
 spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1129,7 +976,9 @@ sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1162,12 +1011,9 @@ tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1176,29 +1022,8 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -1210,13 +1035,15 @@ ction mismatches
 u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
 u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1230,16 +1057,18 @@ vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
-vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1263,37 +1092,23 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-4 warnings, 0 section mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+0 warnings, 0 section mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: modpost: vmlinux.o(___ksymtab+drm_fb_helper_modinit+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_drm_fb_helper_modinit=
+ to the function .init.text:drm_fb_helper_modinit()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1302,18 +1117,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
 zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
 
 ---
 For more info write to <info@kernelci.org>
