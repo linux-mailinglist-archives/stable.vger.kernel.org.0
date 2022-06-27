@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CC9A55DEE7
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:29:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5014E55DEA7
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:29:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235239AbiF0L3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:29:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45482 "EHLO
+        id S238897AbiF0LyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:54:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235242AbiF0L2s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:28:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B41876587;
-        Mon, 27 Jun 2022 04:27:27 -0700 (PDT)
+        with ESMTP id S238891AbiF0Lwr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC8DDF06;
+        Mon, 27 Jun 2022 04:46:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24796B81123;
-        Mon, 27 Jun 2022 11:27:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5825BC341C8;
-        Mon, 27 Jun 2022 11:27:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE7B461187;
+        Mon, 27 Jun 2022 11:46:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC150C3411D;
+        Mon, 27 Jun 2022 11:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329244;
-        bh=lkdp9TG2/+HjYn1m8Nr4MRQIkow3L5qBfoi9/2E0Trc=;
+        s=korg; t=1656330379;
+        bh=OwvYnA7/5qDWKQi4sdQeQUk53ntcR+7QQfQTeKfoTB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sO2jvOmaDBnEPtHCa9NqK2jLz7uvuzbAB3MrahEQ3Vsq94qagI2YxdR/6DRv4vIbH
-         zpmgSf7y65JTfoA5OoV3F3laToYcVW2DivUR4lpdRKoDFgWyFiZiBZCrvVOD9OuXeK
-         GrdvPml4hDpjUyMa5ixboAKpKWbJ+I7wUKxX5YyU=
+        b=tqCyvx+zDGL79oGGty5h1P+klZmdDjGlur0TtU3rnAaklnj0FxgKyh6uFz+CnyWIh
+         mDXgbLxui2vvskxhy3o/a1KOgqBQVmIhZ683zbEYU4LOeFTNdsEwNzcrFfOLVAkS3Q
+         MotRNzYOG2Z/behMEaJCbKE7ip5xLB4dyuEGYF4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.10 099/102] modpost: fix section mismatch check for exported init/exit sections
-Date:   Mon, 27 Jun 2022 13:21:50 +0200
-Message-Id: <20220627111936.402838961@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Lars-Peter Clausen <lars@metafoo.de>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.18 138/181] iio: trigger: sysfs: fix use-after-free on remove
+Date:   Mon, 27 Jun 2022 13:21:51 +0200
+Message-Id: <20220627111948.689074422@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-commit 28438794aba47a27e922857d27b31b74e8559143 upstream.
+commit 78601726d4a59a291acc5a52da1d3a0a6831e4e8 upstream.
 
-Since commit f02e8a6596b7 ("module: Sort exported symbols"),
-EXPORT_SYMBOL* is placed in the individual section ___ksymtab(_gpl)+<sym>
-(3 leading underscores instead of 2).
+Ensure that the irq_work has completed before the trigger is freed.
 
-Since then, modpost cannot detect the bad combination of EXPORT_SYMBOL
-and __init/__exit.
+ ==================================================================
+ BUG: KASAN: use-after-free in irq_work_run_list
+ Read of size 8 at addr 0000000064702248 by task python3/25
 
-Fix the .fromsec field.
+ Call Trace:
+  irq_work_run_list
+  irq_work_tick
+  update_process_times
+  tick_sched_handle
+  tick_sched_timer
+  __hrtimer_run_queues
+  hrtimer_interrupt
 
-Fixes: f02e8a6596b7 ("module: Sort exported symbols")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+ Allocated by task 25:
+  kmem_cache_alloc_trace
+  iio_sysfs_trig_add
+  dev_attr_store
+  sysfs_kf_write
+  kernfs_fop_write_iter
+  new_sync_write
+  vfs_write
+  ksys_write
+  sys_write
+
+ Freed by task 25:
+  kfree
+  iio_sysfs_trig_remove
+  dev_attr_store
+  sysfs_kf_write
+  kernfs_fop_write_iter
+  new_sync_write
+  vfs_write
+  ksys_write
+  sys_write
+
+ ==================================================================
+
+Fixes: f38bc926d022 ("staging:iio:sysfs-trigger: Use irq_work to properly active trigger")
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20220519091925.1053897-1-vincent.whitchurch@axis.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/mod/modpost.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/trigger/iio-trig-sysfs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -1119,7 +1119,7 @@ static const struct sectioncheck section
- },
- /* Do not export init/exit functions or data */
- {
--	.fromsec = { "__ksymtab*", NULL },
-+	.fromsec = { "___ksymtab*", NULL },
- 	.bad_tosec = { INIT_SECTIONS, EXIT_SECTIONS, NULL },
- 	.mismatch = EXPORT_TO_INIT_EXIT,
- 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
+--- a/drivers/iio/trigger/iio-trig-sysfs.c
++++ b/drivers/iio/trigger/iio-trig-sysfs.c
+@@ -191,6 +191,7 @@ static int iio_sysfs_trigger_remove(int
+ 	}
+ 
+ 	iio_trigger_unregister(t->trig);
++	irq_work_sync(&t->work);
+ 	iio_trigger_free(t->trig);
+ 
+ 	list_del(&t->l);
 
 
