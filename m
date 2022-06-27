@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70BB955C89D
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:55:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76B9D55E105
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:33:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238725AbiF0Lxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54154 "EHLO
+        id S238851AbiF0Lx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:53:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238853AbiF0Lwn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:43 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80AA6BC0F;
-        Mon, 27 Jun 2022 04:46:01 -0700 (PDT)
+        with ESMTP id S238860AbiF0Lwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BE38DED6;
+        Mon, 27 Jun 2022 04:46:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EDD29CE171B;
-        Mon, 27 Jun 2022 11:45:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1192DC36AED;
-        Mon, 27 Jun 2022 11:45:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FD0461187;
+        Mon, 27 Jun 2022 11:46:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BDDBC3411D;
+        Mon, 27 Jun 2022 11:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330358;
-        bh=nNhet8or/hoY+pxRtadru407botWQgZVpH0oUBA5Dhg=;
+        s=korg; t=1656330364;
+        bh=fjO+gy8E13zpEMADm2t3CoBV0cHGMWdxR1twvteRKVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0rbIIPoelFS5iEJ66OCs/BvGd3nRDxFke8xgRTRC/lIji0hLKDkEBkfLd5W/GOTy
-         0WyGM+xUyQYFGmG0qm59DhWNqbP/yPeMzs5etESg+DuAPJtcC4ZJv1Na+fbYwjqCwS
-         K8kJmywigJ8oPleP0zzCbcXhjzXZQCd/1Ly5/zKs=
+        b=0K8q1l0UGZeMC1pbacQUzyTiJhu9ApLg0yZLkehrNgV46S5Ocjn6gp4ZVroZBfHUQ
+         MHihUnnuOzUyXOJUYZY1hTfgjwlpT262d3lDdRWzADYH7hRVhrtC0mBaRFC5CzJJFS
+         04YsL0xAFbW+ji1COC+TE42i31CxBy6Mc5SomfFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 5.18 170/181] memory: mtk-smi: add missing put_device() call in mtk_smi_device_link_common
-Date:   Mon, 27 Jun 2022 13:22:23 +0200
-Message-Id: <20220627111949.615555228@linuxfoundation.org>
+Subject: [PATCH 5.18 171/181] memory: samsung: exynos5422-dmc: Fix refcount leak in of_get_dram_timings
+Date:   Mon, 27 Jun 2022 13:22:24 +0200
+Message-Id: <20220627111949.644119087@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -55,45 +56,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 038ae37c510fd57cbc543ac82db1e7b23b28557a upstream.
+commit 1332661e09304b7b8e84e5edc11811ba08d12abe upstream.
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the error handling paths.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+This function doesn't call of_node_put() in some error paths.
+To unify the structure, Add put_node label and goto it on errors.
 
-Fixes: 47404757702e ("memory: mtk-smi: Add device link for smi-sub-common")
+Fixes: 6e7674c3c6df ("memory: Add DMC driver for Exynos5422")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220601120118.60225-1-linmq006@gmail.com
+Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
+Link: https://lore.kernel.org/r/20220602041721.64348-1-linmq006@gmail.com
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/memory/mtk-smi.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/memory/samsung/exynos5422-dmc.c |   29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/memory/mtk-smi.c b/drivers/memory/mtk-smi.c
-index 86a3d34f418e..4c5154e0bf00 100644
---- a/drivers/memory/mtk-smi.c
-+++ b/drivers/memory/mtk-smi.c
-@@ -404,13 +404,16 @@ static int mtk_smi_device_link_common(struct device *dev, struct device **com_de
- 	of_node_put(smi_com_node);
- 	if (smi_com_pdev) {
- 		/* smi common is the supplier, Make sure it is ready before */
--		if (!platform_get_drvdata(smi_com_pdev))
-+		if (!platform_get_drvdata(smi_com_pdev)) {
-+			put_device(&smi_com_pdev->dev);
- 			return -EPROBE_DEFER;
-+		}
- 		smi_com_dev = &smi_com_pdev->dev;
- 		link = device_link_add(dev, smi_com_dev,
- 				       DL_FLAG_PM_RUNTIME | DL_FLAG_STATELESS);
- 		if (!link) {
- 			dev_err(dev, "Unable to link smi-common dev\n");
-+			put_device(&smi_com_pdev->dev);
- 			return -ENODEV;
- 		}
- 		*com_dev = smi_com_dev;
--- 
-2.36.1
-
+--- a/drivers/memory/samsung/exynos5422-dmc.c
++++ b/drivers/memory/samsung/exynos5422-dmc.c
+@@ -1187,33 +1187,39 @@ static int of_get_dram_timings(struct ex
+ 
+ 	dmc->timing_row = devm_kmalloc_array(dmc->dev, TIMING_COUNT,
+ 					     sizeof(u32), GFP_KERNEL);
+-	if (!dmc->timing_row)
+-		return -ENOMEM;
++	if (!dmc->timing_row) {
++		ret = -ENOMEM;
++		goto put_node;
++	}
+ 
+ 	dmc->timing_data = devm_kmalloc_array(dmc->dev, TIMING_COUNT,
+ 					      sizeof(u32), GFP_KERNEL);
+-	if (!dmc->timing_data)
+-		return -ENOMEM;
++	if (!dmc->timing_data) {
++		ret = -ENOMEM;
++		goto put_node;
++	}
+ 
+ 	dmc->timing_power = devm_kmalloc_array(dmc->dev, TIMING_COUNT,
+ 					       sizeof(u32), GFP_KERNEL);
+-	if (!dmc->timing_power)
+-		return -ENOMEM;
++	if (!dmc->timing_power) {
++		ret = -ENOMEM;
++		goto put_node;
++	}
+ 
+ 	dmc->timings = of_lpddr3_get_ddr_timings(np_ddr, dmc->dev,
+ 						 DDR_TYPE_LPDDR3,
+ 						 &dmc->timings_arr_size);
+ 	if (!dmc->timings) {
+-		of_node_put(np_ddr);
+ 		dev_warn(dmc->dev, "could not get timings from DT\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_node;
+ 	}
+ 
+ 	dmc->min_tck = of_lpddr3_get_min_tck(np_ddr, dmc->dev);
+ 	if (!dmc->min_tck) {
+-		of_node_put(np_ddr);
+ 		dev_warn(dmc->dev, "could not get tck from DT\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_node;
+ 	}
+ 
+ 	/* Sorted array of OPPs with frequency ascending */
+@@ -1227,13 +1233,14 @@ static int of_get_dram_timings(struct ex
+ 					     clk_period_ps);
+ 	}
+ 
+-	of_node_put(np_ddr);
+ 
+ 	/* Take the highest frequency's timings as 'bypass' */
+ 	dmc->bypass_timing_row = dmc->timing_row[idx - 1];
+ 	dmc->bypass_timing_data = dmc->timing_data[idx - 1];
+ 	dmc->bypass_timing_power = dmc->timing_power[idx - 1];
+ 
++put_node:
++	of_node_put(np_ddr);
+ 	return ret;
+ }
+ 
 
 
