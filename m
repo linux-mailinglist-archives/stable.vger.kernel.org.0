@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5652E55D990
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:21:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF9355C9F5
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:57:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235001AbiF0LZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:25:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45344 "EHLO
+        id S236515AbiF0Lih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234832AbiF0LZQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:25:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21EBC65C1;
-        Mon, 27 Jun 2022 04:25:08 -0700 (PDT)
+        with ESMTP id S236498AbiF0Lhf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40993290;
+        Mon, 27 Jun 2022 04:33:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9068661497;
-        Mon, 27 Jun 2022 11:25:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB76C341D3;
-        Mon, 27 Jun 2022 11:25:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0268FB81117;
+        Mon, 27 Jun 2022 11:33:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 579CBC3411D;
+        Mon, 27 Jun 2022 11:33:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329107;
-        bh=8MbN9/l8r4l07VQsymiCOiUg9CkoZNTexzO2dpr8eNA=;
+        s=korg; t=1656329615;
+        bh=a5OrQc6zCfZOOPj7beO3LYZfOp0JdsRpSNA96LCPC8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tQH9WABqyGJLNUMveD1Ci4WkzrMNVkTbb/6IxFG85mPTdR/7UqshXJTHFI5dSKJyH
-         yojuV+UpHvL4qWFCSCvt8aDIpTMTKJpFE3qg4soQxWdK7+iirevYViSsGer0xG9LyG
-         HhZ/AVa7vXgVuXF9egupMww4pCfO+9mITNE0Wz/I=
+        b=Wt9btUnkCoELC8YOIhrnofviKiWYqt+C3NZFkiYbOgXLVcE7eToIPauzWO0EmgyXF
+         z/44NmDLHjJVpwDGyvO14Kr5hR7LKVGE7wKX/lLdUD6szmghQrV38s2HPzqCfNfP8V
+         Lp8LZYJgjE/1OZi34h4oYjPqGdLYRNWAIJBwnk5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 053/102] Revert "net/tls: fix tls_sk_proto_close executed repeatedly"
+Subject: [PATCH 5.15 057/135] drm/msm/dp: dp_link_parse_sink_count() return immediately if aux read failed
 Date:   Mon, 27 Jun 2022 13:21:04 +0200
-Message-Id: <20220627111935.046120109@linuxfoundation.org>
+Message-Id: <20220627111939.812819579@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit 1b205d948fbb06a7613d87dcea0ff5fd8a08ed91 ]
+[ Upstream commit f61550b3864b9578527c28cf9c465316ac1566e1 ]
 
-This reverts commit 69135c572d1f84261a6de2a1268513a7e71753e2.
+Add checking aux read/write status at both dp_link_parse_sink_count()
+and dp_link_parse_sink_status_filed() to avoid long timeout delay if
+dp aux read/write failed at timeout due to cable unplugged.
 
-This commit was just papering over the issue, ULP should not
-get ->update() called with its own sk_prot. Each ULP would
-need to add this check.
+Changes in V4:
+-- split this patch as stand alone patch
 
-Fixes: 69135c572d1f ("net/tls: fix tls_sk_proto_close executed repeatedly")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/20220620191353.1184629-1-kuba@kernel.org
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Changes in v5:
+-- rebase on msm-next branch
+
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Tested-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1638985262-2072-1-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_main.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_display.c | 12 +++++++++---
+ drivers/gpu/drm/msm/dp/dp_link.c    | 19 ++++++++++++++-----
+ 2 files changed, 23 insertions(+), 8 deletions(-)
 
-diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
-index 9492528f5852..58d22d6b86ae 100644
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -787,9 +787,6 @@ static void tls_update(struct sock *sk, struct proto *p,
- {
- 	struct tls_context *ctx;
+diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
+index a66ee63253a3..32b8dbb917bf 100644
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -712,9 +712,15 @@ static int dp_irq_hpd_handle(struct dp_display_private *dp, u32 data)
+ 		return 0;
+ 	}
  
--	if (sk->sk_prot == p)
--		return;
--
- 	ctx = tls_get_ctx(sk);
- 	if (likely(ctx)) {
- 		ctx->sk_write_space = write_space;
+-	ret = dp_display_usbpd_attention_cb(&dp->pdev->dev);
+-	if (ret == -ECONNRESET) { /* cable unplugged */
+-		dp->core_initialized = false;
++	/*
++	 * dp core (ahb/aux clks) must be initialized before
++	 * irq_hpd be handled
++	 */
++	if (dp->core_initialized) {
++		ret = dp_display_usbpd_attention_cb(&dp->pdev->dev);
++		if (ret == -ECONNRESET) { /* cable unplugged */
++			dp->core_initialized = false;
++		}
+ 	}
+ 	DRM_DEBUG_DP("hpd_state=%d\n", state);
+ 
+diff --git a/drivers/gpu/drm/msm/dp/dp_link.c b/drivers/gpu/drm/msm/dp/dp_link.c
+index a5bdfc5029de..d4d31e5bda07 100644
+--- a/drivers/gpu/drm/msm/dp/dp_link.c
++++ b/drivers/gpu/drm/msm/dp/dp_link.c
+@@ -737,18 +737,25 @@ static int dp_link_parse_sink_count(struct dp_link *dp_link)
+ 	return 0;
+ }
+ 
+-static void dp_link_parse_sink_status_field(struct dp_link_private *link)
++static int dp_link_parse_sink_status_field(struct dp_link_private *link)
+ {
+ 	int len = 0;
+ 
+ 	link->prev_sink_count = link->dp_link.sink_count;
+-	dp_link_parse_sink_count(&link->dp_link);
++	len = dp_link_parse_sink_count(&link->dp_link);
++	if (len < 0) {
++		DRM_ERROR("DP parse sink count failed\n");
++		return len;
++	}
+ 
+ 	len = drm_dp_dpcd_read_link_status(link->aux,
+ 		link->link_status);
+-	if (len < DP_LINK_STATUS_SIZE)
++	if (len < DP_LINK_STATUS_SIZE) {
+ 		DRM_ERROR("DP link status read failed\n");
+-	dp_link_parse_request(link);
++		return len;
++	}
++
++	return dp_link_parse_request(link);
+ }
+ 
+ /**
+@@ -1023,7 +1030,9 @@ int dp_link_process_request(struct dp_link *dp_link)
+ 
+ 	dp_link_reset_data(link);
+ 
+-	dp_link_parse_sink_status_field(link);
++	ret = dp_link_parse_sink_status_field(link);
++	if (ret)
++		return ret;
+ 
+ 	if (link->request.test_requested == DP_TEST_LINK_EDID_READ) {
+ 		dp_link->sink_request |= DP_TEST_LINK_EDID_READ;
 -- 
 2.35.1
 
