@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 943DD55C185
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46D7055C2E5
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:47:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238827AbiF0Lxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56004 "EHLO
+        id S236494AbiF0LnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238898AbiF0Lws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F20DF0F;
-        Mon, 27 Jun 2022 04:46:22 -0700 (PDT)
+        with ESMTP id S237014AbiF0Ll1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:41:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED00CE2E;
+        Mon, 27 Jun 2022 04:35:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 869E261187;
-        Mon, 27 Jun 2022 11:46:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 997C5C3411D;
-        Mon, 27 Jun 2022 11:46:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B022E6109A;
+        Mon, 27 Jun 2022 11:35:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCCA0C3411D;
+        Mon, 27 Jun 2022 11:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330382;
-        bh=JI8q8nWm4Q7nBzEZmsr6UgIbIz5QfLN/iEi1FTJoC14=;
+        s=korg; t=1656329757;
+        bh=RmxleTHRx9eDngqkQmJd38Pc//gTKX73d1yQFgoNmmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PLVz4ZR9aLGSVqPDwg/ZQJcWJpBJMnuEb02XlRPGSG/2Tp3g24At7SDBychg/UfU2
-         A1seSsFs2t6B7JBfkK93snLAL9HmFnCM9d7t2Ji8y0QeRSvsW2pC/0fW26lHhgkBAH
-         O4wh/rTOO8eBmBybxC0sDUFdeIEiJWNSZPUgnpkM=
+        b=nVb2WoPLvRkF/+/uowenZcyDlmUfNQ8mxWJV+GnNMBqhER1GlGrVSV5FzfYaPZhOk
+         bt0hIpYeHUvPKs+p4xq6hRmwh30ileWVe2LarCxd+A8o45eGDv8MCsqgMzpTwjrAI5
+         9hbs1CH+4njdZsDXJUsEHavsTddBURARZ+9ReuRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Olivier Moysan <olivier.moysan@foss.st.com>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        Stable@vger.kernel.org,
+        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Peter Rosin <peda@axentia.se>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.18 139/181] iio: adc: stm32: fix maximum clock rate for stm32mp15x
+Subject: [PATCH 5.15 105/135] iio: afe: rescale: Fix boolean logic bug
 Date:   Mon, 27 Jun 2022 13:21:52 +0200
-Message-Id: <20220627111948.718532192@linuxfoundation.org>
+Message-Id: <20220627111941.202746905@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,34 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Moysan <olivier.moysan@foss.st.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 990539486e7e311fb5dab1bf4d85d1a8973ae644 upstream.
+commit 9decacd8b3a432316d61c4366f302e63384cb08d upstream.
 
-Change maximum STM32 ADC input clock rate to 36MHz, as specified
-in STM32MP15x datasheets.
+When introducing support for processed channels I needed
+to invert the expression:
 
-Fixes: d58c67d1d851 ("iio: adc: stm32-adc: add support for STM32MP1")
-Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
-Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20220609095234.375925-1-olivier.moysan@foss.st.com
-Cc: <Stable@vger.kernel.org>
+  if (!iio_channel_has_info(schan, IIO_CHAN_INFO_RAW) ||
+      !iio_channel_has_info(schan, IIO_CHAN_INFO_SCALE))
+        dev_err(dev, "source channel does not support raw/scale\n");
+
+To the inverse, meaning detect when we can usse raw+scale
+rather than when we can not. This was the result:
+
+  if (iio_channel_has_info(schan, IIO_CHAN_INFO_RAW) ||
+      iio_channel_has_info(schan, IIO_CHAN_INFO_SCALE))
+       dev_info(dev, "using raw+scale source channel\n");
+
+Ooops. Spot the error. Yep old George Boole came up and bit me.
+That should be an &&.
+
+The current code "mostly works" because we have not run into
+systems supporting only raw but not scale or only scale but not
+raw, and I doubt there are few using the rescaler on anything
+such, but let's fix the logic.
+
+Cc: Liam Beguin <liambeguin@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: 53ebee949980 ("iio: afe: iio-rescale: Support processed channels")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Liam Beguin <liambeguin@gmail.com>
+Acked-by: Peter Rosin <peda@axentia.se>
+Link: https://lore.kernel.org/r/20220524075448.140238-1-linus.walleij@linaro.org
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/stm32-adc-core.c |    2 +-
+ drivers/iio/afe/iio-rescale.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/adc/stm32-adc-core.c
-+++ b/drivers/iio/adc/stm32-adc-core.c
-@@ -805,7 +805,7 @@ static const struct stm32_adc_priv_cfg s
- static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
- 	.regs = &stm32h7_adc_common_regs,
- 	.clk_sel = stm32h7_adc_clk_sel,
--	.max_clk_rate_hz = 40000000,
-+	.max_clk_rate_hz = 36000000,
- 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
- 	.num_irqs = 2,
- };
+--- a/drivers/iio/afe/iio-rescale.c
++++ b/drivers/iio/afe/iio-rescale.c
+@@ -148,7 +148,7 @@ static int rescale_configure_channel(str
+ 	chan->ext_info = rescale->ext_info;
+ 	chan->type = rescale->cfg->type;
+ 
+-	if (iio_channel_has_info(schan, IIO_CHAN_INFO_RAW) ||
++	if (iio_channel_has_info(schan, IIO_CHAN_INFO_RAW) &&
+ 	    iio_channel_has_info(schan, IIO_CHAN_INFO_SCALE)) {
+ 		dev_info(dev, "using raw+scale source channel\n");
+ 	} else if (iio_channel_has_info(schan, IIO_CHAN_INFO_PROCESSED)) {
 
 
