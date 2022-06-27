@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B82EF55C9D6
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:57:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 403FE55E0D4
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:32:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238361AbiF0Lxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50044 "EHLO
+        id S235702AbiF0LeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:34:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238616AbiF0Lvv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:51:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 107DC959A;
-        Mon, 27 Jun 2022 04:44:50 -0700 (PDT)
+        with ESMTP id S236297AbiF0Lde (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4660DE85;
+        Mon, 27 Jun 2022 04:30:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A41BB612AC;
-        Mon, 27 Jun 2022 11:44:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB6C3C3411D;
-        Mon, 27 Jun 2022 11:44:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38D0F612D8;
+        Mon, 27 Jun 2022 11:30:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47DE0C3411D;
+        Mon, 27 Jun 2022 11:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330289;
-        bh=ScQpEIpxHjSqDrGr76uERJiMqoOSdBON+D/RKrJ4bQo=;
+        s=korg; t=1656329450;
+        bh=kkt3gAkpk4zSt5RnRBLPq4ddCp0djTQjV7HBZwGkRQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BJw7fyU1OLiNFT+7vPvwWeGDjE4viQFAvQn/GbheRmV5BRAqBpC3zxMnky8dm472
-         2wzgb3bnp7JA5xSMrFVOOmwA8Tqn+s3KUcIOZPKJYVMgzB0mh8SR4jvb2RA8U4a10+
-         g2/jMXIMLVZF0U8r9CrksKD7rQO8gsz2SQwLEUfA=
+        b=KGobKaAqFvrsExtmcMeKl6MhmHpiLfwOzTOXw/5Z6gtwhCRbWohYJnlU24+1qiP3R
+         eTKx02eS3DWx0u3GUPCzoqOh9B46fl0ZCi8r7rIaZ/BRa58ffhJO5fPt6RnjhXgdtm
+         BOjOr1fQp8s+VfdMHn+e7Haz8pZ4ENsUwUYQ5n10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Jialin Zhang <zhangjialin11@huawei.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.18 148/181] iio: adc: rzg2l_adc: add missing fwnode_handle_put() in rzg2l_adc_parse_properties()
+        stable@vger.kernel.org,
+        Sathvika Vasireddy <sathvika@linux.ibm.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 50/60] powerpc/rtas: Allow ibm,platform-dump RTAS call with null buffer address
 Date:   Mon, 27 Jun 2022 13:22:01 +0200
-Message-Id: <20220627111948.976077610@linuxfoundation.org>
+Message-Id: <20220627111929.162390729@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,46 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jialin Zhang <zhangjialin11@huawei.com>
+From: Andrew Donnellan <ajd@linux.ibm.com>
 
-commit d836715f588ea15f905f607c27bc693587058db4 upstream.
+commit 7bc08056a6dabc3a1442216daf527edf61ac24b6 upstream.
 
-fwnode_handle_put() should be used when terminating
-device_for_each_child_node() iteration with break or return to prevent
-stale device node references from being left behind.
+Add a special case to block_rtas_call() to allow the ibm,platform-dump RTAS
+call through the RTAS filter if the buffer address is 0.
 
-Fixes: d484c21bacfa ("iio: adc: Add driver for Renesas RZ/G2L A/D converter")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Jialin Zhang <zhangjialin11@huawei.com>
-Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20220517033526.2035735-1-zhangjialin11@huawei.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+According to PAPR, ibm,platform-dump is called with a null buffer address
+to notify the platform firmware that processing of a particular dump is
+finished.
+
+Without this, on a pseries machine with CONFIG_PPC_RTAS_FILTER enabled, an
+application such as rtas_errd that is attempting to retrieve a dump will
+encounter an error at the end of the retrieval process.
+
+Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
+Cc: stable@vger.kernel.org
+Reported-by: Sathvika Vasireddy <sathvika@linux.ibm.com>
+Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220614134952.156010-1-ajd@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/rzg2l_adc.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/rtas.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/rzg2l_adc.c
-+++ b/drivers/iio/adc/rzg2l_adc.c
-@@ -334,11 +334,15 @@ static int rzg2l_adc_parse_properties(st
- 	i = 0;
- 	device_for_each_child_node(&pdev->dev, fwnode) {
- 		ret = fwnode_property_read_u32(fwnode, "reg", &channel);
--		if (ret)
-+		if (ret) {
-+			fwnode_handle_put(fwnode);
- 			return ret;
-+		}
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -988,7 +988,7 @@ static struct rtas_filter rtas_filters[]
+ 	{ "get-time-of-day", -1, -1, -1, -1, -1 },
+ 	{ "ibm,get-vpd", -1, 0, -1, 1, 2 },
+ 	{ "ibm,lpar-perftools", -1, 2, 3, -1, -1 },
+-	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },
++	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },		/* Special cased */
+ 	{ "ibm,read-slot-reset-state", -1, -1, -1, -1, -1 },
+ 	{ "ibm,scan-log-dump", -1, 0, 1, -1, -1 },
+ 	{ "ibm,set-dynamic-indicator", -1, 2, -1, -1, -1 },
+@@ -1035,6 +1035,15 @@ static bool block_rtas_call(int token, i
+ 				size = 1;
  
--		if (channel >= RZG2L_ADC_MAX_CHANNELS)
-+		if (channel >= RZG2L_ADC_MAX_CHANNELS) {
-+			fwnode_handle_put(fwnode);
- 			return -EINVAL;
-+		}
- 
- 		chan_array[i].type = IIO_VOLTAGE;
- 		chan_array[i].indexed = 1;
+ 			end = base + size - 1;
++
++			/*
++			 * Special case for ibm,platform-dump - NULL buffer
++			 * address is used to indicate end of dump processing
++			 */
++			if (!strcmp(f->name, "ibm,platform-dump") &&
++			    base == 0)
++				return false;
++
+ 			if (!in_rmo_buf(base, end))
+ 				goto err;
+ 		}
 
 
