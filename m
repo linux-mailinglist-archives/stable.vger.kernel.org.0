@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5014E55DEA7
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:29:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDE2155D100
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:08:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238897AbiF0LyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:54:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55986 "EHLO
+        id S235474AbiF0Ldv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:33:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238891AbiF0Lwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC8DDF06;
-        Mon, 27 Jun 2022 04:46:20 -0700 (PDT)
+        with ESMTP id S235891AbiF0Lcx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:32:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A9CAD;
+        Mon, 27 Jun 2022 04:29:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE7B461187;
-        Mon, 27 Jun 2022 11:46:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC150C3411D;
-        Mon, 27 Jun 2022 11:46:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03EC1B8111A;
+        Mon, 27 Jun 2022 11:29:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 591CFC3411D;
+        Mon, 27 Jun 2022 11:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330379;
-        bh=OwvYnA7/5qDWKQi4sdQeQUk53ntcR+7QQfQTeKfoTB4=;
+        s=korg; t=1656329385;
+        bh=e6qYBuNvaK9vJWUNHSGQdFOs57yjXaAesaxvVanYtg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tqCyvx+zDGL79oGGty5h1P+klZmdDjGlur0TtU3rnAaklnj0FxgKyh6uFz+CnyWIh
-         mDXgbLxui2vvskxhy3o/a1KOgqBQVmIhZ683zbEYU4LOeFTNdsEwNzcrFfOLVAkS3Q
-         MotRNzYOG2Z/behMEaJCbKE7ip5xLB4dyuEGYF4M=
+        b=x69AsPKMugb/Xdy9r9rXb7VCx3MwuaQfOg8DESYbP1D3XPdWjnbLlFNS1dwDVurJ4
+         K4Q5pQT5Z2LmDQjU5mYp8r6K6HLBGzBVFlRd1AtIC1PL0OhiaHyeCi98tA3bX/5Yvd
+         oLAnHv+MoXkPU/BCHfwN9fHPFkEMBt58FpS8Zghs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Lars-Peter Clausen <lars@metafoo.de>, Stable@vger.kernel.org,
+        stable@vger.kernel.org, Dmitry Rokosov <ddrokosov@sberdevices.ru>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.18 138/181] iio: trigger: sysfs: fix use-after-free on remove
+Subject: [PATCH 5.4 40/60] iio:accel:mxc4005: rearrange iio trigger get and register
 Date:   Mon, 27 Jun 2022 13:21:51 +0200
-Message-Id: <20220627111948.689074422@linuxfoundation.org>
+Message-Id: <20220627111928.869433949@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
 
-commit 78601726d4a59a291acc5a52da1d3a0a6831e4e8 upstream.
+commit 9354c224c9b4f55847a0de3e968cba2ebf15af3b upstream.
 
-Ensure that the irq_work has completed before the trigger is freed.
+IIO trigger interface function iio_trigger_get() should be called after
+iio_trigger_register() (or its devm analogue) strictly, because of
+iio_trigger_get() acquires module refcnt based on the trigger->owner
+pointer, which is initialized inside iio_trigger_register() to
+THIS_MODULE.
+If this call order is wrong, the next iio_trigger_put() (from sysfs
+callback or "delete module" path) will dereference "default" module
+refcnt, which is incorrect behaviour.
 
- ==================================================================
- BUG: KASAN: use-after-free in irq_work_run_list
- Read of size 8 at addr 0000000064702248 by task python3/25
-
- Call Trace:
-  irq_work_run_list
-  irq_work_tick
-  update_process_times
-  tick_sched_handle
-  tick_sched_timer
-  __hrtimer_run_queues
-  hrtimer_interrupt
-
- Allocated by task 25:
-  kmem_cache_alloc_trace
-  iio_sysfs_trig_add
-  dev_attr_store
-  sysfs_kf_write
-  kernfs_fop_write_iter
-  new_sync_write
-  vfs_write
-  ksys_write
-  sys_write
-
- Freed by task 25:
-  kfree
-  iio_sysfs_trig_remove
-  dev_attr_store
-  sysfs_kf_write
-  kernfs_fop_write_iter
-  new_sync_write
-  vfs_write
-  ksys_write
-  sys_write
-
- ==================================================================
-
-Fixes: f38bc926d022 ("staging:iio:sysfs-trigger: Use irq_work to properly active trigger")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20220519091925.1053897-1-vincent.whitchurch@axis.com
+Fixes: 47196620c82f ("iio: mxc4005: add data ready trigger for mxc4005")
+Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220524181150.9240-4-ddrokosov@sberdevices.ru
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/trigger/iio-trig-sysfs.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/accel/mxc4005.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/trigger/iio-trig-sysfs.c
-+++ b/drivers/iio/trigger/iio-trig-sysfs.c
-@@ -191,6 +191,7 @@ static int iio_sysfs_trigger_remove(int
+--- a/drivers/iio/accel/mxc4005.c
++++ b/drivers/iio/accel/mxc4005.c
+@@ -462,8 +462,6 @@ static int mxc4005_probe(struct i2c_clie
+ 		data->dready_trig->dev.parent = &client->dev;
+ 		data->dready_trig->ops = &mxc4005_trigger_ops;
+ 		iio_trigger_set_drvdata(data->dready_trig, indio_dev);
+-		indio_dev->trig = data->dready_trig;
+-		iio_trigger_get(indio_dev->trig);
+ 		ret = devm_iio_trigger_register(&client->dev,
+ 						data->dready_trig);
+ 		if (ret) {
+@@ -471,6 +469,8 @@ static int mxc4005_probe(struct i2c_clie
+ 				"failed to register trigger\n");
+ 			return ret;
+ 		}
++
++		indio_dev->trig = iio_trigger_get(data->dready_trig);
  	}
  
- 	iio_trigger_unregister(t->trig);
-+	irq_work_sync(&t->work);
- 	iio_trigger_free(t->trig);
- 
- 	list_del(&t->l);
+ 	return devm_iio_device_register(&client->dev, indio_dev);
 
 
