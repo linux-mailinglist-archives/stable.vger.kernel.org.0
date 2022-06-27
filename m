@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5667F55D291
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E2F155DF2C
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:30:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237712AbiF0LnU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:43:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34860 "EHLO
+        id S235262AbiF0L3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:29:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236559AbiF0Ll1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:41:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5F18CE24;
-        Mon, 27 Jun 2022 04:35:56 -0700 (PDT)
+        with ESMTP id S235372AbiF0L2t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:28:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE03965A5;
+        Mon, 27 Jun 2022 04:27:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68617B81125;
-        Mon, 27 Jun 2022 11:35:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAFECC3411D;
-        Mon, 27 Jun 2022 11:35:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FC7EB81120;
+        Mon, 27 Jun 2022 11:27:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 829A5C3411D;
+        Mon, 27 Jun 2022 11:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329754;
-        bh=/OV4TQT7m05Fi0VZVfG2VTpYR5hu8IQh+pTF8a8E0mw=;
+        s=korg; t=1656329248;
+        bh=txsi3SPGgKkJ/yjLz7OMyx86d9QtjZZbPTZ6H+FrQ6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JlSdhUJURjdFqip6vO51v5MEkruQGF06BdbVhvV9f1QxRSGTSf2bc5QbTXP7/hYEd
-         ISlcEHZRNCfRHiWQj5HdGFY1ZSsRVob+YOwEiwlcapYZ8oVGgSHwAnyyPdlb2M+gmA
-         03vE4yasJ1BF72Y/QX0O0qKyRPrrv7rhM3c3SgIk=
+        b=l7BcECrBZAfNh1wznjeAlTd5EeIyAFRIpkh0LNzRUin5Yvl/4Ejao5XMJSsOcxWTr
+         VVZBxw/tw1VxpP6Lk5CBVyI+/eqll06C8YV2Href/53r5c83khb70wbJCwKfZkQEn/
+         VwayofPkVqezdyo214Qd/8wa2gaSczeNF3mfe4EQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 104/135] iio: imu: inv_icm42600: Fix broken icm42600 (chip id 0 value)
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 100/102] random: update comment from copy_to_user() -> copy_to_iter()
 Date:   Mon, 27 Jun 2022 13:21:51 +0200
-Message-Id: <20220627111941.173966980@linuxfoundation.org>
+Message-Id: <20220627111936.432511320@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +52,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 106b391e1b859100a3f38f0ad874236e9be06bde upstream.
+commit 63b8ea5e4f1a87dea4d3114293fc8e96a8f193d7 upstream.
 
-The 0 value used for INV_CHIP_ICM42600 was not working since the
-match in i2c/spi was checking against NULL value.
+This comment wasn't updated when we moved from read() to read_iter(), so
+this patch makes the trivial fix.
 
-To keep this check, add a first INV_CHIP_INVALID 0 value as safe
-guard.
-
-Fixes: 31c24c1e93c3 ("iio: imu: inv_icm42600: add core of new inv_icm42600 driver")
-Signed-off-by: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
-Link: https://lore.kernel.org/r/20220609102301.4794-1-jmaneyrol@invensense.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 1b388e7765f2 ("random: convert to using fops->read_iter()")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/inv_icm42600/inv_icm42600.h      |    1 +
- drivers/iio/imu/inv_icm42600/inv_icm42600_core.c |    2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/imu/inv_icm42600/inv_icm42600.h
-+++ b/drivers/iio/imu/inv_icm42600/inv_icm42600.h
-@@ -17,6 +17,7 @@
- #include "inv_icm42600_buffer.h"
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -452,7 +452,7 @@ static ssize_t get_random_bytes_user(str
  
- enum inv_icm42600_chip {
-+	INV_CHIP_INVALID,
- 	INV_CHIP_ICM42600,
- 	INV_CHIP_ICM42602,
- 	INV_CHIP_ICM42605,
---- a/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c
-+++ b/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c
-@@ -565,7 +565,7 @@ int inv_icm42600_core_probe(struct regma
- 	bool open_drain;
- 	int ret;
- 
--	if (chip < 0 || chip >= INV_CHIP_NB) {
-+	if (chip <= INV_CHIP_INVALID || chip >= INV_CHIP_NB) {
- 		dev_err(dev, "invalid chip = %d\n", chip);
- 		return -ENODEV;
- 	}
+ 	/*
+ 	 * Immediately overwrite the ChaCha key at index 4 with random
+-	 * bytes, in case userspace causes copy_to_user() below to sleep
++	 * bytes, in case userspace causes copy_to_iter() below to sleep
+ 	 * forever, so that we still retain forward secrecy in that case.
+ 	 */
+ 	crng_make_state(chacha_state, (u8 *)&chacha_state[4], CHACHA_KEY_SIZE);
 
 
