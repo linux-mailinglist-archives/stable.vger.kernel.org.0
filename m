@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C51B855DE1B
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2878555C893
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:55:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237845AbiF0LtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:49:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50044 "EHLO
+        id S236045AbiF0Lk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:40:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238352AbiF0LsU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D868FF5BF;
-        Mon, 27 Jun 2022 04:40:52 -0700 (PDT)
+        with ESMTP id S236153AbiF0LiQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:38:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90615BC82;
+        Mon, 27 Jun 2022 04:34:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E39360C16;
-        Mon, 27 Jun 2022 11:40:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F30EC385A2;
-        Mon, 27 Jun 2022 11:40:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 446B8B81123;
+        Mon, 27 Jun 2022 11:34:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CC77C341C7;
+        Mon, 27 Jun 2022 11:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330051;
-        bh=p43v1QQSS/eYXM1SQvebqgA0WDNJeAksylXwSwz473c=;
+        s=korg; t=1656329696;
+        bh=VrAYm2kBcAIZ7+6uBJjgni4Ig27wJgni7QfE+gvUDQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nhjP71QhUe5H6ZGtL9YQjuHPuN04JnHBUb27I3zV2Q1a4rRhj92CHdjIZypbaqVY
-         j3/HB4M1M6LUmF0vOT7sLnfigD6ZpkRu1Gz0EHhqQNqpc7LYB9uwFeT2Cse3BotCmG
-         Ue3J1JUHutBoJ2q/wkkqnUpU3kFCQHzIC9bYijCc=
+        b=B+5Hl7vKeSf0Xgdwnhn/GU5//QLGMlQEcQWge8oz7YuMG8JAioyVPRWKNNTX37G63
+         2mj6QnqxTfZfA6htrqeDGqdj3oxAAtG46x/VVDtQkeMWqC8I8k9gXEBrNsPqW6rbBG
+         ojuUUjL5/iKppWVdLQHYHSXnHJXsyVPGmOcIPGds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Stephen Boyd <swboyd@chromium.org>,
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Rob Clark <robdclark@gmail.com>,
         Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 067/181] drm/msm/dp: check core_initialized before disable interrupts at dp_display_unbind()
-Date:   Mon, 27 Jun 2022 13:20:40 +0200
-Message-Id: <20220627111946.507940123@linuxfoundation.org>
+Subject: [PATCH 5.15 034/135] drm/msm: Fix double pm_runtime_disable() call
+Date:   Mon, 27 Jun 2022 13:20:41 +0200
+Message-Id: <20220627111939.149995656@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit d80c3ba0ac247791a4ed7a0cd865a64906c8906a ]
+[ Upstream commit ce0db505bc0c51ef5e9ba446c660de7e26f78f29 ]
 
-During msm initialize phase, dp_display_unbind() will be called to undo
-initializations had been done by dp_display_bind() previously if there is
-error happen at msm_drm_bind. In this case, core_initialized flag had to
-be check to make sure clocks is on before update DP controller register
-to disable HPD interrupts. Otherwise system will crash due to below NOC
-fatal error.
+Following commit 17e822f7591f ("drm/msm: fix unbalanced
+pm_runtime_enable in adreno_gpu_{init, cleanup}"), any call to
+adreno_unbind() will disable runtime PM twice, as indicated by the call
+trees below:
 
-QTISECLIB [01f01a7ad]CNOC2 ERROR: ERRLOG0_LOW = 0x00061007
-QTISECLIB [01f01a7ad]GEM_NOC ERROR: ERRLOG0_LOW = 0x00001007
-QTISECLIB [01f0371a0]CNOC2 ERROR: ERRLOG0_HIGH = 0x00000003
-QTISECLIB [01f055297]GEM_NOC ERROR: ERRLOG0_HIGH = 0x00000003
-QTISECLIB [01f072beb]CNOC2 ERROR: ERRLOG1_LOW = 0x00000024
-QTISECLIB [01f0914b8]GEM_NOC ERROR: ERRLOG1_LOW = 0x00000042
-QTISECLIB [01f0ae639]CNOC2 ERROR: ERRLOG1_HIGH = 0x00004002
-QTISECLIB [01f0cc73f]GEM_NOC ERROR: ERRLOG1_HIGH = 0x00004002
-QTISECLIB [01f0ea092]CNOC2 ERROR: ERRLOG2_LOW = 0x0009020c
-QTISECLIB [01f10895f]GEM_NOC ERROR: ERRLOG2_LOW = 0x0ae9020c
-QTISECLIB [01f125ae1]CNOC2 ERROR: ERRLOG2_HIGH = 0x00000000
-QTISECLIB [01f143be7]GEM_NOC ERROR: ERRLOG2_HIGH = 0x00000000
-QTISECLIB [01f16153a]CNOC2 ERROR: ERRLOG3_LOW = 0x00000000
-QTISECLIB [01f17fe07]GEM_NOC ERROR: ERRLOG3_LOW = 0x00000000
-QTISECLIB [01f19cf89]CNOC2 ERROR: ERRLOG3_HIGH = 0x00000000
-QTISECLIB [01f1bb08e]GEM_NOC ERROR: ERRLOG3_HIGH = 0x00000000
-QTISECLIB [01f1d8a31]CNOC2 ERROR: SBM1 FAULTINSTATUS0_LOW = 0x00000002
-QTISECLIB [01f1f72a4]GEM_NOC ERROR: SBM0 FAULTINSTATUS0_LOW = 0x00000001
-QTISECLIB [01f21a217]CNOC3 ERROR: ERRLOG0_LOW = 0x00000006
-QTISECLIB [01f23dfd3]NOC error fatal
+  adreno_unbind()
+   -> pm_runtime_force_suspend()
+   -> pm_runtime_disable()
 
-changes in v2:
--- drop the first patch (drm/msm: enable msm irq after all initializations are done successfully at msm_drm_init()) since the problem had been fixed by other patch
+  adreno_unbind()
+   -> gpu->funcs->destroy() [= aNxx_destroy()]
+   -> adreno_gpu_cleanup()
+   -> pm_runtime_disable()
 
-Fixes: 570d3e5d28db ("drm/msm/dp: stop event kernel thread when DP unbind")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/488387/
-Link: https://lore.kernel.org/r/1654538139-7450-1-git-send-email-quic_khsieh@quicinc.com
+Note that pm_runtime_force_suspend() is called right before
+gpu->funcs->destroy() and both functions are called unconditionally.
+
+With recent addition of the eDP AUX bus code, this problem manifests
+itself when the eDP panel cannot be found yet and probing is deferred.
+On the first probe attempt, we disable runtime PM twice as described
+above. This then causes any later probe attempt to fail with
+
+  [drm:adreno_load_gpu [msm]] *ERROR* Couldn't power up the GPU: -13
+
+preventing the driver from loading.
+
+As there seem to be scenarios where the aNxx_destroy() functions are not
+called from adreno_unbind(), simply removing pm_runtime_disable() from
+inside adreno_unbind() does not seem to be the proper fix. This is what
+commit 17e822f7591f ("drm/msm: fix unbalanced pm_runtime_enable in
+adreno_gpu_{init, cleanup}") intended to fix. Therefore, instead check
+whether runtime PM is still enabled, and only disable it in that case.
+
+Fixes: 17e822f7591f ("drm/msm: fix unbalanced pm_runtime_enable in adreno_gpu_{init, cleanup}")
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Rob Clark <robdclark@gmail.com>
+Link: https://lore.kernel.org/r/20220606211305.189585-1-luzmaximilian@gmail.com
 Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 3 ++-
+ drivers/gpu/drm/msm/adreno/adreno_gpu.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 8deb92bddfde..d11c81d8a5db 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -308,7 +308,8 @@ static void dp_display_unbind(struct device *dev, struct device *master,
- 	struct msm_drm_private *priv = dev_get_drvdata(master);
+diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+index 748665232d29..bba68776cb25 100644
+--- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+@@ -958,7 +958,8 @@ void adreno_gpu_cleanup(struct adreno_gpu *adreno_gpu)
+ 	for (i = 0; i < ARRAY_SIZE(adreno_gpu->info->fw); i++)
+ 		release_firmware(adreno_gpu->fw[i]);
  
- 	/* disable all HPD interrupts */
--	dp_catalog_hpd_config_intr(dp->catalog, DP_DP_HPD_INT_MASK, false);
-+	if (dp->core_initialized)
-+		dp_catalog_hpd_config_intr(dp->catalog, DP_DP_HPD_INT_MASK, false);
+-	pm_runtime_disable(&priv->gpu_pdev->dev);
++	if (pm_runtime_enabled(&priv->gpu_pdev->dev))
++		pm_runtime_disable(&priv->gpu_pdev->dev);
  
- 	kthread_stop(dp->ev_tsk);
- 
+ 	msm_gpu_cleanup(&adreno_gpu->base);
+ }
 -- 
 2.35.1
 
