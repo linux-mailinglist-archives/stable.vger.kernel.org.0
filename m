@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27C1855DE7D
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E3EC55C785
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:54:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238885AbiF0Lx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50094 "EHLO
+        id S237189AbiF0Lni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238817AbiF0Lwk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:40 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CBA3DEB1;
-        Mon, 27 Jun 2022 04:45:50 -0700 (PDT)
+        with ESMTP id S237389AbiF0Lmr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CE07E6B;
+        Mon, 27 Jun 2022 04:37:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A22B2CE171A;
-        Mon, 27 Jun 2022 11:45:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91BBAC3411D;
-        Mon, 27 Jun 2022 11:45:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FC35B8111B;
+        Mon, 27 Jun 2022 11:37:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66189C3411D;
+        Mon, 27 Jun 2022 11:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330346;
-        bh=WZXy+Bd4DgG1VVzSNOzT8zUIRZ/5VvEGPPSlCWy6ceA=;
+        s=korg; t=1656329835;
+        bh=A5UBWaCrl/qkluSIKGtZTc8F6JYpzds5b08cBXNIoF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJRY1j2lVU8ljeDq7RIc6pcyZ+yJhwh8f3h6HIAkyP4Kx2/3EZ2IPPJWxEYgR/ReQ
-         K3C1nBAbB1TcgEpIptNo2CQpKRO9lIHg49wfQ6nonQgebxq/exBueZgaLS1DypecdP
-         IEgi0InggnDMWU671hhIhM2L6AG8r7fSny70Fem8=
+        b=SaaXK+5N0qe9mdMR3BvbYcVSHxWYEd3JxLe19LL40Ge2v6zT6XPyECMMneIMJujp8
+         xFxsQj4z71Zuw3bh2SDZDEPBtOAWB7pEgSOJE+RGPuf7BEY4YNogx3Uc2ekiFJ/GYc
+         SEaTVeqi2wXvZZHFql84R/lXn8MqD3ydtS6BfQLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 5.18 166/181] ARM: exynos: Fix refcount leak in exynos_map_pmu
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Tom Zanussi <tzanussi@gmail.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.15 132/135] perf build-id: Fix caching files with a wrong build ID
 Date:   Mon, 27 Jun 2022 13:22:19 +0200
-Message-Id: <20220627111949.499927418@linuxfoundation.org>
+Message-Id: <20220627111941.981608747@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +56,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit c4c79525042a4a7df96b73477feaf232fe44ae81 upstream.
+commit ab66fdace8581ef3b4e7cf5381a168ed4058d779 upstream.
 
-of_find_matching_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
-of_node_put() checks null pointer.
+Build ID events associate a file name with a build ID.  However, when
+using perf inject, there is no guarantee that the file on the current
+machine at the current time has that build ID. Fix by comparing the
+build IDs and skip adding to the cache if they are different.
 
-Fixes: fce9e5bb2526 ("ARM: EXYNOS: Add support for mapping PMU base address via DT")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220523145513.12341-1-linmq006@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Example:
+
+  $ echo "int main() {return 0;}" > prog.c
+  $ gcc -o prog prog.c
+  $ perf record --buildid-all ./prog
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.019 MB perf.data ]
+  $ file-buildid() { file $1 | awk -F= '{print $2}' | awk -F, '{print $1}' ; }
+  $ file-buildid prog
+  444ad9be165d8058a48ce2ffb4e9f55854a3293e
+  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
+  444ad9be165d8058a48ce2ffb4e9f55854a3293e
+  $ echo "int main() {return 1;}" > prog.c
+  $ gcc -o prog prog.c
+  $ file-buildid prog
+  885524d5aaa24008a3e2b06caa3ea95d013c0fc5
+
+Before:
+
+  $ perf buildid-cache --purge $(pwd)/prog
+  $ perf inject -i perf.data -o junk
+  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
+  885524d5aaa24008a3e2b06caa3ea95d013c0fc5
+  $
+
+After:
+
+  $ perf buildid-cache --purge $(pwd)/prog
+  $ perf inject -i perf.data -o junk
+  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
+
+  $
+
+Fixes: 454c407ec17a0c63 ("perf: add perf-inject builtin")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Tom Zanussi <tzanussi@gmail.com>
+Link: https://lore.kernel.org/r/20220621125144.5623-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-exynos/exynos.c |    1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/util/build-id.c |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
---- a/arch/arm/mach-exynos/exynos.c
-+++ b/arch/arm/mach-exynos/exynos.c
-@@ -149,6 +149,7 @@ static void exynos_map_pmu(void)
- 	np = of_find_matching_node(NULL, exynos_dt_pmu_match);
- 	if (np)
- 		pmu_base_addr = of_iomap(np, 0);
-+	of_node_put(np);
+--- a/tools/perf/util/build-id.c
++++ b/tools/perf/util/build-id.c
+@@ -872,6 +872,30 @@ out_free:
+ 	return err;
  }
  
- static void __init exynos_init_irq(void)
++static int filename__read_build_id_ns(const char *filename,
++				      struct build_id *bid,
++				      struct nsinfo *nsi)
++{
++	struct nscookie nsc;
++	int ret;
++
++	nsinfo__mountns_enter(nsi, &nsc);
++	ret = filename__read_build_id(filename, bid);
++	nsinfo__mountns_exit(&nsc);
++
++	return ret;
++}
++
++static bool dso__build_id_mismatch(struct dso *dso, const char *name)
++{
++	struct build_id bid;
++
++	if (filename__read_build_id_ns(name, &bid, dso->nsinfo) < 0)
++		return false;
++
++	return !dso__build_id_equal(dso, &bid);
++}
++
+ static int dso__cache_build_id(struct dso *dso, struct machine *machine,
+ 			       void *priv __maybe_unused)
+ {
+@@ -886,6 +910,10 @@ static int dso__cache_build_id(struct ds
+ 		is_kallsyms = true;
+ 		name = machine->mmap_name;
+ 	}
++
++	if (!is_kallsyms && dso__build_id_mismatch(dso, name))
++		return 0;
++
+ 	return build_id_cache__add_b(&dso->bid, name, dso->nsinfo,
+ 				     is_kallsyms, is_vdso);
+ }
 
 
