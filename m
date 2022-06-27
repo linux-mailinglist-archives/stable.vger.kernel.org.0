@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0391555D2DE
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA9F155D167
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234909AbiF0L20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:28:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45198 "EHLO
+        id S238093AbiF0LuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:50:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235151AbiF0L05 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:26:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AE8565C3;
-        Mon, 27 Jun 2022 04:26:52 -0700 (PDT)
+        with ESMTP id S238483AbiF0Lsb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 204B0BF59;
+        Mon, 27 Jun 2022 04:41:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21095612D8;
-        Mon, 27 Jun 2022 11:26:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DCE5C3411D;
-        Mon, 27 Jun 2022 11:26:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B217861192;
+        Mon, 27 Jun 2022 11:41:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFED4C3411D;
+        Mon, 27 Jun 2022 11:41:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329211;
-        bh=mQxZLlG1fnMhdpl5nNqIAaOfKrFy36I2HEN0sikocns=;
+        s=korg; t=1656330110;
+        bh=viIllrMNqwwOM5W6eSKdS3DEUhpKz86OL8D4zf+4BfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXHwJwy7519xBVaNe4PTGQiMsioMdej0TBc88e52TDdyRTox9hWl3S5AFE/Ku1+3w
-         qxAzPsbjXz7mc18wJrFS7yYQlPQrErS2JxGVrN8n6sy523RW+GOrEYnGgBJulAE0lZ
-         6GJy+lnMB7gnEQfUytEFcBATg6w0LR2NZ6Q/wbKM=
+        b=2E4BoDJiX8qJpb265i0hmGLhkyNic70+faB43q2GtmVJX2sw8i+6kNi7GtXb2tPwJ
+         JXUGWCIYso8yxuvm4Eg48b/Dx9dxsRuyG7iiWe5Ev5sdF+XkEB6X+HChbdqfbmSbJK
+         ak/cuqPJrzuVZgJsu+qLNxB3lKQwADdi7Ad1q47I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, k2ci <kernel-bot@kylinos.cn>,
-        huhai <huhai@kylinos.cn>,
-        Genjian Zhang <zhanggenjian@kylinos.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org,
+        Marcin Szycik <marcin.szycik@linux.intel.com>,
+        Sandeep Penigalapati <sandeep.penigalapati@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 047/102] MIPS: Remove repetitive increase irq_err_count
+Subject: [PATCH 5.18 085/181] ice: ignore protocol field in GTP offload
 Date:   Mon, 27 Jun 2022 13:20:58 +0200
-Message-Id: <20220627111934.867533399@linuxfoundation.org>
+Message-Id: <20220627111947.025128170@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: huhai <huhai@kylinos.cn>
+From: Marcin Szycik <marcin.szycik@linux.intel.com>
 
-[ Upstream commit c81aba8fde2aee4f5778ebab3a1d51bd2ef48e4c ]
+[ Upstream commit d4ea6f6373ef56d1d795a24f1f5874f4a6019199 ]
 
-commit 979934da9e7a ("[PATCH] mips: update IRQ handling for vr41xx") added
-a function irq_dispatch, and it'll increase irq_err_count when the get_irq
-callback returns a negative value, but increase irq_err_count in get_irq
-was not removed.
+Commit 34a897758efe ("ice: Add support for inner etype in switchdev")
+added the ability to match on inner ethertype. A side effect of that change
+is that it is now impossible to add some filters for protocols which do not
+contain inner ethtype field. tc requires the protocol field to be specified
+when providing certain other options, e.g. src_ip. This is a problem in
+case of GTP - when user wants to specify e.g. src_ip, they also need to
+specify protocol in tc command (otherwise tc fails with: Illegal "src_ip").
+Because GTP is a tunnel, the protocol field is treated as inner protocol.
+GTP does not contain inner ethtype field and the filter cannot be added.
 
-And also, modpost complains once gpio-vr41xx drivers become modules.
-  ERROR: modpost: "irq_err_count" [drivers/gpio/gpio-vr41xx.ko] undefined!
+To fix this, ignore the ethertype field in case of GTP filters.
 
-So it would be a good idea to remove repetitive increase irq_err_count in
-get_irq callback.
-
-Fixes: 27fdd325dace ("MIPS: Update VR41xx GPIO driver to use gpiolib")
-Fixes: 979934da9e7a ("[PATCH] mips: update IRQ handling for vr41xx")
-Reported-by: k2ci <kernel-bot@kylinos.cn>
-Signed-off-by: huhai <huhai@kylinos.cn>
-Signed-off-by: Genjian Zhang <zhanggenjian@kylinos.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 9a225f81f540 ("ice: Support GTP-U and GTP-C offload in switchdev")
+Signed-off-by: Marcin Szycik <marcin.szycik@linux.intel.com>
+Tested-by: Sandeep Penigalapati <sandeep.penigalapati@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vr41xx/common/icu.c | 2 --
- drivers/gpio/gpio-vr41xx.c    | 2 --
- 2 files changed, 4 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_tc_lib.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/vr41xx/common/icu.c b/arch/mips/vr41xx/common/icu.c
-index 7b7f25b4b057..9240bcdbe74e 100644
---- a/arch/mips/vr41xx/common/icu.c
-+++ b/arch/mips/vr41xx/common/icu.c
-@@ -640,8 +640,6 @@ static int icu_get_irq(unsigned int irq)
+diff --git a/drivers/net/ethernet/intel/ice/ice_tc_lib.c b/drivers/net/ethernet/intel/ice/ice_tc_lib.c
+index 3acd9f921c44..734bfa121e24 100644
+--- a/drivers/net/ethernet/intel/ice/ice_tc_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_tc_lib.c
+@@ -994,7 +994,9 @@ ice_parse_cls_flower(struct net_device *filter_dev, struct ice_vsi *vsi,
+ 		n_proto_key = ntohs(match.key->n_proto);
+ 		n_proto_mask = ntohs(match.mask->n_proto);
  
- 	printk(KERN_ERR "spurious ICU interrupt: %04x,%04x\n", pend1, pend2);
- 
--	atomic_inc(&irq_err_count);
--
- 	return -1;
- }
- 
-diff --git a/drivers/gpio/gpio-vr41xx.c b/drivers/gpio/gpio-vr41xx.c
-index 98cd715ccc33..8d09b619c166 100644
---- a/drivers/gpio/gpio-vr41xx.c
-+++ b/drivers/gpio/gpio-vr41xx.c
-@@ -217,8 +217,6 @@ static int giu_get_irq(unsigned int irq)
- 	printk(KERN_ERR "spurious GIU interrupt: %04x(%04x),%04x(%04x)\n",
- 	       maskl, pendl, maskh, pendh);
- 
--	atomic_inc(&irq_err_count);
--
- 	return -EINVAL;
- }
- 
+-		if (n_proto_key == ETH_P_ALL || n_proto_key == 0) {
++		if (n_proto_key == ETH_P_ALL || n_proto_key == 0 ||
++		    fltr->tunnel_type == TNL_GTPU ||
++		    fltr->tunnel_type == TNL_GTPC) {
+ 			n_proto_key = 0;
+ 			n_proto_mask = 0;
+ 		} else {
 -- 
 2.35.1
 
