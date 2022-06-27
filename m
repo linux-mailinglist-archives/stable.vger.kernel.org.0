@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 836AE55D097
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:08:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CACEC55E315
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:36:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235723AbiF0Lec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:34:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53232 "EHLO
+        id S235276AbiF0L25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:28:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235677AbiF0Lcb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:32:31 -0400
+        with ESMTP id S235100AbiF0L1l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:27:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C904E95A3;
-        Mon, 27 Jun 2022 04:29:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 970949FF3;
+        Mon, 27 Jun 2022 04:27:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54FD0614E6;
-        Mon, 27 Jun 2022 11:29:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C6D3C3411D;
-        Mon, 27 Jun 2022 11:29:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3440C614A0;
+        Mon, 27 Jun 2022 11:27:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AECEC3411D;
+        Mon, 27 Jun 2022 11:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329370;
-        bh=y9i6OcD3+jttfol87JifqvXY8ddQ2O+EJsT5yNM2FLE=;
+        s=korg; t=1656329232;
+        bh=+PEY8aTgvCN7a4zjWSNtiwwqaicvZrFgs6faUOWbhog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0jky/vpF1yIa1he5wVsRCrQnlq4VbdLC+ekAKH5h317VVi8ubqnhp+5v/yWZkZIQO
-         p2bhYUZnsI9TR6KrregwFeqeM0mvF9qXosezEFNBAjE/PMg4oeZdBj9AwVwrzGcZbn
-         NjCayxX5iPkgHIFY3bbxXosYNWltMe9jwC1TZ/PU=
+        b=SJN3S667m4HBxOrhN/WQR7pm+9h9kTbtFGMUtYTaa6Fu8sHVZxkRfeAHe3aBRztvI
+         KPslf1/iwurPB+OsipJCzJCz5UXz+EQwO/uJbNSj6lLSeqr4XU1raWXWtz1z6XZFTs
+         eQip5IKJpAvquXotj0C1Br/8Ufk3FR0369dvNI9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
-        Haibo Chen <haibo.chen@nxp.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 35/60] iio: adc: vf610: fix conversion mode sysfs node name
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.10 095/102] soc: bcm: brcmstb: pm: pm-arm: Fix refcount leak in brcmstb_pm_probe
 Date:   Mon, 27 Jun 2022 13:21:46 +0200
-Message-Id: <20220627111928.723166638@linuxfoundation.org>
+Message-Id: <20220627111936.285730063@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baruch Siach <baruch@tkos.co.il>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit f1a633b15cd5371a2a83f02c513984e51132dd68 ]
+commit 37d838de369b07b596c19ff3662bf0293fdb09ee upstream.
 
-The documentation missed the "in_" prefix for this IIO_SHARED_BY_DIR
-entry.
+of_find_matching_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: bf04c1a367e3 ("iio: adc: vf610: implement configurable conversion modes")
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-Acked-by: Haibo Chen <haibo.chen@nxp.com>
-Link: https://lore.kernel.org/r/560dc93fafe5ef7e9a409885fd20b6beac3973d8.1653900626.git.baruch@tkos.co.il
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In brcmstb_init_sram, it pass dn to of_address_to_resource(),
+of_address_to_resource() will call of_find_device_by_node() to take
+reference, so we should release the reference returned by
+of_find_matching_node().
+
+Fixes: 0b741b8234c8 ("soc: bcm: brcmstb: Add support for S2/S3/S5 suspend states (ARM)")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/ABI/testing/sysfs-bus-iio-vf610 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/bcm/brcmstb/pm/pm-arm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-iio-vf610 b/Documentation/ABI/testing/sysfs-bus-iio-vf610
-index 308a6756d3bf..491ead804488 100644
---- a/Documentation/ABI/testing/sysfs-bus-iio-vf610
-+++ b/Documentation/ABI/testing/sysfs-bus-iio-vf610
-@@ -1,4 +1,4 @@
--What:		/sys/bus/iio/devices/iio:deviceX/conversion_mode
-+What:		/sys/bus/iio/devices/iio:deviceX/in_conversion_mode
- KernelVersion:	4.2
- Contact:	linux-iio@vger.kernel.org
- Description:
--- 
-2.35.1
-
+--- a/drivers/soc/bcm/brcmstb/pm/pm-arm.c
++++ b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
+@@ -780,6 +780,7 @@ static int brcmstb_pm_probe(struct platf
+ 	}
+ 
+ 	ret = brcmstb_init_sram(dn);
++	of_node_put(dn);
+ 	if (ret) {
+ 		pr_err("error setting up SRAM for PM\n");
+ 		return ret;
 
 
