@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 338BE55E10B
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43BEA55C77A
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:54:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234749AbiF0LY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:24:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44344 "EHLO
+        id S236378AbiF0LiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234707AbiF0LYN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:24:13 -0400
+        with ESMTP id S236491AbiF0Lhf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5E40656C;
-        Mon, 27 Jun 2022 04:24:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3227428E;
+        Mon, 27 Jun 2022 04:33:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E108661474;
-        Mon, 27 Jun 2022 11:24:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D36C5C3411D;
-        Mon, 27 Jun 2022 11:24:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C399C609D0;
+        Mon, 27 Jun 2022 11:33:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88273C3411D;
+        Mon, 27 Jun 2022 11:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329049;
-        bh=An5gCgP8n/HwVi2nUgCPrJSjepvo3R5hCBZKFSsNPAk=;
+        s=korg; t=1656329603;
+        bh=wzRgcUUicdNbJvqPsdmDmco70kK+s770X+3oBxpih3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0wQcrPAv+ly0TOZmcqkf1CU0W+9cFH7qH9xlLFrNe+4+p6jpXEvld9t8wsY9G6hwo
-         m9sez726/wjMeqmGD2q4JcAPS+o1FHZHN2HUCDr2yEpT9ePvVdmHEdBYVC+cjCyYQ4
-         LjkEQyiqIgOKedAJiMaY5u8MZxSc/mdDicm0XqsM=
+        b=LXcruiE2XyOw3bbSS19h6DGjWCTDvAHCJDOz1yvsxwC/1LHmkv7dlqJN9eUGpwwa4
+         odgal72VlzRw0Pus8D160NvwMkIWHRT7JHA6ct23PWLItsaT3DlzVuVRikgETCYQq6
+         wlTlSuIF9iCQqnPTSG+qH5P6ywgXxqTaCnE+CkDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+47af19f3307fc9c5c82e@syzkaller.appspotmail.com,
-        Jon Maloy <jmaloy@redhat.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 032/102] tipc: fix use-after-free Read in tipc_named_reinit
+Subject: [PATCH 5.15 036/135] scsi: scsi_debug: Fix zone transition to full condition
 Date:   Mon, 27 Jun 2022 13:20:43 +0200
-Message-Id: <20220627111934.417959458@linuxfoundation.org>
+Message-Id: <20220627111939.207028712@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,78 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 911600bf5a5e84bfda4d33ee32acc75ecf6159f0 ]
+[ Upstream commit 566d3c57eb526f32951af15866086e236ce1fc8a ]
 
-syzbot found the following issue on:
-==================================================================
-BUG: KASAN: use-after-free in tipc_named_reinit+0x94f/0x9b0
-net/tipc/name_distr.c:413
-Read of size 8 at addr ffff88805299a000 by task kworker/1:9/23764
+When a write command to a sequential write required or sequential write
+preferred zone result in the zone write pointer reaching the end of the
+zone, the zone condition must be set to full AND the number of implicitly
+or explicitly open zones updated to have a correct accounting for zone
+resources. However, the function zbc_inc_wp() only sets the zone condition
+to full without updating the open zone counters, resulting in a zone state
+machine breakage.
 
-CPU: 1 PID: 23764 Comm: kworker/1:9 Not tainted
-5.18.0-rc4-syzkaller-00878-g17d49e6e8012 #0
-Hardware name: Google Compute Engine/Google Compute Engine,
-BIOS Google 01/01/2011
-Workqueue: events tipc_net_finalize_work
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0xeb/0x495
-mm/kasan/report.c:313
- print_report mm/kasan/report.c:429 [inline]
- kasan_report.cold+0xf4/0x1c6 mm/kasan/report.c:491
- tipc_named_reinit+0x94f/0x9b0 net/tipc/name_distr.c:413
- tipc_net_finalize+0x234/0x3d0 net/tipc/net.c:138
- process_one_work+0x996/0x1610 kernel/workqueue.c:2289
- worker_thread+0x665/0x1080 kernel/workqueue.c:2436
- kthread+0x2e9/0x3a0 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:298
- </TASK>
-[...]
-==================================================================
+Introduce the helper function zbc_set_zone_full() and use it in
+zbc_inc_wp() to correctly transition zones to the full condition.
 
-In the commit
-d966ddcc3821 ("tipc: fix a deadlock when flushing scheduled work"),
-the cancel_work_sync() function just to make sure ONLY the work
-tipc_net_finalize_work() is executing/pending on any CPU completed before
-tipc namespace is destroyed through tipc_exit_net(). But this function
-is not guaranteed the work is the last queued. So, the destroyed instance
-may be accessed in the work which will try to enqueue later.
-
-In order to completely fix, we re-order the calling of cancel_work_sync()
-to make sure the work tipc_net_finalize_work() was last queued and it
-must be completed by calling cancel_work_sync().
-
-Reported-by: syzbot+47af19f3307fc9c5c82e@syzkaller.appspotmail.com
-Fixes: d966ddcc3821 ("tipc: fix a deadlock when flushing scheduled work")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Ying Xue <ying.xue@windriver.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20220608011302.92061-1-damien.lemoal@opensource.wdc.com
+Fixes: f0d1cf9378bd ("scsi: scsi_debug: Add ZBC zone commands")
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/core.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/scsi/scsi_debug.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/net/tipc/core.c b/net/tipc/core.c
-index 96bfcb2986f5..7724499f516e 100644
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -111,10 +111,9 @@ static void __net_exit tipc_exit_net(struct net *net)
- 	struct tipc_net *tn = tipc_net(net);
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index cfeadd5f61f1..747e1cbb7ec9 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -2747,6 +2747,24 @@ static void zbc_open_zone(struct sdebug_dev_info *devip,
+ 	}
+ }
  
- 	tipc_detach_loopback(net);
-+	tipc_net_stop(net);
- 	/* Make sure the tipc_net_finalize_work() finished */
- 	cancel_work_sync(&tn->work);
--	tipc_net_stop(net);
--
- 	tipc_bcast_stop(net);
- 	tipc_nametbl_stop(net);
- 	tipc_sk_rht_destroy(net);
++static inline void zbc_set_zone_full(struct sdebug_dev_info *devip,
++				     struct sdeb_zone_state *zsp)
++{
++	switch (zsp->z_cond) {
++	case ZC2_IMPLICIT_OPEN:
++		devip->nr_imp_open--;
++		break;
++	case ZC3_EXPLICIT_OPEN:
++		devip->nr_exp_open--;
++		break;
++	default:
++		WARN_ONCE(true, "Invalid zone %llu condition %x\n",
++			  zsp->z_start, zsp->z_cond);
++		break;
++	}
++	zsp->z_cond = ZC5_FULL;
++}
++
+ static void zbc_inc_wp(struct sdebug_dev_info *devip,
+ 		       unsigned long long lba, unsigned int num)
+ {
+@@ -2759,7 +2777,7 @@ static void zbc_inc_wp(struct sdebug_dev_info *devip,
+ 	if (zsp->z_type == ZBC_ZONE_TYPE_SWR) {
+ 		zsp->z_wp += num;
+ 		if (zsp->z_wp >= zend)
+-			zsp->z_cond = ZC5_FULL;
++			zbc_set_zone_full(devip, zsp);
+ 		return;
+ 	}
+ 
+@@ -2778,7 +2796,7 @@ static void zbc_inc_wp(struct sdebug_dev_info *devip,
+ 			n = num;
+ 		}
+ 		if (zsp->z_wp >= zend)
+-			zsp->z_cond = ZC5_FULL;
++			zbc_set_zone_full(devip, zsp);
+ 
+ 		num -= n;
+ 		lba += n;
 -- 
 2.35.1
 
