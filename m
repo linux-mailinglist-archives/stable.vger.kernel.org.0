@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECC2A55D95B
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:21:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA8CA55CE8C
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:05:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235511AbiF0LcL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:32:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56110 "EHLO
+        id S236954AbiF0Lky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:40:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235555AbiF0Lbr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:31:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C70010CD;
-        Mon, 27 Jun 2022 04:29:06 -0700 (PDT)
+        with ESMTP id S236830AbiF0Ljr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:39:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C574CBA5;
+        Mon, 27 Jun 2022 04:35:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0E90B8111B;
-        Mon, 27 Jun 2022 11:29:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE6E0C3411D;
-        Mon, 27 Jun 2022 11:29:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 462A060CA4;
+        Mon, 27 Jun 2022 11:35:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5832EC3411D;
+        Mon, 27 Jun 2022 11:35:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329343;
-        bh=SpUk5xopBVEJbsXDCPPzUrXYRKodP1EeLbPsa/mnV5c=;
+        s=korg; t=1656329713;
+        bh=SPjt+EvEQ4079Mv+pWhVZgBzhL/o5jfkH6JC8grHV94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NAxAvQQc17HlJe5D1b1fxOQtfwrdnFzpCMxqCikoGmBCl8BGahtYbiowninu4ynjB
-         LW0sh99vFJsb52KYSjcWfVy77orzlaoDfoMLnaMjP03Nj+0V6r8hPypjAKbiYzu/fy
-         9Ozt6noYLDIu9UND0KKY/D9nkrOlDgN9kzxRaCPQ=
+        b=vo4IEbJkgY8uRVO1c5FHrbobJ/MJaHuxwJ1BZ1/YO16QkgFcuQu4NLatZ5xYosLeq
+         e36oXi4TNr9qqOz9ClhU7vBYPxQHaoh6wyYgtPyHwDFHe01q3dCWH6LfNlCzC9a8x6
+         tVL70VRH0Wl0cngJ05xFxXnerLnbNoFNasW9e5Mg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 27/60] afs: Fix dynamic root getattr
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 5.15 091/135] dt-bindings: usb: ehci: Increase the number of PHYs
 Date:   Mon, 27 Jun 2022 13:21:38 +0200
-Message-Id: <20220627111928.485967575@linuxfoundation.org>
+Message-Id: <20220627111940.800012609@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit cb78d1b5efffe4cf97e16766329dd7358aed3deb ]
+commit 9faa1c8f92f33daad9db96944139de225cefa199 upstream.
 
-The recent patch to make afs_getattr consult the server didn't account
-for the pseudo-inodes employed by the dynamic root-type afs superblock
-not having a volume or a server to access, and thus an oops occurs if
-such a directory is stat'd.
+"make dtbs_check":
 
-Fix this by checking to see if the vnode->volume pointer actually points
-anywhere before following it in afs_getattr().
+    arch/arm/boot/dts/r8a77470-iwg23s-sbc.dtb: usb@ee080100: phys: [[17, 0], [31]] is too long
+	    From schema: Documentation/devicetree/bindings/usb/generic-ehci.yaml
+    arch/arm/boot/dts/r8a77470-iwg23s-sbc.dtb: usb@ee0c0100: phys: [[17, 1], [33], [21, 0]] is too long
+	    From schema: Documentation/devicetree/bindings/usb/generic-ehci.yaml
 
-This can be tested by stat'ing a directory in /afs.  It may be
-sufficient just to do "ls /afs" and the oops looks something like:
+Some USB EHCI controllers (e.g. on the Renesas RZ/G1C SoC) have multiple
+PHYs.  Increase the maximum number of PHYs to 3, which is sufficient for
+now.
 
-        BUG: kernel NULL pointer dereference, address: 0000000000000020
-        ...
-        RIP: 0010:afs_getattr+0x8b/0x14b
-        ...
-        Call Trace:
-         <TASK>
-         vfs_statx+0x79/0xf5
-         vfs_fstatat+0x49/0x62
-
-Fixes: 2aeb8c86d499 ("afs: Fix afs_getattr() to refetch file status if callback break occurred")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/165408450783.1031787.7941404776393751186.stgit@warthog.procyon.org.uk/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0499220d6dadafa5 ("dt-bindings: Add missing array size constraints")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/c5d19e2f9714f43effd90208798fc1936098078f.1655301043.git.geert+renesas@glider.be
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/afs/inode.c | 3 ++-
+ Documentation/devicetree/bindings/usb/generic-ehci.yaml |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/afs/inode.c b/fs/afs/inode.c
-index 90eac3ec01cb..622363af4c1b 100644
---- a/fs/afs/inode.c
-+++ b/fs/afs/inode.c
-@@ -739,7 +739,8 @@ int afs_getattr(const struct path *path, struct kstat *stat,
+--- a/Documentation/devicetree/bindings/usb/generic-ehci.yaml
++++ b/Documentation/devicetree/bindings/usb/generic-ehci.yaml
+@@ -135,7 +135,8 @@ properties:
+       Phandle of a companion.
  
- 	_enter("{ ino=%lu v=%u }", inode->i_ino, inode->i_generation);
+   phys:
+-    maxItems: 1
++    minItems: 1
++    maxItems: 3
  
--	if (!(query_flags & AT_STATX_DONT_SYNC) &&
-+	if (vnode->volume &&
-+	    !(query_flags & AT_STATX_DONT_SYNC) &&
- 	    !test_bit(AFS_VNODE_CB_PROMISED, &vnode->flags)) {
- 		key = afs_request_key(vnode->volume->cell);
- 		if (IS_ERR(key))
--- 
-2.35.1
-
+   phy-names:
+     const: usb
 
 
