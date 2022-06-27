@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 148E355E1F9
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B8B955C1D0
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238469AbiF0LyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:54:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49984 "EHLO
+        id S237276AbiF0Lni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238734AbiF0Lwc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19D9B876;
-        Mon, 27 Jun 2022 04:45:24 -0700 (PDT)
+        with ESMTP id S237424AbiF0Lmu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B2D2B11;
+        Mon, 27 Jun 2022 04:37:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 652B661274;
-        Mon, 27 Jun 2022 11:45:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C025C341C7;
-        Mon, 27 Jun 2022 11:45:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCCD060C98;
+        Mon, 27 Jun 2022 11:37:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE169C3411D;
+        Mon, 27 Jun 2022 11:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330323;
-        bh=DbXdLwPzPVehIiYYx0SzG5vlmmlEZFlgi5vI0uDfZxo=;
+        s=korg; t=1656329859;
+        bh=ysNOEvu3zGd1TifXXdMtyPRCM21reTJXO7MAoKCElac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QuRLDvBBxbuRNOg8lzlWLRNLb/R1Doca8LI8PZNnhmtPo1wCOqG982TcicIuSruto
-         y/ja51RcE6SkrNJAGcIW9LV8NHVbLFh0MlbbBITU7HrzLpsMXM0cQfNctNnRsiB5hV
-         36m8K+ccH22L9bSmZrH5Ndhz6wsWxlOdXOlt7hYQ=
+        b=I9gmxhigOpB8fFW3tqWKCnSbfDasZ0DaSjMg2Itbu4im3nj7TxPTuHwC2wBzV7MbC
+         OnWb4d97IUI5VV6tQ4JEIKuZgLeRf3s5+JqTiKBlKXgywgs/BeJCuvdeGLQIU+PM2I
+         CLuO71kZ8BOdFLCippOM5Yel5BUhxauMM7hnnpl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sathvika Vasireddy <sathvika@linux.ibm.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.18 159/181] powerpc/rtas: Allow ibm,platform-dump RTAS call with null buffer address
-Date:   Mon, 27 Jun 2022 13:22:12 +0200
-Message-Id: <20220627111949.295495608@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.15 126/135] ARM: Fix refcount leak in axxia_boot_secondary
+Date:   Mon, 27 Jun 2022 13:22:13 +0200
+Message-Id: <20220627111941.809985501@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,60 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Donnellan <ajd@linux.ibm.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 7bc08056a6dabc3a1442216daf527edf61ac24b6 upstream.
+commit 7c7ff68daa93d8c4cdea482da4f2429c0398fcde upstream.
 
-Add a special case to block_rtas_call() to allow the ibm,platform-dump RTAS
-call through the RTAS filter if the buffer address is 0.
+of_find_compatible_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-According to PAPR, ibm,platform-dump is called with a null buffer address
-to notify the platform firmware that processing of a particular dump is
-finished.
-
-Without this, on a pseries machine with CONFIG_PPC_RTAS_FILTER enabled, an
-application such as rtas_errd that is attempting to retrieve a dump will
-encounter an error at the end of the retrieval process.
-
-Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
-Cc: stable@vger.kernel.org
-Reported-by: Sathvika Vasireddy <sathvika@linux.ibm.com>
-Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
-Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220614134952.156010-1-ajd@linux.ibm.com
+Fixes: 1d22924e1c4e ("ARM: Add platform support for LSI AXM55xx SoC")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220601090548.47616-1-linmq006@gmail.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/rtas.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/arm/mach-axxia/platsmp.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -1061,7 +1061,7 @@ static struct rtas_filter rtas_filters[]
- 	{ "get-time-of-day", -1, -1, -1, -1, -1 },
- 	{ "ibm,get-vpd", -1, 0, -1, 1, 2 },
- 	{ "ibm,lpar-perftools", -1, 2, 3, -1, -1 },
--	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },
-+	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },		/* Special cased */
- 	{ "ibm,read-slot-reset-state", -1, -1, -1, -1, -1 },
- 	{ "ibm,scan-log-dump", -1, 0, 1, -1, -1 },
- 	{ "ibm,set-dynamic-indicator", -1, 2, -1, -1, -1 },
-@@ -1110,6 +1110,15 @@ static bool block_rtas_call(int token, i
- 				size = 1;
+--- a/arch/arm/mach-axxia/platsmp.c
++++ b/arch/arm/mach-axxia/platsmp.c
+@@ -39,6 +39,7 @@ static int axxia_boot_secondary(unsigned
+ 		return -ENOENT;
  
- 			end = base + size - 1;
-+
-+			/*
-+			 * Special case for ibm,platform-dump - NULL buffer
-+			 * address is used to indicate end of dump processing
-+			 */
-+			if (!strcmp(f->name, "ibm,platform-dump") &&
-+			    base == 0)
-+				return false;
-+
- 			if (!in_rmo_buf(base, end))
- 				goto err;
- 		}
+ 	syscon = of_iomap(syscon_np, 0);
++	of_node_put(syscon_np);
+ 	if (!syscon)
+ 		return -ENOMEM;
+ 
 
 
