@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39A5E55DF79
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39FC855C827
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234865AbiF0L0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:26:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45640 "EHLO
+        id S237437AbiF0Lsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:48:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234871AbiF0LZj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:25:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAB1F658E;
-        Mon, 27 Jun 2022 04:25:29 -0700 (PDT)
+        with ESMTP id S238451AbiF0Ls3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18151BF46;
+        Mon, 27 Jun 2022 04:41:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90231B81122;
-        Mon, 27 Jun 2022 11:25:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F039FC3411D;
-        Mon, 27 Jun 2022 11:25:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C293EB81133;
+        Mon, 27 Jun 2022 11:41:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33763C3411D;
+        Mon, 27 Jun 2022 11:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329127;
-        bh=KRoiypMvnU0fpSm6Chup8fkPi/ta/hJsQWETKlgcBIo=;
+        s=korg; t=1656330095;
+        bh=U+Rg92FEYewgN3rsnB9jAB+CU0+j+dvaLs9T3nZDteI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQYUUsR9nHFEmUHROllEh6jApsHcUwm5H+/tzMMlEVyD2rIh9+MtZYHMlIRPCVOMk
-         eMf/0xS96t5yWkl22l0u7L5oWK+fSVNzkHBV6FUzI3o+BhWoeGKejSxIjlHCWIf0Ua
-         y2lo/DvFDALDDVvism2SDlhtKq8x+NfEwc66tX+k=
+        b=D1TW9jzvLsyOcntgy5CAyB1G+lFisLvrs2Um3H4WrJjj8ki1p6UsS+MG5YlPgHosA
+         PFyBm3cHcg7WBYz0mpg+T+8yO2MWaLtgoy4E9Ky1/nIWMzXScIgDraMIq6XZfXS0qG
+         Neoo30o2LHsp3n8glskCG9EEBUFKt5vIVwodlnxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        William Tu <u9012063@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Julien Grall <jgrall@amazon.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 042/102] erspan: do not assume transport header is always set
-Date:   Mon, 27 Jun 2022 13:20:53 +0200
-Message-Id: <20220627111934.719870948@linuxfoundation.org>
+Subject: [PATCH 5.18 081/181] x86/xen: Remove undefined behavior in setup_features()
+Date:   Mon, 27 Jun 2022 13:20:54 +0200
+Message-Id: <20220627111946.910028305@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,125 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Julien Grall <jgrall@amazon.com>
 
-[ Upstream commit 301bd140ed0b24f0da660874c7e8a47dad8c8222 ]
+[ Upstream commit ecb6237fa397b7b810d798ad19322eca466dbab1 ]
 
-Rewrite tests in ip6erspan_tunnel_xmit() and
-erspan_fb_xmit() to not assume transport header is set.
+1 << 31 is undefined. So switch to 1U << 31.
 
-syzbot reported:
-
-WARNING: CPU: 0 PID: 1350 at include/linux/skbuff.h:2911 skb_transport_header include/linux/skbuff.h:2911 [inline]
-WARNING: CPU: 0 PID: 1350 at include/linux/skbuff.h:2911 ip6erspan_tunnel_xmit+0x15af/0x2eb0 net/ipv6/ip6_gre.c:963
-Modules linked in:
-CPU: 0 PID: 1350 Comm: aoe_tx0 Not tainted 5.19.0-rc2-syzkaller-00160-g274295c6e53f #0
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
-RIP: 0010:skb_transport_header include/linux/skbuff.h:2911 [inline]
-RIP: 0010:ip6erspan_tunnel_xmit+0x15af/0x2eb0 net/ipv6/ip6_gre.c:963
-Code: 0f 47 f0 40 88 b5 7f fe ff ff e8 8c 16 4b f9 89 de bf ff ff ff ff e8 a0 12 4b f9 66 83 fb ff 0f 85 1d f1 ff ff e8 71 16 4b f9 <0f> 0b e9 43 f0 ff ff e8 65 16 4b f9 48 8d 85 30 ff ff ff ba 60 00
-RSP: 0018:ffffc90005daf910 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 000000000000ffff RCX: 0000000000000000
-RDX: ffff88801f032100 RSI: ffffffff882e8d3f RDI: 0000000000000003
-RBP: ffffc90005dafab8 R08: 0000000000000003 R09: 000000000000ffff
-R10: 000000000000ffff R11: 0000000000000000 R12: ffff888024f21d40
-R13: 000000000000a288 R14: 00000000000000b0 R15: ffff888025a2e000
-FS: 0000000000000000(0000) GS:ffff88802c800000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b2e425000 CR3: 000000006d099000 CR4: 0000000000152ef0
-Call Trace:
-<TASK>
-__netdev_start_xmit include/linux/netdevice.h:4805 [inline]
-netdev_start_xmit include/linux/netdevice.h:4819 [inline]
-xmit_one net/core/dev.c:3588 [inline]
-dev_hard_start_xmit+0x188/0x880 net/core/dev.c:3604
-sch_direct_xmit+0x19f/0xbe0 net/sched/sch_generic.c:342
-__dev_xmit_skb net/core/dev.c:3815 [inline]
-__dev_queue_xmit+0x14a1/0x3900 net/core/dev.c:4219
-dev_queue_xmit include/linux/netdevice.h:2994 [inline]
-tx+0x6a/0xc0 drivers/block/aoe/aoenet.c:63
-kthread+0x1e7/0x3b0 drivers/block/aoe/aoecmd.c:1229
-kthread+0x2e9/0x3a0 kernel/kthread.c:376
-ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
-</TASK>
-
-Fixes: d5db21a3e697 ("erspan: auto detect truncated ipv6 packets.")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: William Tu <u9012063@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5ead97c84fa7 ("xen: Core Xen implementation")
+Signed-off-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20220617103037.57828-1-julien@xen.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_gre.c  | 15 ++++++++++-----
- net/ipv6/ip6_gre.c | 15 ++++++++++-----
- 2 files changed, 20 insertions(+), 10 deletions(-)
+ drivers/xen/features.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index a7e32be8714f..6ab5c50aa7a8 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -519,7 +519,6 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
- 	int tunnel_hlen;
- 	int version;
- 	int nhoff;
--	int thoff;
+diff --git a/drivers/xen/features.c b/drivers/xen/features.c
+index 7b591443833c..87f1828d40d5 100644
+--- a/drivers/xen/features.c
++++ b/drivers/xen/features.c
+@@ -42,7 +42,7 @@ void xen_setup_features(void)
+ 		if (HYPERVISOR_xen_version(XENVER_get_features, &fi) < 0)
+ 			break;
+ 		for (j = 0; j < 32; j++)
+-			xen_features[i * 32 + j] = !!(fi.submap & 1<<j);
++			xen_features[i * 32 + j] = !!(fi.submap & 1U << j);
+ 	}
  
- 	tun_info = skb_tunnel_info(skb);
- 	if (unlikely(!tun_info || !(tun_info->mode & IP_TUNNEL_INFO_TX) ||
-@@ -553,10 +552,16 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
- 	    (ntohs(ip_hdr(skb)->tot_len) > skb->len - nhoff))
- 		truncate = true;
- 
--	thoff = skb_transport_header(skb) - skb_mac_header(skb);
--	if (skb->protocol == htons(ETH_P_IPV6) &&
--	    (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff))
--		truncate = true;
-+	if (skb->protocol == htons(ETH_P_IPV6)) {
-+		int thoff;
-+
-+		if (skb_transport_header_was_set(skb))
-+			thoff = skb_transport_header(skb) - skb_mac_header(skb);
-+		else
-+			thoff = nhoff + sizeof(struct ipv6hdr);
-+		if (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff)
-+			truncate = true;
-+	}
- 
- 	if (version == 1) {
- 		erspan_build_header(skb, ntohl(tunnel_id_to_key32(key->tun_id)),
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index 3f88ba6555ab..9e0890738d93 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -944,7 +944,6 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
- 	__be16 proto;
- 	__u32 mtu;
- 	int nhoff;
--	int thoff;
- 
- 	if (!pskb_inet_may_pull(skb))
- 		goto tx_err;
-@@ -965,10 +964,16 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
- 	    (ntohs(ip_hdr(skb)->tot_len) > skb->len - nhoff))
- 		truncate = true;
- 
--	thoff = skb_transport_header(skb) - skb_mac_header(skb);
--	if (skb->protocol == htons(ETH_P_IPV6) &&
--	    (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff))
--		truncate = true;
-+	if (skb->protocol == htons(ETH_P_IPV6)) {
-+		int thoff;
-+
-+		if (skb_transport_header_was_set(skb))
-+			thoff = skb_transport_header(skb) - skb_mac_header(skb);
-+		else
-+			thoff = nhoff + sizeof(struct ipv6hdr);
-+		if (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff)
-+			truncate = true;
-+	}
- 
- 	if (skb_cow_head(skb, dev->needed_headroom ?: t->hlen))
- 		goto tx_err;
+ 	if (xen_pv_domain()) {
 -- 
 2.35.1
 
