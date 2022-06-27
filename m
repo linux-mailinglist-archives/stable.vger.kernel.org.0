@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C81355DAA3
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:23:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E88255D489
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:14:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238664AbiF0LwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:52:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52346 "EHLO
+        id S235479AbiF0L3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:29:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238397AbiF0LvA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:51:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC3772639;
-        Mon, 27 Jun 2022 04:44:01 -0700 (PDT)
+        with ESMTP id S235177AbiF0L3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:29:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35956A1A4;
+        Mon, 27 Jun 2022 04:27:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B582B80D92;
-        Mon, 27 Jun 2022 11:44:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 729EAC3411D;
-        Mon, 27 Jun 2022 11:43:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C28DF614A0;
+        Mon, 27 Jun 2022 11:27:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B19EBC3411D;
+        Mon, 27 Jun 2022 11:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330239;
-        bh=3et7C20MPNxTW5cx0titcr+mDahhou3MD2NyUskSB3E=;
+        s=korg; t=1656329273;
+        bh=6s4OzjVqP8fvyE022P86NPf+L24fKj2JE6MKYOT/My0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/BVIg5rnI4lla3rzcWRrRa4zXWhM5W7/hFHMiys9WGIjh4JZ+VLHF/nkEOaQGqxu
-         aGZ5PqNpKDrKIIBcCO95S50pX5IyNXIVl4Hkevma7PKDHPmlI78ieKBFl5ixVuXnRS
-         eU2jpiEkanMgZ09oW2V9CIlzHBms+M6rEZ9W41Wo=
+        b=jnZO8d/fnhE7/rNrXFaDlZWgIIzN3G7/+oXVnhQkZjPM2qUAitinKtvsAjY5lowEQ
+         30nS02fu1G3urm94x958s3Czd39+Zd553YZqmig4qhEASw6l9EysxXH0FV2J4pw9Kc
+         lsqT7UZnkMjW+9Xim6YEy5+axgixpCG7upIDpYcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daeho Jeong <daehojeong@google.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.18 128/181] f2fs: fix iostat related lock protection
+        stable@vger.kernel.org,
+        Sathvika Vasireddy <sathvika@linux.ibm.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 090/102] powerpc/rtas: Allow ibm,platform-dump RTAS call with null buffer address
 Date:   Mon, 27 Jun 2022 13:21:41 +0200
-Message-Id: <20220627111948.403218635@linuxfoundation.org>
+Message-Id: <20220627111936.135075465@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,137 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daeho Jeong <daehojeong@google.com>
+From: Andrew Donnellan <ajd@linux.ibm.com>
 
-commit 61803e984307c767a96d85f3b61ca50e1705fc67 upstream.
+commit 7bc08056a6dabc3a1442216daf527edf61ac24b6 upstream.
 
-Made iostat related locks safe to be called from irq context again.
+Add a special case to block_rtas_call() to allow the ibm,platform-dump RTAS
+call through the RTAS filter if the buffer address is 0.
 
-Cc: <stable@vger.kernel.org>
-Fixes: a1e09b03e6f5 ("f2fs: use iomap for direct I/O")
-Signed-off-by: Daeho Jeong <daehojeong@google.com>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Tested-by: Eddie Huang <eddie.huang@mediatek.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+According to PAPR, ibm,platform-dump is called with a null buffer address
+to notify the platform firmware that processing of a particular dump is
+finished.
+
+Without this, on a pseries machine with CONFIG_PPC_RTAS_FILTER enabled, an
+application such as rtas_errd that is attempting to retrieve a dump will
+encounter an error at the end of the retrieval process.
+
+Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
+Cc: stable@vger.kernel.org
+Reported-by: Sathvika Vasireddy <sathvika@linux.ibm.com>
+Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220614134952.156010-1-ajd@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/iostat.c |   31 ++++++++++++++++++-------------
- 1 file changed, 18 insertions(+), 13 deletions(-)
+ arch/powerpc/kernel/rtas.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/fs/f2fs/iostat.c
-+++ b/fs/f2fs/iostat.c
-@@ -91,8 +91,9 @@ static inline void __record_iostat_laten
- 	unsigned int cnt;
- 	struct f2fs_iostat_latency iostat_lat[MAX_IO_TYPE][NR_PAGE_TYPE];
- 	struct iostat_lat_info *io_lat = sbi->iostat_io_lat;
-+	unsigned long flags;
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -1040,7 +1040,7 @@ static struct rtas_filter rtas_filters[]
+ 	{ "get-time-of-day", -1, -1, -1, -1, -1 },
+ 	{ "ibm,get-vpd", -1, 0, -1, 1, 2 },
+ 	{ "ibm,lpar-perftools", -1, 2, 3, -1, -1 },
+-	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },
++	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },		/* Special cased */
+ 	{ "ibm,read-slot-reset-state", -1, -1, -1, -1, -1 },
+ 	{ "ibm,scan-log-dump", -1, 0, 1, -1, -1 },
+ 	{ "ibm,set-dynamic-indicator", -1, 2, -1, -1, -1 },
+@@ -1087,6 +1087,15 @@ static bool block_rtas_call(int token, i
+ 				size = 1;
  
--	spin_lock_bh(&sbi->iostat_lat_lock);
-+	spin_lock_irqsave(&sbi->iostat_lat_lock, flags);
- 	for (idx = 0; idx < MAX_IO_TYPE; idx++) {
- 		for (io = 0; io < NR_PAGE_TYPE; io++) {
- 			cnt = io_lat->bio_cnt[idx][io];
-@@ -106,7 +107,7 @@ static inline void __record_iostat_laten
- 			io_lat->bio_cnt[idx][io] = 0;
- 		}
- 	}
--	spin_unlock_bh(&sbi->iostat_lat_lock);
-+	spin_unlock_irqrestore(&sbi->iostat_lat_lock, flags);
- 
- 	trace_f2fs_iostat_latency(sbi, iostat_lat);
- }
-@@ -115,14 +116,15 @@ static inline void f2fs_record_iostat(st
- {
- 	unsigned long long iostat_diff[NR_IO_TYPE];
- 	int i;
-+	unsigned long flags;
- 
- 	if (time_is_after_jiffies(sbi->iostat_next_period))
- 		return;
- 
- 	/* Need double check under the lock */
--	spin_lock_bh(&sbi->iostat_lock);
-+	spin_lock_irqsave(&sbi->iostat_lock, flags);
- 	if (time_is_after_jiffies(sbi->iostat_next_period)) {
--		spin_unlock_bh(&sbi->iostat_lock);
-+		spin_unlock_irqrestore(&sbi->iostat_lock, flags);
- 		return;
- 	}
- 	sbi->iostat_next_period = jiffies +
-@@ -133,7 +135,7 @@ static inline void f2fs_record_iostat(st
- 				sbi->prev_rw_iostat[i];
- 		sbi->prev_rw_iostat[i] = sbi->rw_iostat[i];
- 	}
--	spin_unlock_bh(&sbi->iostat_lock);
-+	spin_unlock_irqrestore(&sbi->iostat_lock, flags);
- 
- 	trace_f2fs_iostat(sbi, iostat_diff);
- 
-@@ -145,25 +147,27 @@ void f2fs_reset_iostat(struct f2fs_sb_in
- 	struct iostat_lat_info *io_lat = sbi->iostat_io_lat;
- 	int i;
- 
--	spin_lock_bh(&sbi->iostat_lock);
-+	spin_lock_irq(&sbi->iostat_lock);
- 	for (i = 0; i < NR_IO_TYPE; i++) {
- 		sbi->rw_iostat[i] = 0;
- 		sbi->prev_rw_iostat[i] = 0;
- 	}
--	spin_unlock_bh(&sbi->iostat_lock);
-+	spin_unlock_irq(&sbi->iostat_lock);
- 
--	spin_lock_bh(&sbi->iostat_lat_lock);
-+	spin_lock_irq(&sbi->iostat_lat_lock);
- 	memset(io_lat, 0, sizeof(struct iostat_lat_info));
--	spin_unlock_bh(&sbi->iostat_lat_lock);
-+	spin_unlock_irq(&sbi->iostat_lat_lock);
- }
- 
- void f2fs_update_iostat(struct f2fs_sb_info *sbi,
- 			enum iostat_type type, unsigned long long io_bytes)
- {
-+	unsigned long flags;
+ 			end = base + size - 1;
 +
- 	if (!sbi->iostat_enable)
- 		return;
- 
--	spin_lock_bh(&sbi->iostat_lock);
-+	spin_lock_irqsave(&sbi->iostat_lock, flags);
- 	sbi->rw_iostat[type] += io_bytes;
- 
- 	if (type == APP_BUFFERED_IO || type == APP_DIRECT_IO)
-@@ -172,7 +176,7 @@ void f2fs_update_iostat(struct f2fs_sb_i
- 	if (type == APP_BUFFERED_READ_IO || type == APP_DIRECT_READ_IO)
- 		sbi->rw_iostat[APP_READ_IO] += io_bytes;
- 
--	spin_unlock_bh(&sbi->iostat_lock);
-+	spin_unlock_irqrestore(&sbi->iostat_lock, flags);
- 
- 	f2fs_record_iostat(sbi);
- }
-@@ -185,6 +189,7 @@ static inline void __update_iostat_laten
- 	struct f2fs_sb_info *sbi = iostat_ctx->sbi;
- 	struct iostat_lat_info *io_lat = sbi->iostat_io_lat;
- 	int idx;
-+	unsigned long flags;
- 
- 	if (!sbi->iostat_enable)
- 		return;
-@@ -202,12 +207,12 @@ static inline void __update_iostat_laten
- 			idx = WRITE_ASYNC_IO;
- 	}
- 
--	spin_lock_bh(&sbi->iostat_lat_lock);
-+	spin_lock_irqsave(&sbi->iostat_lat_lock, flags);
- 	io_lat->sum_lat[idx][iotype] += ts_diff;
- 	io_lat->bio_cnt[idx][iotype]++;
- 	if (ts_diff > io_lat->peak_lat[idx][iotype])
- 		io_lat->peak_lat[idx][iotype] = ts_diff;
--	spin_unlock_bh(&sbi->iostat_lat_lock);
-+	spin_unlock_irqrestore(&sbi->iostat_lat_lock, flags);
- }
- 
- void iostat_update_and_unbind_ctx(struct bio *bio, int rw)
++			/*
++			 * Special case for ibm,platform-dump - NULL buffer
++			 * address is used to indicate end of dump processing
++			 */
++			if (!strcmp(f->name, "ibm,platform-dump") &&
++			    base == 0)
++				return false;
++
+ 			if (!in_rmo_buf(base, end))
+ 				goto err;
+ 		}
 
 
