@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76B9D55E105
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B769755DA0B
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:22:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238851AbiF0Lx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55918 "EHLO
+        id S238977AbiF0Lyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:54:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238860AbiF0Lwo (ORCPT
+        with ESMTP id S238867AbiF0Lwo (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BE38DED6;
-        Mon, 27 Jun 2022 04:46:05 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 997C7DEE6;
+        Mon, 27 Jun 2022 04:46:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FD0461187;
-        Mon, 27 Jun 2022 11:46:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BDDBC3411D;
-        Mon, 27 Jun 2022 11:46:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3536061188;
+        Mon, 27 Jun 2022 11:46:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46455C3411D;
+        Mon, 27 Jun 2022 11:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330364;
-        bh=fjO+gy8E13zpEMADm2t3CoBV0cHGMWdxR1twvteRKVU=;
+        s=korg; t=1656330367;
+        bh=XD01nU63sTO0XqJJuZPfLOromHDSrYBbyMEACs/xTzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0K8q1l0UGZeMC1pbacQUzyTiJhu9ApLg0yZLkehrNgV46S5Ocjn6gp4ZVroZBfHUQ
-         MHihUnnuOzUyXOJUYZY1hTfgjwlpT262d3lDdRWzADYH7hRVhrtC0mBaRFC5CzJJFS
-         04YsL0xAFbW+ji1COC+TE42i31CxBy6Mc5SomfFk=
+        b=Sq9wefwreD5VhPE2KY0xzxIFCeDaQFqYDcHPdv8PHAM0cSFJGlA1kcj4yergMW63l
+         +B32FCvfkIAKR6U8WZzkIRG2L1Y9dqHPuVWnpA1Wvg4iEYN6CzDkcY8qZYU9rym1pR
+         gpxFnqnpf5vc6j8mSS6Li5BsSnb4T1abhDRI0Pg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Lukasz Luba <lukasz.luba@arm.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 5.18 171/181] memory: samsung: exynos5422-dmc: Fix refcount leak in of_get_dram_timings
-Date:   Mon, 27 Jun 2022 13:22:24 +0200
-Message-Id: <20220627111949.644119087@linuxfoundation.org>
+        Krzysztof Halasa <khalasa@piap.pl>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.18 172/181] ARM: cns3xxx: Fix refcount leak in cns3xxx_init
+Date:   Mon, 27 Jun 2022 13:22:25 +0200
+Message-Id: <20220627111949.672778263@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -56,90 +56,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 1332661e09304b7b8e84e5edc11811ba08d12abe upstream.
+commit 1ba904b6b16e08de5aed7c1349838d9cd0d178c5 upstream.
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-This function doesn't call of_node_put() in some error paths.
-To unify the structure, Add put_node label and goto it on errors.
+of_find_compatible_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 6e7674c3c6df ("memory: Add DMC driver for Exynos5422")
+Fixes: 415f59142d9d ("ARM: cns3xxx: initial DT support")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
-Link: https://lore.kernel.org/r/20220602041721.64348-1-linmq006@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Krzysztof Halasa <khalasa@piap.pl>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/memory/samsung/exynos5422-dmc.c |   29 ++++++++++++++++++-----------
- 1 file changed, 18 insertions(+), 11 deletions(-)
+ arch/arm/mach-cns3xxx/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/memory/samsung/exynos5422-dmc.c
-+++ b/drivers/memory/samsung/exynos5422-dmc.c
-@@ -1187,33 +1187,39 @@ static int of_get_dram_timings(struct ex
- 
- 	dmc->timing_row = devm_kmalloc_array(dmc->dev, TIMING_COUNT,
- 					     sizeof(u32), GFP_KERNEL);
--	if (!dmc->timing_row)
--		return -ENOMEM;
-+	if (!dmc->timing_row) {
-+		ret = -ENOMEM;
-+		goto put_node;
-+	}
- 
- 	dmc->timing_data = devm_kmalloc_array(dmc->dev, TIMING_COUNT,
- 					      sizeof(u32), GFP_KERNEL);
--	if (!dmc->timing_data)
--		return -ENOMEM;
-+	if (!dmc->timing_data) {
-+		ret = -ENOMEM;
-+		goto put_node;
-+	}
- 
- 	dmc->timing_power = devm_kmalloc_array(dmc->dev, TIMING_COUNT,
- 					       sizeof(u32), GFP_KERNEL);
--	if (!dmc->timing_power)
--		return -ENOMEM;
-+	if (!dmc->timing_power) {
-+		ret = -ENOMEM;
-+		goto put_node;
-+	}
- 
- 	dmc->timings = of_lpddr3_get_ddr_timings(np_ddr, dmc->dev,
- 						 DDR_TYPE_LPDDR3,
- 						 &dmc->timings_arr_size);
- 	if (!dmc->timings) {
--		of_node_put(np_ddr);
- 		dev_warn(dmc->dev, "could not get timings from DT\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_node;
+--- a/arch/arm/mach-cns3xxx/core.c
++++ b/arch/arm/mach-cns3xxx/core.c
+@@ -372,6 +372,7 @@ static void __init cns3xxx_init(void)
+ 		/* De-Asscer SATA Reset */
+ 		cns3xxx_pwr_soft_rst(CNS3XXX_PWR_SOFTWARE_RST(SATA));
  	}
++	of_node_put(dn);
  
- 	dmc->min_tck = of_lpddr3_get_min_tck(np_ddr, dmc->dev);
- 	if (!dmc->min_tck) {
--		of_node_put(np_ddr);
- 		dev_warn(dmc->dev, "could not get tck from DT\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_node;
+ 	dn = of_find_compatible_node(NULL, NULL, "cavium,cns3420-sdhci");
+ 	if (of_device_is_available(dn)) {
+@@ -385,6 +386,7 @@ static void __init cns3xxx_init(void)
+ 		cns3xxx_pwr_clk_en(CNS3XXX_PWR_CLK_EN(SDIO));
+ 		cns3xxx_pwr_soft_rst(CNS3XXX_PWR_SOFTWARE_RST(SDIO));
  	}
++	of_node_put(dn);
  
- 	/* Sorted array of OPPs with frequency ascending */
-@@ -1227,13 +1233,14 @@ static int of_get_dram_timings(struct ex
- 					     clk_period_ps);
- 	}
- 
--	of_node_put(np_ddr);
- 
- 	/* Take the highest frequency's timings as 'bypass' */
- 	dmc->bypass_timing_row = dmc->timing_row[idx - 1];
- 	dmc->bypass_timing_data = dmc->timing_data[idx - 1];
- 	dmc->bypass_timing_power = dmc->timing_power[idx - 1];
- 
-+put_node:
-+	of_node_put(np_ddr);
- 	return ret;
- }
+ 	pm_power_off = cns3xxx_power_off;
  
 
 
