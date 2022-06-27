@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B26A755C37C
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E8ED55C757
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233266AbiF0JM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 05:12:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34760 "EHLO
+        id S233446AbiF0JMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 05:12:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232605AbiF0JMZ (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 27 Jun 2022 05:12:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FFA72664
-        for <Stable@vger.kernel.org>; Mon, 27 Jun 2022 02:12:24 -0700 (PDT)
+        with ESMTP id S233840AbiF0JMg (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 27 Jun 2022 05:12:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B81C92664
+        for <Stable@vger.kernel.org>; Mon, 27 Jun 2022 02:12:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A951B81065
-        for <Stable@vger.kernel.org>; Mon, 27 Jun 2022 09:12:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77FD3C3411D;
-        Mon, 27 Jun 2022 09:12:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54188611D4
+        for <Stable@vger.kernel.org>; Mon, 27 Jun 2022 09:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61286C3411D;
+        Mon, 27 Jun 2022 09:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656321141;
-        bh=LAbEgN6bx9OjWbRrf7aFOPjxmfnAOrAOBKf0a4M0Ef0=;
+        s=korg; t=1656321154;
+        bh=88qbJ4GfCyM5Ic5bbccbQJofXxnuYGtdclikGtpBK1Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=fM1DzMyezGbwFaiKdW2ef/JBjOgShjUiga50dJtzBfCjIb/b1dnhyswjzicxfYEaR
-         Gr47GhhRSkvoN+OIPSqKJZBumCvnqwOF+v5SxXjWA2RX2WL1x9fvK7UMMteO15iACL
-         qTIp23DRRZpzmeBUxXYR8KHH0KjL603sRSrv8Nek=
-Subject: FAILED: patch "[PATCH] iio:accel:kxcjk-1013: rearrange iio trigger get and register" failed to apply to 4.19-stable tree
+        b=NLi0lus6qbfcaf51z0lCUNwlFaE24xTpWMjt3qvN3aCbQNdWRR81Wez00yLroue78
+         Ko2nEcRfnuldD5z6CASBpukgNVoDTpmn/T4k79pf1uYFqGcjDT5gVuL23fiDB31A+x
+         WhR41kWkMXiB8nqiRnTR02UHvNe8O69FyfIrj35E=
+Subject: FAILED: patch "[PATCH] iio:accel:mxc4005: rearrange iio trigger get and register" failed to apply to 4.9-stable tree
 To:     DDRokosov@sberdevices.ru, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, andy.shevchenko@gmail.com,
         ddrokosov@sberdevices.ru
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Jun 2022 11:12:02 +0200
-Message-ID: <165632112288@kroah.com>
+Date:   Mon, 27 Jun 2022 11:12:31 +0200
+Message-ID: <16563211517493@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,10 +61,10 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ed302925d708f2f97ae5e9fd6c56c16bb34f6629 Mon Sep 17 00:00:00 2001
+From 9354c224c9b4f55847a0de3e968cba2ebf15af3b Mon Sep 17 00:00:00 2001
 From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
-Date: Tue, 24 May 2022 18:14:42 +0000
-Subject: [PATCH] iio:accel:kxcjk-1013: rearrange iio trigger get and register
+Date: Tue, 24 May 2022 18:14:43 +0000
+Subject: [PATCH] iio:accel:mxc4005: rearrange iio trigger get and register
 
 IIO trigger interface function iio_trigger_get() should be called after
 iio_trigger_register() (or its devm analogue) strictly, because of
@@ -75,30 +75,33 @@ If this call order is wrong, the next iio_trigger_put() (from sysfs
 callback or "delete module" path) will dereference "default" module
 refcnt, which is incorrect behaviour.
 
-Fixes: c1288b833881 ("iio: accel: kxcjk-1013: Increment ref counter for indio_dev->trig")
+Fixes: 47196620c82f ("iio: mxc4005: add data ready trigger for mxc4005")
 Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220524181150.9240-3-ddrokosov@sberdevices.ru
+Link: https://lore.kernel.org/r/20220524181150.9240-4-ddrokosov@sberdevices.ru
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
-index ac74cdcd2bc8..748b35c2f0c3 100644
---- a/drivers/iio/accel/kxcjk-1013.c
-+++ b/drivers/iio/accel/kxcjk-1013.c
-@@ -1554,12 +1554,12 @@ static int kxcjk1013_probe(struct i2c_client *client,
+diff --git a/drivers/iio/accel/mxc4005.c b/drivers/iio/accel/mxc4005.c
+index b3afbf064915..df600d2917c0 100644
+--- a/drivers/iio/accel/mxc4005.c
++++ b/drivers/iio/accel/mxc4005.c
+@@ -456,8 +456,6 @@ static int mxc4005_probe(struct i2c_client *client,
  
- 		data->dready_trig->ops = &kxcjk1013_trigger_ops;
+ 		data->dready_trig->ops = &mxc4005_trigger_ops;
  		iio_trigger_set_drvdata(data->dready_trig, indio_dev);
 -		indio_dev->trig = data->dready_trig;
 -		iio_trigger_get(indio_dev->trig);
- 		ret = iio_trigger_register(data->dready_trig);
- 		if (ret)
- 			goto err_poweroff;
- 
-+		indio_dev->trig = iio_trigger_get(data->dready_trig);
+ 		ret = devm_iio_trigger_register(&client->dev,
+ 						data->dready_trig);
+ 		if (ret) {
+@@ -465,6 +463,8 @@ static int mxc4005_probe(struct i2c_client *client,
+ 				"failed to register trigger\n");
+ 			return ret;
+ 		}
 +
- 		data->motion_trig->ops = &kxcjk1013_trigger_ops;
- 		iio_trigger_set_drvdata(data->motion_trig, indio_dev);
- 		ret = iio_trigger_register(data->motion_trig);
++		indio_dev->trig = iio_trigger_get(data->dready_trig);
+ 	}
+ 
+ 	return devm_iio_device_register(&client->dev, indio_dev);
 
