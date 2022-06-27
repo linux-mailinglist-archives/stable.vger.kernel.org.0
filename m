@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C8B355D28B
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E66D255DE6A
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:29:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239006AbiF0Lyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238988AbiF0Lyj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 27 Jun 2022 07:54:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55812 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238937AbiF0Lwu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29564DF2F;
-        Mon, 27 Jun 2022 04:46:36 -0700 (PDT)
+        with ESMTP id S238940AbiF0Lwv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54673DF30;
+        Mon, 27 Jun 2022 04:46:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1E98B80D92;
-        Mon, 27 Jun 2022 11:46:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16798C3411D;
-        Mon, 27 Jun 2022 11:46:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E640F610A0;
+        Mon, 27 Jun 2022 11:46:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3D6AC3411D;
+        Mon, 27 Jun 2022 11:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330393;
-        bh=YImIa/liWRw7qo/4z5YHPpebSs0Y9/ZJ3JXz//szOtU=;
+        s=korg; t=1656330396;
+        bh=A5UBWaCrl/qkluSIKGtZTc8F6JYpzds5b08cBXNIoF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KwG/ZmHRDF3G6Sv+Xkc2Tlc6u9c74Jt2B5nh3WRQbxbbjD1TCAGkVGK+ue3yUcFee
-         HcWjKscjHtgv/Eg/FBs43f1qh2k6k+SE7LydlOJnm1nMjqiA69EpefN4Mbkaf7E1sU
-         NaKAnhklQdQVjswCpgcPryllILdBQUOG2lclTiyc=
+        b=n9265Ds5tuXwEH+TIO7/cBTC/5oR0c4mIIcejfdy+WEXC2ggfmMk39pqBkqKsUAKV
+         +S2TF6x/UdmNZpnem4uqlw1vSs7tw6h1xDPtu4/sUQ4CNxgBPP9mfXrDfeNRliq1Pa
+         TQaJN4rOCm+np5m9JpIO533rX5SdRvaQ9D62C5kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.18 176/181] random: update comment from copy_to_user() -> copy_to_iter()
-Date:   Mon, 27 Jun 2022 13:22:29 +0200
-Message-Id: <20220627111949.787098845@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Tom Zanussi <tzanussi@gmail.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.18 177/181] perf build-id: Fix caching files with a wrong build ID
+Date:   Mon, 27 Jun 2022 13:22:30 +0200
+Message-Id: <20220627111949.815516804@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -52,30 +56,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 63b8ea5e4f1a87dea4d3114293fc8e96a8f193d7 upstream.
+commit ab66fdace8581ef3b4e7cf5381a168ed4058d779 upstream.
 
-This comment wasn't updated when we moved from read() to read_iter(), so
-this patch makes the trivial fix.
+Build ID events associate a file name with a build ID.  However, when
+using perf inject, there is no guarantee that the file on the current
+machine at the current time has that build ID. Fix by comparing the
+build IDs and skip adding to the cache if they are different.
 
-Fixes: 1b388e7765f2 ("random: convert to using fops->read_iter()")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Example:
+
+  $ echo "int main() {return 0;}" > prog.c
+  $ gcc -o prog prog.c
+  $ perf record --buildid-all ./prog
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.019 MB perf.data ]
+  $ file-buildid() { file $1 | awk -F= '{print $2}' | awk -F, '{print $1}' ; }
+  $ file-buildid prog
+  444ad9be165d8058a48ce2ffb4e9f55854a3293e
+  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
+  444ad9be165d8058a48ce2ffb4e9f55854a3293e
+  $ echo "int main() {return 1;}" > prog.c
+  $ gcc -o prog prog.c
+  $ file-buildid prog
+  885524d5aaa24008a3e2b06caa3ea95d013c0fc5
+
+Before:
+
+  $ perf buildid-cache --purge $(pwd)/prog
+  $ perf inject -i perf.data -o junk
+  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
+  885524d5aaa24008a3e2b06caa3ea95d013c0fc5
+  $
+
+After:
+
+  $ perf buildid-cache --purge $(pwd)/prog
+  $ perf inject -i perf.data -o junk
+  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
+
+  $
+
+Fixes: 454c407ec17a0c63 ("perf: add perf-inject builtin")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Tom Zanussi <tzanussi@gmail.com>
+Link: https://lore.kernel.org/r/20220621125144.5623-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/build-id.c |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -451,7 +451,7 @@ static ssize_t get_random_bytes_user(str
+--- a/tools/perf/util/build-id.c
++++ b/tools/perf/util/build-id.c
+@@ -872,6 +872,30 @@ out_free:
+ 	return err;
+ }
  
- 	/*
- 	 * Immediately overwrite the ChaCha key at index 4 with random
--	 * bytes, in case userspace causes copy_to_user() below to sleep
-+	 * bytes, in case userspace causes copy_to_iter() below to sleep
- 	 * forever, so that we still retain forward secrecy in that case.
- 	 */
- 	crng_make_state(chacha_state, (u8 *)&chacha_state[4], CHACHA_KEY_SIZE);
++static int filename__read_build_id_ns(const char *filename,
++				      struct build_id *bid,
++				      struct nsinfo *nsi)
++{
++	struct nscookie nsc;
++	int ret;
++
++	nsinfo__mountns_enter(nsi, &nsc);
++	ret = filename__read_build_id(filename, bid);
++	nsinfo__mountns_exit(&nsc);
++
++	return ret;
++}
++
++static bool dso__build_id_mismatch(struct dso *dso, const char *name)
++{
++	struct build_id bid;
++
++	if (filename__read_build_id_ns(name, &bid, dso->nsinfo) < 0)
++		return false;
++
++	return !dso__build_id_equal(dso, &bid);
++}
++
+ static int dso__cache_build_id(struct dso *dso, struct machine *machine,
+ 			       void *priv __maybe_unused)
+ {
+@@ -886,6 +910,10 @@ static int dso__cache_build_id(struct ds
+ 		is_kallsyms = true;
+ 		name = machine->mmap_name;
+ 	}
++
++	if (!is_kallsyms && dso__build_id_mismatch(dso, name))
++		return 0;
++
+ 	return build_id_cache__add_b(&dso->bid, name, dso->nsinfo,
+ 				     is_kallsyms, is_vdso);
+ }
 
 
