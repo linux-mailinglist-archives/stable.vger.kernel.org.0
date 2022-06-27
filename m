@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E2F155DF2C
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 943DD55C185
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235262AbiF0L3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:29:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44342 "EHLO
+        id S238827AbiF0Lxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:53:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235372AbiF0L2t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:28:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE03965A5;
-        Mon, 27 Jun 2022 04:27:30 -0700 (PDT)
+        with ESMTP id S238898AbiF0Lws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F20DF0F;
+        Mon, 27 Jun 2022 04:46:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FC7EB81120;
-        Mon, 27 Jun 2022 11:27:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 829A5C3411D;
-        Mon, 27 Jun 2022 11:27:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 869E261187;
+        Mon, 27 Jun 2022 11:46:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 997C5C3411D;
+        Mon, 27 Jun 2022 11:46:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329248;
-        bh=txsi3SPGgKkJ/yjLz7OMyx86d9QtjZZbPTZ6H+FrQ6Y=;
+        s=korg; t=1656330382;
+        bh=JI8q8nWm4Q7nBzEZmsr6UgIbIz5QfLN/iEi1FTJoC14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7BcECrBZAfNh1wznjeAlTd5EeIyAFRIpkh0LNzRUin5Yvl/4Ejao5XMJSsOcxWTr
-         VVZBxw/tw1VxpP6Lk5CBVyI+/eqll06C8YV2Href/53r5c83khb70wbJCwKfZkQEn/
-         VwayofPkVqezdyo214Qd/8wa2gaSczeNF3mfe4EQ=
+        b=PLVz4ZR9aLGSVqPDwg/ZQJcWJpBJMnuEb02XlRPGSG/2Tp3g24At7SDBychg/UfU2
+         A1seSsFs2t6B7JBfkK93snLAL9HmFnCM9d7t2Ji8y0QeRSvsW2pC/0fW26lHhgkBAH
+         O4wh/rTOO8eBmBybxC0sDUFdeIEiJWNSZPUgnpkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 100/102] random: update comment from copy_to_user() -> copy_to_iter()
-Date:   Mon, 27 Jun 2022 13:21:51 +0200
-Message-Id: <20220627111936.432511320@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Olivier Moysan <olivier.moysan@foss.st.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.18 139/181] iio: adc: stm32: fix maximum clock rate for stm32mp15x
+Date:   Mon, 27 Jun 2022 13:21:52 +0200
+Message-Id: <20220627111948.718532192@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,30 +56,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Olivier Moysan <olivier.moysan@foss.st.com>
 
-commit 63b8ea5e4f1a87dea4d3114293fc8e96a8f193d7 upstream.
+commit 990539486e7e311fb5dab1bf4d85d1a8973ae644 upstream.
 
-This comment wasn't updated when we moved from read() to read_iter(), so
-this patch makes the trivial fix.
+Change maximum STM32 ADC input clock rate to 36MHz, as specified
+in STM32MP15x datasheets.
 
-Fixes: 1b388e7765f2 ("random: convert to using fops->read_iter()")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Fixes: d58c67d1d851 ("iio: adc: stm32-adc: add support for STM32MP1")
+Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
+Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20220609095234.375925-1-olivier.moysan@foss.st.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
+ drivers/iio/adc/stm32-adc-core.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -452,7 +452,7 @@ static ssize_t get_random_bytes_user(str
- 
- 	/*
- 	 * Immediately overwrite the ChaCha key at index 4 with random
--	 * bytes, in case userspace causes copy_to_user() below to sleep
-+	 * bytes, in case userspace causes copy_to_iter() below to sleep
- 	 * forever, so that we still retain forward secrecy in that case.
- 	 */
- 	crng_make_state(chacha_state, (u8 *)&chacha_state[4], CHACHA_KEY_SIZE);
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -805,7 +805,7 @@ static const struct stm32_adc_priv_cfg s
+ static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
+ 	.regs = &stm32h7_adc_common_regs,
+ 	.clk_sel = stm32h7_adc_clk_sel,
+-	.max_clk_rate_hz = 40000000,
++	.max_clk_rate_hz = 36000000,
+ 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
+ 	.num_irqs = 2,
+ };
 
 
