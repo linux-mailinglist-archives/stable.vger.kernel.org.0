@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E01C555D774
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:18:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0464155C364
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:48:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234844AbiF0LZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:25:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45340 "EHLO
+        id S236408AbiF0LiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234838AbiF0LY6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:24:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B107E658D;
-        Mon, 27 Jun 2022 04:24:57 -0700 (PDT)
+        with ESMTP id S236460AbiF0Lhd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7BDD1083;
+        Mon, 27 Jun 2022 04:32:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D04BB81122;
-        Mon, 27 Jun 2022 11:24:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97AF0C3411D;
-        Mon, 27 Jun 2022 11:24:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54B7F60920;
+        Mon, 27 Jun 2022 11:32:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6032BC3411D;
+        Mon, 27 Jun 2022 11:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329095;
-        bh=NBzjfNLBjAb6DpyahI58MfyEpU2ijm9IrURcZdTKtlo=;
+        s=korg; t=1656329578;
+        bh=mOz0bUko/Aq9cVya7lmZnQKIlYbi1GBF6Mw25F2zQ4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aw7wrj3qXkcYYgCvkL6lJZkUoPCANuEGD8+Qo0eO14SwzkoEUUPXL9+LS6JqLVOta
-         Td0Z7+3bBiqw9cc4ciehVoDOoVbOa6Ie8/psFQHaW1EI5sCTS9L36pUFX+hRIdFbgO
-         HRMQWQ++4igxKwD7Wl6n1fIl5WlufMD7Ihp3JTvU=
+        b=l8/ybG5X0Xmx5C9m7xeaPf7zBruU4vZiGQ1PGjf/IUF47D92Ai8DGEcsno+djWkEw
+         xkOYL51F5LmiphFUMXYpSAx+8Hhp6lQgYsGOT8q76GT3xBW9d9TQa336bL/9w6mLBQ
+         VC+z1DjvstrI/wwnzuz9EFFVYsV3FXaRoFJrrlCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Kuogee Hsieh <khsieh@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/102] drm/msm/dp: fix connect/disconnect handled at irq_hpd
-Date:   Mon, 27 Jun 2022 13:20:52 +0200
-Message-Id: <20220627111934.689852502@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Rapoport <rppt@kernel.org>,
+        Quentin Perret <qperret@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 046/135] KVM: arm64: Prevent kmemleak from accessing pKVM memory
+Date:   Mon, 27 Jun 2022 13:20:53 +0200
+Message-Id: <20220627111939.496922216@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,201 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <khsieh@codeaurora.org>
+From: Quentin Perret <qperret@google.com>
 
-[ Upstream commit c58eb1b54feefc3a47fab78addd14083bc941c44 ]
+[ Upstream commit 56961c6331463cce2d84d0f973177a517fb33a82 ]
 
-Some usb type-c dongle use irq_hpd request to perform device connection
-and disconnection. This patch add handling of both connection and
-disconnection are based on the state of hpd_state and sink_count.
+Commit a7259df76702 ("memblock: make memblock_find_in_range method
+private") changed the API using which memory is reserved for the pKVM
+hypervisor. However, memblock_phys_alloc() differs from the original API in
+terms of kmemleak semantics -- the old one didn't report the reserved
+regions to kmemleak while the new one does. Unfortunately, when protected
+KVM is enabled, all kernel accesses to pKVM-private memory result in a
+fatal exception, which can now happen because of kmemleak scans:
 
-Changes in V2:
--- add dp_display_handle_port_ststus_changed()
--- fix kernel test robot complaint
+$ echo scan > /sys/kernel/debug/kmemleak
+[   34.991354] kvm [304]: nVHE hyp BUG at: [<ffff800008fa3750>] __kvm_nvhe_handle_host_mem_abort+0x270/0x290!
+[   34.991580] kvm [304]: Hyp Offset: 0xfffe8be807e00000
+[   34.991813] Kernel panic - not syncing: HYP panic:
+[   34.991813] PS:600003c9 PC:0000f418011a3750 ESR:00000000f2000800
+[   34.991813] FAR:ffff000439200000 HPFAR:0000000004792000 PAR:0000000000000000
+[   34.991813] VCPU:0000000000000000
+[   34.993660] CPU: 0 PID: 304 Comm: bash Not tainted 5.19.0-rc2 #102
+[   34.994059] Hardware name: linux,dummy-virt (DT)
+[   34.994452] Call trace:
+[   34.994641]  dump_backtrace.part.0+0xcc/0xe0
+[   34.994932]  show_stack+0x18/0x6c
+[   34.995094]  dump_stack_lvl+0x68/0x84
+[   34.995276]  dump_stack+0x18/0x34
+[   34.995484]  panic+0x16c/0x354
+[   34.995673]  __hyp_pgtable_total_pages+0x0/0x60
+[   34.995933]  scan_block+0x74/0x12c
+[   34.996129]  scan_gray_list+0xd8/0x19c
+[   34.996332]  kmemleak_scan+0x2c8/0x580
+[   34.996535]  kmemleak_write+0x340/0x4a0
+[   34.996744]  full_proxy_write+0x60/0xbc
+[   34.996967]  vfs_write+0xc4/0x2b0
+[   34.997136]  ksys_write+0x68/0xf4
+[   34.997311]  __arm64_sys_write+0x20/0x2c
+[   34.997532]  invoke_syscall+0x48/0x114
+[   34.997779]  el0_svc_common.constprop.0+0x44/0xec
+[   34.998029]  do_el0_svc+0x2c/0xc0
+[   34.998205]  el0_svc+0x2c/0x84
+[   34.998421]  el0t_64_sync_handler+0xf4/0x100
+[   34.998653]  el0t_64_sync+0x18c/0x190
+[   34.999252] SMP: stopping secondary CPUs
+[   35.000034] Kernel Offset: disabled
+[   35.000261] CPU features: 0x800,00007831,00001086
+[   35.000642] Memory Limit: none
+[   35.001329] ---[ end Kernel panic - not syncing: HYP panic:
+[   35.001329] PS:600003c9 PC:0000f418011a3750 ESR:00000000f2000800
+[   35.001329] FAR:ffff000439200000 HPFAR:0000000004792000 PAR:0000000000000000
+[   35.001329] VCPU:0000000000000000 ]---
 
-Changes in V3:
--- add encoder_mode_set into struct dp_display_private
+Fix this by explicitly excluding the hypervisor's memory pool from
+kmemleak like we already do for the hyp BSS.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 26b8d66a399e ("drm/msm/dp: promote irq_hpd handle to handle link training correctly")
-Tested-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Cc: Mike Rapoport <rppt@kernel.org>
+Fixes: a7259df76702 ("memblock: make memblock_find_in_range method private")
+Signed-off-by: Quentin Perret <qperret@google.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220616161135.3997786-1-qperret@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 92 +++++++++++++++++------------
- 1 file changed, 55 insertions(+), 37 deletions(-)
+ arch/arm64/kvm/arm.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index f1f777baa2c4..a3de1d0523ea 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -102,6 +102,8 @@ struct dp_display_private {
- 	struct dp_display_mode dp_mode;
- 	struct msm_dp dp_display;
- 
-+	bool encoder_mode_set;
-+
- 	/* wait for audio signaling */
- 	struct completion audio_comp;
- 
-@@ -306,13 +308,24 @@ static void dp_display_send_hpd_event(struct msm_dp *dp_display)
- 	drm_helper_hpd_irq_event(connector->dev);
- }
- 
--static int dp_display_send_hpd_notification(struct dp_display_private *dp,
--					    bool hpd)
-+
-+static void dp_display_set_encoder_mode(struct dp_display_private *dp)
- {
--	static bool encoder_mode_set;
- 	struct msm_drm_private *priv = dp->dp_display.drm_dev->dev_private;
- 	struct msm_kms *kms = priv->kms;
- 
-+	if (!dp->encoder_mode_set && dp->dp_display.encoder &&
-+				kms->funcs->set_encoder_mode) {
-+		kms->funcs->set_encoder_mode(kms,
-+				dp->dp_display.encoder, false);
-+
-+		dp->encoder_mode_set = true;
-+	}
-+}
-+
-+static int dp_display_send_hpd_notification(struct dp_display_private *dp,
-+					    bool hpd)
-+{
- 	if ((hpd && dp->dp_display.is_connected) ||
- 			(!hpd && !dp->dp_display.is_connected)) {
- 		DRM_DEBUG_DP("HPD already %s\n", (hpd ? "on" : "off"));
-@@ -325,15 +338,6 @@ static int dp_display_send_hpd_notification(struct dp_display_private *dp,
- 
- 	dp->dp_display.is_connected = hpd;
- 
--	if (dp->dp_display.is_connected && dp->dp_display.encoder
--				&& !encoder_mode_set
--				&& kms->funcs->set_encoder_mode) {
--		kms->funcs->set_encoder_mode(kms,
--				dp->dp_display.encoder, false);
--		DRM_DEBUG_DP("set_encoder_mode() Completed\n");
--		encoder_mode_set = true;
--	}
--
- 	dp_display_send_hpd_event(&dp->dp_display);
- 
- 	return 0;
-@@ -369,7 +373,6 @@ static int dp_display_process_hpd_high(struct dp_display_private *dp)
- 
- 	dp_add_event(dp, EV_USER_NOTIFICATION, true, 0);
- 
--
- end:
- 	return rc;
- }
-@@ -386,6 +389,8 @@ static void dp_display_host_init(struct dp_display_private *dp)
- 	if (dp->usbpd->orientation == ORIENTATION_CC2)
- 		flip = true;
- 
-+	dp_display_set_encoder_mode(dp);
-+
- 	dp_power_init(dp->power, flip);
- 	dp_ctrl_host_init(dp->ctrl, flip);
- 	dp_aux_init(dp->aux);
-@@ -469,24 +474,42 @@ static void dp_display_handle_video_request(struct dp_display_private *dp)
- 	}
- }
- 
--static int dp_display_handle_irq_hpd(struct dp_display_private *dp)
-+static int dp_display_handle_port_ststus_changed(struct dp_display_private *dp)
- {
--	u32 sink_request;
--
--	sink_request = dp->link->sink_request;
-+	int rc = 0;
- 
--	if (sink_request & DS_PORT_STATUS_CHANGED) {
--		if (dp_display_is_sink_count_zero(dp)) {
--			DRM_DEBUG_DP("sink count is zero, nothing to do\n");
--			return -ENOTCONN;
-+	if (dp_display_is_sink_count_zero(dp)) {
-+		DRM_DEBUG_DP("sink count is zero, nothing to do\n");
-+		if (dp->hpd_state != ST_DISCONNECTED) {
-+			dp->hpd_state = ST_DISCONNECT_PENDING;
-+			dp_add_event(dp, EV_USER_NOTIFICATION, false, 0);
-+		}
-+	} else {
-+		if (dp->hpd_state == ST_DISCONNECTED) {
-+			dp->hpd_state = ST_CONNECT_PENDING;
-+			rc = dp_display_process_hpd_high(dp);
-+			if (rc)
-+				dp->hpd_state = ST_DISCONNECTED;
- 		}
-+	}
-+
-+	return rc;
-+}
-+
-+static int dp_display_handle_irq_hpd(struct dp_display_private *dp)
-+{
-+	u32 sink_request = dp->link->sink_request;
- 
--		return dp_display_process_hpd_high(dp);
-+	if (dp->hpd_state == ST_DISCONNECTED) {
-+		if (sink_request & DP_LINK_STATUS_UPDATED) {
-+			DRM_ERROR("Disconnected, no DP_LINK_STATUS_UPDATED\n");
-+			return -EINVAL;
-+		}
- 	}
- 
- 	dp_ctrl_handle_sink_request(dp->ctrl);
- 
--	if (dp->link->sink_request & DP_TEST_LINK_VIDEO_PATTERN)
-+	if (sink_request & DP_TEST_LINK_VIDEO_PATTERN)
- 		dp_display_handle_video_request(dp);
- 
- 	return 0;
-@@ -517,19 +540,10 @@ static int dp_display_usbpd_attention_cb(struct device *dev)
- 	rc = dp_link_process_request(dp->link);
- 	if (!rc) {
- 		sink_request = dp->link->sink_request;
--		if (sink_request & DS_PORT_STATUS_CHANGED) {
--			/* same as unplugged */
--			hpd->hpd_high = 0;
--			dp->hpd_state = ST_DISCONNECT_PENDING;
--			dp_add_event(dp, EV_USER_NOTIFICATION, false, 0);
--		}
--
--		rc = dp_display_handle_irq_hpd(dp);
--
--		if (!rc && (sink_request & DS_PORT_STATUS_CHANGED)) {
--			hpd->hpd_high = 1;
--			dp->hpd_state = ST_CONNECT_PENDING;
--		}
-+		if (sink_request & DS_PORT_STATUS_CHANGED)
-+			rc = dp_display_handle_port_ststus_changed(dp);
-+		else
-+			rc = dp_display_handle_irq_hpd(dp);
- 	}
- 
- 	return rc;
-@@ -694,6 +708,7 @@ static int dp_disconnect_pending_timeout(struct dp_display_private *dp, u32 data
- static int dp_irq_hpd_handle(struct dp_display_private *dp, u32 data)
- {
- 	u32 state;
-+	int ret;
- 
- 	mutex_lock(&dp->event_mutex);
- 
-@@ -704,7 +719,10 @@ static int dp_irq_hpd_handle(struct dp_display_private *dp, u32 data)
+diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+index a30c036577a3..f181527f9d43 100644
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -2011,11 +2011,11 @@ static int finalize_hyp_mode(void)
  		return 0;
- 	}
  
--	dp_display_usbpd_attention_cb(&dp->pdev->dev);
-+	ret = dp_display_usbpd_attention_cb(&dp->pdev->dev);
-+	if (ret == -ECONNRESET) { /* cable unplugged */
-+		dp->core_initialized = false;
-+	}
- 
- 	mutex_unlock(&dp->event_mutex);
+ 	/*
+-	 * Exclude HYP BSS from kmemleak so that it doesn't get peeked
+-	 * at, which would end badly once the section is inaccessible.
+-	 * None of other sections should ever be introspected.
++	 * Exclude HYP sections from kmemleak so that they don't get peeked
++	 * at, which would end badly once inaccessible.
+ 	 */
+ 	kmemleak_free_part(__hyp_bss_start, __hyp_bss_end - __hyp_bss_start);
++	kmemleak_free_part(__va(hyp_mem_base), hyp_mem_size);
+ 	return pkvm_drop_host_privileges();
+ }
  
 -- 
 2.35.1
