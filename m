@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AE0F55D5D4
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:15:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D884A55D3A5
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:12:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237177AbiF0Lo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:44:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43150 "EHLO
+        id S237878AbiF0LtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:49:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237437AbiF0Lmv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 192CF1BE;
-        Mon, 27 Jun 2022 04:37:57 -0700 (PDT)
+        with ESMTP id S238242AbiF0LsK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55F02BCB3;
+        Mon, 27 Jun 2022 04:40:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3A6BB8111B;
-        Mon, 27 Jun 2022 11:37:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E67DC341C7;
-        Mon, 27 Jun 2022 11:37:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1F0761189;
+        Mon, 27 Jun 2022 11:40:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD900C341CB;
+        Mon, 27 Jun 2022 11:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329874;
-        bh=zckJ25KeNwOmmOgkYtdLY02GYh+uT/iHtBb4i7YgXj4=;
+        s=korg; t=1656330007;
+        bh=bvE7pUXu9UZetb17AyI0bAhjaGK3GCkKQJQrvyIq5Dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YebQubZy0IYFCyJWtBr3QrIcdcfxQgwt+Gp+Zv0+G+ppBXkPQ+LaQVnOX36mnwQ0X
-         VE7tNBNfYIMGdYHHaOvmJYZYDbFDs7zHszL2mawcZZ7kTNwpFLYh43AG7CC49yr/id
-         AHpBwz5cHAEmWqJYdue9G+AwqienuhSzuMADOLQ4=
+        b=xu5dEthc0MNdykgUbwuw9QGo1c/tDn+oMEgnTUc6gHXZY3A2QiiFPQvLq4g3qr28P
+         57DjSXyzSuDW3gdTmfzebyIoXjuOLBiBbWlJeyEdIVzqbxZeA8Bh7YMwRqr9o47Frv
+         HISM72uy5a9w9SqTFWutje0LC+eJ+eOTOODkMXWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Ron Economos <re@w6rz.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.18 001/181] random: schedule mix_interrupt_randomness() less often
-Date:   Mon, 27 Jun 2022 13:19:34 +0200
-Message-Id: <20220627111944.599548853@linuxfoundation.org>
+Subject: [PATCH 5.18 002/181] random: quiet urandom warning ratelimit suppression message
+Date:   Mon, 27 Jun 2022 13:19:35 +0200
+Message-Id: <20220627111944.629481911@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,54 +56,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 534d2eaf1970274150596fdd2bf552721e65d6b2 upstream.
+commit c01d4d0a82b71857be7449380338bc53dde2da92 upstream.
 
-It used to be that mix_interrupt_randomness() would credit 1 bit each
-time it ran, and so add_interrupt_randomness() would schedule mix() to
-run every 64 interrupts, a fairly arbitrary number, but nonetheless
-considered to be a decent enough conservative estimate.
+random.c ratelimits how much it warns about uninitialized urandom reads
+using __ratelimit(). When the RNG is finally initialized, it prints the
+number of missed messages due to ratelimiting.
 
-Since e3e33fc2ea7f ("random: do not use input pool from hard IRQs"),
-mix() is now able to credit multiple bits, depending on the number of
-calls to add(). This was done for reasons separate from this commit, but
-it has the nice side effect of enabling this patch to schedule mix()
-less often.
+It has been this way since that functionality was introduced back in
+2018. Recently, cc1e127bfa95 ("random: remove ratelimiting for in-kernel
+unseeded randomness") put a bit more stress on the urandom ratelimiting,
+which teased out a bug in the implementation.
 
-Currently the rules are:
-a) Credit 1 bit for every 64 calls to add().
-b) Schedule mix() once a second that add() is called.
-c) Schedule mix() once every 64 calls to add().
+Specifically, when under pressure, __ratelimit() will print its own
+message and reset the count back to 0, making the final message at the
+end less useful. Secondly, it does so as a pr_warn(), which apparently
+is undesirable for people's CI.
 
-Rules (a) and (c) no longer need to be coupled. It's still important to
-have _some_ value in (c), so that we don't "over-saturate" the fast
-pool, but the once per second we get from rule (b) is a plenty enough
-baseline. So, by increasing the 64 in rule (c) to something larger, we
-avoid calling queue_work_on() as frequently during irq storms.
+Fortunately, __ratelimit() has the RATELIMIT_MSG_ON_RELEASE flag exactly
+for this purpose, so we set the flag.
 
-This commit changes that 64 in rule (c) to be 1024, which means we
-schedule mix() 16 times less often. And it does *not* need to change the
-64 in rule (a).
-
-Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
+Fixes: 4e00b339e264 ("random: rate limit unseeded randomness warnings")
 Cc: stable@vger.kernel.org
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reported-by: Jon Hunter <jonathanh@nvidia.com>
+Reported-by: Ron Economos <re@w6rz.net>
+Tested-by: Ron Economos <re@w6rz.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/random.c           |    2 +-
+ include/linux/ratelimit_types.h |   12 ++++++++----
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1038,7 +1038,7 @@ void add_interrupt_randomness(int irq)
- 	if (new_count & MIX_INFLIGHT)
- 		return;
+@@ -87,7 +87,7 @@ static RAW_NOTIFIER_HEAD(random_ready_ch
  
--	if (new_count < 64 && !time_is_before_jiffies(fast_pool->last + HZ))
-+	if (new_count < 1024 && !time_is_before_jiffies(fast_pool->last + HZ))
- 		return;
+ /* Control how we warn userspace. */
+ static struct ratelimit_state urandom_warning =
+-	RATELIMIT_STATE_INIT("warn_urandom_randomness", HZ, 3);
++	RATELIMIT_STATE_INIT_FLAGS("urandom_warning", HZ, 3, RATELIMIT_MSG_ON_RELEASE);
+ static int ratelimit_disable __read_mostly =
+ 	IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM);
+ module_param_named(ratelimit_disable, ratelimit_disable, int, 0644);
+--- a/include/linux/ratelimit_types.h
++++ b/include/linux/ratelimit_types.h
+@@ -23,12 +23,16 @@ struct ratelimit_state {
+ 	unsigned long	flags;
+ };
  
- 	if (unlikely(!fast_pool->mix.func))
+-#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) {		\
+-		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),	\
+-		.interval	= interval_init,			\
+-		.burst		= burst_init,				\
++#define RATELIMIT_STATE_INIT_FLAGS(name, interval_init, burst_init, flags_init) { \
++		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),		  \
++		.interval	= interval_init,				  \
++		.burst		= burst_init,					  \
++		.flags		= flags_init,					  \
+ 	}
+ 
++#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) \
++	RATELIMIT_STATE_INIT_FLAGS(name, interval_init, burst_init, 0)
++
+ #define RATELIMIT_STATE_INIT_DISABLED					\
+ 	RATELIMIT_STATE_INIT(ratelimit_state, 0, DEFAULT_RATELIMIT_BURST)
+ 
 
 
