@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 259FD55C47E
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:49:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DAFE55C1FC
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236421AbiF0Lnc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:43:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43516 "EHLO
+        id S234950AbiF0L21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:28:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237348AbiF0Lmp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAC86D77;
-        Mon, 27 Jun 2022 04:37:02 -0700 (PDT)
+        with ESMTP id S235018AbiF0L0q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:26:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8A0A65AC;
+        Mon, 27 Jun 2022 04:26:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9643CB8111E;
-        Mon, 27 Jun 2022 11:37:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D03E6C3411D;
-        Mon, 27 Jun 2022 11:36:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65251614AE;
+        Mon, 27 Jun 2022 11:26:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 741EEC3411D;
+        Mon, 27 Jun 2022 11:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329820;
-        bh=/yUr5kOLGptxvdwwPg9SpLafIzbLfy8B2/nwoGPtK9E=;
+        s=korg; t=1656329202;
+        bh=6MGD7FQmuZqCGtpyq5/mysob2juBKQYP6BIpYM70IIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWpSiz4FUa4Xd6RG/T49O0jcH/4WL3FEIAsn4nuGX8xvITjbda2pZZPt85XjUX/4K
-         PDEict92ThG1NSaXzGekcBalZU42SCMIpQl/EmtlTkpWY0dMjEaTHvkx+K1qVXK4zu
-         5HaZ6ySFFFv+6W+DwNuwlJ93zHvS8OU9gmbHmxhE=
+        b=0in/TjXJkga8IB3edrrKBu/llSYVBq6LwFQYp2WttquAo9nEcwJxOx5LYwPjkxMC/
+         xJkhFblRMUFpgxRRegeCYkmKtacqUe1vMLyQW4tfd5tIi+3PGbJn6CrsrL/8xWsRx8
+         7aUVVEtMWvCYmkzuAScJRS7DaP/QTKTeZ8osakps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Utkarsh Patel <utkarsh.h.patel@intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.15 086/135] xhci-pci: Allow host runtime PM as default for Intel Meteor Lake xHCI
+        stable@vger.kernel.org,
+        Yannick Brosseau <yannick.brosseau@gmail.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 082/102] iio: adc: stm32: Fix IRQs on STM32F4 by removing custom spurious IRQs message
 Date:   Mon, 27 Jun 2022 13:21:33 +0200
-Message-Id: <20220627111940.655568542@linuxfoundation.org>
+Message-Id: <20220627111935.900652709@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Utkarsh Patel <utkarsh.h.patel@intel.com>
+From: Yannick Brosseau <yannick.brosseau@gmail.com>
 
-commit 8ffdc53a60049f3930afe161dc51c67959c8d83d upstream.
+commit 99bded02dae5e1e2312813506c41dc8db2fb656c upstream.
 
-Meteor Lake TCSS(Type-C Subsystem) xHCI needs to be runtime suspended
-whenever possible to allow the TCSS hardware block to enter D3cold and
-thus save energy.
+The check for spurious IRQs introduced in 695e2f5c289bb assumed that the bits
+in the control and status registers are aligned. This is true for the H7 and MP1
+version, but not the F4. The interrupt was then never handled on the F4.
 
-Cc: stable@kernel.org
-Signed-off-by: Utkarsh Patel <utkarsh.h.patel@intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220623111945.1557702-5-mathias.nyman@linux.intel.com
+Instead of increasing the complexity of the comparison and check each bit specifically,
+we remove this check completely and rely on the generic handler for spurious IRQs.
+
+Fixes: 695e2f5c289b ("iio: adc: stm32-adc: fix a regression when using dma and irq")
+Signed-off-by: Yannick Brosseau <yannick.brosseau@gmail.com>
+Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20220516203939.3498673-3-yannick.brosseau@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/adc/stm32-adc.c |   10 ----------
+ 1 file changed, 10 deletions(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -62,6 +62,7 @@
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI		0x464e
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI	0x51ed
- #define PCI_DEVICE_ID_INTEL_RAPTOR_LAKE_XHCI		0xa71e
-+#define PCI_DEVICE_ID_INTEL_METEOR_LAKE_XHCI		0x7ec0
+--- a/drivers/iio/adc/stm32-adc.c
++++ b/drivers/iio/adc/stm32-adc.c
+@@ -1265,7 +1265,6 @@ static irqreturn_t stm32_adc_threaded_is
+ 	struct stm32_adc *adc = iio_priv(indio_dev);
+ 	const struct stm32_adc_regspec *regs = adc->cfg->regs;
+ 	u32 status = stm32_adc_readl(adc, regs->isr_eoc.reg);
+-	u32 mask = stm32_adc_readl(adc, regs->ier_eoc.reg);
  
- #define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
-@@ -272,7 +273,8 @@ static void xhci_pci_quirks(struct devic
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_INTEL_RAPTOR_LAKE_XHCI))
-+	     pdev->device == PCI_DEVICE_ID_INTEL_RAPTOR_LAKE_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_INTEL_METEOR_LAKE_XHCI))
- 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
+ 	/* Check ovr status right now, as ovr mask should be already disabled */
+ 	if (status & regs->isr_ovr.mask) {
+@@ -1280,11 +1279,6 @@ static irqreturn_t stm32_adc_threaded_is
+ 		return IRQ_HANDLED;
+ 	}
  
- 	if (pdev->vendor == PCI_VENDOR_ID_ETRON &&
+-	if (!(status & mask))
+-		dev_err_ratelimited(&indio_dev->dev,
+-				    "Unexpected IRQ: IER=0x%08x, ISR=0x%08x\n",
+-				    mask, status);
+-
+ 	return IRQ_NONE;
+ }
+ 
+@@ -1294,10 +1288,6 @@ static irqreturn_t stm32_adc_isr(int irq
+ 	struct stm32_adc *adc = iio_priv(indio_dev);
+ 	const struct stm32_adc_regspec *regs = adc->cfg->regs;
+ 	u32 status = stm32_adc_readl(adc, regs->isr_eoc.reg);
+-	u32 mask = stm32_adc_readl(adc, regs->ier_eoc.reg);
+-
+-	if (!(status & mask))
+-		return IRQ_WAKE_THREAD;
+ 
+ 	if (status & regs->isr_ovr.mask) {
+ 		/*
 
 
