@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DBDD55E118
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:33:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E26755DA65
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:23:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237749AbiF0LtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:49:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50006 "EHLO
+        id S237926AbiF0LtU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:49:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238211AbiF0LsG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2384CEE27;
-        Mon, 27 Jun 2022 04:40:01 -0700 (PDT)
+        with ESMTP id S238212AbiF0LsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A06FEE35;
+        Mon, 27 Jun 2022 04:40:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9FB5B8111B;
-        Mon, 27 Jun 2022 11:39:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F2D0C341C7;
-        Mon, 27 Jun 2022 11:39:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25BA560C16;
+        Mon, 27 Jun 2022 11:40:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C8A5C3411D;
+        Mon, 27 Jun 2022 11:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329998;
-        bh=dCM1BT1YTkEEa86rrXMeJrCruhcG7NqPkzxWOLJmiuc=;
+        s=korg; t=1656330001;
+        bh=AvtahbcJY5VAWO/Lo02hSBQqraJ9H7qcHG2GcLU9HlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Orz5D+65O7NImBC/tUx2zylxRo4SX7SvhaW551EeLk16lk8e/kXLiyubH1ZEpSrKx
-         A6Hy7/iaCxQ2jT9CC1pB6KqXw/HhK0VaJOebzlTg/tf0Zku/b1Vbdadt61pHje0hks
-         5udzY+6+kh4xvBuIJl0aaNp+35JtRUpTi8FUoXEM=
+        b=2q4zmBj1C1J1czdSMte/l6ATLmftqFlE+ai2lk5AIQMfh2PnqA+R/6GTRgjr2NWyy
+         PrHFv8qpPK4C8RrZh5rutjXwGvmH5dAovacCSoGIJKQJulYDrj7jt2WjBP3CKUNXvE
+         fAamyuDPjs65ixyA+tLcy9eNJfnikbu4gBmjeX/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        nikitashvets@flyium.com, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.18 009/181] ALSA: hda/realtek: Apply fixup for Lenovo Yoga Duet 7 properly
-Date:   Mon, 27 Jun 2022 13:19:42 +0200
-Message-Id: <20220627111944.829946472@linuxfoundation.org>
+        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.18 010/181] ALSA: hda/realtek: Add quirk for Clevo PD70PNT
+Date:   Mon, 27 Jun 2022 13:19:43 +0200
+Message-Id: <20220627111944.858551599@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -53,139 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tim Crawford <tcrawford@system76.com>
 
-commit 56ec3e755bd1041d35bdec020a99b327697ee470 upstream.
+commit d49951219b0249d3eff49e4f02e0de82357bc8a0 upstream.
 
-It turned out that Lenovo shipped two completely different products
-with the very same PCI SSID, where both require different quirks;
-namely, Lenovo C940 has already the fixup for its speaker
-(ALC298_FIXUP_LENOVO_SPK_VOLUME) with the PCI SSID 17aa:3818, while
-Yoga Duet 7 has also the very same PCI SSID but requires a different
-quirk, ALC287_FIXUP_YOGA7_14TIL_SPEAKERS.
+Fixes speaker output and headset detection on Clevo PD70PNT.
 
-Fortunately, both are with different codecs (C940 with ALC298 and Duet
-7 with ALC287), hence we can apply different fixes by checking the
-codec ID.  This patch implements that special fixup function.
-
-For easier handling, the internal function for applying a specific
-fixup entry is exported as __snd_hda_apply_fixup(), so that it can be
-called from the codec driver.  The rest is simply calling it with a
-different fixup ID depending on the codec ID.
-
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: nikitashvets@flyium.com
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/5ca147d1-3a2d-60c6-c491-8aa844183222@redhat.com
-Link: https://lore.kernel.org/r/20220614054831.14648-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220617133028.50568-1-tcrawford@system76.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_auto_parser.c |    7 ++++---
- sound/pci/hda/hda_local.h       |    1 +
- sound/pci/hda/patch_realtek.c   |   24 +++++++++++++++++++++++-
- 3 files changed, 28 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/hda_auto_parser.c
-+++ b/sound/pci/hda/hda_auto_parser.c
-@@ -819,7 +819,7 @@ static void set_pin_targets(struct hda_c
- 		snd_hda_set_pin_ctl_cache(codec, cfg->nid, cfg->val);
- }
- 
--static void apply_fixup(struct hda_codec *codec, int id, int action, int depth)
-+void __snd_hda_apply_fixup(struct hda_codec *codec, int id, int action, int depth)
- {
- 	const char *modelname = codec->fixup_name;
- 
-@@ -829,7 +829,7 @@ static void apply_fixup(struct hda_codec
- 		if (++depth > 10)
- 			break;
- 		if (fix->chained_before)
--			apply_fixup(codec, fix->chain_id, action, depth + 1);
-+			__snd_hda_apply_fixup(codec, fix->chain_id, action, depth + 1);
- 
- 		switch (fix->type) {
- 		case HDA_FIXUP_PINS:
-@@ -870,6 +870,7 @@ static void apply_fixup(struct hda_codec
- 		id = fix->chain_id;
- 	}
- }
-+EXPORT_SYMBOL_GPL(__snd_hda_apply_fixup);
- 
- /**
-  * snd_hda_apply_fixup - Apply the fixup chain with the given action
-@@ -879,7 +880,7 @@ static void apply_fixup(struct hda_codec
- void snd_hda_apply_fixup(struct hda_codec *codec, int action)
- {
- 	if (codec->fixup_list)
--		apply_fixup(codec, codec->fixup_id, action, 0);
-+		__snd_hda_apply_fixup(codec, codec->fixup_id, action, 0);
- }
- EXPORT_SYMBOL_GPL(snd_hda_apply_fixup);
- 
---- a/sound/pci/hda/hda_local.h
-+++ b/sound/pci/hda/hda_local.h
-@@ -348,6 +348,7 @@ void snd_hda_apply_verbs(struct hda_code
- void snd_hda_apply_pincfgs(struct hda_codec *codec,
- 			   const struct hda_pintbl *cfg);
- void snd_hda_apply_fixup(struct hda_codec *codec, int action);
-+void __snd_hda_apply_fixup(struct hda_codec *codec, int id, int action, int depth);
- void snd_hda_pick_fixup(struct hda_codec *codec,
- 			const struct hda_model_fixup *models,
- 			const struct snd_pci_quirk *quirk,
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -7056,6 +7056,7 @@ enum {
- 	ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS,
- 	ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE,
- 	ALC287_FIXUP_YOGA7_14ITL_SPEAKERS,
-+	ALC298_FIXUP_LENOVO_C940_DUET7,
- 	ALC287_FIXUP_13S_GEN2_SPEAKERS,
- 	ALC256_FIXUP_SET_COEF_DEFAULTS,
- 	ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE,
-@@ -7074,6 +7075,23 @@ enum {
- 	ALC295_FIXUP_FRAMEWORK_LAPTOP_MIC_NO_PRESENCE,
- };
- 
-+/* A special fixup for Lenovo C940 and Yoga Duet 7;
-+ * both have the very same PCI SSID, and we need to apply different fixups
-+ * depending on the codec ID
-+ */
-+static void alc298_fixup_lenovo_c940_duet7(struct hda_codec *codec,
-+					   const struct hda_fixup *fix,
-+					   int action)
-+{
-+	int id;
-+
-+	if (codec->core.vendor_id == 0x10ec0298)
-+		id = ALC298_FIXUP_LENOVO_SPK_VOLUME; /* C940 */
-+	else
-+		id = ALC287_FIXUP_YOGA7_14ITL_SPEAKERS; /* Duet 7 */
-+	__snd_hda_apply_fixup(codec, id, action, 0);
-+}
-+
- static const struct hda_fixup alc269_fixups[] = {
- 	[ALC269_FIXUP_GPIO2] = {
- 		.type = HDA_FIXUP_FUNC,
-@@ -8773,6 +8791,10 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_HEADSET_MODE,
- 	},
-+	[ALC298_FIXUP_LENOVO_C940_DUET7] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc298_fixup_lenovo_c940_duet7,
-+	},
- 	[ALC287_FIXUP_13S_GEN2_SPEAKERS] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -9326,7 +9348,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x31af, "ThinkCentre Station", ALC623_FIXUP_LENOVO_THINKSTATION_P340),
- 	SND_PCI_QUIRK(0x17aa, 0x3802, "Lenovo Yoga DuetITL 2021", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3813, "Legion 7i 15IMHG05", ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS),
--	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
-+	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940 / Yoga Duet 7", ALC298_FIXUP_LENOVO_C940_DUET7),
- 	SND_PCI_QUIRK(0x17aa, 0x3819, "Lenovo 13s Gen2 ITL", ALC287_FIXUP_13S_GEN2_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3820, "Yoga Duet 7 13ITL6", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3824, "Legion Y9000X 2020", ALC285_FIXUP_LEGION_Y9000X_SPEAKERS),
+@@ -2634,6 +2634,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67f1, "Clevo PC70H[PRS]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x67f5, "Clevo PD70PN[NRT]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170SM", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x7715, "Clevo X170KM-G", ALC1220_FIXUP_CLEVO_PB51ED),
 
 
