@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5614155DB72
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:24:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B481255DB8E
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:24:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232782AbiF0IRt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 04:17:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48110 "EHLO
+        id S232771AbiF0IRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 04:17:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232564AbiF0IRt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 04:17:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 412DD626D
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 01:17:48 -0700 (PDT)
+        with ESMTP id S232564AbiF0IRn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 04:17:43 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 401ED626D
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 01:17:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0EC860EC7
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 08:17:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF9F2C3411D;
-        Mon, 27 Jun 2022 08:17:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A3F0CCE1384
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 08:17:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9313BC3411D;
+        Mon, 27 Jun 2022 08:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656317867;
-        bh=fY7kZKBmNsieCR49/EOVJFWB5C/LQH9DfnFMjOJSfpw=;
+        s=korg; t=1656317859;
+        bh=ZNRF57aL663EaWXRPxGSxMlxTY2PJtyxn+HcZ/T9KFs=;
         h=Subject:To:Cc:From:Date:From;
-        b=YPWIFsIOjq89wD+n09jHfWsdIFXZX/DnquQ3SD2yUlkIcy2SbrSmdZACsEwsRecYM
-         w688XMA/CAOyNIPWDe3lmMwFRQKgrb0TIHGS9Vb1Eka59XcwBKGWMABhbiYHpVx6r0
-         sJ1ybJhVt9m5KAZu0Wn95tQPybeJYjSTbYm367Qk=
-Subject: FAILED: patch "[PATCH] xhci: turn off port power in shutdown" failed to apply to 4.14-stable tree
+        b=CKaArWei+FSnuID01c9BOVj2bgYpayg7IRSkoqCQPgXw91aCYjQaaqoHv4hx9Sekd
+         Zqk02otvr5bv5Q1GaHslGL1g2cCppf+CYaZB6wjg5BFFYm20eKbQFzJHO/B5lVOBMK
+         zqndIUNm/gprBetaNV7AZgr3wbShsRo7BFSS4pas=
+Subject: FAILED: patch "[PATCH] xhci: turn off port power in shutdown" failed to apply to 4.9-stable tree
 To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 27 Jun 2022 10:17:36 +0200
-Message-ID: <1656317856102166@kroah.com>
+Message-ID: <1656317856146195@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
