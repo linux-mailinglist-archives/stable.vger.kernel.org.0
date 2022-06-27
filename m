@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C37D55DA7E
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:23:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D844255CBB7
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:00:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238783AbiF0Lya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:54:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49966 "EHLO
+        id S237113AbiF0Lne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238712AbiF0Lwb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5149AE73;
-        Mon, 27 Jun 2022 04:45:14 -0700 (PDT)
+        with ESMTP id S237361AbiF0Lmq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A222DBB;
+        Mon, 27 Jun 2022 04:37:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A1CFB80D32;
-        Mon, 27 Jun 2022 11:45:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E41B3C3411D;
-        Mon, 27 Jun 2022 11:45:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26246609D0;
+        Mon, 27 Jun 2022 11:37:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A874C3411D;
+        Mon, 27 Jun 2022 11:37:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330312;
-        bh=NSWLVHwkh4jCm7vqeyoTxm57tQ+lbvd9SSss7VBhs+s=;
+        s=korg; t=1656329826;
+        bh=EfqybhqZKCqHI6x6TuEbBk8Qw1d4L2PCvm9+UEsIQUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xh855Mu3NpfH5iD+dMOwiIefW6j4sdfqW54zrxoMWV6WIRGr9cxjNwrkxZ0LJNbid
-         1CtFpzA6+oT0XPuQkI5jk+KL/wwfu8V35UWmNNokIvyzjdX7g7mVCZjzjBICQuCXk7
-         rixyiNKOeAAB5wBn6PX4Im8fzkDb/EsHJKNbwIq4=
+        b=ygnFz7+udtmJ65Jqp1d8vs0MPbZM1lsgrLyB6RDEInFwDbUyf5oHjS9FDMBe3Fzz2
+         oI5Wz78M4zozBki9yKcjeIcMuuP6G+JYUMqKKOGMIGAXBO1gbhfyT0HIWsGYF0gDVz
+         ZsYhqetntbU5wAUQz5orMKLS2ZodgJBA4l1XNbnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        John David Anglin <dave.anglin@bell.net>
-Subject: [PATCH 5.18 155/181] parisc: Enable ARCH_HAS_STRICT_MODULE_RWX
+        stable@vger.kernel.org, Jun Li <jun.li@nxp.com>,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.15 121/135] ARM: dts: imx7: Move hsic_phy power domain to HSIC PHY node
 Date:   Mon, 27 Jun 2022 13:22:08 +0200
-Message-Id: <20220627111949.177477255@linuxfoundation.org>
+Message-Id: <20220627111941.666378889@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-commit 0a1355db36718178becd2bfe728a023933d73123 upstream.
+commit 552ca27929ab28b341ae9b2629f0de3a84c98ee8 upstream.
 
-Fix a boot crash on a c8000 machine as reported by Dave.  Basically it changes
-patch_map() to return an alias mapping to the to-be-patched code in order to
-prevent writing to write-protected memory.
+Move the power domain to its actual user. This keeps the power domain
+enabled even when the USB host is runtime suspended. This is necessary
+to detect any downstream events, like device attach.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Suggested-by: John David Anglin <dave.anglin@bell.net>
-Cc: stable@vger.kernel.org   # v5.2+
-Link: https://lore.kernel.org/all/e8ec39e8-25f8-e6b4-b7ed-4cb23efc756e@bell.net/
+Fixes: 02f8eb40ef7b ("ARM: dts: imx7s: Add power domain for imx7d HSIC")
+Suggested-by: Jun Li <jun.li@nxp.com>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/imx7s.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/parisc/Kconfig
-+++ b/arch/parisc/Kconfig
-@@ -10,6 +10,7 @@ config PARISC
- 	select ARCH_WANT_FRAME_POINTERS
- 	select ARCH_HAS_ELF_RANDOMIZE
- 	select ARCH_HAS_STRICT_KERNEL_RWX
-+	select ARCH_HAS_STRICT_MODULE_RWX
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
- 	select ARCH_HAS_PTE_SPECIAL
- 	select ARCH_NO_SG_CHAIN
+--- a/arch/arm/boot/dts/imx7s.dtsi
++++ b/arch/arm/boot/dts/imx7s.dtsi
+@@ -104,6 +104,7 @@
+ 		compatible = "usb-nop-xceiv";
+ 		clocks = <&clks IMX7D_USB_HSIC_ROOT_CLK>;
+ 		clock-names = "main_clk";
++		power-domains = <&pgc_hsic_phy>;
+ 		#phy-cells = <0>;
+ 	};
+ 
+@@ -1135,7 +1136,6 @@
+ 				compatible = "fsl,imx7d-usb", "fsl,imx27-usb";
+ 				reg = <0x30b30000 0x200>;
+ 				interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
+-				power-domains = <&pgc_hsic_phy>;
+ 				clocks = <&clks IMX7D_USB_CTRL_CLK>;
+ 				fsl,usbphy = <&usbphynop3>;
+ 				fsl,usbmisc = <&usbmisc3 0>;
 
 
