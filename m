@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C84B55CF3A
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:06:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF68155DEA9
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:29:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235915AbiF0Leq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:34:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53116 "EHLO
+        id S235706AbiF0Lea (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:34:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236382AbiF0Ldp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:45 -0400
+        with ESMTP id S236132AbiF0LdR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0873B71;
-        Mon, 27 Jun 2022 04:31:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E325BF6C;
+        Mon, 27 Jun 2022 04:30:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CA166150E;
-        Mon, 27 Jun 2022 11:31:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9196DC3411D;
-        Mon, 27 Jun 2022 11:31:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50B9661494;
+        Mon, 27 Jun 2022 11:30:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F3F0C3411D;
+        Mon, 27 Jun 2022 11:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329465;
-        bh=vgvNJrHBHS9C46/WmKV1U9Crcq8Uj+IGHmrgSflbAnM=;
+        s=korg; t=1656329420;
+        bh=AnMJAmMUcYuIuEwfnCA8fZf9H/5ZJ1+zFyeoIm3LNko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BY/HP/TYdDG9uB39Q3V6eH6cfR2FaF4nlbNDPZyfqLLIlqYQymKv3bFT27ugF8msh
-         a/kXwRO4HGL/1AgvLriQuuCoGrM7BSOaOcCvfnzRmjI50aJgUsm0hTklH4zMt/6dC4
-         Z3pdI+OZTeDIPISUeKtqfvNxQY4XzhOHMiZlYGxM=
+        b=m2/767sKJoSYaqU2o6PYoWwgTDTs/8gz6NxnIUZsM0objfqYxCpsxnpT1DOg7KMaq
+         fBrQ8K+DmAyfv337QGNVwoBqjt+q6sl2edtcFJSFkWESV2TzkoJiBwGRDzZG/7CR1b
+         Ny/1n0HzPddAzSWqRF8wGU2XmRx5tDKS3DaNvXXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 45/60] iio: adc: axp288: Override TS pin bias current for some models
-Date:   Mon, 27 Jun 2022 13:21:56 +0200
-Message-Id: <20220627111929.015392263@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 5.4 46/60] xtensa: xtfpga: Fix refcount leak bug in setup
+Date:   Mon, 27 Jun 2022 13:21:57 +0200
+Message-Id: <20220627111929.043731752@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
 References: <20220627111927.641837068@linuxfoundation.org>
@@ -54,48 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Liang He <windhl@126.com>
 
-commit 048058399f19d43cf21de9f5d36cd8144337d004 upstream.
+commit 173940b3ae40114d4179c251a98ee039dc9cd5b3 upstream.
 
-Since commit 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling") we
-preserve the bias current set by the firmware at boot. This fixes issues
-we were seeing on various models.
+In machine_setup(), of_find_compatible_node() will return a node
+pointer with refcount incremented. We should use of_node_put() when
+it is not used anymore.
 
-Some models like the Nuvision Solo 10 Draw tablet actually need the
-old hardcoded 80ųA bias current for battery temperature monitoring
-to work properly.
-
-Add a quirk entry for the Nuvision Solo 10 Draw to the DMI quirk table
-to restore setting the bias current to 80ųA on this model.
-
-Fixes: 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215882
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220506095040.21008-1-hdegoede@redhat.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Liang He <windhl@126.com>
+Message-Id: <20220617115323.4046905-1-windhl@126.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/axp288_adc.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/xtensa/platforms/xtfpga/setup.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/adc/axp288_adc.c
-+++ b/drivers/iio/adc/axp288_adc.c
-@@ -196,6 +196,14 @@ static const struct dmi_system_id axp288
- 		},
- 		.driver_data = (void *)(uintptr_t)AXP288_ADC_TS_BIAS_80UA,
- 	},
-+	{
-+		/* Nuvision Solo 10 Draw */
-+		.matches = {
-+		  DMI_MATCH(DMI_SYS_VENDOR, "TMAX"),
-+		  DMI_MATCH(DMI_PRODUCT_NAME, "TM101W610L"),
-+		},
-+		.driver_data = (void *)(uintptr_t)AXP288_ADC_TS_BIAS_80UA,
-+	},
- 	{}
- };
+--- a/arch/xtensa/platforms/xtfpga/setup.c
++++ b/arch/xtensa/platforms/xtfpga/setup.c
+@@ -148,6 +148,7 @@ static int __init machine_setup(void)
  
+ 	if ((eth = of_find_compatible_node(eth, NULL, "opencores,ethoc")))
+ 		update_local_mac(eth);
++	of_node_put(eth);
+ 	return 0;
+ }
+ arch_initcall(machine_setup);
 
 
