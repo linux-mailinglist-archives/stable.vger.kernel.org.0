@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BC5155C385
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:48:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F20B155E203
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:34:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238355AbiF0Lu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:50:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49572 "EHLO
+        id S236632AbiF0Li7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238600AbiF0Lsu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B2AD51;
-        Mon, 27 Jun 2022 04:42:56 -0700 (PDT)
+        with ESMTP id S236687AbiF0Lhw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E788EB4B1;
+        Mon, 27 Jun 2022 04:34:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5724FB80D32;
-        Mon, 27 Jun 2022 11:42:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7447C3411D;
-        Mon, 27 Jun 2022 11:42:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A80EDB81123;
+        Mon, 27 Jun 2022 11:34:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB21EC3411D;
+        Mon, 27 Jun 2022 11:34:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330174;
-        bh=J7cTMdkCM5oMYi/ifmTPBuUGMJ5bnPmv/FfH5KlXHTo=;
+        s=korg; t=1656329675;
+        bh=qmI3PqT2124o3z+qcI7qRD+yNh0AzZCX1HZJF35pEdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DrJDHgKa8uORRr9fWZNDg2a10Ij8go8gmpVErn6xpsqUoHlIqG+khBeVUn9JKO/yY
-         taIaw3qU0whgZ+vhDiS0Pe65K/epDrMxwhFwlZqLZQoIfFfVvMNcul96PGRPfhUDrL
-         lJXEvH67c5UM3YYthi/52Odh95+XnFh/lCe3eQNk=
+        b=FAK8nc+dJV4M1WSmzmUZsAT5rSvZpr7qtY3JLli0J25Z3nzhHuO8QAFEisFPuu0LT
+         b4sXfYrycN5yxDPZXJP23xM4FKgd1RgJ8tx+2gcoveIW/5tWIOvSKQqDSrY9AW8EQX
+         NEWexyLilkht25OX34K3qcoAN5CJIVGtaw5yIHC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Hao Xu <howeyxu@tencent.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 109/181] io_uring: fix req->apoll_events
+Subject: [PATCH 5.15 075/135] sock: redo the psock vs ULP protection check
 Date:   Mon, 27 Jun 2022 13:21:22 +0200
-Message-Id: <20220627111947.860146768@linuxfoundation.org>
+Message-Id: <20220627111940.337879163@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +56,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit aacf2f9f382c91df73f33317e28a4c34c8038986 ]
+[ Upstream commit e34a07c0ae3906f97eb18df50902e2a01c1015b6 ]
 
-apoll_events should be set once in the beginning of poll arming just as
-poll->events and not change after. However, currently io_uring resets it
-on each __io_poll_execute() for no clear reason. There is also a place
-in __io_arm_poll_handler() where we add EPOLLONESHOT to downgrade a
-multishot, but forget to do the same thing with ->apoll_events, which is
-buggy.
+Commit 8a59f9d1e3d4 ("sock: Introduce sk->sk_prot->psock_update_sk_prot()")
+has moved the inet_csk_has_ulp(sk) check from sk_psock_init() to
+the new tcp_bpf_update_proto() function. I'm guessing that this
+was done to allow creating psocks for non-inet sockets.
 
-Fixes: 81459350d581e ("io_uring: cache req->apoll->events in req->cflags")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Reviewed-by: Hao Xu <howeyxu@tencent.com>
-Link: https://lore.kernel.org/r/0aef40399ba75b1a4d2c2e85e6e8fd93c02fc6e4.1655814213.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Unfortunately the destruction path for psock includes the ULP
+unwind, so we need to fail the sk_psock_init() itself.
+Otherwise if ULP is already present we'll notice that later,
+and call tcp_update_ulp() with the sk_proto of the ULP
+itself, which will most likely result in the ULP looping
+its callbacks.
+
+Fixes: 8a59f9d1e3d4 ("sock: Introduce sk->sk_prot->psock_update_sk_prot()")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
+Tested-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/r/20220620191353.1184629-2-kuba@kernel.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ include/net/inet_sock.h | 5 +++++
+ net/core/skmsg.c        | 5 +++++
+ net/ipv4/tcp_bpf.c      | 3 ---
+ net/tls/tls_main.c      | 2 ++
+ 4 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 1070d22a1c2b..38ecea726254 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5984,7 +5984,8 @@ static void io_apoll_task_func(struct io_kiocb *req, bool *locked)
- 		io_req_complete_failed(req, ret);
- }
+diff --git a/include/net/inet_sock.h b/include/net/inet_sock.h
+index 9e1111f5915b..d81b7f85819e 100644
+--- a/include/net/inet_sock.h
++++ b/include/net/inet_sock.h
+@@ -252,6 +252,11 @@ struct inet_sock {
+ #define IP_CMSG_CHECKSUM	BIT(7)
+ #define IP_CMSG_RECVFRAGSIZE	BIT(8)
  
--static void __io_poll_execute(struct io_kiocb *req, int mask, __poll_t events)
-+static void __io_poll_execute(struct io_kiocb *req, int mask,
-+			      __poll_t __maybe_unused events)
- {
- 	req->result = mask;
- 	/*
-@@ -5993,7 +5994,6 @@ static void __io_poll_execute(struct io_kiocb *req, int mask, __poll_t events)
- 	 * CPU. We want to avoid pulling in req->apoll->events for that
- 	 * case.
- 	 */
--	req->apoll_events = events;
- 	if (req->opcode == IORING_OP_POLL_ADD)
- 		req->io_task_work.func = io_poll_task_func;
- 	else
-@@ -6143,6 +6143,8 @@ static int __io_arm_poll_handler(struct io_kiocb *req,
- 	io_init_poll_iocb(poll, mask, io_poll_wake);
- 	poll->file = req->file;
- 
-+	req->apoll_events = poll->events;
++static inline bool sk_is_inet(struct sock *sk)
++{
++	return sk->sk_family == AF_INET || sk->sk_family == AF_INET6;
++}
 +
- 	ipt->pt._key = mask;
- 	ipt->req = req;
- 	ipt->error = 0;
-@@ -6173,8 +6175,10 @@ static int __io_arm_poll_handler(struct io_kiocb *req,
+ /**
+  * sk_to_full_sk - Access to a full socket
+  * @sk: pointer to a socket
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index cc381165ea08..ede0af308f40 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -695,6 +695,11 @@ struct sk_psock *sk_psock_init(struct sock *sk, int node)
  
- 	if (mask) {
- 		/* can't multishot if failed, just queue the event we've got */
--		if (unlikely(ipt->error || !ipt->nr_entries))
-+		if (unlikely(ipt->error || !ipt->nr_entries)) {
- 			poll->events |= EPOLLONESHOT;
-+			req->apoll_events |= EPOLLONESHOT;
-+		}
- 		__io_poll_execute(req, mask, poll->events);
+ 	write_lock_bh(&sk->sk_callback_lock);
+ 
++	if (sk_is_inet(sk) && inet_csk_has_ulp(sk)) {
++		psock = ERR_PTR(-EINVAL);
++		goto out;
++	}
++
+ 	if (sk->sk_user_data) {
+ 		psock = ERR_PTR(-EBUSY);
+ 		goto out;
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index 1cdcb4df0eb7..2c597a4e429a 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -612,9 +612,6 @@ int tcp_bpf_update_proto(struct sock *sk, struct sk_psock *psock, bool restore)
  		return 0;
  	}
-@@ -6387,7 +6391,7 @@ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
- 		return -EINVAL;
  
- 	io_req_set_refcount(req);
--	req->apoll_events = poll->events = io_poll_parse_events(sqe, flags);
-+	poll->events = io_poll_parse_events(sqe, flags);
- 	return 0;
- }
+-	if (inet_csk_has_ulp(sk))
+-		return -EINVAL;
+-
+ 	if (sk->sk_family == AF_INET6) {
+ 		if (tcp_bpf_assert_proto_ops(psock->sk_proto))
+ 			return -EINVAL;
+diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
+index 9aac9c60d786..62b1c5e32bbd 100644
+--- a/net/tls/tls_main.c
++++ b/net/tls/tls_main.c
+@@ -790,6 +790,8 @@ static void tls_update(struct sock *sk, struct proto *p,
+ {
+ 	struct tls_context *ctx;
  
++	WARN_ON_ONCE(sk->sk_prot == p);
++
+ 	ctx = tls_get_ctx(sk);
+ 	if (likely(ctx)) {
+ 		ctx->sk_write_space = write_space;
 -- 
 2.35.1
 
