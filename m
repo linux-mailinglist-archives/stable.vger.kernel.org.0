@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C1255C341
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:48:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0091155CA77
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235371AbiF0L2s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:28:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44738 "EHLO
+        id S235104AbiF0Lds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:33:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235247AbiF0L13 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:27:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A5895A3;
-        Mon, 27 Jun 2022 04:27:07 -0700 (PDT)
+        with ESMTP id S235639AbiF0Lc3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:32:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8B365D3;
+        Mon, 27 Jun 2022 04:29:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 154CC6149A;
-        Mon, 27 Jun 2022 11:27:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B3DFC3411D;
-        Mon, 27 Jun 2022 11:27:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4DB3B81117;
+        Mon, 27 Jun 2022 11:29:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F86C385A5;
+        Mon, 27 Jun 2022 11:29:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329226;
-        bh=jaYeSq8RMd7CvRO05tklhk/K8wwDlJj9FKd33kmk2SU=;
+        s=korg; t=1656329364;
+        bh=Hv5XT+wihpAxWcKTmxWkBoWJWkQXIxwXbE/EI2bjpSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M6QaMv9Vkq+XZnTGCPwHKDWBSa6mMdgxfSlkPSjvbGe8u0GSfUeuVivpO1a6pCDBY
-         1wC9C/9W4eVpqfDvNUIKl0+xXdrpkdIHmA3JPWS6yNl6sQ1tW7muipDTW3AwCB/fdG
-         VXqLo2Vck/4M472Do3/Tq0a4kfHWVLgIyVtF6bVk=
+        b=fQZ6bA8+vS9zdjrgcs2sKay22J21sXs/ZTpz17teP72wpuyzSwHPFlXEz8SRAAgu8
+         ZEQEMgM9JyAj5Gxh7JMivX0l3J61LGxKTppu6ITdXtNUvE6rrXvVMNMnaOmY4Qm5ig
+         2oMxWEqCdfKto2MuvNA33t7L/me8jUsyBadHcrOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.10 093/102] ARM: dts: imx6qdl: correct PU regulator ramp delay
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 33/60] gpio: winbond: Fix error code in winbond_gpio_get()
 Date:   Mon, 27 Jun 2022 13:21:44 +0200
-Message-Id: <20220627111936.225858508@linuxfoundation.org>
+Message-Id: <20220627111928.663134075@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 93a8ba2a619816d631bd69e9ce2172b4d7a481b8 upstream.
+[ Upstream commit 9ca766eaea2e87b8b773bff04ee56c055cb76d4e ]
 
-Contrary to what was believed at the time, the ramp delay of 150us is not
-plenty for the PU LDO with the default step time of 512 pulses of the 24MHz
-clock. Measurements have shown that after enabling the LDO the voltage on
-VDDPU_CAP jumps to ~750mV in the first step and after that the regulator
-executes the normal ramp up as defined by the step size control.
+This error path returns 1, but it should instead propagate the negative
+error code from winbond_sio_enter().
 
-This means it takes the regulator between 360us and 370us to ramp up to
-the nominal 1.15V voltage for this power domain. With the old setting of
-the ramp delay the power up of the PU GPC domain would happen in the middle
-of the regulator ramp with the voltage being at around 900mV. Apparently
-this was enough for most units to properly power up the peripherals in the
-domain and execute the reset. Some units however, fail to power up properly,
-especially when the chip is at a low temperature. In that case any access
-to the GPU registers would yield an incorrect result with no way to recover
-from this situation.
-
-Change the ramp delay to 380us to cover the measured ramp up time with a
-bit of additional slack.
-
-Fixes: 40130d327f72 ("ARM: dts: imx6qdl: Allow disabling the PU regulator, add a enable ramp delay")
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a0d65009411c ("gpio: winbond: Add driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-winbond.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/arm/boot/dts/imx6qdl.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl.dtsi
-@@ -756,7 +756,7 @@
- 					regulator-name = "vddpu";
- 					regulator-min-microvolt = <725000>;
- 					regulator-max-microvolt = <1450000>;
--					regulator-enable-ramp-delay = <150>;
-+					regulator-enable-ramp-delay = <380>;
- 					anatop-reg-offset = <0x140>;
- 					anatop-vol-bit-shift = <9>;
- 					anatop-vol-bit-width = <5>;
+diff --git a/drivers/gpio/gpio-winbond.c b/drivers/gpio/gpio-winbond.c
+index 7f8f5b02e31d..4b61d975cc0e 100644
+--- a/drivers/gpio/gpio-winbond.c
++++ b/drivers/gpio/gpio-winbond.c
+@@ -385,12 +385,13 @@ static int winbond_gpio_get(struct gpio_chip *gc, unsigned int offset)
+ 	unsigned long *base = gpiochip_get_data(gc);
+ 	const struct winbond_gpio_info *info;
+ 	bool val;
++	int ret;
+ 
+ 	winbond_gpio_get_info(&offset, &info);
+ 
+-	val = winbond_sio_enter(*base);
+-	if (val)
+-		return val;
++	ret = winbond_sio_enter(*base);
++	if (ret)
++		return ret;
+ 
+ 	winbond_sio_select_logical(*base, info->dev);
+ 
+-- 
+2.35.1
+
 
 
