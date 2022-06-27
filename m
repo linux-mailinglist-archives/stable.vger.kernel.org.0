@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01BBE55C2C2
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D489255E35B
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233108AbiF0JlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 05:41:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33002 "EHLO
+        id S233600AbiF0JlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 05:41:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233700AbiF0JlH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 05:41:07 -0400
+        with ESMTP id S233224AbiF0JlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 05:41:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6384C636C
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 02:41:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69003636C
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 02:41:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F24C461299
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 09:41:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05AB6C3411D;
-        Mon, 27 Jun 2022 09:41:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06BC761299
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 09:41:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C538C3411D;
+        Mon, 27 Jun 2022 09:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656322866;
-        bh=/giJYTux71P/Iy+rk4TR59KLqe4lioKi7zO+mQs62ns=;
+        s=korg; t=1656322869;
+        bh=TfEZiDhYBGSk300lDqDcX4oU5Zh3nojw8stjwEfNLmA=;
         h=Subject:To:Cc:From:Date:From;
-        b=jRMSvyH2/RMyVF63IfBldZEmbPxxwcag6M436xtFgd8CFs95PMn33u+qRCC2SNe/t
-         N+74qnTJtkQ5HtVxmCuUgEJITadhS/wjlHFU+GZ+AdJxW1ktwTalAn9JYfMQDU5L22
-         4rSYP2f5vzyt0c8AOeKZ1M5e4rmb1xky8Grs4Vi0=
-Subject: FAILED: patch "[PATCH] cifs: update cifs_ses::ip_addr after failover" failed to apply to 5.10-stable tree
+        b=IorFM7SU9uo3MS0+H78PP0ZDEQx/ALjCE0sZvUuE5EdmlvW7yHoGQutTWF/0qpRLK
+         0GhH83tZZ4dBL6iLFho7iH7GwFiTp66FXWSwsatWec9VXDErvfqV+0TE+4S2i6nztK
+         8HwUytc8aUd5BY0C3Wa8FWoWdREVcttwNycG5HtM=
+Subject: FAILED: patch "[PATCH] cifs: update cifs_ses::ip_addr after failover" failed to apply to 4.19-stable tree
 To:     pc@cjr.nz, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Jun 2022 11:40:52 +0200
-Message-ID: <1656322852176163@kroah.com>
+Date:   Mon, 27 Jun 2022 11:40:53 +0200
+Message-ID: <16563228532479@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
