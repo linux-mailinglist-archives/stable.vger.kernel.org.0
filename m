@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E07BC55CE30
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF4C355C923
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:56:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233483AbiF0LXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:23:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43642 "EHLO
+        id S236349AbiF0LhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:37:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234583AbiF0LXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:23:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B94D656C;
-        Mon, 27 Jun 2022 04:23:23 -0700 (PDT)
+        with ESMTP id S235281AbiF0LgD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:36:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D2BDF3C;
+        Mon, 27 Jun 2022 04:31:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01FE7B8111C;
-        Mon, 27 Jun 2022 11:23:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53E9AC3411D;
-        Mon, 27 Jun 2022 11:23:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D509EB8111D;
+        Mon, 27 Jun 2022 11:31:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28F20C3411D;
+        Mon, 27 Jun 2022 11:31:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329000;
-        bh=hGuOut/iB47OP+a8fIGR+FF0ZAQpLfuGm7US7TJUxkg=;
+        s=korg; t=1656329509;
+        bh=3xRvhHc+SQdIQ0qMQx8QnXwLjDZ+YX9Db8crGiMEpTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w3sQeST/x4gk7bKtBrSRedOm4ztbmFOQpFM+AC3hlXcXmf0FM6qpdysu+l8qsh+Yt
-         LrDxrtVQlzrNZzVfUP80xs3wbq4xktdLqi1AbBdb44CW3WIyif82GaYy/lSV4VKRHl
-         tEwkDpJ4JVJMf2a/ni0z7s+JjcJm4jH87mpX+nik=
+        b=VcNb2UsO5RJiCfaXc6q92d0Dku/d840EypxU1snsynjAseEr2UHZzohK4BFj+YSgi
+         P17NzdDVtNxcL3XaPv94/ijnzOtjI0ZCKLWwgoQeTUZ15Q2ECoA+52hVII6y2D4Yt2
+         L9hGPsss/zI/4hL6MxIFEKv+j5pX1FS2CswzxYm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Carlo Lobrano <c.lobrano@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 018/102] USB: serial: option: add Telit LE910Cx 0x1250 composition
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.15 022/135] MAINTAINERS: Add new IOMMU development mailing list
 Date:   Mon, 27 Jun 2022 13:20:29 +0200
-Message-Id: <20220627111934.006180213@linuxfoundation.org>
+Message-Id: <20220627111938.805159019@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +52,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlo Lobrano <c.lobrano@gmail.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit 342fc0c3b345525da21112bd0478a0dc741598ea upstream.
+commit c242507c1b895646b4a25060df13b6214805759f upstream.
 
-Add support for the following Telit LE910Cx composition:
+The IOMMU mailing list will move from lists.linux-foundation.org to
+lists.linux.dev. The hard switch of the archive will happen on July
+5th, but add the new list now already so that people start using the
+list when sending patches. After July 5th the old list will disappear.
 
-0x1250: rmnet, tty, tty, tty, tty
-
-Reviewed-by: Daniele Palmas <dnlplm@gmail.com>
-Signed-off-by: Carlo Lobrano <c.lobrano@gmail.com>
-Link: https://lore.kernel.org/r/20220614075623.2392607-1-c.lobrano@gmail.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lore.kernel.org/r/20220624125139.412-1-joro@8bytes.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    1 +
- 1 file changed, 1 insertion(+)
+ MAINTAINERS |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1279,6 +1279,7 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1231, 0xff),	/* Telit LE910Cx (RNDIS) */
- 	  .driver_info = NCTRL(2) | RSVD(3) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(TELIT_VENDOR_ID, 0x1250, 0xff, 0x00, 0x00) },	/* Telit LE910Cx (rmnet) */
- 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -434,6 +434,7 @@ ACPI VIOT DRIVER
+ M:	Jean-Philippe Brucker <jean-philippe@linaro.org>
+ L:	linux-acpi@vger.kernel.org
+ L:	iommu@lists.linux-foundation.org
++L:	iommu@lists.linux.dev
+ S:	Maintained
+ F:	drivers/acpi/viot.c
+ F:	include/linux/acpi_viot.h
+@@ -941,6 +942,7 @@ AMD IOMMU (AMD-VI)
+ M:	Joerg Roedel <joro@8bytes.org>
+ R:	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+ L:	iommu@lists.linux-foundation.org
++L:	iommu@lists.linux.dev
+ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
+ F:	drivers/iommu/amd/
+@@ -5602,6 +5604,7 @@ M:	Christoph Hellwig <hch@lst.de>
+ M:	Marek Szyprowski <m.szyprowski@samsung.com>
+ R:	Robin Murphy <robin.murphy@arm.com>
+ L:	iommu@lists.linux-foundation.org
++L:	iommu@lists.linux.dev
+ S:	Supported
+ W:	http://git.infradead.org/users/hch/dma-mapping.git
+ T:	git git://git.infradead.org/users/hch/dma-mapping.git
+@@ -5614,6 +5617,7 @@ F:	kernel/dma/
+ DMA MAPPING BENCHMARK
+ M:	Barry Song <song.bao.hua@hisilicon.com>
+ L:	iommu@lists.linux-foundation.org
++L:	iommu@lists.linux.dev
+ F:	kernel/dma/map_benchmark.c
+ F:	tools/testing/selftests/dma/
+ 
+@@ -7115,6 +7119,7 @@ F:	drivers/gpu/drm/exynos/exynos_dp*
+ EXYNOS SYSMMU (IOMMU) driver
+ M:	Marek Szyprowski <m.szyprowski@samsung.com>
+ L:	iommu@lists.linux-foundation.org
++L:	iommu@lists.linux.dev
+ S:	Maintained
+ F:	drivers/iommu/exynos-iommu.c
+ 
+@@ -9457,6 +9462,7 @@ INTEL IOMMU (VT-d)
+ M:	David Woodhouse <dwmw2@infradead.org>
+ M:	Lu Baolu <baolu.lu@linux.intel.com>
+ L:	iommu@lists.linux-foundation.org
++L:	iommu@lists.linux.dev
+ S:	Supported
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
+ F:	drivers/iommu/intel/
+@@ -9793,6 +9799,7 @@ IOMMU DRIVERS
+ M:	Joerg Roedel <joro@8bytes.org>
+ M:	Will Deacon <will@kernel.org>
+ L:	iommu@lists.linux-foundation.org
++L:	iommu@lists.linux.dev
+ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
+ F:	Documentation/devicetree/bindings/iommu/
+@@ -11795,6 +11802,7 @@ F:	drivers/i2c/busses/i2c-mt65xx.c
+ MEDIATEK IOMMU DRIVER
+ M:	Yong Wu <yong.wu@mediatek.com>
+ L:	iommu@lists.linux-foundation.org
++L:	iommu@lists.linux.dev
+ L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
+ S:	Supported
+ F:	Documentation/devicetree/bindings/iommu/mediatek*
+@@ -15554,6 +15562,7 @@ F:	drivers/i2c/busses/i2c-qcom-cci.c
+ QUALCOMM IOMMU
+ M:	Rob Clark <robdclark@gmail.com>
+ L:	iommu@lists.linux-foundation.org
++L:	iommu@lists.linux.dev
+ L:	linux-arm-msm@vger.kernel.org
+ S:	Maintained
+ F:	drivers/iommu/arm/arm-smmu/qcom_iommu.c
+@@ -17982,6 +17991,7 @@ F:	arch/x86/boot/video*
+ SWIOTLB SUBSYSTEM
+ M:	Christoph Hellwig <hch@infradead.org>
+ L:	iommu@lists.linux-foundation.org
++L:	iommu@lists.linux.dev
+ S:	Supported
+ W:	http://git.infradead.org/users/hch/dma-mapping.git
+ T:	git git://git.infradead.org/users/hch/dma-mapping.git
+@@ -20562,6 +20572,7 @@ M:	Juergen Gross <jgross@suse.com>
+ M:	Stefano Stabellini <sstabellini@kernel.org>
+ L:	xen-devel@lists.xenproject.org (moderated for non-subscribers)
+ L:	iommu@lists.linux-foundation.org
++L:	iommu@lists.linux.dev
+ S:	Supported
+ F:	arch/x86/xen/*swiotlb*
+ F:	drivers/xen/*swiotlb*
 
 
