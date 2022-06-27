@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAE655E347
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:36:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D02C55CEC1
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231998AbiF0IT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 04:19:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49178 "EHLO
+        id S232739AbiF0IUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 04:20:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233003AbiF0ITw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 04:19:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65598E42
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 01:19:51 -0700 (PDT)
+        with ESMTP id S233003AbiF0IUD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 04:20:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3C5E45
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 01:20:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB460B81020
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 08:19:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A709C3411D;
-        Mon, 27 Jun 2022 08:19:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EEA9B81029
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 08:20:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAC71C3411D;
+        Mon, 27 Jun 2022 08:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656317988;
-        bh=5vcJI1E3mX9PSe2O/whtokyXSPfS1JBqRNdKXKqIjmA=;
+        s=korg; t=1656318000;
+        bh=A15obTSn5LYZVUvwLvLaC21DG3gmc67I6Ch9ig8nPCY=;
         h=Subject:To:Cc:From:Date:From;
-        b=0r3ngIUZ6HSzCYOWyMtLip54vIXLLu74ZyCwWWrBgbM26IPBskOuqxJV1pdIkFCOz
-         r97CP1pog4jrGvyXhQPGIcLFbg+pUvsk31/KU6L9weTytAyJNO20zZWkJHiJmDyh0T
-         RQGKIdQPuT17zyuYIGIfSZ19eOZTnae1sO0cah5s=
-Subject: FAILED: patch "[PATCH] xhci: Keep interrupt disabled in initialization until host is" failed to apply to 5.18-stable tree
+        b=L+VWDF4ewdesnRhKWOhIVHrk5Y/nvB/UbdiapkMbWQP+KSKn42mkj06JEbVsE8RlE
+         1DgukgONvbDqrrL9NBkNiqVNzWiJ2p9aRn25k2Td2kyIORITAkOxcVOS2GtwnvGARO
+         R5YteV8EYBZ1clTA07/3sG1VBpwYmMdFHgDWHtnY=
+Subject: FAILED: patch "[PATCH] xhci: Keep interrupt disabled in initialization until host is" failed to apply to 5.15-stable tree
 To:     xy521521@gmail.com, gregkh@linuxfoundation.org,
         mathias.nyman@linux.intel.com, xiehongyu1@kylinos.cn
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Jun 2022 10:19:45 +0200
-Message-ID: <165631798539245@kroah.com>
+Date:   Mon, 27 Jun 2022 10:19:46 +0200
+Message-ID: <165631798616945@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.18-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
