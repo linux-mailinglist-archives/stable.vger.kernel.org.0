@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB74355E1E5
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F11755C831
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:55:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237681AbiF0Luu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:50:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50038 "EHLO
+        id S236567AbiF0Lil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238596AbiF0Lss (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:48 -0400
+        with ESMTP id S236640AbiF0Lhr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30BA6CE8;
-        Mon, 27 Jun 2022 04:42:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80A379FC5;
+        Mon, 27 Jun 2022 04:34:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C263661150;
-        Mon, 27 Jun 2022 11:42:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCB24C3411D;
-        Mon, 27 Jun 2022 11:42:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 193B060DB5;
+        Mon, 27 Jun 2022 11:34:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AA43C3411D;
+        Mon, 27 Jun 2022 11:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330159;
-        bh=UKbEqA3Zv9VXTEGzuMe35zysRCOL+NKUWHwYEp7etj0=;
+        s=korg; t=1656329660;
+        bh=x4/dr29uEtkimduHGg5JIOxOjZHgrTFGzZarPmv2Skc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbpM9DLGMqko/fE9RCxb8+oyuZtIxoSvu0XJNk2nB8/jkWmz1kT4hiD3An08FXf/E
-         X60RfqVZe2RvmxqptwMzY302zuvZbTN2D609T/gZgLBkL14XlztTDkUgmeo36DDas6
-         yaHfH65t5/HDHMiipapPMCyG8JXb3RcYhV0PBOY8=
+        b=iFzDepm7GcAGxaHsrdtreUGq7TnTjE4YQtKIjylKeFN3nkRZvYSiOzxbP9P3sDIWK
+         Cq/4F/s3ruKGL5EfqnL+wkW2FuBu0t5Mkd70lB7BV8EoNlWRMeIfCgmYiHoCcSarTo
+         7tfcb6qHA4AFtPLGwo0/N7ssE1K/u6D5KU0nckEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Hauser <jahau@rocketmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org,
+        Aidan MacDonald <aidanmacdonald.0x0@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 105/181] iio: magnetometer: yas530: Fix memchr_inv() misuse
+Subject: [PATCH 5.15 071/135] regmap-irq: Fix offset/index mismatch in read_sub_irq_data()
 Date:   Mon, 27 Jun 2022 13:21:18 +0200
-Message-Id: <20220627111947.743858212@linuxfoundation.org>
+Message-Id: <20220627111940.221390939@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
 
-[ Upstream commit bb52d3691db8cf24cea049235223f3599778f264 ]
+[ Upstream commit 3f05010f243be06478a9b11cfce0ce994f5a0890 ]
 
-The call to check if the calibration is all zeroes is doing
-it wrong: memchr_inv() returns NULL if the the calibration
-contains all zeroes, but the check is for != NULL.
+We need to divide the sub-irq status register offset by register
+stride to get an index for the status buffer to avoid an out of
+bounds write when the register stride is greater than 1.
 
-Fix it up. It's probably not an urgent fix because the inner
-check for BIT(7) in data[13] will save us. But fix it.
-
-Fixes: de8860b1ed47 ("iio: magnetometer: Add driver for Yamaha YAS530")
-Reported-by: Jakob Hauser <jahau@rocketmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220501195029.151852-1-linus.walleij@linaro.org
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: a2d21848d921 ("regmap: regmap-irq: Add main status register support")
+Signed-off-by: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
+Link: https://lore.kernel.org/r/20220620200644.1961936-3-aidanmacdonald.0x0@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/magnetometer/yamaha-yas530.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/base/regmap/regmap-irq.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/magnetometer/yamaha-yas530.c b/drivers/iio/magnetometer/yamaha-yas530.c
-index 9ff7b0e56cf6..b2bc637150bf 100644
---- a/drivers/iio/magnetometer/yamaha-yas530.c
-+++ b/drivers/iio/magnetometer/yamaha-yas530.c
-@@ -639,7 +639,7 @@ static int yas532_get_calibration_data(struct yas5xx *yas5xx)
- 	dev_dbg(yas5xx->dev, "calibration data: %*ph\n", 14, data);
+diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
+index cd12078ed51b..3aac960ae30a 100644
+--- a/drivers/base/regmap/regmap-irq.c
++++ b/drivers/base/regmap/regmap-irq.c
+@@ -387,6 +387,7 @@ static inline int read_sub_irq_data(struct regmap_irq_chip_data *data,
+ 		subreg = &chip->sub_reg_offsets[b];
+ 		for (i = 0; i < subreg->num_regs; i++) {
+ 			unsigned int offset = subreg->offset[i];
++			unsigned int index = offset / map->reg_stride;
  
- 	/* Sanity check, is this all zeroes? */
--	if (memchr_inv(data, 0x00, 13)) {
-+	if (memchr_inv(data, 0x00, 13) == NULL) {
- 		if (!(data[13] & BIT(7)))
- 			dev_warn(yas5xx->dev, "calibration is blank!\n");
- 	}
+ 			if (chip->not_fixed_stride)
+ 				ret = regmap_read(map,
+@@ -395,7 +396,7 @@ static inline int read_sub_irq_data(struct regmap_irq_chip_data *data,
+ 			else
+ 				ret = regmap_read(map,
+ 						chip->status_base + offset,
+-						&data->status_buf[offset]);
++						&data->status_buf[index]);
+ 
+ 			if (ret)
+ 				break;
 -- 
 2.35.1
 
