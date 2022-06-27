@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F9DE55DACC
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:23:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1648A55E325
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:36:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238633AbiF0Lxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55946 "EHLO
+        id S235342AbiF0L3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:29:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238874AbiF0Lwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:45 -0400
+        with ESMTP id S235351AbiF0L2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:28:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67A56DEF3;
-        Mon, 27 Jun 2022 04:46:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D060DA18F;
+        Mon, 27 Jun 2022 04:27:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0723F61187;
-        Mon, 27 Jun 2022 11:46:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05859C341C8;
-        Mon, 27 Jun 2022 11:46:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FDC3614A2;
+        Mon, 27 Jun 2022 11:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C87CC3411D;
+        Mon, 27 Jun 2022 11:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330373;
-        bh=35LKQ7rqtURbT8tYGnjwC+dwCSoqGuzw00DcZd1ksng=;
+        s=korg; t=1656329241;
+        bh=XD01nU63sTO0XqJJuZPfLOromHDSrYBbyMEACs/xTzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H2eUVjQmc4pnoPy5HoWh4/LSzjHqDHEqQO/PB3XwkdrkfAtkI2VEPCtEBlegG5/+F
-         kNHEVIjlD/KGHCLlxRB66ou0YiD0CZZTZSMkOWuV6IwjVeHKXIZoRmWB9wm/kEMfM/
-         jpv2YBKIH57o7HUhKwAJwVMH3IWt/SlgVI78a15c=
+        b=IJZYSBPu0Q8JP/v2wBxuBMqx2+aNH5HT3Njg2M2NWJ52cybS3wBAfMLN4QtasJiy9
+         9IKb6XxKn9f3417UXg8JZMJdrrjZTpiMA13LYRbGBjHwTrTlRZa+2JATust3nr5obM
+         ahQg9BxMf/iv54CJWtiaC0To3629aHi35mfaB+ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
-        Hans de Goede <hdegoede@redhat.com>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.18 136/181] iio: accel: mma8452: ignore the return value of reset operation
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Krzysztof Halasa <khalasa@piap.pl>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.10 098/102] ARM: cns3xxx: Fix refcount leak in cns3xxx_init
 Date:   Mon, 27 Jun 2022 13:21:49 +0200
-Message-Id: <20220627111948.631690799@linuxfoundation.org>
+Message-Id: <20220627111936.373057683@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit bf745142cc0a3e1723f9207fb0c073c88464b7b4 upstream.
+commit 1ba904b6b16e08de5aed7c1349838d9cd0d178c5 upstream.
 
-On fxls8471, after set the reset bit, the device will reset immediately,
-will not give ACK. So ignore the return value of this reset operation,
-let the following code logic to check whether the reset operation works.
+of_find_compatible_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Fixes: ecabae713196 ("iio: mma8452: Initialise before activating")
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/1655292718-14287-1-git-send-email-haibo.chen@nxp.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 415f59142d9d ("ARM: cns3xxx: initial DT support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Acked-by: Krzysztof Halasa <khalasa@piap.pl>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/mma8452.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/arm/mach-cns3xxx/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/iio/accel/mma8452.c
-+++ b/drivers/iio/accel/mma8452.c
-@@ -1510,10 +1510,14 @@ static int mma8452_reset(struct i2c_clie
- 	int i;
- 	int ret;
+--- a/arch/arm/mach-cns3xxx/core.c
++++ b/arch/arm/mach-cns3xxx/core.c
+@@ -372,6 +372,7 @@ static void __init cns3xxx_init(void)
+ 		/* De-Asscer SATA Reset */
+ 		cns3xxx_pwr_soft_rst(CNS3XXX_PWR_SOFTWARE_RST(SATA));
+ 	}
++	of_node_put(dn);
  
--	ret = i2c_smbus_write_byte_data(client,	MMA8452_CTRL_REG2,
-+	/*
-+	 * Find on fxls8471, after config reset bit, it reset immediately,
-+	 * and will not give ACK, so here do not check the return value.
-+	 * The following code will read the reset register, and check whether
-+	 * this reset works.
-+	 */
-+	i2c_smbus_write_byte_data(client, MMA8452_CTRL_REG2,
- 					MMA8452_CTRL_REG2_RST);
--	if (ret < 0)
--		return ret;
+ 	dn = of_find_compatible_node(NULL, NULL, "cavium,cns3420-sdhci");
+ 	if (of_device_is_available(dn)) {
+@@ -385,6 +386,7 @@ static void __init cns3xxx_init(void)
+ 		cns3xxx_pwr_clk_en(CNS3XXX_PWR_CLK_EN(SDIO));
+ 		cns3xxx_pwr_soft_rst(CNS3XXX_PWR_SOFTWARE_RST(SDIO));
+ 	}
++	of_node_put(dn);
  
- 	for (i = 0; i < 10; i++) {
- 		usleep_range(100, 200);
+ 	pm_power_off = cns3xxx_power_off;
+ 
 
 
