@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CACEC55E315
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B8555E2BF
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235276AbiF0L25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:28:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45246 "EHLO
+        id S238624AbiF0Lxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:53:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235100AbiF0L1l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:27:41 -0400
+        with ESMTP id S238753AbiF0Lwf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 970949FF3;
-        Mon, 27 Jun 2022 04:27:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E43B872;
+        Mon, 27 Jun 2022 04:45:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3440C614A0;
-        Mon, 27 Jun 2022 11:27:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AECEC3411D;
-        Mon, 27 Jun 2022 11:27:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 294EF612A5;
+        Mon, 27 Jun 2022 11:45:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35AE8C341C7;
+        Mon, 27 Jun 2022 11:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329232;
-        bh=+PEY8aTgvCN7a4zjWSNtiwwqaicvZrFgs6faUOWbhog=;
+        s=korg; t=1656330329;
+        bh=QM0AfxK4IuaFTjGiDZn/JFX8f2kV59KHfY0gtwTQpUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SJN3S667m4HBxOrhN/WQR7pm+9h9kTbtFGMUtYTaa6Fu8sHVZxkRfeAHe3aBRztvI
-         KPslf1/iwurPB+OsipJCzJCz5UXz+EQwO/uJbNSj6lLSeqr4XU1raWXWtz1z6XZFTs
-         eQip5IKJpAvquXotj0C1Br/8Ufk3FR0369dvNI9M=
+        b=Ze+6jw2Ej3FDdV84xkESm7U+VJmHFano19WjozSh1+WNSxbVtt0GJZ3zf60+r6d2O
+         MphOsdL6R/VdhGMXQzvI+0oAu9JIBkEs8e23g/tYvKAuA0RTLNkhzoOqNtBDJgrXM8
+         49CRacjWQR2AlmIR1gHP4uDZ9MKibxUnXVrlmgBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.10 095/102] soc: bcm: brcmstb: pm: pm-arm: Fix refcount leak in brcmstb_pm_probe
-Date:   Mon, 27 Jun 2022 13:21:46 +0200
-Message-Id: <20220627111936.285730063@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Rokosov <ddrokosov@sberdevices.ru>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.18 134/181] iio:accel:bma180: rearrange iio trigger get and register
+Date:   Mon, 27 Jun 2022 13:21:47 +0200
+Message-Id: <20220627111948.574719741@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
 
-commit 37d838de369b07b596c19ff3662bf0293fdb09ee upstream.
+commit e5f3205b04d7f95a2ef43bce4b454a7f264d6923 upstream.
 
-of_find_matching_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+IIO trigger interface function iio_trigger_get() should be called after
+iio_trigger_register() (or its devm analogue) strictly, because of
+iio_trigger_get() acquires module refcnt based on the trigger->owner
+pointer, which is initialized inside iio_trigger_register() to
+THIS_MODULE.
+If this call order is wrong, the next iio_trigger_put() (from sysfs
+callback or "delete module" path) will dereference "default" module
+refcnt, which is incorrect behaviour.
 
-In brcmstb_init_sram, it pass dn to of_address_to_resource(),
-of_address_to_resource() will call of_find_device_by_node() to take
-reference, so we should release the reference returned by
-of_find_matching_node().
-
-Fixes: 0b741b8234c8 ("soc: bcm: brcmstb: Add support for S2/S3/S5 suspend states (ARM)")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 0668a4e4d297 ("iio: accel: bma180: Fix indio_dev->trig assignment")
+Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220524181150.9240-2-ddrokosov@sberdevices.ru
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/bcm/brcmstb/pm/pm-arm.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/accel/bma180.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-+++ b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-@@ -780,6 +780,7 @@ static int brcmstb_pm_probe(struct platf
+--- a/drivers/iio/accel/bma180.c
++++ b/drivers/iio/accel/bma180.c
+@@ -1006,11 +1006,12 @@ static int bma180_probe(struct i2c_clien
+ 
+ 		data->trig->ops = &bma180_trigger_ops;
+ 		iio_trigger_set_drvdata(data->trig, indio_dev);
+-		indio_dev->trig = iio_trigger_get(data->trig);
+ 
+ 		ret = iio_trigger_register(data->trig);
+ 		if (ret)
+ 			goto err_trigger_free;
++
++		indio_dev->trig = iio_trigger_get(data->trig);
  	}
  
- 	ret = brcmstb_init_sram(dn);
-+	of_node_put(dn);
- 	if (ret) {
- 		pr_err("error setting up SRAM for PM\n");
- 		return ret;
+ 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
 
 
