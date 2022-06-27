@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9182B55DFEE
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E0B955C8DB
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:56:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238108AbiF0LuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:50:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50094 "EHLO
+        id S234569AbiF0LXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:23:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238526AbiF0Lsn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBB0DCE01;
-        Mon, 27 Jun 2022 04:42:06 -0700 (PDT)
+        with ESMTP id S234561AbiF0LXK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:23:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FB4E6551;
+        Mon, 27 Jun 2022 04:23:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53B91B80D32;
-        Mon, 27 Jun 2022 11:42:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADCB3C341C7;
-        Mon, 27 Jun 2022 11:42:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 341B461449;
+        Mon, 27 Jun 2022 11:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F161C341D3;
+        Mon, 27 Jun 2022 11:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330124;
-        bh=Q5L49TpOIeo3P/N2thDwkriqVymsydDLChQXHGGL/vc=;
+        s=korg; t=1656328988;
+        bh=OrQNp/NvSb8zcOgcVLnKDaJ6Qwhu7yjiRubOs8inkS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UNtIBjLM9An+tdvUBitAode+pZk85LbCR9kU42n8n6ZJUxMwnEfA6JWYddolsDQVD
-         98C3QvHAgPrab6IkiIcM9ErXtI8Te4wQYXREOAQvzPUAKePufh+nkQd2XGQk6cQEWm
-         bSsLVb74GoPrA0NYHl3L9/myAUbE/prEGDo3aYSw=
+        b=x1+yYn8bU1eK2v25pOYwk76doIROVDnfmUkjfj5dB7/SnogphYCViaHlb8VsMnzeu
+         Qw8Mk4kVTVQywDcXJIbasYL8P0AVnIiwaBPA53Jlz2Y4eh+n3CiQnnoUjQz0k/GPyW
+         8FGbvgq2m4wLkjdGbaW3d0Q978iUTCiCUPoW6LMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 052/181] bpf, x86: Fix tail call count offset calculation on bpf2bpf call
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.10 014/102] mtd: rawnand: gpmi: Fix setting busy timeout setting
 Date:   Mon, 27 Jun 2022 13:20:25 +0200
-Message-Id: <20220627111946.075705044@linuxfoundation.org>
+Message-Id: <20220627111933.888631027@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,86 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit ff672c67ee7635ca1e28fb13729e8ef0d1f08ce5 ]
+commit 06781a5026350cde699d2d10c9914a25c1524f45 upstream.
 
-On x86-64 the tail call count is passed from one BPF function to another
-through %rax. Additionally, on function entry, the tail call count value
-is stored on stack right after the BPF program stack, due to register
-shortage.
+The DEVICE_BUSY_TIMEOUT value is described in the Reference Manual as:
 
-The stored count is later loaded from stack either when performing a tail
-call - to check if we have not reached the tail call limit - or before
-calling another BPF function call in order to pass it via %rax.
+| Timeout waiting for NAND Ready/Busy or ATA IRQ. Used in WAIT_FOR_READY
+| mode. This value is the number of GPMI_CLK cycles multiplied by 4096.
 
-In the latter case, we miscalculate the offset at which the tail call count
-was stored on function entry. The JIT does not take into account that the
-allocated BPF program stack is always a multiple of 8 on x86, while the
-actual stack depth does not have to be.
+So instead of multiplying the value in cycles with 4096, we have to
+divide it by that value. Use DIV_ROUND_UP to make sure we are on the
+safe side, especially when the calculated value in cycles is smaller
+than 4096 as typically the case.
 
-This leads to a load from an offset that belongs to the BPF stack, as shown
-in the example below:
+This bug likely never triggered because any timeout != 0 usually will
+do. In my case the busy timeout in cycles was originally calculated as
+2408, which multiplied with 4096 is 0x968000. The lower 16 bits were
+taken for the 16 bit wide register field, so the register value was
+0x8000. With 2970bf5a32f0 ("mtd: rawnand: gpmi: fix controller timings
+setting") however the value in cycles became 2384, which multiplied
+with 4096 is 0x950000. The lower 16 bit are 0x0 now resulting in an
+intermediate timeout when reading from NAND.
 
-SEC("tc")
-int entry(struct __sk_buff *skb)
-{
-	/* Have data on stack which size is not a multiple of 8 */
-	volatile char arr[1] = {};
-	return subprog_tail(skb);
-}
-
-int entry(struct __sk_buff * skb):
-   0: (b4) w2 = 0
-   1: (73) *(u8 *)(r10 -1) = r2
-   2: (85) call pc+1#bpf_prog_ce2f79bb5f3e06dd_F
-   3: (95) exit
-
-int entry(struct __sk_buff * skb):
-   0xffffffffa0201788:  nop    DWORD PTR [rax+rax*1+0x0]
-   0xffffffffa020178d:  xor    eax,eax
-   0xffffffffa020178f:  push   rbp
-   0xffffffffa0201790:  mov    rbp,rsp
-   0xffffffffa0201793:  sub    rsp,0x8
-   0xffffffffa020179a:  push   rax
-   0xffffffffa020179b:  xor    esi,esi
-   0xffffffffa020179d:  mov    BYTE PTR [rbp-0x1],sil
-   0xffffffffa02017a1:  mov    rax,QWORD PTR [rbp-0x9]	!!! tail call count
-   0xffffffffa02017a8:  call   0xffffffffa02017d8       !!! is at rbp-0x10
-   0xffffffffa02017ad:  leave
-   0xffffffffa02017ae:  ret
-
-Fix it by rounding up the BPF stack depth to a multiple of 8, when
-calculating the tail call count offset on stack.
-
-Fixes: ebf7d1f508a7 ("bpf, x64: rework pro/epilogue and tailcall handling in JIT")
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220616162037.535469-2-jakub@cloudflare.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b1206122069aa ("mtd: rawnand: gpmi: use core timings instead of an empirical derivation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220614083138.3455683-1-s.hauer@pengutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/net/bpf_jit_comp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index 16b6efacf7c6..4c71fa04e784 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -1415,8 +1415,9 @@ st:			if (is_imm8(insn->off))
- 		case BPF_JMP | BPF_CALL:
- 			func = (u8 *) __bpf_call_base + imm32;
- 			if (tail_call_reachable) {
-+				/* mov rax, qword ptr [rbp - rounded_stack_depth - 8] */
- 				EMIT3_off32(0x48, 0x8B, 0x85,
--					    -(bpf_prog->aux->stack_depth + 8));
-+					    -round_up(bpf_prog->aux->stack_depth, 8) - 8);
- 				if (!imm32 || emit_call(&prog, func, image + addrs[i - 1] + 7))
- 					return -EINVAL;
- 			} else {
--- 
-2.35.1
-
+--- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
++++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+@@ -683,7 +683,7 @@ static void gpmi_nfc_compute_timings(str
+ 	hw->timing0 = BF_GPMI_TIMING0_ADDRESS_SETUP(addr_setup_cycles) |
+ 		      BF_GPMI_TIMING0_DATA_HOLD(data_hold_cycles) |
+ 		      BF_GPMI_TIMING0_DATA_SETUP(data_setup_cycles);
+-	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(busy_timeout_cycles * 4096);
++	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(DIV_ROUND_UP(busy_timeout_cycles, 4096));
+ 
+ 	/*
+ 	 * Derive NFC ideal delay from {3}:
 
 
