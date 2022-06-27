@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E850B55D1AE
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:09:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D83AF55D776
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:18:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236625AbiF0Li6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:38:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34960 "EHLO
+        id S235369AbiF0L3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:29:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236593AbiF0Lhn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC4565D3;
-        Mon, 27 Jun 2022 04:34:09 -0700 (PDT)
+        with ESMTP id S235419AbiF0L3N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:29:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B0B8109;
+        Mon, 27 Jun 2022 04:28:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FDCB60C16;
-        Mon, 27 Jun 2022 11:34:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50DB4C341C8;
-        Mon, 27 Jun 2022 11:34:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D06F61494;
+        Mon, 27 Jun 2022 11:28:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39F97C3411D;
+        Mon, 27 Jun 2022 11:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329648;
-        bh=mQxZLlG1fnMhdpl5nNqIAaOfKrFy36I2HEN0sikocns=;
+        s=korg; t=1656329290;
+        bh=NqWKPAx54vazXc3qKoDsW40jReYuUC9TIV8zapkZdIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O2D/3URiyPXZxzskLYAsadIICc+uEGkpO3IQdFXxvX1Ny2qAJKbIWsnutgr0vB1vE
-         vd4wa6NApvv6OQzOQfVKzp6zYYsVDwOOkLiH0Rr/a/WglKswVZya7yF5npVgM2B2jR
-         NlcjMV3EVjfnL3bWanJi60T/+nrqFmoLSCidG3X4=
+        b=mjtouuWwTbNllOMFg/k8oV6IGa1i4Vmy7jdM81p27HdTlg5Zcka/O6By316TrSMdv
+         ElWneVZpW56k6/awhPyTbWwLR2moVAlOP02l/pc2n3fDs1P70flMyjLsHq1tZ2vzVG
+         vXxdITunATjDZkxDd1xmcS7zqESTkiUzXA2CdtCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, k2ci <kernel-bot@kylinos.cn>,
-        huhai <huhai@kylinos.cn>,
-        Genjian Zhang <zhanggenjian@kylinos.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 067/135] MIPS: Remove repetitive increase irq_err_count
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 03/60] ALSA: hda/via: Fix missing beep setup
 Date:   Mon, 27 Jun 2022 13:21:14 +0200
-Message-Id: <20220627111940.103110990@linuxfoundation.org>
+Message-Id: <20220627111927.748906353@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,61 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: huhai <huhai@kylinos.cn>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c81aba8fde2aee4f5778ebab3a1d51bd2ef48e4c ]
+commit c7807b27d510e5aa53c8a120cfc02c33c24ebb5f upstream.
 
-commit 979934da9e7a ("[PATCH] mips: update IRQ handling for vr41xx") added
-a function irq_dispatch, and it'll increase irq_err_count when the get_irq
-callback returns a negative value, but increase irq_err_count in get_irq
-was not removed.
+Like the previous fix for Conexant codec, the beep_nid has to be set
+up before calling snd_hda_gen_parse_auto_config(); otherwise it'd miss
+the path setup.
 
-And also, modpost complains once gpio-vr41xx drivers become modules.
-  ERROR: modpost: "irq_err_count" [drivers/gpio/gpio-vr41xx.ko] undefined!
+Fix the call order for addressing the missing beep setup.
 
-So it would be a good idea to remove repetitive increase irq_err_count in
-get_irq callback.
-
-Fixes: 27fdd325dace ("MIPS: Update VR41xx GPIO driver to use gpiolib")
-Fixes: 979934da9e7a ("[PATCH] mips: update IRQ handling for vr41xx")
-Reported-by: k2ci <kernel-bot@kylinos.cn>
-Signed-off-by: huhai <huhai@kylinos.cn>
-Signed-off-by: Genjian Zhang <zhanggenjian@kylinos.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0e8f9862493a ("ALSA: hda/via - Simplify control management")
+Cc: <stable@vger.kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216152
+Link: https://lore.kernel.org/r/20220620104008.1994-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/vr41xx/common/icu.c | 2 --
- drivers/gpio/gpio-vr41xx.c    | 2 --
- 2 files changed, 4 deletions(-)
+ sound/pci/hda/patch_via.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/vr41xx/common/icu.c b/arch/mips/vr41xx/common/icu.c
-index 7b7f25b4b057..9240bcdbe74e 100644
---- a/arch/mips/vr41xx/common/icu.c
-+++ b/arch/mips/vr41xx/common/icu.c
-@@ -640,8 +640,6 @@ static int icu_get_irq(unsigned int irq)
+--- a/sound/pci/hda/patch_via.c
++++ b/sound/pci/hda/patch_via.c
+@@ -520,11 +520,11 @@ static int via_parse_auto_config(struct
+ 	if (err < 0)
+ 		return err;
  
- 	printk(KERN_ERR "spurious ICU interrupt: %04x,%04x\n", pend1, pend2);
+-	err = snd_hda_gen_parse_auto_config(codec, &spec->gen.autocfg);
++	err = auto_parse_beep(codec);
+ 	if (err < 0)
+ 		return err;
  
--	atomic_inc(&irq_err_count);
--
- 	return -1;
- }
+-	err = auto_parse_beep(codec);
++	err = snd_hda_gen_parse_auto_config(codec, &spec->gen.autocfg);
+ 	if (err < 0)
+ 		return err;
  
-diff --git a/drivers/gpio/gpio-vr41xx.c b/drivers/gpio/gpio-vr41xx.c
-index 98cd715ccc33..8d09b619c166 100644
---- a/drivers/gpio/gpio-vr41xx.c
-+++ b/drivers/gpio/gpio-vr41xx.c
-@@ -217,8 +217,6 @@ static int giu_get_irq(unsigned int irq)
- 	printk(KERN_ERR "spurious GIU interrupt: %04x(%04x),%04x(%04x)\n",
- 	       maskl, pendl, maskh, pendh);
- 
--	atomic_inc(&irq_err_count);
--
- 	return -EINVAL;
- }
- 
--- 
-2.35.1
-
 
 
