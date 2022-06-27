@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 858F055C1DF
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1C1255C341
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:48:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238336AbiF0Lxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56036 "EHLO
+        id S235371AbiF0L2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:28:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238922AbiF0Lwt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57462DF22;
-        Mon, 27 Jun 2022 04:46:30 -0700 (PDT)
+        with ESMTP id S235247AbiF0L13 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:27:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A5895A3;
+        Mon, 27 Jun 2022 04:27:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E91A3B80D37;
-        Mon, 27 Jun 2022 11:46:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C86C3411D;
-        Mon, 27 Jun 2022 11:46:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 154CC6149A;
+        Mon, 27 Jun 2022 11:27:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B3DFC3411D;
+        Mon, 27 Jun 2022 11:27:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330387;
-        bh=SxpGI+CQk3fn6M8/MgNMGVqxpD3nKniUZv1qZm4HGwE=;
+        s=korg; t=1656329226;
+        bh=jaYeSq8RMd7CvRO05tklhk/K8wwDlJj9FKd33kmk2SU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XY7uRXaEps9mOa4O0Gwi+kNrzkoNXynOUYhKr5DcOvV8w8JGfHJGOeRcQc4NvNBUZ
-         Aqzj1CALBJtMW71GmzBMnAZUNi7UwmVFbyMYGxqUIYP4cmMcNDZWQ2bF672yqQyG3L
-         iZI0ju83birm18lPptqiz02Ipk6kgez/YO7tCnGM=
+        b=M6QaMv9Vkq+XZnTGCPwHKDWBSa6mMdgxfSlkPSjvbGe8u0GSfUeuVivpO1a6pCDBY
+         1wC9C/9W4eVpqfDvNUIKl0+xXdrpkdIHmA3JPWS6yNl6sQ1tW7muipDTW3AwCB/fdG
+         VXqLo2Vck/4M472Do3/Tq0a4kfHWVLgIyVtF6bVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aashish Sharma <shraash@google.com>,
-        kernel test robot <lkp@intel.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Gwendal Grignou <gwendal@chromium.org>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.18 131/181] iio:proximity:sx9324: Check ret value of device_property_read_u32_array()
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.10 093/102] ARM: dts: imx6qdl: correct PU regulator ramp delay
 Date:   Mon, 27 Jun 2022 13:21:44 +0200
-Message-Id: <20220627111948.489224737@linuxfoundation.org>
+Message-Id: <20220627111936.225858508@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aashish Sharma <shraash@google.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit 70171ed6dc53d2f580166d47f5b66cf51a6d0092 upstream.
+commit 93a8ba2a619816d631bd69e9ce2172b4d7a481b8 upstream.
 
-0-day reports:
+Contrary to what was believed at the time, the ramp delay of 150us is not
+plenty for the PU LDO with the default step time of 512 pulses of the 24MHz
+clock. Measurements have shown that after enabling the LDO the voltage on
+VDDPU_CAP jumps to ~750mV in the first step and after that the regulator
+executes the normal ramp up as defined by the step size control.
 
-drivers/iio/proximity/sx9324.c:868:3: warning: Value stored
-to 'ret' is never read [clang-analyzer-deadcode.DeadStores]
+This means it takes the regulator between 360us and 370us to ramp up to
+the nominal 1.15V voltage for this power domain. With the old setting of
+the ramp delay the power up of the PU GPC domain would happen in the middle
+of the regulator ramp with the voltage being at around 900mV. Apparently
+this was enough for most units to properly power up the peripherals in the
+domain and execute the reset. Some units however, fail to power up properly,
+especially when the chip is at a low temperature. In that case any access
+to the GPU registers would yield an incorrect result with no way to recover
+from this situation.
 
-Put an if condition to break out of switch if ret is non-zero.
+Change the ramp delay to 380us to cover the measured ramp up time with a
+bit of additional slack.
 
-Signed-off-by: Aashish Sharma <shraash@google.com>
-Fixes: a8ee3b32f5da ("iio:proximity:sx9324: Add dt_binding support")
-Reported-by: kernel test robot <lkp@intel.com>
-[swboyd@chromium.org: Reword commit subject, add fixes tag]
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Gwendal Grignou <gwendal@chromium.org>
-Link: https://lore.kernel.org/r/20220613232224.2466278-1-swboyd@chromium.org
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 40130d327f72 ("ARM: dts: imx6qdl: Allow disabling the PU regulator, add a enable ramp delay")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/proximity/sx9324.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/imx6qdl.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/proximity/sx9324.c
-+++ b/drivers/iio/proximity/sx9324.c
-@@ -885,6 +885,9 @@ sx9324_get_default_reg(struct device *de
- 			break;
- 		ret = device_property_read_u32_array(dev, prop, pin_defs,
- 						     ARRAY_SIZE(pin_defs));
-+		if (ret)
-+			break;
-+
- 		for (pin = 0; pin < SX9324_NUM_PINS; pin++)
- 			raw |= (pin_defs[pin] << (2 * pin)) &
- 			       SX9324_REG_AFE_PH0_PIN_MASK(pin);
+--- a/arch/arm/boot/dts/imx6qdl.dtsi
++++ b/arch/arm/boot/dts/imx6qdl.dtsi
+@@ -756,7 +756,7 @@
+ 					regulator-name = "vddpu";
+ 					regulator-min-microvolt = <725000>;
+ 					regulator-max-microvolt = <1450000>;
+-					regulator-enable-ramp-delay = <150>;
++					regulator-enable-ramp-delay = <380>;
+ 					anatop-reg-offset = <0x140>;
+ 					anatop-vol-bit-shift = <9>;
+ 					anatop-vol-bit-width = <5>;
 
 
