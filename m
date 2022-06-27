@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F55955DEAB
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:29:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0D8A55C507
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:50:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235617AbiF0LbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:31:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54438 "EHLO
+        id S235233AbiF0L11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:27:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235567AbiF0LaZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:30:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73705B98;
-        Mon, 27 Jun 2022 04:28:38 -0700 (PDT)
+        with ESMTP id S235115AbiF0L0o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:26:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D2DF65A8;
+        Mon, 27 Jun 2022 04:26:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8155B81116;
-        Mon, 27 Jun 2022 11:28:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A56AC3411D;
-        Mon, 27 Jun 2022 11:28:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AF78B8111D;
+        Mon, 27 Jun 2022 11:26:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A801C3411D;
+        Mon, 27 Jun 2022 11:26:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329315;
-        bh=Jz1o9UB3Ng6FEk7XWi8NWkLeXLQCX2UUuwvit7PxSH0=;
+        s=korg; t=1656329196;
+        bh=/OV4TQT7m05Fi0VZVfG2VTpYR5hu8IQh+pTF8a8E0mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=agWD3y3DO94Bsp70m0tQCLX8N3P4Y5A4CrLYyZazyct6mgji/n5CY+WjZquwJXvS9
-         mj1Be+DPElrweKHACdJGSMyP32RNTBV0W+jZrh3XMqRkeJOFElSlnEUiiTVRu9sjMH
-         fUBVclPYTN1o5K8oNpwxZkRulrVD3dyDKYE+dTco=
+        b=ZS0VeCB9tqSm9DrOqrKEgbJdtaFh6ufZWoD1CMWG8duXblCRrfA5EKs8pY38zQZWz
+         XdMdW7JNTesKKjqn87/HsNRvim+Hx4NzAFiHGweQE0bISaJiDAlMZJ4VhZ0kLdm0ee
+         /cSXPk4K7qVx7g75rbpcLTegbvKWu+OI0vfcdFM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Toppins <jtoppins@redhat.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 19/60] bonding: ARP monitor spams NETDEV_NOTIFY_PEERS notifiers
-Date:   Mon, 27 Jun 2022 13:21:30 +0200
-Message-Id: <20220627111928.227365898@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 080/102] iio: imu: inv_icm42600: Fix broken icm42600 (chip id 0 value)
+Date:   Mon, 27 Jun 2022 13:21:31 +0200
+Message-Id: <20220627111935.842264654@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jay Vosburgh <jay.vosburgh@canonical.com>
+From: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
 
-[ Upstream commit 7a9214f3d88cfdb099f3896e102a306b316d8707 ]
+commit 106b391e1b859100a3f38f0ad874236e9be06bde upstream.
 
-The bonding ARP monitor fails to decrement send_peer_notif, the
-number of peer notifications (gratuitous ARP or ND) to be sent. This
-results in a continuous series of notifications.
+The 0 value used for INV_CHIP_ICM42600 was not working since the
+match in i2c/spi was checking against NULL value.
 
-Correct this by decrementing the counter for each notification.
+To keep this check, add a first INV_CHIP_INVALID 0 value as safe
+guard.
 
-Reported-by: Jonathan Toppins <jtoppins@redhat.com>
-Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Fixes: b0929915e035 ("bonding: Fix RTNL: assertion failed at net/core/rtnetlink.c for ab arp monitor")
-Link: https://lore.kernel.org/netdev/b2fd4147-8f50-bebd-963a-1a3e8d1d9715@redhat.com/
-Tested-by: Jonathan Toppins <jtoppins@redhat.com>
-Reviewed-by: Jonathan Toppins <jtoppins@redhat.com>
-Link: https://lore.kernel.org/r/9400.1655407960@famine
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 31c24c1e93c3 ("iio: imu: inv_icm42600: add core of new inv_icm42600 driver")
+Signed-off-by: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
+Link: https://lore.kernel.org/r/20220609102301.4794-1-jmaneyrol@invensense.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/imu/inv_icm42600/inv_icm42600.h      |    1 +
+ drivers/iio/imu/inv_icm42600/inv_icm42600_core.c |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index d6ecd03b6045..246bcbd650b4 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3071,9 +3071,11 @@ static void bond_activebackup_arp_mon(struct bonding *bond)
- 		if (!rtnl_trylock())
- 			return;
+--- a/drivers/iio/imu/inv_icm42600/inv_icm42600.h
++++ b/drivers/iio/imu/inv_icm42600/inv_icm42600.h
+@@ -17,6 +17,7 @@
+ #include "inv_icm42600_buffer.h"
  
--		if (should_notify_peers)
-+		if (should_notify_peers) {
-+			bond->send_peer_notif--;
- 			call_netdevice_notifiers(NETDEV_NOTIFY_PEERS,
- 						 bond->dev);
-+		}
- 		if (should_notify_rtnl) {
- 			bond_slave_state_notify(bond);
- 			bond_slave_link_notify(bond);
--- 
-2.35.1
-
+ enum inv_icm42600_chip {
++	INV_CHIP_INVALID,
+ 	INV_CHIP_ICM42600,
+ 	INV_CHIP_ICM42602,
+ 	INV_CHIP_ICM42605,
+--- a/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c
++++ b/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c
+@@ -565,7 +565,7 @@ int inv_icm42600_core_probe(struct regma
+ 	bool open_drain;
+ 	int ret;
+ 
+-	if (chip < 0 || chip >= INV_CHIP_NB) {
++	if (chip <= INV_CHIP_INVALID || chip >= INV_CHIP_NB) {
+ 		dev_err(dev, "invalid chip = %d\n", chip);
+ 		return -ENODEV;
+ 	}
 
 
