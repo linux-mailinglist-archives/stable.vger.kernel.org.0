@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 958DB55DE3D
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D687055E2A9
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:35:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233008AbiF0IUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 04:20:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49406 "EHLO
+        id S232890AbiF0I2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 04:28:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232911AbiF0IUL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 04:20:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7FFBF48
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 01:20:10 -0700 (PDT)
+        with ESMTP id S233565AbiF0I16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 04:27:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03FB2630D
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 01:27:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65AD961008
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 08:20:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F699C3411D;
-        Mon, 27 Jun 2022 08:20:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E23E61013
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 08:27:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34A79C3411D;
+        Mon, 27 Jun 2022 08:27:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656318009;
-        bh=9qQRDTr28fn/sLan77nmCFKLpwNV+AaYL3yk3m8msxE=;
+        s=korg; t=1656318468;
+        bh=xqB9p/XcBRf5CNmnW5laehQcgfAyllIB2WzpoVSdXX4=;
         h=Subject:To:Cc:From:Date:From;
-        b=AZfHWC1ySaHokHEBPewn+vBCyIhzy3dLEQm+r2vuKoxCyOkDmy0PFr/5WH+Nt0RI1
-         rApcD7sYYCYOYPIxsGXynOIgcNqEL5dYlXxepEveSNbPPiwlP1+faA44Cr8xGs7+Z1
-         FrbhSB0YoPwPtM4utHhJIJclduIlo7BEBqHqnXSs=
-Subject: FAILED: patch "[PATCH] xhci: Keep interrupt disabled in initialization until host is" failed to apply to 4.9-stable tree
-To:     xy521521@gmail.com, gregkh@linuxfoundation.org,
-        mathias.nyman@linux.intel.com, xiehongyu1@kylinos.cn
+        b=TJWxnUIwy3zWsOE/zxhqyKx2eOaoXng9LSLb0v1zWxtJk+PbHLWr9HDnz1BreS03z
+         iwDurRvROcR8CvWoZch/JGnV3omboYbN8O8H3ybd1TxTIf2OOliQwF53JT1In3hJXZ
+         KanrXSneQqNcRqi73FbpHlx32V8a15Jia4ze2dYo=
+Subject: FAILED: patch "[PATCH] btrfs: fix race between reflinking and ordered extent" failed to apply to 5.10-stable tree
+To:     fdmanana@suse.com, boris@bur.io, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Jun 2022 10:19:48 +0200
-Message-ID: <165631798864117@kroah.com>
+Date:   Mon, 27 Jun 2022 10:27:45 +0200
+Message-ID: <1656318465112100@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,90 +59,184 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a808925075fb750804a60ff0710614466c396db4 Mon Sep 17 00:00:00 2001
-From: Hongyu Xie <xy521521@gmail.com>
-Date: Thu, 23 Jun 2022 14:19:42 +0300
-Subject: [PATCH] xhci: Keep interrupt disabled in initialization until host is
- running.
+From d4597898ba7b9d467b94a9aafd65ec408a75041f Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 6 Jun 2022 10:41:17 +0100
+Subject: [PATCH] btrfs: fix race between reflinking and ordered extent
+ completion
 
-irq is disabled in xhci_quiesce(called by xhci_halt, with bit:2 cleared
-in USBCMD register), but xhci_run(called by usb_add_hcd) re-enable it.
-It's possible that you will receive thousands of interrupt requests
-after initialization for 2.0 roothub. And you will get a lot of
-warning like, "xHCI dying, ignoring interrupt. Shouldn't IRQs be
-disabled?". This amount of interrupt requests will cause the entire
-system to freeze.
-This problem was first found on a device with ASM2142 host controller
-on it.
+While doing a reflink operation, if an ordered extent for a file range
+that does not overlap with the source and destination ranges of the
+reflink operation happens, we can end up having a failure in the reflink
+operation and return -EINVAL to user space.
 
-[tidy up old code while moving it, reword header -Mathias]
+The following sequence of steps explains how this can happen:
 
-Cc: stable@kernel.org
-Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220623111945.1557702-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+1) We have the page at file offset 315392 dirty (under delalloc);
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 9ac56e9ffc64..cb99bed5f755 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -611,15 +611,37 @@ static int xhci_init(struct usb_hcd *hcd)
+2) A reflink operation for this file starts, using the same file as both
+   source and destination, the source range is [372736, 409600) (length of
+   36864 bytes) and the destination range is [208896, 245760);
+
+3) At btrfs_remap_file_range_prep(), we flush all delalloc in the source
+   and destination ranges, and wait for any ordered extents in those range
+   to complete;
+
+4) Still at btrfs_remap_file_range_prep(), we then flush all delalloc in
+   the inode, but we neither wait for it to complete nor any ordered
+   extents to complete. This results in starting delalloc for the page at
+   file offset 315392 and creating an ordered extent for that single page
+   range;
+
+5) We then move to btrfs_clone() and enter the loop to find file extent
+   items to copy from the source range to destination range;
+
+6) In the first iteration we end up at last file extent item stored in
+   leaf A:
+
+   (...)
+   item 131 key (143616 108 315392) itemoff 5101 itemsize 53
+            extent data disk bytenr 1903988736 nr 73728
+            extent data offset 12288 nr 61440 ram 73728
+
+   This represents the file range [315392, 376832), which overlaps with
+   the source range to clone.
+
+   @datal is set to 61440, key.offset is 315392 and @next_key_min_offset
+   is therefore set to 376832 (315392 + 61440).
+
+   @off (372736) is > key.offset (315392), so @new_key.offset is set to
+   the value of @destoff (208896).
+
+   @new_key.offset == @last_dest_end (208896) so @drop_start is set to
+   208896 (@new_key.offset).
+
+   @datal is adjusted to 4096, as @off is > @key.offset.
+
+   So in this iteration we call btrfs_replace_file_extents() for the range
+   [208896, 212991] (a single page, which is
+   [@drop_start, @new_key.offset + @datal - 1]).
+
+   @last_dest_end is set to 212992 (@new_key.offset + @datal =
+   208896 + 4096 = 212992).
+
+   Before the next iteration of the loop, @key.offset is set to the value
+   376832, which is @next_key_min_offset;
+
+7) On the second iteration btrfs_search_slot() leaves us again at leaf A,
+   but this time pointing beyond the last slot of leaf A, as that's where
+   a key with offset 376832 should be at if it existed. So end up calling
+   btrfs_next_leaf();
+
+8) btrfs_next_leaf() releases the path, but before it searches again the
+   tree for the next key/leaf, the ordered extent for the single page
+   range at file offset 315392 completes. That results in trimming the
+   file extent item we processed before, adjusting its key offset from
+   315392 to 319488, reducing its length from 61440 to 57344 and inserting
+   a new file extent item for that single page range, with a key offset of
+   315392 and a length of 4096.
+
+   Leaf A now looks like:
+
+     (...)
+     item 132 key (143616 108 315392) itemoff 4995 itemsize 53
+              extent data disk bytenr 1801666560 nr 4096
+              extent data offset 0 nr 4096 ram 4096
+     item 133 key (143616 108 319488) itemoff 4942 itemsize 53
+              extent data disk bytenr 1903988736 nr 73728
+              extent data offset 16384 nr 57344 ram 73728
+
+9) When btrfs_next_leaf() returns, it gives us a path pointing to leaf A
+   at slot 133, since it's the first key that follows what was the last
+   key we saw (143616 108 315392). In fact it's the same item we processed
+   before, but its key offset was changed, so it counts as a new key;
+
+10) So now we have:
+
+    @key.offset == 319488
+    @datal == 57344
+
+    @off (372736) is > key.offset (319488), so @new_key.offset is set to
+    208896 (@destoff value).
+
+    @new_key.offset (208896) != @last_dest_end (212992), so @drop_start
+    is set to 212992 (@last_dest_end value).
+
+    @datal is adjusted to 4096 because @off > @key.offset.
+
+    So in this iteration we call btrfs_replace_file_extents() for the
+    invalid range of [212992, 212991] (which is
+    [@drop_start, @new_key.offset + @datal - 1]).
+
+    This range is empty, the end offset is smaller than the start offset
+    so btrfs_replace_file_extents() returns -EINVAL, which we end up
+    returning to user space and fail the reflink operation.
+
+    This all happens because the range of this file extent item was
+    already processed in the previous iteration.
+
+This scenario can be triggered very sporadically by fsx from fstests, for
+example with test case generic/522.
+
+So fix this by having btrfs_clone() skip file extent items that cover a
+file range that we have already processed.
+
+CC: stable@vger.kernel.org # 5.10+
+Reviewed-by: Boris Burkov <boris@bur.io>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
+index c39f8b3a5a4a..912f4aa21a24 100644
+--- a/fs/btrfs/reflink.c
++++ b/fs/btrfs/reflink.c
+@@ -344,6 +344,7 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
+ 	int ret;
+ 	const u64 len = olen_aligned;
+ 	u64 last_dest_end = destoff;
++	u64 prev_extent_end = off;
  
- static int xhci_run_finished(struct xhci_hcd *xhci)
- {
-+	unsigned long	flags;
-+	u32		temp;
-+
-+	/*
-+	 * Enable interrupts before starting the host (xhci 4.2 and 5.5.2).
-+	 * Protect the short window before host is running with a lock
-+	 */
-+	spin_lock_irqsave(&xhci->lock, flags);
-+
-+	xhci_dbg_trace(xhci, trace_xhci_dbg_init, "Enable interrupts");
-+	temp = readl(&xhci->op_regs->command);
-+	temp |= (CMD_EIE);
-+	writel(temp, &xhci->op_regs->command);
-+
-+	xhci_dbg_trace(xhci, trace_xhci_dbg_init, "Enable primary interrupter");
-+	temp = readl(&xhci->ir_set->irq_pending);
-+	writel(ER_IRQ_ENABLE(temp), &xhci->ir_set->irq_pending);
-+
- 	if (xhci_start(xhci)) {
- 		xhci_halt(xhci);
-+		spin_unlock_irqrestore(&xhci->lock, flags);
- 		return -ENODEV;
- 	}
-+
- 	xhci->cmd_ring_state = CMD_RING_STATE_RUNNING;
+ 	ret = -ENOMEM;
+ 	buf = kvmalloc(fs_info->nodesize, GFP_KERNEL);
+@@ -363,7 +364,6 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
+ 	key.offset = off;
  
- 	if (xhci->quirks & XHCI_NEC_HOST)
- 		xhci_ring_cmd_db(xhci);
- 
-+	spin_unlock_irqrestore(&xhci->lock, flags);
+ 	while (1) {
+-		u64 next_key_min_offset = key.offset + 1;
+ 		struct btrfs_file_extent_item *extent;
+ 		u64 extent_gen;
+ 		int type;
+@@ -431,14 +431,21 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
+ 		 * The first search might have left us at an extent item that
+ 		 * ends before our target range's start, can happen if we have
+ 		 * holes and NO_HOLES feature enabled.
++		 *
++		 * Subsequent searches may leave us on a file range we have
++		 * processed before - this happens due to a race with ordered
++		 * extent completion for a file range that is outside our source
++		 * range, but that range was part of a file extent item that
++		 * also covered a leading part of our source range.
+ 		 */
+-		if (key.offset + datal <= off) {
++		if (key.offset + datal <= prev_extent_end) {
+ 			path->slots[0]++;
+ 			goto process_slot;
+ 		} else if (key.offset >= off + len) {
+ 			break;
+ 		}
+-		next_key_min_offset = key.offset + datal;
 +
- 	return 0;
- }
++		prev_extent_end = key.offset + datal;
+ 		size = btrfs_item_size(leaf, slot);
+ 		read_extent_buffer(leaf, buf, btrfs_item_ptr_offset(leaf, slot),
+ 				   size);
+@@ -550,7 +557,7 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
+ 			break;
  
-@@ -668,19 +690,6 @@ int xhci_run(struct usb_hcd *hcd)
- 	temp |= (xhci->imod_interval / 250) & ER_IRQ_INTERVAL_MASK;
- 	writel(temp, &xhci->ir_set->irq_control);
+ 		btrfs_release_path(path);
+-		key.offset = next_key_min_offset;
++		key.offset = prev_extent_end;
  
--	/* Set the HCD state before we enable the irqs */
--	temp = readl(&xhci->op_regs->command);
--	temp |= (CMD_EIE);
--	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
--			"// Enable interrupts, cmd = 0x%x.", temp);
--	writel(temp, &xhci->op_regs->command);
--
--	temp = readl(&xhci->ir_set->irq_pending);
--	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
--			"// Enabling event ring interrupter %p by writing 0x%x to irq_pending",
--			xhci->ir_set, (unsigned int) ER_IRQ_ENABLE(temp));
--	writel(ER_IRQ_ENABLE(temp), &xhci->ir_set->irq_pending);
--
- 	if (xhci->quirks & XHCI_NEC_HOST) {
- 		struct xhci_command *command;
- 
+ 		if (fatal_signal_pending(current)) {
+ 			ret = -EINTR;
 
