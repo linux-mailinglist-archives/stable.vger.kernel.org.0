@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 212BB55C8F4
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:56:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78E7F55CB25
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:59:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237832AbiF0LtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:49:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50044 "EHLO
+        id S236175AbiF0LiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238479AbiF0Lsa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:30 -0400
+        with ESMTP id S236477AbiF0Lhe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D35E5101CC;
-        Mon, 27 Jun 2022 04:41:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FAFA223;
+        Mon, 27 Jun 2022 04:33:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D82CB81144;
-        Mon, 27 Jun 2022 11:41:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00658C3411D;
-        Mon, 27 Jun 2022 11:41:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD3DEB80E6F;
+        Mon, 27 Jun 2022 11:33:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27C34C3411D;
+        Mon, 27 Jun 2022 11:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330104;
-        bh=kCwdNzqMem6ihDmySz6U2kWUQrGOpG+87jgLRiwTaSE=;
+        s=korg; t=1656329590;
+        bh=FFo5qQnm4OH0okQMXRGwjQ4ynXyznGl40vyyIuYjSbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bn94/jzRm2jBhbEGf4eAAORjvJOssJ3MnWqOQqEOnUMzxRZwX1n8XLW+TRiHHYSrJ
-         TPvJ4fwCQGsFCPUrFb7fzPSvYOI/cT4DUW/YzibAe9tM/GfjXeIhMQ6bfkRN3pMD6m
-         JoMjx2/HYT297asB53+ncrcJzJZa9e8HFDb7vE8E=
+        b=Js4Zzo7I+Fr1C/mT4PWNJPYiJiQeS0G0D6HfsQuEDRJ6urUw+lMyYcTOjJjLKdT10
+         hNa7mBX8K1sMguwXgN0TTYJFX8H3Y598OaEgo1wqEz0UlqaL0UYvrCO3V7WuhTZ4lL
+         VpHn7kLuIiwqCzSuNz5jIZL5+ngpOsiOer55fCBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dylan Yudaken <dylany@fb.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 084/181] block: pop cached rq before potentially blocking rq_qos_throttle()
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 050/135] igb: fix a use-after-free issue in igb_clean_tx_ring
 Date:   Mon, 27 Jun 2022 13:20:57 +0200
-Message-Id: <20220627111946.996652252@linuxfoundation.org>
+Message-Id: <20220627111939.612269699@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +56,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 2645672ffe21f0a1c139bfbc05ad30fd4e4f2583 ]
+[ Upstream commit 3f6a57ee8544ec3982f8a3cbcbf4aea7d47eb9ec ]
 
-If rq_qos_throttle() ends up blocking, then we will have invalidated and
-flushed our current plug. Since blk_mq_get_cached_request() hasn't
-popped the cached request off the plug list just yet, we end holding a
-pointer to a request that is no longer valid. This insta-crashes with
-rq->mq_hctx being NULL in the validity checks just after.
+Fix the following use-after-free bug in igb_clean_tx_ring routine when
+the NIC is running in XDP mode. The issue can be triggered redirecting
+traffic into the igb NIC and then closing the device while the traffic
+is flowing.
 
-Pop the request off the cached list before doing rq_qos_throttle() to
-avoid using a potentially stale request.
+[   73.322719] CPU: 1 PID: 487 Comm: xdp_redirect Not tainted 5.18.3-apu2 #9
+[   73.330639] Hardware name: PC Engines APU2/APU2, BIOS 4.0.7 02/28/2017
+[   73.337434] RIP: 0010:refcount_warn_saturate+0xa7/0xf0
+[   73.362283] RSP: 0018:ffffc9000081f798 EFLAGS: 00010282
+[   73.367761] RAX: 0000000000000000 RBX: ffffc90000420f80 RCX: 0000000000000000
+[   73.375200] RDX: ffff88811ad22d00 RSI: ffff88811ad171e0 RDI: ffff88811ad171e0
+[   73.382590] RBP: 0000000000000900 R08: ffffffff82298f28 R09: 0000000000000058
+[   73.390008] R10: 0000000000000219 R11: ffffffff82280f40 R12: 0000000000000090
+[   73.397356] R13: ffff888102343a40 R14: ffff88810359e0e4 R15: 0000000000000000
+[   73.404806] FS:  00007ff38d31d740(0000) GS:ffff88811ad00000(0000) knlGS:0000000000000000
+[   73.413129] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   73.419096] CR2: 000055cff35f13f8 CR3: 0000000106391000 CR4: 00000000000406e0
+[   73.426565] Call Trace:
+[   73.429087]  <TASK>
+[   73.431314]  igb_clean_tx_ring+0x43/0x140 [igb]
+[   73.436002]  igb_down+0x1d7/0x220 [igb]
+[   73.439974]  __igb_close+0x3c/0x120 [igb]
+[   73.444118]  igb_xdp+0x10c/0x150 [igb]
+[   73.447983]  ? igb_pci_sriov_configure+0x70/0x70 [igb]
+[   73.453362]  dev_xdp_install+0xda/0x110
+[   73.457371]  dev_xdp_attach+0x1da/0x550
+[   73.461369]  do_setlink+0xfd0/0x10f0
+[   73.465166]  ? __nla_validate_parse+0x89/0xc70
+[   73.469714]  rtnl_setlink+0x11a/0x1e0
+[   73.473547]  rtnetlink_rcv_msg+0x145/0x3d0
+[   73.477709]  ? rtnl_calcit.isra.0+0x130/0x130
+[   73.482258]  netlink_rcv_skb+0x8d/0x110
+[   73.486229]  netlink_unicast+0x230/0x340
+[   73.490317]  netlink_sendmsg+0x215/0x470
+[   73.494395]  __sys_sendto+0x179/0x190
+[   73.498268]  ? move_addr_to_user+0x37/0x70
+[   73.502547]  ? __sys_getsockname+0x84/0xe0
+[   73.506853]  ? netlink_setsockopt+0x1c1/0x4a0
+[   73.511349]  ? __sys_setsockopt+0xc8/0x1d0
+[   73.515636]  __x64_sys_sendto+0x20/0x30
+[   73.519603]  do_syscall_64+0x3b/0x80
+[   73.523399]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   73.528712] RIP: 0033:0x7ff38d41f20c
+[   73.551866] RSP: 002b:00007fff3b945a68 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+[   73.559640] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007ff38d41f20c
+[   73.567066] RDX: 0000000000000034 RSI: 00007fff3b945b30 RDI: 0000000000000003
+[   73.574457] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+[   73.581852] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fff3b945ab0
+[   73.589179] R13: 0000000000000000 R14: 0000000000000003 R15: 00007fff3b945b30
+[   73.596545]  </TASK>
+[   73.598842] ---[ end trace 0000000000000000 ]---
 
-Fixes: 0a5aa8d161d1 ("block: fix blk_mq_attempt_bio_merge and rq_qos_throttle protection")
-Reported-by: Dylan Yudaken <dylany@fb.com>
-Tested-by: Dylan Yudaken <dylany@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 9cbc948b5a20c ("igb: add XDP support")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Link: https://lore.kernel.org/r/e5c01d549dc37bff18e46aeabd6fb28a7bcf84be.1655388571.git.lorenzo@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 631fb87b4976..37caa73bff89 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2777,15 +2777,20 @@ static inline struct request *blk_mq_get_cached_request(struct request_queue *q,
- 		return NULL;
- 	}
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index b88303351484..5ee5ee8e6848 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -4819,8 +4819,11 @@ static void igb_clean_tx_ring(struct igb_ring *tx_ring)
+ 	while (i != tx_ring->next_to_use) {
+ 		union e1000_adv_tx_desc *eop_desc, *tx_desc;
  
--	rq_qos_throttle(q, *bio);
--
- 	if (blk_mq_get_hctx_type((*bio)->bi_opf) != rq->mq_hctx->type)
- 		return NULL;
- 	if (op_is_flush(rq->cmd_flags) != op_is_flush((*bio)->bi_opf))
- 		return NULL;
+-		/* Free all the Tx ring sk_buffs */
+-		dev_kfree_skb_any(tx_buffer->skb);
++		/* Free all the Tx ring sk_buffs or xdp frames */
++		if (tx_buffer->type == IGB_TYPE_SKB)
++			dev_kfree_skb_any(tx_buffer->skb);
++		else
++			xdp_return_frame(tx_buffer->xdpf);
  
--	rq->cmd_flags = (*bio)->bi_opf;
-+	/*
-+	 * If any qos ->throttle() end up blocking, we will have flushed the
-+	 * plug and hence killed the cached_rq list as well. Pop this entry
-+	 * before we throttle.
-+	 */
- 	plug->cached_rq = rq_list_next(rq);
-+	rq_qos_throttle(q, *bio);
-+
-+	rq->cmd_flags = (*bio)->bi_opf;
- 	INIT_LIST_HEAD(&rq->queuelist);
- 	return rq;
- }
+ 		/* unmap skb header data */
+ 		dma_unmap_single(tx_ring->dev,
 -- 
 2.35.1
 
