@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E512E55E155
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D57F355C1FA
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238892AbiF0Lx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50008 "EHLO
+        id S237219AbiF0Loa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:44:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238203AbiF0Lvb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:51:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595E965D3;
-        Mon, 27 Jun 2022 04:44:41 -0700 (PDT)
+        with ESMTP id S237136AbiF0Lm0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F0FEDEB9;
+        Mon, 27 Jun 2022 04:36:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB5F0612AC;
-        Mon, 27 Jun 2022 11:44:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B987CC3411D;
-        Mon, 27 Jun 2022 11:44:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B32A7610A0;
+        Mon, 27 Jun 2022 11:36:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA66FC3411D;
+        Mon, 27 Jun 2022 11:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330280;
-        bh=WtMZyv1YS+QuA1a3BRnBhNCU85O6xrK2sJtEOq+THBs=;
+        s=korg; t=1656329778;
+        bh=vdb3E6WRlDL20adQ9KZ21R2W9oW3boQenfgRmu7+Rxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q5Fj/lD4JXhRAG/4TAZl2+4LCuAcZZ2aycAZzH1cVKR+EwopH5FNLXG+odqOLJRqn
-         1i/+szoWB5iJZktUz7E1uF7A95C01S5g7Y4z5CaoBQGbS9EnohoXH9+kLdtXOxwQae
-         5frE+mq7zqIrwxMMu+vWDrjD57UFkmbX4um3OvO0=
+        b=Jtid5r183xXoBiOYJ0WqCh+2wVVQnXLP9jveRQsnJ12paRzHyBVSaeP+DvYb1z0Uq
+         gF01sR+eGem+Ff5rWEm5JWIU1l/UjgNS8ge0eFHAFbQKlMGSNJ7CIs14+8V6tIWeE8
+         ds2WL6l9nSi3HAOKPmgeyz14dZxbs1oLwjas6Co8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yannick Brosseau <yannick.brosseau@gmail.com>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Jialin Zhang <zhangjialin11@huawei.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.18 145/181] iio: adc: stm32: Fix IRQs on STM32F4 by removing custom spurious IRQs message
+Subject: [PATCH 5.15 111/135] iio: adc: ti-ads131e08: add missing fwnode_handle_put() in ads131e08_alloc_channels()
 Date:   Mon, 27 Jun 2022 13:21:58 +0200
-Message-Id: <20220627111948.889519143@linuxfoundation.org>
+Message-Id: <20220627111941.374614168@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,60 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yannick Brosseau <yannick.brosseau@gmail.com>
+From: Jialin Zhang <zhangjialin11@huawei.com>
 
-commit 99bded02dae5e1e2312813506c41dc8db2fb656c upstream.
+commit 47dcf770abc793f347a65a24c24d550c936f08b0 upstream.
 
-The check for spurious IRQs introduced in 695e2f5c289bb assumed that the bits
-in the control and status registers are aligned. This is true for the H7 and MP1
-version, but not the F4. The interrupt was then never handled on the F4.
+fwnode_handle_put() should be used when terminating
+device_for_each_child_node() iteration with break or return to prevent
+stale device node references from being left behind.
 
-Instead of increasing the complexity of the comparison and check each bit specifically,
-we remove this check completely and rely on the generic handler for spurious IRQs.
-
-Fixes: 695e2f5c289b ("iio: adc: stm32-adc: fix a regression when using dma and irq")
-Signed-off-by: Yannick Brosseau <yannick.brosseau@gmail.com>
-Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20220516203939.3498673-3-yannick.brosseau@gmail.com
+Fixes: d935eddd2799 ("iio: adc: Add driver for Texas Instruments ADS131E0x ADC family")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Jialin Zhang <zhangjialin11@huawei.com>
+Link: https://lore.kernel.org/r/20220517033020.2033324-1-zhangjialin11@huawei.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/stm32-adc.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/iio/adc/ti-ads131e08.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -1407,7 +1407,6 @@ static irqreturn_t stm32_adc_threaded_is
- 	struct stm32_adc *adc = iio_priv(indio_dev);
- 	const struct stm32_adc_regspec *regs = adc->cfg->regs;
- 	u32 status = stm32_adc_readl(adc, regs->isr_eoc.reg);
--	u32 mask = stm32_adc_readl(adc, regs->ier_eoc.reg);
+--- a/drivers/iio/adc/ti-ads131e08.c
++++ b/drivers/iio/adc/ti-ads131e08.c
+@@ -739,7 +739,7 @@ static int ads131e08_alloc_channels(stru
+ 	device_for_each_child_node(dev, node) {
+ 		ret = fwnode_property_read_u32(node, "reg", &channel);
+ 		if (ret)
+-			return ret;
++			goto err_child_out;
  
- 	/* Check ovr status right now, as ovr mask should be already disabled */
- 	if (status & regs->isr_ovr.mask) {
-@@ -1422,11 +1421,6 @@ static irqreturn_t stm32_adc_threaded_is
- 		return IRQ_HANDLED;
- 	}
+ 		ret = fwnode_property_read_u32(node, "ti,gain", &tmp);
+ 		if (ret) {
+@@ -747,7 +747,7 @@ static int ads131e08_alloc_channels(stru
+ 		} else {
+ 			ret = ads131e08_pga_gain_to_field_value(st, tmp);
+ 			if (ret < 0)
+-				return ret;
++				goto err_child_out;
  
--	if (!(status & mask))
--		dev_err_ratelimited(&indio_dev->dev,
--				    "Unexpected IRQ: IER=0x%08x, ISR=0x%08x\n",
--				    mask, status);
--
- 	return IRQ_NONE;
+ 			channel_config[i].pga_gain = tmp;
+ 		}
+@@ -758,7 +758,7 @@ static int ads131e08_alloc_channels(stru
+ 		} else {
+ 			ret = ads131e08_validate_channel_mux(st, tmp);
+ 			if (ret)
+-				return ret;
++				goto err_child_out;
+ 
+ 			channel_config[i].mux = tmp;
+ 		}
+@@ -784,6 +784,10 @@ static int ads131e08_alloc_channels(stru
+ 	st->channel_config = channel_config;
+ 
+ 	return 0;
++
++err_child_out:
++	fwnode_handle_put(node);
++	return ret;
  }
  
-@@ -1436,10 +1430,6 @@ static irqreturn_t stm32_adc_isr(int irq
- 	struct stm32_adc *adc = iio_priv(indio_dev);
- 	const struct stm32_adc_regspec *regs = adc->cfg->regs;
- 	u32 status = stm32_adc_readl(adc, regs->isr_eoc.reg);
--	u32 mask = stm32_adc_readl(adc, regs->ier_eoc.reg);
--
--	if (!(status & mask))
--		return IRQ_WAKE_THREAD;
- 
- 	if (status & regs->isr_ovr.mask) {
- 		/*
+ static void ads131e08_regulator_disable(void *data)
 
 
