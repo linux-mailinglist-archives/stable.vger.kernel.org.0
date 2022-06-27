@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F14F55DEC6
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBFF255DE25
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236475AbiF0LjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:39:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33620 "EHLO
+        id S236379AbiF0LiV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236802AbiF0LiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:38:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 948AABC2A;
-        Mon, 27 Jun 2022 04:34:55 -0700 (PDT)
+        with ESMTP id S236448AbiF0Lhc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C907B262F;
+        Mon, 27 Jun 2022 04:32:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FA2FB8111D;
-        Mon, 27 Jun 2022 11:34:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CBF5C385A5;
-        Mon, 27 Jun 2022 11:34:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65896608D4;
+        Mon, 27 Jun 2022 11:32:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76741C3411D;
+        Mon, 27 Jun 2022 11:32:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329692;
-        bh=V2lgXS6XgffKquji+g8xrjN4kwR7HHexW31+Up0ZesY=;
+        s=korg; t=1656329572;
+        bh=yZtRmRs4EyBjcnbChlGztpsIsEFvf0sBvVhe+dThbu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMc5FKRoVXWBnegfx+9tsCVUNGzLIUiXxjc8YpCz+iNXww/HHS/SI1K9JtSD+1b5f
-         raZz+pSlbzPZfamsmnMqjnrvDM+kzH+e+NIRfmhAy6LXWMcCRxtF1f9s5OC3QOMUEB
-         IWlU36C7Q7bO7WEmcFD3S3dFVl7kyWrA/mpY5SOQ=
+        b=tzNhOqWJko43oL9MD7zar1iqpdHjO5/797tU5EN8L3RtoeNpgzbjR6cWam5Wkm0hd
+         syzBk/1WrgYnTobSojcwOassm4B5ByNocWVzBl2Im8KKJ3RD6EDRYqIi8YRjOlfWjZ
+         Zlnvxz9MexkDtliMvbJmNxp4FQ3aanMPfvEYRmWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Saurabh Sengar <ssengar@linux.microsoft.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 043/135] bpf, x86: Fix tail call count offset calculation on bpf2bpf call
-Date:   Mon, 27 Jun 2022 13:20:50 +0200
-Message-Id: <20220627111939.410339370@linuxfoundation.org>
+Subject: [PATCH 5.15 044/135] scsi: storvsc: Correct reporting of Hyper-V I/O size limits
+Date:   Mon, 27 Jun 2022 13:20:51 +0200
+Message-Id: <20220627111939.438743789@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
 References: <20220627111938.151743692@linuxfoundation.org>
@@ -55,84 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Saurabh Sengar <ssengar@linux.microsoft.com>
 
-[ Upstream commit ff672c67ee7635ca1e28fb13729e8ef0d1f08ce5 ]
+[ Upstream commit 1d3e0980782fbafaf93285779fd3905e4f866802 ]
 
-On x86-64 the tail call count is passed from one BPF function to another
-through %rax. Additionally, on function entry, the tail call count value
-is stored on stack right after the BPF program stack, due to register
-shortage.
+Current code is based on the idea that the max number of SGL entries
+also determines the max size of an I/O request.  While this idea was
+true in older versions of the storvsc driver when SGL entry length
+was limited to 4 Kbytes, commit 3d9c3dcc58e9 ("scsi: storvsc: Enable
+scatterlist entry lengths > 4Kbytes") removed that limitation. It's
+now theoretically possible for the block layer to send requests that
+exceed the maximum size supported by Hyper-V. This problem doesn't
+currently happen in practice because the block layer defaults to a
+512 Kbyte maximum, while Hyper-V in Azure supports 2 Mbyte I/O sizes.
+But some future configuration of Hyper-V could have a smaller max I/O
+size, and the block layer could exceed that max.
 
-The stored count is later loaded from stack either when performing a tail
-call - to check if we have not reached the tail call limit - or before
-calling another BPF function call in order to pass it via %rax.
+Fix this by correctly setting max_sectors as well as sg_tablesize to
+reflect the maximum I/O size that Hyper-V reports. While allowing
+I/O sizes larger than the block layer default of 512 Kbytes doesn’t
+provide any noticeable performance benefit in the tests we ran, it's
+still appropriate to report the correct underlying Hyper-V capabilities
+to the Linux block layer.
 
-In the latter case, we miscalculate the offset at which the tail call count
-was stored on function entry. The JIT does not take into account that the
-allocated BPF program stack is always a multiple of 8 on x86, while the
-actual stack depth does not have to be.
+Also tweak the virt_boundary_mask to reflect that the required
+alignment derives from Hyper-V communication using a 4 Kbyte page size,
+and not on the guest page size, which might be bigger (eg. ARM64).
 
-This leads to a load from an offset that belongs to the BPF stack, as shown
-in the example below:
-
-SEC("tc")
-int entry(struct __sk_buff *skb)
-{
-	/* Have data on stack which size is not a multiple of 8 */
-	volatile char arr[1] = {};
-	return subprog_tail(skb);
-}
-
-int entry(struct __sk_buff * skb):
-   0: (b4) w2 = 0
-   1: (73) *(u8 *)(r10 -1) = r2
-   2: (85) call pc+1#bpf_prog_ce2f79bb5f3e06dd_F
-   3: (95) exit
-
-int entry(struct __sk_buff * skb):
-   0xffffffffa0201788:  nop    DWORD PTR [rax+rax*1+0x0]
-   0xffffffffa020178d:  xor    eax,eax
-   0xffffffffa020178f:  push   rbp
-   0xffffffffa0201790:  mov    rbp,rsp
-   0xffffffffa0201793:  sub    rsp,0x8
-   0xffffffffa020179a:  push   rax
-   0xffffffffa020179b:  xor    esi,esi
-   0xffffffffa020179d:  mov    BYTE PTR [rbp-0x1],sil
-   0xffffffffa02017a1:  mov    rax,QWORD PTR [rbp-0x9]	!!! tail call count
-   0xffffffffa02017a8:  call   0xffffffffa02017d8       !!! is at rbp-0x10
-   0xffffffffa02017ad:  leave
-   0xffffffffa02017ae:  ret
-
-Fix it by rounding up the BPF stack depth to a multiple of 8, when
-calculating the tail call count offset on stack.
-
-Fixes: ebf7d1f508a7 ("bpf, x64: rework pro/epilogue and tailcall handling in JIT")
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220616162037.535469-2-jakub@cloudflare.com
+Link: https://lore.kernel.org/r/1655190355-28722-1-git-send-email-ssengar@linux.microsoft.com
+Fixes: 3d9c3dcc58e9 ("scsi: storvsc: Enable scatter list entry lengths > 4Kbytes")
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/net/bpf_jit_comp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/storvsc_drv.c | 27 ++++++++++++++++++++++-----
+ 1 file changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index d99434dc215c..8dca2bcbb0ea 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -1440,8 +1440,9 @@ st:			if (is_imm8(insn->off))
- 		case BPF_JMP | BPF_CALL:
- 			func = (u8 *) __bpf_call_base + imm32;
- 			if (tail_call_reachable) {
-+				/* mov rax, qword ptr [rbp - rounded_stack_depth - 8] */
- 				EMIT3_off32(0x48, 0x8B, 0x85,
--					    -(bpf_prog->aux->stack_depth + 8));
-+					    -round_up(bpf_prog->aux->stack_depth, 8) - 8);
- 				if (!imm32 || emit_call(&prog, func, image + addrs[i - 1] + 7))
- 					return -EINVAL;
- 			} else {
+diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+index 9eb1b88a29dd..71c7f7b435c4 100644
+--- a/drivers/scsi/storvsc_drv.c
++++ b/drivers/scsi/storvsc_drv.c
+@@ -1907,7 +1907,7 @@ static struct scsi_host_template scsi_driver = {
+ 	.cmd_per_lun =		2048,
+ 	.this_id =		-1,
+ 	/* Ensure there are no gaps in presented sgls */
+-	.virt_boundary_mask =	PAGE_SIZE-1,
++	.virt_boundary_mask =	HV_HYP_PAGE_SIZE - 1,
+ 	.no_write_same =	1,
+ 	.track_queue_depth =	1,
+ 	.change_queue_depth =	storvsc_change_queue_depth,
+@@ -1961,6 +1961,7 @@ static int storvsc_probe(struct hv_device *device,
+ 	int max_targets;
+ 	int max_channels;
+ 	int max_sub_channels = 0;
++	u32 max_xfer_bytes;
+ 
+ 	/*
+ 	 * Based on the windows host we are running on,
+@@ -2049,12 +2050,28 @@ static int storvsc_probe(struct hv_device *device,
+ 	}
+ 	/* max cmd length */
+ 	host->max_cmd_len = STORVSC_MAX_CMD_LEN;
+-
+ 	/*
+-	 * set the table size based on the info we got
+-	 * from the host.
++	 * Any reasonable Hyper-V configuration should provide
++	 * max_transfer_bytes value aligning to HV_HYP_PAGE_SIZE,
++	 * protecting it from any weird value.
++	 */
++	max_xfer_bytes = round_down(stor_device->max_transfer_bytes, HV_HYP_PAGE_SIZE);
++	/* max_hw_sectors_kb */
++	host->max_sectors = max_xfer_bytes >> 9;
++	/*
++	 * There are 2 requirements for Hyper-V storvsc sgl segments,
++	 * based on which the below calculation for max segments is
++	 * done:
++	 *
++	 * 1. Except for the first and last sgl segment, all sgl segments
++	 *    should be align to HV_HYP_PAGE_SIZE, that also means the
++	 *    maximum number of segments in a sgl can be calculated by
++	 *    dividing the total max transfer length by HV_HYP_PAGE_SIZE.
++	 *
++	 * 2. Except for the first and last, each entry in the SGL must
++	 *    have an offset that is a multiple of HV_HYP_PAGE_SIZE.
+ 	 */
+-	host->sg_tablesize = (stor_device->max_transfer_bytes >> PAGE_SHIFT);
++	host->sg_tablesize = (max_xfer_bytes >> HV_HYP_PAGE_SHIFT) + 1;
+ 	/*
+ 	 * For non-IDE disks, the host supports multiple channels.
+ 	 * Set the number of HW queues we are supporting.
 -- 
 2.35.1
 
