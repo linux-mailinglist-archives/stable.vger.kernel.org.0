@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8734C55C3C6
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:48:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57AFE55DD20
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:27:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232909AbiF0JMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 05:12:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34694 "EHLO
+        id S232628AbiF0JMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 05:12:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232605AbiF0JMO (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 27 Jun 2022 05:12:14 -0400
+        with ESMTP id S232605AbiF0JMF (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 27 Jun 2022 05:12:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A1A12667
-        for <Stable@vger.kernel.org>; Mon, 27 Jun 2022 02:12:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C2B02665
+        for <Stable@vger.kernel.org>; Mon, 27 Jun 2022 02:12:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 060D26115B
-        for <Stable@vger.kernel.org>; Mon, 27 Jun 2022 09:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3F12C3411D;
-        Mon, 27 Jun 2022 09:12:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCF24611DC
+        for <Stable@vger.kernel.org>; Mon, 27 Jun 2022 09:12:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9F42C3411D;
+        Mon, 27 Jun 2022 09:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656321132;
-        bh=OLsAhSp9gEHoxwkWrG+WbD+YdYDK9CAx9j8MC0nVNPg=;
+        s=korg; t=1656321124;
+        bh=rYxOD5pNT1oDhde1YCCldF2qm9nlZzeyo5vMO0EDgCo=;
         h=Subject:To:Cc:From:Date:From;
-        b=Zqn2d4DV5RgAyfj7UT56+qHQJKuKAI8v7Kb3W1qnH/nHj4eBO+J5mSveNGrmgWtb/
-         jLarGlM5hix2YwJA3ZLH/GrK7JwHFxkhafKiDi10cyGX3mhSA09pfralC7BfYEnnhn
-         a7oOIB9uqdNkU8xCYz2jT3jYfusv6+y8giieyd7Q=
-Subject: FAILED: patch "[PATCH] iio:accel:kxcjk-1013: rearrange iio trigger get and register" failed to apply to 5.4-stable tree
+        b=m9LJZitiJ/Y5+txhsd/TiIfEdK78xvnPa/zW6oFJYcB0esEd9FoD7LntKtxc/TD6J
+         Azl7D+6alV1vqopA36221Qy9cMBS8C37yUsDvh11D7tobx3Xn63zILizT+QZFxw+la
+         jDdObxRWcejUQ4T6wyU6jMUtQ2RWXyNLcKgCavQs=
+Subject: FAILED: patch "[PATCH] iio:accel:kxcjk-1013: rearrange iio trigger get and register" failed to apply to 5.10-stable tree
 To:     DDRokosov@sberdevices.ru, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, andy.shevchenko@gmail.com,
         ddrokosov@sberdevices.ru
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 27 Jun 2022 11:12:01 +0200
-Message-ID: <165632112119432@kroah.com>
+Message-ID: <165632112139175@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
