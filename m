@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90FF855CA3F
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:58:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 891BD55CCDE
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235202AbiF0LtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:49:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50042 "EHLO
+        id S236287AbiF0LiY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238469AbiF0Lsa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF7ECBF56;
-        Mon, 27 Jun 2022 04:41:43 -0700 (PDT)
+        with ESMTP id S236474AbiF0Lhe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FEBFB7;
+        Mon, 27 Jun 2022 04:33:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD2F8B81126;
-        Mon, 27 Jun 2022 11:41:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8C0C3411D;
-        Mon, 27 Jun 2022 11:41:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8D45B80E6F;
+        Mon, 27 Jun 2022 11:33:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49601C3411D;
+        Mon, 27 Jun 2022 11:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330101;
-        bh=KelcNy4BlQfdFL5bf3Gj9vnTq3rW4jyrrMITbB3CXBE=;
+        s=korg; t=1656329587;
+        bh=ANm7NZ3p20kcA1xNI5TBb7Uyk/XbUVFrE8pqixiN7l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hhgm7gO4Yv/ma4uKsFcI++43+1M8UVfyMkp152l4ARv33fviNFRWWofkvFxs7E3yv
-         UAs1x/E+N0szgfk55lDGnnd+PAmFPLU/q66x1kt0F8T/yn1RosteqNhBglBcgLpQAq
-         Onn0hpJY0bBSpB2I6NDuENDtdsYVM5hRVxqNSFjY=
+        b=EaJxsCVha1uciM2P1AiDU8m1M2NQ1PhnEDQqX4t0niQU8RXEFmSRai2FJYgKYzOrE
+         mpsdSYiHQhFo1U/DjA9d3Ai+3CEmD264I6H8uyH2gVKixvv6xkmjU7QxrycFcVGQJb
+         TfWgdXvDL3XGlxqlgQmsMIuaI/Mt5D6xdb7YS60M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        syzbot+47af19f3307fc9c5c82e@syzkaller.appspotmail.com,
+        Jon Maloy <jmaloy@redhat.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 083/181] afs: Fix dynamic root getattr
+Subject: [PATCH 5.15 049/135] tipc: fix use-after-free Read in tipc_named_reinit
 Date:   Mon, 27 Jun 2022 13:20:56 +0200
-Message-Id: <20220627111946.966978772@linuxfoundation.org>
+Message-Id: <20220627111939.582820168@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +58,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-[ Upstream commit cb78d1b5efffe4cf97e16766329dd7358aed3deb ]
+[ Upstream commit 911600bf5a5e84bfda4d33ee32acc75ecf6159f0 ]
 
-The recent patch to make afs_getattr consult the server didn't account
-for the pseudo-inodes employed by the dynamic root-type afs superblock
-not having a volume or a server to access, and thus an oops occurs if
-such a directory is stat'd.
+syzbot found the following issue on:
+==================================================================
+BUG: KASAN: use-after-free in tipc_named_reinit+0x94f/0x9b0
+net/tipc/name_distr.c:413
+Read of size 8 at addr ffff88805299a000 by task kworker/1:9/23764
 
-Fix this by checking to see if the vnode->volume pointer actually points
-anywhere before following it in afs_getattr().
+CPU: 1 PID: 23764 Comm: kworker/1:9 Not tainted
+5.18.0-rc4-syzkaller-00878-g17d49e6e8012 #0
+Hardware name: Google Compute Engine/Google Compute Engine,
+BIOS Google 01/01/2011
+Workqueue: events tipc_net_finalize_work
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description.constprop.0.cold+0xeb/0x495
+mm/kasan/report.c:313
+ print_report mm/kasan/report.c:429 [inline]
+ kasan_report.cold+0xf4/0x1c6 mm/kasan/report.c:491
+ tipc_named_reinit+0x94f/0x9b0 net/tipc/name_distr.c:413
+ tipc_net_finalize+0x234/0x3d0 net/tipc/net.c:138
+ process_one_work+0x996/0x1610 kernel/workqueue.c:2289
+ worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+ kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:298
+ </TASK>
+[...]
+==================================================================
 
-This can be tested by stat'ing a directory in /afs.  It may be
-sufficient just to do "ls /afs" and the oops looks something like:
+In the commit
+d966ddcc3821 ("tipc: fix a deadlock when flushing scheduled work"),
+the cancel_work_sync() function just to make sure ONLY the work
+tipc_net_finalize_work() is executing/pending on any CPU completed before
+tipc namespace is destroyed through tipc_exit_net(). But this function
+is not guaranteed the work is the last queued. So, the destroyed instance
+may be accessed in the work which will try to enqueue later.
 
-        BUG: kernel NULL pointer dereference, address: 0000000000000020
-        ...
-        RIP: 0010:afs_getattr+0x8b/0x14b
-        ...
-        Call Trace:
-         <TASK>
-         vfs_statx+0x79/0xf5
-         vfs_fstatat+0x49/0x62
+In order to completely fix, we re-order the calling of cancel_work_sync()
+to make sure the work tipc_net_finalize_work() was last queued and it
+must be completed by calling cancel_work_sync().
 
-Fixes: 2aeb8c86d499 ("afs: Fix afs_getattr() to refetch file status if callback break occurred")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/165408450783.1031787.7941404776393751186.stgit@warthog.procyon.org.uk/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: syzbot+47af19f3307fc9c5c82e@syzkaller.appspotmail.com
+Fixes: d966ddcc3821 ("tipc: fix a deadlock when flushing scheduled work")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Ying Xue <ying.xue@windriver.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/tipc/core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/afs/inode.c b/fs/afs/inode.c
-index 22811e9eacf5..c4c9f6dff0a2 100644
---- a/fs/afs/inode.c
-+++ b/fs/afs/inode.c
-@@ -745,7 +745,8 @@ int afs_getattr(struct user_namespace *mnt_userns, const struct path *path,
+diff --git a/net/tipc/core.c b/net/tipc/core.c
+index 3f4542e0f065..434e70eabe08 100644
+--- a/net/tipc/core.c
++++ b/net/tipc/core.c
+@@ -109,10 +109,9 @@ static void __net_exit tipc_exit_net(struct net *net)
+ 	struct tipc_net *tn = tipc_net(net);
  
- 	_enter("{ ino=%lu v=%u }", inode->i_ino, inode->i_generation);
- 
--	if (!(query_flags & AT_STATX_DONT_SYNC) &&
-+	if (vnode->volume &&
-+	    !(query_flags & AT_STATX_DONT_SYNC) &&
- 	    !test_bit(AFS_VNODE_CB_PROMISED, &vnode->flags)) {
- 		key = afs_request_key(vnode->volume->cell);
- 		if (IS_ERR(key))
+ 	tipc_detach_loopback(net);
++	tipc_net_stop(net);
+ 	/* Make sure the tipc_net_finalize_work() finished */
+ 	cancel_work_sync(&tn->work);
+-	tipc_net_stop(net);
+-
+ 	tipc_bcast_stop(net);
+ 	tipc_nametbl_stop(net);
+ 	tipc_sk_rht_destroy(net);
 -- 
 2.35.1
 
