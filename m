@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5D6855C786
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:54:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD10B55D2B8
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238153AbiF0Lu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:50:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49954 "EHLO
+        id S234586AbiF0LXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:23:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238542AbiF0Lso (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11C7E101FB;
-        Mon, 27 Jun 2022 04:42:11 -0700 (PDT)
+        with ESMTP id S234580AbiF0LXT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:23:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4442DE8;
+        Mon, 27 Jun 2022 04:23:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F22D61214;
-        Mon, 27 Jun 2022 11:42:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9C04C3411D;
-        Mon, 27 Jun 2022 11:42:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 960DFB81116;
+        Mon, 27 Jun 2022 11:23:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08591C3411D;
+        Mon, 27 Jun 2022 11:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330130;
-        bh=JxkVXlS23oqK2KsdzJD6U26Oq7j6NUtrTCWBhLTB8A0=;
+        s=korg; t=1656328994;
+        bh=AJWxeXAUJ3DsLHyvcz2cfrvPxmBjAzdfm0WYVN/6l6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0adhCRg0L3daaCoi8Kpy5WkT9rogYIWy/ieq57VRiFSL/pnc9fetAQygtCE/vM89
-         2I9HV6wUWNd7P7JQPTQuViDGLsZRovJQZ0/hXoWzVWJVs8mPJrx49CFAS8/qa4TcXr
-         t5iwhU4Arl5CnwKlt5JNLu79GOemtkoYo8Ad6PL0=
+        b=lhsirJPmCPZ6to68vChJ1bb3WEDv/EsDakPgrAwxd5GVG4K6LopZysFvTAoXecwdV
+         a9G00YrFhCBWBRKmuLe1jd7gUAm9LOq9xwsSTQrofWWuYSxLaU9BmkyG84KbAGUWvY
+         brfN15zvNxLLDCmLLv3D04+NpmIQayRH0NHSNNCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Saurabh Sengar <ssengar@linux.microsoft.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 054/181] scsi: storvsc: Correct reporting of Hyper-V I/O size limits
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.10 016/102] dm era: commit metadata in postsuspend after worker stops
 Date:   Mon, 27 Jun 2022 13:20:27 +0200
-Message-Id: <20220627111946.134166779@linuxfoundation.org>
+Message-Id: <20220627111933.946926694@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,99 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurabh Sengar <ssengar@linux.microsoft.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-[ Upstream commit 1d3e0980782fbafaf93285779fd3905e4f866802 ]
+commit 9ae6e8b1c9bbf6874163d1243e393137313762b7 upstream.
 
-Current code is based on the idea that the max number of SGL entries
-also determines the max size of an I/O request.  While this idea was
-true in older versions of the storvsc driver when SGL entry length
-was limited to 4 Kbytes, commit 3d9c3dcc58e9 ("scsi: storvsc: Enable
-scatterlist entry lengths > 4Kbytes") removed that limitation. It's
-now theoretically possible for the block layer to send requests that
-exceed the maximum size supported by Hyper-V. This problem doesn't
-currently happen in practice because the block layer defaults to a
-512 Kbyte maximum, while Hyper-V in Azure supports 2 Mbyte I/O sizes.
-But some future configuration of Hyper-V could have a smaller max I/O
-size, and the block layer could exceed that max.
+During postsuspend dm-era does the following:
 
-Fix this by correctly setting max_sectors as well as sg_tablesize to
-reflect the maximum I/O size that Hyper-V reports. While allowing
-I/O sizes larger than the block layer default of 512 Kbytes doesn’t
-provide any noticeable performance benefit in the tests we ran, it's
-still appropriate to report the correct underlying Hyper-V capabilities
-to the Linux block layer.
+1. Archives the current era
+2. Commits the metadata, as part of the RPC call for archiving the
+   current era
+3. Stops the worker
 
-Also tweak the virt_boundary_mask to reflect that the required
-alignment derives from Hyper-V communication using a 4 Kbyte page size,
-and not on the guest page size, which might be bigger (eg. ARM64).
+Until the worker stops, it might write to the metadata again. Moreover,
+these writes are not flushed to disk immediately, but are cached by the
+dm-bufio client, which writes them back asynchronously.
 
-Link: https://lore.kernel.org/r/1655190355-28722-1-git-send-email-ssengar@linux.microsoft.com
-Fixes: 3d9c3dcc58e9 ("scsi: storvsc: Enable scatter list entry lengths > 4Kbytes")
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As a result, the committed metadata of a suspended dm-era device might
+not be consistent with the in-core metadata.
+
+In some cases, this can result in the corruption of the on-disk
+metadata. Suppose the following sequence of events:
+
+1. Load a new table, e.g. a snapshot-origin table, to a device with a
+   dm-era table
+2. Suspend the device
+3. dm-era commits its metadata, but the worker does a few more metadata
+   writes until it stops, as part of digesting an archived writeset
+4. These writes are cached by the dm-bufio client
+5. Load the dm-era table to another device.
+6. The new instance of the dm-era target loads the committed, on-disk
+   metadata, which don't include the extra writes done by the worker
+   after the metadata commit.
+7. Resume the new device
+8. The new dm-era target instance starts using the metadata
+9. Resume the original device
+10. The destructor of the old dm-era target instance is called and
+    destroys the dm-bufio client, which results in flushing the cached
+    writes to disk
+11. These writes might overwrite the writes done by the new dm-era
+    instance, hence corrupting its metadata.
+
+Fix this by committing the metadata after the worker stops running.
+
+stop_worker uses flush_workqueue to flush the current work. However, the
+work item may re-queue itself and flush_workqueue doesn't wait for
+re-queued works to finish.
+
+This could result in the worker changing the metadata after they have
+been committed, or writing to the metadata concurrently with the commit
+in the postsuspend thread.
+
+Use drain_workqueue instead, which waits until the work and all
+re-queued works finish.
+
+Fixes: eec40579d8487 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/storvsc_drv.c | 27 ++++++++++++++++++++++-----
- 1 file changed, 22 insertions(+), 5 deletions(-)
+ drivers/md/dm-era-target.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index 9a0bba5a51a7..4b1f1d73eee8 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -1916,7 +1916,7 @@ static struct scsi_host_template scsi_driver = {
- 	.cmd_per_lun =		2048,
- 	.this_id =		-1,
- 	/* Ensure there are no gaps in presented sgls */
--	.virt_boundary_mask =	PAGE_SIZE-1,
-+	.virt_boundary_mask =	HV_HYP_PAGE_SIZE - 1,
- 	.no_write_same =	1,
- 	.track_queue_depth =	1,
- 	.change_queue_depth =	storvsc_change_queue_depth,
-@@ -1970,6 +1970,7 @@ static int storvsc_probe(struct hv_device *device,
- 	int max_targets;
- 	int max_channels;
- 	int max_sub_channels = 0;
-+	u32 max_xfer_bytes;
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -1396,7 +1396,7 @@ static void start_worker(struct era *era
+ static void stop_worker(struct era *era)
+ {
+ 	atomic_set(&era->suspended, 1);
+-	flush_workqueue(era->wq);
++	drain_workqueue(era->wq);
+ }
  
- 	/*
- 	 * Based on the windows host we are running on,
-@@ -2059,12 +2060,28 @@ static int storvsc_probe(struct hv_device *device,
+ /*----------------------------------------------------------------
+@@ -1566,6 +1566,12 @@ static void era_postsuspend(struct dm_ta
  	}
- 	/* max cmd length */
- 	host->max_cmd_len = STORVSC_MAX_CMD_LEN;
--
- 	/*
--	 * set the table size based on the info we got
--	 * from the host.
-+	 * Any reasonable Hyper-V configuration should provide
-+	 * max_transfer_bytes value aligning to HV_HYP_PAGE_SIZE,
-+	 * protecting it from any weird value.
-+	 */
-+	max_xfer_bytes = round_down(stor_device->max_transfer_bytes, HV_HYP_PAGE_SIZE);
-+	/* max_hw_sectors_kb */
-+	host->max_sectors = max_xfer_bytes >> 9;
-+	/*
-+	 * There are 2 requirements for Hyper-V storvsc sgl segments,
-+	 * based on which the below calculation for max segments is
-+	 * done:
-+	 *
-+	 * 1. Except for the first and last sgl segment, all sgl segments
-+	 *    should be align to HV_HYP_PAGE_SIZE, that also means the
-+	 *    maximum number of segments in a sgl can be calculated by
-+	 *    dividing the total max transfer length by HV_HYP_PAGE_SIZE.
-+	 *
-+	 * 2. Except for the first and last, each entry in the SGL must
-+	 *    have an offset that is a multiple of HV_HYP_PAGE_SIZE.
- 	 */
--	host->sg_tablesize = (stor_device->max_transfer_bytes >> PAGE_SHIFT);
-+	host->sg_tablesize = (max_xfer_bytes >> HV_HYP_PAGE_SHIFT) + 1;
- 	/*
- 	 * For non-IDE disks, the host supports multiple channels.
- 	 * Set the number of HW queues we are supporting.
--- 
-2.35.1
-
+ 
+ 	stop_worker(era);
++
++	r = metadata_commit(era->md);
++	if (r) {
++		DMERR("%s: metadata_commit failed", __func__);
++		/* FIXME: fail mode */
++	}
+ }
+ 
+ static int era_preresume(struct dm_target *ti)
 
 
