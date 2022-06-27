@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12C7D55DBF3
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB54355C17C
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238445AbiF0Lxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52336 "EHLO
+        id S238747AbiF0Lxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:53:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238946AbiF0Lwv (ORCPT
+        with ESMTP id S238954AbiF0Lwv (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50D2DDF64;
-        Mon, 27 Jun 2022 04:46:40 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F28DF71;
+        Mon, 27 Jun 2022 04:46:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4CBC61192;
-        Mon, 27 Jun 2022 11:46:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E267BC3411D;
-        Mon, 27 Jun 2022 11:46:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2857B80D32;
+        Mon, 27 Jun 2022 11:46:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07931C3411D;
+        Mon, 27 Jun 2022 11:46:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330399;
-        bh=XmVCpr/zKDWe90GV3W/5jn0rsMtY3ZHvfNsSb643UE4=;
+        s=korg; t=1656330402;
+        bh=ClnVnHUDsNRaiXpt18gIWfNbgXLwUhIhOHGgV7pmpQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NH+/09EsACx1D4t2BDBDAgsI97xBWDSORUA8qfvdjp/4j7yzq9v6Gy+k6to/ESsLy
-         Js503+LRa0Sxmm96NgIrj4EmMxGLTuy/W1gklculFxUKK4qgm/B6YxiIfm3qPNtLV9
-         comcTdJr2SebNa4jWEoqOGTSGT2FSE9Wwhz6Ygj8=
+        b=phJumXaJY/S3GfusdAQ8CGS4FtkhjACLm9kDlIIssDushiCiNnpCuN9MY1r3Is9xh
+         +3Fk10nP5x1NnFSGREQou3IAQavfeRY7s5JmGxjyZ1YyHZWdyhpDXQ3rE6UC3xfP4g
+         gzHO32b7w2e5Pr2hH8Se4Wgg446Rtd76/SBLG2KQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.18 178/181] smb3: use netname when available on secondary channels
-Date:   Mon, 27 Jun 2022 13:22:31 +0200
-Message-Id: <20220627111949.843791924@linuxfoundation.org>
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.18 179/181] dma-direct: use the correct size for dma_set_encrypted()
+Date:   Mon, 27 Jun 2022 13:22:32 +0200
+Message-Id: <20220627111949.872507151@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -54,59 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-commit 9de74996a739bf0b7b5d8c260bd207ad6007442b upstream.
+commit 3be4562584bba603f33863a00c1c32eecf772ee6 upstream.
 
-Some servers do not allow null netname contexts, which would cause
-multichannel to revert to single channel when mounting to some
-servers (e.g. Azure xSMB). The previous patch fixed that by avoiding
-incorrectly sending the netname context when there would be a null
-hostname sent in the netname context, while this patch fixes the null
-hostname for the secondary channel by using the hostname of the
-primary channel for the secondary channel.
+The third parameter of dma_set_encrypted() is a size in bytes rather than
+the number of pages.
 
-Fixes: 4c14d7043fede ("cifs: populate empty hostnames for extra channels")
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 4d0564785bb0 ("dma-direct: factor out dma_set_{de,en}crypted helpers")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2pdu.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ kernel/dma/direct.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index 5e8c4737b183..12b4dddaedb0 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -543,6 +543,7 @@ assemble_neg_contexts(struct smb2_negotiate_req *req,
- 		      struct TCP_Server_Info *server, unsigned int *total_len)
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -357,7 +357,7 @@ void dma_direct_free(struct device *dev,
+ 	} else {
+ 		if (IS_ENABLED(CONFIG_ARCH_HAS_DMA_CLEAR_UNCACHED))
+ 			arch_dma_clear_uncached(cpu_addr, size);
+-		if (dma_set_encrypted(dev, cpu_addr, 1 << page_order))
++		if (dma_set_encrypted(dev, cpu_addr, size))
+ 			return;
+ 	}
+ 
+@@ -392,7 +392,6 @@ void dma_direct_free_pages(struct device
+ 		struct page *page, dma_addr_t dma_addr,
+ 		enum dma_data_direction dir)
  {
- 	char *pneg_ctxt;
-+	char *hostname = NULL;
- 	unsigned int ctxt_len, neg_context_count;
+-	unsigned int page_order = get_order(size);
+ 	void *vaddr = page_address(page);
  
- 	if (*total_len > 200) {
-@@ -574,9 +575,15 @@ assemble_neg_contexts(struct smb2_negotiate_req *req,
- 	*total_len += sizeof(struct smb2_posix_neg_context);
- 	pneg_ctxt += sizeof(struct smb2_posix_neg_context);
+ 	/* If cpu_addr is not from an atomic pool, dma_free_from_pool() fails */
+@@ -400,7 +399,7 @@ void dma_direct_free_pages(struct device
+ 	    dma_free_from_pool(dev, vaddr, size))
+ 		return;
  
--	if (server->hostname && (server->hostname[0] != 0)) {
-+	/*
-+	 * secondary channels don't have the hostname field populated
-+	 * use the hostname field in the primary channel instead
-+	 */
-+	hostname = CIFS_SERVER_IS_CHAN(server) ?
-+		server->primary_server->hostname : server->hostname;
-+	if (hostname && (hostname[0] != 0)) {
- 		ctxt_len = build_netname_ctxt((struct smb2_netname_neg_context *)pneg_ctxt,
--					server->hostname);
-+					      hostname);
- 		*total_len += ctxt_len;
- 		pneg_ctxt += ctxt_len;
- 		neg_context_count = 4;
--- 
-2.36.1
-
+-	if (dma_set_encrypted(dev, vaddr, 1 << page_order))
++	if (dma_set_encrypted(dev, vaddr, size))
+ 		return;
+ 	__dma_direct_free_pages(dev, page, size);
+ }
 
 
