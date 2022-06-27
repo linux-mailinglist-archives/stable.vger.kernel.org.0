@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEADE55C687
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:52:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA7455C888
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233780AbiF0Jnm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 05:43:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34820 "EHLO
+        id S233131AbiF0Jnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 05:43:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233857AbiF0Jnj (ORCPT
+        with ESMTP id S233818AbiF0Jnj (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 05:43:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D0316335
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 02:43:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D58EC5F82
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 02:43:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D022B81088
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 09:43:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAC01C3411D;
-        Mon, 27 Jun 2022 09:43:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6522AB81061
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 09:43:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18CEC341CB;
+        Mon, 27 Jun 2022 09:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656323016;
-        bh=VJVO8ffbT23xmahz/Xie6UssvsylPmAbp/nZ+2MfnXA=;
+        s=korg; t=1656323013;
+        bh=2imxUZoSEtPkVL9A0zSdaaQSZftiqj5WZaQn942cfV4=;
         h=Subject:To:Cc:From:Date:From;
-        b=qDAQeb8RoPLiSUz3OPLLB7o09FzOyxRMgqG/EDYkl0Ac1Z53mKTyhGJGcFhEJCqrr
-         HgNJ7NnR/8IJPr6RCy+MSbfA3Y/5vyorbADmyBys297uPOVlg/CplHhg0lVpfbKy/d
-         i6chqBfl3S23aZRLUgRbjAnxmT/7DN+kAiQN/Niw=
-Subject: FAILED: patch "[PATCH] powerpc/pseries: wire up rng during setup_arch()" failed to apply to 5.15-stable tree
+        b=BRkLMSsoXfcCs1DnKHwp8oyj06Wyr5t3FpNq4Y7MkvqlSy8Fz6Ms67OrbOd4ULntg
+         Y0MON9T399vgkBDkWYV77pjqjSf0ZClP0+41vc8l53J8mVFJcGBerYKqBjQ7RUlWNU
+         JlLWxQPAddboRJnWj35TfowiVO1pC3M72KJ4yWUQ=
+Subject: FAILED: patch "[PATCH] powerpc/pseries: wire up rng during setup_arch()" failed to apply to 5.10-stable tree
 To:     Jason@zx2c4.com, christophe.leroy@csgroup.eu, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 27 Jun 2022 11:43:22 +0200
-Message-ID: <1656323002160114@kroah.com>
+Message-ID: <16563230024611@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
