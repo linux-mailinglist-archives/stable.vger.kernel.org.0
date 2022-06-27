@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6D2E55CD7C
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:03:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC1C255D980
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:21:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236369AbiF0LiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:38:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34936 "EHLO
+        id S238084AbiF0LuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:50:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236451AbiF0Lhc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6AA22632;
-        Mon, 27 Jun 2022 04:32:56 -0700 (PDT)
+        with ESMTP id S238438AbiF0Ls2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56181101CB;
+        Mon, 27 Jun 2022 04:41:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7227560920;
-        Mon, 27 Jun 2022 11:32:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 651ACC3411D;
-        Mon, 27 Jun 2022 11:32:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 019D5B81133;
+        Mon, 27 Jun 2022 11:41:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53739C3411D;
+        Mon, 27 Jun 2022 11:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329575;
-        bh=uwLP/YSqTMdpGRx9FDdvbNRrmMSkrIv3C1At+j3SF5w=;
+        s=korg; t=1656330089;
+        bh=bIk9Q7VcFXsMwf8IGfP7CkYICv0X5GEIx0fS2MXlC5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LV3lVAxDqfiWEuollvwDokiMP32aF7jSVyfadLpQVkiST48RqMt9LWBjgW88crPz8
-         Vkcne2lystLW5D7gWIw7nvCdN7VLGj2WusZDciCaio37P/MKzS/eKJS8HVQa54Wf3h
-         CNEQ16fABxM2V89hWlb0LGgfWIGTMPk3wHCqi4Uk=
+        b=ojkDUD3DyPHMsSk+xN2mgYyUkO7OsbByeQsZIrUzrkFInbD2DJVlVx+qM0evCu5nd
+         XjtKuRvdEjBu+GMZXwPQ9GRD+JYpwXZA0AkAaJdkRZSRE6ZDrOUG4fKt+ekzZycrO3
+         HfkQy/7sf/k3EJ34oVG93PHlWDN1YXEEtJj+5Kus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Spacek <ondrej.spacek@nxp.com>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 045/135] phy: aquantia: Fix AN when higher speeds than 1G are not advertised
+Subject: [PATCH 5.18 079/181] netfilter: nf_dup_netdev: add and use recursion counter
 Date:   Mon, 27 Jun 2022 13:20:52 +0200
-Message-Id: <20220627111939.467741483@linuxfoundation.org>
+Message-Id: <20220627111946.852848720@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Manoil <claudiu.manoil@nxp.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 9b7fd1670a94a57d974795acebde843a5c1a354e ]
+[ Upstream commit fcd53c51d03709bc429822086f1e9b3e88904284 ]
 
-Even when the eth port is resticted to work with speeds not higher than 1G,
-and so the eth driver is requesting the phy (via phylink) to advertise up
-to 1000BASET support, the aquantia phy device is still advertising for 2.5G
-and 5G speeds.
-Clear these advertising defaults when requested.
+Now that the egress function can be called from egress hook, we need
+to avoid recursive calls into the nf_tables traverser, else crash.
 
-Cc: Ondrej Spacek <ondrej.spacek@nxp.com>
-Fixes: 09c4c57f7bc41 ("net: phy: aquantia: add support for auto-negotiation configuration")
-Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Link: https://lore.kernel.org/r/20220610084037.7625-1-claudiu.manoil@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: f87b9464d152 ("netfilter: nft_fwd_netdev: Support egress hook")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/aquantia_main.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ net/netfilter/nf_dup_netdev.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/phy/aquantia_main.c b/drivers/net/phy/aquantia_main.c
-index 968dd43a2b1e..3221224525ac 100644
---- a/drivers/net/phy/aquantia_main.c
-+++ b/drivers/net/phy/aquantia_main.c
-@@ -34,6 +34,8 @@
- #define MDIO_AN_VEND_PROV			0xc400
- #define MDIO_AN_VEND_PROV_1000BASET_FULL	BIT(15)
- #define MDIO_AN_VEND_PROV_1000BASET_HALF	BIT(14)
-+#define MDIO_AN_VEND_PROV_5000BASET_FULL	BIT(11)
-+#define MDIO_AN_VEND_PROV_2500BASET_FULL	BIT(10)
- #define MDIO_AN_VEND_PROV_DOWNSHIFT_EN		BIT(4)
- #define MDIO_AN_VEND_PROV_DOWNSHIFT_MASK	GENMASK(3, 0)
- #define MDIO_AN_VEND_PROV_DOWNSHIFT_DFLT	4
-@@ -231,9 +233,20 @@ static int aqr_config_aneg(struct phy_device *phydev)
- 			      phydev->advertising))
- 		reg |= MDIO_AN_VEND_PROV_1000BASET_HALF;
+diff --git a/net/netfilter/nf_dup_netdev.c b/net/netfilter/nf_dup_netdev.c
+index 13b7f6a66086..a8e2425e43b0 100644
+--- a/net/netfilter/nf_dup_netdev.c
++++ b/net/netfilter/nf_dup_netdev.c
+@@ -13,20 +13,31 @@
+ #include <net/netfilter/nf_tables_offload.h>
+ #include <net/netfilter/nf_dup_netdev.h>
  
-+	/* Handle the case when the 2.5G and 5G speeds are not advertised */
-+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_2500baseT_Full_BIT,
-+			      phydev->advertising))
-+		reg |= MDIO_AN_VEND_PROV_2500BASET_FULL;
++#define NF_RECURSION_LIMIT	2
 +
-+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_5000baseT_Full_BIT,
-+			      phydev->advertising))
-+		reg |= MDIO_AN_VEND_PROV_5000BASET_FULL;
++static DEFINE_PER_CPU(u8, nf_dup_skb_recursion);
 +
- 	ret = phy_modify_mmd_changed(phydev, MDIO_MMD_AN, MDIO_AN_VEND_PROV,
- 				     MDIO_AN_VEND_PROV_1000BASET_HALF |
--				     MDIO_AN_VEND_PROV_1000BASET_FULL, reg);
-+				     MDIO_AN_VEND_PROV_1000BASET_FULL |
-+				     MDIO_AN_VEND_PROV_2500BASET_FULL |
-+				     MDIO_AN_VEND_PROV_5000BASET_FULL, reg);
- 	if (ret < 0)
- 		return ret;
- 	if (ret > 0)
+ static void nf_do_netdev_egress(struct sk_buff *skb, struct net_device *dev,
+ 				enum nf_dev_hooks hook)
+ {
++	if (__this_cpu_read(nf_dup_skb_recursion) > NF_RECURSION_LIMIT)
++		goto err;
++
+ 	if (hook == NF_NETDEV_INGRESS && skb_mac_header_was_set(skb)) {
+-		if (skb_cow_head(skb, skb->mac_len)) {
+-			kfree_skb(skb);
+-			return;
+-		}
++		if (skb_cow_head(skb, skb->mac_len))
++			goto err;
++
+ 		skb_push(skb, skb->mac_len);
+ 	}
+ 
+ 	skb->dev = dev;
+ 	skb_clear_tstamp(skb);
++	__this_cpu_inc(nf_dup_skb_recursion);
+ 	dev_queue_xmit(skb);
++	__this_cpu_dec(nf_dup_skb_recursion);
++	return;
++err:
++	kfree_skb(skb);
+ }
+ 
+ void nf_fwd_netdev_egress(const struct nft_pktinfo *pkt, int oif)
 -- 
 2.35.1
 
