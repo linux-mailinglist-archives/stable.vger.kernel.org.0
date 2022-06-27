@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F20B155E203
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A8E55DBE3
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:25:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236632AbiF0Li7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:38:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33834 "EHLO
+        id S235072AbiF0L1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:27:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236687AbiF0Lhw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E788EB4B1;
-        Mon, 27 Jun 2022 04:34:37 -0700 (PDT)
+        with ESMTP id S235070AbiF0L00 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:26:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBCC495AA;
+        Mon, 27 Jun 2022 04:26:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A80EDB81123;
-        Mon, 27 Jun 2022 11:34:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB21EC3411D;
-        Mon, 27 Jun 2022 11:34:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BE9A614A0;
+        Mon, 27 Jun 2022 11:26:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A6B9C3411D;
+        Mon, 27 Jun 2022 11:26:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329675;
-        bh=qmI3PqT2124o3z+qcI7qRD+yNh0AzZCX1HZJF35pEdI=;
+        s=korg; t=1656329166;
+        bh=Zcfs2U8vP/9R8N+d/lYmQk1LfbiJ4kO8za9Vkp43rW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAK8nc+dJV4M1WSmzmUZsAT5rSvZpr7qtY3JLli0J25Z3nzhHuO8QAFEisFPuu0LT
-         b4sXfYrycN5yxDPZXJP23xM4FKgd1RgJ8tx+2gcoveIW/5tWIOvSKQqDSrY9AW8EQX
-         NEWexyLilkht25OX34K3qcoAN5CJIVGtaw5yIHC0=
+        b=W8UZWvvxPKDGPLfEJ/HICh9MuU2uSQO+GBQVcFSgdwrb98+1zCEop9VkO1w7j/fu7
+         Z9znGKB+ze7kxQt0/3WBjV6I/uFMQHfPzO1nh+MIkwdsMkuM6FxkzjaqF2NASxHJ1B
+         BvoJQNM0zUfTBfS3wEWx1nglREY/LK30Pzd5uPjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 075/135] sock: redo the psock vs ULP protection check
+        stable@vger.kernel.org, Xu Yang <xu.yang_2@nxp.com>
+Subject: [PATCH 5.10 071/102] usb: chipidea: udc: check request status before setting device address
 Date:   Mon, 27 Jun 2022 13:21:22 +0200
-Message-Id: <20220627111940.337879163@linuxfoundation.org>
+Message-Id: <20220627111935.576659631@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,98 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Xu Yang <xu.yang_2@nxp.com>
 
-[ Upstream commit e34a07c0ae3906f97eb18df50902e2a01c1015b6 ]
+commit b24346a240b36cfc4df194d145463874985aa29b upstream.
 
-Commit 8a59f9d1e3d4 ("sock: Introduce sk->sk_prot->psock_update_sk_prot()")
-has moved the inet_csk_has_ulp(sk) check from sk_psock_init() to
-the new tcp_bpf_update_proto() function. I'm guessing that this
-was done to allow creating psocks for non-inet sockets.
+The complete() function may be called even though request is not
+completed. In this case, it's necessary to check request status so
+as not to set device address wrongly.
 
-Unfortunately the destruction path for psock includes the ULP
-unwind, so we need to fail the sk_psock_init() itself.
-Otherwise if ULP is already present we'll notice that later,
-and call tcp_update_ulp() with the sk_proto of the ULP
-itself, which will most likely result in the ULP looping
-its callbacks.
-
-Fixes: 8a59f9d1e3d4 ("sock: Introduce sk->sk_prot->psock_update_sk_prot()")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Tested-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/r/20220620191353.1184629-2-kuba@kernel.org
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 10775eb17bee ("usb: chipidea: udc: update gadget states according to ch9")
+cc: <stable@vger.kernel.org>
+Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
+Link: https://lore.kernel.org/r/20220623030242.41796-1-xu.yang_2@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/inet_sock.h | 5 +++++
- net/core/skmsg.c        | 5 +++++
- net/ipv4/tcp_bpf.c      | 3 ---
- net/tls/tls_main.c      | 2 ++
- 4 files changed, 12 insertions(+), 3 deletions(-)
+ drivers/usb/chipidea/udc.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/net/inet_sock.h b/include/net/inet_sock.h
-index 9e1111f5915b..d81b7f85819e 100644
---- a/include/net/inet_sock.h
-+++ b/include/net/inet_sock.h
-@@ -252,6 +252,11 @@ struct inet_sock {
- #define IP_CMSG_CHECKSUM	BIT(7)
- #define IP_CMSG_RECVFRAGSIZE	BIT(8)
+--- a/drivers/usb/chipidea/udc.c
++++ b/drivers/usb/chipidea/udc.c
+@@ -1034,6 +1034,9 @@ isr_setup_status_complete(struct usb_ep
+ 	struct ci_hdrc *ci = req->context;
+ 	unsigned long flags;
  
-+static inline bool sk_is_inet(struct sock *sk)
-+{
-+	return sk->sk_family == AF_INET || sk->sk_family == AF_INET6;
-+}
++	if (req->status < 0)
++		return;
 +
- /**
-  * sk_to_full_sk - Access to a full socket
-  * @sk: pointer to a socket
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index cc381165ea08..ede0af308f40 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -695,6 +695,11 @@ struct sk_psock *sk_psock_init(struct sock *sk, int node)
- 
- 	write_lock_bh(&sk->sk_callback_lock);
- 
-+	if (sk_is_inet(sk) && inet_csk_has_ulp(sk)) {
-+		psock = ERR_PTR(-EINVAL);
-+		goto out;
-+	}
-+
- 	if (sk->sk_user_data) {
- 		psock = ERR_PTR(-EBUSY);
- 		goto out;
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 1cdcb4df0eb7..2c597a4e429a 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -612,9 +612,6 @@ int tcp_bpf_update_proto(struct sock *sk, struct sk_psock *psock, bool restore)
- 		return 0;
- 	}
- 
--	if (inet_csk_has_ulp(sk))
--		return -EINVAL;
--
- 	if (sk->sk_family == AF_INET6) {
- 		if (tcp_bpf_assert_proto_ops(psock->sk_proto))
- 			return -EINVAL;
-diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
-index 9aac9c60d786..62b1c5e32bbd 100644
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -790,6 +790,8 @@ static void tls_update(struct sock *sk, struct proto *p,
- {
- 	struct tls_context *ctx;
- 
-+	WARN_ON_ONCE(sk->sk_prot == p);
-+
- 	ctx = tls_get_ctx(sk);
- 	if (likely(ctx)) {
- 		ctx->sk_write_space = write_space;
--- 
-2.35.1
-
+ 	if (ci->setaddr) {
+ 		hw_usb_set_address(ci, ci->address);
+ 		ci->setaddr = false;
 
 
