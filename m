@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D550955D4DA
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:14:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D8BE55C19F
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234923AbiF0Li2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:38:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34600 "EHLO
+        id S238912AbiF0LyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:54:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236512AbiF0Lhh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A3BB33B;
-        Mon, 27 Jun 2022 04:33:53 -0700 (PDT)
+        with ESMTP id S238423AbiF0LvJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:51:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E59264D1;
+        Mon, 27 Jun 2022 04:44:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0234B81122;
-        Mon, 27 Jun 2022 11:33:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45B13C3411D;
-        Mon, 27 Jun 2022 11:33:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FABAB80D92;
+        Mon, 27 Jun 2022 11:44:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E515C3411D;
+        Mon, 27 Jun 2022 11:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329630;
-        bh=TF5d/BHxq2w1bvYLH1hdioTZerRuKVXo3Ch1/2RYsV0=;
+        s=korg; t=1656330256;
+        bh=4VFdD5ys/qbvFUCShz71aRXQVy+VKR+nSZ616eGOviU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+De4w1AmGUBAoibCQfAA/sWPLPjC78qOA6SUW1RhOV5KO7XzHm4tjjYtjq9MArW+
-         +/bR1fNbDTcaHnmNOqaFiELsCvylXDosAhKAqwLySyrm9lpuTOa4gIrkBD0OT2QhM4
-         IR5SEmiRIPbjMv8O4dSh5w5hgGn7NKouPgobLnNA=
+        b=NBKF9VYvrxa+RiH9DfV1ZSLWpwjfiK0mW4bzYRDisCIGVMv+8/X41Y/rrzI8Bo7Z1
+         jEji94gkLzHsnQ3gcocuSmXHbK+XW32gqBtLXwRJ6Js0SWh//dAfZUAgqM7HVwdkl9
+         LVjgH7Jtj1RtbptoXOApcdhAiR9NPwLJ8lgHtByI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+29c3c12f3214b85ad081@syzkaller.appspotmail.com,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 062/135] net/tls: fix tls_sk_proto_close executed repeatedly
+Subject: [PATCH 5.18 096/181] virtio_net: fix xdp_rxq_info bug after suspend/resume
 Date:   Mon, 27 Jun 2022 13:21:09 +0200
-Message-Id: <20220627111939.957678321@linuxfoundation.org>
+Message-Id: <20220627111947.343327836@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,53 +57,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 
-[ Upstream commit 69135c572d1f84261a6de2a1268513a7e71753e2 ]
+[ Upstream commit 8af52fe9fd3bf5e7478da99193c0632276e1dfce ]
 
-After setting the sock ktls, update ctx->sk_proto to sock->sk_prot by
-tls_update(), so now ctx->sk_proto->close is tls_sk_proto_close(). When
-close the sock, tls_sk_proto_close() is called for sock->sk_prot->close
-is tls_sk_proto_close(). But ctx->sk_proto->close() will be executed later
-in tls_sk_proto_close(). Thus tls_sk_proto_close() executed repeatedly
-occurred. That will trigger the following bug.
+The following sequence currently causes a driver bug warning
+when using virtio_net:
 
-=================================================================
-KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
-RIP: 0010:tls_sk_proto_close+0xd8/0xaf0 net/tls/tls_main.c:306
-Call Trace:
- <TASK>
- tls_sk_proto_close+0x356/0xaf0 net/tls/tls_main.c:329
- inet_release+0x12e/0x280 net/ipv4/af_inet.c:428
- __sock_release+0xcd/0x280 net/socket.c:650
- sock_close+0x18/0x20 net/socket.c:1365
+  # ip link set eth0 up
+  # echo mem > /sys/power/state (or e.g. # rtcwake -s 10 -m mem)
+  <resume>
+  # ip link set eth0 down
 
-Updating a proto which is same with sock->sk_prot is incorrect. Add proto
-and sock->sk_prot equality check at the head of tls_update() to fix it.
+  Missing register, driver bug
+  WARNING: CPU: 0 PID: 375 at net/core/xdp.c:138 xdp_rxq_info_unreg+0x58/0x60
+  Call trace:
+   xdp_rxq_info_unreg+0x58/0x60
+   virtnet_close+0x58/0xac
+   __dev_close_many+0xac/0x140
+   __dev_change_flags+0xd8/0x210
+   dev_change_flags+0x24/0x64
+   do_setlink+0x230/0xdd0
+   ...
 
-Fixes: 95fa145479fb ("bpf: sockmap/tls, close can race with map free")
-Reported-by: syzbot+29c3c12f3214b85ad081@syzkaller.appspotmail.com
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This happens because virtnet_freeze() frees the receive_queue
+completely (including struct xdp_rxq_info) but does not call
+xdp_rxq_info_unreg(). Similarly, virtnet_restore() sets up the
+receive_queue again but does not call xdp_rxq_info_reg().
+
+Actually, parts of virtnet_freeze_down() and virtnet_restore_up()
+are almost identical to virtnet_close() and virtnet_open(): only
+the calls to xdp_rxq_info_(un)reg() are missing. This means that
+we can fix this easily and avoid such problems in the future by
+just calling virtnet_close()/open() from the freeze/restore handlers.
+
+Aside from adding the missing xdp_rxq_info calls the only difference
+is that the refill work is only cancelled if netif_running(). However,
+this should not make any functional difference since the refill work
+should only be active if the network interface is actually up.
+
+Fixes: 754b8a21a96d ("virtio_net: setup xdp_rxq_info")
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Link: https://lore.kernel.org/r/20220621114845.3650258-1-stephan.gerhold@kernkonzept.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/virtio_net.c | 25 ++++++-------------------
+ 1 file changed, 6 insertions(+), 19 deletions(-)
 
-diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
-index 9aac9c60d786..057c1af6182a 100644
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -790,6 +790,9 @@ static void tls_update(struct sock *sk, struct proto *p,
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index cbba9d2e8f32..10d548b07b9c 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2768,7 +2768,6 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+ static void virtnet_freeze_down(struct virtio_device *vdev)
  {
- 	struct tls_context *ctx;
+ 	struct virtnet_info *vi = vdev->priv;
+-	int i;
  
-+	if (sk->sk_prot == p)
-+		return;
-+
- 	ctx = tls_get_ctx(sk);
- 	if (likely(ctx)) {
- 		ctx->sk_write_space = write_space;
+ 	/* Make sure no work handler is accessing the device */
+ 	flush_work(&vi->config_work);
+@@ -2776,14 +2775,8 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+ 	netif_tx_lock_bh(vi->dev);
+ 	netif_device_detach(vi->dev);
+ 	netif_tx_unlock_bh(vi->dev);
+-	cancel_delayed_work_sync(&vi->refill);
+-
+-	if (netif_running(vi->dev)) {
+-		for (i = 0; i < vi->max_queue_pairs; i++) {
+-			napi_disable(&vi->rq[i].napi);
+-			virtnet_napi_tx_disable(&vi->sq[i].napi);
+-		}
+-	}
++	if (netif_running(vi->dev))
++		virtnet_close(vi->dev);
+ }
+ 
+ static int init_vqs(struct virtnet_info *vi);
+@@ -2791,7 +2784,7 @@ static int init_vqs(struct virtnet_info *vi);
+ static int virtnet_restore_up(struct virtio_device *vdev)
+ {
+ 	struct virtnet_info *vi = vdev->priv;
+-	int err, i;
++	int err;
+ 
+ 	err = init_vqs(vi);
+ 	if (err)
+@@ -2800,15 +2793,9 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+ 	virtio_device_ready(vdev);
+ 
+ 	if (netif_running(vi->dev)) {
+-		for (i = 0; i < vi->curr_queue_pairs; i++)
+-			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+-				schedule_delayed_work(&vi->refill, 0);
+-
+-		for (i = 0; i < vi->max_queue_pairs; i++) {
+-			virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
+-			virtnet_napi_tx_enable(vi, vi->sq[i].vq,
+-					       &vi->sq[i].napi);
+-		}
++		err = virtnet_open(vi->dev);
++		if (err)
++			return err;
+ 	}
+ 
+ 	netif_tx_lock_bh(vi->dev);
 -- 
 2.35.1
 
