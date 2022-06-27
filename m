@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 665CA55D86E
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DA6F55CC9D
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:01:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235597AbiF0Ld5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:33:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56014 "EHLO
+        id S236596AbiF0Lip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236069AbiF0LdI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24AA8BE3A;
-        Mon, 27 Jun 2022 04:30:13 -0700 (PDT)
+        with ESMTP id S236676AbiF0Lhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7851B30;
+        Mon, 27 Jun 2022 04:34:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 959D9614EF;
-        Mon, 27 Jun 2022 11:30:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8893C341C7;
-        Mon, 27 Jun 2022 11:30:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DBFCB81122;
+        Mon, 27 Jun 2022 11:34:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E43AAC3411D;
+        Mon, 27 Jun 2022 11:34:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329412;
-        bh=x7P22JytzPf6oNjq71S/evHGGCzh/+caYNfY3VnwaO0=;
+        s=korg; t=1656329672;
+        bh=H+6H7S1MyXDeZxHD1JnQsGsxEGrQRgQzWm2hxsUkdMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dFhrLzXJBD1u/FZnMj/Le4d46lsfXgyWjgS7W4WysTlDQEX17lN+WXq4NxodAArZF
-         8C9aVcKyZJ1J2h01Z/nIxzBBm7FgY+mwaYx6Sh+v3xRc+/Y/GmIOGXYsCdJbNLzHHd
-         mhuhcWvA4p3oLyz2SkT16QgDb1/DFFcYGBZTU5Cg=
+        b=eV0W8y5PJe33F0boXUQeQ63QEVgHgeLp+Pz4lRwEtzELi60WEFCCHRYqEbYBILLb1
+         TaZk+/Qi7l02E6Kdh4DuxKu+udZz3qNwWTG+fW0FHUpxNgmTkM9UiLkwKrbHkYM888
+         QgMRtnIAZpLFyUkwko+J++g8Pz+hWfhjjc6kSwig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edward Wu <edwardwu@realtek.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.4 10/60] ata: libata: add qc->flags in ata_qc_complete_template tracepoint
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 074/135] Revert "net/tls: fix tls_sk_proto_close executed repeatedly"
 Date:   Mon, 27 Jun 2022 13:21:21 +0200
-Message-Id: <20220627111927.955056698@linuxfoundation.org>
+Message-Id: <20220627111940.308932759@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,30 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Wu <edwardwu@realtek.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 540a92bfe6dab7310b9df2e488ba247d784d0163 upstream.
+[ Upstream commit 1b205d948fbb06a7613d87dcea0ff5fd8a08ed91 ]
 
-Add flags value to check the result of ata completion
+This reverts commit 69135c572d1f84261a6de2a1268513a7e71753e2.
 
-Fixes: 255c03d15a29 ("libata: Add tracepoints")
-Cc: stable@vger.kernel.org
-Signed-off-by: Edward Wu <edwardwu@realtek.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This commit was just papering over the issue, ULP should not
+get ->update() called with its own sk_prot. Each ULP would
+need to add this check.
+
+Fixes: 69135c572d1f ("net/tls: fix tls_sk_proto_close executed repeatedly")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/r/20220620191353.1184629-1-kuba@kernel.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/libata.h |    1 +
- 1 file changed, 1 insertion(+)
+ net/tls/tls_main.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/include/trace/events/libata.h
-+++ b/include/trace/events/libata.h
-@@ -249,6 +249,7 @@ DECLARE_EVENT_CLASS(ata_qc_complete_temp
- 		__entry->hob_feature	= qc->result_tf.hob_feature;
- 		__entry->nsect		= qc->result_tf.nsect;
- 		__entry->hob_nsect	= qc->result_tf.hob_nsect;
-+		__entry->flags		= qc->flags;
- 	),
+diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
+index 057c1af6182a..9aac9c60d786 100644
+--- a/net/tls/tls_main.c
++++ b/net/tls/tls_main.c
+@@ -790,9 +790,6 @@ static void tls_update(struct sock *sk, struct proto *p,
+ {
+ 	struct tls_context *ctx;
  
- 	TP_printk("ata_port=%u ata_dev=%u tag=%d flags=%s status=%s " \
+-	if (sk->sk_prot == p)
+-		return;
+-
+ 	ctx = tls_get_ctx(sk);
+ 	if (likely(ctx)) {
+ 		ctx->sk_write_space = write_space;
+-- 
+2.35.1
+
 
 
