@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED7E55E22D
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0563C55D645
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:16:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238046AbiF0Ltv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:49:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43134 "EHLO
+        id S238054AbiF0LuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:50:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237491AbiF0Lp3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:45:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B398DDF62;
-        Mon, 27 Jun 2022 04:39:06 -0700 (PDT)
+        with ESMTP id S237367AbiF0LrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:47:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFB50DFCE;
+        Mon, 27 Jun 2022 04:39:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E62FFB81122;
-        Mon, 27 Jun 2022 11:39:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BE80C36AF7;
-        Mon, 27 Jun 2022 11:39:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F487B81123;
+        Mon, 27 Jun 2022 11:39:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 789AFC3411D;
+        Mon, 27 Jun 2022 11:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329943;
-        bh=A2migJAf3lhueRVP05DdDRYtA3dnSY0+3MDuPOjx5+4=;
+        s=korg; t=1656329949;
+        bh=8ia3nNOVzZ5UNhPme1mGfZzE7vviwrDh22cP1FO2jrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ji1nwCKiN4Ef3MGZcM+hV71XKOedVTwx5uAS7zwgwOaLrkOe39ldcYaYX43GkiLJA
-         1ycMresMsYgXwa2V7tZZnV3rfp8WoXnqNBppipyz2LUOQm9tFhacijoIfvd/SbxAtJ
-         ktWbJ7BxsqxjXX5CpBky/g8UPQN3Mg4JKzDWxF4M=
+        b=SM5WAtnwXv9bpFBOVqerrKgs6LsY+UGNO3xbuXfiZVLTxHdmYS7u5WVUsuCAXTkE1
+         RJKvrey8oIoXkegGORIhLlNnE1N1qTy2vzg7KmaXVFtfc+vUi1Fb/tzK/V2Teg6Gnu
+         1or4RXuIAQUo7w4IjT+FietGwIflkLQHb2iDRYdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Marzinski <bmarzins@redhat.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.18 031/181] dm mirror log: clear log bits up to BITS_PER_LONG boundary
-Date:   Mon, 27 Jun 2022 13:20:04 +0200
-Message-Id: <20220627111945.466416872@linuxfoundation.org>
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, bpf <bpf@vger.kernel.org>,
+        Kernel Team <kernel-team@fb.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.18 032/181] tracing/kprobes: Check whether get_kretprobe() returns NULL in kretprobe_dispatcher()
+Date:   Mon, 27 Jun 2022 13:20:05 +0200
+Message-Id: <20220627111945.494369505@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -54,42 +58,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-commit 90736eb3232d208ee048493f371075e4272e0944 upstream.
+commit cc72b72073ac982a954d3b43519ca1c28f03c27c upstream.
 
-Commit 85e123c27d5c ("dm mirror log: round up region bitmap size to
-BITS_PER_LONG") introduced a regression on 64-bit architectures in the
-lvm testsuite tests: lvcreate-mirror, mirror-names and vgsplit-operation.
+There is a small chance that get_kretprobe(ri) returns NULL in
+kretprobe_dispatcher() when another CPU unregisters the kretprobe
+right after __kretprobe_trampoline_handler().
 
-If the device is shrunk, we need to clear log bits beyond the end of the
-device. The code clears bits up to a 32-bit boundary and then calculates
-lc->sync_count by summing set bits up to a 64-bit boundary (the commit
-changed that; previously, this boundary was 32-bit too). So, it was using
-some non-zeroed bits in the calculation and this caused misbehavior.
+To avoid this issue, kretprobe_dispatcher() checks the get_kretprobe()
+return value again. And if it is NULL, it returns soon because that
+kretprobe is under unregistering process.
 
-Fix this regression by clearing bits up to BITS_PER_LONG boundary.
+This issue has been introduced when the kretprobe is decoupled
+from the struct kretprobe_instance by commit d741bf41d7c7
+("kprobes: Remove kretprobe hash"). Before that commit, the
+struct kretprob_instance::rp directly points the kretprobe
+and it is never be NULL.
 
-Fixes: 85e123c27d5c ("dm mirror log: round up region bitmap size to BITS_PER_LONG")
+Link: https://lkml.kernel.org/r/165366693881.797669.16926184644089588731.stgit@devnote2
+
+Reported-by: Yonghong Song <yhs@fb.com>
+Fixes: d741bf41d7c7 ("kprobes: Remove kretprobe hash")
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: bpf <bpf@vger.kernel.org>
+Cc: Kernel Team <kernel-team@fb.com>
 Cc: stable@vger.kernel.org
-Reported-by: Benjamin Marzinski <bmarzins@redhat.com>
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-log.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_kprobe.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-log.c
-+++ b/drivers/md/dm-log.c
-@@ -615,7 +615,7 @@ static int disk_resume(struct dm_dirty_l
- 			log_clear_bit(lc, lc->clean_bits, i);
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -1718,8 +1718,17 @@ static int
+ kretprobe_dispatcher(struct kretprobe_instance *ri, struct pt_regs *regs)
+ {
+ 	struct kretprobe *rp = get_kretprobe(ri);
+-	struct trace_kprobe *tk = container_of(rp, struct trace_kprobe, rp);
++	struct trace_kprobe *tk;
  
- 	/* clear any old bits -- device has shrunk */
--	for (i = lc->region_count; i % (sizeof(*lc->clean_bits) << BYTE_SHIFT); i++)
-+	for (i = lc->region_count; i % BITS_PER_LONG; i++)
- 		log_clear_bit(lc, lc->clean_bits, i);
++	/*
++	 * There is a small chance that get_kretprobe(ri) returns NULL when
++	 * the kretprobe is unregister on another CPU between kretprobe's
++	 * trampoline_handler and this function.
++	 */
++	if (unlikely(!rp))
++		return 0;
++
++	tk = container_of(rp, struct trace_kprobe, rp);
+ 	raw_cpu_inc(*tk->nhit);
  
- 	/* copy clean across to sync */
+ 	if (trace_probe_test_flag(&tk->tp, TP_FLAG_TRACE))
 
 
