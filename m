@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4598055D156
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49EF055C3A5
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237491AbiF0Ltz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:49:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50044 "EHLO
+        id S236325AbiF0LiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:38:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238114AbiF0Lrs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:47:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26CEBBC31;
-        Mon, 27 Jun 2022 04:39:37 -0700 (PDT)
+        with ESMTP id S236440AbiF0Lhb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D40952626;
+        Mon, 27 Jun 2022 04:32:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1B4DB8111B;
-        Mon, 27 Jun 2022 11:39:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 299B9C341C7;
-        Mon, 27 Jun 2022 11:39:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B4E060C17;
+        Mon, 27 Jun 2022 11:32:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76530C3411D;
+        Mon, 27 Jun 2022 11:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329974;
-        bh=trcPkf+EXPWSnihqZu36c4JcAydRwY2vhM6nuMOJUUY=;
+        s=korg; t=1656329557;
+        bh=qFx8ituOKob9EOtVHxccCobyGYw3VQGH5tyYocEmG9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IFomTBxQRPKQ3XSHtdnjK6tpmZ6C9EBv+Uk+PbiagimtC7hCulzan7NO63R13NgmQ
-         DUlieEqkctCpP60cKdOVkbuGS6nonp8zolUqSU6Bq+k6LAfpqxFY+IRiJ15hHJbDd8
-         dYRJAenxbdLqaEtD3oVG/cV2W7YLUYpv1Hqe0Euc=
+        b=KcMYdLa1ODAfBGUh4ldCB4fFdVdcZBllSlScshv8Of1NQdYOmtmPFu+Mfz7RXJD+0
+         ffztnlt9n/o5n7h8T8wVYo7VAI8Ffr5IRUeaHyvFnyG1YYDzK3mtBQ9nV6NcslqV0L
+         aIX8eF0cHmwhKk3QK0p/PtG61jSayzyejXAE8ObQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonglin Tan <yonglin.tan@outlook.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.18 040/181] USB: serial: option: add Quectel EM05-G modem
-Date:   Mon, 27 Jun 2022 13:20:13 +0200
-Message-Id: <20220627111945.724937051@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        nikitashvets@flyium.com, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 007/135] ALSA: hda/realtek: Apply fixup for Lenovo Yoga Duet 7 properly
+Date:   Mon, 27 Jun 2022 13:20:14 +0200
+Message-Id: <20220627111938.371580511@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,104 +53,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglin Tan <yonglin.tan@outlook.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 33b29dbb39bcbd0a96e440646396bbf670b914fa upstream.
+commit 56ec3e755bd1041d35bdec020a99b327697ee470 upstream.
 
-The EM05-G modem has 2 USB configurations that are configurable via the AT
-command AT+QCFG="usbnet",[ 0 | 2 ] which make the modem enumerate with
-the following interfaces, respectively:
+It turned out that Lenovo shipped two completely different products
+with the very same PCI SSID, where both require different quirks;
+namely, Lenovo C940 has already the fixup for its speaker
+(ALC298_FIXUP_LENOVO_SPK_VOLUME) with the PCI SSID 17aa:3818, while
+Yoga Duet 7 has also the very same PCI SSID but requires a different
+quirk, ALC287_FIXUP_YOGA7_14TIL_SPEAKERS.
 
-"RMNET"	: AT + DIAG + NMEA + Modem + QMI
-"MBIM"	: MBIM + AT + DIAG + NMEA + Modem
+Fortunately, both are with different codecs (C940 with ALC298 and Duet
+7 with ALC287), hence we can apply different fixes by checking the
+codec ID.  This patch implements that special fixup function.
 
-The detailed description of the USB configuration for each mode as follows:
+For easier handling, the internal function for applying a specific
+fixup entry is exported as __snd_hda_apply_fixup(), so that it can be
+called from the codec driver.  The rest is simply calling it with a
+different fixup ID depending on the codec ID.
 
-RMNET Mode
---------------
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 21 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=030a Rev= 3.18
-S:  Manufacturer=Quectel
-S:  Product=Quectel EM05-G
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-MBIM Mode
---------------
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 16 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=030a Rev= 3.18
-S:  Manufacturer=Quectel
-S:  Product=Quectel EM05-G
-C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
-E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
-I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: Yonglin Tan <yonglin.tan@outlook.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: nikitashvets@flyium.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/5ca147d1-3a2d-60c6-c491-8aa844183222@redhat.com
+Link: https://lore.kernel.org/r/20220614054831.14648-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/hda/hda_auto_parser.c |    7 ++++---
+ sound/pci/hda/hda_local.h       |    1 +
+ sound/pci/hda/patch_realtek.c   |   24 +++++++++++++++++++++++-
+ 3 files changed, 28 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -252,6 +252,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_EG95			0x0195
- #define QUECTEL_PRODUCT_BG96			0x0296
- #define QUECTEL_PRODUCT_EP06			0x0306
-+#define QUECTEL_PRODUCT_EM05G			0x030a
- #define QUECTEL_PRODUCT_EM12			0x0512
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_EC200S_CN		0x6002
-@@ -1134,6 +1135,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
-+	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
-+	  .driver_info = RSVD(6) | ZLP },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
+--- a/sound/pci/hda/hda_auto_parser.c
++++ b/sound/pci/hda/hda_auto_parser.c
+@@ -823,7 +823,7 @@ static void set_pin_targets(struct hda_c
+ 		snd_hda_set_pin_ctl_cache(codec, cfg->nid, cfg->val);
+ }
+ 
+-static void apply_fixup(struct hda_codec *codec, int id, int action, int depth)
++void __snd_hda_apply_fixup(struct hda_codec *codec, int id, int action, int depth)
+ {
+ 	const char *modelname = codec->fixup_name;
+ 
+@@ -833,7 +833,7 @@ static void apply_fixup(struct hda_codec
+ 		if (++depth > 10)
+ 			break;
+ 		if (fix->chained_before)
+-			apply_fixup(codec, fix->chain_id, action, depth + 1);
++			__snd_hda_apply_fixup(codec, fix->chain_id, action, depth + 1);
+ 
+ 		switch (fix->type) {
+ 		case HDA_FIXUP_PINS:
+@@ -874,6 +874,7 @@ static void apply_fixup(struct hda_codec
+ 		id = fix->chain_id;
+ 	}
+ }
++EXPORT_SYMBOL_GPL(__snd_hda_apply_fixup);
+ 
+ /**
+  * snd_hda_apply_fixup - Apply the fixup chain with the given action
+@@ -883,7 +884,7 @@ static void apply_fixup(struct hda_codec
+ void snd_hda_apply_fixup(struct hda_codec *codec, int action)
+ {
+ 	if (codec->fixup_list)
+-		apply_fixup(codec, codec->fixup_id, action, 0);
++		__snd_hda_apply_fixup(codec, codec->fixup_id, action, 0);
+ }
+ EXPORT_SYMBOL_GPL(snd_hda_apply_fixup);
+ 
+--- a/sound/pci/hda/hda_local.h
++++ b/sound/pci/hda/hda_local.h
+@@ -350,6 +350,7 @@ void snd_hda_apply_verbs(struct hda_code
+ void snd_hda_apply_pincfgs(struct hda_codec *codec,
+ 			   const struct hda_pintbl *cfg);
+ void snd_hda_apply_fixup(struct hda_codec *codec, int action);
++void __snd_hda_apply_fixup(struct hda_codec *codec, int id, int action, int depth);
+ void snd_hda_pick_fixup(struct hda_codec *codec,
+ 			const struct hda_model_fixup *models,
+ 			const struct snd_pci_quirk *quirk,
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6883,6 +6883,7 @@ enum {
+ 	ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS,
+ 	ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE,
+ 	ALC287_FIXUP_YOGA7_14ITL_SPEAKERS,
++	ALC298_FIXUP_LENOVO_C940_DUET7,
+ 	ALC287_FIXUP_13S_GEN2_SPEAKERS,
+ 	ALC256_FIXUP_SET_COEF_DEFAULTS,
+ 	ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE,
+@@ -6892,6 +6893,23 @@ enum {
+ 	ALC285_FIXUP_LEGION_Y9000X_AUTOMUTE,
+ };
+ 
++/* A special fixup for Lenovo C940 and Yoga Duet 7;
++ * both have the very same PCI SSID, and we need to apply different fixups
++ * depending on the codec ID
++ */
++static void alc298_fixup_lenovo_c940_duet7(struct hda_codec *codec,
++					   const struct hda_fixup *fix,
++					   int action)
++{
++	int id;
++
++	if (codec->core.vendor_id == 0x10ec0298)
++		id = ALC298_FIXUP_LENOVO_SPK_VOLUME; /* C940 */
++	else
++		id = ALC287_FIXUP_YOGA7_14ITL_SPEAKERS; /* Duet 7 */
++	__snd_hda_apply_fixup(codec, id, action, 0);
++}
++
+ static const struct hda_fixup alc269_fixups[] = {
+ 	[ALC269_FIXUP_GPIO2] = {
+ 		.type = HDA_FIXUP_FUNC,
+@@ -8591,6 +8609,10 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE,
+ 	},
++	[ALC298_FIXUP_LENOVO_C940_DUET7] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc298_fixup_lenovo_c940_duet7,
++	},
+ 	[ALC287_FIXUP_13S_GEN2_SPEAKERS] = {
+ 		.type = HDA_FIXUP_VERBS,
+ 		.v.verbs = (const struct hda_verb[]) {
+@@ -9060,7 +9082,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x31af, "ThinkCentre Station", ALC623_FIXUP_LENOVO_THINKSTATION_P340),
+ 	SND_PCI_QUIRK(0x17aa, 0x3802, "Lenovo Yoga DuetITL 2021", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
+ 	SND_PCI_QUIRK(0x17aa, 0x3813, "Legion 7i 15IMHG05", ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS),
+-	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
++	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940 / Yoga Duet 7", ALC298_FIXUP_LENOVO_C940_DUET7),
+ 	SND_PCI_QUIRK(0x17aa, 0x3819, "Lenovo 13s Gen2 ITL", ALC287_FIXUP_13S_GEN2_SPEAKERS),
+ 	SND_PCI_QUIRK(0x17aa, 0x3820, "Yoga Duet 7 13ITL6", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
+ 	SND_PCI_QUIRK(0x17aa, 0x3824, "Legion Y9000X 2020", ALC285_FIXUP_LEGION_Y9000X_SPEAKERS),
 
 
