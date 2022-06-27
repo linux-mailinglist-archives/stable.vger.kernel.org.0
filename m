@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B035755DCBE
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:26:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8384155C5D2
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235957AbiF0Lev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:34:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55654 "EHLO
+        id S234798AbiF0LYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:24:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236399AbiF0Ldq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34E26DED3;
-        Mon, 27 Jun 2022 04:31:13 -0700 (PDT)
+        with ESMTP id S234797AbiF0LYq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:24:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE3C36581;
+        Mon, 27 Jun 2022 04:24:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDFB5B8111B;
-        Mon, 27 Jun 2022 11:31:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25073C3411D;
-        Mon, 27 Jun 2022 11:31:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E013B8111B;
+        Mon, 27 Jun 2022 11:24:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC64FC36AE2;
+        Mon, 27 Jun 2022 11:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329470;
-        bh=S9vWGgVqVYCNhr7Z7R7ejfti0oFHgHEFPN3yugt+dbE=;
+        s=korg; t=1656329083;
+        bh=Vn9mI427kOedHB8tP0Fi9QXMu8BjFDGnwHZ9a+pfulM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEdcrc6e0HEpEpAmKbEh4dXS2rJBtp6mgtBFA38nerRd5T5PfeNd12SsaaglUb8NY
-         bJFMVirHygDwjZyFMgQwpXP8tk75KPp4iUDPFiIGMDjXGzt652HtbUu2qzUepi8PDF
-         IadN8YbKVBY+Jn/jKG55uGMDSDnSdWMgQP7U3Dh0=
+        b=zHfZ4bDBNDxlFZqr6fPIkLrpKC7tSoNNhFJSsHwuhhhLfczSyDw9JHxOATEtcjX5l
+         nccpACUvQUbaQARdkSOP4bGlrqSgAGnXzpvbAE2jdDWZ3LLMB0zkn9tJW+oNszmDdB
+         6xn/Yt8te58I+y4Hl9epYHCyE73MP3ZbRQMopO14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rosemarie ORiorden <roriorden@redhat.com>,
-        Eelco Chaudron <echaudro@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.15 010/135] net: openvswitch: fix parsing of nw_proto for IPv6 fragments
-Date:   Mon, 27 Jun 2022 13:20:17 +0200
-Message-Id: <20220627111938.457403384@linuxfoundation.org>
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 007/102] ALSA: hda/realtek - ALC897 headset MIC no sound
+Date:   Mon, 27 Jun 2022 13:20:18 +0200
+Message-Id: <20220627111933.680535808@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rosemarie O'Riorden <roriorden@redhat.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit 12378a5a75e33f34f8586706eb61cca9e6d4690c upstream.
+commit fe6900bd8156467365bd5b976df64928fdebfeb0 upstream.
 
-When a packet enters the OVS datapath and does not match any existing
-flows installed in the kernel flow cache, the packet will be sent to
-userspace to be parsed, and a new flow will be created. The kernel and
-OVS rely on each other to parse packet fields in the same way so that
-packets will be handled properly.
+There is not have Headset Mic verb table in BIOS default.
+So, it will have recording issue from headset MIC.
+Add the verb table value without jack detect. It will turn on Headset Mic.
 
-As per the design document linked below, OVS expects all later IPv6
-fragments to have nw_proto=44 in the flow key, so they can be correctly
-matched on OpenFlow rules. OpenFlow controllers create pipelines based
-on this design.
-
-This behavior was changed by the commit in the Fixes tag so that
-nw_proto equals the next_header field of the last extension header.
-However, there is no counterpart for this change in OVS userspace,
-meaning that this field is parsed differently between OVS and the
-kernel. This is a problem because OVS creates actions based on what is
-parsed in userspace, but the kernel-provided flow key is used as a match
-criteria, as described in Documentation/networking/openvswitch.rst. This
-leads to issues such as packets incorrectly matching on a flow and thus
-the wrong list of actions being applied to the packet. Such changes in
-packet parsing cannot be implemented without breaking the userspace.
-
-The offending commit is partially reverted to restore the expected
-behavior.
-
-The change technically made sense and there is a good reason that it was
-implemented, but it does not comply with the original design of OVS.
-If in the future someone wants to implement such a change, then it must
-be user-configurable and disabled by default to preserve backwards
-compatibility with existing OVS versions.
-
-Cc: stable@vger.kernel.org
-Fixes: fa642f08839b ("openvswitch: Derive IP protocol number for IPv6 later frags")
-Link: https://docs.openvswitch.org/en/latest/topics/design/#fragments
-Signed-off-by: Rosemarie O'Riorden <roriorden@redhat.com>
-Acked-by: Eelco Chaudron <echaudro@redhat.com>
-Link: https://lore.kernel.org/r/20220621204845.9721-1-roriorden@redhat.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/719133a27d8844a890002cb817001dfa@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/flow.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/net/openvswitch/flow.c
-+++ b/net/openvswitch/flow.c
-@@ -266,7 +266,7 @@ static int parse_ipv6hdr(struct sk_buff
- 	if (flags & IP6_FH_F_FRAG) {
- 		if (frag_off) {
- 			key->ip.frag = OVS_FRAG_TYPE_LATER;
--			key->ip.proto = nexthdr;
-+			key->ip.proto = NEXTHDR_FRAGMENT;
- 			return 0;
- 		}
- 		key->ip.frag = OVS_FRAG_TYPE_FIRST;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -10447,6 +10447,7 @@ enum {
+ 	ALC668_FIXUP_MIC_DET_COEF,
+ 	ALC897_FIXUP_LENOVO_HEADSET_MIC,
+ 	ALC897_FIXUP_HEADSET_MIC_PIN,
++	ALC897_FIXUP_HP_HSMIC_VERB,
+ };
+ 
+ static const struct hda_fixup alc662_fixups[] = {
+@@ -10866,6 +10867,13 @@ static const struct hda_fixup alc662_fix
+ 		.chained = true,
+ 		.chain_id = ALC897_FIXUP_LENOVO_HEADSET_MIC
+ 	},
++	[ALC897_FIXUP_HP_HSMIC_VERB] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
++			{ }
++		},
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
+@@ -10891,6 +10899,7 @@ static const struct snd_pci_quirk alc662
+ 	SND_PCI_QUIRK(0x1028, 0x0698, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x069f, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1632, "HP RP5800", ALC662_FIXUP_HP_RP5800),
++	SND_PCI_QUIRK(0x103c, 0x8719, "HP", ALC897_FIXUP_HP_HSMIC_VERB),
+ 	SND_PCI_QUIRK(0x103c, 0x873e, "HP", ALC671_FIXUP_HP_HEADSET_MIC2),
+ 	SND_PCI_QUIRK(0x103c, 0x885f, "HP 288 Pro G8", ALC671_FIXUP_HP_HEADSET_MIC2),
+ 	SND_PCI_QUIRK(0x1043, 0x1080, "Asus UX501VW", ALC668_FIXUP_HEADSET_MODE),
 
 
