@@ -2,77 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF80E55DE01
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:28:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCC9455D141
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:09:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237592AbiF0Pui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 11:50:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49828 "EHLO
+        id S236481AbiF0PyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 11:54:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237480AbiF0Puh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 11:50:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFC99192B5;
-        Mon, 27 Jun 2022 08:50:36 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86B6DB818AB;
-        Mon, 27 Jun 2022 15:50:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ECE7C3411D;
-        Mon, 27 Jun 2022 15:50:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656345034;
-        bh=smhJiPhNeK56DLa1ED5m/6stAGXDfLoVRyPY009fBCY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M/Zlnl9ftTEC/esbyTmyEizmKDCVPAKGwmPwTXlcw2leSWXchVM4/AHPlC8XWbLwU
-         njpEh5Ded1dWUNG+o/Hafe9zG+HNVndzwjzJGjRiwD4incqi0QHmNiGLEUBMNxUrIQ
-         e6l7UF8OIVqFAKkrY68h0CDaU8NenZQnp7RfhRP4=
-Date:   Mon, 27 Jun 2022 17:50:31 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        John Fastabend <john.fastabend@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.18 097/181] Revert "net/tls: fix tls_sk_proto_close
- executed repeatedly"
-Message-ID: <YrnRxxAUbk8fdjac@kroah.com>
-References: <20220627111944.553492442@linuxfoundation.org>
- <20220627111947.372126973@linuxfoundation.org>
- <20220627083313.285787a5@kernel.org>
+        with ESMTP id S236445AbiF0PyX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 11:54:23 -0400
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F4B626F1
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 08:54:22 -0700 (PDT)
+Received: by mail-lj1-x22c.google.com with SMTP id a11so11524660ljb.5
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 08:54:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=aGzvn0q0q9YA/Na0FGp2nMGFn59dA2Gv9fwVzm4epHQ=;
+        b=lBJD4+VZ0kbkYmTliCpNDBnCjAZShf9B/HZkWqHsK8iJYouy5mxuL8mPSzyPh9NKaB
+         0ibjLxvl41a78XCflD7VLmMChUqIRk9gussPPCuaUlTNaqrd/zzsr8qbJyA7+BwDSrQW
+         Xt8HMSupt5qJ3S+ounN/0lbJ9MlnKNh+w1htShyC9Qt3SBqiXJ5WkxsGsIh1L5jlViXA
+         m4zM7W9S80Emd/HyMwqii/mB/ygZ3VGqoVhS8haMsyOYbQ2zu9fmJbXWpuRkYoxwgvPr
+         fVyZRYO9qVE2500TV+x7IUe21gZMZI3rqyLcceePnrDRvphkzeo3LhRGLAdzOsHVy528
+         X+pQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=aGzvn0q0q9YA/Na0FGp2nMGFn59dA2Gv9fwVzm4epHQ=;
+        b=rN/RpTgsHAixm5oIs5O8Ec3VbbmN6sW8KZUffYlAxOi/7ve12Q+KSiosJZfjpXuUEW
+         o4nKmxrz6v5iQoCjbW+yrDlox50k2Mn8jpmNl2PHiGRTES+FK2jDFvkIiOpLqiQEJF6q
+         oQTBNw5clM/QuO7Zl3q4X9dZ9D8s1HPwdjowIX+R9zWT1cgq7eSD3ZjdbSYEkx+0cQkV
+         86VjPclcTNM2uHN39nBbRpFPiJIVsKafmeZvnEg35giqtYA/0Lr07KkVZHrMBs1KHa1w
+         F/OFy0OAgG41ZNhxUF5zrajQq8o9T/J3jEimczvpfAIDAzlHhYPyAxtXB6ag+lRyjuFd
+         avXw==
+X-Gm-Message-State: AJIora/RG37BqUV72jBPW6kSBS/U1HXRmTfyK0x/OVO7dktA+36nfO5J
+        lqj+FY0lKm3tBp8LQ0AkiIf04ju5GZHoyoh4xmkEazv/luvErw==
+X-Google-Smtp-Source: AGRyM1vZblY+5ZvO7qMkFBibTMM6xaOo+us+0BH/P/EpAW9NZyMlLZgWth5IyDlvvuRZmwN423ildX/nqyTfL+k1gPE=
+X-Received: by 2002:a2e:a801:0:b0:24a:ff0b:ae7a with SMTP id
+ l1-20020a2ea801000000b0024aff0bae7amr7084748ljq.287.1656345260238; Mon, 27
+ Jun 2022 08:54:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220627083313.285787a5@kernel.org>
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+From:   Fenil Jain <fkjainco@gmail.com>
+Date:   Mon, 27 Jun 2022 21:24:09 +0530
+Message-ID: <CAHokDBmXcNXTo89qc-c3bW7KeJePx=m8XFQO_iGV59GfW45wAA@mail.gmail.com>
+Subject: Re: [PATCH 5.18 000/181] 5.18.8-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Shuah Khan <skhan@linuxfoundation.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 08:33:13AM -0700, Jakub Kicinski wrote:
-> On Mon, 27 Jun 2022 13:21:10 +0200 Greg Kroah-Hartman wrote:
-> > From: Jakub Kicinski <kuba@kernel.org>
-> > 
-> > [ Upstream commit 1b205d948fbb06a7613d87dcea0ff5fd8a08ed91 ]
-> > 
-> > This reverts commit 69135c572d1f84261a6de2a1268513a7e71753e2.
-> > 
-> > This commit was just papering over the issue, ULP should not
-> > get ->update() called with its own sk_prot. Each ULP would
-> > need to add this check.
-> > 
-> > Fixes: 69135c572d1f ("net/tls: fix tls_sk_proto_close executed repeatedly")
-> > Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-> 
-> Mm? How did 69135c572d1f get into stableh? 
-> I reverted it before it hit Linus's tree.
-> Don't see the notification about it either.
+Hey Greg,
 
-It is commit 075/181 in this series as you can see here:
-	https://lore.kernel.org/r/20220627111946.738369250@linuxfoundation.org
+Ran tests and boot tested on my system, no regression found
+
+Tested-by: Fenil Jain <fkjainco@gmail.com>
