@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B044F55CA59
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:58:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8536955DE43
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238033AbiF0Ltp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:49:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50008 "EHLO
+        id S236053AbiF0LfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:35:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238332AbiF0LsS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 365BFF5B5;
-        Mon, 27 Jun 2022 04:40:45 -0700 (PDT)
+        with ESMTP id S235660AbiF0LeA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:34:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CEB2C40;
+        Mon, 27 Jun 2022 04:31:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63E71B8113A;
-        Mon, 27 Jun 2022 11:40:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8F85C341C7;
-        Mon, 27 Jun 2022 11:40:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16D77608D4;
+        Mon, 27 Jun 2022 11:31:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 280D2C341C7;
+        Mon, 27 Jun 2022 11:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330043;
-        bh=mWL7/54HZCr/k7UXZsz1bzBhAmI7c/Igb97da6crnUk=;
+        s=korg; t=1656329479;
+        bh=DXbOOTUZxJQ/VJmdQpelWwPF76o9ryuqCBm+cRcEnDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2uxhd8/4V3mDmwH1HsP3r75L/RovTQ/xwALr1GffAncHAGItp510wPLw5PyEa5qb+
-         S5sI2228eQuiQLXPll+8goCTpySqgzSNxU9brCt7YRxfKRTxg33S69o1xsVRwsne6p
-         XFZHt4cvgMSCk4ULO4BlzUMOPbV/+tqQ2/EVrgso=
+        b=Vx75pexAc+Cinzei5C3iUQWZ+gaLA2lPRePbtg/6HeIdUGrtZteCLTOYUhrM1c2Hf
+         hOB1Mhy00UdMQ2xxEOTXgHjF+QEC9inog04zhxB2jsqBdckXMx7JLizbKQAOapWHGG
+         6j+996BsI6uwWXQk3nokEOvmSJyV0cZeozNpaPMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        Lee Duncan <lduncan@suse.com>,
-        Sergey Gorenko <sergeygo@nvidia.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 047/181] scsi: iscsi: Exclude zero from the endpoint ID range
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.15 013/135] 9p: fix fid refcount leak in v9fs_vfs_get_link
 Date:   Mon, 27 Jun 2022 13:20:20 +0200
-Message-Id: <20220627111945.927460986@linuxfoundation.org>
+Message-Id: <20220627111938.543822391@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,48 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Gorenko <sergeygo@nvidia.com>
+From: Dominique Martinet <asmadeus@codewreck.org>
 
-[ Upstream commit f6eed15f3ea76596ccc689331e1cc850b999133b ]
+commit e5690f263208c5abce7451370b7786eb25b405eb upstream.
 
-The kernel returns an endpoint ID as r.ep_connect_ret.handle in the
-iscsi_uevent. The iscsid validates a received endpoint ID and treats zero
-as an error. The commit referenced in the fixes line changed the endpoint
-ID range, and zero is always assigned to the first endpoint ID.  So, the
-first attempt to create a new iSER connection always fails.
+we check for protocol version later than required, after a fid has
+been obtained. Just move the version check earlier.
 
-Link: https://lore.kernel.org/r/20220613123854.55073-1-sergeygo@nvidia.com
-Fixes: 3c6ae371b8a1 ("scsi: iscsi: Release endpoint ID when its freed")
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Sergey Gorenko <sergeygo@nvidia.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220612085330.1451496-3-asmadeus@codewreck.org
+Fixes: 6636b6dcc3db ("9p: add refcount to p9_fid struct")
+Cc: stable@vger.kernel.org
+Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/9p/vfs_inode.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 2c0dd64159b0..5d21f07456c6 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -212,7 +212,12 @@ iscsi_create_endpoint(int dd_size)
- 		return NULL;
+--- a/fs/9p/vfs_inode.c
++++ b/fs/9p/vfs_inode.c
+@@ -1228,15 +1228,15 @@ static const char *v9fs_vfs_get_link(str
+ 		return ERR_PTR(-ECHILD);
  
- 	mutex_lock(&iscsi_ep_idr_mutex);
--	id = idr_alloc(&iscsi_ep_idr, ep, 0, -1, GFP_NOIO);
+ 	v9ses = v9fs_dentry2v9ses(dentry);
+-	fid = v9fs_fid_lookup(dentry);
++	if (!v9fs_proto_dotu(v9ses))
++		return ERR_PTR(-EBADF);
 +
-+	/*
-+	 * First endpoint id should be 1 to comply with user space
-+	 * applications (iscsid).
-+	 */
-+	id = idr_alloc(&iscsi_ep_idr, ep, 1, -1, GFP_NOIO);
- 	if (id < 0) {
- 		mutex_unlock(&iscsi_ep_idr_mutex);
- 		printk(KERN_ERR "Could not allocate endpoint ID. Error %d.\n",
--- 
-2.35.1
-
+ 	p9_debug(P9_DEBUG_VFS, "%pd\n", dentry);
++	fid = v9fs_fid_lookup(dentry);
+ 
+ 	if (IS_ERR(fid))
+ 		return ERR_CAST(fid);
+ 
+-	if (!v9fs_proto_dotu(v9ses))
+-		return ERR_PTR(-EBADF);
+-
+ 	st = p9_client_stat(fid);
+ 	p9_client_clunk(fid);
+ 	if (IS_ERR(st))
 
 
