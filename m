@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C966C55C1D4
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B82A55C79A
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:54:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235288AbiF0L3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:29:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45640 "EHLO
+        id S236267AbiF0LlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:41:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235389AbiF0L26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:28:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14ECFA199;
-        Mon, 27 Jun 2022 04:27:45 -0700 (PDT)
+        with ESMTP id S236834AbiF0Lju (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:39:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 705EDBE1;
+        Mon, 27 Jun 2022 04:35:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5822614A2;
-        Mon, 27 Jun 2022 11:27:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93C05C341C7;
-        Mon, 27 Jun 2022 11:27:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DFB860DF6;
+        Mon, 27 Jun 2022 11:35:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21290C3411D;
+        Mon, 27 Jun 2022 11:35:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329264;
-        bh=4w0rb8WM7fGTNmflEmNCvYh4biFDvlmKXvwa62Cg0+s=;
+        s=korg; t=1656329716;
+        bh=e1XX8I8SnpXBYkbVjJf9BRbY5atBzPtKnsb27yFGmSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYvy5j8MswRoXls0Q8yPT+FhqpKk87EkkqUa53/fb9I1nGFS3t1ScBUem01pqOjfA
-         y+J6JQ7pL0unWai+gxwRk69OkM8nLc8gbn4iFZEQllxBdzsHNzR3jzlUqC2DrgIsez
-         EYtS3jF6IEEXzjEwXpp01wwDTRAym6meFq0Vk50U=
+        b=wCGtk4ad2f6gRQylyCHILMKrTzJDybIL/iOCg7iZdZsFUEycPDdSjLEv8AM3k0iFC
+         wtu8easQ+K5wNymvP5wGiz01LzQglbjHZRxMuBGYW2qdfc+x3jdN4Yo4IIy+9x7aTI
+         54NtjxlJtLZ6U+/HjwzNvVpQZTUJkKY/WSiRi1WM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 5.10 087/102] parisc/stifb: Fix fb_is_primary_device() only available with CONFIG_FB_STI
-Date:   Mon, 27 Jun 2022 13:21:38 +0200
-Message-Id: <20220627111936.046180187@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Zygo Blaxell <ce3g8jdj@umail.furryterror.org>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 092/135] btrfs: dont set lock_owner when locking extent buffer for reading
+Date:   Mon, 27 Jun 2022 13:21:39 +0200
+Message-Id: <20220627111940.828016130@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
 
-commit 1d0811b03eb30b2f0793acaa96c6ce90b8b9c87a upstream.
+commit 97e86631bccddfbbe0c13f9a9605cdef11d31296 upstream.
 
-Fix this build error noticed by the kernel test robot:
+In 196d59ab9ccc "btrfs: switch extent buffer tree lock to rw_semaphore"
+the functions for tree read locking were rewritten, and in the process
+the read lock functions started setting eb->lock_owner = current->pid.
+Previously lock_owner was only set in tree write lock functions.
 
-drivers/video/console/sticore.c:1132:5: error: redefinition of 'fb_is_primary_device'
- arch/parisc/include/asm/fb.h:18:19: note: previous definition of 'fb_is_primary_device'
+Read locks are shared, so they don't have exclusive ownership of the
+underlying object, so setting lock_owner to any single value for a
+read lock makes no sense.  It's mostly harmless because write locks
+and read locks are mutually exclusive, and none of the existing code
+in btrfs (btrfs_init_new_buffer and print_eb_refs_lock) cares what
+nonsense is written in lock_owner when no writer is holding the lock.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: stable@vger.kernel.org   # v5.10+
+KCSAN does care, and will complain about the data race incessantly.
+Remove the assignments in the read lock functions because they're
+useless noise.
+
+Fixes: 196d59ab9ccc ("btrfs: switch extent buffer tree lock to rw_semaphore")
+CC: stable@vger.kernel.org # 5.15+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/include/asm/fb.h    |    2 +-
- drivers/video/console/sticore.c |    2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/locking.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/parisc/include/asm/fb.h
-+++ b/arch/parisc/include/asm/fb.h
-@@ -12,7 +12,7 @@ static inline void fb_pgprotect(struct f
- 	pgprot_val(vma->vm_page_prot) |= _PAGE_NO_CACHE;
+--- a/fs/btrfs/locking.c
++++ b/fs/btrfs/locking.c
+@@ -45,7 +45,6 @@ void __btrfs_tree_read_lock(struct exten
+ 		start_ns = ktime_get_ns();
+ 
+ 	down_read_nested(&eb->lock, nest);
+-	eb->lock_owner = current->pid;
+ 	trace_btrfs_tree_read_lock(eb, start_ns);
  }
  
--#if defined(CONFIG_STI_CONSOLE) || defined(CONFIG_FB_STI)
-+#if defined(CONFIG_FB_STI)
- int fb_is_primary_device(struct fb_info *info);
- #else
- static inline int fb_is_primary_device(struct fb_info *info)
---- a/drivers/video/console/sticore.c
-+++ b/drivers/video/console/sticore.c
-@@ -1127,6 +1127,7 @@ int sti_call(const struct sti_struct *st
- 	return ret;
- }
- 
-+#if defined(CONFIG_FB_STI)
- /* check if given fb_info is the primary device */
- int fb_is_primary_device(struct fb_info *info)
+@@ -62,7 +61,6 @@ void btrfs_tree_read_lock(struct extent_
+ int btrfs_try_tree_read_lock(struct extent_buffer *eb)
  {
-@@ -1142,6 +1143,7 @@ int fb_is_primary_device(struct fb_info
- 	return (sti->info == info);
+ 	if (down_read_trylock(&eb->lock)) {
+-		eb->lock_owner = current->pid;
+ 		trace_btrfs_try_tree_read_lock(eb);
+ 		return 1;
+ 	}
+@@ -90,7 +88,6 @@ int btrfs_try_tree_write_lock(struct ext
+ void btrfs_tree_read_unlock(struct extent_buffer *eb)
+ {
+ 	trace_btrfs_tree_read_unlock(eb);
+-	eb->lock_owner = 0;
+ 	up_read(&eb->lock);
  }
- EXPORT_SYMBOL(fb_is_primary_device);
-+#endif
  
- MODULE_AUTHOR("Philipp Rumpf, Helge Deller, Thomas Bogendoerfer");
- MODULE_DESCRIPTION("Core STI driver for HP's NGLE series graphics cards in HP PARISC machines");
 
 
