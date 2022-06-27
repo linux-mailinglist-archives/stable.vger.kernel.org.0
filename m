@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F8B055E2BB
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:36:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA66755C742
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:53:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238861AbiF0Lyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:54:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49958 "EHLO
+        id S237299AbiF0Lnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238724AbiF0Lwc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:32 -0400
+        with ESMTP id S237416AbiF0Lmt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE2E9B861;
-        Mon, 27 Jun 2022 04:45:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39C07F30;
+        Mon, 27 Jun 2022 04:37:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BB72B80DFB;
-        Mon, 27 Jun 2022 11:45:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5236C3411D;
-        Mon, 27 Jun 2022 11:45:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF004B81117;
+        Mon, 27 Jun 2022 11:37:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 118D9C3411D;
+        Mon, 27 Jun 2022 11:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330315;
-        bh=aZ0O5akKHbX55ZjLw6xNMWNs4NL+9/Yl+dEshmlvhnI=;
+        s=korg; t=1656329850;
+        bh=B2hSXjbr+rHpgwDe32O/tcnJQcZZzJ7ADtnfxO42u40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fYQRIN/W0Nwllt3dNlC67fmZEWFcek2vwWqFfoaTmG6j8bJUJFgvCsK92R5BmN0vF
-         H6D3mLy/snLrIByA952Kc4XOqn88pxT7GcvISV6RIkd3mPKVgHWfDR72TakDHeyage
-         VZEuywiXJTy3Hsx+NbGPwtKw9ibF9+UM7kNx3CqE=
+        b=bedk/Vm+MrRX3kyJ511Nh3TY3As1ONjGamOHaNasC/7W7KD+tu2gxCfUqtQ3HaMgP
+         QmVYhVriPCOXuZ7T3SM6ENCVQR0n1Kj5fTFF7UhCvn8U7mJ5xezt/QXTbSuXgK7EMs
+         cFepkgER8ecspNXNg+bFwBZGxldrplXDFJDQWRWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-stable@vger.kernel.org,
-        Marc Zyngier <maz@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Nishanth Menon <nm@ti.com>, Matt Ranostay <mranostay@ti.com>
-Subject: [PATCH 5.18 156/181] arm64: dts: ti: k3-j721s2: Fix overlapping GICD memory region
-Date:   Mon, 27 Jun 2022 13:22:09 +0200
-Message-Id: <20220627111949.208954690@linuxfoundation.org>
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
+        Nishanth Menon <nm@ti.com>
+Subject: [PATCH 5.15 123/135] arm64: dts: ti: k3-am64-main: Remove support for HS400 speed mode
+Date:   Mon, 27 Jun 2022 13:22:10 +0200
+Message-Id: <20220627111941.724118150@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Ranostay <mranostay@ti.com>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-commit 856216b70a41ff3f8c866b627546afa01567b389 upstream.
+commit 0c0af88f3f318e73237f7fadd02d0bf2b6c996bb upstream.
 
-GICD region was overlapping with GICR causing the latter to not map
-successfully, and in turn the gic-v3 driver would fail to initialize.
+AM64 SoC, does not support HS400 and HS200 is the maximum supported speed
+mode[1]. Therefore, fix the device tree node to reflect the same.
 
-This issue was hidden till commit 2b2cd74a06c3 ("irqchip/gic-v3: Claim
-iomem resources") replaced of_iomap() calls with of_io_request_and_map()
-that internally called request_mem_region().
+[1] - https://www.ti.com/lit/ds/symlink/am6442.pdf
+      (SPRSP56C – JANUARY 2021 – REVISED FEBRUARY 2022)
 
-Respective console output before this patchset:
-
-[    0.000000] GICv3: /bus@100000/interrupt-controller@1800000: couldn't map region 0
-
-Fixes: b8545f9d3a54 ("arm64: dts: ti: Add initial support for J721S2 SoC")
-Cc: linux-stable@vger.kernel.org
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Nishanth Menon <nm@ti.com>
-Signed-off-by: Matt Ranostay <mranostay@ti.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
+Fixes: 8abae9389bdb ("arm64: dts: ti: Add support for AM642 SoC")
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
 Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20220617151304.446607-1-mranostay@ti.com
+Link: https://lore.kernel.org/r/20220512064859.32059-1-a-govindraju@ti.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/ti/k3-am64-main.dtsi |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi
-@@ -33,7 +33,7 @@
- 		ranges;
- 		#interrupt-cells = <3>;
- 		interrupt-controller;
--		reg = <0x00 0x01800000 0x00 0x200000>, /* GICD */
-+		reg = <0x00 0x01800000 0x00 0x100000>, /* GICD */
- 		      <0x00 0x01900000 0x00 0x100000>, /* GICR */
- 		      <0x00 0x6f000000 0x00 0x2000>,   /* GICC */
- 		      <0x00 0x6f010000 0x00 0x1000>,   /* GICH */
+--- a/arch/arm64/boot/dts/ti/k3-am64-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am64-main.dtsi
+@@ -456,13 +456,11 @@
+ 		clock-names = "clk_ahb", "clk_xin";
+ 		mmc-ddr-1_8v;
+ 		mmc-hs200-1_8v;
+-		mmc-hs400-1_8v;
+ 		ti,trm-icp = <0x2>;
+ 		ti,otap-del-sel-legacy = <0x0>;
+ 		ti,otap-del-sel-mmc-hs = <0x0>;
+ 		ti,otap-del-sel-ddr52 = <0x6>;
+ 		ti,otap-del-sel-hs200 = <0x7>;
+-		ti,otap-del-sel-hs400 = <0x4>;
+ 	};
+ 
+ 	sdhci1: mmc@fa00000 {
 
 
