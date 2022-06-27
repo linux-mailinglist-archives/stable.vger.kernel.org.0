@@ -2,168 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 218AF55D317
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F8155CB03
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:59:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231716AbiF0Fyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 01:54:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40536 "EHLO
+        id S230420AbiF0Gc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 02:32:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229753AbiF0Fya (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 01:54:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 762C4273E;
-        Sun, 26 Jun 2022 22:54:29 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 239C1B80DF9;
-        Mon, 27 Jun 2022 05:54:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82E45C341C8;
-        Mon, 27 Jun 2022 05:54:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656309266;
-        bh=yxC1mNqWAaZOUyt2kc8qXbxHKEMGITvMCWYj3u08vfE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EY9AKcGnkijNeOEKntrhb8p867u0c30nfJu1RzFqePrzPfwX3vdXYxN5gEM//5dtU
-         pj2E3zdlEuROLmu/PdU1YQa4XJ9wThxm2G/8pS7J/D8/YAR7Wp44RBDMkpuuiYJ+D5
-         cRkw++xn7c5VsqqXRCFfkYGphtHXZ/R1jgFuOgic=
-Date:   Mon, 27 Jun 2022 07:54:23 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Greg Thelen <gthelen@google.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org,
-        akpm@linux-foundation.org, torvalds@linux-foundation.org,
-        stable@vger.kernel.org, lwn@lwn.net, jslaby@suse.cz
-Subject: Re: Linux 5.10.125
-Message-ID: <YrlGDylVhmjFZpZf@kroah.com>
-References: <1656164548242121@kroah.com>
- <xr93fsjr5901.fsf@gthelen-ubiquity2.mtv.corp.google.com>
- <ea9b3819-418a-5b79-8bcd-0b28ead70a61@kernel.dk>
- <6bc6ae48-b569-2002-118a-d3468b0278cd@kernel.dk>
- <xr93czeu64sx.fsf@gthelen-ubiquity2.mtv.corp.google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <xr93czeu64sx.fsf@gthelen-ubiquity2.mtv.corp.google.com>
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229931AbiF0Gc1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 02:32:27 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE4626D8
+        for <stable@vger.kernel.org>; Sun, 26 Jun 2022 23:32:27 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id g4so1302463pgc.1
+        for <stable@vger.kernel.org>; Sun, 26 Jun 2022 23:32:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id;
+        bh=2HFwlhonew13WWPj5aFc9ku+N8T0ZMk1qaDyDiNOacY=;
+        b=YkxTBr10dc6a3INVRUb0bKozNPp0NzlKJ94+Q2gVRx6yQ25s1f8QDkoO5PYgFG8j11
+         p+q0FCoDDQKwO+6FR25uT+rYDxd51J/Wi3cFvwB6hUnKngkKPqOKCWrl+FV4Fp9Jg6Tq
+         qkaK6A3QKPYN780jesI1l7qhXxAcVGsLo86F56yFQBxz2SV9bQj0jluTkDLDdwVGn5rc
+         B+IB/Vkfe699zyvyqtBQ1WHh9SXGJokfiRV6dboAPwdNVK+VR0KZ9nLKKxxMx/2vLW5A
+         uPaHAvArw7rIIM6buuBhNvuE6WUtKrck10BpeOKSKlYpAICm4FPFMgkcFLWQwHOyrhDn
+         SEAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=2HFwlhonew13WWPj5aFc9ku+N8T0ZMk1qaDyDiNOacY=;
+        b=eftpH/jHeztLiO+dNQkJmKizqKP7sa2pLeQcSPN8IZZ5aMY7e6RROkMvaAVnvJ96Rt
+         HTN1WJD2HuS1uR1zJ18qOQjE8JdTwLftJ2oDINFBUcHKaLzGUWYWl5m4Q2wPXS5OsgqY
+         eUIRJOWSXmbM+cr9zEKtmWIcVpceSm0KMytC0dU9MS0GFVxfiUJFq8i0vcvksprZR0GZ
+         V1IPg+usSi7JbJpmueH1izP0ogPAOfuodB5qvLQOZzeVyDoWtvespwxL8EWAHVqjmz33
+         OgqOdsA8NzET1NuGAqpJNEQkhuiMZUMnEsFk9yKd5ppM0+0rGWru1vZSkDlFcFAvmmhL
+         n/sQ==
+X-Gm-Message-State: AJIora+vi1OSKxkJ4rh4nbskCAlg8V9fPcYHogC1UpyYM4bRjdYNsWrw
+        Vxpx5QJmZYhh1+KVofmeH78=
+X-Google-Smtp-Source: AGRyM1smbCLyKHqUTizM5qIXHjPk3NVBJthz4t8/WPKvfN/oGl9EqMox/Srg8Fd8ZFBLt0Hyw707ww==
+X-Received: by 2002:a05:6a00:1a0e:b0:523:1e7c:e26e with SMTP id g14-20020a056a001a0e00b005231e7ce26emr13039354pfv.60.1656311546632;
+        Sun, 26 Jun 2022 23:32:26 -0700 (PDT)
+Received: from desktop-hypoxic.kamiya.io ([42.120.103.58])
+        by smtp.gmail.com with ESMTPSA id q21-20020aa79835000000b0051844a64d3dsm6339260pfl.25.2022.06.26.23.32.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 26 Jun 2022 23:32:26 -0700 (PDT)
+From:   Yangxi Xiang <xyangxi5@gmail.com>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     stable@vger.kernel.org, Yangxi Xiang <xyangxi5@gmail.com>
+Subject: [PATCH] asm-generic: fix buffer overflow read in __strncpy_from_user
+Date:   Mon, 27 Jun 2022 14:32:12 +0800
+Message-Id: <20220627063212.21626-1-xyangxi5@gmail.com>
+X-Mailer: git-send-email 2.17.1
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jun 26, 2022 at 10:42:06PM -0700, Greg Thelen wrote:
-> Jens Axboe <axboe@kernel.dk> wrote:
-> 
-> > On 6/26/22 6:04 PM, Jens Axboe wrote:
-> >> On 6/26/22 4:56 PM, Greg Thelen wrote:
-> >>> Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> >>>
-> >>>> I'm announcing the release of the 5.10.125 kernel.
-> >>>>
-> >>>> All users of the 5.10 kernel series must upgrade.
-> >>>>
-> >>>> The updated 5.10.y git tree can be found at:
-> >>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
-> >>>> and can be browsed at the normal kernel.org git web browser:
-> >>>> 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-> >>>>
-> >>>> thanks,
-> >>>>
-> >>>> greg k-h
-> >>>>
-> >>>> ------------
-> >>>>
-> >>>>  Makefile                              |    2 
-> >>>>  arch/arm64/mm/cache.S                 |    2 
-> >>>>  arch/s390/mm/pgtable.c                |    2 
-> >>>>  drivers/tty/serial/serial_core.c      |   34 ++++--------
-> >>>>  drivers/usb/gadget/function/u_ether.c |   11 +++-
-> >>>>  fs/io_uring.c                         |   23 +++++---
-> >>>>  fs/zonefs/super.c                     |   92 ++++++++++++++++++++++------------
-> >>>>  net/ipv4/inet_hashtables.c            |   31 ++++++++---
-> >>>>  8 files changed, 122 insertions(+), 75 deletions(-)
-> >>>>
-> >>>> Christian Borntraeger (1):
-> >>>>       s390/mm: use non-quiescing sske for KVM switch to keyed guest
-> >>>>
-> >>>> Damien Le Moal (1):
-> >>>>       zonefs: fix zonefs_iomap_begin() for reads
-> >>>>
-> >>>> Eric Dumazet (1):
-> >>>>       tcp: add some entropy in __inet_hash_connect()
-> >>>>
-> >>>> Greg Kroah-Hartman (1):
-> >>>>       Linux 5.10.125
-> >>>>
-> >>>> Jens Axboe (1):
-> >>>>       io_uring: add missing item types for various requests
-> >>>>
-> >>>> Lukas Wunner (1):
-> >>>>       serial: core: Initialize rs485 RTS polarity already on probe
-> >>>>
-> >>>> Marian Postevca (1):
-> >>>>       usb: gadget: u_ether: fix regression in setting fixed MAC address
-> >>>>
-> >>>> Will Deacon (1):
-> >>>>       arm64: mm: Don't invalidate FROM_DEVICE buffers at start of DMA transfer
-> >>>>
-> >>>> Willy Tarreau (5):
-> >>>>       tcp: use different parts of the port_offset for index and offset
-> >>>>       tcp: add small random increments to the source port
-> >>>>       tcp: dynamically allocate the perturb table used by source ports
-> >>>>       tcp: increase source port perturb table to 2^16
-> >>>>       tcp: drop the hash_32() part from the index calculation
-> >>>
-> >>> 5.10.125 commit df3f3bb5059d20ef094d6b2f0256c4bf4127a859 ("io_uring: add
-> >>> missing item types for various requests") causes panic when running
-> >>> test/iopoll.t from https://github.com/axboe/liburing commit
-> >>> dda4848a9911120a903bef6284fb88286f4464c9 (liburing-2.2).
-> >>>
-> >>> Here's a manually annotated panic message:
-> >>> [  359.047161] list_del corruption, ffffa42098824f80->next is LIST_POISON1 (dead000000000100)
-> >>> [  359.055393] kernel BUG at lib/list_debug.c:47!
-> >>> [  359.059786] invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
-> >>> [  359.065463] CPU: 11 PID: 15862 Comm: iopoll.t Tainted: G S        I       5.10.124 #1
-> >>> [  359.081804] RIP: 0010:__list_del_entry_valid+0x49/0x80
-> >>> [  359.086880] Code: c2 22 48 39 d1 74 25 48 8b 11 48 39 f2 75 2d 48 8b 50 08 48 39 f2 75 34 b0 01 5d c3 48 c7 c7 68 15 79 b1 31 c0 e8 c5 a2 5a 00 <0f> 0b 48 c7 c7 d8 8e 76 b1 31 c0 e8 b5 a2 5a 00 0f 0b 48 c7 c7 69
-> >>> [  359.105431] RSP: 0018:ffffb6b66785bd58 EFLAGS: 00010046
-> >>> [  359.110592] RAX: 000000000000004e RBX: ffffa42098824f00 RCX: d07284ea1fbba400
-> >>> [  359.117642] RDX: ffffa43f7f4f05b8 RSI: ffffa43f7f4dff48 RDI: ffffa43f7f4dff48
-> >>> [  359.124691] RBP: ffffb6b66785bd58 R08: 0000000000000000 R09: ffffffffb1f38540
-> >>> [  359.131740] R10: 00000000ffff7fff R11: 0000000000000000 R12: 0000000000000282
-> >>> [  359.138789] R13: ffffb6b66785beb8 R14: ffffa42095d33e00 R15: ffffa420937e3d20
-> >>> [  359.145836] FS:  00000000004f8380(0000) GS:ffffa43f7f4c0000(0000) knlGS:0000000000000000
-> >>> [  359.153830] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> >>> [  359.159506] CR2: 0000000000539388 CR3: 000000027b57c006 CR4: 00000000003706e0
-> >>> [  359.166552] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> >>> [  359.173600] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> >>> [  359.180647] Call Trace:
-> >>> [  359.183064]  io_dismantle_req+0x1da/0x2b0
-> >>>                     __list_del_entry [include/linux/list.h:132]
-> >>>                     list_del [include/linux/list.h:146]
-> >>>                     io_req_drop_files [fs/io_uring.c:5934]
-> >>>                     io_req_clean_work [fs/io_uring.c:1315]
-> >>>                     io_dismantle_req [fs/io_uring.c:1911]
-> >>> [  359.187023]  io_do_iopoll+0x4e5/0x790
-> >>> [  359.194602]  __se_sys_io_uring_enter+0x39b/0x6f0
-> >>> [  359.208318]  __x64_sys_io_uring_enter+0x29/0x30
-> >>> [  359.212793]  do_syscall_64+0x31/0x40
-> >>> [  359.216324]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> >> 
-> >> Well that sucks, I wonder why mine didn't fail like that. I'll see if I
-> >> can hit this and send a fix. Thanks for reporting!
-> >
-> > Below should do it, I apologize for that. I think my test box booted the
-> > previous kernel which is why it didn't hit it in my regression tests :-(
-> >
-> > Greg, can you add this to 5.10-stable? Verified it ran tests with the
-> > right kernel now...
+a common calling pattern is strncpy_from_user(buf, user_ptr, sizeof(buf)).
+However a buffer-overflow read occurs in this loop when reading the last
+byte. Fix it by early checking the available bytes.
 
-Great, I'll go just do a release with this in it right now to help
-others out.
+Signed-off-by: Yangxi Xiang <xyangxi5@gmail.com>
+---
+ include/asm-generic/uaccess.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
+diff --git a/include/asm-generic/uaccess.h b/include/asm-generic/uaccess.h
+index a0b2f270dddc..d45d4f535934 100644
+--- a/include/asm-generic/uaccess.h
++++ b/include/asm-generic/uaccess.h
+@@ -252,7 +252,7 @@ __strncpy_from_user(char *dst, const char __user *src, long count)
+ {
+ 	char *tmp;
+ 	strncpy(dst, (const char __force *)src, count);
+-	for (tmp = dst; *tmp && count > 0; tmp++, count--)
++	for (tmp = dst; count > 0 && *tmp; tmp++, count--)
+ 		;
+ 	return (tmp - dst);
+ }
+-- 
+2.17.1
+
