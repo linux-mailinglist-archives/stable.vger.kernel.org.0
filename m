@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CE6C55D157
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7049855C187
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233879AbiF0LXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:23:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43086 "EHLO
+        id S238101AbiF0LuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:50:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234544AbiF0LXE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:23:04 -0400
+        with ESMTP id S238502AbiF0Lsc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F8C2654B;
-        Mon, 27 Jun 2022 04:23:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 854B5C73;
+        Mon, 27 Jun 2022 04:41:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B1286144F;
-        Mon, 27 Jun 2022 11:23:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D283C3411D;
-        Mon, 27 Jun 2022 11:23:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16D7261234;
+        Mon, 27 Jun 2022 11:41:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2510BC341CB;
+        Mon, 27 Jun 2022 11:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656328982;
-        bh=XfgLOJdxrlG9Mmu3iDIZDiD4n1y+qaWvN+p8XJPvlh0=;
+        s=korg; t=1656330118;
+        bh=VpWj+S8VyobIWzAtYMHALe6noLPSFdKL2+fOn4VwhAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uS9wMaWhaW6pIwK614Y9QrrFi68r6n9z7cUnhCKIiVT3Jy2P1MlfS5fp+edEpn5qn
-         lhTqnb8PrU5lAspaV52H9z0JTKaSEgXljVKna0B5khfDlRP+zFf8NAPUciEu0/GPnW
-         DcMq9FDrgXe8fe9M76DQfGSYokSAoohieTVL/YQ8=
+        b=Lb4OchllwpDv66/PmbGESbtP3NDqTK7NaZLRJ3icbCVyYZfznFk/xSre+zqZqYLVD
+         4iE5nRLDOcfrXYcL7qsdg5mzIh/WuOt2m832Vh1i+rVKLtXsSpcNCHJGb3JKZ76o1O
+         Dh7abvHxQ5fEqHPB91BmZo2Cak0zxHSBd/zfukY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 012/102] btrfs: add error messages to all unrecognized mount options
+        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
+        Jon Maxwell <jmaxwell37@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Curtis Taylor <cutaylor-pub@yahoo.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 050/181] bpf: Fix request_sock leak in sk lookup helpers
 Date:   Mon, 27 Jun 2022 13:20:23 +0200
-Message-Id: <20220627111933.828735444@linuxfoundation.org>
+Message-Id: <20220627111946.017686385@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,150 +57,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Jon Maxwell <jmaxwell37@gmail.com>
 
-commit e3a4167c880cf889f66887a152799df4d609dd21 upstream.
+[ Upstream commit 3046a827316c0e55fc563b4fb78c93b9ca5c7c37 ]
 
-Almost none of the errors stemming from a valid mount option but wrong
-value prints a descriptive message which would help to identify why
-mount failed. Like in the linked report:
+A customer reported a request_socket leak in a Calico cloud environment. We
+found that a BPF program was doing a socket lookup with takes a refcnt on
+the socket and that it was finding the request_socket but returning the parent
+LISTEN socket via sk_to_full_sk() without decrementing the child request socket
+1st, resulting in request_sock slab object leak. This patch retains the
+existing behaviour of returning full socks to the caller but it also decrements
+the child request_socket if one is present before doing so to prevent the leak.
 
-  $ uname -r
-  v4.19
-  $ mount -o compress=zstd /dev/sdb /mnt
-  mount: /mnt: wrong fs type, bad option, bad superblock on
-  /dev/sdb, missing codepage or helper program, or other error.
-  $ dmesg
-  ...
-  BTRFS error (device sdb): open_ctree failed
+Thanks to Curtis Taylor for all the help in diagnosing and testing this. And
+thanks to Antoine Tenart for the reproducer and patch input.
 
-Errors caused by memory allocation failures are left out as it's not a
-user error so reporting that would be confusing.
+v2 of this patch contains, refactor as per Daniel Borkmann's suggestions to
+validate RCU flags on the listen socket so that it balances with bpf_sk_release()
+and update comments as per Martin KaFai Lau's suggestion. One small change to
+Daniels suggestion, put "sk = sk2" under "if (sk2 != sk)" to avoid an extra
+instruction.
 
-Link: https://lore.kernel.org/linux-btrfs/9c3fec36-fc61-3a33-4977-a7e207c3fa4e@gmx.de/
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f7355a6c0497 ("bpf: Check sk_fullsock() before returning from bpf_sk_lookup()")
+Fixes: edbf8c01de5a ("bpf: add skc_lookup_tcp helper")
+Co-developed-by: Antoine Tenart <atenart@kernel.org>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Curtis Taylor <cutaylor-pub@yahoo.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/56d6f898-bde0-bb25-3427-12a330b29fb8@iogearbox.net
+Link: https://lore.kernel.org/bpf/20220615011540.813025-1-jmaxwell37@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/super.c |   39 ++++++++++++++++++++++++++++++++-------
- 1 file changed, 32 insertions(+), 7 deletions(-)
+ net/core/filter.c | 34 ++++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -652,6 +652,8 @@ int btrfs_parse_options(struct btrfs_fs_
- 				compress_force = false;
- 				no_compress++;
- 			} else {
-+				btrfs_err(info, "unrecognized compression value %s",
-+					  args[0].from);
- 				ret = -EINVAL;
- 				goto out;
- 			}
-@@ -710,8 +712,11 @@ int btrfs_parse_options(struct btrfs_fs_
- 		case Opt_thread_pool:
- 			ret = match_int(&args[0], &intarg);
- 			if (ret) {
-+				btrfs_err(info, "unrecognized thread_pool value %s",
-+					  args[0].from);
- 				goto out;
- 			} else if (intarg == 0) {
-+				btrfs_err(info, "invalid value 0 for thread_pool");
- 				ret = -EINVAL;
- 				goto out;
- 			}
-@@ -772,8 +777,11 @@ int btrfs_parse_options(struct btrfs_fs_
- 			break;
- 		case Opt_ratio:
- 			ret = match_int(&args[0], &intarg);
--			if (ret)
-+			if (ret) {
-+				btrfs_err(info, "unrecognized metadata_ratio value %s",
-+					  args[0].from);
- 				goto out;
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 8847316ee20e..af1e77f2f24a 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -6506,10 +6506,21 @@ __bpf_sk_lookup(struct sk_buff *skb, struct bpf_sock_tuple *tuple, u32 len,
+ 					   ifindex, proto, netns_id, flags);
+ 
+ 	if (sk) {
+-		sk = sk_to_full_sk(sk);
+-		if (!sk_fullsock(sk)) {
++		struct sock *sk2 = sk_to_full_sk(sk);
++
++		/* sk_to_full_sk() may return (sk)->rsk_listener, so make sure the original sk
++		 * sock refcnt is decremented to prevent a request_sock leak.
++		 */
++		if (!sk_fullsock(sk2))
++			sk2 = NULL;
++		if (sk2 != sk) {
+ 			sock_gen_put(sk);
+-			return NULL;
++			/* Ensure there is no need to bump sk2 refcnt */
++			if (unlikely(sk2 && !sock_flag(sk2, SOCK_RCU_FREE))) {
++				WARN_ONCE(1, "Found non-RCU, unreferenced socket!");
++				return NULL;
 +			}
- 			info->metadata_ratio = intarg;
- 			btrfs_info(info, "metadata ratio %u",
- 				   info->metadata_ratio);
-@@ -790,6 +798,8 @@ int btrfs_parse_options(struct btrfs_fs_
- 				btrfs_set_and_info(info, DISCARD_ASYNC,
- 						   "turning on async discard");
- 			} else {
-+				btrfs_err(info, "unrecognized discard mode value %s",
-+					  args[0].from);
- 				ret = -EINVAL;
- 				goto out;
- 			}
-@@ -814,6 +824,8 @@ int btrfs_parse_options(struct btrfs_fs_
- 				btrfs_set_and_info(info, FREE_SPACE_TREE,
- 						   "enabling free space tree");
- 			} else {
-+				btrfs_err(info, "unrecognized space_cache value %s",
-+					  args[0].from);
- 				ret = -EINVAL;
- 				goto out;
- 			}
-@@ -889,8 +901,12 @@ int btrfs_parse_options(struct btrfs_fs_
- 			break;
- 		case Opt_check_integrity_print_mask:
- 			ret = match_int(&args[0], &intarg);
--			if (ret)
-+			if (ret) {
-+				btrfs_err(info,
-+				"unrecognized check_integrity_print_mask value %s",
-+					args[0].from);
- 				goto out;
++			sk = sk2;
+ 		}
+ 	}
+ 
+@@ -6543,10 +6554,21 @@ bpf_sk_lookup(struct sk_buff *skb, struct bpf_sock_tuple *tuple, u32 len,
+ 					 flags);
+ 
+ 	if (sk) {
+-		sk = sk_to_full_sk(sk);
+-		if (!sk_fullsock(sk)) {
++		struct sock *sk2 = sk_to_full_sk(sk);
++
++		/* sk_to_full_sk() may return (sk)->rsk_listener, so make sure the original sk
++		 * sock refcnt is decremented to prevent a request_sock leak.
++		 */
++		if (!sk_fullsock(sk2))
++			sk2 = NULL;
++		if (sk2 != sk) {
+ 			sock_gen_put(sk);
+-			return NULL;
++			/* Ensure there is no need to bump sk2 refcnt */
++			if (unlikely(sk2 && !sock_flag(sk2, SOCK_RCU_FREE))) {
++				WARN_ONCE(1, "Found non-RCU, unreferenced socket!");
++				return NULL;
 +			}
- 			info->check_integrity_print_mask = intarg;
- 			btrfs_info(info, "check_integrity_print_mask 0x%x",
- 				   info->check_integrity_print_mask);
-@@ -905,13 +921,15 @@ int btrfs_parse_options(struct btrfs_fs_
- 			goto out;
- #endif
- 		case Opt_fatal_errors:
--			if (strcmp(args[0].from, "panic") == 0)
-+			if (strcmp(args[0].from, "panic") == 0) {
- 				btrfs_set_opt(info->mount_opt,
- 					      PANIC_ON_FATAL_ERROR);
--			else if (strcmp(args[0].from, "bug") == 0)
-+			} else if (strcmp(args[0].from, "bug") == 0) {
- 				btrfs_clear_opt(info->mount_opt,
- 					      PANIC_ON_FATAL_ERROR);
--			else {
-+			} else {
-+				btrfs_err(info, "unrecognized fatal_errors value %s",
-+					  args[0].from);
- 				ret = -EINVAL;
- 				goto out;
- 			}
-@@ -919,8 +937,12 @@ int btrfs_parse_options(struct btrfs_fs_
- 		case Opt_commit_interval:
- 			intarg = 0;
- 			ret = match_int(&args[0], &intarg);
--			if (ret)
-+			if (ret) {
-+				btrfs_err(info, "unrecognized commit_interval value %s",
-+					  args[0].from);
-+				ret = -EINVAL;
- 				goto out;
-+			}
- 			if (intarg == 0) {
- 				btrfs_info(info,
- 					   "using default commit interval %us",
-@@ -934,8 +956,11 @@ int btrfs_parse_options(struct btrfs_fs_
- 			break;
- 		case Opt_rescue:
- 			ret = parse_rescue_options(info, args[0].from);
--			if (ret < 0)
-+			if (ret < 0) {
-+				btrfs_err(info, "unrecognized rescue value %s",
-+					  args[0].from);
- 				goto out;
-+			}
- 			break;
- #ifdef CONFIG_BTRFS_DEBUG
- 		case Opt_fragment_all:
++			sk = sk2;
+ 		}
+ 	}
+ 
+-- 
+2.35.1
+
 
 
