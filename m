@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D975955CA65
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CB8455DDDE
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:28:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238151AbiF0LvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:51:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49948 "EHLO
+        id S234832AbiF0L1c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:27:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238147AbiF0Lu1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:50:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38F4110D9;
-        Mon, 27 Jun 2022 04:43:30 -0700 (PDT)
+        with ESMTP id S235121AbiF0L0p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:26:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 013399FC2;
+        Mon, 27 Jun 2022 04:26:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C95C661192;
-        Mon, 27 Jun 2022 11:43:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC73BC3411D;
-        Mon, 27 Jun 2022 11:43:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D06D61456;
+        Mon, 27 Jun 2022 11:26:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FC82C3411D;
+        Mon, 27 Jun 2022 11:26:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330209;
-        bh=ZeZLL/oJitZEoiyARL1KO7IjtoeRu3fDu/1zE3CmHeM=;
+        s=korg; t=1656329200;
+        bh=aSg6SCDboFrRDptYfGjd8aZCjQ3TtrJ6lY+80tf9SwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xuPb19l4VfXIlcD/X3sL+TUptpZuXyA7mSFHbYJtqfp/gsTO5R5FuUU7SICNKWDdX
-         noc3Eu3/yajfNdmZHWohO7GUpElbPK2vTsTWOYXQf5SCJ6OzhDPoXmmSZoVyC56Aqb
-         jvEipcU6zi9Ju4obME591s2V0mqN4fQQbisDInNc=
+        b=YNy7gBBlNYOPKkQS4BgZHVphX5l59qsGvcGQh5lcF7eV7FtDTBVuau84kx14biN7P
+         Ysh6576Z0uo7j5RU2I8EM4w2E1baeBSyTYyHZ6/mjB7SyBEF5tRPo3Ky2hk7Zp3wH4
+         PnQipCJGrvgDtVyb44bvcOrrJ7gRfdBRdaJPynIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@gmail.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+02b16343704b3af1667e@syzkaller.appspotmail.com
-Subject: [PATCH 5.18 119/181] usb: gadget: Fix non-unique driver names in raw-gadget driver
+        stable@vger.kernel.org,
+        Yannick Brosseau <yannick.brosseau@gmail.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 081/102] iio: adc: stm32: Fix ADCs iteration in irq handler
 Date:   Mon, 27 Jun 2022 13:21:32 +0200
-Message-Id: <20220627111948.146279033@linuxfoundation.org>
+Message-Id: <20220627111935.871020960@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,192 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Yannick Brosseau <yannick.brosseau@gmail.com>
 
-commit f2d8c2606825317b77db1f9ba0fc26ef26160b30 upstream.
+commit d2214cca4d3eadc74eac9e30301ec7cad5355f00 upstream.
 
-In a report for a separate bug (which has already been fixed by commit
-5f0b5f4d50fa "usb: gadget: fix race when gadget driver register via
-ioctl") in the raw-gadget driver, the syzbot console log included
-error messages caused by attempted registration of a new driver with
-the same name as an existing driver:
+The irq handler was only checking the mask for the first ADCs in the case of the
+F4 and H7 generation, since it was iterating up to the num_irq value. This patch add
+the maximum number of ADC in the common register, which map to the number of entries of
+eoc_msk and ovr_msk in stm32_adc_common_regs. This allow the handler to check all ADCs in
+that module.
 
-> kobject_add_internal failed for raw-gadget with -EEXIST, don't try to register things with the same name in the same directory.
-> UDC core: USB Raw Gadget: driver registration failed: -17
-> misc raw-gadget: fail, usb_gadget_register_driver returned -17
+Tested on a STM32F429NIH6.
 
-These errors arise because raw_gadget.c registers a separate UDC
-driver for each of the UDC instances it creates, but these drivers all
-have the same name: "raw-gadget".  Until recently this wasn't a
-problem, but when the "gadget" bus was added and UDC drivers were
-registered on this bus, it became possible for name conflicts to cause
-the registrations to fail.  The reason is simply that the bus code in
-the driver core uses the driver name as a sysfs directory name (e.g.,
-/sys/bus/gadget/drivers/raw-gadget/), and you can't create two
-directories with the same pathname.
-
-To fix this problem, the driver names used by raw-gadget are made
-distinct by appending a unique ID number: "raw-gadget.N", with a
-different value of N for each driver instance.  And to avoid the
-proliferation of error handling code in the raw_ioctl_init() routine,
-the error return paths are refactored into the common pattern (goto
-statements leading to cleanup code at the end of the routine).
-
-Link: https://lore.kernel.org/all/0000000000008c664105dffae2eb@google.com/
-Fixes: fc274c1e9973 "USB: gadget: Add a new bus for gadgets"
-CC: Andrey Konovalov <andreyknvl@gmail.com>
-CC: <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+02b16343704b3af1667e@syzkaller.appspotmail.com
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Acked-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YqdG32w+3h8c1s7z@rowland.harvard.edu
+Fixes: 695e2f5c289b ("iio: adc: stm32-adc: fix a regression when using dma and irq")
+Signed-off-by: Yannick Brosseau <yannick.brosseau@gmail.com>
+Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20220516203939.3498673-2-yannick.brosseau@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/raw_gadget.c |   62 ++++++++++++++++++++++++---------
- 1 file changed, 46 insertions(+), 16 deletions(-)
+ drivers/iio/adc/stm32-adc-core.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/legacy/raw_gadget.c
-+++ b/drivers/usb/gadget/legacy/raw_gadget.c
-@@ -11,6 +11,7 @@
- #include <linux/ctype.h>
- #include <linux/debugfs.h>
- #include <linux/delay.h>
-+#include <linux/idr.h>
- #include <linux/kref.h>
- #include <linux/miscdevice.h>
- #include <linux/module.h>
-@@ -36,6 +37,9 @@ MODULE_LICENSE("GPL");
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -64,6 +64,7 @@ struct stm32_adc_priv;
+  * @max_clk_rate_hz: maximum analog clock rate (Hz, from datasheet)
+  * @has_syscfg: SYSCFG capability flags
+  * @num_irqs:	number of interrupt lines
++ * @num_adcs:   maximum number of ADC instances in the common registers
+  */
+ struct stm32_adc_priv_cfg {
+ 	const struct stm32_adc_common_regs *regs;
+@@ -71,6 +72,7 @@ struct stm32_adc_priv_cfg {
+ 	u32 max_clk_rate_hz;
+ 	unsigned int has_syscfg;
+ 	unsigned int num_irqs;
++	unsigned int num_adcs;
+ };
  
- /*----------------------------------------------------------------------*/
+ /**
+@@ -333,7 +335,7 @@ static void stm32_adc_irq_handler(struct
+ 	 * before invoking the interrupt handler (e.g. call ISR only for
+ 	 * IRQ-enabled ADCs).
+ 	 */
+-	for (i = 0; i < priv->cfg->num_irqs; i++) {
++	for (i = 0; i < priv->cfg->num_adcs; i++) {
+ 		if ((status & priv->cfg->regs->eoc_msk[i] &&
+ 		     stm32_adc_eoc_enabled(priv, i)) ||
+ 		     (status & priv->cfg->regs->ovr_msk[i]))
+@@ -784,6 +786,7 @@ static const struct stm32_adc_priv_cfg s
+ 	.clk_sel = stm32f4_adc_clk_sel,
+ 	.max_clk_rate_hz = 36000000,
+ 	.num_irqs = 1,
++	.num_adcs = 3,
+ };
  
-+static DEFINE_IDA(driver_id_numbers);
-+#define DRIVER_DRIVER_NAME_LENGTH_MAX	32
-+
- #define RAW_EVENT_QUEUE_SIZE	16
+ static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
+@@ -792,6 +795,7 @@ static const struct stm32_adc_priv_cfg s
+ 	.max_clk_rate_hz = 36000000,
+ 	.has_syscfg = HAS_VBOOSTER,
+ 	.num_irqs = 1,
++	.num_adcs = 2,
+ };
  
- struct raw_event_queue {
-@@ -161,6 +165,9 @@ struct raw_dev {
- 	/* Reference to misc device: */
- 	struct device			*dev;
+ static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
+@@ -800,6 +804,7 @@ static const struct stm32_adc_priv_cfg s
+ 	.max_clk_rate_hz = 36000000,
+ 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
+ 	.num_irqs = 2,
++	.num_adcs = 2,
+ };
  
-+	/* Make driver names unique */
-+	int				driver_id_number;
-+
- 	/* Protected by lock: */
- 	enum dev_state			state;
- 	bool				gadget_registered;
-@@ -189,6 +196,7 @@ static struct raw_dev *dev_new(void)
- 	spin_lock_init(&dev->lock);
- 	init_completion(&dev->ep0_done);
- 	raw_event_queue_init(&dev->queue);
-+	dev->driver_id_number = -1;
- 	return dev;
- }
- 
-@@ -199,6 +207,9 @@ static void dev_free(struct kref *kref)
- 
- 	kfree(dev->udc_name);
- 	kfree(dev->driver.udc_name);
-+	kfree(dev->driver.driver.name);
-+	if (dev->driver_id_number >= 0)
-+		ida_free(&driver_id_numbers, dev->driver_id_number);
- 	if (dev->req) {
- 		if (dev->ep0_urb_queued)
- 			usb_ep_dequeue(dev->gadget->ep0, dev->req);
-@@ -422,6 +433,7 @@ static int raw_ioctl_init(struct raw_dev
- 	struct usb_raw_init arg;
- 	char *udc_driver_name;
- 	char *udc_device_name;
-+	char *driver_driver_name;
- 	unsigned long flags;
- 
- 	if (copy_from_user(&arg, (void __user *)value, sizeof(arg)))
-@@ -440,36 +452,44 @@ static int raw_ioctl_init(struct raw_dev
- 		return -EINVAL;
- 	}
- 
-+	ret = ida_alloc(&driver_id_numbers, GFP_KERNEL);
-+	if (ret < 0)
-+		return ret;
-+	dev->driver_id_number = ret;
-+
-+	driver_driver_name = kmalloc(DRIVER_DRIVER_NAME_LENGTH_MAX, GFP_KERNEL);
-+	if (!driver_driver_name) {
-+		ret = -ENOMEM;
-+		goto out_free_driver_id_number;
-+	}
-+	snprintf(driver_driver_name, DRIVER_DRIVER_NAME_LENGTH_MAX,
-+				DRIVER_NAME ".%d", dev->driver_id_number);
-+
- 	udc_driver_name = kmalloc(UDC_NAME_LENGTH_MAX, GFP_KERNEL);
--	if (!udc_driver_name)
--		return -ENOMEM;
-+	if (!udc_driver_name) {
-+		ret = -ENOMEM;
-+		goto out_free_driver_driver_name;
-+	}
- 	ret = strscpy(udc_driver_name, &arg.driver_name[0],
- 				UDC_NAME_LENGTH_MAX);
--	if (ret < 0) {
--		kfree(udc_driver_name);
--		return ret;
--	}
-+	if (ret < 0)
-+		goto out_free_udc_driver_name;
- 	ret = 0;
- 
- 	udc_device_name = kmalloc(UDC_NAME_LENGTH_MAX, GFP_KERNEL);
- 	if (!udc_device_name) {
--		kfree(udc_driver_name);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto out_free_udc_driver_name;
- 	}
- 	ret = strscpy(udc_device_name, &arg.device_name[0],
- 				UDC_NAME_LENGTH_MAX);
--	if (ret < 0) {
--		kfree(udc_driver_name);
--		kfree(udc_device_name);
--		return ret;
--	}
-+	if (ret < 0)
-+		goto out_free_udc_device_name;
- 	ret = 0;
- 
- 	spin_lock_irqsave(&dev->lock, flags);
- 	if (dev->state != STATE_DEV_OPENED) {
- 		dev_dbg(dev->dev, "fail, device is not opened\n");
--		kfree(udc_driver_name);
--		kfree(udc_device_name);
- 		ret = -EINVAL;
- 		goto out_unlock;
- 	}
-@@ -484,14 +504,24 @@ static int raw_ioctl_init(struct raw_dev
- 	dev->driver.suspend = gadget_suspend;
- 	dev->driver.resume = gadget_resume;
- 	dev->driver.reset = gadget_reset;
--	dev->driver.driver.name = DRIVER_NAME;
-+	dev->driver.driver.name = driver_driver_name;
- 	dev->driver.udc_name = udc_device_name;
- 	dev->driver.match_existing_only = 1;
- 
- 	dev->state = STATE_DEV_INITIALIZED;
-+	spin_unlock_irqrestore(&dev->lock, flags);
-+	return ret;
- 
- out_unlock:
- 	spin_unlock_irqrestore(&dev->lock, flags);
-+out_free_udc_device_name:
-+	kfree(udc_device_name);
-+out_free_udc_driver_name:
-+	kfree(udc_driver_name);
-+out_free_driver_driver_name:
-+	kfree(driver_driver_name);
-+out_free_driver_id_number:
-+	ida_free(&driver_id_numbers, dev->driver_id_number);
- 	return ret;
- }
- 
+ static const struct of_device_id stm32_adc_of_match[] = {
 
 
