@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5078155C75D
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88FF055DC18
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238205AbiF0Lua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:50:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49982 "EHLO
+        id S234497AbiF0Le0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:34:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238568AbiF0Lsq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DD93D40;
-        Mon, 27 Jun 2022 04:42:27 -0700 (PDT)
+        with ESMTP id S236107AbiF0LdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17DB2E8;
+        Mon, 27 Jun 2022 04:30:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4CE0B80D32;
-        Mon, 27 Jun 2022 11:42:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25EDAC3411D;
-        Mon, 27 Jun 2022 11:42:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F3736141D;
+        Mon, 27 Jun 2022 11:30:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E169C3411D;
+        Mon, 27 Jun 2022 11:30:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330144;
-        bh=Hv5XT+wihpAxWcKTmxWkBoWJWkQXIxwXbE/EI2bjpSU=;
+        s=korg; t=1656329417;
+        bh=h1N85u9a3APp1yw2woC9p/8mzkK2TLZrhyjIps8M9WU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UsDPX8exEloltrWU77i6086U//5sHLtx+gAkY2kp2g8YuY8P/INFh0qJPEaVjsRMX
-         dQDaxASioMu+wSbdt2qYcFSeLmIMmDnfK8V2zQXi3B1FrUUJDRA7O8o3t4LU6UjASO
-         3Ia0QjUD98GOxg28p4lw0y7r9/xyNzVVC9vBgHOw=
+        b=jnPJ56+lRcbQMruB9fIppf44L3pUT9XKE2xITQRDtAyB6lmZUTXGB5gbIoHKzInpK
+         +3BEsPryJR3Pe8l+SHJlboiALY94r8QE6IFOJ63vP4uKg+WMDCkjnakJPth9COqYSg
+         vFBJuSVNqXP7pFEGiFv4HBImae3DofY8dlULgPZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 100/181] gpio: winbond: Fix error code in winbond_gpio_get()
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 02/60] random: schedule mix_interrupt_randomness() less often
 Date:   Mon, 27 Jun 2022 13:21:13 +0200
-Message-Id: <20220627111947.597758438@linuxfoundation.org>
+Message-Id: <20220627111927.719224755@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 9ca766eaea2e87b8b773bff04ee56c055cb76d4e ]
+commit 534d2eaf1970274150596fdd2bf552721e65d6b2 upstream.
 
-This error path returns 1, but it should instead propagate the negative
-error code from winbond_sio_enter().
+It used to be that mix_interrupt_randomness() would credit 1 bit each
+time it ran, and so add_interrupt_randomness() would schedule mix() to
+run every 64 interrupts, a fairly arbitrary number, but nonetheless
+considered to be a decent enough conservative estimate.
 
-Fixes: a0d65009411c ("gpio: winbond: Add driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since e3e33fc2ea7f ("random: do not use input pool from hard IRQs"),
+mix() is now able to credit multiple bits, depending on the number of
+calls to add(). This was done for reasons separate from this commit, but
+it has the nice side effect of enabling this patch to schedule mix()
+less often.
+
+Currently the rules are:
+a) Credit 1 bit for every 64 calls to add().
+b) Schedule mix() once a second that add() is called.
+c) Schedule mix() once every 64 calls to add().
+
+Rules (a) and (c) no longer need to be coupled. It's still important to
+have _some_ value in (c), so that we don't "over-saturate" the fast
+pool, but the once per second we get from rule (b) is a plenty enough
+baseline. So, by increasing the 64 in rule (c) to something larger, we
+avoid calling queue_work_on() as frequently during irq storms.
+
+This commit changes that 64 in rule (c) to be 1024, which means we
+schedule mix() 16 times less often. And it does *not* need to change the
+64 in rule (a).
+
+Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
+Cc: stable@vger.kernel.org
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-winbond.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-winbond.c b/drivers/gpio/gpio-winbond.c
-index 7f8f5b02e31d..4b61d975cc0e 100644
---- a/drivers/gpio/gpio-winbond.c
-+++ b/drivers/gpio/gpio-winbond.c
-@@ -385,12 +385,13 @@ static int winbond_gpio_get(struct gpio_chip *gc, unsigned int offset)
- 	unsigned long *base = gpiochip_get_data(gc);
- 	const struct winbond_gpio_info *info;
- 	bool val;
-+	int ret;
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -996,7 +996,7 @@ void add_interrupt_randomness(int irq)
+ 	if (new_count & MIX_INFLIGHT)
+ 		return;
  
- 	winbond_gpio_get_info(&offset, &info);
+-	if (new_count < 64 && !time_is_before_jiffies(fast_pool->last + HZ))
++	if (new_count < 1024 && !time_is_before_jiffies(fast_pool->last + HZ))
+ 		return;
  
--	val = winbond_sio_enter(*base);
--	if (val)
--		return val;
-+	ret = winbond_sio_enter(*base);
-+	if (ret)
-+		return ret;
- 
- 	winbond_sio_select_logical(*base, info->dev);
- 
--- 
-2.35.1
-
+ 	if (unlikely(!fast_pool->mix.func))
 
 
