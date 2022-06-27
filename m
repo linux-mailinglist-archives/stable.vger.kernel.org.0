@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E66D255DE6A
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12C7D55DBF3
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238988AbiF0Lyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:54:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52176 "EHLO
+        id S238445AbiF0Lxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:53:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238940AbiF0Lwv (ORCPT
+        with ESMTP id S238946AbiF0Lwv (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54673DF30;
-        Mon, 27 Jun 2022 04:46:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50D2DDF64;
+        Mon, 27 Jun 2022 04:46:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E640F610A0;
-        Mon, 27 Jun 2022 11:46:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3D6AC3411D;
-        Mon, 27 Jun 2022 11:46:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4CBC61192;
+        Mon, 27 Jun 2022 11:46:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E267BC3411D;
+        Mon, 27 Jun 2022 11:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330396;
-        bh=A5UBWaCrl/qkluSIKGtZTc8F6JYpzds5b08cBXNIoF0=;
+        s=korg; t=1656330399;
+        bh=XmVCpr/zKDWe90GV3W/5jn0rsMtY3ZHvfNsSb643UE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n9265Ds5tuXwEH+TIO7/cBTC/5oR0c4mIIcejfdy+WEXC2ggfmMk39pqBkqKsUAKV
-         +S2TF6x/UdmNZpnem4uqlw1vSs7tw6h1xDPtu4/sUQ4CNxgBPP9mfXrDfeNRliq1Pa
-         TQaJN4rOCm+np5m9JpIO533rX5SdRvaQ9D62C5kk=
+        b=NH+/09EsACx1D4t2BDBDAgsI97xBWDSORUA8qfvdjp/4j7yzq9v6Gy+k6to/ESsLy
+         Js503+LRa0Sxmm96NgIrj4EmMxGLTuy/W1gklculFxUKK4qgm/B6YxiIfm3qPNtLV9
+         comcTdJr2SebNa4jWEoqOGTSGT2FSE9Wwhz6Ygj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Tom Zanussi <tzanussi@gmail.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.18 177/181] perf build-id: Fix caching files with a wrong build ID
-Date:   Mon, 27 Jun 2022 13:22:30 +0200
-Message-Id: <20220627111949.815516804@linuxfoundation.org>
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.18 178/181] smb3: use netname when available on secondary channels
+Date:   Mon, 27 Jun 2022 13:22:31 +0200
+Message-Id: <20220627111949.843791924@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -56,103 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-commit ab66fdace8581ef3b4e7cf5381a168ed4058d779 upstream.
+commit 9de74996a739bf0b7b5d8c260bd207ad6007442b upstream.
 
-Build ID events associate a file name with a build ID.  However, when
-using perf inject, there is no guarantee that the file on the current
-machine at the current time has that build ID. Fix by comparing the
-build IDs and skip adding to the cache if they are different.
+Some servers do not allow null netname contexts, which would cause
+multichannel to revert to single channel when mounting to some
+servers (e.g. Azure xSMB). The previous patch fixed that by avoiding
+incorrectly sending the netname context when there would be a null
+hostname sent in the netname context, while this patch fixes the null
+hostname for the secondary channel by using the hostname of the
+primary channel for the secondary channel.
 
-Example:
-
-  $ echo "int main() {return 0;}" > prog.c
-  $ gcc -o prog prog.c
-  $ perf record --buildid-all ./prog
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.019 MB perf.data ]
-  $ file-buildid() { file $1 | awk -F= '{print $2}' | awk -F, '{print $1}' ; }
-  $ file-buildid prog
-  444ad9be165d8058a48ce2ffb4e9f55854a3293e
-  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
-  444ad9be165d8058a48ce2ffb4e9f55854a3293e
-  $ echo "int main() {return 1;}" > prog.c
-  $ gcc -o prog prog.c
-  $ file-buildid prog
-  885524d5aaa24008a3e2b06caa3ea95d013c0fc5
-
-Before:
-
-  $ perf buildid-cache --purge $(pwd)/prog
-  $ perf inject -i perf.data -o junk
-  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
-  885524d5aaa24008a3e2b06caa3ea95d013c0fc5
-  $
-
-After:
-
-  $ perf buildid-cache --purge $(pwd)/prog
-  $ perf inject -i perf.data -o junk
-  $ file-buildid ~/.debug/$(pwd)/prog/444ad9be165d8058a48ce2ffb4e9f55854a3293e/elf
-
-  $
-
-Fixes: 454c407ec17a0c63 ("perf: add perf-inject builtin")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Tom Zanussi <tzanussi@gmail.com>
-Link: https://lore.kernel.org/r/20220621125144.5623-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 4c14d7043fede ("cifs: populate empty hostnames for extra channels")
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/build-id.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ fs/cifs/smb2pdu.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/tools/perf/util/build-id.c
-+++ b/tools/perf/util/build-id.c
-@@ -872,6 +872,30 @@ out_free:
- 	return err;
- }
- 
-+static int filename__read_build_id_ns(const char *filename,
-+				      struct build_id *bid,
-+				      struct nsinfo *nsi)
-+{
-+	struct nscookie nsc;
-+	int ret;
-+
-+	nsinfo__mountns_enter(nsi, &nsc);
-+	ret = filename__read_build_id(filename, bid);
-+	nsinfo__mountns_exit(&nsc);
-+
-+	return ret;
-+}
-+
-+static bool dso__build_id_mismatch(struct dso *dso, const char *name)
-+{
-+	struct build_id bid;
-+
-+	if (filename__read_build_id_ns(name, &bid, dso->nsinfo) < 0)
-+		return false;
-+
-+	return !dso__build_id_equal(dso, &bid);
-+}
-+
- static int dso__cache_build_id(struct dso *dso, struct machine *machine,
- 			       void *priv __maybe_unused)
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index 5e8c4737b183..12b4dddaedb0 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -543,6 +543,7 @@ assemble_neg_contexts(struct smb2_negotiate_req *req,
+ 		      struct TCP_Server_Info *server, unsigned int *total_len)
  {
-@@ -886,6 +910,10 @@ static int dso__cache_build_id(struct ds
- 		is_kallsyms = true;
- 		name = machine->mmap_name;
- 	}
-+
-+	if (!is_kallsyms && dso__build_id_mismatch(dso, name))
-+		return 0;
-+
- 	return build_id_cache__add_b(&dso->bid, name, dso->nsinfo,
- 				     is_kallsyms, is_vdso);
- }
+ 	char *pneg_ctxt;
++	char *hostname = NULL;
+ 	unsigned int ctxt_len, neg_context_count;
+ 
+ 	if (*total_len > 200) {
+@@ -574,9 +575,15 @@ assemble_neg_contexts(struct smb2_negotiate_req *req,
+ 	*total_len += sizeof(struct smb2_posix_neg_context);
+ 	pneg_ctxt += sizeof(struct smb2_posix_neg_context);
+ 
+-	if (server->hostname && (server->hostname[0] != 0)) {
++	/*
++	 * secondary channels don't have the hostname field populated
++	 * use the hostname field in the primary channel instead
++	 */
++	hostname = CIFS_SERVER_IS_CHAN(server) ?
++		server->primary_server->hostname : server->hostname;
++	if (hostname && (hostname[0] != 0)) {
+ 		ctxt_len = build_netname_ctxt((struct smb2_netname_neg_context *)pneg_ctxt,
+-					server->hostname);
++					      hostname);
+ 		*total_len += ctxt_len;
+ 		pneg_ctxt += ctxt_len;
+ 		neg_context_count = 4;
+-- 
+2.36.1
+
 
 
