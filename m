@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9F6755C6C7
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:53:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADD6755D65F
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:16:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238143AbiF0LvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:51:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49944 "EHLO
+        id S235401AbiF0LbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:31:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238044AbiF0Ltu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:49:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5546E71;
-        Mon, 27 Jun 2022 04:43:27 -0700 (PDT)
+        with ESMTP id S235402AbiF0LbB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:31:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C936C35;
+        Mon, 27 Jun 2022 04:28:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D76FB61268;
-        Mon, 27 Jun 2022 11:43:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4002C341C7;
-        Mon, 27 Jun 2022 11:43:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C51B16149A;
+        Mon, 27 Jun 2022 11:28:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB7ACC3411D;
+        Mon, 27 Jun 2022 11:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330206;
-        bh=iloeB/dZ6LP3VpD/hj6iCJ5H6/wOfIuWN46VZKW9bYI=;
+        s=korg; t=1656329322;
+        bh=hWor5TbAdbXUvesvXIX1mOkRXrLBzYeK9PD0uprgNdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mw36LNMgd22PpNhjC0VpUaDE9Y7HPqEhcbZ6f5hN9pMEIMFFK0c8BR/zwnC8iNKNe
-         XxV5j6kCbeLpM6e/k8SowsB2/xXuJe4V+sRntPOrk2tg6dD5BpiypX0fUk1+aHVjBx
-         lxfAWlQj+BeK4oJZAlB56hxzdxpnnmpaQABj2zM4=
+        b=Oeifk1IuurWjqKY4W40Iak+j9IjNLQcGgK8KRpWCfmmrEH+phz6cNAeG8R/pX0IZq
+         YehFES4Ib/goUmwAHei6vf6lIB1yKXe49BZOgjOhwWHmRg5dQn0RF5muSKzuyixU+N
+         zwZqXxYG7zdI0v7SkNZNgvEgW5GgGd1obSKHmf1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Dan Vacura <w36195@motorola.com>
-Subject: [PATCH 5.18 118/181] usb: gadget: uvc: fix list double add in uvcg_video_pump
-Date:   Mon, 27 Jun 2022 13:21:31 +0200
-Message-Id: <20220627111948.117853093@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 21/60] drm/msm/mdp4: Fix refcount leak in mdp4_modeset_init_intf
+Date:   Mon, 27 Jun 2022 13:21:32 +0200
+Message-Id: <20220627111928.287391461@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Vacura <w36195@motorola.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 96163f835e65f8c9897487fac965819f0651d671 upstream.
+[ Upstream commit b9cc4598607cb7f7eae5c75fc1e3209cd52ff5e0 ]
 
-A panic can occur if the endpoint becomes disabled and the
-uvcg_video_pump adds the request back to the req_free list after it has
-already been queued to the endpoint. The endpoint complete will add the
-request back to the req_free list. Invalidate the local request handle
-once it's been queued.
+of_graph_get_remote_node() returns remote device node pointer with
+refcount incremented, we should use of_node_put() on it
+when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-<6>[  246.796704][T13726] configfs-gadget gadget: uvc: uvc_function_set_alt(1, 0)
-<3>[  246.797078][   T26] list_add double add: new=ffffff878bee5c40, prev=ffffff878bee5c40, next=ffffff878b0f0a90.
-<6>[  246.797213][   T26] ------------[ cut here ]------------
-<2>[  246.797224][   T26] kernel BUG at lib/list_debug.c:31!
-<6>[  246.807073][   T26] Call trace:
-<6>[  246.807180][   T26]  uvcg_video_pump+0x364/0x38c
-<6>[  246.807366][   T26]  process_one_work+0x2a4/0x544
-<6>[  246.807394][   T26]  worker_thread+0x350/0x784
-<6>[  246.807442][   T26]  kthread+0x2ac/0x320
-
-Fixes: f9897ec0f6d3 ("usb: gadget: uvc: only pump video data if necessary")
-Cc: stable@vger.kernel.org
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Dan Vacura <w36195@motorola.com>
-Link: https://lore.kernel.org/r/20220617163154.16621-1-w36195@motorola.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 86418f90a4c1 ("drm: convert drivers to use of_graph_get_remote_node")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/488473/
+Link: https://lore.kernel.org/r/20220607110841.53889-1-linmq006@gmail.com
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/uvc_video.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -415,6 +415,9 @@ static void uvcg_video_pump(struct work_
- 			uvcg_queue_cancel(queue, 0);
- 			break;
+diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+index 4f0c6d58e06f..f0a5767b69f5 100644
+--- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+@@ -245,6 +245,7 @@ static int mdp4_modeset_init_intf(struct mdp4_kms *mdp4_kms,
+ 		encoder = mdp4_lcdc_encoder_init(dev, panel_node);
+ 		if (IS_ERR(encoder)) {
+ 			DRM_DEV_ERROR(dev->dev, "failed to construct LCDC encoder\n");
++			of_node_put(panel_node);
+ 			return PTR_ERR(encoder);
  		}
-+
-+		/* Endpoint now owns the request */
-+		req = NULL;
- 		video->req_int_count++;
- 	}
  
+@@ -254,6 +255,7 @@ static int mdp4_modeset_init_intf(struct mdp4_kms *mdp4_kms,
+ 		connector = mdp4_lvds_connector_init(dev, panel_node, encoder);
+ 		if (IS_ERR(connector)) {
+ 			DRM_DEV_ERROR(dev->dev, "failed to initialize LVDS connector\n");
++			of_node_put(panel_node);
+ 			return PTR_ERR(connector);
+ 		}
+ 
+-- 
+2.35.1
+
 
 
