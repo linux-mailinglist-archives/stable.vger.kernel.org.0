@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E21B55C23C
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:46:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3043955D5E8
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236602AbiF0Lis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:38:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58504 "EHLO
+        id S238435AbiF0LvL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:51:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236693AbiF0Lhx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:53 -0400
+        with ESMTP id S237698AbiF0Ls7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58FFAB84E;
-        Mon, 27 Jun 2022 04:34:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4EED56;
+        Mon, 27 Jun 2022 04:42:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB61C608D4;
-        Mon, 27 Jun 2022 11:34:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAD86C3411D;
-        Mon, 27 Jun 2022 11:34:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D8BC6125A;
+        Mon, 27 Jun 2022 11:42:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A97A4C3411D;
+        Mon, 27 Jun 2022 11:42:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329678;
-        bh=9QGJbyTlVUNAzfSE1doz10YkoD1SL9YbeGU0BFssGrA=;
+        s=korg; t=1656330177;
+        bh=HntDoXniYj/5of/4GddtV0AzCXgaQh2XJZbRGx/gDMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6pMd7keBxs/THnURovsm795Iactp2Tc1jnwVZk4X2mwJAq/s/6p5EvjE7E4ZlFFM
-         GjM5HWj2fHr6BNGYIVt87U6nFQr33dgy1fIpvdALSU7PFDcsrOd+GPDV1tN0BDjRA9
-         6MU/jeUOb/GcvI8SJfq1V8dEspTaf/YlMZVWzT/w=
+        b=FwW663oRxhk0weJBrAFasQ7clz4ab62S5WKThL3dujN4HZrUJxcf3gFfHOFDG+vn2
+         K8dNm+TasM8wdVPsYQqqulkm6BlH3abEKLbLVdG4PKCOCAZllx4wAstMxKllVsWqRk
+         p4/mYF+Jy2KAuF5yF3yfi+vGujCOqRZ3dKFYe10c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Enzo Matsumiya <ematsumiya@suse.de>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 076/135] nvme-pci: add NO APST quirk for Kioxia device
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 110/181] usb: typec: wcove: Drop wrong dependency to INTEL_SOC_PMIC
 Date:   Mon, 27 Jun 2022 13:21:23 +0200
-Message-Id: <20220627111940.367162166@linuxfoundation.org>
+Message-Id: <20220627111947.889105732@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enzo Matsumiya <ematsumiya@suse.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 5a6254d55e2a9f7919ead8580d7aa0c7a382b26a ]
+[ Upstream commit 9ef165406308515dcf2e3f6e97b39a1c56d86db5 ]
 
-This particular Kioxia device times out and aborts I/O during any load,
-but it's more easily observable with discards (fstrim).
+Intel SoC PMIC is a generic name for all PMICs that are used
+on Intel platforms. In particular, INTEL_SOC_PMIC kernel configuration
+option refers to Crystal Cove PMIC, which has never been a part
+of any Intel Broxton hardware. Drop wrong dependency from Kconfig.
 
-The device gets to a state that is also not possible to use
-"nvme set-feature" to disable APST.
-Booting with nvme_core.default_ps_max_latency=0 solves the issue.
+Note, the correct dependency is satisfied via ACPI PMIC OpRegion driver,
+which the Type-C depends on.
 
-We had a dozen or so of these devices behaving this same way in
-customer environments.
-
-Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: d2061f9cc32d ("usb: typec: add driver for Intel Whiskey Cove PMIC USB Type-C PHY")
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220620104316.57592-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/usb/typec/tcpm/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 9bc9f6d225bd..3ef1f9112ee0 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -2475,6 +2475,20 @@ static const struct nvme_core_quirk_entry core_quirks[] = {
- 		.vid = 0x14a4,
- 		.fr = "22301111",
- 		.quirks = NVME_QUIRK_SIMPLE_SUSPEND,
-+	},
-+	{
-+		/*
-+		 * This Kioxia CD6-V Series / HPE PE8030 device times out and
-+		 * aborts I/O during any load, but more easily reproducible
-+		 * with discards (fstrim).
-+		 *
-+		 * The device is left in a state where it is also not possible
-+		 * to use "nvme set-feature" to disable APST, but booting with
-+		 * nvme_core.default_ps_max_latency=0 works.
-+		 */
-+		.vid = 0x1e0f,
-+		.mn = "KCD6XVUL6T40",
-+		.quirks = NVME_QUIRK_NO_APST,
- 	}
- };
- 
+diff --git a/drivers/usb/typec/tcpm/Kconfig b/drivers/usb/typec/tcpm/Kconfig
+index 557f392fe24d..073fd2ea5e0b 100644
+--- a/drivers/usb/typec/tcpm/Kconfig
++++ b/drivers/usb/typec/tcpm/Kconfig
+@@ -56,7 +56,6 @@ config TYPEC_WCOVE
+ 	tristate "Intel WhiskeyCove PMIC USB Type-C PHY driver"
+ 	depends on ACPI
+ 	depends on MFD_INTEL_PMC_BXT
+-	depends on INTEL_SOC_PMIC
+ 	depends on BXT_WC_PMIC_OPREGION
+ 	help
+ 	  This driver adds support for USB Type-C on Intel Broxton platforms
 -- 
 2.35.1
 
