@@ -2,134 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0FCE55C363
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:48:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6091E55C125
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:44:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238932AbiF0LyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:54:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55868 "EHLO
+        id S237428AbiF0Lnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238973AbiF0Lwz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D2B9DF77;
-        Mon, 27 Jun 2022 04:46:49 -0700 (PDT)
+        with ESMTP id S237449AbiF0Lmw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72921B3D;
+        Mon, 27 Jun 2022 04:38:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 359766130A;
-        Mon, 27 Jun 2022 11:46:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D465C3411D;
-        Mon, 27 Jun 2022 11:46:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330408;
-        bh=Be+DyQ926OIAEU/MJvu9N0bh+BAig/+8qehWjTeo39w=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCSgGpZvvYDJ0m/aU1nw2VhgY+eTG9qwAnIZmI2A0ZRSZwVh23hf6DfDR1FCcTqY4
-         ySOXlFQC6JaPuueCsoW8w5HFB1rEq4F2BjFIzH9rWREI5us7LIjUq99RW3AYy/ohZt
-         cY7XoTv+yY/XyHqiqgk6V2VgkZBh8LoTsBephcio=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.18 181/181] powerpc/pseries: wire up rng during setup_arch()
-Date:   Mon, 27 Jun 2022 13:22:34 +0200
-Message-Id: <20220627111949.929558427@linuxfoundation.org>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
-User-Agent: quilt/0.66
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22D0FB81126;
+        Mon, 27 Jun 2022 11:38:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D28C8C3411D;
+        Mon, 27 Jun 2022 11:38:08 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="U0NsycCg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1656329886;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mmtDk5vsnneok1FhZ42DmbNlIYBF/ihqmYi8OhtCQUY=;
+        b=U0NsycCgDgx26b01Ari7PRQQoXt8/B+eTA+YCnKjtdJUToEpj1zNY2Mzkeyp/T+kLjQaf+
+        gQI/MrDZLWJZXXbPLBjqAfAgq9SKxMf13Cy2CXo4oPDsduPse0pvc/IuSfEtdyjIgZtSF4
+        ceMnMCMoRPs0fWcBb5B2xnyxxUr0vIs=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 2ea245f1 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Mon, 27 Jun 2022 11:38:06 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Gregory Erwin <gregerwin256@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org
+Subject: [PATCH v5] ath9k: sleep for less time when unregistering hwrng
+Date:   Mon, 27 Jun 2022 13:37:49 +0200
+Message-Id: <20220627113749.564132-1-Jason@zx2c4.com>
+In-Reply-To: <20220627104955.534013-1-Jason@zx2c4.com>
+References: <20220627104955.534013-1-Jason@zx2c4.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+Even though hwrng provides a `wait` parameter, it doesn't work very well
+when waiting for a long time. There are numerous deadlocks that emerge
+related to shutdown. Work around this API limitation by waiting for a
+shorter amount of time and erroring more frequently. This commit also
+prevents hwrng from splatting messages to dmesg when there's a timeout
+and switches to using schedule_timeout_interruptible(), so that the
+kthread can be stopped.
 
-commit e561e472a3d441753bd012333b057f48fef1045b upstream.
-
-The platform's RNG must be available before random_init() in order to be
-useful for initial seeding, which in turn means that it needs to be
-called from setup_arch(), rather than from an init call. Fortunately,
-each platform already has a setup_arch function pointer, which means
-it's easy to wire this up. This commit also removes some noisy log
-messages that don't add much.
-
-Fixes: a489043f4626 ("powerpc/pseries: Implement arch_get_random_long() based on H_RANDOM")
-Cc: stable@vger.kernel.org # v3.13+
+Reported-by: Gregory Erwin <gregerwin256@gmail.com>
+Tested-by: Gregory Erwin <gregerwin256@gmail.com>
+Cc: Toke Høiland-Jørgensen <toke@redhat.com>
+Cc: Kalle Valo <kvalo@kernel.org>
+Cc: Rui Salvaterra <rsalvaterra@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: stable@vger.kernel.org
+Fixes: fcd09c90c3c5 ("ath9k: use hw_random API instead of directly dumping into random.c")
+Link: https://lore.kernel.org/all/CAO+Okf6ZJC5-nTE_EJUGQtd8JiCkiEHytGgDsFGTEjs0c00giw@mail.gmail.com/
+Link: https://lore.kernel.org/lkml/CAO+Okf5k+C+SE6pMVfPf-d8MfVPVq4PO7EY8Hys_DVXtent3HA@mail.gmail.com/
+Link: https://bugs.archlinux.org/task/75138
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220611151015.548325-4-Jason@zx2c4.com
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/pseries/pseries.h |    2 ++
- arch/powerpc/platforms/pseries/rng.c     |   11 +++--------
- arch/powerpc/platforms/pseries/setup.c   |    2 ++
- 3 files changed, 7 insertions(+), 8 deletions(-)
+Sorry for all the churn here in sending a v4 and v5 so soon. The
+semantics of schedule_timeout_interruptible vs msleep_interruptible with
+respect to kthreads is kind of confusing. I'll send a follow up patch
+for that elsewhere. For now I think this should suffice for fixing the
+bug.
 
---- a/arch/powerpc/platforms/pseries/pseries.h
-+++ b/arch/powerpc/platforms/pseries/pseries.h
-@@ -121,4 +121,6 @@ void pseries_lpar_read_hblkrm_characteri
- static inline void pseries_lpar_read_hblkrm_characteristics(void) { }
- #endif
+ drivers/char/hw_random/core.c        |  3 +--
+ drivers/net/wireless/ath/ath9k/rng.c | 20 +++-----------------
+ 2 files changed, 4 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+index 16f227b995e8..5309fab98631 100644
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -513,8 +513,7 @@ static int hwrng_fillfn(void *unused)
+ 			break;
  
-+void pseries_rng_init(void);
-+
- #endif /* _PSERIES_PSERIES_H */
---- a/arch/powerpc/platforms/pseries/rng.c
-+++ b/arch/powerpc/platforms/pseries/rng.c
-@@ -10,6 +10,7 @@
- #include <asm/archrandom.h>
- #include <asm/machdep.h>
- #include <asm/plpar_wrappers.h>
-+#include "pseries.h"
+ 		if (rc <= 0) {
+-			pr_warn("hwrng: no data available\n");
+-			msleep_interruptible(10000);
++			schedule_timeout_interruptible(HZ * 10);
+ 			continue;
+ 		}
  
- 
- static int pseries_get_random_long(unsigned long *v)
-@@ -24,19 +25,13 @@ static int pseries_get_random_long(unsig
- 	return 0;
+diff --git a/drivers/net/wireless/ath/ath9k/rng.c b/drivers/net/wireless/ath/ath9k/rng.c
+index cb5414265a9b..757603d1949d 100644
+--- a/drivers/net/wireless/ath/ath9k/rng.c
++++ b/drivers/net/wireless/ath/ath9k/rng.c
+@@ -52,20 +52,6 @@ static int ath9k_rng_data_read(struct ath_softc *sc, u32 *buf, u32 buf_size)
+ 	return j << 2;
  }
  
--static __init int rng_init(void)
-+void __init pseries_rng_init(void)
+-static u32 ath9k_rng_delay_get(u32 fail_stats)
+-{
+-	u32 delay;
+-
+-	if (fail_stats < 100)
+-		delay = 10;
+-	else if (fail_stats < 105)
+-		delay = 1000;
+-	else
+-		delay = 10000;
+-
+-	return delay;
+-}
+-
+ static int ath9k_rng_read(struct hwrng *rng, void *buf, size_t max, bool wait)
  {
- 	struct device_node *dn;
- 
- 	dn = of_find_compatible_node(NULL, NULL, "ibm,random");
- 	if (!dn)
--		return -ENODEV;
+ 	struct ath_softc *sc = container_of(rng, struct ath_softc, rng_ops);
+@@ -80,10 +66,10 @@ static int ath9k_rng_read(struct hwrng *rng, void *buf, size_t max, bool wait)
+ 			bytes_read += max & 3UL;
+ 			memzero_explicit(&word, sizeof(word));
+ 		}
+-		if (!wait || !max || likely(bytes_read) || fail_stats > 110)
++		if (!wait || !max || likely(bytes_read) || ++fail_stats >= 100 ||
++		    ((current->flags & PF_KTHREAD) && kthread_should_stop()) ||
++		    schedule_timeout_interruptible(HZ / 20))
+ 			break;
 -
--	pr_info("Registering arch random hook.\n");
--
-+		return;
- 	ppc_md.get_random_seed = pseries_get_random_long;
--
- 	of_node_put(dn);
--	return 0;
- }
--machine_subsys_initcall(pseries, rng_init);
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -852,6 +852,8 @@ static void __init pSeries_setup_arch(vo
+-		msleep_interruptible(ath9k_rng_delay_get(++fail_stats));
+ 	}
  
- 	if (swiotlb_force == SWIOTLB_FORCE)
- 		ppc_swiotlb_enable = 1;
-+
-+	pseries_rng_init();
- }
- 
- static void pseries_panic(char *str)
-
+ 	if (wait && !bytes_read && max)
+-- 
+2.35.1
 
