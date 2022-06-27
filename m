@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5152055C149
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:44:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7BA255CE89
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:05:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238132AbiF0LvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:51:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52346 "EHLO
+        id S234996AbiF0L1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:27:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237842AbiF0LtG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:49:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF31110;
-        Mon, 27 Jun 2022 04:43:05 -0700 (PDT)
+        with ESMTP id S235088AbiF0L0g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:26:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1186B657B;
+        Mon, 27 Jun 2022 04:26:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40470B80D32;
-        Mon, 27 Jun 2022 11:43:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E44AC3411D;
-        Mon, 27 Jun 2022 11:43:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A697F614A4;
+        Mon, 27 Jun 2022 11:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B79D0C3411D;
+        Mon, 27 Jun 2022 11:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330183;
-        bh=LDenjd8Nk0GmaJZzCl4hdr17yhxUF2IjJCcgnjWzQlw=;
+        s=korg; t=1656329178;
+        bh=+3NWgB8HIlGFeNlKiovmSOs5fC1vXOQkzR7b4yd8WeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B3Q/FHOsGWiHqfAwWe0eFDhcBnnFjcan6rhg6wZHXgu78JzrNEQQ3D2ODUJw1ibUa
-         RhFFIJbOAYOqd+v9/8FxBwbjis3+Pv9WERD/wScwTIA/p3fYFkurIqRQuuJIEljywS
-         B9WaUdgdnr1DBUz2zfwcW7sHVMLEJ5aLYN7/d2n0=
+        b=dysWHhTYM/HvRaKGGs6oIxJC0U90eKSv2ARBOQLMLLF9jGVBUXKnJdPhL+08uqvog
+         /WPk94KllM+R+sH9lx7s7nNvaaflJbkX54N7e8rqkZm8boUjV2GwgzRDgvdBkCA3yL
+         Fx6l2GjV+rt9c1EMfpA/wuTgbqR+w3xwYZFbaujk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Baoquan He <bhe@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 112/181] vmcore: convert copy_oldmem_page() to take an iov_iter
-Date:   Mon, 27 Jun 2022 13:21:25 +0200
-Message-Id: <20220627111947.945731832@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Rokosov <ddrokosov@sberdevices.ru>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 075/102] iio:accel:mxc4005: rearrange iio trigger get and register
+Date:   Mon, 27 Jun 2022 13:21:26 +0200
+Message-Id: <20220627111935.694114966@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,693 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
 
-[ Upstream commit 5d8de293c224896a4da99763fce4f9794308caf4 ]
+commit 9354c224c9b4f55847a0de3e968cba2ebf15af3b upstream.
 
-Patch series "Convert vmcore to use an iov_iter", v5.
+IIO trigger interface function iio_trigger_get() should be called after
+iio_trigger_register() (or its devm analogue) strictly, because of
+iio_trigger_get() acquires module refcnt based on the trigger->owner
+pointer, which is initialized inside iio_trigger_register() to
+THIS_MODULE.
+If this call order is wrong, the next iio_trigger_put() (from sysfs
+callback or "delete module" path) will dereference "default" module
+refcnt, which is incorrect behaviour.
 
-For some reason several people have been sending bad patches to fix
-compiler warnings in vmcore recently.  Here's how it should be done.
-Compile-tested only on x86.  As noted in the first patch, s390 should take
-this conversion a bit further, but I'm not inclined to do that work
-myself.
-
-This patch (of 3):
-
-Instead of passing in a 'buf' and 'userbuf' argument, pass in an iov_iter.
-s390 needs more work to pass the iov_iter down further, or refactor, but
-I'd be more comfortable if someone who can test on s390 did that work.
-
-It's more convenient to convert the whole of read_from_oldmem() to take an
-iov_iter at the same time, so rename it to read_from_oldmem_iter() and add
-a temporary read_from_oldmem() wrapper that creates an iov_iter.
-
-Link: https://lkml.kernel.org/r/20220408090636.560886-1-bhe@redhat.com
-Link: https://lkml.kernel.org/r/20220408090636.560886-2-bhe@redhat.com
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 47196620c82f ("iio: mxc4005: add data ready trigger for mxc4005")
+Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220524181150.9240-4-ddrokosov@sberdevices.ru
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/crash_dump.c     | 27 +++-------------
- arch/arm64/kernel/crash_dump.c   | 29 +++--------------
- arch/ia64/kernel/crash_dump.c    | 32 +++----------------
- arch/mips/kernel/crash_dump.c    | 27 +++-------------
- arch/powerpc/kernel/crash_dump.c | 35 +++------------------
- arch/riscv/kernel/crash_dump.c   | 26 +++------------
- arch/s390/kernel/crash_dump.c    | 13 +++++---
- arch/sh/kernel/crash_dump.c      | 29 +++--------------
- arch/x86/kernel/crash_dump_32.c  | 29 +++--------------
- arch/x86/kernel/crash_dump_64.c  | 41 +++++++-----------------
- fs/proc/vmcore.c                 | 54 ++++++++++++++++++++------------
- include/linux/crash_dump.h       |  9 +++---
- 12 files changed, 91 insertions(+), 260 deletions(-)
+ drivers/iio/accel/mxc4005.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/kernel/crash_dump.c b/arch/arm/kernel/crash_dump.c
-index 53cb92435392..938bd932df9a 100644
---- a/arch/arm/kernel/crash_dump.c
-+++ b/arch/arm/kernel/crash_dump.c
-@@ -14,22 +14,10 @@
- #include <linux/crash_dump.h>
- #include <linux/uaccess.h>
- #include <linux/io.h>
-+#include <linux/uio.h>
- 
--/**
-- * copy_oldmem_page() - copy one page from old kernel memory
-- * @pfn: page frame number to be copied
-- * @buf: buffer where the copied page is placed
-- * @csize: number of bytes to copy
-- * @offset: offset in bytes into the page
-- * @userbuf: if set, @buf is int he user address space
-- *
-- * This function copies one page from old kernel memory into buffer pointed by
-- * @buf. If @buf is in userspace, set @userbuf to %1. Returns number of bytes
-- * copied or negative error in case of failure.
-- */
--ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
--			 size_t csize, unsigned long offset,
--			 int userbuf)
-+ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn,
-+			 size_t csize, unsigned long offset)
- {
- 	void *vaddr;
- 
-@@ -40,14 +28,7 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
- 	if (!vaddr)
- 		return -ENOMEM;
- 
--	if (userbuf) {
--		if (copy_to_user(buf, vaddr + offset, csize)) {
--			iounmap(vaddr);
--			return -EFAULT;
--		}
--	} else {
--		memcpy(buf, vaddr + offset, csize);
--	}
-+	csize = copy_to_iter(vaddr + offset, csize, iter);
- 
- 	iounmap(vaddr);
- 	return csize;
-diff --git a/arch/arm64/kernel/crash_dump.c b/arch/arm64/kernel/crash_dump.c
-index 58303a9ec32c..670e4ce81822 100644
---- a/arch/arm64/kernel/crash_dump.c
-+++ b/arch/arm64/kernel/crash_dump.c
-@@ -9,25 +9,11 @@
- #include <linux/crash_dump.h>
- #include <linux/errno.h>
- #include <linux/io.h>
--#include <linux/memblock.h>
--#include <linux/uaccess.h>
-+#include <linux/uio.h>
- #include <asm/memory.h>
- 
--/**
-- * copy_oldmem_page() - copy one page from old kernel memory
-- * @pfn: page frame number to be copied
-- * @buf: buffer where the copied page is placed
-- * @csize: number of bytes to copy
-- * @offset: offset in bytes into the page
-- * @userbuf: if set, @buf is in a user address space
-- *
-- * This function copies one page from old kernel memory into buffer pointed by
-- * @buf. If @buf is in userspace, set @userbuf to %1. Returns number of bytes
-- * copied or negative error in case of failure.
-- */
--ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
--			 size_t csize, unsigned long offset,
--			 int userbuf)
-+ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn,
-+			 size_t csize, unsigned long offset)
- {
- 	void *vaddr;
- 
-@@ -38,14 +24,7 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
- 	if (!vaddr)
- 		return -ENOMEM;
- 
--	if (userbuf) {
--		if (copy_to_user((char __user *)buf, vaddr + offset, csize)) {
--			memunmap(vaddr);
--			return -EFAULT;
--		}
--	} else {
--		memcpy(buf, vaddr + offset, csize);
--	}
-+	csize = copy_to_iter(vaddr + offset, csize, iter);
- 
- 	memunmap(vaddr);
- 
-diff --git a/arch/ia64/kernel/crash_dump.c b/arch/ia64/kernel/crash_dump.c
-index 0ed3c3dee4cd..4ef68e2aa757 100644
---- a/arch/ia64/kernel/crash_dump.c
-+++ b/arch/ia64/kernel/crash_dump.c
-@@ -10,42 +10,18 @@
- #include <linux/errno.h>
- #include <linux/types.h>
- #include <linux/crash_dump.h>
--
-+#include <linux/uio.h>
- #include <asm/page.h>
--#include <linux/uaccess.h>
- 
--/**
-- * copy_oldmem_page - copy one page from "oldmem"
-- * @pfn: page frame number to be copied
-- * @buf: target memory address for the copy; this can be in kernel address
-- *	space or user address space (see @userbuf)
-- * @csize: number of bytes to copy
-- * @offset: offset in bytes into the page (based on pfn) to begin the copy
-- * @userbuf: if set, @buf is in user address space, use copy_to_user(),
-- *	otherwise @buf is in kernel address space, use memcpy().
-- *
-- * Copy a page from "oldmem". For this page, there is no pte mapped
-- * in the current kernel. We stitch up a pte, similar to kmap_atomic.
-- *
-- * Calling copy_to_user() in atomic context is not desirable. Hence first
-- * copying the data to a pre-allocated kernel page and then copying to user
-- * space in non-atomic context.
-- */
--ssize_t
--copy_oldmem_page(unsigned long pfn, char *buf,
--		size_t csize, unsigned long offset, int userbuf)
-+ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn,
-+		size_t csize, unsigned long offset)
- {
- 	void  *vaddr;
- 
- 	if (!csize)
- 		return 0;
- 	vaddr = __va(pfn<<PAGE_SHIFT);
--	if (userbuf) {
--		if (copy_to_user(buf, (vaddr + offset), csize)) {
--			return -EFAULT;
--		}
--	} else
--		memcpy(buf, (vaddr + offset), csize);
-+	csize = copy_to_iter(vaddr + offset, csize, iter);
- 	return csize;
- }
- 
-diff --git a/arch/mips/kernel/crash_dump.c b/arch/mips/kernel/crash_dump.c
-index 2e50f55185a6..6e50f4902409 100644
---- a/arch/mips/kernel/crash_dump.c
-+++ b/arch/mips/kernel/crash_dump.c
-@@ -1,22 +1,10 @@
- // SPDX-License-Identifier: GPL-2.0
- #include <linux/highmem.h>
- #include <linux/crash_dump.h>
-+#include <linux/uio.h>
- 
--/**
-- * copy_oldmem_page - copy one page from "oldmem"
-- * @pfn: page frame number to be copied
-- * @buf: target memory address for the copy; this can be in kernel address
-- *	space or user address space (see @userbuf)
-- * @csize: number of bytes to copy
-- * @offset: offset in bytes into the page (based on pfn) to begin the copy
-- * @userbuf: if set, @buf is in user address space, use copy_to_user(),
-- *	otherwise @buf is in kernel address space, use memcpy().
-- *
-- * Copy a page from "oldmem". For this page, there is no pte mapped
-- * in the current kernel.
-- */
--ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
--			 size_t csize, unsigned long offset, int userbuf)
-+ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn,
-+			 size_t csize, unsigned long offset)
- {
- 	void  *vaddr;
- 
-@@ -24,14 +12,7 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
- 		return 0;
- 
- 	vaddr = kmap_local_pfn(pfn);
--
--	if (!userbuf) {
--		memcpy(buf, vaddr + offset, csize);
--	} else {
--		if (copy_to_user(buf, vaddr + offset, csize))
--			csize = -EFAULT;
--	}
--
-+	csize = copy_to_iter(vaddr + offset, csize, iter);
- 	kunmap_local(vaddr);
- 
- 	return csize;
-diff --git a/arch/powerpc/kernel/crash_dump.c b/arch/powerpc/kernel/crash_dump.c
-index 5693e1c67c2b..32b4a97f1b79 100644
---- a/arch/powerpc/kernel/crash_dump.c
-+++ b/arch/powerpc/kernel/crash_dump.c
-@@ -16,7 +16,7 @@
- #include <asm/kdump.h>
- #include <asm/prom.h>
- #include <asm/firmware.h>
--#include <linux/uaccess.h>
-+#include <linux/uio.h>
- #include <asm/rtas.h>
- #include <asm/inst.h>
- 
-@@ -68,33 +68,8 @@ void __init setup_kdump_trampoline(void)
- }
- #endif /* CONFIG_NONSTATIC_KERNEL */
- 
--static size_t copy_oldmem_vaddr(void *vaddr, char *buf, size_t csize,
--                               unsigned long offset, int userbuf)
--{
--	if (userbuf) {
--		if (copy_to_user((char __user *)buf, (vaddr + offset), csize))
--			return -EFAULT;
--	} else
--		memcpy(buf, (vaddr + offset), csize);
--
--	return csize;
--}
--
--/**
-- * copy_oldmem_page - copy one page from "oldmem"
-- * @pfn: page frame number to be copied
-- * @buf: target memory address for the copy; this can be in kernel address
-- *      space or user address space (see @userbuf)
-- * @csize: number of bytes to copy
-- * @offset: offset in bytes into the page (based on pfn) to begin the copy
-- * @userbuf: if set, @buf is in user address space, use copy_to_user(),
-- *      otherwise @buf is in kernel address space, use memcpy().
-- *
-- * Copy a page from "oldmem". For this page, there is no pte mapped
-- * in the current kernel. We stitch up a pte, similar to kmap_atomic.
-- */
--ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
--			size_t csize, unsigned long offset, int userbuf)
-+ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn,
-+			size_t csize, unsigned long offset)
- {
- 	void  *vaddr;
- 	phys_addr_t paddr;
-@@ -107,10 +82,10 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
- 
- 	if (memblock_is_region_memory(paddr, csize)) {
- 		vaddr = __va(paddr);
--		csize = copy_oldmem_vaddr(vaddr, buf, csize, offset, userbuf);
-+		csize = copy_to_iter(vaddr + offset, csize, iter);
- 	} else {
- 		vaddr = ioremap_cache(paddr, PAGE_SIZE);
--		csize = copy_oldmem_vaddr(vaddr, buf, csize, offset, userbuf);
-+		csize = copy_to_iter(vaddr + offset, csize, iter);
- 		iounmap(vaddr);
+--- a/drivers/iio/accel/mxc4005.c
++++ b/drivers/iio/accel/mxc4005.c
+@@ -461,8 +461,6 @@ static int mxc4005_probe(struct i2c_clie
+ 		data->dready_trig->dev.parent = &client->dev;
+ 		data->dready_trig->ops = &mxc4005_trigger_ops;
+ 		iio_trigger_set_drvdata(data->dready_trig, indio_dev);
+-		indio_dev->trig = data->dready_trig;
+-		iio_trigger_get(indio_dev->trig);
+ 		ret = devm_iio_trigger_register(&client->dev,
+ 						data->dready_trig);
+ 		if (ret) {
+@@ -470,6 +468,8 @@ static int mxc4005_probe(struct i2c_clie
+ 				"failed to register trigger\n");
+ 			return ret;
+ 		}
++
++		indio_dev->trig = iio_trigger_get(data->dready_trig);
  	}
  
-diff --git a/arch/riscv/kernel/crash_dump.c b/arch/riscv/kernel/crash_dump.c
-index 86cc0ada5752..ea2158cee97b 100644
---- a/arch/riscv/kernel/crash_dump.c
-+++ b/arch/riscv/kernel/crash_dump.c
-@@ -7,22 +7,10 @@
- 
- #include <linux/crash_dump.h>
- #include <linux/io.h>
-+#include <linux/uio.h>
- 
--/**
-- * copy_oldmem_page() - copy one page from old kernel memory
-- * @pfn: page frame number to be copied
-- * @buf: buffer where the copied page is placed
-- * @csize: number of bytes to copy
-- * @offset: offset in bytes into the page
-- * @userbuf: if set, @buf is in a user address space
-- *
-- * This function copies one page from old kernel memory into buffer pointed by
-- * @buf. If @buf is in userspace, set @userbuf to %1. Returns number of bytes
-- * copied or negative error in case of failure.
-- */
--ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
--			 size_t csize, unsigned long offset,
--			 int userbuf)
-+ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn,
-+			 size_t csize, unsigned long offset)
- {
- 	void *vaddr;
- 
-@@ -33,13 +21,7 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
- 	if (!vaddr)
- 		return -ENOMEM;
- 
--	if (userbuf) {
--		if (copy_to_user((char __user *)buf, vaddr + offset, csize)) {
--			memunmap(vaddr);
--			return -EFAULT;
--		}
--	} else
--		memcpy(buf, vaddr + offset, csize);
-+	csize = copy_to_iter(vaddr + offset, csize, iter);
- 
- 	memunmap(vaddr);
- 	return csize;
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index 69819b765250..a2c1c55daec0 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -15,6 +15,7 @@
- #include <linux/slab.h>
- #include <linux/memblock.h>
- #include <linux/elf.h>
-+#include <linux/uio.h>
- #include <asm/asm-offsets.h>
- #include <asm/os_info.h>
- #include <asm/elf.h>
-@@ -212,8 +213,8 @@ static int copy_oldmem_user(void __user *dst, unsigned long src, size_t count)
- /*
-  * Copy one page from "oldmem"
-  */
--ssize_t copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
--			 unsigned long offset, int userbuf)
-+ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn, size_t csize,
-+			 unsigned long offset)
- {
- 	unsigned long src;
- 	int rc;
-@@ -221,10 +222,12 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
- 	if (!csize)
- 		return 0;
- 	src = pfn_to_phys(pfn) + offset;
--	if (userbuf)
--		rc = copy_oldmem_user((void __force __user *) buf, src, csize);
-+
-+	/* XXX: pass the iov_iter down to a common function */
-+	if (iter_is_iovec(iter))
-+		rc = copy_oldmem_user(iter->iov->iov_base, src, csize);
- 	else
--		rc = copy_oldmem_kernel((void *) buf, src, csize);
-+		rc = copy_oldmem_kernel(iter->kvec->iov_base, src, csize);
- 	return rc;
- }
- 
-diff --git a/arch/sh/kernel/crash_dump.c b/arch/sh/kernel/crash_dump.c
-index 5b41b59698c1..19ce6a950aac 100644
---- a/arch/sh/kernel/crash_dump.c
-+++ b/arch/sh/kernel/crash_dump.c
-@@ -8,23 +8,11 @@
- #include <linux/errno.h>
- #include <linux/crash_dump.h>
- #include <linux/io.h>
-+#include <linux/uio.h>
- #include <linux/uaccess.h>
- 
--/**
-- * copy_oldmem_page - copy one page from "oldmem"
-- * @pfn: page frame number to be copied
-- * @buf: target memory address for the copy; this can be in kernel address
-- *	space or user address space (see @userbuf)
-- * @csize: number of bytes to copy
-- * @offset: offset in bytes into the page (based on pfn) to begin the copy
-- * @userbuf: if set, @buf is in user address space, use copy_to_user(),
-- *	otherwise @buf is in kernel address space, use memcpy().
-- *
-- * Copy a page from "oldmem". For this page, there is no pte mapped
-- * in the current kernel. We stitch up a pte, similar to kmap_atomic.
-- */
--ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
--                               size_t csize, unsigned long offset, int userbuf)
-+ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn,
-+			 size_t csize, unsigned long offset)
- {
- 	void  __iomem *vaddr;
- 
-@@ -32,15 +20,8 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
- 		return 0;
- 
- 	vaddr = ioremap(pfn << PAGE_SHIFT, PAGE_SIZE);
--
--	if (userbuf) {
--		if (copy_to_user((void __user *)buf, (vaddr + offset), csize)) {
--			iounmap(vaddr);
--			return -EFAULT;
--		}
--	} else
--	memcpy(buf, (vaddr + offset), csize);
--
-+	csize = copy_to_iter(vaddr + offset, csize, iter);
- 	iounmap(vaddr);
-+
- 	return csize;
- }
-diff --git a/arch/x86/kernel/crash_dump_32.c b/arch/x86/kernel/crash_dump_32.c
-index 5fcac46aaf6b..5f4ae5476e19 100644
---- a/arch/x86/kernel/crash_dump_32.c
-+++ b/arch/x86/kernel/crash_dump_32.c
-@@ -10,8 +10,7 @@
- #include <linux/errno.h>
- #include <linux/highmem.h>
- #include <linux/crash_dump.h>
--
--#include <linux/uaccess.h>
-+#include <linux/uio.h>
- 
- static inline bool is_crashed_pfn_valid(unsigned long pfn)
- {
-@@ -29,21 +28,8 @@ static inline bool is_crashed_pfn_valid(unsigned long pfn)
- #endif
- }
- 
--/**
-- * copy_oldmem_page - copy one page from "oldmem"
-- * @pfn: page frame number to be copied
-- * @buf: target memory address for the copy; this can be in kernel address
-- *	space or user address space (see @userbuf)
-- * @csize: number of bytes to copy
-- * @offset: offset in bytes into the page (based on pfn) to begin the copy
-- * @userbuf: if set, @buf is in user address space, use copy_to_user(),
-- *	otherwise @buf is in kernel address space, use memcpy().
-- *
-- * Copy a page from "oldmem". For this page, there might be no pte mapped
-- * in the current kernel.
-- */
--ssize_t copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
--			 unsigned long offset, int userbuf)
-+ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn, size_t csize,
-+			 unsigned long offset)
- {
- 	void  *vaddr;
- 
-@@ -54,14 +40,7 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
- 		return -EFAULT;
- 
- 	vaddr = kmap_local_pfn(pfn);
--
--	if (!userbuf) {
--		memcpy(buf, vaddr + offset, csize);
--	} else {
--		if (copy_to_user(buf, vaddr + offset, csize))
--			csize = -EFAULT;
--	}
--
-+	csize = copy_to_iter(vaddr + offset, csize, iter);
- 	kunmap_local(vaddr);
- 
- 	return csize;
-diff --git a/arch/x86/kernel/crash_dump_64.c b/arch/x86/kernel/crash_dump_64.c
-index 97529552dd24..94fe4aff9694 100644
---- a/arch/x86/kernel/crash_dump_64.c
-+++ b/arch/x86/kernel/crash_dump_64.c
-@@ -8,12 +8,12 @@
- 
- #include <linux/errno.h>
- #include <linux/crash_dump.h>
--#include <linux/uaccess.h>
-+#include <linux/uio.h>
- #include <linux/io.h>
- #include <linux/cc_platform.h>
- 
--static ssize_t __copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
--				  unsigned long offset, int userbuf,
-+static ssize_t __copy_oldmem_page(struct iov_iter *iter, unsigned long pfn,
-+				  size_t csize, unsigned long offset,
- 				  bool encrypted)
- {
- 	void  *vaddr;
-@@ -29,46 +29,27 @@ static ssize_t __copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
- 	if (!vaddr)
- 		return -ENOMEM;
- 
--	if (userbuf) {
--		if (copy_to_user((void __user *)buf, vaddr + offset, csize)) {
--			iounmap((void __iomem *)vaddr);
--			return -EFAULT;
--		}
--	} else
--		memcpy(buf, vaddr + offset, csize);
-+	csize = copy_to_iter(vaddr + offset, csize, iter);
- 
- 	iounmap((void __iomem *)vaddr);
- 	return csize;
- }
- 
--/**
-- * copy_oldmem_page - copy one page of memory
-- * @pfn: page frame number to be copied
-- * @buf: target memory address for the copy; this can be in kernel address
-- *	space or user address space (see @userbuf)
-- * @csize: number of bytes to copy
-- * @offset: offset in bytes into the page (based on pfn) to begin the copy
-- * @userbuf: if set, @buf is in user address space, use copy_to_user(),
-- *	otherwise @buf is in kernel address space, use memcpy().
-- *
-- * Copy a page from the old kernel's memory. For this page, there is no pte
-- * mapped in the current kernel. We stitch up a pte, similar to kmap_atomic.
-- */
--ssize_t copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
--			 unsigned long offset, int userbuf)
-+ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn, size_t csize,
-+			 unsigned long offset)
- {
--	return __copy_oldmem_page(pfn, buf, csize, offset, userbuf, false);
-+	return __copy_oldmem_page(iter, pfn, csize, offset, false);
- }
- 
--/**
-+/*
-  * copy_oldmem_page_encrypted - same as copy_oldmem_page() above but ioremap the
-  * memory with the encryption mask set to accommodate kdump on SME-enabled
-  * machines.
-  */
--ssize_t copy_oldmem_page_encrypted(unsigned long pfn, char *buf, size_t csize,
--				   unsigned long offset, int userbuf)
-+ssize_t copy_oldmem_page_encrypted(struct iov_iter *iter, unsigned long pfn,
-+				   size_t csize, unsigned long offset)
- {
--	return __copy_oldmem_page(pfn, buf, csize, offset, userbuf, true);
-+	return __copy_oldmem_page(iter, pfn, csize, offset, true);
- }
- 
- ssize_t elfcorehdr_read(char *buf, size_t count, u64 *ppos)
-diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-index 6f1b8ddc6f7a..54dda2e19ed1 100644
---- a/fs/proc/vmcore.c
-+++ b/fs/proc/vmcore.c
-@@ -26,6 +26,7 @@
- #include <linux/vmalloc.h>
- #include <linux/pagemap.h>
- #include <linux/uaccess.h>
-+#include <linux/uio.h>
- #include <linux/cc_platform.h>
- #include <asm/io.h>
- #include "internal.h"
-@@ -128,9 +129,8 @@ static int open_vmcore(struct inode *inode, struct file *file)
- }
- 
- /* Reads a page from the oldmem device from given offset. */
--ssize_t read_from_oldmem(char *buf, size_t count,
--			 u64 *ppos, int userbuf,
--			 bool encrypted)
-+static ssize_t read_from_oldmem_iter(struct iov_iter *iter, size_t count,
-+			 u64 *ppos, bool encrypted)
- {
- 	unsigned long pfn, offset;
- 	size_t nr_bytes;
-@@ -152,29 +152,23 @@ ssize_t read_from_oldmem(char *buf, size_t count,
- 
- 		/* If pfn is not ram, return zeros for sparse dump files */
- 		if (!pfn_is_ram(pfn)) {
--			tmp = 0;
--			if (!userbuf)
--				memset(buf, 0, nr_bytes);
--			else if (clear_user(buf, nr_bytes))
--				tmp = -EFAULT;
-+			tmp = iov_iter_zero(nr_bytes, iter);
- 		} else {
- 			if (encrypted)
--				tmp = copy_oldmem_page_encrypted(pfn, buf,
-+				tmp = copy_oldmem_page_encrypted(iter, pfn,
- 								 nr_bytes,
--								 offset,
--								 userbuf);
-+								 offset);
- 			else
--				tmp = copy_oldmem_page(pfn, buf, nr_bytes,
--						       offset, userbuf);
-+				tmp = copy_oldmem_page(iter, pfn, nr_bytes,
-+						       offset);
- 		}
--		if (tmp < 0) {
-+		if (tmp < nr_bytes) {
- 			srcu_read_unlock(&vmcore_cb_srcu, idx);
--			return tmp;
-+			return -EFAULT;
- 		}
- 
- 		*ppos += nr_bytes;
- 		count -= nr_bytes;
--		buf += nr_bytes;
- 		read += nr_bytes;
- 		++pfn;
- 		offset = 0;
-@@ -184,6 +178,27 @@ ssize_t read_from_oldmem(char *buf, size_t count,
- 	return read;
- }
- 
-+ssize_t read_from_oldmem(char *buf, size_t count,
-+			 u64 *ppos, int userbuf,
-+			 bool encrypted)
-+{
-+	struct iov_iter iter;
-+	struct iovec iov;
-+	struct kvec kvec;
-+
-+	if (userbuf) {
-+		iov.iov_base = (__force void __user *)buf;
-+		iov.iov_len = count;
-+		iov_iter_init(&iter, READ, &iov, 1, count);
-+	} else {
-+		kvec.iov_base = buf;
-+		kvec.iov_len = count;
-+		iov_iter_kvec(&iter, READ, &kvec, 1, count);
-+	}
-+
-+	return read_from_oldmem_iter(&iter, count, ppos, encrypted);
-+}
-+
- /*
-  * Architectures may override this function to allocate ELF header in 2nd kernel
-  */
-@@ -228,11 +243,10 @@ int __weak remap_oldmem_pfn_range(struct vm_area_struct *vma,
- /*
-  * Architectures which support memory encryption override this.
-  */
--ssize_t __weak
--copy_oldmem_page_encrypted(unsigned long pfn, char *buf, size_t csize,
--			   unsigned long offset, int userbuf)
-+ssize_t __weak copy_oldmem_page_encrypted(struct iov_iter *iter,
-+		unsigned long pfn, size_t csize, unsigned long offset)
- {
--	return copy_oldmem_page(pfn, buf, csize, offset, userbuf);
-+	return copy_oldmem_page(iter, pfn, csize, offset);
- }
- 
- /*
-diff --git a/include/linux/crash_dump.h b/include/linux/crash_dump.h
-index 620821549b23..a1cf7d5c03c7 100644
---- a/include/linux/crash_dump.h
-+++ b/include/linux/crash_dump.h
-@@ -24,11 +24,10 @@ extern int remap_oldmem_pfn_range(struct vm_area_struct *vma,
- 				  unsigned long from, unsigned long pfn,
- 				  unsigned long size, pgprot_t prot);
- 
--extern ssize_t copy_oldmem_page(unsigned long, char *, size_t,
--						unsigned long, int);
--extern ssize_t copy_oldmem_page_encrypted(unsigned long pfn, char *buf,
--					  size_t csize, unsigned long offset,
--					  int userbuf);
-+ssize_t copy_oldmem_page(struct iov_iter *i, unsigned long pfn, size_t csize,
-+		unsigned long offset);
-+ssize_t copy_oldmem_page_encrypted(struct iov_iter *iter, unsigned long pfn,
-+				   size_t csize, unsigned long offset);
- 
- void vmcore_cleanup(void);
- 
--- 
-2.35.1
-
+ 	return devm_iio_device_register(&client->dev, indio_dev);
 
 
