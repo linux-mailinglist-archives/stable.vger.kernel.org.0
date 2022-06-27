@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDE2155D100
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5667F55D291
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235474AbiF0Ldv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:33:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55528 "EHLO
+        id S237712AbiF0LnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235891AbiF0Lcx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:32:53 -0400
+        with ESMTP id S236559AbiF0Ll1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:41:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A9CAD;
-        Mon, 27 Jun 2022 04:29:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5F18CE24;
+        Mon, 27 Jun 2022 04:35:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03EC1B8111A;
-        Mon, 27 Jun 2022 11:29:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 591CFC3411D;
-        Mon, 27 Jun 2022 11:29:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68617B81125;
+        Mon, 27 Jun 2022 11:35:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAFECC3411D;
+        Mon, 27 Jun 2022 11:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329385;
-        bh=e6qYBuNvaK9vJWUNHSGQdFOs57yjXaAesaxvVanYtg0=;
+        s=korg; t=1656329754;
+        bh=/OV4TQT7m05Fi0VZVfG2VTpYR5hu8IQh+pTF8a8E0mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x69AsPKMugb/Xdy9r9rXb7VCx3MwuaQfOg8DESYbP1D3XPdWjnbLlFNS1dwDVurJ4
-         K4Q5pQT5Z2LmDQjU5mYp8r6K6HLBGzBVFlRd1AtIC1PL0OhiaHyeCi98tA3bX/5Yvd
-         oLAnHv+MoXkPU/BCHfwN9fHPFkEMBt58FpS8Zghs=
+        b=JlSdhUJURjdFqip6vO51v5MEkruQGF06BdbVhvV9f1QxRSGTSf2bc5QbTXP7/hYEd
+         ISlcEHZRNCfRHiWQj5HdGFY1ZSsRVob+YOwEiwlcapYZ8oVGgSHwAnyyPdlb2M+gmA
+         03vE4yasJ1BF72Y/QX0O0qKyRPrrv7rhM3c3SgIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Rokosov <ddrokosov@sberdevices.ru>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org,
+        Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 40/60] iio:accel:mxc4005: rearrange iio trigger get and register
+Subject: [PATCH 5.15 104/135] iio: imu: inv_icm42600: Fix broken icm42600 (chip id 0 value)
 Date:   Mon, 27 Jun 2022 13:21:51 +0200
-Message-Id: <20220627111928.869433949@linuxfoundation.org>
+Message-Id: <20220627111941.173966980@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
+From: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
 
-commit 9354c224c9b4f55847a0de3e968cba2ebf15af3b upstream.
+commit 106b391e1b859100a3f38f0ad874236e9be06bde upstream.
 
-IIO trigger interface function iio_trigger_get() should be called after
-iio_trigger_register() (or its devm analogue) strictly, because of
-iio_trigger_get() acquires module refcnt based on the trigger->owner
-pointer, which is initialized inside iio_trigger_register() to
-THIS_MODULE.
-If this call order is wrong, the next iio_trigger_put() (from sysfs
-callback or "delete module" path) will dereference "default" module
-refcnt, which is incorrect behaviour.
+The 0 value used for INV_CHIP_ICM42600 was not working since the
+match in i2c/spi was checking against NULL value.
 
-Fixes: 47196620c82f ("iio: mxc4005: add data ready trigger for mxc4005")
-Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220524181150.9240-4-ddrokosov@sberdevices.ru
+To keep this check, add a first INV_CHIP_INVALID 0 value as safe
+guard.
+
+Fixes: 31c24c1e93c3 ("iio: imu: inv_icm42600: add core of new inv_icm42600 driver")
+Signed-off-by: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
+Link: https://lore.kernel.org/r/20220609102301.4794-1-jmaneyrol@invensense.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/mxc4005.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/imu/inv_icm42600/inv_icm42600.h      |    1 +
+ drivers/iio/imu/inv_icm42600/inv_icm42600_core.c |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/accel/mxc4005.c
-+++ b/drivers/iio/accel/mxc4005.c
-@@ -462,8 +462,6 @@ static int mxc4005_probe(struct i2c_clie
- 		data->dready_trig->dev.parent = &client->dev;
- 		data->dready_trig->ops = &mxc4005_trigger_ops;
- 		iio_trigger_set_drvdata(data->dready_trig, indio_dev);
--		indio_dev->trig = data->dready_trig;
--		iio_trigger_get(indio_dev->trig);
- 		ret = devm_iio_trigger_register(&client->dev,
- 						data->dready_trig);
- 		if (ret) {
-@@ -471,6 +469,8 @@ static int mxc4005_probe(struct i2c_clie
- 				"failed to register trigger\n");
- 			return ret;
- 		}
-+
-+		indio_dev->trig = iio_trigger_get(data->dready_trig);
- 	}
+--- a/drivers/iio/imu/inv_icm42600/inv_icm42600.h
++++ b/drivers/iio/imu/inv_icm42600/inv_icm42600.h
+@@ -17,6 +17,7 @@
+ #include "inv_icm42600_buffer.h"
  
- 	return devm_iio_device_register(&client->dev, indio_dev);
+ enum inv_icm42600_chip {
++	INV_CHIP_INVALID,
+ 	INV_CHIP_ICM42600,
+ 	INV_CHIP_ICM42602,
+ 	INV_CHIP_ICM42605,
+--- a/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c
++++ b/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c
+@@ -565,7 +565,7 @@ int inv_icm42600_core_probe(struct regma
+ 	bool open_drain;
+ 	int ret;
+ 
+-	if (chip < 0 || chip >= INV_CHIP_NB) {
++	if (chip <= INV_CHIP_INVALID || chip >= INV_CHIP_NB) {
+ 		dev_err(dev, "invalid chip = %d\n", chip);
+ 		return -ENODEV;
+ 	}
 
 
