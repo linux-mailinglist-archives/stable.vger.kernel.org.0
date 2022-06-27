@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 936DC55C16E
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B31F55DC7B
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238882AbiF0Lyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:54:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52336 "EHLO
+        id S237165AbiF0Lnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238802AbiF0Lwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB12CBE28;
-        Mon, 27 Jun 2022 04:45:46 -0700 (PDT)
+        with ESMTP id S237381AbiF0Lmr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E9D9E64;
+        Mon, 27 Jun 2022 04:37:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69AEFB80DFB;
-        Mon, 27 Jun 2022 11:45:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7B7FC3411D;
-        Mon, 27 Jun 2022 11:45:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E213B8112E;
+        Mon, 27 Jun 2022 11:37:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66BF8C3411D;
+        Mon, 27 Jun 2022 11:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330344;
-        bh=B2hSXjbr+rHpgwDe32O/tcnJQcZZzJ7ADtnfxO42u40=;
+        s=korg; t=1656329832;
+        bh=txsi3SPGgKkJ/yjLz7OMyx86d9QtjZZbPTZ6H+FrQ6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ex7EXjzSB5iNzrwl67cE39evtyBuMAOY1bAQLKATaORBaFf0P4mJk++uzCLhudpt4
-         1IOQlVFT6SHnOPpfGB72ZHLv9veFS8Yyp7z2ZIXVHyXpRlkMaq6jEyvgI/SvxMn2d1
-         5rCPJk4/yPFIB2oQxmyJmnlXIGO8uuNKoiim2138=
+        b=0akNtGNBsddnxqoD139nNH0WAcXkWl6sey89x9JI0BtPLWkJhezWCXN8zX+NSn8I8
+         jRMsj6HracD15L9waRPwy0mHsCU/IXvPrrzceKSUOVc7FZ47M+44faPTCH3KDrkuU2
+         zvIge2MZn/vCpMGSV4qSfHV9UhPlaZH8Puq93T1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
-        Nishanth Menon <nm@ti.com>
-Subject: [PATCH 5.18 165/181] arm64: dts: ti: k3-am64-main: Remove support for HS400 speed mode
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 131/135] random: update comment from copy_to_user() -> copy_to_iter()
 Date:   Mon, 27 Jun 2022 13:22:18 +0200
-Message-Id: <20220627111949.471277410@linuxfoundation.org>
+Message-Id: <20220627111941.952350284@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +52,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aswath Govindraju <a-govindraju@ti.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 0c0af88f3f318e73237f7fadd02d0bf2b6c996bb upstream.
+commit 63b8ea5e4f1a87dea4d3114293fc8e96a8f193d7 upstream.
 
-AM64 SoC, does not support HS400 and HS200 is the maximum supported speed
-mode[1]. Therefore, fix the device tree node to reflect the same.
+This comment wasn't updated when we moved from read() to read_iter(), so
+this patch makes the trivial fix.
 
-[1] - https://www.ti.com/lit/ds/symlink/am6442.pdf
-      (SPRSP56C – JANUARY 2021 – REVISED FEBRUARY 2022)
-
-Fixes: 8abae9389bdb ("arm64: dts: ti: Add support for AM642 SoC")
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20220512064859.32059-1-a-govindraju@ti.com
+Fixes: 1b388e7765f2 ("random: convert to using fops->read_iter()")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/ti/k3-am64-main.dtsi |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/boot/dts/ti/k3-am64-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-am64-main.dtsi
-@@ -456,13 +456,11 @@
- 		clock-names = "clk_ahb", "clk_xin";
- 		mmc-ddr-1_8v;
- 		mmc-hs200-1_8v;
--		mmc-hs400-1_8v;
- 		ti,trm-icp = <0x2>;
- 		ti,otap-del-sel-legacy = <0x0>;
- 		ti,otap-del-sel-mmc-hs = <0x0>;
- 		ti,otap-del-sel-ddr52 = <0x6>;
- 		ti,otap-del-sel-hs200 = <0x7>;
--		ti,otap-del-sel-hs400 = <0x4>;
- 	};
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -452,7 +452,7 @@ static ssize_t get_random_bytes_user(str
  
- 	sdhci1: mmc@fa00000 {
+ 	/*
+ 	 * Immediately overwrite the ChaCha key at index 4 with random
+-	 * bytes, in case userspace causes copy_to_user() below to sleep
++	 * bytes, in case userspace causes copy_to_iter() below to sleep
+ 	 * forever, so that we still retain forward secrecy in that case.
+ 	 */
+ 	crng_make_state(chacha_state, (u8 *)&chacha_state[4], CHACHA_KEY_SIZE);
 
 
