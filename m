@@ -2,90 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AE6155CADB
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39D8055E0C1
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232452AbiF0JOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 05:14:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36146 "EHLO
+        id S233621AbiF0J3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 05:29:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232495AbiF0JOc (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 27 Jun 2022 05:14:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9E35590
-        for <Stable@vger.kernel.org>; Mon, 27 Jun 2022 02:14:32 -0700 (PDT)
+        with ESMTP id S233471AbiF0J3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 05:29:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA40B08;
+        Mon, 27 Jun 2022 02:29:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 044B0B80ECB
-        for <Stable@vger.kernel.org>; Mon, 27 Jun 2022 09:14:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EC17C3411D;
-        Mon, 27 Jun 2022 09:14:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656321269;
-        bh=9ntuZAJTsolU+4xV9g904NlmdV4yiZEn5+xoEWQGRQE=;
-        h=Subject:To:Cc:From:Date:From;
-        b=VSRJmFxyOyrbxVaxJdPr/VTjMBe3IPY7uCPOcQJAgPyg0gv3A2/JRhkKXWDuG914u
-         cxxUDDVyx9DRxU9oUnB4MSqEn4bwXEOvKRigKx9i9HIqXuWdqjYn1Do9BbjFnGE0NW
-         DnKSkukopD71BxU9Vk0n6YQmLw8i4/wwgMGWgHZw=
-Subject: FAILED: patch "[PATCH] iio: adc: stm32: fix maximum clock rate for stm32mp15x" failed to apply to 4.19-stable tree
-To:     olivier.moysan@foss.st.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, fabrice.gasnier@foss.st.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Jun 2022 11:14:19 +0200
-Message-ID: <165632125921410@kroah.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CBA6B81071;
+        Mon, 27 Jun 2022 09:29:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23528C3411D;
+        Mon, 27 Jun 2022 09:29:38 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="URNO8rbW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1656322175;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YtKczlNmNnwe7BRbfivFJb7Cyrti3AY4QZWRSGBykVk=;
+        b=URNO8rbWWkQWXsEH7Oyi+jP0waSx2jzPGEHtue7g1vGO9ev8qyFtN9d1A18eErDQ+T0qaW
+        hMOhVC2n61HSCkfOWEUM0szQtmyqZVCuy2HkIezKcEKa8MlTm5n2PDbmGMKCjoxyEhCGtn
+        C2JLtgH1D/meP5rHrcFA8PVcWCTahDM=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id f824000f (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Mon, 27 Jun 2022 09:29:34 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Gregory Erwin <gregerwin256@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org
+Subject: [PATCH v3] ath9k: sleep for less time when unregistering hwrng
+Date:   Mon, 27 Jun 2022 11:29:27 +0200
+Message-Id: <20220627092927.513709-1-Jason@zx2c4.com>
+In-Reply-To: <YrlR7O4roipJt4Nc@gondor.apana.org.au>
+References: <YrlR7O4roipJt4Nc@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Even though hwrng provides a `wait` parameter, it doesn't work very well
+when waiting for a long time. There are numerous deadlocks that emerge
+related to shutdown. Work around this API limitation by waiting for a
+shorter amount of time and erroring more frequently. This commit also
+prevents hwrng from splatting messages to dmesg when there's a timeout
+and prevents calling msleep_interruptible() for tons of time when a
+thread is supposed to be shutting down, since msleep_interruptible()
+isn't actually interrupted by kthread_stop().
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Reported-by: Gregory Erwin <gregerwin256@gmail.com>
+Tested-by: Gregory Erwin <gregerwin256@gmail.com>
+Cc: Toke Høiland-Jørgensen <toke@redhat.com>
+Cc: Kalle Valo <kvalo@kernel.org>
+Cc: Rui Salvaterra <rsalvaterra@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: stable@vger.kernel.org
+Fixes: fcd09c90c3c5 ("ath9k: use hw_random API instead of directly dumping into random.c")
+Link: https://lore.kernel.org/all/CAO+Okf6ZJC5-nTE_EJUGQtd8JiCkiEHytGgDsFGTEjs0c00giw@mail.gmail.com/
+Link: https://lore.kernel.org/lkml/CAO+Okf5k+C+SE6pMVfPf-d8MfVPVq4PO7EY8Hys_DVXtent3HA@mail.gmail.com/
+Link: https://bugs.archlinux.org/task/75138
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ drivers/char/hw_random/core.c        | 10 ++++++++--
+ drivers/net/wireless/ath/ath9k/rng.c | 20 +++-----------------
+ 2 files changed, 11 insertions(+), 19 deletions(-)
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 990539486e7e311fb5dab1bf4d85d1a8973ae644 Mon Sep 17 00:00:00 2001
-From: Olivier Moysan <olivier.moysan@foss.st.com>
-Date: Thu, 9 Jun 2022 11:52:34 +0200
-Subject: [PATCH] iio: adc: stm32: fix maximum clock rate for stm32mp15x
-
-Change maximum STM32 ADC input clock rate to 36MHz, as specified
-in STM32MP15x datasheets.
-
-Fixes: d58c67d1d851 ("iio: adc: stm32-adc: add support for STM32MP1")
-Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
-Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20220609095234.375925-1-olivier.moysan@foss.st.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-
-diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
-index bb04deeb7992..3efb8c404ccc 100644
---- a/drivers/iio/adc/stm32-adc-core.c
-+++ b/drivers/iio/adc/stm32-adc-core.c
-@@ -809,7 +809,7 @@ static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
- static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
- 	.regs = &stm32h7_adc_common_regs,
- 	.clk_sel = stm32h7_adc_clk_sel,
--	.max_clk_rate_hz = 40000000,
-+	.max_clk_rate_hz = 36000000,
- 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
- 	.num_irqs = 2,
- 	.num_adcs = 2,
+diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+index 16f227b995e8..a15273271d87 100644
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -513,8 +513,13 @@ static int hwrng_fillfn(void *unused)
+ 			break;
+ 
+ 		if (rc <= 0) {
+-			pr_warn("hwrng: no data available\n");
+-			msleep_interruptible(10000);
++			int i;
++
++			for (i = 0; i < 100; ++i) {
++				if (kthread_should_stop() ||
++				    schedule_timeout_interruptible(HZ / 20))
++					goto out;
++			}
+ 			continue;
+ 		}
+ 
+@@ -529,6 +534,7 @@ static int hwrng_fillfn(void *unused)
+ 		add_hwgenerator_randomness((void *)rng_fillbuf, rc,
+ 					   entropy >> 10);
+ 	}
++out:
+ 	hwrng_fill = NULL;
+ 	return 0;
+ }
+diff --git a/drivers/net/wireless/ath/ath9k/rng.c b/drivers/net/wireless/ath/ath9k/rng.c
+index cb5414265a9b..39195f89ea85 100644
+--- a/drivers/net/wireless/ath/ath9k/rng.c
++++ b/drivers/net/wireless/ath/ath9k/rng.c
+@@ -52,20 +52,6 @@ static int ath9k_rng_data_read(struct ath_softc *sc, u32 *buf, u32 buf_size)
+ 	return j << 2;
+ }
+ 
+-static u32 ath9k_rng_delay_get(u32 fail_stats)
+-{
+-	u32 delay;
+-
+-	if (fail_stats < 100)
+-		delay = 10;
+-	else if (fail_stats < 105)
+-		delay = 1000;
+-	else
+-		delay = 10000;
+-
+-	return delay;
+-}
+-
+ static int ath9k_rng_read(struct hwrng *rng, void *buf, size_t max, bool wait)
+ {
+ 	struct ath_softc *sc = container_of(rng, struct ath_softc, rng_ops);
+@@ -80,10 +66,10 @@ static int ath9k_rng_read(struct hwrng *rng, void *buf, size_t max, bool wait)
+ 			bytes_read += max & 3UL;
+ 			memzero_explicit(&word, sizeof(word));
+ 		}
+-		if (!wait || !max || likely(bytes_read) || fail_stats > 110)
++		if (!wait || !max || likely(bytes_read) || ++fail_stats >= 100 ||
++		    schedule_timeout_interruptible(HZ / 20) ||
++		    ((current->flags & PF_KTHREAD) && kthread_should_stop()))
+ 			break;
+-
+-		msleep_interruptible(ath9k_rng_delay_get(++fail_stats));
+ 	}
+ 
+ 	if (wait && !bytes_read && max)
+-- 
+2.35.1
 
