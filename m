@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC2B755E36D
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C5E755DA9A
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:23:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237062AbiF0Ln1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:43:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39674 "EHLO
+        id S238990AbiF0LyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:54:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237230AbiF0Lmg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62432DF13;
-        Mon, 27 Jun 2022 04:36:35 -0700 (PDT)
+        with ESMTP id S238626AbiF0Lv7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:51:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06BE0A461;
+        Mon, 27 Jun 2022 04:44:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0EB01B8111C;
-        Mon, 27 Jun 2022 11:36:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01A2EC341C7;
-        Mon, 27 Jun 2022 11:36:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94F28612E3;
+        Mon, 27 Jun 2022 11:44:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AD7DC341C7;
+        Mon, 27 Jun 2022 11:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329792;
-        bh=6Br1c/oBrlqi0+RzoaGSQW/BY74uBeyEDv/Eufwhohg=;
+        s=korg; t=1656330295;
+        bh=vdb3E6WRlDL20adQ9KZ21R2W9oW3boQenfgRmu7+Rxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjpaAswzIcaixfNqwAMmQhN5TFdBkHkqwu1xOKIHfXRb4oY0Gqjw9TauwSOyKawVs
-         vk2BcLR4fc3ld5LuXHZuWXzX1fscRuffHgbIWSl+Mlo9pmmWLzhlU4NpyyTajw5Fau
-         aFn7oZ0+eWm4cOLZGFPW0DlqxxE73woVt2qG9z8w=
+        b=ppL0uATf7RO5lJ8ljfiUwJNTtY7AH4CEMWOs+Uf7eL3IFf5nsW4oomXU/BV2a8PyW
+         Xwg+B6sxo/qxbEcFxlBgSMIiMaHRYgtPGaEZ5AUR4kj+ujXSu0h32uRuC8yZLAh3Qe
+         mdIRe4pcGNWVV9bUymWks/7lQWvIyoeb2S6ZbFtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 116/135] powerpc/microwatt: wire up rng during setup_arch()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Jialin Zhang <zhangjialin11@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.18 150/181] iio: adc: ti-ads131e08: add missing fwnode_handle_put() in ads131e08_alloc_channels()
 Date:   Mon, 27 Jun 2022 13:22:03 +0200
-Message-Id: <20220627111941.520295755@linuxfoundation.org>
+Message-Id: <20220627111949.033741522@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,111 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Jialin Zhang <zhangjialin11@huawei.com>
 
-commit 20a9689b3607456d92c6fb764501f6a95950b098 upstream.
+commit 47dcf770abc793f347a65a24c24d550c936f08b0 upstream.
 
-The platform's RNG must be available before random_init() in order to be
-useful for initial seeding, which in turn means that it needs to be
-called from setup_arch(), rather than from an init call. Fortunately,
-each platform already has a setup_arch function pointer, which means
-it's easy to wire this up. This commit also removes some noisy log
-messages that don't add much.
+fwnode_handle_put() should be used when terminating
+device_for_each_child_node() iteration with break or return to prevent
+stale device node references from being left behind.
 
-Fixes: c25769fddaec ("powerpc/microwatt: Add support for hardware random number generator")
-Cc: stable@vger.kernel.org # v5.14+
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220611151015.548325-2-Jason@zx2c4.com
+Fixes: d935eddd2799 ("iio: adc: Add driver for Texas Instruments ADS131E0x ADC family")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Jialin Zhang <zhangjialin11@huawei.com>
+Link: https://lore.kernel.org/r/20220517033020.2033324-1-zhangjialin11@huawei.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/microwatt/microwatt.h |  7 +++++++
- arch/powerpc/platforms/microwatt/rng.c       | 10 +++-------
- arch/powerpc/platforms/microwatt/setup.c     |  8 ++++++++
- 3 files changed, 18 insertions(+), 7 deletions(-)
- create mode 100644 arch/powerpc/platforms/microwatt/microwatt.h
+ drivers/iio/adc/ti-ads131e08.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/platforms/microwatt/microwatt.h b/arch/powerpc/platforms/microwatt/microwatt.h
-new file mode 100644
-index 000000000000..335417e95e66
---- /dev/null
-+++ b/arch/powerpc/platforms/microwatt/microwatt.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _MICROWATT_H
-+#define _MICROWATT_H
-+
-+void microwatt_rng_init(void);
-+
-+#endif /* _MICROWATT_H */
-diff --git a/arch/powerpc/platforms/microwatt/rng.c b/arch/powerpc/platforms/microwatt/rng.c
-index 7bc4d1cbfaf0..8ece87d005c8 100644
---- a/arch/powerpc/platforms/microwatt/rng.c
-+++ b/arch/powerpc/platforms/microwatt/rng.c
-@@ -11,6 +11,7 @@
- #include <asm/archrandom.h>
- #include <asm/cputable.h>
- #include <asm/machdep.h>
-+#include "microwatt.h"
+--- a/drivers/iio/adc/ti-ads131e08.c
++++ b/drivers/iio/adc/ti-ads131e08.c
+@@ -739,7 +739,7 @@ static int ads131e08_alloc_channels(stru
+ 	device_for_each_child_node(dev, node) {
+ 		ret = fwnode_property_read_u32(node, "reg", &channel);
+ 		if (ret)
+-			return ret;
++			goto err_child_out;
  
- #define DARN_ERR 0xFFFFFFFFFFFFFFFFul
+ 		ret = fwnode_property_read_u32(node, "ti,gain", &tmp);
+ 		if (ret) {
+@@ -747,7 +747,7 @@ static int ads131e08_alloc_channels(stru
+ 		} else {
+ 			ret = ads131e08_pga_gain_to_field_value(st, tmp);
+ 			if (ret < 0)
+-				return ret;
++				goto err_child_out;
  
-@@ -29,7 +30,7 @@ static int microwatt_get_random_darn(unsigned long *v)
- 	return 1;
- }
- 
--static __init int rng_init(void)
-+void __init microwatt_rng_init(void)
- {
- 	unsigned long val;
- 	int i;
-@@ -37,12 +38,7 @@ static __init int rng_init(void)
- 	for (i = 0; i < 10; i++) {
- 		if (microwatt_get_random_darn(&val)) {
- 			ppc_md.get_random_seed = microwatt_get_random_darn;
--			return 0;
-+			return;
+ 			channel_config[i].pga_gain = tmp;
  		}
- 	}
--
--	pr_warn("Unable to use DARN for get_random_seed()\n");
--
--	return -EIO;
- }
--machine_subsys_initcall(, rng_init);
-diff --git a/arch/powerpc/platforms/microwatt/setup.c b/arch/powerpc/platforms/microwatt/setup.c
-index 0b02603bdb74..6b32539395a4 100644
---- a/arch/powerpc/platforms/microwatt/setup.c
-+++ b/arch/powerpc/platforms/microwatt/setup.c
-@@ -16,6 +16,8 @@
- #include <asm/xics.h>
- #include <asm/udbg.h>
+@@ -758,7 +758,7 @@ static int ads131e08_alloc_channels(stru
+ 		} else {
+ 			ret = ads131e08_validate_channel_mux(st, tmp);
+ 			if (ret)
+-				return ret;
++				goto err_child_out;
  
-+#include "microwatt.h"
-+
- static void __init microwatt_init_IRQ(void)
- {
- 	xics_init();
-@@ -32,10 +34,16 @@ static int __init microwatt_populate(void)
- }
- machine_arch_initcall(microwatt, microwatt_populate);
+ 			channel_config[i].mux = tmp;
+ 		}
+@@ -784,6 +784,10 @@ static int ads131e08_alloc_channels(stru
+ 	st->channel_config = channel_config;
  
-+static void __init microwatt_setup_arch(void)
-+{
-+	microwatt_rng_init();
-+}
+ 	return 0;
 +
- define_machine(microwatt) {
- 	.name			= "microwatt",
- 	.probe			= microwatt_probe,
- 	.init_IRQ		= microwatt_init_IRQ,
-+	.setup_arch		= microwatt_setup_arch,
- 	.progress		= udbg_progress,
- 	.calibrate_decr		= generic_calibrate_decr,
- };
--- 
-2.36.1
-
++err_child_out:
++	fwnode_handle_put(node);
++	return ret;
+ }
+ 
+ static void ads131e08_regulator_disable(void *data)
 
 
