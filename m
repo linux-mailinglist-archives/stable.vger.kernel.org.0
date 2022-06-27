@@ -2,426 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC93555C51D
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:50:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C15955C754
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:54:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240119AbiF0SKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 14:10:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35968 "EHLO
+        id S236234AbiF0Sjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 14:39:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236927AbiF0SKb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 14:10:31 -0400
-Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A79A9FCC
-        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 11:10:30 -0700 (PDT)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id C260D5C01AB;
-        Mon, 27 Jun 2022 14:10:29 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 27 Jun 2022 14:10:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        invisiblethingslab.com; h=cc:cc:content-transfer-encoding:date
-        :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to; s=fm2; t=
-        1656353429; x=1656439829; bh=RprnaSYI0mL+yNjtEtS6aEn1qbkBaECOWhl
-        hXlboKR4=; b=ekjOyBfjOuG8nnYBFQzscZ+qRtjF0kfpGjrxeVRSKar/oPvBEx0
-        UNW4CJ17iiH9AlKhSAMfFzzLf5UtAiVq7uw/ty3gDMNqo+RBPgJZ62pORIhFOG39
-        nzcyc/DOlxVt1qVMoGpWdPCRHGV9eg8WHe4bpkOgVYM8awJx4DzESQVcGAzHs/CO
-        APQBnwuG6FU2GrEh5zSSpBbQ/ntSIS5N+ng/f7nnqXfrH3W0/aY5KNTDXJqzkcGU
-        kybrRLgRKntrZtAann63CzpYnfzJEfXgIU1BFg/0SrBRIy002SXArrVVuWC0h9D1
-        ZyEcOYE1cfOX3jT8FZldZYGAkEMQrK/itLQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; t=1656353429; x=1656439829; bh=RprnaSYI0mL+y
-        NjtEtS6aEn1qbkBaECOWhlhXlboKR4=; b=HDJh7U5evnJYnjA+zqHYmNvERKg5i
-        MKXz2VCDoBh1S8pbHuf/6vYbj+cyKaOTVMCCN0XhpJmFg/XLrX2RjfT5f6AtHYPs
-        NY7Qsw3RWJLSd9uvKkexsX9cwPs0FBLmYVxCSyMkvhq1W0XHPI7oT36F5fM+z80M
-        U/nA2SYtcUoVUab0fOujs61T9OXEKKk+dpNJTFPfinOP2PVRiupMgVTL9x7ktkg9
-        vp9NHlKuxa6VslH37UkPYFzLHBlyJ3y7oyVG77fEoXaBcDtAG59k0R9VDm24PBwI
-        AmbGCG10wy6hLTBxODnm4vRBS4ejYodRYDrTDXAHzMghA1WqmPGy/MjaQ==
-X-ME-Sender: <xms:lfK5YlbVepKKYshUTPal5U8GlSbZGfLjjnC_ubam8F9hCiuBzuc3EQ>
-    <xme:lfK5YsY1NkEtARuBFQdzsMCcImEYm91J9XNCbigtTVgfV9dUt3RMZ_dgI4X_1LQl9
-    aG3hpXBtJ4gZz0>
-X-ME-Received: <xmr:lfK5Yn8hTbaNCOBzhbN35bmeBF8fZKJ51VrzIhYyX1HT-ktMxVft8LyZ_JUE-6W33yEA9LK915SW>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudeghedguddvgecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeffvghm
-    ihcuofgrrhhivgcuqfgsvghnohhurhcuoeguvghmihesihhnvhhishhisghlvghthhhinh
-    hgshhlrggsrdgtohhmqeenucggtffrrghtthgvrhhnpeettdegudelkeelveejhefhvdek
-    hfevuedvvedtudfhhfdvledtgedtgfekuddugeenucffohhmrghinhepghhithhhuhgsrd
-    gtohhmpdhkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgr
-    mhepmhgrihhlfhhrohhmpeguvghmihesihhnvhhishhisghlvghthhhinhhgshhlrggsrd
-    gtohhm
-X-ME-Proxy: <xmx:lfK5YjrJ5jIqKT0zvmJFkRH00DQZV7dbXnkcAEHhgD37gDeZkUgmKw>
-    <xmx:lfK5YgqOyQ6RWN-pqLTOgJxpOQ7VjOxpzmwWf1-nqZmbc6zQs2ithw>
-    <xmx:lfK5YpQSjX-e6THCheInuNIVowxtGOYWcAHvDYEvBtEyQyOSIo0viQ>
-    <xmx:lfK5YtABdB0PUjTieNs5fRESCtK5d65y0uEr9NaWO-9FiZo9VytCzA>
-Feedback-ID: iac594737:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 27 Jun 2022 14:10:29 -0400 (EDT)
-From:   Demi Marie Obenour <demi@invisiblethingslab.com>
-To:     stable@vger.kernel.org,
-        Xen developer discussion <xen-devel@lists.xenproject.org>,
-        Juergen Gross <jgross@suse.com>
-Cc:     Demi Marie Obenour <demi@invisiblethingslab.com>
-Subject: [PATCH 4.9] xen/gntdev: Avoid blocking in unmap_grant_pages()
-Date:   Mon, 27 Jun 2022 14:10:06 -0400
-Message-Id: <20220627181006.1954-5-demi@invisiblethingslab.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220627181006.1954-1-demi@invisiblethingslab.com>
-References: <20220627181006.1954-1-demi@invisiblethingslab.com>
+        with ESMTP id S240213AbiF0SjR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 14:39:17 -0400
+Received: from mail-oo1-xc41.google.com (mail-oo1-xc41.google.com [IPv6:2607:f8b0:4864:20::c41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 508DEB9A
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 11:38:54 -0700 (PDT)
+Received: by mail-oo1-xc41.google.com with SMTP id j2-20020a4ab1c2000000b00425813b407bso1907702ooo.10
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 11:38:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=JuE4G4k+9s7zTgtnSqan6CD/Xhbwm1NdftTu21F3DUk=;
+        b=BtPk1oNY5b8hNQkJwLR6f223yM1TvEDeHwmHOQ7/JVtemgJckWyuHnoO2gq11dCJtc
+         ceuGvJj5vEkhN/sQLmcfo/UjHM/u4KsiKe9c/ZldXfhFxPjih7CXIDn1gu/mep8MX4mq
+         WWHY+GoWAvyaGpmY/suh/p5cpR32CZ1hXgMpkbohvZFvXBGn6dyiJlUIMKsMxpsBm2Ml
+         zvGS6B6O9dEzZnGpDcrJrK5GPok9UMicYAhsBPltmFiB9IbbBJhYSa919qB0Oeucs0KJ
+         xnk5ZR7bbft/pjWjvsGxEsRWF+fTOUHnpCewhJjHEQq3DZFgMJ184Q+NB67E6Dl6i7mG
+         /1WQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=JuE4G4k+9s7zTgtnSqan6CD/Xhbwm1NdftTu21F3DUk=;
+        b=FODM1ZXdOPGT4QratIYJBbxvizkQDg/RAVjBePPeAs8x4Oy/DLjUHdxUPgnXwIAwm+
+         7pKfqSBZKWFe5nWfS6k4RWeFOu+3OQk239yU6gVFY7rFfBZ2Lo9OpCANpsuQehr9gQhc
+         yazmFXCUSJT6y9sfBy8OYUbqKnChDGvgU+fJH6QmrQiNx6IhATW7wk6hfwisvQrgJ7ez
+         i1o8hhYQ1gAdedJAb1/vQdHz68aInE4PQsDzc8GYuiXBZXxeUFwPX5LZuQUVjd6y3UPc
+         syMUazWT4nSLHGKI+2eLkn6Bav40ZZxRXHV7h/E1qJkxC4BX734NjAfub2jbIUr+cXJQ
+         D/0w==
+X-Gm-Message-State: AJIora86AhX6IFDvC3ooo5/Nr7pLg4m3T0ReDfbM0sphAqTe14dmgPPJ
+        uBDCg6DIXbaoavm1pllN9MeE4A==
+X-Google-Smtp-Source: AGRyM1vZA5i0T8xVD9xQcRnUGH3VaeevgvCndiQPhHTtyiM6hRm8leQj653lw7xV4j3JUv6iQqcutA==
+X-Received: by 2002:a4a:49d0:0:b0:425:708a:224 with SMTP id z199-20020a4a49d0000000b00425708a0224mr6462805ooa.18.1656355133640;
+        Mon, 27 Jun 2022 11:38:53 -0700 (PDT)
+Received: from [192.168.17.16] ([189.219.74.211])
+        by smtp.gmail.com with ESMTPSA id i1-20020a4addc1000000b0041b768b58basm6309261oov.22.2022.06.27.11.38.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 Jun 2022 11:38:53 -0700 (PDT)
+Message-ID: <24080846-a369-9333-589c-ad88d775bc04@linaro.org>
+Date:   Mon, 27 Jun 2022 13:38:51 -0500
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH 5.15 000/135] 5.15.51-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220627111938.151743692@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit dbe97cff7dd9f0f75c524afdd55ad46be3d15295 upstream
+Hello!
 
-unmap_grant_pages() currently waits for the pages to no longer be used.
-In https://github.com/QubesOS/qubes-issues/issues/7481, this lead to a
-deadlock against i915: i915 was waiting for gntdev's MMU notifier to
-finish, while gntdev was waiting for i915 to free its pages.  I also
-believe this is responsible for various deadlocks I have experienced in
-the past.
+On 27/06/22 06:20, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.51 release.
+> There are 135 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 29 Jun 2022 11:19:09 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.51-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Avoid these problems by making unmap_grant_pages async.  This requires
-making it return void, as any errors will not be available when the
-function returns.  Fortunately, the only use of the return value is a
-WARN_ON(), which can be replaced by a WARN_ON when the error is
-detected.  Additionally, a failed call will not prevent further calls
-from being made, but this is harmless.
+Results from Linaro's test farm.
+The following new warnings have been found while building ixp4xx_defconfig for Arm combinations with GCC:
 
-Because unmap_grant_pages is now async, the grant handle will be sent to
-INVALID_GRANT_HANDLE too late to prevent multiple unmaps of the same
-handle.  Instead, a separate bool array is allocated for this purpose.
-This wastes memory, but stuffing this information in padding bytes is
-too fragile.  Furthermore, it is necessary to grab a reference to the
-map before making the asynchronous call, and release the reference when
-the call returns.
+   WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Section mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to the function .init.text:ixp4xx_irq_init()
+   The symbol ixp4xx_irq_init is exported and annotated __init
+   Fix this by removing the __init annotation of ixp4xx_irq_init or drop the export.
 
-It is also necessary to guard against reentrancy in gntdev_map_put(),
-and to handle the case where userspace tries to map a mapping whose
-contents have not all been freed yet.
+   WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_timer_setup+0x0): Section mismatch in reference from the variable __ksymtab_ixp4xx_timer_setup to the function .init.text:ixp4xx_timer_setup()
+   The symbol ixp4xx_timer_setup is exported and annotated __init
+   Fix this by removing the __init annotation of ixp4xx_timer_setup or drop the export.
 
-Fixes: 745282256c75 ("xen/gntdev: safely unmap grants in case they are still in use")
-Cc: stable@vger.kernel.org
-Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20220622022726.2538-1-demi@invisiblethingslab.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- drivers/xen/gntdev.c | 144 ++++++++++++++++++++++++++++++-------------
- 1 file changed, 102 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index 69d59102ff1b..2c3248e71e9c 100644
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -57,6 +57,7 @@ MODULE_PARM_DESC(limit, "Maximum number of grants that may be mapped by "
- 
- static atomic_t pages_mapped = ATOMIC_INIT(0);
- 
-+/* True in PV mode, false otherwise */
- static int use_ptemod;
- #define populate_freeable_maps use_ptemod
- 
-@@ -92,11 +93,16 @@ struct grant_map {
- 	struct gnttab_unmap_grant_ref *unmap_ops;
- 	struct gnttab_map_grant_ref   *kmap_ops;
- 	struct gnttab_unmap_grant_ref *kunmap_ops;
-+	bool *being_removed;
- 	struct page **pages;
- 	unsigned long pages_vm_start;
-+	/* Number of live grants */
-+	atomic_t live_grants;
-+	/* Needed to avoid allocation in unmap_grant_pages */
-+	struct gntab_unmap_queue_data unmap_data;
- };
- 
--static int unmap_grant_pages(struct grant_map *map, int offset, int pages);
-+static void unmap_grant_pages(struct grant_map *map, int offset, int pages);
- 
- /* ------------------------------------------------------------------ */
- 
-@@ -127,6 +133,7 @@ static void gntdev_free_map(struct grant_map *map)
- 	kfree(map->unmap_ops);
- 	kfree(map->kmap_ops);
- 	kfree(map->kunmap_ops);
-+	kfree(map->being_removed);
- 	kfree(map);
- }
- 
-@@ -145,12 +152,15 @@ static struct grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count)
- 	add->kmap_ops  = kcalloc(count, sizeof(add->kmap_ops[0]), GFP_KERNEL);
- 	add->kunmap_ops = kcalloc(count, sizeof(add->kunmap_ops[0]), GFP_KERNEL);
- 	add->pages     = kcalloc(count, sizeof(add->pages[0]), GFP_KERNEL);
-+	add->being_removed =
-+		kcalloc(count, sizeof(add->being_removed[0]), GFP_KERNEL);
- 	if (NULL == add->grants    ||
- 	    NULL == add->map_ops   ||
- 	    NULL == add->unmap_ops ||
- 	    NULL == add->kmap_ops  ||
- 	    NULL == add->kunmap_ops ||
--	    NULL == add->pages)
-+	    NULL == add->pages     ||
-+	    NULL == add->being_removed)
- 		goto err;
- 
- 	if (gnttab_alloc_pages(count, add->pages))
-@@ -215,6 +225,34 @@ static void gntdev_put_map(struct gntdev_priv *priv, struct grant_map *map)
- 		return;
- 
- 	atomic_sub(map->count, &pages_mapped);
-+	if (map->pages && !use_ptemod) {
-+		/*
-+		 * Increment the reference count.  This ensures that the
-+		 * subsequent call to unmap_grant_pages() will not wind up
-+		 * re-entering itself.  It *can* wind up calling
-+		 * gntdev_put_map() recursively, but such calls will be with a
-+		 * reference count greater than 1, so they will return before
-+		 * this code is reached.  The recursion depth is thus limited to
-+		 * 1.
-+		 */
-+		atomic_set(&map->users, 1);
-+
-+		/*
-+		 * Unmap the grants.  This may or may not be asynchronous, so it
-+		 * is possible that the reference count is 1 on return, but it
-+		 * could also be greater than 1.
-+		 */
-+		unmap_grant_pages(map, 0, map->count);
-+
-+		/* Check if the memory now needs to be freed */
-+		if (!atomic_dec_and_test(&map->users))
-+			return;
-+
-+		/*
-+		 * All pages have been returned to the hypervisor, so free the
-+		 * map.
-+		 */
-+	}
- 
- 	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
- 		notify_remote_via_evtchn(map->notify.event);
-@@ -272,6 +310,7 @@ static int set_grant_ptes_as_special(pte_t *pte, pgtable_t token,
- 
- static int map_grant_pages(struct grant_map *map)
- {
-+	size_t alloced = 0;
- 	int i, err = 0;
- 
- 	if (!use_ptemod) {
-@@ -320,85 +359,107 @@ static int map_grant_pages(struct grant_map *map)
- 			map->pages, map->count);
- 
- 	for (i = 0; i < map->count; i++) {
--		if (map->map_ops[i].status == GNTST_okay)
-+		if (map->map_ops[i].status == GNTST_okay) {
- 			map->unmap_ops[i].handle = map->map_ops[i].handle;
--		else if (!err)
-+			if (!use_ptemod)
-+				alloced++;
-+		} else if (!err)
- 			err = -EINVAL;
- 
- 		if (map->flags & GNTMAP_device_map)
- 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
- 
- 		if (use_ptemod) {
--			if (map->kmap_ops[i].status == GNTST_okay)
-+			if (map->kmap_ops[i].status == GNTST_okay) {
-+				if (map->map_ops[i].status == GNTST_okay)
-+					alloced++;
- 				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
--			else if (!err)
-+			} else if (!err)
- 				err = -EINVAL;
- 		}
- 	}
-+	atomic_add(alloced, &map->live_grants);
- 	return err;
- }
- 
--static int __unmap_grant_pages(struct grant_map *map, int offset, int pages)
-+static void __unmap_grant_pages_done(int result,
-+		struct gntab_unmap_queue_data *data)
- {
--	int i, err = 0;
--	struct gntab_unmap_queue_data unmap_data;
-+	unsigned int i;
-+	struct grant_map *map = data->data;
-+	unsigned int offset = data->unmap_ops - map->unmap_ops;
-+
-+	for (i = 0; i < data->count; i++) {
-+		WARN_ON(map->unmap_ops[offset+i].status);
-+		pr_debug("unmap handle=%d st=%d\n",
-+			map->unmap_ops[offset+i].handle,
-+			map->unmap_ops[offset+i].status);
-+		map->unmap_ops[offset+i].handle = -1;
-+	}
-+	/*
-+	 * Decrease the live-grant counter.  This must happen after the loop to
-+	 * prevent premature reuse of the grants by gnttab_mmap().
-+	 */
-+	atomic_sub(data->count, &map->live_grants);
- 
-+	/* Release reference taken by unmap_grant_pages */
-+	gntdev_put_map(NULL, map);
-+}
-+
-+static void __unmap_grant_pages(struct grant_map *map, int offset, int pages)
-+{
- 	if (map->notify.flags & UNMAP_NOTIFY_CLEAR_BYTE) {
- 		int pgno = (map->notify.addr >> PAGE_SHIFT);
-+
- 		if (pgno >= offset && pgno < offset + pages) {
- 			/* No need for kmap, pages are in lowmem */
- 			uint8_t *tmp = pfn_to_kaddr(page_to_pfn(map->pages[pgno]));
-+
- 			tmp[map->notify.addr & (PAGE_SIZE-1)] = 0;
- 			map->notify.flags &= ~UNMAP_NOTIFY_CLEAR_BYTE;
- 		}
- 	}
- 
--	unmap_data.unmap_ops = map->unmap_ops + offset;
--	unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
--	unmap_data.pages = map->pages + offset;
--	unmap_data.count = pages;
-+	map->unmap_data.unmap_ops = map->unmap_ops + offset;
-+	map->unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
-+	map->unmap_data.pages = map->pages + offset;
-+	map->unmap_data.count = pages;
-+	map->unmap_data.done = __unmap_grant_pages_done;
-+	map->unmap_data.data = map;
-+	atomic_inc(&map->users); /* to keep map alive during async call below */
- 
--	err = gnttab_unmap_refs_sync(&unmap_data);
--	if (err)
--		return err;
--
--	for (i = 0; i < pages; i++) {
--		if (map->unmap_ops[offset+i].status)
--			err = -EINVAL;
--		pr_debug("unmap handle=%d st=%d\n",
--			map->unmap_ops[offset+i].handle,
--			map->unmap_ops[offset+i].status);
--		map->unmap_ops[offset+i].handle = -1;
--	}
--	return err;
-+	gnttab_unmap_refs_async(&map->unmap_data);
- }
- 
--static int unmap_grant_pages(struct grant_map *map, int offset, int pages)
-+static void unmap_grant_pages(struct grant_map *map, int offset, int pages)
- {
--	int range, err = 0;
-+	int range;
-+
-+	if (atomic_read(&map->live_grants) == 0)
-+		return; /* Nothing to do */
- 
- 	pr_debug("unmap %d+%d [%d+%d]\n", map->index, map->count, offset, pages);
- 
- 	/* It is possible the requested range will have a "hole" where we
- 	 * already unmapped some of the grants. Only unmap valid ranges.
- 	 */
--	while (pages && !err) {
--		while (pages && map->unmap_ops[offset].handle == -1) {
-+	while (pages) {
-+		while (pages && map->being_removed[offset]) {
- 			offset++;
- 			pages--;
- 		}
- 		range = 0;
- 		while (range < pages) {
--			if (map->unmap_ops[offset+range].handle == -1)
-+			if (map->being_removed[offset + range])
- 				break;
-+			map->being_removed[offset + range] = true;
- 			range++;
- 		}
--		err = __unmap_grant_pages(map, offset, range);
-+		if (range)
-+			__unmap_grant_pages(map, offset, range);
- 		offset += range;
- 		pages -= range;
- 	}
--
--	return err;
- }
- 
- /* ------------------------------------------------------------------ */
-@@ -454,7 +515,6 @@ static void unmap_if_in_range(struct grant_map *map,
- 			      unsigned long start, unsigned long end)
- {
- 	unsigned long mstart, mend;
--	int err;
- 
- 	if (!map->vma)
- 		return;
-@@ -468,10 +528,9 @@ static void unmap_if_in_range(struct grant_map *map,
- 			map->index, map->count,
- 			map->vma->vm_start, map->vma->vm_end,
- 			start, end, mstart, mend);
--	err = unmap_grant_pages(map,
-+	unmap_grant_pages(map,
- 				(mstart - map->vma->vm_start) >> PAGE_SHIFT,
- 				(mend - mstart) >> PAGE_SHIFT);
--	WARN_ON(err);
- }
- 
- static void mn_invl_range_start(struct mmu_notifier *mn,
-@@ -503,7 +562,6 @@ static void mn_release(struct mmu_notifier *mn,
- {
- 	struct gntdev_priv *priv = container_of(mn, struct gntdev_priv, mn);
- 	struct grant_map *map;
--	int err;
- 
- 	mutex_lock(&priv->lock);
- 	list_for_each_entry(map, &priv->maps, next) {
-@@ -512,8 +570,7 @@ static void mn_release(struct mmu_notifier *mn,
- 		pr_debug("map %d+%d (%lx %lx)\n",
- 				map->index, map->count,
- 				map->vma->vm_start, map->vma->vm_end);
--		err = unmap_grant_pages(map, /* offset */ 0, map->count);
--		WARN_ON(err);
-+		unmap_grant_pages(map, /* offset */ 0, map->count);
- 	}
- 	list_for_each_entry(map, &priv->freeable_maps, next) {
- 		if (!map->vma)
-@@ -521,8 +578,7 @@ static void mn_release(struct mmu_notifier *mn,
- 		pr_debug("map %d+%d (%lx %lx)\n",
- 				map->index, map->count,
- 				map->vma->vm_start, map->vma->vm_end);
--		err = unmap_grant_pages(map, /* offset */ 0, map->count);
--		WARN_ON(err);
-+		unmap_grant_pages(map, /* offset */ 0, map->count);
- 	}
- 	mutex_unlock(&priv->lock);
- }
-@@ -1012,6 +1068,10 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
- 		goto unlock_out;
- 	}
- 
-+	if (atomic_read(&map->live_grants)) {
-+		err = -EAGAIN;
-+		goto unlock_out;
-+	}
- 	atomic_inc(&map->users);
- 
- 	vma->vm_ops = &gntdev_vmops;
+## Build
+* kernel: 5.15.51-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: 2c21dc5c2cb635c1b549c0f3eb0ff3d3744be11a
+* git describe: v5.15.50-136-g2c21dc5c2cb6
+* test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15.50-136-g2c21dc5c2cb6
+
+## No test regressions (compared to v5.15.48-116-g18a33c8dabb8)
+
+## Metric Regressions (compared to v5.15.48-116-g18a33c8dabb8)
+* arm, build
+   - gcc-8-ixp4xx_defconfig-warnings
+   - gcc-9-ixp4xx_defconfig-warnings
+   - gcc-10-ixp4xx_defconfig-warnings
+   - gcc-11-ixp4xx_defconfig-warnings
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## No test fixes (compared to v5.15.48-116-g18a33c8dabb8)
+
+## No metric fixes (compared to v5.15.48-116-g18a33c8dabb8)
+
+## Test result summary
+total: 122583, pass: 109673, fail: 286, skip: 12014, xfail: 610
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 314 total, 314 passed, 0 failed
+* arm64: 58 total, 58 passed, 0 failed
+* i386: 52 total, 49 passed, 3 failed
+* mips: 37 total, 37 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 54 total, 54 passed, 0 failed
+* riscv: 22 total, 22 passed, 0 failed
+* s390: 21 total, 21 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 56 total, 55 passed, 1 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
+
 -- 
-Sincerely,
-Demi Marie Obenour (she/her/hers)
-Invisible Things Lab
+Linaro LKFT
+https://lkft.linaro.org
