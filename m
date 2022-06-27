@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 985ED55DC73
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:26:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22D2C55D3F9
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:13:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235435AbiF0Ldu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:33:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54602 "EHLO
+        id S237131AbiF0LmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:42:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235855AbiF0Lcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:32:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08B0DBC27;
-        Mon, 27 Jun 2022 04:29:45 -0700 (PDT)
+        with ESMTP id S236421AbiF0LlN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:41:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A0A3CFB;
+        Mon, 27 Jun 2022 04:35:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11E94B81120;
-        Mon, 27 Jun 2022 11:29:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4817AC3411D;
-        Mon, 27 Jun 2022 11:29:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB8EF60920;
+        Mon, 27 Jun 2022 11:35:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C159FC341C7;
+        Mon, 27 Jun 2022 11:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329382;
-        bh=CSba8t3KPko6bwOZeRrf8R9GFqgz31Oy3X9V/EUquhI=;
+        s=korg; t=1656329751;
+        bh=Zn0BYp46A4dFER39cxzvOe3JLaYepvkr5CLe4WXSL18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y5kLny5XTR3bK+XDBa7zryEsERgzDhrtsD4M8ZPSa0T7f3a/Ohhb7qqH8QAVX+zY9
-         PGogmvs1n/mLG54Ftp/n/RULe2MqUdMnEU2gaNbwr7FkCm4D1M3MPPoUzZbXMz96/i
-         7VcdHW5rmmrVaGDV0oUwl9GhqX6S9Wic9JDsfZMA=
+        b=lOcvQ0oy4pd592YKpYmT/pO9PrnqVn+haNk3Qn73wEQQrwtD4G47+kDRrTl4AIwEO
+         eKWUaQ2CsY2YVlIIi6uPSV0vMg+31XaqNm0xK6cby2JwoNrf24h4s/TsqwhDq9thHh
+         5zkDTQB5O3FOz2RiOxGL/6DGxk2aMZ7FFyX6W8yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Rokosov <ddrokosov@sberdevices.ru>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org,
+        Olivier Moysan <olivier.moysan@foss.st.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 39/60] iio:accel:bma180: rearrange iio trigger get and register
+Subject: [PATCH 5.15 103/135] iio: adc: stm32: fix maximum clock rate for stm32mp15x
 Date:   Mon, 27 Jun 2022 13:21:50 +0200
-Message-Id: <20220627111928.840058568@linuxfoundation.org>
+Message-Id: <20220627111941.145240102@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +56,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
+From: Olivier Moysan <olivier.moysan@foss.st.com>
 
-commit e5f3205b04d7f95a2ef43bce4b454a7f264d6923 upstream.
+commit 990539486e7e311fb5dab1bf4d85d1a8973ae644 upstream.
 
-IIO trigger interface function iio_trigger_get() should be called after
-iio_trigger_register() (or its devm analogue) strictly, because of
-iio_trigger_get() acquires module refcnt based on the trigger->owner
-pointer, which is initialized inside iio_trigger_register() to
-THIS_MODULE.
-If this call order is wrong, the next iio_trigger_put() (from sysfs
-callback or "delete module" path) will dereference "default" module
-refcnt, which is incorrect behaviour.
+Change maximum STM32 ADC input clock rate to 36MHz, as specified
+in STM32MP15x datasheets.
 
-Fixes: 0668a4e4d297 ("iio: accel: bma180: Fix indio_dev->trig assignment")
-Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220524181150.9240-2-ddrokosov@sberdevices.ru
+Fixes: d58c67d1d851 ("iio: adc: stm32-adc: add support for STM32MP1")
+Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
+Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20220609095234.375925-1-olivier.moysan@foss.st.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/bma180.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/adc/stm32-adc-core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -793,11 +793,12 @@ static int bma180_probe(struct i2c_clien
- 		data->trig->dev.parent = &client->dev;
- 		data->trig->ops = &bma180_trigger_ops;
- 		iio_trigger_set_drvdata(data->trig, indio_dev);
--		indio_dev->trig = iio_trigger_get(data->trig);
- 
- 		ret = iio_trigger_register(data->trig);
- 		if (ret)
- 			goto err_trigger_free;
-+
-+		indio_dev->trig = iio_trigger_get(data->trig);
- 	}
- 
- 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -809,7 +809,7 @@ static const struct stm32_adc_priv_cfg s
+ static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
+ 	.regs = &stm32h7_adc_common_regs,
+ 	.clk_sel = stm32h7_adc_clk_sel,
+-	.max_clk_rate_hz = 40000000,
++	.max_clk_rate_hz = 36000000,
+ 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
+ 	.num_irqs = 2,
+ };
 
 
