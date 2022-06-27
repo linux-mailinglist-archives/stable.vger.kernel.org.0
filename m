@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5E2C55CAEB
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:59:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F9F755DDCD
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:28:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236335AbiF0LiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:38:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33596 "EHLO
+        id S238016AbiF0Ltm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:49:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236450AbiF0Lhc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEBE1262C;
-        Mon, 27 Jun 2022 04:32:44 -0700 (PDT)
+        with ESMTP id S238154AbiF0Lrx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:47:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C061BC3F;
+        Mon, 27 Jun 2022 04:39:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C75B60023;
-        Mon, 27 Jun 2022 11:32:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C3DDC3411D;
-        Mon, 27 Jun 2022 11:32:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CDDD6B8111B;
+        Mon, 27 Jun 2022 11:39:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E061C3411D;
+        Mon, 27 Jun 2022 11:39:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329563;
-        bh=NV9RtVFudLDqIXphuh/TH5G1CLuIWV62EEo6CBzyooM=;
+        s=korg; t=1656329986;
+        bh=TPUh7iX5vNlOlZ/R9f6sa8AJcNfkI5+7JZxh5LNL6ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I0N+R2e8rXPdYFTBdemsXavd9rf8jlwv/FsMxqMj81dx9n+NNlDz+ACbLOVguKfvU
-         peWc49S6vUs7CkDULM7LNJTPZxtcJMu/fyfo+BZeq6oR8PzDBIX87SrRHtNqFVL6qf
-         6fVQD8DsTizjVeNy6nC3NFEr5M3VjlkfnXEm/RWI=
+        b=tWoPRse+5HQ4jqTIfmG4ElsDMCGmV78JDFL+tGUh4XmBZxkkxgh/pCWv2bXvLUwp8
+         DwcFgfrtFTfLA/RMIbhBsEMkINOLIDu8Jg9i2/Iqhs04N2Ua+DpiFxFKDYtZabSVRG
+         gEANSQYMhtI3fKHx43srNQ96ETH+u7RAE8wVHWBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 009/135] ALSA: hda/realtek: Add quirk for Clevo NS50PU
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Rob Clark <robdclark@gmail.com>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 043/181] drm/msm: Fix double pm_runtime_disable() call
 Date:   Mon, 27 Jun 2022 13:20:16 +0200
-Message-Id: <20220627111938.428499739@linuxfoundation.org>
+Message-Id: <20220627111945.811504398@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,30 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Crawford <tcrawford@system76.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit 627ce0d68eb4b53e995b08089fa9da1e513ec5ba upstream.
+[ Upstream commit ce0db505bc0c51ef5e9ba446c660de7e26f78f29 ]
 
-Fixes headset detection on Clevo NS50PU.
+Following commit 17e822f7591f ("drm/msm: fix unbalanced
+pm_runtime_enable in adreno_gpu_{init, cleanup}"), any call to
+adreno_unbind() will disable runtime PM twice, as indicated by the call
+trees below:
 
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220622150017.9897-1-tcrawford@system76.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  adreno_unbind()
+   -> pm_runtime_force_suspend()
+   -> pm_runtime_disable()
+
+  adreno_unbind()
+   -> gpu->funcs->destroy() [= aNxx_destroy()]
+   -> adreno_gpu_cleanup()
+   -> pm_runtime_disable()
+
+Note that pm_runtime_force_suspend() is called right before
+gpu->funcs->destroy() and both functions are called unconditionally.
+
+With recent addition of the eDP AUX bus code, this problem manifests
+itself when the eDP panel cannot be found yet and probing is deferred.
+On the first probe attempt, we disable runtime PM twice as described
+above. This then causes any later probe attempt to fail with
+
+  [drm:adreno_load_gpu [msm]] *ERROR* Couldn't power up the GPU: -13
+
+preventing the driver from loading.
+
+As there seem to be scenarios where the aNxx_destroy() functions are not
+called from adreno_unbind(), simply removing pm_runtime_disable() from
+inside adreno_unbind() does not seem to be the proper fix. This is what
+commit 17e822f7591f ("drm/msm: fix unbalanced pm_runtime_enable in
+adreno_gpu_{init, cleanup}") intended to fix. Therefore, instead check
+whether runtime PM is still enabled, and only disable it in that case.
+
+Fixes: 17e822f7591f ("drm/msm: fix unbalanced pm_runtime_enable in adreno_gpu_{init, cleanup}")
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Rob Clark <robdclark@gmail.com>
+Link: https://lore.kernel.org/r/20220606211305.189585-1-luzmaximilian@gmail.com
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/adreno/adreno_gpu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9000,6 +9000,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1558, 0x70f3, "Clevo NH77DPQ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x70f4, "Clevo NH77EPY", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x70f6, "Clevo NH77DPQ-Y", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x7716, "Clevo NS50PU", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8228, "Clevo NR40BU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8520, "Clevo NH50D[CD]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8521, "Clevo NH77D[CD]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+index 1219f71629a5..1ced7b108f2c 100644
+--- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+@@ -1002,7 +1002,8 @@ void adreno_gpu_cleanup(struct adreno_gpu *adreno_gpu)
+ 	for (i = 0; i < ARRAY_SIZE(adreno_gpu->info->fw); i++)
+ 		release_firmware(adreno_gpu->fw[i]);
+ 
+-	pm_runtime_disable(&priv->gpu_pdev->dev);
++	if (pm_runtime_enabled(&priv->gpu_pdev->dev))
++		pm_runtime_disable(&priv->gpu_pdev->dev);
+ 
+ 	msm_gpu_cleanup(&adreno_gpu->base);
+ }
+-- 
+2.35.1
+
 
 
