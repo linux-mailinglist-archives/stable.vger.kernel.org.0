@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1247555DB4B
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFE8855C8F6
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238086AbiF0LuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:50:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49548 "EHLO
+        id S235926AbiF0Let (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:34:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237999AbiF0Lrj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:47:39 -0400
+        with ESMTP id S236391AbiF0Ldp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E448CE089;
-        Mon, 27 Jun 2022 04:39:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34B2DDEC2;
+        Mon, 27 Jun 2022 04:31:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A70FB81132;
-        Mon, 27 Jun 2022 11:39:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9B8EC341C7;
-        Mon, 27 Jun 2022 11:39:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E54D3B81117;
+        Mon, 27 Jun 2022 11:31:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C507C3411D;
+        Mon, 27 Jun 2022 11:31:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329959;
-        bh=vcamq98VBHd25iHhgMm+GJMBLwZ/yz6fVH+CQ6JSKHA=;
+        s=korg; t=1656329467;
+        bh=e/p9Qnzdte42bO//Lf9lGQYdt2m/fhuBqKCHXUO+XQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SyBKs3hqipEzeH67RWXCS0ORfKEKVZoN/EOP8hxxTnH+6w94/nfK88yyxEs6xnmfl
-         m4Q9gcw6qGVXl1MyiDGC8zY33Z/alJ8dyREAWbZ31WJnGY76zHG9/fmxTtO7/RkGrZ
-         0kE+WefGHbXh0EGq609RH8rUG1bB4uoJALKdCtYI=
+        b=X7st+W5ULUzGQabBRm7RA4QgiCFPG8FO1DH5gQnF2qnnImTrS2G8eM5PmkhwU8m+O
+         4leuDnMazKaVRHEq8edy3n37tucTuR84OVhwFwT5c/ycYh7qbe+UfWxC22IaNM4qaH
+         chAXTLLfvzgo/Jr+oZvSHOw0B09ZbZnFzHL5+hN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.18 035/181] drm/i915: Implement w/a 22010492432 for adl-s
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 001/135] random: schedule mix_interrupt_randomness() less often
 Date:   Mon, 27 Jun 2022 13:20:08 +0200
-Message-Id: <20220627111945.580368516@linuxfoundation.org>
+Message-Id: <20220627111938.197936912@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,43 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 13bd259b64bb58ae130923ada42ebc19bf3f2fa2 upstream.
+commit 534d2eaf1970274150596fdd2bf552721e65d6b2 upstream.
 
-adl-s needs the combo PLL DCO fraction w/a as well.
-Gets us slightly more accurate clock out of the PLL.
+It used to be that mix_interrupt_randomness() would credit 1 bit each
+time it ran, and so add_interrupt_randomness() would schedule mix() to
+run every 64 interrupts, a fairly arbitrary number, but nonetheless
+considered to be a decent enough conservative estimate.
 
+Since e3e33fc2ea7f ("random: do not use input pool from hard IRQs"),
+mix() is now able to credit multiple bits, depending on the number of
+calls to add(). This was done for reasons separate from this commit, but
+it has the nice side effect of enabling this patch to schedule mix()
+less often.
+
+Currently the rules are:
+a) Credit 1 bit for every 64 calls to add().
+b) Schedule mix() once a second that add() is called.
+c) Schedule mix() once every 64 calls to add().
+
+Rules (a) and (c) no longer need to be coupled. It's still important to
+have _some_ value in (c), so that we don't "over-saturate" the fast
+pool, but the once per second we get from rule (b) is a plenty enough
+baseline. So, by increasing the 64 in rule (c) to something larger, we
+avoid calling queue_work_on() as frequently during irq storms.
+
+This commit changes that 64 in rule (c) to be 1024, which means we
+schedule mix() 16 times less often. And it does *not* need to change the
+64 in rule (a).
+
+Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
 Cc: stable@vger.kernel.org
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220613201439.23341-1-ville.syrjala@linux.intel.com
-Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
-(cherry picked from commit d36bdd77b9e6aa7f5cb7b0f11ebbab8e5febf10b)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_dpll_mgr.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-+++ b/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-@@ -2437,7 +2437,7 @@ static void icl_wrpll_params_populate(st
- }
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1000,7 +1000,7 @@ void add_interrupt_randomness(int irq)
+ 	if (new_count & MIX_INFLIGHT)
+ 		return;
  
- /*
-- * Display WA #22010492432: ehl, tgl, adl-p
-+ * Display WA #22010492432: ehl, tgl, adl-s, adl-p
-  * Program half of the nominal DCO divider fraction value.
-  */
- static bool
-@@ -2445,7 +2445,7 @@ ehl_combo_pll_div_frac_wa_needed(struct
- {
- 	return ((IS_PLATFORM(i915, INTEL_ELKHARTLAKE) &&
- 		 IS_JSL_EHL_DISPLAY_STEP(i915, STEP_B0, STEP_FOREVER)) ||
--		 IS_TIGERLAKE(i915) || IS_ALDERLAKE_P(i915)) &&
-+		 IS_TIGERLAKE(i915) || IS_ALDERLAKE_S(i915) || IS_ALDERLAKE_P(i915)) &&
- 		 i915->dpll.ref_clks.nssc == 38400;
- }
+-	if (new_count < 64 && !time_is_before_jiffies(fast_pool->last + HZ))
++	if (new_count < 1024 && !time_is_before_jiffies(fast_pool->last + HZ))
+ 		return;
  
+ 	if (unlikely(!fast_pool->mix.func))
 
 
