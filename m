@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E042155E0DD
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB4455D5C4
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234510AbiF0Lbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:31:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55492 "EHLO
+        id S235280AbiF0L30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:29:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235396AbiF0LbX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:31:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E76DDF;
-        Mon, 27 Jun 2022 04:28:56 -0700 (PDT)
+        with ESMTP id S235285AbiF0L24 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:28:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 905B09FC3;
+        Mon, 27 Jun 2022 04:27:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 858F8B81120;
-        Mon, 27 Jun 2022 11:28:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC595C3411D;
-        Mon, 27 Jun 2022 11:28:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CBA6B81123;
+        Mon, 27 Jun 2022 11:27:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72A28C3411D;
+        Mon, 27 Jun 2022 11:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329334;
-        bh=Ijmwv+syevkvdt93fWVqN1GeiV0joTO4w7doeUlDHqw=;
+        s=korg; t=1656329257;
+        bh=JyU7QdtanPItAWLFTxHBGyzoqPm3H0wGH2eLtiLYtEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pIV2JxwihspDQNFvVGR89JhLpEd2tW8Z74Bo+uQRudYJ9QZH5l94/qU+1RX+xeagr
-         T06b3FuHSanXkExAzQcnatQJRPyPe/k/M13UBvcMSYFy7NBpow0BpnFGwUqS8yGwJ+
-         JubN0gBKqSogqAAt/vDxjuSfD8mfXJZL97s1YHS4=
+        b=qdIhC73Z8kKgUZRC89dLGiJjd9y02mXi8AntRQjErOHwwc9XIxQkoJMM/9eHX9YHe
+         nQXLRZXqdA92TClGeChIQ/rnf+zY03Og1SJJ3E0QGpnEySWOCmcbRzyIJFjIxnT/Mj
+         RqFVdD1TmnRPvfnSo1xxmn6LJT8hTuG1se9TK+5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zdi-disclosures@trendmicro.com,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/60] udmabuf: add back sanity check
-Date:   Mon, 27 Jun 2022 13:21:35 +0200
-Message-Id: <20220627111928.376754235@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 5.10 085/102] xtensa: xtfpga: Fix refcount leak bug in setup
+Date:   Mon, 27 Jun 2022 13:21:36 +0200
+Message-Id: <20220627111935.987878420@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 05b252cccb2e5c3f56119d25de684b4f810ba40a ]
+commit 173940b3ae40114d4179c251a98ee039dc9cd5b3 upstream.
 
-Check vm_fault->pgoff before using it.  When we removed the warning, we
-also removed the check.
+In machine_setup(), of_find_compatible_node() will return a node
+pointer with refcount incremented. We should use of_node_put() when
+it is not used anymore.
 
-Fixes: 7b26e4e2119d ("udmabuf: drop WARN_ON() check.")
-Reported-by: zdi-disclosures@trendmicro.com
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Liang He <windhl@126.com>
+Message-Id: <20220617115323.4046905-1-windhl@126.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma-buf/udmabuf.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/xtensa/platforms/xtfpga/setup.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma-buf/udmabuf.c b/drivers/dma-buf/udmabuf.c
-index e553c6a937f6..c6e9b7bd7618 100644
---- a/drivers/dma-buf/udmabuf.c
-+++ b/drivers/dma-buf/udmabuf.c
-@@ -24,8 +24,11 @@ static vm_fault_t udmabuf_vm_fault(struct vm_fault *vmf)
- {
- 	struct vm_area_struct *vma = vmf->vma;
- 	struct udmabuf *ubuf = vma->vm_private_data;
-+	pgoff_t pgoff = vmf->pgoff;
+--- a/arch/xtensa/platforms/xtfpga/setup.c
++++ b/arch/xtensa/platforms/xtfpga/setup.c
+@@ -133,6 +133,7 @@ static int __init machine_setup(void)
  
--	vmf->page = ubuf->pages[vmf->pgoff];
-+	if (pgoff >= ubuf->pagecount)
-+		return VM_FAULT_SIGBUS;
-+	vmf->page = ubuf->pages[pgoff];
- 	get_page(vmf->page);
+ 	if ((eth = of_find_compatible_node(eth, NULL, "opencores,ethoc")))
+ 		update_local_mac(eth);
++	of_node_put(eth);
  	return 0;
  }
--- 
-2.35.1
-
+ arch_initcall(machine_setup);
 
 
