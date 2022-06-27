@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEAEB55D64D
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:16:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 581B755DE09
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:28:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236410AbiF0LiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:38:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58518 "EHLO
+        id S238209AbiF0Lua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:50:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236493AbiF0Lhf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E0DE285;
-        Mon, 27 Jun 2022 04:33:27 -0700 (PDT)
+        with ESMTP id S238557AbiF0Lsp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEE1ACCC;
+        Mon, 27 Jun 2022 04:42:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BED48609D0;
-        Mon, 27 Jun 2022 11:33:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0E52C3411D;
-        Mon, 27 Jun 2022 11:33:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C2EF611AE;
+        Mon, 27 Jun 2022 11:42:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68D5FC3411D;
+        Mon, 27 Jun 2022 11:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329606;
-        bh=Y/a88P4m1PWYShhzeRp5acZdPyFluwgg93mj+dAxSeQ=;
+        s=korg; t=1656330135;
+        bh=A4HDaICn0uCDyQrSgGRNZUuO67+2AgCvrl7vWIUKR1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UmBSLypyGnlKBDiPLZbrgMwr9kB0Tc+2Dcge8g2GQNOl2xFoI3cFajllfJ6oRIL1o
-         sB5wcL53t0C1Lpq4Gx8LwGHmTXAaEhCDP+aQnq2jM0WKmIqkJwdtnqN13yKaR58DT8
-         JRHvyWpYtpbyJMlJLHtFonCfm8Q5qc2dEYihDYqM=
+        b=rsklPgKx8n5DzZvj3kYgo0/5KRxe8/J2c+Vo03jKihZdifO10j/kmbYzwEA6zuDZa
+         muDwSXz4vBJwavqJQGS7UfkuM6e0sQZn5NVhzR4wGuQfWWZW7XsfobWauEtLl9KJwx
+         QqCOEWHD2c0/HaspoDKGmFQBf6FRbaTXI1M/3LPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 054/135] drm/msm/mdp4: Fix refcount leak in mdp4_modeset_init_intf
-Date:   Mon, 27 Jun 2022 13:21:01 +0200
-Message-Id: <20220627111939.727067876@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 089/181] io_uring: fail links when poll fails
+Date:   Mon, 27 Jun 2022 13:21:02 +0200
+Message-Id: <20220627111947.141035190@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,48 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit b9cc4598607cb7f7eae5c75fc1e3209cd52ff5e0 ]
+[ Upstream commit c487a5ad48831afa6784b368ec40d0ee50f2fe1b ]
 
-of_graph_get_remote_node() returns remote device node pointer with
-refcount incremented, we should use of_node_put() on it
-when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+Don't forget to cancel all linked requests of poll request when
+__io_arm_poll_handler() failed.
 
-Fixes: 86418f90a4c1 ("drm: convert drivers to use of_graph_get_remote_node")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/488473/
-Link: https://lore.kernel.org/r/20220607110841.53889-1-linmq006@gmail.com
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: aa43477b04025 ("io_uring: poll rework")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/a78aad962460f9fdfe4aa4c0b62425c88f9415bc.1655852245.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c | 2 ++
+ fs/io_uring.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-index cdcaf470f148..97ae68182f3e 100644
---- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-@@ -223,6 +223,7 @@ static int mdp4_modeset_init_intf(struct mdp4_kms *mdp4_kms,
- 		encoder = mdp4_lcdc_encoder_init(dev, panel_node);
- 		if (IS_ERR(encoder)) {
- 			DRM_DEV_ERROR(dev->dev, "failed to construct LCDC encoder\n");
-+			of_node_put(panel_node);
- 			return PTR_ERR(encoder);
- 		}
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 68aab48838e4..ca9ed3d899e6 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6399,6 +6399,8 @@ static int io_poll_add(struct io_kiocb *req, unsigned int issue_flags)
+ 	ipt.pt._qproc = io_poll_queue_proc;
  
-@@ -232,6 +233,7 @@ static int mdp4_modeset_init_intf(struct mdp4_kms *mdp4_kms,
- 		connector = mdp4_lvds_connector_init(dev, panel_node, encoder);
- 		if (IS_ERR(connector)) {
- 			DRM_DEV_ERROR(dev->dev, "failed to initialize LVDS connector\n");
-+			of_node_put(panel_node);
- 			return PTR_ERR(connector);
- 		}
- 
+ 	ret = __io_arm_poll_handler(req, &req->poll, &ipt, poll->events);
++	if (!ret && ipt.error)
++		req_set_fail(req);
+ 	ret = ret ?: ipt.error;
+ 	if (ret)
+ 		__io_req_complete(req, issue_flags, ret, 0);
 -- 
 2.35.1
 
