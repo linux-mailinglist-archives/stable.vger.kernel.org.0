@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 809E155D8E0
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:20:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEB3855DB29
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:24:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237510AbiF0Ln5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:43:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39674 "EHLO
+        id S237524AbiF0LoA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:44:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237530AbiF0LnB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:43:01 -0400
+        with ESMTP id S237601AbiF0LnI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:43:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E5D6218A;
-        Mon, 27 Jun 2022 04:38:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9513FB6F;
+        Mon, 27 Jun 2022 04:38:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA064B8111B;
-        Mon, 27 Jun 2022 11:38:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A052C385A5;
-        Mon, 27 Jun 2022 11:38:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC527B8111B;
+        Mon, 27 Jun 2022 11:38:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD97C3411D;
+        Mon, 27 Jun 2022 11:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329910;
-        bh=JXIKRGHa/Sjg+2XJ3qBVZDz5+Zbhxzia6vybKt68K9U=;
+        s=korg; t=1656329916;
+        bh=ue+w54U/iHNazrhivO6QRkOHRDLQyJs1yw2XWUUXrrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKLHoAmPJgYdIcsxt2Hq5zpJpm+Z1f/gOJIw15/9L6t/jY9e3YrSR0TkENWjQeP+g
-         h5f/uPIP6DHGAD1QoPhrBye4lwoEdMx5BbRdD4XJsC8vfIpKVunSEkX2RIJsMMlr81
-         FXWc9rL7K39t8kq6ejmfuMPybCNRdtmKdYVgUbtM=
+        b=QUwWjsM0NT6xWkkkCertHb4aORkIJjR26EtPNxJ+16NwYE6PCBchfEt8LrK9QoG9O
+         VABZu3k3YScK8W7XBSgkeOV5GrnbFFocdrsIUniT+gt3NgzdPvO6JAWtK0Z35xDv+y
+         6MpWXRc1L0/Bamo7CnbxBL6AtA0teVp8PheqIewY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
         Tyrel Datwyler <tyreld@linux.ibm.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.18 021/181] scsi: ibmvfc: Store vhost pointer during subcrq allocation
-Date:   Mon, 27 Jun 2022 13:19:54 +0200
-Message-Id: <20220627111945.179667191@linuxfoundation.org>
+Subject: [PATCH 5.18 022/181] scsi: ibmvfc: Allocate/free queue resource only during probe/remove
+Date:   Mon, 27 Jun 2022 13:19:55 +0200
+Message-Id: <20220627111945.208273750@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -56,47 +56,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-commit aeaadcde1a60138bceb65de3cdaeec78170b4459 upstream.
+commit 72ea7fe0db73d65c7d977208842d8ade9b823de9 upstream.
 
-Currently the back pointer from a queue to the vhost adapter isn't set
-until after subcrq interrupt registration. The value is available when a
-queue is first allocated and can/should be also set for primary and async
-queues as well as subcrqs.
+Currently, the sub-queues and event pool resources are allocated/freed for
+every CRQ connection event such as reset and LPM. This exposes the driver
+to a couple issues. First the inefficiency of freeing and reallocating
+memory that can simply be resued after being sanitized. Further, a system
+under memory pressue runs the risk of allocation failures that could result
+in a crippled driver. Finally, there is a race window where command
+submission/compeletion can try to pull/return elements from/to an event
+pool that is being deleted or already has been deleted due to the lack of
+host state around freeing/allocating resources. The following is an example
+of list corruption following a live partition migration (LPM):
 
-This fixes a crash observed during kexec/kdump on Power 9 with legacy XICS
-interrupt controller where a pending subcrq interrupt from the previous
-kernel can be replayed immediately upon IRQ registration resulting in
-dereference of a garbage backpointer in ibmvfc_interrupt_scsi().
-
-Kernel attempted to read user page (58) - exploit attempt? (uid: 0)
-BUG: Kernel NULL pointer dereference on read at 0x00000058
-Faulting instruction address: 0xc008000003216a08
-Oops: Kernel access of bad area, sig: 11 [#1]
-...
-NIP [c008000003216a08] ibmvfc_interrupt_scsi+0x40/0xb0 [ibmvfc]
-LR [c0000000082079e8] __handle_irq_event_percpu+0x98/0x270
+Oops: Exception in kernel mode, sig: 5 [#1]
+LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+Modules linked in: vfat fat isofs cdrom ext4 mbcache jbd2 nft_counter nft_compat nf_tables nfnetlink rpadlpar_io rpaphp xsk_diag nfsv3 nfs_acl nfs lockd grace fscache netfs rfkill bonding tls sunrpc pseries_rng drm drm_panel_orientation_quirks xfs libcrc32c dm_service_time sd_mod t10_pi sg ibmvfc scsi_transport_fc ibmveth vmx_crypto dm_multipath dm_mirror dm_region_hash dm_log dm_mod ipmi_devintf ipmi_msghandler fuse
+CPU: 0 PID: 2108 Comm: ibmvfc_0 Kdump: loaded Not tainted 5.14.0-70.9.1.el9_0.ppc64le #1
+NIP: c0000000007c4bb0 LR: c0000000007c4bac CTR: 00000000005b9a10
+REGS: c00000025c10b760 TRAP: 0700  Not tainted (5.14.0-70.9.1.el9_0.ppc64le)
+MSR: 800000000282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE> CR: 2800028f XER: 0000000f
+CFAR: c0000000001f55bc IRQMASK: 0
+        GPR00: c0000000007c4bac c00000025c10ba00 c000000002a47c00 000000000000004e
+        GPR04: c0000031e3006f88 c0000031e308bd00 c00000025c10b768 0000000000000027
+        GPR08: 0000000000000000 c0000031e3009dc0 00000031e0eb0000 0000000000000000
+        GPR12: c0000031e2ffffa8 c000000002dd0000 c000000000187108 c00000020fcee2c0
+        GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+        GPR20: 0000000000000000 0000000000000000 0000000000000000 c008000002f81300
+        GPR24: 5deadbeef0000100 5deadbeef0000122 c000000263ba6910 c00000024cc88000
+        GPR28: 000000000000003c c0000002430a0000 c0000002430ac300 000000000000c300
+NIP [c0000000007c4bb0] __list_del_entry_valid+0x90/0x100
+LR [c0000000007c4bac] __list_del_entry_valid+0x8c/0x100
 Call Trace:
-[c000000047fa3d80] [c0000000123e6180] 0xc0000000123e6180 (unreliable)
-[c000000047fa3df0] [c0000000082079e8] __handle_irq_event_percpu+0x98/0x270
-[c000000047fa3ea0] [c000000008207d18] handle_irq_event+0x98/0x188
-[c000000047fa3ef0] [c00000000820f564] handle_fasteoi_irq+0xc4/0x310
-[c000000047fa3f40] [c000000008205c60] generic_handle_irq+0x50/0x80
-[c000000047fa3f60] [c000000008015c40] __do_irq+0x70/0x1a0
-[c000000047fa3f90] [c000000008016d7c] __do_IRQ+0x9c/0x130
-[c000000014622f60] [0000000020000000] 0x20000000
-[c000000014622ff0] [c000000008016e50] do_IRQ+0x40/0xa0
-[c000000014623020] [c000000008017044] replay_soft_interrupts+0x194/0x2f0
-[c000000014623210] [c0000000080172a8] arch_local_irq_restore+0x108/0x170
-[c000000014623240] [c000000008eb1008] _raw_spin_unlock_irqrestore+0x58/0xb0
-[c000000014623270] [c00000000820b12c] __setup_irq+0x49c/0x9f0
-[c000000014623310] [c00000000820b7c0] request_threaded_irq+0x140/0x230
-[c000000014623380] [c008000003212a50] ibmvfc_register_scsi_channel+0x1e8/0x2f0 [ibmvfc]
-[c000000014623450] [c008000003213d1c] ibmvfc_init_sub_crqs+0xc4/0x1f0 [ibmvfc]
-[c0000000146234d0] [c0080000032145a8] ibmvfc_reset_crq+0x150/0x210 [ibmvfc]
-[c000000014623550] [c0080000032147c8] ibmvfc_init_crq+0x160/0x280 [ibmvfc]
-[c0000000146235f0] [c00800000321a9cc] ibmvfc_probe+0x2a4/0x530 [ibmvfc]
+[c00000025c10ba00] [c0000000007c4bac] __list_del_entry_valid+0x8c/0x100 (unreliable)
+[c00000025c10ba60] [c008000002f42284] ibmvfc_free_queue+0xec/0x210 [ibmvfc]
+[c00000025c10bb10] [c008000002f4246c] ibmvfc_deregister_scsi_channel+0xc4/0x160 [ibmvfc]
+[c00000025c10bba0] [c008000002f42580] ibmvfc_release_sub_crqs+0x78/0x130 [ibmvfc]
+[c00000025c10bc20] [c008000002f4f6cc] ibmvfc_do_work+0x5c4/0xc70 [ibmvfc]
+[c00000025c10bce0] [c008000002f4fdec] ibmvfc_work+0x74/0x1e8 [ibmvfc]
+[c00000025c10bda0] [c0000000001872b8] kthread+0x1b8/0x1c0
+[c00000025c10be10] [c00000000000cd64] ret_from_kernel_thread+0x5c/0x64
+Instruction dump:
+40820034 38600001 38210060 4e800020 7c0802a6 7c641b78 3c62fe7a 7d254b78
+3863b590 f8010070 4ba309cd 60000000 <0fe00000> 7c0802a6 3c62fe7a 3863b640
+---[ end trace 11a2b65a92f8b66c ]---
+ibmvfc 30000003: Send warning. Receive queue closed, will retry.
 
-Link: https://lore.kernel.org/r/20220616191126.1281259-2-tyreld@linux.ibm.com
+Add registration/deregistration helpers that are called instead during
+connection resets to sanitize and reconfigure the queues.
+
+Link: https://lore.kernel.org/r/20220616191126.1281259-3-tyreld@linux.ibm.com
 Fixes: 3034ebe26389 ("scsi: ibmvfc: Add alloc/dealloc routines for SCSI Sub-CRQ Channels")
 Cc: stable@vger.kernel.org
 Reviewed-by: Brian King <brking@linux.vnet.ibm.com>
@@ -104,46 +113,175 @@ Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c |    3 ++-
- drivers/scsi/ibmvscsi/ibmvfc.h |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/ibmvscsi/ibmvfc.c |   79 ++++++++++++++++++++++++++++++++---------
+ 1 file changed, 62 insertions(+), 17 deletions(-)
 
 --- a/drivers/scsi/ibmvscsi/ibmvfc.c
 +++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -5682,6 +5682,8 @@ static int ibmvfc_alloc_queue(struct ibm
- 	queue->cur = 0;
- 	queue->fmt = fmt;
- 	queue->size = PAGE_SIZE / fmt_size;
+@@ -160,8 +160,8 @@ static void ibmvfc_npiv_logout(struct ib
+ static void ibmvfc_tgt_implicit_logout_and_del(struct ibmvfc_target *);
+ static void ibmvfc_tgt_move_login(struct ibmvfc_target *);
+ 
+-static void ibmvfc_release_sub_crqs(struct ibmvfc_host *);
+-static void ibmvfc_init_sub_crqs(struct ibmvfc_host *);
++static void ibmvfc_dereg_sub_crqs(struct ibmvfc_host *);
++static void ibmvfc_reg_sub_crqs(struct ibmvfc_host *);
+ 
+ static const char *unknown_error = "unknown error";
+ 
+@@ -917,7 +917,7 @@ static int ibmvfc_reenable_crq_queue(str
+ 	struct vio_dev *vdev = to_vio_dev(vhost->dev);
+ 	unsigned long flags;
+ 
+-	ibmvfc_release_sub_crqs(vhost);
++	ibmvfc_dereg_sub_crqs(vhost);
+ 
+ 	/* Re-enable the CRQ */
+ 	do {
+@@ -936,7 +936,7 @@ static int ibmvfc_reenable_crq_queue(str
+ 	spin_unlock(vhost->crq.q_lock);
+ 	spin_unlock_irqrestore(vhost->host->host_lock, flags);
+ 
+-	ibmvfc_init_sub_crqs(vhost);
++	ibmvfc_reg_sub_crqs(vhost);
+ 
+ 	return rc;
+ }
+@@ -955,7 +955,7 @@ static int ibmvfc_reset_crq(struct ibmvf
+ 	struct vio_dev *vdev = to_vio_dev(vhost->dev);
+ 	struct ibmvfc_queue *crq = &vhost->crq;
+ 
+-	ibmvfc_release_sub_crqs(vhost);
++	ibmvfc_dereg_sub_crqs(vhost);
+ 
+ 	/* Close the CRQ */
+ 	do {
+@@ -988,7 +988,7 @@ static int ibmvfc_reset_crq(struct ibmvf
+ 	spin_unlock(vhost->crq.q_lock);
+ 	spin_unlock_irqrestore(vhost->host->host_lock, flags);
+ 
+-	ibmvfc_init_sub_crqs(vhost);
++	ibmvfc_reg_sub_crqs(vhost);
+ 
+ 	return rc;
+ }
+@@ -5759,9 +5759,6 @@ static int ibmvfc_register_scsi_channel(
+ 
+ 	ENTER;
+ 
+-	if (ibmvfc_alloc_queue(vhost, scrq, IBMVFC_SUB_CRQ_FMT))
+-		return -ENOMEM;
+-
+ 	rc = h_reg_sub_crq(vdev->unit_address, scrq->msg_token, PAGE_SIZE,
+ 			   &scrq->cookie, &scrq->hw_irq);
+ 
+@@ -5801,7 +5798,6 @@ irq_failed:
+ 		rc = plpar_hcall_norets(H_FREE_SUB_CRQ, vdev->unit_address, scrq->cookie);
+ 	} while (rtas_busy_delay(rc));
+ reg_failed:
+-	ibmvfc_free_queue(vhost, scrq);
+ 	LEAVE;
+ 	return rc;
+ }
+@@ -5827,12 +5823,50 @@ static void ibmvfc_deregister_scsi_chann
+ 	if (rc)
+ 		dev_err(dev, "Failed to free sub-crq[%d]: rc=%ld\n", index, rc);
+ 
+-	ibmvfc_free_queue(vhost, scrq);
++	/* Clean out the queue */
++	memset(scrq->msgs.crq, 0, PAGE_SIZE);
++	scrq->cur = 0;
 +
-+	queue->vhost = vhost;
- 	return 0;
++	LEAVE;
++}
++
++static void ibmvfc_reg_sub_crqs(struct ibmvfc_host *vhost)
++{
++	int i, j;
++
++	ENTER;
++	if (!vhost->mq_enabled || !vhost->scsi_scrqs.scrqs)
++		return;
++
++	for (i = 0; i < nr_scsi_hw_queues; i++) {
++		if (ibmvfc_register_scsi_channel(vhost, i)) {
++			for (j = i; j > 0; j--)
++				ibmvfc_deregister_scsi_channel(vhost, j - 1);
++			vhost->do_enquiry = 0;
++			return;
++		}
++	}
++
++	LEAVE;
++}
++
++static void ibmvfc_dereg_sub_crqs(struct ibmvfc_host *vhost)
++{
++	int i;
++
++	ENTER;
++	if (!vhost->mq_enabled || !vhost->scsi_scrqs.scrqs)
++		return;
++
++	for (i = 0; i < nr_scsi_hw_queues; i++)
++		ibmvfc_deregister_scsi_channel(vhost, i);
++
+ 	LEAVE;
  }
  
-@@ -5790,7 +5792,6 @@ static int ibmvfc_register_scsi_channel(
+ static void ibmvfc_init_sub_crqs(struct ibmvfc_host *vhost)
+ {
++	struct ibmvfc_queue *scrq;
+ 	int i, j;
+ 
+ 	ENTER;
+@@ -5848,30 +5882,41 @@ static void ibmvfc_init_sub_crqs(struct
  	}
  
- 	scrq->hwq_id = index;
--	scrq->vhost = vhost;
+ 	for (i = 0; i < nr_scsi_hw_queues; i++) {
+-		if (ibmvfc_register_scsi_channel(vhost, i)) {
+-			for (j = i; j > 0; j--)
+-				ibmvfc_deregister_scsi_channel(vhost, j - 1);
++		scrq = &vhost->scsi_scrqs.scrqs[i];
++		if (ibmvfc_alloc_queue(vhost, scrq, IBMVFC_SUB_CRQ_FMT)) {
++			for (j = i; j > 0; j--) {
++				scrq = &vhost->scsi_scrqs.scrqs[j - 1];
++				ibmvfc_free_queue(vhost, scrq);
++			}
+ 			kfree(vhost->scsi_scrqs.scrqs);
+ 			vhost->scsi_scrqs.scrqs = NULL;
+ 			vhost->scsi_scrqs.active_queues = 0;
+ 			vhost->do_enquiry = 0;
+-			break;
++			vhost->mq_enabled = 0;
++			return;
+ 		}
+ 	}
  
++	ibmvfc_reg_sub_crqs(vhost);
++
  	LEAVE;
- 	return 0;
---- a/drivers/scsi/ibmvscsi/ibmvfc.h
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.h
-@@ -789,6 +789,7 @@ struct ibmvfc_queue {
- 	spinlock_t _lock;
- 	spinlock_t *q_lock;
+ }
  
-+	struct ibmvfc_host *vhost;
- 	struct ibmvfc_event_pool evt_pool;
- 	struct list_head sent;
- 	struct list_head free;
-@@ -797,7 +798,6 @@ struct ibmvfc_queue {
- 	union ibmvfc_iu cancel_rsp;
+ static void ibmvfc_release_sub_crqs(struct ibmvfc_host *vhost)
+ {
++	struct ibmvfc_queue *scrq;
+ 	int i;
  
- 	/* Sub-CRQ fields */
--	struct ibmvfc_host *vhost;
- 	unsigned long cookie;
- 	unsigned long vios_cookie;
- 	unsigned long hw_irq;
+ 	ENTER;
+ 	if (!vhost->scsi_scrqs.scrqs)
+ 		return;
+ 
+-	for (i = 0; i < nr_scsi_hw_queues; i++)
+-		ibmvfc_deregister_scsi_channel(vhost, i);
++	ibmvfc_dereg_sub_crqs(vhost);
++
++	for (i = 0; i < nr_scsi_hw_queues; i++) {
++		scrq = &vhost->scsi_scrqs.scrqs[i];
++		ibmvfc_free_queue(vhost, scrq);
++	}
+ 
+ 	kfree(vhost->scsi_scrqs.scrqs);
+ 	vhost->scsi_scrqs.scrqs = NULL;
 
 
