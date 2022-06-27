@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44FC655E20B
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A16E55D886
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:20:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236455AbiF0Lic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:38:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34832 "EHLO
+        id S235071AbiF0L0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:26:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236527AbiF0Lhi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:37:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DB06560;
-        Mon, 27 Jun 2022 04:34:00 -0700 (PDT)
+        with ESMTP id S234967AbiF0LZj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:25:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9A6465F6;
+        Mon, 27 Jun 2022 04:25:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FD9360A10;
-        Mon, 27 Jun 2022 11:34:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 357C3C36AE3;
-        Mon, 27 Jun 2022 11:33:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89A3EB81120;
+        Mon, 27 Jun 2022 11:25:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDDB4C3411D;
+        Mon, 27 Jun 2022 11:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329639;
-        bh=klJ26jnLWH9oFW4gAZy/aelKxwmR4wrpLRbrkGf00zU=;
+        s=korg; t=1656329130;
+        bh=CzEvVMsq7MbqC5iRtVZJf74lx8fGoF1f7lKbuEE3YxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UyBoZPbufhi9FHLaF0/oZmh4zepKBUC4xMHmd3ZMSFLwgaUWKwt4YcnujDNp/fcDF
-         hMORkAqgLVPUJ/TU4kJU/fgqlhHU5sbjFEtkrHynYKRN2kSd5XKOHhuA47oTz52QLW
-         E8AGxAgewV7zz/xsaGMPM+dbPkmqWWqOaacs9lK4=
+        b=PCzdD8YaF2zmlkCILD8MpxF+IbL7cRgZ2cT0ym9CjnxBx4YYCM5xPNjAdhUc0iLeQ
+         nZ+3seCDuIuqgNX5DMgMVsxw9Gc5BO+TnmfNTXsidRD4I/1CCnFQ5Xz1BRnTywpShB
+         HZVH6sKY5gm8NtgK4bV+iE6iC1nEYYbxSRdXHMTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Jie2x Zhou <jie2x.zhou@intel.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Pankaj Raghav <p.raghav@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 064/135] selftests: netfilter: correct PKTGEN_SCRIPT_PATHS in nft_concat_range.sh
+Subject: [PATCH 5.10 060/102] nvme: move the Samsung X5 quirk entry to the core quirks
 Date:   Mon, 27 Jun 2022 13:21:11 +0200
-Message-Id: <20220627111940.014952326@linuxfoundation.org>
+Message-Id: <20220627111935.252321824@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie2x Zhou <jie2x.zhou@intel.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 5d79d8af8dec58bf709b3124d09d9572edd9c617 ]
+[ Upstream commit e6487833182a8a0187f0292aca542fc163ccd03e ]
 
-Before change:
-make -C netfilter
- TEST: performance
-   net,port                                                      [SKIP]
-   perf not supported
-   port,net                                                      [SKIP]
-   perf not supported
-   net6,port                                                     [SKIP]
-   perf not supported
-   port,proto                                                    [SKIP]
-   perf not supported
-   net6,port,mac                                                 [SKIP]
-   perf not supported
-   net6,port,mac,proto                                           [SKIP]
-   perf not supported
-   net,mac                                                       [SKIP]
-   perf not supported
+This device shares the PCI ID with the Samsung 970 Evo Plus that
+does not need or want the quirks.  Move the the quirk entry to the
+core table based on the model number instead.
 
-After change:
-   net,mac                                                       [ OK ]
-     baseline (drop from netdev hook):               2061098pps
-     baseline hash (non-ranged entries):             1606741pps
-     baseline rbtree (match on first field only):    1191607pps
-     set with  1000 full, ranged entries:            1639119pps
-ok 8 selftests: netfilter: nft_concat_range.sh
-
-Fixes: 611973c1e06f ("selftests: netfilter: Introduce tests for sets with range concatenation")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jie2x Zhou <jie2x.zhou@intel.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: bc360b0b1611 ("nvme-pci: add quirks for Samsung X5 SSDs")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Pankaj Raghav <p.raghav@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/netfilter/nft_concat_range.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 14 ++++++++++++++
+ drivers/nvme/host/pci.c  |  4 ----
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/netfilter/nft_concat_range.sh b/tools/testing/selftests/netfilter/nft_concat_range.sh
-index b5eef5ffb58e..af3461cb5c40 100755
---- a/tools/testing/selftests/netfilter/nft_concat_range.sh
-+++ b/tools/testing/selftests/netfilter/nft_concat_range.sh
-@@ -31,7 +31,7 @@ BUGS="flush_remove_add reload"
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 9ec3ac367a76..af2902d70b19 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2713,6 +2713,20 @@ static const struct nvme_core_quirk_entry core_quirks[] = {
+ 		.vid = 0x1e0f,
+ 		.mn = "KCD6XVUL6T40",
+ 		.quirks = NVME_QUIRK_NO_APST,
++	},
++	{
++		/*
++		 * The external Samsung X5 SSD fails initialization without a
++		 * delay before checking if it is ready and has a whole set of
++		 * other problems.  To make this even more interesting, it
++		 * shares the PCI ID with internal Samsung 970 Evo Plus that
++		 * does not need or want these quirks.
++		 */
++		.vid = 0x144d,
++		.mn = "Samsung Portable SSD X5",
++		.quirks = NVME_QUIRK_DELAY_BEFORE_CHK_RDY |
++			  NVME_QUIRK_NO_DEEPEST_PS |
++			  NVME_QUIRK_IGNORE_DEV_SUBNQN,
+ 	}
+ };
  
- # List of possible paths to pktgen script from kernel tree for performance tests
- PKTGEN_SCRIPT_PATHS="
--	../../../samples/pktgen/pktgen_bench_xmit_mode_netif_receive.sh
-+	../../../../samples/pktgen/pktgen_bench_xmit_mode_netif_receive.sh
- 	pktgen/pktgen_bench_xmit_mode_netif_receive.sh"
- 
- # Definition of set types:
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 31c6938e5045..9e633f4dcec7 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3265,10 +3265,6 @@ static const struct pci_device_id nvme_id_table[] = {
+ 				NVME_QUIRK_128_BYTES_SQES |
+ 				NVME_QUIRK_SHARED_TAGS |
+ 				NVME_QUIRK_SKIP_CID_GEN },
+-	{ PCI_DEVICE(0x144d, 0xa808),   /* Samsung X5 */
+-		.driver_data =  NVME_QUIRK_DELAY_BEFORE_CHK_RDY|
+-				NVME_QUIRK_NO_DEEPEST_PS |
+-				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
+ 	{ 0, }
+ };
 -- 
 2.35.1
 
