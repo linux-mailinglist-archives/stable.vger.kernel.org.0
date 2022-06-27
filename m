@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA66755C742
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:53:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A59E755CF3E
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237299AbiF0Lnl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:43:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36214 "EHLO
+        id S235672AbiF0LeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:34:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237416AbiF0Lmt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39C07F30;
-        Mon, 27 Jun 2022 04:37:33 -0700 (PDT)
+        with ESMTP id S236207AbiF0Ld1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B510ECE35;
+        Mon, 27 Jun 2022 04:30:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF004B81117;
-        Mon, 27 Jun 2022 11:37:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 118D9C3411D;
-        Mon, 27 Jun 2022 11:37:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B43F614F0;
+        Mon, 27 Jun 2022 11:30:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16C18C341D2;
+        Mon, 27 Jun 2022 11:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329850;
-        bh=B2hSXjbr+rHpgwDe32O/tcnJQcZZzJ7ADtnfxO42u40=;
+        s=korg; t=1656329435;
+        bh=zTmVWyeo9uBh0jWVQ7ODzF2cjoMO46JiMkOWCxwDuJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bedk/Vm+MrRX3kyJ511Nh3TY3As1ONjGamOHaNasC/7W7KD+tu2gxCfUqtQ3HaMgP
-         QmVYhVriPCOXuZ7T3SM6ENCVQR0n1Kj5fTFF7UhCvn8U7mJ5xezt/QXTbSuXgK7EMs
-         cFepkgER8ecspNXNg+bFwBZGxldrplXDFJDQWRWI=
+        b=ROVGLgvXqBkipx1qNjGShsbrd1S2BThlQILZj/oAzq3UcmxxNoXv3lFEERiDjNaIp
+         23oawrg36eXEdA+yYElmZg/UhPBgqGwnzffP/xLWHZynyBUZyavOMEsnV2gjbGfytO
+         3tCgv2TY7FdXjnjzB/c5re89ACbUWaoZI39tRD8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
-        Nishanth Menon <nm@ti.com>
-Subject: [PATCH 5.15 123/135] arm64: dts: ti: k3-am64-main: Remove support for HS400 speed mode
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 5.4 59/60] kbuild: link vmlinux only once for CONFIG_TRIM_UNUSED_KSYMS (2nd attempt)
 Date:   Mon, 27 Jun 2022 13:22:10 +0200
-Message-Id: <20220627111941.724118150@linuxfoundation.org>
+Message-Id: <20220627111929.426963379@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aswath Govindraju <a-govindraju@ti.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 0c0af88f3f318e73237f7fadd02d0bf2b6c996bb upstream.
+commit 53632ba87d9f302a8d97a11ec2f4f4eec7bb75ea upstream.
 
-AM64 SoC, does not support HS400 and HS200 is the maximum supported speed
-mode[1]. Therefore, fix the device tree node to reflect the same.
+If CONFIG_TRIM_UNUSED_KSYMS is enabled and the kernel is built from
+a pristine state, the vmlinux is linked twice.
 
-[1] - https://www.ti.com/lit/ds/symlink/am6442.pdf
-      (SPRSP56C – JANUARY 2021 – REVISED FEBRUARY 2022)
+Commit 3fdc7d3fe4c0 ("kbuild: link vmlinux only once for
+CONFIG_TRIM_UNUSED_KSYMS") explains why this happens, but it did not fix
+the issue at all.
 
-Fixes: 8abae9389bdb ("arm64: dts: ti: Add support for AM642 SoC")
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20220512064859.32059-1-a-govindraju@ti.com
+Now I realized I had applied a wrong patch.
+
+In v1 patch [1], the autoksyms_recursive target correctly recurses to
+"$(MAKE) -f $(srctree)/Makefile autoksyms_recursive".
+
+In v2 patch [2], I accidentally dropped the diff line, and it recurses to
+"$(MAKE) -f $(srctree)/Makefile vmlinux".
+
+Restore the code I intended in v1.
+
+[1]: https://lore.kernel.org/linux-kbuild/1521045861-22418-8-git-send-email-yamada.masahiro@socionext.com/
+[2]: https://lore.kernel.org/linux-kbuild/1521166725-24157-8-git-send-email-yamada.masahiro@socionext.com/
+
+Fixes: 3fdc7d3fe4c0 ("kbuild: link vmlinux only once for CONFIG_TRIM_UNUSED_KSYMS")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Tested-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/ti/k3-am64-main.dtsi |    2 --
- 1 file changed, 2 deletions(-)
+ Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/boot/dts/ti/k3-am64-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-am64-main.dtsi
-@@ -456,13 +456,11 @@
- 		clock-names = "clk_ahb", "clk_xin";
- 		mmc-ddr-1_8v;
- 		mmc-hs200-1_8v;
--		mmc-hs400-1_8v;
- 		ti,trm-icp = <0x2>;
- 		ti,otap-del-sel-legacy = <0x0>;
- 		ti,otap-del-sel-mmc-hs = <0x0>;
- 		ti,otap-del-sel-ddr52 = <0x6>;
- 		ti,otap-del-sel-hs200 = <0x7>;
--		ti,otap-del-sel-hs400 = <0x4>;
- 	};
+--- a/Makefile
++++ b/Makefile
+@@ -1073,7 +1073,7 @@ PHONY += autoksyms_recursive
+ ifdef CONFIG_TRIM_UNUSED_KSYMS
+ autoksyms_recursive: descend modules.order
+ 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/adjust_autoksyms.sh \
+-	  "$(MAKE) -f $(srctree)/Makefile vmlinux"
++	  "$(MAKE) -f $(srctree)/Makefile autoksyms_recursive"
+ endif
  
- 	sdhci1: mmc@fa00000 {
+ # For the kernel to actually contain only the needed exported symbols,
 
 
