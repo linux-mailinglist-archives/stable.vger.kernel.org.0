@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DC5C55C504
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:50:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0AEF55E384
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238610AbiF0Lxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54150 "EHLO
+        id S238746AbiF0Lxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:53:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238989AbiF0Lw5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AA1EBC0C;
-        Mon, 27 Jun 2022 04:46:52 -0700 (PDT)
+        with ESMTP id S238928AbiF0Lwu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8271BDF24;
+        Mon, 27 Jun 2022 04:46:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBB45610A0;
-        Mon, 27 Jun 2022 11:46:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C355C3411D;
-        Mon, 27 Jun 2022 11:46:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F3BE61274;
+        Mon, 27 Jun 2022 11:46:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BF51C3411D;
+        Mon, 27 Jun 2022 11:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330411;
-        bh=w8pEeD49eTpvRe45M7NoRlebckBgfBtMDWOyG0gSJaQ=;
+        s=korg; t=1656330390;
+        bh=Qd/CJBdk7IjouJA7xPLfk0c+qDDiBr7bA/pHqdsM3U0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WroO5MbUDC0S6dLsX9wskKrZcvqaF8Rzq5jsfHBneQlHknSwCAoGjaLBAyTxJa+TV
-         43MdzOktBjrZJ+XCXOXDXgHElWQE2t9DjNkNV5GfJBHhHpbYTm56udTO24RzcMTh00
-         Z5n8C2Qaxw2Vov14JMKjFHG0B6IG6JGqpAWcFmGM=
+        b=glXmQciCVIdOL892duyh8q+tvsHxrtcDIYwn6cuAX/NTreKKmK1pPcAPYh/m5GkSf
+         v1vjvPAR2gT0HXtOs3teJ9e3dApEf78f5OUbr2MxlmfWSDuQ9KMTG25uWPXXZurw8I
+         CVgp201gyv8skECBOVGWLGPqScKWS1LpyNRDAUlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ivan T. Ivanov" <iivanov@suse.de>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.18 174/181] ARM: dts: bcm2711-rpi-400: Fix GPIO line names
-Date:   Mon, 27 Jun 2022 13:22:27 +0200
-Message-Id: <20220627111949.729189256@linuxfoundation.org>
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.18 175/181] smb3: fix empty netname context on secondary channels
+Date:   Mon, 27 Jun 2022 13:22:28 +0200
+Message-Id: <20220627111949.758271609@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -54,39 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Steve French <stfrench@microsoft.com>
 
-commit b9b6d4c925604b70d007feb4c77b8cc4c038d2da upstream.
+commit 73130a7b1ac92c9f30e0a255951129f4851c5794 upstream.
 
-The GPIO expander line names has been fixed in the vendor tree last year,
-so upstream these changes.
+Some servers do not allow null netname contexts, which would cause
+multichannel to revert to single channel when mounting to some
+servers (e.g. Azure xSMB).
 
-Fixes: 1c701accecf2 ("ARM: dts: Add Raspberry Pi 400 support")
-Reported-by: Ivan T. Ivanov <iivanov@suse.de>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 4c14d7043fede ("cifs: populate empty hostnames for extra channels")
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/bcm2711-rpi-400.dts |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/cifs/smb2pdu.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/arch/arm/boot/dts/bcm2711-rpi-400.dts
-+++ b/arch/arm/boot/dts/bcm2711-rpi-400.dts
-@@ -28,12 +28,12 @@
- &expgpio {
- 	gpio-line-names = "BT_ON",
- 			  "WL_ON",
--			  "",
-+			  "PWR_LED_OFF",
- 			  "GLOBAL_RESET",
- 			  "VDD_SD_IO_SEL",
--			  "CAM_GPIO",
-+			  "GLOBAL_SHUTDOWN",
- 			  "SD_PWR_ON",
--			  "SD_OC_N";
-+			  "SHUTDOWN_REQUEST";
- };
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -570,16 +570,18 @@ assemble_neg_contexts(struct smb2_negoti
+ 	*total_len += ctxt_len;
+ 	pneg_ctxt += ctxt_len;
  
- &genet_mdio {
+-	ctxt_len = build_netname_ctxt((struct smb2_netname_neg_context *)pneg_ctxt,
+-					server->hostname);
+-	*total_len += ctxt_len;
+-	pneg_ctxt += ctxt_len;
+-
+ 	build_posix_ctxt((struct smb2_posix_neg_context *)pneg_ctxt);
+ 	*total_len += sizeof(struct smb2_posix_neg_context);
+ 	pneg_ctxt += sizeof(struct smb2_posix_neg_context);
+ 
+-	neg_context_count = 4;
++	if (server->hostname && (server->hostname[0] != 0)) {
++		ctxt_len = build_netname_ctxt((struct smb2_netname_neg_context *)pneg_ctxt,
++					server->hostname);
++		*total_len += ctxt_len;
++		pneg_ctxt += ctxt_len;
++		neg_context_count = 4;
++	} else /* second channels do not have a hostname */
++		neg_context_count = 3;
+ 
+ 	if (server->compress_algorithm) {
+ 		build_compression_ctxt((struct smb2_compression_capabilities_context *)
 
 
