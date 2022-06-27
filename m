@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D884A55D3A5
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:12:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95B1955D2B7
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237878AbiF0LtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:49:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45234 "EHLO
+        id S237503AbiF0Lnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238242AbiF0LsK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55F02BCB3;
-        Mon, 27 Jun 2022 04:40:08 -0700 (PDT)
+        with ESMTP id S237445AbiF0Lmw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63C732DA;
+        Mon, 27 Jun 2022 04:38:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1F0761189;
-        Mon, 27 Jun 2022 11:40:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD900C341CB;
-        Mon, 27 Jun 2022 11:40:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10D4DB8112E;
+        Mon, 27 Jun 2022 11:38:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68AC6C3411D;
+        Mon, 27 Jun 2022 11:38:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330007;
-        bh=bvE7pUXu9UZetb17AyI0bAhjaGK3GCkKQJQrvyIq5Dg=;
+        s=korg; t=1656329880;
+        bh=UXmXFvzp1JGZ0YZ7fIZD//KA9WBYK5mJVt6L9x5iplM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xu5dEthc0MNdykgUbwuw9QGo1c/tDn+oMEgnTUc6gHXZY3A2QiiFPQvLq4g3qr28P
-         57DjSXyzSuDW3gdTmfzebyIoXjuOLBiBbWlJeyEdIVzqbxZeA8Bh7YMwRqr9o47Frv
-         HISM72uy5a9w9SqTFWutje0LC+eJ+eOTOODkMXWQ=
+        b=FJTysfYTwgwSzoj2lkfCSs+hK0zAfXRkOGrdL9rO3AkkDnKparwgMKO9e7uVLr1Hz
+         oGT2N3eYhoKE70J27kIkWn25hAUiQahYoYsRLHrBKkbNmR4Q8Q4R39/nBRMz3pqdjD
+         uY24eQpV+UUY5EUwvY8g8HcyC8WruANN9T+OHnMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Ron Economos <re@w6rz.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.18 002/181] random: quiet urandom warning ratelimit suppression message
-Date:   Mon, 27 Jun 2022 13:19:35 +0200
-Message-Id: <20220627111944.629481911@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.18 003/181] ALSA: memalloc: Drop x86-specific hack for WC allocations
+Date:   Mon, 27 Jun 2022 13:19:36 +0200
+Message-Id: <20220627111944.658448755@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -54,72 +52,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit c01d4d0a82b71857be7449380338bc53dde2da92 upstream.
+commit 9882d63bea14c8b3ed2c9360b9ab9f0e2f64ae2b upstream.
 
-random.c ratelimits how much it warns about uninitialized urandom reads
-using __ratelimit(). When the RNG is finally initialized, it prints the
-number of missed messages due to ratelimiting.
+The recent report for a crash on Haswell machines implied that the
+x86-specific (rather hackish) implementation for write-cache memory
+buffer allocation in ALSA core is buggy with the recent kernel in some
+corner cases.  This patch drops the x86-specific implementation and
+uses the standard dma_alloc_wc() & co generically for avoiding the bug
+and also for simplification.
 
-It has been this way since that functionality was introduced back in
-2018. Recently, cc1e127bfa95 ("random: remove ratelimiting for in-kernel
-unseeded randomness") put a bit more stress on the urandom ratelimiting,
-which teased out a bug in the implementation.
-
-Specifically, when under pressure, __ratelimit() will print its own
-message and reset the count back to 0, making the final message at the
-end less useful. Secondly, it does so as a pr_warn(), which apparently
-is undesirable for people's CI.
-
-Fortunately, __ratelimit() has the RATELIMIT_MSG_ON_RELEASE flag exactly
-for this purpose, so we set the flag.
-
-Fixes: 4e00b339e264 ("random: rate limit unseeded randomness warnings")
-Cc: stable@vger.kernel.org
-Reported-by: Jon Hunter <jonathanh@nvidia.com>
-Reported-by: Ron Economos <re@w6rz.net>
-Tested-by: Ron Economos <re@w6rz.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216112
+Cc: <stable@vger.kernel.org> # v5.18+
+Link: https://lore.kernel.org/r/20220620073440.7514-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c           |    2 +-
- include/linux/ratelimit_types.h |   12 ++++++++----
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ sound/core/memalloc.c | 23 +----------------------
+ 1 file changed, 1 insertion(+), 22 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -87,7 +87,7 @@ static RAW_NOTIFIER_HEAD(random_ready_ch
+diff --git a/sound/core/memalloc.c b/sound/core/memalloc.c
+index 15dc7160ba34..8cfdaee77905 100644
+--- a/sound/core/memalloc.c
++++ b/sound/core/memalloc.c
+@@ -431,33 +431,17 @@ static const struct snd_malloc_ops snd_dma_iram_ops = {
+  */
+ static void *snd_dma_dev_alloc(struct snd_dma_buffer *dmab, size_t size)
+ {
+-	void *p;
+-
+-	p = dma_alloc_coherent(dmab->dev.dev, size, &dmab->addr, DEFAULT_GFP);
+-#ifdef CONFIG_X86
+-	if (p && dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC)
+-		set_memory_wc((unsigned long)p, PAGE_ALIGN(size) >> PAGE_SHIFT);
+-#endif
+-	return p;
++	return dma_alloc_coherent(dmab->dev.dev, size, &dmab->addr, DEFAULT_GFP);
+ }
  
- /* Control how we warn userspace. */
- static struct ratelimit_state urandom_warning =
--	RATELIMIT_STATE_INIT("warn_urandom_randomness", HZ, 3);
-+	RATELIMIT_STATE_INIT_FLAGS("urandom_warning", HZ, 3, RATELIMIT_MSG_ON_RELEASE);
- static int ratelimit_disable __read_mostly =
- 	IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM);
- module_param_named(ratelimit_disable, ratelimit_disable, int, 0644);
---- a/include/linux/ratelimit_types.h
-+++ b/include/linux/ratelimit_types.h
-@@ -23,12 +23,16 @@ struct ratelimit_state {
- 	unsigned long	flags;
+ static void snd_dma_dev_free(struct snd_dma_buffer *dmab)
+ {
+-#ifdef CONFIG_X86
+-	if (dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC)
+-		set_memory_wb((unsigned long)dmab->area,
+-			      PAGE_ALIGN(dmab->bytes) >> PAGE_SHIFT);
+-#endif
+ 	dma_free_coherent(dmab->dev.dev, dmab->bytes, dmab->area, dmab->addr);
+ }
+ 
+ static int snd_dma_dev_mmap(struct snd_dma_buffer *dmab,
+ 			    struct vm_area_struct *area)
+ {
+-#ifdef CONFIG_X86
+-	if (dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC)
+-		area->vm_page_prot = pgprot_writecombine(area->vm_page_prot);
+-#endif
+ 	return dma_mmap_coherent(dmab->dev.dev, area,
+ 				 dmab->area, dmab->addr, dmab->bytes);
+ }
+@@ -471,10 +455,6 @@ static const struct snd_malloc_ops snd_dma_dev_ops = {
+ /*
+  * Write-combined pages
+  */
+-#ifdef CONFIG_X86
+-/* On x86, share the same ops as the standard dev ops */
+-#define snd_dma_wc_ops	snd_dma_dev_ops
+-#else /* CONFIG_X86 */
+ static void *snd_dma_wc_alloc(struct snd_dma_buffer *dmab, size_t size)
+ {
+ 	return dma_alloc_wc(dmab->dev.dev, size, &dmab->addr, DEFAULT_GFP);
+@@ -497,7 +477,6 @@ static const struct snd_malloc_ops snd_dma_wc_ops = {
+ 	.free = snd_dma_wc_free,
+ 	.mmap = snd_dma_wc_mmap,
  };
+-#endif /* CONFIG_X86 */
  
--#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) {		\
--		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),	\
--		.interval	= interval_init,			\
--		.burst		= burst_init,				\
-+#define RATELIMIT_STATE_INIT_FLAGS(name, interval_init, burst_init, flags_init) { \
-+		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),		  \
-+		.interval	= interval_init,				  \
-+		.burst		= burst_init,					  \
-+		.flags		= flags_init,					  \
- 	}
- 
-+#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) \
-+	RATELIMIT_STATE_INIT_FLAGS(name, interval_init, burst_init, 0)
-+
- #define RATELIMIT_STATE_INIT_DISABLED					\
- 	RATELIMIT_STATE_INIT(ratelimit_state, 0, DEFAULT_RATELIMIT_BURST)
- 
+ #ifdef CONFIG_SND_DMA_SGBUF
+ static void *snd_dma_sg_fallback_alloc(struct snd_dma_buffer *dmab, size_t size);
+-- 
+2.36.1
+
 
 
