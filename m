@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AC2055D2A0
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9886755D4DF
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:14:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236210AbiF0LhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:37:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58492 "EHLO
+        id S237737AbiF0LtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:49:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235660AbiF0LgR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:36:17 -0400
+        with ESMTP id S238307AbiF0LsP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25406DBA;
-        Mon, 27 Jun 2022 04:31:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95D7EBE18;
+        Mon, 27 Jun 2022 04:40:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB96DB81117;
-        Mon, 27 Jun 2022 11:31:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 217B5C3411D;
-        Mon, 27 Jun 2022 11:31:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 597CAB81131;
+        Mon, 27 Jun 2022 11:40:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B79FFC3411D;
+        Mon, 27 Jun 2022 11:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329512;
-        bh=5LT9NzQLXskQ1eg7w5V3vF410bOW7qUUmfJnkQhv2Oo=;
+        s=korg; t=1656330022;
+        bh=InO1qyewBGSJED7hj3a0yvwG8y5y7l7Yk35cE3JajY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=do3DNLnDDMIXVqwHsmbbrg45CUSneq9yg/zWrmy1W2R3ILLnogLsv8ahuca7kB1ne
-         hmmDIHnfyrGI2j8WFPjXyw6y4HQrS+vqFOb0TK/ITl8TxZBt7K+ISy/1KqwLMSC10I
-         NWNaBi16c/gRmAKQN36H9U5yUNItSHSmg+d6MQqs=
+        b=CXI4Z6Ui1ixrEA/qfnrZ/53XFUiupzwz5CtuePguRNj1XKUHGQUBG31/N0imgnc2L
+         hn3tP9jn/L1zHG+OEoeKWCCJys3nI2p8BA1ELOEXRJvsE3/C553eBq3WsMNKkMx/dD
+         NZcaK0fcBzzO9S7gTCCS6KXBuQPpl4xo+zFDhxoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.15 023/135] mtd: rawnand: gpmi: Fix setting busy timeout setting
-Date:   Mon, 27 Jun 2022 13:20:30 +0200
-Message-Id: <20220627111938.833190500@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Toppins <jtoppins@redhat.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 058/181] veth: Add updating of trans_start
+Date:   Mon, 27 Jun 2022 13:20:31 +0200
+Message-Id: <20220627111946.248994237@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Jay Vosburgh <jay.vosburgh@canonical.com>
 
-commit 06781a5026350cde699d2d10c9914a25c1524f45 upstream.
+[ Upstream commit e66e257a5d8368d9c0ba13d4630f474436533e8b ]
 
-The DEVICE_BUSY_TIMEOUT value is described in the Reference Manual as:
+Since commit 21a75f0915dd ("bonding: Fix ARP monitor validation"),
+the bonding ARP / ND link monitors depend on the trans_start time to
+determine link availability.  NETIF_F_LLTX drivers must update trans_start
+directly, which veth does not do.  This prevents use of the ARP or ND link
+monitors with veth interfaces in a bond.
 
-| Timeout waiting for NAND Ready/Busy or ATA IRQ. Used in WAIT_FOR_READY
-| mode. This value is the number of GPMI_CLK cycles multiplied by 4096.
+	Resolve this by having veth_xmit update the trans_start time.
 
-So instead of multiplying the value in cycles with 4096, we have to
-divide it by that value. Use DIV_ROUND_UP to make sure we are on the
-safe side, especially when the calculated value in cycles is smaller
-than 4096 as typically the case.
-
-This bug likely never triggered because any timeout != 0 usually will
-do. In my case the busy timeout in cycles was originally calculated as
-2408, which multiplied with 4096 is 0x968000. The lower 16 bits were
-taken for the 16 bit wide register field, so the register value was
-0x8000. With 2970bf5a32f0 ("mtd: rawnand: gpmi: fix controller timings
-setting") however the value in cycles became 2384, which multiplied
-with 4096 is 0x950000. The lower 16 bit are 0x0 now resulting in an
-intermediate timeout when reading from NAND.
-
-Fixes: b1206122069aa ("mtd: rawnand: gpmi: use core timings instead of an empirical derivation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220614083138.3455683-1-s.hauer@pengutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Jonathan Toppins <jtoppins@redhat.com>
+Tested-by: Jonathan Toppins <jtoppins@redhat.com>
+Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Fixes: 21a75f0915dd ("bonding: Fix ARP monitor validation")
+Link: https://lore.kernel.org/netdev/b2fd4147-8f50-bebd-963a-1a3e8d1d9715@redhat.com/
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/veth.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-+++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-@@ -685,7 +685,7 @@ static void gpmi_nfc_compute_timings(str
- 	hw->timing0 = BF_GPMI_TIMING0_ADDRESS_SETUP(addr_setup_cycles) |
- 		      BF_GPMI_TIMING0_DATA_HOLD(data_hold_cycles) |
- 		      BF_GPMI_TIMING0_DATA_SETUP(data_setup_cycles);
--	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(busy_timeout_cycles * 4096);
-+	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(DIV_ROUND_UP(busy_timeout_cycles, 4096));
+diff --git a/drivers/net/veth.c b/drivers/net/veth.c
+index eb0121a64d6d..1d1dea07d932 100644
+--- a/drivers/net/veth.c
++++ b/drivers/net/veth.c
+@@ -312,6 +312,7 @@ static bool veth_skb_is_eligible_for_gro(const struct net_device *dev,
+ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct veth_priv *rcv_priv, *priv = netdev_priv(dev);
++	struct netdev_queue *queue = NULL;
+ 	struct veth_rq *rq = NULL;
+ 	struct net_device *rcv;
+ 	int length = skb->len;
+@@ -329,6 +330,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	rxq = skb_get_queue_mapping(skb);
+ 	if (rxq < rcv->real_num_rx_queues) {
+ 		rq = &rcv_priv->rq[rxq];
++		queue = netdev_get_tx_queue(dev, rxq);
  
- 	/*
- 	 * Derive NFC ideal delay from {3}:
+ 		/* The napi pointer is available when an XDP program is
+ 		 * attached or when GRO is enabled
+@@ -340,6 +342,8 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
+ 
+ 	skb_tx_timestamp(skb);
+ 	if (likely(veth_forward_skb(rcv, skb, rq, use_napi) == NET_RX_SUCCESS)) {
++		if (queue)
++			txq_trans_cond_update(queue);
+ 		if (!use_napi)
+ 			dev_lstats_add(dev, length);
+ 	} else {
+-- 
+2.35.1
+
 
 
