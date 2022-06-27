@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CA3955C4AA
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:50:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6794F55C953
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:56:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235649AbiF0LeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:34:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53234 "EHLO
+        id S237323AbiF0Lnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:43:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236168AbiF0LdY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BBF4CE11;
-        Mon, 27 Jun 2022 04:30:29 -0700 (PDT)
+        with ESMTP id S237436AbiF0Lmv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4CCD131;
+        Mon, 27 Jun 2022 04:37:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BDD5BB81126;
-        Mon, 27 Jun 2022 11:30:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 356ACC341C7;
-        Mon, 27 Jun 2022 11:30:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93BDDB81123;
+        Mon, 27 Jun 2022 11:37:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E858BC3411D;
+        Mon, 27 Jun 2022 11:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329426;
-        bh=zbM+FiatcV99sgVVByCocxpD5uvDGwRXusMpryNERgc=;
+        s=korg; t=1656329871;
+        bh=wVLdpTvzq4nn+YD/fTY4xJ31uZESHMWQlhJpXrVSYgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QFx/VgJvB45RKMRVXkiUK8Wqr644aSFYCUXrl3IdJPQyU5x0RX6+w45cPr4K6nh+O
-         uvOmVdhUQ0gb+taD8tGbeaNxGhx2Tl8elDYVWTze6+TJ2zR8M0ouuf1C5L2SqM0rvG
-         xvOYKG1/Jjh85/mfbZpp9bVw+A1yhMcaXXJcGug0=
+        b=UpDho/PO0x1Jc3KAFpm81a9tzG5n8xl3qeF94SVTGiF1FaPtQt81TY0DyKjyfKVZ1
+         XN6efIH2fMyd+vJKe+vVPSib6MZOfBSMjWSYrKWbET6hWOgC9ekm8b9n006hZZzHc7
+         fOK4UEK6ITVy3pgwtSjkwb79UhlAUzgPijmZqV44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Halasa <khalasa@piap.pl>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.4 56/60] ARM: cns3xxx: Fix refcount leak in cns3xxx_init
+        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>
+Subject: [PATCH 5.15 120/135] drm/msm/dp: Always clear mask bits to disable interrupts at dp_ctrl_reset_irq_ctrl()
 Date:   Mon, 27 Jun 2022 13:22:07 +0200
-Message-Id: <20220627111929.338371319@linuxfoundation.org>
+Message-Id: <20220627111941.637551823@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-commit 1ba904b6b16e08de5aed7c1349838d9cd0d178c5 upstream.
+commit 993a2adc6e2e94a0a7b5bfc054eda90ac95f62c3 upstream.
 
-of_find_compatible_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+dp_catalog_ctrl_reset() will software reset DP controller. But it will
+not reset programmable registers to default value. DP driver still have
+to clear mask bits to interrupt status registers to disable interrupts
+after software reset of controller.
 
-Fixes: 415f59142d9d ("ARM: cns3xxx: initial DT support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Krzysztof Halasa <khalasa@piap.pl>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+At current implementation, dp_ctrl_reset_irq_ctrl() will software reset dp
+controller but did not call dp_catalog_ctrl_enable_irq(false) to clear hpd
+related interrupt mask bits to disable hpd related interrupts due to it
+mistakenly think hpd related interrupt mask bits will be cleared by software
+reset of dp controller automatically. This mistake may cause system to crash
+during suspending procedure due to unexpected irq fired and trigger event
+thread to access dp controller registers with controller clocks are disabled.
+
+This patch fixes system crash during suspending problem by removing "enable"
+flag condition checking at dp_ctrl_reset_irq_ctrl() so that hpd related
+interrupt mask bits are cleared to prevent unexpected from happening.
+
+Changes in v2:
+-- add more details commit text
+
+Changes in v3:
+-- add synchrons_irq()
+-- add atomic_t suspended
+
+Changes in v4:
+-- correct Fixes's commit ID
+-- remove synchrons_irq()
+
+Changes in v5:
+-- revise commit text
+
+Changes in v6:
+-- add event_lock to protect "suspended"
+
+Changes in v7:
+-- delete "suspended" flag
+
+Fixes: 989ebe7bc446 ("drm/msm/dp: do not initialize phy until plugin interrupt received")
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Patchwork: https://patchwork.freedesktop.org/patch/486591/
+Link: https://lore.kernel.org/r/1652804494-19650-1-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-cns3xxx/core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/msm/dp/dp_ctrl.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/arch/arm/mach-cns3xxx/core.c
-+++ b/arch/arm/mach-cns3xxx/core.c
-@@ -376,6 +376,7 @@ static void __init cns3xxx_init(void)
- 		/* De-Asscer SATA Reset */
- 		cns3xxx_pwr_soft_rst(CNS3XXX_PWR_SOFTWARE_RST(SATA));
- 	}
-+	of_node_put(dn);
+--- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
++++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+@@ -1356,8 +1356,13 @@ void dp_ctrl_reset_irq_ctrl(struct dp_ct
  
- 	dn = of_find_compatible_node(NULL, NULL, "cavium,cns3420-sdhci");
- 	if (of_device_is_available(dn)) {
-@@ -389,6 +390,7 @@ static void __init cns3xxx_init(void)
- 		cns3xxx_pwr_clk_en(CNS3XXX_PWR_CLK_EN(SDIO));
- 		cns3xxx_pwr_soft_rst(CNS3XXX_PWR_SOFTWARE_RST(SDIO));
- 	}
-+	of_node_put(dn);
+ 	dp_catalog_ctrl_reset(ctrl->catalog);
  
- 	pm_power_off = cns3xxx_power_off;
+-	if (enable)
+-		dp_catalog_ctrl_enable_irq(ctrl->catalog, enable);
++	/*
++	 * all dp controller programmable registers will not
++	 * be reset to default value after DP_SW_RESET
++	 * therefore interrupt mask bits have to be updated
++	 * to enable/disable interrupts
++	 */
++	dp_catalog_ctrl_enable_irq(ctrl->catalog, enable);
+ }
  
+ void dp_ctrl_phy_init(struct dp_ctrl *dp_ctrl)
 
 
