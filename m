@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A0D355D871
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:19:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B846155C1C1
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238608AbiF0Lvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:51:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50048 "EHLO
+        id S234746AbiF0LcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:32:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238335AbiF0Lut (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:50:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F8ED260A;
-        Mon, 27 Jun 2022 04:43:54 -0700 (PDT)
+        with ESMTP id S235104AbiF0Lb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:31:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D878117C;
+        Mon, 27 Jun 2022 04:29:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7C4C6123D;
-        Mon, 27 Jun 2022 11:43:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2148C3411D;
-        Mon, 27 Jun 2022 11:43:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B43EB81120;
+        Mon, 27 Jun 2022 11:29:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C96C1C3411D;
+        Mon, 27 Jun 2022 11:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330233;
-        bh=RQTKSL7mbw1dUp/hzX6voO5xUK7+Bxw2CApHkliAcNs=;
+        s=korg; t=1656329349;
+        bh=AQ+qKiZJFbHOjNCj/teult017izcdEKNS540K4VL6qU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2Cg75H+nVVa/6P896CvNmSULwgp0Q+2kUdojS/l4gKcbFotIOu4zbsJjxEVC3zmb
-         XhdeK+ZlUK2+AEBNzDyo9j2H6PAQbkV7DLj54IHAOPTLqBDCsP+VtV6+8fggRLbI4p
-         o/bW56qQh+mezC5pkRKFGE3Zw/RDwUEa1okHKWcs=
+        b=O0zLexhSVdruxmkOSrrjpSvgGQfTuhaa88j6xVZ3MeOcmP3IRuvj2BjmfzYF7ljrx
+         eQPtTS7tV56NtMFXbdjO6nA9zZQL9Vamov7hyDqNOMtgQc0Z/6EEap96t7dLQelDho
+         dA0chPbF8BnY0O5E5SKp0pBXGXc4UKNQE29faD24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.18 127/181] f2fs: attach inline_data after setting compression
+        stable@vger.kernel.org,
+        Aidan MacDonald <aidanmacdonald.0x0@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 29/60] regmap-irq: Fix a bug in regmap_irq_enable() for type_in_mask chips
 Date:   Mon, 27 Jun 2022 13:21:40 +0200
-Message-Id: <20220627111948.375168413@linuxfoundation.org>
+Message-Id: <20220627111928.544357960@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,68 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
 
-commit 4cde00d50707c2ef6647b9b96b2cb40b6eb24397 upstream.
+[ Upstream commit 485037ae9a095491beb7f893c909a76cc4f9d1e7 ]
 
-This fixes the below corruption.
+When enabling a type_in_mask irq, the type_buf contents must be
+AND'd with the mask of the IRQ we're enabling to avoid enabling
+other IRQs by accident, which can happen if several type_in_mask
+irqs share a mask register.
 
-[345393.335389] F2FS-fs (vdb): sanity_check_inode: inode (ino=6d0, mode=33206) should not have inline_data, run fsck to fix
-
-Cc: <stable@vger.kernel.org>
-Fixes: 677a82b44ebf ("f2fs: fix to do sanity check for inline inode")
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bc998a730367 ("regmap: irq: handle HW using separate rising/falling edge interrupts")
+Signed-off-by: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
+Link: https://lore.kernel.org/r/20220620200644.1961936-2-aidanmacdonald.0x0@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/namei.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/base/regmap/regmap-irq.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/f2fs/namei.c
-+++ b/fs/f2fs/namei.c
-@@ -92,8 +92,6 @@ static struct inode *f2fs_new_inode(stru
- 	if (test_opt(sbi, INLINE_XATTR))
- 		set_inode_flag(inode, FI_INLINE_XATTR);
+diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
+index 3d64c9331a82..3c1e554df4eb 100644
+--- a/drivers/base/regmap/regmap-irq.c
++++ b/drivers/base/regmap/regmap-irq.c
+@@ -214,6 +214,7 @@ static void regmap_irq_enable(struct irq_data *data)
+ 	struct regmap_irq_chip_data *d = irq_data_get_irq_chip_data(data);
+ 	struct regmap *map = d->map;
+ 	const struct regmap_irq *irq_data = irq_to_regmap_irq(d, data->hwirq);
++	unsigned int reg = irq_data->reg_offset / map->reg_stride;
+ 	unsigned int mask, type;
  
--	if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
--		set_inode_flag(inode, FI_INLINE_DATA);
- 	if (f2fs_may_inline_dentry(inode))
- 		set_inode_flag(inode, FI_INLINE_DENTRY);
+ 	type = irq_data->type.type_falling_val | irq_data->type.type_rising_val;
+@@ -230,14 +231,14 @@ static void regmap_irq_enable(struct irq_data *data)
+ 	 * at the corresponding offset in regmap_irq_set_type().
+ 	 */
+ 	if (d->chip->type_in_mask && type)
+-		mask = d->type_buf[irq_data->reg_offset / map->reg_stride];
++		mask = d->type_buf[reg] & irq_data->mask;
+ 	else
+ 		mask = irq_data->mask;
  
-@@ -110,10 +108,6 @@ static struct inode *f2fs_new_inode(stru
+ 	if (d->chip->clear_on_unmask)
+ 		d->clear_status = true;
  
- 	f2fs_init_extent_tree(inode, NULL);
+-	d->mask_buf[irq_data->reg_offset / map->reg_stride] &= ~mask;
++	d->mask_buf[reg] &= ~mask;
+ }
  
--	stat_inc_inline_xattr(inode);
--	stat_inc_inline_inode(inode);
--	stat_inc_inline_dir(inode);
--
- 	F2FS_I(inode)->i_flags =
- 		f2fs_mask_flags(mode, F2FS_I(dir)->i_flags & F2FS_FL_INHERITED);
- 
-@@ -130,6 +124,14 @@ static struct inode *f2fs_new_inode(stru
- 			set_compress_context(inode);
- 	}
- 
-+	/* Should enable inline_data after compression set */
-+	if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
-+		set_inode_flag(inode, FI_INLINE_DATA);
-+
-+	stat_inc_inline_xattr(inode);
-+	stat_inc_inline_inode(inode);
-+	stat_inc_inline_dir(inode);
-+
- 	f2fs_set_inode_flags(inode);
- 
- 	trace_f2fs_new_inode(inode, 0);
-@@ -328,6 +330,9 @@ static void set_compress_inode(struct f2
- 		if (!is_extension_exist(name, ext[i], false))
- 			continue;
- 
-+		/* Do not use inline_data with compression */
-+		stat_dec_inline_inode(inode);
-+		clear_inode_flag(inode, FI_INLINE_DATA);
- 		set_compress_context(inode);
- 		return;
- 	}
+ static void regmap_irq_disable(struct irq_data *data)
+-- 
+2.35.1
+
 
 
