@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B846155C1C1
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBEF55D38A
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:12:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234746AbiF0LcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:32:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55540 "EHLO
+        id S236989AbiF0LlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:41:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235104AbiF0Lb4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:31:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D878117C;
-        Mon, 27 Jun 2022 04:29:12 -0700 (PDT)
+        with ESMTP id S236849AbiF0Lj5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:39:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E35DBE05;
+        Mon, 27 Jun 2022 04:35:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B43EB81120;
-        Mon, 27 Jun 2022 11:29:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C96C1C3411D;
-        Mon, 27 Jun 2022 11:29:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E908C60DB5;
+        Mon, 27 Jun 2022 11:35:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2BABC3411D;
+        Mon, 27 Jun 2022 11:35:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329349;
-        bh=AQ+qKiZJFbHOjNCj/teult017izcdEKNS540K4VL6qU=;
+        s=korg; t=1656329719;
+        bh=E9OVjCRFyV4VdwxiJQ10BHfsuMgdr3aG9OmgwR+lTLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0zLexhSVdruxmkOSrrjpSvgGQfTuhaa88j6xVZ3MeOcmP3IRuvj2BjmfzYF7ljrx
-         eQPtTS7tV56NtMFXbdjO6nA9zZQL9Vamov7hyDqNOMtgQc0Z/6EEap96t7dLQelDho
-         dA0chPbF8BnY0O5E5SKp0pBXGXc4UKNQE29faD24=
+        b=yAPjOcThiQiuN1O2O68c/qkSX7ClcgJQKo8sFmla4guIl9FcLULaNHbjrlYA3i6uZ
+         NqzXxYoep6RoFmBYPW9b+xYVZ7lA8xqVHutXbTR9oapcFEL3DwwLcZzV76TM11jAGl
+         fWoPNT3loMUcHpZsQT08L4eeVZ4TwlKFPCAcaWZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aidan MacDonald <aidanmacdonald.0x0@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 29/60] regmap-irq: Fix a bug in regmap_irq_enable() for type_in_mask chips
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 093/135] btrfs: fix deadlock with fsync+fiemap+transaction commit
 Date:   Mon, 27 Jun 2022 13:21:40 +0200
-Message-Id: <20220627111928.544357960@linuxfoundation.org>
+Message-Id: <20220627111940.857424772@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
-References: <20220627111927.641837068@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +54,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 485037ae9a095491beb7f893c909a76cc4f9d1e7 ]
+commit bf7ba8ee759b7b7a34787ddd8dc3f190a3d7fa24 upstream.
 
-When enabling a type_in_mask irq, the type_buf contents must be
-AND'd with the mask of the IRQ we're enabling to avoid enabling
-other IRQs by accident, which can happen if several type_in_mask
-irqs share a mask register.
+We are hitting the following deadlock in production occasionally
 
-Fixes: bc998a730367 ("regmap: irq: handle HW using separate rising/falling edge interrupts")
-Signed-off-by: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
-Link: https://lore.kernel.org/r/20220620200644.1961936-2-aidanmacdonald.0x0@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Task 1		Task 2		Task 3		Task 4		Task 5
+		fsync(A)
+		 start trans
+						start commit
+				falloc(A)
+				 lock 5m-10m
+				 start trans
+				  wait for commit
+fiemap(A)
+ lock 0-10m
+  wait for 5m-10m
+   (have 0-5m locked)
+
+		 have btrfs_need_log_full_commit
+		  !full_sync
+		  wait_ordered_extents
+								finish_ordered_io(A)
+								lock 0-5m
+								DEADLOCK
+
+We have an existing dependency of file extent lock -> transaction.
+However in fsync if we tried to do the fast logging, but then had to
+fall back to committing the transaction, we will be forced to call
+btrfs_wait_ordered_range() to make sure all of our extents are updated.
+
+This creates a dependency of transaction -> file extent lock, because
+btrfs_finish_ordered_io() will need to take the file extent lock in
+order to run the ordered extents.
+
+Fix this by stopping the transaction if we have to do the full commit
+and we attempted to do the fast logging.  Then attach to the transaction
+and commit it if we need to.
+
+CC: stable@vger.kernel.org # 5.15+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/regmap/regmap-irq.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/btrfs/file.c |   67 +++++++++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 52 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
-index 3d64c9331a82..3c1e554df4eb 100644
---- a/drivers/base/regmap/regmap-irq.c
-+++ b/drivers/base/regmap/regmap-irq.c
-@@ -214,6 +214,7 @@ static void regmap_irq_enable(struct irq_data *data)
- 	struct regmap_irq_chip_data *d = irq_data_get_irq_chip_data(data);
- 	struct regmap *map = d->map;
- 	const struct regmap_irq *irq_data = irq_to_regmap_irq(d, data->hwirq);
-+	unsigned int reg = irq_data->reg_offset / map->reg_stride;
- 	unsigned int mask, type;
- 
- 	type = irq_data->type.type_falling_val | irq_data->type.type_rising_val;
-@@ -230,14 +231,14 @@ static void regmap_irq_enable(struct irq_data *data)
- 	 * at the corresponding offset in regmap_irq_set_type().
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2337,25 +2337,62 @@ int btrfs_sync_file(struct file *file, l
  	 */
- 	if (d->chip->type_in_mask && type)
--		mask = d->type_buf[irq_data->reg_offset / map->reg_stride];
-+		mask = d->type_buf[reg] & irq_data->mask;
- 	else
- 		mask = irq_data->mask;
+ 	btrfs_inode_unlock(inode, BTRFS_ILOCK_MMAP);
  
- 	if (d->chip->clear_on_unmask)
- 		d->clear_status = true;
- 
--	d->mask_buf[irq_data->reg_offset / map->reg_stride] &= ~mask;
-+	d->mask_buf[reg] &= ~mask;
- }
- 
- static void regmap_irq_disable(struct irq_data *data)
--- 
-2.35.1
-
+-	if (ret != BTRFS_NO_LOG_SYNC) {
++	if (ret == BTRFS_NO_LOG_SYNC) {
++		ret = btrfs_end_transaction(trans);
++		goto out;
++	}
++
++	/* We successfully logged the inode, attempt to sync the log. */
++	if (!ret) {
++		ret = btrfs_sync_log(trans, root, &ctx);
+ 		if (!ret) {
+-			ret = btrfs_sync_log(trans, root, &ctx);
+-			if (!ret) {
+-				ret = btrfs_end_transaction(trans);
+-				goto out;
+-			}
++			ret = btrfs_end_transaction(trans);
++			goto out;
+ 		}
+-		if (!full_sync) {
+-			ret = btrfs_wait_ordered_range(inode, start, len);
+-			if (ret) {
+-				btrfs_end_transaction(trans);
+-				goto out;
+-			}
+-		}
+-		ret = btrfs_commit_transaction(trans);
+-	} else {
++	}
++
++	/*
++	 * At this point we need to commit the transaction because we had
++	 * btrfs_need_log_full_commit() or some other error.
++	 *
++	 * If we didn't do a full sync we have to stop the trans handle, wait on
++	 * the ordered extents, start it again and commit the transaction.  If
++	 * we attempt to wait on the ordered extents here we could deadlock with
++	 * something like fallocate() that is holding the extent lock trying to
++	 * start a transaction while some other thread is trying to commit the
++	 * transaction while we (fsync) are currently holding the transaction
++	 * open.
++	 */
++	if (!full_sync) {
+ 		ret = btrfs_end_transaction(trans);
++		if (ret)
++			goto out;
++		ret = btrfs_wait_ordered_range(inode, start, len);
++		if (ret)
++			goto out;
++
++		/*
++		 * This is safe to use here because we're only interested in
++		 * making sure the transaction that had the ordered extents is
++		 * committed.  We aren't waiting on anything past this point,
++		 * we're purely getting the transaction and committing it.
++		 */
++		trans = btrfs_attach_transaction_barrier(root);
++		if (IS_ERR(trans)) {
++			ret = PTR_ERR(trans);
++
++			/*
++			 * We committed the transaction and there's no currently
++			 * running transaction, this means everything we care
++			 * about made it to disk and we are done.
++			 */
++			if (ret == -ENOENT)
++				ret = 0;
++			goto out;
++		}
+ 	}
++
++	ret = btrfs_commit_transaction(trans);
+ out:
+ 	ASSERT(list_empty(&ctx.list));
+ 	err = file_check_and_advance_wb_err(file);
 
 
