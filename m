@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0D8A55C507
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:50:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CEA955E031
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:31:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235233AbiF0L11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:27:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46394 "EHLO
+        id S237082AbiF0LoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:44:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235115AbiF0L0o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:26:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D2DF65A8;
-        Mon, 27 Jun 2022 04:26:39 -0700 (PDT)
+        with ESMTP id S237327AbiF0Lmn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEDA2D5A;
+        Mon, 27 Jun 2022 04:36:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2AF78B8111D;
-        Mon, 27 Jun 2022 11:26:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A801C3411D;
-        Mon, 27 Jun 2022 11:26:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D33FB8111E;
+        Mon, 27 Jun 2022 11:36:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AE23C3411D;
+        Mon, 27 Jun 2022 11:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329196;
-        bh=/OV4TQT7m05Fi0VZVfG2VTpYR5hu8IQh+pTF8a8E0mw=;
+        s=korg; t=1656329813;
+        bh=TcHc6ly3RnIaoYHfj4FYHbIuRRaerYtPooK/T4HWDNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZS0VeCB9tqSm9DrOqrKEgbJdtaFh6ufZWoD1CMWG8duXblCRrfA5EKs8pY38zQZWz
-         XdMdW7JNTesKKjqn87/HsNRvim+Hx4NzAFiHGweQE0bISaJiDAlMZJ4VhZ0kLdm0ee
-         /cSXPk4K7qVx7g75rbpcLTegbvKWu+OI0vfcdFM0=
+        b=iD4txPJ7n/WoD7i8wvUDlNqAPwtB6hWsQhEsPM1oRddcym008hQS47TLcXfPH4L9A
+         7ogH/okLPuntUqUjw/ZZQ7MeNu1C8gihbryiJukPa/PCiEC3zjWWwfVJZwJSrOQHZ4
+         WozU/lUMjGuxYhVO9LrISQ9+jVrEh8VDX2ZQr/DA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 080/102] iio: imu: inv_icm42600: Fix broken icm42600 (chip id 0 value)
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.15 084/135] xhci: turn off port power in shutdown
 Date:   Mon, 27 Jun 2022 13:21:31 +0200
-Message-Id: <20220627111935.842264654@linuxfoundation.org>
+Message-Id: <20220627111940.598796004@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
+References: <20220627111938.151743692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 106b391e1b859100a3f38f0ad874236e9be06bde upstream.
+commit 83810f84ecf11dfc5a9414a8b762c3501b328185 upstream.
 
-The 0 value used for INV_CHIP_ICM42600 was not working since the
-match in i2c/spi was checking against NULL value.
+If ports are not turned off in shutdown then runtime suspended
+self-powered USB devices may survive in U3 link state over S5.
 
-To keep this check, add a first INV_CHIP_INVALID 0 value as safe
-guard.
+During subsequent boot, if firmware sends an IPC command to program
+the port in DISCONNECT state, it will time out, causing significant
+delay in the boot time.
 
-Fixes: 31c24c1e93c3 ("iio: imu: inv_icm42600: add core of new inv_icm42600 driver")
-Signed-off-by: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
-Link: https://lore.kernel.org/r/20220609102301.4794-1-jmaneyrol@invensense.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Turning off roothub port power is also recommended in xhci
+specification 4.19.4 "Port Power" in the additional note.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220623111945.1557702-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/inv_icm42600/inv_icm42600.h      |    1 +
- drivers/iio/imu/inv_icm42600/inv_icm42600_core.c |    2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-hub.c |    2 +-
+ drivers/usb/host/xhci.c     |   15 +++++++++++++--
+ drivers/usb/host/xhci.h     |    2 ++
+ 3 files changed, 16 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/imu/inv_icm42600/inv_icm42600.h
-+++ b/drivers/iio/imu/inv_icm42600/inv_icm42600.h
-@@ -17,6 +17,7 @@
- #include "inv_icm42600_buffer.h"
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -652,7 +652,7 @@ struct xhci_hub *xhci_get_rhub(struct us
+  * It will release and re-aquire the lock while calling ACPI
+  * method.
+  */
+-static void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd,
++void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd,
+ 				u16 index, bool on, unsigned long *flags)
+ 	__must_hold(&xhci->lock)
+ {
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -774,6 +774,8 @@ static void xhci_stop(struct usb_hcd *hc
+ void xhci_shutdown(struct usb_hcd *hcd)
+ {
+ 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
++	unsigned long flags;
++	int i;
  
- enum inv_icm42600_chip {
-+	INV_CHIP_INVALID,
- 	INV_CHIP_ICM42600,
- 	INV_CHIP_ICM42602,
- 	INV_CHIP_ICM42605,
---- a/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c
-+++ b/drivers/iio/imu/inv_icm42600/inv_icm42600_core.c
-@@ -565,7 +565,7 @@ int inv_icm42600_core_probe(struct regma
- 	bool open_drain;
- 	int ret;
- 
--	if (chip < 0 || chip >= INV_CHIP_NB) {
-+	if (chip <= INV_CHIP_INVALID || chip >= INV_CHIP_NB) {
- 		dev_err(dev, "invalid chip = %d\n", chip);
- 		return -ENODEV;
+ 	if (xhci->quirks & XHCI_SPURIOUS_REBOOT)
+ 		usb_disable_xhci_ports(to_pci_dev(hcd->self.sysdev));
+@@ -789,12 +791,21 @@ void xhci_shutdown(struct usb_hcd *hcd)
+ 		del_timer_sync(&xhci->shared_hcd->rh_timer);
  	}
+ 
+-	spin_lock_irq(&xhci->lock);
++	spin_lock_irqsave(&xhci->lock, flags);
+ 	xhci_halt(xhci);
++
++	/* Power off USB2 ports*/
++	for (i = 0; i < xhci->usb2_rhub.num_ports; i++)
++		xhci_set_port_power(xhci, xhci->main_hcd, i, false, &flags);
++
++	/* Power off USB3 ports*/
++	for (i = 0; i < xhci->usb3_rhub.num_ports; i++)
++		xhci_set_port_power(xhci, xhci->shared_hcd, i, false, &flags);
++
+ 	/* Workaround for spurious wakeups at shutdown with HSW */
+ 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+ 		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+-	spin_unlock_irq(&xhci->lock);
++	spin_unlock_irqrestore(&xhci->lock, flags);
+ 
+ 	xhci_cleanup_msix(xhci);
+ 
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -2174,6 +2174,8 @@ int xhci_hub_control(struct usb_hcd *hcd
+ int xhci_hub_status_data(struct usb_hcd *hcd, char *buf);
+ int xhci_find_raw_port_number(struct usb_hcd *hcd, int port1);
+ struct xhci_hub *xhci_get_rhub(struct usb_hcd *hcd);
++void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd, u16 index,
++			 bool on, unsigned long *flags);
+ 
+ void xhci_hc_died(struct xhci_hcd *xhci);
+ 
 
 
