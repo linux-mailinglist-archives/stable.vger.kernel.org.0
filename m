@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22D2C55D3F9
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:13:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6487E55D06F
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237131AbiF0LmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:42:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34854 "EHLO
+        id S238980AbiF0Lyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:54:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236421AbiF0LlN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:41:13 -0400
+        with ESMTP id S238880AbiF0Lwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:52:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A0A3CFB;
-        Mon, 27 Jun 2022 04:35:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556FEDEFA;
+        Mon, 27 Jun 2022 04:46:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB8EF60920;
-        Mon, 27 Jun 2022 11:35:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C159FC341C7;
-        Mon, 27 Jun 2022 11:35:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E56AD61187;
+        Mon, 27 Jun 2022 11:46:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F071CC3411D;
+        Mon, 27 Jun 2022 11:46:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329751;
-        bh=Zn0BYp46A4dFER39cxzvOe3JLaYepvkr5CLe4WXSL18=;
+        s=korg; t=1656330376;
+        bh=CLKucOR1KV+hTdnmQuZOHWx60dJ5jfawBtDEBI3Okjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lOcvQ0oy4pd592YKpYmT/pO9PrnqVn+haNk3Qn73wEQQrwtD4G47+kDRrTl4AIwEO
-         eKWUaQ2CsY2YVlIIi6uPSV0vMg+31XaqNm0xK6cby2JwoNrf24h4s/TsqwhDq9thHh
-         5zkDTQB5O3FOz2RiOxGL/6DGxk2aMZ7FFyX6W8yc=
+        b=uekNuu3blndvybXtTuD2wa0EDWSh7WeRQa3rpeWvG78+NfDHtRYq5NMekMjMvwD7W
+         fwiuK37fs4QJ1439ZjvpZ831D48w6sDZ6IqZSOZ2GHzxPpKT4t05LFavwhcO8ltM+M
+         ShahPyIc7rnK3vBq8STnWP2dfTao0JTXRGlMmah8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Olivier Moysan <olivier.moysan@foss.st.com>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 103/135] iio: adc: stm32: fix maximum clock rate for stm32mp15x
+Subject: [PATCH 5.18 137/181] iio: gyro: mpu3050: Fix the error handling in mpu3050_power_up()
 Date:   Mon, 27 Jun 2022 13:21:50 +0200
-Message-Id: <20220627111941.145240102@linuxfoundation.org>
+Message-Id: <20220627111948.660257806@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,34 +55,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Moysan <olivier.moysan@foss.st.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 990539486e7e311fb5dab1bf4d85d1a8973ae644 upstream.
+commit b2f5ad97645e1deb5ca9bcb7090084b92cae35d2 upstream.
 
-Change maximum STM32 ADC input clock rate to 36MHz, as specified
-in STM32MP15x datasheets.
+The driver should disable regulators when fails at regmap_update_bits().
 
-Fixes: d58c67d1d851 ("iio: adc: stm32-adc: add support for STM32MP1")
-Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
-Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20220609095234.375925-1-olivier.moysan@foss.st.com
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220510092431.1711284-1-zheyuma97@gmail.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/stm32-adc-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/gyro/mpu3050-core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/adc/stm32-adc-core.c
-+++ b/drivers/iio/adc/stm32-adc-core.c
-@@ -809,7 +809,7 @@ static const struct stm32_adc_priv_cfg s
- static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
- 	.regs = &stm32h7_adc_common_regs,
- 	.clk_sel = stm32h7_adc_clk_sel,
--	.max_clk_rate_hz = 40000000,
-+	.max_clk_rate_hz = 36000000,
- 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
- 	.num_irqs = 2,
- };
+--- a/drivers/iio/gyro/mpu3050-core.c
++++ b/drivers/iio/gyro/mpu3050-core.c
+@@ -874,6 +874,7 @@ static int mpu3050_power_up(struct mpu30
+ 	ret = regmap_update_bits(mpu3050->map, MPU3050_PWR_MGM,
+ 				 MPU3050_PWR_MGM_SLEEP, 0);
+ 	if (ret) {
++		regulator_bulk_disable(ARRAY_SIZE(mpu3050->regs), mpu3050->regs);
+ 		dev_err(mpu3050->dev, "error setting power mode\n");
+ 		return ret;
+ 	}
 
 
