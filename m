@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF68055CA8D
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:58:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77C1F55D5E9
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232541AbiF0GwF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 02:52:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43888 "EHLO
+        id S232536AbiF0GwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 02:52:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232489AbiF0Gv7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 02:51:59 -0400
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5F3926C0;
-        Sun, 26 Jun 2022 23:51:58 -0700 (PDT)
-Received: by mail-wr1-x436.google.com with SMTP id d17so5932927wrc.10;
-        Sun, 26 Jun 2022 23:51:58 -0700 (PDT)
+        with ESMTP id S232531AbiF0GwB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 02:52:01 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59C4126C5;
+        Sun, 26 Jun 2022 23:52:00 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id v14so11562427wra.5;
+        Sun, 26 Jun 2022 23:52:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=W2M5s8x1+ee/Z4Z/TSY9grj1WlnFFDH9hAqBXY+Zc8E=;
-        b=ogsjoIc2+xHLJTNLCFQ5nlz9Klx5579x/DIWsH6SLNdcCydwJtcwD0JiGTSBTPR4qQ
-         zn8w6CmoGQv6IPPlj1GUu4yOdKC0nEbxsJ6epnerOqy8l6pBWKC54sNyxHJaDvXKM+8J
-         gc3LWxlPdNqIBc8NjSkCF/m4aVV26RyRsmFUFrpf/YUZigefLZIpC62pFHFzn+oANsAX
-         Qf/sMl7fYPXqe5rFd7WY+KGowKSnDdFii5r5e0K7T5DLPVqk4LM9ZW1SzDKjTiTbT+dB
-         5XIZujIhsNFM/R8vVHZVaR5kfdqjj1XVJntYZlGWO3KoixdQXOJchKPpV+ll84lkIa7L
-         f/EQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=X6hunTx6t84e1RH7TuIwMAVJt14IU7tMQ/ZDFHTvWjE=;
+        b=PKS5QLP9Pxtzk0i5U0iZqlq6FVXVMm7J2tqdxtgxpHjjRbPEvFzQ48hcVt4BcUxu5w
+         4biDkN8bDHnFVkJHGakO+dN/je6ZH7uwogeK33mZiMvXOPe4k4vl6humhdN9oEA/2Vnp
+         UkeeXGBe5CXXZHnNnKWkWcPJhba9jze3trzMN9ePag61qb6Lq0jkV67kOnWE6yqmge/H
+         PxUSfaxiFoZB860dwWMDaJ5qkicrSSb2AG0UoJ0RRQ60ZWRSwhIkm3kHmoNX+iXzeZAa
+         lPwZGHfo0xrr6nIn/+XuNXXN1qY4LPLmNBKusljJ73IO4/eVzDP4L7W61CaLblkXbN99
+         6LSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=W2M5s8x1+ee/Z4Z/TSY9grj1WlnFFDH9hAqBXY+Zc8E=;
-        b=pzbXabs2NOH9cL/X9hma2HEkQArE+fWDG72XjTa26ooUp9H4Lp5GE31cSew1CDpdqp
-         cj/tCRhq8sCYeiZCnICVyravhHmqAWqc4nepWw9wK8UL2H6fu71kb/Raz1K59mhI94Fs
-         LqgP+B3jj6OcEr05h5O/dBXRX5zbU0wBUisQGv/oFfdz6U7KClJrNfo1Tx6GwlVSrQrV
-         mwne+Gmwxd/XcWfesooVfpJ3l6ZCS7QSNmHQzZmW8MeA/xnTM8Jk+W/8UMzdZ9m98gbF
-         OyJtRm54LX6yNbnoVo5aCOVed48noJjKXgproS0H7aRt898op9YSOQmKe7oQ3DsRqBU0
-         fp3g==
-X-Gm-Message-State: AJIora86xPmaP1Hq2LlbVGf03zNKDmyMcJ/Lnn2gI8+T71UTmK7bE4xW
-        Jw0K2cwsyqGXUBhfm+586xGlYm7fiFw8Ug==
-X-Google-Smtp-Source: AGRyM1tJsaTJ+JQWY+7QrVCY1/k8rXEqv2ryljZuiQsIrJMVcKjsdkKRdSgw49mX8p8r17kBkcpbgg==
-X-Received: by 2002:adf:f245:0:b0:21b:c705:8b1 with SMTP id b5-20020adff245000000b0021bc70508b1mr5955614wrp.282.1656312717413;
-        Sun, 26 Jun 2022 23:51:57 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=X6hunTx6t84e1RH7TuIwMAVJt14IU7tMQ/ZDFHTvWjE=;
+        b=TRMLZB/yk06u8K6OZiBIACnzMEY3Gqrh/xsLKmx2f6Ct2FumZWcN7wHzRczCgk/gC0
+         fq9vkTLok9QYvbeFsqe5BVEsWhhFLXi+TfqFC0C/kTir3EdoGm/oFG55g3vPIhLktVWM
+         IVKXs7H04eNIugvI0driGbkMTIxE+EbDykRjloLr7gE9t9GKn3Fd+DlO6bcsi64FBuv6
+         nxrVPkLu835i3iyufo9EPitM2kRugwC2woSyoejyYL1zkGipQMcdaFbK1xdwuNHVtaL8
+         2p3YCqb7eLe5WbqT+7jQWVbqec8dwWjXEQZpMn3rDqomOxOw5rTslgrLfAvVrNRWCTxg
+         Spmg==
+X-Gm-Message-State: AJIora8cirFIZu1w/iQiYNNxltpmJXLB5Ew4Ue3UrtP1I05l298QbcXI
+        xdgVj2RrQ1HfdZ6TrQflIXg=
+X-Google-Smtp-Source: AGRyM1t/jn8Kjvt+p/Bi9YPgXfG+NJdJuj6QJR3OvU+gzS+3kTjCXS1fRHxHJP7F5MPjlLs7R9PqHw==
+X-Received: by 2002:a05:6000:1888:b0:21d:151c:92a0 with SMTP id a8-20020a056000188800b0021d151c92a0mr605463wri.609.1656312718949;
+        Sun, 26 Jun 2022 23:51:58 -0700 (PDT)
 Received: from amir-ThinkPad-T480.lan ([77.137.66.49])
-        by smtp.gmail.com with ESMTPSA id e10-20020adffd0a000000b0021a3dd1c5d5sm9415076wrr.96.2022.06.26.23.51.55
+        by smtp.gmail.com with ESMTPSA id e10-20020adffd0a000000b0021a3dd1c5d5sm9415076wrr.96.2022.06.26.23.51.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 26 Jun 2022 23:51:56 -0700 (PDT)
+        Sun, 26 Jun 2022 23:51:58 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -55,11 +55,14 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Chandan Babu R <chandan.babu@oracle.com>,
         Luis Chamberlain <mcgrof@kernel.org>,
         Adam Manzanares <a.manzanares@samsung.com>,
-        linux-xfs@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH 5.10 v4 0/5] xfs stable patches for 5.10.y (backports from v5.15.y)
-Date:   Mon, 27 Jun 2022 09:51:35 +0300
-Message-Id: <20220627065140.2798412-1-amir73il@gmail.com>
+        linux-xfs@vger.kernel.org, stable@vger.kernel.org,
+        Rustam Kovhaev <rkovhaev@gmail.com>
+Subject: [PATCH 5.10 v4 1/5] xfs: use kmem_cache_free() for kmem_cache objects
+Date:   Mon, 27 Jun 2022 09:51:36 +0300
+Message-Id: <20220627065140.2798412-2-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220627065140.2798412-1-amir73il@gmail.com>
+References: <20220627065140.2798412-1-amir73il@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -72,77 +75,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[resend with PATCH 5.10 prefix]
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-Hi Greg,
+commit c30a0cbd07ecc0eec7b3cd568f7b1c7bb7913f93 upstream.
 
-We started to experiment with the "xfs stable maintainers" concept that
-Darrick has proposed.
+For kmalloc() allocations SLOB prepends the blocks with a 4-byte header,
+and it puts the size of the allocated blocks in that header.
+Blocks allocated with kmem_cache_alloc() allocations do not have that
+header.
 
-My focus is on 5.10.y backports,
-Leah's focus is on 5.15.y backports and
-Chandan may pick up the 5.4.y backports.
+SLOB explodes when you allocate memory with kmem_cache_alloc() and then
+try to free it with kfree() instead of kmem_cache_free().
+SLOB will assume that there is a header when there is none, read some
+garbage to size variable and corrupt the adjacent objects, which
+eventually leads to hang or panic.
 
-This stable update is the first collaborated series for 5.10.y/5.15.y.
+Let's make XFS work with SLOB by using proper free function.
 
-It started with a 5.15.y patch series from Leah [1] of patches that
-specifically fix bugs prior to 5.10, to whom I already had tested
-5.10 backport patches for.
+Fixes: 9749fee83f38 ("xfs: enable the xfs_defer mechanism to process extents to free")
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+---
+ fs/xfs/xfs_extfree_item.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Leah will be sending the ACKed 5.15.y series [2].
-This 5.10.y series is a subset of the 5.15.y series that was
-ACKed by xfs developers for 5.10.y.
-
-All the patches in the 5.15.y series were backported to 5.10.
-The ones that are not included in this 5.10.y update were more subtle
-to backport, so the backports need more time for review and I will send
-them in one of the following stable updates.
-
-I would like to thank Darrick for reviewing the backport candidates.
-I would like to thank Luis for his ongoing support of the kdevops [3]
-test environment and Samsung for contributing the hardware to drive it.
-
-Thanks,
-Amir.
-
-Changes since v3:
-- PATCH 5.10 prefix
-
-Changes since [v2]:
-- CC stable
-
-Changes since [v1]:
-- Leave 5 out of 11
-- Accked by Darrick
-
-[1] https://lore.kernel.org/linux-xfs/20220616182749.1200971-1-leah.rumancik@gmail.com/
-[2] https://lore.kernel.org/linux-xfs/20220623203641.1710377-1-leah.rumancik@gmail.com/
-[3] https://github.com/linux-kdevops/kdevops
-[v1] https://lore.kernel.org/linux-xfs/20220617100641.1653164-1-amir73il@gmail.com/
-[v2] https://lore.kernel.org/linux-xfs/20220624063702.2380990-1-amir73il@gmail.com/
-
-Brian Foster (1):
-  xfs: punch out data fork delalloc blocks on COW writeback failure
-
-Darrick J. Wong (1):
-  xfs: remove all COW fork extents when remounting readonly
-
-Dave Chinner (1):
-  xfs: check sb_meta_uuid for dabuf buffer recovery
-
-Rustam Kovhaev (1):
-  xfs: use kmem_cache_free() for kmem_cache objects
-
-Yang Xu (1):
-  xfs: Fix the free logic of state in xfs_attr_node_hasname
-
- fs/xfs/libxfs/xfs_attr.c      | 13 +++++--------
- fs/xfs/xfs_aops.c             | 15 ++++++++++++---
- fs/xfs/xfs_buf_item_recover.c |  2 +-
- fs/xfs/xfs_extfree_item.c     |  6 +++---
- fs/xfs/xfs_super.c            | 14 +++++++++++---
- 5 files changed, 32 insertions(+), 18 deletions(-)
-
+diff --git a/fs/xfs/xfs_extfree_item.c b/fs/xfs/xfs_extfree_item.c
+index 5c0395256bd1..11474770d630 100644
+--- a/fs/xfs/xfs_extfree_item.c
++++ b/fs/xfs/xfs_extfree_item.c
+@@ -482,7 +482,7 @@ xfs_extent_free_finish_item(
+ 			free->xefi_startblock,
+ 			free->xefi_blockcount,
+ 			&free->xefi_oinfo, free->xefi_skip_discard);
+-	kmem_free(free);
++	kmem_cache_free(xfs_bmap_free_item_zone, free);
+ 	return error;
+ }
+ 
+@@ -502,7 +502,7 @@ xfs_extent_free_cancel_item(
+ 	struct xfs_extent_free_item	*free;
+ 
+ 	free = container_of(item, struct xfs_extent_free_item, xefi_list);
+-	kmem_free(free);
++	kmem_cache_free(xfs_bmap_free_item_zone, free);
+ }
+ 
+ const struct xfs_defer_op_type xfs_extent_free_defer_type = {
+@@ -564,7 +564,7 @@ xfs_agfl_free_finish_item(
+ 	extp->ext_len = free->xefi_blockcount;
+ 	efdp->efd_next_extent++;
+ 
+-	kmem_free(free);
++	kmem_cache_free(xfs_bmap_free_item_zone, free);
+ 	return error;
+ }
+ 
 -- 
 2.25.1
 
