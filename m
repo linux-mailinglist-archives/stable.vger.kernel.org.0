@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D5AE55D378
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:12:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77BF155C7D9
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235429AbiF0L3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:29:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46492 "EHLO
+        id S235552AbiF0Le3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:34:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235373AbiF0L2t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:28:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADC2D65B0;
-        Mon, 27 Jun 2022 04:27:32 -0700 (PDT)
+        with ESMTP id S235913AbiF0Lcz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:32:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65D68109;
+        Mon, 27 Jun 2022 04:29:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B78E61460;
-        Mon, 27 Jun 2022 11:27:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7B6AC3411D;
-        Mon, 27 Jun 2022 11:27:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1AA2B8111B;
+        Mon, 27 Jun 2022 11:29:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C014C3411D;
+        Mon, 27 Jun 2022 11:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329251;
-        bh=X6teW0KhDjIByImFmOErKxYMhlrwTw+PCdBRdEMHqUY=;
+        s=korg; t=1656329388;
+        bh=xYxiTnQiNYNkHpstZ5wyUZKasR0aKcFMUnvba22Y3So=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i9ML+l9lopt7DhxmQ0niH0RavmkYN/EJzSTq8ijcKTaxhD4yRAyYbzEVBOiPiXKmk
-         E71wA7PX0TSbVeVcMk7dQFih7VMlAESUU2lNUd/pc3R6I615KqtzafjgmR8XaUhwZ/
-         UUKYbC4XuT+Ypfxp9CgQ/lV2zsNatkoJ+M7y8Hac=
+        b=NuiS/QlI5YJJokHKY1PGi79Y6zEA37KVJ4n6TUzQ7LOh+80OmgwULkfGfrpqnfbif
+         HqMx89+e+258q9fR+ZgAIGG9ebja8YijbCkE47LkHjISNHrwJgerQokl43LlPQ13yb
+         D4by3J5SDQ4yHoNajps0bnDbOorUCbDDpi0Miobg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.10 101/102] kbuild: link vmlinux only once for CONFIG_TRIM_UNUSED_KSYMS (2nd attempt)
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Hans de Goede <hdegoede@redhat.com>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 41/60] iio: accel: mma8452: ignore the return value of reset operation
 Date:   Mon, 27 Jun 2022 13:21:52 +0200
-Message-Id: <20220627111936.461651583@linuxfoundation.org>
+Message-Id: <20220627111928.898410833@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
-References: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-commit 53632ba87d9f302a8d97a11ec2f4f4eec7bb75ea upstream.
+commit bf745142cc0a3e1723f9207fb0c073c88464b7b4 upstream.
 
-If CONFIG_TRIM_UNUSED_KSYMS is enabled and the kernel is built from
-a pristine state, the vmlinux is linked twice.
+On fxls8471, after set the reset bit, the device will reset immediately,
+will not give ACK. So ignore the return value of this reset operation,
+let the following code logic to check whether the reset operation works.
 
-Commit 3fdc7d3fe4c0 ("kbuild: link vmlinux only once for
-CONFIG_TRIM_UNUSED_KSYMS") explains why this happens, but it did not fix
-the issue at all.
-
-Now I realized I had applied a wrong patch.
-
-In v1 patch [1], the autoksyms_recursive target correctly recurses to
-"$(MAKE) -f $(srctree)/Makefile autoksyms_recursive".
-
-In v2 patch [2], I accidentally dropped the diff line, and it recurses to
-"$(MAKE) -f $(srctree)/Makefile vmlinux".
-
-Restore the code I intended in v1.
-
-[1]: https://lore.kernel.org/linux-kbuild/1521045861-22418-8-git-send-email-yamada.masahiro@socionext.com/
-[2]: https://lore.kernel.org/linux-kbuild/1521166725-24157-8-git-send-email-yamada.masahiro@socionext.com/
-
-Fixes: 3fdc7d3fe4c0 ("kbuild: link vmlinux only once for CONFIG_TRIM_UNUSED_KSYMS")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Tested-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Fixes: ecabae713196 ("iio: mma8452: Initialise before activating")
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/1655292718-14287-1-git-send-email-haibo.chen@nxp.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/accel/mma8452.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -1156,7 +1156,7 @@ KBUILD_MODULES := 1
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1489,10 +1489,14 @@ static int mma8452_reset(struct i2c_clie
+ 	int i;
+ 	int ret;
  
- autoksyms_recursive: descend modules.order
- 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/adjust_autoksyms.sh \
--	  "$(MAKE) -f $(srctree)/Makefile vmlinux"
-+	  "$(MAKE) -f $(srctree)/Makefile autoksyms_recursive"
- endif
+-	ret = i2c_smbus_write_byte_data(client,	MMA8452_CTRL_REG2,
++	/*
++	 * Find on fxls8471, after config reset bit, it reset immediately,
++	 * and will not give ACK, so here do not check the return value.
++	 * The following code will read the reset register, and check whether
++	 * this reset works.
++	 */
++	i2c_smbus_write_byte_data(client, MMA8452_CTRL_REG2,
+ 					MMA8452_CTRL_REG2_RST);
+-	if (ret < 0)
+-		return ret;
  
- autoksyms_h := $(if $(CONFIG_TRIM_UNUSED_KSYMS), include/generated/autoksyms.h)
+ 	for (i = 0; i < 10; i++) {
+ 		usleep_range(100, 200);
 
 
