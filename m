@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8536955DE43
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:28:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9647455DB47
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:24:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236053AbiF0LfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:35:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56110 "EHLO
+        id S234813AbiF0LZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:25:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235660AbiF0LeA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:34:00 -0400
+        with ESMTP id S234809AbiF0LYv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:24:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CEB2C40;
-        Mon, 27 Jun 2022 04:31:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52862656C;
+        Mon, 27 Jun 2022 04:24:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16D77608D4;
-        Mon, 27 Jun 2022 11:31:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 280D2C341C7;
-        Mon, 27 Jun 2022 11:31:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D3D006144F;
+        Mon, 27 Jun 2022 11:24:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D47BBC3411D;
+        Mon, 27 Jun 2022 11:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329479;
-        bh=DXbOOTUZxJQ/VJmdQpelWwPF76o9ryuqCBm+cRcEnDE=;
+        s=korg; t=1656329089;
+        bh=TQMR5GeaKVHamVvhcMQGhylT9Fg4yyVgSp+mcSkGwB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vx75pexAc+Cinzei5C3iUQWZ+gaLA2lPRePbtg/6HeIdUGrtZteCLTOYUhrM1c2Hf
-         hOB1Mhy00UdMQ2xxEOTXgHjF+QEC9inog04zhxB2jsqBdckXMx7JLizbKQAOapWHGG
-         6j+996BsI6uwWXQk3nokEOvmSJyV0cZeozNpaPMY=
+        b=neAcmcGN8Pvk/m0JotnyykLg0y6l+bGXXmdanHINzWwR7iOdAFJk6hJmNCddrjaX1
+         ZpXJc0gnjZJZeYueaytfCk1XyZl/DmNyaQfJskrf/SfOAZZaJ9/b7CyWdTlfL864vV
+         lAQ/zn7FMYKsZTbvL9CZxE5VQ5s67BgPpRM6Uz4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 5.15 013/135] 9p: fix fid refcount leak in v9fs_vfs_get_link
+        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 009/102] ALSA: hda/realtek: Add quirk for Clevo PD70PNT
 Date:   Mon, 27 Jun 2022 13:20:20 +0200
-Message-Id: <20220627111938.543822391@linuxfoundation.org>
+Message-Id: <20220627111933.739833016@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominique Martinet <asmadeus@codewreck.org>
+From: Tim Crawford <tcrawford@system76.com>
 
-commit e5690f263208c5abce7451370b7786eb25b405eb upstream.
+commit d49951219b0249d3eff49e4f02e0de82357bc8a0 upstream.
 
-we check for protocol version later than required, after a fid has
-been obtained. Just move the version check earlier.
+Fixes speaker output and headset detection on Clevo PD70PNT.
 
-Link: https://lkml.kernel.org/r/20220612085330.1451496-3-asmadeus@codewreck.org
-Fixes: 6636b6dcc3db ("9p: add refcount to p9_fid struct")
-Cc: stable@vger.kernel.org
-Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220617133028.50568-1-tcrawford@system76.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/9p/vfs_inode.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/9p/vfs_inode.c
-+++ b/fs/9p/vfs_inode.c
-@@ -1228,15 +1228,15 @@ static const char *v9fs_vfs_get_link(str
- 		return ERR_PTR(-ECHILD);
- 
- 	v9ses = v9fs_dentry2v9ses(dentry);
--	fid = v9fs_fid_lookup(dentry);
-+	if (!v9fs_proto_dotu(v9ses))
-+		return ERR_PTR(-EBADF);
-+
- 	p9_debug(P9_DEBUG_VFS, "%pd\n", dentry);
-+	fid = v9fs_fid_lookup(dentry);
- 
- 	if (IS_ERR(fid))
- 		return ERR_CAST(fid);
- 
--	if (!v9fs_proto_dotu(v9ses))
--		return ERR_PTR(-EBADF);
--
- 	st = p9_client_stat(fid);
- 	p9_client_clunk(fid);
- 	if (IS_ERR(st))
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2643,6 +2643,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67f1, "Clevo PC70H[PRS]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x67f5, "Clevo PD70PN[NRT]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170SM", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x7715, "Clevo X170KM-G", ALC1220_FIXUP_CLEVO_PB51ED),
 
 
