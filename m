@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E086455C223
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:46:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEAF955D731
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237406AbiF0Lnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:43:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43444 "EHLO
+        id S237207AbiF0Lo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:44:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237460AbiF0Lmx (ORCPT
+        with ESMTP id S237467AbiF0Lmx (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:42:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7F3E02;
-        Mon, 27 Jun 2022 04:38:18 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99F6DF67;
+        Mon, 27 Jun 2022 04:38:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4B96B8111B;
-        Mon, 27 Jun 2022 11:38:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46A7DC3411D;
-        Mon, 27 Jun 2022 11:38:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 370126114D;
+        Mon, 27 Jun 2022 11:38:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4864FC341C8;
+        Mon, 27 Jun 2022 11:38:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329895;
-        bh=ya6NqRRRrlm7hZiwo+jdpCTe+xU8kmDhkrN5GWHursc=;
+        s=korg; t=1656329898;
+        bh=TiybJzSVz8izLkFtpH1FLS4k+JLx8oS7oe9r0JDSkBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sghqqm/5oca0TJF5LZbsoT7WtEnKrDdDwjJvQsIZunL9yoGxbDBZpj7T/H0rUCZpx
-         tC8udpWJIk4vHn2ru+YCWL+J970yajTd6IqLWeLxhxIbCuL8JNR4jw7Nb/JIpZDEAR
-         kZu0HqQCnggA3C08GGrT1tmSjXzZkAERtqf5Bm3Q=
+        b=IT+7hB30Lh3/VD/YHoC6cDlMXvDa6aKX/7eVUWV7mriJzVApdqFAlgAA2xlR52v20
+         fr4oAU23gC4n4MSgYFWWmAaUEJvpxPTxG6VBTJLbbDJa67cVV5+1znM4aD30yrHIdZ
+         pfc0bTVumWRngx/YQ6+zDnuJOFgZY6vsudk14i/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Christian Schoenebeck <linux_oss@crudebyte.com>,
         Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 5.18 016/181] 9p: fix fid refcount leak in v9fs_vfs_get_link
-Date:   Mon, 27 Jun 2022 13:19:49 +0200
-Message-Id: <20220627111945.033453940@linuxfoundation.org>
+Subject: [PATCH 5.18 017/181] 9p: fix EBADF errors in cached mode
+Date:   Mon, 27 Jun 2022 13:19:50 +0200
+Message-Id: <20220627111945.062546213@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
 References: <20220627111944.553492442@linuxfoundation.org>
@@ -56,43 +56,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dominique Martinet <asmadeus@codewreck.org>
 
-commit e5690f263208c5abce7451370b7786eb25b405eb upstream.
+commit b0017602fdf6bd3f344dd49eaee8b6ffeed6dbac upstream.
 
-we check for protocol version later than required, after a fid has
-been obtained. Just move the version check earlier.
+cached operations sometimes need to do invalid operations (e.g. read
+on a write only file)
+Historic fscache had added a "writeback fid", a special handle opened
+RW as root, for this. The conversion to new fscache missed that bit.
 
-Link: https://lkml.kernel.org/r/20220612085330.1451496-3-asmadeus@codewreck.org
-Fixes: 6636b6dcc3db ("9p: add refcount to p9_fid struct")
+This commit reinstates a slightly lesser variant of the original code
+that uses the writeback fid for partial pages backfills if the regular
+user fid had been open as WRONLY, and thus would lack read permissions.
+
+Link: https://lkml.kernel.org/r/20220614033802.1606738-1-asmadeus@codewreck.org
+Fixes: eb497943fa21 ("9p: Convert to using the netfs helper lib to do reads and caching")
 Cc: stable@vger.kernel.org
-Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Cc: David Howells <dhowells@redhat.com>
+Reported-By: Christian Schoenebeck <linux_oss@crudebyte.com>
 Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+Tested-by: Christian Schoenebeck <linux_oss@crudebyte.com>
 Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/9p/vfs_inode.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/9p/vfs_addr.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/fs/9p/vfs_inode.c
-+++ b/fs/9p/vfs_inode.c
-@@ -1250,15 +1250,15 @@ static const char *v9fs_vfs_get_link(str
- 		return ERR_PTR(-ECHILD);
+--- a/fs/9p/vfs_addr.c
++++ b/fs/9p/vfs_addr.c
+@@ -58,8 +58,21 @@ static void v9fs_issue_read(struct netfs
+  */
+ static int v9fs_init_request(struct netfs_io_request *rreq, struct file *file)
+ {
++	struct inode *inode = file_inode(file);
++	struct v9fs_inode *v9inode = V9FS_I(inode);
+ 	struct p9_fid *fid = file->private_data;
  
- 	v9ses = v9fs_dentry2v9ses(dentry);
--	fid = v9fs_fid_lookup(dentry);
-+	if (!v9fs_proto_dotu(v9ses))
-+		return ERR_PTR(-EBADF);
++	BUG_ON(!fid);
 +
- 	p9_debug(P9_DEBUG_VFS, "%pd\n", dentry);
-+	fid = v9fs_fid_lookup(dentry);
- 
- 	if (IS_ERR(fid))
- 		return ERR_CAST(fid);
- 
--	if (!v9fs_proto_dotu(v9ses))
--		return ERR_PTR(-EBADF);
--
- 	st = p9_client_stat(fid);
- 	p9_client_clunk(fid);
- 	if (IS_ERR(st))
++	/* we might need to read from a fid that was opened write-only
++	 * for read-modify-write of page cache, use the writeback fid
++	 * for that */
++	if (rreq->origin == NETFS_READ_FOR_WRITE &&
++			(fid->mode & O_ACCMODE) == O_WRONLY) {
++		fid = v9inode->writeback_fid;
++		BUG_ON(!fid);
++	}
++
+ 	refcount_inc(&fid->count);
+ 	rreq->netfs_priv = fid;
+ 	return 0;
 
 
