@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4091255C1B3
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11F1555D19B
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237077AbiF0LmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:42:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36200 "EHLO
+        id S235277AbiF0L2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:28:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236967AbiF0LlB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:41:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F0CACE04;
-        Mon, 27 Jun 2022 04:35:39 -0700 (PDT)
+        with ESMTP id S235276AbiF0L1b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:27:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 015979FED;
+        Mon, 27 Jun 2022 04:27:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB363B8112E;
-        Mon, 27 Jun 2022 11:35:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E5B1C3411D;
-        Mon, 27 Jun 2022 11:35:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BA626149A;
+        Mon, 27 Jun 2022 11:27:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32DC5C3411D;
+        Mon, 27 Jun 2022 11:27:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656329736;
-        bh=QM0AfxK4IuaFTjGiDZn/JFX8f2kV59KHfY0gtwTQpUw=;
+        s=korg; t=1656329229;
+        bh=WZXy+Bd4DgG1VVzSNOzT8zUIRZ/5VvEGPPSlCWy6ceA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KQh24+QpPwICnASEjssCtqSqptmBfiPe2CME/KBspbH4orAB1VHIWHc1l6ae0bstU
-         LwaZP1jdzb7ts2fQxRMjVQwhXOalpQIenfeh2e8uNJe56aLXXphef4Sb7+Ii0rNwII
-         get6qFksXjXXWiUxU0QSYRC3NykDuNmg4Hp8kI6o=
+        b=r2lIVSWx7JCzB6xQrJqPjjstDD8Qh4Fi6PP3L5+8l/lMsSWIKIuhikuoOKB6xN/76
+         V2QsSkhMU2gt+bjS39zWevvNn89Z0D0KrbNFd4X5D77U/Xze+m9fumWOsDcFnhW2E7
+         QBY/ALuQj9JQYNRN3UAm6IIw/IKFJ3swQCjTuCq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Rokosov <ddrokosov@sberdevices.ru>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 098/135] iio:accel:bma180: rearrange iio trigger get and register
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 5.10 094/102] ARM: exynos: Fix refcount leak in exynos_map_pmu
 Date:   Mon, 27 Jun 2022 13:21:45 +0200
-Message-Id: <20220627111941.001043884@linuxfoundation.org>
+Message-Id: <20220627111936.255657266@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111938.151743692@linuxfoundation.org>
-References: <20220627111938.151743692@linuxfoundation.org>
+In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111933.455024953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit e5f3205b04d7f95a2ef43bce4b454a7f264d6923 upstream.
+commit c4c79525042a4a7df96b73477feaf232fe44ae81 upstream.
 
-IIO trigger interface function iio_trigger_get() should be called after
-iio_trigger_register() (or its devm analogue) strictly, because of
-iio_trigger_get() acquires module refcnt based on the trigger->owner
-pointer, which is initialized inside iio_trigger_register() to
-THIS_MODULE.
-If this call order is wrong, the next iio_trigger_put() (from sysfs
-callback or "delete module" path) will dereference "default" module
-refcnt, which is incorrect behaviour.
+of_find_matching_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
+of_node_put() checks null pointer.
 
-Fixes: 0668a4e4d297 ("iio: accel: bma180: Fix indio_dev->trig assignment")
-Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220524181150.9240-2-ddrokosov@sberdevices.ru
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: fce9e5bb2526 ("ARM: EXYNOS: Add support for mapping PMU base address via DT")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220523145513.12341-1-linmq006@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/bma180.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/mach-exynos/exynos.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -1006,11 +1006,12 @@ static int bma180_probe(struct i2c_clien
+--- a/arch/arm/mach-exynos/exynos.c
++++ b/arch/arm/mach-exynos/exynos.c
+@@ -149,6 +149,7 @@ static void exynos_map_pmu(void)
+ 	np = of_find_matching_node(NULL, exynos_dt_pmu_match);
+ 	if (np)
+ 		pmu_base_addr = of_iomap(np, 0);
++	of_node_put(np);
+ }
  
- 		data->trig->ops = &bma180_trigger_ops;
- 		iio_trigger_set_drvdata(data->trig, indio_dev);
--		indio_dev->trig = iio_trigger_get(data->trig);
- 
- 		ret = iio_trigger_register(data->trig);
- 		if (ret)
- 			goto err_trigger_free;
-+
-+		indio_dev->trig = iio_trigger_get(data->trig);
- 	}
- 
- 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
+ static void __init exynos_init_irq(void)
 
 
