@@ -2,59 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2370A55C65F
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6B3F55E0EA
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232387AbiF0G7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 02:59:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48806 "EHLO
+        id S230059AbiF0HYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 03:24:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232364AbiF0G7F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 02:59:05 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.17.13])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B591821A4
-        for <stable@vger.kernel.org>; Sun, 26 Jun 2022 23:59:02 -0700 (PDT)
-Received: from mail-yb1-f172.google.com ([209.85.219.172]) by
- mrelayeu.kundenserver.de (mreue108 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1M89TB-1o1ZyR2Yhn-005Ek4 for <stable@vger.kernel.org>; Mon, 27 Jun 2022
- 08:59:00 +0200
-Received: by mail-yb1-f172.google.com with SMTP id r3so15142176ybr.6
-        for <stable@vger.kernel.org>; Sun, 26 Jun 2022 23:59:00 -0700 (PDT)
-X-Gm-Message-State: AJIora/1ZCnHY4wgeoEsVDroxw7KwSYcBZjv3WDHbMsItk2/2TOJ7FFy
-        5wpr9uSSE8R5qCi2uznMHkEMHJldCrkj0TujUzo=
-X-Google-Smtp-Source: AGRyM1uQt+1XGUbIPHFdjSBX5mznj0ldKaweebeqCcii4Y6MsFEcWB4DjElgscuIMmBjyyVmeplhr0IrZxvqgmxfTZI=
-X-Received: by 2002:a25:9241:0:b0:669:ad54:70b6 with SMTP id
- e1-20020a259241000000b00669ad5470b6mr11515689ybo.480.1656313139497; Sun, 26
- Jun 2022 23:58:59 -0700 (PDT)
+        with ESMTP id S230096AbiF0HYF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 03:24:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E25CF5F9E;
+        Mon, 27 Jun 2022 00:24:03 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61D7061353;
+        Mon, 27 Jun 2022 07:24:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00952C341C8;
+        Mon, 27 Jun 2022 07:24:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1656314642;
+        bh=hiXi3UrYgUhaJWeEi82xz9OOw9JFYZDtX3kek1cydn0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nlXxUAiA8ITEDbLnALbs3k30MYcEgSYiM10FExaxFukCu2xFR2i6lehP4WzbUHjHW
+         fKSqC0EPrx2iFkfV9KI/ALQU5OIc7nt4DGQpanTfiYl76kZUOA+VjCcLUCWAJRkt76
+         Zzj9yMGO7FZKgsfd1VK9Eg9/2Y+aCEvIS7JOR2X0=
+Date:   Mon, 27 Jun 2022 09:23:58 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     RAJESH DASARI <raajeshdasari@gmail.com>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Reg: rseq selftests failed on 5.4.199
+Message-ID: <YrlbDgpIVFvh5L9O@kroah.com>
+References: <CAPXMrf-_RGYBJNu51rq2mdzcpf7Sk_z3kRNL9pmLvf4xmUkmow@mail.gmail.com>
 MIME-Version: 1.0
-References: <20220627063212.21626-1-xyangxi5@gmail.com>
-In-Reply-To: <20220627063212.21626-1-xyangxi5@gmail.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 27 Jun 2022 08:58:41 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a1L+_-qVEsOfoHgJ=3dg+cXLHQiWLC7HmQV07Ds8C8ZXA@mail.gmail.com>
-Message-ID: <CAK8P3a1L+_-qVEsOfoHgJ=3dg+cXLHQiWLC7HmQV07Ds8C8ZXA@mail.gmail.com>
-Subject: Re: [PATCH] asm-generic: fix buffer overflow read in __strncpy_from_user
-To:     Yangxi Xiang <xyangxi5@gmail.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>, "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:W4YYUHVFhSA5WYXu2xMaAi3nDi/cRyZKAjBIwNKOWQeLtvTRGLm
- nAfanf42/NhcSzXINjafKnMoX2jJn7iXTu2qanfbiB8M/MiB53VX7mfCnv2Cq7/Sc9WcTdv
- mf3QR8C+KfnkADIoeKzHoazw8q6nS73ck/mdfYxsSEYbyxKBJWLgXZQjDBpdKMz63MDsrvN
- iAQueNLKDdf4tfnrdK91g==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:S2ML651UZNs=:JB0bUksi94BseWc//b3pT/
- 1Donmc8I2C8jttxvU4mp31VR0QYqDLTWul6aAUHcR7wZSHGCJ4zK4jxYa6SEh9XuEV3/ZgaF1
- MHj7vN89h9ii0QtgYoBx8msC0m2a+kPgieAAXvLs6OddakjooQ0EmKjmxS0zTb2Vaq53ho/Xh
- aFB23vCqDJCM6mAx3LZtsfQFdeNbEot41MF4Zdlw04peAm1spHD+14uC8HNDIYi6BMowrY8bN
- CuocNUfrw6v0hd/nHgMl7au/XKPf7Cfkdsoi+U1Q73qMMgvMFaW9NBym2b3HQWRa2kQaR5+Xj
- y7Qjk85EL/Olm3YCw6alFs4q+15VW3gmuYktNTO800jroWZk6NqvTt5jN6x5bgKJoUx3yPnBR
- P4o5N1M3AZFYe6hQbn+QRhOQ8YFEXSdkDYaWvb1JKBNAOSxxolz55CLinw3CLObIWIaynskzC
- TvPWmTlPyap3YZHqPhor6Yr+5/lru6Zv/rQTGENvJAzWxJnNbDcgwtps85ALl/UckJSuuFvdH
- n5n7ci/eLXxI9Sbfe0aPOerohZnJ4Zltm+Cck434gEcccxrMLlU5ghX7oiR946u3pO+Hs5GST
- 6XWQWbc6Dk8LtV+EwLETmPlTxO3c1tEaJRZvGB8yR43eyzkcBiX8XEvceznftsleTHk9qjoRi
- 1YNJkRclTSWRTn+ccUramh7snu2JAC/K/qofZ97JXdaTmBqOgjPL+w3fcRdLBkKFfWdXtMH/p
- xZpc/xSBqtrPRXecs2QP52wH2QmBu42HaE/SBQ==
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAPXMrf-_RGYBJNu51rq2mdzcpf7Sk_z3kRNL9pmLvf4xmUkmow@mail.gmail.com>
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -62,19 +49,22 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 8:32 AM Yangxi Xiang <xyangxi5@gmail.com> wrote:
->
-> a common calling pattern is strncpy_from_user(buf, user_ptr, sizeof(buf)).
-> However a buffer-overflow read occurs in this loop when reading the last
-> byte. Fix it by early checking the available bytes.
->
-> Signed-off-by: Yangxi Xiang <xyangxi5@gmail.com>
-> ---
+On Sun, Jun 26, 2022 at 10:01:20PM +0300, RAJESH DASARI wrote:
+> Hi ,
+> 
+> We are running rseq selftests on 5.4.199 kernel with  glibc 2.34
+> version  and we see that tests are failing to compile with invalid
+> argument errors. When we took all the commits from
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/log/tools/testing/selftests/rseq
+>  related to rseq locally , test cases have passed. I see that there are
+> some adaptations to the latest glibc version done in those commits, is
+> there any plan to backport them to 5.4.x versions. Could you please
+> provide your inputs.
 
-This function was removed in commit 98b861a30431 ("asm-generic: uaccess:
-remove inline strncpy_from_user/strnlen_user"), and the new version in
-lib/strncpy_from_user.c does not have the problem
+What commits specifically are you referring to please?  A list of them
+would be great, and if you have tested them and verified that they can
+be backported cleanly would also be very helpful.
 
-On which architecture and kernel version do you see the problem?
+thanks,
 
-      Arnd
+greg k-h
