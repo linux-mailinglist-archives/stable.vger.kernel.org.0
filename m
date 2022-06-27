@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEE5955D30B
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:11:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7568655C6D9
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:53:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238323AbiF0Lut (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:50:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50026 "EHLO
+        id S235486AbiF0Ldw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:33:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238588AbiF0Lss (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:48:48 -0400
+        with ESMTP id S235926AbiF0Lc4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:32:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 707E2D100;
-        Mon, 27 Jun 2022 04:42:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A29FE222;
+        Mon, 27 Jun 2022 04:29:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02493611C9;
-        Mon, 27 Jun 2022 11:42:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D350C3411D;
-        Mon, 27 Jun 2022 11:42:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3ADA561456;
+        Mon, 27 Jun 2022 11:29:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42778C36AF6;
+        Mon, 27 Jun 2022 11:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330156;
-        bh=VS9xJwq5vrJSu3Sg10kO6/gABDXtsbDYzCr9Qs2oxFk=;
+        s=korg; t=1656329391;
+        bh=/QaahEWEP/FNbDW7blJ/3l3rhMLNvJ8Lgx7nCxAMYu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyUUAVIj5uazDOY8K5AdFQce5DJV9e08A7Jsk9kDjVScQb6QDfOR+9DU4jtCevsDM
-         Q2g08cmJYFQkAthTP1FNziwcXtAFzn4qAdysO6+V2xQZR4U0crMhVyRUvEr6e23iYU
-         e5Hs1EXa/A2SvN+9nM1QXbuSa4FAXYlzi02mENJw=
+        b=Z9Px/HWypyeiuV4aQY8tsRlXRfLpeOn9AZ0/mC0jvDAbpbYxmy8DYRUXZJtETDfdI
+         fUlmCYc0FT8U/PlRNDuwOS+eOU+DaJ9BcCT02U7zHYQ3GA+ecfyQ/aWD0s3f8X3jeT
+         n0afq7gp/OF8wGc9XUGK8RwyktN6ech1vKExeLxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 104/181] iio: mma8452: fix probe fail when device tree compatible is used.
+        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 06/60] ALSA: hda/realtek: Add quirk for Clevo PD70PNT
 Date:   Mon, 27 Jun 2022 13:21:17 +0200
-Message-Id: <20220627111947.715254494@linuxfoundation.org>
+Message-Id: <20220627111927.837891591@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Tim Crawford <tcrawford@system76.com>
 
-[ Upstream commit fe18894930a025617114aa8ca0adbf94d5bffe89 ]
+commit d49951219b0249d3eff49e4f02e0de82357bc8a0 upstream.
 
-Correct the logic for the probe. First check of_match_table, if
-not meet, then check i2c_driver.id_table. If both not meet, then
-return fail.
+Fixes speaker output and headset detection on Clevo PD70PNT.
 
-Fixes: a47ac019e7e8 ("iio: mma8452: Fix probe failing when an i2c_device_id is used")
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Link: https://lore.kernel.org/r/1650876060-17577-1-git-send-email-haibo.chen@nxp.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220617133028.50568-1-tcrawford@system76.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/mma8452.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
-index 9c02c681c84c..4156d216c640 100644
---- a/drivers/iio/accel/mma8452.c
-+++ b/drivers/iio/accel/mma8452.c
-@@ -1556,11 +1556,13 @@ static int mma8452_probe(struct i2c_client *client,
- 	mutex_init(&data->lock);
- 
- 	data->chip_info = device_get_match_data(&client->dev);
--	if (!data->chip_info && id) {
--		data->chip_info = &mma_chip_info_table[id->driver_data];
--	} else {
--		dev_err(&client->dev, "unknown device model\n");
--		return -ENODEV;
-+	if (!data->chip_info) {
-+		if (id) {
-+			data->chip_info = &mma_chip_info_table[id->driver_data];
-+		} else {
-+			dev_err(&client->dev, "unknown device model\n");
-+			return -ENODEV;
-+		}
- 	}
- 
- 	ret = iio_read_mount_matrix(&client->dev, &data->orientation);
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2585,6 +2585,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67f1, "Clevo PC70H[PRS]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x67f5, "Clevo PD70PN[NRT]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170SM", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x7715, "Clevo X170KM-G", ALC1220_FIXUP_CLEVO_PB51ED),
 
 
