@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6621B55C6EA
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB4E355C9DA
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:57:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238418AbiF0Lxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 07:53:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50076 "EHLO
+        id S235714AbiF0LeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 07:34:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238623AbiF0Lv6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:51:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6EE7660;
-        Mon, 27 Jun 2022 04:44:54 -0700 (PDT)
+        with ESMTP id S236325AbiF0Ldh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 07:33:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E985DEAC;
+        Mon, 27 Jun 2022 04:30:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D141B80D37;
-        Mon, 27 Jun 2022 11:44:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5065C3411D;
-        Mon, 27 Jun 2022 11:44:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B253612D8;
+        Mon, 27 Jun 2022 11:30:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C3F2C3411D;
+        Mon, 27 Jun 2022 11:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656330292;
-        bh=prAZB8L5jCOXRzpnKNMD8lRNgmHpfgzOwrR98cT5clo=;
+        s=korg; t=1656329456;
+        bh=CE16h4Za8gFzCYa0eRZvLILjAcKuoaholZwAc3agvQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENUEP4Ec/lALyVNOCJpkF8eaO5tHFKrdnErJkGiTD1Y4rd6+JfMlic+7oxfG9zXy1
-         5Ln4kFSDad6f26//3BH8HKg9vooqwOqFB6UGRg8Pr799FMhfwVDBVw7la1CLf2VdTH
-         dsKJLixMX00Ew5GZJBu4OdGRi0FRWh/KzHgi0H54=
+        b=af7puuye9HCFPQ2GVW6VnuO21O95dzcb7EsXwSXuZxRCxq7+Akq5GzxX5SEPDSnGP
+         fJNl5O5DyBOAV/j3TI8gOFh83cQlgU8XprK7hNR7oi19PboFJ0qmsmKIo3gfRMyTI+
+         EPN1anO+bZryWTQGxYhIu92DYumxUWRATqmNUXQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.18 149/181] iio: adc: adi-axi-adc: Fix refcount leak in adi_axi_adc_attach_client
-Date:   Mon, 27 Jun 2022 13:22:02 +0200
-Message-Id: <20220627111949.005101165@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.4 52/60] ARM: dts: imx6qdl: correct PU regulator ramp delay
+Date:   Mon, 27 Jun 2022 13:22:03 +0200
+Message-Id: <20220627111929.221347169@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
-References: <20220627111944.553492442@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit ada7b0c0dedafd7d059115adf49e48acba3153a8 upstream.
+commit 93a8ba2a619816d631bd69e9ce2172b4d7a481b8 upstream.
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+Contrary to what was believed at the time, the ramp delay of 150us is not
+plenty for the PU LDO with the default step time of 512 pulses of the 24MHz
+clock. Measurements have shown that after enabling the LDO the voltage on
+VDDPU_CAP jumps to ~750mV in the first step and after that the regulator
+executes the normal ramp up as defined by the step size control.
 
-Fixes: ef04070692a2 ("iio: adc: adi-axi-adc: add support for AXI ADC IP core")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220524074517.45268-1-linmq006@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+This means it takes the regulator between 360us and 370us to ramp up to
+the nominal 1.15V voltage for this power domain. With the old setting of
+the ramp delay the power up of the PU GPC domain would happen in the middle
+of the regulator ramp with the voltage being at around 900mV. Apparently
+this was enough for most units to properly power up the peripherals in the
+domain and execute the reset. Some units however, fail to power up properly,
+especially when the chip is at a low temperature. In that case any access
+to the GPU registers would yield an incorrect result with no way to recover
+from this situation.
+
+Change the ramp delay to 380us to cover the measured ramp up time with a
+bit of additional slack.
+
+Fixes: 40130d327f72 ("ARM: dts: imx6qdl: Allow disabling the PU regulator, add a enable ramp delay")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/adi-axi-adc.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/imx6qdl.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/adc/adi-axi-adc.c
-+++ b/drivers/iio/adc/adi-axi-adc.c
-@@ -322,16 +322,19 @@ static struct adi_axi_adc_client *adi_ax
- 
- 		if (!try_module_get(cl->dev->driver->owner)) {
- 			mutex_unlock(&registered_clients_lock);
-+			of_node_put(cln);
- 			return ERR_PTR(-ENODEV);
- 		}
- 
- 		get_device(cl->dev);
- 		cl->info = info;
- 		mutex_unlock(&registered_clients_lock);
-+		of_node_put(cln);
- 		return cl;
- 	}
- 
- 	mutex_unlock(&registered_clients_lock);
-+	of_node_put(cln);
- 
- 	return ERR_PTR(-EPROBE_DEFER);
- }
+--- a/arch/arm/boot/dts/imx6qdl.dtsi
++++ b/arch/arm/boot/dts/imx6qdl.dtsi
+@@ -766,7 +766,7 @@
+ 					regulator-name = "vddpu";
+ 					regulator-min-microvolt = <725000>;
+ 					regulator-max-microvolt = <1450000>;
+-					regulator-enable-ramp-delay = <150>;
++					regulator-enable-ramp-delay = <380>;
+ 					anatop-reg-offset = <0x140>;
+ 					anatop-vol-bit-shift = <9>;
+ 					anatop-vol-bit-width = <5>;
 
 
