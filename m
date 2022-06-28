@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C5E55E15D
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 031D455DB43
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:24:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243716AbiF1CVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:21:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33290 "EHLO
+        id S243530AbiF1CV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:21:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243603AbiF1CVA (ORCPT
+        with ESMTP id S243529AbiF1CVA (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:21:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9EF324BED;
-        Mon, 27 Jun 2022 19:20:22 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7C65237D9;
+        Mon, 27 Jun 2022 19:20:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55414B81C11;
-        Tue, 28 Jun 2022 02:20:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C61C34115;
-        Tue, 28 Jun 2022 02:20:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F616617BC;
+        Tue, 28 Jun 2022 02:20:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95BE8C341CC;
+        Tue, 28 Jun 2022 02:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656382821;
-        bh=Asz9ew2hFmI18bnYpVbWeSIOuLQ9FU4MX/wfshCkR5w=;
+        s=k20201202; t=1656382822;
+        bh=fsCtIVhV2ef0xHT+nArdUMGg/mCyQ7k6RoDeoHr3e6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wm5qD/N3uSHISZ4abRUbRUHGlbp6c62EBG4ghbYADH1y0iqvooDAeYFKu/Z8xHajv
-         O/ZOgu6IvwnB6w8oofFgvGBub5Zr6RPiv7OivKBznV4zq/J4jkiV6G7LvJ/X68gN2r
-         qyyg1lE3bsqKR+K/IhuhYkGYqa9dT142qZwXaplHvhr3mxLjdx2RWa/G6eycCF+VKI
-         OD3SSDc2tyubnptvlVVLa4Zb4XIDX9XoYpQFxJ/aqNp4Jl6kZyXactH5c0MlnGdY8v
-         KmAI1V1sln3R00n6ZXBKb42phdZMC1rSbCowJ+57RxcYspLkdt8J1iEFw5CmPQL9up
-         B9cKq3/Ukrs8w==
+        b=G+71hMAkX7nOSSGoMEcDyw639f7q87wCDIX3B45yKw2t6kCCdSG3BxkyLSMU61Whn
+         bdW4Spke2oQ16ypM9y1Cw0ia2Hy9aIsC6aQWeuEDOE2e9a3GL/btO+J7It6CdGALTy
+         EnFYmz+MSibYNk/AXDpoCIO2da/6rdg3um/bi6mRuX5+aVCe8TuPYoMIPveA2aUlPx
+         OMU979vQnUK/nbDDsKq29wtVB5C11DzpZ100WEfum8Lm4q+rNhMjCGZ6WbCljE7YxZ
+         Ml9CWTp4CDcCJS/6eSRfRK1Ia0dqEPclOB3sZGE/WiQ2Ehahv5f7QEK4e96QJJmPWV
+         63OlPTOHZsYxg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
-        daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
-        xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 5.18 38/53] drm/xen: Add missing VM_DONTEXPAND flag in mmap callback
-Date:   Mon, 27 Jun 2022 22:18:24 -0400
-Message-Id: <20220628021839.594423-38-sashal@kernel.org>
+Cc:     Liang He <windhl@126.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, miodrag.dinic@mips.com,
+        paulburton@kernel.org, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 39/53] arch: mips: generic: Add missing of_node_put() in board-ranchu.c
+Date:   Mon, 27 Jun 2022 22:18:25 -0400
+Message-Id: <20220628021839.594423-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628021839.594423-1-sashal@kernel.org>
 References: <20220628021839.594423-1-sashal@kernel.org>
@@ -59,36 +57,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit ca6969013d13282b42cb5edcc13db731a08e0ad8 ]
+[ Upstream commit 4becf6417bbdc293734a590fe4ed38437bbcea2c ]
 
-With Xen PV Display driver in use the "expected" VM_DONTEXPAND flag
-is not set (neither explicitly nor implicitly), so the driver hits
-the code path in drm_gem_mmap_obj() which triggers the WARNING.
+In ranchu_measure_hpt_freq(), of_find_compatible_node() will return
+a node pointer with refcount incremented. We should use of_put_node()
+when it is not used anymore.
 
-Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-Link: https://lore.kernel.org/r/1652104303-5098-1-git-send-email-olekstysh@gmail.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/xen/xen_drm_front_gem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/generic/board-ranchu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/xen/xen_drm_front_gem.c b/drivers/gpu/drm/xen/xen_drm_front_gem.c
-index 5a5bf4e5b717..e31554d7139f 100644
---- a/drivers/gpu/drm/xen/xen_drm_front_gem.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front_gem.c
-@@ -71,7 +71,7 @@ static int xen_drm_front_gem_object_mmap(struct drm_gem_object *gem_obj,
- 	 * the whole buffer.
- 	 */
- 	vma->vm_flags &= ~VM_PFNMAP;
--	vma->vm_flags |= VM_MIXEDMAP;
-+	vma->vm_flags |= VM_MIXEDMAP | VM_DONTEXPAND;
- 	vma->vm_pgoff = 0;
+diff --git a/arch/mips/generic/board-ranchu.c b/arch/mips/generic/board-ranchu.c
+index a89aaad59cb1..930c45041882 100644
+--- a/arch/mips/generic/board-ranchu.c
++++ b/arch/mips/generic/board-ranchu.c
+@@ -44,6 +44,7 @@ static __init unsigned int ranchu_measure_hpt_freq(void)
+ 		      __func__);
  
- 	/*
+ 	rtc_base = of_iomap(np, 0);
++	of_node_put(np);
+ 	if (!rtc_base)
+ 		panic("%s(): Failed to ioremap Goldfish RTC base!", __func__);
+ 
 -- 
 2.35.1
 
