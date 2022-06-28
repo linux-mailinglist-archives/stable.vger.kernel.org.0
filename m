@@ -2,135 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B05455CF69
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:06:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D553855DAC3
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242733AbiF1J3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jun 2022 05:29:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53698 "EHLO
+        id S234062AbiF1KWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jun 2022 06:22:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229747AbiF1J3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 05:29:50 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 434071CFD5
-        for <stable@vger.kernel.org>; Tue, 28 Jun 2022 02:29:49 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S240343AbiF1KWx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 06:22:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FAB02F3B5
+        for <stable@vger.kernel.org>; Tue, 28 Jun 2022 03:22:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id EF69521EA3;
-        Tue, 28 Jun 2022 09:29:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1656408587; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PPu9ULgM+yVDFSbuDxWgsB1Kd2bT0DW8YrL04dFW64Y=;
-        b=urfr44b+O8TpXVikAAcpcpXfmcA2aYR5GlmEJDrpHwnSBTy7cpbCrTz8EvfKfiIhQc4RQC
-        RTyY57+TAWaocyFbD6M2zKrSZ6I53vnuPEBABDzYZEEPvY1Nb3QCegFW6YtRx97thvgnWE
-        1QcOQf9l2bKOUoqadlZdciIagSxxUdU=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1656408587;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PPu9ULgM+yVDFSbuDxWgsB1Kd2bT0DW8YrL04dFW64Y=;
-        b=azlTO6fN2KU5gVS4tvusCN5DQkDWIEc+D7ClibR459j67gq4idNlQdTD8rK++zVZ5j8Yjl
-        04t4jlpNrE+wrMCQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5FC76139E9;
-        Tue, 28 Jun 2022 09:29:47 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id b5WFDAvKumKUSwAAMHmgww
-        (envelope-from <colyli@suse.de>); Tue, 28 Jun 2022 09:29:47 +0000
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.100.31\))
-Subject: Re: [PATCH 1/1] bcache: memset on stack variables in
- bch_btree_check() and bch_sectors_dirty_init()
-From:   Coly Li <colyli@suse.de>
-In-Reply-To: <YrrFaU+eWk37JtFd@kroah.com>
-Date:   Tue, 28 Jun 2022 17:29:44 +0800
-Cc:     stable@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <FD321F11-8639-48E9-8208-A5A3EAB5CACE@suse.de>
-References: <20220628084933.8713-1-colyli@suse.de>
- <20220628084933.8713-2-colyli@suse.de> <YrrFaU+eWk37JtFd@kroah.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-X-Mailer: Apple Mail (2.3696.100.31)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5CA1B81DBB
+        for <stable@vger.kernel.org>; Tue, 28 Jun 2022 10:22:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E8AC3411D;
+        Tue, 28 Jun 2022 10:22:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1656411769;
+        bh=/4gd1fa45fJO1t2xWZKzREgPdCfRnxDUKzal4P9bewM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FT/uAq6WW41QDDDyjB5vTBKNb3iioj/h6ciB1MN63GMAinVCKYOCXAYEc3KdNEbwN
+         /tobJ/CJ0ESopDsRaGjn6gtlyN46z4W1uU0b24lcinVdj6Y1Av/m2u9l1mkvMMQ7Wp
+         lvwS7N7R28ZvqvDcMNEfdyZIdw6CSbnAY/RLVf0L+J7m6WA1K94RZ5eQHzTEyiiP0j
+         FcB2i0/fplKwEhTEaFVLZ3tYAtmk1JJwfP4o7SzkUea7dii7VlxF29vCdAxg5HSuhu
+         UKqcvgNdcxzm7LKJ23iIsOzN8QWtd+e75+Ce5hqxYofFPM0/CLreG1isFwXAwIeXQ0
+         UXBcpv+8d+Kqg==
+Date:   Tue, 28 Jun 2022 12:22:44 +0200
+From:   Christian Brauner <brauner@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     cyphar@cyphar.com, hch@lst.de, sforshee@digitalocean.com,
+        viro@zeniv.linux.org.uk, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] fs: account for group membership" failed
+ to apply to 5.15-stable tree
+Message-ID: <20220628102244.wymkrob3cfys2h7i@wittgenstein>
+References: <165571901496212@kroah.com>
+ <20220627172408.h5zfvcksmd5ftnst@wittgenstein>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220627172408.h5zfvcksmd5ftnst@wittgenstein>
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jun 27, 2022 at 07:24:18PM +0200, Christian Brauner wrote:
+> On Mon, Jun 20, 2022 at 11:56:54AM +0200, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.15-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> 
+> Hm, I just tried on top of v5.15.50:
+> 
+> git cherry-pick -S 168f912893407a5acb798a4a5
+> 
+> and it applied cleanly. Can you try and backport this again, please?
+> Or tell me how to reproduce the failure you're seeing so I can fix it
+> and give you an applicable version?
 
+It's a build problem. I'll give you a series that makes this patch
+apply. I'll backport a few more patches if you don't mind.
 
-> 2022=E5=B9=B46=E6=9C=8828=E6=97=A5 17:10=EF=BC=8CGreg KH =
-<gregkh@linuxfoundation.org> =E5=86=99=E9=81=93=EF=BC=9A
->=20
-> On Tue, Jun 28, 2022 at 04:49:33PM +0800, Coly Li wrote:
->> The local variables check_state (in bch_btree_check()) and state (in
->> bch_sectors_dirty_init()) should be fully filled by 0, because before
->> allocating them on stack, they were dynamically allocated by =
-kzalloc().
->>=20
->> Signed-off-by: Coly Li <colyli@suse.de>
->> Link: https://lore.kernel.org/r/20220527152818.27545-2-colyli@suse.de
->> Signed-off-by: Jens Axboe <axboe@kernel.dk>
->> ---
->> drivers/md/bcache/btree.c     | 1 +
->> drivers/md/bcache/writeback.c | 1 +
->> 2 files changed, 2 insertions(+)
->>=20
->> diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
->> index 2362bb8ef6d1..e136d6edc1ed 100644
->> --- a/drivers/md/bcache/btree.c
->> +++ b/drivers/md/bcache/btree.c
->> @@ -2017,6 +2017,7 @@ int bch_btree_check(struct cache_set *c)
->> 	if (c->root->level =3D=3D 0)
->> 		return 0;
->>=20
->> +	memset(&check_state, 0, sizeof(struct btree_check_state));
->> 	check_state.c =3D c;
->> 	check_state.total_threads =3D bch_btree_chkthread_nr();
->> 	check_state.key_idx =3D 0;
->> diff --git a/drivers/md/bcache/writeback.c =
-b/drivers/md/bcache/writeback.c
->> index 75b71199800d..d138a2d73240 100644
->> --- a/drivers/md/bcache/writeback.c
->> +++ b/drivers/md/bcache/writeback.c
->> @@ -950,6 +950,7 @@ void bch_sectors_dirty_init(struct bcache_device =
-*d)
->> 		return;
->> 	}
->>=20
->> +	memset(&state, 0, sizeof(struct bch_dirty_init_state));
->> 	state.c =3D c;
->> 	state.d =3D d;
->> 	state.total_threads =3D bch_btre_dirty_init_thread_nr();
->> --=20
->> 2.35.3
->>=20
->=20
-> What is the git commit id of this patch in Linus's tree?
-
-
-Oops, the commit tag in email was filtered out. This patch in Linus tree =
-is
-
-commit 7d6b902ea0e0 (=E2=80=9Cbcache: memset on stack variables in =
-bch_btree_check() and bch_sectors_dirty_init()=E2=80=9D)
-
-Thanks.
-
-Coly Li=
+Thanks!
+Christian
