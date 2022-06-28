@@ -2,52 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10C0555D54F
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF54455CDEB
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:04:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244689AbiF1CaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:30:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40554 "EHLO
+        id S244307AbiF1Ca3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:30:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244773AbiF1C17 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:27:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34E872610B;
-        Mon, 27 Jun 2022 19:26:15 -0700 (PDT)
+        with ESMTP id S244782AbiF1C2A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:28:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDE8D17598;
+        Mon, 27 Jun 2022 19:26:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1625B81C00;
-        Tue, 28 Jun 2022 02:26:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEBD5C341CC;
-        Tue, 28 Jun 2022 02:26:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62C086192D;
+        Tue, 28 Jun 2022 02:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3208C34115;
+        Tue, 28 Jun 2022 02:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656383172;
-        bh=ptZUL1nkkf4uKm85SgdBZGLGysVXez9VzASn1Xx4EBU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nvoW7Q48c4nefPIiL0QaolqwzA+LtREhpCDsQ1TcuGSp1OI1WQhaBu2VnqLs1SEG8
-         X5KCo/qIjzE7mhEmFuid0+Yd4nqdSWHHAek0auy9fL1P8kvqnN7uKXIG/Wr1UDjptK
-         rsFD392MT3UpV8nLK8I0g104NVCde1dVvZUX9P5OjJvJcWHgY3JjVOJL3MMO/eN5Ss
-         43lKd+4oqM2A4qq/OTeRY/8iKfZu1be7wYSB6QkxMj4Nv/pjtgou+CaIuUHkNmVrpm
-         OhLfA0CSEdTS2KQMlwNEdyq0u7BVp1JRTTjhijBZ0Pir4rIv8wMbVwJefmjNq39JcC
-         R0GUIKFtFbIVw==
+        s=k20201202; t=1656383177;
+        bh=TUIICHVAkc2BUiqrFw9pQvGvBCl73qsrSwPO5S8ZyW4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=oRw9vcsGYq0QKR7dWb7Smyi/7Qx07S1xa+fuNFpO9JHfw+Q8Yrd4BV5BCQahj8myL
+         SgAUqnVGa901OyhQs5P0aqj/lbg5z6tI/m676mlSaEOTRR8l6opgoe47YWQx5A72ym
+         jnMKTSDmp36pusHsCsE/pq0odx1p/ImeiaUTLRAqVbk7BJ0ek9EY4KWHsCErjmY+YO
+         vdzXX23Qidc3JwXxER86AsXYFnwNbE9oLgeQZ0Er0PY1MugD5udMQaifqrmf4XGVL6
+         +NKuBT9cjglbJlFy4p5nEZGY+5EGha3jnlYPyioBj5qSdXivoyRN8z8gGUS1ZqKNaa
+         w5CyvBW8PiTDA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Marek=20Ol=C5=A1=C3=A1k?= <marek.olsak@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        Felix.Kuehling@amd.com, nirmoy.das@amd.com, jonathan.kim@amd.com,
-        kevin1.wang@amd.com, zackr@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 21/22] drm/amdgpu: Adjust logic around GTT size (v3)
-Date:   Mon, 27 Jun 2022 22:25:16 -0400
-Message-Id: <20220628022518.596687-21-sashal@kernel.org>
+Cc:     Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>,
+        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 01/17] spi: spi-cadence: Fix SPI CS gets toggling sporadically
+Date:   Mon, 27 Jun 2022 22:25:59 -0400
+Message-Id: <20220628022615.596977-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220628022518.596687-1-sashal@kernel.org>
-References: <20220628022518.596687-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,70 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
 
-[ Upstream commit f15345a377c6ea9c7cc74f079616af8856aff37f ]
+[ Upstream commit 21b511ddee09a78909035ec47a6a594349fe3296 ]
 
-Certain GL unit tests for large textures can cause problems
-with the OOM killer since there is no way to link this memory
-to a process.  This was originally mitigated (but not necessarily
-eliminated) by limiting the GTT size.  The problem is this limit
-is often too low for many modern games so just make the limit 1/2
-of system memory. The OOM accounting needs to be addressed, but
-we shouldn't prevent common 3D applications from being usable
-just to potentially mitigate that corner case.
+As part of unprepare_transfer_hardware, SPI controller will be disabled
+which will indirectly deassert the CS line. This will create a problem
+in some of the devices where message will be transferred with
+cs_change flag set(CS should not be deasserted).
+As per SPI controller implementation, if SPI controller is disabled then
+all output enables are inactive and all pins are set to input mode which
+means CS will go to default state high(deassert). This leads to an issue
+when core explicitly ask not to deassert the CS (cs_change = 1). This
+patch fix the above issue by checking the Slave select status bits from
+configuration register before disabling the SPI.
 
-Set default GTT size to max(3G, 1/2 of system ram) by default.
-
-v2: drop previous logic and default to 3/4 of ram
-v3: default to half of ram to align with ttm
-v4: fix spelling in comment (Kent)
-
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1942
-Reviewed-by: Marek Olšák <marek.olsak@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
+Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
+Link: https://lore.kernel.org/r/20220606062525.18447-1-amit.kumar-mahapatra@xilinx.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/spi/spi-cadence.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index 50807d621eca..7018873324d0 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -1782,18 +1782,26 @@ int amdgpu_ttm_init(struct amdgpu_device *adev)
- 	DRM_INFO("amdgpu: %uM of VRAM memory ready\n",
- 		 (unsigned) (adev->gmc.real_vram_size / (1024 * 1024)));
+diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
+index d9aeb9efa7aa..810f92a0ef7c 100644
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -73,6 +73,7 @@
+ #define CDNS_SPI_BAUD_DIV_SHIFT		3 /* Baud rate divisor shift in CR */
+ #define CDNS_SPI_SS_SHIFT		10 /* Slave Select field shift in CR */
+ #define CDNS_SPI_SS0			0x1 /* Slave Select zero */
++#define CDNS_SPI_NOSS			0x3C /* No Slave select */
  
--	/* Compute GTT size, either bsaed on 3/4th the size of RAM size
-+	/* Compute GTT size, either based on 1/2 the size of RAM size
- 	 * or whatever the user passed on module init */
- 	if (amdgpu_gtt_size == -1) {
- 		struct sysinfo si;
+ /*
+  * SPI Interrupt Registers bit Masks
+@@ -457,15 +458,20 @@ static int cdns_prepare_transfer_hardware(struct spi_master *master)
+  * @master:	Pointer to the spi_master structure which provides
+  *		information about the controller.
+  *
+- * This function disables the SPI master controller.
++ * This function disables the SPI master controller when no slave selected.
+  *
+  * Return:	0 always
+  */
+ static int cdns_unprepare_transfer_hardware(struct spi_master *master)
+ {
+ 	struct cdns_spi *xspi = spi_master_get_devdata(master);
++	u32 ctrl_reg;
  
- 		si_meminfo(&si);
--		gtt_size = min(max((AMDGPU_DEFAULT_GTT_SIZE_MB << 20),
--			       adev->gmc.mc_vram_size),
--			       ((uint64_t)si.totalram * si.mem_unit * 3/4));
--	}
--	else
-+		/* Certain GL unit tests for large textures can cause problems
-+		 * with the OOM killer since there is no way to link this memory
-+		 * to a process.  This was originally mitigated (but not necessarily
-+		 * eliminated) by limiting the GTT size.  The problem is this limit
-+		 * is often too low for many modern games so just make the limit 1/2
-+		 * of system memory which aligns with TTM. The OOM accounting needs
-+		 * to be addressed, but we shouldn't prevent common 3D applications
-+		 * from being usable just to potentially mitigate that corner case.
-+		 */
-+		gtt_size = max((AMDGPU_DEFAULT_GTT_SIZE_MB << 20),
-+			       (u64)si.totalram * si.mem_unit / 2);
-+	} else {
- 		gtt_size = (uint64_t)amdgpu_gtt_size << 20;
-+	}
+-	cdns_spi_write(xspi, CDNS_SPI_ER, CDNS_SPI_ER_DISABLE);
++	/* Disable the SPI if slave is deselected */
++	ctrl_reg = cdns_spi_read(xspi, CDNS_SPI_CR);
++	ctrl_reg = (ctrl_reg & CDNS_SPI_CR_SSCTRL) >>  CDNS_SPI_SS_SHIFT;
++	if (ctrl_reg == CDNS_SPI_NOSS)
++		cdns_spi_write(xspi, CDNS_SPI_ER, CDNS_SPI_ER_DISABLE);
  
- 	/* Initialize GTT memory pool */
- 	r = ttm_bo_init_mm(&adev->mman.bdev, TTM_PL_TT, gtt_size >> PAGE_SHIFT);
+ 	return 0;
+ }
 -- 
 2.35.1
 
