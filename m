@@ -2,148 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A711555E710
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 18:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E6D755E8A7
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 18:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347430AbiF1OtY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jun 2022 10:49:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57462 "EHLO
+        id S239419AbiF1PNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jun 2022 11:13:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346126AbiF1OtX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 10:49:23 -0400
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72D812F01F;
-        Tue, 28 Jun 2022 07:49:22 -0700 (PDT)
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-        by localhost (Postfix) with ESMTP id 4LXSCy3XXsz9tTw;
-        Tue, 28 Jun 2022 16:49:18 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 2UtnhNzopbXw; Tue, 28 Jun 2022 16:49:18 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase2.c-s.fr (Postfix) with ESMTP id 4LXSCx4ylfz9tV1;
-        Tue, 28 Jun 2022 16:49:17 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 8770A8B787;
-        Tue, 28 Jun 2022 16:49:17 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id 3e92SFMNOl1c; Tue, 28 Jun 2022 16:49:17 +0200 (CEST)
-Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.232.132])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 38FB28B765;
-        Tue, 28 Jun 2022 16:49:17 +0200 (CEST)
-Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
-        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 25SEn7C32928187
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 16:49:07 +0200
-Received: (from chleroy@localhost)
-        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 25SEn70V2928183;
-        Tue, 28 Jun 2022 16:49:07 +0200
-X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-To:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>, dja@axtens.net
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        with ESMTP id S1348014AbiF1PNP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 11:13:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 904A91D331
+        for <stable@vger.kernel.org>; Tue, 28 Jun 2022 08:13:13 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3999AB81E3D
+        for <stable@vger.kernel.org>; Tue, 28 Jun 2022 15:13:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8247DC3411D;
+        Tue, 28 Jun 2022 15:13:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1656429190;
+        bh=FPWKhxksykPqrm5K5pUo6WtVBcbCDsVOuIp4w6S2pFs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=glzWtcHWlQOlR3r8Fj2rNX60tqwrOq+LHGSQ0Ksv6c+l/Whstqzi/QG1TKIR9Vdp5
+         IiIvjwAp3hNz5IoK8lIi0xK+U9H8ody+7vy2SEq6PCTTYho4nLWEq2HCG9zRrDgtQY
+         pMZ45uwt/strnDD9TDZJNg6NMQwD7xbrUd1rMnnZDeaKNav+dcxrJ4c96PaebR4Qkk
+         hTHIAcRBz/6Abc/50p9iC90Sq3vi2sPeHZEdDP8Zy6N1BwMgQpk/6CVzQzUVxb7r7Y
+         vHdfRpX5heSzcVAQQYdgAZ2jruDZeluiYBtiZ30xcMfIfonwcuYL6hq3aleYOdtRXv
+         KMdB8IDb5IqxA==
+From:   Ard Biesheuvel <ardb@kernel.org>
+To:     linux@armlinux.org.uk
+Cc:     linux-arm-kernel@lists.infradead.org, arnd@arndb.de,
+        linus.walleij@linaro.org, Ard Biesheuvel <ardb@kernel.org>,
         stable@vger.kernel.org
-Subject: [PATCH v1 1/6] powerpc/64e: Fix early TLB miss with KUAP
-Date:   Tue, 28 Jun 2022 16:48:54 +0200
-Message-Id: <8d6c5859a45935d6e1a336da4dc20be421e8cea7.1656427701.git.christophe.leroy@csgroup.eu>
-X-Mailer: git-send-email 2.36.1
+Subject: [PATCH] ARM: alignment: advance IT state after emulating Thumb instruction
+Date:   Tue, 28 Jun 2022 17:12:58 +0200
+Message-Id: <20220628151258.2582737-1-ardb@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1656427736; l=2726; s=20211009; h=from:subject:message-id; bh=4c9cq6TjMjaZsHx8VkXNUgeyvb6bfH74ZSSKL8bYUs8=; b=SF5iSK7Ye4Q+8F6+uETerT8Y4xg2atv7a8xzA5RRwjQ0BieTWvBNamBMtM+PUxwpJNgV2/V66k4c 5FFHmehFB3AzouAMpaZRrZAJixojUdOLIqZyHGkcfVsUoae0itdr
-X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3641; h=from:subject; bh=FPWKhxksykPqrm5K5pUo6WtVBcbCDsVOuIp4w6S2pFs=; b=owEB7QES/pANAwAKAcNPIjmS2Y8kAcsmYgBiuxp2W3SFe6l7FbglahXmCUO4T5/GZimwb6Lt+Veu x956liCJAbMEAAEKAB0WIQT72WJ8QGnJQhU3VynDTyI5ktmPJAUCYrsadgAKCRDDTyI5ktmPJHThC/ 4ysWl5fJkI7CBELsQ4ELK47sYlgdaG8TGnqhtqn+BBXoBP3r0KQLTK9I+qyeCTv33K/HoN68aOxpIf oL6swrbIUCRD9BbQobA8Eg/mocrE8yAb5+qCuj8fMmD/P1Jkid8ONdsuTux9JXY6jooEv5rDPQmSTm pVmfPAWOJZOO36D4jvNlWLIN0S8+yyk2hR0Pqnbw5aJWfqrGHvAQqY1Iw46pIp5/wj0uNs3/sK3O7z 6oY26LzGvr5VnkRJLcIlLv4QSco3qh2IvuWWF4D11g7ynEgQPweBfiGB0J4R+yYxk7KKRbFC2T9Ttp ri8//xYJ+z3sga5QXH7UNMoLrkT9iTkhr1iokjqq/uaDbDwSAesZm4aYAf1M2I5J/P1rpEOJ7u5Rr2 AlCaI8V3t4RUNnH3YDU9ftq/HTbHregDDR0bmmH/sOTD0NNQdLuDPeo/3fL1UVxdK6Y9sIdvot5+ix W6b2qJAskoq9cImjqa/0jCWLWdQ1UH1bFYB1VKx+B0SbI=
+X-Developer-Key: i=ardb@kernel.org; a=openpgp; fpr=F43D03328115A198C90016883D200E9CA6329909
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-With KUAP, the TLB miss handler bails out when an access to user
-memory is performed with a nul TID.
+After emulating a misaligned load or store issued in Thumb mode, we have
+to advance the IT state by hand, or it will get out of sync with the
+actual instruction stream, which means we'll end up applying the wrong
+condition code to subsequent instructions. This might corrupt the
+program state rather catastrophically.
 
-But the normal TLB miss routine which is only used early during boot
-does the check regardless for all memory areas, not only user memory.
+So borrow the it_advance() helper from the probing code, and use it on
+CPSR if the emulated instruction is Thumb.
 
-By chance there is no early IO or vmalloc access, but when KASAN
-come we will start having early TLB misses.
-
-Fix it by creating a special branch for user accesses similar to the
-one in the 'bolted' TLB miss handlers. Unfortunately SPRN_MAS1 is
-now read too early and there are no registers available to preserve
-it so it will be read a second time.
-
-Fixes: 57bc963837f5 ("powerpc/kuap: Wire-up KUAP on book3e/64")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 ---
- arch/powerpc/mm/nohash/tlb_low_64e.S | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ arch/arm/include/asm/ptrace.h | 26 ++++++++++++++++++++++++++
+ arch/arm/mm/alignment.c       |  3 +++
+ arch/arm/probes/decode.h      | 26 +-------------------------
+ 3 files changed, 30 insertions(+), 25 deletions(-)
 
-diff --git a/arch/powerpc/mm/nohash/tlb_low_64e.S b/arch/powerpc/mm/nohash/tlb_low_64e.S
-index 8b97c4acfebf..9e9ab3803fb2 100644
---- a/arch/powerpc/mm/nohash/tlb_low_64e.S
-+++ b/arch/powerpc/mm/nohash/tlb_low_64e.S
-@@ -583,7 +583,7 @@ itlb_miss_fault_e6500:
- 	 */
- 	rlwimi	r11,r14,32-19,27,27
- 	rlwimi	r11,r14,32-16,19,19
--	beq	normal_tlb_miss
-+	beq	normal_tlb_miss_user
- 	/* XXX replace the RMW cycles with immediate loads + writes */
- 1:	mfspr	r10,SPRN_MAS1
- 	cmpldi	cr0,r15,8		/* Check for vmalloc region */
-@@ -626,7 +626,7 @@ itlb_miss_fault_e6500:
+diff --git a/arch/arm/include/asm/ptrace.h b/arch/arm/include/asm/ptrace.h
+index 93051e2f402c..1408a6a15d0e 100644
+--- a/arch/arm/include/asm/ptrace.h
++++ b/arch/arm/include/asm/ptrace.h
+@@ -163,5 +163,31 @@ static inline unsigned long user_stack_pointer(struct pt_regs *regs)
+ 		((current_stack_pointer | (THREAD_SIZE - 1)) - 7) - 1;	\
+ })
  
- 	cmpldi	cr0,r15,0			/* Check for user region */
- 	std	r14,EX_TLB_ESR(r12)		/* write crazy -1 to frame */
--	beq	normal_tlb_miss
-+	beq	normal_tlb_miss_user
++
++/*
++ * Update ITSTATE after normal execution of an IT block instruction.
++ *
++ * The 8 IT state bits are split into two parts in CPSR:
++ *	ITSTATE<1:0> are in CPSR<26:25>
++ *	ITSTATE<7:2> are in CPSR<15:10>
++ */
++static inline unsigned long it_advance(unsigned long cpsr)
++{
++	if ((cpsr & 0x06000400) == 0) {
++		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
++		cpsr &= ~PSR_IT_MASK;
++	} else {
++		/* We need to shift left ITSTATE<4:0> */
++		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
++		unsigned long it = cpsr & mask;
++		it <<= 1;
++		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
++		it &= mask;
++		cpsr &= ~mask;
++		cpsr |= it;
++	}
++	return cpsr;
++}
++
+ #endif /* __ASSEMBLY__ */
+ #endif
+diff --git a/arch/arm/mm/alignment.c b/arch/arm/mm/alignment.c
+index 6f499559d193..f8dd0b3cc8e0 100644
+--- a/arch/arm/mm/alignment.c
++++ b/arch/arm/mm/alignment.c
+@@ -935,6 +935,9 @@ do_alignment(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
+ 	if (type == TYPE_LDST)
+ 		do_alignment_finish_ldst(addr, instr, regs, offset);
  
- 	li	r11,_PAGE_PRESENT|_PAGE_BAP_SX	/* Base perm */
- 	oris	r11,r11,_PAGE_ACCESSED@h
-@@ -653,6 +653,12 @@ itlb_miss_fault_e6500:
-  * r11 = PTE permission mask
-  * r10 = crap (free to use)
-  */
-+normal_tlb_miss_user:
-+#ifdef CONFIG_PPC_KUAP
-+	mfspr	r14,SPRN_MAS1
-+	rlwinm.	r14,r14,0,0x3fff0000
-+	beq-	normal_tlb_miss_access_fault /* KUAP fault */
-+#endif
- normal_tlb_miss:
- 	/* So we first construct the page table address. We do that by
- 	 * shifting the bottom of the address (not the region ID) by
-@@ -683,11 +689,6 @@ finish_normal_tlb_miss:
- 	/* Check if required permissions are met */
- 	andc.	r15,r11,r14
- 	bne-	normal_tlb_miss_access_fault
--#ifdef CONFIG_PPC_KUAP
--	mfspr	r11,SPRN_MAS1
--	rlwinm.	r10,r11,0,0x3fff0000
--	beq-	normal_tlb_miss_access_fault /* KUAP fault */
--#endif
++	if (thumb_mode(regs))
++		regs->ARM_cpsr = it_advance(regs->ARM_cpsr);
++
+ 	return 0;
  
- 	/* Now we build the MAS:
- 	 *
-@@ -709,9 +710,7 @@ finish_normal_tlb_miss:
- 	rldicl	r10,r14,64-8,64-8
- 	cmpldi	cr0,r10,BOOK3E_PAGESZ_4K
- 	beq-	1f
--#ifndef CONFIG_PPC_KUAP
- 	mfspr	r11,SPRN_MAS1
--#endif
- 	rlwimi	r11,r14,31,21,24
- 	rlwinm	r11,r11,0,21,19
- 	mtspr	SPRN_MAS1,r11
+  bad_or_fault:
+diff --git a/arch/arm/probes/decode.h b/arch/arm/probes/decode.h
+index 973173598992..facc889d05ee 100644
+--- a/arch/arm/probes/decode.h
++++ b/arch/arm/probes/decode.h
+@@ -14,6 +14,7 @@
+ #include <linux/types.h>
+ #include <linux/stddef.h>
+ #include <asm/probes.h>
++#include <asm/ptrace.h>
+ #include <asm/kprobes.h>
+ 
+ void __init arm_probes_decode_init(void);
+@@ -35,31 +36,6 @@ void __init find_str_pc_offset(void);
+ #endif
+ 
+ 
+-/*
+- * Update ITSTATE after normal execution of an IT block instruction.
+- *
+- * The 8 IT state bits are split into two parts in CPSR:
+- *	ITSTATE<1:0> are in CPSR<26:25>
+- *	ITSTATE<7:2> are in CPSR<15:10>
+- */
+-static inline unsigned long it_advance(unsigned long cpsr)
+-	{
+-	if ((cpsr & 0x06000400) == 0) {
+-		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
+-		cpsr &= ~PSR_IT_MASK;
+-	} else {
+-		/* We need to shift left ITSTATE<4:0> */
+-		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
+-		unsigned long it = cpsr & mask;
+-		it <<= 1;
+-		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
+-		it &= mask;
+-		cpsr &= ~mask;
+-		cpsr |= it;
+-	}
+-	return cpsr;
+-}
+-
+ static inline void __kprobes bx_write_pc(long pcv, struct pt_regs *regs)
+ {
+ 	long cpsr = regs->ARM_cpsr;
 -- 
-2.36.1
+2.35.1
 
