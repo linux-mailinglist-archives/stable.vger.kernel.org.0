@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13CC155CD7A
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:03:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B78CC55C664
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235529AbiF1CTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:19:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58858 "EHLO
+        id S241587AbiF1CTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:19:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241587AbiF1CSz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:18:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 428E623169;
-        Mon, 27 Jun 2022 19:18:46 -0700 (PDT)
+        with ESMTP id S243306AbiF1CS7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:18:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F8BB23BE6;
+        Mon, 27 Jun 2022 19:18:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A047D617C5;
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4B90B81C0A;
+        Tue, 28 Jun 2022 02:18:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84E93C341D0;
         Tue, 28 Jun 2022 02:18:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B2A9C34115;
-        Tue, 28 Jun 2022 02:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656382725;
-        bh=B4w962AotObPYdAsZWfwMKCogWttxO1vzeHRyt+aHeM=;
+        s=k20201202; t=1656382726;
+        bh=Ys0RJPZ4GxYz/5tskLY3MZu3a5KGfyWFRcYRdYGjEjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CHDVzAhjo8QHsPqwlyJE0Hp0zNQKgqvfwjlzPQjMU/8wBucww4DKKD/bQG6pC/z4S
-         tWgP506CSWmdobvyGhJkWmG7W/7xwpvsfYQOQSzrnCxqTe554UZHQFsz8BUJqIzF1s
-         eRhKZpjchumq035rBm4qnqMPZasQOnEFAtdVgcqjMFrUF8hHgnvLejr2h39YXaZN42
-         1n4nZUtUBwu5ibyprxSEuBgDZJz59+Na2G5rTh+wd3VY0g9v8UiJuNSchhkSUNexux
-         hgZ721oVDqGzm2P2WbqvBvR5FJWUAj4fpBW7hlKRNXSyAUEqupyJ8LUkFWesBkrw4M
-         jUhePNDGIesoQ==
+        b=KtQE6WNxOpA89ZzVTtCjNDk/lrjftwTqTY/uEe5nw23o5Rx2QtRhtrkik/xXyVZEW
+         jfYyJeILjEvt+CX6x+MMGwzMeuKzOploGAPrCmFjdowgD88k1hTbG0qP/VHm1myG6/
+         f1AITnyit+34pIGvTZMV0Cq5RuxboU0bxRitH2TZoz9lg0dp5dbtFnBhOIjSTSXC0M
+         dbkXYkv8d0cAWDfNCLgx6wmVG5hckRA1quwM0YCoVtsrcHwJnP0hUbN5rdThLS7ToF
+         cDUCkaGqxOobHwKCcw0asoA7CIMn9+EGGPxOgljONdrHDYzn4V6ylChHvUuCIjZfcW
+         ZiGaX5rB/1MvQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Patrice Chotard <patrice.chotard@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 03/53] spi: spi-mem: Fix spi_mem_poll_status()
-Date:   Mon, 27 Jun 2022 22:17:49 -0400
-Message-Id: <20220628021839.594423-3-sashal@kernel.org>
+Cc:     Fabio Estevam <festevam@gmail.com>,
+        Fabio Estevam <festevam@denx.de>, Chester Lin <clin@suse.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 04/53] arm64: s32g2: Pass unit name to soc node
+Date:   Mon, 27 Jun 2022 22:17:50 -0400
+Message-Id: <20220628021839.594423-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628021839.594423-1-sashal@kernel.org>
 References: <20220628021839.594423-1-sashal@kernel.org>
@@ -56,41 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrice Chotard <patrice.chotard@foss.st.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 2283679f4c468df367830b7eb8f22d48a6940e19 ]
+[ Upstream commit 4266e2f70d4388b8c6a95056169954ff049ced94 ]
 
-In spi_mem_exec_op(), in case cs_gpiod descriptor is set, exec_op()
-callback can't be used.
-The same must be applied in spi_mem_poll_status(), poll_status()
-callback can't be used, we must use the legacy path using
-read_poll_timeout().
+Pass unit name to soc node to fix the following W=1 build warning:
 
-Tested on STM32mp257c-ev1 specific evaluation board on which a
-spi-nand was mounted instead of a spi-nor.
+arch/arm64/boot/dts/freescale/s32g2.dtsi:82.6-123.4: Warning (unit_address_vs_reg): /soc: node has a reg or ranges property, but no unit name
 
-Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Tested-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Link: https://lore.kernel.org/r/20220602091022.358127-1-patrice.chotard@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Chester Lin <clin@suse.com>
+Signed-off-by: Chester Lin <clin@suse.com>
+Link: https://lore.kernel.org/r/20220514143505.1554813-1-festevam@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mem.c | 2 +-
+ arch/arm64/boot/dts/freescale/s32g2.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-mem.c b/drivers/spi/spi-mem.c
-index 0e8dafc62d94..99a76a2dda5a 100644
---- a/drivers/spi/spi-mem.c
-+++ b/drivers/spi/spi-mem.c
-@@ -799,7 +799,7 @@ int spi_mem_poll_status(struct spi_mem *mem,
- 	    op->data.dir != SPI_MEM_DATA_IN)
- 		return -EINVAL;
+diff --git a/arch/arm64/boot/dts/freescale/s32g2.dtsi b/arch/arm64/boot/dts/freescale/s32g2.dtsi
+index 59ea8a25aa4c..824d401e7a2c 100644
+--- a/arch/arm64/boot/dts/freescale/s32g2.dtsi
++++ b/arch/arm64/boot/dts/freescale/s32g2.dtsi
+@@ -79,7 +79,7 @@ psci {
+ 		};
+ 	};
  
--	if (ctlr->mem_ops && ctlr->mem_ops->poll_status) {
-+	if (ctlr->mem_ops && ctlr->mem_ops->poll_status && !mem->spi->cs_gpiod) {
- 		ret = spi_mem_access_start(mem);
- 		if (ret)
- 			return ret;
+-	soc {
++	soc@0 {
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
 -- 
 2.35.1
 
