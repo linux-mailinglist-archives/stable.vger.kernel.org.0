@@ -2,130 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D9B55DB4C
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ABFE55CCA1
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:01:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241686AbiF1HuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jun 2022 03:50:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45240 "EHLO
+        id S230206AbiF1I33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jun 2022 04:29:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241378AbiF1HuJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 03:50:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF66510EC;
-        Tue, 28 Jun 2022 00:50:08 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63A2860ED0;
-        Tue, 28 Jun 2022 07:50:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B077C3411D;
-        Tue, 28 Jun 2022 07:50:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656402607;
-        bh=B5QIhlbtzECgsRE8EI6Zyf1MuzRiNeg87KIBkcQ7vvU=;
-        h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-        b=uBEY+beYn2AWAxOKCmPu7Pw+1xiYKV0VUre/0qN+Me1NzxYbEo4V+U01T42wdCMI2
-         WivFZE+tGZfl6IKsIFAq+uYSROpIolPF3O3nTjazZoFrk4OwzcxhNWb6hNNvkPCxS2
-         J5T6rJacKk8KDTCbtObsfVOJvPOWH1mt46cTO8gwDSmFfsSkp17r+UA3T8w6tKJqrh
-         qwOPiU13V6z4mQ0/nVbvioRI97P3N8PkTwC6Qqc9JRKDG31aAChLd6BB/ZoSxr7vFM
-         qRWlRyJj9U2irA7pLgXYlRkgzTGt2lgM88LF87u6XLMU8cXD2torMVXCgR0JOkagI1
-         vo0IK3sEeZTsA==
-Message-ID: <ea40fecd-a16f-4ded-a062-21b097d67230@kernel.org>
-Date:   Tue, 28 Jun 2022 15:50:04 +0800
+        with ESMTP id S245275AbiF1I31 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 04:29:27 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF1120F4F;
+        Tue, 28 Jun 2022 01:29:25 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25S8Mxn2000892;
+        Tue, 28 Jun 2022 08:29:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=H66WiVgYJSfTkHDmL3/sFeorS3m4uX8oKcUy2teFCuk=;
+ b=Q+as9L48PKczmUJiCKfE5nUu+K/6m8AyyRyh4e98mfFRenjNk7AuxttuqKR+W/oZMWM8
+ JtOf+MSk+T+bvZyneLbBImvrAoVDeumF3+7eRDJL8RT/D98H7TlKddlCaMyEfsIQ/Bdy
+ hQUOePbg3FrCPyXnqIq+YggMlvWJJvwBKfkwSN65Uu+w7K+UUymKDPgPzml09G+SFIUj
+ L7aeHPCJ4o5XcyAgH0XLoAOdT150UcScc/4y8Gfm8WPoIRGzlv9PJigyJLNPj0We6x+4
+ aAbWcdwZfYYTG/qwA1TxrTgs51Px5pN7940NIjUcBQpQC5vv3qArHnWwc9yWOdLDIqzF gA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyx37g3bp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Jun 2022 08:29:12 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25S8QELD021800;
+        Tue, 28 Jun 2022 08:29:11 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyx37g3an-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Jun 2022 08:29:11 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25S8LikJ006126;
+        Tue, 28 Jun 2022 08:29:09 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3gwt093bbf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Jun 2022 08:29:09 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25S8T6kL21430654
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 28 Jun 2022 08:29:06 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5D44E4C044;
+        Tue, 28 Jun 2022 08:29:06 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C55B24C052;
+        Tue, 28 Jun 2022 08:29:05 +0000 (GMT)
+Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.145.7.238])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 28 Jun 2022 08:29:05 +0000 (GMT)
+Date:   Tue, 28 Jun 2022 10:29:04 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Baoquan He <bhe@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH 5.18 112/181] vmcore: convert copy_oldmem_page() to take
+ an iov_iter
+Message-ID: <Yrq70Ctw3UYPFnzC@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+References: <20220627111944.553492442@linuxfoundation.org>
+ <20220627111947.945731832@linuxfoundation.org>
+ <YrnaYJA675eGIy03@osiris>
+ <YrqpEZV3yu31t6E2@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [f2fs-dev] [PATCH 1/3 v2] f2fs: attach inline_data after setting
- compression
-Content-Language: en-US
-From:   Chao Yu <chao@kernel.org>
-To:     Jaegeuk Kim <jaegeuk@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     stable@vger.kernel.org
-References: <20220617223106.3517374-1-jaegeuk@kernel.org>
- <YrNJBMGpjPdtwVY+@google.com>
- <f3484c66-bb5e-b4d6-fc43-95a73c280f1d@kernel.org>
-In-Reply-To: <f3484c66-bb5e-b4d6-fc43-95a73c280f1d@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YrqpEZV3yu31t6E2@kroah.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: X9f3dPd963n_9EjhM7D0NyKbsc1XVVis
+X-Proofpoint-ORIG-GUID: wbQFeLqpb4lU4rwBL1-sV31_x19UzbDv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-06-27_09,2022-06-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ clxscore=1011 adultscore=0 malwarescore=0 impostorscore=0 mlxscore=0
+ lowpriorityscore=0 bulkscore=0 mlxlogscore=740 suspectscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206280033
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/6/28 15:46, Chao Yu wrote:
-> On 2022/6/23 0:53, Jaegeuk Kim wrote:
->> This fixes the below corruption.
->>
->> [345393.335389] F2FS-fs (vdb): sanity_check_inode: inode (ino=6d0, mode=33206) should not have inline_data, run fsck to fix
->>
->> Cc: <stable@vger.kernel.org>
->> Fixes: 677a82b44ebf ("f2fs: fix to do sanity check for inline inode")
->> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
->> ---
->>   fs/f2fs/namei.c | 17 +++++++++++------
->>   1 file changed, 11 insertions(+), 6 deletions(-)
->>
->> diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
->> index c549acb52ac4..bf00d5057abb 100644
->> --- a/fs/f2fs/namei.c
->> +++ b/fs/f2fs/namei.c
->> @@ -89,8 +89,6 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
->>       if (test_opt(sbi, INLINE_XATTR))
->>           set_inode_flag(inode, FI_INLINE_XATTR);
->> -    if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
->> -        set_inode_flag(inode, FI_INLINE_DATA);
->>       if (f2fs_may_inline_dentry(inode))
->>           set_inode_flag(inode, FI_INLINE_DENTRY);
->> @@ -107,10 +105,6 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
->>       f2fs_init_extent_tree(inode, NULL);
->> -    stat_inc_inline_xattr(inode);
->> -    stat_inc_inline_inode(inode);
->> -    stat_inc_inline_dir(inode);
->> -
->>       F2FS_I(inode)->i_flags =
->>           f2fs_mask_flags(mode, F2FS_I(dir)->i_flags & F2FS_FL_INHERITED);
->> @@ -127,6 +121,14 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
->>               set_compress_context(inode);
->>       }
->> +    /* Should enable inline_data after compression set */
->> +    if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
->> +        set_inode_flag(inode, FI_INLINE_DATA);
->> +
->> +    stat_inc_inline_xattr(inode);
->> +    stat_inc_inline_inode(inode);
->> +    stat_inc_inline_dir(inode);
->> +
->>       f2fs_set_inode_flags(inode);
->>       trace_f2fs_new_inode(inode, 0);
->> @@ -325,6 +327,9 @@ static void set_compress_inode(struct f2fs_sb_info *sbi, struct inode *inode,
->>           if (!is_extension_exist(name, ext[i], false))
->>               continue;
->> +        /* Do not use inline_data with compression */
->> +        stat_dec_inline_inode(inode);
->> +        clear_inode_flag(inode, FI_INLINE_DATA);
+On Tue, Jun 28, 2022 at 09:09:05AM +0200, Greg Kroah-Hartman wrote:
+> > This one breaks s390. You would also need to apply the following two commits:
+> > 
+> > cc02e6e21aa5 ("s390/crash: add missing iterator advance in copy_oldmem_page()")
+> > af2debd58bd7 ("s390/crash: make copy_oldmem_page() return number of bytes copied")
 > 
-> It looks we don't need to dirty inode if there is no inline_data flag.
+> Both of them are also in the 5.18-rc queue here, right?
 
-Oh, it looks set_compress_context() will dirty inode anyway.... :P
+Yes, these are:
 
-Thanks,
+	[PATCH 5.18 113/181] s390/crash: add missing iterator advance in copy_oldmem_page() Greg Kroah-Hartman
+	[PATCH 5.18 114/181] s390/crash: make copy_oldmem_page() return number of bytes copied Greg Kroah-Hartman
 
+> thanks,
 > 
-> Thanks,
-> 
->>           set_compress_context(inode);
->>           return;
->>       }
-> 
-> 
-> _______________________________________________
-> Linux-f2fs-devel mailing list
-> Linux-f2fs-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/linux-f2fs-devel
+> greg k-h
