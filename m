@@ -2,135 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B55A55E682
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 18:27:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A03955EA5C
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 18:56:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348299AbiF1QCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jun 2022 12:02:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
+        id S232278AbiF1QyG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jun 2022 12:54:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348235AbiF1QBw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 12:01:52 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACAA937A8F;
-        Tue, 28 Jun 2022 09:01:21 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id w24so13002233pjg.5;
-        Tue, 28 Jun 2022 09:01:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=tPyidp/Hbkt+IJjfFTUdDt2y5LsToJzbXu5kGwBQPk8=;
-        b=GoqPIJDP3JwcgU1hQWu9Ia7nr5/MstYHT9QXBez7nQMnd2oNUS9PL8MChFcGnnkM2M
-         pn1z7Lu4kPF5/CHFNaJa+tVtP5VszAGgkcE6qbE/8nHwKUtuaAWrR6UmJzC78OjPSo9W
-         aw5iXG2v9Lz+bqqRbYRDJcDU/rEBxUBWj8373kSkqHpn8PfrEN0YijJMq5A8ynjzQnwF
-         LtSR3+X8YSbWzScDJ/1+EEqlb+Av5D620JhI6BhxDuWEHyDVYGumT64fTmg3CkiGjtgo
-         WvXHJwI3hytT5Okmed4NYa0aSCJD7KWj/2t//tXISQ5ZflLaP07e+sdLYdeFPikPPqGi
-         Zn/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=tPyidp/Hbkt+IJjfFTUdDt2y5LsToJzbXu5kGwBQPk8=;
-        b=BELnHEGC2s4HLVSjIDLV8ZbUPjdp/6YBmBmhX/HDwdpj5H905Gql+ddIVUUnU94del
-         NVJ8shj+7w+uO19BGApsWBTfV0FXWrPojr1vkYTR2bxnGGTEJ6tvSeR6BsQjLzhUtIWz
-         q0A0j6sHBoMRWSIOiLdGU1ixiU/PHzbwrVrWmRNQuXlDKwP+bVqaaA5fbKnzzlFqnRR/
-         77Yvq4x9t3oX05t85sjTi7rS6StVo0CBXZejYHEhrPsmsP98SsKnzEgOLznnEWO+P+vL
-         gP+Bq7Kd/SF5etvQEdiQFc26CLL3ApviYMt/NgF5FZPW2rTQxzGaSB34UZsRtjabvzl+
-         23Rw==
-X-Gm-Message-State: AJIora/l7feqZGYfFM+KmfWA0K5i6znEz/0jknq36+HRSHX9PHY2HzML
-        uQXDyWIXxnNal04sN+Kcd1a3ltwFU5M=
-X-Google-Smtp-Source: AGRyM1v7KuEphQefjfEn/Hzgy26MwtZ7a3Gh/HlT4a418YYHoCyRJts31SCzRGuAsjEAyRphzChN9w==
-X-Received: by 2002:a17:902:f543:b0:16a:54c6:78d0 with SMTP id h3-20020a170902f54300b0016a54c678d0mr4384140plf.28.1656432080829;
-        Tue, 28 Jun 2022 09:01:20 -0700 (PDT)
-Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id t5-20020a17090a4e4500b001ef12855acdsm7885pjl.19.2022.06.28.09.01.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jun 2022 09:01:20 -0700 (PDT)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Hsin-Yi Wang <hsinyi@chromium.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Will Deacon <will@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH stable 4.19] fdt: Update CRC check for rng-seed
-Date:   Tue, 28 Jun 2022 09:01:11 -0700
-Message-Id: <20220628160111.2237376-3-f.fainelli@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220628160111.2237376-1-f.fainelli@gmail.com>
-References: <20220628160111.2237376-1-f.fainelli@gmail.com>
+        with ESMTP id S236564AbiF1Qwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 12:52:45 -0400
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2049.outbound.protection.outlook.com [40.107.244.49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE59821E18;
+        Tue, 28 Jun 2022 09:51:24 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=n+8PYzusqxYvR4l29TFgunYYIiB/h+i2+brkMiSmw+p+k2+uf8YEKTgaQp4bUqacK5WXfO6P1J6ivTYdnvlf5OOhynxHRGHX665atgukWFuE0UGaUwdfgMVd7/TLYb4VLbQEfzmW6LV4vNNmLww6zi1G3B8XqsZ3UzELgeTnWPg/EAdP6QNIFsdNnq0/lkkhU0xm57P3vIHvBF+xnZbf9WXDDYHK7lsBHTexAVSLV7wxZRzXU2b2VyLbfvBVaqRsI3RWQGS2Ok6o2rI/LXD7aJqNQ5VZuja6P2xXS34ghRwpWjhPbA1pau3ruYNKWwRq3Yv83iN8FmStIjzvHMBwCQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QJ72MQ+1Ex+mmjjxNHxLHh+EokjldREt+Y+HQIcwi9k=;
+ b=QMEKqIE+aGnlz9POr/9CElfH1LJBIdypXrZY6ivGlQuN4DYCTo63sibzvXVvlSL88RZG20XGf4+SxEYaBrPrlTSfYCGZEKgzQzN9qeoDR2UspoU04sBjNNBZGrjjDozXjGfWKPw73N34dT+f1G3JYhWVqwSqErabY4cdNXGjeswa/PBr9/NfddkUuEL9hC7ztAYjD2LESLByoWMvITCwm+UziUTrAuOuMRm1GMXxS4B9T/IF5SWZ35DpWcayQeHGogDKH9mDbIDO1buz3xainGINfF9acQtwP4krckMqSwUNIvoMLYQpsRrHexK77KYllIYpPlNaLiM+Qxx4wQosDw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
+ dkim=pass header.d=vmware.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QJ72MQ+1Ex+mmjjxNHxLHh+EokjldREt+Y+HQIcwi9k=;
+ b=IV+Jj9yNinJKCcF4SWoCyynK1iOwlJQxW02139ZTxwFE9f9h+4Gc2B0AHKKnyTAfErNtB1uOGM9BN+VtLzkdjxcTIc1S+6PwYU92eQT/C9YlQVDlZQaEjzIfYsKjVk8zs/CdxHvvNNgv/uF7niififJ0J3y66pyebEI5K/xFiOo=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vmware.com;
+Received: from PH0PR05MB8703.namprd05.prod.outlook.com (2603:10b6:510:bd::5)
+ by SJ0PR05MB7675.namprd05.prod.outlook.com (2603:10b6:a03:2ca::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5395.13; Tue, 28 Jun
+ 2022 16:51:23 +0000
+Received: from PH0PR05MB8703.namprd05.prod.outlook.com
+ ([fe80::dc16:cc4c:985a:89ec]) by PH0PR05MB8703.namprd05.prod.outlook.com
+ ([fe80::dc16:cc4c:985a:89ec%9]) with mapi id 15.20.5395.014; Tue, 28 Jun 2022
+ 16:51:23 +0000
+From:   Ajay Kaher <akaher@vmware.com>
+To:     bhelgaas@google.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com
+Cc:     x86@kernel.org, hpa@zytor.com, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        rostedt@goodmis.org, namit@vmware.com, srivatsab@vmware.com,
+        srivatsa@csail.mit.edu, amakhalov@vmware.com, anishs@vmware.com,
+        vsirnapalli@vmware.com, akaher@vmware.com, er.ajay.kaher@gmail.com
+Subject: [PATCH] MMIO should have more priority then IO 
+Date:   Tue, 28 Jun 2022 21:59:21 +0530
+Message-Id: <1656433761-9163-1-git-send-email-akaher@vmware.com>
+X-Mailer: git-send-email 2.7.4
+Content-Type: text/plain
+X-ClientProxiedBy: BY5PR13CA0014.namprd13.prod.outlook.com
+ (2603:10b6:a03:180::27) To PH0PR05MB8703.namprd05.prod.outlook.com
+ (2603:10b6:510:bd::5)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c0dd696f-0059-4f86-956d-08da59266ee8
+X-MS-TrafficTypeDiagnostic: SJ0PR05MB7675:EE_
+X-LD-Processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: cUx4N0SH5CyOsbvvz3MR4Fuxk2yUVwsy2mBIsJcRjA9f+n7ceNhRNsMY54tSv5jVzv8Gwk24oS/HIxr8BJe081GEjJ73VHm92/f+OMSqL1sidIT0mJadHJJ1Bp0pkxr7Q30lVUJ0+jvE6dwF4I4TNVIM0zJ3pFV5P1XwrJfDuxit7WIKYJ2f2rYt7JeZRp+2WMaH8T7VoXjMewaemcHOY9AlfF2yGCsqp/3deGkw0LK077E4Ks+XfIWgEVZaUbc4fxB1ymwEaaKCzM3ABa++vdi4KqHVYNRRiB/xzcXGqMRuqVZ0mr5rZg6753xsa0/T6O7avPPl6ETRC7Q20YJFz+IPlKIQGPWeZW8rFSAgkoVijNVuLKHeZhIh3dL8pCTld7NCdhUBFgzPDgRuPq0ib5P/rTpC6ulpHetd++CibnoOM+/Jo3BBXE8XsStycUEivf6lWnmoRR8gbOt+LyVuVeZCiawYEtzJjL5NdQWkf08IpJQc0I4zGetG1LLhKERZwO3B6MWV9LZ/jU36kuL5BrvzT0cfKeCPoUY/Ss6SWX9u19Td1v1phQDwHise5WLsGIcJbr/HvcnXyn0En1AZmCHx8evuFpgIOXupBQYdqDRzTThZqQ7Jbumu7yWQCQzUiA4m/gVS5Kwda4fNT2nRxRKal4/NvDd4Lnwt/9HkXYzdBXrF6r8AnJaObOBHnGh/n8jBD3mFE81JG4fOsloqk8GeJKwxkxsPU+6mm0x7SSyk7iwH4lOmJW5VNLctbBjSE57IQwcA9kz1FTLe+3YJxCmkai9YN/AninRBW9kslNE=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR05MB8703.namprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(346002)(366004)(396003)(39860400002)(136003)(376002)(7416002)(6506007)(2906002)(66946007)(8676002)(66476007)(52116002)(4326008)(41300700001)(8936002)(26005)(478600001)(66556008)(38100700002)(38350700002)(86362001)(2616005)(5660300002)(6512007)(4743002)(186003)(36756003)(6486002)(316002)(83380400001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?cTZgb+36/LVmqUmGQpt4heDtxZm4u7XPJNiHoGt8Wa+jTLAnsoWyq0r7Gmer?=
+ =?us-ascii?Q?kTyBqO/mzTzAvmlKRuylGuMwPnZyeFJ19Nklwpq4CI9TvLsrQUVb5tS5hFs5?=
+ =?us-ascii?Q?pjR+BUxG6nKaiw8tg4rQ1kWdbLyYr6VoR4fpCU15PqDabfxVKKomMfjwBBnC?=
+ =?us-ascii?Q?zP/hgVAdGEQcWb5B0YmzAZBH3gDZ6nzbkJuzP/GzV+MHLVBpr7b6k9A5OadV?=
+ =?us-ascii?Q?gzQsubkuvvykydsqOpodM8sDGVafsDoegErolTvMYgFeRcaGfCJWvHogQ3Kw?=
+ =?us-ascii?Q?RTo3DvGxnV7g59z46Nn7XaAuzseKQSMjfWxyv1+k7KTTSpLVFtXxuOE3U3Wm?=
+ =?us-ascii?Q?wlthN7fcbrkW+e5zF5mr7oCfkHwuyrOmpFA3D9O9aQWXU8PTXKGyYkfPdckR?=
+ =?us-ascii?Q?vqsFw4KNKJ5YGF9x2VNZsQyg0NYvD9Qj/O0bKkgUXo/dZEuffjt9vIWTA9D+?=
+ =?us-ascii?Q?QWmyi/Ly7lmELmPAiJAZG57AZjylkRf55v3WvLCAr7dSof66EFRemSb9LCEK?=
+ =?us-ascii?Q?9UhMtv3jR6zR7ev3D2l3t+g39+VUhAkei3NEMhEbg2a4pVJfO/Tn4lvD/put?=
+ =?us-ascii?Q?Jxc5+qN5g1t2nkkhCHZaxube5ScU0/Wto7yGNCeSqQJM/oXh2TqqsJ0aJ2Om?=
+ =?us-ascii?Q?jwZfeA4xsloWBH8i7Fhhly033Dc85qco67KTotX+3CsQAszCWKVL1GCLZeG5?=
+ =?us-ascii?Q?kJisPiTNgalpJ4XYrse5u0fBJVSpsCZFY+hVQtP1H0eCuBWXRLKhOUaFey2m?=
+ =?us-ascii?Q?yuGfDfF4Lx7se3mwXDDaFV8+BRSJf0t6dTKE16/fOPujo1mHdu2CtjLdNToI?=
+ =?us-ascii?Q?PhJlu0LrOyzZ6IydHCBShMeIyq5+ID6o6FivV8n+YgVaCIKBMEAmoDhpxxia?=
+ =?us-ascii?Q?iCsaQPnkRmGz8Mp8UJJUDnXGW8Z/hv2Mqpdo1nZZt0PUNynfsRzHjQrrlFD9?=
+ =?us-ascii?Q?0Nsn0SdRoJdMcAKILPnmJMpOQO7r1rFN0VhjEbyKRueWhg0FSPsCJxfeokeQ?=
+ =?us-ascii?Q?GdKAHBA1yq9T4021QC5TqSbkpSBDg7t0h9rk9OzWiEUkHKHizk3Ksjs49z4w?=
+ =?us-ascii?Q?cNbD8s70QCrtg8bMD9dYC1/qP/cJWEVdy1JOw0US41Vp7UnSWH/pGEsfUcoj?=
+ =?us-ascii?Q?6LSr6tIwZbFRe8P0Ba1YmD3V2fGq/VgAe/NbqOk6Qx/VZzhjQlL2nBtRnheI?=
+ =?us-ascii?Q?FSiYhSQnL9dTdcwnxpLn0QC5Np6Oge3BcJmlDxhmva4OkwzQaSCxMDXvaHMS?=
+ =?us-ascii?Q?aR0PpT7gIg3F2XBCMVusy2ywkyn/yvbO0IJSbPuKix2WvctCOLKGo4ffup+K?=
+ =?us-ascii?Q?Km4QvR/Ougyrz3HagQeh7wwzW4oeuQxc8/dWsV+u/4fSahVuOytD+F1duunZ?=
+ =?us-ascii?Q?9nvyN8Uad5Zc33pxYtCh86CXuFgpvTGpBFUC6JpDhLgBQIhJExns/eVx+6le?=
+ =?us-ascii?Q?7X5KXdqaCmEGYRZ/S6DVwRIyj1vwX/+HLaZYCbs7NGlNdFiRO0TWB7UZ4/G8?=
+ =?us-ascii?Q?FmLR7H+3zYl6IEtNfivtDxVvdTSTjDbxeaY2mcymAZgNmy3C1/I8CTqIjO2r?=
+ =?us-ascii?Q?E/AQSXC8OuPS8g8WU7v9Y7T+NL7bIB6fsbJivEdR?=
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c0dd696f-0059-4f86-956d-08da59266ee8
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR05MB8703.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jun 2022 16:51:23.2274
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: RxEHav1X3wJHjgFkfaK5V5CXAFBzgWiwags7j5CMvXd1AgEMZJf4CuIqdzceMQdyFmbStOpDs2jj2zjIV3h25g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR05MB7675
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yi Wang <hsinyi@chromium.org>
+Port IO instructions (PIO) are less efficient than MMIO (memory
+mapped I/O). They require twice as many PCI accesses and PIO
+instructions are serializing. As a result, MMIO should be preferred
+when possible over PIO.
 
-commit dd753d961c4844a39f947be115b3d81e10376ee5 upstream
+Bare metal test result
+1 million reads using raw_pci_read() took:
+PIO: 0.433153 Sec.
+MMIO: 0.268792 Sec.
 
-Commit 428826f5358c ("fdt: add support for rng-seed") moves of_fdt_crc32
-from early_init_dt_verify() to early_init_dt_scan() since
-early_init_dt_scan_chosen() may modify fdt to erase rng-seed.
+Virtual Machine test result
+1 hundred thousand reads using raw_pci_read() took:
+PIO: 12.809 Sec.
+MMIO: took 8.517 Sec.
 
-However, arm and some other arch won't call early_init_dt_scan(), they
-call early_init_dt_verify() then early_init_dt_scan_nodes().
-
-Restore of_fdt_crc32 to early_init_dt_verify() then update it in
-early_init_dt_scan_chosen() if fdt if updated.
-
-Fixes: 428826f5358c ("fdt: add support for rng-seed")
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
 ---
- drivers/of/fdt.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/pci/common.c          |  8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index 2e9ea7f1e719..9fecac72c358 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -1119,6 +1119,10 @@ int __init early_init_dt_scan_chosen(unsigned long node, const char *uname,
- 
- 		/* try to clear seed so it won't be found. */
- 		fdt_nop_property(initial_boot_params, node, "rng-seed");
-+
-+		/* update CRC check value */
-+		of_fdt_crc32 = crc32_be(~0, initial_boot_params,
-+				fdt_totalsize(initial_boot_params));
- 	}
- 
- 	/* break now */
-@@ -1223,6 +1227,8 @@ bool __init early_init_dt_verify(void *params)
- 
- 	/* Setup flat device-tree pointer */
- 	initial_boot_params = params;
-+	of_fdt_crc32 = crc32_be(~0, initial_boot_params,
-+				fdt_totalsize(initial_boot_params));
- 	return true;
+diff --git a/arch/x86/pci/common.c b/arch/x86/pci/common.c
+index 3507f456f..0b3383d9c 100644
+--- a/arch/x86/pci/common.c
++++ b/arch/x86/pci/common.c
+@@ -40,20 +40,20 @@ const struct pci_raw_ops *__read_mostly raw_pci_ext_ops;
+ int raw_pci_read(unsigned int domain, unsigned int bus, unsigned int devfn,
+ 						int reg, int len, u32 *val)
+ {
++	if (raw_pci_ext_ops)
++		return raw_pci_ext_ops->read(domain, bus, devfn, reg, len, val);
+ 	if (domain == 0 && reg < 256 && raw_pci_ops)
+ 		return raw_pci_ops->read(domain, bus, devfn, reg, len, val);
+-	if (raw_pci_ext_ops)
+-		return raw_pci_ext_ops->read(domain, bus, devfn, reg, len, val);
+ 	return -EINVAL;
  }
  
-@@ -1248,8 +1254,6 @@ bool __init early_init_dt_scan(void *params)
- 		return false;
- 
- 	early_init_dt_scan_nodes();
--	of_fdt_crc32 = crc32_be(~0, initial_boot_params,
--				fdt_totalsize(initial_boot_params));
- 	return true;
+ int raw_pci_write(unsigned int domain, unsigned int bus, unsigned int devfn,
+ 						int reg, int len, u32 val)
+ {
++	if (raw_pci_ext_ops)
++		return raw_pci_ext_ops->write(domain, bus, devfn, reg, len, val);
+ 	if (domain == 0 && reg < 256 && raw_pci_ops)
+ 		return raw_pci_ops->write(domain, bus, devfn, reg, len, val);
+-	if (raw_pci_ext_ops)
+-		return raw_pci_ext_ops->write(domain, bus, devfn, reg, len, val);
+ 	return -EINVAL;
  }
  
 -- 
-2.25.1
+2.30.0
 
