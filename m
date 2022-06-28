@@ -2,77 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D553855DAC3
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73B8255D435
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:13:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234062AbiF1KWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jun 2022 06:22:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54398 "EHLO
+        id S1344526AbiF1KwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jun 2022 06:52:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240343AbiF1KWx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 06:22:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FAB02F3B5
-        for <stable@vger.kernel.org>; Tue, 28 Jun 2022 03:22:52 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5CA1B81DBB
-        for <stable@vger.kernel.org>; Tue, 28 Jun 2022 10:22:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E8AC3411D;
-        Tue, 28 Jun 2022 10:22:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656411769;
-        bh=/4gd1fa45fJO1t2xWZKzREgPdCfRnxDUKzal4P9bewM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FT/uAq6WW41QDDDyjB5vTBKNb3iioj/h6ciB1MN63GMAinVCKYOCXAYEc3KdNEbwN
-         /tobJ/CJ0ESopDsRaGjn6gtlyN46z4W1uU0b24lcinVdj6Y1Av/m2u9l1mkvMMQ7Wp
-         lvwS7N7R28ZvqvDcMNEfdyZIdw6CSbnAY/RLVf0L+J7m6WA1K94RZ5eQHzTEyiiP0j
-         FcB2i0/fplKwEhTEaFVLZ3tYAtmk1JJwfP4o7SzkUea7dii7VlxF29vCdAxg5HSuhu
-         UKqcvgNdcxzm7LKJ23iIsOzN8QWtd+e75+Ce5hqxYofFPM0/CLreG1isFwXAwIeXQ0
-         UXBcpv+8d+Kqg==
-Date:   Tue, 28 Jun 2022 12:22:44 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     cyphar@cyphar.com, hch@lst.de, sforshee@digitalocean.com,
-        viro@zeniv.linux.org.uk, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] fs: account for group membership" failed
- to apply to 5.15-stable tree
-Message-ID: <20220628102244.wymkrob3cfys2h7i@wittgenstein>
-References: <165571901496212@kroah.com>
- <20220627172408.h5zfvcksmd5ftnst@wittgenstein>
+        with ESMTP id S243923AbiF1KwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 06:52:10 -0400
+X-Greylist: delayed 417 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 28 Jun 2022 03:52:09 PDT
+Received: from mail.toke.dk (mail.toke.dk [45.145.95.4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0289724F3D;
+        Tue, 28 Jun 2022 03:52:08 -0700 (PDT)
+From:   Toke =?utf-8?Q?H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=toke.dk; s=20161023;
+        t=1656413110; bh=mAaCfPe3fw1fuDEGDpxnsjtKUtYee9b2yyQePpQWJZI=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=EckpsRugV1CYexE0vYH50nYaVQ7NY+FDxUfC5lx/gpbY4bebtiJylu+szLfvIn1js
+         Xo7UEIlt4oCkyhqvR4LH0Ve1sv37XeOmxlcvLGHG8Vvm//NeWlI13mil3IDktthOlY
+         6aqr6JtXCsVruTMhMug635wwGQD2hnsdkc8y5/CxRFIo6pvhjMEx0R3RF/ury2F8SN
+         Eh10oU9s1ZkbLeMLAObgkkziUtaHKytxNey8e4Ogx7CTS1gT4g4MTzyJRMwf1XtBwx
+         bwAF5wdfy7fhZrK9yf+OkFxwo4QZINUNYuSpBlcnC2GSK0bG9v8/ETTl2a4NotDbt5
+         ifk5iV9mdSJVA==
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Gregory Erwin <gregerwin256@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v6] ath9k: sleep for less time when unregistering hwrng
+In-Reply-To: <20220627120735.611821-1-Jason@zx2c4.com>
+References: <20220627113749.564132-1-Jason@zx2c4.com>
+ <20220627120735.611821-1-Jason@zx2c4.com>
+Date:   Tue, 28 Jun 2022 12:45:10 +0200
+X-Clacks-Overhead: GNU Terry Pratchett
+Message-ID: <87y1xh9idl.fsf@toke.dk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20220627172408.h5zfvcksmd5ftnst@wittgenstein>
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 07:24:18PM +0200, Christian Brauner wrote:
-> On Mon, Jun 20, 2022 at 11:56:54AM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.15-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> 
-> Hm, I just tried on top of v5.15.50:
-> 
-> git cherry-pick -S 168f912893407a5acb798a4a5
-> 
-> and it applied cleanly. Can you try and backport this again, please?
-> Or tell me how to reproduce the failure you're seeing so I can fix it
-> and give you an applicable version?
+"Jason A. Donenfeld" <Jason@zx2c4.com> writes:
 
-It's a build problem. I'll give you a series that makes this patch
-apply. I'll backport a few more patches if you don't mind.
+> Even though hwrng provides a `wait` parameter, it doesn't work very well
+> when waiting for a long time. There are numerous deadlocks that emerge
+> related to shutdown. Work around this API limitation by waiting for a
+> shorter amount of time and erroring more frequently. This commit also
+> prevents hwrng from splatting messages to dmesg when there's a timeout
+> and switches to using schedule_timeout_interruptible(), so that the
+> kthread can be stopped.
+>
+> Reported-by: Gregory Erwin <gregerwin256@gmail.com>
+> Tested-by: Gregory Erwin <gregerwin256@gmail.com>
+> Cc: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
+> Cc: Kalle Valo <kvalo@kernel.org>
+> Cc: Rui Salvaterra <rsalvaterra@gmail.com>
+> Cc: Herbert Xu <herbert@gondor.apana.org.au>
+> Cc: stable@vger.kernel.org
+> Fixes: fcd09c90c3c5 ("ath9k: use hw_random API instead of directly dumpin=
+g into random.c")
+> Link: https://lore.kernel.org/all/CAO+Okf6ZJC5-nTE_EJUGQtd8JiCkiEHytGgDsF=
+GTEjs0c00giw@mail.gmail.com/
+> Link: https://lore.kernel.org/lkml/CAO+Okf5k+C+SE6pMVfPf-d8MfVPVq4PO7EY8H=
+ys_DVXtent3HA@mail.gmail.com/
+> Link: https://bugs.archlinux.org/task/75138
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 
-Thanks!
-Christian
+Acked-by: Toke H=C3=B8iland-J=C3=B8rgensen <toke@toke.dk>
