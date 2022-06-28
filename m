@@ -2,52 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7491455DF4F
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:30:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A36DE55CD29
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:02:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243825AbiF1CWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:22:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60120 "EHLO
+        id S243815AbiF1CWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:22:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243652AbiF1CVH (ORCPT
+        with ESMTP id S243653AbiF1CVH (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:21:07 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A9E024F09;
-        Mon, 27 Jun 2022 19:20:58 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D618624F08;
+        Mon, 27 Jun 2022 19:20:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7B447CE1E0E;
-        Tue, 28 Jun 2022 02:20:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D212AC34115;
-        Tue, 28 Jun 2022 02:20:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D3E19CE1E23;
+        Tue, 28 Jun 2022 02:20:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E373C341CB;
+        Tue, 28 Jun 2022 02:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656382854;
-        bh=8EEm0dlpGRNW+1bRE51uF+/2iljO7Ff562zYe9PwjaY=;
+        s=k20201202; t=1656382856;
+        bh=m39DnLMFvF/zTka2kp9IJefHGcU3SBJbyVByCA/gd1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKT+A9Dt6h5tXSArWh2YFiC+yYs735tniWDfnUYsZfoGewHNefDW3WFHwTgZtuslF
-         Aizfa1eAjaYdQIXoteNUy0u0JPkTzJI2MGi6axL5ePvEkJ6fG811ke8NwfEO7uuiw/
-         goTrCR6mlaxGCNTjnCq0xGHqBEG20xxJUk9lp4RO+2KgIVBxHc2Minm1IccWc3ivG2
-         izJWDqx0sdtIVmbW3sfFNT1fmp1zgRDk4lqRlj2fNQDN7qrbW6dU7/vYe4FLxcJ00E
-         CSbg+ifuTshQqcmTt33IJwFT7z7GyQ+i5qGSNyupYKgVIF7P4btsIGW0q0E7OdLl12
-         TwkQhqyC19/dA==
+        b=L11be+W/19mkZaXvt2wJFa/KcPNm3YrgCA5AMCCfEjfZmb8y3FGEKuQR3P0dpWTAh
+         JY0+JSCma2lKrCu3UeVtLY5YexTsB+Odjb56YUiqW1g6kQeEAfK9C9DzMsect662+B
+         WpU/iRoiNnXCXq9EIEL2w5w7XhZ0sn8PzxMM8Z/E1w+8VqCu5mha9fyC7xRRda5i0L
+         9HB4Px97aF5fbf2nrov8dWxzCK+RNr3BueRujE3vH54DLTQGDVRRAHmQKZOJ0QSA3V
+         o+JXsQt0nndxDWEbIUeAWv0PsW7C+JFlUhcNUcTVYjk2IRA7G+qYV+xauMorGkSpVD
+         ZXKCXHneZCYpA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Marek=20Ol=C5=A1=C3=A1k?= <marek.olsak@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        Felix.Kuehling@amd.com, nirmoy.das@amd.com, jonathan.kim@amd.com,
-        matthew.auld@intel.com, kevin1.wang@amd.com, zackr@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.18 50/53] drm/amdgpu: Adjust logic around GTT size (v3)
-Date:   Mon, 27 Jun 2022 22:18:36 -0400
-Message-Id: <20220628021839.594423-50-sashal@kernel.org>
+Cc:     Leo Savernik <l.savernik@aon.at>, Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
+        sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.18 51/53] nvme: add a bogus subsystem NQN quirk for Micron MTFDKBA2T0TFH
+Date:   Mon, 27 Jun 2022 22:18:37 -0400
+Message-Id: <20220628021839.594423-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628021839.594423-1-sashal@kernel.org>
 References: <20220628021839.594423-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,70 +57,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Leo Savernik <l.savernik@aon.at>
 
-[ Upstream commit f15345a377c6ea9c7cc74f079616af8856aff37f ]
+[ Upstream commit 41f38043f884c66af4114a7109cf540d6222f450 ]
 
-Certain GL unit tests for large textures can cause problems
-with the OOM killer since there is no way to link this memory
-to a process.  This was originally mitigated (but not necessarily
-eliminated) by limiting the GTT size.  The problem is this limit
-is often too low for many modern games so just make the limit 1/2
-of system memory. The OOM accounting needs to be addressed, but
-we shouldn't prevent common 3D applications from being usable
-just to potentially mitigate that corner case.
+The Micron MTFDKBA2T0TFH device reports the same subsysem NQN for
+all devices.  Add a quick to ignore it.
 
-Set default GTT size to max(3G, 1/2 of system ram) by default.
-
-v2: drop previous logic and default to 3/4 of ram
-v3: default to half of ram to align with ttm
-v4: fix spelling in comment (Kent)
-
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1942
-Reviewed-by: Marek Olšák <marek.olsak@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Leo Savernik <l.savernik@aon.at>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index 4b9ee6e27f74..ef3ada98bdb6 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -1798,18 +1798,26 @@ int amdgpu_ttm_init(struct amdgpu_device *adev)
- 	DRM_INFO("amdgpu: %uM of VRAM memory ready\n",
- 		 (unsigned) (adev->gmc.real_vram_size / (1024 * 1024)));
- 
--	/* Compute GTT size, either bsaed on 3/4th the size of RAM size
-+	/* Compute GTT size, either based on 1/2 the size of RAM size
- 	 * or whatever the user passed on module init */
- 	if (amdgpu_gtt_size == -1) {
- 		struct sysinfo si;
- 
- 		si_meminfo(&si);
--		gtt_size = min(max((AMDGPU_DEFAULT_GTT_SIZE_MB << 20),
--			       adev->gmc.mc_vram_size),
--			       ((uint64_t)si.totalram * si.mem_unit * 3/4));
--	}
--	else
-+		/* Certain GL unit tests for large textures can cause problems
-+		 * with the OOM killer since there is no way to link this memory
-+		 * to a process.  This was originally mitigated (but not necessarily
-+		 * eliminated) by limiting the GTT size.  The problem is this limit
-+		 * is often too low for many modern games so just make the limit 1/2
-+		 * of system memory which aligns with TTM. The OOM accounting needs
-+		 * to be addressed, but we shouldn't prevent common 3D applications
-+		 * from being usable just to potentially mitigate that corner case.
-+		 */
-+		gtt_size = max((AMDGPU_DEFAULT_GTT_SIZE_MB << 20),
-+			       (u64)si.totalram * si.mem_unit / 2);
-+	} else {
- 		gtt_size = (uint64_t)amdgpu_gtt_size << 20;
-+	}
- 
- 	/* Initialize GTT memory pool */
- 	r = amdgpu_gtt_mgr_init(adev, gtt_size);
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 17aeb7d5c485..e69d0135d74e 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3441,6 +3441,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 	{ PCI_DEVICE(0x1cc1, 0x8201),   /* ADATA SX8200PNP 512GB */
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS |
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
++	 { PCI_DEVICE(0x1344, 0x5407), /* Micron Technology Inc NVMe SSD */
++		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN },
+ 	{ PCI_DEVICE(0x1c5c, 0x1504),   /* SK Hynix PC400 */
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+ 	{ PCI_DEVICE(0x15b7, 0x2001),   /*  Sandisk Skyhawk */
 -- 
 2.35.1
 
