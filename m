@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B02B255D87E
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:20:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A9D55E15B
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244950AbiF1Cas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:30:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40048 "EHLO
+        id S244959AbiF1Cav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:30:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244854AbiF1C2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:28:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 616B62529F;
-        Mon, 27 Jun 2022 19:26:56 -0700 (PDT)
+        with ESMTP id S244865AbiF1C2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:28:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C8CC26131;
+        Mon, 27 Jun 2022 19:27:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F332161932;
-        Tue, 28 Jun 2022 02:26:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC267C341CC;
-        Tue, 28 Jun 2022 02:26:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD543618B9;
+        Tue, 28 Jun 2022 02:27:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7879EC34115;
+        Tue, 28 Jun 2022 02:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656383215;
-        bh=WQj+vlXUG9tNfMHNqFEpznWhZzUBGkgYCU7K18NUhuQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oj/DUrP2E9c2IwhOVj21gXCOgVet69FFBOYy1lwLov25Vp4v0Gqt5anGTiKCegXyy
-         5Go5wRfc0jquIpfM5sNgzUYVjzpViepHoGbMCHhW+nHz3Wv05GCVZ736vyUt0swUzL
-         R7w8DR5/Bm/5z7KeA72Axlg2+3jYNONkNuK68i8ODrDBUpXOCp1V3MNwGoVnIuzrJ7
-         oO0fs+nvNc+WuPJ+Wv4m1A0Q29Wfjg8ybUqLf0W67dg+bKsMRrNDLs89GCBgYe3pq4
-         D7TDxcccDb+Dn5bgQJkb9rm0zLSk00SR0dIM2knDVd//tl9yZyDIG8PdLnpLl66oLE
-         xz+s89P+5cNTQ==
+        s=k20201202; t=1656383220;
+        bh=qGGojuTbJpCyXBhxTsjiqwhCOaO0l/9xbdXKVD+uqnQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=C0OBOnU8S6L44gR2BT2D06QQorBUZLj24jGos0xFzehN0CfD9QyZZ5KfR9yEt/uQ9
+         /pChg9tANpjBy+ReBTSlYbnHZfgV1tOOzHSTIAWLG4wvCR4+JP7RBj6whsAExK8B2H
+         j26XiWX1DvwEmDjoCy/OVlSSfFO574a1/Gh5qdkNrnB+Odo6tmTZSvsKiSrYEqHShq
+         69ECH/5Pgesm7R3ClWZYqrmIYhs4Oc1aNh9ZBFnuWjigdqBkTFL5cMCFeTqSJacMHt
+         oXm514ju9q0CaS9nDKJkjUXp02trDGfMy+L4PHwGVGyC05B9FYFgPLqJxaVqLY6QLG
+         XHgfKg01ZyASA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liang He <windhl@126.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, john@phrozen.org,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 16/17] mips: lantiq: Add missing of_node_put() in irq.c
-Date:   Mon, 27 Jun 2022 22:26:14 -0400
-Message-Id: <20220628022615.596977-16-sashal@kernel.org>
+Cc:     Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>,
+        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/13] spi: spi-cadence: Fix SPI CS gets toggling sporadically
+Date:   Mon, 27 Jun 2022 22:26:45 -0400
+Message-Id: <20220628022657.597208-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220628022615.596977-1-sashal@kernel.org>
-References: <20220628022615.596977-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,30 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
 
-[ Upstream commit 3748d2185ac4c2c6f80989672253aad909ecaf95 ]
+[ Upstream commit 21b511ddee09a78909035ec47a6a594349fe3296 ]
 
-In icu_of_init(), of_find_compatible_node() will return a node
-pointer with refcount incremented. We should use of_node_put()
-when it is not used anymore.
+As part of unprepare_transfer_hardware, SPI controller will be disabled
+which will indirectly deassert the CS line. This will create a problem
+in some of the devices where message will be transferred with
+cs_change flag set(CS should not be deasserted).
+As per SPI controller implementation, if SPI controller is disabled then
+all output enables are inactive and all pins are set to input mode which
+means CS will go to default state high(deassert). This leads to an issue
+when core explicitly ask not to deassert the CS (cs_change = 1). This
+patch fix the above issue by checking the Slave select status bits from
+configuration register before disabling the SPI.
 
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
+Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
+Link: https://lore.kernel.org/r/20220606062525.18447-1-amit.kumar-mahapatra@xilinx.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/lantiq/irq.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-cadence.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/lantiq/irq.c b/arch/mips/lantiq/irq.c
-index 0476d7e97a03..6e3ace045b26 100644
---- a/arch/mips/lantiq/irq.c
-+++ b/arch/mips/lantiq/irq.c
-@@ -342,6 +342,7 @@ int __init icu_of_init(struct device_node *node, struct device_node *parent)
- 		if (!ltq_eiu_membase)
- 			panic("Failed to remap eiu memory");
- 	}
-+	of_node_put(eiu_node);
+diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
+index e383c6368915..6d294a1fa5e5 100644
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -72,6 +72,7 @@
+ #define CDNS_SPI_BAUD_DIV_SHIFT		3 /* Baud rate divisor shift in CR */
+ #define CDNS_SPI_SS_SHIFT		10 /* Slave Select field shift in CR */
+ #define CDNS_SPI_SS0			0x1 /* Slave Select zero */
++#define CDNS_SPI_NOSS			0x3C /* No Slave select */
+ 
+ /*
+  * SPI Interrupt Registers bit Masks
+@@ -444,15 +445,20 @@ static int cdns_prepare_transfer_hardware(struct spi_master *master)
+  * @master:	Pointer to the spi_master structure which provides
+  *		information about the controller.
+  *
+- * This function disables the SPI master controller.
++ * This function disables the SPI master controller when no slave selected.
+  *
+  * Return:	0 always
+  */
+ static int cdns_unprepare_transfer_hardware(struct spi_master *master)
+ {
+ 	struct cdns_spi *xspi = spi_master_get_devdata(master);
++	u32 ctrl_reg;
+ 
+-	cdns_spi_write(xspi, CDNS_SPI_ER, CDNS_SPI_ER_DISABLE);
++	/* Disable the SPI if slave is deselected */
++	ctrl_reg = cdns_spi_read(xspi, CDNS_SPI_CR);
++	ctrl_reg = (ctrl_reg & CDNS_SPI_CR_SSCTRL) >>  CDNS_SPI_SS_SHIFT;
++	if (ctrl_reg == CDNS_SPI_NOSS)
++		cdns_spi_write(xspi, CDNS_SPI_ER, CDNS_SPI_ER_DISABLE);
  
  	return 0;
  }
