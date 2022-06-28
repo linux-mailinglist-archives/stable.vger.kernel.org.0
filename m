@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43FB955E071
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:32:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3203C55C1D8
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244361AbiF1C3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:29:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39918 "EHLO
+        id S244262AbiF1C3S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:29:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244427AbiF1C0H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:26:07 -0400
+        with ESMTP id S244441AbiF1C0R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:26:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D6ED255A0;
-        Mon, 27 Jun 2022 19:24:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8117324BD8;
+        Mon, 27 Jun 2022 19:24:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFC0DB81C17;
-        Tue, 28 Jun 2022 02:24:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A854DC341CB;
-        Tue, 28 Jun 2022 02:24:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3143FB81C0E;
+        Tue, 28 Jun 2022 02:24:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F06D8C34115;
+        Tue, 28 Jun 2022 02:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656383043;
-        bh=5e7JyayC3qycLLc+5mmA4i9WttRILWlgqRQ1TvvpG7o=;
+        s=k20201202; t=1656383047;
+        bh=2lXpoLGX/5sce5S8q9mI9YyZ6a1pDpUqEFvKw/MPCzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VZcHTbJnH6CZ8bv7lMEL/Kp203Bzbf2k/qhG7R79xQXCX2xTuvcjViescxa/wd7Lm
-         qdsfiIwPtJ4798mY1pI9YHdXTxlvkd66QwKA3zzwuxPf2SBcvHtv1E1rI7/PHX6oX0
-         QC7tjBxBE2hZ3xEX01FPjDDKgInEC49foSieRenuCyMDpsNRkr8OrXcAvhNXZLIzJ8
-         2a+tt0IY2jfQkuYQ9nF7/nkmt9NxgHJuT4GTEiodxBw4qluU2XRb9QUm46S7s8bZ7b
-         SX9u2e+iNQm7LcbGKDnEA7KFC4xjkUINrGJgt7xkDaZLkbp/NTtoQRnFpJfxIlqYG5
-         8a0DSqTzkKNYA==
+        b=sWkCfXrg2LbmFz0yfWtaZQI0AfhsK8TLE736pX8RsWf2viPHTyOlIGdGQ304oZy3d
+         wN6nT52SSb8qwexxM3VciDrHUCbtGsv9fjaKHbz8qvAVFZXnAeno5HCCZ8y0fxc8Ot
+         3nHNWEsLuW/K4gfD2y0vKVPdp8aRoFzVpHE4QarUiK8O9xijx781VHlkmq0a/8ixub
+         +53csID0QwNVMp2WAk2fw1n8gEgcl6mLLaJCRH927USGPR5P/pf4qGcvA8KtsOLnG0
+         1sMHXViA+IOhrWRPU+AjROSjHbGyYPzitbwSibxtZlLmiiudkYlcFhx4MqMp4xYRQA
+         5LorsVEWXnVmg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tom Rix <trix@redhat.com>, llvm@lists.linux.dev,
-        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, jiri@nvidia.com,
-        leon@kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 30/34] hinic: Replace memcpy() with direct assignment
-Date:   Mon, 27 Jun 2022 22:22:37 -0400
-Message-Id: <20220628022241.595835-30-sashal@kernel.org>
+Cc:     Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Marek=20Ol=C5=A1=C3=A1k?= <marek.olsak@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        Felix.Kuehling@amd.com, nirmoy.das@amd.com, jonathan.kim@amd.com,
+        Philip.Yang@amd.com, kevin1.wang@amd.com, zackr@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 31/34] drm/amdgpu: Adjust logic around GTT size (v3)
+Date:   Mon, 27 Jun 2022 22:22:38 -0400
+Message-Id: <20220628022241.595835-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628022241.595835-1-sashal@kernel.org>
 References: <20220628022241.595835-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -62,52 +61,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 1e70212e031528918066a631c9fdccda93a1ffaa ]
+[ Upstream commit f15345a377c6ea9c7cc74f079616af8856aff37f ]
 
-Under CONFIG_FORTIFY_SOURCE=y and CONFIG_UBSAN_BOUNDS=y, Clang is bugged
-here for calculating the size of the destination buffer (0x10 instead of
-0x14). This copy is a fixed size (sizeof(struct fw_section_info_st)), with
-the source and dest being struct fw_section_info_st, so the memcpy should
-be safe, assuming the index is within bounds, which is UBSAN_BOUNDS's
-responsibility to figure out.
+Certain GL unit tests for large textures can cause problems
+with the OOM killer since there is no way to link this memory
+to a process.  This was originally mitigated (but not necessarily
+eliminated) by limiting the GTT size.  The problem is this limit
+is often too low for many modern games so just make the limit 1/2
+of system memory. The OOM accounting needs to be addressed, but
+we shouldn't prevent common 3D applications from being usable
+just to potentially mitigate that corner case.
 
-Avoid the whole thing and just do a direct assignment. This results in
-no change to the executable code.
+Set default GTT size to max(3G, 1/2 of system ram) by default.
 
-[This is a duplicate of commit 2c0ab32b73cf ("hinic: Replace memcpy()
- with direct assignment") which was applied to net-next.]
+v2: drop previous logic and default to 3/4 of ram
+v3: default to half of ram to align with ttm
+v4: fix spelling in comment (Kent)
 
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Tom Rix <trix@redhat.com>
-Cc: llvm@lists.linux.dev
-Link: https://github.com/ClangBuiltLinux/linux/issues/1592
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org> # build
-Link: https://lore.kernel.org/r/20220616052312.292861-1-keescook@chromium.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1942
+Reviewed-by: Marek Olšák <marek.olsak@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_devlink.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_devlink.c b/drivers/net/ethernet/huawei/hinic/hinic_devlink.c
-index 2630d667f393..b5b95177f11f 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_devlink.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_devlink.c
-@@ -43,9 +43,7 @@ static bool check_image_valid(struct hinic_devlink_priv *priv, const u8 *buf,
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+index 0b162928a248..b6d5987efc6a 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -1960,18 +1960,26 @@ int amdgpu_ttm_init(struct amdgpu_device *adev)
+ 	DRM_INFO("amdgpu: %uM of VRAM memory ready\n",
+ 		 (unsigned) (adev->gmc.real_vram_size / (1024 * 1024)));
  
- 	for (i = 0; i < fw_image->fw_info.fw_section_cnt; i++) {
- 		len += fw_image->fw_section_info[i].fw_section_len;
--		memcpy(&host_image->image_section_info[i],
--		       &fw_image->fw_section_info[i],
--		       sizeof(struct fw_section_info_st));
-+		host_image->image_section_info[i] = fw_image->fw_section_info[i];
- 	}
+-	/* Compute GTT size, either bsaed on 3/4th the size of RAM size
++	/* Compute GTT size, either based on 1/2 the size of RAM size
+ 	 * or whatever the user passed on module init */
+ 	if (amdgpu_gtt_size == -1) {
+ 		struct sysinfo si;
  
- 	if (len != fw_image->fw_len ||
+ 		si_meminfo(&si);
+-		gtt_size = min(max((AMDGPU_DEFAULT_GTT_SIZE_MB << 20),
+-			       adev->gmc.mc_vram_size),
+-			       ((uint64_t)si.totalram * si.mem_unit * 3/4));
+-	}
+-	else
++		/* Certain GL unit tests for large textures can cause problems
++		 * with the OOM killer since there is no way to link this memory
++		 * to a process.  This was originally mitigated (but not necessarily
++		 * eliminated) by limiting the GTT size.  The problem is this limit
++		 * is often too low for many modern games so just make the limit 1/2
++		 * of system memory which aligns with TTM. The OOM accounting needs
++		 * to be addressed, but we shouldn't prevent common 3D applications
++		 * from being usable just to potentially mitigate that corner case.
++		 */
++		gtt_size = max((AMDGPU_DEFAULT_GTT_SIZE_MB << 20),
++			       (u64)si.totalram * si.mem_unit / 2);
++	} else {
+ 		gtt_size = (uint64_t)amdgpu_gtt_size << 20;
++	}
+ 
+ 	/* Initialize GTT memory pool */
+ 	r = amdgpu_gtt_mgr_init(adev, gtt_size);
 -- 
 2.35.1
 
