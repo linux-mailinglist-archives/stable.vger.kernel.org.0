@@ -2,46 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEADA55D9F2
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:22:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 766E855E160
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243585AbiF1CUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:20:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60972 "EHLO
+        id S243589AbiF1CUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:20:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243482AbiF1CUX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:20:23 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 962FB248ED;
-        Mon, 27 Jun 2022 19:19:58 -0700 (PDT)
+        with ESMTP id S243527AbiF1CU3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:20:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ACCB2495F;
+        Mon, 27 Jun 2022 19:19:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EA91BCE1E30;
-        Tue, 28 Jun 2022 02:19:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDD03C341CA;
-        Tue, 28 Jun 2022 02:19:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4234617D9;
+        Tue, 28 Jun 2022 02:19:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDFA6C385A5;
+        Tue, 28 Jun 2022 02:19:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656382795;
-        bh=/gJvyO5O8HTEYVncAVjLK1PO5Gj08W/ajlEtsPFvjo4=;
+        s=k20201202; t=1656382798;
+        bh=2RvOCUttCJce1i+gUQTcZb/oD0fI5ZPODIDnk1o4vqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iltKlKlpGRsen0Bi7NfPrfVRi/Pj1QjywEboEycXad6S6ZpoZnt9Cxg9rf4VkKHpd
-         dKcrYAgleIvK7pqXlVPiahBWUsPKiL49AONyC4KbvnIdhMyyyuyhKMw8EhhLb/+lMr
-         j66QkuC+i/huoOf6AFyNMyRWsAlYDPnaZW6tiNHMAA1YTViquI+/j/RNzNxqPkNGL7
-         Xm+mSTy54UvddOAZ2JtfYPb2seq4pvPAXviWVellKlxgIir+8lJ49ncApS+LEF2yoZ
-         XsU9nUa548jwcrjvZAgzBz5tC4qlSFm1LQ39IyoRWToxdr1F7aDw9n8Ocood3a67JD
-         OLCPjby4j3t+A==
+        b=kyOhvOAWeIaAov3IDVAkbO3rn7BbIAXhpaaQuOQR9twRVHTar0ORj3Mm9XZESAIp9
+         n+xuo5V3ZjR76Y2HTxgCJYpuS8hSQMUFz3FXP+kIkeS74pw0XBAoiNnc1wnVqm+Lae
+         4VS0BZPSRsk/Xrqw/+zGyzfCMYIZXM8yIbgkQON0ACrKaD9QuiT7C5xullwWXAB/HI
+         olx/6+u5XPV9NLMKW2SGZrxwD361dUAqaEvmR+qyH6u/M1mwkpm0C73RoSW+A3Pb5U
+         tBubsHDZLA2qkye6UFDRHBE3jh7xEn3UzAXDj1j8kA8xrHta538EjSdEYm0MR9sO/k
+         y+4relQhZeDrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, aneesh.kumar@linux.ibm.com,
-        rafael.j.wysocki@intel.com, joel@jms.id.au, adobriyan@gmail.com,
-        Julia.Lawall@inria.fr, nick.child@ibm.com, jlu.hpw@foxmail.com,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.18 25/53] powerpc/prom_init: Fix build failure with GCC_PLUGIN_STRUCTLEAK_BYREF_ALL and KASAN
-Date:   Mon, 27 Jun 2022 22:18:11 -0400
-Message-Id: <20220628021839.594423-25-sashal@kernel.org>
+Cc:     Ian Rogers <irogers@google.com>, Kajol Jain <kjain@linux.ibm.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Rob Herring <robh@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, acme@kernel.org,
+        linux-perf-users@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 26/53] libperf evsel: Open shouldn't leak fd on failure
+Date:   Mon, 27 Jun 2022 22:18:12 -0400
+Message-Id: <20220628021839.594423-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628021839.594423-1-sashal@kernel.org>
 References: <20220628021839.594423-1-sashal@kernel.org>
@@ -59,44 +67,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit ca5dabcff1df6bc8c413922b5fa63cc602858803 ]
+[ Upstream commit 94725994cfd768b9ee1bd06f15c252694b1e9b89 ]
 
-When CONFIG_KASAN is selected, we expect prom_init to use __memset()
-because it is too early to use memset().
+If perf_event_open() fails the fd is opened but it is only freed by
+closing (not by delete).
 
-But with CONFIG_GCC_PLUGIN_STRUCTLEAK_BYREF_ALL, the compiler adds calls
-to memset() to clear objects on stack, hence the following failure:
+Typically when an open fails you don't call close and so this results in
+a memory leak. To avoid this, add a close when open fails.
 
-	  PROMCHK arch/powerpc/kernel/prom_init_check
-	Error: External symbol 'memset' referenced from prom_init.c
-	make[2]: *** [arch/powerpc/kernel/Makefile:204 : arch/powerpc/kernel/prom_init_check] Erreur 1
-
-prom_find_machine_type() is called from prom_init() and is called only
-once, so lets put compat[] in BSS instead of stack to avoid that.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/3802811f7cf94f730be44688539c01bba3a3b5c0.1654875808.git.christophe.leroy@csgroup.eu
+Signed-off-by: Ian Rogers <irogers@google.com>
+Reviewed-By: Kajol Jain <kjain@linux.ibm.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rob Herring <robh@kernel.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: https://lore.kernel.org/r/20220609052355.1300162-2-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/prom_init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/perf/evsel.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
-index 0ac5faacc909..46247645c134 100644
---- a/arch/powerpc/kernel/prom_init.c
-+++ b/arch/powerpc/kernel/prom_init.c
-@@ -2300,7 +2300,7 @@ static void __init prom_init_stdout(void)
+diff --git a/tools/lib/perf/evsel.c b/tools/lib/perf/evsel.c
+index 210ea7c06ce8..acf8a215dca3 100644
+--- a/tools/lib/perf/evsel.c
++++ b/tools/lib/perf/evsel.c
+@@ -149,23 +149,30 @@ int perf_evsel__open(struct perf_evsel *evsel, struct perf_cpu_map *cpus,
+ 			int fd, group_fd, *evsel_fd;
  
- static int __init prom_find_machine_type(void)
- {
--	char compat[256];
-+	static char compat[256] __prombss;
- 	int len, i = 0;
- #ifdef CONFIG_PPC64
- 	phandle rtas;
+ 			evsel_fd = FD(evsel, idx, thread);
+-			if (evsel_fd == NULL)
+-				return -EINVAL;
++			if (evsel_fd == NULL) {
++				err = -EINVAL;
++				goto out;
++			}
+ 
+ 			err = get_group_fd(evsel, idx, thread, &group_fd);
+ 			if (err < 0)
+-				return err;
++				goto out;
+ 
+ 			fd = sys_perf_event_open(&evsel->attr,
+ 						 threads->map[thread].pid,
+ 						 cpu, group_fd, 0);
+ 
+-			if (fd < 0)
+-				return -errno;
++			if (fd < 0) {
++				err = -errno;
++				goto out;
++			}
+ 
+ 			*evsel_fd = fd;
+ 		}
+ 	}
++out:
++	if (err)
++		perf_evsel__close(evsel);
+ 
+ 	return err;
+ }
 -- 
 2.35.1
 
