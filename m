@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B78CC55C664
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:52:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9A155CF06
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:05:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241587AbiF1CTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243375AbiF1CTD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 27 Jun 2022 22:19:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59010 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243306AbiF1CS7 (ORCPT
+        with ESMTP id S243294AbiF1CS7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:18:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F8BB23BE6;
-        Mon, 27 Jun 2022 19:18:49 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10F2924098;
+        Mon, 27 Jun 2022 19:18:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4B90B81C0A;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C735B81C00;
+        Tue, 28 Jun 2022 02:18:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DE62C341CC;
         Tue, 28 Jun 2022 02:18:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84E93C341D0;
-        Tue, 28 Jun 2022 02:18:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656382726;
-        bh=Ys0RJPZ4GxYz/5tskLY3MZu3a5KGfyWFRcYRdYGjEjU=;
+        s=k20201202; t=1656382728;
+        bh=ExparaHlCEIrmen5Cx/UOCw+Jpry0bHE3bzxHz1Sepc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KtQE6WNxOpA89ZzVTtCjNDk/lrjftwTqTY/uEe5nw23o5Rx2QtRhtrkik/xXyVZEW
-         jfYyJeILjEvt+CX6x+MMGwzMeuKzOploGAPrCmFjdowgD88k1hTbG0qP/VHm1myG6/
-         f1AITnyit+34pIGvTZMV0Cq5RuxboU0bxRitH2TZoz9lg0dp5dbtFnBhOIjSTSXC0M
-         dbkXYkv8d0cAWDfNCLgx6wmVG5hckRA1quwM0YCoVtsrcHwJnP0hUbN5rdThLS7ToF
-         cDUCkaGqxOobHwKCcw0asoA7CIMn9+EGGPxOgljONdrHDYzn4V6ylChHvUuCIjZfcW
-         ZiGaX5rB/1MvQ==
+        b=ZUQWKo+WKMgaU7sjkhbUBpjIxOjG2VsWMugYP8NbI9vTe9Uv3saDgSAZD4jqxw+zv
+         v8YCJGRQsFivkYlTDi7+sFWd7J7gI12Ordzzd6JCuRF+oikR73lf7wXhqazoypOP7V
+         peuomieHiwYpl35LvzhUdwWHxSGhtGOaywntz6g0JE5eux+ariN6hml5agOYAtiC9j
+         G0LmvOqGiaxZWiYSv7tq/q5CfE0ERtiVuFFChyUpEyJmWmP2mhpeeTbQrV3JCLmK18
+         Shal5oHapevUn9cFcfkaesM9mAYkXxKEF6/uph7MANVEW3wBtHS9MfTrWF7iMnzKzB
+         ok8VoZ3ENy1Jw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabio Estevam <festevam@gmail.com>,
-        Fabio Estevam <festevam@denx.de>, Chester Lin <clin@suse.com>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 04/53] arm64: s32g2: Pass unit name to soc node
-Date:   Mon, 27 Jun 2022 22:17:50 -0400
-Message-Id: <20220628021839.594423-4-sashal@kernel.org>
+Cc:     Robert Marko <robimarko@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
+        bjorn.andersson@linaro.org, lgirdwood@gmail.com,
+        linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 05/53] regulator: qcom_smd: correct MP5496 ranges
+Date:   Mon, 27 Jun 2022 22:17:51 -0400
+Message-Id: <20220628021839.594423-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628021839.594423-1-sashal@kernel.org>
 References: <20220628021839.594423-1-sashal@kernel.org>
@@ -58,36 +58,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Robert Marko <robimarko@gmail.com>
 
-[ Upstream commit 4266e2f70d4388b8c6a95056169954ff049ced94 ]
+[ Upstream commit 122e951eb8045338089b086c8bd9b0b9afb04a92 ]
 
-Pass unit name to soc node to fix the following W=1 build warning:
+Currently set MP5496 Buck and LDO ranges dont match its datasheet[1].
+According to the datasheet:
+Buck range is 0.6-2.1875V with a 12.5mV step
+LDO range is 0.8-3.975V with a 25mV step.
 
-arch/arm64/boot/dts/freescale/s32g2.dtsi:82.6-123.4: Warning (unit_address_vs_reg): /soc: node has a reg or ranges property, but no unit name
+So, correct the ranges according to the datasheet[1].
 
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Chester Lin <clin@suse.com>
-Signed-off-by: Chester Lin <clin@suse.com>
-Link: https://lore.kernel.org/r/20220514143505.1554813-1-festevam@gmail.com
+[1] https://www.monolithicpower.com/en/documentview/productdocument/index/version/2/document_type/Datasheet/lang/en/sku/MP5496GR/document_id/6906/
+
+Signed-off-by: Robert Marko <robimarko@gmail.com>
+Link: https://lore.kernel.org/r/20220604193300.125758-2-robimarko@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/s32g2.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/qcom_smd-regulator.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/s32g2.dtsi b/arch/arm64/boot/dts/freescale/s32g2.dtsi
-index 59ea8a25aa4c..824d401e7a2c 100644
---- a/arch/arm64/boot/dts/freescale/s32g2.dtsi
-+++ b/arch/arm64/boot/dts/freescale/s32g2.dtsi
-@@ -79,7 +79,7 @@ psci {
- 		};
- 	};
+diff --git a/drivers/regulator/qcom_smd-regulator.c b/drivers/regulator/qcom_smd-regulator.c
+index 7dff94a2eb7e..ef6e47d025ca 100644
+--- a/drivers/regulator/qcom_smd-regulator.c
++++ b/drivers/regulator/qcom_smd-regulator.c
+@@ -723,19 +723,19 @@ static const struct regulator_desc pms405_pldo600 = {
  
--	soc {
-+	soc@0 {
- 		compatible = "simple-bus";
- 		#address-cells = <1>;
- 		#size-cells = <1>;
+ static const struct regulator_desc mp5496_smpa2 = {
+ 	.linear_ranges = (struct linear_range[]) {
+-		REGULATOR_LINEAR_RANGE(725000, 0, 27, 12500),
++		REGULATOR_LINEAR_RANGE(600000, 0, 127, 12500),
+ 	},
+ 	.n_linear_ranges = 1,
+-	.n_voltages = 28,
++	.n_voltages = 128,
+ 	.ops = &rpm_mp5496_ops,
+ };
+ 
+ static const struct regulator_desc mp5496_ldoa2 = {
+ 	.linear_ranges = (struct linear_range[]) {
+-		REGULATOR_LINEAR_RANGE(1800000, 0, 60, 25000),
++		REGULATOR_LINEAR_RANGE(800000, 0, 127, 25000),
+ 	},
+ 	.n_linear_ranges = 1,
+-	.n_voltages = 61,
++	.n_voltages = 128,
+ 	.ops = &rpm_mp5496_ops,
+ };
+ 
 -- 
 2.35.1
 
