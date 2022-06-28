@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CC9255CA99
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:58:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1509855CDD4
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:04:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244351AbiF1CZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:25:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60868 "EHLO
+        id S244097AbiF1CZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:25:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244065AbiF1CXs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:23:48 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE53722C;
-        Mon, 27 Jun 2022 19:23:02 -0700 (PDT)
+        with ESMTP id S244083AbiF1CXt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:23:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A661FEA;
+        Mon, 27 Jun 2022 19:23:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 20FA6CE1BD3;
-        Tue, 28 Jun 2022 02:23:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A68AC36AE2;
-        Tue, 28 Jun 2022 02:22:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12B5A617D4;
+        Tue, 28 Jun 2022 02:23:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B58BDC34115;
+        Tue, 28 Jun 2022 02:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656382979;
-        bh=mZorZnBDhd8tM4rvi3iSjxVRtl1UH9oN/D4gw/tPpL8=;
+        s=k20201202; t=1656382984;
+        bh=61r4ir6D/oIz9lNaR6B0OiZXPVrxN4SE4g4dd6RhOsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1A/7izxd8ZfUnP++fvQU2Y3ixUS9ouGMbAvDj8cahTx7lGBWDzKhMAvDE+lLCcjL
-         0y45jUpN6uxgFXyi04aU8rTFhrZFvRlA3dvNbfC3GzZ3Ea5Wqzw/0smq7/ZQ0iT1y7
-         tumR+8yqYta3k+HjgnmMBbHqbscKtXRl/vFKtzlPV0naBmGpEqkfoFS9oLTdf2Xfln
-         isxR6rMADrbOBLggggAhHcxFK4SdwPGlKV3o48dzgzm8e67uCSjpEsgLwqO0MQyCBA
-         KbBc9UAX8LhPET9vgzMAGt2vlJsRhlS3mVSf2n8f6qY6vez5AlDnRC4E8a58mhfCG3
-         hkxaGU0QjZO/g==
+        b=B4NeMg5jurjxLGgjvSeM692KbnzLa0uPlfTrK/OF5P02LOSbPbaVGQLwk9gEc+Z6D
+         FNKHwUyTLtN8JtWaqqCAzBJVDIEaLSkc++3IH5/3cF5/Bn+91vo/DYERrCfTRht16v
+         8eUhLQn9TtMZ9bJb1Ul8LKLhcF92FPicHyMlNpU1tPrjnG7isTcMjULwTVAQMke73I
+         /kI3PSdZ9b04v/iYcNsSBylRrLh/kwpT0d64ELQt8Zcfq0Q0rUh9ns8TVa5fdUCuA9
+         /XTHnsH9ltpV0ylS6Y/SG+osWAd7Zg5hIG/PcLdrmaPXkclG4ePWqaUPJ+P3Xipi5F
+         wclgZiC0OkInA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxime Ripard <maxime@cerno.tech>, Melissa Wen <mwen@igalia.com>,
-        Sasha Levin <sashal@kernel.org>, emma@anholt.net,
-        mripard@kernel.org, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 08/34] drm/vc4: crtc: Move the BO handling out of common page-flip callback
-Date:   Mon, 27 Jun 2022 22:22:15 -0400
-Message-Id: <20220628022241.595835-8-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        matthias.bgg@gmail.com, beanhuo@micron.com, avri.altman@wdc.com,
+        daejun7.park@samsung.com, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 09/34] scsi: ufs: Simplify ufshcd_clear_cmd()
+Date:   Mon, 27 Jun 2022 22:22:16 -0400
+Message-Id: <20220628022241.595835-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628022241.595835-1-sashal@kernel.org>
 References: <20220628022241.595835-1-sashal@kernel.org>
@@ -57,77 +62,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 4d12c36fb73b5c49fe2f95d06515fd9846010fd2 ]
+[ Upstream commit da8badd7d3583f447eac2ab65a332f2d773deca1 ]
 
-We'll soon introduce another completion callback source that won't need
-to use the BO reference counting, so let's move it around to create a
-function we will be able to share between both callbacks.
+Remove the local variable 'err'. This patch does not change any
+functionality.
 
-Reviewed-by: Melissa Wen <mwen@igalia.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220610115149.964394-11-maxime@cerno.tech
+Link: https://lore.kernel.org/r/20220613214442.212466-2-bvanassche@acm.org
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c | 34 ++++++++++++++++++++--------------
- 1 file changed, 20 insertions(+), 14 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
-index c0332b69d22c..94bc20247ef9 100644
---- a/drivers/gpu/drm/vc4/vc4_crtc.c
-+++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -722,21 +722,8 @@ vc4_async_page_flip_complete(struct vc4_async_flip_state *flip_state)
- 	drm_crtc_vblank_put(crtc);
- 	drm_framebuffer_put(flip_state->fb);
- 
--	/* Decrement the BO usecnt in order to keep the inc/dec calls balanced
--	 * when the planes are updated through the async update path.
--	 * FIXME: we should move to generic async-page-flip when it's
--	 * available, so that we can get rid of this hand-made cleanup_fb()
--	 * logic.
--	 */
--	if (flip_state->old_fb) {
--		struct drm_gem_cma_object *cma_bo;
--		struct vc4_bo *bo;
--
--		cma_bo = drm_fb_cma_get_gem_obj(flip_state->old_fb, 0);
--		bo = to_vc4_bo(&cma_bo->base);
--		vc4_bo_dec_usecnt(bo);
-+	if (flip_state->old_fb)
- 		drm_framebuffer_put(flip_state->old_fb);
--	}
- 
- 	kfree(flip_state);
- 
-@@ -747,8 +734,27 @@ static void vc4_async_page_flip_seqno_complete(struct vc4_seqno_cb *cb)
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index ea6ceab1a1b2..1b32d4f4e21e 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -2649,7 +2649,6 @@ static int ufshcd_compose_dev_cmd(struct ufs_hba *hba,
+ static int
+ ufshcd_clear_cmd(struct ufs_hba *hba, int tag)
  {
- 	struct vc4_async_flip_state *flip_state =
- 		container_of(cb, struct vc4_async_flip_state, cb.seqno);
-+	struct vc4_bo *bo = NULL;
-+
-+	if (flip_state->old_fb) {
-+		struct drm_gem_cma_object *cma_bo =
-+			drm_fb_cma_get_gem_obj(flip_state->old_fb, 0);
-+		bo = to_vc4_bo(&cma_bo->base);
-+	}
+-	int err = 0;
+ 	unsigned long flags;
+ 	u32 mask = 1 << tag;
  
- 	vc4_async_page_flip_complete(flip_state);
-+
-+	/*
-+	 * Decrement the BO usecnt in order to keep the inc/dec
-+	 * calls balanced when the planes are updated through
-+	 * the async update path.
-+	 *
-+	 * FIXME: we should move to generic async-page-flip when
-+	 * it's available, so that we can get rid of this
-+	 * hand-made cleanup_fb() logic.
-+	 */
-+	if (bo)
-+		vc4_bo_dec_usecnt(bo);
+@@ -2662,11 +2661,8 @@ ufshcd_clear_cmd(struct ufs_hba *hba, int tag)
+ 	 * wait for for h/w to clear corresponding bit in door-bell.
+ 	 * max. wait is 1 sec.
+ 	 */
+-	err = ufshcd_wait_for_register(hba,
+-			REG_UTP_TRANSFER_REQ_DOOR_BELL,
+-			mask, ~mask, 1000, 1000);
+-
+-	return err;
++	return ufshcd_wait_for_register(hba, REG_UTP_TRANSFER_REQ_DOOR_BELL,
++					mask, ~mask, 1000, 1000);
  }
  
- /* Implements async (non-vblank-synced) page flips.
+ static int
 -- 
 2.35.1
 
