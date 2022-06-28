@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B287555D106
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:08:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A940255D6F6
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244268AbiF1CYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:24:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33436 "EHLO
+        id S244014AbiF1CYW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:24:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243935AbiF1CXH (ORCPT
+        with ESMTP id S244133AbiF1CXH (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:23:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB7D82409D;
-        Mon, 27 Jun 2022 19:22:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EBDA24943;
+        Mon, 27 Jun 2022 19:22:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 483CF617D4;
-        Tue, 28 Jun 2022 02:22:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4FFCC34115;
-        Tue, 28 Jun 2022 02:22:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA3DD6185C;
+        Tue, 28 Jun 2022 02:22:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC1BC34115;
+        Tue, 28 Jun 2022 02:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656382958;
-        bh=5LoBGLe92D5oV9TbNi9pTjn87zi03mWCmt8lmlnSN/0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TP//poHKjytC+MDInvBQljSudZub4jjiAwYCXZIi16QTpPTpejC5rK4n/hOHl0FCq
-         ar1ogs6PaVWW41kxVXJ6FY+jCAF6KLQ8ERCq6JbsTOENeXYTO78+9Lpqw1AbMWgFkv
-         Hq28FDhvdL5q1eWRXNLxSqoX9fWAX+Z6lslUY0ojWajRLrRZwO3NYXDOyys2V9OiEb
-         LOhxpSyAKyad1Cs2GllNlEtMmyTrlrxXIBuvuBx5StHB6fTt4vaEreV/tajIKUFvDS
-         gWEYe+HETCmBwCUKxZ2Lv9Uvla2ahAvLM4T1LQ65ZAYzy8/hJGlf1cfZOC0xlgeBgQ
-         oZU+s7qiOdA4g==
+        s=k20201202; t=1656382964;
+        bh=1lnzaHrP8/Nz40BDmWvhOM2XuhI02Wl0KrII2CAXXCU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=aeMvU36yIXCqEijvlelJCe1C60yQ2uubCn/jMLzU1bQlms62onpBYDIZjEg1ESLr+
+         gVa+4Tgq3Gw4lm6t/P+Z7hGe56MTW2S4zLNFjPnmKTOskPoBDgKJ1wvb/d9yrxS/IZ
+         Lj4h5putrO09EhYr4h0K5Btc4KuHotxNXALohe2Y9fza/sm/dTJy0a1SFK0T1CiFdA
+         kjk3ZT/PEJ3grJOU/i3D5ymkzcWJ58UZSATLEwhhqof4NXSE75XDYBCD8Pr/3to/U9
+         2q3DS0xX1lduZ+UDvNuCu8WCP1w95E9HYmNiU3OsR5+sarvU72PBa1zRa0l43MkqQu
+         vOJJ3ZmxJ/o2A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>, linus.walleij@linaro.org,
-        linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 40/41] gpio: grgpio: Fix device removing
-Date:   Mon, 27 Jun 2022 22:20:59 -0400
-Message-Id: <20220628022100.595243-40-sashal@kernel.org>
+Cc:     Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>,
+        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 01/34] spi: spi-cadence: Fix SPI CS gets toggling sporadically
+Date:   Mon, 27 Jun 2022 22:22:08 -0400
+Message-Id: <20220628022241.595835-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220628022100.595243-1-sashal@kernel.org>
-References: <20220628022100.595243-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,62 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
 
-[ Upstream commit c1c2a15c2b5379ea8e44dcdcc298e3de42076ba0 ]
+[ Upstream commit 21b511ddee09a78909035ec47a6a594349fe3296 ]
 
-If a platform device's remove callback returns non-zero, the device core
-emits a warning and still removes the device and calls the devm cleanup
-callbacks.
+As part of unprepare_transfer_hardware, SPI controller will be disabled
+which will indirectly deassert the CS line. This will create a problem
+in some of the devices where message will be transferred with
+cs_change flag set(CS should not be deasserted).
+As per SPI controller implementation, if SPI controller is disabled then
+all output enables are inactive and all pins are set to input mode which
+means CS will go to default state high(deassert). This leads to an issue
+when core explicitly ask not to deassert the CS (cs_change = 1). This
+patch fix the above issue by checking the Slave select status bits from
+configuration register before disabling the SPI.
 
-So it's not save to not unregister the gpiochip because on the next request
-to a GPIO the driver accesses kfree()'d memory. Also if an IRQ triggers,
-the freed memory is accessed.
-
-Instead rely on the GPIO framework to ensure that after gpiochip_remove()
-all GPIOs are freed and so the corresponding IRQs are unmapped.
-
-This is a preparation for making platform remove callbacks return void.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
+Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
+Link: https://lore.kernel.org/r/20220606062525.18447-1-amit.kumar-mahapatra@xilinx.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-grgpio.c | 14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
+ drivers/spi/spi-cadence.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-grgpio.c b/drivers/gpio/gpio-grgpio.c
-index f954359c9544..46f6158d1c71 100644
---- a/drivers/gpio/gpio-grgpio.c
-+++ b/drivers/gpio/gpio-grgpio.c
-@@ -435,25 +435,13 @@ static int grgpio_probe(struct platform_device *ofdev)
- static int grgpio_remove(struct platform_device *ofdev)
+diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
+index ceb16e70d235..90b18c32f859 100644
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -69,6 +69,7 @@
+ #define CDNS_SPI_BAUD_DIV_SHIFT		3 /* Baud rate divisor shift in CR */
+ #define CDNS_SPI_SS_SHIFT		10 /* Slave Select field shift in CR */
+ #define CDNS_SPI_SS0			0x1 /* Slave Select zero */
++#define CDNS_SPI_NOSS			0x3C /* No Slave select */
+ 
+ /*
+  * SPI Interrupt Registers bit Masks
+@@ -449,15 +450,20 @@ static int cdns_prepare_transfer_hardware(struct spi_master *master)
+  * @master:	Pointer to the spi_master structure which provides
+  *		information about the controller.
+  *
+- * This function disables the SPI master controller.
++ * This function disables the SPI master controller when no slave selected.
+  *
+  * Return:	0 always
+  */
+ static int cdns_unprepare_transfer_hardware(struct spi_master *master)
  {
- 	struct grgpio_priv *priv = platform_get_drvdata(ofdev);
--	int i;
--	int ret = 0;
--
--	if (priv->domain) {
--		for (i = 0; i < GRGPIO_MAX_NGPIO; i++) {
--			if (priv->uirqs[i].refcnt != 0) {
--				ret = -EBUSY;
--				goto out;
--			}
--		}
--	}
+ 	struct cdns_spi *xspi = spi_master_get_devdata(master);
++	u32 ctrl_reg;
  
- 	gpiochip_remove(&priv->gc);
+-	cdns_spi_write(xspi, CDNS_SPI_ER, CDNS_SPI_ER_DISABLE);
++	/* Disable the SPI if slave is deselected */
++	ctrl_reg = cdns_spi_read(xspi, CDNS_SPI_CR);
++	ctrl_reg = (ctrl_reg & CDNS_SPI_CR_SSCTRL) >>  CDNS_SPI_SS_SHIFT;
++	if (ctrl_reg == CDNS_SPI_NOSS)
++		cdns_spi_write(xspi, CDNS_SPI_ER, CDNS_SPI_ER_DISABLE);
  
- 	if (priv->domain)
- 		irq_domain_remove(priv->domain);
- 
--out:
--	return ret;
-+	return 0;
+ 	return 0;
  }
- 
- static const struct of_device_id grgpio_match[] = {
 -- 
 2.35.1
 
