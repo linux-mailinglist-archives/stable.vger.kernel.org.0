@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCDC755ECBC
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 20:40:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27D1D55ECC0
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 20:40:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231602AbiF1SkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232557AbiF1SkY (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 28 Jun 2022 14:40:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41194 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230230AbiF1SkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 14:40:23 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BE9822B10;
-        Tue, 28 Jun 2022 11:40:22 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id 9so13007607pgd.7;
-        Tue, 28 Jun 2022 11:40:22 -0700 (PDT)
+        with ESMTP id S231307AbiF1SkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 14:40:24 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B4B422B16;
+        Tue, 28 Jun 2022 11:40:23 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id go6so13471196pjb.0;
+        Tue, 28 Jun 2022 11:40:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=EJ0biCIxVVWv8FXDO+74+pFK2hXee6NmP1YA59oxZXM=;
-        b=EItH706DMshBX3gVgFCw9OI1N3ZYI27k/cfqRyeuHa1io608PcLmzVwISlWBhgd4l3
-         3+V1ZIeSkJflRwAPWWPITJmT0vuCsWUCCf+S1pjuNUMFjUkxZQhKkkMQd3NuU4KVlp6C
-         0DTLhUEyZomFEuV0TR1E+dg4+qdTTXtLrjNgxNg8Sk9HpN2GwU3V9e2BacpwTfaoMYHj
-         PvJ/g2VfLeIVkC+BQKImFM26eh7SZ9smdzuco+XquQ16alv48ubaONFR1NB6SOhE2770
-         ervT5ikTpVYXtS+RtvqcuyQPiRvdzjM555BwzV2/ZrMg4Lndwq1O0+wE4o2CH3F33ggm
-         jrqQ==
+        bh=+DnQkEplT8yWF8rUNzXw53fIrMrZXJEC5FULg3fZdeo=;
+        b=e4RCSgXodQ2XOls0Z1MpaQjBaZNEpILYUy1GrDxnSUNuk6iUSQ3I34+/xDSGardQAv
+         u9tO1WYqEYfio5GqZPiNe9AdqMkpWTbGQ6l5gePXV8/Xc1krURUMCYpqhbdzIVdArHvb
+         s3fvNkAacS52BXe+a7C8uEnz6muM7TGF/gUhzf20h29gT6tyT0x6XM7tccxghzuoFkbz
+         T5ZT54lXTd92LbhNM2vU6d2aKZhhIjJ6iMAVHT0uFgA9vWun72onDW7JYu+nZH4gM4vv
+         xSAmVgBk1ZsIHtIN+EmZID4jOInBm5cQCJBD+0LZ7ZdSkR9SKP4YJKzKJ7tzaNEP3XvH
+         jwYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=EJ0biCIxVVWv8FXDO+74+pFK2hXee6NmP1YA59oxZXM=;
-        b=O5FZb7OHi9hT3oJfYJSxOK2kPSBnjebPd162fjwVmNMZHZKAywpNPlkiLo93j23U4v
-         7cxmnd9Cmq9zp2GnCEYWqMHYrV0UD4IfI5qTMHlKKfMSEK1Vs7mcokzmSM5EG1DocnjF
-         YZpeEMrt1+uULjM8BUzV88xLglGjFxvh79tdaeJYmQ1Iaw/6bWLIaTnK2xvR0fp+wAWt
-         l3u/JirY0hxLn6pMGyg0u3bbKXHTMOWgYzYPsGWs9KPHNpnF1j8Mfuusx7q771GgQRnP
-         xFJTOxmA3MjhCxnDByMZBqQ8ywz7vqb8c50e7Prars3GpKzJrKNqplWHGr2qPDvcnchX
-         3Ujg==
-X-Gm-Message-State: AJIora/lJVwNL+FVC9vkIUYDhPxWSaD6/CyFM4nT8tYfGIejZUjsbheE
-        k77PIVov3mfiCM3T5yoY+0q/tVB/aOi6mg==
-X-Google-Smtp-Source: AGRyM1v2jRd2d9X8f6eK9tr0B8ePViNUBBqHiBUntonn08E1eavBPfhWQwf5ktYPjDr4JPzhrvniew==
-X-Received: by 2002:aa7:82ca:0:b0:51b:cf43:d00a with SMTP id f10-20020aa782ca000000b0051bcf43d00amr6074138pfn.58.1656441621781;
-        Tue, 28 Jun 2022 11:40:21 -0700 (PDT)
+        bh=+DnQkEplT8yWF8rUNzXw53fIrMrZXJEC5FULg3fZdeo=;
+        b=ggOi5O9+SHfAYxuNvQtqVORZSy4c4AoDeq6onrGvdVb2rAaT0+HziFpyT/SstjimdT
+         jiRMSLVdo2pn0txLKlnv1kxuQ9AzLlY+8f5IC6uPlitCS0UJ6I9Sz3oWYxsWAYs91TS8
+         z88XCqUDfyLVHLQS+b2wgw43UcXe03EpJ4xv3N3mgSX3QnDatBhpL8uAdWWRM5qZTnEG
+         ivSZY7OJCLQGtO4spJr3euMsCTy30JIB5gIHwEbxJLwGJynSQCfx73cU9hlDvKIedRVM
+         X9qk+clKmAN5/yCU+Z7QRr2sqEI/NWASWzE/8ZsQ6UjupoN4iGlQ5oaR4ERm0ax1zJ63
+         tXmw==
+X-Gm-Message-State: AJIora/vknC1I8b2Rt1/2B+O0Q6mVUHAEJq9x64iymmFfMys79L7DSjN
+        mt2n7unh4LhEWfvMmD3GgDYnEAXPYjtk2g==
+X-Google-Smtp-Source: AGRyM1s9ZtEqJpCGNze5R+oqqVUGlVsQf7SAr4DciOH4mm1wws6XZa18rSE+FsoHhfA2eGFccehH1A==
+X-Received: by 2002:a17:90b:3b47:b0:1ee:d48b:26d9 with SMTP id ot7-20020a17090b3b4700b001eed48b26d9mr1093768pjb.129.1656441622708;
+        Tue, 28 Jun 2022 11:40:22 -0700 (PDT)
 Received: from lrumancik.svl.corp.google.com ([2620:15c:2cd:202:1d5d:7791:41a3:902a])
         by smtp.gmail.com with ESMTPSA id a20-20020a621a14000000b005251bea0d53sm9743498pfa.83.2022.06.28.11.40.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jun 2022 11:40:21 -0700 (PDT)
+        Tue, 28 Jun 2022 11:40:22 -0700 (PDT)
 From:   Leah Rumancik <leah.rumancik@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
-        Rustam Kovhaev <rkovhaev@gmail.com>,
+        Brian Foster <bfoster@redhat.com>,
         "Darrick J . Wong" <djwong@kernel.org>,
         Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 v4 1/7] xfs: use kmem_cache_free() for kmem_cache objects
-Date:   Tue, 28 Jun 2022 11:39:45 -0700
-Message-Id: <20220628183951.3425528-2-leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 v4 2/7] xfs: punch out data fork delalloc blocks on COW writeback failure
+Date:   Tue, 28 Jun 2022 11:39:46 -0700
+Message-Id: <20220628183951.3425528-3-leah.rumancik@gmail.com>
 X-Mailer: git-send-email 2.37.0.rc0.161.g10f37bed90-goog
 In-Reply-To: <20220628183951.3425528-1-leah.rumancik@gmail.com>
 References: <20220628183951.3425528-1-leah.rumancik@gmail.com>
@@ -71,63 +71,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit c30a0cbd07ecc0eec7b3cd568f7b1c7bb7913f93 ]
+[ Upstream commit 5ca5916b6bc93577c360c06cb7cdf71adb9b5faf ]
 
-For kmalloc() allocations SLOB prepends the blocks with a 4-byte header,
-and it puts the size of the allocated blocks in that header.
-Blocks allocated with kmem_cache_alloc() allocations do not have that
-header.
+If writeback I/O to a COW extent fails, the COW fork blocks are
+punched out and the data fork blocks left alone. It is possible for
+COW fork blocks to overlap non-shared data fork blocks (due to
+cowextsz hint prealloc), however, and writeback unconditionally maps
+to the COW fork whenever blocks exist at the corresponding offset of
+the page undergoing writeback. This means it's quite possible for a
+COW fork extent to overlap delalloc data fork blocks, writeback to
+convert and map to the COW fork blocks, writeback to fail, and
+finally for ioend completion to cancel the COW fork blocks and leave
+stale data fork delalloc blocks around in the inode. The blocks are
+effectively stale because writeback failure also discards dirty page
+state.
 
-SLOB explodes when you allocate memory with kmem_cache_alloc() and then
-try to free it with kfree() instead of kmem_cache_free().
-SLOB will assume that there is a header when there is none, read some
-garbage to size variable and corrupt the adjacent objects, which
-eventually leads to hang or panic.
+If this occurs, it is likely to trigger assert failures, free space
+accounting corruption and failures in unrelated file operations. For
+example, a subsequent reflink attempt of the affected file to a new
+target file will trip over the stale delalloc in the source file and
+fail. Several of these issues are occasionally reproduced by
+generic/648, but are reproducible on demand with the right sequence
+of operations and timely I/O error injection.
 
-Let's make XFS work with SLOB by using proper free function.
+To fix this problem, update the ioend failure path to also punch out
+underlying data fork delalloc blocks on I/O error. This is analogous
+to the writeback submission failure path in xfs_discard_page() where
+we might fail to map data fork delalloc blocks and consistent with
+the successful COW writeback completion path, which is responsible
+for unmapping from the data fork and remapping in COW fork blocks.
 
-Fixes: 9749fee83f38 ("xfs: enable the xfs_defer mechanism to process extents to free")
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Fixes: 787eb485509f ("xfs: fix and streamline error handling in xfs_end_io")
+Signed-off-by: Brian Foster <bfoster@redhat.com>
 Reviewed-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/xfs_extfree_item.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_aops.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/fs/xfs/xfs_extfree_item.c b/fs/xfs/xfs_extfree_item.c
-index 3f8a0713573a..a4b8caa2c601 100644
---- a/fs/xfs/xfs_extfree_item.c
-+++ b/fs/xfs/xfs_extfree_item.c
-@@ -482,7 +482,7 @@ xfs_extent_free_finish_item(
- 			free->xefi_startblock,
- 			free->xefi_blockcount,
- 			&free->xefi_oinfo, free->xefi_skip_discard);
--	kmem_free(free);
-+	kmem_cache_free(xfs_bmap_free_item_zone, free);
- 	return error;
- }
+diff --git a/fs/xfs/xfs_aops.c b/fs/xfs/xfs_aops.c
+index 34fc6148032a..c8c15c3c3147 100644
+--- a/fs/xfs/xfs_aops.c
++++ b/fs/xfs/xfs_aops.c
+@@ -82,6 +82,7 @@ xfs_end_ioend(
+ 	struct iomap_ioend	*ioend)
+ {
+ 	struct xfs_inode	*ip = XFS_I(ioend->io_inode);
++	struct xfs_mount	*mp = ip->i_mount;
+ 	xfs_off_t		offset = ioend->io_offset;
+ 	size_t			size = ioend->io_size;
+ 	unsigned int		nofs_flag;
+@@ -97,18 +98,26 @@ xfs_end_ioend(
+ 	/*
+ 	 * Just clean up the in-memory structures if the fs has been shut down.
+ 	 */
+-	if (xfs_is_shutdown(ip->i_mount)) {
++	if (xfs_is_shutdown(mp)) {
+ 		error = -EIO;
+ 		goto done;
+ 	}
  
-@@ -502,7 +502,7 @@ xfs_extent_free_cancel_item(
- 	struct xfs_extent_free_item	*free;
- 
- 	free = container_of(item, struct xfs_extent_free_item, xefi_list);
--	kmem_free(free);
-+	kmem_cache_free(xfs_bmap_free_item_zone, free);
- }
- 
- const struct xfs_defer_op_type xfs_extent_free_defer_type = {
-@@ -564,7 +564,7 @@ xfs_agfl_free_finish_item(
- 	extp->ext_len = free->xefi_blockcount;
- 	efdp->efd_next_extent++;
- 
--	kmem_free(free);
-+	kmem_cache_free(xfs_bmap_free_item_zone, free);
- 	return error;
- }
+ 	/*
+-	 * Clean up any COW blocks on an I/O error.
++	 * Clean up all COW blocks and underlying data fork delalloc blocks on
++	 * I/O error. The delalloc punch is required because this ioend was
++	 * mapped to blocks in the COW fork and the associated pages are no
++	 * longer dirty. If we don't remove delalloc blocks here, they become
++	 * stale and can corrupt free space accounting on unmount.
+ 	 */
+ 	error = blk_status_to_errno(ioend->io_bio->bi_status);
+ 	if (unlikely(error)) {
+-		if (ioend->io_flags & IOMAP_F_SHARED)
++		if (ioend->io_flags & IOMAP_F_SHARED) {
+ 			xfs_reflink_cancel_cow_range(ip, offset, size, true);
++			xfs_bmap_punch_delalloc_range(ip,
++						      XFS_B_TO_FSBT(mp, offset),
++						      XFS_B_TO_FSB(mp, size));
++		}
+ 		goto done;
+ 	}
  
 -- 
 2.37.0.rc0.161.g10f37bed90-goog
