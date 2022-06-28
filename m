@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 774EE55D7FC
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:19:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 435F555E04D
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:32:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243536AbiF1CVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:21:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60868 "EHLO
+        id S243740AbiF1CVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:21:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243610AbiF1CVB (ORCPT
+        with ESMTP id S243474AbiF1CVB (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:21:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B74DA24BF2;
-        Mon, 27 Jun 2022 19:20:27 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D51B2317E;
+        Mon, 27 Jun 2022 19:20:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72BADB81C0B;
-        Tue, 28 Jun 2022 02:20:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80271C34115;
-        Tue, 28 Jun 2022 02:20:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC0FEB81C13;
+        Tue, 28 Jun 2022 02:20:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B22DEC385A2;
+        Tue, 28 Jun 2022 02:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656382825;
-        bh=cNWXwd3nFvahHzVuU+BPWzeymECLibRGiyZaoGJs7c4=;
+        s=k20201202; t=1656382826;
+        bh=MVgsXYgKxdtiUeIZMEQepRiLIPoup1Qr84Viy2AMcLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhy3tTznobJa03bhal1j3ETJwwgHA9m3kM78EvX6NPUfBCcaOEdChBN3FE/ufD8Gg
-         S/Y0I7+tR4YaIWkExv7GH4zvc80pUcUD5PPLm3Vf3zEIuxw/b0fj+zyZxbYmHs5JZz
-         /7LHghQfKe6Zt44bJPl2lm7zcIZKd6hWtDy7BDmEgcaNexVmiCJ4D1jGvHacAV2Afi
-         gsDBXK7ZLlsKZ9W24sqoV2iUu6UdY9mQV9iy+rMf91aRy1eBZYJLszD0THy1PJ4Hda
-         6ZpRxHshClv9ae3GlPSrgezkFMt4H+LyI7xbSnqcbSWHdOcOjczUkH4xLDnyofAbyQ
-         XAD6B5VWeiBHw==
+        b=m2Cxa212kVEk6ppzhJpbkFYim7WXGm6tsB4DrDfGLN6isEeyTwpF7A8t3YKHBBHUp
+         UgGJf9WprTg2AnVS/Lv58BC3sqWsOA0SbrgEaJUGkFt314f6/yzR7XE9glf6hFl1S0
+         0AgGbSoPYMGerZSZmi777V5eLfrWVrCl5vz6E6IvrnBF7ZhfWgRm7qUBcWYYMP70il
+         LI+oqNTxLA2HpbQwOkQ7lW69ukWVDzMc7sURr1533rlvVLqja/vXRO597XEYgJsCcS
+         nxky4Zv+IJWkOrR9Lg1RcYGCkVcbL4Uq/8o/jmOIeWQYT/UlN1Nr0Usn0Pvq/3crJv
+         HqM+h74gZA5AA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Liang He <windhl@126.com>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 40/53] mips: mti-malta: Fix refcount leak in malta-time.c
-Date:   Mon, 27 Jun 2022 22:18:26 -0400
-Message-Id: <20220628021839.594423-40-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, john@phrozen.org,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 41/53] mips: ralink: Fix refcount leak in of.c
+Date:   Mon, 27 Jun 2022 22:18:27 -0400
+Message-Id: <20220628021839.594423-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628021839.594423-1-sashal@kernel.org>
 References: <20220628021839.594423-1-sashal@kernel.org>
@@ -58,32 +59,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liang He <windhl@126.com>
 
-[ Upstream commit 608d94cb84c42585058d692f2fe5d327f8868cdb ]
+[ Upstream commit 48ca54e39173d1ed4c4dc8cf045484014bb26eaf ]
 
-In update_gic_frequency_dt(), of_find_compatible_node() will return
-a node pointer with refcount incremented. We should use of_node_put()
+In plat_of_remap_node(), plat_of_remap_node() will return a node
+pointer with refcount incremented. We should use of_node_put()
 when it is not used anymore.
 
 Signed-off-by: Liang He <windhl@126.com>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mti-malta/malta-time.c | 2 ++
+ arch/mips/ralink/of.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/mti-malta/malta-time.c b/arch/mips/mti-malta/malta-time.c
-index bbf1e38e1431..2cb708cdf01a 100644
---- a/arch/mips/mti-malta/malta-time.c
-+++ b/arch/mips/mti-malta/malta-time.c
-@@ -214,6 +214,8 @@ static void update_gic_frequency_dt(void)
+diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
+index 587c7b998769..ea8072acf8d9 100644
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -40,6 +40,8 @@ __iomem void *plat_of_remap_node(const char *node)
+ 	if (of_address_to_resource(np, 0, &res))
+ 		panic("Failed to get resource for %s", node);
  
- 	if (of_update_property(node, &gic_frequency_prop) < 0)
- 		pr_err("error updating gic frequency property\n");
++	of_node_put(np);
 +
-+	of_node_put(node);
- }
- 
- #endif
+ 	if (!request_mem_region(res.start,
+ 				resource_size(&res),
+ 				res.name))
 -- 
 2.35.1
 
