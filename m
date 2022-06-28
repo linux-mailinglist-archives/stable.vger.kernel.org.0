@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AADA755ECC7
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 20:40:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BE9755ECC9
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 20:40:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231307AbiF1Sk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jun 2022 14:40:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41242 "EHLO
+        id S232679AbiF1Sk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jun 2022 14:40:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232679AbiF1Sk1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 14:40:27 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1FCA22B16;
-        Tue, 28 Jun 2022 11:40:26 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id m2so11865600plx.3;
-        Tue, 28 Jun 2022 11:40:26 -0700 (PDT)
+        with ESMTP id S232921AbiF1Sk2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 14:40:28 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B5B422B10;
+        Tue, 28 Jun 2022 11:40:28 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id h9-20020a17090a648900b001ecb8596e43so13568321pjj.5;
+        Tue, 28 Jun 2022 11:40:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=8UzHd7SOUkwB46SmrihkqIRiew3lnIwXrcUWf/w/0Zc=;
-        b=T2tspTNTqy/NJKnoQgrqDD7IEdX91H8CgfKb9CYmOizpI4bqMrAexZ/bVfw+/Q074R
-         YKJZAF8NgtkECyX5r78Bh0thnfCMwc9PS4HCHnrFBVA5OTrVH600QIS9suN6mGCfVcGN
-         nAlwGBse9wOKTbBUmYBzINaJDd9A+dc9YoWQkUAfBxm+eTW4dD9pjgpLMP1izIYMArbK
-         Y2wHN8yo1DM4ZeCf1k/DFe+EE1ZGY00DRQliqOutJ5HJvGTAjMLMUVRiDBtlMoYlRD3v
-         aiE1S3bnv1Mwvb9amcgqBEozhwfGJJTtmM6xMwXM/VsAo9Z1o1JtmZEbjBwn0QXOwDXH
-         lG1Q==
+        bh=XnCkR6czOl4KFZMbaWAEpeNu+QzA92KobMCND0qAxMo=;
+        b=Mi6mhjFvRsUxVq0d1EyHNw2cKe3LM/BCqzaay5kfXUUWogCqCv9tWEohRuKR0xSy2d
+         LQdOsvuorN4m7gUBed4Y9oJCuOOJ50xwARJSBwqLbDeyP3DKRkA2YLlqHR38hyTdIN3s
+         783+Y/SKO1+cFBqtqfFdOSPgLNYCiqyhBSW26GSeIbhI7guvVxuO9QGgmtkx3HiwhKZs
+         IToJogvUDZZMOGAVuay0dp2Q6CQq++Sj2RSB80i63ziqQ5P0SRrxO3sBE5P+f7+9jejq
+         J7zJ3IfIknHLkPy7aFRNGdP4+MremcHci3A6kmJWWh9U22yISa9iCcrSqJdV9ouyHH3c
+         IHlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=8UzHd7SOUkwB46SmrihkqIRiew3lnIwXrcUWf/w/0Zc=;
-        b=7O9u/IsyqxOC/OAsxWVeQoDugWV3+9eo/HMop5nW10uQ212htV8/WN13aAU89HZd/e
-         /Gjc33M5eA+z62amgkvPzvcx9qOu54Dqs/k1ohInI7hr46X/PkCUhs/FPP0EfDKFJPmd
-         s3dzc1IDAZtGxcHrbvwMihu+dq+sevQtEDLXYv0hbeRaB6oeFG5qLiE1nRRe/sF8bkgm
-         8Vhj4F6snW1tPvF70t1Q2bD2T3OGfRvpOrhi2T2l+J53+BjkJEMIHzb34oLPJadDVktm
-         K2B/puPQEYG1B3StLThUau9DVno09UMnDkIHG7y0ScTyGyXsC+GwczdOtgEMPxqQDFO+
-         548Q==
-X-Gm-Message-State: AJIora/wKX0CjcGwJOE+ord4p+04yQCaM8gETPH2AJpl87rINDN/KvxN
-        TtQRtmUIrZj2tct3ElrP/2GhyE2KB36DPA==
-X-Google-Smtp-Source: AGRyM1vZbY4WP1g0uSX9tm52iITXmjNK9cIWfWXRzjzOnsnQMiflUbzeZCmOahRa2q1w7hNuG5B/3Q==
-X-Received: by 2002:a17:903:32c8:b0:16a:6b37:7caa with SMTP id i8-20020a17090332c800b0016a6b377caamr4790284plr.143.1656441626168;
-        Tue, 28 Jun 2022 11:40:26 -0700 (PDT)
+        bh=XnCkR6czOl4KFZMbaWAEpeNu+QzA92KobMCND0qAxMo=;
+        b=OT2bT7MY6ijkpycdjzo5akDaZwuxGe+Jm9837OXMR1FJR9KAUJvo1LFxhBqLxtDrZb
+         3C1bm7S6PmiokH5ds8amuUAjxlRiJghpainCdC9k10h0EYZUAsx9sV5/v8/sY3Ms6d5d
+         dDLiwHER/ERNs5qOvwN7QfYAhDSviSVOl3w30HzWwTJjRUWWp7MevUIDAlo2bnvw4GNN
+         Z7HggEG66MYjqkjsJBnVG/gp0B7C7zTJO+UQ77DNfn6Obx95FgYSXzw41N+s77NhGyv4
+         aCVkHToKzL+Ofx/s0n26yhH2jkcm9GEBkeo3AgD2TZE8MlwxbSUfgVOUOoe2zxouin+H
+         GK/w==
+X-Gm-Message-State: AJIora9lJv/wCpeNh2p/HkJAbSh31L3tLwBeLTMzndMqIhevZOnxtdvv
+        ohH9UKkQt9EasJ+F2BiDO5lPk6jJPZjdzw==
+X-Google-Smtp-Source: AGRyM1tiRLwquML9F6IPwoQXq431qU+Klrf/xYXAe2kXQ47kHRJw2ursRkC1UADAzG6aGe0CihnFwA==
+X-Received: by 2002:a17:90a:a08:b0:1ea:f03c:51f7 with SMTP id o8-20020a17090a0a0800b001eaf03c51f7mr1094960pjo.49.1656441627265;
+        Tue, 28 Jun 2022 11:40:27 -0700 (PDT)
 Received: from lrumancik.svl.corp.google.com ([2620:15c:2cd:202:1d5d:7791:41a3:902a])
-        by smtp.gmail.com with ESMTPSA id a20-20020a621a14000000b005251bea0d53sm9743498pfa.83.2022.06.28.11.40.25
+        by smtp.gmail.com with ESMTPSA id a20-20020a621a14000000b005251bea0d53sm9743498pfa.83.2022.06.28.11.40.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jun 2022 11:40:25 -0700 (PDT)
+        Tue, 28 Jun 2022 11:40:26 -0700 (PDT)
 From:   Leah Rumancik <leah.rumancik@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
         "Darrick J. Wong" <djwong@kernel.org>,
         Dave Chinner <dchinner@redhat.com>,
         Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 v4 6/7] xfs: prevent UAF in xfs_log_item_in_current_chkpt
-Date:   Tue, 28 Jun 2022 11:39:50 -0700
-Message-Id: <20220628183951.3425528-7-leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 v4 7/7] xfs: only bother with sync_filesystem during readonly remount
+Date:   Tue, 28 Jun 2022 11:39:51 -0700
+Message-Id: <20220628183951.3425528-8-leah.rumancik@gmail.com>
 X-Mailer: git-send-email 2.37.0.rc0.161.g10f37bed90-goog
 In-Reply-To: <20220628183951.3425528-1-leah.rumancik@gmail.com>
 References: <20220628183951.3425528-1-leah.rumancik@gmail.com>
@@ -73,152 +73,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Darrick J. Wong" <djwong@kernel.org>
 
-[ Upstream commit f8d92a66e810acbef6ddbc0bd0cbd9b117ce8acd ]
+[ Upstream commit b97cca3ba9098522e5a1c3388764ead42640c1a5 ]
 
-While I was running with KASAN and lockdep enabled, I stumbled upon an
-KASAN report about a UAF to a freed CIL checkpoint.  Looking at the
-comment for xfs_log_item_in_current_chkpt, it seems pretty obvious to me
-that the original patch to xfs_defer_finish_noroll should have done
-something to lock the CIL to prevent it from switching the CIL contexts
-while the predicate runs.
+In commit 02b9984d6408, we pushed a sync_filesystem() call from the VFS
+into xfs_fs_remount.  The only time that we ever need to push dirty file
+data or metadata to disk for a remount is if we're remounting the
+filesystem read only, so this really could be moved to xfs_remount_ro.
 
-For upper level code that needs to know if a given log item is new
-enough not to need relogging, add a new wrapper that takes the CIL
-context lock long enough to sample the current CIL context.  This is
-kind of racy in that the CIL can switch the contexts immediately after
-sampling, but that's ok because the consequence is that the defer ops
-code is a little slow to relog items.
+Once we've moved the call site, actually check the return value from
+sync_filesystem.
 
- ==================================================================
- BUG: KASAN: use-after-free in xfs_log_item_in_current_chkpt+0x139/0x160 [xfs]
- Read of size 8 at addr ffff88804ea5f608 by task fsstress/527999
-
- CPU: 1 PID: 527999 Comm: fsstress Tainted: G      D      5.16.0-rc4-xfsx #rc4
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0x45/0x59
-  print_address_description.constprop.0+0x1f/0x140
-  kasan_report.cold+0x83/0xdf
-  xfs_log_item_in_current_chkpt+0x139/0x160
-  xfs_defer_finish_noroll+0x3bb/0x1e30
-  __xfs_trans_commit+0x6c8/0xcf0
-  xfs_reflink_remap_extent+0x66f/0x10e0
-  xfs_reflink_remap_blocks+0x2dd/0xa90
-  xfs_file_remap_range+0x27b/0xc30
-  vfs_dedupe_file_range_one+0x368/0x420
-  vfs_dedupe_file_range+0x37c/0x5d0
-  do_vfs_ioctl+0x308/0x1260
-  __x64_sys_ioctl+0xa1/0x170
-  do_syscall_64+0x35/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f2c71a2950b
- Code: 0f 1e fa 48 8b 05 85 39 0d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff
-ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa b8 10 00 00 00 0f 05 <48> 3d 01
-f0 ff ff 73 01 c3 48 8b 0d 55 39 0d 00 f7 d8 64 89 01 48
- RSP: 002b:00007ffe8c0e03c8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
- RAX: ffffffffffffffda RBX: 00005600862a8740 RCX: 00007f2c71a2950b
- RDX: 00005600862a7be0 RSI: 00000000c0189436 RDI: 0000000000000004
- RBP: 000000000000000b R08: 0000000000000027 R09: 0000000000000003
- R10: 0000000000000000 R11: 0000000000000246 R12: 000000000000005a
- R13: 00005600862804a8 R14: 0000000000016000 R15: 00005600862a8a20
-  </TASK>
-
- Allocated by task 464064:
-  kasan_save_stack+0x1e/0x50
-  __kasan_kmalloc+0x81/0xa0
-  kmem_alloc+0xcd/0x2c0 [xfs]
-  xlog_cil_ctx_alloc+0x17/0x1e0 [xfs]
-  xlog_cil_push_work+0x141/0x13d0 [xfs]
-  process_one_work+0x7f6/0x1380
-  worker_thread+0x59d/0x1040
-  kthread+0x3b0/0x490
-  ret_from_fork+0x1f/0x30
-
- Freed by task 51:
-  kasan_save_stack+0x1e/0x50
-  kasan_set_track+0x21/0x30
-  kasan_set_free_info+0x20/0x30
-  __kasan_slab_free+0xed/0x130
-  slab_free_freelist_hook+0x7f/0x160
-  kfree+0xde/0x340
-  xlog_cil_committed+0xbfd/0xfe0 [xfs]
-  xlog_cil_process_committed+0x103/0x1c0 [xfs]
-  xlog_state_do_callback+0x45d/0xbd0 [xfs]
-  xlog_ioend_work+0x116/0x1c0 [xfs]
-  process_one_work+0x7f6/0x1380
-  worker_thread+0x59d/0x1040
-  kthread+0x3b0/0x490
-  ret_from_fork+0x1f/0x30
-
- Last potentially related work creation:
-  kasan_save_stack+0x1e/0x50
-  __kasan_record_aux_stack+0xb7/0xc0
-  insert_work+0x48/0x2e0
-  __queue_work+0x4e7/0xda0
-  queue_work_on+0x69/0x80
-  xlog_cil_push_now.isra.0+0x16b/0x210 [xfs]
-  xlog_cil_force_seq+0x1b7/0x850 [xfs]
-  xfs_log_force_seq+0x1c7/0x670 [xfs]
-  xfs_file_fsync+0x7c1/0xa60 [xfs]
-  __x64_sys_fsync+0x52/0x80
-  do_syscall_64+0x35/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
- The buggy address belongs to the object at ffff88804ea5f600
-  which belongs to the cache kmalloc-256 of size 256
- The buggy address is located 8 bytes inside of
-  256-byte region [ffff88804ea5f600, ffff88804ea5f700)
- The buggy address belongs to the page:
- page:ffffea00013a9780 refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff88804ea5ea00 pfn:0x4ea5e
- head:ffffea00013a9780 order:1 compound_mapcount:0
- flags: 0x4fff80000010200(slab|head|node=1|zone=1|lastcpupid=0xfff)
- raw: 04fff80000010200 ffffea0001245908 ffffea00011bd388 ffff888004c42b40
- raw: ffff88804ea5ea00 0000000000100009 00000001ffffffff 0000000000000000
- page dumped because: kasan: bad access detected
-
- Memory state around the buggy address:
-  ffff88804ea5f500: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-  ffff88804ea5f580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- >ffff88804ea5f600: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                       ^
-  ffff88804ea5f680: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff88804ea5f700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ==================================================================
-
-Fixes: 4e919af7827a ("xfs: periodically relog deferred intent items")
+Fixes: 02b9984d6408 ("fs: push sync_filesystem() down to the file system's remount_fs()")
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/xfs_log_cil.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_super.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/xfs/xfs_log_cil.c b/fs/xfs/xfs_log_cil.c
-index 6c93c8ada6f3..b59cc9c0961c 100644
---- a/fs/xfs/xfs_log_cil.c
-+++ b/fs/xfs/xfs_log_cil.c
-@@ -1442,9 +1442,9 @@ xlog_cil_force_seq(
-  */
- bool
- xfs_log_item_in_current_chkpt(
--	struct xfs_log_item *lip)
-+	struct xfs_log_item	*lip)
- {
--	struct xfs_cil_ctx *ctx = lip->li_mountp->m_log->l_cilp->xc_ctx;
-+	struct xfs_cil		*cil = lip->li_mountp->m_log->l_cilp;
+diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
+index 23673703618a..e8d19916ba99 100644
+--- a/fs/xfs/xfs_super.c
++++ b/fs/xfs/xfs_super.c
+@@ -1773,6 +1773,11 @@ xfs_remount_ro(
+ 	};
+ 	int			error;
  
- 	if (list_empty(&lip->li_cil))
- 		return false;
-@@ -1454,7 +1454,7 @@ xfs_log_item_in_current_chkpt(
- 	 * first checkpoint it is written to. Hence if it is different to the
- 	 * current sequence, we're in a new checkpoint.
- 	 */
--	return lip->li_seq == ctx->sequence;
-+	return lip->li_seq == READ_ONCE(cil->xc_current_sequence);
- }
++	/* Flush all the dirty data to disk. */
++	error = sync_filesystem(mp->m_super);
++	if (error)
++		return error;
++
+ 	/*
+ 	 * Cancel background eofb scanning so it cannot race with the final
+ 	 * log force+buftarg wait and deadlock the remount.
+@@ -1851,8 +1856,6 @@ xfs_fs_reconfigure(
+ 	if (error)
+ 		return error;
  
- /*
+-	sync_filesystem(mp->m_super);
+-
+ 	/* inode32 -> inode64 */
+ 	if (xfs_has_small_inums(mp) && !xfs_has_small_inums(new_mp)) {
+ 		mp->m_features &= ~XFS_FEAT_SMALL_INUMS;
 -- 
 2.37.0.rc0.161.g10f37bed90-goog
 
