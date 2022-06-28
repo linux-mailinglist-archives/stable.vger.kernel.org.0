@@ -2,113 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22E8655E6C3
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 18:30:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6FAD55E8B1
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 18:36:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348008AbiF1Psv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jun 2022 11:48:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58214 "EHLO
+        id S1347136AbiF1Ptd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jun 2022 11:49:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348034AbiF1Psm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 11:48:42 -0400
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2077.outbound.protection.outlook.com [40.107.237.77])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F091B23165;
-        Tue, 28 Jun 2022 08:48:39 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BPvJk3axoscwMMJ6YCf0A+/nuuPXx6P8S+2Lvzufz9DG6mKiRGpxmgnXf+nbgewsSyo+EGpb1Jt9l/ZxymV0WAnTjSjhgJSRfBq8oc3/FT7PCX5vmy2fcYP6nSP2AHWr2wqG9C8UmLIHDOA/EutgmCW1WxIGeBjrY5gHIqHSDWllYac5ScD0IDotNNemCkz0+MTujdSmGQjBxKdVZTMnR93jlAhACW5502VljyJWE8XcnPJddKi6AOYe6lH/CqJf5G47/o88R1djxhKn7nJb8OihhCiZ7jRPLb19B6yZ6B1AKNbjg4c08dMiwBxe7RfJTPLe4yGLsrEWkrn+zPwdsQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=06A6iGcl/wfm0nT5KwMP1gllxN6RbErAGeuNtlHvzvU=;
- b=O1uaVLRyh+1BF24hFzJpgnAwx0WSEDJWiFrweR4ugOAt8WaZ5ax+RWQVXDZ/cORCZ6jUdmiUebf042vj7jmn5fDCuStCaik6sVKxdju4dSp9wOtwSg/qS3kSnKdESZ3XE0Dg0vEvPnCJE2peDpKEtUliSow0Vfgh/VSHeBJvhd/MGQM1gUhEd0hqjgXZbVxbcotw25dvT/lcar33qex5SWEWcpfoXcyhXKPGJdxLIbvOCJSJdow+3atE+bM4/55fH8JN7adV6wUNy5BJRjkTx0pJ2PRIeHodzLhfhqHcufFrWL6na1dy3CJW6keATSmJNcnODqPIV5SerzYXX3SvWA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 149.199.62.198) smtp.rcpttodomain=bootlin.com smtp.mailfrom=xilinx.com;
- dmarc=pass (p=none sp=none pct=100) action=none header.from=xilinx.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=06A6iGcl/wfm0nT5KwMP1gllxN6RbErAGeuNtlHvzvU=;
- b=L3IiVgfDo4cCWYQcyfZPiyyxrjSlZX/e35/WVGoNC+h0goEOqXPzwkA5acWu8SjaNuJRD10qmBlDgPui+ihqHMQiLzAuhlzIUAiIynAkXFe9c7CMmY6Iow4CWQ7WmTa6aAx8+8sg5GZfxQF+mzZ/xR5ATGbqQNLTxWmsxzF296A=
-Received: from SA1PR02CA0023.namprd02.prod.outlook.com (2603:10b6:806:2cf::25)
- by SA2PR02MB7835.namprd02.prod.outlook.com (2603:10b6:806:142::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5373.17; Tue, 28 Jun
- 2022 15:48:38 +0000
-Received: from SN1NAM02FT0053.eop-nam02.prod.protection.outlook.com
- (2603:10b6:806:2cf:cafe::5c) by SA1PR02CA0023.outlook.office365.com
- (2603:10b6:806:2cf::25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5395.14 via Frontend
- Transport; Tue, 28 Jun 2022 15:48:37 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 149.199.62.198)
- smtp.mailfrom=xilinx.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=xilinx.com;
-Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
- 149.199.62.198 as permitted sender) receiver=protection.outlook.com;
- client-ip=149.199.62.198; helo=xsj-pvapexch02.xlnx.xilinx.com; pr=C
-Received: from xsj-pvapexch02.xlnx.xilinx.com (149.199.62.198) by
- SN1NAM02FT0053.mail.protection.outlook.com (10.97.4.115) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.5373.15 via Frontend Transport; Tue, 28 Jun 2022 15:48:37 +0000
-Received: from xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) by
- xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.14; Tue, 28 Jun 2022 08:48:36 -0700
-Received: from smtp.xilinx.com (172.19.127.96) by
- xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server id
- 15.1.2176.14 via Frontend Transport; Tue, 28 Jun 2022 08:48:36 -0700
-Envelope-to: miquel.raynal@bootlin.com,
- vigneshr@ti.com,
- boris.brezillon@collabora.com,
- linux-mtd@lists.infradead.org,
- linux-kernel@vger.kernel.org,
- git@amd.com,
- richard@nod.at,
- amit.kumar-mahapatra@amd.com,
- okitain@gmail.com,
- stable@vger.kernel.org
-Received: from [10.140.6.18] (port=39110 helo=xhdlakshmis40.xilinx.com)
-        by smtp.xilinx.com with esmtp (Exim 4.90)
-        (envelope-from <amit.kumar-mahapatra@xilinx.com>)
-        id 1o6DS8-000ELN-Ds; Tue, 28 Jun 2022 08:48:36 -0700
-From:   Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
-To:     <miquel.raynal@bootlin.com>, <nagasure@xilinx.com>,
-        <vigneshr@ti.com>
-CC:     <boris.brezillon@collabora.com>, <linux-mtd@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <git@amd.com>, <richard@nod.at>,
-        <amit.kumar-mahapatra@amd.com>, Olga Kitaina <okitain@gmail.com>,
-        <stable@vger.kernel.org>,
-        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
-Subject: [PATCH v3 2/2] mtd: rawnand: arasan: Fix clock rate in NV-DDR
-Date:   Tue, 28 Jun 2022 21:18:24 +0530
-Message-ID: <20220628154824.12222-3-amit.kumar-mahapatra@xilinx.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220628154824.12222-1-amit.kumar-mahapatra@xilinx.com>
-References: <20220628154824.12222-1-amit.kumar-mahapatra@xilinx.com>
+        with ESMTP id S1346643AbiF1Ptc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 11:49:32 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83ECB2315B;
+        Tue, 28 Jun 2022 08:49:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656431370; x=1687967370;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=Gr/uxZdIp9ZY5+9GxWfp/6OkkcLAEwf6JeNxclzyWC4=;
+  b=nmAres3MIaqNOtKMIwmtL1+UkWuZ3E19IA9NwtgMVra5LHRg+dgohQ00
+   o+xC30DRyUz4C/dyxZY0rJGg006fnCimpCiLoZwTh4xgyKD3f5XEsT8IQ
+   TFM/iC/b7lmQOEEt9eF0Ycg6QVzaaBYGMXbgixa47Or/HxEQNYvUbsprF
+   3X4G4G+Hwb+vSEbfJpQcFg5L7mRlrmluZg4t/hEJuYRBwd2SyTF48HprK
+   yl5HtV1c0AREfzGMEf0W2iue5ks0G3i5nO1idp3Al/lQnKmAcRUCxsbk4
+   Fqmy2FWdIOHxn4J2ktcuUKpzGKC6tthRbUVQpHU98sgPvWok3P4HaK4Pz
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10392"; a="343467600"
+X-IronPort-AV: E=Sophos;i="5.92,229,1650956400"; 
+   d="scan'208";a="343467600"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jun 2022 08:49:30 -0700
+X-IronPort-AV: E=Sophos;i="5.92,229,1650956400"; 
+   d="scan'208";a="587911424"
+Received: from leejust1-mobl.amr.corp.intel.com (HELO [10.209.162.132]) ([10.209.162.132])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jun 2022 08:49:25 -0700
+Message-ID: <d79492ad-b99a-f9a9-f64a-52b94db68a3b@linux.intel.com>
+Date:   Tue, 28 Jun 2022 16:49:23 +0100
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 2c9cd016-968a-4c04-2099-08da591daa80
-X-MS-TrafficTypeDiagnostic: SA2PR02MB7835:EE_
-X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: nE1qpFuko43JNFn5P//HC6+OCXRoLunTNQwNLm1aFen8BtqVef8O7iIpsQcx/utRrpHmEcTh+t3Dq/HTknvNQ4Dpq5X9zhY3jpJQiRBmC+rr/3jnE2bftzphvhU6Dq9DUMJR2WBIRoHxu8Gq8XQHJipFQc4E0bxq+K9UnjIje+iufkbgHsTKWVqc+chdF9vO3zN9Pq2YO3t7hhYROVCY3MLkbAm0FqEI/LSW59p147z5UFqLlDoMoQGeUeZ8PD2CJvlf0yPfSXF3EUnPv7X0n4vOxCKrDu8vv2hJNWUz4XXxeTaPRZrnLOT1e6g1+jX39jYnF7C54kHuCHUHDEY5yIiuhGbiZybInmXi8Tzw8C1QkmTaabH41E1phPxd+YNGwqdpJXsZfbxg5FfdCeXX4oJISr/wgYs229zsawNRL85a5+6bEOllom3eu8mZNRyDR+qfOenC2t15/b0sup8YP3IU1zM9pRlUxeB3VuMjW62vFzeBWL41m1aRNwfat+Z8dN05b8Ey4eK1ZPtK7D4L85Brh6uEFZustCkrA7ySGSmcO1cDx3SQRJsZ5olz00FXYzrTNC80qt3e7DantAkXJqSdqIDEQpTzkngoZybMK4hsqMrjCJvhicJpihOElHhCQs/8aDMmvPtr4wlLu2aBQYPxQwe1AUbmrhCAoizya0KeQ1c+VAkQrkA9ZW4BcmNYNETHpqC5yoLaDpNhg+/0eq80KpOVtlk/hTx1O17ndaZtwgyEXNoDsctPsws66aGHRMuh4TITfyqj35PUECP4e0niZb421aPzKaJLoAzKZrnVz/hX96w2S7OR2dQZr98kJaJPtxNbgcUlMxGTM6nS9w==
-X-Forefront-Antispam-Report: CIP:149.199.62.198;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:xsj-pvapexch02.xlnx.xilinx.com;PTR:unknown-62-198.xilinx.com;CAT:NONE;SFS:(13230016)(4636009)(346002)(39860400002)(376002)(136003)(396003)(36840700001)(40470700004)(46966006)(8676002)(70586007)(36860700001)(4326008)(70206006)(40480700001)(7416002)(41300700001)(40460700003)(9786002)(26005)(6666004)(478600001)(7636003)(7696005)(82740400003)(186003)(2906002)(36756003)(356005)(8936002)(82310400005)(47076005)(107886003)(2616005)(110136005)(54906003)(336012)(1076003)(5660300002)(316002)(426003)(83380400001)(102446001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: xilinx.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jun 2022 15:48:37.4856
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2c9cd016-968a-4c04-2099-08da591daa80
-X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.62.198];Helo=[xsj-pvapexch02.xlnx.xilinx.com]
-X-MS-Exchange-CrossTenant-AuthSource: SN1NAM02FT0053.eop-nam02.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA2PR02MB7835
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH 5/6] drm/i915/gt: Serialize GRDOM access between multiple
+ engine resets
+Content-Language: en-US
+To:     "Mauro Carvalho Chehab (by way of Mauro Carvalho Chehab" 
+        <mauro.chehab@linux.intel.com>
+Cc:     Andi Shyti <andi.shyti@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Chris Wilson <chris.p.wilson@intel.com>,
+        Fei Yang <fei.yang@intel.com>,
+        Thomas Hellstrom <thomas.hellstrom@intel.com>,
+        Bruce Chang <yu.bruce.chang@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        John Harrison <John.C.Harrison@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>,
+        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        stable@vger.kernel.org,
+        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
+        <thomas.hellstrom@linux.intel.com>
+References: <cover.1655306128.git.mchehab@kernel.org>
+ <5ee647f243a774927ec328bfca8212abc4957909.1655306128.git.mchehab@kernel.org>
+ <YrRLyg1IJoZpVGfg@intel.intel>
+ <160e613f-a0a8-18ff-5d4b-249d4280caa8@linux.intel.com>
+ <20220627110056.6dfa4f9b@maurocar-mobl2>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+In-Reply-To: <20220627110056.6dfa4f9b@maurocar-mobl2>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,
+        NICE_REPLY_A,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -116,44 +90,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kitaina <okitain@gmail.com>
 
-According to the Arasan NAND controller spec, the flash clock rate for SDR
-must be <= 100 MHz, while for NV-DDR it must be the same as the rate of the
-CLK line for the mode. The driver previously always set 100 MHz for NV-DDR,
-which would result in incorrect behavior for NV-DDR modes 0-4.
+Hi,
 
-The appropriate clock rate can be calculated from the NV-DDR timing
-parameters as 1/tCK, or for rates measured in picoseconds,
-10^12 / nand_nvddr_timings->tCK_min.
+On 27/06/2022 10:00, Mauro Carvalho Chehab (by way of Mauro Carvalho 
+Chehab <mauro.chehab@linux.intel.com>) wrote:
+> Hi Tvrtko,
+> 
+> On Fri, 24 Jun 2022 09:34:21 +0100
+> Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
+> 
+>> On 23/06/2022 12:17, Andi Shyti wrote:
+>>> Hi Mauro,
+>>>
+>>> On Wed, Jun 15, 2022 at 04:27:39PM +0100, Mauro Carvalho Chehab wrote:
+>>>> From: Chris Wilson <chris.p.wilson@intel.com>
+>>>>
+>>>> Don't allow two engines to be reset in parallel, as they would both
+>>>> try to select a reset bit (and send requests to common registers)
+>>>> and wait on that register, at the same time. Serialize control of
+>>>> the reset requests/acks using the uncore->lock, which will also ensure
+>>>> that no other GT state changes at the same time as the actual reset.
+>>>>
+>>>> Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
+>>>>
+>>>> Reported-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+>>>> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+>>>> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+>>>> Cc: Andi Shyti <andi.shyti@intel.com>
+>>>> Cc: stable@vger.kernel.org
+>>>> Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+>>>> Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+>>>
+>>> Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+>>
+>> Notice I had a bunch of questions and asks in this series so please do
+>> not merge until those are addressed.
+>>
+>> In this particular patch (and some others) for instance Fixes: tag, at
+>> least against that sha, shouldn't be there.
+> 
+> Hmm... I sent an answer to your points, but I can't see it at:
+> 
+> 	https://lore.kernel.org/all/160e613f-a0a8-18ff-5d4b-249d4280caa8@linux.intel.com/
+> 
+> Maybe it got lost somewhere, I dunno.
 
-Fixes: 197b88fecc50 ("mtd: rawnand: arasan: Add new Arasan NAND controller")
-CC: stable@vger.kernel.org # 5.8+
-Signed-off-by: Olga Kitaina <okitain@gmail.com>
-Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
----
- drivers/mtd/nand/raw/arasan-nand-controller.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+Yeah, no replies received on my end I'm afraid.
 
-diff --git a/drivers/mtd/nand/raw/arasan-nand-controller.c b/drivers/mtd/nand/raw/arasan-nand-controller.c
-index c5264fa223c4..d4121d1243bf 100644
---- a/drivers/mtd/nand/raw/arasan-nand-controller.c
-+++ b/drivers/mtd/nand/raw/arasan-nand-controller.c
-@@ -1043,7 +1043,13 @@ static int anfc_setup_interface(struct nand_chip *chip, int target,
- 				 DQS_BUFF_SEL_OUT(dqs_mode);
- 	}
- 
--	anand->clk = ANFC_XLNX_SDR_DFLT_CORE_CLK;
-+	if (nand_interface_is_sdr(conf)) {
-+		anand->clk = ANFC_XLNX_SDR_DFLT_CORE_CLK;
-+	} else {
-+		/* ONFI timings are defined in picoseconds */
-+		anand->clk =  div_u64((u64)NSEC_PER_SEC * 1000,
-+				      conf->timings.nvddr.tCK_min);
-+	}
- 
- 	/*
- 	 * Due to a hardware bug in the ZynqMP SoC, SDR timing modes 0-1 work
--- 
-2.17.1
+> 
+> Yeah, indeed the fixes tag on patch 5/6 should be removed as this is not
+> directly related to changeset 7938d61591d3. Yet, this one is required for
+> patch 6 to work.
+> 
+> The other patches on this series, though, are modifying the code
+> introduced by changeset 7938d61591d3.
 
+Modifying the code does not strictly means something is a fix for a 
+certain patch.
+
+> Patch 2 is clearly a workaround needed for TLB cache invalidation to
+> work on some GPUs. So, while not related to Broadwell, they're also
+> fixing some TLB cache issues. So, IMO, it should keep the fixes.
+
+Umesh commented that patch 2 is not needed - who is right then? :)
+
+> I tried to port just the two serialize patches to drm-tip, in order
+> to solve the issues on Broadwell, but it didn't work, as the logic
+> inside the spinlock could be calling schedule() with a spinlock hold:
+>   
+> 	Jun 14 17:38:48 silver kernel: [   23.227813] BUG: sleeping function called from invalid context at drivers/gpu/drm/i915/intel_uncore.c:2496
+> 	Jun 14 17:38:48 silver kernel: [   23.227816] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 37, name: kworker/u8:1
+> 	Jun 14 17:38:48 silver kernel: [   23.227818] preempt_count: 1, expected: 0
+> 	Jun 14 17:38:48 silver kernel: [   23.227819] RCU nest depth: 0, expected: 0
+> 	Jun 14 17:38:48 silver kernel: [   23.227820] 5 locks held by kworker/u8:1/37:
+> 	Jun 14 17:38:48 silver kernel: [   23.227822]  #0: ffff88811159b538 ((wq_completion)i915){+.+.}-{0:0}, at: process_one_work+0x1e0/0x580
+> 	Jun 14 17:38:48 silver kernel: [   23.227831]  #1: ffffc90000183e60 ((work_completion)(&(&i915->mm.free_work)->work)){+.+.}-{0:0}, at: process_one_work+0x1e0/0x580
+> 	Jun 14 17:38:48 silver kernel: [   23.227837]  #2: ffff88811b34c5e8 (reservation_ww_class_mutex){+.+.}-{3:3}, at: __i915_gem_free_objects+0xba/0x210 [i915]
+> 	Jun 14 17:38:48 silver kernel: [   23.228283]  #3: ffff88810a66c2d8 (&gt->tlb_invalidate_lock){+.+.}-{3:3}, at: intel_gt_invalidate_tlbs+0xe7/0x4d0 [i915]
+> 	Jun 14 17:38:48 silver kernel: [   23.228663]  #4: ffff88810a668f28 (&uncore->lock){-.-.}-{2:2}, at: intel_gt_invalidate_tlbs+0x115/0x4d0 [i915]
+> 
+> I didn't investigate the root cause, but it seems related to PM, so
+> patches 1 and 3 seem to be required for the serialization logic
+> to actually work.
+
+Yes that is clear, what is needed is the split of the for_each_engine 
+loop into request and wait.
+
+But question is how much backporting trouble will the _extra_ changes 
+patch 1 brings create.
+
+In the ideal world patch 1 wouldn't be an optimising one, I mean adding 
+skipping of TLB invalidations on idle engines but just the loop split. 
+That would make it smaller and more suitable for Cc: stable. Because 
+both i915_gem_pages.c and intel_gt_pm.h hunks wouldn't even be there. 
+And the refactor in intel_gt_invalidate_tlbs would be smaller since it 
+wouldn't be adding the engine awake checks...
+
+> So, I would keep the Fixes: tag mentioning changeset 7938d61591d3
+> on patches: 1, 2, 3 and 6.
+
+... which for me means a different patch 1, followed by patch 6 (moved 
+to be patch 2) would be ideal stable material.
+
+Then we have the current patch 2 which is open/unknown (to me at least).
+
+And the rest seem like optimisations which shouldn't be tagged as fixes.
+
+Apart from patch 5 which should be cc: stable, but no fixes as agreed.
+
+Could you please double check if what I am suggesting here is feasible 
+to implement and if it is just send those minimal patches out alone?
+
+Maybe it even makes sense to squash such 1&2 into a single patch.
+
+Again, since the original TLB flush was backported quite far back into 
+long term stable releases I think it would be much easier to really have 
+a minimal patch/series to fix Broadwell in those kernels.
+
+Regards,
+
+Tvrtko
+
+> 
+> Yet, IMO the entire series should be merged on -stable.
+> 
+> If that's OK for you and there's no additional issues to be
+> addressed, I'll submit a v2 of this series removing the Fixes tag
+> from patches 4 and 5.
+> 
+> Regards,
+> Mauro
