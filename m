@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A5255E239
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 003BB55DB4E
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243150AbiF1Cab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:30:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40768 "EHLO
+        id S244913AbiF1Cae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:30:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244793AbiF1C2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:28:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 175C826116;
-        Mon, 27 Jun 2022 19:26:26 -0700 (PDT)
+        with ESMTP id S244808AbiF1C2C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:28:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5203926114;
+        Mon, 27 Jun 2022 19:26:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAF66B81C0A;
-        Tue, 28 Jun 2022 02:26:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D182C36AEB;
-        Tue, 28 Jun 2022 02:26:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11AA7B81C0A;
+        Tue, 28 Jun 2022 02:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70BCAC385A5;
+        Tue, 28 Jun 2022 02:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656383183;
-        bh=wkSmQyAu5AuFSwI7zDzGyA+yFclqeuoENP4rZQ/qlVA=;
+        s=k20201202; t=1656383186;
+        bh=zrAyaFapqko+OKphU5GEF1mHMbCDxCUYsWwHGUS7jsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sD2AXDF/dIRnhBn/fX5XD4OWz069WXUPi1BZR51nekOFo/VULvx7RcoAbbf4E2ZcP
-         0RfOokk7YAwjTW0X3UsvOSY0TupC2G38B3si9XjDkCKF/FVFDKpHgHcX6qOPx1svW/
-         TaZxHvH+0Jfd3ypvLMk44CzP+pV9Eo9y1YvnL7P48Nx87kwzvRxTc3fv+85s+OOjQy
-         zVx4jP5sCVYCj5LkO3sIq6KTB8LLln8sV2dQajQh38GUg9KPAS++RwDZUJA5eFHbCm
-         HF2E/R0bnFjrNrVmszMaqyv+m2LabQzTLa2KeaC6SSXLrpqKhPOH4uHmtrmawnfvtG
-         /FggKRPgOZM0Q==
+        b=t4hXigOaqTpl/Vb8LEWm8z1b3nJ2Z1amgZgN6k9aKG1aS1JXtp70tJX9ukbrGKtSk
+         ZIfU3lMkZ46HA40cT9Vb8O2nQmFNnKhItf1HKe9qF+s8vfOqf05UkyuRnI4WmMZJsg
+         bOnfyHoslmPPCF2qKe3xiKpn4HJpfis94GkElJNVHInDR04+N6qhECgwCGdf+XrgUQ
+         ERjXP0+mGPtkkqdkD5GDoeVZsORfLvwRIK8xPkD0amhTWus45riDLiOLdZwi4xjEKk
+         vURM2JMqw/Ud/20ZP32e0gdN9SMQCYG19tsv3NPKyLUpxsoSTtLCu3usqWK0dQBRGK
+         dZcqMalDSwzew==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxime Ripard <maxime@cerno.tech>, Melissa Wen <mwen@igalia.com>,
-        Sasha Levin <sashal@kernel.org>, emma@anholt.net,
-        mripard@kernel.org, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 04/17] drm/vc4: crtc: Use an union to store the page flip callback
-Date:   Mon, 27 Jun 2022 22:26:02 -0400
-Message-Id: <20220628022615.596977-4-sashal@kernel.org>
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, nizhen@uniontech.com,
+        jiasheng@iscas.ac.cn, gushengxian@yulong.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 05/17] ALSA: x86: intel_hdmi_audio: enable pm_runtime and set autosuspend delay
+Date:   Mon, 27 Jun 2022 22:26:03 -0400
+Message-Id: <20220628022615.596977-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628022615.596977-1-sashal@kernel.org>
 References: <20220628022615.596977-1-sashal@kernel.org>
@@ -57,74 +61,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 2523e9dcc3be91bf9fdc0d1e542557ca00bbef42 ]
+[ Upstream commit e87c65aeb46ca4f5b7dc08531200bcb8a426c62e ]
 
-We'll need to extend the vc4_async_flip_state structure to rely on
-another callback implementation, so let's move the current one into a
-union.
+The existing code uses pm_runtime_get_sync/put_autosuspend, but
+pm_runtime was not explicitly enabled. The autosuspend delay was not
+set either, the value is set to 5s since HDMI is rather painful to
+resume.
 
-Reviewed-by: Melissa Wen <mwen@igalia.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220610115149.964394-10-maxime@cerno.tech
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Link: https://lore.kernel.org/r/20220616222910.136854-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ sound/x86/intel_hdmi_audio.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
-index 7747f160c740..2ef60dd42a52 100644
---- a/drivers/gpu/drm/vc4/vc4_crtc.c
-+++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -737,17 +737,17 @@ struct vc4_async_flip_state {
- 	struct drm_framebuffer *fb;
- 	struct drm_pending_vblank_event *event;
+diff --git a/sound/x86/intel_hdmi_audio.c b/sound/x86/intel_hdmi_audio.c
+index bf894087e5fa..84ac01b6e93d 100644
+--- a/sound/x86/intel_hdmi_audio.c
++++ b/sound/x86/intel_hdmi_audio.c
+@@ -42,6 +42,8 @@
+ #include <drm/intel_lpe_audio.h>
+ #include "intel_hdmi_audio.h"
  
--	struct vc4_seqno_cb cb;
-+	union {
-+		struct vc4_seqno_cb seqno;
-+	} cb;
- };
- 
- /* Called when the V3D execution for the BO being flipped to is done, so that
-  * we can actually update the plane's address to point to it.
-  */
- static void
--vc4_async_page_flip_complete(struct vc4_seqno_cb *cb)
-+vc4_async_page_flip_complete(struct vc4_async_flip_state *flip_state)
- {
--	struct vc4_async_flip_state *flip_state =
--		container_of(cb, struct vc4_async_flip_state, cb);
- 	struct drm_crtc *crtc = flip_state->crtc;
- 	struct drm_device *dev = crtc->dev;
- 	struct vc4_dev *vc4 = to_vc4_dev(dev);
-@@ -769,6 +769,14 @@ vc4_async_page_flip_complete(struct vc4_seqno_cb *cb)
- 	up(&vc4->async_modeset);
- }
- 
-+static void vc4_async_page_flip_seqno_complete(struct vc4_seqno_cb *cb)
-+{
-+	struct vc4_async_flip_state *flip_state =
-+		container_of(cb, struct vc4_async_flip_state, cb.seqno);
++#define INTEL_HDMI_AUDIO_SUSPEND_DELAY_MS  5000
 +
-+	vc4_async_page_flip_complete(flip_state);
-+}
-+
- /* Implements async (non-vblank-synced) page flips.
-  *
-  * The page flip ioctl needs to return immediately, so we grab the
-@@ -814,8 +822,8 @@ static int vc4_async_page_flip(struct drm_crtc *crtc,
- 	drm_atomic_set_fb_for_plane(plane->state, fb);
- 	plane->fb = fb;
+ #define for_each_pipe(card_ctx, pipe) \
+ 	for ((pipe) = 0; (pipe) < (card_ctx)->num_pipes; (pipe)++)
+ #define for_each_port(card_ctx, port) \
+@@ -1885,8 +1887,11 @@ static int hdmi_lpe_audio_probe(struct platform_device *pdev)
+ 	pdata->notify_audio_lpe = notify_audio_lpe;
+ 	spin_unlock_irq(&pdata->lpe_audio_slock);
  
--	vc4_queue_seqno_cb(dev, &flip_state->cb, bo->seqno,
--			   vc4_async_page_flip_complete);
-+	vc4_queue_seqno_cb(dev, &flip_state->cb.seqno, bo->seqno,
-+			   vc4_async_page_flip_seqno_complete);
++	pm_runtime_set_autosuspend_delay(&pdev->dev, INTEL_HDMI_AUDIO_SUSPEND_DELAY_MS);
+ 	pm_runtime_use_autosuspend(&pdev->dev);
++	pm_runtime_enable(&pdev->dev);
+ 	pm_runtime_mark_last_busy(&pdev->dev);
++	pm_runtime_idle(&pdev->dev);
  
- 	/* Driver takes ownership of state on successful async commit. */
- 	return 0;
+ 	dev_dbg(&pdev->dev, "%s: handle pending notification\n", __func__);
+ 	for_each_port(card_ctx, port) {
 -- 
 2.35.1
 
