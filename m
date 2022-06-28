@@ -2,45 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7376D55EBC1
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 20:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49FB455EBB4
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 20:03:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234069AbiF1SDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jun 2022 14:03:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47964 "EHLO
+        id S234037AbiF1SDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jun 2022 14:03:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233930AbiF1SCp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 14:02:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4975512AF1;
-        Tue, 28 Jun 2022 11:02:44 -0700 (PDT)
+        with ESMTP id S233936AbiF1SCq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 14:02:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58C2D13CCD;
+        Tue, 28 Jun 2022 11:02:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09754B81F39;
-        Tue, 28 Jun 2022 18:02:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C900FC341C6;
-        Tue, 28 Jun 2022 18:02:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E16FF61AA0;
+        Tue, 28 Jun 2022 18:02:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A651C341CE;
+        Tue, 28 Jun 2022 18:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656439361;
-        bh=B6I9ywm6he85dPxmbtWsc9fEdjf0MDmn5OyItYXcUX4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hsTe46LC7Izix15UV45Y7PjNRzBT4Py2WA/535HRkkFI4fvTo/6APfG9Da08CfPpR
-         laaeEMlO6il5ZusV2TnutWh0ZH09J7UWsOwpaMh92BnzZ+MZXhSEgz9s4xZw0AREZP
-         r/jeVdSOJN/Zm6nZFQEET0MdwYXqJf3SLxx1GSQrADedwCucm3FxynNKwauaO/m5hQ
-         cIDYClaCPzJ37A6gu9J762hwnf8Ac/yOVCEJAGYRFpGFQwQ761xmneaHuYRAWC2xPz
-         YuC0CIYYbyQmzfT8t1VXdXtcDnmQD9qlt6t/3IKR87Sag+yCfZlZzTQTNFzVx6YDAz
-         WVP98qwP3LqkQ==
+        s=k20201202; t=1656439364;
+        bh=MWpWlqNZeOO/ShuZIfA1nr8DmytoetKzYgGqDWu40hw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Tav6k5BKPRN/nNxi8dHln965ShDRb/aIUNMk9hD9MyFIBeP3PxNRO+Hzec7qyF659
+         DRdtWqHXd0EvcF8PI3U5UChInC4aN8yi2+f6wZVbp9ynXs6mpp+/DCUoE6WsmBrYRU
+         VPI156L3KIYSSvCiDlGiJrfqXf/xpprHtJRkm34WIxqgx1tspDYzf797S3UI96hc3j
+         Vr+JoYjUMJpMp9JGLCtRcqcpBqU6G5fG36ZDU5wFTlufM9LLw8tKVL1Fjl8j7qG6ph
+         B15JFKNnNzo8KIFQ+nFM0OeUwXj81K1AycDKUDe4aB1ZTAmVu0Q2LFwHZ2IcPoP80i
+         YhM+/7lVtRD6A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Klochkov <kdmitry556@gmail.com>,
+Cc:     Raghavendra Rao Ananta <rananta@google.com>,
+        Ricardo Koller <ricarkol@google.com>,
+        Reiji Watanabe <reijiw@google.com>,
+        Andrew Jones <drjones@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, borntraeger@linux.ibm.com,
-        raspl@linux.ibm.com, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.10 1/2] tools/kvm_stat: fix display of error when multiple processes are found
-Date:   Tue, 28 Jun 2022 14:02:36 -0400
-Message-Id: <20220628180238.621277-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, maz@kernel.org,
+        shuah@kernel.org, nathan@kernel.org, ndesaulniers@google.com,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        llvm@lists.linux.dev
+Subject: [PATCH MANUALSEL 5.10 2/2] selftests: KVM: Handle compiler optimizations in ucall
+Date:   Tue, 28 Jun 2022 14:02:37 -0400
+Message-Id: <20220628180238.621277-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220628180238.621277-1-sashal@kernel.org>
+References: <20220628180238.621277-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,61 +63,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Klochkov <kdmitry556@gmail.com>
+From: Raghavendra Rao Ananta <rananta@google.com>
 
-[ Upstream commit 933b5f9f98da29af646b51b36a0753692908ef64 ]
+[ Upstream commit 9e2f6498efbbc880d7caa7935839e682b64fe5a6 ]
 
-Instead of printing an error message, kvm_stat script fails when we
-restrict statistics to a guest by its name and there are multiple guests
-with such name:
+The selftests, when built with newer versions of clang, is found
+to have over optimized guests' ucall() function, and eliminating
+the stores for uc.cmd (perhaps due to no immediate readers). This
+resulted in the userspace side always reading a value of '0', and
+causing multiple test failures.
 
-  # kvm_stat -g my_vm
-  Traceback (most recent call last):
-    File "/usr/bin/kvm_stat", line 1819, in <module>
-      main()
-    File "/usr/bin/kvm_stat", line 1779, in main
-      options = get_options()
-    File "/usr/bin/kvm_stat", line 1718, in get_options
-      options = argparser.parse_args()
-    File "/usr/lib64/python3.10/argparse.py", line 1825, in parse_args
-      args, argv = self.parse_known_args(args, namespace)
-    File "/usr/lib64/python3.10/argparse.py", line 1858, in parse_known_args
-      namespace, args = self._parse_known_args(args, namespace)
-    File "/usr/lib64/python3.10/argparse.py", line 2067, in _parse_known_args
-      start_index = consume_optional(start_index)
-    File "/usr/lib64/python3.10/argparse.py", line 2007, in consume_optional
-      take_action(action, args, option_string)
-    File "/usr/lib64/python3.10/argparse.py", line 1935, in take_action
-      action(self, namespace, argument_values, option_string)
-    File "/usr/bin/kvm_stat", line 1649, in __call__
-      ' to specify the desired pid'.format(" ".join(pids)))
-  TypeError: sequence item 0: expected str instance, int found
+As a result, prevent the compiler from optimizing the stores in
+ucall() with WRITE_ONCE().
 
-To avoid this, it's needed to convert pids int values to strings before
-pass them to join().
-
-Signed-off-by: Dmitry Klochkov <kdmitry556@gmail.com>
-Message-Id: <20220614121141.160689-1-kdmitry556@gmail.com>
+Suggested-by: Ricardo Koller <ricarkol@google.com>
+Suggested-by: Reiji Watanabe <reijiw@google.com>
+Signed-off-by: Raghavendra Rao Ananta <rananta@google.com>
+Message-Id: <20220615185706.1099208-1-rananta@google.com>
+Reviewed-by: Andrew Jones <drjones@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/kvm/kvm_stat/kvm_stat | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/kvm/lib/aarch64/ucall.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/tools/kvm/kvm_stat/kvm_stat b/tools/kvm/kvm_stat/kvm_stat
-index b0bf56c5f120..a1efcfbd8b9e 100755
---- a/tools/kvm/kvm_stat/kvm_stat
-+++ b/tools/kvm/kvm_stat/kvm_stat
-@@ -1646,7 +1646,8 @@ Press any other key to refresh statistics immediately.
-                          .format(values))
-             if len(pids) > 1:
-                 sys.exit('Error: Multiple processes found (pids: {}). Use "-p"'
--                         ' to specify the desired pid'.format(" ".join(pids)))
-+                         ' to specify the desired pid'
-+                         .format(" ".join(map(str, pids))))
-             namespace.pid = pids[0]
+diff --git a/tools/testing/selftests/kvm/lib/aarch64/ucall.c b/tools/testing/selftests/kvm/lib/aarch64/ucall.c
+index 2f37b90ee1a9..f600311fdc6a 100644
+--- a/tools/testing/selftests/kvm/lib/aarch64/ucall.c
++++ b/tools/testing/selftests/kvm/lib/aarch64/ucall.c
+@@ -73,20 +73,19 @@ void ucall_uninit(struct kvm_vm *vm)
  
-     argparser = argparse.ArgumentParser(description=description_text,
+ void ucall(uint64_t cmd, int nargs, ...)
+ {
+-	struct ucall uc = {
+-		.cmd = cmd,
+-	};
++	struct ucall uc = {};
+ 	va_list va;
+ 	int i;
+ 
++	WRITE_ONCE(uc.cmd, cmd);
+ 	nargs = nargs <= UCALL_MAX_ARGS ? nargs : UCALL_MAX_ARGS;
+ 
+ 	va_start(va, nargs);
+ 	for (i = 0; i < nargs; ++i)
+-		uc.args[i] = va_arg(va, uint64_t);
++		WRITE_ONCE(uc.args[i], va_arg(va, uint64_t));
+ 	va_end(va);
+ 
+-	*ucall_exit_mmio_addr = (vm_vaddr_t)&uc;
++	WRITE_ONCE(*ucall_exit_mmio_addr, (vm_vaddr_t)&uc);
+ }
+ 
+ uint64_t get_ucall(struct kvm_vm *vm, uint32_t vcpu_id, struct ucall *uc)
 -- 
 2.35.1
 
