@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDA3855D7A0
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:18:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EB5A55CF0C
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244306AbiF1C0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:26:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32808 "EHLO
+        id S244309AbiF1C0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:26:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244149AbiF1CYi (ORCPT
+        with ESMTP id S244313AbiF1CYi (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:24:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B718C24F33;
-        Mon, 27 Jun 2022 19:23:28 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87372528B;
+        Mon, 27 Jun 2022 19:23:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66F08B808C0;
-        Tue, 28 Jun 2022 02:23:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC41CC341CA;
-        Tue, 28 Jun 2022 02:23:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 774BB6184B;
+        Tue, 28 Jun 2022 02:23:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A08EEC36AE2;
+        Tue, 28 Jun 2022 02:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656383006;
-        bh=nJaNlPr3jdzCW9OS9MBgZaEotBShDymF6jkYgLqhi4g=;
+        s=k20201202; t=1656383009;
+        bh=IUT6pKmVPJ2q3phpRNPVddGlPUiUqgs/H5gsyFOvhSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fG34mLIEJSxxXKWxDvvEsykJnh80el1XQTDF5mEBUb+KUrGWRv8B/L2kmPN7x0Tdk
-         SizxCEv6//6soUD9tEuMY7WuHb8P1FjWxe0s9ZiC4BDyHRVmzYBGqtJF7a1HRYcMEe
-         UmSGKKHtM+kG/b+zHsnXSL1TwKfdLfsu96xFUkqdPNcH++Zas//vlELUKteMtHtGGN
-         okWmDrqejvnvBxl6dIySA/CcQnuceAPxuFSPpgxs/I5bMhsJUgTHutvZnByjhWnhmF
-         f7YCd/DTSz+jUeBvFjX6dnJZ719P5V3F081DOXHz3ELna+h/e0vSZg2eIADbsS6n7N
-         ZUpDRYn69OuQQ==
+        b=RoPOrkZdlXlwK8NJTsACEWruwEmj22+E5/YqqKDa0t5MwV/7/CthP2wl+immS+rdy
+         kI4I7PHWfm5owlHveOV196NpSD93UeGRIxSPaz2VKyTs6U4oqyhIImahhD4ouhsWV+
+         ZXOA/WoYYaXbvlbwPKgJ/FZgOiKXT3C5ubxaDSa646k8MBQKIEJM2BxdR6H2DpzIZK
+         /JtdrueIOgyxp/EQkuaNPZ8sWgrTiHrNp1PiFxrvls9cze1IsU6V51J8bNLv0A7J3C
+         R9nv6wcx520mUDs3Bcze3dKqk5ru8KIqyExN/+G0JVBo8pyh6iAyNyWqv4h19AvnyH
+         gJPPqxRFt/yPg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, aneesh.kumar@linux.ibm.com,
-        adobriyan@gmail.com, Julia.Lawall@inria.fr, nick.child@ibm.com,
-        jlu.hpw@foxmail.com, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.10 15/34] powerpc/prom_init: Fix build failure with GCC_PLUGIN_STRUCTLEAK_BYREF_ALL and KASAN
-Date:   Mon, 27 Jun 2022 22:22:22 -0400
-Message-Id: <20220628022241.595835-15-sashal@kernel.org>
+Cc:     Xiang wangx <wangxiang@cdjrlc.com>, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>, daniel.vetter@ffwll.ch,
+        bhelgaas@google.com, svens@stackframe.org, cssk@net-c.es,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 16/34] video: fbdev: skeletonfb: Fix syntax errors in comments
+Date:   Mon, 27 Jun 2022 22:22:23 -0400
+Message-Id: <20220628022241.595835-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628022241.595835-1-sashal@kernel.org>
 References: <20220628022241.595835-1-sashal@kernel.org>
@@ -58,44 +57,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Xiang wangx <wangxiang@cdjrlc.com>
 
-[ Upstream commit ca5dabcff1df6bc8c413922b5fa63cc602858803 ]
+[ Upstream commit fc378794a2f7a19cf26010dc33b89ba608d4c70f ]
 
-When CONFIG_KASAN is selected, we expect prom_init to use __memset()
-because it is too early to use memset().
+Delete the redundant word 'its'.
 
-But with CONFIG_GCC_PLUGIN_STRUCTLEAK_BYREF_ALL, the compiler adds calls
-to memset() to clear objects on stack, hence the following failure:
-
-	  PROMCHK arch/powerpc/kernel/prom_init_check
-	Error: External symbol 'memset' referenced from prom_init.c
-	make[2]: *** [arch/powerpc/kernel/Makefile:204 : arch/powerpc/kernel/prom_init_check] Erreur 1
-
-prom_find_machine_type() is called from prom_init() and is called only
-once, so lets put compat[] in BSS instead of stack to avoid that.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/3802811f7cf94f730be44688539c01bba3a3b5c0.1654875808.git.christophe.leroy@csgroup.eu
+Signed-off-by: Xiang wangx <wangxiang@cdjrlc.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/prom_init.c | 2 +-
+ drivers/video/fbdev/skeletonfb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
-index 9e71c0739f08..03c5ef29bd31 100644
---- a/arch/powerpc/kernel/prom_init.c
-+++ b/arch/powerpc/kernel/prom_init.c
-@@ -2265,7 +2265,7 @@ static void __init prom_init_stdout(void)
+diff --git a/drivers/video/fbdev/skeletonfb.c b/drivers/video/fbdev/skeletonfb.c
+index bcacfb6934fa..3d4d78362ede 100644
+--- a/drivers/video/fbdev/skeletonfb.c
++++ b/drivers/video/fbdev/skeletonfb.c
+@@ -96,7 +96,7 @@ static const struct fb_fix_screeninfo xxxfb_fix = {
  
- static int __init prom_find_machine_type(void)
- {
--	char compat[256];
-+	static char compat[256] __prombss;
- 	int len, i = 0;
- #ifdef CONFIG_PPC64
- 	phandle rtas;
+     /*
+      * 	Modern graphical hardware not only supports pipelines but some 
+-     *  also support multiple monitors where each display can have its  
++     *  also support multiple monitors where each display can have
+      *  its own unique data. In this case each display could be  
+      *  represented by a separate framebuffer device thus a separate 
+      *  struct fb_info. Now the struct xxx_par represents the graphics
 -- 
 2.35.1
 
