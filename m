@@ -2,114 +2,222 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDF2255CBBA
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34C2755CDBB
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:04:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242346AbiF1Bjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 21:39:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58432 "EHLO
+        id S243185AbiF1Blp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 21:41:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231764AbiF1Bjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 21:39:48 -0400
-Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 010AB1C92D;
-        Mon, 27 Jun 2022 18:39:45 -0700 (PDT)
-Received: by mail-yb1-xb2a.google.com with SMTP id v38so9043855ybi.3;
-        Mon, 27 Jun 2022 18:39:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=ox6+Io6BGSC8s0kRQJwOIJGx439nhItnmMC9YkQAOrc=;
-        b=hnyr3Pgs4SOImHVvxjD8CHgAVznJET4LCNMirseEGBRBdrFhWD3+1wy69a27JDyCl6
-         OKzDJyvyzVC6AzOngE+BvP5SCwoRjtq1oiPKtx5KEwZMYl3e3bJ7h6bl3j+EUk00JXFQ
-         XzsWeJnBdbfJvmF6DS4WbUeCXPWXFZHNPcBwLELhnnXAn7kq1W7WThQH1d0xfsvqJ5Bt
-         68xnvsoFNobArPLoJngFhUSKT8csnQRpmdje6P1iM4zRgPhADlbCVNLE/jyh/ZxvmL1q
-         KnAIWYWW32QSHKZ04D99PsDyc8hW6bbmkytsGtTh5f714kHtNRT2FSdGL3xSnKciSMrH
-         suqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ox6+Io6BGSC8s0kRQJwOIJGx439nhItnmMC9YkQAOrc=;
-        b=1aquROyabHcDRompxHd+wS32At0OtDolZzayI4kfDX5VmOci+SPMy42IgFHbpKVena
-         8/Y0ogCpztUqiX1x0uAN/Yq93npBzVhkIQVYf1DBW8PYOURTMN+0YCHN9bbTUXOY2G58
-         AbUb2IshpIYxk025CGUleE0dz8AR7nix38/3BF5E2WQUTGXqsbFnjPzo6UIkyiXvR7o0
-         keFzBiW9L0zl8BbO8VQiEfL2tl41FHAoBY2bDqbXKker0xDtPb1vBzZGP1mAPD1lmsq4
-         hBqfM7ZgTqmhvprKZX2NdT3Sl9FSMgMyGln4FW5H3sMk9N3SkbPmxmcCUKmlz003pnRE
-         tjsA==
-X-Gm-Message-State: AJIora84P4lN48KKFHdf5ch5w97yEQXHGMchXSRR/iDOkqwyg5TPoNtW
-        1yHZEbBcMeVjb7YuX5M4JXxHMU3C8GiNbKKipWrWmHfxCmVLKg==
-X-Google-Smtp-Source: AGRyM1tX9NrNa9lFUyRuVQmBjG9hD6YBesB/1lq96fdz99XMTuRDOnm7rIL/mDb42qJee3sRmU0MON8HoaTdlgJicrw=
-X-Received: by 2002:a05:6902:726:b0:66d:e6d:e0b1 with SMTP id
- l6-20020a056902072600b0066d0e6de0b1mr4249776ybt.269.1656380385235; Mon, 27
- Jun 2022 18:39:45 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220627113749.564132-1-Jason@zx2c4.com> <20220627120735.611821-1-Jason@zx2c4.com>
- <87y1xib8pv.fsf@toke.dk>
-In-Reply-To: <87y1xib8pv.fsf@toke.dk>
-From:   Gregory Erwin <gregerwin256@gmail.com>
-Date:   Mon, 27 Jun 2022 18:39:34 -0700
-Message-ID: <CAO+Okf5r-rVVqwYiCHXEt_jh0StmVoUikqYfSn7y3QpGZMR3Vg@mail.gmail.com>
-Subject: Re: [PATCH v6] ath9k: sleep for less time when unregistering hwrng
-To:     =?UTF-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@redhat.com>
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kalle Valo <kvalo@kernel.org>,
-        Rui Salvaterra <rsalvaterra@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        with ESMTP id S231764AbiF1Blo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 21:41:44 -0400
+Received: from zju.edu.cn (mail.zju.edu.cn [61.164.42.155])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CFA4A1D0E3;
+        Mon, 27 Jun 2022 18:41:41 -0700 (PDT)
+Received: from ubuntu.localdomain (unknown [10.190.65.205])
+        by mail-app4 (Coremail) with SMTP id cS_KCgBHv443XLpibF63Ag--.15659S2;
+        Tue, 28 Jun 2022 09:41:22 +0800 (CST)
+From:   Duoming Zhou <duoming@zju.edu.cn>
+To:     linux-wireless@vger.kernel.org, gregkh@linuxfoundation.org
+Cc:     amitkarwar@gmail.com, ganapathi017@gmail.com,
+        sharvari.harisangam@nxp.com, huxinming820@gmail.com,
+        kvalo@kernel.org, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Subject: [PATCH V6 RESEND] mwifiex: fix sleep in atomic context bugs caused by dev_coredumpv
+Date:   Tue, 28 Jun 2022 09:41:09 +0800
+Message-Id: <20220628014110.9183-1-duoming@zju.edu.cn>
+X-Mailer: git-send-email 2.17.1
+X-CM-TRANSID: cS_KCgBHv443XLpibF63Ag--.15659S2
+X-Coremail-Antispam: 1UD129KBjvJXoW3Jw4UCryrJFy3JFyfCFyrCrg_yoWxZw47pa
+        n8GF95Cr48Xr1qkr48JF48XFyYg3Wvka42kr1kZw4xuF4fGryfZF4UKryIgFs8XFs2va43
+        Zr4kXrnaka45taDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUvm1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AE
+        w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+        IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWxJr0_GcWl84ACjcxK6I8E
+        87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+        8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_
+        JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+        xGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IY
+        c2Ij64vIr41l42xK82IY6x8ErcxFaVAv8VW8uw4UJr1UMxC20s026xCaFVCjc4AY6r1j6r
+        4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF
+        67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2I
+        x0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2
+        z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnU
+        UI43ZEXa7VUbE_M3UUUUU==
+X-CM-SenderInfo: qssqjiasttq6lmxovvfxof0/1tbiAgcPAVZdtaboxAADs8
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 5:18 AM Toke H=C3=B8iland-J=C3=B8rgensen <toke@redh=
-at.com> wrote:
->
-> "Jason A. Donenfeld" <Jason@zx2c4.com> writes:
->
-> > Even though hwrng provides a `wait` parameter, it doesn't work very wel=
-l
-> > when waiting for a long time. There are numerous deadlocks that emerge
-> > related to shutdown. Work around this API limitation by waiting for a
-> > shorter amount of time and erroring more frequently. This commit also
-> > prevents hwrng from splatting messages to dmesg when there's a timeout
-> > and switches to using schedule_timeout_interruptible(), so that the
-> > kthread can be stopped.
-> >
-> > Reported-by: Gregory Erwin <gregerwin256@gmail.com>
-> > Tested-by: Gregory Erwin <gregerwin256@gmail.com>
-> > Cc: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
-> > Cc: Kalle Valo <kvalo@kernel.org>
-> > Cc: Rui Salvaterra <rsalvaterra@gmail.com>
-> > Cc: Herbert Xu <herbert@gondor.apana.org.au>
-> > Cc: stable@vger.kernel.org
-> > Fixes: fcd09c90c3c5 ("ath9k: use hw_random API instead of directly dump=
-ing into random.c")
-> > Link: https://lore.kernel.org/all/CAO+Okf6ZJC5-nTE_EJUGQtd8JiCkiEHytGgD=
-sFGTEjs0c00giw@mail.gmail.com/
-> > Link: https://lore.kernel.org/lkml/CAO+Okf5k+C+SE6pMVfPf-d8MfVPVq4PO7EY=
-8Hys_DVXtent3HA@mail.gmail.com/
-> > Link: https://bugs.archlinux.org/task/75138
-> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
->
-> Gregory, care to take this version for a spin as well to double-check
-> that it still resolves the issue? :)
->
-> -Toke
->
+There are sleep in atomic context bugs when uploading device dump
+data in mwifiex. The root cause is that dev_coredumpv could not
+be used in atomic contexts, because it calls dev_set_name which
+include operations that may sleep. The call tree shows execution
+paths that could lead to bugs:
 
-With patch v6, reads from /dev/hwrng block for 5-6s, during which 'ip link =
-set
-wlan0 down' will also block. Otherwise, 'ip link set wlan0 down' returns
-immediately. Similarly, wiphy_suspend() consistently returns in under 10ms.
+   (Interrupt context)
+fw_dump_timer_fn
+  mwifiex_upload_device_dump
+    dev_coredumpv(..., GFP_KERNEL)
+      dev_coredumpm()
+        kzalloc(sizeof(*devcd), gfp); //may sleep
+        dev_set_name
+          kobject_set_name_vargs
+            kvasprintf_const(GFP_KERNEL, ...); //may sleep
+            kstrdup(s, GFP_KERNEL); //may sleep
 
-Tested-by: Gregory Erwin <gregerwin256@gmail.com>
+The corresponding fail log is shown below:
+
+[  135.275938] usb 1-1: == mwifiex dump information to /sys/class/devcoredump start
+[  135.281029] BUG: sleeping function called from invalid context at include/linux/sched/mm.h:265
+...
+[  135.293613] Call Trace:
+[  135.293613]  <IRQ>
+[  135.293613]  dump_stack_lvl+0x57/0x7d
+[  135.293613]  __might_resched.cold+0x138/0x173
+[  135.293613]  ? dev_coredumpm+0xca/0x2e0
+[  135.293613]  kmem_cache_alloc_trace+0x189/0x1f0
+[  135.293613]  ? devcd_match_failing+0x30/0x30
+[  135.293613]  dev_coredumpm+0xca/0x2e0
+[  135.293613]  ? devcd_freev+0x10/0x10
+[  135.293613]  dev_coredumpv+0x1c/0x20
+[  135.293613]  ? devcd_match_failing+0x30/0x30
+[  135.293613]  mwifiex_upload_device_dump+0x65/0xb0
+[  135.293613]  ? mwifiex_dnld_fw+0x1b0/0x1b0
+[  135.293613]  call_timer_fn+0x122/0x3d0
+[  135.293613]  ? msleep_interruptible+0xb0/0xb0
+[  135.293613]  ? lock_downgrade+0x3c0/0x3c0
+[  135.293613]  ? __next_timer_interrupt+0x13c/0x160
+[  135.293613]  ? lockdep_hardirqs_on_prepare+0xe/0x220
+[  135.293613]  ? mwifiex_dnld_fw+0x1b0/0x1b0
+[  135.293613]  __run_timers.part.0+0x3f8/0x540
+[  135.293613]  ? call_timer_fn+0x3d0/0x3d0
+[  135.293613]  ? arch_restore_msi_irqs+0x10/0x10
+[  135.293613]  ? lapic_next_event+0x31/0x40
+[  135.293613]  run_timer_softirq+0x4f/0xb0
+[  135.293613]  __do_softirq+0x1c2/0x651
+...
+[  135.293613] RIP: 0010:default_idle+0xb/0x10
+[  135.293613] RSP: 0018:ffff888006317e68 EFLAGS: 00000246
+[  135.293613] RAX: ffffffff82ad8d10 RBX: ffff888006301cc0 RCX: ffffffff82ac90e1
+[  135.293613] RDX: ffffed100d9ff1b4 RSI: ffffffff831ad140 RDI: ffffffff82ad8f20
+[  135.293613] RBP: 0000000000000003 R08: 0000000000000000 R09: ffff88806cff8d9b
+[  135.293613] R10: ffffed100d9ff1b3 R11: 0000000000000001 R12: ffffffff84593410
+[  135.293613] R13: 0000000000000000 R14: 0000000000000000 R15: 1ffff11000c62fd2
+...
+[  135.389205] usb 1-1: == mwifiex dump information to /sys/class/devcoredump end
+
+This patch uses delayed work to replace timer and moves the operations
+that may sleep into a delayed work in order to mitigate bugs, it was
+tested on Marvell 88W8801 chip whose port is usb and the firmware is
+usb8801_uapsta.bin. The following is the result after using delayed
+work to replace timer.
+
+[  134.936453] usb 1-1: == mwifiex dump information to /sys/class/devcoredump start
+[  135.043344] usb 1-1: == mwifiex dump information to /sys/class/devcoredump end
+
+As we can see, there is no bug now.
+
+Cc: stable@vger.kernel.org
+Fixes: f5ecd02a8b20 ("mwifiex: device dump support for usb interface")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+---
+Changes in v6:
+  - Use clang-format to adjust the format of code.
+
+ drivers/net/wireless/marvell/mwifiex/init.c      | 9 +++++----
+ drivers/net/wireless/marvell/mwifiex/main.h      | 3 ++-
+ drivers/net/wireless/marvell/mwifiex/sta_event.c | 6 +++---
+ 3 files changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/wireless/marvell/mwifiex/init.c b/drivers/net/wireless/marvell/mwifiex/init.c
+index 88c72d1827a..fca3ab948f6 100644
+--- a/drivers/net/wireless/marvell/mwifiex/init.c
++++ b/drivers/net/wireless/marvell/mwifiex/init.c
+@@ -63,9 +63,10 @@ static void wakeup_timer_fn(struct timer_list *t)
+ 		adapter->if_ops.card_reset(adapter);
+ }
+ 
+-static void fw_dump_timer_fn(struct timer_list *t)
++static void fw_dump_work(struct work_struct *work)
+ {
+-	struct mwifiex_adapter *adapter = from_timer(adapter, t, devdump_timer);
++	struct mwifiex_adapter *adapter =
++		container_of(work, struct mwifiex_adapter, devdump_work.work);
+ 
+ 	mwifiex_upload_device_dump(adapter);
+ }
+@@ -321,7 +322,7 @@ static void mwifiex_init_adapter(struct mwifiex_adapter *adapter)
+ 	adapter->active_scan_triggered = false;
+ 	timer_setup(&adapter->wakeup_timer, wakeup_timer_fn, 0);
+ 	adapter->devdump_len = 0;
+-	timer_setup(&adapter->devdump_timer, fw_dump_timer_fn, 0);
++	INIT_DELAYED_WORK(&adapter->devdump_work, fw_dump_work);
+ }
+ 
+ /*
+@@ -400,7 +401,7 @@ static void
+ mwifiex_adapter_cleanup(struct mwifiex_adapter *adapter)
+ {
+ 	del_timer(&adapter->wakeup_timer);
+-	del_timer_sync(&adapter->devdump_timer);
++	cancel_delayed_work_sync(&adapter->devdump_work);
+ 	mwifiex_cancel_all_pending_cmd(adapter);
+ 	wake_up_interruptible(&adapter->cmd_wait_q.wait);
+ 	wake_up_interruptible(&adapter->hs_activate_wait_q);
+diff --git a/drivers/net/wireless/marvell/mwifiex/main.h b/drivers/net/wireless/marvell/mwifiex/main.h
+index 332dd1c8db3..5d8646f1616 100644
+--- a/drivers/net/wireless/marvell/mwifiex/main.h
++++ b/drivers/net/wireless/marvell/mwifiex/main.h
+@@ -49,6 +49,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+ #include <linux/of_irq.h>
++#include <linux/workqueue.h>
+ 
+ #include "decl.h"
+ #include "ioctl.h"
+@@ -1055,7 +1056,7 @@ struct mwifiex_adapter {
+ 	/* Device dump data/length */
+ 	void *devdump_data;
+ 	int devdump_len;
+-	struct timer_list devdump_timer;
++	struct delayed_work devdump_work;
+ 
+ 	bool ignore_btcoex_events;
+ };
+diff --git a/drivers/net/wireless/marvell/mwifiex/sta_event.c b/drivers/net/wireless/marvell/mwifiex/sta_event.c
+index 7d42c5d2dbf..4d93386494c 100644
+--- a/drivers/net/wireless/marvell/mwifiex/sta_event.c
++++ b/drivers/net/wireless/marvell/mwifiex/sta_event.c
+@@ -623,8 +623,8 @@ mwifiex_fw_dump_info_event(struct mwifiex_private *priv,
+ 		 * transmission event get lost, in this cornel case,
+ 		 * user would still get partial of the dump.
+ 		 */
+-		mod_timer(&adapter->devdump_timer,
+-			  jiffies + msecs_to_jiffies(MWIFIEX_TIMER_10S));
++		schedule_delayed_work(&adapter->devdump_work,
++				      msecs_to_jiffies(MWIFIEX_TIMER_10S));
+ 	}
+ 
+ 	/* Overflow check */
+@@ -643,7 +643,7 @@ mwifiex_fw_dump_info_event(struct mwifiex_private *priv,
+ 	return;
+ 
+ upload_dump:
+-	del_timer_sync(&adapter->devdump_timer);
++	cancel_delayed_work_sync(&adapter->devdump_work);
+ 	mwifiex_upload_device_dump(adapter);
+ }
+ 
+-- 
+2.17.1
+
